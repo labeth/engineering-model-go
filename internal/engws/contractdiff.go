@@ -213,7 +213,9 @@ func gitOutput(dir string, args ...string) ([]byte, error) {
 
 // LoadBundleAtRef loads the model in repo as committed at a git ref: it
 // reads engmod.yml and every document the manifest names with git show into
-// a temporary directory and loads it with the model loader.
+// a temporary directory (0700, files 0600, removed afterwards) and loads it
+// with the model loader. A ref starting with "-" is refused, so it is never
+// read as a git option.
 // TRLC-LINKS: REQ-EMG-102, REQ-EMG-103
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-MODEL-LOADER
 func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
@@ -236,12 +238,14 @@ func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 	if err := yaml.Unmarshal(manifest, &meta); err != nil {
 		return model.Bundle{}, fmt.Errorf("engmod.yml at %s: %w", ref, err)
 	}
+	// The committed model may be private: only the current user reads the
+	// copy (MkdirTemp creates the directory 0700).
 	tmp, err := os.MkdirTemp("", "engws-contract-")
 	if err != nil {
 		return model.Bundle{}, err
 	}
 	defer os.RemoveAll(tmp)
-	if err := os.WriteFile(filepath.Join(tmp, "engmod.yml"), manifest, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmp, "engmod.yml"), manifest, 0o600); err != nil {
 		return model.Bundle{}, err
 	}
 	for key, rel := range meta.Documents {
@@ -254,10 +258,10 @@ func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 			return model.Bundle{}, fmt.Errorf("documents.%s at %s: %w", key, ref, err)
 		}
 		dest := filepath.Join(tmp, filepath.FromSlash(clean))
-		if err := os.MkdirAll(filepath.Dir(dest), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(dest), 0o700); err != nil {
 			return model.Bundle{}, err
 		}
-		if err := os.WriteFile(dest, data, 0o644); err != nil {
+		if err := os.WriteFile(dest, data, 0o600); err != nil {
 			return model.Bundle{}, err
 		}
 	}

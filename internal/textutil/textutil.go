@@ -12,6 +12,13 @@ import (
 	"strings"
 )
 
+// CollapseSpace collapses every run of whitespace to one space and trims
+// both ends; case and every other character are kept.
+// TRLC-LINKS: REQ-EMG-095
+func CollapseSpace(s string) string {
+	return strings.Join(strings.Fields(s), " ")
+}
+
 // NonEmpty returns v unless it is blank (whitespace only), then fallback.
 // v is returned untrimmed.
 // TRLC-LINKS: REQ-EMG-003

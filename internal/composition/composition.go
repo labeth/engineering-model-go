@@ -319,7 +319,7 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 	// make the resolution itself invalid: a suspect link still writes the lock.
 	var linkDiags []validate.Diagnostic
 	if root != nil {
-		linkDiags = reqlinks.Diagnostics(root.Bundle, LinkDependencies(root))
+		linkDiags = LinkDiagnostics(root.Bundle, LinkDependencies(root))
 	}
 	dir := filepath.Dir(absTop)
 	replaced := len(workspaceDocument.Replacements) > 0

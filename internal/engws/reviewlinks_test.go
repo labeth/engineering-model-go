@@ -155,14 +155,30 @@ func TestReviewLinksShowsAndAcceptsSuspectLink(t *testing.T) {
 // A broken link is listed but cannot be accepted, and accept on a claimed
 // link sets every review field. In a workspace whose replacement provides the
 // child, the reviewed version cannot be resolved offline: review-links says
-// so and shows the current content only.
-// Mutation: accepting a broken link, or failing instead of reporting the
-// unavailable before version, fails this test.
+// so and shows the current content only. Accept records the published
+// dependency at its pin (D9: composed with the workspace off): with the
+// registry unreachable it is refused with nothing written, and with the
+// registry up it writes the fingerprint of the published release, not that
+// of the edited workspace checkout.
+// Mutation: accepting a broken link, failing instead of reporting the
+// unavailable before version, or accepting from the workspace checkout
+// fails this test.
 // TRLC-LINKS: REQ-EMG-101
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
 func TestReviewLinksBrokenAndOffline(t *testing.T) {
 	fixedClock(t)
-	newLinksRegistry(t)
+	registry := newLinksRegistry(t)
+	dropCapA2 := func(dir string) {
+		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
+		replaceIn(t, filepath.Join(dir, "engmod.yml"), "  - CAP-A-2\n", "")
+		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  derived: true\n  derivedRationale: Integrity of the encoder output.\n")
+	}
+	// The published v0.1.0 differs from the workspace checkout below.
+	registry.publish("child-a", "v0.1.0", func(dir string) {
+		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "shall publish one position sentence.", "shall publish three position sentences.")
+		dropCapA2(dir)
+	})
+	registry.publish("child-b", "v0.1.0", nil)
 	t.Setenv("CUE_REGISTRY", "models.example=127.0.0.1:1+insecure")
 	root := t.TempDir()
 	copyTree(t, linksExample, root)
@@ -170,18 +186,22 @@ func TestReviewLinksBrokenAndOffline(t *testing.T) {
 	system := filepath.Join(root, "repos", "system")
 	links := filepath.Join(system, "model", "req-links.yml")
 	replaceIn(t, filepath.Join(child, "model", "requirements.yml"), "shall publish one position sentence.", "shall publish two position sentences.")
-	replaceIn(t, filepath.Join(child, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
-	replaceIn(t, filepath.Join(child, "engmod.yml"), "  - CAP-A-2\n", "")
-	replaceIn(t, filepath.Join(child, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  derived: true\n  derivedRationale: Integrity of the encoder output.\n")
+	dropCapA2(child)
 	replaceIn(t, links, "  status: accepted\n  rationale: The bridge forwards each sentence onto the lab bus.\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-02\"\n", "  status: claimed\n")
 
 	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system)
 	if code != 1 || !strings.Contains(out, "LNK-SYS-002-ENCODER encoder::CAP-A-2: broken") ||
 		!strings.Contains(out, "LNK-SYS-001-ENCODER encoder::CAP-A-1: suspect") ||
-		!strings.Contains(out, "before: version v0.1.0 not available offline") || !strings.Contains(out, "shall publish two position sentences.") {
+		!strings.Contains(out, "before: version v0.1.0 not available offline (") || !strings.Contains(out, "shall publish two position sentences.") {
 		t.Fatalf("review-links: %d\n%s\n%s", code, out, errOut)
 	}
 	before := read(t, links)
+	code, out, errOut = runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-BRIDGE", "--by", "ACT-SYSTEM-OWNER", "--rationale", "Reviewed.")
+	if code != 1 || !strings.Contains(errOut, "workspace off") || read(t, links) != before {
+		t.Fatalf("accept without the published dependency: %d\n%s\n%s", code, out, errOut)
+	}
+
+	registry.serve()
 	code, out, errOut = runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-002-ENCODER", "--by", "ACT-SYSTEM-OWNER", "--rationale", "x")
 	if code != 1 || !strings.Contains(errOut, "is broken: encoder::CAP-A-2 no longer exists") || read(t, links) != before {
 		t.Fatalf("broken link accepted: %d\n%s\n%s", code, out, errOut)
@@ -194,6 +214,26 @@ func TestReviewLinksBrokenAndOffline(t *testing.T) {
 	want := []string{"  status: accepted", "  rationale: Reviewed.", "  reviewedBy: ACT-SYSTEM-OWNER", `  reviewedOn: "2026-11-03"`}
 	if strings.Join(got, "\n") != strings.Join(want, "\n") {
 		t.Fatalf("accept of a claimed link changed\n%s\nwant\n%s", strings.Join(got, "\n"), strings.Join(want, "\n"))
+	}
+
+	// The suspect link: accepted at the published content (three
+	// sentences), not the workspace checkout (two).
+	reviews, err := ReviewLinks(system)
+	if err != nil {
+		t.Fatal(err)
+	}
+	workspaceFingerprint := ""
+	for _, r := range reviews {
+		if r.ID == "LNK-SYS-001-ENCODER" {
+			workspaceFingerprint = r.Current
+		}
+	}
+	if code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-ENCODER", "--by", "ACT-SYSTEM-OWNER", "--rationale", "Reviewed."); code != 0 {
+		t.Fatalf("accept suspect link: %d\n%s\n%s", code, out, errOut)
+	}
+	_, fp := pinOf(t, links, "LNK-SYS-001-ENCODER")
+	if fp == workspaceFingerprint || workspaceFingerprint == "" || !strings.HasPrefix(fp, "sha256:v1:") {
+		t.Fatalf("accepted fingerprint %s; the workspace checkout's is %s", fp, workspaceFingerprint)
 	}
 	if code, _, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-BRIDGE"); code != 2 || !strings.Contains(errOut, "--by") {
 		t.Fatalf("--accept without --by and --rationale: %d %s", code, errOut)

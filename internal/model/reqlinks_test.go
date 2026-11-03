@@ -14,7 +14,7 @@ reqLinks:
     child: "dep::CAP-X"
     pinned:
       version: v1.2.4-0.20261102103400-abcdef123456
-      fingerprint: "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+      fingerprint: "sha256:v1:0000000000000000000000000000000000000000000000000000000000000000"
     status: accepted
     rationale: Dep delivers X.
     reviewedBy: ACT-A
@@ -53,7 +53,7 @@ func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if RequirementLinkMode(bundle.Manifest) != RequirementLinksStrict {
+	if RequirementLinkMode(bundle.Manifest) != "strict" {
 		t.Fatalf("requirementLinks = %q", bundle.Manifest.RequirementLinks)
 	}
 	if got := bundle.Requirements.Requirements[0].Realizes; strings.Join(got, ",") != "CAP-A,AOU-A" {
@@ -64,7 +64,7 @@ func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
 	}
 	links := bundle.ReqLinks.ReqLinks
 	if len(links) != 2 || links[0].Parent != "REQ-A" || links[0].Pinned.Version != "v1.2.4-0.20261102103400-abcdef123456" ||
-		links[1].Evidence[0] != "REQ-A" || links[1].Status != ReqLinkClaimed || filepath.Base(bundle.ReqLinksPath) != "req-links.yml" {
+		links[1].Evidence[0] != "REQ-A" || links[1].Status != "claimed" || filepath.Base(bundle.ReqLinksPath) != "req-links.yml" {
 		t.Fatalf("reqLinks = %+v (%s)", links, bundle.ReqLinksPath)
 	}
 	contract := BuildAuthoringContract(bundle)
@@ -76,11 +76,11 @@ func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
 
 // Without requirementLinks the mode is guided; an unknown value, an unknown
 // link field, an unknown link status and a fingerprint that is not
-// sha256:<64 hex> are rejected at load.
+// sha256:[vN:]<64 hex> are rejected at load.
 // TRLC-LINKS: REQ-EMG-090, REQ-EMG-094
 // ENGMODEL-LINKS: FU-MODEL-LOADER
 func TestRequirementLinkModelIsStrictlyDecoded(t *testing.T) {
-	if RequirementLinkMode(ManifestDocument{}) != RequirementLinksGuided {
+	if RequirementLinkMode(ManifestDocument{}) != "guided" {
 		t.Fatal("unset requirementLinks must be guided")
 	}
 	for name, tc := range map[string]struct{ mode, links, want string }{
@@ -88,6 +88,7 @@ func TestRequirementLinkModelIsStrictlyDecoded(t *testing.T) {
 		"field":       {"guided", strings.Replace(reqLinksFixture, "    rationale: Dep delivers X.\n", "    rationale: Dep delivers X.\n    note: extra\n", 1), "note"},
 		"status":      {"guided", strings.Replace(reqLinksFixture, "status: claimed", "status: maybe", 1), "status"},
 		"fingerprint": {"guided", strings.Replace(reqLinksFixture, `"sha256:1111111111111111111111111111111111111111111111111111111111111111"`, "abc", 1), "fingerprint"},
+		"version":     {"guided", strings.Replace(reqLinksFixture, `"sha256:1111111111111111111111111111111111111111111111111111111111111111"`, `"sha256:vx:1111111111111111111111111111111111111111111111111111111111111111"`, 1), "fingerprint"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			dir := writeReqLinksFixture(t, tc.mode, tc.links)

@@ -29,6 +29,12 @@ type Options struct {
 	// Composition, when set, is a composition already resolved for this
 	// bundle's manifest; Generate then does not compose again.
 	Composition *composition.CompositionResult
+	// UsedBy adds the "Used By" section to the Contract Items chapter: the
+	// requirement links of the other checkouts of the active workspace onto
+	// this model's items (D16). Off by default, also when a workspace is
+	// found, so a committed render of a child never names its users; a
+	// document rendered with it must not be committed into the child.
+	UsedBy bool
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
@@ -681,7 +687,7 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 	// The Reference Index is the closing chapter; insert the Gemara and Composition
 	// chapters before it so it remains last.
 	trailing := renderGemaraAsciiDocChapter(bundle) + renderCompositionAsciiDocChapterFor(bundle, composed, compositionErr) +
-		renderRequirementLinksChapter(bundle, composed) + renderContractItemsChapter(bundle, options.Resolution.Workspace)
+		renderRequirementLinksChapter(bundle, composed) + renderContractItemsChapter(bundle, options.Resolution.Workspace, options.UsedBy)
 	if trailing != "" {
 		if idx := strings.Index(doc, "<<<\n== Reference Index"); idx >= 0 {
 			doc = doc[:idx] + strings.TrimPrefix(trailing, "\n") + doc[idx:]
@@ -693,14 +699,22 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 	return Result{Document: doc, DecisionsDocument: renderDecisionsDocument(decisionSections), Diagnostics: validate.SortDiagnostics(diags)}, nil
 }
 
+// traceFindingCodes are the requirement link trace findings that strict
+// mode makes errors; like link.*, they do not stop the render (D15).
+var traceFindingCodes = map[string]bool{
+	"requirement.no_parent": true, "requirement.unsatisfied": true, "contract.realizer_unpublished": true,
+}
+
 // hasBlockingErrors reports an error that stops the render. Requirement link
-// findings (link.*) are errors of the model check but do not stop the
-// render: the document shows the marked links a reviewer needs (D15).
+// findings (link.* and the strict-mode trace findings requirement.no_parent,
+// requirement.unsatisfied and contract.realizer_unpublished) are errors of
+// the model check but do not stop the render: the document shows the
+// marked links and the trace a reviewer needs (D15).
 // TRLC-LINKS: REQ-EMG-107
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE
 func hasBlockingErrors(diags []validate.Diagnostic) bool {
 	for _, d := range diags {
-		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
+		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") && !traceFindingCodes[d.Code] {
 			return true
 		}
 	}

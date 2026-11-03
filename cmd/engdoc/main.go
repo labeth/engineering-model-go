@@ -42,6 +42,7 @@ func main() {
 	codeRoot := flag.String("code-root", "", "optional source tree root for TRACE-* code mapping")
 	outPath := flag.String("out", "", "optional output .adoc path; defaults to stdout")
 	decisionsOut := flag.String("decisions-out", "", "optional output path for generated architecture decision records .adoc")
+	usedBy := flag.Bool("used-by", false, "add a Used By section listing the requirement links of the other checkouts of the active workspace onto this model's contract items (render-time only; do not commit the output into the child)")
 	var views viewFlags
 	flag.Var(&views, "view", "optional viewpoint ID; repeat to include multiple views")
 	modelEnv := cliflags.Register(nil)
@@ -49,7 +50,7 @@ func main() {
 	modelEnv.MustApply()
 
 	if strings.TrimSpace(*modelPath) == "" || strings.TrimSpace(*reqPath) == "" || strings.TrimSpace(*designPath) == "" {
-		fmt.Fprintln(os.Stderr, "usage: engdoc --model <engmod.yml> --requirements <model/requirements.yml> --design <model/views.yml> [--code-root <dir>] [--view <id> ...] [--out <file>] [--decisions-out <file>]")
+		fmt.Fprintln(os.Stderr, "usage: engdoc --model <engmod.yml> --requirements <model/requirements.yml> --design <model/views.yml> [--code-root <dir>] [--view <id> ...] [--out <file>] [--decisions-out <file>] [--used-by]")
 		os.Exit(2)
 	}
 
@@ -63,6 +64,7 @@ func main() {
 		ViewIDs:          views,
 		CodeRoot:         strings.TrimSpace(*codeRoot),
 		DecisionsDocPath: decisionsDocPath,
+		UsedBy:           *usedBy,
 	})
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)

@@ -123,3 +123,41 @@ func sortedCopy(list []string) []string {
 	slices.Sort(out)
 	return out
 }
+
+// Only reviewed, unchanged links roll a system requirement up: with every
+// realizer implemented and test linked, a claimed link, a suspect link
+// and a link pinned to another version each leave the requirement
+// unsatisfied (satisfiedBy links-unreviewed, not counted as implemented or
+// test linked, still an orphan); the accepted unchanged links still count.
+// Mutation: rolling up a claimed, suspect or version-mismatched link fails
+// this test.
+// TRLC-LINKS: REQ-EMG-105
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
+func TestRequirementLinksRollUpNeedsReviewedLinks(t *testing.T) {
+	for name, edit := range map[string]func(root string){
+		"claimed": func(root string) {
+			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "  status: accepted\n  rationale: The bridge", "  status: claimed\n  rationale: The bridge")
+		},
+		"suspect": func(root string) {
+			editFile(t, filepath.Join(root, "repos", "child-b", "model", "requirements.yml"), "shall forward one bus frame.", "shall forward two bus frames.")
+		},
+		"version mismatch": func(root string) {
+			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "    version: v0.1.0\n    fingerprint: sha256:v1:dc7d7eb3", "    version: v0.0.9\n    fingerprint: sha256:v1:dc7d7eb3")
+		},
+	} {
+		t.Run(name, func(t *testing.T) {
+			root := copyRequirementLinksExample(t)
+			addChildCode(t, filepath.Join(root, "repos", "child-a"), "REQ-A-001", "REQ-A-002", "REQ-A-003")
+			addChildCode(t, filepath.Join(root, "repos", "child-b"), "REQ-B-001")
+			edit(root)
+			m := systemMatrix(t, root, "system")
+			sys1 := traceRow(t, m, "REQ-SYS-001")
+			if sys1.SatisfiedBy != "links-unreviewed" || sys1.Status != "orphan" || sys1.LinksImplemented || sys1.LinksTestLinked || !slices.Contains(m.Orphans, "REQ-SYS-001") {
+				t.Fatalf("REQ-SYS-001 with a %s link: %+v", name, sys1)
+			}
+			if sys2 := traceRow(t, m, "REQ-SYS-002"); sys2.SatisfiedBy != "links" || sys2.Status != "implemented" || m.Summary.Implemented != 1 || m.Summary.TestLinked != 1 {
+				t.Fatalf("REQ-SYS-002 (accepted, unchanged): %+v, summary %+v", sys2, m.Summary)
+			}
+		})
+	}
+}

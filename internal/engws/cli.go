@@ -79,19 +79,23 @@ commands:
                              restores all files
   review-links [--repo DIR] [--json]
                              list the requirement links of the model in DIR
-                             (default .) that are suspect, broken or pinned to
-                             another version than the dependency: the parent
+                             (default .) that are suspect, broken, pinned to
+                             another version than the dependency or stamped in
+                             another fingerprint form: the parent
                              requirement and the child item with its realizing
                              requirements before (at the link's pinned
                              version, from the module cache or registry) and
                              after (at the dependency pin); exit 1 if any
   review-links [--repo DIR] --accept LNK-ID --by ACT-ID --rationale TEXT
                              record the review in the requirement link file:
-                             current fingerprint, the dependency pin,
+                             the fingerprint of the published dependency at
+                             its pin (composed with the workspace off, never
+                             a workspace checkout), the dependency pin,
                              reviewedBy, reviewedOn (today), rationale and
                              status accepted; only those lines change; refuse
-                             an actor the model does not define or a broken
-                             link
+                             an actor the model does not define, a broken
+                             link and a dependency that does not resolve with
+                             the workspace off
   contract-diff <from-ref> <to-ref> [--repo DIR] [--json]
                              compare the published contract items (capabilities
                              and assumptions of use, with their realizing
@@ -109,7 +113,8 @@ commands:
                              pre-release or pseudo-version, and
                              contract.semver_too_small when the bump of the
                              tag (default: the release tag at HEAD) over the
-                             highest release tag below it is smaller than the
+                             nearest release tag below it in the commit's
+                             history (git tag --merged) is smaller than the
                              contract-diff between them requires (in v0.x a
                              breaking change needs a minor bump); exit 1 on
                              findings, 2 on a usage or git error
@@ -124,8 +129,9 @@ commands:
                              contract.provides[].ref becomes realizes on its
                              requirement; other lines are kept; print the
                              requirements left with requirement.no_parent;
-                             a second run changes nothing; migrate the
-                             dependencies first
+                             a second run changes nothing; a failed write
+                             restores every file; migrate the dependencies
+                             first
   stage [--version-from manifest|tag] [--serve] [--addr 127.0.0.1:0]
                              publish every checkout, in dependency order, into
                              <root>/.engmod/staging (see Staging); refuse a
@@ -159,7 +165,9 @@ rejects it). Locks written against staging pin the staged digests: delete
 <root>/.engmod/staging and regenerate them after the real publish if the
 published content differs (for example a different commit).
 
-exit codes: 0 ok, 1 skew or failure, 2 usage
+exit codes: 0 ok, 1 skew, findings or failure (review-links: a link needs
+review or an accept was refused; release-check: findings), 2 usage (and,
+for contract-diff and release-check, a git, IO or model error)
 `
 
 // Main runs engws with args (without the program name) and returns the exit code.

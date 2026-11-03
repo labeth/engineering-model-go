@@ -26,6 +26,18 @@ func renderRepo(t *testing.T, root, repo, workspace string) asciidoc.Result {
 	return res
 }
 
+// renderRepoUsedBy is renderRepo with the Used By opt-in.
+func renderRepoUsedBy(t *testing.T, root, repo, workspace string) asciidoc.Result {
+	t.Helper()
+	dir := filepath.Join(root, "repos", repo)
+	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
+		asciidoc.Options{Resolution: asciidocResolution(workspace), UsedBy: true})
+	if err != nil {
+		t.Fatalf("render %s: %v\n%+v", repo, err, res.Diagnostics)
+	}
+	return res
+}
+
 // section returns the text from heading up to the next heading of the same
 // or a higher level ("" when absent).
 func section(doc, heading string) string {
@@ -82,7 +94,7 @@ func TestRequirementLinksAsciiDocTree(t *testing.T) {
 	for _, want := range []string{
 		"=== CAP-A-1 (capability)", "Publish ownship position sentences at the configured rate.",
 		"* `REQ-A-001`: When epoch period elapses", "* `REQ-A-002`: The sentence encoder shall format",
-		"Fingerprint: `sha256:947139d5f7e4609793cb066ed0dd819989d73012d84051e969b1075e8fa4b5ff`",
+		"Fingerprint: `sha256:v1:f1e64f2bce1d6652b3c487fa4c388b9112cdccf303adf4440269e25b0b72cd16`",
 	} {
 		if !strings.Contains(items, want) {
 			t.Fatalf("child Contract Items lacks %q:\n%s", want, items)
@@ -156,5 +168,36 @@ func TestImportedRequirementRealizesIsTheDependencys(t *testing.T) {
 		if d.Severity == validate.SeverityError {
 			t.Fatalf("enriched system: %s %s", d.Code, d.Message)
 		}
+	}
+}
+
+// The strict-mode requirement link findings do not stop the AsciiDoc render
+// (D15): a child with a requirement.no_parent and a
+// contract.realizer_unpublished error, and a system with a
+// requirement.unsatisfied error, still render, and report the errors; any
+// other error still stops it.
+// Mutation: blocking the render on requirement.no_parent or
+// contract.realizer_unpublished fails this test.
+// TRLC-LINKS: REQ-EMG-107
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE
+func TestStrictLinkFindingsDoNotStopTheRender(t *testing.T) {
+	root := copyRequirementLinksExample(t)
+	child := filepath.Join(root, "repos", "child-a")
+	editFile(t, filepath.Join(child, "model", "requirements.yml"), "  realizes: [CAP-A-1]\n- id: REQ-A-002", "- id: REQ-A-002")
+	editFile(t, filepath.Join(child, "engmod.yml"), "  - REQ-A-003\n", "")
+	res := renderRepo(t, root, "child-a", "off")
+	if len(withCode(res.Diagnostics, "requirement.no_parent")) != 1 || len(withCode(res.Diagnostics, "contract.realizer_unpublished")) != 1 || !strings.Contains(res.Document, "== Contract Items") {
+		t.Fatalf("child render: %+v", res.Diagnostics)
+	}
+	system := filepath.Join(root, "repos", "system")
+	editFile(t, filepath.Join(system, "model", "requirements.yml"), "- id: REQ-SYS-003", "- id: REQ-SYS-004\n  text: The position simulator shall log each start.\n  verificationMethods: [test]\n  verificationCriteria: A start is logged.\n  appliesTo: [FU-LAB-NETWORK]\n- id: REQ-SYS-003")
+	if res := renderRepo(t, root, "system", ""); len(withCode(res.Diagnostics, "requirement.unsatisfied")) != 1 {
+		t.Fatalf("system render: %+v", res.Diagnostics)
+	}
+	editFile(t, filepath.Join(child, "model", "requirements.yml"), "appliesTo: [FU-ENCODER]", "appliesTo: [FU-NOWHERE]")
+	dir := filepath.Join(root, "repos", "child-a")
+	if _, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
+		asciidoc.Options{Resolution: asciidocResolution("off")}); err == nil {
+		t.Fatal("another validation error must still stop the render")
 	}
 }

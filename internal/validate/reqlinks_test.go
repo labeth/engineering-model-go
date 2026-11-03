@@ -139,7 +139,7 @@ func TestRequirementLinkFileRules(t *testing.T) {
 	b.Manifest.Dependencies = []model.ManifestDependency{{Alias: "dep", Version: "v0.2.0"}, {Alias: "loose", Version: "v1.0.0"}}
 	b.Architecture.Composition.Subsystems = []model.Subsystem{{ID: "SUB-DEP", Dependency: "dep", Publication: "public"}}
 	b.Architecture.Composition.Allocations = []model.Allocation{{Requirement: "REQ-A", To: "SUB-DEP", Target: "dep::CAP-X"}}
-	pin := model.ReqLinkPin{Version: "v0.2.0", Fingerprint: "sha256:" + strings.Repeat("a", 64)}
+	pin := model.ReqLinkPin{Version: "v0.2.0", Fingerprint: "sha256:v1:" + strings.Repeat("a", 64)}
 	b.ReqLinks.ReqLinks = []model.ReqLink{
 		{ID: "LNK-OK", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: pin, Status: "accepted"},
 		{ID: "LNK-PARENT", Parent: "REQ-NONE", Child: "dep::CAP-X", Pinned: pin, Status: "accepted"},
@@ -173,4 +173,98 @@ func TestRequirementLinkFileRules(t *testing.T) {
 	if got := codesOf(Bundle(b), "model.invalid_requirement_links"); len(got) != 1 || got[0].Severity != SeverityError {
 		t.Fatalf("model.invalid_requirement_links = %+v", got)
 	}
+}
+
+// linkFileBundle is linkTestBundle composing dep at v0.2.0 with the links
+// and an actor ACT-OWNER.
+func linkFileBundle(links ...model.ReqLink) model.Bundle {
+	b := linkTestBundle("strict")
+	b.Manifest.Dependencies = []model.ManifestDependency{{Alias: "dep", Version: "v0.2.0"}}
+	b.Architecture.Composition.Subsystems = []model.Subsystem{{ID: "SUB-DEP", Dependency: "dep", Publication: "public"}}
+	b.Architecture.AuthoredArchitecture.Actors = []model.Actor{{ID: "ACT-OWNER", Name: "Owner"}}
+	b.ReqLinks.ReqLinks = links
+	return b
+}
+
+// linkPin is a valid pin of dep at v0.2.0.
+var linkPin = model.ReqLinkPin{Version: "v0.2.0", Fingerprint: "sha256:v1:" + strings.Repeat("a", 64)}
+
+// An accepted link records who reviewed it and when: no reviewedBy or no
+// reviewedOn, a reviewedBy that is no actor and a reviewedOn that is no
+// calendar date are each link.review_unrecorded (error) at that field; a
+// complete record and a claimed link without one report nothing.
+// Mutation: dropping the missing-field check, the actor check or the date
+// check fails this test.
+// TRLC-LINKS: REQ-EMG-111
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestAcceptedLinkReviewIsRecorded(t *testing.T) {
+	accepted := func(id, by, on string) model.ReqLink {
+		return model.ReqLink{ID: id, Parent: "REQ-A", Child: "dep::CAP-X", Pinned: linkPin, Status: "accepted", ReviewedBy: by, ReviewedOn: on}
+	}
+	b := linkFileBundle(
+		accepted("LNK-OK", "ACT-OWNER", "2026-11-02"),
+		accepted("LNK-NO-BY", "", "2026-11-02"),
+		accepted("LNK-NO-ON", "ACT-OWNER", ""),
+		accepted("LNK-ACTOR", "ACT-NOBODY", "2026-11-02"),
+		accepted("LNK-DATE", "ACT-OWNER", "2026-02-30"),
+		model.ReqLink{ID: "LNK-CLAIMED", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: linkPin, Status: "claimed"},
+	)
+	var got []string
+	for _, d := range codesOf(Bundle(b), "link.review_unrecorded") {
+		got = append(got, string(d.Severity)+" "+d.Path)
+	}
+	want := "error reqLinks[1].reviewedBy,error reqLinks[2].reviewedOn,error reqLinks[3].reviewedBy,error reqLinks[4].reviewedOn"
+	if strings.Join(got, ",") != want {
+		t.Fatalf("link.review_unrecorded = %q, want %q", strings.Join(got, ","), want)
+	}
+}
+
+// A link to a capability needs a parent requirement (link.parent_missing),
+// even when it carries evidence; a link to an assumption of use with
+// evidence only is complete.
+// Mutation: accepting evidence instead of a parent for a capability link
+// fails this test.
+// TRLC-LINKS: REQ-EMG-112
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestCapabilityLinkNeedsParent(t *testing.T) {
+	b := linkFileBundle(
+		model.ReqLink{ID: "LNK-CAP", Child: "dep::CAP-X", Evidence: []string{"REQ-A"}, Pinned: linkPin, Status: "claimed"},
+		model.ReqLink{ID: "LNK-AOU", Child: "dep::AOU-X", Evidence: []string{"REQ-A"}, Pinned: linkPin, Status: "claimed"},
+	)
+	got := codesOf(Bundle(b), "link.parent_missing")
+	if len(got) != 1 || got[0].Path != "reqLinks[0].parent" || got[0].Severity != SeverityError || !strings.Contains(got[0].Message, "LNK-CAP") {
+		t.Fatalf("link.parent_missing = %+v", got)
+	}
+}
+
+// The remaining link file rules: a duplicate link id is model.duplicate_id,
+// a status other than claimed or accepted is link.invalid_status (both
+// errors), and an assumption of use without an AOU-* id or text is
+// model.invalid_assumption.
+// Mutation: dropping the duplicate check, the status check or the
+// assumption check fails this test.
+// TRLC-LINKS: REQ-EMG-091, REQ-EMG-094
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestLinkFileIntegrityRules(t *testing.T) {
+	b := linkFileBundle(
+		model.ReqLink{ID: "LNK-A", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: linkPin, Status: "claimed"},
+		model.ReqLink{ID: "LNK-A", Parent: "REQ-A", Child: "dep::CAP-Y", Pinned: linkPin, Status: "claimed"},
+		model.ReqLink{ID: "LNK-B", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: linkPin, Status: "maybe"},
+	)
+	b.Architecture.Contract.Assumptions = append(b.Architecture.Contract.Assumptions,
+		model.ContractAssumption{ID: "ASSUME-X", Text: "Wrong prefix."}, model.ContractAssumption{ID: "AOU-EMPTY"})
+	diags := Bundle(b)
+	check := func(code, want string) {
+		t.Helper()
+		var got []string
+		for _, d := range codesOf(diags, code) {
+			got = append(got, string(d.Severity)+" "+d.Path)
+		}
+		if strings.Join(got, ",") != want {
+			t.Errorf("%s = %q, want %q", code, strings.Join(got, ","), want)
+		}
+	}
+	check("model.duplicate_id", "error reqLinks[1].id")
+	check("link.invalid_status", "error reqLinks[2].status")
+	check("model.invalid_assumption", "error contract.assumptions[1],error contract.assumptions[2]")
 }

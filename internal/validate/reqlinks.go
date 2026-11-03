@@ -4,6 +4,7 @@ package validate
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/labeth/engineering-model-go/internal/model"
 )
@@ -168,9 +169,11 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 }
 
 // reqLinkFileDiagnostics checks each reqLinks entry against this model and its
-// manifest: unique ids, a local parent requirement or evidence, a child that
-// names a composed dependency, the pinned version and the review status.
-// TRLC-LINKS: REQ-EMG-094
+// manifest: unique ids, a local parent requirement or evidence (a parent for
+// a capability link), a child that names a composed dependency, the pinned
+// version, the review status and, for an accepted link, a reviewer that is a
+// model actor and a calendar review date.
+// TRLC-LINKS: REQ-EMG-094, REQ-EMG-111, REQ-EMG-112
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func reqLinkFileDiagnostics(b model.Bundle, requirements map[string]bool, validID func(string) bool) []Diagnostic {
 	var diags []Diagnostic
@@ -185,6 +188,10 @@ func reqLinkFileDiagnostics(b model.Bundle, requirements map[string]bool, validI
 	for _, s := range b.Architecture.Composition.Subsystems {
 		composed[strings.TrimSpace(s.Dependency)] = true
 	}
+	actors := map[string]bool{}
+	for _, a := range b.Architecture.AuthoredArchitecture.Actors {
+		actors[strings.TrimSpace(a.ID)] = true
+	}
 	seen := map[string]bool{}
 	for i, link := range b.ReqLinks.ReqLinks {
 		path := fmt.Sprintf("reqLinks[%d]", i)
@@ -194,7 +201,10 @@ func reqLinkFileDiagnostics(b model.Bundle, requirements map[string]bool, validI
 		}
 		seen[id] = true
 		parent := strings.TrimSpace(link.Parent)
+		_, childID, _ := model.ParseQualifiedReference(strings.TrimSpace(link.Child))
 		switch {
+		case parent == "" && strings.HasPrefix(childID, "CAP-"):
+			add("link.parent_missing", SeverityError, path+".parent", "link %s to capability %s names no parent requirement; a capability link says the capability satisfies a local requirement: set parent (evidence alone is for assumptions of use)", id, link.Child)
 		case parent == "" && len(link.Evidence) == 0:
 			add("link.parent_unknown", SeverityError, path, "link %s names neither a parent requirement nor evidence", id)
 		case parent != "" && !requirements[parent]:
@@ -219,6 +229,18 @@ func reqLinkFileDiagnostics(b model.Bundle, requirements map[string]bool, validI
 		case model.ReqLinkClaimed:
 			add("link.claimed_only", SeverityWarning, path+".status", "link %s is claimed, not yet reviewed; review it and set status accepted", id)
 		case model.ReqLinkAccepted:
+			by, on := strings.TrimSpace(link.ReviewedBy), strings.TrimSpace(link.ReviewedOn)
+			switch {
+			case by == "":
+				add("link.review_unrecorded", SeverityError, path+".reviewedBy", "link %s is accepted but names no reviewedBy; record the review with engws review-links --accept %s --by ACT-... (or set status claimed)", id, id)
+			case !actors[by]:
+				add("link.review_unrecorded", SeverityError, path+".reviewedBy", "link %s reviewedBy %q is not an actor of this model (architecture.actors)", id, by)
+			}
+			if on == "" {
+				add("link.review_unrecorded", SeverityError, path+".reviewedOn", "link %s is accepted but names no reviewedOn; record the review with engws review-links --accept %s (or set status claimed)", id, id)
+			} else if _, err := time.Parse(time.DateOnly, on); err != nil {
+				add("link.review_unrecorded", SeverityError, path+".reviewedOn", "link %s reviewedOn %q is not a YYYY-MM-DD calendar date", id, on)
+			}
 		default:
 			add("link.invalid_status", SeverityError, path+".status", "link %s status %q must be claimed or accepted", id, link.Status)
 		}

@@ -5,7 +5,7 @@ reqLinks:
   child: encoder::CAP-A-1
   pinned:
     version: v0.1.0
-    fingerprint: sha256:947139d5f7e4609793cb066ed0dd819989d73012d84051e969b1075e8fa4b5ff
+    fingerprint: sha256:v1:f1e64f2bce1d6652b3c487fa4c388b9112cdccf303adf4440269e25b0b72cd16
   status: accepted
   rationale: The encoder publishes one position sentence per epoch.
   reviewedBy: ACT-SYSTEM-OWNER
@@ -15,7 +15,7 @@ reqLinks:
   child: bridge::CAP-B-1
   pinned:
     version: v0.1.0
-    fingerprint: sha256:99bda44112d4cc81b624dbe15c7c8006e06031a173ed80a18bc79b6186846002
+    fingerprint: sha256:v1:dc7d7eb384610fc8e5710058b0ad5bc71cdb484c88538998dcea0809680de083
   status: accepted
   rationale: The bridge forwards each sentence onto the lab bus.
   reviewedBy: ACT-SYSTEM-OWNER
@@ -25,7 +25,7 @@ reqLinks:
   child: encoder::CAP-A-2
   pinned:
     version: v0.1.0
-    fingerprint: sha256:f0cd6cf2d6352efe67f03d5eda61acb1364a54b4351743851d4f2b9def528585
+    fingerprint: sha256:v1:e606f5ca738fa37b0361f8ee2c1043c6796333f0c09f926cfe1863d87aa78125
   status: accepted
   rationale: The checksum protects each published position.
   reviewedBy: ACT-SYSTEM-OWNER
@@ -36,7 +36,7 @@ reqLinks:
   - REQ-SYS-003
   pinned:
     version: v0.1.0
-    fingerprint: sha256:508b8dc6af52fc062234fdad5398c3479ec4457021662bbe94475007c3905093
+    fingerprint: sha256:v1:4d992800abff9a513319e44b5b93fc63088ee6a1999087fa3983715d5a6f03a2
   status: accepted
   rationale: The lab network requirement keeps the lab bus isolated.
   reviewedBy: ACT-SYSTEM-OWNER

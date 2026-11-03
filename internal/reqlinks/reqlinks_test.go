@@ -13,64 +13,113 @@ func goldenItem() Item {
 	return Item{
 		ID: "CAP-NMEA-GPS-OUTPUT", Kind: KindCapability, Text: "  Publish   NMEA\tGPS output. ",
 		Realizers: []Realizer{
-			{ID: "REQ-NMEA-007", Text: "When NMEA epoch period elapses, the NMEA runtime shall publish one NMEA epoch message.", Status: "approved"},
+			{ID: "REQ-NMEA-007", Text: "When NMEA epoch period elapses, the NMEA runtime shall publish one NMEA epoch message.", Status: "approved",
+				Notes: "Epoch  period is\nconfigurable.", VerificationMethods: []string{"test", " analysis "}, Criticality: "high"},
 			{ID: "REQ-NMEA-002", Text: "The NMEA encoder shall format a GPGGA sentence <with> \"quotes\" & more.", VerificationCriteria: "A GGA\nline is emitted."},
 		},
 	}
 }
 
-// The fingerprint algorithm is pinned: sha256 over the canonical JSON
-// {"item":{id,kind,text,verificationCriteria},"realizers":[{id,text,verificationCriteria,status}...]}
-// with realizers sorted by id, whitespace runs collapsed and trimmed, case
-// kept, no HTML escaping and no trailing newline. The expected hash was
-// checked independently: printf '%s' '<canonical>' | sha256sum.
-// TRLC-LINKS: REQ-EMG-095
+// The fingerprint algorithm is pinned: "sha256:v1:" and the hex sha256 over
+// the canonical JSON
+// {"item":{id,kind,text,verificationCriteria},"realizers":[{id,text,notes,verificationCriteria,verificationMethods,criticality,status}...]}
+// with realizers sorted by id, verificationMethods sorted, whitespace runs
+// collapsed and trimmed, case kept, no HTML escaping and no trailing
+// newline. The expected hash was checked independently:
+// printf '%s' '<canonical>' | sha256sum.
+// Mutation: dropping a canonical field, not sorting verificationMethods or
+// dropping the version from the prefix fails this test.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-109
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestFingerprintGolden(t *testing.T) {
 	item := goldenItem()
 	wantCanonical := `{"item":{"id":"CAP-NMEA-GPS-OUTPUT","kind":"capability","text":"Publish NMEA GPS output.","verificationCriteria":""},` +
-		`"realizers":[{"id":"REQ-NMEA-002","text":"The NMEA encoder shall format a GPGGA sentence <with> \"quotes\" & more.","verificationCriteria":"A GGA line is emitted.","status":""},` +
-		`{"id":"REQ-NMEA-007","text":"When NMEA epoch period elapses, the NMEA runtime shall publish one NMEA epoch message.","verificationCriteria":"","status":"approved"}]}`
+		`"realizers":[{"id":"REQ-NMEA-002","text":"The NMEA encoder shall format a GPGGA sentence <with> \"quotes\" & more.","notes":"","verificationCriteria":"A GGA line is emitted.","verificationMethods":[],"criticality":"","status":""},` +
+		`{"id":"REQ-NMEA-007","text":"When NMEA epoch period elapses, the NMEA runtime shall publish one NMEA epoch message.","notes":"Epoch period is configurable.","verificationCriteria":"","verificationMethods":["analysis","test"],"criticality":"high","status":"approved"}]}`
 	if got := string(CanonicalItem(item)); got != wantCanonical {
 		t.Fatalf("canonical item\n got %s\nwant %s", got, wantCanonical)
 	}
-	const want = "sha256:66687f1f595d7eab6b81db14bd758a3abdcf8afdb78dfde0ccdbb711692cb658"
+	const want = "sha256:v1:cde6842da74be3e1bf8bc92a9218537f78a31a36f29130cacfd7a4d964f199cd"
 	if got := Fingerprint(item); got != want {
 		t.Fatalf("Fingerprint = %s, want %s", got, want)
 	}
 }
 
 // The same content gives the same fingerprint whatever the order of the
-// realizers; a change to a realizer's text, criteria or status, or to the
-// item, changes it; whitespace-only and case changes behave as specified.
+// realizers or their verification methods; a change to a realizer's text,
+// notes, criteria, methods, criticality or status, or to the item, changes
+// it; whitespace-only and case changes behave as specified. Fields the
+// fingerprint does not cover (title, rationale, appliesTo, priority, tags)
+// do not change it.
+// Mutation: dropping notes, verificationMethods or criticality from the
+// canonical realizer fails this test.
 // TRLC-LINKS: REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestFingerprintIsDeterministic(t *testing.T) {
 	base := Fingerprint(goldenItem())
 	shuffled := goldenItem()
 	shuffled.Realizers[0], shuffled.Realizers[1] = shuffled.Realizers[1], shuffled.Realizers[0]
+	shuffled.Realizers[1].VerificationMethods = []string{"analysis", "test"}
 	if Fingerprint(shuffled) != base {
-		t.Fatal("realizer order changed the fingerprint")
+		t.Fatal("realizer or method order changed the fingerprint")
 	}
 	spaced := goldenItem()
 	spaced.Text = "Publish NMEA GPS output."
 	spaced.Realizers[1].VerificationCriteria = "A GGA line   is emitted.  "
+	spaced.Realizers[0].Notes = " Epoch period is configurable. "
 	if Fingerprint(spaced) != base {
 		t.Fatal("whitespace-only changes changed the fingerprint")
 	}
 	for name, edit := range map[string]func(*Item){
-		"item text":      func(i *Item) { i.Text = "Publish NMEA GPS output!" },
-		"item case":      func(i *Item) { i.Text = "publish NMEA GPS output." },
-		"item criteria":  func(i *Item) { i.VerificationCriteria = "Shown." },
-		"realizer text":  func(i *Item) { i.Realizers[0].Text += " Again." },
-		"realizer state": func(i *Item) { i.Realizers[1].Status = "retired" },
-		"realizer added": func(i *Item) { i.Realizers = append(i.Realizers, Realizer{ID: "REQ-NMEA-010", Text: "x"}) },
+		"item text":            func(i *Item) { i.Text = "Publish NMEA GPS output!" },
+		"item case":            func(i *Item) { i.Text = "publish NMEA GPS output." },
+		"item criteria":        func(i *Item) { i.VerificationCriteria = "Shown." },
+		"item kind":            func(i *Item) { i.Kind = KindAssumption },
+		"realizer text":        func(i *Item) { i.Realizers[0].Text += " Again." },
+		"realizer notes":       func(i *Item) { i.Realizers[0].Notes = "Epoch period is fixed." },
+		"realizer methods":     func(i *Item) { i.Realizers[0].VerificationMethods = []string{"test"} },
+		"realizer criticality": func(i *Item) { i.Realizers[0].Criticality = "low" },
+		"realizer state":       func(i *Item) { i.Realizers[1].Status = "retired" },
+		"realizer added":       func(i *Item) { i.Realizers = append(i.Realizers, Realizer{ID: "REQ-NMEA-010", Text: "x"}) },
 	} {
 		changed := goldenItem()
 		edit(&changed)
 		if Fingerprint(changed) == base {
 			t.Errorf("%s did not change the fingerprint", name)
 		}
+	}
+	// Uncounted requirement fields do not reach the item at all.
+	child := childBundle()
+	before := Fingerprint(ItemsFromBundle(child)["CAP-A"])
+	r := &child.Requirements.Requirements[0]
+	r.Title, r.Rationale, r.Priority, r.Tags, r.AppliesTo = "A1", "Because.", "high", []string{"x"}, []string{"FU-X"}
+	if Fingerprint(ItemsFromBundle(child)["CAP-A"]) != before {
+		t.Fatal("title, rationale, priority, tags or appliesTo changed the fingerprint")
+	}
+	r.Notes = "Now with a note."
+	if Fingerprint(ItemsFromBundle(child)["CAP-A"]) == before {
+		t.Fatal("ItemsFromBundle does not carry the realizer notes")
+	}
+}
+
+// FingerprintVersion reads the canonical-form version of a recorded
+// fingerprint: 1 for "sha256:v1:<hex>", 0 for the unversioned
+// "sha256:<hex>" of v0.8.0 pre-releases, the number of any other
+// "sha256:vN:" prefix, and -1 for anything else.
+// TRLC-LINKS: REQ-EMG-109
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func TestFingerprintVersion(t *testing.T) {
+	hex := strings.Repeat("a", 64)
+	for in, want := range map[string]int{
+		"sha256:v1:" + hex: 1, "sha256:" + hex: 0, "sha256:v2:" + hex: 2, "sha256:v12:" + hex: 12,
+		"": -1, "sha256:v1:abc": -1, "md5:" + hex: -1, "sha256:vx:" + hex: -1,
+	} {
+		if got := FingerprintVersion(in); got != want {
+			t.Errorf("FingerprintVersion(%q) = %d, want %d", in, got, want)
+		}
+	}
+	if FingerprintVersion(Fingerprint(goldenItem())) != CanonicalVersion {
+		t.Fatal("Fingerprint does not write the current canonical version")
 	}
 }
 
@@ -161,7 +210,7 @@ func dependency(child model.Bundle) Dependency {
 // when the item is gone, child_unpublished when it is not a published
 // contract item, version_mismatch when the pin differs from the
 // dependency, unresolved when the dependency was not resolved.
-// TRLC-LINKS: REQ-EMG-094, REQ-EMG-095
+// TRLC-LINKS: REQ-EMG-094, REQ-EMG-095, REQ-EMG-109
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestEvaluateLinksStates(t *testing.T) {
 	child := childBundle()
@@ -171,7 +220,7 @@ func TestEvaluateLinksStates(t *testing.T) {
 	}
 	system := systemWith(
 		link("LNK-OK", "dep::CAP-A", "v0.1.0", current),
-		link("LNK-SUSPECT", "dep::CAP-A", "v0.1.0", "sha256:"+strings.Repeat("0", 64)),
+		link("LNK-SUSPECT", "dep::CAP-A", "v0.1.0", "sha256:v1:"+strings.Repeat("0", 64)),
 		link("LNK-BROKEN", "dep::CAP-GONE", "v0.1.0", current),
 		link("LNK-IF", "dep::IF-A", "v0.1.0", current),
 		link("LNK-UNPUB", "dep::CAP-B", "v0.1.0", current),
@@ -179,6 +228,8 @@ func TestEvaluateLinksStates(t *testing.T) {
 		link("LNK-OTHER", "other::CAP-A", "v0.1.0", current),
 		link("LNK-UNDECLARED", "nope::CAP-A", "v0.1.0", current),
 		link("LNK-HIDDEN", "dep::AOU-HIDDEN", "v0.1.0", current),
+		link("LNK-OLD-FORM", "dep::CAP-A", "v0.1.0", "sha256:"+strings.Repeat("0", 64)),
+		link("LNK-NEW-FORM", "dep::CAP-A", "v0.1.0", "sha256:v9:"+strings.Repeat("0", 64)),
 	)
 	got := map[string]LinkStatus{}
 	for _, s := range EvaluateLinks(system, []Dependency{dependency(child)}) {
@@ -188,7 +239,7 @@ func TestEvaluateLinksStates(t *testing.T) {
 		"LNK-OK": StateUnchanged, "LNK-SUSPECT": StateSuspect, "LNK-BROKEN": StateBroken,
 		"LNK-IF": StateChildUnpublished, "LNK-UNPUB": StateChildUnpublished,
 		"LNK-VERSION": StateVersionMismatch, "LNK-OTHER": StateUnresolved, "LNK-UNDECLARED": StateChildUnpublished,
-		"LNK-HIDDEN": StateChildUnpublished,
+		"LNK-HIDDEN": StateChildUnpublished, "LNK-OLD-FORM": StateFingerprintOutdated, "LNK-NEW-FORM": StateFingerprintOutdated,
 	}
 	for id, state := range want {
 		if got[id].State != state {
@@ -230,73 +281,18 @@ func TestEvaluateLinksSeesOnlyRelevantChanges(t *testing.T) {
 	}
 }
 
-// Diagnostics reports link.suspect (with the current item and realizer texts
-// and both fingerprints), link.broken and link.child_unpublished as errors,
-// and an assumption of use of a dependency without an evidence link as
-// link.aou_unverified: an error in strict mode, a warning in guided mode
-// where links apply, nothing in a guided model without links or contract.
-// TRLC-LINKS: REQ-EMG-094, REQ-EMG-095, REQ-EMG-097
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
-func TestDiagnostics(t *testing.T) {
-	child := childBundle()
-	deps := []Dependency{dependency(child)}
-	zero := "sha256:" + strings.Repeat("0", 64)
-	system := systemWith(
-		model.ReqLink{ID: "LNK-SUSPECT", Parent: "REQ-SYS-1", Child: "dep::CAP-A", Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: zero}},
-		model.ReqLink{ID: "LNK-BROKEN", Parent: "REQ-SYS-1", Child: "dep::CAP-GONE", Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: zero}},
-		model.ReqLink{ID: "LNK-IF", Parent: "REQ-SYS-1", Child: "dep::IF-A", Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: zero}},
-	)
-	system.Manifest.RequirementLinks = model.RequirementLinksStrict
-	codes := map[string]string{}
-	for _, d := range Diagnostics(system, deps) {
-		codes[d.Code] += string(d.Severity) + "|" + d.Message + "\n"
-	}
-	suspect := codes["link.suspect"]
-	for _, want := range []string{"error|", "LNK-SUSPECT", "dep::CAP-A", zero, "Deliver A.", "REQ-A1: The child shall do A1.", "REQ-A2: The child shall do A2."} {
-		if !strings.Contains(suspect, want) {
-			t.Fatalf("link.suspect lacks %q: %q", want, suspect)
-		}
-	}
-	if !strings.Contains(codes["link.broken"], "error|") || !strings.Contains(codes["link.broken"], "LNK-BROKEN") {
-		t.Fatalf("link.broken = %q", codes["link.broken"])
-	}
-	if !strings.Contains(codes["link.child_unpublished"], "LNK-IF") {
-		t.Fatalf("link.child_unpublished = %q", codes["link.child_unpublished"])
-	}
-	if !strings.Contains(codes["link.aou_unverified"], "error|") || !strings.Contains(codes["link.aou_unverified"], "dep::AOU-A") {
-		t.Fatalf("strict link.aou_unverified = %q", codes["link.aou_unverified"])
-	}
-
-	evidenced := systemWith(model.ReqLink{ID: "LNK-AOU", Child: "dep::AOU-A", Evidence: []string{"REQ-SYS-1"}, Status: "accepted",
-		Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: Fingerprint(PublishedItems(child, child.Manifest.Publications[0])["AOU-A"])}})
-	if d := Diagnostics(evidenced, deps); len(d) != 0 {
-		t.Fatalf("evidenced assumption: %+v", d)
-	}
-	noEvidence := evidenced
-	noEvidence.ReqLinks.ReqLinks = []model.ReqLink{evidenced.ReqLinks.ReqLinks[0]}
-	noEvidence.ReqLinks.ReqLinks[0].Evidence = nil
-	noEvidence.ReqLinks.ReqLinks[0].Parent = "REQ-SYS-1"
-	if d := Diagnostics(noEvidence, deps); len(d) != 1 || d[0].Code != "link.aou_unverified" || d[0].Severity != "warning" {
-		t.Fatalf("guided link without evidence: %+v", d)
-	}
-	if d := Diagnostics(systemWith(), deps); len(d) != 0 {
-		t.Fatalf("guided model without links or contract: %+v", d)
-	}
-}
-
 // A link whose pin is stale (version_mismatch) is still evaluated against
 // the item at the resolved version: Content is unchanged, suspect or broken
-// and Current is that version's fingerprint, and the composed diagnostics
-// report link.suspect (with the current text) or link.broken for it, so a
-// bump that kept the old pin shows what changed.
-// Mutation: skipping the content evaluation of a version_mismatch link, or
-// not reporting its suspect or broken content, fails this test.
+// and Current is that version's fingerprint, so a bump that kept the old pin
+// shows what changed.
+// Mutation: skipping the content evaluation of a version_mismatch link
+// fails this test.
 // TRLC-LINKS: REQ-EMG-097, REQ-EMG-100
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestEvaluateStaleLinkContent(t *testing.T) {
 	child := childBundle()
 	current := Fingerprint(PublishedItems(child, child.Manifest.Publications[0])["CAP-A"])
-	zero := "sha256:" + strings.Repeat("0", 64)
+	zero := "sha256:v1:" + strings.Repeat("0", 64)
 	stale := func(id, target, fingerprint string) model.ReqLink {
 		return model.ReqLink{ID: id, Parent: "REQ-SYS-1", Child: target, Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.0.9", Fingerprint: fingerprint}}
 	}
@@ -313,15 +309,5 @@ func TestEvaluateStaleLinkContent(t *testing.T) {
 	}
 	if s := got["LNK-CHANGED"]; s.Current != current || s.Item == nil {
 		t.Fatalf("stale suspect link lacks the current fingerprint and item: %+v", s)
-	}
-	codes := map[string]string{}
-	for _, d := range Diagnostics(system, []Dependency{dependency(child)}) {
-		codes[d.Code] += d.Message + "\n"
-	}
-	if !strings.Contains(codes["link.suspect"], "LNK-CHANGED") || !strings.Contains(codes["link.suspect"], "REQ-A1: The child shall do A1.") || strings.Contains(codes["link.suspect"], "LNK-SAME") {
-		t.Fatalf("link.suspect = %q", codes["link.suspect"])
-	}
-	if !strings.Contains(codes["link.broken"], "LNK-GONE") {
-		t.Fatalf("link.broken = %q", codes["link.broken"])
 	}
 }

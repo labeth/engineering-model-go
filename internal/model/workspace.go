@@ -65,7 +65,11 @@ const WorkspaceOff = "off"
 // mode. An empty mode falls back to ENGMOD_WORK; "off" returns no workspace;
 // any other value is a workspace file path (relative to the working
 // directory) that is used without searching parent directories and must exist.
-// TRLC-LINKS: REQ-EMG-048, REQ-EMG-063
+// The upward search refuses a file another user could have planted
+// (trustedWorkspaceFile); an explicit path is the caller's choice and is used
+// as given. The search does not stop at a git top-level: a workspace sits
+// above sibling repositories by design.
+// TRLC-LINKS: REQ-EMG-048, REQ-EMG-063, REQ-EMG-108
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
 func FindWorkspaceWith(start, mode string) (WorkspaceDocument, string, error) {
 	mode = strings.TrimSpace(mode)
@@ -98,7 +102,10 @@ func FindWorkspaceWith(start, mode string) (WorkspaceDocument, string, error) {
 	}
 	for {
 		path := filepath.Join(dir, WorkspaceFileName)
-		if _, err := os.Stat(path); err == nil {
+		if info, err := os.Stat(path); err == nil {
+			if err := trustedWorkspaceFile(path, info); err != nil {
+				return WorkspaceDocument{}, "", err
+			}
 			workspace, err := LoadWorkspace(path)
 			return workspace, path, err
 		} else if !os.IsNotExist(err) {
@@ -110,6 +117,24 @@ func FindWorkspaceWith(start, mode string) (WorkspaceDocument, string, error) {
 		}
 		dir = parent
 	}
+}
+
+// trustedWorkspaceFile refuses a workspace file found by the upward search
+// that is world-writable or, where the platform has owners, owned by neither
+// the current user nor root: such a file in a shared parent (for example
+// /tmp or a shared checkout root) would redirect every dependency to
+// directories its author chose. Give a trusted file explicitly with
+// ENGMOD_WORK=<path>.
+// TRLC-LINKS: REQ-EMG-108
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DEP-LOCAL-WORKSPACE
+func trustedWorkspaceFile(path string, info os.FileInfo) error {
+	if info.Mode().Perm()&0o002 != 0 {
+		return fmt.Errorf("workspace %s is world-writable; fix its mode or name it explicitly with %s=<path> if you trust it", path, WorkspaceEnv)
+	}
+	if uid, ok := fileOwner(info); ok && ownerCheckSupported && uid != currentUID() && uid != 0 {
+		return fmt.Errorf("workspace %s is not owned by the current user or root (uid %d); name it explicitly with %s=<path> if you trust it", path, uid, WorkspaceEnv)
+	}
+	return nil
 }
 
 // ReplacementPath returns the authored local path for a CUE module identity.

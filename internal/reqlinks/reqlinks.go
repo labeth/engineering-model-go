@@ -14,10 +14,14 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
+	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
 // Kind is the kind of a contract item.
@@ -31,13 +35,17 @@ const (
 )
 
 // Realizer is a requirement that names a contract item in realizes (or, for
-// one release, the requirement a capability names in its deprecated ref).
+// one release, the requirement a capability names in its deprecated ref),
+// with the requirement fields the fingerprint covers.
 // TRLC-LINKS: REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type Realizer struct {
 	ID                   string
 	Text                 string
+	Notes                string
 	VerificationCriteria string
+	VerificationMethods  []string
+	Criticality          string
 	Status               string
 }
 
@@ -53,8 +61,15 @@ type Item struct {
 	Realizers            []Realizer
 }
 
+// CanonicalVersion is the version of the canonical form CanonicalItem
+// writes and Fingerprint names in its prefix (decision D17). Any change to
+// the canonical form, a field added, removed, renamed or normalized
+// differently, is a new version: a fingerprint of another version is
+// reported as link.fingerprint_outdated, never compared.
+const CanonicalVersion = 1
+
 // canonicalEntry and canonicalRealizer fix the field order and names of the
-// canonical serialization.
+// canonical serialization (version 1).
 type canonicalEntry struct {
 	ID                   string `json:"id"`
 	Kind                 string `json:"kind"`
@@ -63,10 +78,13 @@ type canonicalEntry struct {
 }
 
 type canonicalRealizer struct {
-	ID                   string `json:"id"`
-	Text                 string `json:"text"`
-	VerificationCriteria string `json:"verificationCriteria"`
-	Status               string `json:"status"`
+	ID                   string   `json:"id"`
+	Text                 string   `json:"text"`
+	Notes                string   `json:"notes"`
+	VerificationCriteria string   `json:"verificationCriteria"`
+	VerificationMethods  []string `json:"verificationMethods"`
+	Criticality          string   `json:"criticality"`
+	Status               string   `json:"status"`
 }
 
 type canonicalDocument struct {
@@ -77,15 +95,30 @@ type canonicalDocument struct {
 // normalize collapses every run of whitespace to one space and trims; case
 // is kept.
 // TRLC-LINKS: REQ-EMG-095
-func normalize(s string) string {
-	return strings.Join(strings.Fields(s), " ")
+func normalize(s string) string { return textutil.CollapseSpace(s) }
+
+// normalizedMethods returns the verification methods normalized, without
+// empty entries, sorted ([] when there are none).
+// TRLC-LINKS: REQ-EMG-095
+func normalizedMethods(in []string) []string {
+	out := []string{}
+	for _, m := range in {
+		if m = normalize(m); m != "" {
+			out = append(out, m)
+		}
+	}
+	sort.Strings(out)
+	return out
 }
 
-// CanonicalItem returns the canonical serialization the fingerprint hashes:
-// compact JSON {"item":{id,kind,text,verificationCriteria},"realizers":[...]}
-// with realizers sorted by id, each {id,text,verificationCriteria,status},
-// every string whitespace-collapsed and trimmed, no HTML escaping and no
-// trailing newline. Tools diff two items through this form.
+// CanonicalItem returns the canonical serialization (version 1) the
+// fingerprint hashes: compact JSON
+// {"item":{id,kind,text,verificationCriteria},"realizers":[...]} with
+// realizers sorted by id, each
+// {id,text,notes,verificationCriteria,verificationMethods,criticality,status},
+// verificationMethods sorted, every string whitespace-collapsed and trimmed,
+// no HTML escaping and no trailing newline. Tools diff two items through
+// this form.
 // TRLC-LINKS: REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func CanonicalItem(item Item) []byte {
@@ -98,8 +131,9 @@ func CanonicalItem(item Item) []byte {
 	}
 	for _, r := range item.Realizers {
 		doc.Realizers = append(doc.Realizers, canonicalRealizer{
-			ID: normalize(r.ID), Text: normalize(r.Text),
-			VerificationCriteria: normalize(r.VerificationCriteria), Status: normalize(r.Status),
+			ID: normalize(r.ID), Text: normalize(r.Text), Notes: normalize(r.Notes),
+			VerificationCriteria: normalize(r.VerificationCriteria), VerificationMethods: normalizedMethods(r.VerificationMethods),
+			Criticality: normalize(r.Criticality), Status: normalize(r.Status),
 		})
 	}
 	sort.SliceStable(doc.Realizers, func(i, j int) bool { return doc.Realizers[i].ID < doc.Realizers[j].ID })
@@ -110,12 +144,59 @@ func CanonicalItem(item Item) []byte {
 	return bytes.TrimSuffix(buf.Bytes(), []byte("\n"))
 }
 
-// Fingerprint returns "sha256:<hex>" of CanonicalItem(item).
-// TRLC-LINKS: REQ-EMG-095
+// Fingerprint returns "sha256:v<CanonicalVersion>:<hex>" of
+// CanonicalItem(item).
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-109
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func Fingerprint(item Item) string {
 	sum := sha256.Sum256(CanonicalItem(item))
-	return "sha256:" + hex.EncodeToString(sum[:])
+	return fmt.Sprintf("sha256:v%d:%s", CanonicalVersion, hex.EncodeToString(sum[:]))
+}
+
+var fingerprintPattern = regexp.MustCompile(`^sha256:(?:v([0-9]+):)?[0-9a-f]{64}$`)
+
+// FingerprintVersion returns the canonical-form version a recorded
+// fingerprint names: N for "sha256:vN:<hex>", 0 for the unversioned
+// "sha256:<hex>" of the v0.8.0 pre-releases, -1 when it is no fingerprint.
+// TRLC-LINKS: REQ-EMG-109
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func FingerprintVersion(fingerprint string) int {
+	m := fingerprintPattern.FindStringSubmatch(strings.TrimSpace(fingerprint))
+	switch {
+	case m == nil:
+		return -1
+	case m[1] == "":
+		return 0
+	}
+	v, err := strconv.Atoi(m[1])
+	if err != nil {
+		return -1
+	}
+	return v
+}
+
+// SortedRealizers returns a copy of realizers sorted by ID.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-105, REQ-EMG-107
+func SortedRealizers(in []Realizer) []Realizer {
+	out := append([]Realizer(nil), in...)
+	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// CapabilityRefs maps each requirement a capability names in its deprecated
+// contract ref to that capability, as RealizedItems expects. Imported
+// alias::ID entries are skipped.
+// TRLC-LINKS: REQ-EMG-091, REQ-EMG-105
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func CapabilityRefs(bundle model.Bundle) map[string]string {
+	refs := map[string]string{}
+	for _, entry := range bundle.Architecture.Contract.Provides {
+		id := strings.TrimSpace(entry.ID)
+		if ref := strings.TrimSpace(entry.Ref); ref != "" && id != "" && !strings.Contains(id, "::") && strings.EqualFold(strings.TrimSpace(entry.Kind), string(KindCapability)) {
+			refs[ref] = id
+		}
+	}
+	return refs
 }
 
 // ItemsFromBundle returns every contract item of a model by local ID: each
@@ -126,26 +207,25 @@ func Fingerprint(item Item) string {
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func ItemsFromBundle(bundle model.Bundle) map[string]Item {
 	items := map[string]Item{}
-	refs := map[string]string{}
 	for _, entry := range bundle.Architecture.Contract.Provides {
 		id := strings.TrimSpace(entry.ID)
 		if id == "" || !strings.EqualFold(strings.TrimSpace(entry.Kind), string(KindCapability)) {
 			continue
 		}
 		items[id] = Item{ID: id, Kind: KindCapability, Text: entry.Note}
-		if ref := strings.TrimSpace(entry.Ref); ref != "" {
-			refs[ref] = id
-		}
 	}
 	for _, a := range bundle.Architecture.Contract.Assumptions {
 		if id := strings.TrimSpace(a.ID); id != "" {
 			items[id] = Item{ID: id, Kind: KindAssumption, Text: a.Text, VerificationCriteria: a.VerificationCriteria}
 		}
 	}
+	refs := CapabilityRefs(bundle)
 	for _, r := range bundle.Requirements.Requirements {
-		realizer := Realizer{ID: strings.TrimSpace(r.ID), Text: r.Text, VerificationCriteria: r.VerificationCriteria, Status: r.Status}
-		targets := RealizedItems(r, refs)
-		for _, target := range targets {
+		realizer := Realizer{
+			ID: strings.TrimSpace(r.ID), Text: r.Text, Notes: r.Notes, VerificationCriteria: r.VerificationCriteria,
+			VerificationMethods: r.VerificationMethods, Criticality: r.Criticality, Status: r.Status,
+		}
+		for _, target := range RealizedItems(r, refs) {
 			if item, ok := items[target]; ok {
 				item.Realizers = append(item.Realizers, realizer)
 				items[target] = item

@@ -20,6 +20,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
@@ -69,9 +70,12 @@ type Row struct {
 	// with their evaluated state.
 	Links []LinkRef `json:"links,omitempty"`
 	// SatisfiedBy is "links" when the requirement has no code or test of
-	// its own and every link resolves to a child item whose realizing
-	// requirements are all implemented (LinksImplemented) or all test
-	// linked (LinksTestLinked) in their own repository.
+	// its own and every link is accepted, evaluates unchanged and resolves
+	// to a child item whose realizing requirements are all implemented
+	// (LinksImplemented) or all test linked (LinksTestLinked) in their own
+	// repository; "links-unreviewed" when a link would roll it up but is
+	// claimed, suspect, version-mismatched or otherwise not unchanged, so
+	// it does not count.
 	SatisfiedBy      string `json:"satisfiedBy,omitempty"`
 	LinksImplemented bool   `json:"linksImplemented,omitempty"`
 	LinksTestLinked  bool   `json:"linksTestLinked,omitempty"`
@@ -480,7 +484,7 @@ func validateIntegrityWithIDs(modelIDs map[string]bool, requirements model.Requi
 		diags = append(diags, validate.Diagnostic{
 			Code: "requirement.orphan", Severity: validate.SeverityWarning,
 			Message: fmt.Sprintf("requirement %s is traced by no code, verification, or delegation", id),
-			Path:    "requirements",
+			Path:    orphanPath(id),
 		})
 	}
 	return diags
@@ -542,7 +546,7 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 	resultByReq := requirementResults(verification)
 
 	matrix := Matrix{Model: strings.TrimSpace(bundle.Architecture.Model.ID)}
-	refs := capabilityRefs(bundle)
+	refs := reqlinks.CapabilityRefs(bundle)
 	for _, r := range requirements.Requirements {
 		id := strings.TrimSpace(r.ID)
 		row := Row{ID: id, Text: strings.TrimSpace(r.Text), Units: textutil.UniqueSorted(r.AppliesTo), Parents: requirementParents(r, refs)}
@@ -713,7 +717,7 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 	if satisfied := applyRequirementLinks(&matrix, compositionResult, traces); len(satisfied) > 0 {
 		kept := diags[:0]
 		for _, d := range diags {
-			if d.Code == "requirement.orphan" && satisfied[orphanRequirement(d.Message)] {
+			if d.Code == "requirement.orphan" && satisfied[orphanRequirement(d.Path)] {
 				continue
 			}
 			kept = append(kept, d)

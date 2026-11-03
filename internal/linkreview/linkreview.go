@@ -105,12 +105,12 @@ func (v *ItemView) Lines() []string {
 	return out
 }
 
-// NeedsReview reports whether a link is listed for review: suspect, broken
-// or version_mismatch.
-// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+// NeedsReview reports whether a link is listed for review: suspect, broken,
+// version_mismatch or fingerprint_outdated.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106, REQ-EMG-109
 func NeedsReview(s reqlinks.LinkStatus) bool {
 	switch s.State {
-	case reqlinks.StateSuspect, reqlinks.StateBroken, reqlinks.StateVersionMismatch:
+	case reqlinks.StateSuspect, reqlinks.StateBroken, reqlinks.StateVersionMismatch, reqlinks.StateFingerprintOutdated:
 		return true
 	}
 	return false
@@ -130,32 +130,73 @@ type Context struct {
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
 func Evaluate(manifest string, options composition.ResolutionOptions) (Context, error) {
+	ctx, _, err := evaluate(manifest, options)
+	return ctx, err
+}
+
+// evaluate is Evaluate, also returning the composition.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func evaluate(manifest string, options composition.ResolutionOptions) (Context, composition.CompositionResult, error) {
 	bundle, err := model.LoadBundle(manifest)
 	if err != nil {
-		return Context{}, err
+		return Context{}, composition.CompositionResult{}, err
 	}
 	if bundle.ReqLinksPath == "" {
-		return Context{Manifest: manifest, Bundle: bundle}, nil
+		return Context{Manifest: manifest, Bundle: bundle}, composition.CompositionResult{}, nil
 	}
 	comp, err := composition.GenerateCompositionFromFileWith(manifest, options)
 	if err != nil {
-		return Context{}, err
+		return Context{}, comp, err
 	}
 	if comp.Root == nil {
-		return Context{}, fmt.Errorf("%s does not compose: %s", filepath.Base(manifest), firstError(comp))
+		return Context{}, comp, fmt.Errorf("%s does not compose: %s", filepath.Base(manifest), firstError(comp))
 	}
-	return Context{Manifest: manifest, Bundle: bundle, Statuses: reqlinks.EvaluateLinks(comp.Root.Bundle, composition.LinkDependencies(comp.Root))}, nil
+	return Context{Manifest: manifest, Bundle: bundle, Statuses: reqlinks.EvaluateLinks(comp.Root.Bundle, composition.LinkDependencies(comp.Root))}, comp, nil
 }
 
-// firstError returns the first error diagnostic of a composition as text.
-// TRLC-LINKS: REQ-EMG-101
-func firstError(comp composition.CompositionResult) string {
-	for _, d := range comp.Diagnostics {
-		if d.Severity == "error" {
-			return d.Code + ": " + d.Message
+// EvaluateForAccept is Evaluate with the workspace off: an acceptance
+// records the fingerprint of the published dependency at its pin, the
+// content every user of the pin computes, never that of a workspace
+// checkout (decision D9). A dependency that does not resolve that way (the
+// version is not published or the registry is unreachable) leaves its links
+// unresolved, so Accept refuses them; their Detail names the cause.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
+func EvaluateForAccept(manifest string, options composition.ResolutionOptions) (Context, error) {
+	options.Workspace = model.WorkspaceOff
+	ctx, comp, err := evaluate(manifest, options)
+	if err != nil {
+		return Context{}, fmt.Errorf("an acceptance records the published dependency at its pin, composed with the workspace off, and that failed: %w", err)
+	}
+	for i := range ctx.Statuses {
+		if s := &ctx.Statuses[i]; s.State == reqlinks.StateUnresolved {
+			s.Detail = fmt.Sprintf("%s with the workspace off: an acceptance records the published dependency at its pin; publish %s or make its registry reachable (%s)", s.Detail, s.Alias, firstError(comp))
 		}
 	}
-	return "unknown error"
+	return ctx, nil
+}
+
+// firstError returns the first error diagnostic of a composition as text,
+// or "unknown error"; a composition with more errors says how many.
+// TRLC-LINKS: REQ-EMG-101
+func firstError(comp composition.CompositionResult) string {
+	var first string
+	n := 0
+	for _, d := range comp.Diagnostics {
+		if d.Severity == "error" {
+			if n == 0 {
+				first = d.Code + ": " + d.Message
+			}
+			n++
+		}
+	}
+	switch n {
+	case 0:
+		return "unknown error"
+	case 1:
+		return first
+	}
+	return fmt.Sprintf("%s (and %d more errors)", first, n-1)
 }
 
 // Reviews returns every link of ctx that needs review, with the item at the
@@ -202,8 +243,8 @@ func Reviews(ctx Context, options composition.ResolutionOptions) []Review {
 
 // ItemsAtVersion resolves dependency alias of system at version with the
 // workspace off (options otherwise; use lock check so no lock is written)
-// and returns its published contract items, or a note when the version
-// cannot be resolved.
+// and returns its published contract items, or a note naming the first
+// composition error when the version cannot be resolved.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 func ItemsAtVersion(system model.Bundle, alias, version string, options composition.ResolutionOptions) (map[string]reqlinks.Item, string) {
 	moved := system
@@ -216,15 +257,18 @@ func ItemsAtVersion(system model.Bundle, alias, version string, options composit
 	unavailable := fmt.Sprintf("before: version %s not available offline", version)
 	options.Workspace = model.WorkspaceOff
 	comp, err := composition.GenerateCompositionForBundle(moved, options)
-	if err != nil || comp.Root == nil {
-		return nil, unavailable
+	switch {
+	case err != nil:
+		return nil, unavailable + " (" + err.Error() + ")"
+	case comp.Root == nil:
+		return nil, unavailable + " (" + firstError(comp) + ")"
 	}
 	for _, dep := range composition.LinkDependencies(comp.Root) {
 		if dep.Alias == alias && dep.Version == version {
 			return reqlinks.PublishedItems(dep.Bundle, dep.Publications...), ""
 		}
 	}
-	return nil, unavailable
+	return nil, unavailable + " (" + firstError(comp) + ")"
 }
 
 // DiffLines marks lines only in before with "- ", only in after with "+ "

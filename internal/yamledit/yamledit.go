@@ -1,4 +1,4 @@
-// ENGMODEL-OWNER-UNIT: FU-CLI-ORCHESTRATION
+// ENGMODEL-OWNER-UNIT: FU-MODEL-CHANGE
 
 // Package yamledit edits YAML model files line by line: each edit parses the
 // document with yaml.v3, finds the node through the node tree and rewrites
@@ -155,6 +155,56 @@ func SetKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, ra
 	}
 	start, end := KeyRange(lines, keyNode, value)
 	return SpliceLines(lines, start, end, entry()...), nil
+}
+
+// SetScalarInPlace replaces the single-line scalar value of key in the
+// mapping found by find with value, keeping its quote style (plain, single
+// or double) and every other byte of data, in block and flow mappings. It
+// refuses a missing key, a value that is no scalar or not on its key's line
+// (a block or multi-line scalar), and a value that its quote style cannot
+// hold unescaped.
+// TRLC-LINKS: REQ-EMG-068
+func SetScalarInPlace(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, value string) ([]byte, error) {
+	root, err := Parse(data)
+	if err != nil {
+		return nil, err
+	}
+	mapping, err := find(root)
+	if err != nil {
+		return nil, err
+	}
+	keyNode, node := MappingEntry(mapping, key)
+	switch {
+	case keyNode == nil:
+		return nil, fmt.Errorf("no %s", key)
+	case node.Kind != yaml.ScalarNode || node.Line != keyNode.Line || (node.Style != 0 && node.Style != yaml.SingleQuotedStyle && node.Style != yaml.DoubleQuotedStyle):
+		return nil, fmt.Errorf("line %d: %s is not a single-line scalar", keyNode.Line, key)
+	}
+	raw := value
+	switch node.Style {
+	case yaml.SingleQuotedStyle:
+		if strings.ContainsAny(value, "'\n") {
+			return nil, fmt.Errorf("line %d: %q cannot be written single-quoted in place", node.Line, value)
+		}
+		raw = "'" + value + "'"
+	case yaml.DoubleQuotedStyle:
+		if strings.ContainsAny(value, "\"\\\n") {
+			return nil, fmt.Errorf("line %d: %q cannot be written double-quoted in place", node.Line, value)
+		}
+		raw = "\"" + value + "\""
+	default:
+		if Scalar(value) != value {
+			return nil, fmt.Errorf("line %d: %q is not a plain scalar", node.Line, value)
+		}
+	}
+	lines := SplitLines(data)
+	line := lines[node.Line-1]
+	end, ok := ScalarEnd(line, node.Column-1, node)
+	if !ok {
+		return nil, fmt.Errorf("line %d: %s value not found in place", node.Line, key)
+	}
+	lines[node.Line-1] = line[:node.Column-1] + raw + line[end:]
+	return []byte(strings.Join(lines, "")), nil
 }
 
 // ScalarEnd returns the column just after a single-line scalar that starts

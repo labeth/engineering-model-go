@@ -3,6 +3,7 @@ package engws
 
 import (
 	"encoding/json"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -158,5 +159,29 @@ func TestContractDiffBetweenTags(t *testing.T) {
 	}
 	if code, _, _ := runMain(t, fakeRegistry{}, "contract-diff", "v1.0.0", "--repo", dir); code != 2 {
 		t.Fatalf("one ref accepted: %d", code)
+	}
+}
+
+// A git ref is never read as a git option: a ref starting with "-" or an
+// empty ref is refused before git runs, and a ref that names no commit is
+// refused by rev-parse --verify, so contract-diff and release-check cannot
+// be steered into another git command (for example --output=FILE).
+// Mutation: dropping the "-" prefix check of LoadBundleAtRef fails this
+// test.
+// TRLC-LINKS: REQ-EMG-102
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func TestLoadBundleAtRefRejectsOptionRefs(t *testing.T) {
+	dir := gitModel(t, "child-a", "v1.0.0")
+	for _, ref := range []string{"--output=" + filepath.Join(dir, "pwned"), "-p", "", " "} {
+		_, err := LoadBundleAtRef(dir, ref)
+		if err == nil || !strings.Contains(err.Error(), "invalid git ref") {
+			t.Errorf("ref %q: err = %v, want invalid git ref", ref, err)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(dir, "pwned")); err == nil {
+		t.Fatal("a ref option made git write a file")
+	}
+	if _, err := LoadBundleAtRef(dir, "v1.0.0"); err != nil {
+		t.Fatalf("a tag ref: %v", err)
 	}
 }

@@ -9,7 +9,9 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
+	"cuelang.org/go/mod/modregistrytest"
 	engmodel "github.com/labeth/engineering-model-go"
 )
 
@@ -46,6 +48,41 @@ func copyLinksExample(t *testing.T) string {
 		t.Fatal(err)
 	}
 	return root
+}
+
+// publishLinksChildren publishes the fixture children of root (as edited
+// so far) as v0.1.0 into a CUE test registry and routes models.example to
+// it, so a workspace-off composition (links.review) resolves them.
+func publishLinksChildren(t *testing.T, root string) {
+	t.Helper()
+	registryRoot := filepath.Join(t.TempDir(), "registry")
+	for _, child := range []string{"child-a", "child-b"} {
+		src := filepath.Join(root, "repos", child)
+		dst := filepath.Join(registryRoot, "models.example_reqlinks_"+child+"_v0.1.0")
+		err := filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			rel, _ := filepath.Rel(src, path)
+			if d.IsDir() {
+				return os.MkdirAll(filepath.Join(dst, rel), 0o755)
+			}
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			return os.WriteFile(filepath.Join(dst, rel), data, 0o644)
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(registry.Close)
+	t.Setenv("CUE_REGISTRY", "models.example="+registry.Host()+"+insecure")
 }
 
 // linksServer initializes a server on repos/<repo> of a copied fixture.
@@ -199,33 +236,42 @@ func TestLinksListAndSuspectTools(t *testing.T) {
 
 // links.review writes nothing: it returns the engws review-links --accept
 // command and the patch of the requirement link file the command would
-// write (the new fingerprint, status, reviewer, date and rationale); it
-// refuses an actor the model does not define, an unknown link and a broken
-// link.
+// write (the new fingerprint, status, reviewer, the full reviewedOn line
+// from the server clock, and rationale), computed like the command from the
+// published dependency at its pin (workspace off); it refuses an actor the
+// model does not define, an unknown link and a broken link.
 // Mutation: writing the link file, dropping the fingerprint line from the
-// patch or accepting an unknown actor fails this test.
+// patch, accepting an unknown actor, using the wall clock instead of the
+// server clock or reading the workspace checkout fails this test.
 // TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 	root := copyLinksExample(t)
-	editTestFile(t, filepath.Join(root, "repos", "child-a", "model", "requirements.yml"), "shall publish one position sentence.", "shall publish two position sentences.")
+	childReqs := filepath.Join(root, "repos", "child-a", "model", "requirements.yml")
+	// The published v0.1.0 changed the realizer (three sentences); the
+	// workspace checkout differs again (two).
+	editTestFile(t, childReqs, "shall publish one position sentence.", "shall publish three position sentences.")
+	publishLinksChildren(t, root)
+	editTestFile(t, childReqs, "shall publish three position sentences.", "shall publish two position sentences.")
 	linksFile := filepath.Join(root, "repos", "system", "model", "req-links.yml")
 	before, err := os.ReadFile(linksFile)
 	if err != nil {
 		t.Fatal(err)
 	}
 	s := linksServer(t, root, "system")
-	current := linkByID(t, callToolPayload(t, s, "links.list", map[string]any{})["links"], "LNK-SYS-001-ENCODER")["currentFingerprint"].(string)
-	got := callToolPayload(t, s, "links.review", map[string]any{"linkId": "LNK-SYS-001-ENCODER", "by": "ACT-SYSTEM-OWNER", "rationale": "Two sentences still give one position per epoch."})
+	s.clock = func() time.Time { return time.Date(2031, 4, 5, 6, 7, 8, 0, time.UTC) }
+	workspace := linkByID(t, callToolPayload(t, s, "links.list", map[string]any{})["links"], "LNK-SYS-001-ENCODER")["currentFingerprint"].(string)
+	got := callToolPayload(t, s, "links.review", map[string]any{"linkId": "LNK-SYS-001-ENCODER", "by": "ACT-SYSTEM-OWNER", "rationale": "Three sentences still give one position per epoch."})
 	command, _ := got["command"].(string)
 	patch, _ := got["patch"].(string)
 	if !strings.Contains(command, "engws review-links") || !strings.Contains(command, "--accept LNK-SYS-001-ENCODER") || !strings.Contains(command, "--by ACT-SYSTEM-OWNER") ||
-		!strings.Contains(command, "Two sentences still give one position per epoch.") {
+		!strings.Contains(command, "Three sentences still give one position per epoch.") {
 		t.Fatalf("command %q", command)
 	}
-	if !strings.Contains(patch, "+    fingerprint: "+current) || !strings.Contains(patch, "-    fingerprint: sha256:947139d5") || !strings.Contains(patch, "+  reviewedOn: ") ||
-		!strings.Contains(patch, "+  rationale: Two sentences still give one position per epoch.") || got["written"] != false || got["path"] != "model/req-links.yml" {
-		t.Fatalf("patch:\n%s\n%+v", patch, got)
+	if !strings.Contains(patch, "\n+    fingerprint: sha256:v1:") || strings.Contains(patch, "+    fingerprint: "+workspace) || !strings.Contains(patch, "-    fingerprint: sha256:v1:f1e64f2b") ||
+		!strings.Contains(patch, "\n-  reviewedOn: \"2026-11-02\"\n+  reviewedOn: \"2031-04-05\"\n") ||
+		!strings.Contains(patch, "+  rationale: Three sentences still give one position per epoch.") || got["written"] != false || got["path"] != "model/req-links.yml" || got["reviewedOn"] != "2031-04-05" {
+		t.Fatalf("patch:\n%s\n%+v (workspace fingerprint %s)", patch, got, workspace)
 	}
 	if after, _ := os.ReadFile(linksFile); string(after) != string(before) {
 		t.Fatal("links.review wrote the link file")

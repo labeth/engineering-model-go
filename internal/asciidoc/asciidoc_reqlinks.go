@@ -7,8 +7,9 @@ package asciidoc
 // trace status in the child, and the assumptions of use with their
 // evidence. A model that publishes contract items gets a "Contract Items"
 // chapter: each item with its realizing requirements and fingerprint, and,
-// only when the render runs in a workspace whose sibling checkouts link the
-// items, a "Used By" section computed at render time.
+// only when the caller opts in (Options.UsedBy) and the render runs in a
+// workspace whose sibling checkouts link the items, a "Used By" section
+// computed at render time.
 
 import (
 	"fmt"
@@ -18,6 +19,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/reqlinks"
+	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/trace"
 )
 
@@ -32,6 +34,8 @@ func linkStateLabel(s reqlinks.LinkStatus) string {
 		return "*SUSPECT*: the child item changed since review; run engws review-links"
 	case reqlinks.StateBroken:
 		return "*BROKEN*: the child item no longer exists"
+	case reqlinks.StateFingerprintOutdated:
+		return "*FINGERPRINT OUTDATED*: recorded in another canonical form; check the item and re-stamp with engws review-links --accept"
 	case reqlinks.StateVersionMismatch:
 		label := fmt.Sprintf("*VERSION MISMATCH*: pinned %s, dependency %s", s.Pinned, s.Version)
 		switch s.Content {
@@ -39,6 +43,8 @@ func linkStateLabel(s reqlinks.LinkStatus) string {
 			label += "; *SUSPECT*: the child item changed since review; run engws review-links"
 		case reqlinks.StateBroken:
 			label += "; *BROKEN*: the child item no longer exists"
+		case reqlinks.StateFingerprintOutdated:
+			label += "; *FINGERPRINT OUTDATED*: recorded in another canonical form"
 		}
 		return label
 	case reqlinks.StateChildUnpublished:
@@ -77,9 +83,23 @@ func realizerTraceLabel(s *trace.DelegatedStatus) string {
 	}
 }
 
-// oneLineText collapses whitespace for a list item.
-// TRLC-LINKS: REQ-EMG-107
-func oneLineText(s string) string { return strings.Join(strings.Fields(s), " ") }
+// oneLineText collapses whitespace for a list item and neutralizes AsciiDoc
+// passthrough syntax, so text from a dependency's model cannot inject raw
+// output into the document.
+// TRLC-LINKS: REQ-EMG-107, REQ-EMG-110
+func oneLineText(s string) string { return escapePassthrough(textutil.CollapseSpace(s)) }
+
+// escapePassthrough breaks the AsciiDoc passthrough forms (+++…+++, ++…++,
+// pass:[…] and other pass macros, $$…$$) by inserting a {empty} attribute
+// reference, so the text renders literally instead of emitting raw HTML.
+// TRLC-LINKS: REQ-EMG-110
+func escapePassthrough(s string) string {
+	s = strings.ReplaceAll(s, "+++", "+{empty}+{empty}+")
+	s = strings.ReplaceAll(s, "++", "+{empty}+")
+	s = strings.ReplaceAll(s, "$$", "${empty}$")
+	s = strings.ReplaceAll(s, "pass:", "pass{empty}:")
+	return s
+}
 
 // renderRequirementLinksChapter renders the requirement link tree of a
 // composed model with requirement links ("" otherwise).
@@ -127,9 +147,7 @@ func renderRequirementLinksChapter(bundle model.Bundle, composed composition.Com
 				continue
 			}
 			b.WriteString(": " + oneLineText(s.Item.Text) + "\n")
-			realizers := append([]reqlinks.Realizer(nil), s.Item.Realizers...)
-			sort.SliceStable(realizers, func(i, j int) bool { return realizers[i].ID < realizers[j].ID })
-			for _, rz := range realizers {
+			for _, rz := range reqlinks.SortedRealizers(s.Item.Realizers) {
 				b.WriteString(fmt.Sprintf("*** `%s::%s` (%s): %s\n", s.Alias, rz.ID, realizerTraceLabel(realizerStatus(s.Alias, rz.ID)), oneLineText(rz.Text)))
 			}
 		}
@@ -173,11 +191,12 @@ func renderRequirementLinksChapter(bundle model.Bundle, composed composition.Com
 }
 
 // renderContractItemsChapter renders the published contract items of the
-// model with their realizing requirements and fingerprints, and the users
-// of the active workspace that link them ("" when it publishes none).
+// model with their realizing requirements and fingerprints, and, with
+// usedBy, the users of the active workspace that link them ("" when it
+// publishes none).
 // TRLC-LINKS: REQ-EMG-107
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE
-func renderContractItemsChapter(bundle model.Bundle, workspaceMode string) string {
+func renderContractItemsChapter(bundle model.Bundle, workspaceMode string, usedBy bool) string {
 	items := reqlinks.PublishedItems(bundle, bundle.Manifest.Publications...)
 	if len(items) == 0 {
 		return ""
@@ -197,8 +216,7 @@ func renderContractItemsChapter(bundle model.Bundle, workspaceMode string) strin
 		if v := oneLineText(item.VerificationCriteria); v != "" {
 			b.WriteString("Verification criteria: " + v + "\n\n")
 		}
-		realizers := append([]reqlinks.Realizer(nil), item.Realizers...)
-		sort.SliceStable(realizers, func(i, j int) bool { return realizers[i].ID < realizers[j].ID })
+		realizers := reqlinks.SortedRealizers(item.Realizers)
 		if len(realizers) == 0 {
 			b.WriteString("Realized by no published requirement.\n\n")
 		} else {
@@ -210,13 +228,16 @@ func renderContractItemsChapter(bundle model.Bundle, workspaceMode string) strin
 		}
 		b.WriteString(fmt.Sprintf("Fingerprint: `%s`\n\n", reqlinks.Fingerprint(item)))
 	}
+	if !usedBy {
+		return b.String()
+	}
 	if uses := composition.WorkspaceLinkUsers(bundle, workspaceMode); len(uses) > 0 {
 		b.WriteString("=== Used By\n\n")
-		b.WriteString("Requirement links of the other models in this workspace onto these items, found at render time. This section is not part of the model and is absent when the model is rendered on its own.\n\n")
+		b.WriteString("Requirement links of the other models in this workspace onto these items, found at render time because the render opted in (engdoc --used-by). This section is not part of the model; do not commit a document that contains it into this repository.\n\n")
 		b.WriteString("[cols=\"2,2,2,2,1\",options=\"header\"]\n|===\n|Item |Model |Link |Parent requirement |Status\n")
 		for _, u := range uses {
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n|%s\n", escapeTableCell(u.Item), escapeTableCell(u.Model), escapeTableCell(u.Link),
-				escapeTableCell(nonEmptyDash(u.Parent)), escapeTableCell(u.Status)))
+			cell := func(v string) string { return escapeTableCell(oneLineText(v)) }
+			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n|%s\n", cell(u.Item), cell(u.Model), cell(u.Link), cell(nonEmptyDash(u.Parent)), cell(u.Status)))
 		}
 		b.WriteString("|===\n\n")
 	}

@@ -32,7 +32,7 @@ var layerRules = map[string][]string{
 	"internal/codemap":             {"internal/model", "internal/validate"},
 	"internal/view":                {"internal/model", "internal/validate"},
 	"internal/render/*":            {"internal/view", "internal/render/diagramstyle"},
-	"internal/reqlinks":            {"internal/model", "internal/validate"},
+	"internal/reqlinks":            {"internal/model", "internal/textutil"},
 	"internal/yamledit":            {},
 	"internal/composition":         {"internal/model", "internal/validate", "internal/textutil", "internal/reqlinks"},
 	"internal/codescan":            {"internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},

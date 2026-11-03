@@ -74,3 +74,31 @@ func TestReleaseCheckUnreleasedPins(t *testing.T) {
 		t.Fatalf("unreleased pins: %d\n%s\n%s", code, out, errOut)
 	}
 }
+
+// The previous release is the nearest release tag below the tag in the
+// commit's own history (git tag --merged), not the highest release tag of
+// the repository: a v1.5.0 on a side branch that already dropped the
+// capability does not hide the removal from a v1.6.0 cut from main, whose
+// last release is v1.0.0.
+// Mutation: taking the previous tag from every release tag instead of the
+// tags merged into the commit fails this test.
+// TRLC-LINKS: REQ-EMG-103
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func TestReleaseCheckPreviousTagIsAnAncestor(t *testing.T) {
+	dir := gitModel(t, "child-a", "v1.0.0")
+	runGit(t, dir, "checkout", "-q", "-b", "side")
+	removeCapA2(t, dir)
+	runGit(t, dir, "commit", "-q", "-am", "side: drop the checksum")
+	runGit(t, dir, "tag", "v1.5.0")
+	runGit(t, dir, "checkout", "-q", "-")
+	removeCapA2(t, dir)
+	runGit(t, dir, "commit", "-q", "-am", "main: drop the checksum")
+	code, out, errOut := runMain(t, fakeRegistry{}, "release-check", "--repo", dir, "--tag", "v1.6.0")
+	if code != 1 || !strings.Contains(out, "contract v1.0.0..HEAD: impact major") || !strings.Contains(out, "contract.semver_too_small") {
+		t.Fatalf("release-check from main: %d\n%s\n%s", code, out, errOut)
+	}
+	runGit(t, dir, "tag", "v2.0.0")
+	if code, out, _ := runMain(t, fakeRegistry{}, "release-check", "--repo", dir); code != 0 || !strings.Contains(out, "contract v1.0.0..v2.0.0") {
+		t.Fatalf("release-check at the tag: %d\n%s", code, out)
+	}
+}

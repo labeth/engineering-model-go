@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: ["**"]
+    tags: ["v*"]
   pull_request:
 
 jobs:
@@ -85,3 +86,27 @@ jobs:
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
           scripts/validate-all.sh
+
+  release-check:
+    # A release tag is gated on the model's own release rules: no dependency
+    # pinned to a pre-release or pseudo-version, and a tag bump at least as
+    # large as the contract change since the previous release tag (D3, D11).
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          # release-check reads earlier release tags and the model at them.
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Release check
+        run: go run ./cmd/engws release-check --repo . --tag "${GITHUB_REF_NAME}"

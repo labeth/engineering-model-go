@@ -13,7 +13,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/labeth/engineering-model-go/internal/linkreview"
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -91,7 +90,11 @@ func (s *Server) linksReview(id, by, rationale string) (map[string]any, error) {
 	if strings.TrimSpace(rationale) == "" {
 		rationale = "<why the changed item still satisfies the parent requirement>"
 	}
-	ctx, err := s.linkContext()
+	if s.bundle == nil || s.bundle.ManifestPath == "" {
+		return nil, fmt.Errorf("model not loaded from an engmod.yml")
+	}
+	// Like engws review-links --accept: the published dependency at its pin.
+	ctx, err := linkreview.EvaluateForAccept(s.bundle.ManifestPath, resolution())
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +104,7 @@ func (s *Server) linksReview(id, by, rationale string) (map[string]any, error) {
 			return nil, err
 		}
 	}
-	date := time.Now().Format("2006-01-02")
+	date := s.now().Format("2006-01-02")
 	acceptance, err := linkreview.Accept(ctx, data, id, by, rationale, date)
 	if err != nil {
 		return nil, err

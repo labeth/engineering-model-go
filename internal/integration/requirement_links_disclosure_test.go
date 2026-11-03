@@ -2,6 +2,8 @@
 package integration
 
 import (
+	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -44,10 +46,11 @@ func assertNoDisclosure(t *testing.T, what, output string, markers []string) {
 // Acceptance 8: child-a rendered on its own (workspace off) names no using
 // system, no system requirement and no parent text in its AsciiDoc, in every
 // Gemara artifact or in the MCP requirements.get, requirements.parents and
-// links.list output for its requirements; rendered with the workspace
-// active it shows Used By with the system's links, computed at render time.
-// Mutation: rendering Used By without an active workspace, or not rendering
-// it in the workspace, fails this test.
+// links.list output for its requirements. Rendered with the workspace
+// active it still names none by default; only with the Used By opt-in does
+// it show Used By with the system's links, computed at render time.
+// Mutation: rendering Used By without the opt-in, rendering it without an
+// active workspace, or not rendering it when opted in fails this test.
 // TRLC-LINKS: REQ-EMG-107
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
 func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
@@ -98,9 +101,14 @@ func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
 		assertNoDisclosure(t, "MCP "+call.tool+" of child-a", out, markers)
 	}
 
-	// In the workspace with the system: Used By, from the system's link file.
+	// In the workspace with the system, by default: still no user. Used By
+	// is opt-in (AsciiDocOptions.UsedBy, engdoc --used-by), so a committed
+	// render of a child never lists its users.
 	t.Setenv(model.WorkspaceEnv, "")
-	used := section(renderRepo(t, root, "child-a", "").Document, "=== Used By")
+	assertNoDisclosure(t, "default AsciiDoc of child-a in the workspace", renderRepo(t, root, "child-a", "").Document, markers)
+
+	// Opted in, in the workspace: Used By, from the system's link file.
+	used := section(renderRepoUsedBy(t, root, "child-a", "").Document, "=== Used By")
 	for _, want := range []string{"|CAP-A-1\n|REQLINKS-SYSTEM\n|LNK-SYS-001-ENCODER\n|REQ-SYS-001\n|accepted", "|CAP-A-2\n|REQLINKS-SYSTEM\n|LNK-SYS-002-ENCODER\n|REQ-SYS-002\n|accepted"} {
 		if !strings.Contains(used, want) {
 			t.Fatalf("Used By lacks %q:\n%s", want, used)
@@ -109,6 +117,8 @@ func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
 	if strings.Contains(used, "GHOST") {
 		t.Fatalf("Used By lists a link onto no contract item of child-a:\n%s", used)
 	}
+	// Opted in with the workspace off: nothing to see, nothing shown.
+	assertNoDisclosure(t, "opted-in AsciiDoc of child-a without a workspace", renderRepoUsedBy(t, root, "child-a", model.WorkspaceOff).Document, markers)
 }
 
 // A workspace file next to the using system's own manifest (the system is
@@ -129,5 +139,74 @@ func TestUsedByIncludesTheWorkspaceRootModel(t *testing.T) {
 	uses := composition.WorkspaceLinkUsers(bundle, work)
 	if len(uses) != 2 || uses[0].Model != "REQLINKS-SYSTEM" || uses[0].Link != "LNK-SYS-001-ENCODER" || uses[1].Item != "CAP-A-2" {
 		t.Fatalf("uses = %+v", uses)
+	}
+}
+
+// The Used By scan reads only checkouts inside the workspace: a replacement
+// whose path leaves the workspace directory, and a sibling whose manifest
+// names a document outside its own module (the dependency confinement of
+// composition), are skipped, so a crafted engmod.work.yml or sibling
+// manifest cannot make a render read and show files elsewhere.
+// Mutation: dropping the PathWithin bound or the dependencyPathEscapes
+// check of the sibling scan fails this test.
+// TRLC-LINKS: REQ-EMG-108
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY, DEP-LOCAL-WORKSPACE
+func TestUsedByScanStaysInTheWorkspace(t *testing.T) {
+	root := copyRequirementLinksExample(t)
+	system := filepath.Join(root, "repos", "system")
+	// A copy of the system outside the workspace, named by a replacement.
+	outside := filepath.Join(t.TempDir(), "outside")
+	copyDir(t, system, outside)
+	editFile(t, filepath.Join(outside, "engmod.yml"), "modelId: REQLINKS-SYSTEM", "modelId: OUTSIDE-SYSTEM")
+	rel, err := filepath.Rel(root, outside)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// A sibling inside the workspace whose link file lies outside its module.
+	escaping := filepath.Join(root, "repos", "escaping")
+	copyDir(t, system, escaping)
+	editFile(t, filepath.Join(escaping, "engmod.yml"), "modelId: REQLINKS-SYSTEM", "modelId: ESCAPING-SYSTEM")
+	editFile(t, filepath.Join(escaping, "engmod.yml"), "reqLinks: model/req-links.yml", "reqLinks: ../../escaped-links.yml")
+	data, err := os.ReadFile(filepath.Join(system, "model", "req-links.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	testutil.WriteFile(t, filepath.Join(root, "escaped-links.yml"), string(data))
+	editFile(t, filepath.Join(root, model.WorkspaceFileName), "replacements:\n",
+		"replacements:\n- module: models.example/reqlinks/outside@v0\n  path: "+filepath.ToSlash(rel)+"\n- module: models.example/reqlinks/escaping@v0\n  path: ./repos/escaping\n")
+
+	bundle, err := model.LoadBundle(filepath.Join(root, "repos", "child-a", "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	uses := composition.WorkspaceLinkUsers(bundle, "")
+	models := map[string]bool{}
+	for _, u := range uses {
+		models[u.Model] = true
+	}
+	if !models["REQLINKS-SYSTEM"] || models["OUTSIDE-SYSTEM"] || models["ESCAPING-SYSTEM"] {
+		t.Fatalf("uses = %+v", uses)
+	}
+}
+
+// copyDir copies a fixture directory tree.
+func copyDir(t *testing.T, src, dst string) {
+	t.Helper()
+	err := filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		rel, _ := filepath.Rel(src, path)
+		if d.IsDir() {
+			return os.MkdirAll(filepath.Join(dst, rel), 0o755)
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		return os.WriteFile(filepath.Join(dst, rel), data, 0o644)
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
 }

@@ -15,26 +15,13 @@ import (
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
-// capabilityRefs maps each requirement a capability names in its deprecated
-// contract ref to that capability, as reqlinks.RealizedItems expects.
-// TRLC-LINKS: REQ-EMG-105
-func capabilityRefs(bundle model.Bundle) map[string]string {
-	refs := map[string]string{}
-	for _, entry := range bundle.Architecture.Contract.Provides {
-		if ref := strings.TrimSpace(entry.Ref); ref != "" && strings.EqualFold(strings.TrimSpace(entry.Kind), string(reqlinks.KindCapability)) {
-			refs[ref] = strings.TrimSpace(entry.ID)
-		}
-	}
-	return refs
-}
-
-// publishedCapabilityRefs is capabilityRefs of the resolved dependency alias.
+// publishedCapabilityRefs is reqlinks.CapabilityRefs of the resolved dependency alias.
 // TRLC-LINKS: REQ-EMG-105
 func publishedCapabilityRefs(composed composition.CompositionResult, alias string) map[string]string {
 	if composed.Root != nil {
 		for _, child := range composed.Root.Children {
 			if child.Dependency == alias {
-				return capabilityRefs(child.Bundle)
+				return reqlinks.CapabilityRefs(child.Bundle)
 			}
 		}
 	}
@@ -68,7 +55,7 @@ func countUnparented(bundle model.Bundle, requirements model.RequirementsDocumen
 	if strings.EqualFold(strings.TrimSpace(bundle.Manifest.Module.Kind), "system") && bundle.Manifest.InferenceHints.TopLevel {
 		return 0
 	}
-	refs := capabilityRefs(bundle)
+	refs := reqlinks.CapabilityRefs(bundle)
 	n := 0
 	for _, r := range requirements.Requirements {
 		if len(reqlinks.RealizedItems(r, refs)) == 0 && !(r.Derived && strings.TrimSpace(r.DerivedRationale) != "") && len(r.SourceRefs) == 0 {
@@ -82,9 +69,10 @@ func countUnparented(bundle model.Bundle, requirements model.RequirementsDocumen
 // its resolved dependencies and fills, for each local row that is the parent
 // of a link, Links, Children (the linked item, then its realizing
 // requirements) and the roll-up: a row with no code or test of its own whose
-// every link resolves to an item with realizing requirements that are all
-// implemented (or all test linked) in their own repository is satisfied by
-// links. The realizing requirements' published rows get their status in the
+// every link is accepted, evaluates unchanged and resolves to an item with
+// realizing requirements that are all implemented (or all test linked) in
+// their own repository is satisfied by links; when a link would roll it up
+// but is claimed or not unchanged it is "links-unreviewed" and not counted. The realizing requirements' published rows get their status in the
 // child (DelegatedStatus). It counts suspect, broken and claimed links and
 // returns the requirements it satisfied.
 // TRLC-LINKS: REQ-EMG-105
@@ -105,7 +93,7 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 	for i, r := range matrix.Requirements {
 		rowIndex[r.ID] = i
 	}
-	type rollUp struct{ implemented, testLinked, resolved bool }
+	type rollUp struct{ implemented, testLinked, resolved, reviewed bool }
 	rolls := map[string]*rollUp{}
 	for _, s := range reqlinks.EvaluateLinks(composed.Root.Bundle, composition.LinkDependencies(composed.Root)) {
 		switch {
@@ -126,14 +114,16 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 		row.Children = appendUnique(row.Children, s.Child)
 		roll := rolls[s.Parent]
 		if roll == nil {
-			roll = &rollUp{implemented: true, testLinked: true, resolved: true}
+			roll = &rollUp{implemented: true, testLinked: true, resolved: true, reviewed: true}
 			rolls[s.Parent] = roll
 		}
+		// Only a reviewed link whose item is the reviewed one counts.
+		roll.reviewed = roll.reviewed && s.State == reqlinks.StateUnchanged && statusByID[s.ID] == model.ReqLinkAccepted
 		if s.Item == nil || len(s.Item.Realizers) == 0 {
 			roll.resolved = false
 			continue
 		}
-		for _, r := range sortedRealizers(s.Item.Realizers) {
+		for _, r := range reqlinks.SortedRealizers(s.Item.Realizers) {
 			qualified := s.Alias + "::" + r.ID
 			row = &matrix.Requirements[i]
 			row.Children = appendUnique(row.Children, qualified)
@@ -149,6 +139,10 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 	for id, roll := range rolls {
 		row := &matrix.Requirements[rowIndex[id]]
 		if !roll.resolved || len(row.Code) > 0 || len(row.Verifications) > 0 || (!roll.implemented && !roll.testLinked) {
+			continue
+		}
+		if !roll.reviewed {
+			row.SatisfiedBy = "links-unreviewed"
 			continue
 		}
 		row.SatisfiedBy, row.LinksImplemented, row.LinksTestLinked = "links", roll.implemented, roll.testLinked
@@ -169,18 +163,6 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 		satisfied[id] = true
 	}
 	return satisfied
-}
-
-// sortedRealizers returns the realizers sorted by ID.
-// TRLC-LINKS: REQ-EMG-105
-func sortedRealizers(in []reqlinks.Realizer) []reqlinks.Realizer {
-	out := append([]reqlinks.Realizer(nil), in...)
-	for i := 1; i < len(out); i++ {
-		for j := i; j > 0 && out[j].ID < out[j-1].ID; j-- {
-			out[j], out[j-1] = out[j-1], out[j]
-		}
-	}
-	return out
 }
 
 // appendUnique appends value unless list holds it.
@@ -206,15 +188,22 @@ func removeString(list []string, value string) []string {
 	return out
 }
 
-// orphanRequirement returns the requirement ID a requirement.orphan
-// message names ("requirement X is traced by ...").
+// orphanPath is the diagnostic path of requirement.orphan for id.
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-105
+func orphanPath(id string) string { return "requirements[" + id + "]" }
+
+// orphanRequirement returns the requirement ID of a requirement.orphan
+// diagnostic path (orphanPath), "" for another path.
 // TRLC-LINKS: REQ-EMG-105
-func orphanRequirement(message string) string {
-	rest, ok := strings.CutPrefix(message, "requirement ")
+func orphanRequirement(path string) string {
+	rest, ok := strings.CutPrefix(path, "requirements[")
 	if !ok {
 		return ""
 	}
-	id, _, _ := strings.Cut(rest, " ")
+	id, ok := strings.CutSuffix(rest, "]")
+	if !ok {
+		return ""
+	}
 	return id
 }
 

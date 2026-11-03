@@ -5,7 +5,7 @@ reqLinks:
   child: aegis::CAP-AEGIS-MISSION
   pinned:
     version: v0.1.0
-    fingerprint: sha256:493f883aabb63a31e2f359917711c351020aa48f01a198916c65c6a3a3fc520a
+    fingerprint: sha256:v1:b190d8d17c81e07ebf1e1443f56411cad8f88a72c0fd18f68f4768945a5afdab
   status: accepted
   rationale: Aegis supplies the company perimeter-awareness capability.
   reviewedBy: ACT-PORT-EXECUTIVE
@@ -15,7 +15,7 @@ reqLinks:
   child: orion::CAP-ORION-MISSION
   pinned:
     version: v0.1.0
-    fingerprint: sha256:6c3369b48d1b3b77202bdab0600e3012c916a06a80f9fb2c2460e1dc48be9f80
+    fingerprint: sha256:v1:94d795377ec77f634e76ab75773f4f087514689950bac50f72203327968d01dc
   status: accepted
   rationale: Orion supplies the company resilient-communications capability.
   reviewedBy: ACT-PORT-EXECUTIVE

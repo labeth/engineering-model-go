@@ -47,15 +47,16 @@ func ReviewLinks(repo string) ([]LinkReview, error) {
 }
 
 // AcceptLink records the review of link id in the model in repo: the
-// current fingerprint, the dependency pin, reviewedBy, reviewedOn (today),
-// the rationale and status accepted. Only the touched lines of the
-// requirement link file change. It refuses an actor the model does not
-// define, an unknown link, a broken link and one whose item cannot be
-// evaluated.
+// current fingerprint of the published dependency at its pin (composed with
+// the workspace off, decision D9), the dependency pin, reviewedBy,
+// reviewedOn (today), the rationale and status accepted. Only the touched
+// lines of the requirement link file change. It refuses an actor the model
+// does not define, an unknown link, a broken link, one whose item cannot be
+// evaluated and a model that does not compose with the workspace off.
 // TRLC-LINKS: REQ-EMG-101
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
 func AcceptLink(repo, id, by, rationale string) (reqlinks.LinkStatus, error) {
-	ctx, err := linkreview.Evaluate(filepath.Join(repo, "engmod.yml"), reviewResolution())
+	ctx, err := linkreview.EvaluateForAccept(filepath.Join(repo, "engmod.yml"), reviewResolution())
 	if err != nil {
 		return reqlinks.LinkStatus{}, err
 	}

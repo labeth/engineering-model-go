@@ -216,8 +216,49 @@ func TestRequirementLinksNewAssumptionNeedsEvidence(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	testutil.WriteFile(t, links, string(data)+"- id: LNK-AOU-B-2\n  child: bridge::AOU-B-2\n  evidence:\n  - REQ-SYS-001\n  pinned:\n    version: v0.1.0\n    fingerprint: "+fingerprint+"\n  status: accepted\n")
+	testutil.WriteFile(t, links, string(data)+"- id: LNK-AOU-B-2\n  child: bridge::AOU-B-2\n  evidence:\n  - REQ-SYS-001\n  pinned:\n    version: v0.1.0\n    fingerprint: "+fingerprint+"\n  status: accepted\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-03\"\n")
 	if errs := linkErrors(checkRepository(t, system)); len(errs) > 0 {
 		t.Fatalf("an evidence link must clear link.aou_unverified:\n%s", strings.Join(errs, "\n"))
+	}
+}
+
+// A requirement that realizes two contract items (REQ-B-001 realizes
+// CAP-B-1 and AOU-B-1) changes the fingerprint of both: the capability link
+// and the assumption-of-use link are each suspect. An assumption link may
+// carry a parent next to its evidence. A published capability no link names
+// raises nothing in the system.
+// Mutation: fingerprinting only the first item a requirement realizes, or
+// requiring an assumption link to have evidence only, fails this test.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-097, REQ-EMG-094
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+func TestRequirementLinksMultiTargetAndMixedLinks(t *testing.T) {
+	root := copyRequirementLinksExample(t)
+	system := filepath.Join(root, "repos", "system")
+	links := filepath.Join(system, "model", "req-links.yml")
+	editFile(t, links, "- id: LNK-AOU-B-1\n  child: bridge::AOU-B-1\n", "- id: LNK-AOU-B-1\n  parent: REQ-SYS-001\n  child: bridge::AOU-B-1\n")
+	// child-a publishes a capability that no system link names.
+	childA := filepath.Join(root, "repos", "child-a")
+	editFile(t, filepath.Join(childA, "model", "architecture.yml"), "      note: Protect each position sentence with a checksum.\n",
+		"      note: Protect each position sentence with a checksum.\n    - id: CAP-A-3\n      kind: capability\n      note: Report the encoder version.\n")
+	editFile(t, filepath.Join(childA, "engmod.yml"), "  - CAP-A-2\n", "  - CAP-A-2\n  - CAP-A-3\n")
+	editFile(t, filepath.Join(childA, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  realizes: [CAP-A-2, CAP-A-3]\n")
+	// REQ-A-003 now realizes CAP-A-2 and the unlinked CAP-A-3: the
+	// realizes list is not item content, so LNK-SYS-002-ENCODER stays
+	// unchanged, and the unlinked CAP-A-3 raises nothing in the system.
+	if errs := linkErrors(checkRepository(t, system)); len(errs) > 0 {
+		t.Fatalf("an unlinked capability or an assumption link with a parent raised:\n%s", strings.Join(errs, "\n"))
+	}
+
+	editFile(t, filepath.Join(root, "repos", "child-b", "model", "requirements.yml"), "shall forward one bus frame.", "shall forward two bus frames.")
+	got := map[string]bool{}
+	for _, d := range withCode(checkRepository(t, system), "link.suspect") {
+		for _, id := range []string{"LNK-SYS-001-BRIDGE", "LNK-AOU-B-1"} {
+			if strings.Contains(d.Message, "link "+id+":") {
+				got[id] = true
+			}
+		}
+	}
+	if !got["LNK-SYS-001-BRIDGE"] || !got["LNK-AOU-B-1"] {
+		t.Fatalf("a change to REQ-B-001 must make both links suspect: %v", got)
 	}
 }

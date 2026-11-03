@@ -3,11 +3,9 @@ package reqlinks
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
-	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // State is the evaluated state of one requirement link.
@@ -28,6 +26,30 @@ const (
 	// StateUnresolved: the dependency is declared but was not resolved, so the
 	// link cannot be evaluated.
 	StateUnresolved State = "unresolved"
+	// StateFingerprintOutdated: the recorded fingerprint was written in
+	// another canonical form (an older or unknown sha256:vN: version, or the
+	// unversioned form), so it cannot be compared (decision D17).
+	StateFingerprintOutdated State = "fingerprint_outdated"
+)
+
+// Reason says why a link is child_unpublished or unresolved, or why a
+// contract ID of a resolved dependency is no link target ("" otherwise).
+type Reason string
+
+const (
+	// ReasonNone: the state needs no reason.
+	ReasonNone Reason = ""
+	// ReasonUndeclaredAlias: the child is not alias::ID of a declared dependency.
+	ReasonUndeclaredAlias Reason = "undeclared_alias"
+	// ReasonUnresolved: the dependency is declared but was not resolved.
+	ReasonUnresolved Reason = "unresolved"
+	// ReasonNotInPublication: the item exists but no selected publication exposes it.
+	ReasonNotInPublication Reason = "not_in_publication"
+	// ReasonNotContractItem: the ID is a contract entry that is not a
+	// capability or assumption of use (an interface, a requires entry).
+	ReasonNotContractItem Reason = "not_contract_item"
+	// ReasonMissing: the dependency has no contract entry with the ID.
+	ReasonMissing Reason = "missing"
 )
 
 // Dependency is one resolved dependency as a using system sees it: its alias,
@@ -63,7 +85,10 @@ type LinkStatus struct {
 	Recorded string
 	Current  string
 	Item     *Item
-	Detail   string
+	// Reason classifies a child_unpublished or unresolved link; Detail is
+	// its text for people.
+	Reason Reason
+	Detail string
 }
 
 // EvaluateLinks evaluates every reqLinks entry of system against the
@@ -74,7 +99,7 @@ type LinkStatus struct {
 // state at the resolved version); an item missing from the dependency is broken; an item
 // that is not a published capability or assumption of use is
 // child_unpublished; otherwise the fingerprints decide unchanged or suspect.
-// TRLC-LINKS: REQ-EMG-097
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-109
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 	pins := map[string]string{}
@@ -90,7 +115,6 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 		}
 		byAlias[d.Alias] = d
 	}
-	allItems := map[string]map[string]Item{}
 	published := map[string]map[string]Item{}
 	out := make([]LinkStatus, 0, len(system.ReqLinks.ReqLinks))
 	for _, link := range system.ReqLinks.ReqLinks {
@@ -105,29 +129,33 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 		dep, resolved := byAlias[alias]
 		switch {
 		case err != nil || !declared:
-			status.State, status.Detail = StateChildUnpublished, fmt.Sprintf("%q is not alias::ID of a declared dependency", status.Child)
+			status.State, status.Reason, status.Detail = StateChildUnpublished, ReasonUndeclaredAlias, fmt.Sprintf("%q is not alias::ID of a declared dependency", status.Child)
 		case !resolved:
-			status.State, status.Detail = StateUnresolved, fmt.Sprintf("dependency %q was not resolved", alias)
+			status.State, status.Reason, status.Detail = StateUnresolved, ReasonUnresolved, fmt.Sprintf("dependency %q was not resolved", alias)
 		default:
-			if allItems[alias] == nil {
-				allItems[alias] = ItemsFromBundle(dep.Bundle)
+			if published[alias] == nil {
 				published[alias] = PublishedItems(dep.Bundle, dep.Publications...)
 			}
-			item, exists := published[alias][itemID]
-			switch {
-			case exists:
+			if item, exists := published[alias][itemID]; exists {
 				status.Item = &item
 				status.Current = Fingerprint(item)
-				status.State = StateUnchanged
-				if status.Current != status.Recorded {
+				switch {
+				case status.Recorded != "" && FingerprintVersion(status.Recorded) != CanonicalVersion:
+					status.State = StateFingerprintOutdated
+				case status.Current != status.Recorded:
 					status.State = StateSuspect
+				default:
+					status.State = StateUnchanged
 				}
-			case allItems[alias][itemID].ID != "":
-				status.State, status.Detail = StateChildUnpublished, "the item is not in a selected publication"
-			case declaredElsewhere(dep.Bundle, itemID):
-				status.State, status.Detail = StateChildUnpublished, "the item is not a capability or assumption of use"
-			default:
-				status.State = StateBroken
+			} else {
+				switch status.Reason = NonItemReason(dep.Bundle, itemID); status.Reason {
+				case ReasonMissing:
+					status.State = StateBroken
+				case ReasonNotInPublication:
+					status.State, status.Detail = StateChildUnpublished, "the item is not in a selected publication"
+				default:
+					status.State, status.Detail = StateChildUnpublished, "the item is not a capability or assumption of use"
+				}
 			}
 			if status.State != StateChildUnpublished {
 				status.Content = status.State
@@ -144,89 +172,27 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 	return out
 }
 
-// declaredElsewhere reports whether id is a contract entry of the bundle
-// that is not a contract item (an interface or other provides/requires entry).
-// TRLC-LINKS: REQ-EMG-097
-func declaredElsewhere(bundle model.Bundle, id string) bool {
-	for _, entries := range [][]model.ContractEntry{bundle.Architecture.Contract.Provides, bundle.Architecture.Contract.Requires} {
+// NonItemReason says why id is no published contract item of a resolved
+// dependency: ReasonNotInPublication when it is a capability or assumption
+// of use (or a capability entry) no selected publication exposes,
+// ReasonNotContractItem when it is a contract entry of another kind (an
+// interface, a requires entry), ReasonMissing when the dependency declares
+// no contract entry with that ID. Callers have already checked that id is
+// not published.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-104
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func NonItemReason(dep model.Bundle, id string) Reason {
+	if _, ok := ItemsFromBundle(dep)[id]; ok {
+		return ReasonNotInPublication
+	}
+	for _, entries := range [][]model.ContractEntry{dep.Architecture.Contract.Provides, dep.Architecture.Contract.Requires} {
 		for _, e := range entries {
 			if strings.TrimSpace(e.ID) == id {
-				return true
+				return ReasonNotContractItem
 			}
 		}
 	}
-	return false
-}
-
-// Diagnostics evaluates the links and returns the composition-time link
-// diagnostics: link.suspect, link.broken and link.child_unpublished (errors;
-// a child naming an undeclared or uncomposed dependency is reported by
-// validation, and version_mismatch too) and link.aou_unverified for every
-// published assumption of use of a resolved dependency that no link with
-// evidence covers (error in strict mode, warning in guided mode where the
-// rules apply, see validate.RequirementLinkRules).
-// TRLC-LINKS: REQ-EMG-097, REQ-EMG-098
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
-func Diagnostics(system model.Bundle, deps []Dependency) []validate.Diagnostic {
-	path := system.ReqLinksPath
-	if path == "" {
-		path = "reqLinks"
-	}
-	var diags []validate.Diagnostic
-	errAt := func(code, msg string) {
-		diags = append(diags, validate.Diagnostic{Code: code, Severity: validate.SeverityError, Message: msg, Path: path})
-	}
-	for _, s := range EvaluateLinks(system, deps) {
-		switch s.State {
-		case StateSuspect:
-			errAt("link.suspect", SuspectMessage(s))
-		case StateVersionMismatch:
-			// Validation reports the stale pin; the content state tells the
-			// reviewer what changed at the pinned dependency version.
-			switch s.Content {
-			case StateSuspect:
-				errAt("link.suspect", SuspectMessage(s))
-			case StateBroken:
-				errAt("link.broken", fmt.Sprintf("link %s: %s no longer exists in %s at %s; remove the link or link another contract item", s.ID, s.Child, s.Alias, s.Version))
-			}
-		case StateBroken:
-			errAt("link.broken", fmt.Sprintf("link %s: %s no longer exists in %s at %s; remove the link or link another contract item", s.ID, s.Child, s.Alias, s.Version))
-		case StateChildUnpublished:
-			if s.Detail == "" || strings.HasPrefix(s.Detail, "the item") {
-				errAt("link.child_unpublished", fmt.Sprintf("link %s: %s is not a published contract item of dependency %q (%s)", s.ID, s.Child, s.Alias, s.Detail))
-			}
-		}
-	}
-	severity, applies := validate.RequirementLinkRules(system)
-	if !applies {
-		return diags
-	}
-	evidenced := map[string]bool{}
-	for _, link := range system.ReqLinks.ReqLinks {
-		if len(link.Evidence) > 0 {
-			evidenced[strings.TrimSpace(link.Child)] = true
-		}
-	}
-	var unverified []string
-	seen := map[string]bool{}
-	for _, dep := range deps {
-		for id, item := range PublishedItems(dep.Bundle, dep.Publications...) {
-			qualified := dep.Alias + "::" + id
-			if item.Kind != KindAssumption || evidenced[qualified] || seen[qualified] {
-				continue
-			}
-			seen[qualified] = true
-			unverified = append(unverified, qualified)
-		}
-	}
-	sort.Strings(unverified)
-	for _, q := range unverified {
-		diags = append(diags, validate.Diagnostic{
-			Code: "link.aou_unverified", Severity: severity, Path: path,
-			Message: fmt.Sprintf("assumption of use %s has no requirement link with evidence in this model; add a reqLinks entry with child %s and evidence naming the local requirement, test or control that shows it holds", q, q),
-		})
-	}
-	return diags
+	return ReasonMissing
 }
 
 // SuspectMessage describes a suspect link: the recorded and current
@@ -242,7 +208,7 @@ func SuspectMessage(s LinkStatus) string {
 		fmt.Fprintf(&b, "; now %s %q", s.Item.Kind, normalize(s.Item.Text))
 		if len(s.Item.Realizers) > 0 {
 			b.WriteString(", realized by")
-			for i, r := range sortedRealizers(s.Item.Realizers) {
+			for i, r := range SortedRealizers(s.Item.Realizers) {
 				if i > 0 {
 					b.WriteString(";")
 				}
@@ -254,9 +220,15 @@ func SuspectMessage(s LinkStatus) string {
 	return b.String()
 }
 
-// TRLC-LINKS: REQ-EMG-097
-func sortedRealizers(in []Realizer) []Realizer {
-	out := append([]Realizer(nil), in...)
-	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
-	return out
+// OutdatedMessage describes a link whose recorded fingerprint uses another
+// canonical form than this engine writes (decision D17).
+// TRLC-LINKS: REQ-EMG-109
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func OutdatedMessage(s LinkStatus) string {
+	form := "the unversioned sha256:<hex> form"
+	if v := FingerprintVersion(s.Recorded); v > 0 {
+		form = fmt.Sprintf("canonical form v%d", v)
+	}
+	return fmt.Sprintf("link %s: the recorded fingerprint of %s uses %s, this engine writes v%d, so the two cannot be compared; check that nothing in the item changed since the review (engws review-links), then re-stamp it with engws review-links --accept %s, or use an engine that migrates that form",
+		s.ID, s.Child, form, CanonicalVersion, s.ID)
 }

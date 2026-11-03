@@ -2,6 +2,7 @@
 package engws
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -129,7 +130,7 @@ func TestMigrateLinksCoffeeFleet(t *testing.T) {
 	}
 	want := reqlinks.Fingerprint(reqlinks.PublishedItems(sub, sub.Manifest.Publications...)["CAP-TELEM-REPORT"])
 	for _, l := range bundle.ReqLinks.ReqLinks {
-		if l.Status != model.ReqLinkClaimed || l.Pinned.Version != "v0.1.0" || !strings.HasPrefix(l.Pinned.Fingerprint, "sha256:") || l.Rationale == "" {
+		if l.Status != "claimed" || l.Pinned.Version != "v0.1.0" || !strings.HasPrefix(l.Pinned.Fingerprint, "sha256:") || l.Rationale == "" {
 			t.Fatalf("link %+v", l)
 		}
 		if l.Child == "telemetry::CAP-TELEM-REPORT" && l.Pinned.Fingerprint != want {
@@ -270,5 +271,46 @@ func TestMigrateLinksKeepsInterfaceAllocation(t *testing.T) {
 	code, out, errOut = runMain(t, fakeRegistry{}, "migrate-links", "--repo", system)
 	if code != 0 || !strings.Contains(out, "engws: nothing to migrate") || !strings.Contains(out, kept) || read(t, arch) != before {
 		t.Fatalf("second run: %d\n%s\n%s", code, out, errOut)
+	}
+}
+
+// migrate-links writes several files (engmod.yml, the architecture, the
+// requirements, the link file). When one write fails, every file already
+// written is restored and a file the migration created is removed, so the
+// model is never left half migrated.
+// Mutation: not restoring the files written before the failure fails this
+// test.
+// TRLC-LINKS: REQ-EMG-104
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+func TestMigrateLinksRestoresEveryFileOnWriteFailure(t *testing.T) {
+	dir := coffeeCopy(t)
+	names := []string{"engmod.yml", filepath.Join("model", "architecture.yml"), filepath.Join("model", "requirements.yml")}
+	before := map[string]string{}
+	for _, n := range names {
+		before[n] = read(t, filepath.Join(dir, n))
+	}
+	old := writeFile
+	t.Cleanup(func() { writeFile = old })
+	writes := 0
+	writeFile = func(path string, data []byte) error {
+		if writes++; writes == 3 {
+			return fmt.Errorf("injected write failure of %s", filepath.Base(path))
+		}
+		return old(path, data)
+	}
+	_, err := MigrateLinks(dir, false)
+	if err == nil || !strings.Contains(err.Error(), "injected write failure") || !strings.Contains(err.Error(), "restored") {
+		t.Fatalf("MigrateLinks: %v", err)
+	}
+	if writes < 3 {
+		t.Fatalf("only %d writes; the failure was not injected mid-way", writes)
+	}
+	for _, n := range names {
+		if got := read(t, filepath.Join(dir, n)); got != before[n] {
+			t.Errorf("%s not restored:\n%s", n, got)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(dir, "model", "req-links.yml")); !os.IsNotExist(err) {
+		t.Fatalf("the created link file was not removed: %v", err)
 	}
 }

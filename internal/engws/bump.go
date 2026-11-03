@@ -2,9 +2,7 @@
 package engws
 
 import (
-	"bytes"
 	"fmt"
-	"github.com/labeth/engineering-model-go/internal/yamledit"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -14,10 +12,10 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
+	"github.com/labeth/engineering-model-go/internal/yamledit"
 	"golang.org/x/mod/modfile"
 	gomodule "golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
-	"gopkg.in/yaml.v3"
 )
 
 // BumpResult describes what bump changed.
@@ -45,10 +43,12 @@ type BumpOptions struct {
 	AllowSuspect bool
 }
 
-// NeedsReview reports whether a link evaluated by bump needs a review: its
-// item changed (suspect), is gone (broken) or is no published contract item.
+// blocksBump reports whether a link evaluated by bump at the new version
+// needs a review before it may move: its item changed (suspect), is gone
+// (broken), is no published contract item, or its fingerprint uses another
+// canonical form.
 // TRLC-LINKS: REQ-EMG-100
-func NeedsReview(s reqlinks.LinkStatus) bool {
+func blocksBump(s reqlinks.LinkStatus) bool {
 	return s.Content != reqlinks.StateUnchanged
 }
 
@@ -214,7 +214,7 @@ func Bump(root, repo, alias, version string, opts BumpOptions) (BumpResult, erro
 	}
 	result.Links = bumpLinkStatuses(comp.Root.Bundle, engmodel.LinkDependencies(comp.Root), alias, version)
 	for _, s := range result.Links {
-		if NeedsReview(s) {
+		if blocksBump(s) {
 			result.Blocked = true
 		} else if s.Pinned != version {
 			result.Repinned = append(result.Repinned, s.ID)
@@ -319,64 +319,18 @@ func setEnv(key, value string) func() {
 	}
 }
 
-// setDependencyVersion rewrites the version line of the dependency with the
-// given alias and leaves every other byte of the manifest unchanged. It finds
-// the line through the YAML node tree, so flow style, quoting and key order
-// do not matter, and refuses a value on another line than its key.
+// setDependencyVersion rewrites the version scalar of the dependency with
+// the given alias and leaves every other byte of the manifest unchanged
+// (yamledit.SetScalarInPlace: found through the YAML node tree, so flow
+// style, quoting and key order do not matter); it refuses a value on
+// another line than its key.
 // TRLC-LINKS: REQ-EMG-068
 func setDependencyVersion(data []byte, alias, version string) ([]byte, error) {
-	var doc yaml.Node
-	if err := yaml.Unmarshal(data, &doc); err != nil {
-		return nil, err
+	out, err := yamledit.SetScalarInPlace(data, yamledit.FindListItem([]string{"dependencies"}, "alias", alias), "version", version)
+	if err != nil {
+		return nil, fmt.Errorf("dependency %q version: %w", alias, err)
 	}
-	if len(doc.Content) == 0 || doc.Content[0].Kind != yaml.MappingNode {
-		return nil, fmt.Errorf("manifest is not a mapping")
-	}
-	deps := yamledit.MappingValue(doc.Content[0], "dependencies")
-	if deps == nil || deps.Kind != yaml.SequenceNode {
-		return nil, fmt.Errorf("no dependencies list")
-	}
-	for _, item := range deps.Content {
-		if item.Kind != yaml.MappingNode {
-			continue
-		}
-		a := yamledit.MappingValue(item, "alias")
-		if a == nil || a.Value != alias {
-			continue
-		}
-		key, value := yamledit.MappingEntry(item, "version")
-		if value == nil {
-			return nil, fmt.Errorf("dependency %q has no version", alias)
-		}
-		if key.Line != value.Line || value.Kind != yaml.ScalarNode {
-			return nil, fmt.Errorf("dependency %q version is not a single-line scalar", alias)
-		}
-		return replaceScalarOnLine(data, value.Line, value.Column, value.Value, version)
-	}
-	return nil, fmt.Errorf("no dependency alias %q", alias)
-}
-
-// replaceScalarOnLine replaces the scalar old that starts at (line, column),
-// both 1-based, with new, keeping its quotes.
-// TRLC-LINKS: REQ-EMG-068
-func replaceScalarOnLine(data []byte, line, column int, old, new string) ([]byte, error) {
-	lines := bytes.SplitAfter(data, []byte("\n"))
-	if line < 1 || line > len(lines) {
-		return nil, fmt.Errorf("line %d out of range", line)
-	}
-	text := string(lines[line-1])
-	start := column - 1
-	if start < 0 || start >= len(text) {
-		return nil, fmt.Errorf("column %d out of range on line %d", column, line)
-	}
-	if q := text[start]; q == '"' || q == '\'' {
-		start++
-	}
-	if !strings.HasPrefix(text[start:], old) {
-		return nil, fmt.Errorf("line %d does not hold %q at column %d", line, old, column)
-	}
-	lines[line-1] = []byte(text[:start] + new + text[start+len(old):])
-	return bytes.Join(lines, nil), nil
+	return out, nil
 }
 
 // depModuleAt names a module version without repeating the major suffix.

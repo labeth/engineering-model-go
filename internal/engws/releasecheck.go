@@ -111,8 +111,9 @@ func releaseTags(repo string, args ...string) ([]string, error) {
 
 // ReleaseCheck checks that the model in repo may be released under tag:
 // no dependency pin is a pre-release or pseudo-version, and the tag's bump
-// over the previous release tag (the highest release tag below it) covers
-// the contract diff between them (to the tag if it exists, else HEAD).
+// over the previous release tag (the highest release tag below it among the
+// tags merged into the released commit, git tag --merged) covers the
+// contract diff between them (to the tag if it exists, else HEAD).
 // An empty tag means the highest release tag at HEAD; without one, or
 // without a previous release tag, the semver gate is skipped with a note.
 // TRLC-LINKS: REQ-EMG-103
@@ -150,16 +151,30 @@ func ReleaseCheck(repo, tag string) (ReleaseCheckResult, error) {
 		}
 		tag = atHead[len(atHead)-1]
 	}
-	tags, err := releaseTags(repo)
+	all, err := releaseTags(repo)
 	if err != nil {
 		return result, err
 	}
-	previous, exists := "", false
-	for _, t := range tags {
+	exists := false
+	for _, t := range all {
+		exists = exists || t == tag
+	}
+	// The previous release is the nearest release tag below the tag in the
+	// history of the commit being released (the tag's commit, else HEAD):
+	// a release on another branch is not this line's previous release.
+	commit := "HEAD"
+	if exists {
+		commit = "refs/tags/" + tag
+	}
+	merged, err := releaseTags(repo, "--merged", commit)
+	if err != nil {
+		return result, err
+	}
+	previous := ""
+	for _, t := range merged {
 		if semver.Compare(t, tag) < 0 {
 			previous = t
 		}
-		exists = exists || t == tag
 	}
 	if previous == "" {
 		result.Notes = append(result.Notes, fmt.Sprintf("semver gate skipped: no release tag below %s (first release)", tag))

@@ -3,7 +3,6 @@ package engws
 
 import (
 	"fmt"
-	"github.com/labeth/engineering-model-go/internal/yamledit"
 	"io"
 	"os"
 	"path/filepath"
@@ -14,6 +13,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
+	"github.com/labeth/engineering-model-go/internal/yamledit"
 )
 
 // DefaultReqLinksPath is the requirement link file migrate-links creates.
@@ -100,10 +100,8 @@ func MigrateLinks(repo string, dryRun bool) (MigrateResult, error) {
 	}
 	sort.Strings(result.Files)
 	if !dryRun {
-		for _, path := range result.Files {
-			if err := writeFileAtomic(path, writes[path]); err != nil {
-				return result, err
-			}
+		if err := writeAllOrNothing(result.Files, writes); err != nil {
+			return result, err
 		}
 	}
 
@@ -129,6 +127,52 @@ func MigrateLinks(repo string, dryRun bool) (MigrateResult, error) {
 	}
 	sort.Strings(result.NoParent)
 	return result, nil
+}
+
+// writeAllOrNothing writes every file of paths with its content in writes.
+// It snapshots each target first; when a write fails, every file already
+// written is restored to its snapshot and a file that did not exist is
+// removed, so the model is never left half migrated.
+// TRLC-LINKS: REQ-EMG-104
+func writeAllOrNothing(paths []string, writes map[string][]byte) error {
+	type snapshot struct {
+		data    []byte
+		existed bool
+	}
+	snapshots := map[string]snapshot{}
+	for _, path := range paths {
+		data, err := os.ReadFile(path)
+		switch {
+		case err == nil:
+			snapshots[path] = snapshot{data: data, existed: true}
+		case os.IsNotExist(err):
+			snapshots[path] = snapshot{}
+		default:
+			return err
+		}
+	}
+	for i, path := range paths {
+		if err := writeFile(path, writes[path]); err != nil {
+			var failed []string
+			for _, done := range paths[:i] {
+				snap := snapshots[done]
+				var rerr error
+				if snap.existed {
+					rerr = writeFileAtomic(done, snap.data)
+				} else if rmErr := os.Remove(done); rmErr != nil && !os.IsNotExist(rmErr) {
+					rerr = rmErr
+				}
+				if rerr != nil {
+					failed = append(failed, fmt.Sprintf("%s (%v)", done, rerr))
+				}
+			}
+			if len(failed) > 0 {
+				return fmt.Errorf("write %s: %w; restoring also failed for %s", path, err, strings.Join(failed, ", "))
+			}
+			return fmt.Errorf("write %s: %w; every file restored, nothing migrated", path, err)
+		}
+	}
+	return nil
 }
 
 // applyInMemory applies the ref conversion of a dry run to a bundle copy,
@@ -338,27 +382,23 @@ func migrateAllocations(b model.Bundle, manifestPath string, read func(string) (
 }
 
 // notLinkTarget says why alias::id of a resolved dependency is no link
-// target: an interface (or other non-item) contract entry, an unpublished
-// item, or no contract item at all.
+// target (reqlinks.NonItemReason): an unpublished item, an interface (or
+// other non-item) contract entry, or no contract item at all.
 // TRLC-LINKS: REQ-EMG-104
 func notLinkTarget(dep model.Bundle, alias, id string) string {
-	for _, entries := range [][]model.ContractEntry{dep.Architecture.Contract.Provides, dep.Architecture.Contract.Requires} {
-		for _, e := range entries {
-			if strings.TrimSpace(e.ID) != id {
-				continue
-			}
-			kind := strings.ToLower(strings.TrimSpace(e.Kind))
-			if kind == string(reqlinks.KindCapability) {
-				return fmt.Sprintf("%s is not in a selected publication of %s; publish it and link that", id, alias)
-			}
-			if kind == "" {
-				kind = "contract"
-			}
-			return kind + " entries are not link targets; publish a capability that realizes it and link that"
-		}
-	}
-	if _, ok := reqlinks.ItemsFromBundle(dep)[id]; ok {
+	switch reqlinks.NonItemReason(dep, id) {
+	case reqlinks.ReasonNotInPublication:
 		return fmt.Sprintf("%s is not in a selected publication of %s; publish it and link that", id, alias)
+	case reqlinks.ReasonNotContractItem:
+		kind := "contract"
+		for _, entries := range [][]model.ContractEntry{dep.Architecture.Contract.Provides, dep.Architecture.Contract.Requires} {
+			for _, e := range entries {
+				if strings.TrimSpace(e.ID) == id && strings.TrimSpace(e.Kind) != "" {
+					kind = strings.ToLower(strings.TrimSpace(e.Kind))
+				}
+			}
+		}
+		return kind + " entries are not link targets; publish a capability that realizes it and link that"
 	}
 	return fmt.Sprintf("%s is not a capability or assumption of use of %s; link a published contract item", id, alias)
 }

@@ -38,7 +38,52 @@ const (
 	LinkStateVersionMismatch  = reqlinks.StateVersionMismatch
 	LinkStateChildUnpublished = reqlinks.StateChildUnpublished
 	LinkStateUnresolved       = reqlinks.StateUnresolved
+	// LinkStateFingerprintOutdated: the recorded fingerprint uses another canonical form.
+	LinkStateFingerprintOutdated = reqlinks.StateFingerprintOutdated
 )
+
+// ContractItemCanonicalVersion is the canonical-form version a fingerprint names (sha256:vN:).
+const ContractItemCanonicalVersion = reqlinks.CanonicalVersion
+
+// ContractItemFingerprintVersion returns the canonical-form version of a recorded fingerprint.
+// TRLC-LINKS: REQ-EMG-109
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func ContractItemFingerprintVersion(fingerprint string) int {
+	return reqlinks.FingerprintVersion(fingerprint)
+}
+
+// LinkReason classifies a child_unpublished or unresolved link.
+type LinkReason = reqlinks.Reason
+
+const (
+	LinkReasonNone             = reqlinks.ReasonNone
+	LinkReasonUndeclaredAlias  = reqlinks.ReasonUndeclaredAlias
+	LinkReasonUnresolved       = reqlinks.ReasonUnresolved
+	LinkReasonNotInPublication = reqlinks.ReasonNotInPublication
+	LinkReasonNotContractItem  = reqlinks.ReasonNotContractItem
+	LinkReasonMissing          = reqlinks.ReasonMissing
+)
+
+// ContractNonItemReason says why an ID is no published contract item of a dependency model.
+// TRLC-LINKS: REQ-EMG-097
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func ContractNonItemReason(dep Bundle, id string) LinkReason { return reqlinks.NonItemReason(dep, id) }
+
+// SortedContractItemRealizers returns a copy of realizers sorted by ID.
+// TRLC-LINKS: REQ-EMG-097
+func SortedContractItemRealizers(in []ContractItemRealizer) []ContractItemRealizer {
+	return reqlinks.SortedRealizers(in)
+}
+
+// ContractCapabilityRefs maps each requirement a capability names in its deprecated ref to it.
+// TRLC-LINKS: REQ-EMG-091
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func ContractCapabilityRefs(bundle Bundle) map[string]string { return reqlinks.CapabilityRefs(bundle) }
+
+// OutdatedLinkMessage describes a link whose fingerprint uses another canonical form.
+// TRLC-LINKS: REQ-EMG-109
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func OutdatedLinkMessage(status LinkStatus) string { return reqlinks.OutdatedMessage(status) }
 
 // LinkDependency is one resolved dependency as requirement link evaluation sees it.
 // TRLC-LINKS: REQ-EMG-097
@@ -91,7 +136,7 @@ func EvaluateRequirementLinks(system Bundle, deps []LinkDependency) []LinkStatus
 // TRLC-LINKS: REQ-EMG-097, REQ-EMG-098
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
 func RequirementLinkDiagnostics(system Bundle, deps []LinkDependency) []Diagnostic {
-	return reqlinks.Diagnostics(system, deps)
+	return composition.LinkDiagnostics(system, deps)
 }
 
 // SuspectLinkMessage describes a suspect link with fingerprints and current texts.

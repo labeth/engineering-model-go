@@ -75,7 +75,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			// used by internal/asciidoc and internal/trace.
 			"ComposeForGeneration", "DelegationsByRequirement", "EnrichBundleFromComposition",
 			"MaterializeAllocations", "PathWithin", "ResolutionCount",
-		}},
+		}, rootName: map[string]string{"LinkDiagnostics": "RequirementLinkDiagnostics"}},
 		{dir: filepath.Join("internal", "reqlinks"), rootName: map[string]string{
 			"Kind": "ContractItemKind", "KindCapability": "ContractItemCapability", "KindAssumption": "ContractItemAssumption",
 			"Realizer": "ContractItemRealizer", "Item": "ContractItem", "State": "LinkState",
@@ -85,7 +85,13 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"CanonicalItem": "CanonicalContractItem", "Fingerprint": "ContractItemFingerprint",
 			"ItemsFromBundle": "ContractItemsFromBundle", "RealizedItems": "RealizedContractItems",
 			"PublishedItems": "PublishedContractItems", "EvaluateLinks": "EvaluateRequirementLinks",
-			"Diagnostics": "RequirementLinkDiagnostics", "SuspectMessage": "SuspectLinkMessage",
+			"SuspectMessage": "SuspectLinkMessage", "OutdatedMessage": "OutdatedLinkMessage",
+			"StateFingerprintOutdated": "LinkStateFingerprintOutdated", "CanonicalVersion": "ContractItemCanonicalVersion",
+			"FingerprintVersion": "ContractItemFingerprintVersion", "SortedRealizers": "SortedContractItemRealizers",
+			"CapabilityRefs": "ContractCapabilityRefs", "Reason": "LinkReason", "ReasonNone": "LinkReasonNone",
+			"ReasonUndeclaredAlias": "LinkReasonUndeclaredAlias", "ReasonUnresolved": "LinkReasonUnresolved",
+			"ReasonNotInPublication": "LinkReasonNotInPublication", "ReasonNotContractItem": "LinkReasonNotContractItem",
+			"ReasonMissing": "LinkReasonMissing", "NonItemReason": "ContractNonItemReason",
 		}},
 		{dir: filepath.Join("internal", "codescan"), internalOnly: []string{
 			// code, runtime and verification inference, used by internal/trace
