@@ -335,6 +335,8 @@ func argsForTool(name string) map[string]any {
 		return map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")}
 	case "model.complete":
 		return map[string]any{"prefix": "FU-", "field": "appliesTo"}
+	case "model.patch":
+		return map[string]any{"document": "assurance", "id": "RISK-PAYMENTS-SSO-MFA-GAP", "set": map[string]any{"title": "Renamed"}}
 	case "model.diagnose":
 		content, _ := os.ReadFile(filepath.Join("..", "..", "examples", "payments-engineering-sample", "model", "decisions.yml"))
 		return map[string]any{"document": "decisions", "content": string(content)}

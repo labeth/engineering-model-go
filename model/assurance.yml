@@ -89,8 +89,9 @@ assurance:
     name: Repository-Local Model Writes
     category: input-validation
     description: The commands that write model files (review-links --accept, migrate-links, bump) write only the model's own
-      files through an atomic replace that keeps their mode, restore every file on a failed write, and the MCP server
-      writes none (links.review returns a patch).
+      files through an atomic replace that keeps their mode and restore every file on a failed write. In the MCP server
+      only model.patch writes, with write true, a valid result, into a manifest document (not engmod.yml or the link file)
+      that resolves inside the model root (ADR-EMG-029); links.review returns a patch.
   - id: CTRL-GIT-REF-VALIDATION
     name: Git Ref Validation
     category: input-validation
@@ -594,9 +595,11 @@ assurance:
     - CODE-INTERNAL-MCP-REQLINKS-TEST-GO--TESTLINKSREVIEWTOOLRETURNSCOMMANDANDPATCH
     - CODE-INTERNAL-ENGWS-MIGRATELINKS-TEST-GO--TESTMIGRATELINKSRESTORESEVERYFILEONWRITEFAILURE
     - CODE-INTERNAL-ENGWS-WRITEFILE-TEST-GO--TESTWRITEFILEATOMICKEEPSMODE
+    - CODE-INTERNAL-MCP-PATCH-TEST-GO--TESTMODELPATCHEDITSVALIDATESANDWRITESONLYVALIDRESULTS
     findings:
     - links.review leaves the link file unchanged; a failed migrate-links write restores every file; a rewritten file
-      keeps its mode.
+      keeps its mode; model.patch writes only a valid result into a model document inside the model root and refuses the
+      link file.
   - id: VER-GIT-REF-VALIDATION
     controlRef: CTRL-GIT-REF-VALIDATION
     threatScenarioRefs:

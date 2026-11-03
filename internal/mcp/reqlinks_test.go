@@ -240,10 +240,12 @@ func TestLinksListAndSuspectTools(t *testing.T) {
 // from the server clock, and rationale), computed like the command from the
 // published dependency at its pin (workspace off); it refuses an actor the
 // model does not define, an unknown link and a broken link.
+// model.patch refuses the link file.
 // Mutation: writing the link file, dropping the fingerprint line from the
 // patch, accepting an unknown actor, using the wall clock instead of the
-// server clock or reading the workspace checkout fails this test.
-// TRLC-LINKS: REQ-EMG-106
+// server clock, reading the workspace checkout or letting model.patch edit
+// the link file fails this test.
+// TRLC-LINKS: REQ-EMG-106, REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 	root := copyLinksExample(t)
@@ -281,6 +283,13 @@ func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 	}
 	if msg := toolError(t, s, "links.review", map[string]any{"linkId": "LNK-NONE", "by": "ACT-SYSTEM-OWNER"}); !strings.Contains(msg, "no requirement link LNK-NONE") {
 		t.Fatalf("unknown link: %q", msg)
+	}
+	// model.patch does not edit the link file either (D14, ADR-EMG-029).
+	if msg := toolError(t, s, "model.patch", map[string]any{"document": "reqLinks", "id": "LNK-SYS-001-ENCODER", "write": true, "set": map[string]any{"status": "accepted"}}); !strings.Contains(msg, "engws review-links --accept") {
+		t.Fatalf("model.patch on the link file: %q", msg)
+	}
+	if after, _ := os.ReadFile(linksFile); string(after) != string(before) {
+		t.Fatal("model.patch wrote the link file")
 	}
 }
 

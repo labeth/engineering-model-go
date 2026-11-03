@@ -10,6 +10,8 @@ package yamledit
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -141,7 +143,7 @@ func SetKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, ra
 		_, end := KeyRange(lines, lastKey, mapping.Content[len(mapping.Content)-1])
 		return SpliceLines(lines, end, end, entry()...), nil
 	}
-	if value.Kind == yaml.ScalarNode && value.Line == keyNode.Line && !strings.HasPrefix(raw, "\n") && (value.Style == 0 || value.Style == yaml.DoubleQuotedStyle || value.Style == yaml.SingleQuotedStyle) {
+	if value.Kind == yaml.ScalarNode && value.Line == keyNode.Line && !strings.Contains(raw, "\n") && (value.Style == 0 || value.Style == yaml.DoubleQuotedStyle || value.Style == yaml.SingleQuotedStyle) {
 		line := lines[value.Line-1]
 		startCol := value.Column - 1
 		endCol, ok := ScalarEnd(line, startCol, value)
@@ -409,4 +411,610 @@ func MappingEntry(node *yaml.Node, key string) (*yaml.Node, *yaml.Node) {
 		}
 	}
 	return nil, nil
+}
+
+// FindByID returns a function that finds the one mapping, an item of any
+// sequence in the document, whose id is id: a top-level entity (a risk, a
+// requirement) or a nested one (a flow step). No match and more than one
+// match are errors.
+// TRLC-LINKS: REQ-EMG-113
+func FindByID(id string) func(*yaml.Node) (*yaml.Node, error) {
+	return func(root *yaml.Node) (*yaml.Node, error) {
+		var found []*yaml.Node
+		var walk func(n *yaml.Node, inSequence bool)
+		walk = func(n *yaml.Node, inSequence bool) {
+			if n.Kind == yaml.MappingNode && inSequence {
+				if v := MappingValue(n, "id"); v != nil && v.Kind == yaml.ScalarNode && strings.TrimSpace(v.Value) == id {
+					found = append(found, n)
+				}
+			}
+			for _, c := range n.Content {
+				walk(c, n.Kind == yaml.SequenceNode)
+			}
+		}
+		walk(root, false)
+		switch len(found) {
+		case 0:
+			return nil, fmt.Errorf("no entity with id %s in the document", id)
+		case 1:
+			return found[0], nil
+		default:
+			lines := make([]string, len(found))
+			for i, n := range found {
+				lines[i] = fmt.Sprint(n.Line)
+			}
+			return nil, fmt.Errorf("id %s is not unique in the document (lines %s)", id, strings.Join(lines, ", "))
+		}
+	}
+}
+
+// within returns a function that walks keys (mappings only) below the node
+// find returns.
+// TRLC-LINKS: REQ-EMG-113
+func within(find func(*yaml.Node) (*yaml.Node, error), keys []string) func(*yaml.Node) (*yaml.Node, error) {
+	return func(root *yaml.Node) (*yaml.Node, error) {
+		node, err := find(root)
+		if err != nil {
+			return nil, err
+		}
+		for i, k := range keys {
+			if node.Kind != yaml.MappingNode {
+				return nil, fmt.Errorf("line %d: %s is not a mapping", node.Line, strings.Join(keys[:i], "."))
+			}
+			next := MappingValue(node, k)
+			if next == nil {
+				return nil, fmt.Errorf("no %s", strings.Join(keys[:i+1], "."))
+			}
+			node = next
+		}
+		if node.Kind != yaml.MappingNode {
+			return nil, fmt.Errorf("line %d: %s is not a mapping", node.Line, strings.Join(keys, "."))
+		}
+		return node, nil
+	}
+}
+
+// valueNode converts a JSON-decoded value (string, bool, number, list,
+// object) to a YAML node; object keys are written id first, then sorted.
+// TRLC-LINKS: REQ-EMG-113
+func valueNode(v any) (*yaml.Node, error) {
+	switch x := v.(type) {
+	case nil:
+		return nil, fmt.Errorf("a null value cannot be set; unset the field instead")
+	case string:
+		return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: x}, nil
+	case bool, int, int64, float64:
+		var n yaml.Node
+		if err := n.Encode(x); err != nil {
+			return nil, err
+		}
+		return &n, nil
+	case []string:
+		items := make([]any, len(x))
+		for i, s := range x {
+			items[i] = s
+		}
+		return valueNode(items)
+	case []any:
+		seq := &yaml.Node{Kind: yaml.SequenceNode, Tag: "!!seq"}
+		for _, item := range x {
+			n, err := valueNode(item)
+			if err != nil {
+				return nil, err
+			}
+			seq.Content = append(seq.Content, n)
+		}
+		return seq, nil
+	case map[string]any:
+		keys := make([]string, 0, len(x))
+		for k := range x {
+			if k != "id" {
+				keys = append(keys, k)
+			}
+		}
+		sortStrings(keys)
+		if _, ok := x["id"]; ok {
+			keys = append([]string{"id"}, keys...)
+		}
+		m := &yaml.Node{Kind: yaml.MappingNode, Tag: "!!map"}
+		for _, k := range keys {
+			n, err := valueNode(x[k])
+			if err != nil {
+				return nil, fmt.Errorf("%s: %w", k, err)
+			}
+			m.Content = append(m.Content, &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!str", Value: k}, n)
+		}
+		return m, nil
+	default:
+		return nil, fmt.Errorf("unsupported value type %T", v)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-113
+func sortStrings(s []string) {
+	for i := 1; i < len(s); i++ {
+		for j := i; j > 0 && s[j] < s[j-1]; j-- {
+			s[j], s[j-1] = s[j-1], s[j]
+		}
+	}
+}
+
+// encodeLines renders node as YAML with two-space indentation, one string
+// per line without newline.
+// TRLC-LINKS: REQ-EMG-113
+func encodeLines(node *yaml.Node) ([]string, error) {
+	var buf bytes.Buffer
+	enc := yaml.NewEncoder(&buf)
+	enc.SetIndent(2)
+	if err := enc.Encode(node); err != nil {
+		return nil, err
+	}
+	if err := enc.Close(); err != nil {
+		return nil, err
+	}
+	return strings.Split(strings.TrimSuffix(buf.String(), "\n"), "\n"), nil
+}
+
+// rawValue encodes value for SetKey under a key whose mapping keys are
+// indented by indent columns: a single-line scalar or flow value, a block
+// scalar header with its lines, or (starting with a newline) a block.
+// TRLC-LINKS: REQ-EMG-113
+func rawValue(key string, value any, indent int) (string, error) {
+	node, err := valueNode(value)
+	if err != nil {
+		return "", err
+	}
+	lines, err := encodeLines(&yaml.Node{Kind: yaml.MappingNode, Content: []*yaml.Node{{Kind: yaml.ScalarNode, Tag: "!!str", Value: key}, node}})
+	if err != nil {
+		return "", err
+	}
+	head := strings.TrimPrefix(strings.TrimPrefix(lines[0], Scalar(key)), ":")
+	pad := strings.Repeat(" ", indent)
+	rest := make([]string, 0, len(lines)-1)
+	for _, l := range lines[1:] {
+		rest = append(rest, pad+l)
+	}
+	if head == "" {
+		return "\n" + strings.Join(rest, "\n"), nil
+	}
+	return strings.Join(append([]string{strings.TrimPrefix(head, " ")}, rest...), "\n"), nil
+}
+
+// keyIndent returns the indentation of the keys of a block mapping.
+// TRLC-LINKS: REQ-EMG-113
+func keyIndent(mapping *yaml.Node) int {
+	if len(mapping.Content) > 0 {
+		return mapping.Content[0].Column - 1
+	}
+	return mapping.Column - 1
+}
+
+// SetPath sets the field at path (keys below the entity find returns, for
+// example acceptedBy.statement) to value, a JSON-decoded string, bool,
+// number, list or object. A single-line scalar is replaced in place; a
+// missing key is added after the last key of its mapping; a missing
+// intermediate mapping is created with the rest of the path.
+// TRLC-LINKS: REQ-EMG-113
+func SetPath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []string, value any) ([]byte, error) {
+	if len(path) == 0 {
+		return nil, fmt.Errorf("empty field path")
+	}
+	root, err := Parse(data)
+	if err != nil {
+		return nil, err
+	}
+	node, err := find(root)
+	if err != nil {
+		return nil, err
+	}
+	depth := 0
+	for ; depth < len(path)-1; depth++ {
+		if node.Kind != yaml.MappingNode {
+			return nil, fmt.Errorf("line %d: %s is not a mapping", node.Line, strings.Join(path[:depth], "."))
+		}
+		next := MappingValue(node, path[depth])
+		if next == nil {
+			break
+		}
+		node = next
+	}
+	if node.Kind != yaml.MappingNode {
+		return nil, fmt.Errorf("line %d: %s is not a mapping", node.Line, strings.Join(path[:depth], "."))
+	}
+	// Build the missing part of the path as nested objects.
+	for i := len(path) - 1; i > depth; i-- {
+		value = map[string]any{path[i]: value}
+	}
+	raw, err := rawValue(path[depth], value, keyIndent(node))
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", strings.Join(path, "."), err)
+	}
+	return SetKey(data, within(find, path[:depth]), path[depth], raw)
+}
+
+// UnsetPath removes the field at path with its lines; a missing field is an
+// error.
+// TRLC-LINKS: REQ-EMG-113
+func UnsetPath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []string) ([]byte, error) {
+	if len(path) == 0 {
+		return nil, fmt.Errorf("empty field path")
+	}
+	out, changed, err := RemoveKey(data, within(find, path[:len(path)-1]), path[len(path)-1])
+	if err != nil {
+		return nil, err
+	}
+	if !changed {
+		return nil, fmt.Errorf("no field %s to unset", strings.Join(path, "."))
+	}
+	return out, nil
+}
+
+// sequenceAt returns the mapping holding the last key of path, and the key
+// and value nodes of that key (nil when the key is missing).
+// TRLC-LINKS: REQ-EMG-113
+func sequenceAt(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []string) (*yaml.Node, *yaml.Node, *yaml.Node, error) {
+	if len(path) == 0 {
+		return nil, nil, nil, fmt.Errorf("empty field path")
+	}
+	root, err := Parse(data)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	mapping, err := within(find, path[:len(path)-1])(root)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+	key, value := MappingEntry(mapping, path[len(path)-1])
+	if key != nil && value.Kind != yaml.SequenceNode && !(value.Kind == yaml.ScalarNode && value.Tag == "!!null") {
+		return nil, nil, nil, fmt.Errorf("line %d: %s is not a list", key.Line, strings.Join(path, "."))
+	}
+	return mapping, key, value, nil
+}
+
+// flowItemsRange returns the column range [start, end) of the one-line flow
+// sequence value on its line, brackets included.
+// TRLC-LINKS: REQ-EMG-113
+func flowItemsRange(line string, value *yaml.Node) (int, int, bool) {
+	start := value.Column - 1
+	if start >= len(line) || line[start] != '[' {
+		return 0, 0, false
+	}
+	for _, item := range value.Content {
+		if item.Kind != yaml.ScalarNode || item.Line != value.Line {
+			return 0, 0, false
+		}
+	}
+	quote := byte(0)
+	for i := start + 1; i < len(line); i++ {
+		c := line[i]
+		switch {
+		case quote != 0:
+			if c == quote {
+				quote = 0
+			} else if c == '\\' && quote == '"' {
+				i++
+			}
+		case c == '"' || c == '\'':
+			quote = c
+		case c == '[' || c == '{':
+			return 0, 0, false
+		case c == ']':
+			return start, i + 1, true
+		}
+	}
+	return 0, 0, false
+}
+
+// rewriteFlow replaces a one-line flow sequence with items (raw scalars).
+// TRLC-LINKS: REQ-EMG-113
+func rewriteFlow(data []byte, value *yaml.Node, items []string) ([]byte, error) {
+	lines := SplitLines(data)
+	line := lines[value.Line-1]
+	start, end, ok := flowItemsRange(line, value)
+	if !ok {
+		return nil, fmt.Errorf("line %d: the flow list spans lines or holds collections; rewrite it as a block list first", value.Line)
+	}
+	lines[value.Line-1] = line[:start] + "[" + strings.Join(items, ", ") + "]" + line[end:]
+	return []byte(strings.Join(lines, "")), nil
+}
+
+// flowRaw returns the raw text of each scalar item of a one-line flow
+// sequence.
+// TRLC-LINKS: REQ-EMG-113
+func flowRaw(line string, value *yaml.Node) ([]string, error) {
+	out := make([]string, 0, len(value.Content))
+	for _, item := range value.Content {
+		end, ok := ScalarEnd(line, item.Column-1, item)
+		if !ok {
+			return nil, fmt.Errorf("line %d: flow list item %q not found in place", item.Line, item.Value)
+		}
+		out = append(out, line[item.Column-1:end])
+	}
+	return out, nil
+}
+
+// AppendPath appends items to the list at path, creating the list when the
+// field is missing. A block list gets block items at the indentation of its
+// items; a one-line flow list of scalars stays a flow list.
+// TRLC-LINKS: REQ-EMG-113
+func AppendPath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []string, items []any) ([]byte, error) {
+	if len(items) == 0 {
+		return data, nil
+	}
+	_, key, value, err := sequenceAt(data, find, path)
+	if err != nil {
+		return nil, err
+	}
+	if key == nil || value.Kind != yaml.SequenceNode {
+		return SetPath(data, find, path, items)
+	}
+	if value.Style&yaml.FlowStyle != 0 && len(value.Content) > 0 {
+		raw, err := flowRaw(SplitLines(data)[value.Line-1], value)
+		if err != nil {
+			return nil, err
+		}
+		for _, item := range items {
+			n, err := valueNode(item)
+			if err != nil {
+				return nil, err
+			}
+			if n.Kind != yaml.ScalarNode {
+				return nil, fmt.Errorf("line %d: %s is a flow list; only scalars can be appended to it", value.Line, strings.Join(path, "."))
+			}
+			lines, err := encodeLines(n)
+			if err != nil {
+				return nil, err
+			}
+			raw = append(raw, lines[0])
+		}
+		return rewriteFlow(data, value, raw)
+	}
+	block := make([]string, 0, len(items))
+	for _, item := range items {
+		n, err := valueNode(item)
+		if err != nil {
+			return nil, err
+		}
+		lines, err := encodeLines(&yaml.Node{Kind: yaml.SequenceNode, Content: []*yaml.Node{n}})
+		if err != nil {
+			return nil, err
+		}
+		block = append(block, strings.Join(lines, "\n"))
+	}
+	return AppendSequenceItems(data, within(find, path[:len(path)-1]), path[len(path)-1], block)
+}
+
+// itemMatches reports whether a list item is value: a scalar equal to it, or
+// a mapping whose id is it.
+// TRLC-LINKS: REQ-EMG-113
+func itemMatches(item *yaml.Node, value string) bool {
+	switch item.Kind {
+	case yaml.ScalarNode:
+		return item.Value == value
+	case yaml.MappingNode:
+		id := MappingValue(item, "id")
+		return id != nil && id.Kind == yaml.ScalarNode && id.Value == value
+	}
+	return false
+}
+
+// RemovePath removes from the list at path every item equal to one of
+// values (a scalar item, or an object item by its id). A value no item
+// matches is an error; a list left empty is written as [].
+// TRLC-LINKS: REQ-EMG-113
+func RemovePath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []string, values []any) ([]byte, error) {
+	_, key, value, err := sequenceAt(data, find, path)
+	if err != nil {
+		return nil, err
+	}
+	if key == nil || value.Kind != yaml.SequenceNode {
+		return nil, fmt.Errorf("no list %s", strings.Join(path, "."))
+	}
+	remove := map[int]bool{}
+	for _, v := range values {
+		s, ok := v.(string)
+		if !ok {
+			n, err := valueNode(v)
+			if err != nil || n.Kind != yaml.ScalarNode {
+				return nil, fmt.Errorf("remove %s: name an item by its scalar value or id", strings.Join(path, "."))
+			}
+			s = n.Value
+		}
+		matched := false
+		for i, item := range value.Content {
+			if itemMatches(item, s) {
+				remove[i], matched = true, true
+			}
+		}
+		if !matched {
+			return nil, fmt.Errorf("list %s has no item %q", strings.Join(path, "."), s)
+		}
+	}
+	if len(remove) == len(value.Content) {
+		return SetKey(data, within(find, path[:len(path)-1]), path[len(path)-1], "[]")
+	}
+	if value.Style&yaml.FlowStyle != 0 {
+		raw, err := flowRaw(SplitLines(data)[value.Line-1], value)
+		if err != nil {
+			return nil, err
+		}
+		kept := []string{}
+		for i, r := range raw {
+			if !remove[i] {
+				kept = append(kept, r)
+			}
+		}
+		return rewriteFlow(data, value, kept)
+	}
+	indexes := make([]int, 0, len(remove))
+	for i := range remove {
+		indexes = append(indexes, i)
+	}
+	return RemoveSequenceItems(data, within(find, path[:len(path)-1]), path[len(path)-1], indexes)
+}
+
+// UnifiedDiff returns the unified diff (three lines of context, git apply
+// format) of before and after under name, or "" when they are equal.
+// TRLC-LINKS: REQ-EMG-113
+func UnifiedDiff(name string, before, after []byte) string {
+	if bytes.Equal(before, after) {
+		return ""
+	}
+	split := func(b []byte) []string {
+		s := strings.TrimSuffix(string(b), "\n")
+		if s == "" {
+			return nil
+		}
+		return strings.Split(s, "\n")
+	}
+	a, b := split(before), split(after)
+	// Trim the common prefix and suffix before the quadratic LCS.
+	pre := 0
+	for pre < len(a) && pre < len(b) && a[pre] == b[pre] {
+		pre++
+	}
+	suf := 0
+	for suf < len(a)-pre && suf < len(b)-pre && a[len(a)-1-suf] == b[len(b)-1-suf] {
+		suf++
+	}
+	type op struct {
+		kind byte // ' ', '-', '+'
+		ai   int  // index in a (for ' ' and '-'), else position
+		bi   int
+	}
+	var ops []op
+	for i := 0; i < pre; i++ {
+		ops = append(ops, op{' ', i, i})
+	}
+	ma, mb := a[pre:len(a)-suf], b[pre:len(b)-suf]
+	lcs := make([][]int, len(ma)+1)
+	for i := range lcs {
+		lcs[i] = make([]int, len(mb)+1)
+	}
+	for i := len(ma) - 1; i >= 0; i-- {
+		for j := len(mb) - 1; j >= 0; j-- {
+			if ma[i] == mb[j] {
+				lcs[i][j] = lcs[i+1][j+1] + 1
+			} else {
+				lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])
+			}
+		}
+	}
+	i, j := 0, 0
+	for i < len(ma) || j < len(mb) {
+		switch {
+		case i < len(ma) && j < len(mb) && ma[i] == mb[j]:
+			ops = append(ops, op{' ', pre + i, pre + j})
+			i++
+			j++
+		case j == len(mb) || (i < len(ma) && lcs[i+1][j] >= lcs[i][j+1]):
+			ops = append(ops, op{'-', pre + i, pre + j})
+			i++
+		default:
+			ops = append(ops, op{'+', pre + i, pre + j})
+			j++
+		}
+	}
+	for k := 0; k < suf; k++ {
+		ops = append(ops, op{' ', len(a) - suf + k, len(b) - suf + k})
+	}
+	const context = 3
+	var out strings.Builder
+	fmt.Fprintf(&out, "--- a/%s\n+++ b/%s\n", name, name)
+	rng := func(start, count int) string {
+		if count == 0 {
+			return fmt.Sprintf("%d,0", start)
+		}
+		if count == 1 {
+			return fmt.Sprint(start + 1)
+		}
+		return fmt.Sprintf("%d,%d", start+1, count)
+	}
+	for k := 0; k < len(ops); {
+		if ops[k].kind == ' ' {
+			k++
+			continue
+		}
+		start := max(k-context, 0)
+		end := k
+		for end < len(ops) {
+			if ops[end].kind != ' ' {
+				end++
+				continue
+			}
+			run := end
+			for run < len(ops) && ops[run].kind == ' ' {
+				run++
+			}
+			if run == len(ops) || run-end > 2*context {
+				end = min(end+context, len(ops))
+				break
+			}
+			end = run
+		}
+		aCount, bCount := 0, 0
+		for _, o := range ops[start:end] {
+			if o.kind != '+' {
+				aCount++
+			}
+			if o.kind != '-' {
+				bCount++
+			}
+		}
+		fmt.Fprintf(&out, "@@ -%s +%s @@\n", rng(ops[start].ai, aCount), rng(ops[start].bi, bCount))
+		for _, o := range ops[start:end] {
+			switch o.kind {
+			case ' ':
+				out.WriteString(" " + a[o.ai] + "\n")
+			case '-':
+				out.WriteString("-" + a[o.ai] + "\n")
+			default:
+				out.WriteString("+" + b[o.bi] + "\n")
+			}
+		}
+		k = end
+	}
+	return out.String()
+}
+
+// WriteFileAtomic replaces the existing file at path with data through a
+// temporary file in the same directory and a rename, keeping the file's
+// permission bits; a missing file is an error.
+// TRLC-LINKS: REQ-EMG-113
+func WriteFileAtomic(path string, data []byte) error {
+	info, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+	if !info.Mode().IsRegular() {
+		return fmt.Errorf("%s is not a regular file", filepath.Base(path))
+	}
+	tmp, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".tmp-*")
+	if err != nil {
+		return err
+	}
+	name := tmp.Name()
+	fail := func(err error) error {
+		tmp.Close()
+		os.Remove(name)
+		return err
+	}
+	if err := tmp.Chmod(info.Mode().Perm()); err != nil {
+		return fail(err)
+	}
+	if _, err := tmp.Write(data); err != nil {
+		return fail(err)
+	}
+	if err := tmp.Sync(); err != nil {
+		return fail(err)
+	}
+	if err := tmp.Close(); err != nil {
+		os.Remove(name)
+		return err
+	}
+	if err := os.Rename(name, path); err != nil {
+		os.Remove(name)
+		return err
+	}
+	return nil
 }

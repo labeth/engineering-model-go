@@ -106,6 +106,7 @@ var toolArgsAllowlist = map[string][]string{
 	"model.authoringContract":      {},
 	"model.complete":               {"prefix", "query", "q", "field", "max"},
 	"model.diagnose":               {"document", "path", "content"},
+	"model.patch":                  {"document", "id", "set", "unset", "append", "remove", "write"},
 	"model.entity":                 {"entityId", "id"},
 	"model.implementations":        {"entityId", "id", "groupBy", "max"},
 	"code.contextForTask":          {"query", "q", "requirementId", "reqId", "entityId", "id", "path", "file", "max"},
@@ -193,6 +194,7 @@ func NewServer() *Server {
 		{Name: "model.authoringContract", Description: "Get the compact canonical YAML authoring contract"},
 		{Name: "model.complete", Description: "Complete a value while editing model YAML: local IDs, imported alias::ID from selected dependency publications (workspace replacement or local module cache; offline), catalog term names, allowed enum values and relationship types with their kind pairs. prefix is matched case-insensitively (empty lists all); field narrows candidates, e.g. appliesTo, owner, interfaceRef, relationship.type, flow.kind, status, risk.status, catalog; max defaults to 50. Returns candidates [{value, kind, source (local, rules or the dependency alias), title}] and a note when imports cannot be resolved"},
 		{Name: "model.diagnose", Description: "Validate the model with one document's content replaced in memory (nothing is written): document is a manifest document key (catalog, requirements, architecture, behavior, assurance, compliance, views, decisions) or its path; content is the full YAML text. Returns valid, that document's diagnostics with line/column where they can be located, a count of other diagnostics and YAML parse errors with line and column"},
+		{Name: "model.patch", Description: "Edit one model entity by stable ID and validate the result: document (a manifest document key or its path), id (any list item with that id in the document, nested flow steps included), set {field: value} (dotted paths for nested fields, e.g. acceptedBy.statement; missing fields and mappings are added), unset [field], append {listField: item or [items]}, remove {listField: value or [values]} (scalar items, or object items by id), write (default false). Edits keep every untouched line, comments included; the whole model is validated with the edited document like model.diagnose. Returns valid, diagnostics, patch (unified diff) and written. It writes only with write: true, only a valid result, only a document the manifest lists that resolves inside the model root, atomically and keeping the file mode: the one MCP tool that writes (ADR-EMG-029)"},
 		{Name: "model.entity", Description: "Get model entity detail"},
 		{Name: "model.implementations", Description: "List source declarations linked to any model entity"},
 		{Name: "code.contextForTask", Description: "Assemble compact code and model context for a task"},
@@ -782,6 +784,12 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		return simple(map[string]any{"contract": model.BuildAuthoringContract(*s.bundle), "rules": validate.AuthoringRules()})
 	case "model.complete":
 		return simple(s.modelComplete(args))
+	case "model.patch":
+		data, err := s.modelPatch(args)
+		if err != nil {
+			return nil, err
+		}
+		return simple(data)
 	case "model.diagnose":
 		data, err := s.modelDiagnose(args)
 		if err != nil {
@@ -2703,6 +2711,9 @@ var booleanToolArgs = map[string]bool{"summaryOnly": true}
 // TRLC-LINKS: REQ-EMG-008
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func inputSchemaForTool(name string) map[string]any {
+	if name == "model.patch" {
+		return patchInputSchema()
+	}
 	allowed := toolArgsAllowlist[name]
 	props := map[string]any{}
 	for _, k := range allowed {

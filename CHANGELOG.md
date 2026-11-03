@@ -6,6 +6,17 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- MCP `model.patch` (REQ-EMG-113, ADR-EMG-029): edit one model entity by stable ID
+  (`{document, id, set, unset, append, remove, write}`) with line-preserving YAML edits,
+  validate the whole model like `model.diagnose` and return `valid`, `diagnostics`, a unified
+  diff `patch` and `written`. It is the one MCP tool that writes: only with `write: true`, only
+  a valid result, only a manifest document inside the model root (not `engmod.yml` or the
+  requirement link file), atomically keeping the file mode. `internal/yamledit` gains
+  `FindByID`, `SetPath`, `UnsetPath`, `AppendPath`, `RemovePath`, `UnifiedDiff` and
+  `WriteFileAtomic`.
+
 ## [0.8.0] — 2026-11-03: Child-to-parent requirement links across composed models
 
 ### Added

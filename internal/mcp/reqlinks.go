@@ -4,9 +4,10 @@ package mcp
 // MCP tools for requirement links: links.list, links.suspect, links.review
 // and requirements.parents, and the parents and children of requirements.get.
 // They read only the model the server was initialized with and the
-// dependencies it composes, so a child-only server never shows a user. The
-// server writes no model file: links.review returns the engws command and
-// the patch it would write.
+// dependencies it composes, so a child-only server never shows a user. They
+// write nothing: links.review returns the engws command and the patch it
+// would write (the link file's one write path is the CLI, D14; model.patch
+// refuses it).
 
 import (
 	"fmt"
@@ -117,7 +118,7 @@ func (s *Server) linksReview(id, by, rationale string) (map[string]any, error) {
 	return map[string]any{
 		"link": id, "child": acceptance.Status.Child, "state": string(acceptance.Status.State),
 		"command": command, "path": rel, "patch": acceptance.Patch(rel), "reviewedOn": date, "written": false,
-		"note": "the MCP server writes no model file: review the change (links.suspect), then run the command in the repository",
+		"note": "links.review writes nothing and model.patch does not edit the link file: review the change (links.suspect), then run the command in the repository",
 	}, nil
 }
 
