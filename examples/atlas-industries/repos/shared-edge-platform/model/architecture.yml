@@ -44,7 +44,6 @@ architecture:
     provides:
     - id: CAP-EDGE-COMPUTE
       kind: capability
-      ref: REQ-EDGE-001
       note: Rugged compute with signed workload execution.
     requires:
     - id: NEED-EDGE-IDENTITY

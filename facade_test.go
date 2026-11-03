@@ -75,6 +75,23 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			// used by internal/asciidoc and internal/trace.
 			"ComposeForGeneration", "DelegationsByRequirement", "EnrichBundleFromComposition",
 			"MaterializeAllocations", "PathWithin", "ResolutionCount",
+		}, rootName: map[string]string{"LinkDiagnostics": "RequirementLinkDiagnostics"}},
+		{dir: filepath.Join("internal", "reqlinks"), rootName: map[string]string{
+			"Kind": "ContractItemKind", "KindCapability": "ContractItemCapability", "KindAssumption": "ContractItemAssumption",
+			"Realizer": "ContractItemRealizer", "Item": "ContractItem", "State": "LinkState",
+			"StateUnchanged": "LinkStateUnchanged", "StateSuspect": "LinkStateSuspect", "StateBroken": "LinkStateBroken",
+			"StateVersionMismatch": "LinkStateVersionMismatch", "StateChildUnpublished": "LinkStateChildUnpublished",
+			"StateUnresolved": "LinkStateUnresolved", "Dependency": "LinkDependency",
+			"CanonicalItem": "CanonicalContractItem", "Fingerprint": "ContractItemFingerprint",
+			"ItemsFromBundle": "ContractItemsFromBundle", "RealizedItems": "RealizedContractItems",
+			"PublishedItems": "PublishedContractItems", "EvaluateLinks": "EvaluateRequirementLinks",
+			"SuspectMessage": "SuspectLinkMessage", "OutdatedMessage": "OutdatedLinkMessage",
+			"StateFingerprintOutdated": "LinkStateFingerprintOutdated", "CanonicalVersion": "ContractItemCanonicalVersion",
+			"FingerprintVersion": "ContractItemFingerprintVersion", "SortedRealizers": "SortedContractItemRealizers",
+			"CapabilityRefs": "ContractCapabilityRefs", "Reason": "LinkReason", "ReasonNone": "LinkReasonNone",
+			"ReasonUndeclaredAlias": "LinkReasonUndeclaredAlias", "ReasonUnresolved": "LinkReasonUnresolved",
+			"ReasonNotInPublication": "LinkReasonNotInPublication", "ReasonNotContractItem": "LinkReasonNotContractItem",
+			"ReasonMissing": "LinkReasonMissing", "NonItemReason": "ContractNonItemReason",
 		}},
 		{dir: filepath.Join("internal", "codescan"), internalOnly: []string{
 			// code, runtime and verification inference, used by internal/trace
@@ -96,10 +113,13 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"Matrix": "TraceMatrix", "Row": "TraceRow", "Provenance": "TraceProvenance",
 			"DelegatedStatus": "TraceDelegatedStatus", "CodeRef": "TraceCodeRef",
 			"Delegation": "TraceDelegation", "Summary": "TraceSummary", "Options": "TraceOptions",
+			"LinkRef":        "TraceLinkRef",
 			"BuildFromFiles": "BuildTraceMatrixFromFiles", "BuildFromFilesWith": "BuildTraceMatrixFromFilesWith",
 		}, internalOnly: []string{
 			// used by internal/asciidoc and internal/reqdelta.
 			"EffectiveCodeRoots", "KnownModelIDs", "ScopeCodeToModel", "ValidateIntegrity",
+			// used by internal/asciidoc for the requirement link tree.
+			"DependencyRequirementStatus",
 		}},
 		{dir: filepath.Join("internal", "export", "gemara"), rootName: map[string]string{
 			"Version": "GemaraVersion", "Options": "GemaraExportOptions",

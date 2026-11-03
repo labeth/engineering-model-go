@@ -4,6 +4,7 @@ package model
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -62,5 +63,47 @@ func TestFindWorkspaceHonoursEngmodWork(t *testing.T) {
 	t.Setenv(WorkspaceEnv, "off")
 	if _, path, err := FindWorkspaceWith(project, explicit); err != nil || path != explicit {
 		t.Fatalf("FindWorkspaceWith path: path=%q err=%v", path, err)
+	}
+}
+
+// An engmod.work.yml found by the upward search that another user could
+// have planted (world-writable, or owned by neither the current user nor
+// root) is refused with an error naming ENGMOD_WORK; the same file given
+// explicitly is used. A file of the current user is found as before.
+// Mutation: dropping the trust check of the upward search fails this test.
+// TRLC-LINKS: REQ-EMG-108
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
+func TestFindWorkspaceRefusesUntrustedUpwardFile(t *testing.T) {
+	root := t.TempDir()
+	work := filepath.Join(root, WorkspaceFileName)
+	writeWorkspaceFixture(t, work, "example.com/parent@v0")
+	project := filepath.Join(root, "repos", "app")
+	if err := os.MkdirAll(project, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv(WorkspaceEnv, "")
+	if _, path, err := FindWorkspace(project); err != nil || path != work {
+		t.Fatalf("own file: path=%q err=%v", path, err)
+	}
+	if err := os.Chmod(work, 0o666); err != nil {
+		t.Fatal(err)
+	}
+	if _, path, err := FindWorkspace(project); err == nil || path != "" || !strings.Contains(err.Error(), "world-writable") || !strings.Contains(err.Error(), WorkspaceEnv) {
+		t.Fatalf("world-writable file: path=%q err=%v", path, err)
+	}
+	if _, path, err := FindWorkspaceWith(project, work); err != nil || path != work {
+		t.Fatalf("explicit world-writable file: path=%q err=%v", path, err)
+	}
+	if err := os.Chmod(work, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if !ownerCheckSupported {
+		return
+	}
+	old := currentUID
+	currentUID = func() int { return old() + 4242 }
+	t.Cleanup(func() { currentUID = old })
+	if _, path, err := FindWorkspace(project); err == nil || path != "" || !strings.Contains(err.Error(), "not owned") {
+		t.Fatalf("file of another user: path=%q err=%v", path, err)
 	}
 }

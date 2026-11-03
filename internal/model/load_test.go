@@ -123,6 +123,27 @@ func TestLoadBundleUsesOnlyExplicitDocumentPaths(t *testing.T) {
 	}
 }
 
+// inferenceHints.topLevel no longer exists (D22: no model can know it is
+// top level): the manifest load rejects it, and so does each strict layer
+// on its own, the CUE schema and the typed decode.
+// TRLC-LINKS: REQ-EMG-090
+func TestManifestRejectsInferenceHintsTopLevel(t *testing.T) {
+	manifest := strings.Replace(validManifest, "inferenceHints: {}\n", "inferenceHints:\n  topLevel: true\n", 1)
+	dir := writeV2Fixture(t, manifest)
+	if _, err := LoadBundle(filepath.Join(dir, "engmod.yml")); err == nil || !strings.Contains(err.Error(), "topLevel") {
+		t.Fatalf("want a load error naming topLevel, got %v", err)
+	}
+	var doc ManifestDocument
+	if err := validateCanonicalYAML("engmod.yml", []byte(manifest), &doc); err == nil || !strings.Contains(err.Error(), "topLevel") {
+		t.Fatalf("want a CUE schema error naming topLevel, got %v", err)
+	}
+	dec := yaml.NewDecoder(strings.NewReader(manifest))
+	dec.KnownFields(true)
+	if err := dec.Decode(&doc); err == nil || !strings.Contains(err.Error(), "topLevel") {
+		t.Fatalf("want a typed decode error naming topLevel, got %v", err)
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-046
 func TestSchemaV2RejectsUnknownFieldsAndRelationshipKinds(t *testing.T) {
 	t.Run("unknown field", func(t *testing.T) {

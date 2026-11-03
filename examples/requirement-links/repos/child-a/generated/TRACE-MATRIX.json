@@ -1,0 +1,71 @@
+{
+  "model": "REQLINKS-CHILD-A",
+  "requirements": [
+    {
+      "id": "REQ-A-001",
+      "text": "When epoch period elapses, the position encoder shall publish one position sentence.",
+      "units": [
+        "FU-ENCODER"
+      ],
+      "status": "orphan",
+      "parents": [
+        "CAP-A-1"
+      ]
+    },
+    {
+      "id": "REQ-A-002",
+      "text": "The sentence encoder shall format each position sentence with latitude and longitude.",
+      "units": [
+        "FU-ENCODER"
+      ],
+      "status": "orphan",
+      "parents": [
+        "CAP-A-1"
+      ]
+    },
+    {
+      "id": "REQ-A-003",
+      "text": "The sentence encoder shall append a checksum to each position sentence.",
+      "units": [
+        "FU-ENCODER"
+      ],
+      "status": "orphan",
+      "parents": [
+        "CAP-A-2"
+      ]
+    },
+    {
+      "id": "REQ-A-004",
+      "text": "When lifecycle event occurs, the position encoder shall write one log line.",
+      "units": [
+        "FU-ENCODER"
+      ],
+      "status": "orphan"
+    }
+  ],
+  "danglingLinks": null,
+  "orphanRequirements": [
+    "REQ-A-001",
+    "REQ-A-002",
+    "REQ-A-003",
+    "REQ-A-004"
+  ],
+  "summary": {
+    "requirements": 4,
+    "implemented": 0,
+    "verified": 0,
+    "tested": 0,
+    "testLinked": 0,
+    "passed": 0,
+    "delegated": 0,
+    "delegatedImplemented": 0,
+    "delegatedTestLinked": 0,
+    "orphan": 4,
+    "danglingLinks": 0,
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 0,
+    "unparented": 0
+  }
+}

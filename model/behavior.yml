@@ -10,6 +10,18 @@ behavior:
   - id: STATE-ARTIFACTS-FRESH
     name: Artifacts Fresh
     description: Generated artifacts are aligned with current authored model and code evidence.
+  - id: STATE-LINK-CLAIMED
+    name: Link Claimed
+    description: A requirement link is recorded (status claimed) but nobody has reviewed it; it does not count toward the trace roll-up.
+  - id: STATE-LINK-ACCEPTED
+    name: Link Accepted
+    description: A requirement link is reviewed (status accepted, reviewer and date recorded) and its fingerprint matches the child item at the pinned version.
+  - id: STATE-LINK-SUSPECT
+    name: Link Suspect
+    description: The child item or a realizing requirement changed since the review (fingerprint differs), or the fingerprint uses another canonical form; the check fails until the link is reviewed again.
+  - id: STATE-LINK-BROKEN
+    name: Link Broken
+    description: The linked child item no longer exists as a published contract item at the resolved version; the link must be removed or relinked.
   events:
   - id: EVT-MODEL-UPDATED
     name: Model Updated
@@ -32,6 +44,21 @@ behavior:
   - id: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
     name: Requirements Delta Apply Requested
     description: A validated requirements candidate is ready for atomic replacement.
+  - id: EVT-DEPENDENCY-BUMP-REQUESTED
+    name: Dependency Bump Requested
+    description: A developer asked engws to move a dependency of a checkout to another version (engws bump).
+  - id: EVT-LINK-REVIEW-REQUESTED
+    name: Link Review Requested
+    description: A developer asked engws to show or accept requirement links that need review (engws review-links).
+  - id: EVT-CONTRACT-DIFF-REQUESTED
+    name: Contract Diff Requested
+    description: A developer asked engws to compare the contract items of a model between two git refs (engws contract-diff).
+  - id: EVT-RELEASE-CHECK-REQUESTED
+    name: Release Check Requested
+    description: A release gate asked engws whether a model may be released under a tag (engws release-check).
+  - id: EVT-LINK-MIGRATION-REQUESTED
+    name: Link Migration Requested
+    description: A developer asked engws to convert deprecated allocations and contract refs into requirement links (engws migrate-links).
   flows:
   - id: FLOW-REQUIREMENTS-DELTA-TO-CANONICAL
     title: Requirements Delta to Canonical Requirements Flow
@@ -96,6 +123,102 @@ behavior:
       action: Atomically replace canonical requirements while preserving file permissions.
       dataIn:
       - DO-REQUIREMENTS-DOCUMENT
+  - id: FLOW-DEPENDENCY-BUMP
+    title: Dependency Bump with Requirement Link Evaluation
+    kind: control
+    methodology: validate-before-write
+    direction: internal
+    frequency: on-demand
+    sourceRef: ACT-IMPLEMENTATION-ENGINEER
+    destinationRef: FU-CLI-ORCHESTRATION
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-ARCHITECTURE-MODEL
+    description: engws bump pins a dependency version, regenerates the lock against the registry and evaluates the requirement links on the bumped alias; any failure, or a suspect or broken link without --allow-suspect, restores every file (D8).
+    entry:
+    - pin-version
+    exits:
+    - repin-unchanged-links
+    - restore-bump-files
+    steps:
+    - id: pin-version
+      kind: system_action
+      ref: FU-CLI-ORCHESTRATION
+      action: Set the dependency version in engmod.yml, go.mod and go.sum.
+      next:
+      - regenerate-lock
+      onError:
+      - restore-bump-files
+    - id: regenerate-lock
+      kind: system_action
+      ref: FU-SYSTEM-COMPOSITION
+      action: Compose against the registry with the workspace off and write engmod.lock.yml.
+      next:
+      - evaluate-bumped-links
+      onError:
+      - restore-bump-files
+    - id: evaluate-bumped-links
+      kind: decision
+      ref: FU-ALLOCATION-TRACE
+      action: Evaluate each link on the bumped alias at the new version as unchanged, suspect or broken.
+      next:
+      - repin-unchanged-links
+      onError:
+      - restore-bump-files
+    - id: repin-unchanged-links
+      kind: system_action
+      ref: FU-CLI-ORCHESTRATION
+      action: Move pinned.version of the unchanged links to the new version; suspect and broken links keep pin and fingerprint.
+      onError:
+      - restore-bump-files
+    - id: restore-bump-files
+      kind: notification
+      ref: FU-CLI-ORCHESTRATION
+      action: Restore engmod.yml, go.mod, go.sum, the lock and the link file, and print the links that need review.
+  - id: FLOW-LINK-REVIEW
+    title: Requirement Link Review and Acceptance
+    kind: control
+    methodology: validate-before-write
+    direction: internal
+    frequency: on-demand
+    sourceRef: ACT-ARCHITECTURE-AUTHOR
+    destinationRef: FU-CLI-ORCHESTRATION
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-ARCHITECTURE-MODEL
+    description: engws review-links shows each link that needs review with the child item before and after; --accept re-stamps one link from the published dependency at its pin, or refuses and writes nothing (D9).
+    entry:
+    - show-links
+    exits:
+    - record-acceptance
+    - refuse-acceptance
+    steps:
+    - id: show-links
+      kind: system_action
+      ref: FU-ALLOCATION-TRACE
+      action: List suspect, broken, version-mismatched and outdated links with the parent text and the item before and after.
+      next:
+      - check-acceptance
+    - id: check-acceptance
+      kind: security_check
+      ref: FU-ALLOCATION-TRACE
+      action: Check the reviewer is a model actor, the link exists and is not broken, and the dependency resolves with the workspace off.
+      next:
+      - record-acceptance
+      onError:
+      - refuse-acceptance
+    - id: record-acceptance
+      kind: system_action
+      ref: FU-CLI-ORCHESTRATION
+      action: Write the current fingerprint, the pin, status accepted, the rationale, reviewedBy and reviewedOn into the touched lines of the link file.
+      onError:
+      - refuse-acceptance
+    - id: refuse-acceptance
+      kind: notification
+      ref: FU-CLI-ORCHESTRATION
+      action: Report why the link cannot be accepted and leave the link file unchanged.
   - id: FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     title: Model Change to Verified Artifacts Flow
     kind: control
@@ -427,3 +550,47 @@ behavior:
     from: STATE-MODEL-VALID
     to: CTRL-STRICT-MCP-INPUT-SCHEMA
     description: Model-aware tool usage requires strict MCP input semantics.
+  - type: transitions_to
+    from: STATE-LINK-CLAIMED
+    to: STATE-LINK-ACCEPTED
+    description: On link review requested (engws review-links --accept by a model actor) a claimed link is accepted (REQ-EMG-101).
+  - type: transitions_to
+    from: STATE-LINK-ACCEPTED
+    to: STATE-LINK-SUSPECT
+    description: On dependency bump requested or model updated, a changed child item or realizer, or another fingerprint form, makes an accepted link suspect (REQ-EMG-097, REQ-EMG-100, REQ-EMG-109).
+  - type: transitions_to
+    from: STATE-LINK-ACCEPTED
+    to: STATE-LINK-BROKEN
+    description: On dependency bump requested or model updated, a removed child item breaks an accepted link (REQ-EMG-097, REQ-EMG-100).
+  - type: transitions_to
+    from: STATE-LINK-SUSPECT
+    to: STATE-LINK-ACCEPTED
+    description: On link review requested (engws review-links --accept) a suspect link is re-stamped and accepted again (REQ-EMG-101).
+  - type: triggered_by
+    from: STATE-LINK-CLAIMED
+    to: EVT-LINK-MIGRATION-REQUESTED
+    description: engws migrate-links records each converted allocation as a claimed link (REQ-EMG-104).
+  - type: triggered_by
+    from: STATE-LINK-CLAIMED
+    to: EVT-LINK-REVIEW-REQUESTED
+    description: A claimed link is listed and may be accepted (REQ-EMG-101).
+  - type: triggered_by
+    from: STATE-LINK-SUSPECT
+    to: EVT-LINK-REVIEW-REQUESTED
+    description: A suspect link is shown before and after and may be accepted (REQ-EMG-101).
+  - type: triggered_by
+    from: STATE-LINK-BROKEN
+    to: EVT-LINK-REVIEW-REQUESTED
+    description: A broken link is shown but refused for acceptance (REQ-EMG-101).
+  - type: triggered_by
+    from: STATE-LINK-ACCEPTED
+    to: EVT-DEPENDENCY-BUMP-REQUESTED
+    description: bump evaluates accepted links at the new version; unchanged ones move their pin (REQ-EMG-100).
+  - type: triggered_by
+    from: STATE-LINK-ACCEPTED
+    to: EVT-CONTRACT-DIFF-REQUESTED
+    description: A child's contract diff states the semver impact of the changes its users' links will see (REQ-EMG-102).
+  - type: triggered_by
+    from: STATE-LINK-ACCEPTED
+    to: EVT-RELEASE-CHECK-REQUESTED
+    description: A release is refused while it pins unreleased dependencies or under-states a contract change (REQ-EMG-103).

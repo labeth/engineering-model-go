@@ -15,6 +15,7 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
+  reqLinks: model/req-links.yml
 dependencies:
 - alias: aegis
   path: models.atlas.example/products/aegis-sentinel@v0

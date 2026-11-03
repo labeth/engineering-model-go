@@ -286,6 +286,31 @@ catalog:
     definition: Event indicating a caller asked for OpenSpec spec delta text rendered from selected model requirements.
     aliases:
     - spec from model requested
+  - id: EVT-DEPENDENCY-BUMP-REQUESTED
+    name: dependency bump is requested
+    definition: Event indicating a developer asked engws to move a dependency of a checkout to another version.
+    aliases:
+    - engws bump requested
+  - id: EVT-LINK-REVIEW-REQUESTED
+    name: link review is requested
+    definition: Event indicating a developer asked engws to show or accept requirement links that need review.
+    aliases:
+    - engws review-links requested
+  - id: EVT-CONTRACT-DIFF-REQUESTED
+    name: contract diff is requested
+    definition: Event indicating a developer asked engws to compare the contract items of a model between two git refs.
+    aliases:
+    - engws contract-diff requested
+  - id: EVT-RELEASE-CHECK-REQUESTED
+    name: release check is requested
+    definition: Event indicating a release gate asked engws whether a model may be released under a tag.
+    aliases:
+    - engws release-check requested
+  - id: EVT-LINK-MIGRATION-REQUESTED
+    name: link migration is requested
+    definition: Event indicating a developer asked engws to convert deprecated allocations and contract refs into requirement links.
+    aliases:
+    - engws migrate-links requested
   states:
   - id: STATE-MODEL-VALID
     name: model is valid
@@ -302,6 +327,26 @@ catalog:
     definition: State where generated outputs reflect the latest authored model inputs.
     aliases:
     - up to date
+  - id: STATE-LINK-CLAIMED
+    name: requirement link is claimed
+    definition: State where a requirement link is recorded but not yet reviewed.
+    aliases:
+    - claimed link
+  - id: STATE-LINK-ACCEPTED
+    name: requirement link is accepted
+    definition: State where a requirement link is reviewed and its fingerprint matches the child item.
+    aliases:
+    - accepted link
+  - id: STATE-LINK-SUSPECT
+    name: requirement link is suspect
+    definition: State where the child item of a requirement link changed since its review.
+    aliases:
+    - suspect link
+  - id: STATE-LINK-BROKEN
+    name: requirement link is broken
+    definition: State where the child item of a requirement link no longer exists.
+    aliases:
+    - broken link
   features:
   - id: FEAT-MCP-SERVER
     name: mcp server is enabled

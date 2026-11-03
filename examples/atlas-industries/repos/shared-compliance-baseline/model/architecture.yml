@@ -67,5 +67,4 @@ architecture:
     provides:
     - id: CAP-CONTROL-BASELINE
       kind: capability
-      ref: REQ-COMP-001
       note: Shared control implementation and evidence baseline.

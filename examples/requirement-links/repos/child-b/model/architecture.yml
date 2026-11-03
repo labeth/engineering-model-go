@@ -1,0 +1,20 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-BRIDGE
+    name: Bridging
+    description: Bus bridging functions.
+  functionalUnits:
+  - id: FU-BRIDGE
+    name: Bus Forwarder
+    group: FG-BRIDGE
+    prose: Forwards each received sentence onto the lab bus.
+  contract:
+    provides:
+    - id: CAP-B-1
+      kind: capability
+      note: Forward position sentences onto the lab bus.
+    assumptions:
+    - id: AOU-B-1
+      text: The lab bus carries no traffic other than this bridge's frames.
+      verificationCriteria: The using system shows the lab bus is isolated from other networks.

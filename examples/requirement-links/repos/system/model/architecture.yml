@@ -1,0 +1,27 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-SIMULATION
+    name: Simulation
+    description: Simulation functions.
+  functionalUnits:
+  - id: FU-LAB-NETWORK
+    name: Lab Network
+    group: FG-SIMULATION
+    prose: The isolated network that carries the lab bus.
+  actors:
+  - id: ACT-SYSTEM-OWNER
+    name: System Owner
+    description: Reviews and accepts the simulator's requirement links.
+  composition:
+    subsystems:
+    - id: SUB-ENCODER
+      name: Position Encoder
+      dependency: encoder
+      publication: public
+      description: Encodes ownship position.
+    - id: SUB-BRIDGE
+      name: Lab Bus Bridge
+      dependency: bridge
+      publication: public
+      description: Forwards sentences onto the lab bus.

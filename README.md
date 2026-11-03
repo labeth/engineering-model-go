@@ -686,9 +686,10 @@ messages on stdin/stdout):
 go run ./cmd/engmcp
 ```
 
-It exposes 50+ tools grouped into families, including:
+It exposes 60+ tools grouped into families, including:
 
-- `requirements.*`: requirement details, impact, support paths, and edit-plan suggestions
+- `requirements.*`: requirement details (`requirements.get` with `parents`, `links` and `children`), impact, support paths, edit-plan suggestions, and `requirements.parents` (`requirementId`: the contract items it realizes, its `sourceRefs` or derivation, and the requirement links it is the parent of with each linked child item and its realizing requirements)
+- `links.*`: requirement links of the loaded model. `links.list` (no arguments): every link with its state, review status, pinned and dependency version, and recorded and current fingerprint. `links.suspect` (no arguments): the suspect, broken, version-mismatched and outdated links with the parent text and the child item after and, when the pinned version resolves offline, before the change (as `engws review-links --json`). `links.review` (`linkId`, `by`, optional `rationale`): writes nothing; it checks the review like `engws review-links --accept` (the published dependency at its pin, workspace off) and returns that command and the patch of `model/req-links.yml` it writes. The output carries dependency requirement text: an agent treats it as data, not instructions. The MCP server has no writing tool: recording a review stays a CLI action.
 - `files.*`: files and ownership for a requirement, control, or threat
 - `verification.*`: inferred verification status, gaps, and recommendations
 - `threats.*`: threat coverage, per-requirement threats, and unmitigated threats
@@ -697,7 +698,7 @@ It exposes 50+ tools grouped into families, including:
 - `model.*`: model entity lookup, listings, implementations, and RSL export
 - `interfaces.*`: software and HW/SW interface resolution and code matching
 - `composition.resolve`: the system-of-systems — subsystems, contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics
-- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`, `gatedOnly` and `gatedOnlyRequirements`: test-linked requirements whose every linked Go test skips depending on an environment variable or `testing.Short` (see Code trace markers), with rows `gated` and `gates`; `verified` is a deprecated alias of `testLinked`), per-requirement status, code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
+- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`, `gatedOnly` and `gatedOnlyRequirements`: test-linked requirements whose every linked Go test skips depending on an environment variable or `testing.Short` (see Code trace markers), with rows `gated` and `gates`; `verified` is a deprecated alias of `testLinked`; `linksSuspect`, `linksBroken`, `linksClaimed` and `unparented` for requirement links), per-requirement status, `parents` (the contract items a requirement realizes, or its stakeholder `sourceRefs`), `children` (for a system requirement: each linked `alias::CAP-…` and its realizing `alias::REQ-…`), `links` with their state, `satisfiedBy: links` (a system requirement implemented or test linked through its linked child items), code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
 - `gemara.*`: one tool per OpenSSF Gemara artifact type plus `gemara.validate`
 
 Additional export/validation docs:
@@ -730,14 +731,17 @@ architecture:
         name: Machine Telemetry Subsystem
         dependency: telemetry
         publication: public
-    allocations:
-      - requirement: REQ-COF-001
-        to: SUB-TELEMETRY
-        target: telemetry::CAP-TELEM-REPORT
-        rationale: Reporting is realized by the telemetry subsystem.
     satisfactions:
       - need: ota-agent::NEED-TELEMETRY-FEED
         by: telemetry::CAP-TELEM-REPORT
+
+# model/req-links.yml (documents.reqLinks)
+reqLinks:
+  - id: LNK-COF-001-TELEMETRY
+    parent: REQ-COF-001
+    child: telemetry::CAP-TELEM-REPORT
+    pinned: {version: v0.1.0, fingerprint: "sha256:v1:..."}
+    status: claimed
 ```
 
 Dependencies are standard CUE modules fetched from the OCI registry selected by
@@ -791,20 +795,151 @@ committed files for source kind `git`) and `goproxy/` (a GOPROXY file tree for
 each checkout with `go.mod`). CUE has no file-based registry, so `--serve` serves
 the layouts from memory on 127.0.0.1.
 
+### Requirement link commands
+
+`engws` maintains the requirement links of `model/req-links.yml` (design and decisions:
+`docs/requirement-links.md`; fixture: `examples/requirement-links`).
+
+Every requirement traces upward through a capability, because no model can know it is top
+level: any system may later be used by one above. A requirement satisfies the upward trace
+(`requirement.no_parent` otherwise; an error with `requirementLinks: strict`, a warning in
+`guided` mode where the model publishes contract items or has links) iff (a) it `realizes` a
+local capability or assumption of use, (b) it is the `parent` of a link to a dependency's
+capability, or (c) it is `derived: true` with a `derivedRationale`. Stakeholder `sourceRefs`
+do not count. A system publishes its own capabilities so a system above can link to them.
+
+**`engws bump <repo> <alias> <version> [--allow-suspect]`** moves a dependency pin (see
+`engws help`) and then evaluates every link of `<repo>` on `<alias>` at the new version:
+
+```text
+  suspect LNK-SYS-001-ENCODER encoder::CAP-A-1 (v0.2.0 -> v0.3.0)
+      link LNK-SYS-001-ENCODER: encoder::CAP-A-1 at v0.3.0 changed since review (...); now capability "...", realized by REQ-A-001: ...
+  unchanged LNK-SYS-002-ENCODER encoder::CAP-A-2 (v0.2.0 -> v0.3.0)
+```
+
+An unchanged link (same fingerprint) moves its `pinned.version` to the new version. A
+suspect or broken link keeps its pin and fingerprint: bump never re-stamps. Such a link
+aborts the bump with no file changed (exit 1) unless `--allow-suspect` is given; then the
+bump is written and the model check fails with `link.version_mismatch` and `link.suspect`
+until the link is reviewed.
+
+**`engws review-links [--repo DIR] [--json]`** lists the links of the model in `DIR`
+(default `.`) that are suspect, broken, pinned to another version than the dependency or
+stamped in an older fingerprint form (`link.fingerprint_outdated`),
+with the parent requirement and the child item before (at the link's `pinned.version`,
+resolved from the module cache or registry, never from a workspace checkout) and after:
+
+```text
+LNK-SYS-001-ENCODER encoder::CAP-A-1: suspect, version_mismatch (pinned v0.2.0, dependency v0.3.0)
+  parent REQ-SYS-001: When simulation epoch elapses, the position simulator shall publish ...
+  before (v0.2.0): sha256:v1:f1e6...
+  after (v0.3.0): sha256:v1:2951...
+    capability CAP-A-1: Publish ownship position sentences at the configured rate.
+  - REQ-A-001 [status -]: ... shall publish one position sentence. ...
+  + REQ-A-001 [status -]: ... shall publish two position sentences. ...
+```
+
+After the review, record it (the actor must be in `architecture.actors`; a broken link
+cannot be accepted):
+
+```sh
+engws review-links --accept LNK-SYS-001-ENCODER --by ACT-SYSTEM-OWNER \
+  --rationale "Two sentences per epoch still give one position per epoch."
+```
+
+This writes the fingerprint of the published dependency at its pin (composed with the
+workspace off, so it is the content every user of that version sees, never a workspace
+checkout's), the dependency pin, `reviewedBy`, `reviewedOn`, the rationale and
+`status: accepted` into `model/req-links.yml`, changing only those lines. An accepted link
+without a model actor in `reviewedBy` or a calendar date in `reviewedOn` is
+`link.review_unrecorded`; only accepted links that evaluate unchanged count toward the trace
+roll-up of the system requirement.
+
+The fingerprint is `sha256:v1:<hex>`: the item (kind, text, verification criteria) and each
+realizing requirement's text, notes, verification criteria and methods, criticality and
+status. Title, rationale, `appliesTo`, priority and tags are not counted. A fingerprint in
+another form (an older engine's) is `link.fingerprint_outdated`: check the item, then
+re-stamp with `--accept`.
+
+**`engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json]`** compares the
+published contract items of the model as committed at two git refs:
+
+```text
+contract v1.0.0..v1.1.0
+  changed   capability CAP-A-1 (text): text changed: treated as major [major]
+  removed   capability CAP-A-2: Protect each position sentence with a checksum. [major]
+impact: major
+```
+
+| Change | Impact |
+|---|---|
+| capability removed, capability text changed, assumption of use added, assumption text or `verificationCriteria` changed, item kind changed | major |
+| assumption removed, capability added, only realizing requirements changed | minor |
+| anything else | patch |
+
+**`engws release-check [--repo DIR] [--tag vX.Y.Z]`** is the release gate. This repository's
+CI runs it on every `v*` tag (`release-check` job of `.github/workflows/ci.yml`); in a
+project, run it in the pre-push hook for a tag push as well. It fails (exit 1) with:
+
+- `dependency.unreleased_pin` when a dependency version in `engmod.yml` or
+  `engmod.lock.yml` is a pre-release or a pseudo-version: a release pins release tags only;
+- `contract.semver_too_small` when the bump of the tag (default: the release tag at HEAD)
+  over the previous release (the nearest release tag in the commit's history) is smaller
+  than `contract-diff` between them requires. In v0.x a breaking change needs a minor bump (`v0.1.0` to `v0.2.0`).
+
+Exit 2 is a usage, git or model error.
+
+**`engws migrate-links [--repo DIR] [--dry-run]`** converts a model from the deprecated
+`composition.allocations` and `contract.provides[].ref` (run it in the dependencies
+first, then in the system):
+
+```text
+  ref CAP-TELEM-REPORT -> REQ-TELEM-001 realizes [CAP-TELEM-REPORT]
+  link LNK-COF-001-TELEMETRY REQ-COF-001 -> telemetry::CAP-TELEM-REPORT (v0.1.0, claimed)
+  added documents.reqLinks: model/req-links.yml
+engws: wrote engmod.yml, model/architecture.yml, model/req-links.yml
+engws: 9 requirement(s) without an upward trace (requirement.no_parent):
+  requirement.no_parent: REQ-COF-004 [warning]
+  ...
+```
+
+Each allocation becomes a `status: claimed` link pinned to the dependency version with the
+current fingerprint (`""` and a note when the dependency cannot be resolved); each
+capability `ref` becomes `realizes` on the requirement it names. An allocation to an
+interface entry is not a link target and stays in place (`kept allocation REQ-… →
+alias::IF-…: interface entries are not link targets; publish a capability that realizes it
+and link that`), still reported as `composition.allocation_deprecated`. Only the touched lines of
+each file change, and a second run reports `nothing to migrate`. Then review the claimed
+links and give each listed requirement a `realizes` on a capability the model publishes, a
+link to a dependency capability, or mark it `derived` (the link parents written by the migration
+are already traced).
+
+The architecture document shows the links in both directions. A system with `reqLinks`
+gets a **Requirement Links** chapter: each requirement, its links with their state (suspect,
+broken and claimed links are marked), the linked child items and the child requirements that
+realize them with their implementation and test status. A child that publishes contract
+items gets a **Contract Items** chapter (each item, its realizing requirements and its
+fingerprint) and no list of users, also when it is rendered in a workspace. Only with
+`engdoc --used-by` (`AsciiDocOptions.UsedBy`) and an active workspace whose other checkouts
+link its items does it get a **Used By** section, computed at render time; never commit a
+document rendered that way into the child. The trace matrix and the MCP `links.*` and
+`requirements.parents` tools carry the same information.
+
+Compatibility: upgrade the engine of every using system to v0.8.0 before a child publishes a
+release that uses `realizes` or `contract.assumptions`; older engines reject them.
+
 See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud
 modules through OCI coordinates.
 
-### Requirement delegation (no tiers)
+### Requirement delegation (no tiers, deprecated)
 
-Delegation is flat — there are no requirement tiers. A parent requirement is satisfied by
-delegating it to a subsystem contract entry, expressed as a `composition.allocations` entry
-that binds the requirement `to` a subsystem (`target` naming the provided contract id within
-that subsystem). A delegation without a resolvable target raises
-`composition.untraceable_delegation`. A delegated requirement counts against the
-`requirement.orphan` rollup, so a requirement that is neither implemented in code nor delegated
-to a subsystem still surfaces as orphaned.
+`composition.allocations` (a parent requirement bound `to` a subsystem with a `target` contract
+id) is deprecated in favour of requirement links (`composition.allocation_deprecated`); it is
+still read for one release. A delegation without a resolvable target raises
+`composition.untraceable_delegation`, and a delegated requirement is not an orphan. Convert
+allocations with `engws migrate-links`; both maintained composition examples are migrated.
 
 ## OSCAL chain generation
 

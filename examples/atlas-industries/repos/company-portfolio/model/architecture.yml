@@ -29,7 +29,6 @@ architecture:
     provides:
     - id: CAP-ATLAS-PORTFOLIO
       kind: capability
-      ref: REQ-PORT-001
       note: Coordinated sensing and resilient communication portfolio.
   composition:
     subsystems:
@@ -41,12 +40,3 @@ architecture:
       name: Orion Relay
       dependency: orion
       publication: public
-    allocations:
-    - requirement: REQ-PORT-002
-      to: SUB-PORT-AEGIS
-      target: aegis::CAP-AEGIS-MISSION
-      rationale: Aegis supplies the company perimeter-awareness capability.
-    - requirement: REQ-PORT-003
-      to: SUB-PORT-ORION
-      target: orion::CAP-ORION-MISSION
-      rationale: Orion supplies the company resilient-communications capability.

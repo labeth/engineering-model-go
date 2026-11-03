@@ -64,7 +64,6 @@ architecture:
     provides:
     - id: CAP-ORION-MISSION
       kind: capability
-      ref: REQ-ORI-001
       note: Resilient prioritized remote message delivery.
   composition:
     subsystems:
@@ -84,23 +83,6 @@ architecture:
       name: Shared Compliance Baseline
       dependency: compliance
       publication: public
-    allocations:
-    - requirement: REQ-ORI-002
-      to: SUB-ORI-EDGE
-      target: edge::CAP-EDGE-COMPUTE
-      rationale: Link scheduling requires rugged signed compute.
-    - requirement: REQ-ORI-003
-      to: SUB-ORI-CLOUD
-      target: cloud::CAP-CLOUD-OPERATIONS
-      rationale: Fleet configuration requires resilient cloud operations.
-    - requirement: REQ-ORI-004
-      to: SUB-ORI-SECURITY
-      target: security::CAP-ZERO-TRUST
-      rationale: Relay access requires shared identity and audit controls.
-    - requirement: REQ-ORI-005
-      to: SUB-ORI-COMPLIANCE
-      target: compliance::CAP-CONTROL-BASELINE
-      rationale: Product assurance inherits the company baseline.
     satisfactions:
     - need: edge::NEED-EDGE-IDENTITY
       by: security::CAP-DEVICE-IDENTITY

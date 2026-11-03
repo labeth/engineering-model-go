@@ -33,6 +33,9 @@ find generated examples -type f \( -path 'generated/*' -o -path '*/generated/*' 
 MODELS=(
   "self|."
   "dal-c-flight-control|examples/dal-c-flight-control-sample"
+  "requirement-links-child-a|examples/requirement-links/repos/child-a"
+  "requirement-links-child-b|examples/requirement-links/repos/child-b"
+  "requirement-links-system|examples/requirement-links/repos/system"
 )
 
 section "Build"

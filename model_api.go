@@ -41,6 +41,7 @@ type (
 	ConfigurationArtifact       = model.ConfigurationArtifact
 	ConfigurationBaseline       = model.ConfigurationBaseline
 	ConfigurationBuild          = model.ConfigurationBuild
+	ContractAssumption          = model.ContractAssumption
 	ContractEntry               = model.ContractEntry
 	ContractModel               = model.ContractModel
 	Control                     = model.Control
@@ -94,6 +95,9 @@ type (
 	POAMItem                    = model.POAMItem
 	ProblemReport               = model.ProblemReport
 	ReferencedElement           = model.ReferencedElement
+	ReqLink                     = model.ReqLink
+	ReqLinkPin                  = model.ReqLinkPin
+	ReqLinksDocument            = model.ReqLinksDocument
 	Requirement                 = model.Requirement
 	RequirementAssurance        = model.RequirementAssurance
 	RequirementsDocument        = model.RequirementsDocument
@@ -152,7 +156,23 @@ const (
 	WorkspaceEnv = model.WorkspaceEnv
 	// WorkspaceOff is the workspace mode that disables workspace lookup.
 	WorkspaceOff = model.WorkspaceOff
+	// RequirementLinksStrict makes the requirement link rules errors in every model.
+	RequirementLinksStrict = model.RequirementLinksStrict
+	// RequirementLinksGuided (the default) makes them warnings where links apply.
+	RequirementLinksGuided = model.RequirementLinksGuided
+	// ReqLinkClaimed is the status of a requirement link nobody reviewed yet.
+	ReqLinkClaimed = model.ReqLinkClaimed
+	// ReqLinkAccepted is the status of a reviewed requirement link.
+	ReqLinkAccepted = model.ReqLinkAccepted
 )
+
+// RequirementLinkMode returns the effective requirementLinks strictness of a
+// manifest: strict, or guided when unset.
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+// TRLC-LINKS: REQ-EMG-090
+func RequirementLinkMode(manifest ManifestDocument) string {
+	return model.RequirementLinkMode(manifest)
+}
 
 // LoadBundle reads the engmod.yml manifest at manifestPath and every domain
 // document it names, validated against the canonical CUE schema.

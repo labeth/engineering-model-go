@@ -66,7 +66,7 @@ func dependencyPathEscapes(alias, moduleRoot, manifestPath string) []validate.Di
 		{"documents.architecture", d.Architecture}, {"documents.behavior", d.Behavior},
 		{"documents.assurance", d.Assurance}, {"documents.compliance", d.Compliance},
 		{"documents.views", d.Views}, {"documents.decisions", d.Decisions},
-		{"documents.aviation", d.Aviation},
+		{"documents.aviation", d.Aviation}, {"documents.reqLinks", d.ReqLinks},
 	} {
 		check(ref.field, ref.value)
 	}

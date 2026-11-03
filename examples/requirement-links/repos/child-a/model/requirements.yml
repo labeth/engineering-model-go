@@ -1,0 +1,30 @@
+schemaVersion: 2
+lintRun:
+  id: child-a-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-A-001
+  text: When epoch period elapses, the position encoder shall publish one position sentence.
+  verificationMethods: [test]
+  verificationCriteria: One sentence is published per elapsed period.
+  appliesTo: [FU-ENCODER]
+  realizes: [CAP-A-1]
+- id: REQ-A-002
+  text: The sentence encoder shall format each position sentence with latitude and longitude.
+  verificationMethods: [test]
+  verificationCriteria: A published sentence carries latitude and longitude.
+  appliesTo: [FU-ENCODER]
+  realizes: [CAP-A-1]
+- id: REQ-A-003
+  text: The sentence encoder shall append a checksum to each position sentence.
+  verificationMethods: [test]
+  verificationCriteria: The checksum of a published sentence matches its content.
+  appliesTo: [FU-ENCODER]
+  realizes: [CAP-A-2]
+- id: REQ-A-004
+  text: When lifecycle event occurs, the position encoder shall write one log line.
+  appliesTo: [FU-ENCODER]
+  derived: true
+  derivedRationale: Operability need of the encoder itself; serves no published capability.

@@ -12,6 +12,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -63,12 +64,74 @@ commands:
                              checkouts); --refresh re-fetches every registry
                              dependency (ENGMOD_MODULE_CACHE=refresh); exit 1
                              on failure
-  bump <repo> <alias> <version>
+  bump <repo> <alias> <version> [--allow-suspect]
                              set dependency <alias> of <repo> to <version> in
                              engmod.yml, the matching go.mod require and go.sum
                              (go get, GOWORK=off), and the lock (composed with
-                             ENGMOD_WORK=off, dependencies re-fetched); any
-                             failure restores all files
+                             ENGMOD_WORK=off, dependencies re-fetched), then
+                             print each requirement link on <alias> as
+                             unchanged, suspect or broken at <version>;
+                             unchanged links move pinned.version to <version>,
+                             the others keep their pin and fingerprint (never
+                             re-stamped); a suspect or broken link aborts the
+                             bump unless --allow-suspect (then the model check
+                             fails until review-links); any failure or abort
+                             restores all files
+  review-links [--repo DIR] [--json]
+                             list the requirement links of the model in DIR
+                             (default .) that are suspect, broken, pinned to
+                             another version than the dependency or stamped in
+                             another fingerprint form: the parent
+                             requirement and the child item with its realizing
+                             requirements before (at the link's pinned
+                             version, from the module cache or registry) and
+                             after (at the dependency pin); exit 1 if any
+  review-links [--repo DIR] --accept LNK-ID --by ACT-ID --rationale TEXT
+                             record the review in the requirement link file:
+                             the fingerprint of the published dependency at
+                             its pin (composed with the workspace off, never
+                             a workspace checkout), the dependency pin,
+                             reviewedBy, reviewedOn (today), rationale and
+                             status accepted; only those lines change; refuse
+                             an actor the model does not define, a broken
+                             link and a dependency that does not resolve with
+                             the workspace off
+  contract-diff <from-ref> <to-ref> [--repo DIR] [--json]
+                             compare the published contract items (capabilities
+                             and assumptions of use, with their realizing
+                             requirements) of the model in DIR at two git refs:
+                             added, removed, changed (text, realizers) or
+                             unchanged, and the semver impact: capability
+                             removed or text changed, assumption added or
+                             changed: major; assumption removed, capability
+                             added, realizers only: minor; else patch; exit 2
+                             on a git or model error
+  release-check [--repo DIR] [--tag vX.Y.Z]
+                             gate a release of the model in DIR:
+                             dependency.unreleased_pin when an engmod.yml or
+                             engmod.lock.yml dependency version is a
+                             pre-release or pseudo-version, and
+                             contract.semver_too_small when the bump of the
+                             tag (default: the release tag at HEAD) over the
+                             nearest release tag below it in the commit's
+                             history (git tag --merged) is smaller than the
+                             contract-diff between them requires (in v0.x a
+                             breaking change needs a minor bump); exit 1 on
+                             findings, 2 on a usage or git error
+  migrate-links [--repo DIR] [--dry-run]
+                             convert the deprecated trace of the model in DIR:
+                             each composition.allocations entry becomes a
+                             claimed link in model/req-links.yml (id
+                             LNK-<REQ>-<ALIAS>, the dependency pin and the
+                             current fingerprint, empty when the target cannot
+                             be resolved), documents.reqLinks is added, the
+                             allocations are removed, and each capability
+                             contract.provides[].ref becomes realizes on its
+                             requirement; other lines are kept; print the
+                             requirements left with requirement.no_parent;
+                             a second run changes nothing; a failed write
+                             restores every file; migrate the dependencies
+                             first
   stage [--version-from manifest|tag] [--serve] [--addr 127.0.0.1:0]
                              publish every checkout, in dependency order, into
                              <root>/.engmod/staging (see Staging); refuse a
@@ -102,7 +165,9 @@ rejects it). Locks written against staging pin the staged digests: delete
 <root>/.engmod/staging and regenerate them after the real publish if the
 published content differs (for example a different commit).
 
-exit codes: 0 ok, 1 skew or failure, 2 usage
+exit codes: 0 ok, 1 skew, findings or failure (review-links: a link needs
+review or an accept was refused; release-check: findings), 2 usage (and,
+for contract-diff and release-check, a git, IO or model error)
 `
 
 // Main runs engws with args (without the program name) and returns the exit code.
@@ -137,13 +202,22 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	versionFrom := sub.String("version-from", VersionFromManifest, "")
 	serve := sub.Bool("serve", false, "")
 	addr := sub.String("addr", "127.0.0.1:0", "")
+	allowSuspect := sub.Bool("allow-suspect", false, "")
+	repoFlag := sub.String("repo", ".", "")
+	asJSON := sub.Bool("json", false, "")
+	accept := sub.String("accept", "", "")
+	by := sub.String("by", "", "")
+	rationale := sub.String("rationale", "", "")
+	tag := sub.String("tag", "", "")
+	dryRun := sub.Bool("dry-run", false, "")
 	sub.StringVar(rootFlag, "root", *rootFlag, "")
-	if err := sub.Parse(rest); err != nil {
+	positional, err := parseInterspersed(sub, rest)
+	if err != nil {
 		fmt.Fprintf(stderr, "engws %s: %v\n%s", command, err, Usage)
 		return 2
 	}
-	positional := sub.Args()
-	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0}
+	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
+		"review-links": 0, "contract-diff": 2, "release-check": 0, "migrate-links": 0}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
@@ -157,6 +231,42 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	if command == "stage" && *versionFrom != VersionFromManifest && *versionFrom != VersionFromTag {
 		fmt.Fprintf(stderr, "engws stage: --version-from must be %s or %s\n%s", VersionFromManifest, VersionFromTag, Usage)
 		return 2
+	}
+
+	// Repository commands work on one model (--repo, default the current
+	// directory) and need no workspace root.
+	if command == "review-links" {
+		if *accept != "" && (strings.TrimSpace(*by) == "" || strings.TrimSpace(*rationale) == "") {
+			fmt.Fprintf(stderr, "engws review-links: --accept needs --by ACT-ID and --rationale TEXT\n%s", Usage)
+			return 2
+		}
+		code, err := runReviewLinks(*repoFlag, *asJSON, *accept, strings.TrimSpace(*by), *rationale, stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
+			return 1
+		}
+		return code
+	}
+	if command == "migrate-links" {
+		code, err := runMigrateLinks(*repoFlag, *dryRun, stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
+		}
+		return code
+	}
+	if command == "release-check" {
+		code, err := runReleaseCheck(*repoFlag, strings.TrimSpace(*tag), stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
+		}
+		return code
+	}
+	if command == "contract-diff" {
+		code, err := runContractDiff(*repoFlag, positional[0], positional[1], *asJSON, stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
+		}
+		return code
 	}
 
 	root := *rootFlag
@@ -182,7 +292,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		fmt.Fprintf(stdout, "engws: workspace %s\n", root)
 	}
 
-	var err error
 	code := 0
 	switch command {
 	case "status":
@@ -196,7 +305,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	case "check":
 		code, err = runCheck(ctx, root, registry, *all, *summary, CheckOptions{InProcess: *inProcess, Refresh: *refresh}, stdout, stderr)
 	case "bump":
-		err = runBump(root, positional[0], positional[1], positional[2], stdout)
+		err = runBump(root, positional[0], positional[1], positional[2], BumpOptions{AllowSuspect: *allowSuspect}, stdout)
 	case "stage":
 		code, err = runStage(ctx, root, *versionFrom, *serve, *addr, stdout)
 	}
@@ -205,6 +314,24 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 1
 	}
 	return code
+}
+
+// parseInterspersed parses flags anywhere among the arguments (flag stops at
+// the first positional) and returns the positionals.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
+func parseInterspersed(fs *flag.FlagSet, args []string) ([]string, error) {
+	var positional []string
+	for {
+		if err := fs.Parse(args); err != nil {
+			return nil, err
+		}
+		args = fs.Args()
+		if len(args) == 0 {
+			return positional, nil
+		}
+		positional = append(positional, args[0])
+		args = args[1:]
+	}
 }
 
 // runStatus prints the checkout table and the skew lines.
@@ -369,14 +496,18 @@ func runCheck(ctx context.Context, root string, registry Registry, all, summary 
 	return code, nil
 }
 
-// runBump applies a dependency version bump.
-// TRLC-LINKS: REQ-EMG-068
-func runBump(root, repo, alias, version string, w io.Writer) error {
-	result, err := Bump(root, repo, alias, version)
+// runBump applies a dependency version bump and prints the evaluation of
+// each requirement link on the bumped alias.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
+func runBump(root, repo, alias, version string, opts BumpOptions, w io.Writer) error {
+	result, err := Bump(root, repo, alias, version, opts)
 	for _, d := range result.Diagnostics {
-		if d.Severity == validate.SeverityError {
+		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
 			fmt.Fprintf(w, "    %s [error] %s (%s)\n", d.Code, d.Message, d.Path)
 		}
+	}
+	for _, s := range result.Links {
+		printBumpLink(w, s, version)
 	}
 	if err != nil {
 		return err
@@ -388,7 +519,32 @@ func runBump(root, repo, alias, version string, w io.Writer) error {
 	if result.LockWritten {
 		fmt.Fprintf(w, "engws: %s %s regenerated (workspace off)\n", repo, "engmod.lock.yml")
 	}
+	if len(result.Repinned) > 0 {
+		fmt.Fprintf(w, "engws: %s re-pinned %d unchanged link(s) to %s: %s\n", repo, len(result.Repinned), version, strings.Join(result.Repinned, ", "))
+	}
+	if result.Blocked {
+		fmt.Fprintf(w, "engws: --allow-suspect: links that need review keep their pin and fingerprint; the model check fails until engws review-links accepts them\n")
+	}
 	return nil
+}
+
+// printBumpLink prints one evaluated link: state, ID, child and, for a
+// suspect or broken link, what changed.
+// TRLC-LINKS: REQ-EMG-100
+func printBumpLink(w io.Writer, s reqlinks.LinkStatus, version string) {
+	state := string(s.Content)
+	fmt.Fprintf(w, "  %s %s %s (%s -> %s)\n", state, s.ID, s.Child, s.Pinned, version)
+	switch s.Content {
+	case reqlinks.StateSuspect:
+		fmt.Fprintf(w, "      %s\n", reqlinks.SuspectMessage(s))
+	case reqlinks.StateUnchanged:
+	default:
+		detail := s.Detail
+		if detail == "" {
+			detail = "the item no longer exists at " + version
+		}
+		fmt.Fprintf(w, "      %s\n", detail)
+	}
 }
 
 // runStage stages the family, prints the result and the gate environment

@@ -1,0 +1,14 @@
+schemaVersion: 1
+dependencies:
+    - alias: bridge
+      path: models.example/reqlinks/child-b@v0
+      version: v0.1.0
+      publications:
+        - public
+      digest: sha256:f10c38f87ff0c24f666c4e752ee099998030a8c40d100a752157fbc6b0d99f63
+    - alias: encoder
+      path: models.example/reqlinks/child-a@v0
+      version: v0.1.0
+      publications:
+        - public
+      digest: sha256:dd9e549e20ac2561ce91b298a82d0d44c9139f3fb71d4edd482b180332ccb712

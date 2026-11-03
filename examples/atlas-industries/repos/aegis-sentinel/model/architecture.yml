@@ -64,7 +64,6 @@ architecture:
     provides:
     - id: CAP-AEGIS-MISSION
       kind: capability
-      ref: REQ-AEG-001
       note: Reviewed perimeter incident detection.
   composition:
     subsystems:
@@ -84,23 +83,6 @@ architecture:
       name: Shared Compliance Baseline
       dependency: compliance
       publication: public
-    allocations:
-    - requirement: REQ-AEG-002
-      to: SUB-AEG-EDGE
-      target: edge::CAP-EDGE-COMPUTE
-      rationale: Sensor fusion requires rugged signed compute.
-    - requirement: REQ-AEG-003
-      to: SUB-AEG-CLOUD
-      target: cloud::CAP-CLOUD-OPERATIONS
-      rationale: Incident history requires resilient cloud processing.
-    - requirement: REQ-AEG-004
-      to: SUB-AEG-SECURITY
-      target: security::CAP-ZERO-TRUST
-      rationale: Mission boundaries require shared identity and monitoring.
-    - requirement: REQ-AEG-005
-      to: SUB-AEG-COMPLIANCE
-      target: compliance::CAP-CONTROL-BASELINE
-      rationale: Product assurance inherits the company baseline.
     satisfactions:
     - need: edge::NEED-EDGE-IDENTITY
       by: security::CAP-DEVICE-IDENTITY

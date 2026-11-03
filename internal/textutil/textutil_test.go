@@ -125,3 +125,20 @@ func TestDeterministicUUID(t *testing.T) {
 		t.Fatal("distinct seeds must give distinct UUIDs")
 	}
 }
+
+// CollapseSpace turns every whitespace run (spaces, tabs, newlines) into one
+// space and trims, keeping case and punctuation.
+// TRLC-LINKS: REQ-EMG-095
+func TestCollapseSpace(t *testing.T) {
+	for in, want := range map[string]string{
+		"":                         "",
+		"  a  ":                    "a",
+		"A\tb\n\nC  d.":            "A b C d.",
+		"\u00a0x\u00a0":            "x",
+		"keep <html> & \"quotes\"": "keep <html> & \"quotes\"",
+	} {
+		if got := CollapseSpace(in); got != want {
+			t.Errorf("CollapseSpace(%q) = %q, want %q", in, got, want)
+		}
+	}
+}

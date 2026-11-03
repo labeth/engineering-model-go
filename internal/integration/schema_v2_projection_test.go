@@ -157,9 +157,9 @@ func TestSchemaV2ProjectionContract(t *testing.T) {
 				if result.Root == nil {
 					return "", fmt.Errorf("composition root is nil")
 				}
-				return fmt.Sprintf("root=%s children=%d allocations=%d", result.Root.Bundle.Architecture.Model.ID, len(result.Root.Children), len(result.Allocations)), nil
+				return fmt.Sprintf("root=%s children=%d allocations=%d links=%d", result.Root.Bundle.Architecture.Model.ID, len(result.Root.Children), len(result.Allocations), len(result.Root.Bundle.ReqLinks.ReqLinks)), nil
 			},
-			contains: []string{"root=sample-coffee-fleet-ota-cloud-model", "children=3", "allocations=3"},
+			contains: []string{"root=sample-coffee-fleet-ota-cloud-model", "children=3", "allocations=0", "links=3"},
 		},
 		{
 			name: "mcp-model",

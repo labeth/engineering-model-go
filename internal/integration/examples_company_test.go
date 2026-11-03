@@ -9,13 +9,14 @@ import (
 	"cuelang.org/go/mod/modzip"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TestAtlasIndustriesCompanyExample proves that every simulated repository is a
 // valid standalone model and that workspace replacements resolve the complete
 // company portfolio without registry access.
-// TRLC-LINKS: REQ-EMG-050
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-097
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER
 func TestAtlasIndustriesCompanyExample(t *testing.T) {
 	root := filepath.Join("examples", "atlas-industries")
@@ -107,12 +108,19 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 			t.Fatalf("product %s does not inherit the people compliance baseline", product.Bundle.Architecture.Model.ID)
 		}
 	}
-	if got := len(composed.Allocations); got != 10 {
-		t.Fatalf("expected ten recursive requirement allocations, got %d", got)
+	// Product requirements link to shared-module capabilities and portfolio
+	// requirements to product capabilities (model/req-links.yml); every link
+	// resolves to an unchanged published item at the pinned version.
+	links := reqlinks.EvaluateLinks(composed.Root.Bundle, composition.LinkDependencies(composed.Root))
+	for _, product := range composed.Root.Children {
+		links = append(links, reqlinks.EvaluateLinks(product.Bundle, composition.LinkDependencies(product))...)
 	}
-	for _, allocation := range composed.Allocations {
-		if !allocation.Resolved || !allocation.TargetRefResolved {
-			t.Fatalf("unresolved allocation: %+v", allocation)
+	if got := len(links); got != 10 || len(composed.Allocations) != 0 {
+		t.Fatalf("expected ten requirement links and no allocations, got %d links and %d allocations", got, len(composed.Allocations))
+	}
+	for _, link := range links {
+		if link.State != reqlinks.StateUnchanged {
+			t.Fatalf("link %s is %s: %+v", link.ID, link.State, link)
 		}
 	}
 

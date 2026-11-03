@@ -15,7 +15,9 @@ func TestSysMLExportMaterializesPackagedSubsystemEndpoints(t *testing.T) {
 	if err != nil {
 		t.Fatalf("generate composed SysML: %v\n%+v", err, result.Diagnostics)
 	}
-	for _, expected := range []string{"SUB-AEG-EDGE/edge::CAP-EDGE-COMPUTE", "edge::NEED-EDGE-IDENTITY"} {
+	// The product's requirement trace onto the shared modules is in
+	// model/req-links.yml (not projected); the satisfactions remain.
+	for _, expected := range []string{"SUB-AEG-EDGE", "edge::NEED-EDGE-IDENTITY"} {
 		if !strings.Contains(result.Text, sysmlName(expected)) {
 			t.Fatalf("expected packaged endpoint %q in SysML output", expected)
 		}

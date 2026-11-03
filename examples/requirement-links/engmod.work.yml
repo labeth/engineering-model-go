@@ -1,0 +1,8 @@
+schemaVersion: 2
+replacements:
+- module: models.example/reqlinks/child-a@v0
+  path: ./repos/child-a
+- module: models.example/reqlinks/child-b@v0
+  path: ./repos/child-b
+- module: models.example/reqlinks/system@v0
+  path: ./repos/system

@@ -9,20 +9,26 @@ requirements:
   text: The aegis sentinel system shall present each perimeter track to the security operator.
   appliesTo:
   - FU-AEG-MISSION
+  realizes: [CAP-AEGIS-MISSION]
 - id: REQ-AEG-002
   text: The aegis sentinel system shall execute the sensor fusion software on managed edge compute.
   appliesTo:
   - FU-AEG-SENSOR-FUSION
+  realizes: [CAP-AEGIS-MISSION]
 - id: REQ-AEG-003
   text: The aegis sentinel system shall retain each perimeter track using managed cloud operations.
   appliesTo:
   - FU-AEG-MISSION
+  realizes: [CAP-AEGIS-MISSION]
 - id: REQ-AEG-004
   text: The aegis sentinel system shall authenticate product services using shared security services.
   appliesTo:
   - FU-AEG-SENSOR-FUSION
   - FU-AEG-MISSION
+  realizes: [CAP-AEGIS-MISSION]
 - id: REQ-AEG-005
   text: The aegis sentinel system shall retain compliance evidence using the company control baseline.
   appliesTo:
   - FU-AEG-MISSION
+  derived: true
+  derivedRationale: Product assurance inherits the company control baseline; it serves no published product capability.

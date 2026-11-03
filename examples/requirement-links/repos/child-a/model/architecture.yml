@@ -1,0 +1,19 @@
+schemaVersion: 2
+architecture:
+  functionalGroups:
+  - id: FG-ENCODER
+    name: Encoding
+    description: Position encoding functions.
+  functionalUnits:
+  - id: FU-ENCODER
+    name: Sentence Encoder
+    group: FG-ENCODER
+    prose: Formats and publishes position sentences.
+  contract:
+    provides:
+    - id: CAP-A-1
+      kind: capability
+      note: Publish ownship position sentences at the configured rate.
+    - id: CAP-A-2
+      kind: capability
+      note: Protect each position sentence with a checksum.

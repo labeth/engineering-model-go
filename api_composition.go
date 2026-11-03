@@ -155,3 +155,17 @@ func ResolveCompositionProjection(bundle Bundle) (CompositionProjection, Composi
 func ResolveCompositionProjectionWith(bundle Bundle, options ResolutionOptions) (CompositionProjection, CompositionResult, error) {
 	return composition.ResolveCompositionProjectionWith(bundle, options)
 }
+
+// LinkUse is one requirement link of a using model in the workspace onto a
+// contract item of this model.
+// TRLC-LINKS: REQ-EMG-107
+type LinkUse = composition.LinkUse
+
+// WorkspaceLinkUsers returns the requirement links of the sibling checkouts
+// of the active workspace onto the model's published contract items
+// ("used by", computed at render time; nothing without a workspace).
+// TRLC-LINKS: REQ-EMG-107
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+func WorkspaceLinkUsers(bundle Bundle, workspaceMode string) []LinkUse {
+	return composition.WorkspaceLinkUsers(bundle, workspaceMode)
+}

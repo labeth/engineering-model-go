@@ -1,0 +1,43 @@
+schemaVersion: 2
+reqLinks:
+- id: LNK-SYS-001-ENCODER
+  parent: REQ-SYS-001
+  child: encoder::CAP-A-1
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:v1:f1e64f2bce1d6652b3c487fa4c388b9112cdccf303adf4440269e25b0b72cd16
+  status: accepted
+  rationale: The encoder publishes one position sentence per epoch.
+  reviewedBy: ACT-SYSTEM-OWNER
+  reviewedOn: "2026-11-02"
+- id: LNK-SYS-001-BRIDGE
+  parent: REQ-SYS-001
+  child: bridge::CAP-B-1
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:v1:dc7d7eb384610fc8e5710058b0ad5bc71cdb484c88538998dcea0809680de083
+  status: accepted
+  rationale: The bridge forwards each sentence onto the lab bus.
+  reviewedBy: ACT-SYSTEM-OWNER
+  reviewedOn: "2026-11-02"
+- id: LNK-SYS-002-ENCODER
+  parent: REQ-SYS-002
+  child: encoder::CAP-A-2
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:v1:e606f5ca738fa37b0361f8ee2c1043c6796333f0c09f926cfe1863d87aa78125
+  status: accepted
+  rationale: The checksum protects each published position.
+  reviewedBy: ACT-SYSTEM-OWNER
+  reviewedOn: "2026-11-02"
+- id: LNK-AOU-B-1
+  child: bridge::AOU-B-1
+  evidence:
+  - REQ-SYS-003
+  pinned:
+    version: v0.1.0
+    fingerprint: sha256:v1:4d992800abff9a513319e44b5b93fc63088ee6a1999087fa3983715d5a6f03a2
+  status: accepted
+  rationale: The lab network requirement keeps the lab bus isolated.
+  reviewedBy: ACT-SYSTEM-OWNER
+  reviewedOn: "2026-11-02"

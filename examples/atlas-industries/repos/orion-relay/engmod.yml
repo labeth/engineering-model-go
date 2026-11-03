@@ -15,6 +15,7 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
+  reqLinks: model/req-links.yml
 dependencies:
 - alias: edge
   path: models.atlas.example/shared/edge-platform@v0

@@ -27,7 +27,6 @@ architecture:
     provides:
     - id: CAP-TELEM-REPORT
       kind: capability
-      ref: REQ-TELEM-001
       note: Report machine telemetry to the fleet.
     requires:
     - id: NEED-CAN-BUS

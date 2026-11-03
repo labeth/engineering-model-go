@@ -59,6 +59,10 @@ type Requirement struct {
 	Tags                 []string     `yaml:"tags,omitempty"`
 	AppliesTo            []string     `yaml:"appliesTo"`
 	LintWaivers          []LintWaiver `yaml:"lintWaivers,omitempty"`
+	// Realizes names the local contract items (contract.provides capabilities
+	// CAP-* or contract.assumptions AOU-*) this requirement exists to deliver
+	// or make true: the child half of an upward requirement trace.
+	Realizes []string `yaml:"realizes,omitempty"`
 }
 
 // LintWaiver records an accepted EARS lint warning for one requirement, with
@@ -134,6 +138,9 @@ type DocumentReferences struct {
 	Views        string `yaml:"views"`
 	Decisions    string `yaml:"decisions"`
 	Aviation     string `yaml:"aviation,omitempty"`
+	// ReqLinks is the optional requirement link file (model/req-links.yml):
+	// links from this model's requirements to dependency contract items.
+	ReqLinks string `yaml:"reqLinks,omitempty"`
 }
 
 // ModuleIdentity is the published identity and human-facing metadata of a model.
@@ -177,6 +184,9 @@ type ManifestDocument struct {
 	Dependencies   []ManifestDependency  `yaml:"dependencies"`
 	Publications   []ManifestPublication `yaml:"publications"`
 	InferenceHints InferenceHints        `yaml:"inferenceHints"`
+	// RequirementLinks is the requirement link strictness: strict or guided
+	// (the default when empty). See RequirementLinkMode.
+	RequirementLinks string `yaml:"requirementLinks,omitempty"`
 }
 
 // ModelMeta is the aggregate model identity retained for downstream consumers.
@@ -861,6 +871,19 @@ type HardwareInterface struct {
 type ContractModel struct {
 	Provides []ContractEntry `yaml:"provides"` // the public surface a parent may allocate onto
 	Requires []ContractEntry `yaml:"requires"` // what the system needs from its environment
+	// Assumptions are the assumptions of use (AOU-*): conditions this model
+	// relies on and every using system must show hold.
+	Assumptions []ContractAssumption `yaml:"assumptions,omitempty"`
+}
+
+// ContractAssumption is one assumption of use: a condition the model relies
+// on, published like a capability and evidenced by each using system.
+// TRLC-LINKS: REQ-EMG-091
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type ContractAssumption struct {
+	ID                   string `yaml:"id"`
+	Text                 string `yaml:"text"`
+	VerificationCriteria string `yaml:"verificationCriteria,omitempty"`
 }
 
 // ContractEntry is a single provided or required interface/capability/assumption.
@@ -941,6 +964,7 @@ type Bundle struct {
 	RequirementsPath string
 	DesignPath       string
 	AviationPath     string
+	ReqLinksPath     string
 
 	Manifest     ManifestDocument
 	Architecture ArchitectureDocument
@@ -953,6 +977,8 @@ type Bundle struct {
 	Requirements RequirementsDocument
 	Design       DesignDocument
 	Aviation     *AviationDocument
+	// ReqLinks is the requirement link file; empty when the manifest names none.
+	ReqLinks ReqLinksDocument
 
 	// CodeIndex, when set, returns how many in-scope files or declarations produce each
 	// inferred CODE identifier. It is built lazily, so validation only scans code when the

@@ -1,0 +1,13 @@
+schemaVersion: 2
+lintRun:
+  id: child-b-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-B-001
+  text: When a position sentence is received, the lab bus bridge shall forward one bus frame.
+  verificationMethods: [test]
+  verificationCriteria: Each received sentence produces one bus frame.
+  appliesTo: [FU-BRIDGE]
+  realizes: [CAP-B-1, AOU-B-1]

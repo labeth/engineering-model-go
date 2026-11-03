@@ -739,6 +739,29 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |Medium
 |===
 
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-CONTROL-BASELINE (capability)
+
+Shared control implementation and evidence baseline.
+
+Realized by:
+
+* `REQ-COMP-001`: The atlas compliance baseline shall retain compliance evidence using the compliance evidence service.
+* `REQ-COMP-002`: The atlas compliance baseline shall report control implementation status to the compliance officer.
+* `REQ-COMP-003`: The people security and awareness shall record employee screening status in the personnel lifecycle record before privileged access.
+* `REQ-COMP-004`: The people security and awareness shall record policy acknowledgment for every employee at onboarding.
+* `REQ-COMP-005`: The people security and awareness shall record annual employee completion in the security awareness training record.
+* `REQ-COMP-006`: The people security and awareness shall request a line manager access review following an employee role change.
+* `REQ-COMP-007`: The people security and awareness shall revoke employee access following employment termination.
+* `REQ-COMP-008`: The people security and awareness shall request people operations partner confirmation of company asset return following employment termination.
+
+Fingerprint: `sha256:v1:a6a021ac4665f1e4766f9453beeb5171d9909ac829be2a7b525ae07ed91a36c0`
+
 <<<
 == Reference Index
 

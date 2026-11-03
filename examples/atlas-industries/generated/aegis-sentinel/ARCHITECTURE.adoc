@@ -364,8 +364,6 @@ flowchart TB
   REQC_REQ_AEG_002["REQ-AEG-002"]:::requirement
   FU_FU_AEG_SENSOR_FUSION["Sensor Fusion Software"]:::functional_unit
   REQC_REQ_AEG_002 -->|applies_to| FU_FU_AEG_SENSOR_FUSION
-  SUBREQ_SUB_AEG_EDGE_REQ_EDGE_001["REQ-EDGE-001 — SUB-AEG-EDGE"]:::referenced_element
-  REQC_REQ_AEG_002 -->|delegates to| SUBREQ_SUB_AEG_EDGE_REQ_EDGE_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -406,8 +404,6 @@ flowchart TB
   REQC_REQ_AEG_003["REQ-AEG-003"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
   REQC_REQ_AEG_003 -->|applies_to| FU_FU_AEG_MISSION
-  SUBREQ_SUB_AEG_CLOUD_REQ_CLOUD_001["REQ-CLOUD-001 — SUB-AEG-CLOUD"]:::referenced_element
-  REQC_REQ_AEG_003 -->|delegates to| SUBREQ_SUB_AEG_CLOUD_REQ_CLOUD_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -450,8 +446,6 @@ flowchart TB
   REQC_REQ_AEG_004 -->|applies_to| FU_FU_AEG_MISSION
   FU_FU_AEG_SENSOR_FUSION["Sensor Fusion Software"]:::functional_unit
   REQC_REQ_AEG_004 -->|applies_to| FU_FU_AEG_SENSOR_FUSION
-  SUBREQ_SUB_AEG_SECURITY_REQ_SEC_002["REQ-SEC-002 — SUB-AEG-SECURITY"]:::referenced_element
-  REQC_REQ_AEG_004 -->|delegates to| SUBREQ_SUB_AEG_SECURITY_REQ_SEC_002
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -492,8 +486,6 @@ flowchart TB
   REQC_REQ_AEG_005["REQ-AEG-005"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
   REQC_REQ_AEG_005 -->|applies_to| FU_FU_AEG_MISSION
-  SUBREQ_SUB_AEG_COMPLIANCE_REQ_COMP_001["REQ-COMP-001 — SUB-AEG-COMPLIANCE"]:::referenced_element
-  REQC_REQ_AEG_005 -->|delegates to| SUBREQ_SUB_AEG_COMPLIANCE_REQ_COMP_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1046,61 +1038,54 @@ flowchart LR
 |`models.atlas.example/shared/compliance-baseline@v0@v0.1.0`
 |===
 
-=== Requirement Allocation Matrix
-
-[cols="2,2,2,1",options="header"]
-|===
-|Requirement |Subsystem |Target |Resolved
-|REQ-AEG-002
-|SUB-AEG-EDGE
-|edge::CAP-EDGE-COMPUTE
-|yes
-|REQ-AEG-003
-|SUB-AEG-CLOUD
-|cloud::CAP-CLOUD-OPERATIONS
-|yes
-|REQ-AEG-004
-|SUB-AEG-SECURITY
-|security::CAP-ZERO-TRUST
-|yes
-|REQ-AEG-005
-|SUB-AEG-COMPLIANCE
-|compliance::CAP-CONTROL-BASELINE
-|yes
-|===
-
-==== Requirement Delegation View
-
-Each delegated requirement of this system links downward to the subsystem contract it binds. Requirements not shown here carry no delegation link and are implemented in this system.
-
-[source,mermaid]
-----
-flowchart LR
-  subgraph SYS["Aegis Sentinel Product System"]
-    REQ_AEG_002["REQ-AEG-002"]
-    REQ_AEG_003["REQ-AEG-003"]
-    REQ_AEG_004["REQ-AEG-004"]
-    REQ_AEG_005["REQ-AEG-005"]
-  end
-  subgraph SUB_AEG_EDGE["Shared Edge Platform"]
-    SUB_AEG_EDGE__REQ_EDGE_001(["REQ-EDGE-001 (edge::CAP-EDGE-COMPUTE)"])
-  end
-  subgraph SUB_AEG_CLOUD["Shared Cloud Platform"]
-    SUB_AEG_CLOUD__REQ_CLOUD_001(["REQ-CLOUD-001 (cloud::CAP-CLOUD-OPERATIONS)"])
-  end
-  subgraph SUB_AEG_SECURITY["Shared Security Services"]
-    SUB_AEG_SECURITY__REQ_SEC_002(["REQ-SEC-002 (security::CAP-ZERO-TRUST)"])
-  end
-  subgraph SUB_AEG_COMPLIANCE["Shared Compliance Baseline"]
-    SUB_AEG_COMPLIANCE__REQ_COMP_001(["REQ-COMP-001 (compliance::CAP-CONTROL-BASELINE)"])
-  end
-  REQ_AEG_002 -->|delegates to| SUB_AEG_EDGE__REQ_EDGE_001
-  REQ_AEG_003 -->|delegates to| SUB_AEG_CLOUD__REQ_CLOUD_001
-  REQ_AEG_004 -->|delegates to| SUB_AEG_SECURITY__REQ_SEC_002
-  REQ_AEG_005 -->|delegates to| SUB_AEG_COMPLIANCE__REQ_COMP_001
-----
-
 All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
+
+
+<<<
+== Requirement Links
+
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+
+* *REQ-AEG-001*: The aegis sentinel system shall present each perimeter track to the security operator.
+** no requirement link
+* *REQ-AEG-002*: The aegis sentinel system shall execute the sensor fusion software on managed edge compute.
+** link LNK-AEG-002-EDGE (unchanged, accepted) to `edge::CAP-EDGE-COMPUTE`: Rugged compute with signed workload execution.
+*** `edge::REQ-EDGE-001` (status not available): The atlas edge platform shall execute signed workloads on the edge runtime.
+* *REQ-AEG-003*: The aegis sentinel system shall retain each perimeter track using managed cloud operations.
+** link LNK-AEG-003-CLOUD (unchanged, accepted) to `cloud::CAP-CLOUD-OPERATIONS`: Resilient event processing and service hosting.
+*** `cloud::REQ-CLOUD-001` (status not available): The atlas cloud platform shall process each cloud event using the cloud runtime.
+* *REQ-AEG-004*: The aegis sentinel system shall authenticate product services using shared security services.
+** link LNK-AEG-004-SECURITY (unchanged, accepted) to `security::CAP-ZERO-TRUST`: Zero-trust access and immutable audit monitoring.
+*** `security::REQ-SEC-002` (status not available): When credential replay is detected, the atlas security services shall notify the security analyst.
+* *REQ-AEG-005*: The aegis sentinel system shall retain compliance evidence using the company control baseline.
+** link LNK-AEG-005-COMPLIANCE (unchanged, accepted) to `compliance::CAP-CONTROL-BASELINE`: Shared control implementation and evidence baseline.
+*** `compliance::REQ-COMP-001` (status not available): The atlas compliance baseline shall retain compliance evidence using the compliance evidence service.
+*** `compliance::REQ-COMP-002` (status not available): The atlas compliance baseline shall report control implementation status to the compliance officer.
+*** `compliance::REQ-COMP-003` (status not available): The people security and awareness shall record employee screening status in the personnel lifecycle record before privileged access.
+*** `compliance::REQ-COMP-004` (status not available): The people security and awareness shall record policy acknowledgment for every employee at onboarding.
+*** `compliance::REQ-COMP-005` (status not available): The people security and awareness shall record annual employee completion in the security awareness training record.
+*** `compliance::REQ-COMP-006` (status not available): The people security and awareness shall request a line manager access review following an employee role change.
+*** `compliance::REQ-COMP-007` (status not available): The people security and awareness shall revoke employee access following employment termination.
+*** `compliance::REQ-COMP-008` (status not available): The people security and awareness shall request people operations partner confirmation of company asset return following employment termination.
+
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-AEGIS-MISSION (capability)
+
+Reviewed perimeter incident detection.
+
+Realized by:
+
+* `REQ-AEG-001`: The aegis sentinel system shall present each perimeter track to the security operator.
+* `REQ-AEG-002`: The aegis sentinel system shall execute the sensor fusion software on managed edge compute.
+* `REQ-AEG-003`: The aegis sentinel system shall retain each perimeter track using managed cloud operations.
+* `REQ-AEG-004`: The aegis sentinel system shall authenticate product services using shared security services.
+
+Fingerprint: `sha256:v1:b190d8d17c81e07ebf1e1443f56411cad8f88a72c0fd18f68f4768945a5afdab`
 
 <<<
 == Reference Index

@@ -1,0 +1,29 @@
+schemaVersion: 2
+module:
+  path: models.example/reqlinks/child-b@v0
+  version: v0.1.0
+  modelId: REQLINKS-CHILD-B
+  title: Lab Bus Bridge
+  introduction: Forwards position sentences onto the lab bus of a using system.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+requirementLinks: strict
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-BRIDGE
+  - FU-BRIDGE
+  - CAP-B-1
+  - AOU-B-1
+  requirements:
+  - REQ-B-001
+inferenceHints: {}

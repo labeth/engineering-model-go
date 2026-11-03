@@ -453,6 +453,22 @@ This chapter shows the system architecture across hardware and software: hardwar
 |-
 |===
 
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-EDGE-COMPUTE (capability)
+
+Rugged compute with signed workload execution.
+
+Realized by:
+
+* `REQ-EDGE-001`: The atlas edge platform shall execute signed workloads on the edge runtime.
+
+Fingerprint: `sha256:v1:bb951b506fe3955b63f16dae3989a155dc2d18de609a3ad390beb11d5364b518`
+
 <<<
 == Reference Index
 

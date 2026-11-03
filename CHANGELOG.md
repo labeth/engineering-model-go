@@ -6,6 +6,145 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- Requirement links across composed models (REQ-EMG-090 to REQ-EMG-099, REQ-EMG-108 to
+  REQ-EMG-112; ADR-EMG-022 to ADR-EMG-028; design in
+  `docs/requirement-links.md`):
+  - `requirements[].realizes` names the local contract items (`CAP-*` capabilities,
+    `AOU-*` assumptions of use) a requirement exists to deliver; `contract.assumptions`
+    (`id`, `text`, `verificationCriteria`) declares assumptions of use, published and
+    imported (`alias::AOU-*`) like capabilities.
+  - `engmod.yml` `requirementLinks: strict | guided` (default `guided`) and the optional
+    document `documents.reqLinks` (`model/req-links.yml`, CUE schema `reqlinks.cue`) with
+    `reqLinks: [{id, parent, child, evidence, pinned: {version, fingerprint}, status,
+    rationale, reviewedBy, reviewedOn}]`.
+  - Upward trace (D22, ADR-EMG-028): no model can know it is top level, so every
+    requirement traces through a capability. `requirement.no_parent` is reported unless the
+    requirement (a) `realizes` a local capability or assumption of use, (b) is the `parent`
+    of a link to a dependency's capability, or (c) is `derived: true` with
+    `derivedRationale`; the message names these three options. Stakeholder `sourceRefs` do
+    not count and there is no top-level exemption. The trace `unparented` count follows the
+    rule, and `parents` lists only the realized items. A system publishes its own
+    capabilities so a system above can link to them.
+  - Validation: `requirement.no_parent`, `requirement.realizes_unknown`,
+    `contract.unrealized` (warning), `contract.realizer_unpublished`, `contract.ref_deprecated`
+    (warning), `composition.allocation_deprecated` (warning), `link.parent_unknown`,
+    `link.child_unpublished`, `link.version_mismatch`, `link.claimed_only` (warning),
+    `model.invalid_requirement_links`. The composed check adds `link.suspect`,
+    `link.broken`, `link.child_unpublished` and `link.aou_unverified`; trace integrity adds
+    `requirement.unsatisfied`. `requirement.no_parent`, `link.aou_unverified` and
+    `requirement.unsatisfied` are errors in strict mode and warnings in guided mode, where
+    guided applies them only to a model that publishes contract items or has links.
+  - Root facade: types `ContractItem`, `ContractItemRealizer`, `ContractItemKind`,
+    `LinkState`, `LinkStatus`, `LinkReason`, `LinkDependency`, `LinkUse`, `ReqLink`,
+    `ReqLinkPin`, `ReqLinksDocument`, `ContractAssumption`, `TraceLinkRef`; functions
+    `ContractItemFingerprint`, `ContractItemFingerprintVersion`, `CanonicalContractItem`,
+    `ContractItemsFromBundle`, `PublishedContractItems`, `RealizedContractItems`,
+    `ContractCapabilityRefs`, `ContractNonItemReason`, `SortedContractItemRealizers`,
+    `EvaluateRequirementLinks`, `RequirementLinkDiagnostics`, `SuspectLinkMessage`,
+    `OutdatedLinkMessage`, `LinkDependencies`, `WorkspaceLinkUsers`, `RequirementLinkMode`;
+    constants `ContractItemCanonicalVersion`, `LinkState*`, `LinkReason*`,
+    `RequirementLinksStrict`/`Guided`, `ReqLinkClaimed`/`Accepted`. The fingerprint is
+    `sha256:v1:<hex>` of the canonical form of a contract item with its realizing requirements
+    (item id, kind, text, criteria; realizer id, text, notes, criteria, sorted verification
+    methods, criticality, status), pinned by a golden test; another form is reported as
+    `link.fingerprint_outdated`. Link evaluation: unchanged, suspect, broken,
+    version_mismatch, child_unpublished, unresolved, fingerprint_outdated.
+  - Validation also reports `link.review_unrecorded` (an accepted link without a model actor
+    in `reviewedBy` or a calendar `reviewedOn`) and `link.parent_missing` (a capability link
+    without `parent`).
+  - Example `examples/requirement-links/` with three strict repositories (child-a, child-b,
+    system) resolved offline through `engmod.work.yml`.
+- Requirement link tooling in `engws` (REQ-EMG-100 to REQ-EMG-104; decisions D8 and on in
+  `docs/requirement-links.md`):
+  - `engws bump <repo> <alias> <version> [--allow-suspect]` evaluates the consumer's links on
+    the alias at the new version and prints each as unchanged, suspect or broken. Unchanged
+    links move `pinned.version` to the new version; suspect and broken links keep their pin
+    and fingerprint (never re-stamped). A suspect or broken link aborts the bump with every
+    file restored, the requirement link file and the lock included, unless `--allow-suspect`.
+  - `engws review-links [--repo DIR] [--json]` lists suspect, broken and version-mismatched
+    links with the parent requirement text and the child item and its realizing requirements
+    before (at the link's pinned version, from the module cache or registry; "not available
+    offline" otherwise) and after (exit 1 when any). `--accept LNK-ID --by ACT-ID --rationale
+    TEXT` writes the current fingerprint, the dependency pin, `reviewedBy`, `reviewedOn`, the
+    rationale and `status: accepted`, editing only those lines; an unknown actor or a broken
+    link is refused. The fingerprint is that of the published dependency at its pin (composed
+    with the workspace off), never of a workspace checkout.
+  - `engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json]` compares the published
+    contract items of the model at two git refs (added, removed, changed text or realizers,
+    unchanged) and states the semver impact: a removed capability, a changed capability text
+    ("treated as major"), an added or changed assumption of use are major; a removed
+    assumption, an added capability or realizer-only changes are minor; else patch.
+  - `engws release-check [--repo DIR] [--tag vX.Y.Z]` reports `dependency.unreleased_pin` for a
+    pre-release or pseudo-version in `engmod.yml` or `engmod.lock.yml`, and
+    `contract.semver_too_small` when the tag's bump over the previous release (the nearest
+    release tag in the commit's history, `git tag --merged`) is smaller than the contract diff
+    requires (in v0.x a breaking change needs a minor bump). Exit 0 ok, 1 findings, 2 usage
+    or IO error. CI runs it on every `v*` tag push (`release-check` job).
+  - `engws migrate-links [--repo DIR] [--dry-run]` converts each `composition.allocations` entry
+    into a claimed link in `model/req-links.yml` (`LNK-<REQ>-<ALIAS>`, the dependency pin, the
+    current fingerprint, or `""` with a note when the dependency cannot be resolved), adds
+    `documents.reqLinks`, removes the converted allocations, keeps (and names) an allocation
+    whose target is an interface or other non-item contract entry (D13), turns each capability
+    `contract.provides[].ref` into `realizes` and prints the requirements left with
+    `requirement.no_parent`. Other lines are kept; a second run changes nothing; a failed
+    write restores every file.
+  - Every `engws` command accepts its flags after the positional arguments.
+- Requirement links in the trace (REQ-EMG-105): trace matrix rows carry `parents` (realized
+  contract items, qualified on published rows, or stakeholder `sourceRefs`), `children` (a
+  system requirement's linked child items and their realizing requirements), `links` with their
+  state and `satisfiedBy: links`: a system requirement without code or tests of its own is
+  implemented (and test linked) when every realizing requirement of every linked item is, in
+  its own repository, and is no longer an orphan, through accepted, unchanged links only (a
+  claimed or changed link gives `satisfiedBy: links-unreviewed` and does not count). The summary counts `linksSuspect`,
+  `linksBroken`, `linksClaimed` and `unparented`; MCP `trace.matrix` returns them, also with
+  `summaryOnly`. Root facade: `TraceLinkRef`.
+- MCP requirement link tools (REQ-EMG-106): `links.list`, `links.suspect`, `links.review`
+  (returns the `engws review-links --accept` command and the link file patch; writes nothing)
+  and `requirements.parents`; `requirements.get` adds `parents`, `links` and `children`.
+- AsciiDoc requirement link chapters (REQ-EMG-107): "Requirement Links" in a model with links
+  (requirement → link with state and review status → child item → realizing requirements
+  with their implementation and test status in the child; assumptions of use with their
+  evidence; suspect, broken and claimed links marked) and "Contract Items" in a model that
+  publishes items (text, realizing requirements, fingerprint). "Used By" is opt-in
+  (`AsciiDocOptions.UsedBy`, `engdoc --used-by`) and needs an active workspace whose sibling
+  checkouts link the items (`WorkspaceLinkUsers`, computed at render time, replacements
+  outside the workspace and siblings naming paths outside their directory skipped); do not
+  commit such a render into the child. `link.*` findings and the strict-mode
+  `requirement.no_parent`, `requirement.unsatisfied` and `contract.realizer_unpublished` no
+  longer stop the render; `engdoc` still exits 1 on them. Dependency text is rendered without
+  AsciiDoc passthrough.
+- `pinned.fingerprint` may be `""` (a link migrated before its item could be fingerprinted).
+- Compatibility (ADR-EMG-027): upgrade the engine of every using system to v0.8.0 before a
+  dependency publishes a release that uses `realizes` or `contract.assumptions`.
+- A dependency `version` may be a Go-style pseudo-version (`v1.2.4-0.20261102103400-abcdef123456`).
+
+### Changed
+
+- The upward search for `engmod.work.yml` refuses a world-writable file or one owned by
+  another user (name it with `ENGMOD_WORK=<path>` to use it anyway).
+- `requirement.orphan` diagnostics carry the path `requirements[<ID>]`.
+- engws keeps the permission bits of the files it rewrites; `contract-diff` writes its
+  temporary model copy 0700/0600.
+
+### Fixed
+
+- A requirement imported from a dependency publication (OSCAL assessment results enrich the
+  bundle with requirements) keeps its `realizes` qualified with the dependency alias and is not
+  checked against the importing model's contract (`requirement.realizes_unknown`).
+- Examples: `coffee-fleet-ota-cloud-sample` (with its subsystems) and every
+  `atlas-industries` repository are migrated to requirement links (`engws migrate-links`):
+  no `composition.allocations` or contract `ref` remain, every child requirement realizes a
+  capability or is derived; the coffee fleet system publishes its own capabilities
+  (`CAP-COFFEE-FLEET-TELEMETRY`, `-OTA`, `-AUDIT`) that its unlinked requirements realize. The
+  Atlas links are accepted; the coffee fleet links stay `claimed` as the migration writes them.
+
+### Deprecated
+
+- `composition.allocations` and `contract.provides[].ref`: still read for this release; use
+  `reqLinks` and `realizes`.
+
 ## [0.7.0] — 2026-11-02: Assurance and acceptance diagnostics; engws go.work replaces; gated tests; fresh MCP renders
 
 ### Added

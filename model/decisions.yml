@@ -218,6 +218,9 @@ decisions:
   - Subsystem repositories are reusable and parent-agnostic.
   - The reference graph is a parent-to-child directed acyclic graph; cycles are rejected.
   - Validation has a standalone scope (the subsystem alone) and a composed scope (the bindings).
+  - Amended by ADR-EMG-022 and ADR-EMG-023 (v0.8.0); a child still never references its parents, it now traces its own
+    requirements up to its contract items (realizes), and the parent records requirement links in its own repository
+    instead of allocations.
 - id: ADR-EMG-010
   title: Resolve subsystem references from local subdirectories first
   status: accepted
@@ -266,6 +269,9 @@ decisions:
   - Requirement documents stay flat and boundary-agnostic.
   - Delegation is expressed once, by the integrating system's downward allocation.
   - Internal requirement-to-requirement links are reported instead of silently accepted.
+  - Amended by ADR-EMG-022 (v0.8.0); delegation is now a requirement link (reqLinks) from the parent requirement to a
+    published contract item of the child, pinned and fingerprinted; composition.allocations is deprecated. Requirements
+    still carry no tiers.
 - id: ADR-EMG-012
   title: Trace links are existence-checked, scoped to the owning model, and exported as a matrix
   status: accepted
@@ -566,3 +572,183 @@ decisions:
   - In-repository files need no authored entries; renaming or deleting a referenced file fails validation.
   - Declaration identifiers change from CODE-<NAME> to CODE-<PATH>--<NAME>, so generated trace outputs change once.
   - Models that pointed referenced elements at local paths must switch those references to CODE identifiers.
+- id: ADR-EMG-022
+  title: Requirement links run child to parent and their strictness is a manifest setting
+  status: accepted
+  date: 2026-11-03
+  context: 'A composed system must show which child capability or assumption of use satisfies each of its requirements,
+
+    and a child must trace its own requirements upward without knowing who uses it. The owner wants the links
+
+    required and enforced as errors, but turning the rules on for every model would break every existing model on
+
+    upgrade.
+
+    '
+  decision: 'A child requirement realizes its own contract items (realizes: [CAP-* | AOU-*]); the using system records
+
+    reqLinks entries from its requirements to the dependency items (model/req-links.yml). The manifest setting
+
+    requirementLinks: strict | guided (default guided) chooses the severity of the strictness-dependent rules only:
+
+    requirement.no_parent, link.aou_unverified and requirement.unsatisfied are errors in strict mode in every model,
+
+    and warnings in guided mode where the model publishes contract items or has links. Every other link rule
+
+    (link.suspect, link.broken, link.version_mismatch, link.parent_unknown, link.child_unpublished, link.review_unrecorded,
+
+    link.fingerprint_outdated, contract.realizer_unpublished, requirement.realizes_unknown) is an error in both modes.
+
+    engflow init writes strict. (docs/requirement-links.md D1.)
+
+    '
+  consequences:
+  - Existing models keep 0 errors on upgrade; new projects get the strict rules from engflow init.
+  - The direction stays child to parent; no child names a user.
+  - Amended by ADR-EMG-028; no model is exempt from the upward trace as top level.
+- id: ADR-EMG-023
+  title: The using system fingerprints the child item from the content it resolved
+  status: accepted
+  date: 2026-11-03
+  context: 'A link must become suspect when the child item or a requirement that realizes it changes. A fingerprint
+
+    file written by the child would have to be kept fresh and could disagree with the content the system actually
+
+    composed.
+
+    '
+  decision: 'The system computes each item''s fingerprint itself from the child''s published content at the pinned
+
+    version: the item and its realizing requirements in canonical form. Every realizer of a published item must be in the
+
+    same publication (contract.realizer_unpublished). No generated fingerprint file exists. (D2.)
+
+    '
+  consequences:
+  - Nothing to keep fresh; the fingerprint always describes the content the system resolved.
+  - A child cannot keep a realizer of a published item private.
+- id: ADR-EMG-024
+  title: A dependency bump re-pins only unchanged links and never re-stamps a fingerprint
+  status: accepted
+  date: 2026-11-03
+  context: 'A pin records what was reviewed. Moving it to a new version is safe only when the item content is the same
+
+    there; otherwise the change must be reviewed by a person.
+
+    '
+  decision: 'engws bump evaluates the links on the bumped alias only, at the new version: unchanged links move
+
+    pinned.version, suspect and broken links keep pin and fingerprint, and a suspect or broken link aborts the bump with
+
+    every file restored unless --allow-suspect, after which the check fails until engws review-links --accept. bump
+
+    never writes a fingerprint. (D8.)
+
+    '
+  consequences:
+  - A bump cannot silently accept a changed child item.
+  - Links on other aliases are not touched by a bump; their own pins are checked by validation.
+- id: ADR-EMG-025
+  title: Used By is a render-time opt-in and is never committed into a child
+  status: accepted
+  date: 2026-11-03
+  context: 'A child is reused by systems it must not know about, and its committed documents must not disclose them. A
+
+    developer working in a workspace with the users checked out next to the child may still want to see who links its
+
+    items.
+
+    '
+  decision: 'The AsciiDoc Used By section is off by default, also when a workspace is found, and is rendered only with
+
+    AsciiDocOptions.UsedBy (engdoc --used-by). It lists the requirement links of the other checkouts of the active
+
+    workspace onto the rendered model''s published items, reading only replacement directories inside the workspace,
+
+    confined like dependencies; a document rendered with it must not be committed into the child, and the maintained
+
+    examples are rendered without it. (D16.)
+
+    '
+  consequences:
+  - A default render of a child names no user, in or out of a workspace.
+  - Seeing users is an explicit local act; review of the diff keeps it out of the child's repository.
+- id: ADR-EMG-026
+  title: The contract item fingerprint is versioned by canonical form
+  status: accepted
+  date: 2026-11-03
+  context: 'Adding a field to the canonical form, or normalizing one differently, changes every fingerprint. Without a
+
+    version, every link would then report link.suspect although no child changed, and a reviewer could not tell an engine
+
+    upgrade from a real change.
+
+    '
+  decision: 'A fingerprint is sha256:v<N>:<hex>, N the canonical-form version (1). Any change to the canonical form is a
+
+    new version. A recorded fingerprint of an older or unknown version, or the unversioned sha256:<hex> form, is not
+
+    compared: it is reported as link.fingerprint_outdated (error, distinct from link.suspect) with the message to check
+
+    that nothing changed and re-stamp it with engws review-links --accept, or to use a later engine that migrates the
+
+    form. Version 1 covers the item id, kind, text and verificationCriteria and, per realizing requirement, id, text,
+
+    notes, verificationCriteria, verificationMethods (sorted), criticality and status; title, rationale, appliesTo,
+
+    priority and tags are not covered. (D17.)
+
+    '
+  consequences:
+  - An engine upgrade that changes the canonical form produces one distinct, explainable finding per link.
+  - Links recorded by v0.8.0 pre-releases must be re-stamped once.
+- id: ADR-EMG-027
+  title: Users upgrade the engine before a child adopts realizes or assumptions of use
+  status: accepted
+  date: 2026-11-03
+  context: 'The model schema is strictly decoded. An engine older than v0.8.0 rejects realizes, contract.assumptions,
+
+    documents.reqLinks and requirementLinks, so a child that adopts them breaks every user still on an older engine when
+
+    the user composes it.
+
+    '
+  decision: 'Compatibility runs engine first: a system upgrades to engineering-model-go v0.8.0 or later before any of its
+
+    dependencies publishes a release that uses realizes or contract.assumptions. A child adopting them states the minimum
+
+    engine version in its release notes; a system adopting reqLinks needs v0.8.0 itself.
+
+    '
+  consequences:
+  - The schema additions stay additive for an upgraded engine; an old engine fails loudly instead of misreading a child.
+  - Release notes of a child that adopts requirement links name v0.8.0 as the minimum engine of its users.
+- id: ADR-EMG-028
+  title: Every requirement traces upward through a capability; no model is top level
+  status: accepted
+  date: 2026-11-03
+  context: 'The first requirement link rules exempted a system marked inferenceHints.topLevel and any requirement with
+
+    stakeholder sourceRefs from requirement.no_parent. No model can know it is top level, because any system may later
+
+    be used by one above, and a stakeholder reference is not a contract item a user can link to.
+
+    '
+  decision: 'In both requirementLinks modes (severity per ADR-EMG-022), a requirement satisfies the upward-trace rule
+
+    requirement.no_parent iff it realizes a local capability or assumption of use, it is the parent of a reqLinks entry
+
+    to a dependency capability, or it is derived with derivedRationale. inferenceHints.topLevel is removed from the
+
+    schema, and sourceRefs stays a field but no longer exempts. The diagnostic names exactly these three options. The
+
+    trace unparented count follows the same rule; trace parents stays the upward trace (realized items) and a link
+
+    parent''s links are its children. (docs/requirement-links.md D22.)
+
+    '
+  consequences:
+  - A system publishes its own capabilities so a system above can link to them; its requirements realize them, link
+    below, or are derived.
+  - A manifest that sets inferenceHints.topLevel no longer loads (strict schema); the field was never released.
+  - Guided mode still applies the rule only where the model publishes contract items or has reqLinks.

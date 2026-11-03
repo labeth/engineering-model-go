@@ -7,7 +7,10 @@
       "units": [
         "FU-ORI-ROUTER"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-ORION-MISSION"
+      ]
     },
     {
       "id": "REQ-ORI-002",
@@ -15,18 +18,22 @@
       "units": [
         "FU-ORI-LINK"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-ORI-EDGE",
-        "target": "edge::CAP-EDGE-COMPUTE",
-        "targetRequirement": "REQ-EDGE-001"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-EDGE-001",
-        "status": "not-available",
-        "implemented": false,
-        "testLinked": false
-      },
-      "status": "delegated"
+      "status": "orphan",
+      "parents": [
+        "CAP-ORION-MISSION"
+      ],
+      "children": [
+        "edge::CAP-EDGE-COMPUTE",
+        "edge::REQ-EDGE-001"
+      ],
+      "links": [
+        {
+          "id": "LNK-ORI-002-EDGE",
+          "child": "edge::CAP-EDGE-COMPUTE",
+          "state": "unchanged",
+          "status": "accepted"
+        }
+      ]
     },
     {
       "id": "REQ-ORI-003",
@@ -34,18 +41,22 @@
       "units": [
         "FU-ORI-ROUTER"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-ORI-CLOUD",
-        "target": "cloud::CAP-CLOUD-OPERATIONS",
-        "targetRequirement": "REQ-CLOUD-001"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-CLOUD-001",
-        "status": "not-available",
-        "implemented": false,
-        "testLinked": false
-      },
-      "status": "delegated"
+      "status": "orphan",
+      "parents": [
+        "CAP-ORION-MISSION"
+      ],
+      "children": [
+        "cloud::CAP-CLOUD-OPERATIONS",
+        "cloud::REQ-CLOUD-001"
+      ],
+      "links": [
+        {
+          "id": "LNK-ORI-003-CLOUD",
+          "child": "cloud::CAP-CLOUD-OPERATIONS",
+          "state": "unchanged",
+          "status": "accepted"
+        }
+      ]
     },
     {
       "id": "REQ-ORI-004",
@@ -54,18 +65,22 @@
         "FU-ORI-LINK",
         "FU-ORI-ROUTER"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-ORI-SECURITY",
-        "target": "security::CAP-ZERO-TRUST",
-        "targetRequirement": "REQ-SEC-002"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-SEC-002",
-        "status": "not-available",
-        "implemented": false,
-        "testLinked": false
-      },
-      "status": "delegated"
+      "status": "orphan",
+      "parents": [
+        "CAP-ORION-MISSION"
+      ],
+      "children": [
+        "security::CAP-ZERO-TRUST",
+        "security::REQ-SEC-002"
+      ],
+      "links": [
+        {
+          "id": "LNK-ORI-004-SECURITY",
+          "child": "security::CAP-ZERO-TRUST",
+          "state": "unchanged",
+          "status": "accepted"
+        }
+      ]
     },
     {
       "id": "REQ-ORI-005",
@@ -73,18 +88,26 @@
       "units": [
         "FU-ORI-ROUTER"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-ORI-COMPLIANCE",
-        "target": "compliance::CAP-CONTROL-BASELINE",
-        "targetRequirement": "REQ-COMP-001"
-      },
-      "delegatedStatus": {
-        "requirement": "REQ-COMP-001",
-        "status": "not-available",
-        "implemented": false,
-        "testLinked": false
-      },
-      "status": "delegated"
+      "status": "orphan",
+      "children": [
+        "compliance::CAP-CONTROL-BASELINE",
+        "compliance::REQ-COMP-001",
+        "compliance::REQ-COMP-002",
+        "compliance::REQ-COMP-003",
+        "compliance::REQ-COMP-004",
+        "compliance::REQ-COMP-005",
+        "compliance::REQ-COMP-006",
+        "compliance::REQ-COMP-007",
+        "compliance::REQ-COMP-008"
+      ],
+      "links": [
+        {
+          "id": "LNK-ORI-005-COMPLIANCE",
+          "child": "compliance::CAP-CONTROL-BASELINE",
+          "state": "unchanged",
+          "status": "accepted"
+        }
+      ]
     },
     {
       "id": "cloud::REQ-CLOUD-001",
@@ -92,11 +115,6 @@
       "units": [
         "cloud::FU-CLOUD-RUNTIME"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-ORI-CLOUD",
-        "target": "cloud::CAP-CLOUD-OPERATIONS",
-        "targetRequirement": "cloud::REQ-CLOUD-001"
-      },
       "delegatedStatus": {
         "requirement": "REQ-CLOUD-001",
         "status": "not-available",
@@ -111,7 +129,10 @@
         "publication": "public",
         "sourceId": "REQ-CLOUD-001"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "cloud::CAP-CLOUD-OPERATIONS"
+      ]
     },
     {
       "id": "cloud::REQ-CLOUD-002",
@@ -135,11 +156,6 @@
       "units": [
         "compliance::FU-COMP-EVIDENCE"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-ORI-COMPLIANCE",
-        "target": "compliance::CAP-CONTROL-BASELINE",
-        "targetRequirement": "compliance::REQ-COMP-001"
-      },
       "delegatedStatus": {
         "requirement": "REQ-COMP-001",
         "status": "not-available",
@@ -154,7 +170,10 @@
         "publication": "public",
         "sourceId": "REQ-COMP-001"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "compliance::CAP-CONTROL-BASELINE"
+      ]
     },
     {
       "id": "compliance::REQ-COMP-002",
@@ -162,6 +181,12 @@
       "units": [
         "compliance::FU-COMP-EVIDENCE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-002",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "compliance",
         "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
@@ -170,7 +195,10 @@
         "publication": "public",
         "sourceId": "REQ-COMP-002"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "compliance::CAP-CONTROL-BASELINE"
+      ]
     },
     {
       "id": "compliance::REQ-COMP-003",
@@ -178,6 +206,12 @@
       "units": [
         "compliance::FU-COMP-PEOPLE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-003",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "compliance",
         "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
@@ -186,7 +220,10 @@
         "publication": "public",
         "sourceId": "REQ-COMP-003"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "compliance::CAP-CONTROL-BASELINE"
+      ]
     },
     {
       "id": "compliance::REQ-COMP-004",
@@ -194,6 +231,12 @@
       "units": [
         "compliance::FU-COMP-PEOPLE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-004",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "compliance",
         "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
@@ -202,7 +245,10 @@
         "publication": "public",
         "sourceId": "REQ-COMP-004"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "compliance::CAP-CONTROL-BASELINE"
+      ]
     },
     {
       "id": "compliance::REQ-COMP-005",
@@ -210,6 +256,12 @@
       "units": [
         "compliance::FU-COMP-PEOPLE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-005",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "compliance",
         "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
@@ -218,7 +270,10 @@
         "publication": "public",
         "sourceId": "REQ-COMP-005"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "compliance::CAP-CONTROL-BASELINE"
+      ]
     },
     {
       "id": "compliance::REQ-COMP-006",
@@ -226,6 +281,12 @@
       "units": [
         "compliance::FU-COMP-PEOPLE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-006",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "compliance",
         "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
@@ -234,7 +295,10 @@
         "publication": "public",
         "sourceId": "REQ-COMP-006"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "compliance::CAP-CONTROL-BASELINE"
+      ]
     },
     {
       "id": "compliance::REQ-COMP-007",
@@ -242,6 +306,12 @@
       "units": [
         "compliance::FU-COMP-PEOPLE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-007",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "compliance",
         "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
@@ -250,7 +320,10 @@
         "publication": "public",
         "sourceId": "REQ-COMP-007"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "compliance::CAP-CONTROL-BASELINE"
+      ]
     },
     {
       "id": "compliance::REQ-COMP-008",
@@ -258,6 +331,12 @@
       "units": [
         "compliance::FU-COMP-PEOPLE"
       ],
+      "delegatedStatus": {
+        "requirement": "REQ-COMP-008",
+        "status": "not-available",
+        "implemented": false,
+        "testLinked": false
+      },
       "provenance": {
         "alias": "compliance",
         "modulePath": "models.atlas.example/shared/compliance-baseline@v0",
@@ -266,7 +345,10 @@
         "publication": "public",
         "sourceId": "REQ-COMP-008"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "compliance::CAP-CONTROL-BASELINE"
+      ]
     },
     {
       "id": "edge::REQ-EDGE-001",
@@ -274,11 +356,6 @@
       "units": [
         "edge::FU-EDGE-RUNTIME"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-ORI-EDGE",
-        "target": "edge::CAP-EDGE-COMPUTE",
-        "targetRequirement": "edge::REQ-EDGE-001"
-      },
       "delegatedStatus": {
         "requirement": "REQ-EDGE-001",
         "status": "not-available",
@@ -293,7 +370,10 @@
         "publication": "public",
         "sourceId": "REQ-EDGE-001"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "edge::CAP-EDGE-COMPUTE"
+      ]
     },
     {
       "id": "edge::REQ-EDGE-002",
@@ -325,7 +405,10 @@
         "publication": "public",
         "sourceId": "REQ-SEC-001"
       },
-      "status": "published"
+      "status": "published",
+      "parents": [
+        "security::CAP-DEVICE-IDENTITY"
+      ]
     },
     {
       "id": "security::REQ-SEC-002",
@@ -333,11 +416,6 @@
       "units": [
         "security::FU-SEC-MONITORING"
       ],
-      "delegatedTo": {
-        "subsystem": "SUB-ORI-SECURITY",
-        "target": "security::CAP-ZERO-TRUST",
-        "targetRequirement": "security::REQ-SEC-002"
-      },
       "delegatedStatus": {
         "requirement": "REQ-SEC-002",
         "status": "not-available",
@@ -352,12 +430,19 @@
         "publication": "public",
         "sourceId": "REQ-SEC-002"
       },
-      "status": "allocated"
+      "status": "published",
+      "parents": [
+        "security::CAP-ZERO-TRUST"
+      ]
     }
   ],
   "danglingLinks": null,
   "orphanRequirements": [
-    "REQ-ORI-001"
+    "REQ-ORI-001",
+    "REQ-ORI-002",
+    "REQ-ORI-003",
+    "REQ-ORI-004",
+    "REQ-ORI-005"
   ],
   "summary": {
     "requirements": 19,
@@ -366,11 +451,15 @@
     "tested": 0,
     "testLinked": 0,
     "passed": 0,
-    "delegated": 8,
+    "delegated": 0,
     "delegatedImplemented": 0,
     "delegatedTestLinked": 0,
-    "orphan": 1,
+    "orphan": 5,
     "danglingLinks": 0,
-    "gatedOnly": 0
+    "gatedOnly": 0,
+    "linksSuspect": 0,
+    "linksBroken": 0,
+    "linksClaimed": 0,
+    "unparented": 0
   }
 }

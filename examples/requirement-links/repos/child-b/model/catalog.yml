@@ -1,0 +1,22 @@
+schemaVersion: 2
+catalog:
+  systems:
+  - id: SYS-BRIDGE
+    name: lab bus bridge
+    definition: Forwards position sentences onto the lab bus.
+  functionalGroups:
+  - id: FG-BRIDGE
+    name: bridging
+    definition: Bus bridging functions.
+  functionalUnits:
+  - id: FU-BRIDGE
+    name: bus forwarder
+    definition: Forwards each received sentence onto the lab bus.
+  events:
+  - id: EVT-SENTENCE
+    name: a position sentence is received
+    definition: The bridge receives one position sentence.
+  dataTerms:
+  - id: DATA-FRAME
+    name: bus frame
+    definition: One frame on the lab bus.

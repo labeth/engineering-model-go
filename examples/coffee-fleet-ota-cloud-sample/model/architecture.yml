@@ -208,6 +208,17 @@ architecture:
     to: HW-CLOUD
     direction: bidirectional
     description: Gateway to cloud ingestion and campaign control.
+  contract:
+    provides:
+    - id: CAP-COFFEE-FLEET-TELEMETRY
+      kind: capability
+      note: Deliver coffee machine telemetry to the fleet cloud through endpoint outages and replay abuse.
+    - id: CAP-COFFEE-FLEET-OTA
+      kind: capability
+      note: Roll out signed firmware to the coffee machine fleet with signature gating, rollback and status reporting.
+    - id: CAP-COFFEE-FLEET-AUDIT
+      kind: capability
+      note: Keep fleet operational and audit logging records and notify the security analyst of replay abuse.
   composition:
     subsystems:
     - id: SUB-TELEMETRY
@@ -225,19 +236,6 @@ architecture:
       dependency: cloud-api
       publication: public
       description: Ingests telemetry and drives OTA campaigns.
-    allocations:
-    - requirement: REQ-COF-001
-      to: SUB-TELEMETRY
-      target: telemetry::CAP-TELEM-REPORT
-      rationale: Machine telemetry reporting is realized by the telemetry subsystem.
-    - requirement: REQ-COF-003
-      to: SUB-OTA-AGENT
-      target: ota-agent::CAP-OTA-APPLY
-      rationale: Signed firmware distribution and apply is realized by the OTA agent subsystem.
-    - requirement: REQ-COF-002
-      to: SUB-CLOUD-API
-      target: cloud-api::CAP-CLOUD-INGEST
-      rationale: Telemetry persistence is realized by the cloud API subsystem.
     satisfactions:
     - need: ota-agent::NEED-TELEMETRY-FEED
       by: telemetry::CAP-TELEM-REPORT

@@ -27,7 +27,6 @@ architecture:
     provides:
     - id: CAP-CLOUD-INGEST
       kind: capability
-      ref: REQ-CLOUD-001
       note: Ingest and persist fleet telemetry.
     requires:
     - id: NEED-INTERNET

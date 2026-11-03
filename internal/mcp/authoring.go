@@ -491,6 +491,7 @@ func manifestDocuments(refs model.DocumentReferences) map[string]string {
 		"catalog": refs.Catalog, "requirements": refs.Requirements, "architecture": refs.Architecture,
 		"behavior": refs.Behavior, "assurance": refs.Assurance, "compliance": refs.Compliance,
 		"views": refs.Views, "decisions": refs.Decisions, "aviation": refs.Aviation,
+		"reqLinks": refs.ReqLinks,
 	}
 	for k, v := range out {
 		if strings.TrimSpace(v) == "" {
@@ -743,7 +744,7 @@ func diagnoseWithContent(root string, manifest []byte, documents map[string]stri
 		return p
 	}
 	bundle.ManifestPath = rebase(bundle.ManifestPath)
-	for _, p := range []*string{&bundle.ArchitecturePath, &bundle.BehaviorPath, &bundle.AssurancePath, &bundle.CompliancePath, &bundle.ViewsPath, &bundle.CatalogPath, &bundle.DecisionsPath, &bundle.RequirementsPath, &bundle.DesignPath, &bundle.AviationPath} {
+	for _, p := range []*string{&bundle.ArchitecturePath, &bundle.BehaviorPath, &bundle.AssurancePath, &bundle.CompliancePath, &bundle.ViewsPath, &bundle.CatalogPath, &bundle.DecisionsPath, &bundle.RequirementsPath, &bundle.DesignPath, &bundle.AviationPath, &bundle.ReqLinksPath} {
 		if *p != "" {
 			*p = rebase(*p)
 		}

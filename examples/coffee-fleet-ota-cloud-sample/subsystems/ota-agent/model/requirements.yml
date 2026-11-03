@@ -11,14 +11,17 @@ requirements:
   notes: Firmware apply behavior; implemented here.
   appliesTo:
   - FU-OTA-APPLY
+  realizes: [CAP-OTA-APPLY]
 - id: REQ-OTA-002
   text: Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify
     the firmware signature before apply.
   notes: Firmware integrity gate.
   appliesTo:
   - FU-OTA-VERIFY
+  realizes: [CAP-OTA-APPLY]
 - id: REQ-OTA-003
   text: When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply.
   notes: Rollback on validation failure.
   appliesTo:
   - FU-OTA-APPLY
+  realizes: [CAP-OTA-APPLY]

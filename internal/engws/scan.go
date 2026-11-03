@@ -283,9 +283,18 @@ func SavePins(root string, pins map[string]bool) error {
 	return writeFileAtomic(filepath.Join(root, StateFileName), []byte(b.String()))
 }
 
-// writeFileAtomic writes through a temporary file in the same directory.
-// TRLC-LINKS: REQ-EMG-068
+// writeFile is the file write of the engws commands that edit a model;
+// tests replace it to inject a failure.
+var writeFile = writeFileAtomic
+
+// writeFileAtomic writes through a temporary file in the same directory and
+// keeps the permission bits of an existing file (0644 for a new one).
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-101
 func writeFileAtomic(path string, data []byte) error {
+	mode := os.FileMode(0o644)
+	if info, err := os.Stat(path); err == nil {
+		mode = info.Mode().Perm()
+	}
 	tmp, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".tmp-*")
 	if err != nil {
 		return err
@@ -300,7 +309,7 @@ func writeFileAtomic(path string, data []byte) error {
 		os.Remove(name)
 		return err
 	}
-	if err := os.Chmod(name, 0o644); err != nil {
+	if err := os.Chmod(name, mode); err != nil {
 		os.Remove(name)
 		return err
 	}

@@ -44,3 +44,27 @@ func TestCompositionProjectionQualifiesCollidingPublishedIDsWithoutMutatingSourc
 		t.Fatal("projection mutated the authored source bundle")
 	}
 }
+
+// A published assumption of use is projected into the composing bundle as
+// alias::AOU-*, like a capability, and an unpublished one is not.
+// TRLC-LINKS: REQ-EMG-091
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func TestCompositionProjectionImportsAssumptionsOfUse(t *testing.T) {
+	child := model.Bundle{Manifest: model.ManifestDocument{
+		Module:       model.ModuleIdentity{Path: "example.com/child@v1", Version: "v1.0.0", ModelID: "CHILD"},
+		Publications: []model.ManifestPublication{{ID: "public", Architecture: []string{"AOU-BUS"}}},
+	}}
+	child.Architecture.Contract.Assumptions = []model.ContractAssumption{{ID: "AOU-BUS", Text: "Lab bus only."}, {ID: "AOU-PRIVATE", Text: "Hidden."}}
+	visible, facets, diags := validatePublication(child, child.Manifest.Publications[0])
+	if len(diags) != 0 || !visible["AOU-BUS"] {
+		t.Fatalf("an assumption of use must be publishable in the architecture list: %+v %+v", visible, diags)
+	}
+	result := CompositionResult{Root: &ComposedSystem{Children: []*ComposedSystem{
+		{Dependency: "child", Publication: "public", Bundle: child, PublishedIDs: visible, PublishedFacet: facets},
+	}}}
+	enriched := BuildCompositionProjection(result).EnrichBundle(model.Bundle{}, "architecture")
+	got := enriched.Architecture.Contract.Assumptions
+	if len(got) != 1 || got[0].ID != "child::AOU-BUS" || got[0].Text != "Lab bus only." {
+		t.Fatalf("imported assumptions = %+v", got)
+	}
+}

@@ -39,7 +39,7 @@ func EffectiveSchemaVersion(version int) (int, error) {
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054, REQ-EMG-094
 func LoadBundle(manifestPath string) (Bundle, error) {
 	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
 		return Bundle{}, fmt.Errorf("engmod.yml is the only supported model entry point")
@@ -125,6 +125,18 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		aviation = &document
 	}
 
+	var reqLinks ReqLinksDocument
+	reqLinksPath := ""
+	if refs.ReqLinks != "" {
+		reqLinksPath = filepath.Join(baseDir, refs.ReqLinks)
+		if err := decodeYAMLFile(reqLinksPath, &reqLinks); err != nil {
+			return Bundle{}, fmt.Errorf("decode reqLinks file: %w", err)
+		}
+		if _, err := EffectiveSchemaVersion(reqLinks.SchemaVersion); err != nil {
+			return Bundle{}, fmt.Errorf("reqLinks schema: %w", err)
+		}
+	}
+
 	for kind, version := range map[string]int{
 		"catalog": catalog.SchemaVersion, "requirements": requirements.SchemaVersion,
 		"architecture": architectureInput.SchemaVersion, "behavior": behavior.SchemaVersion,
@@ -180,6 +192,7 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		RequirementsPath: requirementsPath,
 		DesignPath:       viewsPath,
 		AviationPath:     aviationPath,
+		ReqLinksPath:     reqLinksPath,
 		Manifest:         manifest,
 		Architecture:     arch,
 		Behavior:         behavior,
@@ -191,6 +204,7 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		Requirements:     requirements,
 		Design:           design,
 		Aviation:         aviation,
+		ReqLinks:         reqLinks,
 	}, nil
 }
 

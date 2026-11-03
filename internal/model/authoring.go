@@ -47,7 +47,7 @@ type DependencyGuide struct {
 }
 
 // BuildAuthoringContract describes the loaded input model without copying its domain graph.
-// TRLC-LINKS: REQ-EMG-044, REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-053
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-053, REQ-EMG-094
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 	baseDir := filepath.Dir(bundle.ManifestPath)
@@ -71,6 +71,9 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 	if bundle.Aviation != nil {
 		documents = append(documents, AuthoringDocument{Kind: "aviation", Path: relative(bundle.AviationPath), SchemaVersion: contractSchemaVersion(bundle.Aviation.SchemaVersion), SchemaPath: "internal/model/schema/aviation.cue", Required: false, TopLevelFields: yamlTopLevelFields(AviationDocument{})})
 	}
+	if bundle.ReqLinksPath != "" {
+		documents = append(documents, AuthoringDocument{Kind: "reqLinks", Path: relative(bundle.ReqLinksPath), SchemaVersion: contractSchemaVersion(bundle.ReqLinks.SchemaVersion), SchemaPath: "internal/model/schema/reqlinks.cue", Required: false, TopLevelFields: yamlTopLevelFields(ReqLinksDocument{})})
+	}
 	return AuthoringContract{
 		ContractVersion: AuthoringContractVersion,
 		CanonicalFormat: "YAML",
@@ -82,6 +85,7 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 				"REQ": "requirement", "FU": "functional unit", "FG": "functional group",
 				"IF": "interface", "DO": "data object", "FLOW": "flow", "ACT": "actor",
 				"CTRL": "control", "STATE": "state", "EVT": "event", "ADR": "decision",
+				"CAP": "contract capability", "AOU": "assumption of use", "LNK": "requirement link",
 			},
 		},
 		Dependencies: DependencyGuide{
@@ -97,9 +101,10 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 				"Use engmod.work.yml only for local module-to-repository replacements.",
 				"Reference imported stable identifiers as alias::ID.",
 				"Only identifiers selected through dependency publications are visible.",
+				"A dependency version is a release tag (v1.2.3) or a Go-style pseudo-version carrying the commit (v1.2.4-0.20261102103400-abcdef123456); a reqLinks pinned.version must equal it.",
 			},
 		},
-		AuthoringOrder: []string{"manifest", "catalog", "requirements", "architecture", "behavior", "assurance", "compliance", "aviation", "views", "decisions"},
+		AuthoringOrder: []string{"manifest", "catalog", "requirements", "architecture", "behavior", "assurance", "compliance", "aviation", "views", "decisions", "reqLinks"},
 		Invariants: []string{
 			"Define controlled vocabulary and stable IDs before referencing them.",
 			"Represent each semantic concept once; outputs are projections of the canonical graph.",

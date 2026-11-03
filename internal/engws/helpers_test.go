@@ -84,7 +84,7 @@ documents:
 	write(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePathOf(name)+"\"\nlanguage: version: \"v0.17.0\"\nsource: kind: \"self\"\n")
 	system := strings.ToLower(tag) + " system"
 	write(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog:\n  systems:\n    - id: SYS-"+tag+"\n      name: "+system+"\n      definition: Test system.\n")
-	write(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun:\n  id: lint\n  mode: strict\n  catalogRef: ./catalog.yml\nrequirements:\n  - id: REQ-"+tag+"-001\n    text: 'The "+system+" shall publish one message.'\n")
+	write(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun:\n  id: lint\n  mode: strict\n  catalogRef: ./catalog.yml\nrequirements:\n  - id: REQ-"+tag+"-001\n    text: 'The "+system+" shall publish one message.'\n    realizes: [CAP-"+tag+"]\n")
 	var composition strings.Builder
 	if len(deps) > 0 {
 		composition.WriteString("  composition:\n    subsystems:\n")
@@ -92,7 +92,7 @@ documents:
 			composition.WriteString("      - id: SUB-" + strings.ToUpper(x.alias) + "\n        dependency: " + x.alias + "\n        publication: public\n")
 		}
 	}
-	write(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n  contract:\n    provides:\n      - id: CAP-"+tag+"\n        kind: capability\n        ref: REQ-"+tag+"-001\n"+composition.String())
+	write(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n  contract:\n    provides:\n      - id: CAP-"+tag+"\n        kind: capability\n"+composition.String())
 	write(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
 	write(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
 	write(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")

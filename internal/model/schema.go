@@ -99,6 +99,8 @@ func cueSchemaName(out any) (string, error) {
 		return "WorkspaceDocument", nil
 	case *AviationDocument:
 		return "AviationDocument", nil
+	case *ReqLinksDocument:
+		return "ReqLinksDocument", nil
 	default:
 		return "", fmt.Errorf("no canonical CUE schema registered for %T", out)
 	}

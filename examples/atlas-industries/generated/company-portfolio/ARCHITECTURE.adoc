@@ -358,8 +358,6 @@ flowchart TB
   REQC_REQ_PORT_002["REQ-PORT-002"]:::requirement
   FU_FU_PORT_GOVERNANCE["Portfolio Governance Service"]:::functional_unit
   REQC_REQ_PORT_002 -->|applies_to| FU_FU_PORT_GOVERNANCE
-  SUBREQ_SUB_PORT_AEGIS_REQ_AEG_001["REQ-AEG-001 — SUB-PORT-AEGIS"]:::referenced_element
-  REQC_REQ_PORT_002 -->|delegates to| SUBREQ_SUB_PORT_AEGIS_REQ_AEG_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -400,8 +398,6 @@ flowchart TB
   REQC_REQ_PORT_003["REQ-PORT-003"]:::requirement
   FU_FU_PORT_GOVERNANCE["Portfolio Governance Service"]:::functional_unit
   REQC_REQ_PORT_003 -->|applies_to| FU_FU_PORT_GOVERNANCE
-  SUBREQ_SUB_PORT_ORION_REQ_ORI_001["REQ-ORI-001 — SUB-PORT-ORION"]:::referenced_element
-  REQC_REQ_PORT_003 -->|delegates to| SUBREQ_SUB_PORT_ORION_REQ_ORI_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -694,115 +690,44 @@ This chapter shows the system architecture across hardware and software: hardwar
 |`models.atlas.example/products/orion-relay@v0@v0.1.0`
 |===
 
-=== Requirement Allocation Matrix
-
-[cols="2,2,2,1",options="header"]
-|===
-|Requirement |Subsystem |Target |Resolved
-|REQ-PORT-002
-|SUB-PORT-AEGIS
-|aegis::CAP-AEGIS-MISSION
-|yes
-|REQ-PORT-003
-|SUB-PORT-ORION
-|orion::CAP-ORION-MISSION
-|yes
-|REQ-AEG-002
-|SUB-AEG-EDGE
-|edge::CAP-EDGE-COMPUTE
-|yes
-|REQ-AEG-003
-|SUB-AEG-CLOUD
-|cloud::CAP-CLOUD-OPERATIONS
-|yes
-|REQ-AEG-004
-|SUB-AEG-SECURITY
-|security::CAP-ZERO-TRUST
-|yes
-|REQ-AEG-005
-|SUB-AEG-COMPLIANCE
-|compliance::CAP-CONTROL-BASELINE
-|yes
-|REQ-ORI-002
-|SUB-ORI-EDGE
-|edge::CAP-EDGE-COMPUTE
-|yes
-|REQ-ORI-003
-|SUB-ORI-CLOUD
-|cloud::CAP-CLOUD-OPERATIONS
-|yes
-|REQ-ORI-004
-|SUB-ORI-SECURITY
-|security::CAP-ZERO-TRUST
-|yes
-|REQ-ORI-005
-|SUB-ORI-COMPLIANCE
-|compliance::CAP-CONTROL-BASELINE
-|yes
-|===
-
-==== Requirement Delegation View
-
-Each delegated requirement of this system links downward to the subsystem contract it binds. Requirements not shown here carry no delegation link and are implemented in this system.
-
-[source,mermaid]
-----
-flowchart LR
-  subgraph SYS["Atlas Industries Company Portfolio"]
-    REQ_PORT_002["REQ-PORT-002"]
-    REQ_PORT_003["REQ-PORT-003"]
-    REQ_AEG_002["REQ-AEG-002"]
-    REQ_AEG_003["REQ-AEG-003"]
-    REQ_AEG_004["REQ-AEG-004"]
-    REQ_AEG_005["REQ-AEG-005"]
-    REQ_ORI_002["REQ-ORI-002"]
-    REQ_ORI_003["REQ-ORI-003"]
-    REQ_ORI_004["REQ-ORI-004"]
-    REQ_ORI_005["REQ-ORI-005"]
-  end
-  subgraph SUB_PORT_AEGIS["Aegis Sentinel"]
-    SUB_PORT_AEGIS__REQ_AEG_001(["REQ-AEG-001 (aegis::CAP-AEGIS-MISSION)"])
-  end
-  subgraph SUB_PORT_ORION["Orion Relay"]
-    SUB_PORT_ORION__REQ_ORI_001(["REQ-ORI-001 (orion::CAP-ORION-MISSION)"])
-  end
-  subgraph SUB_AEG_EDGE["SUB-AEG-EDGE"]
-    SUB_AEG_EDGE__REQ_EDGE_001(["REQ-EDGE-001 (edge::CAP-EDGE-COMPUTE)"])
-  end
-  subgraph SUB_AEG_CLOUD["SUB-AEG-CLOUD"]
-    SUB_AEG_CLOUD__REQ_CLOUD_001(["REQ-CLOUD-001 (cloud::CAP-CLOUD-OPERATIONS)"])
-  end
-  subgraph SUB_AEG_SECURITY["SUB-AEG-SECURITY"]
-    SUB_AEG_SECURITY__REQ_SEC_002(["REQ-SEC-002 (security::CAP-ZERO-TRUST)"])
-  end
-  subgraph SUB_AEG_COMPLIANCE["SUB-AEG-COMPLIANCE"]
-    SUB_AEG_COMPLIANCE__REQ_COMP_001(["REQ-COMP-001 (compliance::CAP-CONTROL-BASELINE)"])
-  end
-  subgraph SUB_ORI_EDGE["SUB-ORI-EDGE"]
-    SUB_ORI_EDGE__REQ_EDGE_001(["REQ-EDGE-001 (edge::CAP-EDGE-COMPUTE)"])
-  end
-  subgraph SUB_ORI_CLOUD["SUB-ORI-CLOUD"]
-    SUB_ORI_CLOUD__REQ_CLOUD_001(["REQ-CLOUD-001 (cloud::CAP-CLOUD-OPERATIONS)"])
-  end
-  subgraph SUB_ORI_SECURITY["SUB-ORI-SECURITY"]
-    SUB_ORI_SECURITY__REQ_SEC_002(["REQ-SEC-002 (security::CAP-ZERO-TRUST)"])
-  end
-  subgraph SUB_ORI_COMPLIANCE["SUB-ORI-COMPLIANCE"]
-    SUB_ORI_COMPLIANCE__REQ_COMP_001(["REQ-COMP-001 (compliance::CAP-CONTROL-BASELINE)"])
-  end
-  REQ_PORT_002 -->|delegates to| SUB_PORT_AEGIS__REQ_AEG_001
-  REQ_PORT_003 -->|delegates to| SUB_PORT_ORION__REQ_ORI_001
-  REQ_AEG_002 -->|delegates to| SUB_AEG_EDGE__REQ_EDGE_001
-  REQ_AEG_003 -->|delegates to| SUB_AEG_CLOUD__REQ_CLOUD_001
-  REQ_AEG_004 -->|delegates to| SUB_AEG_SECURITY__REQ_SEC_002
-  REQ_AEG_005 -->|delegates to| SUB_AEG_COMPLIANCE__REQ_COMP_001
-  REQ_ORI_002 -->|delegates to| SUB_ORI_EDGE__REQ_EDGE_001
-  REQ_ORI_003 -->|delegates to| SUB_ORI_CLOUD__REQ_CLOUD_001
-  REQ_ORI_004 -->|delegates to| SUB_ORI_SECURITY__REQ_SEC_002
-  REQ_ORI_005 -->|delegates to| SUB_ORI_COMPLIANCE__REQ_COMP_001
-----
-
 All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
+
+
+<<<
+== Requirement Links
+
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+
+* *REQ-PORT-001*: The atlas industries portfolio shall report portfolio status to the portfolio executive.
+** no requirement link
+* *REQ-PORT-002*: The atlas industries portfolio shall provide perimeter awareness using the Aegis Sentinel product capability.
+** link LNK-PORT-002-AEGIS (unchanged, accepted) to `aegis::CAP-AEGIS-MISSION`: Reviewed perimeter incident detection.
+*** `aegis::REQ-AEG-001` (status not available): The aegis sentinel system shall present each perimeter track to the security operator.
+*** `aegis::REQ-AEG-002` (status not available): The aegis sentinel system shall execute the sensor fusion software on managed edge compute.
+*** `aegis::REQ-AEG-003` (status not available): The aegis sentinel system shall retain each perimeter track using managed cloud operations.
+*** `aegis::REQ-AEG-004` (status not available): The aegis sentinel system shall authenticate product services using shared security services.
+* *REQ-PORT-003*: The atlas industries portfolio shall provide resilient communications using the Orion Relay product capability.
+** link LNK-PORT-003-ORION (unchanged, accepted) to `orion::CAP-ORION-MISSION`: Resilient prioritized remote message delivery.
+*** `orion::REQ-ORI-001` (status not available): The orion relay system shall deliver each relay message according to network controller priority.
+*** `orion::REQ-ORI-002` (status not available): The orion relay system shall execute the link scheduler software on managed edge compute.
+*** `orion::REQ-ORI-003` (status not available): The orion relay system shall retain relay configuration using managed cloud operations.
+*** `orion::REQ-ORI-004` (status not available): The orion relay system shall authenticate product services using shared security services.
+
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-ATLAS-PORTFOLIO (capability)
+
+Coordinated sensing and resilient communication portfolio.
+
+Realized by:
+
+* `REQ-PORT-001`: The atlas industries portfolio shall report portfolio status to the portfolio executive.
+
+Fingerprint: `sha256:v1:cf9a18acef2be84e51d85be6e21d0d4ac541ec9bf035064fcfdc8f702f4c9f80`
 
 <<<
 == Reference Index

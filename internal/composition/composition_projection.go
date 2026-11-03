@@ -257,7 +257,7 @@ func (entity PublishedProjectionEntity) QualifyList(refs []string) []string {
 // EnrichBundle returns a projection-only copy containing typed published
 // entities. It is intended for native generators after the authored bundle has
 // been validated; unsupported relationships are omitted rather than flattened.
-// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
 func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domains ...string) model.Bundle {
 	selected := map[string]bool{}
 	for _, domain := range domains {
@@ -324,6 +324,9 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 			} else {
 				bundle.Architecture.Contract.Provides = append(bundle.Architecture.Contract.Provides, value)
 			}
+		case model.ContractAssumption:
+			value.ID = q
+			bundle.Architecture.Contract.Assumptions = append(bundle.Architecture.Contract.Assumptions, value)
 		case model.State:
 			value.ID = q
 			bundle.Architecture.AuthoredArchitecture.States = append(bundle.Architecture.AuthoredArchitecture.States, value)
@@ -435,7 +438,9 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 				bundle.Compliance.Compliance.Mappings = append(bundle.Compliance.Compliance.Mappings, value)
 			}
 		case model.Requirement:
-			value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
+			// realizes names the dependency's own contract items: qualify
+			// the published ones and drop the others with the alias.
+			value.ID, value.AppliesTo, value.Realizes = q, entity.QualifyList(value.AppliesTo), entity.QualifyList(value.Realizes)
 			bundle.Requirements.Requirements = append(bundle.Requirements.Requirements, value)
 		case model.View:
 			value.ID, value.Roots = q, entity.QualifyList(value.Roots)

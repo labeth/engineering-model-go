@@ -1,0 +1,31 @@
+schemaVersion: 2
+module:
+  path: models.example/reqlinks/child-a@v0
+  version: v0.1.0
+  modelId: REQLINKS-CHILD-A
+  title: Position Encoder
+  introduction: Encodes ownship position into position sentences for a using system.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+requirementLinks: strict
+dependencies: []
+publications:
+- id: public
+  architecture:
+  - FG-ENCODER
+  - FU-ENCODER
+  - CAP-A-1
+  - CAP-A-2
+  requirements:
+  - REQ-A-001
+  - REQ-A-002
+  - REQ-A-003
+inferenceHints: {}

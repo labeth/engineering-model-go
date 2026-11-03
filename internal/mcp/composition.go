@@ -126,7 +126,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 // implementation, verification, and delegation status, with orphans and dangling links.
 // Delegated rows carry the target requirement's own trace status
 // (delegatedStatus). With summaryOnly it returns only the summary and diagnostics.
-// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
@@ -153,6 +153,12 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			// environment gated (skips unless a variable is set).
 			"gatedOnly":             matrix.Summary.GatedOnly,
 			"gatedOnlyRequirements": nonNilStrings(matrix.Summary.GatedOnlyRequirements),
+			// Requirement links: suspect, broken and claimed links and
+			// local requirements without an upward trace.
+			"linksSuspect": matrix.Summary.LinksSuspect,
+			"linksBroken":  matrix.Summary.LinksBroken,
+			"linksClaimed": matrix.Summary.LinksClaimed,
+			"unparented":   matrix.Summary.Unparented,
 		},
 		"diagnostics": diagRows(diags),
 	}
@@ -190,6 +196,16 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			row["gated"] = true
 			row["gates"] = r.Gates
 		}
+		row["parents"] = nonNilStrings(r.Parents)
+		row["children"] = nonNilStrings(r.Children)
+		if len(r.Links) > 0 {
+			row["links"] = r.Links
+		}
+		if r.SatisfiedBy != "" {
+			row["satisfiedBy"] = r.SatisfiedBy
+			row["linksImplemented"] = r.LinksImplemented
+			row["linksTestLinked"] = r.LinksTestLinked
+		}
 		rows = append(rows, row)
 	}
 	dangling := make([]map[string]any, 0, len(matrix.DanglingLinks))
@@ -219,7 +235,7 @@ func diagRows(diags []validate.Diagnostic) []map[string]any {
 }
 
 // nonNilStrings returns list, or an empty list for nil, so JSON renders [].
-// TRLC-LINKS: REQ-EMG-088
+// TRLC-LINKS: REQ-EMG-088, REQ-EMG-105
 func nonNilStrings(list []string) []string {
 	if list == nil {
 		return []string{}

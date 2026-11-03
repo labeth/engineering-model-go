@@ -21,6 +21,11 @@ assurance:
     name: False Acceptance Claim
     description: A model edit (by a person or an AI agent) that records a risk or threat as accepted without the owner's
       acceptance, so exports present the risk as treated.
+  - id: AV-COMPOSED-MODEL-CONTENT
+    name: Composed Model Content
+    description: Content of another model in the composition (a dependency's published contract, a sibling checkout's
+      requirement links, a workspace file, git refs) that the tools read, compare, render or act on across the boundary
+      between a child model and the systems that use it.
   controls:
   - id: CTRL-MCP-PATH-BOUNDARY
     name: MCP Path Boundary Enforcement
@@ -60,6 +65,37 @@ assurance:
     description: Require a complete, resolving acceptedBy record (existing actor, calendar date, accepted decision) for every
       accepted risk and threat scenario, warn when the actor is not the risk owner, and list only such risks as accepted in
       the Gemara policy. Human review of the diff that adds the record remains the control that the owner gave it.
+  - id: CTRL-CHILD-USER-NONDISCLOSURE
+    name: Child User Non-Disclosure
+    category: confidentiality
+    description: Render, export and MCP output of a child model names none of its users by default; the Used By section
+      is an explicit render-time opt-in (engdoc --used-by) that reads only checkouts inside the active workspace, confined
+      like dependencies, and must not be committed into the child.
+  - id: CTRL-FINGERPRINT-COVERAGE
+    name: Contract Item Fingerprint Coverage
+    category: integrity
+    description: The versioned contract item fingerprint (sha256:v1) covers every field that changes what an item or a
+      realizing requirement obliges (item kind, text and criteria; realizer text, notes, verification criteria and
+      methods, criticality and status), so a hidden child change makes the link suspect; another canonical form is
+      reported, never compared.
+  - id: CTRL-LINK-REVIEW-RECORD
+    name: Requirement Link Review Record
+    category: assurance
+    description: An accepted requirement link carries a reviewer that is a model actor and a calendar review date
+      (link.review_unrecorded otherwise); only engws review-links --accept writes one, from the published dependency at its
+      pin, and only accepted unchanged links count toward the trace roll-up. Review of the diff remains the control that
+      the reviewer gave it.
+  - id: CTRL-REPO-LOCAL-WRITES
+    name: Repository-Local Model Writes
+    category: input-validation
+    description: The commands that write model files (review-links --accept, migrate-links, bump) write only the model's own
+      files through an atomic replace that keeps their mode, restore every file on a failed write, and the MCP server
+      writes none (links.review returns a patch).
+  - id: CTRL-GIT-REF-VALIDATION
+    name: Git Ref Validation
+    category: input-validation
+    description: A git ref given to contract-diff or release-check is refused when empty or starting with "-" and must
+      verify as a commit before git show reads anything, so it cannot be read as a git option.
   risks:
   - id: RISK-MCP-PATH-ESCAPE
     title: MCP path traversal exposes non-repository files
@@ -152,6 +188,16 @@ assurance:
     - REF-STRUCTURIZR-VALIDATOR
     - REF-TRLC-TOOLCHAIN
     - REF-LOBSTER-TOOLCHAIN
+  - id: TB-CHILD-USING-SYSTEM
+    name: Child and Using System Boundary
+    description: Boundary between a child model, published and reused without knowing its users, and each system that
+      composes it and links its requirements to the child's contract items. Neither side writes into the other; each reads
+      only what the other publishes.
+    boundaryType: repository
+    members:
+    - FU-SYSTEM-COMPOSITION
+    - FU-ALLOCATION-TRACE
+    - FU-ASCIIDOC-GENERATOR
   threatScenarios:
   - id: TS-MCP-PATH-TRAVERSAL
     title: MCP path traversal accesses non-repo files
@@ -249,6 +295,102 @@ assurance:
     - CTRL-ACCEPTANCE-RECORD-CHECK
     verificationRefs:
     - VER-ACCEPTANCE-RECORD-CHECK
+  - id: TS-CHILD-USER-DISCLOSURE
+    title: A child's outputs disclose its users
+    summary: A child's generated document, Gemara export or MCP answer names the systems that use it, their requirements
+      or parent texts (for example a Used By section rendered in a workspace and committed into the child).
+    category: confidentiality
+    stride: information_disclosure
+    attackVectorRef: AV-COMPOSED-MODEL-CONTENT
+    appliesTo:
+    - FU-ASCIIDOC-GENERATOR
+    - FU-GEMARA-EXPORTER
+    - FU-MCP-SERVER
+    likelihood: medium
+    impact: medium
+    severity: medium
+    status: mitigating
+    owner: ACT-ARCHITECTURE-AUTHOR
+    relatedControls:
+    - CTRL-CHILD-USER-NONDISCLOSURE
+    verificationRefs:
+    - VER-CHILD-USER-NONDISCLOSURE
+  - id: TS-HIDDEN-CHILD-CHANGE
+    title: A child change escapes the link fingerprint
+    summary: A child changes what a linked capability or a realizing requirement obliges in a field the fingerprint does
+      not cover, so the using system's link stays unchanged and nobody reviews it.
+    category: integrity
+    stride: tampering
+    attackVectorRef: AV-COMPOSED-MODEL-CONTENT
+    appliesTo:
+    - FU-ALLOCATION-TRACE
+    likelihood: medium
+    impact: high
+    severity: high
+    status: mitigating
+    owner: ACT-COMPLIANCE-ENGINEER
+    relatedControls:
+    - CTRL-FINGERPRINT-COVERAGE
+    verificationRefs:
+    - VER-FINGERPRINT-COVERAGE
+  - id: TS-FALSE-LINK-ACCEPTANCE
+    title: A requirement link recorded as reviewed without a review
+    summary: A model edit (by a person or an AI agent) sets a link to accepted without a resolving reviewer or date, or
+      re-stamps it from a workspace checkout instead of the published dependency, so the trace counts an unreviewed link.
+    category: assurance
+    stride: repudiation
+    attackVectorRef: AV-FALSE-ACCEPTANCE-CLAIM
+    appliesTo:
+    - FU-VALIDATION-ENGINE
+    - FU-ALLOCATION-TRACE
+    - FU-MCP-SERVER
+    likelihood: medium
+    impact: high
+    severity: high
+    status: mitigating
+    owner: ACT-COMPLIANCE-ENGINEER
+    relatedControls:
+    - CTRL-LINK-REVIEW-RECORD
+    verificationRefs:
+    - VER-LINK-REVIEW-RECORD
+  - id: TS-LINK-WRITE-OUTSIDE-REPO
+    title: Link tooling writes outside the model
+    summary: A crafted workspace, sibling manifest or interrupted migration makes review-links, migrate-links or the
+      MCP server write, read or leave half-written files outside the model's own repository.
+    category: input-validation
+    stride: tampering
+    attackVectorRef: AV-COMPOSED-MODEL-CONTENT
+    appliesTo:
+    - FU-CLI-ORCHESTRATION
+    - FU-MCP-SERVER
+    - FU-SYSTEM-COMPOSITION
+    likelihood: low
+    impact: high
+    severity: medium
+    status: mitigating
+    owner: ACT-ARCHITECTURE-AUTHOR
+    relatedControls:
+    - CTRL-REPO-LOCAL-WRITES
+    verificationRefs:
+    - VER-REPO-LOCAL-WRITES
+  - id: TS-GIT-REF-OPTION-INJECTION
+    title: A git ref is read as a git option
+    summary: A ref given to contract-diff or release-check (for example from a CI variable) starts with "-", so git show
+      or rev-parse runs with an option such as --output that writes a file.
+    category: input-validation
+    stride: tampering
+    attackVectorRef: AV-COMPOSED-MODEL-CONTENT
+    appliesTo:
+    - FU-CLI-ORCHESTRATION
+    likelihood: low
+    impact: medium
+    severity: low
+    status: mitigating
+    owner: ACT-ARCHITECTURE-AUTHOR
+    relatedControls:
+    - CTRL-GIT-REF-VALIDATION
+    verificationRefs:
+    - VER-GIT-REF-VALIDATION
   threatMitigations:
   - id: TM-MCP-PATH-BOUNDARY
     threatScenarioRef: TS-MCP-PATH-TRAVERSAL
@@ -288,6 +430,46 @@ assurance:
     owner: ACT-COMPLIANCE-ENGINEER
     verificationRefs:
     - VER-ACCEPTANCE-RECORD-CHECK
+  - id: TM-CHILD-USER-NONDISCLOSURE
+    threatScenarioRef: TS-CHILD-USER-DISCLOSURE
+    controlRef: CTRL-CHILD-USER-NONDISCLOSURE
+    status: implemented
+    effectiveness: medium
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - VER-CHILD-USER-NONDISCLOSURE
+  - id: TM-FINGERPRINT-COVERAGE
+    threatScenarioRef: TS-HIDDEN-CHILD-CHANGE
+    controlRef: CTRL-FINGERPRINT-COVERAGE
+    status: implemented
+    effectiveness: high
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - VER-FINGERPRINT-COVERAGE
+  - id: TM-LINK-REVIEW-RECORD
+    threatScenarioRef: TS-FALSE-LINK-ACCEPTANCE
+    controlRef: CTRL-LINK-REVIEW-RECORD
+    status: implemented
+    effectiveness: medium
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - VER-LINK-REVIEW-RECORD
+  - id: TM-REPO-LOCAL-WRITES
+    threatScenarioRef: TS-LINK-WRITE-OUTSIDE-REPO
+    controlRef: CTRL-REPO-LOCAL-WRITES
+    status: implemented
+    effectiveness: high
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - VER-REPO-LOCAL-WRITES
+  - id: TM-GIT-REF-VALIDATION
+    threatScenarioRef: TS-GIT-REF-OPTION-INJECTION
+    controlRef: CTRL-GIT-REF-VALIDATION
+    status: implemented
+    effectiveness: high
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - VER-GIT-REF-VALIDATION
   controlVerifications:
   - id: VER-MCP-PATH-BOUNDARY
     controlRef: CTRL-MCP-PATH-BOUNDARY
@@ -354,3 +536,75 @@ assurance:
     findings:
     - Missing, unresolvable and non-owner acceptance records are reported, and the Gemara policy and its consistency check
       accept only resolving records. The tests cannot show that the owner gave the acceptance; review of the diff does.
+  - id: VER-CHILD-USER-NONDISCLOSURE
+    controlRef: CTRL-CHILD-USER-NONDISCLOSURE
+    threatScenarioRefs:
+    - TS-CHILD-USER-DISCLOSURE
+    method: test
+    status: pass
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - CODE-INTERNAL-INTEGRATION-REQUIREMENT-LINKS-DISCLOSURE-TEST-GO--TESTREQUIREMENTLINKSCHILDDISCLOSESNOUSER
+    - CODE-INTERNAL-INTEGRATION-REQUIREMENT-LINKS-DISCLOSURE-TEST-GO--TESTUSEDBYSCANSTAYSINTHEWORKSPACE
+    - CODE-INTERNAL-MODEL-WORKSPACE-TEST-GO--TESTFINDWORKSPACEREFUSESUNTRUSTEDUPWARDFILE
+    - CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-TEST-GO--TESTONELINETEXTESCAPESPASSTHROUGH
+    findings:
+    - A child rendered with and without an active workspace names no user unless Used By is opted in; the scan skips
+      replacements outside the workspace and escaping siblings; an untrusted upward workspace file is refused. The tests
+      cannot show that an opted-in render is not committed; review of the diff does.
+  - id: VER-FINGERPRINT-COVERAGE
+    controlRef: CTRL-FINGERPRINT-COVERAGE
+    threatScenarioRefs:
+    - TS-HIDDEN-CHILD-CHANGE
+    method: test
+    status: pass
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - CODE-INTERNAL-REQLINKS-REQLINKS-TEST-GO--TESTFINGERPRINTGOLDEN
+    - CODE-INTERNAL-REQLINKS-REQLINKS-TEST-GO--TESTFINGERPRINTISDETERMINISTIC
+    - CODE-INTERNAL-REQLINKS-REQLINKS-TEST-GO--TESTFINGERPRINTVERSION
+    - CODE-INTERNAL-INTEGRATION-REQUIREMENT-LINKS-TEST-GO--TESTREQUIREMENTLINKSMULTITARGETANDMIXEDLINKS
+    findings:
+    - A change to the item kind, text or criteria, or to a realizer's text, notes, verification criteria or methods,
+      criticality or status changes the fingerprint; an unversioned or unknown fingerprint form is reported as
+      link.fingerprint_outdated.
+  - id: VER-LINK-REVIEW-RECORD
+    controlRef: CTRL-LINK-REVIEW-RECORD
+    threatScenarioRefs:
+    - TS-FALSE-LINK-ACCEPTANCE
+    method: test
+    status: pass
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - CODE-INTERNAL-VALIDATE-REQLINKS-TEST-GO--TESTACCEPTEDLINKREVIEWISRECORDED
+    - CODE-INTERNAL-ENGWS-REVIEWLINKS-TEST-GO--TESTREVIEWLINKSBROKENANDOFFLINE
+    - CODE-INTERNAL-INTEGRATION-REQUIREMENT-LINKS-TRACE-TEST-GO--TESTREQUIREMENTLINKSROLLUPNEEDSREVIEWEDLINKS
+    findings:
+    - An accepted link without a resolving reviewer or date is reported; accept records the published dependency, not a
+      workspace checkout; claimed and changed links do not roll a requirement up. The tests cannot show that the
+      reviewer gave the review; review of the diff does.
+  - id: VER-REPO-LOCAL-WRITES
+    controlRef: CTRL-REPO-LOCAL-WRITES
+    threatScenarioRefs:
+    - TS-LINK-WRITE-OUTSIDE-REPO
+    method: test
+    status: pass
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - CODE-INTERNAL-MCP-REQLINKS-TEST-GO--TESTLINKSREVIEWTOOLRETURNSCOMMANDANDPATCH
+    - CODE-INTERNAL-ENGWS-MIGRATELINKS-TEST-GO--TESTMIGRATELINKSRESTORESEVERYFILEONWRITEFAILURE
+    - CODE-INTERNAL-ENGWS-WRITEFILE-TEST-GO--TESTWRITEFILEATOMICKEEPSMODE
+    findings:
+    - links.review leaves the link file unchanged; a failed migrate-links write restores every file; a rewritten file
+      keeps its mode.
+  - id: VER-GIT-REF-VALIDATION
+    controlRef: CTRL-GIT-REF-VALIDATION
+    threatScenarioRefs:
+    - TS-GIT-REF-OPTION-INJECTION
+    method: test
+    status: pass
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - CODE-INTERNAL-ENGWS-CONTRACTDIFF-TEST-GO--TESTLOADBUNDLEATREFREJECTSOPTIONREFS
+    findings:
+    - Refs starting with "-" and empty refs are refused before git runs and no file is written.

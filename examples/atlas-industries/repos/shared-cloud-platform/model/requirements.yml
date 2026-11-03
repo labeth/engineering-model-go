@@ -9,7 +9,10 @@ requirements:
   text: The atlas cloud platform shall process each cloud event using the cloud runtime.
   appliesTo:
   - FU-CLOUD-RUNTIME
+  realizes: [CAP-CLOUD-OPERATIONS]
 - id: REQ-CLOUD-002
   text: The atlas cloud platform shall authenticate the cloud runtime using workload identity.
   appliesTo:
   - FU-CLOUD-RUNTIME
+  derived: true
+  derivedRationale: Consumes the workload identity the composing product supplies (contract.requires NEED-CLOUD-IDENTITY); it serves no published capability on its own.

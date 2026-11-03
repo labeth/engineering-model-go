@@ -9,6 +9,7 @@ requirements:
   text: The atlas industries portfolio shall report portfolio status to the portfolio executive.
   appliesTo:
   - FU-PORT-GOVERNANCE
+  realizes: [CAP-ATLAS-PORTFOLIO]
 - id: REQ-PORT-002
   text: The atlas industries portfolio shall provide perimeter awareness using the Aegis Sentinel product capability.
   appliesTo:

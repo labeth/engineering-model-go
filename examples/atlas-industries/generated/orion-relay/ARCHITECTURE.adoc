@@ -364,8 +364,6 @@ flowchart TB
   REQC_REQ_ORI_002["REQ-ORI-002"]:::requirement
   FU_FU_ORI_LINK["Link Scheduler Software"]:::functional_unit
   REQC_REQ_ORI_002 -->|applies_to| FU_FU_ORI_LINK
-  SUBREQ_SUB_ORI_EDGE_REQ_EDGE_001["REQ-EDGE-001 — SUB-ORI-EDGE"]:::referenced_element
-  REQC_REQ_ORI_002 -->|delegates to| SUBREQ_SUB_ORI_EDGE_REQ_EDGE_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -406,8 +404,6 @@ flowchart TB
   REQC_REQ_ORI_003["REQ-ORI-003"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
   REQC_REQ_ORI_003 -->|applies_to| FU_FU_ORI_ROUTER
-  SUBREQ_SUB_ORI_CLOUD_REQ_CLOUD_001["REQ-CLOUD-001 — SUB-ORI-CLOUD"]:::referenced_element
-  REQC_REQ_ORI_003 -->|delegates to| SUBREQ_SUB_ORI_CLOUD_REQ_CLOUD_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -450,8 +446,6 @@ flowchart TB
   REQC_REQ_ORI_004 -->|applies_to| FU_FU_ORI_LINK
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
   REQC_REQ_ORI_004 -->|applies_to| FU_FU_ORI_ROUTER
-  SUBREQ_SUB_ORI_SECURITY_REQ_SEC_002["REQ-SEC-002 — SUB-ORI-SECURITY"]:::referenced_element
-  REQC_REQ_ORI_004 -->|delegates to| SUBREQ_SUB_ORI_SECURITY_REQ_SEC_002
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -492,8 +486,6 @@ flowchart TB
   REQC_REQ_ORI_005["REQ-ORI-005"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
   REQC_REQ_ORI_005 -->|applies_to| FU_FU_ORI_ROUTER
-  SUBREQ_SUB_ORI_COMPLIANCE_REQ_COMP_001["REQ-COMP-001 — SUB-ORI-COMPLIANCE"]:::referenced_element
-  REQC_REQ_ORI_005 -->|delegates to| SUBREQ_SUB_ORI_COMPLIANCE_REQ_COMP_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -1036,61 +1028,54 @@ flowchart LR
 |`models.atlas.example/shared/compliance-baseline@v0@v0.1.0`
 |===
 
-=== Requirement Allocation Matrix
-
-[cols="2,2,2,1",options="header"]
-|===
-|Requirement |Subsystem |Target |Resolved
-|REQ-ORI-002
-|SUB-ORI-EDGE
-|edge::CAP-EDGE-COMPUTE
-|yes
-|REQ-ORI-003
-|SUB-ORI-CLOUD
-|cloud::CAP-CLOUD-OPERATIONS
-|yes
-|REQ-ORI-004
-|SUB-ORI-SECURITY
-|security::CAP-ZERO-TRUST
-|yes
-|REQ-ORI-005
-|SUB-ORI-COMPLIANCE
-|compliance::CAP-CONTROL-BASELINE
-|yes
-|===
-
-==== Requirement Delegation View
-
-Each delegated requirement of this system links downward to the subsystem contract it binds. Requirements not shown here carry no delegation link and are implemented in this system.
-
-[source,mermaid]
-----
-flowchart LR
-  subgraph SYS["Orion Relay Product System"]
-    REQ_ORI_002["REQ-ORI-002"]
-    REQ_ORI_003["REQ-ORI-003"]
-    REQ_ORI_004["REQ-ORI-004"]
-    REQ_ORI_005["REQ-ORI-005"]
-  end
-  subgraph SUB_ORI_EDGE["Shared Edge Platform"]
-    SUB_ORI_EDGE__REQ_EDGE_001(["REQ-EDGE-001 (edge::CAP-EDGE-COMPUTE)"])
-  end
-  subgraph SUB_ORI_CLOUD["Shared Cloud Platform"]
-    SUB_ORI_CLOUD__REQ_CLOUD_001(["REQ-CLOUD-001 (cloud::CAP-CLOUD-OPERATIONS)"])
-  end
-  subgraph SUB_ORI_SECURITY["Shared Security Services"]
-    SUB_ORI_SECURITY__REQ_SEC_002(["REQ-SEC-002 (security::CAP-ZERO-TRUST)"])
-  end
-  subgraph SUB_ORI_COMPLIANCE["Shared Compliance Baseline"]
-    SUB_ORI_COMPLIANCE__REQ_COMP_001(["REQ-COMP-001 (compliance::CAP-CONTROL-BASELINE)"])
-  end
-  REQ_ORI_002 -->|delegates to| SUB_ORI_EDGE__REQ_EDGE_001
-  REQ_ORI_003 -->|delegates to| SUB_ORI_CLOUD__REQ_CLOUD_001
-  REQ_ORI_004 -->|delegates to| SUB_ORI_SECURITY__REQ_SEC_002
-  REQ_ORI_005 -->|delegates to| SUB_ORI_COMPLIANCE__REQ_COMP_001
-----
-
 All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
+
+
+<<<
+== Requirement Links
+
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+
+* *REQ-ORI-001*: The orion relay system shall deliver each relay message according to network controller priority.
+** no requirement link
+* *REQ-ORI-002*: The orion relay system shall execute the link scheduler software on managed edge compute.
+** link LNK-ORI-002-EDGE (unchanged, accepted) to `edge::CAP-EDGE-COMPUTE`: Rugged compute with signed workload execution.
+*** `edge::REQ-EDGE-001` (status not available): The atlas edge platform shall execute signed workloads on the edge runtime.
+* *REQ-ORI-003*: The orion relay system shall retain relay configuration using managed cloud operations.
+** link LNK-ORI-003-CLOUD (unchanged, accepted) to `cloud::CAP-CLOUD-OPERATIONS`: Resilient event processing and service hosting.
+*** `cloud::REQ-CLOUD-001` (status not available): The atlas cloud platform shall process each cloud event using the cloud runtime.
+* *REQ-ORI-004*: The orion relay system shall authenticate product services using shared security services.
+** link LNK-ORI-004-SECURITY (unchanged, accepted) to `security::CAP-ZERO-TRUST`: Zero-trust access and immutable audit monitoring.
+*** `security::REQ-SEC-002` (status not available): When credential replay is detected, the atlas security services shall notify the security analyst.
+* *REQ-ORI-005*: The orion relay system shall retain compliance evidence using the company control baseline.
+** link LNK-ORI-005-COMPLIANCE (unchanged, accepted) to `compliance::CAP-CONTROL-BASELINE`: Shared control implementation and evidence baseline.
+*** `compliance::REQ-COMP-001` (status not available): The atlas compliance baseline shall retain compliance evidence using the compliance evidence service.
+*** `compliance::REQ-COMP-002` (status not available): The atlas compliance baseline shall report control implementation status to the compliance officer.
+*** `compliance::REQ-COMP-003` (status not available): The people security and awareness shall record employee screening status in the personnel lifecycle record before privileged access.
+*** `compliance::REQ-COMP-004` (status not available): The people security and awareness shall record policy acknowledgment for every employee at onboarding.
+*** `compliance::REQ-COMP-005` (status not available): The people security and awareness shall record annual employee completion in the security awareness training record.
+*** `compliance::REQ-COMP-006` (status not available): The people security and awareness shall request a line manager access review following an employee role change.
+*** `compliance::REQ-COMP-007` (status not available): The people security and awareness shall revoke employee access following employment termination.
+*** `compliance::REQ-COMP-008` (status not available): The people security and awareness shall request people operations partner confirmation of company asset return following employment termination.
+
+
+<<<
+== Contract Items
+
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+
+=== CAP-ORION-MISSION (capability)
+
+Resilient prioritized remote message delivery.
+
+Realized by:
+
+* `REQ-ORI-001`: The orion relay system shall deliver each relay message according to network controller priority.
+* `REQ-ORI-002`: The orion relay system shall execute the link scheduler software on managed edge compute.
+* `REQ-ORI-003`: The orion relay system shall retain relay configuration using managed cloud operations.
+* `REQ-ORI-004`: The orion relay system shall authenticate product services using shared security services.
+
+Fingerprint: `sha256:v1:94d795377ec77f634e76ab75773f4f087514689950bac50f72203327968d01dc`
 
 <<<
 == Reference Index

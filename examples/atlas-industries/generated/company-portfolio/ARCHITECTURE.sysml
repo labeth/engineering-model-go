@@ -141,32 +141,6 @@ package 'atlas-industries-portfolio' {
     }
     attribute 'SYS-PORT';
 
-    part 'SUB-PORT-AEGIS/aegis::CAP-AEGIS-MISSION' : EngineeringPart;
-
-    part 'SUB-PORT-ORION/orion::CAP-ORION-MISSION' : EngineeringPart;
-
-    @EngineeringRelationship {
-        sourceId = "REL-74019EA66960E842";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-74019EA66960E842-context' {
-        part 'REQ-PORT-002' : EngineeringPart;
-        part 'SUB-PORT-AEGIS/aegis::CAP-AEGIS-MISSION' : EngineeringPart;
-        allocation 'REL-74019EA66960E842' allocate 'REQ-PORT-002' to 'SUB-PORT-AEGIS/aegis::CAP-AEGIS-MISSION';
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-EA55A527ED8FFDBA";
-        conceptKind = "allocation";
-        relationshipKind = "allocation";
-    }
-    part def 'REL-EA55A527ED8FFDBA-context' {
-        part 'REQ-PORT-003' : EngineeringPart;
-        part 'SUB-PORT-ORION/orion::CAP-ORION-MISSION' : EngineeringPart;
-        allocation 'REL-EA55A527ED8FFDBA' allocate 'REQ-PORT-003' to 'SUB-PORT-ORION/orion::CAP-ORION-MISSION';
-    }
-
     // Publication public from models.atlas.example/products/aegis-sentinel@v0@v0.1.0 (atlas-aegis-sentinel).
     package 'aegis' {
         part def 'ACT-AEG-ENGINEER';
