@@ -14,7 +14,6 @@ reqLinks:
     child: "dep::CAP-X"
     pinned:
       version: v1.2.4-0.20261102103400-abcdef123456
-      fingerprint: "sha256:v1:0000000000000000000000000000000000000000000000000000000000000000"
     status: accepted
     rationale: Dep delivers X.
     reviewedBy: ACT-A
@@ -44,7 +43,8 @@ func writeReqLinksFixture(t *testing.T, mode, links string) string {
 
 // The manifest's requirementLinks, documents.reqLinks, a requirement's
 // realizes and contract.assumptions load strictly; a pseudo-version pin is
-// accepted.
+// accepted, and pinned.fingerprint is optional (deprecated, D23) and loads
+// when present.
 // TRLC-LINKS: REQ-EMG-090, REQ-EMG-091, REQ-EMG-094
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
@@ -64,7 +64,8 @@ func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
 	}
 	links := bundle.ReqLinks.ReqLinks
 	if len(links) != 2 || links[0].Parent != "REQ-A" || links[0].Pinned.Version != "v1.2.4-0.20261102103400-abcdef123456" ||
-		links[1].Evidence[0] != "REQ-A" || links[1].Status != "claimed" || filepath.Base(bundle.ReqLinksPath) != "req-links.yml" {
+		links[1].Evidence[0] != "REQ-A" || links[1].Status != "claimed" || filepath.Base(bundle.ReqLinksPath) != "req-links.yml" ||
+		links[0].Pinned.Fingerprint != "" || !strings.HasPrefix(links[1].Pinned.Fingerprint, "sha256:") {
 		t.Fatalf("reqLinks = %+v (%s)", links, bundle.ReqLinksPath)
 	}
 	contract := BuildAuthoringContract(bundle)
@@ -75,8 +76,8 @@ func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
 }
 
 // Without requirementLinks the mode is guided; an unknown value, an unknown
-// link field, an unknown link status and a fingerprint that is not
-// sha256:[vN:]<64 hex> are rejected at load.
+// link field, an unknown link status and a pin without version are rejected
+// at load; a deprecated fingerprint of any form loads (it is ignored).
 // TRLC-LINKS: REQ-EMG-090, REQ-EMG-094
 // ENGMODEL-LINKS: FU-MODEL-LOADER
 func TestRequirementLinkModelIsStrictlyDecoded(t *testing.T) {
@@ -84,11 +85,10 @@ func TestRequirementLinkModelIsStrictlyDecoded(t *testing.T) {
 		t.Fatal("unset requirementLinks must be guided")
 	}
 	for name, tc := range map[string]struct{ mode, links, want string }{
-		"mode":        {"lenient", reqLinksFixture, "requirementLinks"},
-		"field":       {"guided", strings.Replace(reqLinksFixture, "    rationale: Dep delivers X.\n", "    rationale: Dep delivers X.\n    note: extra\n", 1), "note"},
-		"status":      {"guided", strings.Replace(reqLinksFixture, "status: claimed", "status: maybe", 1), "status"},
-		"fingerprint": {"guided", strings.Replace(reqLinksFixture, `"sha256:1111111111111111111111111111111111111111111111111111111111111111"`, "abc", 1), "fingerprint"},
-		"version":     {"guided", strings.Replace(reqLinksFixture, `"sha256:1111111111111111111111111111111111111111111111111111111111111111"`, `"sha256:vx:1111111111111111111111111111111111111111111111111111111111111111"`, 1), "fingerprint"},
+		"mode":       {"lenient", reqLinksFixture, "requirementLinks"},
+		"field":      {"guided", strings.Replace(reqLinksFixture, "    rationale: Dep delivers X.\n", "    rationale: Dep delivers X.\n    note: extra\n", 1), "note"},
+		"status":     {"guided", strings.Replace(reqLinksFixture, "status: claimed", "status: maybe", 1), "status"},
+		"no version": {"guided", strings.Replace(reqLinksFixture, `{version: v1.0.0, fingerprint:`, `{fingerprint:`, 1), "version"},
 	} {
 		t.Run(name, func(t *testing.T) {
 			dir := writeReqLinksFixture(t, tc.mode, tc.links)
@@ -97,6 +97,10 @@ func TestRequirementLinkModelIsStrictlyDecoded(t *testing.T) {
 				t.Fatalf("want a load error naming %s, got %v", tc.want, err)
 			}
 		})
+	}
+	dir := writeReqLinksFixture(t, "guided", strings.Replace(reqLinksFixture, `"sha256:1111111111111111111111111111111111111111111111111111111111111111"`, "abc", 1))
+	if _, err := LoadBundle(filepath.Join(dir, "engmod.yml")); err != nil {
+		t.Fatalf("a deprecated fingerprint of any form must load: %v", err)
 	}
 }
 

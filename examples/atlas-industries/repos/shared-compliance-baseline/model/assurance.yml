@@ -72,6 +72,7 @@ assurance:
     relatedControls:
     - CTRL-COMP-ROLE-CHANGE-REVIEW
     - CTRL-COMP-OFFBOARDING
+    - CTRL-COMP-PERSONNEL-SCREENING
     residualRisk: low
     rationale: Manager and People Operations checkpoints govern access removal.
   poamItems:

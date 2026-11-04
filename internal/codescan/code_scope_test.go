@@ -2,6 +2,7 @@
 package codescan
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -198,5 +199,68 @@ func TestArtifactFilesAreOwnedIndexedAndExcluded(t *testing.T) {
 	index := buildCodeIndex(bundle)
 	if index["CODE-DOCKERFILE"] != 1 || index["CODE-DOCS-RUN-MD"] != 1 || index["CODE-BUILD-DOCKERFILE"] != 0 {
 		t.Fatalf("artifact CODE ids must be indexed once and excluded ones not at all: %v", index)
+	}
+}
+
+// Every directory form of an exclude pattern (dir, dir/, dir/*, dir/**)
+// leaves the whole directory out of the code scope, also for a file below a
+// subdirectory, and a pattern that only shares a prefix keeps its files.
+// Mutation: matching patterns against the full path only (no ancestor
+// match) keeps dist/assets/app.js for dir/*, and keeping the trailing slash
+// makes dir/ match nothing.
+// TRLC-LINKS: REQ-EMG-114
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+func TestExcludeAcceptsDirectoryForms(t *testing.T) {
+	for _, pattern := range []string{"viewer/dist", "viewer/dist/", "viewer/dist/*", "viewer/dist/**", "./viewer/dist"} {
+		if !excludedPath("viewer/dist/assets/app.js", []string{pattern}) || !excludedPath("viewer/dist/index.js", []string{pattern}) {
+			t.Errorf("%q must exclude everything below viewer/dist", pattern)
+		}
+		if excludedPath("viewer/distribution/app.js", []string{pattern}) || excludedPath("viewer/src/main.js", []string{pattern}) {
+			t.Errorf("%q must not exclude files outside viewer/dist", pattern)
+		}
+	}
+	root := t.TempDir()
+	mustWrite(t, filepath.Join(root, "viewer", "dist", "assets", "app.js"), "function bundled() {}\n")
+	mustWrite(t, filepath.Join(root, "viewer", "src", "main.js"), "// TRLC-LINKS: REQ-X-001\nfunction main() {}\n")
+	bundle := model.Bundle{ManifestPath: filepath.Join(root, "engmod.yml")}
+	bundle.Architecture.InferenceHints.Exclude = []string{"viewer/dist/*"}
+	symbols, diags, err := ScanCodeScope(bundle, root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	paths := map[string]bool{}
+	for _, s := range symbols {
+		paths[s.Path] = true
+	}
+	for _, d := range diags {
+		paths[d.Path] = true
+	}
+	if !paths["viewer/src/main.js"] || len(diags) != 0 {
+		t.Fatalf("ScanCodeScope must scan viewer/src and leave viewer/dist out: %v %+v", paths, diags)
+	}
+}
+
+// An exclude pattern the matcher cannot apply is a validation error naming
+// the accepted forms; every accepted form validates.
+// Mutation: dropping the ** check or the accepted-forms text fails this test.
+// TRLC-LINKS: REQ-EMG-114
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
+func TestInvalidExcludePatternNamesAcceptedForms(t *testing.T) {
+	bundle := model.Bundle{}
+	bundle.Architecture.InferenceHints.Exclude = []string{"viewer/dist", "viewer/dist/", "viewer/dist/*", "viewer/dist/**", "*.gen.go", "/abs/dir", "../up/**", "**/dist", "a/**/b", "bad[glob"}
+	reported := map[string]string{}
+	for _, d := range validate.Bundle(bundle) {
+		if d.Code == "model.invalid_exclude_pattern" {
+			reported[d.Path] = d.Message
+		}
+	}
+	for i := 5; i < 10; i++ {
+		msg, ok := reported[fmt.Sprintf("inferenceHints.exclude[%d]", i)]
+		if !ok || !strings.Contains(msg, "dir, dir/, dir/* or dir/**") {
+			t.Errorf("exclude[%d] must be model.invalid_exclude_pattern naming the accepted forms, got %q", i, msg)
+		}
+	}
+	if len(reported) != 5 {
+		t.Fatalf("only the five unusable patterns may be reported: %v", reported)
 	}
 }

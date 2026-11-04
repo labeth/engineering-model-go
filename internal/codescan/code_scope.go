@@ -15,6 +15,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/codemap"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // LoadBundle loads a model bundle and attaches its lazily built CODE identifier index,
@@ -131,27 +132,57 @@ func codeScanSkipper(bundle model.Bundle) func(path string, isDir bool) bool {
 	}
 }
 
-// excludedPath matches a module-relative path against exclude globs; "dir/**" excludes a subtree.
-// TRLC-LINKS: REQ-EMG-057
+// excludedPath matches a module-relative path against exclude globs. A
+// pattern excludes a path it matches and everything below a directory it
+// matches, so dir, dir/, dir/* and dir/** all leave the whole directory out;
+// a leading ./ is ignored. Patterns ValidateExcludePattern refuses match
+// nothing.
+// TRLC-LINKS: REQ-EMG-057, REQ-EMG-114
 func excludedPath(rel string, patterns []string) bool {
 	for _, pattern := range patterns {
-		pattern = strings.Trim(filepath.ToSlash(strings.TrimSpace(pattern)), "/")
-		if pattern == "" {
+		pattern, ok := normalizeExcludePattern(pattern)
+		if !ok {
 			continue
 		}
-		if base, subtree := strings.CutSuffix(pattern, "/**"); subtree {
-			for prefix := rel; prefix != "." && prefix != "/" && prefix != ""; prefix = path.Dir(prefix) {
-				if ok, _ := path.Match(base, prefix); ok {
-					return true
-				}
+		for prefix := rel; prefix != "." && prefix != "/" && prefix != ""; prefix = path.Dir(prefix) {
+			if matched, _ := path.Match(pattern, prefix); matched {
+				return true
 			}
-			continue
-		}
-		if ok, _ := path.Match(pattern, rel); ok {
-			return true
 		}
 	}
 	return false
+}
+
+// normalizeExcludePattern returns the glob an exclude pattern matches
+// against a path and its ancestors: dir/** and dir/ become dir, ./ is
+// dropped. It reports false for a pattern validation refuses.
+// TRLC-LINKS: REQ-EMG-114
+func normalizeExcludePattern(pattern string) (string, bool) {
+	if validate.ExcludePatternProblem(pattern) != "" {
+		return "", false
+	}
+	p := strings.TrimPrefix(filepath.ToSlash(strings.TrimSpace(pattern)), "./")
+	p = strings.TrimSuffix(p, "/**")
+	p = strings.TrimSuffix(p, "/")
+	return p, p != ""
+}
+
+// CodeScopeSkip returns the skip function of the model's code scope (see
+// codeScanSkipper): the check, the trace and the MCP tools share it, so they
+// scan the same files.
+// TRLC-LINKS: REQ-EMG-114
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-MCP-SERVER
+func CodeScopeSkip(bundle model.Bundle) func(path string, isDir bool) bool {
+	return codeScanSkipper(bundle)
+}
+
+// ScanCodeScope scans root for trace markers with the model's code scope:
+// git-ignored files, inferenceHints.exclude paths and nested modules are
+// left out, identifiers are module-relative and paths root-relative.
+// TRLC-LINKS: REQ-EMG-114
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-MCP-SERVER
+func ScanCodeScope(bundle model.Bundle, root string) ([]codemap.Symbol, []validate.Diagnostic, error) {
+	return codemap.ScanWithOptions(root, codemap.ScanOptions{IDBase: moduleCodeRoot(bundle), Skip: codeScanSkipper(bundle)})
 }
 
 // gitVisibleFiles lists files git tracks or would track (not ignored) under root, relative to

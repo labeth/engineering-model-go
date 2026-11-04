@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -197,4 +198,9 @@ func goProxy(t *testing.T, mods ...string) {
 	t.Setenv("GOPRIVATE", "")
 	t.Setenv("GOFLAGS", "-modcacherw")
 	t.Setenv("GOMODCACHE", filepath.Join(t.TempDir(), "modcache"))
+}
+
+// regexpLine reports whether a line of text matches the pattern.
+func regexpLine(text, pattern string) bool {
+	return regexp.MustCompile(`(?m)` + pattern).MatchString(text)
 }

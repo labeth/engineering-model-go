@@ -72,12 +72,11 @@ assurance:
       is an explicit render-time opt-in (engdoc --used-by) that reads only checkouts inside the active workspace, confined
       like dependencies, and must not be committed into the child.
   - id: CTRL-FINGERPRINT-COVERAGE
-    name: Contract Item Fingerprint Coverage
+    name: Contract Item Meaning Coverage
     category: integrity
-    description: The versioned contract item fingerprint (sha256:v1) covers every field that changes what an item or a
-      realizing requirement obliges (item kind, text and criteria; realizer text, notes, verification criteria and
-      methods, criticality and status), so a hidden child change makes the link suspect; another canonical form is
-      reported, never compared.
+    description: A link records the published version it was reviewed at; engws bump moves the pin only when the item
+      means the same at the new version (item kind, text and criteria; each realizer's text and criteria; realizers added
+      or removed), and the check reports link.version_mismatch for every other link until it is reviewed again (D23).
   - id: CTRL-LINK-REVIEW-RECORD
     name: Requirement Link Review Record
     category: assurance
@@ -89,8 +88,9 @@ assurance:
     name: Repository-Local Model Writes
     category: input-validation
     description: The commands that write model files (review-links --accept, migrate-links, bump) write only the model's own
-      files through an atomic replace that keeps their mode, restore every file on a failed write, and the MCP server
-      writes none (links.review returns a patch).
+      files through an atomic replace that keeps their mode and restore every file on a failed write. In the MCP server
+      only model.patch writes, with write true, a valid result, into a manifest document (not engmod.yml or the link file)
+      that resolves inside the model root (ADR-EMG-029); links.review returns a patch.
   - id: CTRL-GIT-REF-VALIDATION
     name: Git Ref Validation
     category: input-validation
@@ -316,9 +316,9 @@ assurance:
     verificationRefs:
     - VER-CHILD-USER-NONDISCLOSURE
   - id: TS-HIDDEN-CHILD-CHANGE
-    title: A child change escapes the link fingerprint
-    summary: A child changes what a linked capability or a realizing requirement obliges in a field the fingerprint does
-      not cover, so the using system's link stays unchanged and nobody reviews it.
+    title: A child change escapes the link review
+    summary: A child release changes what a linked capability or a realizing requirement obliges in a field the bump
+      comparison does not cover, so the bump moves the link's pin and nobody reviews it.
     category: integrity
     stride: tampering
     attackVectorRef: AV-COMPOSED-MODEL-CONTENT
@@ -560,14 +560,15 @@ assurance:
     status: pass
     owner: ACT-COMPLIANCE-ENGINEER
     verificationRefs:
-    - CODE-INTERNAL-REQLINKS-REQLINKS-TEST-GO--TESTFINGERPRINTGOLDEN
-    - CODE-INTERNAL-REQLINKS-REQLINKS-TEST-GO--TESTFINGERPRINTISDETERMINISTIC
-    - CODE-INTERNAL-REQLINKS-REQLINKS-TEST-GO--TESTFINGERPRINTVERSION
+    - CODE-INTERNAL-REQLINKS-REQLINKS-TEST-GO--TESTITEMMEANINGGOLDEN
+    - CODE-INTERNAL-REQLINKS-REQLINKS-TEST-GO--TESTSAMEMEANING
+    - CODE-INTERNAL-ENGWS-BUMP-LINKS-TEST-GO--TESTBUMPEVALUATESREQUIREMENTLINKS
     - CODE-INTERNAL-INTEGRATION-REQUIREMENT-LINKS-TEST-GO--TESTREQUIREMENTLINKSMULTITARGETANDMIXEDLINKS
     findings:
-    - A change to the item kind, text or criteria, or to a realizer's text, notes, verification criteria or methods,
-      criticality or status changes the fingerprint; an unversioned or unknown fingerprint form is reported as
-      link.fingerprint_outdated.
+    - A change to the item kind, text or criteria, or to a realizer's text or verification criteria, or an added or
+      removed realizer, keeps the link at its pin for review; a status, notes, criticality or methods change does not
+      (by decision D23 they do not change what the item obliges). A changed note of a capability is a change of its
+      text.
   - id: VER-LINK-REVIEW-RECORD
     controlRef: CTRL-LINK-REVIEW-RECORD
     threatScenarioRefs:
@@ -594,9 +595,11 @@ assurance:
     - CODE-INTERNAL-MCP-REQLINKS-TEST-GO--TESTLINKSREVIEWTOOLRETURNSCOMMANDANDPATCH
     - CODE-INTERNAL-ENGWS-MIGRATELINKS-TEST-GO--TESTMIGRATELINKSRESTORESEVERYFILEONWRITEFAILURE
     - CODE-INTERNAL-ENGWS-WRITEFILE-TEST-GO--TESTWRITEFILEATOMICKEEPSMODE
+    - CODE-INTERNAL-MCP-PATCH-TEST-GO--TESTMODELPATCHEDITSVALIDATESANDWRITESONLYVALIDRESULTS
     findings:
     - links.review leaves the link file unchanged; a failed migrate-links write restores every file; a rewritten file
-      keeps its mode.
+      keeps its mode; model.patch writes only a valid result into a model document inside the model root and refuses the
+      link file.
   - id: VER-GIT-REF-VALIDATION
     controlRef: CTRL-GIT-REF-VALIDATION
     threatScenarioRefs:

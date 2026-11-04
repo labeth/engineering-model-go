@@ -1,11 +1,12 @@
-// ENGMODEL-OWNER-UNIT: FU-ALLOCATION-TRACE
-
 // Package linkreview evaluates the requirement links of one model and
-// prepares their review: the links with their state, the child item before
-// (at the link's pinned version, resolved with the workspace off) and after
-// (at the dependency pin), and the line-preserving edit that records an
-// accepted review in the requirement link file. engws review-links writes
-// the edit; the MCP server only shows it.
+// prepares their review: the links that need review (pinned to another
+// version than the dependency, broken or claimed) with the child item before
+// (at the link's pinned version) and after (at the dependency pin), both
+// resolved with the workspace off from the module cache or registry, the
+// difference in meaning between them (reqlinks.MeaningChanges, decision
+// D23), and the line-preserving edit that records an accepted review in the
+// requirement link file. engws review-links writes the edit; the MCP server
+// only shows it.
 package linkreview
 
 import (
@@ -22,15 +23,15 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ItemView is a contract item as a review shows it: the canonical fields of
-// the item and its realizing requirements, sorted by ID.
+// ItemView is a contract item as a review shows it: the item and its
+// realizing requirements, sorted by ID. A realizer's status is shown, never
+// compared.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 type ItemView struct {
 	ID                   string         `json:"id"`
 	Kind                 string         `json:"kind"`
 	Text                 string         `json:"text"`
 	VerificationCriteria string         `json:"verificationCriteria,omitempty"`
-	Fingerprint          string         `json:"fingerprint"`
 	Realizers            []RealizerView `json:"realizers"`
 }
 
@@ -43,25 +44,26 @@ type RealizerView struct {
 	Status               string `json:"status,omitempty"`
 }
 
-// Review is one link that needs review: its state, the parent requirement
-// and the child item at the reviewed version (Before, nil with BeforeNote
-// when it cannot be resolved) and at the dependency pin (After, nil when
-// the item is gone).
+// Review is one link that needs review: its state and review status, the
+// parent requirement, the child item at the pinned version (Before, nil
+// with BeforeNote when it cannot be resolved) and at the dependency pin
+// (After, nil when the item is gone or not resolved), and Changes, the
+// difference in meaning between them (empty when both are known and the
+// meaning is the same).
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 type Review struct {
 	ID         string    `json:"id"`
 	Child      string    `json:"child"`
 	State      string    `json:"state"`
-	Content    string    `json:"content,omitempty"`
+	Status     string    `json:"status"`
 	Parent     string    `json:"parent,omitempty"`
 	ParentText string    `json:"parentText,omitempty"`
 	Pinned     string    `json:"pinnedVersion"`
 	Version    string    `json:"dependencyVersion"`
-	Recorded   string    `json:"recordedFingerprint"`
-	Current    string    `json:"currentFingerprint,omitempty"`
 	Before     *ItemView `json:"before,omitempty"`
 	BeforeNote string    `json:"beforeNote,omitempty"`
 	After      *ItemView `json:"after,omitempty"`
+	Changes    []string  `json:"changes,omitempty"`
 	Detail     string    `json:"detail,omitempty"`
 }
 
@@ -71,7 +73,7 @@ func NewItemView(item *reqlinks.Item) *ItemView {
 	if item == nil {
 		return nil
 	}
-	view := &ItemView{ID: item.ID, Kind: string(item.Kind), Text: OneLine(item.Text), VerificationCriteria: OneLine(item.VerificationCriteria), Fingerprint: reqlinks.Fingerprint(*item), Realizers: []RealizerView{}}
+	view := &ItemView{ID: item.ID, Kind: string(item.Kind), Text: OneLine(item.Text), VerificationCriteria: OneLine(item.VerificationCriteria), Realizers: []RealizerView{}}
 	for _, r := range item.Realizers {
 		view.Realizers = append(view.Realizers, RealizerView{ID: r.ID, Text: OneLine(r.Text), VerificationCriteria: OneLine(r.VerificationCriteria), Status: strings.TrimSpace(r.Status)})
 	}
@@ -79,11 +81,12 @@ func NewItemView(item *reqlinks.Item) *ItemView {
 	return view
 }
 
-// OneLine collapses whitespace like the canonical serialization.
+// OneLine collapses whitespace like the meaning serialization.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 func OneLine(s string) string { return strings.Join(strings.Fields(s), " ") }
 
-// Lines renders an item view as one line for the item and one per realizer.
+// Lines renders an item view as one line for the item and one per realizer
+// (its meaning: text and verification criteria).
 // TRLC-LINKS: REQ-EMG-101
 func (v *ItemView) Lines() []string {
 	head := fmt.Sprintf("%s %s: %s", v.Kind, v.ID, v.Text)
@@ -92,11 +95,7 @@ func (v *ItemView) Lines() []string {
 	}
 	out := []string{head}
 	for _, r := range v.Realizers {
-		status := r.Status
-		if status == "" {
-			status = "-"
-		}
-		line := fmt.Sprintf("%s [status %s]: %s", r.ID, status, r.Text)
+		line := fmt.Sprintf("%s: %s", r.ID, r.Text)
 		if r.VerificationCriteria != "" {
 			line += " (verification: " + r.VerificationCriteria + ")"
 		}
@@ -105,15 +104,16 @@ func (v *ItemView) Lines() []string {
 	return out
 }
 
-// NeedsReview reports whether a link is listed for review: suspect, broken,
-// version_mismatch or fingerprint_outdated.
-// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106, REQ-EMG-109
+// NeedsReview reports whether a link is listed for review: pinned to
+// another version than the dependency (version_mismatch, or a stale pin of
+// an unresolved dependency), broken, or claimed. A link to a workspace
+// checkout (local) is never listed: a checkout has no version to review.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 func NeedsReview(s reqlinks.LinkStatus) bool {
-	switch s.State {
-	case reqlinks.StateSuspect, reqlinks.StateBroken, reqlinks.StateVersionMismatch, reqlinks.StateFingerprintOutdated:
-		return true
+	if s.State == reqlinks.StateLocal {
+		return false
 	}
-	return false
+	return s.NeedsReview() || (s.State == reqlinks.StateUnresolved && s.Pinned != s.Version)
 }
 
 // Context is a model with its links evaluated at the current pins.
@@ -144,34 +144,52 @@ func evaluate(manifest string, options composition.ResolutionOptions) (Context, 
 	if bundle.ReqLinksPath == "" {
 		return Context{Manifest: manifest, Bundle: bundle}, composition.CompositionResult{}, nil
 	}
-	comp, err := composition.GenerateCompositionFromFileWith(manifest, options)
+	return EvaluateBundle(manifest, bundle, options)
+}
+
+// EvaluateBundle is Evaluate for a loaded bundle (for example one with an
+// edited link file in memory), also returning the composition.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106, REQ-EMG-119
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
+func EvaluateBundle(manifest string, bundle model.Bundle, options composition.ResolutionOptions) (Context, composition.CompositionResult, error) {
+	if len(bundle.Manifest.Dependencies) == 0 {
+		return Context{Manifest: manifest, Bundle: bundle}, composition.CompositionResult{}, nil
+	}
+	comp, err := composition.GenerateCompositionForBundle(bundle, options)
 	if err != nil {
 		return Context{}, comp, err
 	}
 	if comp.Root == nil {
 		return Context{}, comp, fmt.Errorf("%s does not compose: %s", filepath.Base(manifest), firstError(comp))
 	}
-	return Context{Manifest: manifest, Bundle: bundle, Statuses: reqlinks.EvaluateLinks(comp.Root.Bundle, composition.LinkDependencies(comp.Root))}, comp, nil
+	ctx := Context{Manifest: manifest, Bundle: bundle, Statuses: reqlinks.EvaluateLinks(comp.Root.Bundle, composition.LinkDependencies(comp.Root))}
+	for i := range ctx.Statuses {
+		if s := &ctx.Statuses[i]; s.State == reqlinks.StateUnresolved {
+			s.Detail = fmt.Sprintf("%s (links are reviewed against published versions; publish %s or make its registry reachable): %s", s.Detail, s.Alias, firstError(comp))
+		}
+	}
+	return ctx, comp, nil
 }
 
-// EvaluateForAccept is Evaluate with the workspace off: an acceptance
-// records the fingerprint of the published dependency at its pin, the
-// content every user of the pin computes, never that of a workspace
-// checkout (decision D9). A dependency that does not resolve that way (the
-// version is not published or the registry is unreachable) leaves its links
-// unresolved, so Accept refuses them; their Detail names the cause.
+// Published returns options with the workspace off: links are reviewed and
+// accepted against the published dependency at its pin, the content every
+// user of the pin resolves, never a workspace checkout (decisions D9, D23).
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func Published(options composition.ResolutionOptions) composition.ResolutionOptions {
+	options.Workspace = model.WorkspaceOff
+	return options
+}
+
+// EvaluateForAccept is Evaluate with the workspace off (Published). A
+// dependency that does not resolve that way (the version is not published
+// or the registry is unreachable) leaves its links unresolved, so Accept
+// refuses them; their Detail names the cause.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
 func EvaluateForAccept(manifest string, options composition.ResolutionOptions) (Context, error) {
-	options.Workspace = model.WorkspaceOff
-	ctx, comp, err := evaluate(manifest, options)
+	ctx, _, err := evaluate(manifest, Published(options))
 	if err != nil {
-		return Context{}, fmt.Errorf("an acceptance records the published dependency at its pin, composed with the workspace off, and that failed: %w", err)
-	}
-	for i := range ctx.Statuses {
-		if s := &ctx.Statuses[i]; s.State == reqlinks.StateUnresolved {
-			s.Detail = fmt.Sprintf("%s with the workspace off: an acceptance records the published dependency at its pin; publish %s or make its registry reachable (%s)", s.Detail, s.Alias, firstError(comp))
-		}
+		return Context{}, fmt.Errorf("links are reviewed against the published dependency at its pin, composed with the workspace off, and that failed: %w", err)
 	}
 	return ctx, nil
 }
@@ -200,9 +218,10 @@ func firstError(comp composition.CompositionResult) string {
 }
 
 // Reviews returns every link of ctx that needs review, with the item at the
-// reviewed version resolved through options with the workspace off (module
+// pinned version resolved through options with the workspace off (module
 // cache, else the registry; never a workspace checkout, whose content is
-// not that version's).
+// not that version's) and the difference in meaning to the item at the
+// dependency pin.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func Reviews(ctx Context, options composition.ResolutionOptions) []Review {
@@ -210,42 +229,69 @@ func Reviews(ctx Context, options composition.ResolutionOptions) []Review {
 	for _, r := range ctx.Bundle.Requirements.Requirements {
 		parents[strings.TrimSpace(r.ID)] = OneLine(r.Text)
 	}
-	befores := map[string]map[string]reqlinks.Item{} // alias@version -> items
-	notes := map[string]string{}
+	cache := VersionCache{}
 	reviews := []Review{}
 	for _, s := range ctx.Statuses {
 		if !NeedsReview(s) {
 			continue
 		}
 		review := Review{
-			ID: s.ID, Child: s.Child, State: string(s.State), Content: string(s.Content), Parent: s.Parent, ParentText: parents[s.Parent],
-			Pinned: s.Pinned, Version: s.Version, Recorded: s.Recorded, Current: s.Current, After: NewItemView(s.Item), Detail: s.Detail,
+			ID: s.ID, Child: s.Child, State: string(s.State), Status: s.Status, Parent: s.Parent, ParentText: parents[s.Parent],
+			Pinned: s.Pinned, Version: s.Version, After: NewItemView(s.Item), Detail: s.Detail,
 		}
-		key := s.Alias + "@" + s.Pinned
-		if _, done := befores[key]; !done && s.Pinned != "" {
-			befores[key], notes[key] = ItemsAtVersion(ctx.Bundle, s.Alias, s.Pinned, options)
+		before, note := s.Item, ""
+		if s.Pinned != s.Version || s.Item == nil {
+			before, note = cache.Item(ctx.Bundle, s.Alias, s.ItemID, s.Pinned, options)
 		}
-		if item, ok := befores[key][s.ItemID]; ok {
-			if fp := reqlinks.Fingerprint(item); fp != s.Recorded {
-				review.BeforeNote = fmt.Sprintf("before: the item at %s has fingerprint %s, not the recorded %s (the tag moved or the fingerprint was not stamped from %s)", s.Pinned, fp, s.Recorded, s.Pinned)
-			} else {
-				review.Before = NewItemView(&item)
-			}
-		} else if notes[key] != "" {
-			review.BeforeNote = notes[key]
-		} else {
-			review.BeforeNote = fmt.Sprintf("before: %s does not exist at %s", s.Child, s.Pinned)
+		review.Before, review.BeforeNote = NewItemView(before), note
+		if before != nil && s.Item != nil {
+			review.Changes = reqlinks.MeaningChanges(*before, *s.Item)
 		}
 		reviews = append(reviews, review)
 	}
 	return reviews
 }
 
+// VersionCache resolves the published contract items of a dependency at a
+// version once per alias and version.
+// TRLC-LINKS: REQ-EMG-100, REQ-EMG-101
+type VersionCache map[string]versionItems
+
+// versionItems is one resolution: the items, or the note why it failed.
+type versionItems struct {
+	items map[string]reqlinks.Item
+	note  string
+}
+
+// Item returns item id of dependency alias of system at version (workspace
+// off), or nil and a note: "before: version vX not available offline (...)"
+// when the version does not resolve, "before: alias::ID does not exist at
+// vX" when the item is not published there.
+// TRLC-LINKS: REQ-EMG-100, REQ-EMG-101
+func (c VersionCache) Item(system model.Bundle, alias, id, version string, options composition.ResolutionOptions) (*reqlinks.Item, string) {
+	if version == "" {
+		return nil, "before: the link names no pinned version"
+	}
+	key := alias + "@" + version
+	got, done := c[key]
+	if !done {
+		got.items, got.note = ItemsAtVersion(system, alias, version, options)
+		c[key] = got
+	}
+	if got.items == nil {
+		return nil, got.note
+	}
+	if item, ok := got.items[id]; ok {
+		return &item, ""
+	}
+	return nil, fmt.Sprintf("before: %s::%s does not exist at %s", alias, id, version)
+}
+
 // ItemsAtVersion resolves dependency alias of system at version with the
 // workspace off (options otherwise; use lock check so no lock is written)
 // and returns its published contract items, or a note naming the first
 // composition error when the version cannot be resolved.
-// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+// TRLC-LINKS: REQ-EMG-100, REQ-EMG-101, REQ-EMG-106
 func ItemsAtVersion(system model.Bundle, alias, version string, options composition.ResolutionOptions) (map[string]reqlinks.Item, string) {
 	moved := system
 	moved.Manifest.Dependencies = append([]model.ManifestDependency(nil), system.Manifest.Dependencies...)
@@ -255,8 +301,7 @@ func ItemsAtVersion(system model.Bundle, alias, version string, options composit
 		}
 	}
 	unavailable := fmt.Sprintf("before: version %s not available offline", version)
-	options.Workspace = model.WorkspaceOff
-	comp, err := composition.GenerateCompositionForBundle(moved, options)
+	comp, err := composition.GenerateCompositionForBundle(moved, Published(options))
 	switch {
 	case err != nil:
 		return nil, unavailable + " (" + err.Error() + ")"
@@ -324,12 +369,13 @@ type Acceptance struct {
 	After  []byte
 }
 
-// Accept prepares the review of link id in ctx: the current fingerprint,
-// the dependency pin, reviewedBy, reviewedOn (date, YYYY-MM-DD), the
-// rationale and status accepted, editing only the touched lines of data
-// (the requirement link file). It refuses an actor the model does not
-// define, an unknown link, a broken link and one whose item cannot be
-// evaluated. Nothing is written.
+// Accept prepares the review of link id in ctx: pinned.version set to the
+// dependency pin (the version reviewed), a deprecated pinned.fingerprint
+// removed, reviewedBy, reviewedOn (date, YYYY-MM-DD), the rationale and
+// status accepted, editing only the touched lines of data (the requirement
+// link file). It refuses an actor the model does not define, an unknown
+// link, a broken link and one whose item is not resolved at the dependency
+// pin. Nothing is written.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func Accept(ctx Context, data []byte, id, by, rationale, date string) (Acceptance, error) {
@@ -352,9 +398,9 @@ func Accept(ctx Context, data []byte, id, by, rationale, date string) (Acceptanc
 	switch {
 	case status == nil:
 		return Acceptance{}, fmt.Errorf("no requirement link %s in %s", id, filepath.Base(ctx.Bundle.ReqLinksPath))
-	case status.State == reqlinks.StateBroken || status.Content == reqlinks.StateBroken:
-		return Acceptance{Status: *status}, fmt.Errorf("link %s is broken: %s no longer exists at %s; remove the link or link another contract item", id, status.Child, status.Version)
-	case status.Current == "":
+	case status.State == reqlinks.StateBroken:
+		return Acceptance{Status: *status}, fmt.Errorf("link %s is broken: %s does not exist at %s; remove the link or link another contract item", id, status.Child, status.Version)
+	case status.Item == nil:
 		return Acceptance{Status: *status}, fmt.Errorf("link %s cannot be accepted: %s (%s)", id, status.State, status.Detail)
 	}
 	path := ctx.Bundle.ReqLinksPath
@@ -366,7 +412,6 @@ func Accept(ctx Context, data []byte, id, by, rationale, date string) (Acceptanc
 		value string
 	}{
 		{pinned, "version", status.Version},
-		{pinned, "fingerprint", status.Current},
 		{link, "status", model.ReqLinkAccepted},
 		{link, "rationale", OneLine(rationale)},
 		{link, "reviewedBy", by},
@@ -381,6 +426,9 @@ func Accept(ctx Context, data []byte, id, by, rationale, date string) (Acceptanc
 		if edited, err = yamledit.SetKey(edited, e.find, e.key, yamledit.Scalar(e.value)); err != nil {
 			return Acceptance{Status: *status}, fmt.Errorf("%s: link %s: %w", filepath.Base(path), id, err)
 		}
+	}
+	if edited, _, err = yamledit.RemoveKey(edited, pinned, "fingerprint"); err != nil {
+		return Acceptance{Status: *status}, fmt.Errorf("%s: link %s: %w", filepath.Base(path), id, err)
 	}
 	var check model.ReqLinksDocument
 	dec := yaml.NewDecoder(bytes.NewReader(edited))

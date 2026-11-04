@@ -34,7 +34,7 @@ type ReqLinksDocument struct {
 
 // ReqLink is one link from a local requirement (Parent) to a dependency's
 // published contract item (Child, alias::CAP-* or alias::AOU-*), pinned to the
-// dependency version and the fingerprint of the item when it was reviewed.
+// dependency version it was reviewed at (decision D23).
 // TRLC-LINKS: REQ-EMG-094
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type ReqLink struct {
@@ -49,13 +49,14 @@ type ReqLink struct {
 	ReviewedOn string     `yaml:"reviewedOn,omitempty"`
 }
 
-// ReqLinkPin is what a link relies on: the dependency version and the
-// fingerprint of the child item at that version (sha256:<hex>).
-// TRLC-LINKS: REQ-EMG-094, REQ-EMG-095
+// ReqLinkPin is what a link relies on: the dependency version it was
+// reviewed at. Fingerprint is deprecated (D23): still read for one release,
+// ignored, and reported as link.fingerprint_deprecated.
+// TRLC-LINKS: REQ-EMG-094, REQ-EMG-118
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type ReqLinkPin struct {
 	Version     string `yaml:"version"`
-	Fingerprint string `yaml:"fingerprint"`
+	Fingerprint string `yaml:"fingerprint,omitempty"`
 }
 
 // RequirementLinkMode returns the effective requirement link strictness of a

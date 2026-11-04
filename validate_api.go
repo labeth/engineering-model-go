@@ -15,6 +15,9 @@ type (
 	ValidationRules = validate.Rules
 	// RelationshipPair is one allowed mapping type with its end kinds.
 	RelationshipPair = validate.RelationshipPair
+	// FieldType is the YAML type of one field of an entity kind
+	// (ValidationRules.FieldTypes).
+	FieldType = validate.FieldType
 )
 
 // Diagnostic severities.
@@ -62,4 +65,16 @@ func DedupeDiagnostics(lists ...[]Diagnostic) []Diagnostic {
 // TRLC-LINKS: REQ-EMG-045, REQ-EMG-009, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-087
 func AuthoringRules() ValidationRules {
 	return validate.AuthoringRules()
+}
+
+// ExcludeAcceptedForms names the inferenceHints.exclude forms the code scan
+// applies.
+const ExcludeAcceptedForms = validate.ExcludeAcceptedForms
+
+// ExcludePatternProblem returns why an inferenceHints.exclude pattern cannot
+// be applied, or "" when it can.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE
+// TRLC-LINKS: REQ-EMG-114
+func ExcludePatternProblem(pattern string) string {
+	return validate.ExcludePatternProblem(pattern)
 }

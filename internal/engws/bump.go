@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/composition"
+	"github.com/labeth/engineering-model-go/internal/linkreview"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
@@ -25,42 +27,62 @@ type BumpResult struct {
 	GoModule    string // Go module required, empty when not changed
 	LockWritten bool
 	Diagnostics []validate.Diagnostic
-	// Links is the evaluation of every requirement link of the consumer on
-	// the bumped alias at the new version (Content: unchanged, suspect or
-	// broken; empty when the item is not a published contract item).
-	Links []reqlinks.LinkStatus
-	// Repinned lists the unchanged links whose pinned.version moved to the
-	// new version (decision D8).
+	// Links is the outcome of every requirement link of the consumer on the
+	// bumped alias, in link order.
+	Links []BumpLink
+	// Repinned lists the links whose pinned.version moved to the new
+	// version because the item means the same at both versions (D23).
 	Repinned []string
-	// Blocked reports that a suspect or broken link aborted the bump.
-	Blocked bool
+	// NeedReview reports that a link was left at its pin for review: its
+	// item changed in meaning, is gone, or its pinned version cannot be
+	// resolved.
+	NeedReview bool
 }
 
-// BumpOptions modify Bump. AllowSuspect writes the bump although a link is
-// suspect or broken; the model check then fails until engws review-links.
+// Bump link outcomes.
+const (
+	// BumpLinkMoved: same meaning at both versions; pinned.version moved.
+	BumpLinkMoved = "moved"
+	// BumpLinkCurrent: the link is already pinned to the new version.
+	BumpLinkCurrent = "current"
+	// BumpLinkReview: the meaning changed or the pinned version cannot be
+	// resolved; the pin is kept for review.
+	BumpLinkReview = "review"
+	// BumpLinkBroken: the item does not exist at the new version.
+	BumpLinkBroken = "broken"
+)
+
+// BumpLink is the outcome of one requirement link on the bumped alias: the
+// item at its pinned version (Before) and at the new version (After), the
+// difference in meaning (Changes) and, for a link left for review, Note.
+// TRLC-LINKS: REQ-EMG-100
+type BumpLink struct {
+	ID, Child, From, To string
+	Outcome             string
+	Changes             []string
+	Note                string
+	Before, After       *reqlinks.Item
+}
+
+// BumpOptions modify Bump. AllowReview makes a bump that leaves links for
+// review succeed (exit 0); the pins are written either way.
 // TRLC-LINKS: REQ-EMG-100
 type BumpOptions struct {
-	AllowSuspect bool
-}
-
-// blocksBump reports whether a link evaluated by bump at the new version
-// needs a review before it may move: its item changed (suspect), is gone
-// (broken), is no published contract item, or its fingerprint uses another
-// canonical form.
-// TRLC-LINKS: REQ-EMG-100
-func blocksBump(s reqlinks.LinkStatus) bool {
-	return s.Content != reqlinks.StateUnchanged
+	AllowReview bool
 }
 
 // Bump sets the version of dependency alias in root/<repo>/engmod.yml by
 // editing only that YAML line, updates the go.mod require and go.sum of the
 // Go module of the same repository family (go get with GOWORK=off) when the
 // dependency's checkout has go.mod, and regenerates engmod.lock.yml with the
-// workspace off and the module cache refreshed. It then evaluates the
-// consumer's requirement links on the alias at the new version: unchanged
-// links move pinned.version to the new version, suspect and broken ones keep
-// their pin and fingerprint (decision D8), and without opts.AllowSuspect a
-// suspect or broken link aborts the bump. Any failure or abort restores
+// workspace off and the module cache refreshed. It then compares each
+// requirement link of the consumer on the alias between its pinned version
+// and the new one, both published versions resolved with the workspace off
+// (decision D23): a link whose item means the same at both
+// (reqlinks.SameMeaning) moves pinned.version to the new version; one whose
+// meaning changed, whose item is gone or whose pinned version cannot be
+// resolved keeps its pin, so the model check reports link.version_mismatch
+// (or link.broken) until engws review-links accepts it. Any failure restores
 // engmod.yml, go.mod, go.sum, the lock and the requirement link file.
 // TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
@@ -208,21 +230,18 @@ func Bump(root, repo, alias, version string, opts BumpOptions) (BumpResult, erro
 	}
 	result.LockWritten = true
 
-	// Requirement links on the alias, evaluated at the new version.
+	// Requirement links on the alias: compared between versions.
 	if comp.Root == nil || len(comp.Root.Bundle.ReqLinks.ReqLinks) == 0 {
 		return result, nil
 	}
-	result.Links = bumpLinkStatuses(comp.Root.Bundle, engmodel.LinkDependencies(comp.Root), alias, version)
-	for _, s := range result.Links {
-		if blocksBump(s) {
-			result.Blocked = true
-		} else if s.Pinned != version {
-			result.Repinned = append(result.Repinned, s.ID)
+	result.Links = compareBumpLinks(comp.Root.Bundle, engmodel.LinkDependencies(comp.Root), alias, version)
+	for _, l := range result.Links {
+		switch l.Outcome {
+		case BumpLinkMoved:
+			result.Repinned = append(result.Repinned, l.ID)
+		case BumpLinkReview, BumpLinkBroken:
+			result.NeedReview = true
 		}
-	}
-	if result.Blocked && !opts.AllowSuspect {
-		result.Repinned = nil
-		return rollback(fmt.Errorf("%s has requirement links that need review at %s (above); review them first, or bump with --allow-suspect and run engws review-links", repo, depModuleAt(dep.Path, version)))
 	}
 	if len(result.Repinned) > 0 {
 		linksPath := comp.Root.Bundle.ReqLinksPath
@@ -243,35 +262,58 @@ func Bump(root, repo, alias, version string, opts BumpOptions) (BumpResult, erro
 	return result, nil
 }
 
-// bumpLinkStatuses evaluates the consumer's links on alias as if each were
-// pinned to version, so Content tells whether the item changed against the
-// recorded fingerprint.
+// compareBumpLinks compares each link of consumer on alias between the
+// item at its pinned version (resolved with the workspace off, module cache
+// else registry) and at version (deps, the composition at the new pin).
 // TRLC-LINKS: REQ-EMG-100
-func bumpLinkStatuses(consumer model.Bundle, deps []reqlinks.Dependency, alias, version string) []reqlinks.LinkStatus {
-	moved := consumer
-	moved.ReqLinks.ReqLinks = nil
-	pinned := map[string]string{}
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+func compareBumpLinks(consumer model.Bundle, deps []reqlinks.Dependency, alias, version string) []BumpLink {
+	var after map[string]reqlinks.Item
+	for _, d := range deps {
+		if d.Alias == alias {
+			after = reqlinks.PublishedItems(d.Bundle, d.Publications...)
+		}
+	}
+	cache := linkreview.VersionCache{}
+	// Lock check verifies each cached module against the registry's manifest
+	// digest, so a re-staged version is refetched.
+	options := composition.ResolutionOptions{Lock: composition.LockModeCheck}
+	var out []BumpLink
 	for _, link := range consumer.ReqLinks.ReqLinks {
-		if a, _, err := model.ParseQualifiedReference(strings.TrimSpace(link.Child)); err != nil || a != alias {
+		a, id, err := model.ParseQualifiedReference(strings.TrimSpace(link.Child))
+		if err != nil || a != alias {
 			continue
 		}
-		pinned[strings.TrimSpace(link.ID)] = strings.TrimSpace(link.Pinned.Version)
-		link.Pinned.Version = version
-		moved.ReqLinks.ReqLinks = append(moved.ReqLinks.ReqLinks, link)
-	}
-	statuses := reqlinks.EvaluateLinks(moved, deps)
-	for i := range statuses {
-		statuses[i].Pinned = pinned[statuses[i].ID]
-		if statuses[i].Content == "" {
-			statuses[i].Content = statuses[i].State
+		l := BumpLink{ID: strings.TrimSpace(link.ID), Child: strings.TrimSpace(link.Child), From: strings.TrimSpace(link.Pinned.Version), To: version}
+		if item, ok := after[id]; ok {
+			l.After = &item
 		}
+		switch {
+		case l.From == version:
+			l.Outcome = BumpLinkCurrent
+		case l.After == nil:
+			l.Outcome, l.Note = BumpLinkBroken, fmt.Sprintf("%s does not exist at %s", l.Child, version)
+		default:
+			var note string
+			l.Before, note = cache.Item(consumer, alias, id, l.From, options)
+			switch {
+			case l.Before == nil:
+				l.Outcome, l.Note = BumpLinkReview, fmt.Sprintf("%s: %s", l.Child, strings.TrimPrefix(strings.TrimPrefix(note, "before: "), "version "))
+			case reqlinks.SameMeaning(*l.Before, *l.After):
+				l.Outcome = BumpLinkMoved
+			default:
+				l.Outcome, l.Changes = BumpLinkReview, reqlinks.MeaningChanges(*l.Before, *l.After)
+				l.Note = l.Child + ": " + strings.Join(l.Changes, ", ")
+			}
+		}
+		out = append(out, l)
 	}
-	return statuses
+	return out
 }
 
 // hasCompositionErrors reports composition errors other than the link.*
-// diagnostics: a suspect or broken link does not stop the lock (bump
-// evaluates the links itself).
+// diagnostics: a link finding does not stop the lock (bump compares the
+// links itself).
 // TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
 func hasCompositionErrors(diags []validate.Diagnostic) bool {
 	for _, d := range diags {

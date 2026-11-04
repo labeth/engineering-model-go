@@ -60,10 +60,10 @@ func section(doc, heading string) string {
 // status, the linked child item with its text and its realizing
 // requirements with their trace status; the assumptions of use with their
 // evidence. The child's AsciiDoc has a Contract Items chapter with each
-// item, its realizing requirements and its fingerprint, and no Used By when
-// rendered with the workspace off.
+// item and its realizing requirements (no fingerprint, D23), and no Used By
+// when rendered with the workspace off.
 // Mutation: dropping the link line, the realizer lines, the assumption
-// evidence, the fingerprint or the contract items chapter fails this test.
+// evidence or the contract items chapter fails this test.
 // TRLC-LINKS: REQ-EMG-107
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE
 func TestRequirementLinksAsciiDocTree(t *testing.T) {
@@ -94,35 +94,50 @@ func TestRequirementLinksAsciiDocTree(t *testing.T) {
 	for _, want := range []string{
 		"=== CAP-A-1 (capability)", "Publish ownship position sentences at the configured rate.",
 		"* `REQ-A-001`: When epoch period elapses", "* `REQ-A-002`: The sentence encoder shall format",
-		"Fingerprint: `sha256:v1:f1e64f2bce1d6652b3c487fa4c388b9112cdccf303adf4440269e25b0b72cd16`",
 	} {
 		if !strings.Contains(items, want) {
 			t.Fatalf("child Contract Items lacks %q:\n%s", want, items)
 		}
+	}
+	if strings.Contains(items, "ingerprint") {
+		t.Fatalf("child Contract Items names a fingerprint:\n%s", items)
 	}
 	if strings.Contains(child, "Used By") || section(child, "== Requirement Links") != "" {
 		t.Fatalf("child rendered alone shows users or links:\n%s", items)
 	}
 }
 
-// The system's tree marks a suspect link after a realizing requirement of
-// its item changed in a copy, with the new text; the render still produces
-// the document and reports link.suspect.
-// Mutation: rendering the suspect link without the marker, or failing the
+// The system's tree marks a link reviewed at another version than the
+// dependency pin (version mismatch, with both versions) and a claimed
+// link; the render still produces the document and reports
+// link.version_mismatch.
+// Mutation: rendering the stale link without the marker, or failing the
 // render on a link finding, fails this test.
 // TRLC-LINKS: REQ-EMG-107
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE
-func TestRequirementLinksAsciiDocMarksSuspect(t *testing.T) {
+func TestRequirementLinksAsciiDocMarksVersionMismatch(t *testing.T) {
 	root := copyRequirementLinksExample(t)
-	editFile(t, filepath.Join(root, "repos", "child-a", "model", "requirements.yml"), "shall publish one position sentence.", "shall publish two position sentences.")
-	res := renderRepo(t, root, "system", "")
-	tree := section(res.Document, "== Requirement Links")
-	if !strings.Contains(tree, "** link LNK-SYS-001-ENCODER (*SUSPECT*: the child item changed since review; run engws review-links, accepted) to `encoder::CAP-A-1`") ||
-		!strings.Contains(tree, "shall publish two position sentences.") || len(withCode(res.Diagnostics, "link.suspect")) != 1 {
-		t.Fatalf("suspect link not marked:\n%s", tree)
+	registry := newPublishedChildren(t, root)
+	registry.publish("child-a", "v0.1.0")
+	registry.publish("child-a", "v0.2.0")
+	registry.publish("child-b", "v0.1.0")
+	registry.serve()
+	pinChild(t, root, "encoder", "v0.2.0")
+	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.1.0\n  status: accepted\n",
+		"- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.2.0\n  status: claimed\n")
+	dir := filepath.Join(root, "repos", "system")
+	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
+		asciidoc.Options{Resolution: composition.ResolutionOptions{Lock: "write"}})
+	if err != nil {
+		t.Fatalf("render: %v\n%+v", err, res.Diagnostics)
 	}
-	if !strings.Contains(tree, "** link LNK-SYS-002-ENCODER (unchanged, accepted)") {
-		t.Fatalf("unchanged link marked:\n%s", tree)
+	tree := section(res.Document, "== Requirement Links")
+	if !strings.Contains(tree, "** link LNK-SYS-001-ENCODER (*VERSION MISMATCH*: reviewed at v0.1.0, dependency v0.2.0; run engws review-links, accepted) to `encoder::CAP-A-1`") ||
+		len(withCode(res.Diagnostics, "link.version_mismatch")) != 1 {
+		t.Fatalf("stale link not marked:\n%s\n%+v", tree, res.Diagnostics)
+	}
+	if !strings.Contains(tree, "** link LNK-SYS-002-ENCODER (unchanged, *CLAIMED*: not yet reviewed)") {
+		t.Fatalf("claimed link not marked:\n%s", tree)
 	}
 }
 

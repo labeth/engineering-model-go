@@ -157,7 +157,7 @@ func containsPhrase(text, phrase string) bool {
 // lintRequirementsEARSWithUsage runs the EARS lint; catalog terms whose id is in
 // usedIDs are left out of the coverage check.
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-072
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-072, REQ-EMG-123
 func lintRequirementsEARSWithUsage(requirements model.RequirementsDocument, catalogDoc model.CatalogDocument, usedIDs map[string]bool) []validate.Diagnostic {
 	items := make([][2]string, 0, len(requirements.Requirements))
 	for _, req := range requirements.Requirements {
@@ -185,6 +185,7 @@ func lintRequirementsEARSWithUsage(requirements model.RequirementsDocument, cata
 	out := make([]validate.Diagnostic, 0)
 	for _, r := range results {
 		reqPath := requirementPath(r.ID)
+		sections := unresolvedSections(r.Diagnostics)
 		for _, d := range r.Diagnostics {
 			if d.Code == "lint.multiple_responses" && responseConjunctionsOnlyInFieldList(textByID[r.ID]) {
 				continue
@@ -200,7 +201,7 @@ func lintRequirementsEARSWithUsage(requirements model.RequirementsDocument, cata
 			out = append(out, validate.Diagnostic{
 				Code:     d.Code,
 				Severity: severity,
-				Message:  d.Message,
+				Message:  unknownTermMessage(d, textByID[r.ID], sections),
 				Path:     path,
 			})
 		}
@@ -312,6 +313,52 @@ func mapEarsSeverity(in earslint.Severity) validate.Severity {
 		// Keep the host model binary (error/warning) severity scale.
 		return validate.SeverityWarning
 	}
+}
+
+// catalogSections maps the role of an ears-lint catalog.<role>_unresolved
+// code to the catalog section its term belongs in.
+var catalogSections = map[string]string{
+	"system": "systems", "actor": "actors", "event": "events", "state": "states", "feature": "features",
+	"mode": "modes", "condition": "conditions", "data_term": "dataTerms",
+}
+
+// unresolvedSections returns, per span of an unresolved term, the catalog
+// section its clause position asks for: ears-lint reports
+// catalog.<role>_unresolved at the same span as expr.unknown_term.
+// TRLC-LINKS: REQ-EMG-123
+func unresolvedSections(diags []earslint.Diagnostic) map[earslint.Span]string {
+	out := map[earslint.Span]string{}
+	for _, d := range diags {
+		role, ok := strings.CutSuffix(strings.TrimPrefix(d.Code, "catalog."), "_unresolved")
+		if !ok || !strings.HasPrefix(d.Code, "catalog.") || d.Span == nil {
+			continue
+		}
+		if section, known := catalogSections[role]; known {
+			out[*d.Span] = section
+		}
+	}
+	return out
+}
+
+// unknownTermMessage names the term of an expr.unknown_term or
+// catalog.<role>_unresolved diagnostic and the catalog section it belongs
+// in (from sections); other diagnostics keep their message.
+// TRLC-LINKS: REQ-EMG-123
+func unknownTermMessage(d earslint.Diagnostic, text string, sections map[earslint.Span]string) string {
+	unresolved := strings.HasPrefix(d.Code, "catalog.") && strings.HasSuffix(d.Code, "_unresolved")
+	if (d.Code != "expr.unknown_term" && !unresolved) || d.Span == nil {
+		return d.Message
+	}
+	section, ok := sections[*d.Span]
+	if !ok || d.Span.Start < 0 || d.Span.End > len(text) || d.Span.Start >= d.Span.End {
+		return d.Message
+	}
+	term := strings.TrimSpace(text[d.Span.Start:d.Span.End])
+	hint := fmt.Sprintf("; add it to catalog.%s (or an alias of an existing entry)", section)
+	if unresolved {
+		return fmt.Sprintf("unresolved catalog term %q%s", term, hint)
+	}
+	return fmt.Sprintf("unknown term %q in expression%s", term, hint)
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED

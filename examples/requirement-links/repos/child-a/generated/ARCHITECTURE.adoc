@@ -494,7 +494,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === CAP-A-1 (capability)
 
@@ -505,8 +505,6 @@ Realized by:
 * `REQ-A-001`: When epoch period elapses, the position encoder shall publish one position sentence.
 * `REQ-A-002`: The sentence encoder shall format each position sentence with latitude and longitude.
 
-Fingerprint: `sha256:v1:f1e64f2bce1d6652b3c487fa4c388b9112cdccf303adf4440269e25b0b72cd16`
-
 === CAP-A-2 (capability)
 
 Protect each position sentence with a checksum.
@@ -514,8 +512,6 @@ Protect each position sentence with a checksum.
 Realized by:
 
 * `REQ-A-003`: The sentence encoder shall append a checksum to each position sentence.
-
-Fingerprint: `sha256:v1:e606f5ca738fa37b0361f8ee2c1043c6796333f0c09f926cfe1863d87aa78125`
 
 <<<
 == Reference Index

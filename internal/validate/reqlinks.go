@@ -203,7 +203,7 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 // a capability link), a child that names a composed dependency, the pinned
 // version, the review status and, for an accepted link, a reviewer that is a
 // model actor and a calendar review date.
-// TRLC-LINKS: REQ-EMG-094, REQ-EMG-111, REQ-EMG-112
+// TRLC-LINKS: REQ-EMG-094, REQ-EMG-111, REQ-EMG-112, REQ-EMG-118
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func reqLinkFileDiagnostics(b model.Bundle, requirements map[string]bool, validID func(string) bool) []Diagnostic {
 	var diags []Diagnostic
@@ -254,6 +254,9 @@ func reqLinkFileDiagnostics(b model.Bundle, requirements map[string]bool, validI
 			add("link.child_unpublished", SeverityError, path+".child", "link %s child %q: dependency %q is selected by no composition.subsystems entry, so its contract is not resolved", id, link.Child, alias)
 		case strings.TrimSpace(link.Pinned.Version) != pin:
 			add("link.version_mismatch", SeverityError, path+".pinned.version", "link %s is pinned to %s %s but engmod.yml pins %s; review the link at the new version (engws review-links)", id, alias, link.Pinned.Version, pin)
+		}
+		if link.Pinned.Fingerprint != "" {
+			add("link.fingerprint_deprecated", SeverityWarning, path+".pinned.fingerprint", "link %s records pinned.fingerprint, which is deprecated and ignored: the pinned version is the review record; remove it with engws migrate-links", id)
 		}
 		switch strings.TrimSpace(link.Status) {
 		case model.ReqLinkClaimed:

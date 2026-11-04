@@ -9,8 +9,8 @@ Three independently publishable repositories with `requirementLinks: strict`:
   (the lab bus is isolated). `REQ-B-001` realizes both.
 - `repos/system` (position simulator) composes both. `model/req-links.yml` links each
   system requirement to the contract items that satisfy it, and evidences `bridge::AOU-B-1`
-  with the derived requirement `REQ-SYS-003`. Each link is pinned to `v0.1.0` and the
-  fingerprint of the item at that version.
+  with the derived requirement `REQ-SYS-003`. Each link is pinned to `v0.1.0`, the
+  published version it was reviewed at.
 
 A child never names its users. The links live only in the system. Rendering child-a with
 `engdoc --used-by` in this workspace adds a Used By section with the system's links; that
@@ -25,7 +25,10 @@ go run ./cmd/engdoc --model examples/requirement-links/repos/system/engmod.yml \
 go test ./internal/integration -run RequirementLinks
 ```
 
-When a requirement that realizes `CAP-A-1` changes, the system reports `link.suspect` until
-someone reviews the link and re-stamps its fingerprint. When `CAP-A-2` is removed, it reports
-`link.broken`. When child-b publishes a new assumption of use, it reports
-`link.aou_unverified` until a link with `evidence` names it.
+Editing a child checkout in this workspace never changes a link's state. When child-a
+publishes a release that changes the text of a requirement realizing `CAP-A-1`,
+`engws bump system encoder <version>` leaves that link at `v0.1.0`, and the system reports
+`link.version_mismatch` until someone reviews it (`engws review-links --show`, then
+`--accept`). A release without `CAP-A-2` reports `link.broken`. When child-b publishes a new
+assumption of use, the system reports `link.aou_unverified` until a link with `evidence`
+names it (`engws link add --evidence REQ-… bridge::AOU-…`).

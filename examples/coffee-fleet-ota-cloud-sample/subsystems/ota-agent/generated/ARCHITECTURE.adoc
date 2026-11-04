@@ -444,7 +444,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === CAP-OTA-APPLY (capability)
 
@@ -455,8 +455,6 @@ Realized by:
 * `REQ-OTA-001`: Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall apply the signed firmware bundle to the machine.
 * `REQ-OTA-002`: Where ota campaign is enabled, when ota campaign scheduled event is received, the ota agent subsystem shall verify the firmware signature before apply.
 * `REQ-OTA-003`: When firmware validation failed event is received, the ota agent subsystem shall rollback the firmware apply.
-
-Fingerprint: `sha256:v1:056844ad6d24fa1b4ee47d0bd128e0cad08ced668bfbaef937967dbc57da9dd9`
 
 <<<
 == Reference Index

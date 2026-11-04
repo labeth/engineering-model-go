@@ -64,8 +64,9 @@ func countUnparented(bundle model.Bundle, requirements model.RequirementsDocumen
 // realizing requirements that are all implemented (or all test linked) in
 // their own repository is satisfied by links; when a link would roll it up
 // but is claimed or not unchanged it is "links-unreviewed" and not counted. The realizing requirements' published rows get their status in the
-// child (DelegatedStatus). It counts suspect, broken and claimed links and
-// returns the requirements it satisfied.
+// child (DelegatedStatus). It counts the links that need review
+// (version-mismatched, broken or claimed) and returns the requirements it
+// satisfied.
 // TRLC-LINKS: REQ-EMG-105
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
 func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResult, traces dependencyTraces) map[string]bool {
@@ -87,14 +88,18 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 	type rollUp struct{ implemented, testLinked, resolved, reviewed bool }
 	rolls := map[string]*rollUp{}
 	for _, s := range reqlinks.EvaluateLinks(composed.Root.Bundle, composition.LinkDependencies(composed.Root)) {
-		switch {
-		case s.State == reqlinks.StateSuspect || s.Content == reqlinks.StateSuspect:
+		switch s.State {
+		case reqlinks.StateVersionMismatch:
+			matrix.Summary.LinksVersionMismatch++
 			matrix.Summary.LinksSuspect++
-		case s.State == reqlinks.StateBroken || s.Content == reqlinks.StateBroken:
+		case reqlinks.StateBroken:
 			matrix.Summary.LinksBroken++
 		}
 		if statusByID[s.ID] == model.ReqLinkClaimed {
 			matrix.Summary.LinksClaimed++
+		}
+		if s.State != reqlinks.StateLocal && s.NeedsReview() {
+			matrix.Summary.LinksNeedReview++
 		}
 		i, local := rowIndex[s.Parent]
 		if s.Parent == "" || !local {

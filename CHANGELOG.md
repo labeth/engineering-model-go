@@ -6,6 +6,105 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- **Requirement links are reviewed by version, not by fingerprint** (D23, ADR-EMG-030;
+  REQ-EMG-094/095/097/100/101/104/105/106/107, REQ-EMG-109 retired). A link is
+  `{id, parent | evidence, child, pinned: {version}, status, rationale?, reviewedBy?, reviewedOn?}`:
+  published versions are immutable, so the pinned version is the review record.
+  - The check compares no content: `link.version_mismatch` when the pin differs from
+    `engmod.yml`, `link.broken` when the item is gone at the published pin. A dependency
+    resolved from a workspace replacement raises no link finding (state `local`), so editing a
+    child checkout never churns its users. `link.suspect` and `link.fingerprint_outdated` are
+    removed; diagnostics name the link ID only.
+  - `engws bump` compares each link between the pinned and the new published version by
+    meaning (item kind, text and criteria; each realizer's text and criteria; not status,
+    notes, criticality, methods, appliesTo, title or tags): same meaning moves the pin,
+    otherwise the old pin stays for review. One line per link (`--show` adds the text). The
+    bump is now always written; exit 1 when a link needs review unless `--allow-review`
+    (`--allow-suspect` stays as an alias). An unresolvable pinned version is left for review.
+  - `engws review-links` lists version-mismatched, broken and claimed links one line each with
+    the change by ID; `--show` adds the parent text and the item before and after. It composes
+    with the workspace off and verifies cached modules against the registry digest, so a
+    re-staged version is refetched. `--accept` writes the dependency pin (no fingerprint) and
+    re-evaluates the link, exiting 1 when it still does not pass.
+  - `engws migrate-links` writes allocations to an assumption of use as `evidence` links and
+    removes every recorded fingerprint (count printed).
+  - Trace summary: new `linksNeedReview` and `linksVersionMismatch`; `linksSuspect` is a
+    deprecated alias of `linksVersionMismatch`. MCP `links.list` adds `needsReview` and `local`
+    and drops the fingerprints; `links.suspect` (name kept) lists the links needing review with
+    `before`, `after` and `changes`. AsciiDoc Contract Items no longer print a fingerprint.
+  - Facade: `ContractItemFingerprint`, `CanonicalContractItem`, `ContractItemFingerprintVersion`,
+    `ContractItemCanonicalVersion`, `SuspectLinkMessage`, `OutdatedLinkMessage`,
+    `LinkStateSuspect` and `LinkStateFingerprintOutdated` are removed; `ContractItemMeaning`,
+    `SameContractItemMeaning`, `ContractItemMeaningChanges` and `LinkStateLocal` are added.
+  - Examples (`requirement-links`, `coffee-fleet-ota-cloud-sample`, `atlas-industries`) record no
+    fingerprints.
+
+### Deprecated
+
+- `pinned.fingerprint` in `model/req-links.yml` (REQ-EMG-118): accepted for one release,
+  ignored, reported as `link.fingerprint_deprecated` (warning); `engws migrate-links` removes it.
+
+### Added
+
+- `engws status-suggest [--repo DIR] [--tree HASH] [--json]` (REQ-EMG-122): prints the status
+  each requirement earns from this tree's evidence (implemented: code linked; verified: also an
+  ungated, non-benchmark test link and a RED line in `.engflow/red-checks.jsonl` for the
+  working-tree hash naming it) and each control verification (pass when every requirement it
+  names is verified). Writes nothing; the owner approves the changes.
+- `verification.benchmark_only` (warning, REQ-EMG-121): a requirement whose
+  `verificationCriteria` name a number and whose only linked tests are benchmarks (Go
+  `Benchmark*`, Rust `#[bench]`, now detected as a test entry point); the trace row gets
+  `benchmarkOnly`. Criterion and JS bench files are not classified.
+- MCP `repo` argument (REQ-EMG-120, D24): the model-reading tools (`model.diagnose`,
+  `model.patch`, `trace.matrix`, `links.*`, `requirements.*`, `gemara.*` and others) take an
+  optional `repo`, a family member checkout inside the workspace root, so one server answers
+  for every member. The workspace is resolved on every call (with the upward search's trust
+  check), so a server started before `engws sync` wrote `engmod.work.yml` sees it; `repo` is
+  confined to the root after symlinks and must hold `engmod.yml`.
+- `engws link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-…|alias::AOU-…>
+  [--rationale TEXT]` (REQ-EMG-119): writes a claimed link pinned to the dependency version after
+  checking the parent and that the child is published at that version; refuses duplicates;
+  creates `model/req-links.yml` and `documents.reqLinks` when missing.
+
+- MCP `model.patch` (REQ-EMG-113, ADR-EMG-029): edit one model entity by stable ID
+  (`{document, id, set, unset, append, remove, write}`) with line-preserving YAML edits,
+  validate the whole model like `model.diagnose` and return `valid`, `diagnostics`, a unified
+  diff `patch` and `written`. It is the one MCP tool that writes: only with `write: true`, only
+  a valid result, only a manifest document inside the model root (not `engmod.yml` or the
+  requirement link file), atomically keeping the file mode. `internal/yamledit` gains
+  `FindByID`, `SetPath`, `UnsetPath`, `AppendPath`, `RemovePath`, `UnifiedDiff` and
+  `WriteFileAtomic`.
+- Authoring contract field types (REQ-EMG-115): `rules.fieldTypes` gives each field of every
+  `fieldSets` kind as `{name, type, of?}` (`string`, `bool`, `int`, `list<string>`,
+  `list<object>`, `object`, `map<string,string>`; `of` names the kind of an object field),
+  derived from the strict-decoding types. New field rules state the flow step `ref` and
+  unique-step-ID rules, the exact `catalog.term_unreferenced` rule and the exclude forms.
+- `risk.acceptance_by_decision_only` (warning, REQ-EMG-116): an `acceptedBy` of a risk or threat
+  scenario with a `decisionRef` but no `statement`; record the owner's own words on the risk.
+- Assurance consistency warnings (REQ-EMG-117): `risk.severity_inconsistent` (one
+  likelihood × impact pair rated with two severities across threat scenarios),
+  `controlVerification.risk_control_unlinked` (a verification's risk does not list its control)
+  and `threat.attack_vector_missing` (a threat scenario without `attackVectorRef` while others
+  have one). The Atlas `shared-compliance-baseline` example now lists
+  `CTRL-COMP-PERSONNEL-SCREENING` on `RISK-COMP-RETAINED-ACCESS`.
+- `expr.unknown_term` and `catalog.<role>_unresolved` name the term and the catalog section it
+  belongs in, from its clause position (REQ-EMG-123): `unknown term "pump starts" in
+  expression; add it to catalog.events (or an alias of an existing entry)`.
+
+### Fixed
+
+- MCP code tools scan the check's code scope (REQ-EMG-114): `coverage.strictStatus`,
+  `files.for*`, `*.implementations`, `tests.*` and `code.contextForTask` now leave out
+  git-ignored files, `inferenceHints.exclude` paths and nested modules
+  (`codescan.ScanCodeScope`), so git-ignored build output no longer fails
+  `coverage.strictStatus` while the check passes.
+- `inferenceHints.exclude` accepts `dir`, `dir/`, `dir/*`, `dir/**` and `./dir` alike (each
+  leaves the whole directory out). A pattern the scan cannot apply (absolute, `..`, `**` other
+  than a trailing `/**`, malformed) is the new error `model.invalid_exclude_pattern`, which names
+  the accepted forms.
+
 ## [0.8.0] — 2026-11-03: Child-to-parent requirement links across composed models
 
 ### Added

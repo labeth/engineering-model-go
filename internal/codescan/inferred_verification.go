@@ -43,6 +43,9 @@ type VerificationCheck struct {
 	// check when every test entry point linking it is gated (see
 	// codemap.Symbol.Gates); a requirement with an ungated test is absent.
 	Gates map[string][]string
+	// BenchOnly holds each requirement whose every test entry point linking
+	// it in this check is a benchmark (codemap.Symbol.Benchmark).
+	BenchOnly map[string]bool
 }
 
 var requirementIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
@@ -133,12 +136,13 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			content := string(data)
 			reqs := extractTRLCLinkedRequirements(content)
 			var gates map[string][]string
+			var benchOnly map[string]bool
 			if hasTestFunctionDetection(rel) {
-				testReqs, testGates, helperDiags, scanErr := testFunctionRequirements(path, rel)
+				testReqs, testGates, testBench, helperDiags, scanErr := testFunctionRequirements(path, rel)
 				if scanErr != nil {
 					return scanErr
 				}
-				reqs, gates = testReqs, testGates
+				reqs, gates, benchOnly = testReqs, testGates, testBench
 				diags = append(diags, helperDiags...)
 			} else if ext == ".v" || ext == ".py" {
 				reqs = nil
@@ -171,6 +175,7 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				DerivedOwners: ownersForRequirements(reqOwners, reqs),
 				Evidence:      []string{rel},
 				Gates:         gates,
+				BenchOnly:     benchOnly,
 			}
 			checkByID[id] = check
 			registerCheckIdentity(id, rel)
@@ -377,18 +382,20 @@ func hasTestFunctionDetection(rel string) bool {
 // code (helpers, fakes, fixtures) verifies nothing and is reported as
 // verification.helper_link. A Rust production file yields only its inline tests.
 // The gates map holds each requirement whose every linking test is
-// environment gated, with the union of their gates.
+// environment gated, with the union of their gates; benchOnly each
+// requirement whose every linking test is a benchmark.
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
-// TRLC-LINKS: REQ-EMG-010, REQ-EMG-088
-func testFunctionRequirements(path, rel string) ([]string, map[string][]string, []validate.Diagnostic, error) {
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-088, REQ-EMG-121
+func testFunctionRequirements(path, rel string) ([]string, map[string][]string, map[string]bool, []validate.Diagnostic, error) {
 	symbols, _, err := codemap.Scan(path)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, nil, nil, err
 	}
 	testPath := isVerificationTestPath(rel)
 	reqs := []string{}
 	gates := map[string][]string{}
 	ungated := map[string]bool{}
+	benchOnly, asserted := map[string]bool{}, map[string]bool{}
 	diags := []validate.Diagnostic{}
 	for _, s := range symbols {
 		if len(s.Implements) == 0 {
@@ -397,6 +404,11 @@ func testFunctionRequirements(path, rel string) ([]string, map[string][]string, 
 		if s.IsTest {
 			reqs = append(reqs, s.Implements...)
 			for _, req := range s.Implements {
+				if s.Benchmark {
+					benchOnly[req] = true
+				} else {
+					asserted[req] = true
+				}
 				if len(s.Gates) == 0 {
 					ungated[req] = true
 					continue
@@ -420,7 +432,13 @@ func testFunctionRequirements(path, rel string) ([]string, map[string][]string, 
 	if len(gates) == 0 {
 		gates = nil
 	}
-	return uniqueStrings(reqs), gates, diags, nil
+	for req := range asserted {
+		delete(benchOnly, req)
+	}
+	if len(benchOnly) == 0 {
+		benchOnly = nil
+	}
+	return uniqueStrings(reqs), gates, benchOnly, diags, nil
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE

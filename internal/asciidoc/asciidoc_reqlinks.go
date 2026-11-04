@@ -6,7 +6,7 @@ package asciidoc
 // link (state) → linked child item → its realizing requirements with their
 // trace status in the child, and the assumptions of use with their
 // evidence. A model that publishes contract items gets a "Contract Items"
-// chapter: each item with its realizing requirements and fingerprint, and,
+// chapter: each item with its realizing requirements, and,
 // only when the caller opts in (Options.UsedBy) and the render runs in a
 // workspace whose sibling checkouts link the items, a "Used By" section
 // computed at render time.
@@ -24,29 +24,18 @@ import (
 )
 
 // linkStateLabel names an evaluated link state; every state but unchanged
-// is marked.
+// (and local, a workspace checkout) is marked.
 // TRLC-LINKS: REQ-EMG-107
 func linkStateLabel(s reqlinks.LinkStatus) string {
 	switch s.State {
 	case reqlinks.StateUnchanged:
 		return "unchanged"
-	case reqlinks.StateSuspect:
-		return "*SUSPECT*: the child item changed since review; run engws review-links"
+	case reqlinks.StateLocal:
+		return "local: workspace checkout, not checked"
 	case reqlinks.StateBroken:
-		return "*BROKEN*: the child item no longer exists"
-	case reqlinks.StateFingerprintOutdated:
-		return "*FINGERPRINT OUTDATED*: recorded in another canonical form; check the item and re-stamp with engws review-links --accept"
+		return "*BROKEN*: the child item does not exist at " + s.Version
 	case reqlinks.StateVersionMismatch:
-		label := fmt.Sprintf("*VERSION MISMATCH*: pinned %s, dependency %s", s.Pinned, s.Version)
-		switch s.Content {
-		case reqlinks.StateSuspect:
-			label += "; *SUSPECT*: the child item changed since review; run engws review-links"
-		case reqlinks.StateBroken:
-			label += "; *BROKEN*: the child item no longer exists"
-		case reqlinks.StateFingerprintOutdated:
-			label += "; *FINGERPRINT OUTDATED*: recorded in another canonical form"
-		}
-		return label
+		return fmt.Sprintf("*VERSION MISMATCH*: reviewed at %s, dependency %s; run engws review-links", s.Pinned, s.Version)
 	case reqlinks.StateChildUnpublished:
 		return "*UNPUBLISHED*: " + s.Detail
 	default:
@@ -128,7 +117,7 @@ func renderRequirementLinksChapter(bundle model.Bundle, composed composition.Com
 	b.WriteString("\n<<<\n== Requirement Links\n\n")
 	b.WriteString("Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, ")
 	b.WriteString("and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. ")
-	b.WriteString("A suspect, broken or claimed link is marked; review it with `engws review-links`.\n\n")
+	b.WriteString("A link pinned to another version than the dependency, a broken and a claimed link are marked; review it with `engws review-links`.\n\n")
 	for _, r := range bundle.Requirements.Requirements {
 		id := strings.TrimSpace(r.ID)
 		b.WriteString(fmt.Sprintf("* *%s*: %s\n", id, oneLineText(r.Text)))
@@ -191,7 +180,7 @@ func renderRequirementLinksChapter(bundle model.Bundle, composed composition.Com
 }
 
 // renderContractItemsChapter renders the published contract items of the
-// model with their realizing requirements and fingerprints, and, with
+// model with their realizing requirements, and, with
 // usedBy, the users of the active workspace that link them ("" when it
 // publishes none).
 // TRLC-LINKS: REQ-EMG-107
@@ -208,8 +197,8 @@ func renderContractItemsChapter(bundle model.Bundle, workspaceMode string, usedB
 	sort.Strings(ids)
 	var b strings.Builder
 	b.WriteString("\n<<<\n== Contract Items\n\n")
-	b.WriteString("The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. ")
-	b.WriteString("A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.\n\n")
+	b.WriteString("The capabilities and assumptions of use this model publishes, each with the requirements that realize it. ")
+	b.WriteString("A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.\n\n")
 	for _, id := range ids {
 		item := items[id]
 		b.WriteString(fmt.Sprintf("=== %s (%s)\n\n%s\n\n", id, item.Kind, oneLineText(item.Text)))
@@ -226,7 +215,6 @@ func renderContractItemsChapter(bundle model.Bundle, workspaceMode string, usedB
 			}
 			b.WriteString("\n")
 		}
-		b.WriteString(fmt.Sprintf("Fingerprint: `%s`\n\n", reqlinks.Fingerprint(item)))
 	}
 	if !usedBy {
 		return b.String()

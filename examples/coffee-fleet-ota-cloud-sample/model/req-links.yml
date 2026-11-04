@@ -5,7 +5,6 @@ reqLinks:
   child: telemetry::CAP-TELEM-REPORT
   pinned:
     version: v0.1.0
-    fingerprint: sha256:v1:1fc5bcba17ed64b9ad8f30ab0c3290236b9724dc744280a4c2e7744968c9c005
   status: claimed
   rationale: Machine telemetry reporting is realized by the telemetry subsystem.
 - id: LNK-COF-003-OTA-AGENT
@@ -13,7 +12,6 @@ reqLinks:
   child: ota-agent::CAP-OTA-APPLY
   pinned:
     version: v0.1.0
-    fingerprint: sha256:v1:056844ad6d24fa1b4ee47d0bd128e0cad08ced668bfbaef937967dbc57da9dd9
   status: claimed
   rationale: Signed firmware distribution and apply is realized by the OTA agent subsystem.
 - id: LNK-COF-002-CLOUD-API
@@ -21,6 +19,5 @@ reqLinks:
   child: cloud-api::CAP-CLOUD-INGEST
   pinned:
     version: v0.1.0
-    fingerprint: sha256:v1:6077e439acc7c48485ea1ff25bed09ebc2c18f731bebd7eb2c74fcd9ca0758b7
   status: claimed
   rationale: Telemetry persistence is realized by the cloud API subsystem.

@@ -523,6 +523,8 @@
     "orphan": 4,
     "danglingLinks": 0,
     "gatedOnly": 0,
+    "linksNeedReview": 3,
+    "linksVersionMismatch": 0,
     "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 3,

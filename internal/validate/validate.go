@@ -499,6 +499,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 
 	var codeIndex map[string]int
 	ambiguousCodeIDs := map[string]bool{}
+	diags = append(diags, excludePatternDiagnostics(b.Architecture.InferenceHints.Exclude)...)
 	if len(b.Architecture.InferenceHints.CodeSources) > 0 {
 		diags = append(diags, Diagnostic{Code: "model.code_sources_removed", Severity: SeverityError, Message: "inferenceHints.codeSources is no longer supported: the module root is scanned; list paths to leave out under inferenceHints.exclude", Path: "inferenceHints.codeSources"})
 	}
@@ -1262,6 +1263,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics)...)
 	diags = append(diags, catalogNameDiagnostics(b.Catalog.Catalog)...)
 	diags = append(diags, assuranceLinkDiagnostics(b.Architecture.AuthoredArchitecture)...)
+	diags = append(diags, assuranceConsistencyDiagnostics(b.Architecture.AuthoredArchitecture)...)
 	diags = append(diags, acceptanceDiagnostics(b)...)
 	diags = append(diags, requirementLinkDiagnostics(b, validID)...)
 

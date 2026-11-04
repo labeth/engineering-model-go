@@ -23,7 +23,7 @@ const DefaultReqLinksPath = "model/req-links.yml"
 // TRLC-LINKS: REQ-EMG-104
 type MigratedLink struct {
 	Link model.ReqLink
-	Note string // why the fingerprint is empty, when it is
+	Note string // why the target's kind could not be checked, when it could not
 }
 
 // MigratedRef is one contract ref converted to realizes (or kept, with Note).
@@ -46,13 +46,16 @@ type KeptAllocation struct {
 // sorted by ID, with the severity the model's strictness gives them.
 // TRLC-LINKS: REQ-EMG-104
 type MigrateResult struct {
-	Links            []MigratedLink
-	Kept             []KeptAllocation
-	Refs             []MigratedRef
-	AddedDocument    bool
-	Files            []string // files written (or to write)
-	NoParent         []string
-	NoParentSeverity validate.Severity
+	Links []MigratedLink
+	// DroppedFingerprints counts the deprecated pinned.fingerprint entries
+	// removed from the existing link file (D23).
+	DroppedFingerprints int
+	Kept                []KeptAllocation
+	Refs                []MigratedRef
+	AddedDocument       bool
+	Files               []string // files written (or to write)
+	NoParent            []string
+	NoParentSeverity    validate.Severity
 }
 
 // Changed reports whether the migration changes anything.
@@ -61,12 +64,14 @@ func (r MigrateResult) Changed() bool { return len(r.Files) > 0 }
 
 // MigrateLinks converts the deprecated requirement trace of the model in
 // repo: each composition.allocations entry becomes a claimed reqLinks entry
-// pinned to the dependency version with the current fingerprint (empty when
-// the target cannot be resolved), documents.reqLinks is added when missing,
-// the allocations are removed, and each capability contract.provides[].ref
-// becomes realizes on the referenced requirement. Every edit keeps the other
-// lines of the files. dryRun writes nothing. A second run changes nothing.
-// TRLC-LINKS: REQ-EMG-104
+// pinned to the dependency version (a parent link to a capability, an
+// evidence link to an assumption of use), documents.reqLinks is added when
+// missing, the allocations are removed, each capability
+// contract.provides[].ref becomes realizes on the referenced requirement,
+// and every deprecated pinned.fingerprint of the link file is removed
+// (D23). Every edit keeps the other lines of the files. dryRun writes
+// nothing. A second run changes nothing.
+// TRLC-LINKS: REQ-EMG-104, REQ-EMG-118
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
 func MigrateLinks(repo string, dryRun bool) (MigrateResult, error) {
 	var result MigrateResult
@@ -93,6 +98,11 @@ func MigrateLinks(repo string, dryRun bool) (MigrateResult, error) {
 		if err := migrateAllocations(bundle, manifestPath, read, writes, &result); err != nil {
 			return result, err
 		}
+	}
+
+	// Deprecated fingerprints of the existing link file.
+	if err := dropFingerprints(bundle, read, writes, &result); err != nil {
+		return result, err
 	}
 
 	for path := range writes {
@@ -172,6 +182,39 @@ func writeAllOrNothing(paths []string, writes map[string][]byte) error {
 			return fmt.Errorf("write %s: %w; every file restored, nothing migrated", path, err)
 		}
 	}
+	return nil
+}
+
+// dropFingerprints removes pinned.fingerprint from every link of the
+// existing link file that records one and counts them.
+// TRLC-LINKS: REQ-EMG-118
+func dropFingerprints(b model.Bundle, read func(string) ([]byte, error), writes map[string][]byte, result *MigrateResult) error {
+	if b.ReqLinksPath == "" {
+		return nil
+	}
+	var ids []string
+	for _, l := range b.ReqLinks.ReqLinks {
+		if l.Pinned.Fingerprint != "" {
+			ids = append(ids, strings.TrimSpace(l.ID))
+		}
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	data, err := read(b.ReqLinksPath)
+	if err != nil {
+		return err
+	}
+	for _, id := range ids {
+		var removed bool
+		if data, removed, err = yamledit.RemoveKey(data, yamledit.FindListItem([]string{"reqLinks"}, "id", id, "pinned"), "fingerprint"); err != nil {
+			return fmt.Errorf("%s: link %s: %w", b.ReqLinksPath, id, err)
+		}
+		if removed {
+			result.DroppedFingerprints++
+		}
+	}
+	writes[b.ReqLinksPath] = data
 	return nil
 }
 
@@ -291,7 +334,8 @@ func containsTrimmed(values []string, want string) bool {
 // allocation whose target resolves to a contract entry that is not a
 // published capability or assumption of use (an interface entry, D13) is
 // kept in place and reported; one whose dependency cannot be resolved is
-// converted with an empty fingerprint.
+// converted with a note. A target that is an assumption of use (AOU-*)
+// becomes an evidence link (evidence: [requirement], no parent).
 // TRLC-LINKS: REQ-EMG-104
 func migrateAllocations(b model.Bundle, manifestPath string, read func(string) ([]byte, error), writes map[string][]byte, result *MigrateResult) error {
 	pins := map[string]string{}
@@ -317,14 +361,17 @@ func migrateAllocations(b model.Bundle, manifestPath string, read func(string) (
 			continue
 		}
 		link := model.ReqLink{
-			ID: uniqueLinkID(linkID(a.Requirement, alias), used), Parent: strings.TrimSpace(a.Requirement), Child: target,
+			ID: uniqueLinkID(linkID(a.Requirement, alias), used), Child: target,
 			Pinned: model.ReqLinkPin{Version: pins[alias]}, Status: model.ReqLinkClaimed, Rationale: oneLine(a.Rationale),
 		}
-		migrated := MigratedLink{Link: link}
-		if isItem {
-			migrated.Link.Pinned.Fingerprint = reqlinks.Fingerprint(item)
+		if (isItem && item.Kind == reqlinks.KindAssumption) || (!isItem && strings.HasPrefix(itemID, "AOU-")) {
+			link.Evidence = []string{strings.TrimSpace(a.Requirement)}
 		} else {
-			migrated.Note = fmt.Sprintf("fingerprint left empty: dependency %s could not be resolved (%s); the check reports the link until engws review-links --accept", alias, resolveNote[alias])
+			link.Parent = strings.TrimSpace(a.Requirement)
+		}
+		migrated := MigratedLink{Link: link}
+		if !isItem {
+			migrated.Note = fmt.Sprintf("dependency %s could not be resolved (%s), so the target's kind was not checked; the check reports the link until it resolves", alias, resolveNote[alias])
 		}
 		result.Links = append(result.Links, migrated)
 		converted = append(converted, i)
@@ -333,37 +380,15 @@ func migrateAllocations(b model.Bundle, manifestPath string, read func(string) (
 		return nil
 	}
 
-	// The link file: extend the existing one, or create it.
-	linksRel := strings.TrimSpace(b.Manifest.Documents.ReqLinks)
-	if linksRel == "" {
-		linksRel = DefaultReqLinksPath
-		manifest, err := read(manifestPath)
-		if err != nil {
-			return err
-		}
-		if manifest, err = yamledit.SetKey(manifest, yamledit.FindPath("documents"), "reqLinks", yamledit.Scalar(linksRel)); err != nil {
-			return fmt.Errorf("%s: %w", manifestPath, err)
-		}
-		writes[manifestPath] = manifest
-		result.AddedDocument = true
-	}
-	linksPath := filepath.Join(filepath.Dir(manifestPath), filepath.FromSlash(linksRel))
-	existing, err := read(linksPath)
-	var blocks []string
+	links := make([]model.ReqLink, 0, len(result.Links))
 	for _, m := range result.Links {
-		blocks = append(blocks, linkBlock(m.Link))
+		links = append(links, m.Link)
 	}
-	switch {
-	case os.IsNotExist(err):
-		writes[linksPath] = []byte("schemaVersion: 2\nreqLinks:\n" + strings.Join(blocks, ""))
-	case err != nil:
+	added, err := appendLinks(b, manifestPath, links, read, writes)
+	if err != nil {
 		return err
-	default:
-		if existing, err = yamledit.AppendSequenceItems(existing, yamledit.FindPath(), "reqLinks", blocks); err != nil {
-			return fmt.Errorf("%s: %w", linksPath, err)
-		}
-		writes[linksPath] = existing
 	}
+	result.AddedDocument = added
 
 	archData, err := read(b.ArchitecturePath)
 	if err != nil {
@@ -379,6 +404,46 @@ func migrateAllocations(b model.Bundle, manifestPath string, read func(string) (
 	}
 	writes[b.ArchitecturePath] = archData
 	return nil
+}
+
+// appendLinks adds links to the requirement link file of b in writes:
+// appended to the existing file, line-preserving, or a new
+// model/req-links.yml with documents.reqLinks added to engmod.yml; it
+// reports whether it added the document.
+// TRLC-LINKS: REQ-EMG-104, REQ-EMG-119
+func appendLinks(b model.Bundle, manifestPath string, links []model.ReqLink, read func(string) ([]byte, error), writes map[string][]byte) (bool, error) {
+	added := false
+	linksRel := strings.TrimSpace(b.Manifest.Documents.ReqLinks)
+	if linksRel == "" {
+		linksRel = DefaultReqLinksPath
+		manifest, err := read(manifestPath)
+		if err != nil {
+			return false, err
+		}
+		if manifest, err = yamledit.SetKey(manifest, yamledit.FindPath("documents"), "reqLinks", yamledit.Scalar(linksRel)); err != nil {
+			return false, fmt.Errorf("%s: %w", manifestPath, err)
+		}
+		writes[manifestPath] = manifest
+		added = true
+	}
+	linksPath := filepath.Join(filepath.Dir(manifestPath), filepath.FromSlash(linksRel))
+	existing, err := read(linksPath)
+	var blocks []string
+	for _, l := range links {
+		blocks = append(blocks, linkBlock(l))
+	}
+	switch {
+	case os.IsNotExist(err):
+		writes[linksPath] = []byte("schemaVersion: 2\nreqLinks:\n" + strings.Join(blocks, ""))
+	case err != nil:
+		return added, err
+	default:
+		if existing, err = yamledit.AppendSequenceItems(existing, yamledit.FindPath(), "reqLinks", blocks); err != nil {
+			return added, fmt.Errorf("%s: %w", linksPath, err)
+		}
+		writes[linksPath] = existing
+	}
+	return added, nil
 }
 
 // notLinkTarget says why alias::id of a resolved dependency is no link
@@ -437,11 +502,18 @@ func uniqueLinkID(id string, used map[string]bool) string {
 func linkBlock(l model.ReqLink) string {
 	var b strings.Builder
 	fmt.Fprintf(&b, "- id: %s\n", yamledit.Scalar(l.ID))
-	fmt.Fprintf(&b, "  parent: %s\n", yamledit.Scalar(l.Parent))
+	if l.Parent != "" {
+		fmt.Fprintf(&b, "  parent: %s\n", yamledit.Scalar(l.Parent))
+	}
 	fmt.Fprintf(&b, "  child: %s\n", yamledit.Scalar(l.Child))
+	if len(l.Evidence) > 0 {
+		b.WriteString("  evidence:\n")
+		for _, e := range l.Evidence {
+			fmt.Fprintf(&b, "  - %s\n", yamledit.Scalar(e))
+		}
+	}
 	b.WriteString("  pinned:\n")
 	fmt.Fprintf(&b, "    version: %s\n", yamledit.Scalar(l.Pinned.Version))
-	fmt.Fprintf(&b, "    fingerprint: %s\n", yamledit.Scalar(l.Pinned.Fingerprint))
 	fmt.Fprintf(&b, "  status: %s\n", l.Status)
 	if l.Rationale != "" {
 		fmt.Fprintf(&b, "  rationale: %s\n", yamledit.Scalar(l.Rationale))
@@ -516,13 +588,20 @@ func runMigrateLinks(repo string, dryRun bool, w io.Writer) (int, error) {
 		}
 	}
 	for _, m := range result.Links {
-		fmt.Fprintf(w, "  %slink %s %s -> %s (%s, %s)\n", prefix, m.Link.ID, m.Link.Parent, m.Link.Child, m.Link.Pinned.Version, m.Link.Status)
+		from := m.Link.Parent
+		if from == "" {
+			from = "evidence " + strings.Join(m.Link.Evidence, ",")
+		}
+		fmt.Fprintf(w, "  %slink %s %s -> %s (%s, %s)\n", prefix, m.Link.ID, from, m.Link.Child, m.Link.Pinned.Version, m.Link.Status)
 		if m.Note != "" {
 			fmt.Fprintf(w, "      %s\n", m.Note)
 		}
 	}
 	for _, k := range result.Kept {
 		fmt.Fprintf(w, "  %skept allocation %s → %s: %s\n", prefix, k.Requirement, k.Target, k.Reason)
+	}
+	if result.DroppedFingerprints > 0 {
+		fmt.Fprintf(w, "  %sremoved %d deprecated fingerprint(s) from the link file: the pinned version is the review record\n", prefix, result.DroppedFingerprints)
 	}
 	if result.AddedDocument {
 		fmt.Fprintf(w, "  %sadded documents.reqLinks: %s\n", prefix, DefaultReqLinksPath)

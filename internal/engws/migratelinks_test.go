@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
-	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -58,15 +57,16 @@ func coffeeCopy(t *testing.T) string {
 }
 
 // Acceptance 9: migrate-links converts the three allocations of the coffee
-// fleet system into claimed links with the current fingerprints, adds
+// fleet system into claimed links pinned to the dependency version (no
+// fingerprint, D23), adds
 // documents.reqLinks, removes the allocations (satisfactions stay) and
 // prints the requirements that report requirement.no_parent (not the link
 // parents, which trace upward through their links); in each
 // subsystem it turns the contract ref into realizes on the referenced
 // requirement. A second run changes nothing; --dry-run writes nothing.
-// Mutation: dropping the ref conversion, writing an empty fingerprint for a
-// resolvable target, keeping the allocations, not listing no_parent or a
-// non-idempotent second run fails this test.
+// Mutation: dropping the ref conversion, writing a fingerprint, keeping the
+// allocations, not listing no_parent or a non-idempotent second run fails
+// this test.
 // TRLC-LINKS: REQ-EMG-104
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
 func TestMigrateLinksCoffeeFleet(t *testing.T) {
@@ -74,8 +74,8 @@ func TestMigrateLinksCoffeeFleet(t *testing.T) {
 	telemetry := filepath.Join(dir, "subsystems", "telemetry")
 	telemetryArch := read(t, filepath.Join(telemetry, "model", "architecture.yml"))
 
-	// Subsystems first, as a family migrates: the system then fingerprints
-	// the migrated items.
+	// Subsystems first, as a family migrates: the system then links the
+	// migrated items.
 	code, out, errOut := runMain(t, fakeRegistry{}, "migrate-links", "--repo", telemetry, "--dry-run")
 	if code != 0 || !strings.Contains(out, "ref CAP-TELEM-REPORT -> REQ-TELEM-001 realizes") || read(t, filepath.Join(telemetry, "model", "architecture.yml")) != telemetryArch {
 		t.Fatalf("dry run: %d\n%s\n%s", code, out, errOut)
@@ -134,18 +134,13 @@ func TestMigrateLinksCoffeeFleet(t *testing.T) {
 	if len(bundle.ReqLinks.ReqLinks) != 3 {
 		t.Fatalf("links: %+v", bundle.ReqLinks.ReqLinks)
 	}
-	sub, err := model.LoadBundle(filepath.Join(telemetry, "engmod.yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	want := reqlinks.Fingerprint(reqlinks.PublishedItems(sub, sub.Manifest.Publications...)["CAP-TELEM-REPORT"])
 	for _, l := range bundle.ReqLinks.ReqLinks {
-		if l.Status != "claimed" || l.Pinned.Version != "v0.1.0" || !strings.HasPrefix(l.Pinned.Fingerprint, "sha256:") || l.Rationale == "" {
+		if l.Status != "claimed" || l.Pinned.Version != "v0.1.0" || l.Pinned.Fingerprint != "" || l.Rationale == "" || l.Parent == "" {
 			t.Fatalf("link %+v", l)
 		}
-		if l.Child == "telemetry::CAP-TELEM-REPORT" && l.Pinned.Fingerprint != want {
-			t.Fatalf("telemetry link fingerprint %s, want the migrated item's %s", l.Pinned.Fingerprint, want)
-		}
+	}
+	if strings.Contains(read(t, filepath.Join(dir, "model", "req-links.yml")), "fingerprint") {
+		t.Fatalf("migrated link file names a fingerprint:\n%s", read(t, filepath.Join(dir, "model", "req-links.yml")))
 	}
 	// The system check now has links, every one evaluates unchanged.
 	if errs := checkErrors(t, dir); hasLine(errs, "link.") {
@@ -170,8 +165,8 @@ func TestMigrateLinksCoffeeFleet(t *testing.T) {
 	}
 }
 
-// An allocation whose dependency cannot be resolved is still migrated: the
-// link gets an empty fingerprint and the output says so; link IDs stay
+// An allocation whose dependency cannot be resolved is still migrated as a
+// claimed link and the output says its kind was not checked; link IDs stay
 // unique when a requirement is allocated twice to one alias; an existing
 // link file is extended, not replaced. A ref naming a requirement that
 // already realizes the capability adds no duplicate.
@@ -197,11 +192,11 @@ func TestMigrateLinksUnresolvedAndUnique(t *testing.T) {
 	before := read(t, filepath.Join(system, "model", "req-links.yml"))
 	code, out, errOut := runMain(t, fakeRegistry{}, "migrate-links", "--repo", system)
 	if code != 0 || !strings.Contains(out, "LNK-SYS-002-ENCODER-2") || !strings.Contains(out, "LNK-SYS-002-ENCODER-3") ||
-		!strings.Contains(out, "fingerprint left empty") {
+		!strings.Contains(out, "could not be resolved") {
 		t.Fatalf("migrate: %d\n%s\n%s", code, out, errOut)
 	}
 	after := read(t, filepath.Join(system, "model", "req-links.yml"))
-	if !strings.HasPrefix(after, before) || !strings.Contains(after, "    fingerprint: \"\"\n") {
+	if !strings.HasPrefix(after, before) || strings.Contains(after, "fingerprint") {
 		t.Fatalf("link file not extended:\n%s", after)
 	}
 	if strings.Contains(read(t, arch), "allocations:") {
@@ -354,5 +349,49 @@ func TestWriteAllOrNothingRemovesCreatedFiles(t *testing.T) {
 	}
 	if read(t, existing) != "old\n" || read(t, failing) != "keep\n" {
 		t.Fatalf("existing %q, failing %q", read(t, existing), read(t, failing))
+	}
+}
+
+// migrate-links turns an allocation to a dependency's assumption of use
+// into an evidence link (evidence: [the requirement], no parent), so the
+// next check does not report link.aou_unverified; and it removes every
+// deprecated pinned.fingerprint of an existing link file, printing the
+// count, keeping every other line. A second run changes nothing.
+// Mutation: writing parent for an assumption, keeping a fingerprint or not
+// counting them fails this test.
+// TRLC-LINKS: REQ-EMG-104, REQ-EMG-118
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+func TestMigrateLinksAssumptionsAndFingerprints(t *testing.T) {
+	newLinksRegistry(t)
+	root := filepath.Join(t.TempDir(), "links")
+	copyTree(t, linksExample, root)
+	system := filepath.Join(root, "repos", "system")
+	links := filepath.Join(system, "model", "req-links.yml")
+	// Drop the AOU link and allocate it instead; give two links old fingerprints.
+	data := read(t, links)
+	data = data[:strings.Index(data, "- id: LNK-AOU-B-1")]
+	data = strings.Replace(data, "    version: v0.1.0\n", "    version: v0.1.0\n    fingerprint: sha256:v1:"+strings.Repeat("a", 64)+"\n", 2)
+	write(t, links, data)
+	replaceIn(t, filepath.Join(system, "model", "architecture.yml"), "      description: Forwards sentences onto the lab bus.\n", `      description: Forwards sentences onto the lab bus.
+    allocations:
+    - requirement: REQ-SYS-003
+      to: SUB-BRIDGE
+      target: bridge::AOU-B-1
+      rationale: The lab network keeps the bus isolated.
+`)
+	code, out, errOut := runMain(t, fakeRegistry{}, "migrate-links", "--repo", system)
+	if code != 0 || !strings.Contains(out, "link LNK-SYS-003-BRIDGE evidence REQ-SYS-003 -> bridge::AOU-B-1 (v0.1.0, claimed)") ||
+		!strings.Contains(out, "removed 2 deprecated fingerprint(s)") {
+		t.Fatalf("migrate: %d\n%s\n%s", code, out, errOut)
+	}
+	after := read(t, links)
+	if strings.Contains(after, "fingerprint") || !strings.Contains(after, "- id: LNK-SYS-003-BRIDGE\n  child: bridge::AOU-B-1\n  evidence:\n  - REQ-SYS-003\n") {
+		t.Fatalf("link file:\n%s", after)
+	}
+	if errs := checkErrors(t, system); hasLine(errs, "link.aou_unverified") || hasLine(errs, "link.parent") {
+		t.Fatalf("migrated evidence link fails the check:\n%s", strings.Join(errs, "\n"))
+	}
+	if code, out, _ := runMain(t, fakeRegistry{}, "migrate-links", "--repo", system); code != 0 || !strings.Contains(out, "nothing to migrate") || read(t, links) != after {
+		t.Fatalf("second run: %d\n%s", code, out)
 	}
 }

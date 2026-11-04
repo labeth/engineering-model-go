@@ -44,6 +44,9 @@ type ComposedSystem struct {
 	PublishedIDs   map[string]bool
 	PublishedFacet map[string]string
 	Children       []*ComposedSystem
+	// Local is set when the system resolved from a workspace replacement (a
+	// checkout), not from the registry.
+	Local bool
 }
 
 // ImportedEntityProvenance records where each visible imported identifier came
@@ -480,6 +483,7 @@ func (r *compositionResolver) resolveSystem(subsystemID, dependencyAlias, public
 		child, childProvenance, childLocks, cdiags := r.resolveSystem(sub.ID, sub.Dependency, sub.Publication, childManifest, ancestry, false)
 		diags = append(diags, cdiags...)
 		if child != nil {
+			child.Local = r.replaced(dependency)
 			if child.ModulePath != dependency.Path || child.Version != dependency.Version {
 				diags = append(diags, errDiag("composition.module_identity", fmt.Sprintf("dependency %q requested %s@%s but child manifest declares %s@%s", dependency.Alias, dependency.Path, dependency.Version, child.ModulePath, child.Version), childManifest))
 				continue
@@ -560,6 +564,17 @@ func (r *compositionResolver) nameCachePaths(diags []validate.Diagnostic) {
 		diags[i].Path = rename(diags[i].Path)
 		diags[i].Message = rename(diags[i].Message)
 	}
+}
+
+// replaced reports whether a workspace replacement provides dependency.
+// TRLC-LINKS: REQ-EMG-097
+func (r *compositionResolver) replaced(dependency model.ManifestDependency) bool {
+	mv, err := model.ParseExactModuleVersion(dependency.Path, dependency.Version)
+	if err != nil {
+		return false
+	}
+	_, ok := r.workspaceDocument.ReplacementPath(mv.Path())
+	return ok
 }
 
 // resolveDependency resolves an exact manifest dependency to its engmod.yml.
@@ -978,7 +993,7 @@ func LinkDependencies(sys *ComposedSystem) []reqlinks.Dependency {
 	}
 	deps := make([]reqlinks.Dependency, 0, len(sys.Children))
 	for _, child := range sys.Children {
-		dep := reqlinks.Dependency{Alias: child.Dependency, Version: child.Version, Bundle: child.Bundle}
+		dep := reqlinks.Dependency{Alias: child.Dependency, Version: child.Version, Bundle: child.Bundle, Local: child.Local}
 		if publication, ok := publicationByID(child.Bundle.Manifest.Publications, child.Publication); ok {
 			dep.Publications = []model.ManifestPublication{publication}
 		}

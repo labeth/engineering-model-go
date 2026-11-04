@@ -236,6 +236,18 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-028';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-029";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-029';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-030";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-030';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -1592,6 +1604,12 @@ package 'engineering-model-go' {
     event occurrence 'EVT-GENERATION-RUN-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
+        sourceId = "EVT-LINK-ADD-REQUESTED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-LINK-ADD-REQUESTED' : EngineeringEvent;
+
+    @EngineeringElement {
         sourceId = "EVT-LINK-MIGRATION-REQUESTED";
         conceptKind = "event_definition";
     }
@@ -1638,6 +1656,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'EVT-SPEC-DELTA-REQUESTED';
+
+    @EngineeringElement {
+        sourceId = "EVT-STATUS-SUGGEST-REQUESTED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-STATUS-SUGGEST-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-VALIDATION-FAILED";
@@ -2946,7 +2970,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-091' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall load assumptions of use as contract items with their realizing requirements.";
-        attribute 'notes' : 'String' = "contract.assumptions entries have id (AOU-*), text and optional verificationCriteria. They are published in a publication architecture list like capabilities, imported as alias::AOU-* by a composing bundle, and count as contract items: a requirement may realize them and they have a fingerprint. Contract items are contract.provides entries of kind capability and the assumptions; interface entries are not link targets.";
+        attribute 'notes' : 'String' = "contract.assumptions entries have id (AOU-*), text and optional verificationCriteria. They are published in a publication architecture list like capabilities, imported as alias::AOU-* by a composing bundle, and count as contract items: a requirement may realize them and engws bump compares their meaning between versions. Contract items are contract.provides entries of kind capability and the assumptions; interface entries are not link targets.";
     }
 
     @EngineeringElement {
@@ -2955,7 +2979,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-092' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement that realizes a published contract item without being published itself.";
-        attribute 'notes' : 'String' = "contract.realizer_unpublished is an error at a requirement that realizes (through realizes or a deprecated ref) a contract item that a publication exposes, when that publication does not list the requirement under requirements. A using system computes the fingerprint from the published content alone, so every realizer must be visible to it.";
+        attribute 'notes' : 'String' = "contract.realizer_unpublished is an error at a requirement that realizes (through realizes or a deprecated ref) a contract item that a publication exposes, when that publication does not list the requirement under requirements. A using system compares the item with its realizers from the published content alone, so every realizer must be visible to it.";
     }
 
     @EngineeringElement {
@@ -2973,7 +2997,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-094' {
         attribute 'text' : 'String' = "Where system composition is enabled, when model updated event is received, the engineering model go shall validate each requirement link against the manifest dependency pins.";
-        attribute 'notes' : 'String' = "The optional document documents.reqLinks (model/req-links.yml) holds reqLinks entries {id, parent, child, evidence, pinned {version, fingerprint}, status claimed|accepted, rationale, reviewedBy, reviewedOn}, strictly decoded and checked by the CUE schema. A parent that is no local requirement, a link with neither parent nor evidence, or evidence that is no local ID is link.parent_unknown; a child that is not alias::ID of a declared dependency selected by a composition subsystem is link.child_unpublished; pinned.version other than the dependency version is link.version_mismatch (errors); status claimed is link.claimed_only (warning). A dependency version may be a Go-style pseudo-version.";
+        attribute 'notes' : 'String' = "The optional document documents.reqLinks (model/req-links.yml) holds reqLinks entries {id, parent, child, evidence, pinned {version}, status claimed|accepted, rationale, reviewedBy, reviewedOn}, strictly decoded and checked by the CUE schema (pinned.fingerprint is deprecated: still accepted for one release and ignored, REQ-EMG-118). A parent that is no local requirement, a link with neither parent nor evidence, or evidence that is no local ID is link.parent_unknown; a child that is not alias::ID of a declared dependency selected by a composition subsystem is link.child_unpublished; pinned.version other than the dependency version is link.version_mismatch (errors; the link was reviewed at another version and needs review at this one, decision D23); status claimed is link.claimed_only (warning). A dependency version may be a Go-style pseudo-version.";
     }
 
     @EngineeringElement {
@@ -2981,8 +3005,8 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-095' {
-        attribute 'text' : 'String' = "The engineering model go shall compute a deterministic fingerprint of each contract item with its realizing requirements.";
-        attribute 'notes' : 'String' = "reqlinks.Fingerprint is sha256:v1:<hex> (v1 the canonical-form version, decision D17) of compact JSON {\"item\":{id,kind,text,verificationCriteria},\"realizers\":[{id,text,notes,verificationCriteria,verificationMethods,criticality,status}...]} with realizers sorted by id, verificationMethods sorted, every string whitespace-collapsed and trimmed, case kept, no HTML escaping and no trailing newline (reqlinks.CanonicalItem). The text of a capability is its note. Requirement title, rationale, appliesTo, priority and tags are not covered: they name, explain, allocate or rank the requirement without changing what it obliges. A using system computes it from the published items and realizers (reqlinks.PublishedItems), so a change to a requirement that realizes no linked item does not change it.";
+        attribute 'text' : 'String' = "The engineering model go shall compare the meaning of each contract item with its realizing requirements between two versions.";
+        attribute 'notes' : 'String' = "reqlinks.ItemMeaning is compact JSON {\"item\":{id,kind,text,verificationCriteria},\"realizers\":[{id,text,verificationCriteria}...]} with realizers sorted by id, every string whitespace-collapsed and trimmed, case kept, no HTML escaping and no trailing newline; the text of a capability is its note. reqlinks.SameMeaning compares two versions and reqlinks.MeaningChanges names each difference by ID (item kind, item text, item verificationCriteria, <REQ> added, removed, text, verificationCriteria). A realizers status, notes, criticality, verification methods, title, rationale, appliesTo, priority and tags are not compared: they do not change what the item obliges, and a status change must not trigger a review (decision D23). No hash is computed or recorded. A using system compares the published items and realizers (reqlinks.PublishedItems), so a change to a requirement that realizes no linked item never changes one.";
     }
 
     @EngineeringElement {
@@ -2999,8 +3023,8 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-097' {
-        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose contract item changed or disappeared at the pinned dependency version.";
-        attribute 'notes' : 'String' = "Composition evaluates each reqLinks entry against the resolved dependency (reqlinks.EvaluateLinks): unchanged, suspect (fingerprint differs; link.suspect error naming both fingerprints and the current item and realizing requirement texts), broken (the item no longer exists; link.broken error), child_unpublished (it exists but is not a published capability or assumption of use; link.child_unpublished error), version_mismatch or unresolved. The diagnostics join the composition diagnostics, so engdoc, engmod-check and model.diagnose report them; they do not stop the lock from being written. The before text is not part of the pinned dependency; engws review-links resolves it for a diff.";
+        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose contract item does not exist at the pinned dependency version.";
+        attribute 'notes' : 'String' = "Composition evaluates each reqLinks entry against the resolved dependency without comparing content (reqlinks.EvaluateLinks, decision D23): unchanged (pin equal to the dependency pin, item published), version_mismatch (the pin differs; reported by validation, REQ-EMG-094), broken (the item does not exist at the dependency pin, also behind a stale pin; link.broken error), child_unpublished (it exists but is not a published capability or assumption of use; link.child_unpublished error), unresolved, or local: a dependency resolved from a workspace replacement is a checkout, not a version, and raises no link finding at all (no link.broken, child_unpublished or aou_unverified), so editing a child in a workspace never churns the system. The diagnostics join the composition diagnostics, so engdoc, engmod-check and model.diagnose report them, one line per link with its ID; they do not stop the lock from being written. link.suspect no longer exists.";
     }
 
     @EngineeringElement {
@@ -3026,8 +3050,8 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-100' {
-        attribute 'text' : 'String' = "When dependency bump is requested, the engineering model go shall report each requirement link of the bumping model as unchanged, suspect or broken at the new version.";
-        attribute 'notes' : 'String' = "engws bump <repo> <alias> <version> [--allow-suspect] evaluates, after the pin, go.mod and lock update, every reqLinks entry of the consumer on the bumped alias that was pinned to the old version against the re-resolved composition (reqlinks.EvaluateLinks with the pin moved to the new version) and prints one line per link: unchanged, suspect (with the current item and realizer texts) or broken (also an item that is no longer a published contract item). Decision D8: bump moves pinned.version to the new version only for unchanged links (same fingerprint, nothing to review); suspect and broken links keep their old pin and fingerprint, and the fingerprint is never re-stamped. Without --allow-suspect a suspect or broken link aborts the bump with every file restored (engmod.yml, go.mod, go.sum, engmod.lock.yml, model/req-links.yml) and exit 1; with it the bump is written, exit 0, and the model check fails with link.version_mismatch on the kept pins until engws review-links accepts them. link.* diagnostics do not block lock regeneration.";
+        attribute 'text' : 'String' = "When dependency bump is requested, the engineering model go shall move the pin of each requirement link whose contract item means the same at the new version and keep the pin of every other link for review.";
+        attribute 'notes' : 'String' = "engws bump <repo> <alias> <version> [--allow-review] [--show] updates the pin, go.mod and lock, then compares each reqLinks entry of the consumer on the bumped alias between its pinned version and the new version, both published and resolved with the workspace off (linkreview.ItemsAtVersion; module cache verified against the registry digest, else the registry), by meaning (reqlinks.SameMeaning, REQ-EMG-095). Decision D23: the same meaning moves pinned.version to the new version (moved); a changed meaning (review, printed with the changes by ID), a pinned version that cannot be resolved (review, saying so) or an item gone at the new version (broken) keeps the old pin, so the model check reports link.version_mismatch (or link.broken) until engws review-links --accept. A link already at the new version is current. One line per link, IDs only; --show adds the item before and after. The bump is written either way; exit 1 when a link needs review, 0 with --allow-review (--allow-suspect is a deprecated alias); any failure restores engmod.yml, go.mod, go.sum, engmod.lock.yml and model/req-links.yml. link.* diagnostics do not block lock regeneration.";
     }
 
     @EngineeringElement {
@@ -3036,7 +3060,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-101' {
         attribute 'text' : 'String' = "When link review is requested, the engineering model go shall show the child item change of each requirement link that needs review.";
-        attribute 'notes' : 'String' = "engws review-links [--repo DIR] [--json] lists every suspect, broken and version_mismatch link of the model with the parent requirement text and the canonical child item (item text, verification criteria and realizing requirements) at the current dependency pin (after) and at the link's pinned.version (before), the latter resolved through the same resolver (module cache or registry, lock check mode, nothing written); a version a workspace replacement or an offline registry cannot provide prints \"before: version vX not available offline\". Exit 0 when nothing needs review, 1 otherwise. --accept LNK-ID --by ACT-ID --rationale TEXT writes into the requirement link file, editing only the touched lines (yaml.v3 node positions, comments and order kept): pinned.fingerprint (current), pinned.version (the dependency pin), reviewedBy, reviewedOn (today), rationale and status accepted; it refuses an actor the model does not define, an unknown link and a broken link (or one whose item cannot be resolved). The accept composes with the workspace off (decision D9): the fingerprint written is that of the published dependency at its pin, never of a workspace checkout; a dependency that does not resolve that way leaves the link unresolved and the accept is refused with nothing written. A file it rewrites keeps its permission bits.";
+        attribute 'notes' : 'String' = "engws review-links [--repo DIR] [--json] [--show] lists every link that needs review (version_mismatch, broken or claimed; linkreview.NeedsReview), composed with the workspace off (the published dependencies; a workspace checkout has no version to review), one line per link: ID, child, state, claimed, pinned and dependency version and what changed in meaning between the item at the pinned version (before) and at the dependency pin (after) by ID, or same meaning, or why it is unknown. --show adds the parent requirement text and the item with its realizing requirements before and after, changed lines marked - and +; --json gives the full reviews. Cached modules are verified against the registrys manifest digest and refetched when it differs, so a version re-staged with other content (engws stage) is seen. Exit 0 when nothing needs review, 1 otherwise. --accept LNK-ID --by ACT-ID --rationale TEXT writes into the requirement link file, editing only the touched lines (yaml.v3 node positions, comments and order kept): pinned.version (the dependency pin), reviewedBy, reviewedOn (today), rationale and status accepted, and removes a deprecated pinned.fingerprint; it refuses an actor the model does not define, an unknown link, a broken link and one whose item is not resolved at the dependency pin with the workspace off (decision D9), writing nothing. After writing it evaluates the link again and exits 1 naming the finding when it still does not pass (for example link.parent_unknown). A file it rewrites keeps its permission bits.";
     }
 
     @EngineeringElement {
@@ -3063,7 +3087,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-104' {
         attribute 'text' : 'String' = "When link migration is requested, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.";
-        attribute 'notes' : 'String' = "engws migrate-links [--repo DIR] [--dry-run] writes one reqLinks entry per composition.allocations entry (id LNK-<requirement without REQ->-<ALIAS> upper case, made unique with -2, -3 ...; parent the requirement; child the target; pinned.version the dependency pin; fingerprint the current one from the resolved dependency, or \"\" when the dependency cannot be resolved, which the output names and the check reports as link.suspect until review; status claimed; rationale from the allocation), creates or extends the requirement link file, adds documents.reqLinks: model/req-links.yml to engmod.yml when missing, removes the converted allocations (D13: an allocation whose resolvable target is an interface or other contract entry that is not a published capability or assumption of use is kept in place, keeps reporting composition.allocation_deprecated and is printed as kept allocation REQ → alias::ID with the reason), appends each capability contract.provides[].ref to realizes of the referenced requirement (deduplicated) and drops the ref; a ref on a non-capability entry or naming an unknown requirement is kept and reported. Every edit keeps the other lines of the files; every file to write is snapshot first and, when one write fails, the files already written are restored and the ones it created removed. It prints the requirements that then report requirement.no_parent (a requirement that became the parent of a capability link is traced, D22). A second run changes nothing; --dry-run writes nothing.";
+        attribute 'notes' : 'String' = "engws migrate-links [--repo DIR] [--dry-run] writes one reqLinks entry per composition.allocations entry (id LNK-<requirement without REQ->-<ALIAS> upper case, made unique with -2, -3 ...; the target as child; parent the requirement for a capability, evidence [the requirement] for an assumption of use, so the next check does not report link.aou_unverified; pinned.version the dependency pin; status claimed; rationale from the allocation; a target whose dependency cannot be resolved is still written, with a note that its kind was not checked), creates or extends the requirement link file, adds documents.reqLinks: model/req-links.yml to engmod.yml when missing, removes the converted allocations (D13: an allocation whose resolvable target is an interface or other contract entry that is not a published capability or assumption of use is kept in place, keeps reporting composition.allocation_deprecated and is printed as kept allocation REQ → alias::ID with the reason), appends each capability contract.provides[].ref to realizes of the referenced requirement (deduplicated) and drops the ref; a ref on a non-capability entry or naming an unknown requirement is kept and reported; and removes every deprecated pinned.fingerprint of the existing link file, printing the count (REQ-EMG-118). Every edit keeps the other lines of the files; every file to write is snapshot first and, when one write fails, the files already written are restored and the ones it created removed. It prints the requirements that then report requirement.no_parent (a requirement that became the parent of a capability link is traced, D22). A second run changes nothing; --dry-run writes nothing.";
     }
 
     @EngineeringElement {
@@ -3072,7 +3096,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-105' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall report the parents and children of each requirement and roll each linked system requirement up from its realizing child requirements.";
-        attribute 'notes' : 'String' = "trace.Matrix rows carry parents (the contract items a requirement realizes through realizes or a deprecated ref, qualified alias::ID on a published requirement row, none for a requirement traced only by its links or derivation; stakeholder sourceRefs are not parents, D22) and children (for a requirement that is the parent of reqLinks entries: each linked child item alias::CAP-* followed by its realizing requirements alias::REQ-* at the resolved version; none for a child requirement), links (id, child, evaluated state, review status) and satisfiedBy. A requirement with no code or test of its own whose every link is accepted, evaluates unchanged and resolves to an item with realizing requirements that are all implemented (or all test linked) in their own repository trace is implemented (or test linked) with satisfiedBy links (decision D18: a claimed, suspect, broken, version-mismatched or outdated link gives satisfiedBy links-unreviewed and does not count), linksImplemented and linksTestLinked, is counted in the summary implemented and testLinked, and is no orphan. The summary counts linksSuspect (also a suspect item behind a stale pin), linksBroken, linksClaimed and unparented (local requirements that fail the upward-trace rule of REQ-EMG-090 where the requirement link rules apply: no realizes, not the parent of a capability link, not derived with derivedRationale). MCP trace.matrix returns the four counts, also with summaryOnly, and parents, children, links and satisfiedBy per row.";
+        attribute 'notes' : 'String' = "trace.Matrix rows carry parents (the contract items a requirement realizes through realizes or a deprecated ref, qualified alias::ID on a published requirement row, none for a requirement traced only by its links or derivation; stakeholder sourceRefs are not parents, D22) and children (for a requirement that is the parent of reqLinks entries: each linked child item alias::CAP-* followed by its realizing requirements alias::REQ-* at the resolved version; none for a child requirement), links (id, child, evaluated state, review status) and satisfiedBy. A requirement with no code or test of its own whose every link is accepted, evaluates unchanged and resolves to an item with realizing requirements that are all implemented (or all test linked) in their own repository trace is implemented (or test linked) with satisfiedBy links (decision D18: a claimed, version-mismatched or broken link gives satisfiedBy links-unreviewed and does not count), linksImplemented and linksTestLinked, is counted in the summary implemented and testLinked, and is no orphan. The summary counts linksNeedReview (each link that is version-mismatched, broken or claimed, once; local workspace links excluded), linksVersionMismatch, linksBroken, linksClaimed and unparented (local requirements that fail the upward-trace rule of REQ-EMG-090 where the requirement link rules apply); linksSuspect is kept as a deprecated alias of linksVersionMismatch (D23). MCP trace.matrix returns the counts, also with summaryOnly, and parents, children, links and satisfiedBy per row.";
     }
 
     @EngineeringElement {
@@ -3081,7 +3105,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-106' {
         attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the requirement links of the loaded model with their state and the trace of each requirement through them.";
-        attribute 'notes' : 'String' = "links.list returns every reqLinks entry with id, parent, child, evidence, state and content (reqlinks.EvaluateLinks at the composed pins), review status, pinnedVersion, dependencyVersion, recordedFingerprint, currentFingerprint, reviewedBy and reviewedOn. links.suspect returns the links that need review (suspect, broken, version_mismatch) as engws review-links --json does: parent text, the child item and its realizing requirements after (at the dependency pin) and before (at the pinned version, workspace off, offline: else beforeNote). links.review {linkId, by, rationale?} writes nothing (the MCP server has no writing tool), composes like engws review-links --accept with the workspace off and takes reviewedOn from the server clock: it refuses an actor the model does not define, an unknown and a broken link like engws review-links --accept, and returns the command engws review-links --accept LNK --by ACT --rationale '...', the link file path relative to the model and the line patch the command writes (pinned version and fingerprint, status, rationale, reviewedBy, reviewedOn). requirements.parents {requirementId} returns realizes, parents (the realized items; sourceRefs are no upward trace, D22), sourceRefs, derived, derivedRationale, the links the requirement is parent of with state, status and the linked item (id, kind, text, qualified realizers) and children (each linked item then its realizers). requirements.get adds parents, links and children. Every tool reads only the loaded model and the dependencies it composes, with the lock checked and the module cache reused.";
+        attribute 'notes' : 'String' = "links.list returns every reqLinks entry with id, parent, child, evidence, state (reqlinks.EvaluateLinks at the composed pins; no content comparison, D23), review status, needsReview, local (the dependency is a workspace checkout), pinnedVersion, dependencyVersion, reviewedBy and reviewedOn. links.suspect (name kept for compatibility) returns the links that need review (version_mismatch, broken, claimed) as engws review-links --json does, composed with the workspace off (published dependencies, module cache, offline): parent text, the child item and its realizing requirements before (at the pinned version) and after (at the dependency pin), and changes (the difference in meaning by ID). links.review {linkId, by, rationale?} writes nothing (model.patch refuses the link file, ADR-EMG-029), composes like engws review-links --accept with the workspace off and takes reviewedOn from the server clock: it refuses an actor the model does not define, an unknown and a broken link like engws review-links --accept, and returns the command engws review-links --accept LNK --by ACT --rationale ..., the link file path relative to the model and the line patch the command writes (pinned version, status, rationale, reviewedBy, reviewedOn, a removed fingerprint). requirements.parents {requirementId} returns realizes, parents (the realized items; sourceRefs are no upward trace, D22), sourceRefs, derived, derivedRationale, the links the requirement is parent of with state, status and the linked item (id, kind, text, qualified realizers) and children (each linked item then its realizers). requirements.get adds parents, links and children. Every tool reads only the loaded model and the dependencies it composes, with the lock checked and the module cache reused.";
     }
 
     @EngineeringElement {
@@ -3090,7 +3114,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-107' {
         attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall render the requirement link tree of a using model and the contract items of a child model without disclosing the users of the child.";
-        attribute 'notes' : 'String' = "A model with reqLinks gets an AsciiDoc chapter \"Requirement Links\": for each requirement a list item, then each link it is the parent of with its state (unchanged, or marked *SUSPECT*, *BROKEN*, *VERSION MISMATCH*, *UNPUBLISHED*) and review status (accepted, or *CLAIMED*), the linked child item alias::ID with its text, and the realizing requirements alias::REQ with their trace status in the dependency (trace.DependencyRequirementStatus), or derived with its rationale, or no requirement link; and \"Assumptions of Use\" with each dependency assumption and the links whose evidence covers it (*UNVERIFIED* otherwise). A model that publishes contract items gets \"Contract Items\": each published capability and assumption of use with its text, verification criteria, realizing published requirements and fingerprint. Only when the caller opts in (AsciiDocOptions.UsedBy, engdoc --used-by; off by default, also when a workspace is found), the render resolves an active workspace (engmod.work.yml found, the workspace not off) and a sibling replacement checkout has reqLinks onto these items through a dependency on this module path, a \"Used By\" section (item, using model id, link id, parent requirement, status) is added, computed at render time by composition.WorkspaceLinkUsers and never written into the model; a document rendered with it must not be committed into the child (D16). By default a child names no using system in AsciiDoc, Gemara or MCP output. link.* findings and the strict-mode trace findings requirement.no_parent, requirement.unsatisfied and contract.realizer_unpublished are reported but do not stop the render (D15).";
+        attribute 'notes' : 'String' = "A model with reqLinks gets an AsciiDoc chapter \"Requirement Links\": for each requirement a list item, then each link it is the parent of with its state (unchanged, local, or marked *VERSION MISMATCH* with the reviewed and the dependency version, *BROKEN*, *UNPUBLISHED*) and review status (accepted, or *CLAIMED*), the linked child item alias::ID with its text, and the realizing requirements alias::REQ with their trace status in the dependency (trace.DependencyRequirementStatus), or derived with its rationale, or no requirement link; and \"Assumptions of Use\" with each dependency assumption and the links whose evidence covers it (*UNVERIFIED* otherwise). A model that publishes contract items gets \"Contract Items\": each published capability and assumption of use with its text, verification criteria and realizing published requirements (no fingerprint, D23). Only when the caller opts in (AsciiDocOptions.UsedBy, engdoc --used-by; off by default, also when a workspace is found), the render resolves an active workspace (engmod.work.yml found, the workspace not off) and a sibling replacement checkout has reqLinks onto these items through a dependency on this module path, a \"Used By\" section (item, using model id, link id, parent requirement, status) is added, computed at render time by composition.WorkspaceLinkUsers and never written into the model; a document rendered with it must not be committed into the child (D16). By default a child names no using system in AsciiDoc, Gemara or MCP output. link.* findings and the strict-mode trace findings requirement.no_parent, requirement.unsatisfied and contract.realizer_unpublished are reported but do not stop the render (D15).";
     }
 
     @EngineeringElement {
@@ -3108,7 +3132,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-109' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose recorded fingerprint uses another canonical form than the engineering model go writes.";
-        attribute 'notes' : 'String' = "A fingerprint is sha256:v<N>:<hex>, N the canonical-form version (reqlinks.CanonicalVersion, 1). Decision D17: any change to the canonical form is a new version. A recorded fingerprint of another version, or the unversioned sha256:<hex> of the v0.8.0 pre-releases, is not compared: the link is fingerprint_outdated and the composed check reports link.fingerprint_outdated (error, distinct from link.suspect) with the message to check that nothing in the item changed (engws review-links) and re-stamp it with engws review-links --accept, or use an engine that migrates the form. The CUE schema accepts sha256:(vN:)?<64 hex>; engws review-links lists the link and --accept re-stamps it.";
+        attribute 'notes' : 'String' = "Retired by decision D23 (ADR-EMG-030): links record no fingerprint, so there is no canonical form to be outdated. A recorded pinned.fingerprint is now link.fingerprint_deprecated (REQ-EMG-118); link.fingerprint_outdated no longer exists.";
     }
 
     @EngineeringElement {
@@ -3136,6 +3160,105 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-112' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement link to a capability without a parent requirement.";
         attribute 'notes' : 'String' = "A link whose child is alias::CAP-* says that the capability satisfies a local requirement, so it needs parent: link.parent_missing (error) otherwise, also when it carries evidence. A link to an assumption of use (alias::AOU-*) may have evidence instead of a parent.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-113";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-113' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall write an edit of one model entity only when the edited model is valid.";
+        attribute 'notes' : 'String' = "model.patch {document, id, set?: {field: value}, unset?: [field], append?: {listField: item or [items]}, remove?: {listField: value or [values]}, write?: bool} finds the one list item with that id anywhere in the document (yamledit.FindByID: top-level entities and nested ones such as flow steps; no match or two matches are errors), applies set, unset, append and remove in that order with line-preserving edits (yamledit.SetPath, UnsetPath, AppendPath, RemovePath: dotted field paths such as acceptedBy.statement, a missing field or intermediate mapping is added, a flow list stays a flow list, an object item is removed by its id, comments and every untouched line are kept), validates the whole model with the edited document exactly like model.diagnose, and returns valid, diagnostics, otherDiagnostics, parseErrors, patch (unified diff with three lines of context, git apply format) and written. The input schema is strict (additionalProperties false; field paths ^[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z][A-Za-z0-9_]*)*$; write a JSON boolean); setting or unsetting id is refused. Decision ADR-EMG-029: it is the one MCP tool that writes, and only with write true, only a valid result, only a manifest-listed document other than the manifest and the requirement link file (whose write path is engws review-links, D14), only when every manifest document resolves inside the model root after symlinks, only when the file did not change during the call, through an atomic replace that keeps the file mode.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-114";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-114' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall scan the same code scope as the model check.";
+        attribute 'notes' : 'String' = "The MCP code tools (coverage.strictStatus, files.forRequirement, files.forControl, files.forThreat, model.implementations, tests.*, interfaces.implementations, code.contextForTask) scan through codescan.ScanCodeScope and codescan.CodeScopeSkip, the skip function the check and the trace use (codeScanSkipper): files git does not track or would ignore (git ls-files --cached --others --exclude-standard), paths matching inferenceHints.exclude and directories of nested modules are left out. Before, the MCP scanner walked repoRoot with only a fixed list of skipped directories, so git-ignored build output (viewer/dist/assets/*.js) failed coverage.strictStatus while the check passed. inferenceHints.exclude accepts dir, dir/, dir/* and dir/** (each leaves the whole directory out), ./dir, a file path and a glob with * ? [...] within one path segment (*.gen.go), relative to the module root; a pattern matches a path and every ancestor directory of it. A pattern the scan cannot apply (empty, absolute, with .., ** other than a trailing /**, a malformed glob) is model.invalid_exclude_pattern (error) at inferenceHints.exclude[i], naming the accepted forms.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-115";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-115' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the type of every authorable field with the authoring rules.";
+        attribute 'notes' : 'String' = "validate.Rules.fieldTypes (model.authoringContract rules) gives, per fieldSets kind and in the same order, each field as {name, type, of?}: type string, bool, int, list<string>, list<object>, object or map<string,string>, derived by reflection from the strict-decoding Go types (fieldSetTypes); of names the fieldSets kind of an object or list<object> field (flow steps: flowStep; acceptedBy: acceptanceRecord; every *Evidence and *Artifact struct: evidence). fieldSets stays the list of names. The field rules also state: every flow step needs ref (model.missing_flow_step_ref) and step IDs are unique across all flows (model.duplicate_flow_step_id within a flow, semantic.duplicate_identity across flows); threatScenario stride is one string while preconditions, exploitPath, detection and controlVerification findings are lists; catalog.term_unreferenced is reported only with lintRun.mode strict and only for a term no requirement text names, whose ID no architecture, behavior, assurance, compliance, views, decisions, design or aviation string contains and whose name no other authored text contains (so a state referenced by a flow step ref is in use); and the exclude forms of REQ-EMG-114.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-116";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-116' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.";
+        attribute 'notes' : 'String' = "risk.acceptance_by_decision_only (warning) at acceptedBy.statement of a risk or threat scenario whose acceptedBy has a decisionRef but no statement. A decision can bundle an acceptance with other choices, so the owner's own words accepting this risk belong on the risk; the message asks for acceptedBy.statement and for asking the owner about the risk by name. The record stays complete (no risk.acceptance_unrecorded) and the Gemara policy still lists the risk as accepted. Imported alias::ID records are skipped.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-117";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-117' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model.";
+        attribute 'notes' : 'String' = "Three warnings (validate.assuranceConsistencyDiagnostics). risk.severity_inconsistent at the severity of each threat scenario whose (likelihood, impact) pair, compared case-insensitively, maps to more than one severity among the model's threat scenarios; the message names the other severities and their scenarios and asks for one scoring method recorded as a decision. Only threat scenarios carry likelihood, impact and severity together: a risk has likelihood, impact and residualRisk but no severity, so risks are not compared. controlVerification.risk_control_unlinked at a riskRefs entry of a control verification that names a local risk whose relatedControls omit the verification's controlRef (risk-to-control trace in both directions). threat.attack_vector_missing at the attackVectorRef of a threat scenario without one when another local threat scenario names its attack vector. Imported alias::ID records and unknown risks (reported elsewhere) are skipped.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-118";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-118' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each requirement link that records a deprecated fingerprint.";
+        attribute 'notes' : 'String' = "Decision D23 (ADR-EMG-030): the pinned version is the review record. pinned.fingerprint is still accepted by the CUE schema for one release (any string, optional) and ignored by every evaluation; validation reports link.fingerprint_deprecated (warning) at reqLinks[i].pinned.fingerprint naming engws migrate-links, which removes it (and prints the count); engws review-links --accept removes it from the link it accepts.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-119";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-119' {
+        attribute 'text' : 'String' = "When link add is requested, the engineering model go shall write a claimed requirement link pinned to the dependency version after checking its parent and child.";
+        attribute 'notes' : 'String' = "engws link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-...|alias::AOU-...> [--rationale TEXT] (decision D23): the link id is LNK-<REQ>-<ALIAS> made unique; pinned.version is the dependency pin of the alias in engmod.yml; status claimed. Before writing it validates the model with the link added (parent requirement, evidence IDs, declared and composed alias, a capability link needs a parent) and composes with the workspace off to check the child is a published capability or assumption of use at the pinned version (an assumption needs evidence); it refuses a link that joins the same parent and evidence to the same child. The link is appended to the link file with every other line kept; a model without one gets model/req-links.yml and documents.reqLinks in engmod.yml. Nothing is written on refusal (exit 1).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-120";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-120' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall answer a model-reading tool for the family member checkout its repo argument names.";
+        attribute 'notes' : 'String' = "Retro 1104 item 1 (decision D24). The model-reading tools (model.diagnose, model.patch, model.list, model.entity, model.complete, model.authoringContract, entities.list, trace.matrix, composition.resolve, links.*, requirements.*, threats.*, verification.*, flow.detail, flows.forRequirement, graph.*, generation.*, every gemara.*) list an optional repo string in their strict input schema. The engine resolves the workspace on every call with model.FindWorkspaceWith from the server's own model directory (the upward search refuses a world-writable engmod.work.yml or one owned by another user; ENGMOD_WORK names one explicitly), so a server started before engws sync wrote engmod.work.yml sees it as soon as it exists. repo is relative to the workspace root (the directory of that file, or the server's own model directory without one) or absolute, must hold engmod.yml and must resolve inside the root after symlinks; the tool then runs on a server initialized on that engmod.yml (cached per directory, reloading its model per call), its output scrubbed relative to that checkout. Without repo the server answers for its own checkout. The file and code tools stay on the server's own checkout. The MCP bridge of engineering-flow computes the family root once at startup and confines calls to it; it must re-run that per call to benefit.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-121";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-121' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.";
+        attribute 'notes' : 'String' = "Retro 1104 item 6. The code scanner marks a test entry point that is a benchmark (codemap.Symbol.Benchmark: Go Benchmark* in _test.go, Rust #[bench], now also detected as a test entry point); Criterion benchmarks are plain functions and JS bench files have no test entry-point detection, so neither is classified. A requirement whose every linking test entry point, across all test files, is a benchmark has a trace row with benchmarkOnly; when its verificationCriteria contain a digit, the trace integrity check reports verification.benchmark_only (warning) at requirements[i]: a benchmark measures but asserts nothing, so add a Test that checks the value. A Test* or Fuzz* link in any file clears it. The requirement stays test linked.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-122";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-122' {
+        attribute 'text' : 'String' = "When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree.";
+        attribute 'notes' : 'String' = "Retro 1104 item 7. engws status-suggest [--repo DIR] [--tree HASH] [--json] writes nothing. The tree is the working-tree hash as engineering-flow tree-hash.mjs computes it (git add -A into a temporary copy of the index, git write-tree; the real index is unchanged), or --tree. Evidence is the trace matrix of the model (lock check, module cache reuse) and the lines of <git top level>/.engflow/red-checks.jsonl with that tree, verdict RED, failure not build and the requirement in reqs (lines without reqs are not attributed). A local requirement earns implemented when code links it (or reviewed links roll it up as implemented); verified when also a test links it that is not environment gated (Row.Gated) and not only benchmarks (Row.BenchmarkOnly) and a RED line names it, or reviewed links roll it up as implemented and test linked; else nothing. A control verification earns pass when it names at least one requirement in verificationRefs and every requirement it names earns verified; a CODE-* reference is not judged and keeps the current status. The table prints current, suggested and why per row; --json the same. Exit 0, 1 on a model or git error.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-123";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-123' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.";
+        attribute 'notes' : 'String' = "Retro 1104 model findings. ears-lint reports catalog.<role>_unresolved at the same span as expr.unknown_term, the role coming from the clause position (When: event, While: state, the system term: system, and so on). Both diagnostics then say unknown term \"<term>\" in expression (or unresolved catalog term \"<term>\") and add it to catalog.<section> (or an alias of an existing entry), the section from the role (systems, actors, events, states, features, modes, conditions, dataTerms). A diagnostic without a paired role keeps its message.";
     }
 
     @EngineeringElement {
@@ -3973,6 +4096,17 @@ package 'engineering-model-go' {
     succession 'REL-4E21742D2FB84467' first 'regenerate-lock' then 'restore-bump-files';
 
     @EngineeringRelationship {
+        sourceId = "REL-4E44314342A35B96";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-4E44314342A35B96-context' : EngineeringState {
+        state 'STATE-MODEL-VALID' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-4E44314342A35B96' first 'STATE-MODEL-VALID' accept 'EVT-STATUS-SUGGEST-REQUESTED' : EngineeringItem then transitionEffect;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-4E93BAD6FCDAC1E2";
         conceptKind = "succession";
         relationshipKind = "flow_error";
@@ -4448,6 +4582,17 @@ package 'engineering-model-go' {
         part 'FU-MODEL-LOADER' : EngineeringPart { port pOut : EngineeringPort; }
         part 'DO-CANONICAL-SEMANTIC-MODEL' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-D2DF2108EF6F792E' from 'FU-MODEL-LOADER'.pOut to 'DO-CANONICAL-SEMANTIC-MODEL'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-D803205E0EC28A68";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-D803205E0EC28A68-context' : EngineeringState {
+        state 'STATE-LINK-CLAIMED' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-D803205E0EC28A68' first 'STATE-LINK-CLAIMED' accept 'EVT-LINK-ADD-REQUESTED' : EngineeringItem then transitionEffect;
     }
 
     @EngineeringRelationship {

@@ -372,7 +372,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === AOU-B-1 (assumption)
 
@@ -384,8 +384,6 @@ Realized by:
 
 * `REQ-B-001`: When a position sentence is received, the lab bus bridge shall forward one bus frame.
 
-Fingerprint: `sha256:v1:4d992800abff9a513319e44b5b93fc63088ee6a1999087fa3983715d5a6f03a2`
-
 === CAP-B-1 (capability)
 
 Forward position sentences onto the lab bus.
@@ -393,8 +391,6 @@ Forward position sentences onto the lab bus.
 Realized by:
 
 * `REQ-B-001`: When a position sentence is received, the lab bus bridge shall forward one bus frame.
-
-Fingerprint: `sha256:v1:dc7d7eb384610fc8e5710058b0ad5bc71cdb484c88538998dcea0809680de083`
 
 <<<
 == Reference Index

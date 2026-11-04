@@ -357,3 +357,40 @@ func TestLintMultipleResponsesIgnoresFieldListAfterOneVerb(t *testing.T) {
 		}
 	}
 }
+
+// An unknown term in an EARS clause names the term and the catalog section
+// it belongs in, derived from its clause position (the paired
+// catalog.<role>_unresolved at the same span): a When clause term in
+// catalog.events, a While clause term in catalog.states, both on
+// expr.unknown_term and on the catalog diagnostic, so the author knows
+// where to add it.
+// Mutation: dropping the section or the term from either message fails
+// this test.
+// TRLC-LINKS: REQ-EMG-123
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestUnknownTermNamesItsCatalogSection(t *testing.T) {
+	requirements := model.RequirementsDocument{
+		LintRun: model.LintRun{Mode: "strict", CommaAsAnd: true},
+		Requirements: []model.Requirement{
+			{ID: "REQ-A", Text: "When pump starts, the coffee fleet system shall record brew telemetry."},
+			{ID: "REQ-B", Text: "While brewing mode is active, the coffee fleet system shall record brew telemetry."},
+		},
+	}
+	catalog := model.CatalogDocument{Catalog: model.CatalogGroups{
+		Systems:   []model.CatalogEntry{{ID: "SYS-C", Name: "coffee fleet system"}},
+		DataTerms: []model.CatalogEntry{{ID: "DATA-B", Name: "brew telemetry"}},
+	}}
+	got := map[string]string{}
+	for _, d := range lintRequirementsEARS(requirements, catalog) {
+		got[d.Code+" "+d.Path] = d.Message
+	}
+	for key, want := range map[string]string{
+		"expr.unknown_term requirements[REQ-A]@5:16":        `unknown term "pump starts" in expression; add it to catalog.events (or an alias of an existing entry)`,
+		"catalog.event_unresolved requirements[REQ-A]@5:16": `unresolved catalog term "pump starts"; add it to catalog.events (or an alias of an existing entry)`,
+		"expr.unknown_term requirements[REQ-B]@6:28":        `unknown term "brewing mode is active" in expression; add it to catalog.states (or an alias of an existing entry)`,
+	} {
+		if got[key] != want {
+			t.Errorf("%s = %q, want %q", key, got[key], want)
+		}
+	}
+}

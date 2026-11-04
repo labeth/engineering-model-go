@@ -79,16 +79,14 @@ func TestFacadeReexportsEngine(t *testing.T) {
 		{dir: filepath.Join("internal", "reqlinks"), rootName: map[string]string{
 			"Kind": "ContractItemKind", "KindCapability": "ContractItemCapability", "KindAssumption": "ContractItemAssumption",
 			"Realizer": "ContractItemRealizer", "Item": "ContractItem", "State": "LinkState",
-			"StateUnchanged": "LinkStateUnchanged", "StateSuspect": "LinkStateSuspect", "StateBroken": "LinkStateBroken",
+			"StateUnchanged": "LinkStateUnchanged", "StateLocal": "LinkStateLocal", "StateBroken": "LinkStateBroken",
 			"StateVersionMismatch": "LinkStateVersionMismatch", "StateChildUnpublished": "LinkStateChildUnpublished",
 			"StateUnresolved": "LinkStateUnresolved", "Dependency": "LinkDependency",
-			"CanonicalItem": "CanonicalContractItem", "Fingerprint": "ContractItemFingerprint",
+			"ItemMeaning": "ContractItemMeaning", "SameMeaning": "SameContractItemMeaning", "MeaningChanges": "ContractItemMeaningChanges",
 			"ItemsFromBundle": "ContractItemsFromBundle", "RealizedItems": "RealizedContractItems",
 			"PublishedItems": "PublishedContractItems", "EvaluateLinks": "EvaluateRequirementLinks",
-			"SuspectMessage": "SuspectLinkMessage", "OutdatedMessage": "OutdatedLinkMessage",
-			"StateFingerprintOutdated": "LinkStateFingerprintOutdated", "CanonicalVersion": "ContractItemCanonicalVersion",
-			"FingerprintVersion": "ContractItemFingerprintVersion", "SortedRealizers": "SortedContractItemRealizers",
-			"CapabilityRefs": "ContractCapabilityRefs", "Reason": "LinkReason", "ReasonNone": "LinkReasonNone",
+			"SortedRealizers": "SortedContractItemRealizers",
+			"CapabilityRefs":  "ContractCapabilityRefs", "Reason": "LinkReason", "ReasonNone": "LinkReasonNone",
 			"ReasonUndeclaredAlias": "LinkReasonUndeclaredAlias", "ReasonUnresolved": "LinkReasonUnresolved",
 			"ReasonNotInPublication": "LinkReasonNotInPublication", "ReasonNotContractItem": "LinkReasonNotContractItem",
 			"ReasonMissing": "LinkReasonMissing", "NonItemReason": "ContractNonItemReason",
@@ -105,6 +103,8 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"SkipScanDir", "SplitEvidencePathLines", "SplitSourceLine",
 			"UniqueExistingSources", "VerificationCheck", "VerificationResult",
 			"WithCodeIndex", "WithDefaultCodeRoot",
+			// the code scope the MCP tools share with the check (REQ-EMG-114).
+			"CodeScopeSkip", "ScanCodeScope",
 			// codescan.LoadBundle attaches the code index; the root LoadBundle is
 			// model.LoadBundle, a different function.
 			"LoadBundle",

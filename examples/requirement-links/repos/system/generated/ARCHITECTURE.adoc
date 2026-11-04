@@ -554,7 +554,7 @@ All subsystem required interfaces are satisfied and all allocations resolve to p
 <<<
 == Requirement Links
 
-Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A link pinned to another version than the dependency, a broken and a claimed link are marked; review it with `engws review-links`.
 
 * *REQ-SYS-001*: When simulation epoch elapses, the position simulator shall publish ownship position on the lab bus.
 ** link LNK-SYS-001-ENCODER (unchanged, accepted) to `encoder::CAP-A-1`: Publish ownship position sentences at the configured rate.
