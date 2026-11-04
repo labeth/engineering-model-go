@@ -51,6 +51,10 @@ type Server struct {
 	// clock is the time source of links.review (reviewedOn); nil is
 	// time.Now. Tests set it.
 	clock func() time.Time
+
+	// members caches one server per family member a repo argument named,
+	// by model directory; each reloads its own model per call.
+	members map[string]*Server
 }
 
 // now returns the server's current time.
@@ -349,24 +353,22 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 		if err := validateToolArguments(name, args); err != nil {
 			return nil, -32602, err
 		}
-		if err := s.refreshModel(); err != nil {
+		target := s
+		if repo, given := args["repo"]; given {
+			delete(args, "repo")
+			member, err := s.memberServer(toString(repo))
+			if err != nil {
+				return s.toolErrorResult(name, err), 0, nil
+			}
+			target = member
+		}
+		if err := target.refreshModel(); err != nil {
 			return nil, -32001, fmt.Errorf("reload changed model: %w", err)
 		}
-		payload, err := s.callTool(name, args)
-		scrubber := newPathScrubber(s.repoRoot, s.modelPath)
+		payload, err := target.callTool(name, args)
+		scrubber := newPathScrubber(target.repoRoot, target.modelPath)
 		if err != nil {
-			errPayload, _ := json.Marshal(map[string]any{
-				"ok":            false,
-				"tool":          name,
-				"schemaVersion": toolSchemaVersion,
-				"error": map[string]any{
-					"code":    "INVALID_ARGUMENT",
-					"message": scrubber.scrubString(err.Error()),
-					"hint":    "see tools/list.inputSchema for accepted arguments",
-				},
-				"generatedAt": time.Now().UTC().Format(time.RFC3339),
-			})
-			return map[string]any{"content": []map[string]any{{"type": "text", "text": string(errPayload)}}, "isError": true}, 0, nil
+			return target.toolErrorResult(name, err), 0, nil
 		}
 		// Round-trip through JSON so every string, typed structs included, is
 		// scrubbed of absolute machine paths before it leaves the server.
@@ -379,6 +381,26 @@ func (s *Server) dispatch(method string, params any) (any, int, error) {
 	default:
 		return nil, -32601, fmt.Errorf("unsupported method: %s", method)
 	}
+}
+
+// toolErrorResult is the isError tool result for err, its message scrubbed
+// of machine paths.
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-120
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func (s *Server) toolErrorResult(name string, err error) map[string]any {
+	scrubber := newPathScrubber(s.repoRoot, s.modelPath)
+	errPayload, _ := json.Marshal(map[string]any{
+		"ok":            false,
+		"tool":          name,
+		"schemaVersion": toolSchemaVersion,
+		"error": map[string]any{
+			"code":    "INVALID_ARGUMENT",
+			"message": scrubber.scrubString(err.Error()),
+			"hint":    "see tools/list.inputSchema for accepted arguments",
+		},
+		"generatedAt": time.Now().UTC().Format(time.RFC3339),
+	})
+	return map[string]any{"content": []map[string]any{{"type": "text", "text": string(errPayload)}}, "isError": true}
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-035, REQ-EMG-036, REQ-EMG-044
@@ -2715,6 +2737,28 @@ func containsString(in []string, target string) bool {
 	return false
 }
 
+// repoTools are the model-reading tools that take the optional repo
+// argument (a family member checkout inside the workspace root): every tool
+// whose answer is the model of one checkout. The file and code tools stay
+// on the server's own checkout (their paths are relative to it).
+var repoTools = map[string]bool{
+	"model.diagnose": true, "model.patch": true, "model.list": true, "model.entity": true, "model.authoringContract": true,
+	"model.complete": true, "entities.list": true, "trace.matrix": true, "composition.resolve": true,
+	"links.list": true, "links.suspect": true, "links.review": true,
+	"requirements.get": true, "requirements.parents": true, "requirements.impact": true, "requirements.supportPath": true,
+	"requirements.suggestEditPlan": true, "threats.coverage": true, "threats.unmitigated": true, "threats.forRequirement": true,
+	"verification.status": true, "verification.gaps": true, "verification.recommend": true, "flow.detail": true,
+	"flows.forRequirement": true, "graph.neighborhood": true, "graph.search": true, "graph.explainEdge": true,
+	"generation.status": true, "generation.plan": true,
+	"gemara.controlCatalog": true, "gemara.threatCatalog": true, "gemara.riskCatalog": true, "gemara.vectorCatalog": true,
+	"gemara.capabilityCatalog": true, "gemara.principleCatalog": true, "gemara.guidanceCatalog": true, "gemara.policy": true,
+	"gemara.lexicon": true, "gemara.mappingDocument": true, "gemara.auditLog": true, "gemara.enforcementLog": true,
+	"gemara.evaluationLog": true, "gemara.validate": true,
+}
+
+// repoArgDescription describes the repo argument in the input schemas.
+const repoArgDescription = "optional: answer for this checkout of the model family instead of the server's own: a directory with engmod.yml inside the workspace root (the directory of the trusted engmod.work.yml above the server's model, looked up on every call), relative to that root or absolute; default the server's own checkout"
+
 // booleanToolArgs lists the arguments that are flags; their schema accepts a
 // JSON boolean or the strings "true"/"false".
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-STRICT-MCP-INPUT-SCHEMA
@@ -2724,7 +2768,9 @@ var booleanToolArgs = map[string]bool{"summaryOnly": true}
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func inputSchemaForTool(name string) map[string]any {
 	if name == "model.patch" {
-		return patchInputSchema()
+		schema := patchInputSchema()
+		schema["properties"].(map[string]any)["repo"] = map[string]any{"type": "string", "description": repoArgDescription}
+		return schema
 	}
 	allowed := toolArgsAllowlist[name]
 	props := map[string]any{}
@@ -2734,6 +2780,9 @@ func inputSchemaForTool(name string) map[string]any {
 			continue
 		}
 		props[k] = map[string]any{"type": "string"}
+	}
+	if repoTools[name] {
+		props["repo"] = map[string]any{"type": "string", "description": repoArgDescription}
 	}
 	return map[string]any{"type": "object", "properties": props, "additionalProperties": false}
 }
@@ -2745,9 +2794,15 @@ func validateToolArguments(name string, args map[string]any) error {
 	for _, k := range toolArgsAllowlist[name] {
 		allowedKeys[k] = true
 	}
+	if repoTools[name] {
+		allowedKeys["repo"] = true
+	}
 	for k := range args {
 		if !allowedKeys[k] {
 			allowed := append([]string{}, toolArgsAllowlist[name]...)
+			if repoTools[name] {
+				allowed = append(allowed, "repo")
+			}
 			sort.Strings(allowed)
 			if len(allowed) == 0 {
 				return fmt.Errorf("%s accepts no arguments; got %q", name, k)

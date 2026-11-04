@@ -1714,302 +1714,307 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 551
+          "line": 573
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONFIDENCEFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1732
+          "line": 1754
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONTEXTFORTASK",
           "path": "internal/mcp/server.go",
-          "line": 2221
+          "line": 2243
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DIAGNOSTICFILEPATH",
           "path": "internal/mcp/server.go",
-          "line": 2344
+          "line": 2366
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DIFFSCHEMAREFS",
           "path": "internal/mcp/server.go",
-          "line": 2370
+          "line": 2392
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--DISPATCH",
           "path": "internal/mcp/server.go",
-          "line": 301
+          "line": 305
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ENSUREREPOINDEX",
           "path": "internal/mcp/server.go",
-          "line": 1202
+          "line": 1224
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESCONTAINING",
           "path": "internal/mcp/server.go",
-          "line": 1179
+          "line": 1201
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1170
+          "line": 1192
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FILESTATUS",
           "path": "internal/mcp/server.go",
-          "line": 1592
+          "line": 1614
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDFLOW",
           "path": "internal/mcp/server.go",
-          "line": 2206
+          "line": 2228
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 1253
+          "line": 1275
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FINDREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1078
+          "line": 1100
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWDIFF",
           "path": "internal/mcp/server.go",
-          "line": 1352
+          "line": 1374
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1106
+          "line": 1128
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FLOWSTEPSBYID",
           "path": "internal/mcp/server.go",
-          "line": 1423
+          "line": 1445
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATEDDIR",
           "path": "internal/mcp/server.go",
-          "line": 1546
+          "line": 1568
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONARTIFACTS",
           "path": "internal/mcp/server.go",
-          "line": 1555
+          "line": 1577
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONARTIFACTSTATUS",
           "path": "internal/mcp/server.go",
-          "line": 1577
+          "line": 1599
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GENERATIONCOMMANDS",
           "path": "internal/mcp/server.go",
-          "line": 1507
+          "line": 1529
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GOVERNANCEPOLICY",
           "path": "internal/mcp/server.go",
-          "line": 1605
+          "line": 1627
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GROUPIMPLEMENTATIONSBYFILE",
           "path": "internal/mcp/server.go",
-          "line": 1904
+          "line": 1926
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--HANDLE",
           "path": "internal/mcp/server.go",
-          "line": 267
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ILINE",
           "path": "internal/mcp/server.go",
-          "line": 1973
+          "line": 1995
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--IMPLEMENTATIONFILESFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1828
+          "line": 1850
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--IMPLEMENTATIONSFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1819
+          "line": 1841
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ISTESTPATH",
           "path": "internal/mcp/server.go",
-          "line": 1989
+          "line": 2011
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--JOINLINENUMBERS",
           "path": "internal/mcp/server.go",
-          "line": 1963
+          "line": 1985
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LIMITROWS",
           "path": "internal/mcp/server.go",
-          "line": 1980
+          "line": 2002
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 386
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MAPKEYS",
           "path": "internal/mcp/server.go",
-          "line": 1468
+          "line": 1490
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MAXARG",
           "path": "internal/mcp/server.go",
-          "line": 2018
+          "line": 2040
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITY",
           "path": "internal/mcp/server.go",
-          "line": 2032
+          "line": 2054
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITYKIND",
           "path": "internal/mcp/server.go",
-          "line": 2163
+          "line": 2185
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELENTITYNODES",
           "path": "internal/mcp/server.go",
-          "line": 2170
+          "line": 2192
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 168
+          "line": 172
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEXTBESTACTIONS",
           "path": "internal/mcp/server.go",
-          "line": 1639
+          "line": 1661
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERUNITMARKER",
           "path": "internal/mcp/server.go",
-          "line": 2628
+          "line": 2650
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--POLICYFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1668
+          "line": 1690
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RECOMMENDEDVIEWS",
           "path": "internal/mcp/server.go",
-          "line": 1479
+          "line": 1501
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTEDITPLAN",
           "path": "internal/mcp/server.go",
-          "line": 1293
+          "line": 1315
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTIDS",
           "path": "internal/mcp/server.go",
-          "line": 1092
+          "line": 1114
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTSFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1775
+          "line": 1797
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREMENTSUPPORTPATH",
           "path": "internal/mcp/server.go",
-          "line": 1269
+          "line": 1291
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RUNTIMEFORENTITY",
           "path": "internal/mcp/server.go",
-          "line": 1706
+          "line": 1728
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCANCODESYMBOLS",
           "path": "internal/mcp/server.go",
-          "line": 1853
+          "line": 1875
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCHEMAFILEMETA",
           "path": "internal/mcp/server.go",
-          "line": 2390
+          "line": 2412
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SCHEMAREFFORINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 2360
+          "line": 2382
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SHELLPATH",
           "path": "internal/mcp/server.go",
-          "line": 1533
+          "line": 1555
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SLICESETDIFF",
           "path": "internal/mcp/server.go",
-          "line": 1433
+          "line": 1455
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--STALENESSFORPATH",
           "path": "internal/mcp/server.go",
-          "line": 1791
+          "line": 1813
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--STRICTCOVERAGESTATUS",
           "path": "internal/mcp/server.go",
-          "line": 2293
+          "line": 2315
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--SYMBOLROWS",
           "path": "internal/mcp/server.go",
-          "line": 1872
+          "line": 1894
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TASKENTRYPOINTS",
           "path": "internal/mcp/server.go",
-          "line": 1625
+          "line": 1647
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TESTSFORMODELLINK",
           "path": "internal/mcp/server.go",
-          "line": 1844
+          "line": 1866
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TESTSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1835
+          "line": 1857
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--THREATSFORREQUIREMENT",
           "path": "internal/mcp/server.go",
-          "line": 1140
+          "line": 1162
+        },
+        {
+          "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOOLERRORRESULT",
+          "path": "internal/mcp/server.go",
+          "line": 390
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOOLNAMES",
           "path": "internal/mcp/server.go",
-          "line": 256
+          "line": 260
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--UNIQUEDIAGNOSTICROWS",
           "path": "internal/mcp/server.go",
-          "line": 2328
+          "line": 2350
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--VERIFICATIONRECOMMENDATIONS",
           "path": "internal/mcp/server.go",
-          "line": 1322
+          "line": 1344
         }
       ],
       "verifications": [
@@ -2052,92 +2057,92 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--AUTHHINTSFORINTERFACE",
           "path": "internal/mcp/server.go",
-          "line": 2463
+          "line": 2485
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--BOOLARG",
           "path": "internal/mcp/server.go",
-          "line": 2005
+          "line": 2027
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CONTAINSSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2708
+          "line": 2730
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--ENDPOINTFORENV",
           "path": "internal/mcp/server.go",
-          "line": 2451
+          "line": 2473
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--FIRSTNONEMPTYARG",
           "path": "internal/mcp/server.go",
-          "line": 2661
+          "line": 2683
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GRAPHEDGES",
           "path": "internal/mcp/server.go",
-          "line": 2603
+          "line": 2625
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--GRAPHNODES",
           "path": "internal/mcp/server.go",
-          "line": 2513
+          "line": 2535
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--INPUTSCHEMAFORTOOL",
           "path": "internal/mcp/server.go",
-          "line": 2725
+          "line": 2769
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 168
+          "line": 172
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NONEMPTYSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2675
+          "line": 2697
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERFOR",
           "path": "internal/mcp/server.go",
-          "line": 2483
+          "line": 2505
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIRESTABLEID",
           "path": "internal/mcp/server.go",
-          "line": 2763
+          "line": 2818
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REQUIREWELLFORMEDSTABLEID",
           "path": "internal/mcp/server.go",
-          "line": 2778
+          "line": 2833
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--RESOLVEPATHINREPO",
           "path": "internal/mcp/server.go",
-          "line": 2424
+          "line": 2446
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOOLNAMES",
           "path": "internal/mcp/server.go",
-          "line": 256
+          "line": 260
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOSTRING",
           "path": "internal/mcp/server.go",
-          "line": 2685
+          "line": 2707
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--UNIQUESTRINGS",
           "path": "internal/mcp/server.go",
-          "line": 2692
+          "line": 2714
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--VALIDATETOOLARGUMENTS",
           "path": "internal/mcp/server.go",
-          "line": 2743
+          "line": 2792
         }
       ],
       "verifications": [
@@ -2879,7 +2884,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERUNITMARKER",
           "path": "internal/mcp/server.go",
-          "line": 2628
+          "line": 2650
         },
         {
           "symbol": "CODE-INTERNAL-TEXTUTIL-TEXTUTIL-GO--APPENDUNIQUE",
@@ -5053,7 +5058,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 386
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-PROJECTION-GO--CANONICALBUNDLE",
@@ -5685,7 +5690,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 386
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-PROJECTION-GO--CANONICALBUNDLE",
@@ -7027,7 +7032,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--LOADCONTEXT",
           "path": "internal/mcp/server.go",
-          "line": 386
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
@@ -7170,12 +7175,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 551
+          "line": 573
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 168
+          "line": 172
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
@@ -10473,12 +10478,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 551
+          "line": 573
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 168
+          "line": 172
         }
       ],
       "verifications": [
@@ -11216,12 +11221,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--MODELFILEFINGERPRINT",
           "path": "internal/mcp/server.go",
-          "line": 508
+          "line": 530
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--REFRESHMODEL",
           "path": "internal/mcp/server.go",
-          "line": 486
+          "line": 508
         }
       ],
       "verifications": [
@@ -12708,17 +12713,17 @@
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--CALLTOOL",
           "path": "internal/mcp/server.go",
-          "line": 551
+          "line": 573
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NEWSERVER",
           "path": "internal/mcp/server.go",
-          "line": 168
+          "line": 172
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--NOW",
           "path": "internal/mcp/server.go",
-          "line": 58
+          "line": 62
         }
       ],
       "verifications": [
@@ -13261,6 +13266,40 @@
       ],
       "result": "not-run",
       "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-120",
+      "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall answer a model-reading tool for the family member checkout its repo argument names.",
+      "units": [
+        "FU-MCP-SERVER"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-MCP-FAMILY-GO--FAMILYROOT",
+          "path": "internal/mcp/family.go",
+          "line": 26
+        },
+        {
+          "symbol": "CODE-INTERNAL-MCP-FAMILY-GO--MEMBERSERVER",
+          "path": "internal/mcp/family.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-MCP-FAMILY-GO--RESOLVEREPO",
+          "path": "internal/mcp/family.go",
+          "line": 46
+        },
+        {
+          "symbol": "CODE-INTERNAL-MCP-SERVER-GO--TOOLERRORRESULT",
+          "path": "internal/mcp/server.go",
+          "line": 390
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-REPO_ARG_TEST-598D0F"
+      ],
+      "result": "not-run",
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
@@ -13269,11 +13308,11 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 112,
-    "implemented": 109,
-    "verified": 102,
-    "tested": 102,
-    "testLinked": 102,
+    "requirements": 113,
+    "implemented": 110,
+    "verified": 103,
+    "tested": 103,
+    "testLinked": 103,
     "passed": 0,
     "delegated": 0,
     "delegatedImplemented": 0,

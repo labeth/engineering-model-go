@@ -48,6 +48,12 @@ semantic versioning.
 
 ### Added
 
+- MCP `repo` argument (REQ-EMG-120, D24): the model-reading tools (`model.diagnose`,
+  `model.patch`, `trace.matrix`, `links.*`, `requirements.*`, `gemara.*` and others) take an
+  optional `repo`, a family member checkout inside the workspace root, so one server answers
+  for every member. The workspace is resolved on every call (with the upward search's trust
+  check), so a server started before `engws sync` wrote `engmod.work.yml` sees it; `repo` is
+  confined to the root after symlinks and must hold `engmod.yml`.
 - `engws link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-…|alias::AOU-…>
   [--rationale TEXT]` (REQ-EMG-119): writes a claimed link pinned to the dependency version after
   checking the parent and that the child is published at that version; refuses duplicates;

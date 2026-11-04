@@ -3220,6 +3220,15 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-120";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-120' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall answer a model-reading tool for the family member checkout its repo argument names.";
+        attribute 'notes' : 'String' = "Retro 1104 item 1 (decision D24). The model-reading tools (model.diagnose, model.patch, model.list, model.entity, model.complete, model.authoringContract, entities.list, trace.matrix, composition.resolve, links.*, requirements.*, threats.*, verification.*, flow.detail, flows.forRequirement, graph.*, generation.*, every gemara.*) list an optional repo string in their strict input schema. The engine resolves the workspace on every call with model.FindWorkspaceWith from the server's own model directory (the upward search refuses a world-writable engmod.work.yml or one owned by another user; ENGMOD_WORK names one explicitly), so a server started before engws sync wrote engmod.work.yml sees it as soon as it exists. repo is relative to the workspace root (the directory of that file, or the server's own model directory without one) or absolute, must hold engmod.yml and must resolve inside the root after symlinks; the tool then runs on a server initialized on that engmod.yml (cached per directory, reloading its model per call), its output scrubbed relative to that checkout. Without repo the server answers for its own checkout. The file and code tools stay on the server's own checkout. The MCP bridge of engineering-flow computes the family root once at startup and confines calls to it; it must re-run that per call to benefit.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
