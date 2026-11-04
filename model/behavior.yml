@@ -62,6 +62,9 @@ behavior:
   - id: EVT-LINK-ADD-REQUESTED
     name: Link Add Requested
     description: A developer asked engws to write a new claimed requirement link pinned to the dependency version (engws link add).
+  - id: EVT-STATUS-SUGGEST-REQUESTED
+    name: Status Suggest Requested
+    description: A developer asked engws which status each requirement and control verification earns from the tree's evidence (engws status-suggest).
   flows:
   - id: FLOW-REQUIREMENTS-DELTA-TO-CANONICAL
     title: Requirements Delta to Canonical Requirements Flow
@@ -577,6 +580,10 @@ behavior:
     from: STATE-LINK-CLAIMED
     to: EVT-LINK-ADD-REQUESTED
     description: engws link add writes a claimed link pinned to the dependency version (REQ-EMG-119).
+  - type: triggered_by
+    from: STATE-MODEL-VALID
+    to: EVT-STATUS-SUGGEST-REQUESTED
+    description: engws status-suggest reads a valid model and its tree's evidence and writes nothing (REQ-EMG-122).
   - type: triggered_by
     from: STATE-LINK-CLAIMED
     to: EVT-LINK-REVIEW-REQUESTED

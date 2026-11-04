@@ -10073,52 +10073,52 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--MAIN",
           "path": "internal/engws/cli.go",
-          "line": 199
+          "line": 212
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
           "path": "internal/engws/cli.go",
-          "line": 364
+          "line": 385
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTSKEWS",
           "path": "internal/engws/cli.go",
-          "line": 426
+          "line": 447
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTTABLE",
           "path": "internal/engws/cli.go",
-          "line": 396
+          "line": 417
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 546
+          "line": 567
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNCHECK",
           "path": "internal/engws/cli.go",
-          "line": 504
+          "line": 525
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNPIN",
           "path": "internal/engws/cli.go",
-          "line": 467
+          "line": 488
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSKEW",
           "path": "internal/engws/cli.go",
-          "line": 491
+          "line": 512
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTATUS",
           "path": "internal/engws/cli.go",
-          "line": 381
+          "line": 402
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 436
+          "line": 457
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-PLAN-GO--BUILDPLAN",
@@ -10615,7 +10615,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
           "path": "internal/engws/cli.go",
-          "line": 604
+          "line": 625
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
@@ -11093,7 +11093,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 436
+          "line": 457
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOREPLACES",
@@ -11823,17 +11823,17 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
           "path": "internal/engws/cli.go",
-          "line": 364
+          "line": 385
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTBUMPLINK",
           "path": "internal/engws/cli.go",
-          "line": 580
+          "line": 601
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 546
+          "line": 567
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ITEM",
@@ -13345,6 +13345,71 @@
       ],
       "result": "not-run",
       "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-122",
+      "text": "When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-CLI-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--CONTROLVERIFICATIONSUGGESTION",
+          "path": "internal/engws/statussuggest.go",
+          "line": 38
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--DASH",
+          "path": "internal/engws/statussuggest.go",
+          "line": 276
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--GITTEXT",
+          "path": "internal/engws/statussuggest.go",
+          "line": 228
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--GITTEXTENV",
+          "path": "internal/engws/statussuggest.go",
+          "line": 234
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--REDREQUIREMENTS",
+          "path": "internal/engws/statussuggest.go",
+          "line": 166
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--REQUIREMENTSUGGESTION",
+          "path": "internal/engws/statussuggest.go",
+          "line": 27
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--RUNSTATUSSUGGEST",
+          "path": "internal/engws/statussuggest.go",
+          "line": 249
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--STATUSSUGGESTION",
+          "path": "internal/engws/statussuggest.go",
+          "line": 47
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--SUGGESTSTATUS",
+          "path": "internal/engws/statussuggest.go",
+          "line": 68
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-STATUSSUGGEST-GO--WORKINGTREEHASH",
+          "path": "internal/engws/statussuggest.go",
+          "line": 199
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-STATUSSUGGEST_TEST-7D4089"
+      ],
+      "result": "not-run",
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
@@ -13353,11 +13418,11 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 114,
-    "implemented": 111,
-    "verified": 104,
-    "tested": 104,
-    "testLinked": 104,
+    "requirements": 115,
+    "implemented": 112,
+    "verified": 105,
+    "tested": 105,
+    "testLinked": 105,
     "passed": 0,
     "delegated": 0,
     "delegatedImplemented": 0,

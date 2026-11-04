@@ -316,6 +316,11 @@ catalog:
     definition: Event indicating a developer asked engws to write a new claimed requirement link pinned to a dependency version.
     aliases:
     - engws link add requested
+  - id: EVT-STATUS-SUGGEST-REQUESTED
+    name: status suggestion is requested
+    definition: Event indicating a developer asked engws which status each requirement and control verification earns from the tree's evidence.
+    aliases:
+    - engws status-suggest requested
   states:
   - id: STATE-MODEL-VALID
     name: model is valid

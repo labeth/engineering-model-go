@@ -786,3 +786,11 @@ requirements:
     appliesTo:
       - FU-CODEMAP-INFERENCE
       - FU-ALLOCATION-TRACE
+  - id: REQ-EMG-122
+    text: When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree.
+    notes: 'Retro 1104 item 7. engws status-suggest [--repo DIR] [--tree HASH] [--json] writes nothing. The tree is the working-tree hash as engineering-flow tree-hash.mjs computes it (git add -A into a temporary copy of the index, git write-tree; the real index is unchanged), or --tree. Evidence is the trace matrix of the model (lock check, module cache reuse) and the lines of <git top level>/.engflow/red-checks.jsonl with that tree, verdict RED, failure not build and the requirement in reqs (lines without reqs are not attributed). A local requirement earns implemented when code links it (or reviewed links roll it up as implemented); verified when also a test links it that is not environment gated (Row.Gated) and not only benchmarks (Row.BenchmarkOnly) and a RED line names it, or reviewed links roll it up as implemented and test linked; else nothing. A control verification earns pass when it names at least one requirement in verificationRefs and every requirement it names earns verified; a CODE-* reference is not judged and keeps the current status. The table prints current, suggested and why per row; --json the same. Exit 0, 1 on a model or git error.'
+    verificationMethods: [test]
+    verificationCriteria: When a requirement has code, an ungated test and a RED line for the working tree with an uncommitted file, then it earns verified; one with only a gated test, one with a GREEN line or a RED of another tree earns implemented, a derived one without code nothing; a control verification over an unverified requirement keeps not-run and earns pass once every requirement it names is verified; --tree of another tree credits no RED; nothing in the repository changes.
+    appliesTo:
+      - FU-CLI-ORCHESTRATION
+      - FU-ALLOCATION-TRACE

@@ -366,6 +366,8 @@ a[href^="#SEC_VIEW_"] {
 |Event indicating a caller asked for OpenSpec spec delta text rendered from selected model requirements. Aliases:spec from model requested
 |[[REF_ENGMODEL_TERM_STATE]]<<REF_IDX-ENGMODEL_TERM_STATE,state>> (TERM-STATE)
 |An authored lifecycle state used to model transition behavior, guards, and event-driven progression.
+|[[REF_CATALOG_EVT_STATUS_SUGGEST_REQUESTED]]<<REF_IDX-CATALOG_EVT_STATUS_SUGGEST_REQUESTED,status suggestion is requested>> (EVT-STATUS-SUGGEST-REQUESTED)
+|Event indicating a developer asked engws which status each requirement and control verification earns from the tree's evidence. Aliases:engws status-suggest requested
 |[[REF_ENGMODEL_TERM_STRUCTURIZR_DSL]]<<REF_IDX-ENGMODEL_TERM_STRUCTURIZR_DSL,Structurizr DSL>> (TERM-STRUCTURIZR-DSL)
 |Generated Structurizr DSL workspace that projects authored architecture, relationships, dynamic views, and deployment metadata.
 |[[REF_CATALOG_DATA_STRUCTURIZR_DSL]]<<REF_IDX-CATALOG_DATA_STRUCTURIZR_DSL,structurizr dsl artifact>> (DATA-STRUCTURIZR-DSL)
@@ -1152,6 +1154,7 @@ flowchart LR
       CODE_REVIEWLINKS_GO["reviewlinks.go"]:::code_element
       CODE_SCAN_GO["scan.go"]:::code_element
       CODE_STAGE_GO["stage.go"]:::code_element
+      CODE_STATUSSUGGEST_GO["statussuggest.go"]:::code_element
       CODE_SYNC_GO["sync.go"]:::code_element
       CODE_SYSMLMETAMODEL_MAIN_GO["sysmlmetamodel/main.go"]:::code_element
       CODE_TEXTUTIL_GO["textutil.go"]:::code_element
@@ -1285,7 +1288,7 @@ functional responsibility for <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,cli orchest
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_IDX-REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_IDX-REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_IDX-REQ_REQ_EMG_033,REQ-EMG-033>>, <<REF_IDX-REQ_REQ_EMG_034,REQ-EMG-034>>, <<REF_IDX-REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_IDX-REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_IDX-REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_IDX-REQ_REQ_EMG_040,REQ-EMG-040>>, <<REF_IDX-REQ_REQ_EMG_042,REQ-EMG-042>>, <<REF_IDX-REQ_REQ_EMG_043,REQ-EMG-043>>, <<REF_IDX-REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_IDX-REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_IDX-REQ_REQ_EMG_049,REQ-EMG-049>>, <<REF_IDX-REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_IDX-REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_IDX-REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_IDX-REQ_REQ_EMG_063,REQ-EMG-063>>, <<REF_IDX-REQ_REQ_EMG_068,REQ-EMG-068>>, <<REF_IDX-REQ_REQ_EMG_080,REQ-EMG-080>>, <<REF_IDX-REQ_REQ_EMG_086,REQ-EMG-086>>, <<REF_IDX-REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_IDX-REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_IDX-REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_IDX-REQ_REQ_EMG_103,REQ-EMG-103>>, <<REF_IDX-REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_IDX-REQ_REQ_EMG_118,REQ-EMG-118>>, <<REF_IDX-REQ_REQ_EMG_119,REQ-EMG-119>>
+<<REF_IDX-REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_IDX-REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_IDX-REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_IDX-REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_IDX-REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_IDX-REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_IDX-REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_IDX-REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_IDX-REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_IDX-REQ_REQ_EMG_033,REQ-EMG-033>>, <<REF_IDX-REQ_REQ_EMG_034,REQ-EMG-034>>, <<REF_IDX-REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_IDX-REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_IDX-REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_IDX-REQ_REQ_EMG_040,REQ-EMG-040>>, <<REF_IDX-REQ_REQ_EMG_042,REQ-EMG-042>>, <<REF_IDX-REQ_REQ_EMG_043,REQ-EMG-043>>, <<REF_IDX-REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_IDX-REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_IDX-REQ_REQ_EMG_049,REQ-EMG-049>>, <<REF_IDX-REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_IDX-REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_IDX-REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_IDX-REQ_REQ_EMG_063,REQ-EMG-063>>, <<REF_IDX-REQ_REQ_EMG_068,REQ-EMG-068>>, <<REF_IDX-REQ_REQ_EMG_080,REQ-EMG-080>>, <<REF_IDX-REQ_REQ_EMG_086,REQ-EMG-086>>, <<REF_IDX-REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_IDX-REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_IDX-REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_IDX-REQ_REQ_EMG_103,REQ-EMG-103>>, <<REF_IDX-REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_IDX-REQ_REQ_EMG_118,REQ-EMG-118>>, <<REF_IDX-REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_IDX-REQ_REQ_EMG_122,REQ-EMG-122>>
 
 
 
@@ -2050,7 +2053,7 @@ none
 [discrete]
 ====== Linked Requirements
 
-<<REF_IDX-REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_IDX-REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_IDX-REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_IDX-REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_IDX-REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_IDX-REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_IDX-REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_IDX-REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_IDX-REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_IDX-REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_IDX-REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_IDX-REQ_REQ_EMG_061,REQ-EMG-061>>, <<REF_IDX-REQ_REQ_EMG_065,REQ-EMG-065>>, <<REF_IDX-REQ_REQ_EMG_067,REQ-EMG-067>>, <<REF_IDX-REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_IDX-REQ_REQ_EMG_084,REQ-EMG-084>>, <<REF_IDX-REQ_REQ_EMG_088,REQ-EMG-088>>, <<REF_IDX-REQ_REQ_EMG_095,REQ-EMG-095>>, <<REF_IDX-REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_IDX-REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_IDX-REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_IDX-REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_IDX-REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_IDX-REQ_REQ_EMG_103,REQ-EMG-103>>, <<REF_IDX-REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_IDX-REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_IDX-REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_IDX-REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_IDX-REQ_REQ_EMG_109,REQ-EMG-109>>, <<REF_IDX-REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_IDX-REQ_REQ_EMG_121,REQ-EMG-121>>
+<<REF_IDX-REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_IDX-REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_IDX-REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_IDX-REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_IDX-REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_IDX-REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_IDX-REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_IDX-REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_IDX-REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_IDX-REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_IDX-REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_IDX-REQ_REQ_EMG_061,REQ-EMG-061>>, <<REF_IDX-REQ_REQ_EMG_065,REQ-EMG-065>>, <<REF_IDX-REQ_REQ_EMG_067,REQ-EMG-067>>, <<REF_IDX-REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_IDX-REQ_REQ_EMG_084,REQ-EMG-084>>, <<REF_IDX-REQ_REQ_EMG_088,REQ-EMG-088>>, <<REF_IDX-REQ_REQ_EMG_095,REQ-EMG-095>>, <<REF_IDX-REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_IDX-REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_IDX-REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_IDX-REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_IDX-REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_IDX-REQ_REQ_EMG_103,REQ-EMG-103>>, <<REF_IDX-REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_IDX-REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_IDX-REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_IDX-REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_IDX-REQ_REQ_EMG_109,REQ-EMG-109>>, <<REF_IDX-REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_IDX-REQ_REQ_EMG_121,REQ-EMG-121>>, <<REF_IDX-REQ_REQ_EMG_122,REQ-EMG-122>>
 
 
 
@@ -3659,11 +3662,13 @@ flowchart LR
 %% view: VIEW-STATE-LIFECYCLE (state-lifecycle)
 N_CTRL_STRICT_MCP_INPUT_SCHEMA[["Strict MCP Input Schemas"]]:::control
 N_EVT_MODEL_UPDATED(("Model Updated")):::event
+N_EVT_STATUS_SUGGEST_REQUESTED(("Status Suggest Requested")):::event
 N_STATE_MODEL_INVALID(["Model Invalid"]):::state
 N_STATE_MODEL_VALID(["Model Valid"]):::state
 N_STATE_MODEL_INVALID --> N_STATE_MODEL_VALID
 N_STATE_MODEL_VALID --> N_CTRL_STRICT_MCP_INPUT_SCHEMA
 N_STATE_MODEL_VALID --> N_EVT_MODEL_UPDATED
+N_STATE_MODEL_VALID --> N_EVT_STATUS_SUGGEST_REQUESTED
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3831,7 +3836,7 @@ Coverage summary: 3/3 units have direct <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidenc
 What this matrix shows: authored requirement-to-unit mappings in a compact square layout (requirements as rows, functional units as columns).
 
 ++++
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3600 3450" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3600 3480" role="img" aria-label="Complete matrix overview" style="display:block;width:100%;height:auto;max-height:650px;break-inside:avoid;page-break-inside:avoid;">
 <rect x="0" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
 <text x="90" y="19" text-anchor="middle" font-family="sans-serif" font-size="12">Requirement</text>
 <rect x="180" y="0" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
@@ -6516,6 +6521,29 @@ What this matrix shows: authored requirement-to-unit mappings in a compact squar
 <rect x="3060" y="3420" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
 <rect x="3240" y="3420" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
 <rect x="3420" y="3420" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="0" y="3450" width="180" height="30" fill="#e8f5e9" stroke="#1b5e20"/>
+<text x="90" y="3469" text-anchor="middle" font-family="sans-serif" font-size="12">REQ-EMG-122</text>
+<rect x="180" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="360" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="450" y="3469" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="540" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="720" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<text x="810" y="3469" text-anchor="middle" font-family="sans-serif" font-size="12">X</text>
+<rect x="900" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1080" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1260" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1440" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1620" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1800" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="1980" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="2160" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="2340" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="2520" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="2700" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="2880" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="3060" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="3240" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
+<rect x="3420" y="3450" width="180" height="30" fill="#ffffff" stroke="#cccccc"/>
 </svg>
 ++++
 
@@ -8164,6 +8192,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 
 |<<REF_IDX-VER_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6,VER-INF-TEST-INFERENCE_TRACE_TEST-B704D6>>
 |<<REF_IDX-REQ_REQ_EMG_121,REQ-EMG-121>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,VER-INF-TEST-STATUSSUGGEST_TEST-7D4089>>
+|<<REF_IDX-REQ_REQ_EMG_122,REQ-EMG-122>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
@@ -13276,7 +13309,7 @@ flowchart TB
   CODE_REQ_EMG_068_CHECK_GO["check.go: 35, 96, 123, 165, 176, 204, 227, 242, 254, 312, 325, 332, 345, 408, 418, 430"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_068_CHECK_GO
   REQC_REQ_EMG_068 -->|code trace| CODE_REQ_EMG_068_CHECK_GO
-  CODE_REQ_EMG_068_CLI_GO["cli.go: 199, 364, 381, 396, 426, 436, 467, 491, 504, 546"]:::code_element
+  CODE_REQ_EMG_068_CLI_GO["cli.go: 212, 385, 402, 417, 447, 457, 488, 512, 525, 567"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_068_CLI_GO
   REQC_REQ_EMG_068 -->|code trace| CODE_REQ_EMG_068_CLI_GO
   CODE_REQ_EMG_068_ENGWS_MAIN_GO["engws/main.go: 17"]:::code_element
@@ -13669,7 +13702,7 @@ flowchart TB
   REQC_REQ_EMG_080 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_REQ_EMG_080_CLI_GO["cli.go: 604"]:::code_element
+  CODE_REQ_EMG_080_CLI_GO["cli.go: 625"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_080_CLI_GO
   REQC_REQ_EMG_080 -->|code trace| CODE_REQ_EMG_080_CLI_GO
   CODE_REQ_EMG_080_ENGWS_MAIN_GO["engws/main.go: 17"]:::code_element
@@ -14077,7 +14110,7 @@ flowchart TB
   REQC_REQ_EMG_086 -->|applies_to| FU_FU_CLI_ORCHESTRATION
   RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
   FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
-  CODE_REQ_EMG_086_CLI_GO["cli.go: 436"]:::code_element
+  CODE_REQ_EMG_086_CLI_GO["cli.go: 457"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_086_CLI_GO
   REQC_REQ_EMG_086 -->|code trace| CODE_REQ_EMG_086_CLI_GO
   CODE_REQ_EMG_086_SYNC_GO["sync.go: 45, 90, 166, 191"]:::code_element
@@ -15010,7 +15043,7 @@ flowchart TB
   CODE_REQ_EMG_100_BUMP_GO["bump.go: 59, 70, 89, 270, 318"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_100_BUMP_GO
   REQC_REQ_EMG_100 -->|code trace| CODE_REQ_EMG_100_BUMP_GO
-  CODE_REQ_EMG_100_CLI_GO["cli.go: 364, 546, 580"]:::code_element
+  CODE_REQ_EMG_100_CLI_GO["cli.go: 385, 567, 601"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_100_CLI_GO
   REQC_REQ_EMG_100 -->|code trace| CODE_REQ_EMG_100_CLI_GO
   VERC_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E["VER-INF-TEST-BUMP_LINKS_TEST-FEBA3E (not-run)"]:::verification
@@ -16305,6 +16338,60 @@ flowchart TB
   VERC_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6 -->|verifies| REQC_REQ_EMG_121
   VERCODE_REQ_EMG_121_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6_INFERENCE_TRACE_TEST_GO["inference_trace_test.go: 20, 53, 80, 123, 189, 226, 246, 266, 284, 295, 314, 340, 379, 420, 498"]:::code_element
   VERC_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6 --->|implemented_by| VERCODE_REQ_EMG_121_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6_INFERENCE_TRACE_TEST_GO
+classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
+classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
+classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
+classDef actor fill:#fff8e1,stroke:#ef6c00,stroke-width:1px,color:#bf360c;
+classDef attack_vector fill:#ffebee,stroke:#b71c1c,stroke-width:1px,color:#7f0000;
+classDef referenced_element fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#4a148c;
+classDef interface fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,stroke-dasharray: 6 3,color:#1b5e20;
+classDef data_object fill:#fff3e0,stroke:#ef6c00,stroke-width:2px,stroke-dasharray: 2 2,color:#e65100;
+classDef deployment_target fill:#ede7f6,stroke:#5e35b1,stroke-width:1px,color:#4527a0;
+classDef control fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef trust_boundary fill:#e0f7fa,stroke:#006064,stroke-width:2px,stroke-dasharray: 10 4,color:#004d40;
+classDef state fill:#e1f5fe,stroke:#0277bd,stroke-width:1px,color:#01579b;
+classDef event fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#f57f17;
+classDef flow fill:#ede7f6,stroke:#4527a0,stroke-width:2px,color:#311b92;
+classDef flow_step fill:#f1f8e9,stroke:#33691e,stroke-width:2px,color:#1b5e20;
+classDef requirement fill:#fffde7,stroke:#f9a825,stroke-width:1px,color:#7f6000;
+classDef verification fill:#fce4ec,stroke:#ad1457,stroke-width:1px,color:#880e4f;
+classDef runtime_element fill:#b2ebf2,stroke:#00838f,stroke-width:1px,color:#006064;
+classDef deployment_element fill:#d7ccc8,stroke:#4e342e,stroke-width:1px,color:#2f1b14;
+classDef code_element fill:#eeeeee,stroke:#616161,stroke-width:1px,color:#212121;
+classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
+----
+[[REF_REQ_REQ_EMG_122]]
+==== REQ-EMG-122
+
+When <<REF_IDX-CATALOG_EVT_STATUS_SUGGEST_REQUESTED,status suggestion is requested>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall print the status each <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> and <<REF_IDX-ENGMODEL_TERM_CONTROL_VERIFICATION,control verification>> earns from the <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> of the tree.
+
+
+NOTE: Retro 1104 item 7. engws status-suggest [--repo DIR] [--tree HASH] [--json] writes nothing. The tree is the working-tree hash as engineering-flow tree-hash.mjs computes it (git add -A into a temporary copy of the index, git write-tree; the real index is unchanged), or --tree. <<REF_IDX-ENGMODEL_TERM_EVIDENCE,Evidence>> is the trace matrix of the <<REF_IDX-ENGMODEL_TERM_MODEL,model>> (lock check, module cache reuse) and the lines of <git top level>/.engflow/red-checks.jsonl with that tree, verdict RED, failure not build and the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> in reqs (lines without reqs are not attributed). A local <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> earns implemented when code links it (or reviewed links roll it up as implemented); verified when also a test links it that is not environment gated (Row.Gated) and not only benchmarks (Row.BenchmarkOnly) and a RED line names it, or reviewed links roll it up as implemented and test linked; else nothing. A <<REF_IDX-ENGMODEL_TERM_CONTROL_VERIFICATION,control verification>> earns pass when it names at least one <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> in verificationRefs and every <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> it names earns verified; a CODE-* reference is not judged and keeps the current status. The table prints current, suggested and why per row; --json the same. Exit 0, 1 on a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> or git error.
+
+
+
+===== Requirement-to-Unit-to-Evidence Coverage
+
+What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.
+
+[source,mermaid]
+----
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
+flowchart TB
+  REQC_REQ_EMG_122["REQ-EMG-122"]:::requirement
+  FU_FU_ALLOCATION_TRACE["Allocation Trace"]:::functional_unit
+  REQC_REQ_EMG_122 -->|applies_to| FU_FU_ALLOCATION_TRACE
+  FU_FU_CLI_ORCHESTRATION["CLI Orchestration"]:::functional_unit
+  REQC_REQ_EMG_122 -->|applies_to| FU_FU_CLI_ORCHESTRATION
+  RTC_FU_CLI_ORCHESTRATION_RUNTIME["CLI Orchestration runtime (inferred)"]:::runtime_element
+  FU_FU_CLI_ORCHESTRATION -->|runtime evidence| RTC_FU_CLI_ORCHESTRATION_RUNTIME
+  CODE_REQ_EMG_122_STATUSSUGGEST_GO["statussuggest.go: 27, 38, 47, 68, 166, 199, 228, 234, 249, 276"]:::code_element
+  RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_122_STATUSSUGGEST_GO
+  REQC_REQ_EMG_122 -->|code trace| CODE_REQ_EMG_122_STATUSSUGGEST_GO
+  VERC_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089["VER-INF-TEST-STATUSSUGGEST_TEST-7D4089 (not-run)"]:::verification
+  VERC_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089 -->|verifies| REQC_REQ_EMG_122
+  VERCODE_REQ_EMG_122_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089_STATUSSUGGEST_TEST_GO["statussuggest_test.go: 86"]:::code_element
+  VERC_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089 --->|implemented_by| VERCODE_REQ_EMG_122_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089_STATUSSUGGEST_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -18673,6 +18760,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
+[[REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089]]
+==== Statussuggest Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,VER-INF-TEST-STATUSSUGGEST_TEST-7D4089>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_122,REQ-EMG-122>>
+|Test Code Elements |statussuggest_test.go:86
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
+|Result Summary |not-run:1
+|Evidence |internal/engws/statussuggest_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
 [[REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_36AE65]]
 ==== Structurizr Export Test
 
@@ -19051,7 +19158,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 |11
 |-
 |Lexicon
-|96
+|97
 |L7
 |Audit Log
 |13
@@ -21552,6 +21659,19 @@ When model updated event is received, the engineering model go shall warn at eac
 |Name |REQ-EMG-121
 |Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6,Inference Trace Test>>
 |===
+[[REF_IDX-REQ_REQ_EMG_122]]
+[discrete]
+==== REQ-EMG-122
+
+When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Requirement
+|Name |REQ-EMG-122
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,Statussuggest Test>>
+|===
 [[REF_IDX-TB_TB_CHILD_USING_SYSTEM]]
 [discrete]
 ==== TB-CHILD-USING-SYSTEM
@@ -22319,6 +22439,19 @@ Event indicating a developer asked engws to publish every checkout of the worksp
 |Key |Value
 |Kind |Catalog Alias
 |Name |engws stage requested
+|Mentioned In |n/a
+|===
+[[REF_IDX-CATALOG_ENGWS_STATUS_SUGGEST_REQUESTED]]
+[discrete]
+==== engws status-suggest requested
+
+Event indicating a developer asked engws which status each requirement and control verification earns from the tree's evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Alias
+|Name |engws status-suggest requested
 |Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_ENGWS_SYNC_REQUESTED]]
@@ -23738,6 +23871,19 @@ Event indicating a caller asked for OpenSpec spec delta text rendered from selec
 |Name |spec delta is requested
 |Mentioned In |<<REF_REQ_REQ_EMG_081,REQ-EMG-081>>
 |===
+[[REF_IDX-CATALOG_EVT_STATUS_SUGGEST_REQUESTED]]
+[discrete]
+==== EVT-STATUS-SUGGEST-REQUESTED
+
+Event indicating a developer asked engws which status each requirement and control verification earns from the tree's evidence.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Catalog Event
+|Name |status suggestion is requested
+|Mentioned In |<<REF_REQ_REQ_EMG_122,REQ-EMG-122>>
+|===
 [[REF_IDX-CATALOG_EVT_VALIDATION_FAILED]]
 [discrete]
 ==== EVT-VALIDATION-FAILED
@@ -24035,7 +24181,7 @@ Materializes parent-to-subsystem allocation and bidirectional traceability acros
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |allocation trace
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_MULTIREPO_TEST_B91E21,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_COMPANY_TEST_31D77E,Examples Company Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_DISCLOSURE_TEST_D57A96,Requirement Links Disclosure Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TRACE_TEST_344A0D,Requirement Links Trace Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_VERIFICATION_STATUS_TEST_910746,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_ARTIFACT_TEST_852239,Artifact Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_4EBD51,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_TEST_948115,Behavior Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_SCOPE_TEST_2A4254,Code Scope Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_GENERATION_TEST_F36487,Composition Generation Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GENERATION_TIME_TEST_3A974F,Generation Time Test>>, <<REF_VERIFY_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6,Inference Trace Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_JAVASCRIPT_TEST_9BD52A,Inferred Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_PYTHON_TEST_69DB0E,Inferred Python Test>>, <<REF_VERIFY_VER_INF_TEST_LINKADD_TEST_F6472F,Linkadd Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MIGRATELINKS_TEST_36D479,Migratelinks Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_98C2BD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,Reqlinks Trace Test>>, <<REF_VERIFY_VER_INF_TEST_REVIEWLINKS_TEST_39A109,Reviewlinks Test>>, <<REF_VERIFY_VER_INF_TEST_TESTFUNC_TEST_612CDF,Testfunc Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_5F315E,Trace Delegated Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_VERIFICATION_STATUS_TEST_CC7606,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_MULTIREPO_TEST_B91E21,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_COMPANY_TEST_31D77E,Examples Company Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_DISCLOSURE_TEST_D57A96,Requirement Links Disclosure Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TRACE_TEST_344A0D,Requirement Links Trace Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_VERIFICATION_STATUS_TEST_910746,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_ARTIFACT_TEST_852239,Artifact Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_4EBD51,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_TEST_948115,Behavior Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_SCOPE_TEST_2A4254,Code Scope Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_GENERATION_TEST_F36487,Composition Generation Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GENERATION_TIME_TEST_3A974F,Generation Time Test>>, <<REF_VERIFY_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6,Inference Trace Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_JAVASCRIPT_TEST_9BD52A,Inferred Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_PYTHON_TEST_69DB0E,Inferred Python Test>>, <<REF_VERIFY_VER_INF_TEST_LINKADD_TEST_F6472F,Linkadd Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MIGRATELINKS_TEST_36D479,Migratelinks Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_98C2BD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,Reqlinks Trace Test>>, <<REF_VERIFY_VER_INF_TEST_REVIEWLINKS_TEST_39A109,Reviewlinks Test>>, <<REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,Statussuggest Test>>, <<REF_VERIFY_VER_INF_TEST_TESTFUNC_TEST_612CDF,Testfunc Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_5F315E,Trace Delegated Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_VERIFICATION_STATUS_TEST_CC7606,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
 |===
 [[REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR]]
 [discrete]
@@ -24061,7 +24207,7 @@ Command entrypoints that orchestrate loading, validation, generation, and export
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |cli orchestration
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_COMPLETE_DIAGRAM_TEST_A7A14C,Asciidoc Complete Diagram Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_8725B5,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_BE9EA0,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EDGE_KEY_TEST_2D771F,Asciidoc Edge Key Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EVIDENCE_TABLE_TEST_C2189B,Asciidoc Evidence Table Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_GEMARA_TEST_22D5DA,Asciidoc Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_3FE432,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_PUBLICATION_SCOPE_TEST_AA5D4F,Asciidoc Publication Scope Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_4EBD51,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_FBF8BC,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_CD8716,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_B91E95,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_FCC559,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_LABELS_TEST_DB8E6F,Code Labels Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_A17396,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_A0BAF9,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_EDDCF4,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_DD5C1F,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_3EE34B,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LAYERING_TEST_CCD168,Layering Test>>, <<REF_VERIFY_VER_INF_TEST_LINKADD_TEST_F6472F,Linkadd Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_MIGRATELINKS_TEST_36D479,Migratelinks Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_A32B0B,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_PROFILE_TEST_61E10F,Oscal Profile Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_65BD53,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_54E12D,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_REVIEWLINKS_TEST_39A109,Reviewlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_STAGE_TEST_4E9FDB,Stage Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_36AE65,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_969162,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_280926,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_B0F5F9,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_COMPLETE_DIAGRAM_TEST_A7A14C,Asciidoc Complete Diagram Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_8725B5,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_BE9EA0,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EDGE_KEY_TEST_2D771F,Asciidoc Edge Key Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EVIDENCE_TABLE_TEST_C2189B,Asciidoc Evidence Table Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_GEMARA_TEST_22D5DA,Asciidoc Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_3FE432,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_PUBLICATION_SCOPE_TEST_AA5D4F,Asciidoc Publication Scope Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_4EBD51,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_FBF8BC,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_CD8716,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_B91E95,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_FCC559,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_LABELS_TEST_DB8E6F,Code Labels Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_A17396,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_A0BAF9,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_EDDCF4,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_DD5C1F,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_3EE34B,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LAYERING_TEST_CCD168,Layering Test>>, <<REF_VERIFY_VER_INF_TEST_LINKADD_TEST_F6472F,Linkadd Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_MIGRATELINKS_TEST_36D479,Migratelinks Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_A32B0B,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_PROFILE_TEST_61E10F,Oscal Profile Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_65BD53,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_54E12D,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_REVIEWLINKS_TEST_39A109,Reviewlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_STAGE_TEST_4E9FDB,Stage Test>>, <<REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,Statussuggest Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_36AE65,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_969162,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_280926,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_B0F5F9,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
 |===
 [[REF_IDX-CATALOG_FU_CODEMAP_INFERENCE]]
 [discrete]
@@ -24516,7 +24662,7 @@ Go-based architecture modeling system that generates docs, analysis views, and c
 |Key |Value
 |Kind |Catalog System
 |Name |engineering model go
-|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_008,REQ-EMG-008>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_031,REQ-EMG-031>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_REQ_REQ_EMG_033,REQ-EMG-033>>, <<REF_REQ_REQ_EMG_034,REQ-EMG-034>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_REQ_REQ_EMG_038,REQ-EMG-038>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_040,REQ-EMG-040>>, <<REF_REQ_REQ_EMG_041,REQ-EMG-041>>, <<REF_REQ_REQ_EMG_042,REQ-EMG-042>>, <<REF_REQ_REQ_EMG_043,REQ-EMG-043>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_045,REQ-EMG-045>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_047,REQ-EMG-047>>, <<REF_REQ_REQ_EMG_048,REQ-EMG-048>>, <<REF_REQ_REQ_EMG_049,REQ-EMG-049>>, <<REF_REQ_REQ_EMG_050,REQ-EMG-050>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_057,REQ-EMG-057>>, <<REF_REQ_REQ_EMG_058,REQ-EMG-058>>, <<REF_REQ_REQ_EMG_059,REQ-EMG-059>>, <<REF_REQ_REQ_EMG_060,REQ-EMG-060>>, <<REF_REQ_REQ_EMG_061,REQ-EMG-061>>, <<REF_REQ_REQ_EMG_062,REQ-EMG-062>>, <<REF_REQ_REQ_EMG_063,REQ-EMG-063>>, <<REF_REQ_REQ_EMG_064,REQ-EMG-064>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-065>>, <<REF_REQ_REQ_EMG_066,REQ-EMG-066>>, <<REF_REQ_REQ_EMG_067,REQ-EMG-067>>, <<REF_REQ_REQ_EMG_068,REQ-EMG-068>>, <<REF_REQ_REQ_EMG_069,REQ-EMG-069>>, <<REF_REQ_REQ_EMG_070,REQ-EMG-070>>, <<REF_REQ_REQ_EMG_071,REQ-EMG-071>>, <<REF_REQ_REQ_EMG_072,REQ-EMG-072>>, <<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_080,REQ-EMG-080>>, <<REF_REQ_REQ_EMG_081,REQ-EMG-081>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_083,REQ-EMG-083>>, <<REF_REQ_REQ_EMG_084,REQ-EMG-084>>, <<REF_REQ_REQ_EMG_085,REQ-EMG-085>>, <<REF_REQ_REQ_EMG_086,REQ-EMG-086>>, <<REF_REQ_REQ_EMG_087,REQ-EMG-087>>, <<REF_REQ_REQ_EMG_088,REQ-EMG-088>>, <<REF_REQ_REQ_EMG_089,REQ-EMG-089>>, <<REF_REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_REQ_REQ_EMG_091,REQ-EMG-091>>, <<REF_REQ_REQ_EMG_092,REQ-EMG-092>>, <<REF_REQ_REQ_EMG_093,REQ-EMG-093>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_095,REQ-EMG-095>>, <<REF_REQ_REQ_EMG_096,REQ-EMG-096>>, <<REF_REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_099,REQ-EMG-099>>, <<REF_REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_REQ_REQ_EMG_103,REQ-EMG-103>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_108,REQ-EMG-108>>, <<REF_REQ_REQ_EMG_109,REQ-EMG-109>>, <<REF_REQ_REQ_EMG_110,REQ-EMG-110>>, <<REF_REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_113,REQ-EMG-113>>, <<REF_REQ_REQ_EMG_114,REQ-EMG-114>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_116,REQ-EMG-116>>, <<REF_REQ_REQ_EMG_117,REQ-EMG-117>>, <<REF_REQ_REQ_EMG_118,REQ-EMG-118>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_120,REQ-EMG-120>>, <<REF_REQ_REQ_EMG_121,REQ-EMG-121>>
+|Mentioned In |<<REF_REQ_REQ_EMG_001,REQ-EMG-001>>, <<REF_REQ_REQ_EMG_003,REQ-EMG-003>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_005,REQ-EMG-005>>, <<REF_REQ_REQ_EMG_006,REQ-EMG-006>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_008,REQ-EMG-008>>, <<REF_REQ_REQ_EMG_009,REQ-EMG-009>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_011,REQ-EMG-011>>, <<REF_REQ_REQ_EMG_012,REQ-EMG-012>>, <<REF_REQ_REQ_EMG_013,REQ-EMG-013>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_016,REQ-EMG-016>>, <<REF_REQ_REQ_EMG_017,REQ-EMG-017>>, <<REF_REQ_REQ_EMG_018,REQ-EMG-018>>, <<REF_REQ_REQ_EMG_019,REQ-EMG-019>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_021,REQ-EMG-021>>, <<REF_REQ_REQ_EMG_022,REQ-EMG-022>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_024,REQ-EMG-024>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_031,REQ-EMG-031>>, <<REF_REQ_REQ_EMG_032,REQ-EMG-032>>, <<REF_REQ_REQ_EMG_033,REQ-EMG-033>>, <<REF_REQ_REQ_EMG_034,REQ-EMG-034>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_036,REQ-EMG-036>>, <<REF_REQ_REQ_EMG_037,REQ-EMG-037>>, <<REF_REQ_REQ_EMG_038,REQ-EMG-038>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_040,REQ-EMG-040>>, <<REF_REQ_REQ_EMG_041,REQ-EMG-041>>, <<REF_REQ_REQ_EMG_042,REQ-EMG-042>>, <<REF_REQ_REQ_EMG_043,REQ-EMG-043>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_045,REQ-EMG-045>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_047,REQ-EMG-047>>, <<REF_REQ_REQ_EMG_048,REQ-EMG-048>>, <<REF_REQ_REQ_EMG_049,REQ-EMG-049>>, <<REF_REQ_REQ_EMG_050,REQ-EMG-050>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_052,REQ-EMG-052>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_057,REQ-EMG-057>>, <<REF_REQ_REQ_EMG_058,REQ-EMG-058>>, <<REF_REQ_REQ_EMG_059,REQ-EMG-059>>, <<REF_REQ_REQ_EMG_060,REQ-EMG-060>>, <<REF_REQ_REQ_EMG_061,REQ-EMG-061>>, <<REF_REQ_REQ_EMG_062,REQ-EMG-062>>, <<REF_REQ_REQ_EMG_063,REQ-EMG-063>>, <<REF_REQ_REQ_EMG_064,REQ-EMG-064>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-065>>, <<REF_REQ_REQ_EMG_066,REQ-EMG-066>>, <<REF_REQ_REQ_EMG_067,REQ-EMG-067>>, <<REF_REQ_REQ_EMG_068,REQ-EMG-068>>, <<REF_REQ_REQ_EMG_069,REQ-EMG-069>>, <<REF_REQ_REQ_EMG_070,REQ-EMG-070>>, <<REF_REQ_REQ_EMG_071,REQ-EMG-071>>, <<REF_REQ_REQ_EMG_072,REQ-EMG-072>>, <<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_080,REQ-EMG-080>>, <<REF_REQ_REQ_EMG_081,REQ-EMG-081>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_083,REQ-EMG-083>>, <<REF_REQ_REQ_EMG_084,REQ-EMG-084>>, <<REF_REQ_REQ_EMG_085,REQ-EMG-085>>, <<REF_REQ_REQ_EMG_086,REQ-EMG-086>>, <<REF_REQ_REQ_EMG_087,REQ-EMG-087>>, <<REF_REQ_REQ_EMG_088,REQ-EMG-088>>, <<REF_REQ_REQ_EMG_089,REQ-EMG-089>>, <<REF_REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_REQ_REQ_EMG_091,REQ-EMG-091>>, <<REF_REQ_REQ_EMG_092,REQ-EMG-092>>, <<REF_REQ_REQ_EMG_093,REQ-EMG-093>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_095,REQ-EMG-095>>, <<REF_REQ_REQ_EMG_096,REQ-EMG-096>>, <<REF_REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_099,REQ-EMG-099>>, <<REF_REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_REQ_REQ_EMG_103,REQ-EMG-103>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_108,REQ-EMG-108>>, <<REF_REQ_REQ_EMG_109,REQ-EMG-109>>, <<REF_REQ_REQ_EMG_110,REQ-EMG-110>>, <<REF_REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_113,REQ-EMG-113>>, <<REF_REQ_REQ_EMG_114,REQ-EMG-114>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_116,REQ-EMG-116>>, <<REF_REQ_REQ_EMG_117,REQ-EMG-117>>, <<REF_REQ_REQ_EMG_118,REQ-EMG-118>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_120,REQ-EMG-120>>, <<REF_REQ_REQ_EMG_121,REQ-EMG-121>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>
 |===
 [[REF_IDX-ENGMODEL_TERM_ACTOR]]
 [discrete]
@@ -24698,7 +24844,7 @@ Authored control verification record with method, status, threat/risk scope, fin
 |Key |Value
 |Kind |Engineering Model Term
 |Name |control verification
-|Mentioned In |<<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_083,REQ-EMG-083>>, <<REF_REQ_REQ_EMG_117,REQ-EMG-117>>
+|Mentioned In |<<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_083,REQ-EMG-083>>, <<REF_REQ_REQ_EMG_117,REQ-EMG-117>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>
 |===
 [[REF_IDX-ENGMODEL_TERM_DATA_OBJECT]]
 [discrete]
@@ -24789,7 +24935,7 @@ A file, artifact, or observation used to support control, risk, threat, or verif
 |Key |Value
 |Kind |Engineering Model Term
 |Name |evidence
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>
 |===
 [[REF_IDX-ENGMODEL_TERM_FLOW]]
 [discrete]
@@ -24984,7 +25130,7 @@ The authored architecture model root that composes functional structure, relatio
 |Key |Value
 |Kind |Engineering Model Term
 |Name |model
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_049,REQ-EMG-049>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_058,REQ-EMG-058>>, <<REF_REQ_REQ_EMG_059,REQ-EMG-059>>, <<REF_REQ_REQ_EMG_062,REQ-EMG-062>>, <<REF_REQ_REQ_EMG_063,REQ-EMG-063>>, <<REF_REQ_REQ_EMG_066,REQ-EMG-066>>, <<REF_REQ_REQ_EMG_068,REQ-EMG-068>>, <<REF_REQ_REQ_EMG_069,REQ-EMG-069>>, <<REF_REQ_REQ_EMG_070,REQ-EMG-070>>, <<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_081,REQ-EMG-081>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_083,REQ-EMG-083>>, <<REF_REQ_REQ_EMG_085,REQ-EMG-085>>, <<REF_REQ_REQ_EMG_087,REQ-EMG-087>>, <<REF_REQ_REQ_EMG_089,REQ-EMG-089>>, <<REF_REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_REQ_REQ_EMG_113,REQ-EMG-113>>, <<REF_REQ_REQ_EMG_114,REQ-EMG-114>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_117,REQ-EMG-117>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_120,REQ-EMG-120>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_ED811A,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_004,REQ-EMG-004>>, <<REF_REQ_REQ_EMG_014,REQ-EMG-014>>, <<REF_REQ_REQ_EMG_015,REQ-EMG-015>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_027,REQ-EMG-027>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_049,REQ-EMG-049>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_058,REQ-EMG-058>>, <<REF_REQ_REQ_EMG_059,REQ-EMG-059>>, <<REF_REQ_REQ_EMG_062,REQ-EMG-062>>, <<REF_REQ_REQ_EMG_063,REQ-EMG-063>>, <<REF_REQ_REQ_EMG_066,REQ-EMG-066>>, <<REF_REQ_REQ_EMG_068,REQ-EMG-068>>, <<REF_REQ_REQ_EMG_069,REQ-EMG-069>>, <<REF_REQ_REQ_EMG_070,REQ-EMG-070>>, <<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_081,REQ-EMG-081>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_083,REQ-EMG-083>>, <<REF_REQ_REQ_EMG_085,REQ-EMG-085>>, <<REF_REQ_REQ_EMG_087,REQ-EMG-087>>, <<REF_REQ_REQ_EMG_089,REQ-EMG-089>>, <<REF_REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_REQ_REQ_EMG_113,REQ-EMG-113>>, <<REF_REQ_REQ_EMG_114,REQ-EMG-114>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_117,REQ-EMG-117>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_120,REQ-EMG-120>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_ED811A,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>
 |===
 [[REF_IDX-ENGMODEL_TERM_OPEN_OTM_DOCUMENT]]
 [discrete]
@@ -25101,7 +25247,7 @@ A structured requirement statement that defines expected system behavior and map
 |Key |Value
 |Kind |Engineering Model Term
 |Name |requirement
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_041,REQ-EMG-041>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_050,REQ-EMG-050>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_061,REQ-EMG-061>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-065>>, <<REF_REQ_REQ_EMG_067,REQ-EMG-067>>, <<REF_REQ_REQ_EMG_071,REQ-EMG-071>>, <<REF_REQ_REQ_EMG_072,REQ-EMG-072>>, <<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_081,REQ-EMG-081>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_084,REQ-EMG-084>>, <<REF_REQ_REQ_EMG_087,REQ-EMG-087>>, <<REF_REQ_REQ_EMG_088,REQ-EMG-088>>, <<REF_REQ_REQ_EMG_089,REQ-EMG-089>>, <<REF_REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_REQ_REQ_EMG_091,REQ-EMG-091>>, <<REF_REQ_REQ_EMG_092,REQ-EMG-092>>, <<REF_REQ_REQ_EMG_093,REQ-EMG-093>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_095,REQ-EMG-095>>, <<REF_REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_099,REQ-EMG-099>>, <<REF_REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_109,REQ-EMG-109>>, <<REF_REQ_REQ_EMG_110,REQ-EMG-110>>, <<REF_REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_113,REQ-EMG-113>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_118,REQ-EMG-118>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_120,REQ-EMG-120>>, <<REF_REQ_REQ_EMG_121,REQ-EMG-121>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_041,REQ-EMG-041>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_050,REQ-EMG-050>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_061,REQ-EMG-061>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-065>>, <<REF_REQ_REQ_EMG_067,REQ-EMG-067>>, <<REF_REQ_REQ_EMG_071,REQ-EMG-071>>, <<REF_REQ_REQ_EMG_072,REQ-EMG-072>>, <<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_081,REQ-EMG-081>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_084,REQ-EMG-084>>, <<REF_REQ_REQ_EMG_087,REQ-EMG-087>>, <<REF_REQ_REQ_EMG_088,REQ-EMG-088>>, <<REF_REQ_REQ_EMG_089,REQ-EMG-089>>, <<REF_REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_REQ_REQ_EMG_091,REQ-EMG-091>>, <<REF_REQ_REQ_EMG_092,REQ-EMG-092>>, <<REF_REQ_REQ_EMG_093,REQ-EMG-093>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_095,REQ-EMG-095>>, <<REF_REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_099,REQ-EMG-099>>, <<REF_REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_109,REQ-EMG-109>>, <<REF_REQ_REQ_EMG_110,REQ-EMG-110>>, <<REF_REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_113,REQ-EMG-113>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_118,REQ-EMG-118>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_120,REQ-EMG-120>>, <<REF_REQ_REQ_EMG_121,REQ-EMG-121>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>
 |===
 [[REF_IDX-ENGMODEL_TERM_RISK]]
 [discrete]
@@ -26557,6 +26703,20 @@ Inferred library_external dependency owned by FU-CLI-ORCHESTRATION from internal
 |Source |internal/integration/schema_v2_projection_test.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__STATUSSUGGEST_GO__INTERNAL_ENGWS_STATUSSUGGEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (statussuggest.go)
+
+Inferred library_external dependency owned by FU-CLI-ORCHESTRATION from internal/engws/statussuggest.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-CLI-ORCHESTRATION
+|Source |internal/engws/statussuggest.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_SANTHOSH_TEKURI_JSONSCHEMA_V5__THREAT_MODEL_EXPORT_TEST_GO__INTERNAL_EXPORT_THREATMODEL_THREAT_MODEL_EXPORT_TEST_GO]]
 [discrete]
 ==== github.com/santhosh-tekuri/jsonschema/v5 (threat_model_export_test.go)
@@ -27031,20 +27191,6 @@ Inferred library_external dependency owned by FU-CLI-ORCHESTRATION from internal
 |Kind |Code library_external
 |Owner |FU-CLI-ORCHESTRATION
 |Source |internal/engws/scan.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_GOPKG_IN_YAML_V3__SEMANTIC_GO__INTERNAL_MODEL_SEMANTIC_GO]]
-[discrete]
-==== gopkg.in/yaml.v3 (semantic.go)
-
-Inferred library_external dependency owned by FU-MODEL-LOADER from internal/model/semantic.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |FU-MODEL-LOADER
-|Source |internal/model/semantic.go
 |Mentioned In |n/a
 |===
 
@@ -28803,6 +28949,21 @@ Inferred from test source artifact.
 |Source |internal/engws/stage_test.go
 |Name |Stage Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_STAGE_TEST_4E9FDB,Stage Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089]]
+[discrete]
+==== VER-INF-TEST-STATUSSUGGEST_TEST-7D4089
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |internal/engws/statussuggest_test.go
+|Name |Statussuggest Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,Statussuggest Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_36AE65]]
 [discrete]

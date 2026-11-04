@@ -153,6 +153,19 @@ commands:
                              a second run changes nothing; a failed write
                              restores every file; migrate the dependencies
                              first
+  status-suggest [--repo DIR] [--tree HASH] [--json]
+                             print the status each requirement and control
+                             verification of the model in DIR earns from this
+                             tree's evidence; write nothing: implemented
+                             (code linked), verified (also a test link that
+                             is not environment gated or only benchmarks,
+                             and a RED line in .engflow/red-checks.jsonl for
+                             this tree naming it in reqs), control
+                             verification pass (every verificationRefs
+                             requirement verified); the tree is the
+                             working-tree hash (git write-tree on a
+                             temporary index, as tree-hash.mjs) unless
+                             --tree; exit 1 on a model or git error
   stage [--version-from manifest|tag] [--serve] [--addr 127.0.0.1:0]
                              publish every checkout, in dependency order, into
                              <root>/.engmod/staging (see Staging); refuse a
@@ -234,6 +247,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	by := sub.String("by", "", "")
 	rationale := sub.String("rationale", "", "")
 	tag := sub.String("tag", "", "")
+	treeFlag := sub.String("tree", "", "")
 	dryRun := sub.Bool("dry-run", false, "")
 	parent := sub.String("parent", "", "")
 	evidence := sub.String("evidence", "", "")
@@ -244,7 +258,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 2
 	}
 	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
-		"review-links": 0, "contract-diff": 2, "release-check": 0, "migrate-links": 0, "link": 2}
+		"review-links": 0, "contract-diff": 2, "release-check": 0, "migrate-links": 0, "link": 2, "status-suggest": 0}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
@@ -286,6 +300,13 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		code, err := runLinkAdd(*repoFlag, LinkAddOptions{Parent: *parent, Evidence: ev, Child: positional[1], Rationale: *rationale}, stdout)
 		if err != nil {
 			fmt.Fprintf(stderr, "engws link add: %v\n", err)
+		}
+		return code
+	}
+	if command == "status-suggest" {
+		code, err := runStatusSuggest(*repoFlag, strings.TrimSpace(*treeFlag), *asJSON, stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 		}
 		return code
 	}

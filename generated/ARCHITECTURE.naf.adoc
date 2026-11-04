@@ -293,6 +293,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |Canonical ID |Kind |Label
 |`CTRL-STRICT-MCP-INPUT-SCHEMA` |control |Strict MCP Input Schemas
 |`EVT-MODEL-UPDATED` |event |Model Updated
+|`EVT-STATUS-SUGGEST-REQUESTED` |event |Status Suggest Requested
 |`STATE-MODEL-INVALID` |state |Model Invalid
 |`STATE-MODEL-VALID` |state |Model Valid
 |===
@@ -305,4 +306,5 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`STATE-MODEL-INVALID` |transitions_to |`STATE-MODEL-VALID` |transitions_to: Model becomes valid after diagnostics are resolved.
 |`STATE-MODEL-VALID` |guarded_by |`CTRL-STRICT-MCP-INPUT-SCHEMA` |guarded_by: Model-aware tool usage requires strict MCP input semantics.
 |`STATE-MODEL-VALID` |triggered_by |`EVT-MODEL-UPDATED` |triggered_by: Any model update can invalidate freshness and trigger regeneration.
+|`STATE-MODEL-VALID` |triggered_by |`EVT-STATUS-SUGGEST-REQUESTED` |triggered_by: engws status-suggest reads a valid model and its tree's evidence and writes nothing (REQ-EMG-122).
 |===

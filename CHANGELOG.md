@@ -48,6 +48,11 @@ semantic versioning.
 
 ### Added
 
+- `engws status-suggest [--repo DIR] [--tree HASH] [--json]` (REQ-EMG-122): prints the status
+  each requirement earns from this tree's evidence (implemented: code linked; verified: also an
+  ungated, non-benchmark test link and a RED line in `.engflow/red-checks.jsonl` for the
+  working-tree hash naming it) and each control verification (pass when every requirement it
+  names is verified). Writes nothing; the owner approves the changes.
 - `verification.benchmark_only` (warning, REQ-EMG-121): a requirement whose
   `verificationCriteria` name a number and whose only linked tests are benchmarks (Go
   `Benchmark*`, Rust `#[bench]`, now detected as a test entry point); the trace row gets

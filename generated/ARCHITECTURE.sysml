@@ -1658,6 +1658,12 @@ package 'engineering-model-go' {
     attribute 'EVT-SPEC-DELTA-REQUESTED';
 
     @EngineeringElement {
+        sourceId = "EVT-STATUS-SUGGEST-REQUESTED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-STATUS-SUGGEST-REQUESTED' : EngineeringEvent;
+
+    @EngineeringElement {
         sourceId = "EVT-VALIDATION-FAILED";
         conceptKind = "event_definition";
     }
@@ -3238,6 +3244,15 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-122";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-122' {
+        attribute 'text' : 'String' = "When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree.";
+        attribute 'notes' : 'String' = "Retro 1104 item 7. engws status-suggest [--repo DIR] [--tree HASH] [--json] writes nothing. The tree is the working-tree hash as engineering-flow tree-hash.mjs computes it (git add -A into a temporary copy of the index, git write-tree; the real index is unchanged), or --tree. Evidence is the trace matrix of the model (lock check, module cache reuse) and the lines of <git top level>/.engflow/red-checks.jsonl with that tree, verdict RED, failure not build and the requirement in reqs (lines without reqs are not attributed). A local requirement earns implemented when code links it (or reviewed links roll it up as implemented); verified when also a test links it that is not environment gated (Row.Gated) and not only benchmarks (Row.BenchmarkOnly) and a RED line names it, or reviewed links roll it up as implemented and test linked; else nothing. A control verification earns pass when it names at least one requirement in verificationRefs and every requirement it names earns verified; a CODE-* reference is not judged and keeps the current status. The table prints current, suggested and why per row; --json the same. Exit 0, 1 on a model or git error.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
@@ -4070,6 +4085,17 @@ package 'engineering-model-go' {
         relationshipKind = "flow_error";
     }
     succession 'REL-4E21742D2FB84467' first 'regenerate-lock' then 'restore-bump-files';
+
+    @EngineeringRelationship {
+        sourceId = "REL-4E44314342A35B96";
+        conceptKind = "event_trigger";
+        relationshipKind = "triggered_by";
+    }
+    state 'REL-4E44314342A35B96-context' : EngineeringState {
+        state 'STATE-MODEL-VALID' : EngineeringState;
+        action transitionEffect : EngineeringAction;
+        transition 'REL-4E44314342A35B96' first 'STATE-MODEL-VALID' accept 'EVT-STATUS-SUGGEST-REQUESTED' : EngineeringItem then transitionEffect;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-4E93BAD6FCDAC1E2";

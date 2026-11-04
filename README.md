@@ -892,6 +892,15 @@ dependency pin count toward the trace roll-up of the system requirement.
 `pinned.fingerprint` (v0.8.0) is deprecated: still accepted for one release, ignored, and
 reported as `link.fingerprint_deprecated` (warning). `engws migrate-links` removes it.
 
+**`engws status-suggest [--repo DIR] [--tree HASH] [--json]`** prints the status each
+requirement and control verification earns from this tree's evidence, and writes nothing:
+`implemented` when code links the requirement; `verified` when also a test links it that is
+neither environment gated nor only a benchmark, and `.engflow/red-checks.jsonl` (written by
+engineering-flow's `red-check.mjs`) has a RED line for this tree naming it in `reqs`; a control
+verification `pass` when every requirement in its `verificationRefs` is verified. The tree is
+the working-tree hash (`git write-tree` on a temporary index, as `tree-hash.mjs`), or `--tree`.
+The owner approves the list; set the statuses in the model by hand or with `model.patch`.
+
 **`engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json]`** compares the
 published contract items of the model as committed at two git refs:
 
