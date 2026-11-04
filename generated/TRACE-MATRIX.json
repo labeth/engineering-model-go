@@ -237,17 +237,17 @@
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--DEDUPEEARSENTRIES",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 281
+          "line": 282
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISBLOCKINGCATALOGDIAGNOSTIC",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 319
+          "line": 366
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISNOTIDRUNE",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 411
+          "line": 458
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTMODELREQUIREMENTSEARS",
@@ -267,52 +267,52 @@
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MAPEARSSEVERITY",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 305
+          "line": 306
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MODELREFERENCEDIDS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 363
+          "line": 410
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTIDFROMPATH",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 447
+          "line": 494
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTPATH",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 328
+          "line": 375
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--SUPPRESSWAIVEDDIAGNOSTICS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 422
+          "line": 469
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCATALOG",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 234
+          "line": 235
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCOVERAGECATALOG",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 252
+          "line": 253
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSENTRIES",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 267
+          "line": 268
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WALKSTRINGS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 379
+          "line": 426
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WITHOUTUSEDTERMS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 340
+          "line": 387
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--CHDIRREPOROOT",
@@ -2200,17 +2200,17 @@
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--DEDUPEEARSENTRIES",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 281
+          "line": 282
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISBLOCKINGCATALOGDIAGNOSTIC",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 319
+          "line": 366
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--ISNOTIDRUNE",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 411
+          "line": 458
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTMODELREQUIREMENTSEARS",
@@ -2230,52 +2230,52 @@
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MAPEARSSEVERITY",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 305
+          "line": 306
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--MODELREFERENCEDIDS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 363
+          "line": 410
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTIDFROMPATH",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 447
+          "line": 494
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--REQUIREMENTPATH",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 328
+          "line": 375
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--SUPPRESSWAIVEDDIAGNOSTICS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 422
+          "line": 469
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCATALOG",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 234
+          "line": 235
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSCOVERAGECATALOG",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 252
+          "line": 253
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--TOEARSENTRIES",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 267
+          "line": 268
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WALKSTRINGS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 379
+          "line": 426
         },
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--WITHOUTUSEDTERMS",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 340
+          "line": 387
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
@@ -10558,7 +10558,7 @@
         {
           "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--RESPONSECONJUNCTIONSONLYINFIELDLIST",
           "path": "internal/reqlint/ears_preflight.go",
-          "line": 484
+          "line": 531
         }
       ],
       "verifications": [
@@ -13410,6 +13410,35 @@
       ],
       "result": "not-run",
       "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-123",
+      "text": "When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--LINTREQUIREMENTSEARSWITHUSAGE",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--UNKNOWNTERMMESSAGE",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 347
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-EARS-PREFLIGHT-GO--UNRESOLVEDSECTIONS",
+          "path": "internal/reqlint/ears_preflight.go",
+          "line": 329
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-EARS_PREFLIGHT_TEST-F8DE08"
+      ],
+      "result": "not-run",
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
@@ -13418,11 +13447,11 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 115,
-    "implemented": 112,
-    "verified": 105,
-    "tested": 105,
-    "testLinked": 105,
+    "requirements": 116,
+    "implemented": 113,
+    "verified": 106,
+    "tested": 106,
+    "testLinked": 106,
     "passed": 0,
     "delegated": 0,
     "delegatedImplemented": 0,

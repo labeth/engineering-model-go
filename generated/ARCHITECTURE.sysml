@@ -3253,6 +3253,15 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-123";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-123' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.";
+        attribute 'notes' : 'String' = "Retro 1104 model findings. ears-lint reports catalog.<role>_unresolved at the same span as expr.unknown_term, the role coming from the clause position (When: event, While: state, the system term: system, and so on). Both diagnostics then say unknown term \"<term>\" in expression (or unresolved catalog term \"<term>\") and add it to catalog.<section> (or an alias of an existing entry), the section from the role (systems, actors, events, states, features, modes, conditions, dataTerms). A diagnostic without a paired role keeps its message.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }

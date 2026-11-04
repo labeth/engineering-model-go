@@ -89,6 +89,9 @@ semantic versioning.
   and `threat.attack_vector_missing` (a threat scenario without `attackVectorRef` while others
   have one). The Atlas `shared-compliance-baseline` example now lists
   `CTRL-COMP-PERSONNEL-SCREENING` on `RISK-COMP-RETAINED-ACCESS`.
+- `expr.unknown_term` and `catalog.<role>_unresolved` name the term and the catalog section it
+  belongs in, from its clause position (REQ-EMG-123): `unknown term "pump starts" in
+  expression; add it to catalog.events (or an alias of an existing entry)`.
 
 ### Fixed
 

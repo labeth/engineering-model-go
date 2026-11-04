@@ -794,3 +794,10 @@ requirements:
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-ALLOCATION-TRACE
+  - id: REQ-EMG-123
+    text: When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.
+    notes: 'Retro 1104 model findings. ears-lint reports catalog.<role>_unresolved at the same span as expr.unknown_term, the role coming from the clause position (When: event, While: state, the system term: system, and so on). Both diagnostics then say unknown term "<term>" in expression (or unresolved catalog term "<term>") and add it to catalog.<section> (or an alias of an existing entry), the section from the role (systems, actors, events, states, features, modes, conditions, dataTerms). A diagnostic without a paired role keeps its message.'
+    verificationMethods: [test]
+    verificationCriteria: When a When clause names pump starts and a While clause brewing mode is active, neither in the catalog, then expr.unknown_term and catalog.event_unresolved name pump starts and catalog.events, and expr.unknown_term names brewing mode is active and catalog.states.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
