@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.9.0] — 2026-11-04: Version-pinned link review, model.patch, MCP family repo, status-suggest
+
 ### Changed
 
 - **Requirement links are reviewed by version, not by fingerprint** (D23, ADR-EMG-030;
