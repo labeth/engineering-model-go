@@ -11,8 +11,8 @@ import (
 	"strings"
 	"text/tabwriter"
 
+	"github.com/labeth/engineering-model-go/internal/linkreview"
 	"github.com/labeth/engineering-model-go/internal/model"
-	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -64,38 +64,58 @@ commands:
                              checkouts); --refresh re-fetches every registry
                              dependency (ENGMOD_MODULE_CACHE=refresh); exit 1
                              on failure
-  bump <repo> <alias> <version> [--allow-suspect]
+  bump <repo> <alias> <version> [--allow-review] [--show]
                              set dependency <alias> of <repo> to <version> in
                              engmod.yml, the matching go.mod require and go.sum
                              (go get, GOWORK=off), and the lock (composed with
                              ENGMOD_WORK=off, dependencies re-fetched), then
-                             print each requirement link on <alias> as
-                             unchanged, suspect or broken at <version>;
-                             unchanged links move pinned.version to <version>,
-                             the others keep their pin and fingerprint (never
-                             re-stamped); a suspect or broken link aborts the
-                             bump unless --allow-suspect (then the model check
-                             fails until review-links); any failure or abort
-                             restores all files
-  review-links [--repo DIR] [--json]
+                             compare each requirement link on <alias> between
+                             its pinned version and <version> (both published,
+                             workspace off) by meaning: item kind, text and
+                             verificationCriteria and each realizing
+                             requirement's text and verificationCriteria
+                             (status, notes, criticality and the like are not
+                             compared); the same meaning moves pinned.version
+                             to <version> (moved), a changed meaning, a pinned
+                             version that cannot be resolved (review) or a
+                             removed item (broken) keeps the pin, so the
+                             model check reports link.version_mismatch until
+                             review-links accepts it; one line per link, IDs
+                             only (--show adds the text before and after);
+                             exit 1 when a link needs review unless
+                             --allow-review (--allow-suspect is a deprecated
+                             alias); any failure restores all files
+  review-links [--repo DIR] [--json] [--show]
                              list the requirement links of the model in DIR
-                             (default .) that are suspect, broken, pinned to
-                             another version than the dependency or stamped in
-                             another fingerprint form: the parent
-                             requirement and the child item with its realizing
-                             requirements before (at the link's pinned
-                             version, from the module cache or registry) and
-                             after (at the dependency pin); exit 1 if any
+                             (default .) that need review: pinned to another
+                             version than the dependency, broken or claimed,
+                             one line each with what changed in meaning
+                             between the pinned version and the dependency
+                             pin (both published, workspace off; a cached
+                             module is refetched when the registry's digest
+                             differs, for example after engws stage re-staged
+                             a version); --show adds the parent requirement
+                             and the item with its realizing requirements
+                             before and after; exit 1 if any
   review-links [--repo DIR] --accept LNK-ID --by ACT-ID --rationale TEXT
                              record the review in the requirement link file:
-                             the fingerprint of the published dependency at
-                             its pin (composed with the workspace off, never
-                             a workspace checkout), the dependency pin,
+                             pinned.version set to the dependency pin,
                              reviewedBy, reviewedOn (today), rationale and
-                             status accepted; only those lines change; refuse
-                             an actor the model does not define, a broken
-                             link and a dependency that does not resolve with
-                             the workspace off
+                             status accepted, a deprecated fingerprint
+                             removed; only those lines change; refuse an
+                             actor the model does not define, a broken link
+                             and a dependency that does not resolve with the
+                             workspace off; then evaluate the link again and
+                             exit 1 when it still does not pass
+  link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-...|alias::AOU-...> [--rationale TEXT]
+                             add a claimed requirement link pinned to the
+                             dependency version: the parent (or evidence)
+                             must exist, the child must be a published
+                             capability or assumption of use at that version
+                             (workspace off), and no link may join the same
+                             parent to it; appended with every other line
+                             kept, model/req-links.yml and documents.reqLinks
+                             created when missing; id LNK-<REQ>-<ALIAS>
   contract-diff <from-ref> <to-ref> [--repo DIR] [--json]
                              compare the published contract items (capabilities
                              and assumptions of use, with their realizing
@@ -122,9 +142,10 @@ commands:
                              convert the deprecated trace of the model in DIR:
                              each composition.allocations entry becomes a
                              claimed link in model/req-links.yml (id
-                             LNK-<REQ>-<ALIAS>, the dependency pin and the
-                             current fingerprint, empty when the target cannot
-                             be resolved), documents.reqLinks is added, the
+                             LNK-<REQ>-<ALIAS>, the dependency pin; parent for
+                             a capability, evidence for an assumption of
+                             use), every deprecated pinned.fingerprint is
+                             removed (count printed), documents.reqLinks is added, the
                              allocations are removed, and each capability
                              contract.provides[].ref becomes realizes on its
                              requirement; other lines are kept; print the
@@ -165,8 +186,10 @@ rejects it). Locks written against staging pin the staged digests: delete
 <root>/.engmod/staging and regenerate them after the real publish if the
 published content differs (for example a different commit).
 
-exit codes: 0 ok, 1 skew, findings or failure (review-links: a link needs
-review or an accept was refused; release-check: findings), 2 usage (and,
+exit codes: 0 ok, 1 skew, findings or failure (bump: a link needs review,
+unless --allow-review; review-links: a link needs review or an accept was
+refused or does not pass; link add: refused; release-check: findings), 2
+usage (and,
 for contract-diff and release-check, a git, IO or model error)
 `
 
@@ -202,7 +225,9 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	versionFrom := sub.String("version-from", VersionFromManifest, "")
 	serve := sub.Bool("serve", false, "")
 	addr := sub.String("addr", "127.0.0.1:0", "")
-	allowSuspect := sub.Bool("allow-suspect", false, "")
+	allowReview := sub.Bool("allow-review", false, "")
+	sub.BoolVar(allowReview, "allow-suspect", false, "") // deprecated name of --allow-review
+	show := sub.Bool("show", false, "")
 	repoFlag := sub.String("repo", ".", "")
 	asJSON := sub.Bool("json", false, "")
 	accept := sub.String("accept", "", "")
@@ -210,6 +235,8 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	rationale := sub.String("rationale", "", "")
 	tag := sub.String("tag", "", "")
 	dryRun := sub.Bool("dry-run", false, "")
+	parent := sub.String("parent", "", "")
+	evidence := sub.String("evidence", "", "")
 	sub.StringVar(rootFlag, "root", *rootFlag, "")
 	positional, err := parseInterspersed(sub, rest)
 	if err != nil {
@@ -217,7 +244,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 2
 	}
 	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
-		"review-links": 0, "contract-diff": 2, "release-check": 0, "migrate-links": 0}
+		"review-links": 0, "contract-diff": 2, "release-check": 0, "migrate-links": 0, "link": 2}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
@@ -240,10 +267,25 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 			fmt.Fprintf(stderr, "engws review-links: --accept needs --by ACT-ID and --rationale TEXT\n%s", Usage)
 			return 2
 		}
-		code, err := runReviewLinks(*repoFlag, *asJSON, *accept, strings.TrimSpace(*by), *rationale, stdout)
+		code, err := runReviewLinks(*repoFlag, *asJSON, *show, *accept, strings.TrimSpace(*by), *rationale, stdout)
 		if err != nil {
 			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 			return 1
+		}
+		return code
+	}
+	if command == "link" {
+		if positional[0] != "add" {
+			fmt.Fprintf(stderr, "engws link: unknown subcommand %q (want add)\n%s", positional[0], Usage)
+			return 2
+		}
+		var ev []string
+		if strings.TrimSpace(*evidence) != "" {
+			ev = strings.Split(*evidence, ",")
+		}
+		code, err := runLinkAdd(*repoFlag, LinkAddOptions{Parent: *parent, Evidence: ev, Child: positional[1], Rationale: *rationale}, stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws link add: %v\n", err)
 		}
 		return code
 	}
@@ -305,7 +347,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	case "check":
 		code, err = runCheck(ctx, root, registry, *all, *summary, CheckOptions{InProcess: *inProcess, Refresh: *refresh}, stdout, stderr)
 	case "bump":
-		err = runBump(root, positional[0], positional[1], positional[2], BumpOptions{AllowSuspect: *allowSuspect}, stdout)
+		code, err = runBump(root, positional[0], positional[1], positional[2], BumpOptions{AllowReview: *allowReview}, *show, stdout)
 	case "stage":
 		code, err = runStage(ctx, root, *versionFrom, *serve, *addr, stdout)
 	}
@@ -496,21 +538,20 @@ func runCheck(ctx context.Context, root string, registry Registry, all, summary 
 	return code, nil
 }
 
-// runBump applies a dependency version bump and prints the evaluation of
-// each requirement link on the bumped alias.
+// runBump applies a dependency version bump and prints one line per
+// requirement link on the bumped alias (with show, the item text before and
+// after for each link left for review). It returns 1 when a link was left
+// for review, unless opts.AllowReview.
 // TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
-func runBump(root, repo, alias, version string, opts BumpOptions, w io.Writer) error {
+func runBump(root, repo, alias, version string, opts BumpOptions, show bool, w io.Writer) (int, error) {
 	result, err := Bump(root, repo, alias, version, opts)
 	for _, d := range result.Diagnostics {
 		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
 			fmt.Fprintf(w, "    %s [error] %s (%s)\n", d.Code, d.Message, d.Path)
 		}
 	}
-	for _, s := range result.Links {
-		printBumpLink(w, s, version)
-	}
 	if err != nil {
-		return err
+		return 1, err
 	}
 	fmt.Fprintf(w, "engws: %s %s %s -> %s in engmod.yml\n", repo, alias, result.From, result.To)
 	if result.GoModule != "" {
@@ -519,31 +560,40 @@ func runBump(root, repo, alias, version string, opts BumpOptions, w io.Writer) e
 	if result.LockWritten {
 		fmt.Fprintf(w, "engws: %s %s regenerated (workspace off)\n", repo, "engmod.lock.yml")
 	}
-	if len(result.Repinned) > 0 {
-		fmt.Fprintf(w, "engws: %s re-pinned %d unchanged link(s) to %s: %s\n", repo, len(result.Repinned), version, strings.Join(result.Repinned, ", "))
+	for _, l := range result.Links {
+		printBumpLink(w, l, show)
 	}
-	if result.Blocked {
-		fmt.Fprintf(w, "engws: --allow-suspect: links that need review keep their pin and fingerprint; the model check fails until engws review-links accepts them\n")
+	if !result.NeedReview {
+		return 0, nil
 	}
-	return nil
+	fmt.Fprintf(w, "engws: links marked review or broken keep their pin; the model check reports link.version_mismatch or link.broken until engws review-links --accept (engws review-links --repo %s --show lists the change)\n", repo)
+	if opts.AllowReview {
+		return 0, nil
+	}
+	return 1, nil
 }
 
-// printBumpLink prints one evaluated link: state, ID, child and, for a
-// suspect or broken link, what changed.
+// printBumpLink prints one link outcome on one line, ID only: moved and
+// current links with their versions, a link left for review or broken with
+// what changed by ID; show adds the item before and after.
 // TRLC-LINKS: REQ-EMG-100
-func printBumpLink(w io.Writer, s reqlinks.LinkStatus, version string) {
-	state := string(s.Content)
-	fmt.Fprintf(w, "  %s %s %s (%s -> %s)\n", state, s.ID, s.Child, s.Pinned, version)
-	switch s.Content {
-	case reqlinks.StateSuspect:
-		fmt.Fprintf(w, "      %s\n", reqlinks.SuspectMessage(s))
-	case reqlinks.StateUnchanged:
+func printBumpLink(w io.Writer, l BumpLink, show bool) {
+	switch l.Outcome {
+	case BumpLinkMoved:
+		fmt.Fprintf(w, "  moved %s %s -> %s\n", l.ID, l.From, l.To)
+	case BumpLinkCurrent:
+		fmt.Fprintf(w, "  current %s %s\n", l.ID, l.To)
 	default:
-		detail := s.Detail
-		if detail == "" {
-			detail = "the item no longer exists at " + version
+		fmt.Fprintf(w, "  %s %s (%s)\n", l.Outcome, l.ID, l.Note)
+		if show && l.After != nil {
+			var before []string
+			if l.Before != nil {
+				before = linkreview.NewItemView(l.Before).Lines()
+			}
+			for _, line := range linkreview.DiffLines(before, linkreview.NewItemView(l.After).Lines(), l.Before != nil) {
+				fmt.Fprintln(w, "      "+line)
+			}
 		}
-		fmt.Fprintf(w, "      %s\n", detail)
 	}
 }
 

@@ -743,7 +743,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === CAP-CONTROL-BASELINE (capability)
 
@@ -759,8 +759,6 @@ Realized by:
 * `REQ-COMP-006`: The people security and awareness shall request a line manager access review following an employee role change.
 * `REQ-COMP-007`: The people security and awareness shall revoke employee access following employment termination.
 * `REQ-COMP-008`: The people security and awareness shall request people operations partner confirmation of company asset return following employment termination.
-
-Fingerprint: `sha256:v1:a6a021ac4665f1e4766f9453beeb5171d9909ac829be2a7b525ae07ed91a36c0`
 
 <<<
 == Reference Index

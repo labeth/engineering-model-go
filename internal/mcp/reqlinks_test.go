@@ -50,31 +50,46 @@ func copyLinksExample(t *testing.T) string {
 	return root
 }
 
+// registryRoots keeps one registry directory per test, so each
+// publishLinksChildren call adds versions to what the test published before.
+var registryRoots = map[string]string{}
+
 // publishLinksChildren publishes the fixture children of root (as edited
-// so far) as v0.1.0 into a CUE test registry and routes models.example to
-// it, so a workspace-off composition (links.review) resolves them.
-func publishLinksChildren(t *testing.T, root string) {
+// so far) at each version into the test's CUE test registry (versions
+// published earlier stay) and routes models.example to it, so a
+// workspace-off composition resolves them.
+func publishLinksChildren(t *testing.T, root string, versions ...string) {
 	t.Helper()
-	registryRoot := filepath.Join(t.TempDir(), "registry")
-	for _, child := range []string{"child-a", "child-b"} {
-		src := filepath.Join(root, "repos", child)
-		dst := filepath.Join(registryRoot, "models.example_reqlinks_"+child+"_v0.1.0")
-		err := filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
+	registryRoot, ok := registryRoots[t.Name()]
+	if !ok {
+		registryRoot = filepath.Join(t.TempDir(), "registry")
+		registryRoots[t.Name()] = registryRoot
+		t.Cleanup(func() { delete(registryRoots, t.Name()) })
+	}
+	for _, version := range versions {
+		for _, child := range []string{"child-a", "child-b"} {
+			src := filepath.Join(root, "repos", child)
+			dst := filepath.Join(registryRoot, "models.example_reqlinks_"+child+"_"+version)
+			err := filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
+				if err != nil {
+					return err
+				}
+				rel, _ := filepath.Rel(src, path)
+				if d.IsDir() {
+					return os.MkdirAll(filepath.Join(dst, rel), 0o755)
+				}
+				data, err := os.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				if rel == "engmod.yml" {
+					data = []byte(strings.Replace(string(data), "  version: v0.1.0\n", "  version: "+version+"\n", 1))
+				}
+				return os.WriteFile(filepath.Join(dst, rel), data, 0o644)
+			})
 			if err != nil {
-				return err
+				t.Fatal(err)
 			}
-			rel, _ := filepath.Rel(src, path)
-			if d.IsDir() {
-				return os.MkdirAll(filepath.Join(dst, rel), 0o755)
-			}
-			data, err := os.ReadFile(path)
-			if err != nil {
-				return err
-			}
-			return os.WriteFile(filepath.Join(dst, rel), data, 0o644)
-		})
-		if err != nil {
-			t.Fatal(err)
 		}
 	}
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
@@ -135,7 +150,7 @@ func TestTraceMatrixToolReportsRequirementLinks(t *testing.T) {
 	s := linksServer(t, root, "system")
 	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
 		summary := callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any)
-		for _, key := range []string{"linksSuspect", "linksBroken", "linksClaimed", "unparented"} {
+		for _, key := range []string{"linksNeedReview", "linksVersionMismatch", "linksSuspect", "linksBroken", "linksClaimed", "unparented"} {
 			if summary[key] != float64(0) {
 				t.Fatalf("summary %v: %s = %v, want 0: %+v", args, key, summary[key], summary)
 			}
@@ -182,47 +197,75 @@ func linkByID(t *testing.T, list any, id string) map[string]any {
 	return nil
 }
 
-// links.list lists every link with its state, the pinned and the
-// dependency version and the recorded and current fingerprint;
-// links.suspect lists only the suspect one with the item after the change
-// (the before version is not resolvable offline here, so a note); a model
-// without links returns empty lists.
-// Mutation: dropping the state or the current fingerprint from links.list,
-// listing an unchanged link in links.suspect or dropping the after item
+// links.list lists every link with its state, review status, needsReview
+// and the pinned and dependency version; in a workspace a changed child
+// checkout is not compared (D23), so every link stays unchanged.
+// links.suspect lists the links that need review against the published
+// dependencies (workspace off): a stale pin with the item before and after
+// and what changed, and a claimed link; a model without links returns
+// empty lists.
+// Mutation: comparing workspace content, dropping needsReview, listing an
+// accepted link at its pin in links.suspect or dropping the change list
 // fails this test.
 // TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestLinksListAndSuspectTools(t *testing.T) {
 	root := copyLinksExample(t)
-	editTestFile(t, filepath.Join(root, "repos", "child-a", "model", "requirements.yml"), "shall publish one position sentence.", "shall publish two position sentences.")
+	childReqs := filepath.Join(root, "repos", "child-a", "model", "requirements.yml")
+	publishLinksChildren(t, root, "v0.1.0")
+	editTestFile(t, childReqs, "shall publish one position sentence.", "shall publish two position sentences.")
+	publishLinksChildren(t, root, "v0.2.0")
 	s := linksServer(t, root, "system")
 	list := callToolPayload(t, s, "links.list", map[string]any{})
 	if links, _ := list["links"].([]any); len(links) != 4 {
 		t.Fatalf("links.list: %+v", list)
 	}
-	suspect := linkByID(t, list["links"], "LNK-SYS-001-ENCODER")
-	unchanged := linkByID(t, list["links"], "LNK-SYS-002-ENCODER")
-	if suspect["state"] != "suspect" || suspect["pinnedVersion"] != "v0.1.0" || suspect["dependencyVersion"] != "v0.1.0" ||
-		suspect["status"] != "accepted" || suspect["parent"] != "REQ-SYS-001" || suspect["child"] != "encoder::CAP-A-1" {
-		t.Fatalf("suspect link: %+v", suspect)
+	for _, id := range []string{"LNK-SYS-001-ENCODER", "LNK-SYS-002-ENCODER"} {
+		if l := linkByID(t, list["links"], id); l["state"] != "unchanged" || l["needsReview"] != false || l["local"] != true {
+			t.Fatalf("a workspace edit changed link %s: %+v", id, l)
+		}
 	}
-	if rec, cur := suspect["recordedFingerprint"], suspect["currentFingerprint"]; rec == cur || !strings.HasPrefix(fmt.Sprint(cur), "sha256:") {
-		t.Fatalf("fingerprints recorded %v current %v", rec, cur)
+	// In the workspace links.suspect still reviews against the published
+	// v0.1.0 (one sentence), not the edited checkout (two).
+	linksFile := filepath.Join(root, "repos", "system", "model", "req-links.yml")
+	claimedEncoder := "  status: claimed\n  rationale: The encoder publishes one position sentence per epoch.\n"
+	acceptedEncoder := "  status: accepted\n  rationale: The encoder publishes one position sentence per epoch.\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-02\"\n"
+	editTestFile(t, linksFile, acceptedEncoder, claimedEncoder)
+	inWorkspace, _ := callToolPayload(t, s, "links.suspect", map[string]any{})["links"].([]any)
+	if len(inWorkspace) != 1 || !strings.Contains(fmt.Sprint(inWorkspace[0].(map[string]any)["after"]), "shall publish one position sentence.") {
+		t.Fatalf("links.suspect in the workspace must show the published v0.1.0: %+v", inWorkspace)
 	}
-	if unchanged["state"] != "unchanged" || unchanged["recordedFingerprint"] != unchanged["currentFingerprint"] {
-		t.Fatalf("unchanged link: %+v", unchanged)
+	editTestFile(t, linksFile, claimedEncoder, acceptedEncoder)
+	// Outside the workspace the system moves to v0.2.0 (published with two
+	// sentences); one link stays reviewed at v0.1.0 and one becomes claimed.
+	if err := os.Remove(filepath.Join(root, "engmod.work.yml")); err != nil {
+		t.Fatal(err)
+	}
+	manifest := filepath.Join(root, "repos", "system", "engmod.yml")
+	editTestFile(t, manifest, "  path: models.example/reqlinks/child-a@v0\n  version: v0.1.0\n", "  path: models.example/reqlinks/child-a@v0\n  version: v0.2.0\n")
+	editTestFile(t, linksFile, "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.1.0\n", "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.2.0\n")
+	editTestFile(t, linksFile, "  status: accepted\n  rationale: The bridge forwards each sentence onto the lab bus.\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-02\"\n", "  status: claimed\n")
+	list = callToolPayload(t, s, "links.list", map[string]any{})
+	stale := linkByID(t, list["links"], "LNK-SYS-001-ENCODER")
+	if stale["state"] != "version_mismatch" || stale["pinnedVersion"] != "v0.1.0" || stale["dependencyVersion"] != "v0.2.0" || stale["needsReview"] != true ||
+		stale["status"] != "accepted" || stale["parent"] != "REQ-SYS-001" || stale["child"] != "encoder::CAP-A-1" {
+		t.Fatalf("stale link: %+v", stale)
 	}
 
 	review := callToolPayload(t, s, "links.suspect", map[string]any{})
 	reviews, _ := review["links"].([]any)
-	if len(reviews) != 1 {
-		t.Fatalf("links.suspect: want one link, got %+v", review)
+	if len(reviews) != 2 {
+		t.Fatalf("links.suspect: want two links, got %+v", review)
 	}
-	r := reviews[0].(map[string]any)
+	r := linkByID(t, review["links"], "LNK-SYS-001-ENCODER")
+	before, _ := r["before"].(map[string]any)
 	after, _ := r["after"].(map[string]any)
-	if r["id"] != "LNK-SYS-001-ENCODER" || r["state"] != "suspect" || after == nil || !strings.Contains(fmt.Sprint(after["realizers"]), "shall publish two position sentences.") ||
-		r["parentText"] == "" || (r["before"] == nil && r["beforeNote"] == nil) {
+	if r["state"] != "version_mismatch" || before == nil || after == nil || !strings.Contains(fmt.Sprint(before["realizers"]), "shall publish one position sentence.") ||
+		!strings.Contains(fmt.Sprint(after["realizers"]), "shall publish two position sentences.") || fmt.Sprint(r["changes"]) != "[REQ-A-001 text]" || r["parentText"] == "" {
 		t.Fatalf("links.suspect entry: %+v", r)
+	}
+	if c := linkByID(t, review["links"], "LNK-SYS-001-BRIDGE"); c["status"] != "claimed" || c["changes"] != nil {
+		t.Fatalf("claimed entry: %+v", c)
 	}
 
 	child := linksServer(t, root, "child-a")
@@ -230,31 +273,29 @@ func TestLinksListAndSuspectTools(t *testing.T) {
 		t.Fatalf("child-a has no links: %+v", links)
 	}
 	if links, _ := callToolPayload(t, child, "links.suspect", map[string]any{})["links"].([]any); len(links) != 0 {
-		t.Fatalf("child-a has no suspect links: %+v", links)
+		t.Fatalf("child-a has no links to review: %+v", links)
 	}
 }
 
 // links.review writes nothing: it returns the engws review-links --accept
 // command and the patch of the requirement link file the command would
-// write (the new fingerprint, status, reviewer, the full reviewedOn line
+// write (the dependency pin, status, reviewer, the full reviewedOn line
 // from the server clock, and rationale), computed like the command from the
 // published dependency at its pin (workspace off); it refuses an actor the
-// model does not define, an unknown link and a broken link.
-// model.patch refuses the link file.
-// Mutation: writing the link file, dropping the fingerprint line from the
+// model does not define and an unknown link. model.patch refuses the link
+// file.
+// Mutation: writing the link file, dropping the version line from the
 // patch, accepting an unknown actor, using the wall clock instead of the
-// server clock, reading the workspace checkout or letting model.patch edit
-// the link file fails this test.
+// server clock or letting model.patch edit the link file fails this test.
 // TRLC-LINKS: REQ-EMG-106, REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 	root := copyLinksExample(t)
-	childReqs := filepath.Join(root, "repos", "child-a", "model", "requirements.yml")
-	// The published v0.1.0 changed the realizer (three sentences); the
-	// workspace checkout differs again (two).
-	editTestFile(t, childReqs, "shall publish one position sentence.", "shall publish three position sentences.")
-	publishLinksChildren(t, root)
-	editTestFile(t, childReqs, "shall publish three position sentences.", "shall publish two position sentences.")
+	publishLinksChildren(t, root, "v0.1.0", "v0.2.0")
+	if err := os.Remove(filepath.Join(root, "engmod.work.yml")); err != nil {
+		t.Fatal(err)
+	}
+	editTestFile(t, filepath.Join(root, "repos", "system", "engmod.yml"), "  path: models.example/reqlinks/child-a@v0\n  version: v0.1.0\n", "  path: models.example/reqlinks/child-a@v0\n  version: v0.2.0\n")
 	linksFile := filepath.Join(root, "repos", "system", "model", "req-links.yml")
 	before, err := os.ReadFile(linksFile)
 	if err != nil {
@@ -262,18 +303,17 @@ func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 	}
 	s := linksServer(t, root, "system")
 	s.clock = func() time.Time { return time.Date(2031, 4, 5, 6, 7, 8, 0, time.UTC) }
-	workspace := linkByID(t, callToolPayload(t, s, "links.list", map[string]any{})["links"], "LNK-SYS-001-ENCODER")["currentFingerprint"].(string)
-	got := callToolPayload(t, s, "links.review", map[string]any{"linkId": "LNK-SYS-001-ENCODER", "by": "ACT-SYSTEM-OWNER", "rationale": "Three sentences still give one position per epoch."})
+	got := callToolPayload(t, s, "links.review", map[string]any{"linkId": "LNK-SYS-001-ENCODER", "by": "ACT-SYSTEM-OWNER", "rationale": "Same meaning at v0.2.0."})
 	command, _ := got["command"].(string)
 	patch, _ := got["patch"].(string)
 	if !strings.Contains(command, "engws review-links") || !strings.Contains(command, "--accept LNK-SYS-001-ENCODER") || !strings.Contains(command, "--by ACT-SYSTEM-OWNER") ||
-		!strings.Contains(command, "Three sentences still give one position per epoch.") {
+		!strings.Contains(command, "Same meaning at v0.2.0.") {
 		t.Fatalf("command %q", command)
 	}
-	if !strings.Contains(patch, "\n+    fingerprint: sha256:v1:") || strings.Contains(patch, "+    fingerprint: "+workspace) || !strings.Contains(patch, "-    fingerprint: sha256:v1:f1e64f2b") ||
+	if !strings.Contains(patch, "\n-    version: v0.1.0\n+    version: v0.2.0\n") || strings.Contains(patch, "fingerprint") ||
 		!strings.Contains(patch, "\n-  reviewedOn: \"2026-11-02\"\n+  reviewedOn: \"2031-04-05\"\n") ||
-		!strings.Contains(patch, "+  rationale: Three sentences still give one position per epoch.") || got["written"] != false || got["path"] != "model/req-links.yml" || got["reviewedOn"] != "2031-04-05" {
-		t.Fatalf("patch:\n%s\n%+v (workspace fingerprint %s)", patch, got, workspace)
+		!strings.Contains(patch, "+  rationale: Same meaning at v0.2.0.") || got["written"] != false || got["path"] != "model/req-links.yml" || got["reviewedOn"] != "2031-04-05" {
+		t.Fatalf("patch:\n%s\n%+v", patch, got)
 	}
 	if after, _ := os.ReadFile(linksFile); string(after) != string(before) {
 		t.Fatal("links.review wrote the link file")

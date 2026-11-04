@@ -179,7 +179,7 @@ func TestRequirementLinkFileRules(t *testing.T) {
 	b.Manifest.Dependencies = []model.ManifestDependency{{Alias: "dep", Version: "v0.2.0"}, {Alias: "loose", Version: "v1.0.0"}}
 	b.Architecture.Composition.Subsystems = []model.Subsystem{{ID: "SUB-DEP", Dependency: "dep", Publication: "public"}}
 	b.Architecture.Composition.Allocations = []model.Allocation{{Requirement: "REQ-A", To: "SUB-DEP", Target: "dep::CAP-X"}}
-	pin := model.ReqLinkPin{Version: "v0.2.0", Fingerprint: "sha256:v1:" + strings.Repeat("a", 64)}
+	pin := model.ReqLinkPin{Version: "v0.2.0"}
 	b.ReqLinks.ReqLinks = []model.ReqLink{
 		{ID: "LNK-OK", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: pin, Status: "accepted"},
 		{ID: "LNK-PARENT", Parent: "REQ-NONE", Child: "dep::CAP-X", Pinned: pin, Status: "accepted"},
@@ -227,7 +227,7 @@ func linkFileBundle(links ...model.ReqLink) model.Bundle {
 }
 
 // linkPin is a valid pin of dep at v0.2.0.
-var linkPin = model.ReqLinkPin{Version: "v0.2.0", Fingerprint: "sha256:v1:" + strings.Repeat("a", 64)}
+var linkPin = model.ReqLinkPin{Version: "v0.2.0"}
 
 // An accepted link records who reviewed it and when: no reviewedBy or no
 // reviewedOn, a reviewedBy that is no actor and a reviewedOn that is no
@@ -312,4 +312,26 @@ func TestLinkFileIntegrityRules(t *testing.T) {
 	check("model.duplicate_id", "error reqLinks[1].id")
 	check("link.invalid_status", "error reqLinks[2].status")
 	check("model.invalid_assumption", "error contract.assumptions[1],error contract.assumptions[2]")
+}
+
+// A link that still records pinned.fingerprint is link.fingerprint_deprecated
+// (warning) at that field, naming engws migrate-links; the fingerprint is
+// ignored, so the link evaluates by its version alone. A link without one
+// reports nothing.
+// Mutation: dropping the warning or reporting it as an error fails this
+// test.
+// TRLC-LINKS: REQ-EMG-118
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestFingerprintIsDeprecated(t *testing.T) {
+	old := linkPin
+	old.Fingerprint = "sha256:v1:" + strings.Repeat("a", 64)
+	b := linkFileBundle(
+		model.ReqLink{ID: "LNK-OLD", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: old, Status: "claimed"},
+		model.ReqLink{ID: "LNK-NEW", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: linkPin, Status: "claimed"},
+	)
+	got := codesOf(Bundle(b), "link.fingerprint_deprecated")
+	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "reqLinks[0].pinned.fingerprint" ||
+		!strings.Contains(got[0].Message, "engws migrate-links") || !strings.Contains(got[0].Message, "LNK-OLD") {
+		t.Fatalf("link.fingerprint_deprecated = %+v", got)
+	}
 }

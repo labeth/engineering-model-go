@@ -61,7 +61,7 @@ func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
 	requirements := filepath.Join(childDir, "model", "requirements.yml")
 	// A system link onto an ID that is no contract item of child-a is not
 	// a use of child-a's items.
-	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "- id: LNK-AOU-B-1\n", "- id: LNK-SYS-002-GHOST\n  parent: REQ-SYS-002\n  child: encoder::CAP-GHOST\n  pinned:\n    version: v0.1.0\n    fingerprint: \"\"\n  status: claimed\n- id: LNK-AOU-B-1\n")
+	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "- id: LNK-AOU-B-1\n", "- id: LNK-SYS-002-GHOST\n  parent: REQ-SYS-002\n  child: encoder::CAP-GHOST\n  pinned:\n    version: v0.1.0\n  status: claimed\n- id: LNK-AOU-B-1\n")
 
 	// The render's own workspace mode decides: off, although
 	// engmod.work.yml is above the checkout and ENGMOD_WORK is unset.

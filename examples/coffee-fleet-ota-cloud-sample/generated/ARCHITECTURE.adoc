@@ -4589,7 +4589,7 @@ All subsystem required interfaces are satisfied and all allocations resolve to p
 <<<
 == Requirement Links
 
-Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A link pinned to another version than the dependency, a broken and a claimed link are marked; review it with `engws review-links`.
 
 * *REQ-COF-001*: While coffee machine fleet operation is active, when brew cycle completed event is received, the coffee fleet system shall publish brew telemetry to fleet ingestion api for barista operations.
 ** link LNK-COF-001-TELEMETRY (unchanged, *CLAIMED*: not yet reviewed) to `telemetry::CAP-TELEM-REPORT`: Report machine telemetry to the fleet.
@@ -4628,7 +4628,7 @@ Each requirement of this model with the requirement links (`model/req-links.yml`
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === CAP-COFFEE-FLEET-AUDIT (capability)
 
@@ -4640,8 +4640,6 @@ Realized by:
 * `REQ-COF-009`: While coffee machine fleet operation is active, when telemetry ingested event is received, the coffee fleet system shall persist logging records for fleet operator.
 * `REQ-COF-012`: If telemetry replay abuse is detected, then the coffee fleet system shall notify security analyst.
 
-Fingerprint: `sha256:v1:0147c672b5e3c2a63585f9d9a776ce70401be6c68ccaee860bd4f558550665ee`
-
 === CAP-COFFEE-FLEET-OTA (capability)
 
 Roll out signed firmware to the coffee machine fleet with signature gating, rollback and status reporting.
@@ -4652,8 +4650,6 @@ Realized by:
 * `REQ-COF-005`: If firmware validation failed event is received, then the coffee fleet system shall rollback firmware apply.
 * `REQ-COF-010`: If firmware validation failed event is received, then the coffee fleet system shall report ota status to platform operator.
 
-Fingerprint: `sha256:v1:3385997229d6d97cc556ad07ab41c182cea83571e8a4712d88615480d818b268`
-
 === CAP-COFFEE-FLEET-TELEMETRY (capability)
 
 Deliver coffee machine telemetry to the fleet cloud through endpoint outages and replay abuse.
@@ -4663,8 +4659,6 @@ Realized by:
 * `REQ-COF-006`: If cloud ingest endpoint is unavailable, then the coffee fleet system shall queue telemetry for retry.
 * `REQ-COF-008`: If telemetry replay abuse is detected, then the coffee fleet system shall throttle duplicate telemetry.
 * `REQ-COF-011`: If cloud ingest endpoint is unavailable, then the coffee fleet system shall flush queued telemetry when normal mode is active.
-
-Fingerprint: `sha256:v1:c8bf1c9445dd39f006c2e56bfc91ed56d44c085f6a709db4a5f3218e6669c83b`
 
 <<<
 == Reference Index

@@ -6,8 +6,8 @@ and `shared-compliance-baseline`) are reused by both product modules
 (`aegis-sentinel` and `orion-relay`). The `company-portfolio` module composes both
 products. Product requirements link to shared-module contract capabilities and
 portfolio requirements to product contract capabilities, each in the using
-repository's `model/req-links.yml` (accepted, pinned to `v0.1.0` and the item
-fingerprint); every shared-module and product requirement realizes the
+repository's `model/req-links.yml` (accepted, pinned to `v0.1.0`, the published
+version reviewed); every shared-module and product requirement realizes the
 capability it serves or is derived, and the portfolio is the top-level system.
 
 The shared compliance baseline also models non-technical company controls once

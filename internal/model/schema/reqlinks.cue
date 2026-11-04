@@ -1,13 +1,12 @@
 package model
 
 #ReqLinkPin: {
-	version:     #ExactVersion
-	// "" until the item could be resolved (engws migrate-links offline);
-	// the composed check then reports the link as suspect. The engine writes
-	// sha256:v<N>:<hex> (N the canonical-form version); the unversioned
-	// sha256:<hex> of the v0.8.0 pre-releases and other versions load and are
-	// reported as link.fingerprint_outdated.
-	fingerprint: "" | (string & =~"^sha256:(v[0-9]+:)?[0-9a-f]{64}$")
+	// The dependency version the link was reviewed at; equal to the
+	// dependency pin in engmod.yml once reviewed (decision D23).
+	version: #ExactVersion
+	// Deprecated (D23): accepted for one release, ignored, and reported as
+	// link.fingerprint_deprecated; engws migrate-links removes it.
+	fingerprint?: string
 }
 
 #ReqLink: {

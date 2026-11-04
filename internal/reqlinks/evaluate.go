@@ -8,17 +8,20 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
-// State is the evaluated state of one requirement link.
+// State is the evaluated state of one requirement link. A link is never
+// compared with the content of the item at check time (decision D23): the
+// pinned version is the review record, and engws bump compares meanings
+// between versions.
 type State string
 
 const (
-	// StateUnchanged: the recorded fingerprint equals the current one.
+	// StateUnchanged: the pin equals the dependency pin and the item is a
+	// published contract item there.
 	StateUnchanged State = "unchanged"
-	// StateSuspect: the item or a realizing requirement changed since review.
-	StateSuspect State = "suspect"
-	// StateBroken: the child item no longer exists in the pinned version.
+	// StateBroken: the child item does not exist at the dependency pin.
 	StateBroken State = "broken"
-	// StateVersionMismatch: pinned.version differs from the dependency pin.
+	// StateVersionMismatch: pinned.version differs from the dependency pin:
+	// the link was reviewed at another version and needs review at this one.
 	StateVersionMismatch State = "version_mismatch"
 	// StateChildUnpublished: the child exists but is not a published contract
 	// item, or names no declared dependency alias.
@@ -26,10 +29,10 @@ const (
 	// StateUnresolved: the dependency is declared but was not resolved, so the
 	// link cannot be evaluated.
 	StateUnresolved State = "unresolved"
-	// StateFingerprintOutdated: the recorded fingerprint was written in
-	// another canonical form (an older or unknown sha256:vN: version, or the
-	// unversioned form), so it cannot be compared (decision D17).
-	StateFingerprintOutdated State = "fingerprint_outdated"
+	// StateLocal: the dependency resolved from a workspace replacement and
+	// the item is not a published contract item of that checkout; a local
+	// checkout is work in progress, so nothing is reported (D23).
+	StateLocal State = "local"
 )
 
 // Reason says why a link is child_unpublished or unresolved, or why a
@@ -54,6 +57,8 @@ const (
 
 // Dependency is one resolved dependency as a using system sees it: its alias,
 // the version it resolved, its model and the publications selected from it.
+// Local is set when it resolved from a workspace replacement (a checkout,
+// not the published version).
 // TRLC-LINKS: REQ-EMG-097
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
 type Dependency struct {
@@ -61,45 +66,51 @@ type Dependency struct {
 	Version      string
 	Bundle       model.Bundle
 	Publications []model.ManifestPublication
+	Local        bool
 }
 
-// LinkStatus is the evaluation of one reqLinks entry. Recorded is the pinned
-// fingerprint, Current the fingerprint of the item in the resolved
-// dependency (empty when it cannot be computed), Item the current item.
+// LinkStatus is the evaluation of one reqLinks entry: its state, review
+// status (claimed or accepted), the pinned version, the dependency pin and
+// the item at the dependency pin (nil when it is not a published item).
 // TRLC-LINKS: REQ-EMG-097
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type LinkStatus struct {
-	ID     string
-	Parent string
-	Child  string
-	Alias  string
-	ItemID string
-	State  State
-	// Content is the state of the item content alone: unchanged, suspect or
-	// broken, also for a version_mismatch link (evaluated at the resolved
-	// version against the recorded fingerprint); empty when the item cannot
-	// be evaluated.
-	Content  State
-	Pinned   string // pinned.version
-	Version  string // the dependency pin of the alias
-	Recorded string
-	Current  string
-	Item     *Item
-	// Reason classifies a child_unpublished or unresolved link; Detail is
-	// its text for people.
+	ID      string
+	Parent  string
+	Child   string
+	Alias   string
+	ItemID  string
+	State   State
+	Status  string // review status: claimed or accepted
+	Pinned  string // pinned.version
+	Version string // the dependency pin of the alias
+	Item    *Item
+	// Local is set when the dependency resolved from a workspace replacement.
+	Local bool
+	// Reason classifies a child_unpublished, unresolved or local link;
+	// Detail is its text for people.
 	Reason Reason
 	Detail string
 }
 
+// NeedsReview reports whether a link needs a person: version_mismatch,
+// broken or claimed.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-101
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func (s LinkStatus) NeedsReview() bool {
+	return s.State == StateVersionMismatch || s.State == StateBroken || s.Status == model.ReqLinkClaimed
+}
+
 // EvaluateLinks evaluates every reqLinks entry of system against the
-// resolved dependencies, in link order. A link whose alias is not a declared
-// dependency is child_unpublished; a declared but unresolved one is
-// unresolved; a pin that differs from the manifest dependency version or
-// the resolved version is version_mismatch (Content still holds the content
-// state at the resolved version); an item missing from the dependency is broken; an item
-// that is not a published capability or assumption of use is
-// child_unpublished; otherwise the fingerprints decide unchanged or suspect.
-// TRLC-LINKS: REQ-EMG-097, REQ-EMG-109
+// resolved dependencies, in link order, without comparing content (D23). A
+// link whose alias is not a declared dependency is child_unpublished; a
+// declared but unresolved one is unresolved; an item missing from a
+// published dependency is broken and one that is not a published capability
+// or assumption of use child_unpublished (local for a workspace replacement,
+// which is never reported); otherwise a pin that differs from the manifest
+// dependency version or the resolved version is version_mismatch, else
+// unchanged.
+// TRLC-LINKS: REQ-EMG-097
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 	pins := map[string]string{}
@@ -120,13 +131,14 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 	for _, link := range system.ReqLinks.ReqLinks {
 		status := LinkStatus{
 			ID: strings.TrimSpace(link.ID), Parent: strings.TrimSpace(link.Parent), Child: strings.TrimSpace(link.Child),
-			Pinned: strings.TrimSpace(link.Pinned.Version), Recorded: strings.TrimSpace(link.Pinned.Fingerprint),
+			Status: strings.TrimSpace(link.Status), Pinned: strings.TrimSpace(link.Pinned.Version),
 		}
 		alias, itemID, err := model.ParseQualifiedReference(status.Child)
 		status.Alias, status.ItemID = alias, itemID
 		pin, declared := pins[alias]
 		status.Version = pin
 		dep, resolved := byAlias[alias]
+		status.Local = resolved && dep.Local
 		switch {
 		case err != nil || !declared:
 			status.State, status.Reason, status.Detail = StateChildUnpublished, ReasonUndeclaredAlias, fmt.Sprintf("%q is not alias::ID of a declared dependency", status.Child)
@@ -136,18 +148,18 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 			if published[alias] == nil {
 				published[alias] = PublishedItems(dep.Bundle, dep.Publications...)
 			}
-			if item, exists := published[alias][itemID]; exists {
+			item, exists := published[alias][itemID]
+			switch {
+			case exists:
 				status.Item = &item
-				status.Current = Fingerprint(item)
-				switch {
-				case status.Recorded != "" && FingerprintVersion(status.Recorded) != CanonicalVersion:
-					status.State = StateFingerprintOutdated
-				case status.Current != status.Recorded:
-					status.State = StateSuspect
-				default:
-					status.State = StateUnchanged
+				status.State = StateUnchanged
+				if status.Pinned != pin || (dep.Version != "" && status.Pinned != dep.Version) {
+					status.State = StateVersionMismatch
 				}
-			} else {
+			case dep.Local:
+				status.Reason = NonItemReason(dep.Bundle, itemID)
+				status.State, status.Detail = StateLocal, fmt.Sprintf("%s is not a published contract item of the workspace checkout of %s; links are checked against published versions only", status.Child, alias)
+			default:
 				switch status.Reason = NonItemReason(dep.Bundle, itemID); status.Reason {
 				case ReasonMissing:
 					status.State = StateBroken
@@ -156,15 +168,6 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 				default:
 					status.State, status.Detail = StateChildUnpublished, "the item is not a capability or assumption of use"
 				}
-			}
-			if status.State != StateChildUnpublished {
-				status.Content = status.State
-			}
-			if status.Pinned != pin || (dep.Version != "" && status.Pinned != dep.Version) {
-				// The fingerprint is computed from the resolved version; a pin
-				// that differs from the manifest or the resolved module is
-				// stale, whatever its content state.
-				status.State = StateVersionMismatch
 			}
 		}
 		out = append(out, status)
@@ -193,42 +196,4 @@ func NonItemReason(dep model.Bundle, id string) Reason {
 		}
 	}
 	return ReasonMissing
-}
-
-// SuspectMessage describes a suspect link: the recorded and current
-// fingerprints and the current text of the item and its realizing
-// requirements. The text at the reviewed version is not part of the pinned
-// dependency; engws review-links resolves it for a before/after diff.
-// TRLC-LINKS: REQ-EMG-097
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func SuspectMessage(s LinkStatus) string {
-	var b strings.Builder
-	fmt.Fprintf(&b, "link %s: %s at %s changed since review (recorded fingerprint %s, current %s)", s.ID, s.Child, s.Version, s.Recorded, s.Current)
-	if s.Item != nil {
-		fmt.Fprintf(&b, "; now %s %q", s.Item.Kind, normalize(s.Item.Text))
-		if len(s.Item.Realizers) > 0 {
-			b.WriteString(", realized by")
-			for i, r := range SortedRealizers(s.Item.Realizers) {
-				if i > 0 {
-					b.WriteString(";")
-				}
-				fmt.Fprintf(&b, " %s: %s", r.ID, normalize(r.Text))
-			}
-		}
-	}
-	b.WriteString("; review the change (engws review-links) and re-stamp the fingerprint")
-	return b.String()
-}
-
-// OutdatedMessage describes a link whose recorded fingerprint uses another
-// canonical form than this engine writes (decision D17).
-// TRLC-LINKS: REQ-EMG-109
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func OutdatedMessage(s LinkStatus) string {
-	form := "the unversioned sha256:<hex> form"
-	if v := FingerprintVersion(s.Recorded); v > 0 {
-		form = fmt.Sprintf("canonical form v%d", v)
-	}
-	return fmt.Sprintf("link %s: the recorded fingerprint of %s uses %s, this engine writes v%d, so the two cannot be compared; check that nothing in the item changed since the review (engws review-links), then re-stamp it with engws review-links --accept %s, or use an engine that migrates that form",
-		s.ID, s.Child, form, CanonicalVersion, s.ID)
 }

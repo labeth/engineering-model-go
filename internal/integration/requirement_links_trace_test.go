@@ -56,8 +56,8 @@ func traceRow(t *testing.T, m trace.Matrix, id string) trace.Row {
 // test linked through the links (satisfiedBy links) when every realizing
 // requirement is implemented and test linked in its own repository; a child
 // requirement's row lists the contract items it realizes as parents. The
-// summary counts suspect, broken and claimed links and unparented
-// requirements.
+// summary counts the links that need review (version-mismatched, broken,
+// claimed) and unparented requirements.
 // Mutation: dropping the children, the parents, the satisfiedBy roll-up or
 // one of the summary counters fails this test.
 // TRLC-LINKS: REQ-EMG-105
@@ -81,7 +81,7 @@ func TestRequirementLinksTraceRollUp(t *testing.T) {
 		t.Fatalf("encoder::REQ-A-001: %+v (status %+v)", r, r.DelegatedStatus)
 	}
 	if m.Summary.Implemented != 2 || m.Summary.TestLinked != 2 || m.Summary.Orphan != 1 || slices.Contains(m.Orphans, "REQ-SYS-001") ||
-		m.Summary.LinksSuspect != 0 || m.Summary.LinksBroken != 0 || m.Summary.LinksClaimed != 0 || m.Summary.Unparented != 0 {
+		m.Summary.LinksNeedReview != 0 || m.Summary.LinksVersionMismatch != 0 || m.Summary.LinksBroken != 0 || m.Summary.LinksClaimed != 0 || m.Summary.Unparented != 0 {
 		t.Fatalf("summary %+v orphans %v", m.Summary, m.Orphans)
 	}
 
@@ -100,15 +100,26 @@ func TestRequirementLinksTraceRollUp(t *testing.T) {
 		t.Fatalf("REQ-SYS-002 without implemented realizer: %+v", r)
 	}
 
-	// Suspect, broken and claimed links are counted.
-	editFile(t, filepath.Join(childA, "model", "requirements.yml"), "shall publish one position sentence.", "shall publish two position sentences.")
+	// Version-mismatched, broken and claimed links are counted, each link
+	// once in linksNeedReview; a published release without CAP-A-2 breaks
+	// its link (a workspace checkout would not, D23).
 	editFile(t, filepath.Join(childA, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
 	editFile(t, filepath.Join(childA, "engmod.yml"), "  - CAP-A-2\n", "")
 	editFile(t, filepath.Join(childA, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "")
-	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "  status: accepted\n  rationale: The bridge", "  status: claimed\n  rationale: The bridge")
+	links := filepath.Join(root, "repos", "system", "model", "req-links.yml")
+	editFile(t, links, "  status: accepted\n  rationale: The bridge", "  status: claimed\n  rationale: The bridge")
+	editFile(t, links, "  child: encoder::CAP-A-1\n  pinned:\n    version: v0.1.0\n", "  child: encoder::CAP-A-1\n  pinned:\n    version: v0.0.9\n")
 	m = systemMatrix(t, root, "system")
-	if m.Summary.LinksSuspect != 1 || m.Summary.LinksBroken != 1 || m.Summary.LinksClaimed != 1 {
-		t.Fatalf("want 1 suspect, 1 broken, 1 claimed: %+v", m.Summary)
+	if m.Summary.LinksBroken != 0 || m.Summary.LinksVersionMismatch != 1 || m.Summary.LinksClaimed != 1 || m.Summary.LinksNeedReview != 2 {
+		t.Fatalf("workspace: want 0 broken, 1 version mismatch, 1 claimed, 2 to review: %+v", m.Summary)
+	}
+	registry := newPublishedChildren(t, root)
+	registry.publish("child-a", "v0.1.0")
+	registry.publish("child-b", "v0.1.0")
+	registry.serve()
+	m = systemMatrix(t, root, "system")
+	if m.Summary.LinksBroken != 1 || m.Summary.LinksVersionMismatch != 1 || m.Summary.LinksSuspect != 1 || m.Summary.LinksClaimed != 1 || m.Summary.LinksNeedReview != 3 {
+		t.Fatalf("published: want 1 broken, 1 version mismatch, 1 claimed, 3 to review: %+v", m.Summary)
 	}
 	// The child alone: REQ-A-003 now traces to nothing.
 	child := systemMatrix(t, root, "child-a")
@@ -125,12 +136,12 @@ func sortedCopy(list []string) []string {
 }
 
 // Only reviewed, unchanged links roll a system requirement up: with every
-// realizer implemented and test linked, a claimed link, a suspect link
-// and a link pinned to another version each leave the requirement
+// realizer implemented and test linked, a claimed link and a link pinned
+// to another version each leave the requirement
 // unsatisfied (satisfiedBy links-unreviewed, not counted as implemented or
 // test linked, still an orphan); the accepted unchanged links still count.
-// Mutation: rolling up a claimed, suspect or version-mismatched link fails
-// this test.
+// Mutation: rolling up a claimed or version-mismatched link fails this
+// test.
 // TRLC-LINKS: REQ-EMG-105
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
 func TestRequirementLinksRollUpNeedsReviewedLinks(t *testing.T) {
@@ -138,11 +149,8 @@ func TestRequirementLinksRollUpNeedsReviewedLinks(t *testing.T) {
 		"claimed": func(root string) {
 			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "  status: accepted\n  rationale: The bridge", "  status: claimed\n  rationale: The bridge")
 		},
-		"suspect": func(root string) {
-			editFile(t, filepath.Join(root, "repos", "child-b", "model", "requirements.yml"), "shall forward one bus frame.", "shall forward two bus frames.")
-		},
 		"version mismatch": func(root string) {
-			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "    version: v0.1.0\n    fingerprint: sha256:v1:dc7d7eb3", "    version: v0.0.9\n    fingerprint: sha256:v1:dc7d7eb3")
+			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "  child: bridge::CAP-B-1\n  pinned:\n    version: v0.1.0\n", "  child: bridge::CAP-B-1\n  pinned:\n    version: v0.0.9\n")
 		},
 	} {
 		t.Run(name, func(t *testing.T) {

@@ -311,6 +311,11 @@ catalog:
     definition: Event indicating a developer asked engws to convert deprecated allocations and contract refs into requirement links.
     aliases:
     - engws migrate-links requested
+  - id: EVT-LINK-ADD-REQUESTED
+    name: link add is requested
+    definition: Event indicating a developer asked engws to write a new claimed requirement link pinned to a dependency version.
+    aliases:
+    - engws link add requested
   states:
   - id: STATE-MODEL-VALID
     name: model is valid
@@ -334,14 +339,15 @@ catalog:
     - claimed link
   - id: STATE-LINK-ACCEPTED
     name: requirement link is accepted
-    definition: State where a requirement link is reviewed and its fingerprint matches the child item.
+    definition: State where a requirement link is reviewed at the version its dependency is pinned to.
     aliases:
     - accepted link
   - id: STATE-LINK-SUSPECT
     name: requirement link is suspect
-    definition: State where the child item of a requirement link changed since its review.
+    definition: State where the dependency of a requirement link is pinned to another version than the one it was reviewed at.
     aliases:
     - suspect link
+    - version-mismatched link
   - id: STATE-LINK-BROKEN
     name: requirement link is broken
     definition: State where the child item of a requirement link no longer exists.

@@ -1,23 +1,20 @@
 // ENGMODEL-OWNER-UNIT: FU-ALLOCATION-TRACE
 
-// Package reqlinks computes contract item fingerprints and evaluates the
-// requirement links of a using system against the dependency content it
-// resolved. A contract item is a contract.provides capability (CAP-*) or a
-// contract.assumptions assumption of use (AOU-*), together with the
-// requirements that realize it. The fingerprint covers both, so any change
-// to the item or a realizing requirement makes every link on it suspect,
-// without the child knowing who links it.
+// Package reqlinks evaluates the requirement links of a using system
+// against the dependency content it resolved, and compares the meaning of a
+// contract item between two versions. A contract item is a
+// contract.provides capability (CAP-*) or a contract.assumptions assumption
+// of use (AOU-*), together with the requirements that realize it. A link
+// records the dependency version it was reviewed at (decision D23):
+// published versions are immutable, so the pinned version is the review
+// record, and engws bump compares the item's meaning between the pinned and
+// the new version.
 package reqlinks
 
 import (
 	"bytes"
-	"crypto/sha256"
-	"encoding/hex"
 	"encoding/json"
-	"fmt"
-	"regexp"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -35,8 +32,9 @@ const (
 )
 
 // Realizer is a requirement that names a contract item in realizes (or, for
-// one release, the requirement a capability names in its deprecated ref),
-// with the requirement fields the fingerprint covers.
+// one release, the requirement a capability names in its deprecated ref).
+// Text and VerificationCriteria are its meaning; the other fields are shown
+// in reviews and the trace but never compared (D23).
 // TRLC-LINKS: REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type Realizer struct {
@@ -49,8 +47,7 @@ type Realizer struct {
 	Status               string
 }
 
-// Item is a contract item with its realizing requirements: the content a
-// fingerprint covers.
+// Item is a contract item with its realizing requirements.
 // TRLC-LINKS: REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type Item struct {
@@ -61,35 +58,24 @@ type Item struct {
 	Realizers            []Realizer
 }
 
-// CanonicalVersion is the version of the canonical form CanonicalItem
-// writes and Fingerprint names in its prefix (decision D17). Any change to
-// the canonical form, a field added, removed, renamed or normalized
-// differently, is a new version: a fingerprint of another version is
-// reported as link.fingerprint_outdated, never compared.
-const CanonicalVersion = 1
-
-// canonicalEntry and canonicalRealizer fix the field order and names of the
-// canonical serialization (version 1).
-type canonicalEntry struct {
+// meaningEntry and meaningRealizer fix the field order and names of the
+// meaning serialization.
+type meaningEntry struct {
 	ID                   string `json:"id"`
 	Kind                 string `json:"kind"`
 	Text                 string `json:"text"`
 	VerificationCriteria string `json:"verificationCriteria"`
 }
 
-type canonicalRealizer struct {
-	ID                   string   `json:"id"`
-	Text                 string   `json:"text"`
-	Notes                string   `json:"notes"`
-	VerificationCriteria string   `json:"verificationCriteria"`
-	VerificationMethods  []string `json:"verificationMethods"`
-	Criticality          string   `json:"criticality"`
-	Status               string   `json:"status"`
+type meaningRealizer struct {
+	ID                   string `json:"id"`
+	Text                 string `json:"text"`
+	VerificationCriteria string `json:"verificationCriteria"`
 }
 
-type canonicalDocument struct {
-	Item      canonicalEntry      `json:"item"`
-	Realizers []canonicalRealizer `json:"realizers"`
+type meaningDocument struct {
+	Item      meaningEntry      `json:"item"`
+	Realizers []meaningRealizer `json:"realizers"`
 }
 
 // normalize collapses every run of whitespace to one space and trims; case
@@ -97,82 +83,104 @@ type canonicalDocument struct {
 // TRLC-LINKS: REQ-EMG-095
 func normalize(s string) string { return textutil.CollapseSpace(s) }
 
-// normalizedMethods returns the verification methods normalized, without
-// empty entries, sorted ([] when there are none).
+// meaningOf returns the normalized meaning of an item, realizers sorted by ID.
 // TRLC-LINKS: REQ-EMG-095
-func normalizedMethods(in []string) []string {
-	out := []string{}
-	for _, m := range in {
-		if m = normalize(m); m != "" {
-			out = append(out, m)
-		}
-	}
-	sort.Strings(out)
-	return out
-}
-
-// CanonicalItem returns the canonical serialization (version 1) the
-// fingerprint hashes: compact JSON
-// {"item":{id,kind,text,verificationCriteria},"realizers":[...]} with
-// realizers sorted by id, each
-// {id,text,notes,verificationCriteria,verificationMethods,criticality,status},
-// verificationMethods sorted, every string whitespace-collapsed and trimmed,
-// no HTML escaping and no trailing newline. Tools diff two items through
-// this form.
-// TRLC-LINKS: REQ-EMG-095
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func CanonicalItem(item Item) []byte {
-	doc := canonicalDocument{
-		Item: canonicalEntry{
+func meaningOf(item Item) meaningDocument {
+	doc := meaningDocument{
+		Item: meaningEntry{
 			ID: normalize(item.ID), Kind: normalize(string(item.Kind)),
 			Text: normalize(item.Text), VerificationCriteria: normalize(item.VerificationCriteria),
 		},
-		Realizers: make([]canonicalRealizer, 0, len(item.Realizers)),
+		Realizers: make([]meaningRealizer, 0, len(item.Realizers)),
 	}
 	for _, r := range item.Realizers {
-		doc.Realizers = append(doc.Realizers, canonicalRealizer{
-			ID: normalize(r.ID), Text: normalize(r.Text), Notes: normalize(r.Notes),
-			VerificationCriteria: normalize(r.VerificationCriteria), VerificationMethods: normalizedMethods(r.VerificationMethods),
-			Criticality: normalize(r.Criticality), Status: normalize(r.Status),
-		})
+		doc.Realizers = append(doc.Realizers, meaningRealizer{ID: normalize(r.ID), Text: normalize(r.Text), VerificationCriteria: normalize(r.VerificationCriteria)})
 	}
 	sort.SliceStable(doc.Realizers, func(i, j int) bool { return doc.Realizers[i].ID < doc.Realizers[j].ID })
+	return doc
+}
+
+// ItemMeaning returns the meaning of a contract item as compact JSON
+// {"item":{id,kind,text,verificationCriteria},"realizers":[{id,text,verificationCriteria}...]}
+// with realizers sorted by id, every string whitespace-collapsed and
+// trimmed, no HTML escaping and no trailing newline. The text of a
+// capability is its note. A realizer's status, notes, criticality,
+// verification methods, title, rationale, appliesTo, priority and tags are
+// not part of it: they do not change what the item obliges (D23).
+// TRLC-LINKS: REQ-EMG-095
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func ItemMeaning(item Item) []byte {
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
-	_ = enc.Encode(doc) // a struct of strings always encodes
+	_ = enc.Encode(meaningOf(item)) // a struct of strings always encodes
 	return bytes.TrimSuffix(buf.Bytes(), []byte("\n"))
 }
 
-// Fingerprint returns "sha256:v<CanonicalVersion>:<hex>" of
-// CanonicalItem(item).
-// TRLC-LINKS: REQ-EMG-095, REQ-EMG-109
+// SameMeaning reports whether two versions of a contract item have the same
+// meaning (ItemMeaning).
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func Fingerprint(item Item) string {
-	sum := sha256.Sum256(CanonicalItem(item))
-	return fmt.Sprintf("sha256:v%d:%s", CanonicalVersion, hex.EncodeToString(sum[:]))
+func SameMeaning(before, after Item) bool {
+	return bytes.Equal(ItemMeaning(before), ItemMeaning(after))
 }
 
-var fingerprintPattern = regexp.MustCompile(`^sha256:(?:v([0-9]+):)?[0-9a-f]{64}$`)
-
-// FingerprintVersion returns the canonical-form version a recorded
-// fingerprint names: N for "sha256:vN:<hex>", 0 for the unversioned
-// "sha256:<hex>" of the v0.8.0 pre-releases, -1 when it is no fingerprint.
-// TRLC-LINKS: REQ-EMG-109
+// MeaningChanges names each difference in meaning between two versions of
+// an item: "item kind", "item text", "item verificationCriteria", then per
+// realizer by ID "<ID> added", "<ID> removed", "<ID> text" or
+// "<ID> verificationCriteria"; nil when the meaning is the same.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func FingerprintVersion(fingerprint string) int {
-	m := fingerprintPattern.FindStringSubmatch(strings.TrimSpace(fingerprint))
-	switch {
-	case m == nil:
-		return -1
-	case m[1] == "":
-		return 0
+func MeaningChanges(before, after Item) []string {
+	b, a := meaningOf(before), meaningOf(after)
+	var out []string
+	if b.Item.Kind != a.Item.Kind {
+		out = append(out, "item kind")
 	}
-	v, err := strconv.Atoi(m[1])
-	if err != nil {
-		return -1
+	if b.Item.Text != a.Item.Text {
+		out = append(out, "item text")
 	}
-	return v
+	if b.Item.VerificationCriteria != a.Item.VerificationCriteria {
+		out = append(out, "item verificationCriteria")
+	}
+	old := map[string]meaningRealizer{}
+	for _, r := range b.Realizers {
+		old[r.ID] = r
+	}
+	ids := map[string]bool{}
+	for _, r := range a.Realizers {
+		ids[r.ID] = true
+	}
+	for _, r := range b.Realizers {
+		ids[r.ID] = true
+	}
+	sorted := make([]string, 0, len(ids))
+	for id := range ids {
+		sorted = append(sorted, id)
+	}
+	sort.Strings(sorted)
+	now := map[string]meaningRealizer{}
+	for _, r := range a.Realizers {
+		now[r.ID] = r
+	}
+	for _, id := range sorted {
+		was, had := old[id]
+		is, has := now[id]
+		switch {
+		case !had:
+			out = append(out, id+" added")
+		case !has:
+			out = append(out, id+" removed")
+		default:
+			if was.Text != is.Text {
+				out = append(out, id+" text")
+			}
+			if was.VerificationCriteria != is.VerificationCriteria {
+				out = append(out, id+" verificationCriteria")
+			}
+		}
+	}
+	return out
 }
 
 // SortedRealizers returns a copy of realizers sorted by ID.

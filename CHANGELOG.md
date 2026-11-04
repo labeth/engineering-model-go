@@ -6,7 +6,52 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- **Requirement links are reviewed by version, not by fingerprint** (D23, ADR-EMG-030;
+  REQ-EMG-094/095/097/100/101/104/105/106/107, REQ-EMG-109 retired). A link is
+  `{id, parent | evidence, child, pinned: {version}, status, rationale?, reviewedBy?, reviewedOn?}`:
+  published versions are immutable, so the pinned version is the review record.
+  - The check compares no content: `link.version_mismatch` when the pin differs from
+    `engmod.yml`, `link.broken` when the item is gone at the published pin. A dependency
+    resolved from a workspace replacement raises no link finding (state `local`), so editing a
+    child checkout never churns its users. `link.suspect` and `link.fingerprint_outdated` are
+    removed; diagnostics name the link ID only.
+  - `engws bump` compares each link between the pinned and the new published version by
+    meaning (item kind, text and criteria; each realizer's text and criteria; not status,
+    notes, criticality, methods, appliesTo, title or tags): same meaning moves the pin,
+    otherwise the old pin stays for review. One line per link (`--show` adds the text). The
+    bump is now always written; exit 1 when a link needs review unless `--allow-review`
+    (`--allow-suspect` stays as an alias). An unresolvable pinned version is left for review.
+  - `engws review-links` lists version-mismatched, broken and claimed links one line each with
+    the change by ID; `--show` adds the parent text and the item before and after. It composes
+    with the workspace off and verifies cached modules against the registry digest, so a
+    re-staged version is refetched. `--accept` writes the dependency pin (no fingerprint) and
+    re-evaluates the link, exiting 1 when it still does not pass.
+  - `engws migrate-links` writes allocations to an assumption of use as `evidence` links and
+    removes every recorded fingerprint (count printed).
+  - Trace summary: new `linksNeedReview` and `linksVersionMismatch`; `linksSuspect` is a
+    deprecated alias of `linksVersionMismatch`. MCP `links.list` adds `needsReview` and `local`
+    and drops the fingerprints; `links.suspect` (name kept) lists the links needing review with
+    `before`, `after` and `changes`. AsciiDoc Contract Items no longer print a fingerprint.
+  - Facade: `ContractItemFingerprint`, `CanonicalContractItem`, `ContractItemFingerprintVersion`,
+    `ContractItemCanonicalVersion`, `SuspectLinkMessage`, `OutdatedLinkMessage`,
+    `LinkStateSuspect` and `LinkStateFingerprintOutdated` are removed; `ContractItemMeaning`,
+    `SameContractItemMeaning`, `ContractItemMeaningChanges` and `LinkStateLocal` are added.
+  - Examples (`requirement-links`, `coffee-fleet-ota-cloud-sample`, `atlas-industries`) record no
+    fingerprints.
+
+### Deprecated
+
+- `pinned.fingerprint` in `model/req-links.yml` (REQ-EMG-118): accepted for one release,
+  ignored, reported as `link.fingerprint_deprecated` (warning); `engws migrate-links` removes it.
+
 ### Added
+
+- `engws link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-…|alias::AOU-…>
+  [--rationale TEXT]` (REQ-EMG-119): writes a claimed link pinned to the dependency version after
+  checking the parent and that the child is published at that version; refuses duplicates;
+  creates `model/req-links.yml` and `documents.reqLinks` when missing.
 
 - MCP `model.patch` (REQ-EMG-113, ADR-EMG-029): edit one model entity by stable ID
   (`{document, id, set, unset, append, remove, write}`) with line-preserving YAML edits,

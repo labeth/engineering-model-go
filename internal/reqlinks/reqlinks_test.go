@@ -8,7 +8,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
-// goldenItem is the fixed input of the fingerprint golden test.
+// goldenItem is the fixed input of the meaning golden test.
 func goldenItem() Item {
 	return Item{
 		ID: "CAP-NMEA-GPS-OUTPUT", Kind: KindCapability, Text: "  Publish   NMEA\tGPS output. ",
@@ -20,106 +20,84 @@ func goldenItem() Item {
 	}
 }
 
-// The fingerprint algorithm is pinned: "sha256:v1:" and the hex sha256 over
-// the canonical JSON
-// {"item":{id,kind,text,verificationCriteria},"realizers":[{id,text,notes,verificationCriteria,verificationMethods,criticality,status}...]}
-// with realizers sorted by id, verificationMethods sorted, whitespace runs
-// collapsed and trimmed, case kept, no HTML escaping and no trailing
-// newline. The expected hash was checked independently:
-// printf '%s' '<canonical>' | sha256sum.
-// Mutation: dropping a canonical field, not sorting verificationMethods or
-// dropping the version from the prefix fails this test.
-// TRLC-LINKS: REQ-EMG-095, REQ-EMG-109
+// The meaning of a contract item is pinned: compact JSON
+// {"item":{id,kind,text,verificationCriteria},"realizers":[{id,text,verificationCriteria}...]}
+// with realizers sorted by id, whitespace runs collapsed and trimmed, case
+// kept, no HTML escaping and no trailing newline. Notes, status,
+// criticality and verification methods are not part of it (D23).
+// Mutation: adding status or notes to the meaning, dropping a field or not
+// sorting the realizers fails this test.
+// TRLC-LINKS: REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func TestFingerprintGolden(t *testing.T) {
-	item := goldenItem()
-	wantCanonical := `{"item":{"id":"CAP-NMEA-GPS-OUTPUT","kind":"capability","text":"Publish NMEA GPS output.","verificationCriteria":""},` +
-		`"realizers":[{"id":"REQ-NMEA-002","text":"The NMEA encoder shall format a GPGGA sentence <with> \"quotes\" & more.","notes":"","verificationCriteria":"A GGA line is emitted.","verificationMethods":[],"criticality":"","status":""},` +
-		`{"id":"REQ-NMEA-007","text":"When NMEA epoch period elapses, the NMEA runtime shall publish one NMEA epoch message.","notes":"Epoch period is configurable.","verificationCriteria":"","verificationMethods":["analysis","test"],"criticality":"high","status":"approved"}]}`
-	if got := string(CanonicalItem(item)); got != wantCanonical {
-		t.Fatalf("canonical item\n got %s\nwant %s", got, wantCanonical)
-	}
-	const want = "sha256:v1:cde6842da74be3e1bf8bc92a9218537f78a31a36f29130cacfd7a4d964f199cd"
-	if got := Fingerprint(item); got != want {
-		t.Fatalf("Fingerprint = %s, want %s", got, want)
+func TestItemMeaningGolden(t *testing.T) {
+	want := `{"item":{"id":"CAP-NMEA-GPS-OUTPUT","kind":"capability","text":"Publish NMEA GPS output.","verificationCriteria":""},` +
+		`"realizers":[{"id":"REQ-NMEA-002","text":"The NMEA encoder shall format a GPGGA sentence <with> \"quotes\" & more.","verificationCriteria":"A GGA line is emitted."},` +
+		`{"id":"REQ-NMEA-007","text":"When NMEA epoch period elapses, the NMEA runtime shall publish one NMEA epoch message.","verificationCriteria":""}]}`
+	if got := string(ItemMeaning(goldenItem())); got != want {
+		t.Fatalf("meaning\n got %s\nwant %s", got, want)
 	}
 }
 
-// The same content gives the same fingerprint whatever the order of the
-// realizers or their verification methods; a change to a realizer's text,
-// notes, criteria, methods, criticality or status, or to the item, changes
-// it; whitespace-only and case changes behave as specified. Fields the
-// fingerprint does not cover (title, rationale, appliesTo, priority, tags)
-// do not change it.
-// Mutation: dropping notes, verificationMethods or criticality from the
-// canonical realizer fails this test.
-// TRLC-LINKS: REQ-EMG-095
+// Two versions of an item have the same meaning whatever the order of the
+// realizers, whitespace, a realizer's status, notes, criticality or
+// verification methods; a change to the item kind, text or criteria, or to
+// a realizer's text or criteria, or an added or removed realizer, changes
+// it, and MeaningChanges names each change by ID.
+// Mutation: comparing status or notes, or not comparing a realizer's
+// criteria, fails this test.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func TestFingerprintIsDeterministic(t *testing.T) {
-	base := Fingerprint(goldenItem())
-	shuffled := goldenItem()
-	shuffled.Realizers[0], shuffled.Realizers[1] = shuffled.Realizers[1], shuffled.Realizers[0]
-	shuffled.Realizers[1].VerificationMethods = []string{"analysis", "test"}
-	if Fingerprint(shuffled) != base {
-		t.Fatal("realizer or method order changed the fingerprint")
-	}
-	spaced := goldenItem()
-	spaced.Text = "Publish NMEA GPS output."
-	spaced.Realizers[1].VerificationCriteria = "A GGA line   is emitted.  "
-	spaced.Realizers[0].Notes = " Epoch period is configurable. "
-	if Fingerprint(spaced) != base {
-		t.Fatal("whitespace-only changes changed the fingerprint")
-	}
-	for name, edit := range map[string]func(*Item){
-		"item text":            func(i *Item) { i.Text = "Publish NMEA GPS output!" },
-		"item case":            func(i *Item) { i.Text = "publish NMEA GPS output." },
-		"item criteria":        func(i *Item) { i.VerificationCriteria = "Shown." },
-		"item kind":            func(i *Item) { i.Kind = KindAssumption },
-		"realizer text":        func(i *Item) { i.Realizers[0].Text += " Again." },
+func TestSameMeaning(t *testing.T) {
+	base := goldenItem()
+	same := map[string]func(*Item){
+		"realizer order": func(i *Item) { i.Realizers[0], i.Realizers[1] = i.Realizers[1], i.Realizers[0] },
+		"whitespace": func(i *Item) {
+			i.Text = "Publish NMEA GPS output."
+			i.Realizers[1].VerificationCriteria = "A GGA line   is emitted.  "
+		},
+		"realizer status":      func(i *Item) { i.Realizers[0].Status = "verified" },
 		"realizer notes":       func(i *Item) { i.Realizers[0].Notes = "Epoch period is fixed." },
-		"realizer methods":     func(i *Item) { i.Realizers[0].VerificationMethods = []string{"test"} },
 		"realizer criticality": func(i *Item) { i.Realizers[0].Criticality = "low" },
-		"realizer state":       func(i *Item) { i.Realizers[1].Status = "retired" },
-		"realizer added":       func(i *Item) { i.Realizers = append(i.Realizers, Realizer{ID: "REQ-NMEA-010", Text: "x"}) },
-	} {
+		"realizer methods":     func(i *Item) { i.Realizers[0].VerificationMethods = []string{"inspection"} },
+	}
+	for name, edit := range same {
 		changed := goldenItem()
 		edit(&changed)
-		if Fingerprint(changed) == base {
-			t.Errorf("%s did not change the fingerprint", name)
+		if !SameMeaning(base, changed) || len(MeaningChanges(base, changed)) != 0 {
+			t.Errorf("%s changed the meaning: %v", name, MeaningChanges(base, changed))
+		}
+	}
+	differ := map[string]struct {
+		edit func(*Item)
+		want string
+	}{
+		"item text":         {func(i *Item) { i.Text = "Publish NMEA GPS output!" }, "item text"},
+		"item case":         {func(i *Item) { i.Text = "publish NMEA GPS output." }, "item text"},
+		"item criteria":     {func(i *Item) { i.VerificationCriteria = "Shown." }, "item verificationCriteria"},
+		"item kind":         {func(i *Item) { i.Kind = KindAssumption }, "item kind"},
+		"realizer text":     {func(i *Item) { i.Realizers[0].Text += " Again." }, "REQ-NMEA-007 text"},
+		"realizer criteria": {func(i *Item) { i.Realizers[0].VerificationCriteria = "Measured." }, "REQ-NMEA-007 verificationCriteria"},
+		"realizer added":    {func(i *Item) { i.Realizers = append(i.Realizers, Realizer{ID: "REQ-NMEA-010", Text: "x"}) }, "REQ-NMEA-010 added"},
+		"realizer removed":  {func(i *Item) { i.Realizers = i.Realizers[:1] }, "REQ-NMEA-002 removed"},
+	}
+	for name, tc := range differ {
+		changed := goldenItem()
+		tc.edit(&changed)
+		if got := MeaningChanges(base, changed); SameMeaning(base, changed) || strings.Join(got, "; ") != tc.want {
+			t.Errorf("%s: same %v, changes %v, want [%s]", name, SameMeaning(base, changed), got, tc.want)
 		}
 	}
 	// Uncounted requirement fields do not reach the item at all.
 	child := childBundle()
-	before := Fingerprint(ItemsFromBundle(child)["CAP-A"])
+	before := ItemsFromBundle(child)["CAP-A"]
 	r := &child.Requirements.Requirements[0]
-	r.Title, r.Rationale, r.Priority, r.Tags, r.AppliesTo = "A1", "Because.", "high", []string{"x"}, []string{"FU-X"}
-	if Fingerprint(ItemsFromBundle(child)["CAP-A"]) != before {
-		t.Fatal("title, rationale, priority, tags or appliesTo changed the fingerprint")
+	r.Title, r.Rationale, r.Priority, r.Tags, r.AppliesTo, r.Status = "A1", "Because.", "high", []string{"x"}, []string{"FU-X"}, "verified"
+	if !SameMeaning(before, ItemsFromBundle(child)["CAP-A"]) {
+		t.Fatal("title, rationale, priority, tags, appliesTo or status changed the meaning")
 	}
-	r.Notes = "Now with a note."
-	if Fingerprint(ItemsFromBundle(child)["CAP-A"]) == before {
-		t.Fatal("ItemsFromBundle does not carry the realizer notes")
-	}
-}
-
-// FingerprintVersion reads the canonical-form version of a recorded
-// fingerprint: 1 for "sha256:v1:<hex>", 0 for the unversioned
-// "sha256:<hex>" of v0.8.0 pre-releases, the number of any other
-// "sha256:vN:" prefix, and -1 for anything else.
-// TRLC-LINKS: REQ-EMG-109
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func TestFingerprintVersion(t *testing.T) {
-	hex := strings.Repeat("a", 64)
-	for in, want := range map[string]int{
-		"sha256:v1:" + hex: 1, "sha256:" + hex: 0, "sha256:v2:" + hex: 2, "sha256:v12:" + hex: 12,
-		"": -1, "sha256:v1:abc": -1, "md5:" + hex: -1, "sha256:vx:" + hex: -1,
-	} {
-		if got := FingerprintVersion(in); got != want {
-			t.Errorf("FingerprintVersion(%q) = %d, want %d", in, got, want)
-		}
-	}
-	if FingerprintVersion(Fingerprint(goldenItem())) != CanonicalVersion {
-		t.Fatal("Fingerprint does not write the current canonical version")
+	r.VerificationCriteria = "Now measured."
+	if SameMeaning(before, ItemsFromBundle(child)["CAP-A"]) {
+		t.Fatal("ItemsFromBundle does not carry the realizer criteria")
 	}
 }
 
@@ -205,46 +183,56 @@ func dependency(child model.Bundle) Dependency {
 	return Dependency{Alias: "dep", Version: "v0.1.0", Bundle: child, Publications: child.Manifest.Publications}
 }
 
-// EvaluateLinks compares each link's pin with the dependency it resolves to:
-// unchanged when the fingerprint matches, suspect when it differs, broken
-// when the item is gone, child_unpublished when it is not a published
-// contract item, version_mismatch when the pin differs from the
-// dependency, unresolved when the dependency was not resolved.
-// TRLC-LINKS: REQ-EMG-094, REQ-EMG-095, REQ-EMG-109
+// link is an accepted link of REQ-SYS-1 pinned to version.
+func link(id, target, version string) model.ReqLink {
+	return model.ReqLink{ID: id, Parent: "REQ-SYS-1", Child: target, Status: "accepted", Pinned: model.ReqLinkPin{Version: version}}
+}
+
+// EvaluateLinks checks each link's pin and item, never the item content
+// (D23): unchanged when the pin equals the dependency pin and the item is
+// published there, version_mismatch when the pin differs, broken when the
+// item is gone at the dependency pin (also behind a stale pin),
+// child_unpublished when it is not a published contract item, unresolved
+// when the dependency was not resolved. The review status is carried.
+// Mutation: comparing content, letting a stale pin hide a broken item or
+// dropping the status fails this test.
+// TRLC-LINKS: REQ-EMG-094, REQ-EMG-097
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestEvaluateLinksStates(t *testing.T) {
 	child := childBundle()
-	current := Fingerprint(PublishedItems(child, child.Manifest.Publications[0])["CAP-A"])
-	link := func(id, target, version, fingerprint string) model.ReqLink {
-		return model.ReqLink{ID: id, Parent: "REQ-SYS-1", Child: target, Status: "accepted", Pinned: model.ReqLinkPin{Version: version, Fingerprint: fingerprint}}
-	}
+	claimed := link("LNK-CLAIMED", "dep::CAP-A", "v0.1.0")
+	claimed.Status = "claimed"
 	system := systemWith(
-		link("LNK-OK", "dep::CAP-A", "v0.1.0", current),
-		link("LNK-SUSPECT", "dep::CAP-A", "v0.1.0", "sha256:v1:"+strings.Repeat("0", 64)),
-		link("LNK-BROKEN", "dep::CAP-GONE", "v0.1.0", current),
-		link("LNK-IF", "dep::IF-A", "v0.1.0", current),
-		link("LNK-UNPUB", "dep::CAP-B", "v0.1.0", current),
-		link("LNK-VERSION", "dep::CAP-A", "v0.0.9", current),
-		link("LNK-OTHER", "other::CAP-A", "v0.1.0", current),
-		link("LNK-UNDECLARED", "nope::CAP-A", "v0.1.0", current),
-		link("LNK-HIDDEN", "dep::AOU-HIDDEN", "v0.1.0", current),
-		link("LNK-OLD-FORM", "dep::CAP-A", "v0.1.0", "sha256:"+strings.Repeat("0", 64)),
-		link("LNK-NEW-FORM", "dep::CAP-A", "v0.1.0", "sha256:v9:"+strings.Repeat("0", 64)),
+		link("LNK-OK", "dep::CAP-A", "v0.1.0"),
+		claimed,
+		link("LNK-BROKEN", "dep::CAP-GONE", "v0.1.0"),
+		link("LNK-STALE-GONE", "dep::CAP-GONE", "v0.0.9"),
+		link("LNK-IF", "dep::IF-A", "v0.1.0"),
+		link("LNK-UNPUB", "dep::CAP-B", "v0.1.0"),
+		link("LNK-VERSION", "dep::CAP-A", "v0.0.9"),
+		link("LNK-OTHER", "other::CAP-A", "v0.1.0"),
+		link("LNK-UNDECLARED", "nope::CAP-A", "v0.1.0"),
+		link("LNK-HIDDEN", "dep::AOU-HIDDEN", "v0.1.0"),
 	)
+	// A realizer text changed at the same pin: no content comparison.
+	child.Requirements.Requirements[0].Text = "The child shall do A1 twice."
 	got := map[string]LinkStatus{}
 	for _, s := range EvaluateLinks(system, []Dependency{dependency(child)}) {
 		got[s.ID] = s
 	}
 	want := map[string]State{
-		"LNK-OK": StateUnchanged, "LNK-SUSPECT": StateSuspect, "LNK-BROKEN": StateBroken,
+		"LNK-OK": StateUnchanged, "LNK-CLAIMED": StateUnchanged, "LNK-BROKEN": StateBroken, "LNK-STALE-GONE": StateBroken,
 		"LNK-IF": StateChildUnpublished, "LNK-UNPUB": StateChildUnpublished,
 		"LNK-VERSION": StateVersionMismatch, "LNK-OTHER": StateUnresolved, "LNK-UNDECLARED": StateChildUnpublished,
-		"LNK-HIDDEN": StateChildUnpublished, "LNK-OLD-FORM": StateFingerprintOutdated, "LNK-NEW-FORM": StateFingerprintOutdated,
+		"LNK-HIDDEN": StateChildUnpublished,
 	}
 	for id, state := range want {
 		if got[id].State != state {
 			t.Errorf("%s state = %q, want %q (%+v)", id, got[id].State, state, got[id])
 		}
+	}
+	if got["LNK-CLAIMED"].Status != "claimed" || got["LNK-OK"].Status != "accepted" {
+		t.Fatalf("review status not carried: %+v %+v", got["LNK-CLAIMED"], got["LNK-OK"])
 	}
 	resolvedElsewhere := dependency(child)
 	resolvedElsewhere.Version = "v0.1.1"
@@ -254,60 +242,36 @@ func TestEvaluateLinksStates(t *testing.T) {
 	if d := got["LNK-HIDDEN"].Detail; !strings.Contains(d, "not in a selected publication") {
 		t.Fatalf("LNK-HIDDEN detail = %q", d)
 	}
-	if s := got["LNK-SUSPECT"]; s.Current != current || s.Recorded == current || s.Item == nil || s.Item.ID != "CAP-A" {
-		t.Fatalf("suspect status = %+v", s)
+	if s := got["LNK-VERSION"]; s.Item == nil || s.Item.ID != "CAP-A" || s.Pinned != "v0.0.9" || s.Version != "v0.1.0" {
+		t.Fatalf("version_mismatch status = %+v", s)
 	}
 }
 
-// A change to a realizing requirement of a linked item makes the link
-// suspect; a change to a requirement that realizes no linked item leaves it
-// unchanged.
-// TRLC-LINKS: REQ-EMG-095
+// A dependency resolved from a workspace replacement is not checked
+// against its local content (D23): an item missing or unpublished there is
+// local, never broken or child_unpublished; a present item still carries
+// the pin check and the item.
+// Mutation: evaluating a local dependency like a published one fails this
+// test.
+// TRLC-LINKS: REQ-EMG-097
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func TestEvaluateLinksSeesOnlyRelevantChanges(t *testing.T) {
+func TestEvaluateLinksOfLocalDependency(t *testing.T) {
 	child := childBundle()
-	pin := Fingerprint(PublishedItems(child, child.Manifest.Publications[0])["CAP-A"])
-	system := systemWith(model.ReqLink{ID: "LNK-A", Parent: "REQ-SYS-1", Child: "dep::CAP-A", Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: pin}})
-
-	unrelated := childBundle()
-	unrelated.Requirements.Requirements[3].Text = "The child shall log more."
-	if s := EvaluateLinks(system, []Dependency{dependency(unrelated)}); s[0].State != StateUnchanged {
-		t.Fatalf("unrelated change: %+v", s)
-	}
-	related := childBundle()
-	related.Requirements.Requirements[1].Text = "The child shall do A2 faster."
-	if s := EvaluateLinks(system, []Dependency{dependency(related)}); s[0].State != StateSuspect {
-		t.Fatalf("realizer change: %+v", s)
-	}
-}
-
-// A link whose pin is stale (version_mismatch) is still evaluated against
-// the item at the resolved version: Content is unchanged, suspect or broken
-// and Current is that version's fingerprint, so a bump that kept the old pin
-// shows what changed.
-// Mutation: skipping the content evaluation of a version_mismatch link
-// fails this test.
-// TRLC-LINKS: REQ-EMG-097, REQ-EMG-100
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func TestEvaluateStaleLinkContent(t *testing.T) {
-	child := childBundle()
-	current := Fingerprint(PublishedItems(child, child.Manifest.Publications[0])["CAP-A"])
-	zero := "sha256:v1:" + strings.Repeat("0", 64)
-	stale := func(id, target, fingerprint string) model.ReqLink {
-		return model.ReqLink{ID: id, Parent: "REQ-SYS-1", Child: target, Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.0.9", Fingerprint: fingerprint}}
-	}
-	system := systemWith(stale("LNK-SAME", "dep::CAP-A", current), stale("LNK-CHANGED", "dep::CAP-A", zero), stale("LNK-GONE", "dep::CAP-GONE", current))
+	dep := dependency(child)
+	dep.Local = true
+	system := systemWith(link("LNK-OK", "dep::CAP-A", "v0.1.0"), link("LNK-GONE", "dep::CAP-GONE", "v0.1.0"),
+		link("LNK-UNPUB", "dep::CAP-B", "v0.1.0"), link("LNK-STALE", "dep::CAP-A", "v0.0.9"))
 	got := map[string]LinkStatus{}
-	for _, s := range EvaluateLinks(system, []Dependency{dependency(child)}) {
+	for _, s := range EvaluateLinks(system, []Dependency{dep}) {
 		got[s.ID] = s
 	}
-	want := map[string]State{"LNK-SAME": StateUnchanged, "LNK-CHANGED": StateSuspect, "LNK-GONE": StateBroken}
-	for id, content := range want {
-		if s := got[id]; s.State != StateVersionMismatch || s.Content != content {
-			t.Errorf("%s = %s/%s, want version_mismatch/%s", id, s.State, s.Content, content)
+	want := map[string]State{"LNK-OK": StateUnchanged, "LNK-GONE": StateLocal, "LNK-UNPUB": StateLocal, "LNK-STALE": StateVersionMismatch}
+	for id, state := range want {
+		if got[id].State != state {
+			t.Errorf("%s state = %q, want %q", id, got[id].State, state)
 		}
 	}
-	if s := got["LNK-CHANGED"]; s.Current != current || s.Item == nil {
-		t.Fatalf("stale suspect link lacks the current fingerprint and item: %+v", s)
+	if !strings.Contains(got["LNK-GONE"].Detail, "workspace") || got["LNK-OK"].Item == nil {
+		t.Fatalf("local statuses: %+v", got)
 	}
 }

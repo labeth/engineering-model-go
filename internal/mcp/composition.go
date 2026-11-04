@@ -153,8 +153,10 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			// environment gated (skips unless a variable is set).
 			"gatedOnly":             matrix.Summary.GatedOnly,
 			"gatedOnlyRequirements": nonNilStrings(matrix.Summary.GatedOnlyRequirements),
-			// Requirement links: suspect, broken and claimed links and
-			// local requirements without an upward trace.
+			// Requirement links: the links that need review (version
+			// mismatch, broken, claimed) and local requirements without an
+			// upward trace; linksSuspect is a deprecated alias.
+			"linksNeedReview": matrix.Summary.LinksNeedReview, "linksVersionMismatch": matrix.Summary.LinksVersionMismatch,
 			"linksSuspect": matrix.Summary.LinksSuspect,
 			"linksBroken":  matrix.Summary.LinksBroken,
 			"linksClaimed": matrix.Summary.LinksClaimed,

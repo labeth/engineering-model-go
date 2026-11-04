@@ -27,6 +27,8 @@
     "orphan": 1,
     "danglingLinks": 0,
     "gatedOnly": 0,
+    "linksNeedReview": 0,
+    "linksVersionMismatch": 0,
     "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 0,

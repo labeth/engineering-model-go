@@ -696,7 +696,7 @@ All subsystem required interfaces are satisfied and all allocations resolve to p
 <<<
 == Requirement Links
 
-Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A link pinned to another version than the dependency, a broken and a claimed link are marked; review it with `engws review-links`.
 
 * *REQ-PORT-001*: The atlas industries portfolio shall report portfolio status to the portfolio executive.
 ** no requirement link
@@ -717,7 +717,7 @@ Each requirement of this model with the requirement links (`model/req-links.yml`
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === CAP-ATLAS-PORTFOLIO (capability)
 
@@ -726,8 +726,6 @@ Coordinated sensing and resilient communication portfolio.
 Realized by:
 
 * `REQ-PORT-001`: The atlas industries portfolio shall report portfolio status to the portfolio executive.
-
-Fingerprint: `sha256:v1:cf9a18acef2be84e51d85be6e21d0d4ac541ec9bf035064fcfdc8f702f4c9f80`
 
 <<<
 == Reference Index

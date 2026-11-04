@@ -31,8 +31,10 @@ func (s *Server) linkContext() (linkreview.Context, error) {
 	return linkreview.Evaluate(s.bundle.ManifestPath, resolution())
 }
 
-// linksList returns every requirement link with its state, the pinned and
-// the dependency version and the recorded and current fingerprint.
+// linksList returns every requirement link with its state, review status,
+// whether it needs review, and the pinned and the dependency version. In a
+// workspace the dependencies resolve from their checkouts and a link is not
+// compared with their content (D23): only the pin and the item's presence.
 // TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) linksList() (map[string]any, error) {
@@ -49,9 +51,8 @@ func (s *Server) linksList() (map[string]any, error) {
 		l := status[st.ID]
 		row := map[string]any{
 			"id": st.ID, "parent": st.Parent, "child": st.Child, "evidence": nonNilStrings(l.Evidence),
-			"state": string(st.State), "content": string(st.Content), "status": strings.TrimSpace(l.Status),
-			"pinnedVersion": st.Pinned, "dependencyVersion": st.Version,
-			"recordedFingerprint": st.Recorded, "currentFingerprint": st.Current,
+			"state": string(st.State), "status": strings.TrimSpace(l.Status), "needsReview": linkreview.NeedsReview(st),
+			"pinnedVersion": st.Pinned, "dependencyVersion": st.Version, "local": st.Local,
 			"reviewedBy": l.ReviewedBy, "reviewedOn": l.ReviewedOn,
 		}
 		if st.Detail != "" {
@@ -62,13 +63,19 @@ func (s *Server) linksList() (map[string]any, error) {
 	return map[string]any{"links": links, "count": len(links)}, nil
 }
 
-// linksSuspect returns the links that need review (suspect, broken,
-// version_mismatch) with the parent text and the child item after the
-// change and, when the pinned version resolves offline, before it.
+// linksSuspect returns the links that need review (pinned to another
+// version than the dependency, broken or claimed), evaluated like engws
+// review-links against the published dependencies (workspace off, module
+// cache, offline), with the parent text, the child item before (at the
+// pinned version) and after (at the dependency pin) and the change in
+// meaning between them. The name is kept for compatibility (D23).
 // TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) linksSuspect() (map[string]any, error) {
-	ctx, err := s.linkContext()
+	if s.bundle == nil || s.bundle.ManifestPath == "" {
+		return nil, fmt.Errorf("model not loaded from an engmod.yml")
+	}
+	ctx, err := linkreview.EvaluateForAccept(s.bundle.ManifestPath, resolution())
 	if err != nil {
 		return nil, err
 	}

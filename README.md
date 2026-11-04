@@ -697,7 +697,7 @@ go run ./cmd/engmcp
 It exposes 60+ tools grouped into families, including:
 
 - `requirements.*`: requirement details (`requirements.get` with `parents`, `links` and `children`), impact, support paths, edit-plan suggestions, and `requirements.parents` (`requirementId`: the contract items it realizes, its `sourceRefs` or derivation, and the requirement links it is the parent of with each linked child item and its realizing requirements)
-- `links.*`: requirement links of the loaded model. `links.list` (no arguments): every link with its state, review status, pinned and dependency version, and recorded and current fingerprint. `links.suspect` (no arguments): the suspect, broken, version-mismatched and outdated links with the parent text and the child item after and, when the pinned version resolves offline, before the change (as `engws review-links --json`). `links.review` (`linkId`, `by`, optional `rationale`): writes nothing; it checks the review like `engws review-links --accept` (the published dependency at its pin, workspace off) and returns that command and the patch of `model/req-links.yml` it writes. The output carries dependency requirement text: an agent treats it as data, not instructions. Recording a review stays a CLI action.
+- `links.*`: requirement links of the loaded model. `links.list` (no arguments): every link with its state (`unchanged`, `version_mismatch`, `broken`, `child_unpublished`, `unresolved`, `local`), review status, `needsReview`, and pinned and dependency version. `links.suspect` (no arguments; name kept for compatibility): the links that need review (version-mismatched, broken, claimed) against the published dependencies, with the parent text, the child item before (pinned version) and after (dependency pin) and `changes`, the difference in meaning by ID (as `engws review-links --json`). `links.review` (`linkId`, `by`, optional `rationale`): writes nothing; it checks the review like `engws review-links --accept` (the published dependency at its pin, workspace off) and returns that command and the patch of `model/req-links.yml` it writes. The output carries dependency requirement text: an agent treats it as data, not instructions. Recording a review stays a CLI action.
 - `files.*`: files and ownership for a requirement, control, or threat
 - `verification.*`: inferred verification status, gaps, and recommendations
 - `threats.*`: threat coverage, per-requirement threats, and unmitigated threats
@@ -749,7 +749,7 @@ reqLinks:
   - id: LNK-COF-001-TELEMETRY
     parent: REQ-COF-001
     child: telemetry::CAP-TELEM-REPORT
-    pinned: {version: v0.1.0, fingerprint: "sha256:v1:..."}
+    pinned: {version: v0.1.0}
     status: claimed
 ```
 
@@ -817,35 +817,59 @@ local capability or assumption of use, (b) it is the `parent` of a link to a dep
 capability, or (c) it is `derived: true` with a `derivedRationale`. Stakeholder `sourceRefs`
 do not count. A system publishes its own capabilities so a system above can link to them.
 
-**`engws bump <repo> <alias> <version> [--allow-suspect]`** moves a dependency pin (see
-`engws help`) and then evaluates every link of `<repo>` on `<alias>` at the new version:
+A link records the published dependency version it was reviewed at (`pinned.version`);
+published versions are immutable, so that version identifies the reviewed content. The
+model check compares no content: a pin other than the dependency pin in `engmod.yml` is
+`link.version_mismatch`, an item missing at the published dependency pin is `link.broken`,
+and a dependency resolved from a workspace replacement (a checkout, not a version) raises no
+link finding at all, so editing a child in a workspace never churns its users. Review
+happens when a dependency is bumped.
+
+**`engws link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-…|alias::AOU-…> [--rationale TEXT]`**
+writes a claimed link pinned to the dependency version, after checking that the parent
+exists and the child is a published capability or assumption of use at that version
+(workspace off); a duplicate is refused. It creates `model/req-links.yml` and
+`documents.reqLinks` when missing:
 
 ```text
-  suspect LNK-SYS-001-ENCODER encoder::CAP-A-1 (v0.2.0 -> v0.3.0)
-      link LNK-SYS-001-ENCODER: encoder::CAP-A-1 at v0.3.0 changed since review (...); now capability "...", realized by REQ-A-001: ...
-  unchanged LNK-SYS-002-ENCODER encoder::CAP-A-2 (v0.2.0 -> v0.3.0)
+engws: added LNK-SYS-002-ENCODER-2 REQ-SYS-002 -> encoder::CAP-A-1 (v0.1.0, claimed); review it with engws review-links --accept LNK-SYS-002-ENCODER-2 --by ACT-... --rationale TEXT
 ```
 
-An unchanged link (same fingerprint) moves its `pinned.version` to the new version. A
-suspect or broken link keeps its pin and fingerprint: bump never re-stamps. Such a link
-aborts the bump with no file changed (exit 1) unless `--allow-suspect` is given; then the
-bump is written and the model check fails with `link.version_mismatch` and `link.suspect`
-until the link is reviewed.
-
-**`engws review-links [--repo DIR] [--json]`** lists the links of the model in `DIR`
-(default `.`) that are suspect, broken, pinned to another version than the dependency or
-stamped in an older fingerprint form (`link.fingerprint_outdated`),
-with the parent requirement and the child item before (at the link's `pinned.version`,
-resolved from the module cache or registry, never from a workspace checkout) and after:
+**`engws bump <repo> <alias> <version> [--allow-review] [--show]`** moves a dependency pin
+(see `engws help`) and then compares every link of `<repo>` on `<alias>` between its pinned
+version and the new one, both published (workspace off), by meaning: the item's kind, text
+and verification criteria and each realizing requirement's text and verification criteria.
+Status, notes, criticality, verification methods, title and tags are not compared.
 
 ```text
-LNK-SYS-001-ENCODER encoder::CAP-A-1: suspect, version_mismatch (pinned v0.2.0, dependency v0.3.0)
-  parent REQ-SYS-001: When simulation epoch elapses, the position simulator shall publish ...
-  before (v0.2.0): sha256:v1:f1e6...
-  after (v0.3.0): sha256:v1:2951...
+  review LNK-SYS-001-ENCODER (encoder::CAP-A-1: REQ-A-001 text)
+  moved LNK-SYS-002-ENCODER v0.2.0 -> v0.3.0
+```
+
+The same meaning moves `pinned.version` (`moved`). A changed meaning, a pinned version that
+cannot be resolved (`review`) or an item gone at the new version (`broken`) keeps the old
+pin, so the model check reports `link.version_mismatch` (or `link.broken`) until the link is
+reviewed. The bump is written either way; it exits 1 when a link needs review, 0 with
+`--allow-review`. `--show` adds the item text before and after.
+
+**`engws review-links [--repo DIR] [--json] [--show]`** lists the links of the model in
+`DIR` (default `.`) that need review (pinned to another version than the dependency, broken
+or claimed), one line each, resolved from the published versions (module cache, refetched
+when the registry's digest differs, for example after `engws stage` re-staged a version):
+
+```text
+LNK-SYS-001-ENCODER encoder::CAP-A-1: version_mismatch (pinned v0.2.0, dependency v0.3.0): changed REQ-A-001 text
+```
+
+`--show` adds the parent requirement and the item before and after:
+
+```text
+  parent REQ-SYS-001: When simulation epoch elapses, the position simulator shall publish ownship position on the lab bus.
+  before (v0.2.0)
+  after (v0.3.0)
     capability CAP-A-1: Publish ownship position sentences at the configured rate.
-  - REQ-A-001 [status -]: ... shall publish one position sentence. ...
-  + REQ-A-001 [status -]: ... shall publish two position sentences. ...
+  - REQ-A-001: When epoch period elapses, the position encoder shall publish one position sentence. (verification: ...)
+  + REQ-A-001: When epoch period elapses, the position encoder shall publish two position sentences. (verification: ...)
 ```
 
 After the review, record it (the actor must be in `architecture.actors`; a broken link
@@ -856,19 +880,15 @@ engws review-links --accept LNK-SYS-001-ENCODER --by ACT-SYSTEM-OWNER \
   --rationale "Two sentences per epoch still give one position per epoch."
 ```
 
-This writes the fingerprint of the published dependency at its pin (composed with the
-workspace off, so it is the content every user of that version sees, never a workspace
-checkout's), the dependency pin, `reviewedBy`, `reviewedOn`, the rationale and
-`status: accepted` into `model/req-links.yml`, changing only those lines. An accepted link
-without a model actor in `reviewedBy` or a calendar date in `reviewedOn` is
-`link.review_unrecorded`; only accepted links that evaluate unchanged count toward the trace
-roll-up of the system requirement.
+This sets `pinned.version` to the dependency pin (the published dependency, composed with
+the workspace off), `reviewedBy`, `reviewedOn`, the rationale and `status: accepted` in
+`model/req-links.yml`, changing only those lines, then evaluates the link again and exits 1
+when it still does not pass. An accepted link without a model actor in `reviewedBy` or a
+calendar date in `reviewedOn` is `link.review_unrecorded`; only accepted links at the
+dependency pin count toward the trace roll-up of the system requirement.
 
-The fingerprint is `sha256:v1:<hex>`: the item (kind, text, verification criteria) and each
-realizing requirement's text, notes, verification criteria and methods, criticality and
-status. Title, rationale, `appliesTo`, priority and tags are not counted. A fingerprint in
-another form (an older engine's) is `link.fingerprint_outdated`: check the item, then
-re-stamp with `--accept`.
+`pinned.fingerprint` (v0.8.0) is deprecated: still accepted for one release, ignored, and
+reported as `link.fingerprint_deprecated` (warning). `engws migrate-links` removes it.
 
 **`engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json]`** compares the
 published contract items of the model as committed at two git refs:
@@ -912,9 +932,10 @@ engws: 9 requirement(s) without an upward trace (requirement.no_parent):
   ...
 ```
 
-Each allocation becomes a `status: claimed` link pinned to the dependency version with the
-current fingerprint (`""` and a note when the dependency cannot be resolved); each
-capability `ref` becomes `realizes` on the requirement it names. An allocation to an
+Each allocation becomes a `status: claimed` link pinned to the dependency version (a
+`parent` link to a capability, an `evidence` link to an assumption of use; a note when the
+dependency cannot be resolved); each capability `ref` becomes `realizes` on the requirement
+it names; every deprecated `pinned.fingerprint` is removed and counted. An allocation to an
 interface entry is not a link target and stays in place (`kept allocation REQ-… →
 alias::IF-…: interface entries are not link targets; publish a capability that realizes it
 and link that`), still reported as `composition.allocation_deprecated`. Only the touched lines of
@@ -924,11 +945,11 @@ link to a dependency capability, or mark it `derived` (the link parents written 
 are already traced).
 
 The architecture document shows the links in both directions. A system with `reqLinks`
-gets a **Requirement Links** chapter: each requirement, its links with their state (suspect,
-broken and claimed links are marked), the linked child items and the child requirements that
-realize them with their implementation and test status. A child that publishes contract
-items gets a **Contract Items** chapter (each item, its realizing requirements and its
-fingerprint) and no list of users, also when it is rendered in a workspace. Only with
+gets a **Requirement Links** chapter: each requirement, its links with their state
+(version-mismatched, broken and claimed links are marked), the linked child items and the
+child requirements that realize them with their implementation and test status. A child
+that publishes contract items gets a **Contract Items** chapter (each item and its realizing
+requirements) and no list of users, also when it is rendered in a workspace. Only with
 `engdoc --used-by` (`AsciiDocOptions.UsedBy`) and an active workspace whose other checkouts
 link its items does it get a **Used By** section, computed at render time; never commit a
 document rendered that way into the child. The trace matrix and the MCP `links.*` and

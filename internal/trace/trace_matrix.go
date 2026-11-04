@@ -74,16 +74,16 @@ type Row struct {
 	// to a child item whose realizing requirements are all implemented
 	// (LinksImplemented) or all test linked (LinksTestLinked) in their own
 	// repository; "links-unreviewed" when a link would roll it up but is
-	// claimed, suspect, version-mismatched or otherwise not unchanged, so
-	// it does not count.
+	// claimed, version-mismatched or otherwise not unchanged, so it does
+	// not count.
 	SatisfiedBy      string `json:"satisfiedBy,omitempty"`
 	LinksImplemented bool   `json:"linksImplemented,omitempty"`
 	LinksTestLinked  bool   `json:"linksTestLinked,omitempty"`
 }
 
 // LinkRef is one requirement link of a trace row: its id, child item, the
-// evaluated state (unchanged, suspect, broken, version_mismatch,
-// child_unpublished, unresolved) and the review status (claimed, accepted).
+// evaluated state (unchanged, broken, version_mismatch, child_unpublished,
+// unresolved, local) and the review status (claimed, accepted).
 // TRLC-LINKS: REQ-EMG-105
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 type LinkRef struct {
@@ -174,15 +174,21 @@ type Summary struct {
 	// They are still counted in TestLinked.
 	GatedOnly             int      `json:"gatedOnly"`
 	GatedOnlyRequirements []string `json:"gatedOnlyRequirements,omitempty"`
-	// LinksSuspect, LinksBroken and LinksClaimed count the requirement
-	// links whose child item changed since review (also at a stale pin),
-	// no longer exists, or that are claimed, not reviewed. Unparented counts
-	// the local requirements that trace upward to nothing
-	// (requirement.no_parent where the requirement link rules apply).
-	LinksSuspect int `json:"linksSuspect"`
-	LinksBroken  int `json:"linksBroken"`
-	LinksClaimed int `json:"linksClaimed"`
-	Unparented   int `json:"unparented"`
+	// LinksNeedReview counts the requirement links that need a person
+	// (decision D23): pinned to another version than the dependency
+	// (LinksVersionMismatch), broken (LinksBroken: the item does not exist
+	// at the dependency pin) or claimed (LinksClaimed: not yet reviewed); a
+	// link is counted once. LinksSuspect is a deprecated alias of
+	// LinksVersionMismatch: no link is compared with content at check time
+	// any more. Unparented counts the local requirements that trace upward
+	// to nothing (requirement.no_parent where the requirement link rules
+	// apply).
+	LinksNeedReview      int `json:"linksNeedReview"`
+	LinksVersionMismatch int `json:"linksVersionMismatch"`
+	LinksSuspect         int `json:"linksSuspect"`
+	LinksBroken          int `json:"linksBroken"`
+	LinksClaimed         int `json:"linksClaimed"`
+	Unparented           int `json:"unparented"`
 }
 
 // requirementIDSet is the set of requirement ids defined by the model.

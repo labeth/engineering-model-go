@@ -444,7 +444,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === CAP-TELEM-REPORT (capability)
 
@@ -455,8 +455,6 @@ Realized by:
 * `REQ-TELEM-001`: Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall report a telemetry record to the fleet.
 * `REQ-TELEM-002`: Where telemetry collection is enabled, when sample interval elapsed event is received, the telemetry subsystem shall sample machine sensors.
 * `REQ-TELEM-003`: Where telemetry collection is enabled, when brew cycle completed event is received, the telemetry subsystem shall sign each telemetry record.
-
-Fingerprint: `sha256:v1:1fc5bcba17ed64b9ad8f30ab0c3290236b9724dc744280a4c2e7744968c9c005`
 
 <<<
 == Reference Index

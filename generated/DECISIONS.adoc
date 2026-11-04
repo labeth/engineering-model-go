@@ -603,7 +603,7 @@ engflow init writes strict. (docs/requirement-links.md D1.)
 [[ADR-EMG-023]]
 == ADR-EMG-023: The using system fingerprints the child item from the content it resolved
 
-Status:: accepted
+Status:: superseded
 Date:: 2026-11-03
 
 === Context
@@ -622,6 +622,7 @@ same publication (contract.realizer_unpublished). No generated fingerprint file 
 
 - Nothing to keep fresh; the fingerprint always describes the content the system resolved.
 - A child cannot keep a realizer of a published item private.
+- Superseded by ADR-EMG-030 (D23) for the fingerprint; contract.realizer_unpublished stays.
 
 [[ADR-EMG-024]]
 == ADR-EMG-024: A dependency bump re-pins only unchanged links and never re-stamps a fingerprint
@@ -645,6 +646,7 @@ never writes a fingerprint. (D8.)
 
 - A bump cannot silently accept a changed child item.
 - Links on other aliases are not touched by a bump; their own pins are checked by validation.
+- Amended by ADR-EMG-030 (D23) - bump compares meanings between versions, writes the bump and leaves changed links at their old pin (exit 1 unless --allow-review).
 
 [[ADR-EMG-025]]
 == ADR-EMG-025: Used By is a render-time opt-in and is never committed into a child
@@ -674,7 +676,7 @@ examples are rendered without it. (D16.)
 [[ADR-EMG-026]]
 == ADR-EMG-026: The contract item fingerprint is versioned by canonical form
 
-Status:: accepted
+Status:: superseded
 Date:: 2026-11-03
 
 === Context
@@ -697,6 +699,7 @@ priority and tags are not covered. (D17.)
 
 - An engine upgrade that changes the canonical form produces one distinct, explainable finding per link.
 - Links recorded by v0.8.0 pre-releases must be re-stamped once.
+- Superseded by ADR-EMG-030 (D23); links record no fingerprint.
 
 [[ADR-EMG-027]]
 == ADR-EMG-027: Users upgrade the engine before a child adopts realizes or assumptions of use
@@ -774,3 +777,40 @@ keeps the file mode. It is the only MCP tool that writes; every other tool stays
 - Model edits by agents go through one validated, diffable path instead of hand-written scripts.
 - A write by model.patch is visible as a file change in the working tree; review of the diff stays the control that it was intended.
 - links.review still writes nothing; recording a link review stays a CLI action.
+
+[[ADR-EMG-030]]
+== ADR-EMG-030: A requirement link records the published version it was reviewed at, not a fingerprint
+
+Status:: accepted
+Date:: 2026-11-04
+
+=== Context
+
+The v0.8.0 link fingerprint had no authoring path (the schema required an engine-written value, so links were
+written through deprecated allocations and migrate-links), churned on every workspace edit of a child and on a mere
+status change, and let a stale module cache report a link as accepted while the next check found it suspect. Every
+repeated check printed the item and realizer texts of each suspect link. Published versions are immutable, so the
+version a link was reviewed at already identifies the content that was reviewed (simulator-family retro 1104, items
+2, 3 and 12; owner decision).
+
+=== Decision
+
+A link is {id, parent | evidence, child, pinned {version}, status claimed|accepted, rationale, reviewedBy,
+reviewedOn}. pinned.fingerprint is deprecated: accepted for one release, ignored, reported as
+link.fingerprint_deprecated (warning), removed by engws migrate-links. The check compares no content: a pin other
+than the dependency pin is link.version_mismatch, an item missing at the published dependency pin link.broken, and a
+dependency resolved from a workspace replacement raises no link finding (a checkout has no version). engws bump
+compares each link's item and realizing requirements between the pinned and the new published version by meaning
+(item kind, text and verificationCriteria; each realizer's text and verificationCriteria) and moves the pin only
+when it is the same; status, notes, criticality and the other fields are not compared. engws review-links lists the
+links that need review one per line and --show prints before and after; --accept moves the pin to the dependency
+pin and re-evaluates the link. engws link add writes a claimed link at the dependency pin after checking parent and
+child. Supersedes D2 and D17 (ADR-EMG-023, ADR-EMG-026) for the fingerprint and amends D8 and D9 (ADR-EMG-024).
+(docs/requirement-links.md D23.)
+
+=== Consequences
+
+- Editing a child in a workspace never changes a link's state; review happens at a bump, once per release.
+- A status or notes change in a child release moves the pin without a review; a note of a capability is its text, so changing it needs one.
+- A version re-staged with other content is detected through the registry manifest digest of the cached module and refetched.
+- link.suspect and link.fingerprint_outdated no longer exist; trace linksSuspect is a deprecated alias of linksVersionMismatch next to the new linksNeedReview.

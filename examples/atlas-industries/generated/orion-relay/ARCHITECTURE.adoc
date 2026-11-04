@@ -1034,7 +1034,7 @@ All subsystem required interfaces are satisfied and all allocations resolve to p
 <<<
 == Requirement Links
 
-Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A suspect, broken or claimed link is marked; review it with `engws review-links`.
+Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. A link pinned to another version than the dependency, a broken and a claimed link are marked; review it with `engws review-links`.
 
 * *REQ-ORI-001*: The orion relay system shall deliver each relay message according to network controller priority.
 ** no requirement link
@@ -1062,7 +1062,7 @@ Each requirement of this model with the requirement links (`model/req-links.yml`
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === CAP-ORION-MISSION (capability)
 
@@ -1074,8 +1074,6 @@ Realized by:
 * `REQ-ORI-002`: The orion relay system shall execute the link scheduler software on managed edge compute.
 * `REQ-ORI-003`: The orion relay system shall retain relay configuration using managed cloud operations.
 * `REQ-ORI-004`: The orion relay system shall authenticate product services using shared security services.
-
-Fingerprint: `sha256:v1:94d795377ec77f634e76ab75773f4f087514689950bac50f72203327968d01dc`
 
 <<<
 == Reference Index

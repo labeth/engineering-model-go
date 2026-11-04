@@ -1,8 +1,8 @@
 // ENGMODEL-OWNER-UNIT: FU-ALLOCATION-TRACE
 package engmodel
 
-// Requirement links across composed models: contract item fingerprints and
-// link evaluation. Thin facade over internal/reqlinks; TestFacadeReexportsEngine
+// Requirement links across composed models: link evaluation and the
+// meaning of a contract item compared between versions (D23). Thin facade over internal/reqlinks; TestFacadeReexportsEngine
 // keeps it complete.
 
 import (
@@ -33,24 +33,13 @@ type LinkState = reqlinks.State
 
 const (
 	LinkStateUnchanged        = reqlinks.StateUnchanged
-	LinkStateSuspect          = reqlinks.StateSuspect
 	LinkStateBroken           = reqlinks.StateBroken
 	LinkStateVersionMismatch  = reqlinks.StateVersionMismatch
 	LinkStateChildUnpublished = reqlinks.StateChildUnpublished
 	LinkStateUnresolved       = reqlinks.StateUnresolved
-	// LinkStateFingerprintOutdated: the recorded fingerprint uses another canonical form.
-	LinkStateFingerprintOutdated = reqlinks.StateFingerprintOutdated
+	// LinkStateLocal: the dependency is a workspace checkout and the item is not published there.
+	LinkStateLocal = reqlinks.StateLocal
 )
-
-// ContractItemCanonicalVersion is the canonical-form version a fingerprint names (sha256:vN:).
-const ContractItemCanonicalVersion = reqlinks.CanonicalVersion
-
-// ContractItemFingerprintVersion returns the canonical-form version of a recorded fingerprint.
-// TRLC-LINKS: REQ-EMG-109
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func ContractItemFingerprintVersion(fingerprint string) int {
-	return reqlinks.FingerprintVersion(fingerprint)
-}
 
 // LinkReason classifies a child_unpublished or unresolved link.
 type LinkReason = reqlinks.Reason
@@ -80,11 +69,6 @@ func SortedContractItemRealizers(in []ContractItemRealizer) []ContractItemRealiz
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func ContractCapabilityRefs(bundle Bundle) map[string]string { return reqlinks.CapabilityRefs(bundle) }
 
-// OutdatedLinkMessage describes a link whose fingerprint uses another canonical form.
-// TRLC-LINKS: REQ-EMG-109
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func OutdatedLinkMessage(status LinkStatus) string { return reqlinks.OutdatedMessage(status) }
-
 // LinkDependency is one resolved dependency as requirement link evaluation sees it.
 // TRLC-LINKS: REQ-EMG-097
 type LinkDependency = reqlinks.Dependency
@@ -93,15 +77,24 @@ type LinkDependency = reqlinks.Dependency
 // TRLC-LINKS: REQ-EMG-097
 type LinkStatus = reqlinks.LinkStatus
 
-// CanonicalContractItem returns the canonical serialization a fingerprint hashes.
+// ContractItemMeaning returns the meaning of a contract item as compact JSON.
 // TRLC-LINKS: REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func CanonicalContractItem(item ContractItem) []byte { return reqlinks.CanonicalItem(item) }
+func ContractItemMeaning(item ContractItem) []byte { return reqlinks.ItemMeaning(item) }
 
-// ContractItemFingerprint returns the sha256:<hex> fingerprint of a contract item.
-// TRLC-LINKS: REQ-EMG-095
+// SameContractItemMeaning reports whether two versions of an item mean the same.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func ContractItemFingerprint(item ContractItem) string { return reqlinks.Fingerprint(item) }
+func SameContractItemMeaning(before, after ContractItem) bool {
+	return reqlinks.SameMeaning(before, after)
+}
+
+// ContractItemMeaningChanges names each difference in meaning between two versions of an item.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func ContractItemMeaningChanges(before, after ContractItem) []string {
+	return reqlinks.MeaningChanges(before, after)
+}
 
 // ContractItemsFromBundle returns every contract item of a model with its realizers.
 // TRLC-LINKS: REQ-EMG-095
@@ -138,11 +131,6 @@ func EvaluateRequirementLinks(system Bundle, deps []LinkDependency) []LinkStatus
 func RequirementLinkDiagnostics(system Bundle, deps []LinkDependency) []Diagnostic {
 	return composition.LinkDiagnostics(system, deps)
 }
-
-// SuspectLinkMessage describes a suspect link with fingerprints and current texts.
-// TRLC-LINKS: REQ-EMG-097
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func SuspectLinkMessage(status LinkStatus) string { return reqlinks.SuspectMessage(status) }
 
 // LinkDependencies returns the resolved direct dependencies of a composed system.
 // TRLC-LINKS: REQ-EMG-097

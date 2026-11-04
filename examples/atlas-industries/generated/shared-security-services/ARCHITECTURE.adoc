@@ -475,7 +475,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == Contract Items
 
-The capabilities and assumptions of use this model publishes, each with the requirements that realize it and its fingerprint. A using system pins the fingerprint in its requirement links; any change to the item or a realizing requirement changes it.
+The capabilities and assumptions of use this model publishes, each with the requirements that realize it. A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.
 
 === CAP-DEVICE-IDENTITY (capability)
 
@@ -485,8 +485,6 @@ Realized by:
 
 * `REQ-SEC-001`: The atlas security services shall issue short-lived identity credentials using the identity service.
 
-Fingerprint: `sha256:v1:5d63e4a604ade37ddbc990a45f3e26a70e65ad226b576e329b932102651a049c`
-
 === CAP-ZERO-TRUST (capability)
 
 Zero-trust access and immutable audit monitoring.
@@ -494,8 +492,6 @@ Zero-trust access and immutable audit monitoring.
 Realized by:
 
 * `REQ-SEC-002`: When credential replay is detected, the atlas security services shall notify the security analyst.
-
-Fingerprint: `sha256:v1:c08033fcd954c760e92db35f308885d2ced51b9817ee061c43d6db3adf2034cd`
 
 <<<
 == Reference Index

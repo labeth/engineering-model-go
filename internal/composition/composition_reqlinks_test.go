@@ -54,33 +54,32 @@ func dependency(child model.Bundle) reqlinks.Dependency {
 	return reqlinks.Dependency{Alias: "dep", Version: "v0.1.0", Bundle: child, Publications: child.Manifest.Publications}
 }
 
-// Diagnostics reports link.suspect (with the current item and realizer texts
-// and both fingerprints), link.broken, link.child_unpublished and
-// link.fingerprint_outdated (an older or unknown canonical form) as errors,
-// and an assumption of use of a dependency without an evidence link as
-// link.aou_unverified: an error in strict mode, a warning in guided mode
-// where links apply, nothing in a guided model without links or contract.
-// TRLC-LINKS: REQ-EMG-094, REQ-EMG-095, REQ-EMG-097, REQ-EMG-109
+// Diagnostics report link.broken and link.child_unpublished as errors, never
+// a content comparison (D23: a changed realizer at the same pin raises
+// nothing), and an assumption of use of a dependency without an evidence
+// link as link.aou_unverified: an error in strict mode, a warning in guided
+// mode where links apply, nothing in a guided model without links or
+// contract. A dependency resolved from a workspace replacement raises no
+// link finding at all.
+// Mutation: comparing content, reporting a local dependency or dropping
+// link.aou_unverified fails this test.
+// TRLC-LINKS: REQ-EMG-094, REQ-EMG-097, REQ-EMG-098
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
 func TestLinkDiagnostics(t *testing.T) {
 	child := linkChildBundle()
+	child.Requirements.Requirements[0].Text = "The child shall do A1 twice."
 	deps := []reqlinks.Dependency{dependency(child)}
-	zero := "sha256:v1:" + strings.Repeat("0", 64)
-	system := systemWith(
-		model.ReqLink{ID: "LNK-SUSPECT", Parent: "REQ-SYS-1", Child: "dep::CAP-A", Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: zero}},
-		model.ReqLink{ID: "LNK-BROKEN", Parent: "REQ-SYS-1", Child: "dep::CAP-GONE", Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: zero}},
-		model.ReqLink{ID: "LNK-IF", Parent: "REQ-SYS-1", Child: "dep::IF-A", Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: zero}},
-	)
+	link := func(id, target string) model.ReqLink {
+		return model.ReqLink{ID: id, Parent: "REQ-SYS-1", Child: target, Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.1.0"}}
+	}
+	system := systemWith(link("LNK-SAME-PIN", "dep::CAP-A"), link("LNK-BROKEN", "dep::CAP-GONE"), link("LNK-IF", "dep::IF-A"))
 	system.Manifest.RequirementLinks = model.RequirementLinksStrict
 	codes := map[string]string{}
 	for _, d := range LinkDiagnostics(system, deps) {
 		codes[d.Code] += string(d.Severity) + "|" + d.Message + "\n"
 	}
-	suspect := codes["link.suspect"]
-	for _, want := range []string{"error|", "LNK-SUSPECT", "dep::CAP-A", zero, "Deliver A.", "REQ-A1: The child shall do A1.", "REQ-A2: The child shall do A2."} {
-		if !strings.Contains(suspect, want) {
-			t.Fatalf("link.suspect lacks %q: %q", want, suspect)
-		}
+	if strings.Contains(codes["link.broken"]+codes["link.child_unpublished"], "LNK-SAME-PIN") || codes["link.suspect"] != "" {
+		t.Fatalf("a link at its pin was compared with content: %v", codes)
 	}
 	if !strings.Contains(codes["link.broken"], "error|") || !strings.Contains(codes["link.broken"], "LNK-BROKEN") {
 		t.Fatalf("link.broken = %q", codes["link.broken"])
@@ -92,23 +91,14 @@ func TestLinkDiagnostics(t *testing.T) {
 		t.Fatalf("strict link.aou_unverified = %q", codes["link.aou_unverified"])
 	}
 
-	// A fingerprint of an older or unknown canonical form is not compared:
-	// link.fingerprint_outdated (error), never link.suspect.
-	outdated := systemWith(model.ReqLink{ID: "LNK-OLD", Parent: "REQ-SYS-1", Child: "dep::CAP-A", Status: "accepted",
-		Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: "sha256:" + strings.Repeat("0", 64)}})
-	var old []string
-	for _, d := range LinkDiagnostics(outdated, deps) {
-		if strings.HasPrefix(d.Code, "link.") && d.Code != "link.aou_unverified" {
-			old = append(old, d.Code+"|"+string(d.Severity)+"|"+d.Message)
-		}
-	}
-	if len(old) != 1 || !strings.HasPrefix(old[0], "link.fingerprint_outdated|error|") ||
-		!strings.Contains(old[0], "engws review-links --accept LNK-OLD") || !strings.Contains(old[0], "unversioned") {
-		t.Fatalf("outdated fingerprint: %+v", old)
+	local := dependency(child)
+	local.Local = true
+	if d := LinkDiagnostics(system, []reqlinks.Dependency{local}); len(d) != 0 {
+		t.Fatalf("a workspace replacement raised link findings: %+v", d)
 	}
 
 	evidenced := systemWith(model.ReqLink{ID: "LNK-AOU", Child: "dep::AOU-A", Evidence: []string{"REQ-SYS-1"}, Status: "accepted",
-		Pinned: model.ReqLinkPin{Version: "v0.1.0", Fingerprint: reqlinks.Fingerprint(reqlinks.PublishedItems(child, child.Manifest.Publications[0])["AOU-A"])}})
+		Pinned: model.ReqLinkPin{Version: "v0.1.0"}})
 	if d := LinkDiagnostics(evidenced, deps); len(d) != 0 {
 		t.Fatalf("evidenced assumption: %+v", d)
 	}
@@ -124,29 +114,23 @@ func TestLinkDiagnostics(t *testing.T) {
 	}
 }
 
-// The composed diagnostics of a stale pin (version_mismatch) report the
-// content state at the resolved version: link.suspect with the current text,
-// link.broken, nothing for unchanged content.
-// Mutation: not reporting the suspect or broken content of a
-// version_mismatch link fails this test.
+// A stale pin (version_mismatch, reported by validation) whose item is gone
+// at the dependency pin is link.broken; one whose item exists raises nothing
+// at composition.
+// Mutation: letting the stale pin hide the broken item fails this test.
 // TRLC-LINKS: REQ-EMG-097, REQ-EMG-100
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
 func TestLinkDiagnosticsOfStaleLinks(t *testing.T) {
 	child := linkChildBundle()
-	current := reqlinks.Fingerprint(reqlinks.PublishedItems(child, child.Manifest.Publications[0])["CAP-A"])
-	zero := "sha256:v1:" + strings.Repeat("0", 64)
-	stale := func(id, target, fingerprint string) model.ReqLink {
-		return model.ReqLink{ID: id, Parent: "REQ-SYS-1", Child: target, Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.0.9", Fingerprint: fingerprint}}
+	stale := func(id, target string) model.ReqLink {
+		return model.ReqLink{ID: id, Parent: "REQ-SYS-1", Child: target, Status: "accepted", Pinned: model.ReqLinkPin{Version: "v0.0.9"}}
 	}
-	system := systemWith(stale("LNK-SAME", "dep::CAP-A", current), stale("LNK-CHANGED", "dep::CAP-A", zero), stale("LNK-GONE", "dep::CAP-GONE", current))
+	system := systemWith(stale("LNK-SAME", "dep::CAP-A"), stale("LNK-GONE", "dep::CAP-GONE"))
 	codes := map[string]string{}
 	for _, d := range LinkDiagnostics(system, []reqlinks.Dependency{dependency(child)}) {
 		codes[d.Code] += d.Message + "\n"
 	}
-	if !strings.Contains(codes["link.suspect"], "LNK-CHANGED") || !strings.Contains(codes["link.suspect"], "REQ-A1: The child shall do A1.") || strings.Contains(codes["link.suspect"], "LNK-SAME") {
-		t.Fatalf("link.suspect = %q", codes["link.suspect"])
-	}
-	if !strings.Contains(codes["link.broken"], "LNK-GONE") {
+	if !strings.Contains(codes["link.broken"], "LNK-GONE") || strings.Contains(codes["link.broken"], "LNK-SAME") {
 		t.Fatalf("link.broken = %q", codes["link.broken"])
 	}
 }

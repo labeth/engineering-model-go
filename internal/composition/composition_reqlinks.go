@@ -16,14 +16,16 @@ import (
 )
 
 // LinkDiagnostics evaluates the links and returns the composition-time link
-// diagnostics: link.suspect, link.fingerprint_outdated, link.broken and
-// link.child_unpublished (errors;
-// a child naming an undeclared or uncomposed dependency is reported by
-// validation, and version_mismatch too) and link.aou_unverified for every
-// published assumption of use of a resolved dependency that no link with
-// evidence covers (error in strict mode, warning in guided mode where the
-// rules apply, see validate.RequirementLinkRules).
-// TRLC-LINKS: REQ-EMG-097, REQ-EMG-098, REQ-EMG-109
+// diagnostics: link.broken (the item does not exist at the dependency pin)
+// and link.child_unpublished (errors; a child naming an undeclared or
+// uncomposed dependency and a stale pin, link.version_mismatch, are
+// reported by validation) and link.aou_unverified for every published
+// assumption of use of a resolved dependency that no link with evidence
+// covers (error in strict mode, warning in guided mode where the rules
+// apply, see validate.RequirementLinkRules). No item content is compared
+// (decision D23), and a dependency resolved from a workspace replacement
+// raises no link finding: a checkout is work in progress.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-098
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
 func LinkDiagnostics(system model.Bundle, deps []reqlinks.Dependency) []validate.Diagnostic {
 	path := system.ReqLinksPath
@@ -35,19 +37,9 @@ func LinkDiagnostics(system model.Bundle, deps []reqlinks.Dependency) []validate
 		diags = append(diags, validate.Diagnostic{Code: code, Severity: validate.SeverityError, Message: msg, Path: path})
 	}
 	for _, s := range reqlinks.EvaluateLinks(system, deps) {
-		content := s.State
-		if s.State == reqlinks.StateVersionMismatch {
-			// Validation reports the stale pin; the content state tells the
-			// reviewer what changed at the pinned dependency version.
-			content = s.Content
-		}
-		switch content {
-		case reqlinks.StateSuspect:
-			errAt("link.suspect", reqlinks.SuspectMessage(s))
-		case reqlinks.StateFingerprintOutdated:
-			errAt("link.fingerprint_outdated", reqlinks.OutdatedMessage(s))
+		switch s.State {
 		case reqlinks.StateBroken:
-			errAt("link.broken", fmt.Sprintf("link %s: %s no longer exists in %s at %s; remove the link or link another contract item", s.ID, s.Child, s.Alias, s.Version))
+			errAt("link.broken", fmt.Sprintf("link %s: %s does not exist in %s at %s; remove the link or link another contract item", s.ID, s.Child, s.Alias, s.Version))
 		case reqlinks.StateChildUnpublished:
 			// An undeclared or uncomposed alias is reported by validation.
 			if s.Reason == reqlinks.ReasonNotInPublication || s.Reason == reqlinks.ReasonNotContractItem {
@@ -68,6 +60,9 @@ func LinkDiagnostics(system model.Bundle, deps []reqlinks.Dependency) []validate
 	var unverified []string
 	seen := map[string]bool{}
 	for _, dep := range deps {
+		if dep.Local {
+			continue
+		}
 		for id, item := range reqlinks.PublishedItems(dep.Bundle, dep.Publications...) {
 			qualified := dep.Alias + "::" + id
 			if item.Kind != reqlinks.KindAssumption || evidenced[qualified] || seen[qualified] {
