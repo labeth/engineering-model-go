@@ -43,6 +43,9 @@ type Symbol struct {
 	// among its first statements whose body calls t.Skip, t.Skipf or
 	// t.SkipNow. It is empty for an ungated test and for non-tests.
 	Gates []string
+	// Benchmark marks a test entry point that is a benchmark (Go BenchmarkX,
+	// Rust #[bench]): it measures and asserts nothing by itself.
+	Benchmark bool
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -65,6 +68,7 @@ type declaration struct {
 	IsTest       bool
 	TestOnly     bool
 	Gates        []string
+	Benchmark    bool
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -382,6 +386,7 @@ func symbolForDeclaration(d declaration, relPath, idPath string, lineNo int, lin
 		IsTest:     d.IsTest,
 		TestOnly:   d.TestOnly || d.IsTest,
 		Gates:      append([]string(nil), d.Gates...),
+		Benchmark:  d.Benchmark,
 	}
 }
 
@@ -459,10 +464,12 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 						d.IsTest = goTestFunction(n, name)
 						if d.IsTest {
 							d.Gates = goTestGates(n, src)
+							d.Benchmark = strings.HasPrefix(name, "Benchmark")
 						}
 					}
 				case ".rs":
 					d.IsTest = rustTestFunction(n, src)
+					d.Benchmark = d.IsTest && rustBenchFunction(n, src)
 					d.TestOnly = d.IsTest || rustInTestScope(n, src)
 				}
 				out = append(out, d)

@@ -14,6 +14,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -59,6 +60,10 @@ type Row struct {
 	// testing.Short. Gates names the variables (or testing.Short).
 	Gated bool     `json:"gated,omitempty"`
 	Gates []string `json:"gates,omitempty"`
+	// BenchmarkOnly is true when every linked test of the requirement is a
+	// benchmark (Go Benchmark*, Rust #[bench]); verification.benchmark_only
+	// warns when its criteria name a number.
+	BenchmarkOnly bool `json:"benchmarkOnly,omitempty"`
 	// Parents are the upward trace of the requirement: the contract items
 	// it realizes (alias::ID on a published requirement row); none for a
 	// requirement traced by its links or derivation (D22). Children are the downward trace of a
@@ -389,12 +394,60 @@ func ScopeCodeToModel(items []codescan.CodeItem, roots []string, modelDir string
 // code, verification, or delegation). The code is assumed already scoped to this model.
 // It also reports assurance records whose status lags the tests they name
 // (verification.status_stale).
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073, REQ-EMG-098
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073, REQ-EMG-098, REQ-EMG-121
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func ValidateIntegrity(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) []validate.Diagnostic {
 	diags := validateIntegrityWithIDs(KnownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
 	diags = append(diags, unsatisfiedRequirements(bundle, requirements, scopedCode, verification, delegationsByReq)...)
+	diags = append(diags, benchmarkOnlyDiagnostics(requirements, verification)...)
 	return append(diags, staleVerificationStatus(bundle, scopedCode, verification)...)
+}
+
+// benchmarkOnlyRequirements returns the requirements whose every linking
+// test entry point, across all verification checks, is a benchmark.
+// TRLC-LINKS: REQ-EMG-121
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE
+func benchmarkOnlyRequirements(verification []codescan.VerificationCheck) map[string]bool {
+	bench, asserted := map[string]bool{}, map[string]bool{}
+	for _, v := range verification {
+		for _, r := range v.Verifies {
+			id := strings.TrimSpace(r)
+			if v.BenchOnly[r] {
+				bench[id] = true
+			} else {
+				asserted[id] = true
+			}
+		}
+	}
+	for id := range asserted {
+		delete(bench, id)
+	}
+	return bench
+}
+
+// numberPattern finds a number in verification criteria.
+var numberPattern = regexp.MustCompile(`\d`)
+
+// benchmarkOnlyDiagnostics reports verification.benchmark_only (warning) at
+// each requirement whose verificationCriteria name a number and whose only
+// linked tests are benchmarks: a benchmark measures but asserts nothing, so
+// a quantitative criterion needs a test that checks the measured value.
+// TRLC-LINKS: REQ-EMG-121
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
+func benchmarkOnlyDiagnostics(requirements model.RequirementsDocument, verification []codescan.VerificationCheck) []validate.Diagnostic {
+	bench := benchmarkOnlyRequirements(verification)
+	var diags []validate.Diagnostic
+	for i, r := range requirements.Requirements {
+		id := strings.TrimSpace(r.ID)
+		if !bench[id] || !numberPattern.MatchString(r.VerificationCriteria) {
+			continue
+		}
+		diags = append(diags, validate.Diagnostic{
+			Code: "verification.benchmark_only", Severity: validate.SeverityWarning, Path: fmt.Sprintf("requirements[%d]", i),
+			Message: fmt.Sprintf("requirement %s has a quantitative verificationCriteria but only benchmarks link it; a benchmark asserts nothing: add a Test that measures and checks the value from the criteria", id),
+		})
+	}
+	return diags
 }
 
 // unsatisfiedRequirements reports requirement.unsatisfied at each requirement
@@ -507,7 +560,7 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 // an explicit ID set, which may include published alias::ID entities. A row
 // whose every linked verification is environment gated is Gated and counted
 // in Summary.GatedOnly.
-// TRLC-LINKS: REQ-EMG-030, REQ-EMG-065, REQ-EMG-088, REQ-EMG-105
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-065, REQ-EMG-088, REQ-EMG-105, REQ-EMG-121
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
 func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) Matrix {
 	reqIDs := requirementIDSet(requirements)
@@ -549,6 +602,7 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 			}
 		}
 	}
+	benchOnly := benchmarkOnlyRequirements(verification)
 	resultByReq := requirementResults(verification)
 
 	matrix := Matrix{Model: strings.TrimSpace(bundle.Architecture.Model.ID)}
@@ -563,6 +617,7 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 			if !ungatedReq[id] && len(gatesByReq[id]) > 0 {
 				row.Gated, row.Gates = true, textutil.UniqueSorted(gatesByReq[id])
 			}
+			row.BenchmarkOnly = benchOnly[id]
 		}
 		if d := delegationsByReq[id]; len(d) > 0 {
 			row.DelegatedTo = &Delegation{Subsystem: d[0].Subsystem, Target: d[0].Target, TargetRequirement: d[0].TargetRef}

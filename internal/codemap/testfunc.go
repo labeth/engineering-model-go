@@ -110,9 +110,22 @@ func rustTestFunction(n *sitter.Node, src []byte) bool {
 	for _, attr := range rustOuterAttributes(n) {
 		path := rustAttributePath(attr, src)
 		switch {
-		case path == "test", path == "rstest", path == "test_case", path == "wasm_bindgen_test":
+		case path == "test", path == "rstest", path == "test_case", path == "wasm_bindgen_test", path == "bench":
 			return true
 		case strings.HasSuffix(path, "::test"):
+			return true
+		}
+	}
+	return false
+}
+
+// rustBenchFunction reports whether a Rust function is a #[bench] benchmark.
+// Criterion benchmarks are plain functions registered by a macro, not test
+// entry points, so they are not detected.
+// TRLC-LINKS: REQ-EMG-121
+func rustBenchFunction(n *sitter.Node, src []byte) bool {
+	for _, attr := range rustOuterAttributes(n) {
+		if rustAttributePath(attr, src) == "bench" {
 			return true
 		}
 	}

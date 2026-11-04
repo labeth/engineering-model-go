@@ -48,6 +48,10 @@ semantic versioning.
 
 ### Added
 
+- `verification.benchmark_only` (warning, REQ-EMG-121): a requirement whose
+  `verificationCriteria` name a number and whose only linked tests are benchmarks (Go
+  `Benchmark*`, Rust `#[bench]`, now detected as a test entry point); the trace row gets
+  `benchmarkOnly`. Criterion and JS bench files are not classified.
 - MCP `repo` argument (REQ-EMG-120, D24): the model-reading tools (`model.diagnose`,
   `model.patch`, `trace.matrix`, `links.*`, `requirements.*`, `gemara.*` and others) take an
   optional `repo`, a family member checkout inside the workspace root, so one server answers

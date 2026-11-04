@@ -2394,87 +2394,87 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--AUTOTRACEID",
           "path": "internal/codemap/scan.go",
-          "line": 679
+          "line": 686
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--DECLARATIONNAME",
           "path": "internal/codemap/scan.go",
-          "line": 563
+          "line": 570
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--EXTRACTDECLARATIONS",
           "path": "internal/codemap/scan.go",
-          "line": 390
+          "line": 395
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--FIRSTLINE",
           "path": "internal/codemap/scan.go",
-          "line": 615
+          "line": 622
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--ISATTRIBUTELIKE",
           "path": "internal/codemap/scan.go",
-          "line": 673
+          "line": 680
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--ISCOMMENTLIKE",
           "path": "internal/codemap/scan.go",
-          "line": 664
+          "line": 671
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--JOINLINENUMBERS",
           "path": "internal/codemap/scan.go",
-          "line": 649
+          "line": 656
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--MARKERVALUE",
           "path": "internal/codemap/scan.go",
-          "line": 627
+          "line": 634
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--READSCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 185
+          "line": 189
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCAN",
           "path": "internal/codemap/scan.go",
-          "line": 100
+          "line": 104
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 218
+          "line": 222
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
           "path": "internal/codemap/scan.go",
-          "line": 106
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SLUGUPPER",
           "path": "internal/codemap/scan.go",
-          "line": 699
+          "line": 706
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SPLITCSV",
           "path": "internal/codemap/scan.go",
-          "line": 636
+          "line": 643
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SYMBOLFORDECLARATION",
           "path": "internal/codemap/scan.go",
-          "line": 365
+          "line": 369
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--TREESITTERSPEC",
           "path": "internal/codemap/scan.go",
-          "line": 496
+          "line": 503
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--VALIDREQUIREMENTID",
           "path": "internal/codemap/scan.go",
-          "line": 659
+          "line": 666
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--GOTESTFUNCTION",
@@ -2504,27 +2504,27 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTATTRIBUTE",
           "path": "internal/codemap/testfunc.go",
-          "line": 202
+          "line": 215
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTATTRIBUTEPATH",
           "path": "internal/codemap/testfunc.go",
-          "line": 167
+          "line": 180
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTCFGTEST",
           "path": "internal/codemap/testfunc.go",
-          "line": 177
+          "line": 190
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTINTESTSCOPE",
           "path": "internal/codemap/testfunc.go",
-          "line": 126
+          "line": 139
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTOUTERATTRIBUTES",
           "path": "internal/codemap/testfunc.go",
-          "line": 151
+          "line": 164
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTTESTFUNCTION",
@@ -2724,162 +2724,162 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--APPENDORMERGERESULT",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 1026
+          "line": 1044
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--BUILDVERIFICATIONCODEELEMENTINDEX",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 571
+          "line": 589
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--BUILDVERIFICATIONTESTSYMBOLINDEX",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 615
+          "line": 633
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--EXTRACTTRLCLINKEDREQUIREMENTS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 556
+          "line": 574
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--EXTRACTVERIFICATIONDESCRIPTION",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 979
+          "line": 997
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--EXTRACTVERIFICATIONDESCRIPTIONMARKER",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 990
+          "line": 1008
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--HASTESTFUNCTIONDETECTION",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 362
+          "line": 367
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--INFERREDCODEROOTS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 701
+          "line": 719
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--INFERREDSIBLINGDIRS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 741
+          "line": 759
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--INFERVERIFICATIONCHECKS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 54
+          "line": 57
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--ISVERIFICATIONTESTPATH",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 679
+          "line": 697
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--MERGEVERIFICATIONRESULT",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 1037
+          "line": 1055
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--NORMALIZERESULTSTATUS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 832
+          "line": 850
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--NORMALIZEVERIFICATIONIDENTITY",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 910
+          "line": 928
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--OWNERSFORREQUIREMENTS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 731
+          "line": 749
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--PARSERESULTJSON",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 503
+          "line": 521
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--PARSERESULTTEXT",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 538
+          "line": 556
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--PARSERESULTXML",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 465
+          "line": 483
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--PARSEVERIFICATIONARTIFACT",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 428
+          "line": 446
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--REQUIREMENTOWNERS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 711
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--SELECTBESTVERIFICATIONCHECKID",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 923
+          "line": 941
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--SUMMARIZECHECKSTATUS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 857
+          "line": 875
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--TESTFUNCTIONREQUIREMENTS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 383
+          "line": 389
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--UNIQUEEXISTINGDIRS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 754
+          "line": 772
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--UNIQUESTRINGS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 1010
+          "line": 1028
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--VERIFICATIONCODEELEMENTSFORPATH",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 659
+          "line": 677
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--VERIFICATIONDESCRIPTIONFROMRESULTARTIFACT",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 958
+          "line": 976
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--VERIFICATIONIDENTITYKEYSFROMPATH",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 887
+          "line": 905
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--VERIFICATIONIDFROMPATH",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 813
+          "line": 831
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--VERIFICATIONKINDFROMPATH",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 777
+          "line": 795
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--VERIFICATIONNAMEFROMPATH",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 795
+          "line": 813
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--VERIFICATIONSTATUSRANK",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 1056
+          "line": 1074
         },
         {
           "symbol": "CODE-INTERNAL-MCP-SERVER-GO--OWNERUNITMARKER",
@@ -4475,32 +4475,32 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 663
+          "line": 718
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--KNOWNMODELIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 209
+          "line": 214
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--REQUIREMENTIDSET",
           "path": "internal/trace/trace_matrix.go",
-          "line": 197
+          "line": 202
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 394
+          "line": 399
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 444
+          "line": 497
         }
       ],
       "verifications": [
@@ -4520,12 +4520,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 394
+          "line": 399
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 444
+          "line": 497
         }
       ],
       "verifications": [
@@ -4585,42 +4585,42 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 663
+          "line": 718
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIX",
           "path": "internal/trace/trace_matrix.go",
-          "line": 502
+          "line": 555
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 512
+          "line": 565
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--CSV",
           "path": "internal/trace/trace_matrix.go",
-          "line": 902
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--EFFECTIVECODEROOTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 306
+          "line": 311
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--REQUIREMENTRESULTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 623
+          "line": 678
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--SCOPECODETOMODEL",
           "path": "internal/trace/trace_matrix.go",
-          "line": 319
+          "line": 324
         }
       ],
       "verifications": [
@@ -8226,22 +8226,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 838
+          "line": 893
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 663
+          "line": 718
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 99
+          "line": 104
         }
       ],
       "verifications": [
@@ -8619,22 +8619,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 838
+          "line": 893
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 663
+          "line": 718
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 99
+          "line": 104
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -9062,7 +9062,7 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
           "path": "internal/codemap/scan.go",
-          "line": 106
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--CODESCANSKIPPER",
@@ -9122,17 +9122,17 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--AUTOTRACEID",
           "path": "internal/codemap/scan.go",
-          "line": 679
+          "line": 686
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--FILEID",
           "path": "internal/codemap/scan.go",
-          "line": 691
+          "line": 698
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
           "path": "internal/codemap/scan.go",
-          "line": 106
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--BUILDCODEINDEX",
@@ -9247,27 +9247,27 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTATTRIBUTE",
           "path": "internal/codemap/testfunc.go",
-          "line": 202
+          "line": 215
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTATTRIBUTEPATH",
           "path": "internal/codemap/testfunc.go",
-          "line": 167
+          "line": 180
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTCFGTEST",
           "path": "internal/codemap/testfunc.go",
-          "line": 177
+          "line": 190
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTINTESTSCOPE",
           "path": "internal/codemap/testfunc.go",
-          "line": 126
+          "line": 139
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTOUTERATTRIBUTES",
           "path": "internal/codemap/testfunc.go",
-          "line": 151
+          "line": 164
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTTESTFUNCTION",
@@ -9468,7 +9468,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 706
         },
         {
           "symbol": "CODE-MODEL-API-GO--FINDWORKSPACEWITH",
@@ -9633,7 +9633,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 706
         }
       ],
       "verifications": [
@@ -9733,17 +9733,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 512
+          "line": 565
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 444
+          "line": 497
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -9860,12 +9860,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 706
         }
       ],
       "verifications": [
@@ -9912,22 +9912,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPLYDELEGATEDSTATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 808
+          "line": 863
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--DEPENDENCYTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 742
+          "line": 797
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 776
+          "line": 831
         }
       ],
       "verifications": [
@@ -10578,12 +10578,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 394
+          "line": 399
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-VERIFICATION-STATUS-GO--STALEVERIFICATIONSTATUS",
@@ -10960,17 +10960,17 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--READSCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 185
+          "line": 189
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANARTIFACTFILE",
           "path": "internal/codemap/scan.go",
-          "line": 207
+          "line": 211
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
           "path": "internal/codemap/scan.go",
-          "line": 106
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--BUILDCODEINDEX",
@@ -11175,17 +11175,17 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--APPENDGATE",
           "path": "internal/codemap/testfunc.go",
-          "line": 280
+          "line": 293
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--GOTESTGATES",
           "path": "internal/codemap/testfunc.go",
-          "line": 234
+          "line": 247
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--TESTFUNCTIONREQUIREMENTS",
           "path": "internal/codescan/inferred_verification.go",
-          "line": 383
+          "line": 389
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--NONNILSTRINGS",
@@ -11200,7 +11200,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 512
+          "line": 565
         }
       ],
       "verifications": [
@@ -11725,17 +11725,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--UNSATISFIEDREQUIREMENTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 407
+          "line": 460
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 394
+          "line": 399
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKRULES",
@@ -12536,27 +12536,27 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 838
+          "line": 893
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 674
+          "line": 729
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 512
+          "line": 565
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--LINKREF",
           "path": "internal/trace/trace_matrix.go",
-          "line": 89
+          "line": 94
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 776
+          "line": 831
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CAPABILITYLINKPARENTS",
@@ -13300,6 +13300,51 @@
       ],
       "result": "not-run",
       "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-121",
+      "text": "When model updated event is received, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-CODEMAP-INFERENCE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--RUSTBENCHFUNCTION",
+          "path": "internal/codemap/testfunc.go",
+          "line": 126
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-VERIFICATION-GO--TESTFUNCTIONREQUIREMENTS",
+          "path": "internal/codescan/inferred_verification.go",
+          "line": 389
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BENCHMARKONLYDIAGNOSTICS",
+          "path": "internal/trace/trace_matrix.go",
+          "line": 437
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BENCHMARKONLYREQUIREMENTS",
+          "path": "internal/trace/trace_matrix.go",
+          "line": 410
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
+          "path": "internal/trace/trace_matrix.go",
+          "line": 565
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
+          "path": "internal/trace/trace_matrix.go",
+          "line": 399
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-INFERENCE_TRACE_TEST-B704D6"
+      ],
+      "result": "not-run",
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
@@ -13308,11 +13353,11 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 113,
-    "implemented": 110,
-    "verified": 103,
-    "tested": 103,
-    "testLinked": 103,
+    "requirements": 114,
+    "implemented": 111,
+    "verified": 104,
+    "tested": 104,
+    "testLinked": 104,
     "passed": 0,
     "delegated": 0,
     "delegatedImplemented": 0,

@@ -483,3 +483,74 @@ func TestLong(t *testing.T) {
 		t.Fatalf("REQ-G-004 also has an ungated test in other_test.go: %+v", r)
 	}
 }
+
+// A requirement whose only linked tests are benchmarks (Go Benchmark*, Rust
+// #[bench]) has a benchmarkOnly row; when its verification criteria name a
+// number it is also verification.benchmark_only (warning): a benchmark
+// asserts nothing unless something checks its result. A requirement that a
+// Test* or a Fuzz* also links, in the same or another test file, is
+// neither; one whose criteria name no number is benchmarkOnly without the
+// warning.
+// Mutation: counting Benchmark* as a test (no flag), ignoring the number
+// condition or the other tests of the requirement fails this test.
+// TRLC-LINKS: REQ-EMG-121
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE
+func TestBenchmarkOnlyVerification(t *testing.T) {
+	root := t.TempDir()
+	goSrc := `package sim
+
+import "testing"
+
+// TRLC-LINKS: REQ-B-001, REQ-B-002, REQ-B-003
+func BenchmarkEncode(b *testing.B) {}
+
+// TRLC-LINKS: REQ-B-002
+func TestEncode(t *testing.T) {}
+
+// TRLC-LINKS: REQ-B-005
+func BenchmarkDecode(b *testing.B) {}
+
+// TRLC-LINKS: REQ-B-005
+func FuzzDecode(f *testing.F) {}
+`
+	rustSrc := "// TRLC-LINKS: REQ-B-004, REQ-B-006\n#[bench]\nfn bench_parse(b: &mut Bencher) {}\n"
+	otherSrc := "package sim\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-B-006\nfunc TestParse(t *testing.T) {}\n"
+	for name, src := range map[string]string{"sim_test.go": goSrc, "lib.rs": rustSrc, "other_test.go": otherSrc} {
+		if err := os.WriteFile(filepath.Join(root, name), []byte(src), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"sim_test.go", "lib.rs", "other_test.go"}}}}
+	code, _ := codescan.InferCodeItems(bundle, "")
+	reqs := model.RequirementsDocument{Requirements: []model.Requirement{
+		{ID: "REQ-B-001", VerificationCriteria: "One sentence is encoded in under 50 microseconds."},
+		{ID: "REQ-B-002", VerificationCriteria: "One sentence is encoded in under 50 microseconds."},
+		{ID: "REQ-B-003", VerificationCriteria: "The encoder output is well formed."},
+		{ID: "REQ-B-004", VerificationCriteria: "Parsing takes at most 2 ms."},
+		{ID: "REQ-B-005", VerificationCriteria: "Decoding takes at most 2 ms."},
+		{ID: "REQ-B-006", VerificationCriteria: "Parsing takes at most 2 ms."},
+	}}
+	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
+	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
+	rows := map[string]Row{}
+	for _, r := range matrix.Requirements {
+		rows[r.ID] = r
+	}
+	for id, want := range map[string]bool{"REQ-B-001": true, "REQ-B-002": false, "REQ-B-003": true, "REQ-B-004": true, "REQ-B-005": false, "REQ-B-006": false} {
+		if rows[id].BenchmarkOnly != want || len(rows[id].Verifications) == 0 {
+			t.Errorf("%s benchmarkOnly = %v, want %v (%+v)", id, rows[id].BenchmarkOnly, want, rows[id])
+		}
+	}
+	var got []string
+	for _, d := range ValidateIntegrity(bundle, reqs, code, checks, nil) {
+		if d.Code == "verification.benchmark_only" {
+			if d.Severity != validate.SeverityWarning || !strings.Contains(d.Message, "Test") {
+				t.Fatalf("diagnostic %+v", d)
+			}
+			got = append(got, d.Path)
+		}
+	}
+	if strings.Join(got, ",") != "requirements[0],requirements[3]" {
+		t.Fatalf("verification.benchmark_only at %v, want requirements[0] and [3]", got)
+	}
+}

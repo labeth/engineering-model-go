@@ -3229,6 +3229,15 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-121";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-121' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.";
+        attribute 'notes' : 'String' = "Retro 1104 item 6. The code scanner marks a test entry point that is a benchmark (codemap.Symbol.Benchmark: Go Benchmark* in _test.go, Rust #[bench], now also detected as a test entry point); Criterion benchmarks are plain functions and JS bench files have no test entry-point detection, so neither is classified. A requirement whose every linking test entry point, across all test files, is a benchmark has a trace row with benchmarkOnly; when its verificationCriteria contain a digit, the trace integrity check reports verification.benchmark_only (warning) at requirements[i]: a benchmark measures but asserts nothing, so add a Test that checks the value. A Test* or Fuzz* link in any file clears it. The requirement stays test linked.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
