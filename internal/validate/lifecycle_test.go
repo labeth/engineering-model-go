@@ -142,7 +142,8 @@ func TestLifecycleSafetyBundleNeedsAviation(t *testing.T) {
 // An open POA&M item with milestone tier:<project tier> defers the
 // diagnostics its defers entries name (code and, when given, path) to a
 // warning with poamRef; another tier's item, a completed item and another
-// path do not; an untiered error is never deferred; naming a rank-0 code is
+// path do not; an untiered error is never deferred; naming a rank-0 code,
+// error or warning (composition.lock_check_skipped), is
 // lifecycle.poam_defers_core (error) and defers nothing.
 // TRLC-LINKS: REQ-EMG-129
 func TestPOAMDefersBindDiagnostics(t *testing.T) {
@@ -151,7 +152,7 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		{ID: "POAM-TIER-PRODUCT-01", Milestone: "tier:product", Status: "in-progress", Defers: []model.POAMDefer{{Code: "requirement.orphan", Path: "requirements[REQ-1]"}}},
 		{ID: "POAM-TIER-PRODUCT-02", Milestone: "tier:product", Status: "completed", Defers: []model.POAMDefer{{Code: "verification.unlinked"}}},
 		{ID: "POAM-TIER-MVP-01", Milestone: "tier:mvp", Status: "planned", Defers: []model.POAMDefer{{Code: "link.claimed_only"}}},
-		{ID: "POAM-TIER-PRODUCT-03", Milestone: "tier:product", Status: "planned", Defers: []model.POAMDefer{{Code: "model.duplicate_id"}, {Code: "lint.*"}}},
+		{ID: "POAM-TIER-PRODUCT-03", Milestone: "tier:product", Status: "planned", Defers: []model.POAMDefer{{Code: "model.duplicate_id"}, {Code: "lint.*"}, {Code: "composition.lock_check_skipped"}}},
 	}
 	in := []Diagnostic{
 		{Code: "requirement.orphan", Severity: SeverityWarning, Path: "requirements[REQ-1]"},
@@ -161,6 +162,7 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		{Code: "model.duplicate_id", Severity: SeverityError, Path: "d"},
 		{Code: "lint.multiple_responses", Severity: SeverityWarning, Path: "x"},
 		{Code: "lint.other", Severity: SeverityError, Path: "y"},
+		{Code: "composition.lock_check_skipped", Severity: SeverityWarning, Path: "z"},
 	}
 	out := ApplyTierPolicy(b, in)
 	want := []struct {
@@ -175,6 +177,7 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		{SeverityError, false, ""},
 		{SeverityWarning, true, "POAM-TIER-PRODUCT-03"},
 		{SeverityError, false, ""},
+		{SeverityWarning, false, ""},
 	}
 	for i, w := range want {
 		if out[i].Severity != w.severity || out[i].Deferred != w.deferred || out[i].PoamRef != w.ref {
@@ -182,7 +185,7 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		}
 	}
 	got := codesOf(Bundle(b), "lifecycle.poam_defers_core")
-	if len(got) != 1 || got[0].Severity != SeverityError || got[0].Path != "authoredArchitecture.poamItems[3].defers[0].code" {
+	if len(got) != 2 || got[0].Severity != SeverityError || got[0].Path != "authoredArchitecture.poamItems[3].defers[0].code" {
 		t.Fatalf("poam_defers_core: got %+v", got)
 	}
 }
