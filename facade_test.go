@@ -75,7 +75,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			// used by internal/asciidoc and internal/trace.
 			"ComposeForGeneration", "DelegationsByRequirement", "EnrichBundleFromComposition",
 			"MaterializeAllocations", "PathWithin", "ResolutionCount",
-		}, rootName: map[string]string{"LinkDiagnostics": "RequirementLinkDiagnostics"}},
+		}, rootName: map[string]string{"LinkDiagnostics": "RequirementLinkDiagnostics", "TierDiagnostics": "CompositionTierDiagnostics"}},
 		{dir: filepath.Join("internal", "reqlinks"), rootName: map[string]string{
 			"Kind": "ContractItemKind", "KindCapability": "ContractItemCapability", "KindAssumption": "ContractItemAssumption",
 			"Realizer": "ContractItemRealizer", "Item": "ContractItem", "State": "LinkState",

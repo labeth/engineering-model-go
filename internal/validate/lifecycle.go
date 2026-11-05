@@ -172,3 +172,22 @@ func displayTier(tier string) string {
 	}
 	return strings.ToUpper(tier[:1]) + tier[1:]
 }
+
+// AcceptedRiskScopes returns the appliesTo IDs of the local risks recorded
+// as accepted (status accepted or response accept) with a complete,
+// resolving acceptedBy: the scopes an owner accepted the risk for.
+// TRLC-LINKS: REQ-EMG-126
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
+func AcceptedRiskScopes(b model.Bundle) map[string]bool {
+	refs := NewAcceptanceRefs(b)
+	out := map[string]bool{}
+	for _, r := range b.Architecture.AuthoredArchitecture.Risks {
+		if strings.Contains(r.ID, "::") || !riskRecordedAccepted(r) || !refs.Resolves(r.AcceptedBy) {
+			continue
+		}
+		for _, id := range r.AppliesTo {
+			out[strings.TrimSpace(id)] = true
+		}
+	}
+	return out
+}

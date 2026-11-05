@@ -37,6 +37,55 @@ type BumpResult struct {
 	// item changed in meaning, is gone, or its pinned version cannot be
 	// resolved.
 	NeedReview bool
+	// Warnings are notes the bump prints: a dependency release that uses a
+	// manifest key the engine the consumer's own check pins rejects.
+	Warnings []string
+}
+
+// lifecycleEngine is the first engineering-model-go version that reads
+// engmod.yml lifecycle; an older engine rejects the key on load.
+const lifecycleEngine = "v0.10.0"
+
+// engineModule is the Go module of this engine.
+const engineModule = "github.com/labeth/engineering-model-go"
+
+// pinnedEngine returns the engineering-model-go version the consumer's
+// .github/engmod-check go.mod requires, or "" without one.
+// TRLC-LINKS: REQ-EMG-126
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func pinnedEngine(consumerDir string) string {
+	data, err := os.ReadFile(filepath.Join(consumerDir, ".github", "engmod-check", "go.mod"))
+	if err != nil {
+		return ""
+	}
+	file, err := modfile.ParseLax("go.mod", data, nil)
+	if err != nil {
+		return ""
+	}
+	for _, r := range file.Require {
+		if r.Mod.Path == engineModule {
+			return r.Mod.Version
+		}
+	}
+	return ""
+}
+
+// rejectedKeyWarnings returns a warning when the dependency alias of comp
+// declares lifecycle and the engine of the consumer's check is older than
+// v0.10.0: that engine fails to load the dependency (composition.load_failed).
+// TRLC-LINKS: REQ-EMG-126
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func rejectedKeyWarnings(comp engmodel.CompositionResult, consumerDir, alias, version string) []string {
+	engine := pinnedEngine(consumerDir)
+	if comp.Root == nil || engine == "" || !semver.IsValid(engine) || semver.Compare(engine, lifecycleEngine) >= 0 {
+		return nil
+	}
+	for _, child := range comp.Root.Children {
+		if child.Dependency == alias && child.Bundle.Manifest.Lifecycle != nil {
+			return []string{fmt.Sprintf("%s %s declares lifecycle in its engmod.yml, which .github/engmod-check (engineering-model-go %s) rejects: its check fails with composition.load_failed until you bump that engine to %s or later", alias, version, engine, lifecycleEngine)}
+		}
+	}
+	return nil
 }
 
 // Bump link outcomes.
@@ -84,7 +133,7 @@ type BumpOptions struct {
 // resolved keeps its pin, so the model check reports link.version_mismatch
 // (or link.broken) until engws review-links accepts it. Any failure restores
 // engmod.yml, go.mod, go.sum, the lock and the requirement link file.
-// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100, REQ-EMG-126
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func Bump(root, repo, alias, version string, opts BumpOptions) (BumpResult, error) {
 	if !semver.IsValid(version) || semver.Canonical(version) != version {
@@ -229,6 +278,7 @@ func Bump(root, repo, alias, version string, opts BumpOptions) (BumpResult, erro
 		}
 	}
 	result.LockWritten = true
+	result.Warnings = rejectedKeyWarnings(comp, consumer.Dir, alias, version)
 
 	// Requirement links on the alias: compared between versions.
 	if comp.Root == nil || len(comp.Root.Bundle.ReqLinks.ReqLinks) == 0 {

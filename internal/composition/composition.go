@@ -313,6 +313,7 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 	if root != nil {
 		res.Allocations = MaterializeAllocations(root)
 		res.Diagnostics = append(res.Diagnostics, validateComposition(root, true)...)
+		res.Diagnostics = append(res.Diagnostics, TierDiagnostics(root)...)
 	}
 	resolver.nameCachePaths(res.Diagnostics)
 	if hasCompositionErrors(res.Diagnostics) {

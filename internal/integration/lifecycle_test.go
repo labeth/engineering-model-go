@@ -137,3 +137,56 @@ func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 		t.Fatal("a requirement.invalid_applies_to error did not stop the render")
 	}
 }
+
+// composeSystem composes repos/system of a requirement-links copy (child-a
+// and child-b resolve from the workspace) and returns its diagnostics with
+// the system's tier policy applied.
+func composeSystem(t *testing.T, root string) []engmodel.Diagnostic {
+	t.Helper()
+	manifest := filepath.Join(root, "repos", "system", "engmod.yml")
+	res, err := engmodel.GenerateCompositionFromFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bundle, err := engmodel.LoadBundle(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return engmodel.ApplyTierPolicy(bundle, res.Diagnostics)
+}
+
+// A product-tier system composing a prototype-tier child reports
+// composition.dependency_below_tier (error) naming the alias and the system
+// requirements linked into it, and a child without lifecycle
+// composition.dependency_tier_unknown (warning); a risk with a recorded
+// acceptance whose appliesTo names the subsystem composing the alias
+// removes the below-tier finding; a system without lifecycle gets neither.
+// TRLC-LINKS: REQ-EMG-126
+func TestCompositionTierRules(t *testing.T) {
+	root := copyRequirementLinksExample(t)
+	system := filepath.Join(root, "repos", "system")
+	if got := append(withCode(composeSystem(t, root), "composition.dependency_below_tier"), withCode(composeSystem(t, root), "composition.dependency_tier_unknown")...); len(got) != 0 {
+		t.Fatalf("system without lifecycle: %+v", got)
+	}
+	appendLifecycle(t, filepath.Join(root, "repos", "child-a"), "  tier: prototype\n")
+	appendLifecycle(t, system, "  tier: product\n")
+	diags := composeSystem(t, root)
+	below := withCode(diags, "composition.dependency_below_tier")
+	if len(below) != 1 || below[0].Severity != engmodel.SeverityError || below[0].RequiredFrom != "product" ||
+		!strings.Contains(below[0].Message, `"encoder"`) || !strings.Contains(below[0].Message, "prototype") || !strings.Contains(below[0].Message, "REQ-SYS-001, REQ-SYS-002") {
+		t.Fatalf("below tier: %+v", below)
+	}
+	unknown := withCode(diags, "composition.dependency_tier_unknown")
+	if len(unknown) != 1 || unknown[0].Severity != engmodel.SeverityWarning || !strings.Contains(unknown[0].Message, `"bridge"`) {
+		t.Fatalf("tier unknown: %+v", unknown)
+	}
+
+	assurance := "schemaVersion: 2\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: accepted\n    owner: ACT-SYSTEM-OWNER\n    appliesTo: [SUB-ENCODER]\n" +
+		"    acceptedBy: {actor: ACT-SYSTEM-OWNER, date: \"2026-11-05\", statement: I accept the prototype encoder until v1.}\n"
+	if err := os.WriteFile(filepath.Join(system, "model", "assurance.yml"), []byte(assurance), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if got := withCode(composeSystem(t, root), "composition.dependency_below_tier"); len(got) != 0 {
+		t.Fatalf("accepted risk on SUB-ENCODER: %+v", got)
+	}
+}
