@@ -129,6 +129,11 @@ func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 	if len(orphans) == 0 || orphans[0].Severity != engmodel.SeverityError || !engmodel.HasErrors(doc.Diagnostics) {
 		t.Fatalf("at product: %+v, want requirement.orphan errors that fail the check", orphans)
 	}
+	// verification.unlinked comes from model validation, which runs before
+	// the render gate: as a tier-raised error it does not stop the render.
+	if unlinked := diagnosticsOf(doc.Diagnostics, "verification.unlinked"); len(unlinked) == 0 || unlinked[0].Severity != engmodel.SeverityError {
+		t.Fatalf("at product: verification.unlinked %+v, want errors", unlinked)
+	}
 
 	broken := bundle
 	broken.Requirements.Requirements = append([]engmodel.Requirement(nil), bundle.Requirements.Requirements...)

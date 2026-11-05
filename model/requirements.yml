@@ -833,7 +833,7 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
   - id: REQ-EMG-128
-    text: When model updated event is received, the engineering model go shall report the requirement and verification state that the life-cycle tier requires.
+    text: When model updated event is received, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier.
     notes: 'ADR-EMG-031. With lifecycle only: lifecycle.requirement_unapproved at requirements[i].status for status draft or proposed (row D D W E E); lifecycle.requirement_unverified for a status other than verified, rejected or retired, unset included (D D D W E); the trace integrity check reports verification.failed at requirements[i] when the linked test results roll up to failed (fail, blocked, partial or flaky) and verification.gated_only when every linked test is environment gated (both D D D W E); the safety bundle needs documents.aviation (lifecycle.aviation_profile_missing) and aviation.profile.softwareLevel (lifecycle.software_level_missing), both D D E E E. Imported alias::REQ requirements are skipped.'
     verificationMethods: [test]
     verificationCriteria: When a product-tier model has requirements with status draft, Proposed, approved, verified, retired and none, then lifecycle.requirement_unapproved is at the first two statuses and lifecycle.requirement_unverified at the first, second, third and sixth; without lifecycle neither; a requirement with a failed result is verification.failed and one with only gated tests verification.gated_only, a passing one neither; mvp with safety and no aviation document gives both safety errors, and an aviation document with softwareLevel C gives neither.
@@ -856,7 +856,7 @@ requirements:
       - FU-ASCIIDOC-GENERATOR
       - FU-VALIDATION-ENGINE
   - id: REQ-EMG-131
-    text: While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the life-cycle tier vocabulary and the severity by tier in the authoring contract.
+    text: While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the severity of each tier-keyed code per life-cycle tier in the authoring contract.
     notes: 'validate.Rules gains tierPolicy (TierPolicy()); enums lifecycle.tier and lifecycle.bundles; fieldSets lifecycle (tier, bundles, tierDecision, raise) and poamDefer (code, path), and poamItem lists defers; field rules describe lifecycle, the deferred flag and requiredFrom, tierDecision and lifecycle.tier_decision_mismatch, lifecycle.raise, the requirementLinks conflict, the state rules, the rank-0 codes, the POA&M binding (defers, tier:<project tier>, lifecycle.poam_defers_core) and aviation.ai_actor_as_credit. engineering-flow renders the Severity by tier table of MODEL-RULES.md from it.'
     verificationMethods: [test]
     verificationCriteria: When the authoring rules are read, then lifecycle.tier lists the five tiers, lifecycle.bundles the three bundles, the lifecycle field set is tier, bundles, tierDecision, raise, poamDefer is code, path, poamItem has defers, tierPolicy has every TierPolicy row, and the field rules name lifecycle.tier_decision_mismatch, lifecycle.raise, defers, tier:<project tier>, lifecycle.poam_defers_core, deferred, requiredFrom, lifecycle.requirement_links_conflict and aviation.ai_actor_as_credit.

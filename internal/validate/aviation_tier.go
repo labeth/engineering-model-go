@@ -114,7 +114,11 @@ func aviationRecords(a model.AviationProfile) []aviationRecord {
 		out = append(out, aviationRecord{id: v.ID, path: "aviation.lifecycleData." + v.ID, state: strings.TrimSpace(v.State), family: v.CategoryCode, rationale: v.Rationale, kind: "lifecycleData"})
 	}
 	for _, v := range a.Objectives {
-		add("other", "objectives", v.ID, v.State)
+		if strings.EqualFold(strings.TrimSpace(v.Applicability), "not-applicable") {
+			// Applicability comes from the level's objectives, not the tier.
+			continue
+		}
+		out = append(out, aviationRecord{id: v.ID, path: "aviation.objectives." + v.ID, state: strings.TrimSpace(v.State), rationale: v.Rationale, kind: "other"})
 	}
 	for _, v := range a.RequirementAssurance {
 		add("other", "requirementAssurance", v.RequirementID, v.State)
