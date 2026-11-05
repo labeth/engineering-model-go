@@ -765,6 +765,21 @@ New codes with `lifecycle`: `lifecycle.tier_decision_mismatch`, `lifecycle.requi
 `lifecycle.software_level_missing`, `aviation.state_below_tier`, `aviation.authority_state_unevidenced`
 and `aviation.ai_actor_as_credit` (ADR-EMG-035), and the composition rules
 `composition.dependency_below_tier` and `composition.dependency_tier_unknown` (ADR-EMG-034).
+To accept a dependency below the system's tier, record a risk with `status: accepted` (or
+`response: accept`) and a complete `acceptedBy`, and name the dependency alias from `engmod.yml`
+in its `dependencies` field (preferred); naming the composing subsystem in `appliesTo` still works.
+A `dependencies` entry that is no declared alias is `model.invalid_risk_dependency` (error):
+
+```yaml
+risks:
+- id: RISK-ENCODER-TIER
+  title: Encoder below tier
+  statement: The encoder is still a prototype.
+  status: accepted
+  owner: ACT-SYSTEM-OWNER
+  dependencies: [encoder]
+  acceptedBy: {actor: ACT-SYSTEM-OWNER, date: "2026-11-05", statement: I accept the prototype encoder until v1.}
+```
 `engtrace --tier-gap <tier>` and the MCP tool `tier.gap` list what a target tier would require.
 
 Severity by tier (`TierPolicy()`, `TierPolicyMarkdown()`; D deferred, W warning, E error;

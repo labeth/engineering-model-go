@@ -18,8 +18,9 @@ import (
 // composition.dependency_below_tier (warning; the tier policy sets its
 // severity) per composed dependency whose tier is below the system's, naming
 // the system requirements whose links point into it, unless a local risk
-// with a recorded acceptance names the subsystem that composes the
-// dependency in appliesTo; and one composition.dependency_tier_unknown per
+// with a recorded acceptance names the dependency alias in dependencies (or,
+// the older form, the subsystem that composes the dependency in appliesTo);
+// and one composition.dependency_tier_unknown per
 // dependency without a (valid) lifecycle tier. A system without lifecycle
 // gets neither.
 // TRLC-LINKS: REQ-EMG-126
@@ -33,6 +34,7 @@ func TierDiagnostics(root *ComposedSystem) []validate.Diagnostic {
 		return nil
 	}
 	accepted := validate.AcceptedRiskScopes(root.Bundle)
+	acceptedAliases := validate.AcceptedRiskDependencies(root.Bundle)
 	linked := map[string][]string{}
 	for _, l := range root.Bundle.ReqLinks.ReqLinks {
 		alias, _, err := model.ParseQualifiedReference(strings.TrimSpace(l.Child))
@@ -52,7 +54,7 @@ func TierDiagnostics(root *ComposedSystem) []validate.Diagnostic {
 			})
 			continue
 		}
-		if childRank >= rank || accepted[child.SubsystemID] {
+		if childRank >= rank || acceptedAliases[alias] || accepted[child.SubsystemID] {
 			continue
 		}
 		parents := linked[alias]
@@ -63,7 +65,7 @@ func TierDiagnostics(root *ComposedSystem) []validate.Diagnostic {
 		}
 		diags = append(diags, validate.Diagnostic{
 			Code: "composition.dependency_below_tier", Severity: validate.SeverityWarning, Path: path,
-			Message: fmt.Sprintf("dependency %q (%s@%s, subsystem %s) is at tier %s, below this system's tier %s%s: raise and release the dependency, or record a risk accepted by its owner with appliesTo [%s]", alias, child.ModulePath, child.Version, child.SubsystemID, childTier, tier, via, child.SubsystemID),
+			Message: fmt.Sprintf("dependency %q (%s@%s, subsystem %s) is at tier %s, below this system's tier %s%s: raise and release the dependency, or record a risk accepted by its owner with dependencies [%s] (or appliesTo [%s])", alias, child.ModulePath, child.Version, child.SubsystemID, childTier, tier, via, alias, child.SubsystemID),
 		})
 	}
 	return diags

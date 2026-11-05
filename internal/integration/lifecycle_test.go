@@ -200,3 +200,53 @@ func TestCompositionTierRules(t *testing.T) {
 		t.Fatalf("accepted risk on SUB-ENCODER: %+v", got)
 	}
 }
+
+// writeSystemRisk writes repos/system/model/assurance.yml with one risk on
+// the encoder dependency: status, and the field (dependencies or appliesTo)
+// with its list.
+func writeSystemRisk(t *testing.T, system, status, field, list string) {
+	t.Helper()
+	assurance := "schemaVersion: 2\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: " + status + "\n    owner: ACT-SYSTEM-OWNER\n    " + field + ": " + list + "\n" +
+		"    acceptedBy: {actor: ACT-SYSTEM-OWNER, date: \"2026-11-05\", statement: I accept the prototype encoder until v1.}\n"
+	if err := os.WriteFile(filepath.Join(system, "model", "assurance.yml"), []byte(assurance), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// A risk with a recorded acceptance whose dependencies names the alias
+// waives composition.dependency_below_tier for that dependency; the finding
+// names both ways to accept it, the alias first; a risk that lists the
+// alias but is not accepted (status open) waives nothing, and one listing
+// another alias waives nothing.
+// TRLC-LINKS: REQ-EMG-126
+func TestCompositionBelowTierWaivedByRiskDependency(t *testing.T) {
+	root := copyRequirementLinksExample(t)
+	system := filepath.Join(root, "repos", "system")
+	appendLifecycle(t, filepath.Join(root, "repos", "child-a"), "  tier: prototype\n")
+	appendLifecycle(t, system, "  tier: product\n")
+
+	writeSystemRisk(t, system, "open", "dependencies", "[encoder]")
+	below := withCode(composeSystem(t, root), "composition.dependency_below_tier")
+	if len(below) != 1 || !strings.Contains(below[0].Message, "dependencies [encoder]") || !strings.Contains(below[0].Message, "appliesTo [SUB-ENCODER]") ||
+		strings.Index(below[0].Message, "dependencies [encoder]") > strings.Index(below[0].Message, "appliesTo [SUB-ENCODER]") {
+		t.Fatalf("unaccepted risk on encoder: want the finding naming dependencies [encoder] before appliesTo [SUB-ENCODER], got %+v", below)
+	}
+
+	writeSystemRisk(t, system, "accepted", "dependencies", "[bridge]")
+	if got := withCode(composeSystem(t, root), "composition.dependency_below_tier"); len(got) != 1 {
+		t.Fatalf("accepted risk on bridge must not waive encoder: %+v", got)
+	}
+
+	writeSystemRisk(t, system, "accepted", "dependencies", "[encoder]")
+	diags := composeSystem(t, root)
+	if got := withCode(diags, "composition.dependency_below_tier"); len(got) != 0 {
+		t.Fatalf("accepted risk with dependencies [encoder]: %+v", got)
+	}
+	bundle, err := engmodel.LoadBundle(filepath.Join(system, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := withCode(engmodel.ValidateBundle(bundle), "model.invalid_risk_dependency"); len(got) != 0 {
+		t.Fatalf("a declared alias is valid: %+v", got)
+	}
+}

@@ -354,15 +354,19 @@ type RiskEvidence struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-THREAT-EXPORTER
 type Risk struct {
-	ID              string         `yaml:"id"`
-	Title           string         `yaml:"title"`
-	Statement       string         `yaml:"statement"`
-	Status          string         `yaml:"status"`
-	Likelihood      string         `yaml:"likelihood"`
-	Impact          string         `yaml:"impact"`
-	Response        string         `yaml:"response"`
-	Owner           string         `yaml:"owner"`
-	AppliesTo       []string       `yaml:"appliesTo"`
+	ID         string   `yaml:"id"`
+	Title      string   `yaml:"title"`
+	Statement  string   `yaml:"statement"`
+	Status     string   `yaml:"status"`
+	Likelihood string   `yaml:"likelihood"`
+	Impact     string   `yaml:"impact"`
+	Response   string   `yaml:"response"`
+	Owner      string   `yaml:"owner"`
+	AppliesTo  []string `yaml:"appliesTo"`
+	// Dependencies names manifest dependency aliases (engmod.yml
+	// dependencies[].alias) the risk is about: an accepted risk listing an
+	// alias accepts that dependency below the system's life-cycle tier.
+	Dependencies    []string       `yaml:"dependencies,omitempty"`
 	RelatedControls []string       `yaml:"relatedControls"`
 	AttackVectors   []string       `yaml:"attackVectors"`
 	ThreatScenarios []string       `yaml:"threatScenarios"`

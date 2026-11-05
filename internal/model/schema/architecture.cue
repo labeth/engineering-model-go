@@ -151,6 +151,8 @@ package model
 	response?:        string
 	owner?:           string
 	appliesTo?:       #StringList
+	// dependencies names engmod.yml dependency aliases the risk is about.
+	dependencies?:    #StringList
 	relatedControls?: #StringList
 	attackVectors?:   #StringList
 	threatScenarios?: #StringList

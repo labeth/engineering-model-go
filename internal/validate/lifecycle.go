@@ -179,14 +179,30 @@ func displayTier(tier string) string {
 // TRLC-LINKS: REQ-EMG-126
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
 func AcceptedRiskScopes(b model.Bundle) map[string]bool {
+	return acceptedRiskValues(b, func(r model.Risk) []string { return r.AppliesTo })
+}
+
+// AcceptedRiskDependencies returns the dependencies aliases of the local
+// risks recorded as accepted with a complete, resolving acceptedBy: the
+// dependencies an owner accepted below the system's life-cycle tier.
+// TRLC-LINKS: REQ-EMG-126
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
+func AcceptedRiskDependencies(b model.Bundle) map[string]bool {
+	return acceptedRiskValues(b, func(r model.Risk) []string { return r.Dependencies })
+}
+
+// acceptedRiskValues collects field of every local risk recorded as accepted
+// with a complete, resolving acceptedBy.
+// TRLC-LINKS: REQ-EMG-126
+func acceptedRiskValues(b model.Bundle, field func(model.Risk) []string) map[string]bool {
 	refs := NewAcceptanceRefs(b)
 	out := map[string]bool{}
 	for _, r := range b.Architecture.AuthoredArchitecture.Risks {
 		if strings.Contains(r.ID, "::") || !riskRecordedAccepted(r) || !refs.Resolves(r.AcceptedBy) {
 			continue
 		}
-		for _, id := range r.AppliesTo {
-			out[strings.TrimSpace(id)] = true
+		for _, v := range field(r) {
+			out[strings.TrimSpace(v)] = true
 		}
 	}
 	return out

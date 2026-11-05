@@ -87,7 +87,7 @@ var tierTable = map[string]tierRow{
 	"aviation.lifecycle.missing_category":         {base: rowSafetyFromMVP, note: "load-fatal without lifecycle"},
 	"aviation.tool.incomplete_credit_assessment":  {base: rowDebtToProduct, note: "load-fatal without lifecycle"},
 	"aviation.derived.incomplete_safety_feedback": {base: rowDebtToProduct, note: "load-fatal without lifecycle"},
-	"composition.dependency_below_tier":           {base: rowDebtToProduct, note: "unless a risk with recorded acceptance names the dependency alias"},
+	"composition.dependency_below_tier":           {base: rowDebtToProduct, note: "unless a risk with recorded acceptance names the dependency alias in dependencies (or the composing subsystem in appliesTo)"},
 	"composition.dependency_tier_unknown":         {base: "WWWWW", safety: "WWWEE"},
 }
 

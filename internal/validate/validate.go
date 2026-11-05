@@ -4,6 +4,7 @@ package validate
 import (
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -282,7 +283,7 @@ var allowedFlowFrequency = map[string]bool{
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-128, REQ-EMG-132, REQ-EMG-133
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-126, REQ-EMG-128, REQ-EMG-132, REQ-EMG-133
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
@@ -740,6 +741,12 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 	}
 
+	dependencyAliases := map[string]bool{}
+	for _, dep := range b.Manifest.Dependencies {
+		if alias := strings.TrimSpace(dep.Alias); alias != "" {
+			dependencyAliases[alias] = true
+		}
+	}
 	for i, r := range b.Architecture.AuthoredArchitecture.Risks {
 		path := fmt.Sprintf("authoredArchitecture.risks[%d]", i)
 		if strings.TrimSpace(r.Title) == "" {
@@ -770,6 +777,12 @@ func Bundle(b model.Bundle) []Diagnostic {
 			id = strings.TrimSpace(id)
 			if id == "" || !validID(id) {
 				diags = append(diags, Diagnostic{Code: "model.invalid_risk_scope_target", Severity: SeverityError, Message: fmt.Sprintf("unknown appliesTo id %q", id), Path: fmt.Sprintf("%s.appliesTo[%d]", path, j)})
+			}
+		}
+		for j, alias := range r.Dependencies {
+			alias = strings.TrimSpace(alias)
+			if alias == "" || !dependencyAliases[alias] {
+				diags = append(diags, Diagnostic{Code: "model.invalid_risk_dependency", Severity: SeverityError, Message: fmt.Sprintf("risk %q names %q in dependencies, which is no dependency alias in engmod.yml (declared: %s); name an alias from engmod.yml dependencies", r.ID, alias, declaredAliasList(b)), Path: fmt.Sprintf("%s.dependencies[%d]", path, j)})
 			}
 		}
 		for j, id := range r.RelatedControls {
@@ -1538,4 +1551,21 @@ func referencedElementURIDiagnostics(r model.ReferencedElement, path string) []D
 		return []Diagnostic{{Code: "model.referenced_element_missing_version", Severity: SeverityError, Message: fmt.Sprintf("referenced element %q uri %q can change; set version or pin the uri to a commit or doi", r.ID, uri), Path: path + ".version"}}
 	}
 	return nil
+}
+
+// declaredAliasList returns the engmod.yml dependency aliases, sorted and
+// comma separated, or "none".
+// TRLC-LINKS: REQ-EMG-126
+func declaredAliasList(b model.Bundle) string {
+	var aliases []string
+	for _, dep := range b.Manifest.Dependencies {
+		if alias := strings.TrimSpace(dep.Alias); alias != "" {
+			aliases = append(aliases, alias)
+		}
+	}
+	if len(aliases) == 0 {
+		return "none"
+	}
+	sort.Strings(aliases)
+	return strings.Join(aliases, ", ")
 }

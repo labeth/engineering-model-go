@@ -36,7 +36,8 @@ byte-identical diagnostics, documents and trace matrices to v0.9.0.
   with `milestone: "tier:<project tier>"` defers the named diagnostics (warning, `deferred`,
   `poamRef`); naming a rank-0 code is `lifecycle.poam_defers_core` (error).
 - **Composition tier rules** (REQ-EMG-126, ADR-EMG-034): `composition.dependency_below_tier`
-  (unless a risk with a recorded acceptance names the composing subsystem) and
+  (unless a risk with a recorded acceptance names the dependency alias in its new `dependencies`
+  field, or the composing subsystem in `appliesTo`) and
   `composition.dependency_tier_unknown`; `CompositionTierDiagnostics`. `engws bump` warns when the
   new dependency release declares `lifecycle` and the consumer's check pins an older engine.
 - **DO-178C floors and AI credit** (REQ-EMG-132, REQ-EMG-133, ADR-EMG-035), safety bundle:
@@ -50,6 +51,11 @@ byte-identical diagnostics, documents and trace matrices to v0.9.0.
   records below the target floor and dependencies below the target tier. No life-cycle objective IDs.
 - Authoring contract (REQ-EMG-131): `tierPolicy`, enums `lifecycle.tier` and `lifecycle.bundles`,
   field sets `lifecycle` and `poamDefer`, and field rules for the tier and the POA&M binding.
+- **Risk `dependencies`** (REQ-EMG-126, ADR-EMG-034, ADR-EMG-036 deviation 6 resolved): risks
+  gain an optional `dependencies: [alias]` field naming `engmod.yml` dependency aliases; an alias
+  that is not declared is `model.invalid_risk_dependency` (error, rank 0). An accepted risk listing
+  the alias waives `composition.dependency_below_tier`, whose message now names both forms, alias
+  first.
 - `scripts/lifecycle-golden-self.sh` compares this repository's own outputs with the v0.9.0 engine.
 
 ### Changed

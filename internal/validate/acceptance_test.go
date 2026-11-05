@@ -188,3 +188,25 @@ func TestAcceptanceByDecisionOnlyWarns(t *testing.T) {
 		t.Fatalf("decision-only acceptance must stay a warning: %+v", Bundle(b))
 	}
 }
+
+// A risk dependencies entry must be a dependency alias declared in
+// engmod.yml: an unknown or empty alias is model.invalid_risk_dependency
+// (error) at the entry, naming the declared aliases; a declared alias reports
+// nothing.
+// TRLC-LINKS: REQ-EMG-126
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestRiskDependencyMustBeADeclaredAlias(t *testing.T) {
+	b := acceptanceTestBundle([]model.Risk{
+		{ID: "RISK-DEP", Title: "d", Statement: "d", Status: "open", Dependencies: []string{"encoder", "nosuch"}},
+	}, nil)
+	b.Manifest.Dependencies = []model.ManifestDependency{{Alias: "encoder", Path: "models.example/encoder@v0", Version: "v0.1.0"}}
+	got := behaviorDiags(b, "model.invalid_risk_dependency")
+	if len(got) != 1 || got[0].Severity != SeverityError || got[0].Path != "authoredArchitecture.risks[0].dependencies[1]" ||
+		!strings.Contains(got[0].Message, `"nosuch"`) || !strings.Contains(got[0].Message, "encoder") {
+		t.Fatalf("model.invalid_risk_dependency = %+v, want one error at dependencies[1] naming nosuch and the alias encoder", got)
+	}
+	b.Architecture.AuthoredArchitecture.Risks[0].Dependencies = []string{"encoder"}
+	if got := behaviorDiags(b, "model.invalid_risk_dependency"); len(got) != 0 {
+		t.Fatalf("a declared alias must not be reported: %+v", got)
+	}
+}
