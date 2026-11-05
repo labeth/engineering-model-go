@@ -6,6 +6,8 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.10.0] — 2026-11-05: Life-cycle tier, tier policy, POA&M defers, composition and DO-178C floors
+
 Planned as v0.10.0: life-cycle tier (tiered development guidance, Phase 2 engine side;
 ADR-EMG-031 to ADR-EMG-036, REQ-EMG-124 to REQ-EMG-134). A model without `lifecycle` gives
 byte-identical diagnostics, documents and trace matrices to v0.9.0.
