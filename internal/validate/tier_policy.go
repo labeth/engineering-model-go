@@ -287,7 +287,8 @@ func RendersDespite(b model.Bundle, code string) bool {
 // project tier: each tier-keyed code gets RequiredFrom and the severity of
 // its row (deferred is a warning with Deferred set); an open POA&M item with
 // milestone tier:<project tier> that names a diagnostic's code (and path)
-// defers it with PoamRef; lifecycle.raise makes a code an error. A
+// defers it with PoamRef (a tier-keyed code or a warning; an untiered error
+// is never deferred); lifecycle.raise makes a code an error. A
 // requirement link rule stays an error with requirementLinks: strict
 // declared; rank-0 core codes and codes the table does not key are never
 // changed. Without lifecycle it returns the diagnostics unchanged. It is idempotent and does
@@ -325,7 +326,9 @@ func ApplyTierPolicy(b model.Bundle, diags []Diagnostic) []Diagnostic {
 				d.Severity = SeverityError
 			}
 		}
-		if ref := defers(d.Code, d.Path); ref != "" {
+		// A defer covers tier-keyed codes and warnings; an untiered error
+		// keeps its severity (the engine never lowers it outside the table).
+		if ref := defers(d.Code, d.Path); ref != "" && (TierKeyed(d.Code) || d.Severity != SeverityError) {
 			d.Severity, d.Deferred, d.PoamRef = SeverityWarning, true, ref
 		}
 		if raised(b, d.Code) {

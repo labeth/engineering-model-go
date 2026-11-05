@@ -142,8 +142,8 @@ func TestLifecycleSafetyBundleNeedsAviation(t *testing.T) {
 // An open POA&M item with milestone tier:<project tier> defers the
 // diagnostics its defers entries name (code and, when given, path) to a
 // warning with poamRef; another tier's item, a completed item and another
-// path do not; naming a rank-0 code is lifecycle.poam_defers_core (error)
-// and defers nothing.
+// path do not; an untiered error is never deferred; naming a rank-0 code is
+// lifecycle.poam_defers_core (error) and defers nothing.
 // TRLC-LINKS: REQ-EMG-129
 func TestPOAMDefersBindDiagnostics(t *testing.T) {
 	b := tierBundle("product")
@@ -160,6 +160,7 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		{Code: "link.claimed_only", Severity: SeverityWarning, Path: "l"},
 		{Code: "model.duplicate_id", Severity: SeverityError, Path: "d"},
 		{Code: "lint.multiple_responses", Severity: SeverityWarning, Path: "x"},
+		{Code: "lint.other", Severity: SeverityError, Path: "y"},
 	}
 	out := ApplyTierPolicy(b, in)
 	want := []struct {
@@ -173,6 +174,7 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		{SeverityError, false, ""},
 		{SeverityError, false, ""},
 		{SeverityWarning, true, "POAM-TIER-PRODUCT-03"},
+		{SeverityError, false, ""},
 	}
 	for i, w := range want {
 		if out[i].Severity != w.severity || out[i].Deferred != w.deferred || out[i].PoamRef != w.ref {

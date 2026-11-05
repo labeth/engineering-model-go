@@ -267,9 +267,6 @@ func (s *Server) tierGap(target string) (map[string]any, error) {
 	if strings.TrimSpace(target) == "" {
 		return nil, fmt.Errorf("tier.gap needs target: poc, prototype, mvp, product or operational")
 	}
-	if engmodel.TierRank(target) == 0 {
-		return nil, fmt.Errorf("tier.gap target %q is not a tier: want poc, prototype, mvp, product or operational", target)
-	}
 	report, err := engmodel.TierGapFromFilesWith(s.modelPath, s.requirementsPath, "", target, engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
 		return nil, err

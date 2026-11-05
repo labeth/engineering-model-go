@@ -138,8 +138,13 @@ func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 	broken := bundle
 	broken.Requirements.Requirements = append([]engmodel.Requirement(nil), bundle.Requirements.Requirements...)
 	broken.Requirements.Requirements[0].AppliesTo = []string{"FU-DOES-NOT-EXIST"}
-	if _, err := engmodel.GenerateAsciiDoc(broken, broken.Requirements, broken.Design, engmodel.AsciiDocOptions{CodeRoot: dir}); err == nil {
+	stopped, err := engmodel.GenerateAsciiDoc(broken, broken.Requirements, broken.Design, engmodel.AsciiDocOptions{CodeRoot: dir})
+	if err == nil {
 		t.Fatal("a requirement.invalid_applies_to error did not stop the render")
+	}
+	// The diagnostics of a stopped render carry the tier severities too.
+	if got := diagnosticsOf(stopped.Diagnostics, "lifecycle.requirement_unverified"); len(got) == 0 || got[0].RequiredFrom != "operational" {
+		t.Fatalf("stopped render: lifecycle.requirement_unverified %+v, want requiredFrom operational", got)
 	}
 }
 

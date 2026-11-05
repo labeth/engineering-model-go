@@ -157,16 +157,17 @@ func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
 
 // With lifecycle the trace reports verification.failed at a requirement
 // whose linked test result failed and verification.gated_only at one whose
-// every linked test is environment gated; a passing ungated requirement and
-// a model without lifecycle report neither.
+// every linked test is environment gated; a passing ungated requirement, one
+// with a gated and an ungated test, and a model without lifecycle report
+// neither.
 // TRLC-LINKS: REQ-EMG-128
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestTraceTierVerificationRules(t *testing.T) {
-	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}, {ID: "REQ-X-003"}}}
+	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}, {ID: "REQ-X-003"}, {ID: "REQ-X-004"}}}
 	verification := []codescan.VerificationCheck{
 		{ID: "V1", Verifies: []string{"REQ-X-001"}, Results: []codescan.VerificationResult{{Requirement: "REQ-X-001", Status: "fail"}}},
-		{ID: "V2", Verifies: []string{"REQ-X-002"}, Gates: map[string][]string{"REQ-X-002": {"HW_RIG"}}},
-		{ID: "V3", Verifies: []string{"REQ-X-003"}, Results: []codescan.VerificationResult{{Requirement: "REQ-X-003", Status: "pass"}}},
+		{ID: "V2", Verifies: []string{"REQ-X-002", "REQ-X-004"}, Gates: map[string][]string{"REQ-X-002": {"HW_RIG"}, "REQ-X-004": {"HW_RIG"}}},
+		{ID: "V3", Verifies: []string{"REQ-X-003", "REQ-X-004"}, Results: []codescan.VerificationResult{{Requirement: "REQ-X-003", Status: "pass"}}},
 	}
 	with := model.Bundle{Manifest: model.ManifestDocument{Lifecycle: &model.ManifestLifecycle{Tier: "product"}}}
 	got := map[string]string{}

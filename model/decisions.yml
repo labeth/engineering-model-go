@@ -914,7 +914,9 @@ decisions:
     item to the findings it covers (review R2 F1).
 
     '
-  decision: '#POAMItem gains defers [{code, path?}]. A diagnostic is deferred (warning, Deferred, PoamRef the item) when a
+  decision: '#POAMItem gains defers [{code, path?}]. A tier-keyed diagnostic or a warning (never an untiered
+
+    error) is deferred (warning, Deferred, PoamRef the item) when a
 
     POA&M item with milestone tier:<project tier>, a status other than completed and a defers entry matching its code
 

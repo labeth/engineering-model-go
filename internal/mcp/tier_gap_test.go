@@ -51,7 +51,7 @@ func TestTierGapTool(t *testing.T) {
 	if msg := toolError(t, s, "tier.gap", map[string]any{"target": "beta"}); !strings.Contains(msg, "beta") {
 		t.Fatalf("unknown target: %q", msg)
 	}
-	if msg := toolError(t, s, "tier.gap", map[string]any{}); !strings.Contains(msg, "target") {
+	if msg := toolError(t, s, "tier.gap", map[string]any{}); !strings.Contains(msg, "needs target") {
 		t.Fatalf("missing target: %q", msg)
 	}
 	if msg := toolError(t, s, "tier.gap", map[string]any{"target": "product", "x": "1"}); msg == "" {
@@ -73,5 +73,31 @@ func TestTierGapTool(t *testing.T) {
 	}
 	if !found {
 		t.Fatalf("trace.matrix diagnostics lack the tier fields: %+v", matrix["diagnostics"])
+	}
+}
+
+// The repository index the file tools search leaves out .engflow
+// (engineering-flow's experiment state and variant worktrees): a file
+// there naming a requirement is not listed, one in the model's tree is.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func TestRepoIndexSkipsEngflowState(t *testing.T) {
+	root := copyLinksExample(t)
+	system := filepath.Join(root, "repos", "system")
+	for path, content := range map[string]string{
+		filepath.Join(system, ".engflow", "worktrees", "exp", "v1", "variant.go"): "package v // TRLC-LINKS: REQ-SYS-001\n",
+		filepath.Join(system, "notes.md"): "REQ-SYS-001 is satisfied by the encoder.\n",
+	} {
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	s := linksServer(t, root, "system")
+	files := strings.Join(s.filesForRequirement("REQ-SYS-001"), ",")
+	if strings.Contains(files, ".engflow") || !strings.Contains(files, "notes.md") {
+		t.Fatalf("files for REQ-SYS-001: %s", files)
 	}
 }
