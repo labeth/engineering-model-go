@@ -86,7 +86,7 @@ func TestRepoIndexSkipsEngflowState(t *testing.T) {
 	system := filepath.Join(root, "repos", "system")
 	for path, content := range map[string]string{
 		filepath.Join(system, ".engflow", "worktrees", "exp", "v1", "variant.go"): "package v // TRLC-LINKS: REQ-SYS-001\n",
-		filepath.Join(system, "notes.md"): "REQ-SYS-001 is satisfied by the encoder.\n",
+		filepath.Join(system, "notes.md"):                                         "REQ-SYS-001 is satisfied by the encoder.\n",
 	} {
 		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 			t.Fatal(err)
