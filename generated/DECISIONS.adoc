@@ -599,6 +599,7 @@ engflow init writes strict. (docs/requirement-links.md D1.)
 - Existing models keep 0 errors on upgrade; new projects get the strict rules from engflow init.
 - The direction stays child to parent; no child names a user.
 - Amended by ADR-EMG-028; no model is exempt from the upward trace as top level.
+- Amended by ADR-EMG-031; with a life-cycle tier the mode is the maximum of requirementLinks and the tier default (strict from mvp), and the strict findings are errors from the tier where the rule is required.
 
 [[ADR-EMG-023]]
 == ADR-EMG-023: The using system fingerprints the child item from the content it resolved
@@ -750,6 +751,7 @@ parent's links are its children. (docs/requirement-links.md D22.)
 - A system publishes its own capabilities so a system above can link to them; its requirements realize them, link below, or are derived.
 - A manifest that sets inferenceHints.topLevel no longer loads (strict schema); the field was never released.
 - Guided mode still applies the rule only where the model publishes contract items or has reqLinks.
+- Amended by ADR-EMG-031; below the tier that requires it the finding is deferred, which is reporting, not exemption.
 
 [[ADR-EMG-029]]
 == ADR-EMG-029: model.patch is the one MCP tool that writes, confined to the model's own documents and valid results
@@ -814,3 +816,187 @@ child. Supersedes D2 and D17 (ADR-EMG-023, ADR-EMG-026) for the fingerprint and 
 - A status or notes change in a child release moves the pin without a review; a note of a capability is its text, so changing it needs one.
 - A version re-staged with other content is detected through the registry manifest digest of the cached module and refetched.
 - link.suspect and link.fingerprint_outdated no longer exist; trace linksSuspect is a deprecated alias of linksVersionMismatch next to the new linksNeedReview.
+
+[[ADR-EMG-031]]
+== ADR-EMG-031: The manifest life-cycle tier selects the severity of the tier rules
+
+Status:: accepted
+Date:: 2026-11-05
+
+=== Context
+
+engineering-flow builds a project at one life-cycle tier (poc, prototype, mvp, product, operational) and
+raises rigour as the project matures. Raising severities only in the flow's own check left engdoc, engtrace, MCP and
+engws check with another answer, and the flow could raise but never defer a rule (tiered development guidance,
+sections 6.1 and 6.2).
+
+=== Decision
+
+engmod.yml lifecycle {tier, bundles?, tierDecision?, raise?} is optional. Without it every result is that of
+v0.9.0 (golden tests). With it, internal/validate/tier_policy.go keys a closed table of codes by tier (TierPolicy):
+each is deferred (a warning with the Deferred flag: evidence debt that is reported and never fails a check), a
+warning or an error at the project tier, with requiredFrom; lifecycle.raise makes named codes errors and never lowers.
+ApplyTierPolicy runs at every public entry on the merged list (ValidateBundle, GenerateAsciiDoc, the trace
+builders, engws check, MCP); it is idempotent, so applying it again at an outer entry changes nothing. Rank-0 core
+codes (CoreCodes, a closed list) and every code the table does not key keep their severity at every tier. tierDecision
+must name an accepted DEC-TIER-* whose Tier: and Bundles: lines agree (lifecycle.tier_decision_mismatch). Tiers are per
+module, never per functional unit or requirement. Amends ADR-EMG-022: the requirement link mode is the maximum of
+requirementLinks and the tier default (guided below mvp, strict from mvp), so the strict findings are errors from the
+tier where the rule is required; requirementLinks guided at mvp or above is lifecycle.requirement_links_conflict.
+Amends ADR-EMG-028: a deferred finding is reported, not exempted; the upward-trace rule holds at every tier and only
+its severity is keyed. The life-cycle tier is unrelated to the requirement and system levels ADR-EMG-011 excludes:
+it is a property of the module's rigour, never of a requirement. engtrace --tier-gap and MCP tier.gap report what a
+target tier requires.
+
+=== Consequences
+
+- Every consumer of the engine gives one result for a tier; engineering-flow renders the table from TierPolicy() instead of keeping its own.
+- A project can declare a low tier and see its debt as deferred findings instead of failing on rules it has not reached.
+- A low tier cannot hide integrity errors; rank-0 codes and untiered codes never change.
+
+[[ADR-EMG-032]]
+== ADR-EMG-032: Only untiered errors stop the AsciiDoc render (D15 extended)
+
+Status:: accepted
+Date:: 2026-11-05
+
+=== Context
+
+D15 (REQ-EMG-107) lets requirement link findings fail the check without stopping the render, so reviewers can
+read the document the findings concern. A tier raise turns many warnings into errors; stopping the render on them
+would hide the document exactly when the debt has to be reviewed.
+
+=== Decision
+
+In a model with lifecycle, an error whose code the tier policy keys or lifecycle.raise names
+(validate.RendersDespite) fails the check (HasErrors) but does not stop GenerateAsciiDoc. Rank-0 codes and every other
+untiered error still stop the render; link.* and the D15 trace findings keep not stopping it. Without lifecycle the
+render gate is unchanged.
+
+=== Consequences
+
+- A project raising its tier gets a document and a failing check, not a failing render.
+- Integrity errors keep stopping generation at every tier.
+
+[[ADR-EMG-033]]
+== ADR-EMG-033: A POA&M item defers the diagnostics it names for the project tier
+
+Status:: accepted
+Date:: 2026-11-05
+
+=== Context
+
+Raising the tier makes recorded evidence debt an error at once, so the tier-raise change could never pass CI
+even when the debt is planned and owned. The debt is recorded as POA&M items; the engine had no way to connect an
+item to the findings it covers (review R2 F1).
+
+=== Decision
+
+#POAMItem gains defers [{code, path?}]. A tier-keyed diagnostic or a warning (never an untiered
+error) is deferred (warning, Deferred, PoamRef the item) when a
+POA&M item with milestone tier:<project tier>, a status other than completed and a defers entry matching its code
+(exact or family.*) and path (or no path) names it. lifecycle.raise overrides a deferral. Naming a rank-0 code is
+lifecycle.poam_defers_core (error) and defers nothing. The engine has no clock: an overdue item is the flow's to
+raise (tier.debt_open).
+
+=== Consequences
+
+- A tier raise passes with its debt recorded; every deferred finding still shows with the item that owns it.
+- Closing the item (status completed) or moving to the next tier makes the findings errors again.
+
+[[ADR-EMG-034]]
+== ADR-EMG-034: A composing system reports dependencies below its life-cycle tier
+
+Status:: accepted
+Date:: 2026-11-05
+
+=== Context
+
+A product-tier system that composes a prototype-tier child inherits the child's unverified evidence through
+its requirement links. The child's tier is published with its manifest at the pin, so the system can compare it.
+
+=== Decision
+
+With lifecycle in the composing system, composition.dependency_below_tier (tier keyed: deferred to
+prototype, warning at mvp, error from product) names each composed dependency whose tier is below the system's,
+unless a local risk recorded as accepted names in appliesTo the composition subsystem that composes it; the one
+finding names the system requirements linked into the child. composition.dependency_tier_unknown (warning; error from
+product with the safety bundle) names each dependency without lifecycle. A child adds lifecycle only after every
+known user pins engineering-model-go v0.10.0 or later (an older engine rejects the key: composition.load_failed);
+engws bump warns when the new release of a dependency declares lifecycle and the consumer's own check pins an older
+engine.
+
+=== Consequences
+
+- A system cannot reach product on top of a prototype without an owner's recorded acceptance.
+- The child never names its users; the system reads the child's published tier at its pin.
+
+[[ADR-EMG-035]]
+== ADR-EMG-035: The safety bundle keys DO-178C evidence floors by tier and refuses AI credit
+
+Status:: accepted
+Date:: 2026-11-05
+
+=== Context
+
+The aviation evidence state ladder (declared to authority-accepted) already measures evidence maturity, but no
+rule tied it to the project. ValidateAviation fails the whole load on every finding, so an early-tier project cannot
+even load its incomplete aviation document, and independence is checked only as string inequality, so
+producer ef-implementer and verifier verification-review would pass.
+
+=== Decision
+
+Only with lifecycle, the load splits ValidateAviation: references, duplicates, hashes, arithmetic and
+mismatches stay load-fatal; the state and completeness codes (aviation.lifecycle.missing_category,
+aviation.tool.incomplete_credit_assessment, aviation.derived.incomplete_safety_feedback) become tier-keyed validation
+diagnostics. With the safety bundle the floors by tier on declared < planned < executed < reviewed < accepted <
+authority-accepted are: none below mvp; plans planned at mvp and reviewed from product; executions executed from
+product, with the level's coverage metric (A mcdc, B decision, C statement); every record accepted at operational
+(aviation.state_below_tier). Applicability and independence stay those of the level's objectives; an objective whose
+applicability is not-applicable has no floor, and a not-applicable lifecycle-data state satisfies a floor only with
+its new rationale field. authority-accepted without a liaison authorityRecord is aviation.authority_state_unevidenced
+(error). aviation.ai_actor_as_credit (error, every tier) names a review reviewer, independence or execution producer
+or verifier, or approval approver that is a registered engineering-flow agent; the list is a documented engine
+constant (AIAgentNames), not generic words.
+
+=== Consequences
+
+- An mvp safety project loads an incomplete aviation document and sees its gaps as tier-keyed findings.
+- AI agents are recorded as tools with creditClaimed false; people hold every DO-178C credit.
+- Without lifecycle, aviation validation is exactly that of v0.9.0.
+
+[[ADR-EMG-036]]
+== ADR-EMG-036: The life-cycle tier ships in v0.10.0 adapted to the version-pinned link model
+
+Status:: accepted
+Date:: 2026-11-05
+
+=== Context
+
+The tiered development guidance planned the engine side as v0.9.0 against v0.8.0, which had link fingerprints
+and an exempt top-level model. v0.9.0 shipped version-pinned links (D23, ADR-EMG-030) and the rule that every
+requirement traces through a capability (D22, ADR-EMG-028). The owners decided that strict code linking is an error
+from tier product and that experiments stay in engineering-flow.
+
+=== Decision
+
+The tier ships as v0.10.0 (schemaVersion stays 2; the Diagnostic fields deferred, requiredFrom and poamRef
+are omitempty). Deviations from the guidance: (1) rank-0 links are the v0.9.0 integrity codes link.version_mismatch,
+link.broken, link.parent_unknown, link.parent_missing, link.child_unpublished, link.review_unrecorded and
+link.invalid_status, with contract.realizer_unpublished and requirement.realizes_unknown (no link.suspect or
+fingerprint codes exist); (2) requirement.no_parent has no top-level exemption at any tier; (3) the requirement link
+rows are D D E E E (strict from mvp: errors), not W at mvp, and stay errors at every tier with requirementLinks strict
+declared; (4) strict code linking (code.missing_trlc_link, code.invalid_trlc_link, code.scan_failed, what
+coverage.strictStatus reports) is W below product and E from product, so a poc project with lifecycle sees an
+unlinked function as a warning where v0.9.0 reports an error; (5) aviation.ai_actor_as_credit and
+aviation.authority_state_unevidenced are rank 0, and the aviation state codes are keyed like the floors; (6) a below-tier
+dependency is accepted by a risk naming the composing subsystem in appliesTo (a dependency alias is no model ID) and
+is one finding naming the linked requirements, which are never requirement.unsatisfied because a linked requirement is
+satisfied by its link; (7) the self-model golden runs live against the v0.9.0 binaries
+(scripts/lifecycle-golden-self.sh) because its trace changes with each code edit; (8) v0.9.0 already left git-ignored
+files out of the code scan (REQ-EMG-114), and .engflow is now also skipped by the MCP index and the module digest.
+
+=== Consequences
+
+- Users of v0.9.0 opt in by adding lifecycle after the engine bump; nothing changes until then.
+- engineering-flow 0.7.0 reads TierPolicy() for its MODEL-RULES.md "Severity by tier" table.
