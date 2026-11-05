@@ -65,6 +65,9 @@ type LifecycleDataRecord struct {
 	State         string            `yaml:"state" json:"state"`
 	Approvals     []string          `yaml:"approvals" json:"approvals"`
 	ObjectiveRefs []string          `yaml:"objectiveRefs" json:"objectiveRefs"`
+	// Rationale explains a not-applicable state; only with it does
+	// not-applicable satisfy a life-cycle tier evidence floor.
+	Rationale string `yaml:"rationale,omitempty" json:"rationale,omitempty"`
 }
 
 type ObjectiveReference struct {
@@ -744,6 +747,40 @@ func containsString(values []string, value string) bool {
 		}
 	}
 	return false
+}
+
+// aviationStateCodes are the evidence state and completeness codes of
+// ValidateAviation: with engmod.yml lifecycle they are validation
+// diagnostics keyed by the life-cycle tier, not load failures (ADR-EMG-035).
+var aviationStateCodes = map[string]bool{
+	"aviation.lifecycle.missing_category":         true,
+	"aviation.tool.incomplete_credit_assessment":  true,
+	"aviation.derived.incomplete_safety_feedback": true,
+}
+
+// AviationStateCode reports whether an aviation diagnostic code is a state
+// or completeness code (tier keyed with lifecycle) rather than a structural
+// code (references, duplicates, hashes, arithmetic, mismatches), which stays
+// load-fatal at every tier.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-AIRBORNE-ASSURANCE-EXPORTER, FU-MODEL-LOADER
+func AviationStateCode(code string) bool {
+	return aviationStateCodes[code]
+}
+
+// SplitAviationDiagnostics returns the structural (load-fatal) and the state
+// diagnostics of ValidateAviation.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-AIRBORNE-ASSURANCE-EXPORTER, FU-MODEL-LOADER
+func SplitAviationDiagnostics(diagnostics []AviationDiagnostic) (structural, state []AviationDiagnostic) {
+	for _, d := range diagnostics {
+		if AviationStateCode(d.Code) {
+			state = append(state, d)
+		} else {
+			structural = append(structural, d)
+		}
+	}
+	return structural, state
 }
 
 // TRLC-LINKS: REQ-EMG-055

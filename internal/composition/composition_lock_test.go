@@ -348,3 +348,34 @@ func TestLockCheckWithReplacementsWarnsSkipped(t *testing.T) {
 		t.Fatal("check mode wrote the lock")
 	}
 }
+
+// The module digest leaves out .engflow (engineering-flow's local
+// experiment state and worktrees) like .git and .engmod: adding files under
+// it does not change the digest, while a file elsewhere does.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func TestModuleDigestSkipsEngflowState(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "engmod.yml"), []byte("x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	before, err := digestModuleDirectory(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(filepath.Join(dir, ".engflow", "worktrees", "exp", "v1"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, ".engflow", "worktrees", "exp", "v1", "main.go"), []byte("package x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if after, _ := digestModuleDirectory(dir); after != before {
+		t.Fatal("a file under .engflow changed the module digest")
+	}
+	if err := os.WriteFile(filepath.Join(dir, "main.go"), []byte("package x"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if after, _ := digestModuleDirectory(dir); after == before {
+		t.Fatal("a module file did not change the digest")
+	}
+}

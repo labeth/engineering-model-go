@@ -311,6 +311,8 @@ func argsForTool(name string) map[string]any {
 		return map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT", "requirementId": "REQ-PAY-001"}
 	case "views.recommend":
 		return map[string]any{"taskType": "security"}
+	case "tier.gap":
+		return map[string]any{"target": "product"}
 	case "views.renderContext":
 		return map[string]any{"viewId": "VIEW-SECURITY"}
 	case "governance.checkPatch":

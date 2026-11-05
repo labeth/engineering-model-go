@@ -121,6 +121,7 @@ var toolArgsAllowlist = map[string][]string{
 	"generation.status":            {},
 	"composition.resolve":          {},
 	"trace.matrix":                 {"summaryOnly"},
+	"tier.gap":                     {"target"},
 	"governance.policy":            {},
 	"governance.checkPatch":        {"diff"},
 	"tasks.entryPoints":            {},
@@ -209,6 +210,7 @@ func NewServer() *Server {
 		{Name: "generation.status", Description: "Get artifact freshness status"},
 		{Name: "composition.resolve", Description: "Resolve the system-of-systems: subsystems, their contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics"},
 		{Name: "trace.matrix", Description: "Traceability matrix: summary (requirements, implemented, tested/testLinked, passed, delegated, orphan, dangling, gatedOnly and gatedOnlyRequirements: test-linked requirements whose every test is environment gated; verified is a deprecated alias of testLinked; linksNeedReview (version-mismatched, broken or claimed, each counted once), linksVersionMismatch, linksBroken, linksClaimed and unparented for requirement links; linksSuspect is a deprecated alias of linksVersionMismatch), per-requirement status, parents, children, links and satisfiedBy (links: satisfied through linked child items), code references and dangling code trace links. summaryOnly=true returns only the summary and diagnostics"},
+		{Name: "tier.gap", Description: "Life-cycle tier gap: what target (poc, prototype, mvp, product or operational; required) requires that the model does not meet: currentTier, targetTier, blocking (each finding that is an error at the target and not now: code, requiredFrom, severityNow, deferredNow, poamRef, path, message), byCode, aviationBelowFloor (safety bundle: records below the target's evidence floor with state and floor) and dependencies (composed dependencies below the target tier or without one). Rule codes only, no life-cycle objective IDs"},
 		{Name: "governance.policy", Description: "Get governance policy"},
 		{Name: "governance.checkPatch", Description: "Check patch against governance"},
 		{Name: "tasks.entryPoints", Description: "List task entry points"},
@@ -879,6 +881,12 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 			return nil, err
 		}
 		return simple(data)
+	case "tier.gap":
+		data, err := s.tierGap(firstNonEmptyArg(args, "target"))
+		if err != nil {
+			return nil, err
+		}
+		return simple(data)
 	case "governance.policy":
 		return simple(map[string]any{"policy": s.governancePolicy()})
 	case "governance.checkPatch":
@@ -1233,7 +1241,7 @@ func (s *Server) ensureRepoIndex() error {
 			}
 			if info.IsDir() {
 				switch info.Name() {
-				case ".git", "node_modules", ".opencode", ".idea", ".vscode":
+				case ".git", "node_modules", ".opencode", ".idea", ".vscode", ".engflow":
 					return filepath.SkipDir
 				}
 				if path != s.repoRoot && skip(path, true) {
@@ -2743,7 +2751,7 @@ func containsString(in []string, target string) bool {
 // on the server's own checkout (their paths are relative to it).
 var repoTools = map[string]bool{
 	"model.diagnose": true, "model.patch": true, "model.list": true, "model.entity": true, "model.authoringContract": true,
-	"model.complete": true, "entities.list": true, "trace.matrix": true, "composition.resolve": true,
+	"model.complete": true, "entities.list": true, "trace.matrix": true, "tier.gap": true, "composition.resolve": true,
 	"links.list": true, "links.suspect": true, "links.review": true,
 	"requirements.get": true, "requirements.parents": true, "requirements.impact": true, "requirements.supportPath": true,
 	"requirements.suggestEditPlan": true, "threats.coverage": true, "threats.unmitigated": true, "threats.forRequirement": true,

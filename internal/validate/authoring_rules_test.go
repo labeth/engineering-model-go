@@ -281,3 +281,35 @@ func TestAuthoringRulesGiveFieldTypes(t *testing.T) {
 		}
 	}
 }
+
+// The authoring contract gives the lifecycle enums, field sets of
+// lifecycle and poamDefer, the severity-by-tier table and field rules naming
+// tierDecision, raise, defers and the rank-0 codes.
+// TRLC-LINKS: REQ-EMG-131
+func TestAuthoringRulesDescribeLifecycle(t *testing.T) {
+	rules := AuthoringRules()
+	if got := strings.Join(rules.Enums["lifecycle.tier"], ","); got != "mvp,operational,poc,product,prototype" {
+		t.Errorf("lifecycle.tier enum = %s", got)
+	}
+	if got := strings.Join(rules.Enums["lifecycle.bundles"], ","); got != "foundation,safety,security" {
+		t.Errorf("lifecycle.bundles enum = %s", got)
+	}
+	if got := strings.Join(rules.FieldSets["lifecycle"], ","); got != "tier,bundles,tierDecision,raise" {
+		t.Errorf("lifecycle fields = %s", got)
+	}
+	if got := strings.Join(rules.FieldSets["poamDefer"], ","); got != "code,path" {
+		t.Errorf("poamDefer fields = %s", got)
+	}
+	if !containsTrimmed(rules.FieldSets["poamItem"], "defers") {
+		t.Errorf("poamItem fields lack defers: %v", rules.FieldSets["poamItem"])
+	}
+	if len(rules.TierPolicy) != len(TierPolicy()) || rules.TierPolicy[0].Code == "" {
+		t.Errorf("TierPolicy in rules: %d rows", len(rules.TierPolicy))
+	}
+	text := strings.Join(rules.FieldRules, "\n")
+	for _, want := range []string{"lifecycle.tier_decision_mismatch", "lifecycle.raise", "defers", "tier:<project tier>", "lifecycle.poam_defers_core", "deferred", "requiredFrom", "lifecycle.requirement_links_conflict", "aviation.ai_actor_as_credit"} {
+		if !strings.Contains(text, want) {
+			t.Errorf("field rules do not mention %s", want)
+		}
+	}
+}

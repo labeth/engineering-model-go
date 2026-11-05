@@ -187,6 +187,9 @@ type ManifestDocument struct {
 	// RequirementLinks is the requirement link strictness: strict or guided
 	// (the default when empty). See RequirementLinkMode.
 	RequirementLinks string `yaml:"requirementLinks,omitempty"`
+	// Lifecycle declares the life-cycle tier of the module; nil keeps every
+	// severity of engineering-model-go v0.9.0. See ManifestLifecycle.
+	Lifecycle *ManifestLifecycle `yaml:"lifecycle,omitempty"`
 }
 
 // ModelMeta is the aggregate model identity retained for downstream consumers.
@@ -351,15 +354,19 @@ type RiskEvidence struct {
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, FU-THREAT-EXPORTER
 type Risk struct {
-	ID              string         `yaml:"id"`
-	Title           string         `yaml:"title"`
-	Statement       string         `yaml:"statement"`
-	Status          string         `yaml:"status"`
-	Likelihood      string         `yaml:"likelihood"`
-	Impact          string         `yaml:"impact"`
-	Response        string         `yaml:"response"`
-	Owner           string         `yaml:"owner"`
-	AppliesTo       []string       `yaml:"appliesTo"`
+	ID         string   `yaml:"id"`
+	Title      string   `yaml:"title"`
+	Statement  string   `yaml:"statement"`
+	Status     string   `yaml:"status"`
+	Likelihood string   `yaml:"likelihood"`
+	Impact     string   `yaml:"impact"`
+	Response   string   `yaml:"response"`
+	Owner      string   `yaml:"owner"`
+	AppliesTo  []string `yaml:"appliesTo"`
+	// Dependencies names manifest dependency aliases (engmod.yml
+	// dependencies[].alias) the risk is about: an accepted risk listing an
+	// alias accepts that dependency below the system's life-cycle tier.
+	Dependencies    []string       `yaml:"dependencies,omitempty"`
 	RelatedControls []string       `yaml:"relatedControls"`
 	AttackVectors   []string       `yaml:"attackVectors"`
 	ThreatScenarios []string       `yaml:"threatScenarios"`
@@ -397,6 +404,18 @@ type POAMItem struct {
 	Status          string         `yaml:"status"`
 	ResponsibleRole string         `yaml:"responsibleRole"`
 	Artifacts       []POAMArtifact `yaml:"artifacts"`
+	// Defers names the diagnostics the item covers as evidence debt: while
+	// the item is open and its milestone is tier:<project tier>, each named
+	// code (at Path when set) is reported as a deferred warning.
+	Defers []POAMDefer `yaml:"defers,omitempty"`
+}
+
+// POAMDefer is one diagnostic a POA&M item defers: its code and, when set,
+// the diagnostic path it is limited to.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type POAMDefer struct {
+	Code string `yaml:"code"`
+	Path string `yaml:"path,omitempty"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS

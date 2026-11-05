@@ -600,7 +600,7 @@ func (s *Server) modelDiagnose(args map[string]any) (map[string]any, error) {
 			otherByCode[d.Code]++
 			continue
 		}
-		row := map[string]any{"code": d.Code, "severity": string(d.Severity), "message": d.Message, "path": d.Path}
+		row := diagRows([]validate.Diagnostic{d})[0]
 		if line, column := messagePosition(d.Message, rel); line > 0 {
 			row["line"] = line
 			row["column"] = column
@@ -762,7 +762,7 @@ func diagnoseWithContent(root string, manifest []byte, documents map[string]stri
 		diags = append(diags, validate.Diagnostic{Code: d.Code, Severity: validate.Severity(d.Severity), Message: d.Message, Path: d.Path})
 	}
 	if cerr != nil {
-		diags = append(diags, validate.Bundle(bundle)...)
+		diags = append(diags, validate.ApplyTierPolicy(bundle, validate.Bundle(bundle))...)
 	} else {
 		result, _ := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{Resolution: options})
 		diags = append(diags, result.Diagnostics...)

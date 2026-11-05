@@ -563,7 +563,7 @@ func runCheck(ctx context.Context, root string, registry Registry, all, summary 
 // requirement link on the bumped alias (with show, the item text before and
 // after for each link left for review). It returns 1 when a link was left
 // for review, unless opts.AllowReview.
-// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-100, REQ-EMG-126
 func runBump(root, repo, alias, version string, opts BumpOptions, show bool, w io.Writer) (int, error) {
 	result, err := Bump(root, repo, alias, version, opts)
 	for _, d := range result.Diagnostics {
@@ -580,6 +580,9 @@ func runBump(root, repo, alias, version string, opts BumpOptions, show bool, w i
 	}
 	if result.LockWritten {
 		fmt.Fprintf(w, "engws: %s %s regenerated (workspace off)\n", repo, "engmod.lock.yml")
+	}
+	for _, warning := range result.Warnings {
+		fmt.Fprintf(w, "engws: warning: %s\n", warning)
 	}
 	for _, l := range result.Links {
 		printBumpLink(w, l, show)

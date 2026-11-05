@@ -144,3 +144,31 @@ func TestBumpUnresolvedAndRemovedItems(t *testing.T) {
 		}
 	}
 }
+
+// A bump to a dependency release that declares lifecycle warns when the
+// consumer's own check pins an engine older than v0.10.0, which rejects the
+// key (composition.load_failed); a consumer on v0.10.0 gets no warning.
+// TRLC-LINKS: REQ-EMG-126
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func TestBumpWarnsOfManifestKeysTheEngineRejects(t *testing.T) {
+	registry := newLinksRegistry(t)
+	registry.publish("child-b", "v0.1.0", nil)
+	registry.publish("child-a", "v0.1.0", nil)
+	registry.publish("child-a", "v0.2.0", func(dir string) {
+		manifest := filepath.Join(dir, "engmod.yml")
+		write(t, manifest, read(t, manifest)+"lifecycle:\n  tier: mvp\n")
+	})
+	registry.serve()
+	for engine, want := range map[string]bool{"v0.9.0": true, "v0.10.0": false} {
+		root, system := systemWorkspace(t)
+		write(t, filepath.Join(system, ".github", "engmod-check", "go.mod"), "module check\n\ngo 1.25\n\nrequire github.com/labeth/engineering-model-go "+engine+"\n")
+		code, out, errOut := runMain(t, NewCUERegistry(), "--root", root, "bump", "system", "encoder", "v0.2.0")
+		if code != 0 {
+			t.Fatalf("bump with engine %s: %d\n%s\n%s", engine, code, out, errOut)
+		}
+		got := strings.Contains(out, "warning: encoder v0.2.0 declares lifecycle") && strings.Contains(out, "engineering-model-go "+engine)
+		if got != want {
+			t.Fatalf("engine %s: warning %v, want %v:\n%s", engine, got, want, out)
+		}
+	}
+}

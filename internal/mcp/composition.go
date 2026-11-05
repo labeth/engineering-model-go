@@ -10,6 +10,7 @@ package mcp
 // exactly what is unimplemented or mis-linked before editing.
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"strings"
@@ -118,7 +119,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 		"allocations":    allocations,
 		"provenance":     provenance,
 		"lock":           res.Lock,
-		"diagnostics":    diagRows(res.Diagnostics),
+		"diagnostics":    diagRows(engmodel.ApplyTierPolicy(*s.bundle, res.Diagnostics)),
 	}, nil
 }
 
@@ -226,12 +227,24 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 func diagRows(diags []validate.Diagnostic) []map[string]any {
 	out := make([]map[string]any, 0, len(diags))
 	for _, d := range diags {
-		out = append(out, map[string]any{
+		row := map[string]any{
 			"code":     d.Code,
 			"severity": string(d.Severity),
 			"message":  d.Message,
 			"path":     d.Path,
-		})
+		}
+		// The life-cycle tier fields are omitted when unset, like their
+		// JSON tags, so a model without lifecycle answers as before.
+		if d.Deferred {
+			row["deferred"] = true
+		}
+		if d.RequiredFrom != "" {
+			row["requiredFrom"] = d.RequiredFrom
+		}
+		if d.PoamRef != "" {
+			row["poamRef"] = d.PoamRef
+		}
+		out = append(out, row)
 	}
 	return out
 }
@@ -243,4 +256,28 @@ func nonNilStrings(list []string) []string {
 		return []string{}
 	}
 	return list
+}
+
+// tierGap returns the life-cycle tier gap of the loaded model towards
+// target (engmodel.TierGapFromFilesWith), as JSON-shaped data (the tool
+// response is scrubbed of absolute paths like every other).
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func (s *Server) tierGap(target string) (map[string]any, error) {
+	if strings.TrimSpace(target) == "" {
+		return nil, fmt.Errorf("tier.gap needs target: poc, prototype, mvp, product or operational")
+	}
+	report, err := engmodel.TierGapFromFilesWith(s.modelPath, s.requirementsPath, "", target, engmodel.TraceOptions{Resolution: resolution()})
+	if err != nil {
+		return nil, err
+	}
+	data, err := json.Marshal(report)
+	if err != nil {
+		return nil, err
+	}
+	var out map[string]any
+	if err := json.Unmarshal(data, &out); err != nil {
+		return nil, err
+	}
+	return out, nil
 }

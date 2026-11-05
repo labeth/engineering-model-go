@@ -6,6 +6,69 @@ semantic versioning.
 
 ## [Unreleased]
 
+Planned as v0.10.0: life-cycle tier (tiered development guidance, Phase 2 engine side;
+ADR-EMG-031 to ADR-EMG-036, REQ-EMG-124 to REQ-EMG-134). A model without `lifecycle` gives
+byte-identical diagnostics, documents and trace matrices to v0.9.0.
+
+### Added
+
+- **Manifest `lifecycle`** (REQ-EMG-124, ADR-EMG-031): `engmod.yml` `lifecycle: {tier, bundles?,
+  tierDecision?, raise?}` with tiers `poc < prototype < mvp < product < operational` and bundles
+  `foundation | safety | security` (default `[foundation]`). `tierDecision` must name an accepted
+  `DEC-TIER-*` whose `Tier:` and `Bundles:` lines agree (`lifecycle.tier_decision_mismatch`, error).
+  `schemaVersion` stays 2. An engine older than v0.10.0 rejects the key: upgrade users before a
+  dependency adds it (`engws bump` warns, REQ-EMG-126).
+- **Engine tier policy** (REQ-EMG-125): `TierPolicy()`, `TierPolicyMarkdown()`, `ApplyTierPolicy`,
+  `EffectiveTier`, `CoreCodes`, `IsCoreCode`, `TierKeyed`. Every public entry (`ValidateBundle`,
+  `GenerateAsciiDoc`, the trace builders, `engws check`, MCP) applies it once to its merged list. A
+  tier-keyed code is deferred (a warning with `deferred: true`), a warning or an error at the project
+  tier, with `requiredFrom`; `lifecycle.raise` makes codes errors. Rank-0 core codes never change.
+  `Diagnostic` gains `deferred`, `requiredFrom` and `poamRef` (all omitempty). Strict code linking
+  (`code.missing_trlc_link`, `code.invalid_trlc_link`, `code.scan_failed`) is a warning below product
+  and an error from product.
+- **Requirement links strict from mvp** (REQ-EMG-127): the effective mode is the maximum of
+  `requirementLinks` and the tier default; `requirementLinks: guided` at mvp or above is
+  `lifecycle.requirement_links_conflict` (error). `EffectiveRequirementLinkMode` is exported.
+- New codes with `lifecycle` (REQ-EMG-128): `lifecycle.requirement_unapproved`,
+  `lifecycle.requirement_unverified`, `verification.failed`, `verification.gated_only`, and with the
+  safety bundle `lifecycle.aviation_profile_missing` and `lifecycle.software_level_missing`.
+- **POA&M `defers`** (REQ-EMG-129, ADR-EMG-033): `poamItems[].defers: [{code, path?}]`; an open item
+  with `milestone: "tier:<project tier>"` defers the named diagnostics (warning, `deferred`,
+  `poamRef`); naming a rank-0 code is `lifecycle.poam_defers_core` (error).
+- **Composition tier rules** (REQ-EMG-126, ADR-EMG-034): `composition.dependency_below_tier`
+  (unless a risk with a recorded acceptance names the dependency alias in its new `dependencies`
+  field, or the composing subsystem in `appliesTo`) and
+  `composition.dependency_tier_unknown`; `CompositionTierDiagnostics`. `engws bump` warns when the
+  new dependency release declares `lifecycle` and the consumer's check pins an older engine.
+- **DO-178C floors and AI credit** (REQ-EMG-132, REQ-EMG-133, ADR-EMG-035), safety bundle:
+  `aviation.state_below_tier` (plans planned at mvp, reviewed from product; executions executed and
+  the level's coverage metric from product; everything accepted at operational),
+  `aviation.authority_state_unevidenced` and `aviation.ai_actor_as_credit` (a registered
+  engineering-flow agent as reviewer, producer, verifier or approver; `AIAgentNames`). Optional
+  `lifecycleData[].rationale` lets `not-applicable` satisfy a floor.
+- **Tier gap** (REQ-EMG-134): `engtrace --tier-gap <tier>`, MCP `tier.gap {target}` and
+  `TierGapFromFiles(With)`: blocking findings with code and `requiredFrom`, counts by code, aviation
+  records below the target floor and dependencies below the target tier. No life-cycle objective IDs.
+- Authoring contract (REQ-EMG-131): `tierPolicy`, enums `lifecycle.tier` and `lifecycle.bundles`,
+  field sets `lifecycle` and `poamDefer`, and field rules for the tier and the POA&M binding.
+- **Risk `dependencies`** (REQ-EMG-126, ADR-EMG-034, ADR-EMG-036 deviation 6 resolved): risks
+  gain an optional `dependencies: [alias]` field naming `engmod.yml` dependency aliases; an alias
+  that is not declared is `model.invalid_risk_dependency` (error, rank 0). An accepted risk listing
+  the alias waives `composition.dependency_below_tier`, whose message now names both forms, alias
+  first.
+- `scripts/lifecycle-golden-self.sh` compares this repository's own outputs with the v0.9.0 engine.
+
+### Changed
+
+- **D15 extended** (REQ-EMG-130, ADR-EMG-032): with `lifecycle`, an error the tier policy sets
+  fails the check but does not stop the AsciiDoc render; untiered errors still do.
+- With `lifecycle`, the aviation state codes `aviation.lifecycle.missing_category`,
+  `aviation.tool.incomplete_credit_assessment` and `aviation.derived.incomplete_safety_feedback` no
+  longer fail the load; they are tier-keyed validation diagnostics. Structural aviation codes stay
+  load-fatal. Without `lifecycle` the load is unchanged.
+- `.engflow/` is left out of the MCP repository index and the composition module digest.
+- ADR-EMG-022 and ADR-EMG-028 are amended by ADR-EMG-031.
+
 ## [0.9.0] — 2026-11-04: Version-pinned link review, model.patch, MCP family repo, status-suggest
 
 ### Changed

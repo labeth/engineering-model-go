@@ -394,13 +394,53 @@ func ScopeCodeToModel(items []codescan.CodeItem, roots []string, modelDir string
 // code, verification, or delegation). The code is assumed already scoped to this model.
 // It also reports assurance records whose status lags the tests they name
 // (verification.status_stale).
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073, REQ-EMG-098, REQ-EMG-121
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073, REQ-EMG-098, REQ-EMG-121, REQ-EMG-128
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func ValidateIntegrity(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) []validate.Diagnostic {
 	diags := validateIntegrityWithIDs(KnownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
 	diags = append(diags, unsatisfiedRequirements(bundle, requirements, scopedCode, verification, delegationsByReq)...)
 	diags = append(diags, benchmarkOnlyDiagnostics(requirements, verification)...)
+	diags = append(diags, tierVerificationDiagnostics(bundle, requirements, verification)...)
 	return append(diags, staleVerificationStatus(bundle, scopedCode, verification)...)
+}
+
+// tierVerificationDiagnostics reports, in a model with lifecycle only,
+// verification.failed (warning) at each requirement whose linked test
+// results include a failure and verification.gated_only (warning) at each
+// requirement whose every linked test is environment gated; the tier policy
+// sets their severity.
+// TRLC-LINKS: REQ-EMG-128
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
+func tierVerificationDiagnostics(bundle model.Bundle, requirements model.RequirementsDocument, verification []codescan.VerificationCheck) []validate.Diagnostic {
+	if _, _, ok := validate.EffectiveTier(bundle); !ok {
+		return nil
+	}
+	results := requirementResults(verification)
+	gated, ungated := map[string]bool{}, map[string]bool{}
+	for _, v := range verification {
+		for _, r := range v.Verifies {
+			id := strings.TrimSpace(r)
+			if len(v.Gates[r]) > 0 {
+				gated[id] = true
+			} else {
+				ungated[id] = true
+			}
+		}
+	}
+	var diags []validate.Diagnostic
+	for i, r := range requirements.Requirements {
+		id := strings.TrimSpace(r.ID)
+		path := fmt.Sprintf("requirements[%d]", i)
+		if results[id] == "failed" {
+			diags = append(diags, validate.Diagnostic{Code: "verification.failed", Severity: validate.SeverityWarning, Path: path,
+				Message: fmt.Sprintf("requirement %s has a failed, blocked, partial or flaky linked test result; fix the code or the test and record a passing run", id)})
+		}
+		if gated[id] && !ungated[id] {
+			diags = append(diags, validate.Diagnostic{Code: "verification.gated_only", Severity: validate.SeverityWarning, Path: path,
+				Message: fmt.Sprintf("requirement %s is verified only by environment-gated tests, which skip in an ordinary run; add an ungated test or run the gated ones in CI and record the result", id)})
+		}
+	}
+	return diags
 }
 
 // benchmarkOnlyRequirements returns the requirements whose every linking
@@ -709,6 +749,8 @@ type Options struct {
 	// Composition, when set, is a composition already resolved for this
 	// manifest; the trace then does not compose again.
 	Composition *composition.CompositionResult
+	// Composed, when set, receives the composition the trace used.
+	Composed *composition.CompositionResult
 }
 
 // BuildFromFiles loads a model, scans its code root, scopes the code to the
@@ -724,7 +766,7 @@ func BuildFromFiles(modelPath, requirementsPath, codeRoot string) (Matrix, []val
 // ENGMODEL-LINKS alias::ID against the dependencies' published entities
 // (requirements stay local), returns the composition diagnostics, and reports
 // each delegated requirement's own status in its target repository.
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-073, REQ-EMG-098, REQ-EMG-105
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-073, REQ-EMG-098, REQ-EMG-105, REQ-EMG-125
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
 func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Options) (Matrix, []validate.Diagnostic, error) {
 	bundle, err := codescan.LoadBundle(modelPath)
@@ -736,12 +778,21 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 		return Matrix{}, nil, err
 	}
 	bundle.Requirements = requirements
+	return buildFromBundle(bundle, modelPath, codeRoot, options)
+}
+
+// buildFromBundle is BuildFromFilesWith for a loaded bundle (its
+// requirements set): the trace of the bundle as given, so a caller may
+// change it in memory first (TierGap sets the target tier).
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-098, REQ-EMG-105, REQ-EMG-125, REQ-EMG-134
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
+func buildFromBundle(bundle model.Bundle, modelPath, codeRoot string, options Options) (Matrix, []validate.Diagnostic, error) {
 	canonical, err := model.NewCanonicalBundle(bundle)
 	if err != nil {
 		return Matrix{}, nil, err
 	}
 	bundle = canonical.Documents()
-	requirements = bundle.Requirements
+	requirements := bundle.Requirements
 	resolvedRoot := strings.TrimSpace(codeRoot)
 	if resolvedRoot != "" && !filepath.IsAbs(resolvedRoot) {
 		resolvedRoot = filepath.Join(filepath.Dir(modelPath), resolvedRoot)
@@ -752,6 +803,9 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 	diags = append(diags, verDiags...)
 
 	compositionResult, cerr := composition.ComposeForGeneration(bundle, options.Composition, options.Resolution)
+	if options.Composed != nil {
+		*options.Composed = compositionResult
+	}
 	if cerr != nil {
 		diags = append(diags, validate.Diagnostic{
 			Code: "composition.resolve_failed", Severity: validate.SeverityWarning,
@@ -770,6 +824,7 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 	scoped := ScopeCodeToModel(inferredCode, EffectiveCodeRoots(bundle, resolvedRoot), codescan.ModelRootDir(bundle))
 	diags = append(diags, validateIntegrityWithIDs(linkIDs, requirements, scoped, inferredVerification, delegationsByReq)...)
 	diags = append(diags, unsatisfiedRequirements(bundle, requirements, scoped, inferredVerification, delegationsByReq)...)
+	diags = append(diags, tierVerificationDiagnostics(bundle, requirements, inferredVerification)...)
 	diags = append(diags, staleVerificationStatus(bundle, scoped, inferredVerification)...)
 	matrix := buildTraceMatrixWithIDs(bundle, linkIDs, requirements, scoped, inferredVerification, delegationsByReq)
 	appendPublishedRequirementTraceRows(&matrix, compositionProjection, compositionResult)
@@ -785,7 +840,7 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 		}
 		diags = kept
 	}
-	return matrix, validate.SortDiagnostics(diags), nil
+	return matrix, validate.SortDiagnostics(validate.ApplyTierPolicy(bundle, diags)), nil
 }
 
 // dependencyTraceRows computes a resolved dependency's own trace matrix rows

@@ -29,6 +29,10 @@ type Rules struct {
 	// PublicationSections are the manifest publication sections that may
 	// export stable IDs. Decisions cannot be published.
 	PublicationSections []string `json:"publicationSections"`
+	// TierPolicy is the severity of each tier-keyed code per life-cycle
+	// tier (engmod.yml lifecycle.tier); engineering-flow renders it as the
+	// "Severity by tier" table of MODEL-RULES.md.
+	TierPolicy []TierRule `json:"tierPolicy"`
 }
 
 // FieldType is the YAML type of one field of an entity kind.
@@ -76,6 +80,24 @@ var enumTables = map[string]map[string]bool{
 	"controlVerification.status":             allowedControlVerificationStatus,
 	"complianceMapping.implementationType":   allowedControlImplementationTypes,
 	"complianceMapping.implementationStatus": allowedControlImplementationStatuses,
+	"lifecycle.tier":                         allowedTiers,
+	"lifecycle.bundles":                      allowedBundles,
+}
+
+// allowedTiers and allowedBundles are the lifecycle vocabularies.
+var (
+	allowedTiers   = setOf(model.Tiers)
+	allowedBundles = setOf(model.Bundles)
+)
+
+// setOf returns a set of the values.
+// TRLC-LINKS: REQ-EMG-131
+func setOf(values []string) map[string]bool {
+	out := make(map[string]bool, len(values))
+	for _, v := range values {
+		out[v] = true
+	}
+	return out
 }
 
 var authoringFieldRules = []string{
@@ -107,6 +129,9 @@ var authoringFieldRules = []string{
 	"Contract items: contract.assumptions entries have id (AOU-*), text and optional verificationCriteria and are published in the architecture list like capabilities, imported as alias::AOU-*. contract.provides ref is deprecated (contract.ref_deprecated, warning): add realizes to the requirement instead. A published capability no requirement realizes is contract.unrealized (warning). Every requirement that realizes a published contract item must be in the requirements list of that publication (contract.realizer_unpublished, error), because a using system compares the item with its realizers between versions.",
 	"Requirement link file (documents.reqLinks, usually model/req-links.yml): reqLinks entries {id (LNK-*), parent (a local requirement), child (alias::CAP-* or alias::AOU-* of a composed dependency), evidence (local requirement, control, verification or test IDs; required for an assumption of use), pinned {version (the published dependency version the link was reviewed at; equal to the dependency version in engmod.yml once reviewed)}, status (claimed or accepted), rationale, reviewedBy, reviewedOn (YYYY-MM-DD)}. Write a new link with engws link add (--parent REQ for a capability, --evidence REQ for an assumption of use); record a review with engws review-links --accept. pinned.fingerprint is deprecated (link.fingerprint_deprecated, warning; engws migrate-links removes it). Validation reports link.parent_unknown, link.child_unpublished, link.version_mismatch (errors; review the link at the new version with engws review-links) and link.claimed_only (warning); the composed check reports link.broken (the item does not exist at the published dependency pin) and link.aou_unverified (a dependency assumption of use with no evidence link). No item content is compared at check time and a workspace checkout raises no link finding: engws bump compares each linked item's meaning (item kind, text and verificationCriteria; realizer text and verificationCriteria; not status or notes) between versions and moves the pin only when it is the same; a capability's note is its text, so editing it needs a review in every user. requirement.unsatisfied is a system requirement with no code, test or link and not derived. composition.allocations is deprecated (composition.allocation_deprecated, warning): use reqLinks.",
 	"requirementLinks in engmod.yml is strict or guided (default guided; model.invalid_requirement_links otherwise). strict: requirement.no_parent, link.aou_unverified and requirement.unsatisfied are errors in every model. guided: they are warnings, and only in a model that publishes contract items or has reqLinks. The other link and contract rules have the same severity in both modes. A dependency version is a release tag or a Go-style pseudo-version (v1.2.4-0.20261102103400-abcdef123456).",
+	"Life-cycle tier: engmod.yml lifecycle {tier (poc < prototype < mvp < product < operational), bundles (foundation, safety, security; default [foundation]), tierDecision, raise} is optional; without it every severity is that of engineering-model-go v0.9.0. With it, tierPolicy gives each tier-keyed code its severity at the project tier: deferred (a warning with deferred: true and requiredFrom, evidence debt that never fails a check), warning or error. tierDecision names an accepted DEC-TIER-* decision whose Tier: line and Bundles: line (comma separated, read case-insensitively, absent means Foundation) agree with lifecycle (lifecycle.tier_decision_mismatch, error). lifecycle.raise lists codes (or family.* patterns) raised to error regardless of tier; it never lowers. From tier mvp requirement links are strict whatever requirementLinks says; requirementLinks: guided at mvp or above is lifecycle.requirement_links_conflict (error). With lifecycle, lifecycle.requirement_unapproved reports requirements with status draft or proposed and lifecycle.requirement_unverified those not verified (rejected and retired excepted). The safety bundle needs documents.aviation (lifecycle.aviation_profile_missing) with aviation.profile.softwareLevel (lifecycle.software_level_missing), and makes aviation.ai_actor_as_credit an error: an aviation review reviewer, independence or execution producer or verifier, or approval approver names a registered engineering-flow agent (people hold assurance credit, AI agents never). Rank-0 core codes (model.duplicate_id, model.broken_reference, model.invalid_*, model.missing_*, code.dangling_*, composition.cycle, composition.lock_*, the link integrity codes, risk.acceptance_unrecorded and the structural lifecycle.* codes) are errors at every tier and are never deferred.",
+	"Composition tier: with lifecycle in a composing system, a composed dependency whose own lifecycle tier is below the system tier is composition.dependency_below_tier (tier keyed) and one without lifecycle composition.dependency_tier_unknown. To accept a below-tier dependency, record a risk with status accepted (or response accept) and a complete, resolving acceptedBy that names the dependency alias in dependencies (risk.dependencies: engmod.yml dependencies[].alias values; preferred), or the composition subsystem that composes it in appliesTo (older form). A dependencies entry that is no declared alias is model.invalid_risk_dependency (error).",
+	"POA&M binding: a poamItem defers [{code, path?}] binds the item to the diagnostics it covers. While the item's status is not completed and its milestone is tier:<project tier> (for example tier:product), each diagnostic with that code (exact or family.*) and, when path is given, that path is reported as a warning with deferred: true and poamRef naming the item: the finding is still reported, never exempted. Naming a rank-0 core code is lifecycle.poam_defers_core (error) and defers nothing. Only tier-keyed codes and warnings are deferred; an untiered error keeps its severity; the engine has no clock, so an overdue item is the flow's to raise.",
 	"Warnings: behavior.event_unused (a behavior event in no triggered_by relationship, transition trigger or flow), behavior.state_unreachable (with transitions in the model, a state other than the first declared, initial one that no transitions_to enters), behavior.flow_step_no_onerror (a boundaryCrossing step without onError) and catalog.name_has_operator (a clause-term catalog name or alias with a standalone and, or, not, a comma or a parenthesis, which EARS reads as operators).",
 }
 
@@ -136,8 +161,10 @@ var fieldSetTypes = map[string]any{
 	"hardwareInterface":   model.HardwareInterface{},
 	"hardwareItem":        model.HardwareItem{},
 	"interface":           model.Interface{},
+	"lifecycle":           model.ManifestLifecycle{},
 	"lintWaiver":          model.LintWaiver{},
 	"mapping":             model.Mapping{},
+	"poamDefer":           model.POAMDefer{},
 	"poamItem":            model.POAMItem{},
 	"publication":         model.ManifestPublication{},
 	"referencedElement":   model.ReferencedElement{},
@@ -268,7 +295,7 @@ func fieldTypes() map[string][]FieldType {
 
 // AuthoringRules returns the validation vocabularies and relationship pairs as
 // sorted, deterministic data for the model authoring contract.
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-087, REQ-EMG-099
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-087, REQ-EMG-099, REQ-EMG-131
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func AuthoringRules() Rules {
 	enums := make(map[string][]string, len(enumTables))
@@ -297,6 +324,7 @@ func AuthoringRules() Rules {
 	return Rules{
 		Enums: enums, RelationshipPairs: pairs, FieldRules: append([]string(nil), authoringFieldRules...),
 		FieldSets: fieldSets(), FieldTypes: fieldTypes(), PublicationSections: publicationSections(),
+		TierPolicy: TierPolicy(),
 	}
 }
 

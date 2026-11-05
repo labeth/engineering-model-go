@@ -169,3 +169,14 @@ type LinkUse = composition.LinkUse
 func WorkspaceLinkUsers(bundle Bundle, workspaceMode string) []LinkUse {
 	return composition.WorkspaceLinkUsers(bundle, workspaceMode)
 }
+
+// CompositionTierDiagnostics returns the composition tier rules of a
+// resolved composition rooted at a system with lifecycle:
+// composition.dependency_below_tier and composition.dependency_tier_unknown
+// (before the tier policy; GenerateComposition results already include
+// them).
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+// TRLC-LINKS: REQ-EMG-126
+func CompositionTierDiagnostics(root *ComposedSystem) []Diagnostic {
+	return composition.TierDiagnostics(root)
+}

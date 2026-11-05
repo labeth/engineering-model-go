@@ -39,7 +39,7 @@ func EffectiveSchemaVersion(version int) (int, error) {
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054, REQ-EMG-094
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054, REQ-EMG-094, REQ-EMG-132
 func LoadBundle(manifestPath string) (Bundle, error) {
 	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
 		return Bundle{}, fmt.Errorf("engmod.yml is the only supported model entry point")
@@ -119,7 +119,13 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		if _, err := EffectiveSchemaVersion(document.SchemaVersion); err != nil {
 			return Bundle{}, fmt.Errorf("aviation schema: %w", err)
 		}
-		if diagnostics := ValidateAviation(document, requirements, architectureInput); len(diagnostics) > 0 {
+		diagnostics := ValidateAviation(document, requirements, architectureInput)
+		if manifest.Lifecycle != nil {
+			// With lifecycle the state and completeness codes are tier keyed
+			// (validate reports them); structural codes stay fatal.
+			diagnostics, _ = SplitAviationDiagnostics(diagnostics)
+		}
+		if len(diagnostics) > 0 {
 			return Bundle{}, &AviationValidationError{Diagnostics: diagnostics}
 		}
 		aviation = &document

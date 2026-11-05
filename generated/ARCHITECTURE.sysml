@@ -248,6 +248,42 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-030';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-031";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-031';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-032";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-032';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-033";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-033';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-034";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-034';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-035";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-035';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-036";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-036';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -3259,6 +3295,105 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-123' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.";
         attribute 'notes' : 'String' = "Retro 1104 model findings. ears-lint reports catalog.<role>_unresolved at the same span as expr.unknown_term, the role coming from the clause position (When: event, While: state, the system term: system, and so on). Both diagnostics then say unknown term \"<term>\" in expression (or unresolved catalog term \"<term>\") and add it to catalog.<section> (or an alias of an existing entry), the section from the role (systems, actors, events, states, features, modes, conditions, dataTerms). A diagnostic without a paired role keeps its message.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-124";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-124' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.";
+        attribute 'notes' : 'String' = "ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; default [foundation], foundation always included), tierDecision, raise} is optional (CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; absent means Foundation) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle gives byte-identical diagnostics, documents and trace matrices to v0.9.0 (golden test over every example model; scripts/lifecycle-golden-self.sh for the repository's own model).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-125";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-125' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each tier-keyed diagnostic with the severity of the project tier.";
+        attribute 'notes' : 'String' = "ADR-EMG-031, internal/validate/tier_policy.go. TierPolicy() is the table of tier-keyed codes with a severity per tier: D deferred (a warning with deferred true: evidence debt, reported, never failing a check), W warning or E error, a row for the safety bundle, and requiredFrom (the first tier where it is an error). ApplyTierPolicy(bundle, diags) runs at each public entry on the merged list: ValidateBundle, GenerateAsciiDoc (before the render gate and after the trace integrity check), BuildTraceMatrixFromFiles(With), engws check and the MCP diagnose, patch, trace.matrix and composition.resolve answers. It sets each tier-keyed code's severity and requiredFrom, then an open POA&M defer (REQ-EMG-129), then lifecycle.raise (exact codes or family.* patterns made errors; it never lowers). Rank-0 core codes (CoreCodes(), a closed list: model.duplicate_id, model.broken_reference, model.invalid_*, model.missing_*, code.dangling_*, composition.cycle, composition.lock_*, link.version_mismatch, link.broken, link.parent_unknown, link.parent_missing, link.child_unpublished, link.review_unrecorded, link.invalid_status, contract.realizer_unpublished, requirement.realizes_unknown, risk.acceptance_unrecorded, the structural lifecycle.* codes and aviation.ai_actor_as_credit and aviation.authority_state_unevidenced) and every code the table does not key keep their severity. Strict code linking (code.missing_trlc_link, code.invalid_trlc_link, code.scan_failed: what coverage.strictStatus reports) is W below product and E from product. It is idempotent, does not modify its input and returns the input unchanged without lifecycle. Every row is non-decreasing from poc to operational and the safety row is never lower than the base row (TestTierPolicyMonotonic). The README Life-cycle tier section holds TierPolicyMarkdown().";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-126";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-126' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a composed dependency whose life-cycle tier is below or unknown to the tier of the system.";
+        attribute 'notes' : 'String' = "ADR-EMG-034. With lifecycle in the composing system, each composed dependency (a composition subsystem resolved at its pin) is compared with its own manifest lifecycle: a child tier below the parent tier is composition.dependency_below_tier (tier keyed: D D W E E) unless a local risk recorded as accepted with a complete, resolving acceptedBy names the dependency alias in its dependencies field (preferred; each entry must be an engmod.yml dependency alias, else model.invalid_risk_dependency, error) or the composition subsystem that composes the dependency in appliesTo (older form, still honoured); the finding names both forms, the alias first; the one finding per dependency names the alias, the child and parent tiers and the system requirements whose links point into the child, in place of a requirement.unsatisfied per requirement (a linked requirement is never requirement.unsatisfied); a child without lifecycle is composition.dependency_tier_unknown (W at every tier; E from product with the safety bundle). A system without lifecycle gets neither. engws bump warns when the dependency at the new version declares lifecycle and the consumer pins an engine older than v0.10.0 in its .github/engmod-check go.mod (that engine rejects the key: composition.load_failed).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-127";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-127' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall apply strict requirement links from life-cycle tier mvp.";
+        attribute 'notes' : 'String' = "ADR-EMG-031 amends ADR-EMG-022. The effective requirement link mode is the maximum of requirementLinks and the tier default (guided below mvp, strict from mvp): from mvp the rules requirement.no_parent, requirement.unsatisfied and link.aou_unverified apply in every model and the tier policy makes them errors (row D D E E E); with requirementLinks: strict declared they are errors at every tier, as in v0.9.0. requirementLinks: guided at mvp or above is lifecycle.requirement_links_conflict (error, rank 0) at requirementLinks; strict at poc is allowed. EffectiveRequirementLinkMode is exported.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-128";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-128' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier.";
+        attribute 'notes' : 'String' = "ADR-EMG-031. With lifecycle only: lifecycle.requirement_unapproved at requirements[i].status for status draft or proposed (row D D W E E); lifecycle.requirement_unverified for a status other than verified, rejected or retired, unset included (D D D W E); the trace integrity check reports verification.failed at requirements[i] when the linked test results roll up to failed (fail, blocked, partial or flaky) and verification.gated_only when every linked test is environment gated (both D D D W E); the safety bundle needs documents.aviation (lifecycle.aviation_profile_missing) and aviation.profile.softwareLevel (lifecycle.software_level_missing), both D D E E E. Imported alias::REQ requirements are skipped.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-129";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-129' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a diagnostic that an open POA&M item of the project tier defers as a deferred warning naming the item.";
+        attribute 'notes' : 'String' = "ADR-EMG-033. #POAMItem gains defers [{code, path?}]. A tier-keyed diagnostic or a warning is deferred (warning, deferred true, poamRef the item ID; an untiered error is never deferred) when a POA&M item with milestone tier:<project tier> (case-insensitive), status other than completed and a defers entry whose code matches (exact or family.*) and whose path is empty or equal names it; another tier's item, a completed item and another path do not. lifecycle.raise overrides a deferral. A defers entry naming a rank-0 code (or a pattern covering one) is lifecycle.poam_defers_core (error, rank 0) at poamItems[i].defers[j].code, and a rank-0 diagnostic is never deferred. The engine has no clock: an overdue item is raised by engineering-flow (tier.debt_open).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-130";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-130' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall render the document despite errors that only the life-cycle tier raises.";
+        attribute 'notes' : 'String' = "ADR-EMG-032 extends D15 (REQ-EMG-107). In a model with lifecycle, an error whose code the tier policy keys or lifecycle.raise names (validate.RendersDespite) fails the check (HasErrors) but does not stop GenerateAsciiDoc: the document is produced for reviewers. Rank-0 codes and every other untiered error still stop the render, and link.* and the D15 trace findings keep not stopping it.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-131";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-131' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the severity of each tier-keyed code per life-cycle tier in the authoring contract.";
+        attribute 'notes' : 'String' = "validate.Rules gains tierPolicy (TierPolicy()); enums lifecycle.tier and lifecycle.bundles; fieldSets lifecycle (tier, bundles, tierDecision, raise) and poamDefer (code, path), and poamItem lists defers; field rules describe lifecycle, the deferred flag and requiredFrom, tierDecision and lifecycle.tier_decision_mismatch, lifecycle.raise, the requirementLinks conflict, the state rules, the rank-0 codes, the POA&M binding (defers, tier:<project tier>, lifecycle.poam_defers_core) and aviation.ai_actor_as_credit. engineering-flow renders the Severity by tier table of MODEL-RULES.md from it.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-132";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-132' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each aviation evidence record below the evidence floor of the life-cycle tier.";
+        attribute 'notes' : 'String' = "ADR-EMG-035. Only with lifecycle: the load splits ValidateAviation into structural codes (references, duplicates, hashes, arithmetic, mismatches, aviation.authority.acceptance_missing; still load-fatal) and the state and completeness codes aviation.lifecycle.missing_category, aviation.tool.incomplete_credit_assessment and aviation.derived.incomplete_safety_feedback (model.AviationStateCode), which validation reports as tier-keyed diagnostics; without lifecycle all stay load-fatal as in v0.9.0. With the safety bundle, aviation.state_below_tier (D D E E E) names each record below the floor of the tier on the order declared < planned < executed < reviewed < accepted < authority-accepted: none below mvp; the five plans (PSAC, SDP, SVP, SCMP, SQAP) planned at mvp and reviewed from product; executions executed from product; every record accepted at operational; from product a software level A, B or C needs a coverage record of its metric (mcdc, decision, statement). not-applicable satisfies a floor only with lifecycleData rationale (new optional field). Applicability and independence stay those of the level's objectives. aviation.authority_state_unevidenced (error, rank 0) names a record in state authority-accepted with no liaison entry in authorityState authority-accepted with an authorityRecord that covers it.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-133";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-133' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each aviation assurance record that names an AI agent as the person holding the credit.";
+        attribute 'notes' : 'String' = "ADR-EMG-035. With lifecycle and the safety bundle, aviation.ai_actor_as_credit (error, rank 0, every tier) at aviation.reviews.<id>.reviewer, aviation.independence.<id>.producer and .verifier, aviation.executions.<id>.producer and .verifier and aviation.approvals.<id>.approver when the value, trimmed and lowercased, is a registered engineering-flow agent (validate.AIAgentNames: architecture-review, classification-review, ef-experimenter, ef-implementer, ef-modeler, export-control-review, governance-review, operability-review, performance-review, quality-review, safety-review, security-review, verification-review; the init/installer.mjs reviewers and workers). The message says AI output is input to people, asks for the person who directed and accepted the output, and to record the agent as a tool with creditClaimed false. Generic words such as ai or agent are not matched: they can be part of a person's role name.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-134";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-134' {
+        attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return what a target life-cycle tier requires that the model does not meet.";
+        attribute 'notes' : 'String' = "ADR-EMG-031. engtrace --tier-gap <tier> (JSON on stdout or --out; exit 2 for an unknown tier) and MCP tier.gap {target, repo?} return TierGapReport: currentTier (empty without lifecycle), targetTier, blocking (each diagnostic of validation, composition and the trace that is an error with lifecycle.tier set to the target in memory and not an error now: code, requiredFrom, severityNow (warning or absent), deferredNow, poamRef, path, message; a lifecycle.tier_decision_mismatch that the in-memory tier causes is left out), byCode, aviationBelowFloor (safety bundle: the records below the target's evidence floor with state and floor, REQ-EMG-132) and dependencies (each composed dependency below the target tier or without one, with alias, subsystem, module, version, tier and required). It names rule codes only; engineering-flow joins them to life-cycle objective IDs. The engine also leaves .engflow (engineering-flow's local experiment state and variant worktrees) out of the MCP repository index and the composition module digest, like .git and .engmod.";
     }
 
     @EngineeringElement {

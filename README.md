@@ -721,6 +721,103 @@ Additional export/validation docs:
 - TRLC requirements export and validation: `docs/trlc-export-testing.md`
 - TRLC + LOBSTER traceability report pipeline: `docs/lobster-traceability.md`
 
+## Life-cycle tier
+
+A module may declare its life-cycle tier in `engmod.yml` (v0.10.0, ADR-EMG-031). The tier is the
+bar for the default branch and every release; work below it happens only in experiments, which the
+engine does not model.
+
+```yaml
+lifecycle:
+  tier: product                      # poc < prototype < mvp < product < operational
+  bundles: [foundation, security]    # default [foundation]; safety adds the DO-178C rules
+  tierDecision: DEC-TIER-PRODUCT     # accepted decision with "Tier: Product" and "Bundles: ..." lines
+  raise: [behavior.*]                # codes raised to error regardless of tier; never lowers
+```
+
+Without `lifecycle` every diagnostic, document and trace matrix is byte-identical to v0.9.0
+(`TestNoLifecycleGoldenOverExamples`, `scripts/lifecycle-golden-self.sh`). With it, every public
+entry (`ValidateBundle`, `GenerateAsciiDoc`, the trace builders, `engws check`, MCP) applies
+`ApplyTierPolicy` once to its merged diagnostics:
+
+- a tier-keyed code gets the severity of its row at the project tier. **D** (deferred) is a
+  warning with `deferred: true`: evidence debt that is reported and counted but never fails a check;
+  every tier-keyed diagnostic carries `requiredFrom`, the tier from which it is an error;
+- an open POA&M item with `milestone: "tier:<project tier>"` and `defers: [{code, path?}]` defers the
+  diagnostics it names (warning, `deferred`, `poamRef`); naming a rank-0 code is
+  `lifecycle.poam_defers_core` (error);
+- `lifecycle.raise` makes the named codes (or `family.*`) errors;
+- rank-0 core codes (`CoreCodes()`: `model.duplicate_id`, `model.broken_reference`, `model.invalid_*`,
+  `model.missing_*`, `code.dangling_*`, `composition.cycle`, `composition.lock_*`, the link integrity
+  codes, `risk.acceptance_unrecorded`, the structural `lifecycle.*` codes and the AI-credit and
+  authority-evidence aviation codes) are errors at every tier and never deferred, and every code the
+  table does not key keeps its severity;
+- requirement links are strict from mvp whatever `requirementLinks` says; `requirementLinks: guided`
+  at mvp or above is `lifecycle.requirement_links_conflict` (error);
+- only rank-0 and other untiered errors stop the AsciiDoc render; an error the tier policy sets fails
+  the check, but the document is still produced for reviewers (D15 extended, ADR-EMG-032).
+
+New codes with `lifecycle`: `lifecycle.tier_decision_mismatch`, `lifecycle.requirement_links_conflict`,
+`lifecycle.poam_defers_core`, `lifecycle.invalid_tier`, `lifecycle.invalid_bundle` (errors),
+`lifecycle.requirement_unapproved` (status draft or proposed), `lifecycle.requirement_unverified`
+(status not verified), `verification.failed` (a linked test result failed), `verification.gated_only`
+(every linked test is environment gated), the safety bundle's `lifecycle.aviation_profile_missing`,
+`lifecycle.software_level_missing`, `aviation.state_below_tier`, `aviation.authority_state_unevidenced`
+and `aviation.ai_actor_as_credit` (ADR-EMG-035), and the composition rules
+`composition.dependency_below_tier` and `composition.dependency_tier_unknown` (ADR-EMG-034).
+To accept a dependency below the system's tier, record a risk with `status: accepted` (or
+`response: accept`) and a complete `acceptedBy`, and name the dependency alias from `engmod.yml`
+in its `dependencies` field (preferred); naming the composing subsystem in `appliesTo` still works.
+A `dependencies` entry that is no declared alias is `model.invalid_risk_dependency` (error):
+
+```yaml
+risks:
+- id: RISK-ENCODER-TIER
+  title: Encoder below tier
+  statement: The encoder is still a prototype.
+  status: accepted
+  owner: ACT-SYSTEM-OWNER
+  dependencies: [encoder]
+  acceptedBy: {actor: ACT-SYSTEM-OWNER, date: "2026-11-05", statement: I accept the prototype encoder until v1.}
+```
+`engtrace --tier-gap <tier>` and the MCP tool `tier.gap` list what a target tier would require.
+
+Severity by tier (`TierPolicy()`, `TierPolicyMarkdown()`; D deferred, W warning, E error;
+`requirement.no_parent`, `requirement.unsatisfied` and `link.aou_unverified` are errors at every tier
+with `requirementLinks: strict`):
+
+| Code | poc | prototype | mvp | product | operational |
+|---|---|---|---|---|---|
+| `aviation.derived.incomplete_safety_feedback` | D | D | W | E | E |
+| `aviation.lifecycle.missing_category` | D | D | E | E | E |
+| `aviation.state_below_tier` | D | D | E | E | E |
+| `aviation.tool.incomplete_credit_assessment` | D | D | W | E | E |
+| `behavior.event_unused` | D | D | W | W | E |
+| `behavior.flow_step_no_onerror` | D | D | W | W | E |
+| `behavior.state_unreachable` | D | D | W | W | E |
+| `code.invalid_trlc_link` | W | W | W | E | E |
+| `code.missing_trlc_link` | W | W | W | E | E |
+| `code.scan_failed` | W | W | W | E | E |
+| `composition.dependency_below_tier` | D | D | W | E | E |
+| `composition.dependency_tier_unknown` | W | W | W | W | W |
+| `composition.dependency_tier_unknown` with safety | W | W | W | E | E |
+| `contract.unrealized` | D | D | W | W | E |
+| `lifecycle.aviation_profile_missing` (safety bundle) | D | D | E | E | E |
+| `lifecycle.requirement_unapproved` | D | D | W | E | E |
+| `lifecycle.requirement_unverified` | D | D | D | W | E |
+| `lifecycle.software_level_missing` (safety bundle) | D | D | E | E | E |
+| `link.aou_unverified` | D | D | E | E | E |
+| `link.claimed_only` | D | D | W | E | E |
+| `requirement.no_parent` | D | D | E | E | E |
+| `requirement.orphan` | D | D | W | E | E |
+| `requirement.unsatisfied` | D | D | E | E | E |
+| `threat.verification_missing` | D | D | W | E | E |
+| `verification.failed` | D | D | D | W | E |
+| `verification.gated_only` | D | D | D | W | E |
+| `verification.status_stale` | D | D | W | W | E |
+| `verification.unlinked` | D | D | W | E | E |
+
+
 ## System-of-Systems Composition
 
 A model declares exact dependencies in `engmod.yml` and composes their selected

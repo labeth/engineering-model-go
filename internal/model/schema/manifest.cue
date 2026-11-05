@@ -44,6 +44,23 @@ package model
 	views?:        [...#StableID]
 }
 
+// #Tier is the life-cycle tier of a module, ascending rank 1..5 (ADR-EMG-031).
+#Tier: "poc" | "prototype" | "mvp" | "product" | "operational"
+
+// #Bundle is an assurance track; foundation always applies.
+#Bundle: "foundation" | "safety" | "security"
+
+// #ManifestLifecycle declares the project tier: the bar for the default
+// branch and every release. Validation keys the severity of the tier rules
+// on it (internal/validate.TierPolicy); without it every severity is that
+// of engineering-model-go v0.9.0.
+#ManifestLifecycle: {
+	tier:          #Tier
+	bundles?:      [...#Bundle]    // default [foundation]
+	tierDecision?: #StableID       // an accepted DEC-TIER-* whose Tier:/Bundles: lines agree
+	raise?:        [...#NonEmpty]  // codes raised to error regardless of tier; never lowers
+}
+
 #ManifestDocument: {
 	schemaVersion: #SchemaVersion
 	module:        #ModuleIdentity
@@ -52,4 +69,5 @@ package model
 	publications?: [...#ManifestPublication]
 	inferenceHints?: #InferenceHints
 	requirementLinks?: "strict" | "guided"
+	lifecycle?: #ManifestLifecycle
 }
