@@ -337,17 +337,17 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1502
+          "line": 1515
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1490
+          "line": 1503
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -2280,7 +2280,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 299
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DEDUPE-GO--DEDUPEDIAGNOSTICS",
@@ -2300,17 +2300,17 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1502
+          "line": 1515
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1490
+          "line": 1503
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -3016,17 +3016,17 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1502
+          "line": 1515
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1490
+          "line": 1503
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--DEDUPEDIAGNOSTICS",
@@ -5268,7 +5268,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VIEW-PROJECT-GO--BUILD",
@@ -5835,7 +5835,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VIEW-PROJECT-GO--BUILD",
@@ -6013,7 +6013,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-MODEL-API-GO--VALIDATESEMANTICMODEL",
@@ -6850,37 +6850,37 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ENABLED",
           "path": "internal/model/types.go",
-          "line": 812
+          "line": 816
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFCONCERN",
           "path": "internal/model/types.go",
-          "line": 826
+          "line": 830
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 835
+          "line": 839
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPROFILE",
           "path": "internal/model/types.go",
-          "line": 801
+          "line": 805
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFSTAKEHOLDER",
           "path": "internal/model/types.go",
-          "line": 819
+          "line": 823
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1297
+          "line": 1310
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -6947,7 +6947,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 835
+          "line": 839
         }
       ],
       "verifications": [
@@ -7009,12 +7009,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1297
+          "line": 1310
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -7087,32 +7087,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 671
+          "line": 675
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 707
+          "line": 711
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 686
+          "line": 690
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 714
+          "line": 718
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 758
+          "line": 762
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 784
+          "line": 788
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7122,7 +7122,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 775
+          "line": 779
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
@@ -7137,7 +7137,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 721
+          "line": 725
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7210,12 +7210,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 299
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--SORTEDKEYS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 331
+          "line": 332
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7279,32 +7279,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 671
+          "line": 675
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 707
+          "line": 711
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 686
+          "line": 690
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 714
+          "line": 718
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 758
+          "line": 762
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 784
+          "line": 788
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7314,7 +7314,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 775
+          "line": 779
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
@@ -7324,7 +7324,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 721
+          "line": 725
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--SCHEMAV2BUNDLE",
@@ -7526,7 +7526,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 926
+          "line": 930
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
@@ -7928,7 +7928,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 953
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -7948,12 +7948,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 964
+          "line": 968
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 926
+          "line": 930
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--LOADWORKSPACE",
@@ -7988,7 +7988,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -8579,7 +8579,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 953
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -8599,12 +8599,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 964
+          "line": 968
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 926
+          "line": 930
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -9192,7 +9192,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--UNREFERENCEABLEINFERREDID",
           "path": "internal/validate/validate.go",
-          "line": 1515
+          "line": 1528
         }
       ],
       "verifications": [
@@ -9212,7 +9212,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--REFERENCEDELEMENTURIDIAGNOSTICS",
           "path": "internal/validate/validate.go",
-          "line": 1527
+          "line": 1540
         }
       ],
       "verifications": [
@@ -9763,7 +9763,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -10535,7 +10535,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -10829,12 +10829,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 299
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -10884,12 +10884,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 299
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -11082,12 +11082,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 299
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -11158,22 +11158,22 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 299
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--FIELDSETS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 215
+          "line": 216
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--PUBLICATIONSECTIONS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 188
+          "line": 189
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--YAMLFIELDS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 201
+          "line": 202
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -11317,7 +11317,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-MODEL-API-GO--REQUIREMENTLINKMODE",
@@ -11356,7 +11356,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CONTRACTASSUMPTION",
           "path": "internal/model/types.go",
-          "line": 898
+          "line": 902
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--CAPABILITYREFS",
@@ -11498,7 +11498,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [
@@ -11792,7 +11792,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 299
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
@@ -13167,12 +13167,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--FIELDTYPES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 256
+          "line": 257
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--YAMLTYPE",
           "path": "internal/validate/authoring_rules.go",
-          "line": 226
+          "line": 227
         }
       ],
       "verifications": [
@@ -13526,7 +13526,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-MODEL-API-GO--TIERRANK",
@@ -13688,12 +13688,12 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-TIER-GO--CONTAINSSTRING",
           "path": "internal/composition/composition_tier.go",
-          "line": 74
+          "line": 76
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-TIER-GO--TIERDIAGNOSTICS",
           "path": "internal/composition/composition_tier.go",
-          "line": 27
+          "line": 28
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-BUMP-GO--BUMP",
@@ -13716,18 +13716,39 @@
           "line": 567
         },
         {
+          "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--ACCEPTEDRISKDEPENDENCIES",
+          "path": "internal/validate/lifecycle.go",
+          "line": 190
+        },
+        {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--ACCEPTEDRISKSCOPES",
           "path": "internal/validate/lifecycle.go",
           "line": 181
         },
         {
+          "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--ACCEPTEDRISKVALUES",
+          "path": "internal/validate/lifecycle.go",
+          "line": 197
+        },
+        {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
           "line": 299
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
+          "path": "internal/validate/validate.go",
+          "line": 287
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--DECLAREDALIASLIST",
+          "path": "internal/validate/validate.go",
+          "line": 1559
         }
       ],
       "verifications": [
         "VER-INF-INTEGRATION-LIFECYCLE_TEST-B69CC9",
+        "VER-INF-TEST-ACCEPTANCE_TEST-71CB24",
         "VER-INF-TEST-BUMP_LINKS_TEST-FEBA3E"
       ],
       "result": "not-run",
@@ -13799,7 +13820,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [
@@ -13904,7 +13925,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 299
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--SETOF",
@@ -13974,7 +13995,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [
@@ -14009,7 +14030,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [

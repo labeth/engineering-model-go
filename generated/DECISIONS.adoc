@@ -919,7 +919,9 @@ its requirement links. The child's tier is published with its manifest at the pi
 
 With lifecycle in the composing system, composition.dependency_below_tier (tier keyed: deferred to
 prototype, warning at mvp, error from product) names each composed dependency whose tier is below the system's,
-unless a local risk recorded as accepted names in appliesTo the composition subsystem that composes it; the one
+unless a local risk recorded as accepted names the dependency alias in dependencies (risk.dependencies lists
+engmod.yml dependency aliases; an entry that is no declared alias is model.invalid_risk_dependency, error) or, the
+older form, the composition subsystem that composes it in appliesTo; the finding names both, the alias first; the one
 finding names the system requirements linked into the child. composition.dependency_tier_unknown (warning; error from
 product with the safety bundle) names each dependency without lifecycle. A child adds lifecycle only after every
 known user pins engineering-model-go v0.10.0 or later (an older engine rejects the key: composition.load_failed);
@@ -976,7 +978,10 @@ Date:: 2026-11-05
 The tiered development guidance planned the engine side as v0.9.0 against v0.8.0, which had link fingerprints
 and an exempt top-level model. v0.9.0 shipped version-pinned links (D23, ADR-EMG-030) and the rule that every
 requirement traces through a capability (D22, ADR-EMG-028). The owners decided that strict code linking is an error
-from tier product and that experiments stay in engineering-flow.
+from tier product and that experiments stay in engineering-flow. Asked on 2026-11-05 whether strict code linking
+stays a warning below product with lifecycle, the owner confirmed: "yes tiers relaxes requriemtns in the lower
+levels." Asked whether a risk may name the dependency alias that it accepts below the tier, the owner answered: "yes
+go ahead".
 
 === Decision
 
@@ -989,8 +994,10 @@ rows are D D E E E (strict from mvp: errors), not W at mvp, and stay errors at e
 declared; (4) strict code linking (code.missing_trlc_link, code.invalid_trlc_link, code.scan_failed, what
 coverage.strictStatus reports) is W below product and E from product, so a poc project with lifecycle sees an
 unlinked function as a warning where v0.9.0 reports an error; (5) aviation.ai_actor_as_credit and
-aviation.authority_state_unevidenced are rank 0, and the aviation state codes are keyed like the floors; (6) a below-tier
-dependency is accepted by a risk naming the composing subsystem in appliesTo (a dependency alias is no model ID) and
+aviation.authority_state_unevidenced are rank 0, and the aviation state codes are keyed like the floors; (6) resolved:
+a below-tier dependency is accepted by an accepted risk that names the dependency alias in the new risk field
+dependencies (the owner's "yes go ahead"; a dependencies entry that is no declared alias is
+model.invalid_risk_dependency), or, the older form that still works, the composing subsystem in appliesTo; it
 is one finding naming the linked requirements, which are never requirement.unsatisfied because a linked requirement is
 satisfied by its link; (7) the self-model golden runs live against the v0.9.0 binaries
 (scripts/lifecycle-golden-self.sh) because its trace changes with each code edit; (8) v0.9.0 already left git-ignored
