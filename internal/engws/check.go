@@ -377,7 +377,7 @@ func libraryCheck(target CheckTarget) CheckResult {
 		dangling = matrix.Summary.DanglingLinks
 	}
 	seen := map[string]bool{}
-	for _, d := range validate.SortDiagnostics(diagnostics) {
+	for _, d := range validate.SortDiagnostics(engmodel.ApplyTierPolicy(bundle, diagnostics)) {
 		key := d.Code + "|" + d.Path + "|" + d.Message
 		if seen[key] {
 			continue

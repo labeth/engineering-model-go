@@ -14,12 +14,17 @@ import (
 // requirement.unsatisfied) and whether they apply to the model: in strict
 // mode they are errors in every model; in guided mode (the default) they are
 // warnings, and only in a model that publishes a contract item or has
-// requirement links.
-// TRLC-LINKS: REQ-EMG-090, REQ-EMG-098
+// requirement links. From life-cycle tier mvp the effective mode is strict
+// (ADR-EMG-031): the rules apply in every model, at the declared mode's
+// severity, and ApplyTierPolicy sets the tier's severity.
+// TRLC-LINKS: REQ-EMG-090, REQ-EMG-098, REQ-EMG-127
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func RequirementLinkRules(b model.Bundle) (Severity, bool) {
 	if model.RequirementLinkMode(b.Manifest) == model.RequirementLinksStrict {
 		return SeverityError, true
+	}
+	if EffectiveRequirementLinkMode(b) == model.RequirementLinksStrict {
+		return SeverityWarning, true
 	}
 	return SeverityWarning, len(b.ReqLinks.ReqLinks) > 0 || len(publishedContractItems(b)) > 0
 }

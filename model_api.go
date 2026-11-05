@@ -79,6 +79,7 @@ type (
 	LintWaiver                  = model.LintWaiver
 	ManifestDependency          = model.ManifestDependency
 	ManifestDocument            = model.ManifestDocument
+	ManifestLifecycle           = model.ManifestLifecycle
 	ManifestPublication         = model.ManifestPublication
 	Mapping                     = model.Mapping
 	MetamodelPropertyValue      = model.MetamodelPropertyValue
@@ -93,6 +94,7 @@ type (
 	ObjectiveReference          = model.ObjectiveReference
 	POAMArtifact                = model.POAMArtifact
 	POAMItem                    = model.POAMItem
+	POAMDefer                   = model.POAMDefer
 	ProblemReport               = model.ProblemReport
 	ReferencedElement           = model.ReferencedElement
 	ReqLink                     = model.ReqLink
@@ -165,6 +167,26 @@ const (
 	// ReqLinkAccepted is the status of a reviewed requirement link.
 	ReqLinkAccepted = model.ReqLinkAccepted
 )
+
+// Life-cycle tiers (engmod.yml lifecycle.tier) in ascending rank, and the
+// assurance bundles (lifecycle.bundles).
+const (
+	TierPoC          = model.TierPoC
+	TierPrototype    = model.TierPrototype
+	TierMVP          = model.TierMVP
+	TierProduct      = model.TierProduct
+	TierOperational  = model.TierOperational
+	BundleFoundation = model.BundleFoundation
+	BundleSafety     = model.BundleSafety
+	BundleSecurity   = model.BundleSecurity
+)
+
+// TierRank returns the rank 1..5 of a life-cycle tier, 0 for an unknown one.
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+// TRLC-LINKS: REQ-EMG-124
+func TierRank(tier string) int {
+	return model.TierRank(tier)
+}
 
 // RequirementLinkMode returns the effective requirementLinks strictness of a
 // manifest: strict, or guided when unset.

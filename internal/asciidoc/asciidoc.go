@@ -71,7 +71,7 @@ func GenerateFromFiles(architecturePath, requirementsPath, designPath string, op
 // their published entities, and returns every composition diagnostic; a
 // composition error fails the call like any other validation error.
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
 func Generate(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options Options) (Result, error) {
 	bundle.Requirements = requirements
 	bundle.Design = design
@@ -89,7 +89,8 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 	diags = append(diags, reqlint.ValidateCatalogDescriptions(bundle.Catalog)...)
 	diags = append(diags, reqlint.LintModelRequirementsEARS(bundle, requirements)...)
 	diags = append(diags, reqlint.LintRequirementInternalLinks(requirements)...)
-	if hasBlockingErrors(diags) {
+	diags = validate.ApplyTierPolicy(bundle, diags)
+	if hasBlockingErrors(bundle, diags) {
 		return Result{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
 	}
 
@@ -170,6 +171,7 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 	delegationsByReq := composition.DelegationsByRequirement(composed)
 	scopedCode := trace.ScopeCodeToModel(inferredCode, trace.EffectiveCodeRoots(bundle, options.CodeRoot), codescan.ModelRootDir(bundle))
 	diags = append(diags, trace.ValidateIntegrity(validated, requirements, scopedCode, inferredVerification, delegationsByReq)...)
+	diags = validate.ApplyTierPolicy(bundle, diags)
 
 	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))
 	for _, g := range bundle.Architecture.AuthoredArchitecture.FunctionalGroups {
@@ -709,12 +711,14 @@ var traceFindingCodes = map[string]bool{
 // findings (link.* and the strict-mode trace findings requirement.no_parent,
 // requirement.unsatisfied and contract.realizer_unpublished) are errors of
 // the model check but do not stop the render: the document shows the
-// marked links and the trace a reviewer needs (D15).
-// TRLC-LINKS: REQ-EMG-107
+// marked links and the trace a reviewer needs (D15). With lifecycle, an
+// error the tier policy sets (validate.RendersDespite) does not stop it
+// either: only rank-0 and untiered errors do (D15 extended, ADR-EMG-032).
+// TRLC-LINKS: REQ-EMG-107, REQ-EMG-130
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE
-func hasBlockingErrors(diags []validate.Diagnostic) bool {
+func hasBlockingErrors(bundle model.Bundle, diags []validate.Diagnostic) bool {
 	for _, d := range diags {
-		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") && !traceFindingCodes[d.Code] {
+		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") && !traceFindingCodes[d.Code] && !validate.RendersDespite(bundle, d.Code) {
 			return true
 		}
 	}

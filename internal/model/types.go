@@ -187,6 +187,9 @@ type ManifestDocument struct {
 	// RequirementLinks is the requirement link strictness: strict or guided
 	// (the default when empty). See RequirementLinkMode.
 	RequirementLinks string `yaml:"requirementLinks,omitempty"`
+	// Lifecycle declares the life-cycle tier of the module; nil keeps every
+	// severity of engineering-model-go v0.9.0. See ManifestLifecycle.
+	Lifecycle *ManifestLifecycle `yaml:"lifecycle,omitempty"`
 }
 
 // ModelMeta is the aggregate model identity retained for downstream consumers.
@@ -397,6 +400,18 @@ type POAMItem struct {
 	Status          string         `yaml:"status"`
 	ResponsibleRole string         `yaml:"responsibleRole"`
 	Artifacts       []POAMArtifact `yaml:"artifacts"`
+	// Defers names the diagnostics the item covers as evidence debt: while
+	// the item is open and its milestone is tier:<project tier>, each named
+	// code (at Path when set) is reported as a deferred warning.
+	Defers []POAMDefer `yaml:"defers,omitempty"`
+}
+
+// POAMDefer is one diagnostic a POA&M item defers: its code and, when set,
+// the diagnostic path it is limited to.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+type POAMDefer struct {
+	Code string `yaml:"code"`
+	Path string `yaml:"path,omitempty"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS

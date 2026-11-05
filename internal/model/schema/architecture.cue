@@ -181,6 +181,15 @@ package model
 	status?:          string
 	responsibleRole?: string
 	artifacts?: [...#POAMArtifact]
+	// defers binds the item to the diagnostics it covers: an open item with
+	// milestone "tier:<project tier>" defers each named code (at path, when
+	// given) to a warning with poamRef (ADR-EMG-033).
+	defers?: [...#POAMDefer]
+}
+
+#POAMDefer: {
+	code:  #NonEmpty
+	path?: string
 }
 
 #TrustBoundary: {

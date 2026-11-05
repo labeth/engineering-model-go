@@ -282,7 +282,7 @@ var allowedFlowFrequency = map[string]bool{
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-128
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
@@ -1266,6 +1266,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	diags = append(diags, assuranceConsistencyDiagnostics(b.Architecture.AuthoredArchitecture)...)
 	diags = append(diags, acceptanceDiagnostics(b)...)
 	diags = append(diags, requirementLinkDiagnostics(b, validID)...)
+	diags = append(diags, lifecycleDiagnostics(b)...)
 
 	semantic, projectionDiagnostics := model.ProjectSemanticModel(b)
 	projectionDiagnostics = append(projectionDiagnostics, model.ValidateSemanticModel(semantic)...)

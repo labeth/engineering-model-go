@@ -154,3 +154,33 @@ func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
 		}
 	}
 }
+
+// With lifecycle the trace reports verification.failed at a requirement
+// whose linked test result failed and verification.gated_only at one whose
+// every linked test is environment gated; a passing ungated requirement and
+// a model without lifecycle report neither.
+// TRLC-LINKS: REQ-EMG-128
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func TestTraceTierVerificationRules(t *testing.T) {
+	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}, {ID: "REQ-X-003"}}}
+	verification := []codescan.VerificationCheck{
+		{ID: "V1", Verifies: []string{"REQ-X-001"}, Results: []codescan.VerificationResult{{Requirement: "REQ-X-001", Status: "fail"}}},
+		{ID: "V2", Verifies: []string{"REQ-X-002"}, Gates: map[string][]string{"REQ-X-002": {"HW_RIG"}}},
+		{ID: "V3", Verifies: []string{"REQ-X-003"}, Results: []codescan.VerificationResult{{Requirement: "REQ-X-003", Status: "pass"}}},
+	}
+	with := model.Bundle{Manifest: model.ManifestDocument{Lifecycle: &model.ManifestLifecycle{Tier: "product"}}}
+	got := map[string]string{}
+	for _, d := range ValidateIntegrity(with, reqs, nil, verification, nil) {
+		if d.Code == "verification.failed" || d.Code == "verification.gated_only" {
+			got[d.Code] += d.Path + ";"
+		}
+	}
+	if got["verification.failed"] != "requirements[0];" || got["verification.gated_only"] != "requirements[1];" {
+		t.Fatalf("got %v", got)
+	}
+	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, nil, verification, nil) {
+		if d.Code == "verification.failed" || d.Code == "verification.gated_only" {
+			t.Fatalf("without lifecycle: %+v", d)
+		}
+	}
+}

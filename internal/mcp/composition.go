@@ -118,7 +118,7 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 		"allocations":    allocations,
 		"provenance":     provenance,
 		"lock":           res.Lock,
-		"diagnostics":    diagRows(res.Diagnostics),
+		"diagnostics":    diagRows(engmodel.ApplyTierPolicy(*s.bundle, res.Diagnostics)),
 	}, nil
 }
 
@@ -226,12 +226,24 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 func diagRows(diags []validate.Diagnostic) []map[string]any {
 	out := make([]map[string]any, 0, len(diags))
 	for _, d := range diags {
-		out = append(out, map[string]any{
+		row := map[string]any{
 			"code":     d.Code,
 			"severity": string(d.Severity),
 			"message":  d.Message,
 			"path":     d.Path,
-		})
+		}
+		// The life-cycle tier fields are omitted when unset, like their
+		// JSON tags, so a model without lifecycle answers as before.
+		if d.Deferred {
+			row["deferred"] = true
+		}
+		if d.RequiredFrom != "" {
+			row["requiredFrom"] = d.RequiredFrom
+		}
+		if d.PoamRef != "" {
+			row["poamRef"] = d.PoamRef
+		}
+		out = append(out, row)
 	}
 	return out
 }

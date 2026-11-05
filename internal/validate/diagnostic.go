@@ -17,6 +17,15 @@ type Diagnostic struct {
 	Severity Severity `json:"severity"`
 	Message  string   `json:"message"`
 	Path     string   `json:"path,omitempty"`
+	// Deferred marks a warning the life-cycle tier policy defers: evidence
+	// debt of a tier below the one it is required from, or covered by an
+	// open POA&M item (PoamRef). It never fails a check.
+	Deferred bool `json:"deferred,omitempty"`
+	// RequiredFrom is the tier from which the policy makes the code an
+	// error (empty when it never does or the model has no lifecycle).
+	RequiredFrom string `json:"requiredFrom,omitempty"`
+	// PoamRef is the POA&M item that defers the diagnostic.
+	PoamRef string `json:"poamRef,omitempty"`
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
