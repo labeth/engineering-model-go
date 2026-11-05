@@ -936,7 +936,7 @@ func publicationProvenance(alias string, dependency model.ManifestDependency, ch
 	return out
 }
 
-// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-064
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-064, REQ-EMG-134
 func digestModuleDirectory(root string) (string, error) {
 	var paths []string
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
@@ -947,7 +947,9 @@ func digestModuleDirectory(root string) (string, error) {
 		if err != nil {
 			return err
 		}
-		if entry.IsDir() && (entry.Name() == ".git" || entry.Name() == ".engmod") {
+		// .engflow holds engineering-flow's local experiment state and
+		// variant worktrees, never module content.
+		if entry.IsDir() && (entry.Name() == ".git" || entry.Name() == ".engmod" || entry.Name() == ".engflow") {
 			return filepath.SkipDir
 		}
 		if entry.Type().IsRegular() && filepath.Base(path) != CompositionLockFileName && filepath.Base(path) != CompositionLocalLockFileName {

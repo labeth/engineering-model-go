@@ -82,3 +82,65 @@ func validAviationFixture() (AviationDocument, RequirementsDocument) {
 	}}
 	return document, RequirementsDocument{Requirements: []Requirement{{ID: "REQ-1"}}}
 }
+
+// AviationStateCode splits the aviation diagnostics: the evidence state and
+// completeness codes are tier keyed with lifecycle, every other code
+// (references, duplicates, hashes, arithmetic and mismatches) stays fatal.
+// The DAL C sample loads with lifecycle even when a tool claims credit
+// without an assessment, and fails without lifecycle; a broken reference
+// fails in both.
+// TRLC-LINKS: REQ-EMG-132
+func TestAviationLoadSplitWithLifecycle(t *testing.T) {
+	for code, state := range map[string]bool{
+		"aviation.lifecycle.missing_category": true, "aviation.tool.incomplete_credit_assessment": true,
+		"aviation.derived.incomplete_safety_feedback": true, "aviation.reference.baseline": false,
+		"aviation.duplicate_id": false, "aviation.coverage.arithmetic": false, "aviation.authority.acceptance_missing": false,
+	} {
+		if AviationStateCode(code) != state {
+			t.Errorf("AviationStateCode(%s) = %v, want %v", code, !state, state)
+		}
+	}
+	src := filepath.Join("..", "..", "examples", "dal-c-flight-control-sample")
+	load := func(lifecycle, edit string) error {
+		dir, err := os.MkdirTemp(".", ".aviation-split-test-")
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { _ = os.RemoveAll(dir) })
+		for _, rel := range []string{"engmod.yml", "model/architecture.yml", "model/assurance.yml", "model/aviation.yml", "model/behavior.yml", "model/catalog.yml", "model/compliance.yml", "model/decisions.yml", "model/requirements.yml", "model/views.yml"} {
+			data, err := os.ReadFile(filepath.Join(src, rel))
+			if err != nil {
+				t.Fatal(err)
+			}
+			text := string(data)
+			if rel == "engmod.yml" {
+				text += lifecycle
+			}
+			if rel == "model/aviation.yml" && edit != "" {
+				old, new, _ := strings.Cut(edit, "=>")
+				if !strings.Contains(text, old) {
+					t.Fatalf("aviation.yml lacks %q", old)
+				}
+				text = strings.Replace(text, old, new, 1)
+			}
+			if err := os.MkdirAll(filepath.Dir(filepath.Join(dir, rel)), 0o755); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(filepath.Join(dir, rel), []byte(text), 0o644); err != nil {
+				t.Fatal(err)
+			}
+		}
+		_, err = LoadBundle(filepath.Join(dir, "engmod.yml"))
+		return err
+	}
+	credit := "creditClaimed: false=>creditClaimed: true"
+	if err := load("", credit); err == nil || !strings.Contains(err.Error(), "aviation") {
+		t.Fatalf("without lifecycle a tool credit gap must fail the load: %v", err)
+	}
+	if err := load("lifecycle:\n  tier: mvp\n  bundles: [safety]\n", credit); err != nil {
+		t.Fatalf("with lifecycle the tool credit gap is a tier-keyed diagnostic: %v", err)
+	}
+	if err := load("lifecycle:\n  tier: mvp\n  bundles: [safety]\n", "baseline: BASELINE-YD-001, owner: Certification Lead=>baseline: BASELINE-NONE, owner: Certification Lead"); err == nil {
+		t.Fatal("with lifecycle a broken reference must still fail the load")
+	}
+}

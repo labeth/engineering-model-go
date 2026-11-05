@@ -31,6 +31,8 @@ package model
 	state: #EvidenceState
 	approvals?: [...#StableID]
 	objectiveRefs?: [...#StableID]
+	// rationale explains a not-applicable state (ADR-EMG-035).
+	rationale?: string
 }
 #ObjectiveRef: {
 	id: #StableID

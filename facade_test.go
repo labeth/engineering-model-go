@@ -115,6 +115,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"Delegation": "TraceDelegation", "Summary": "TraceSummary", "Options": "TraceOptions",
 			"LinkRef":        "TraceLinkRef",
 			"BuildFromFiles": "BuildTraceMatrixFromFiles", "BuildFromFilesWith": "BuildTraceMatrixFromFilesWith",
+			"TierGapFromFiles": "TierGapFromFilesWith",
 		}, internalOnly: []string{
 			// used by internal/asciidoc and internal/reqdelta.
 			"EffectiveCodeRoots", "KnownModelIDs", "ScopeCodeToModel", "ValidateIntegrity",

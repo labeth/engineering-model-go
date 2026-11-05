@@ -749,6 +749,8 @@ type Options struct {
 	// Composition, when set, is a composition already resolved for this
 	// manifest; the trace then does not compose again.
 	Composition *composition.CompositionResult
+	// Composed, when set, receives the composition the trace used.
+	Composed *composition.CompositionResult
 }
 
 // BuildFromFiles loads a model, scans its code root, scopes the code to the
@@ -776,12 +778,21 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 		return Matrix{}, nil, err
 	}
 	bundle.Requirements = requirements
+	return buildFromBundle(bundle, modelPath, codeRoot, options)
+}
+
+// buildFromBundle is BuildFromFilesWith for a loaded bundle (its
+// requirements set): the trace of the bundle as given, so a caller may
+// change it in memory first (TierGap sets the target tier).
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-098, REQ-EMG-105, REQ-EMG-125, REQ-EMG-134
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
+func buildFromBundle(bundle model.Bundle, modelPath, codeRoot string, options Options) (Matrix, []validate.Diagnostic, error) {
 	canonical, err := model.NewCanonicalBundle(bundle)
 	if err != nil {
 		return Matrix{}, nil, err
 	}
 	bundle = canonical.Documents()
-	requirements = bundle.Requirements
+	requirements := bundle.Requirements
 	resolvedRoot := strings.TrimSpace(codeRoot)
 	if resolvedRoot != "" && !filepath.IsAbs(resolvedRoot) {
 		resolvedRoot = filepath.Join(filepath.Dir(modelPath), resolvedRoot)
@@ -792,6 +803,9 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 	diags = append(diags, verDiags...)
 
 	compositionResult, cerr := composition.ComposeForGeneration(bundle, options.Composition, options.Resolution)
+	if options.Composed != nil {
+		*options.Composed = compositionResult
+	}
 	if cerr != nil {
 		diags = append(diags, validate.Diagnostic{
 			Code: "composition.resolve_failed", Severity: validate.SeverityWarning,
