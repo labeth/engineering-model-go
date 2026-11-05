@@ -1,0 +1,1479 @@
+{
+ "examples/atlas-industries/repos/aegis-sentinel/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-AEG-TRACK-CONFIDENCE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-AEG-TRACK-CONFIDENCE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-001 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-003]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-004]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-005]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-001 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-003]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-004]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-005]"
+   }
+  ],
+  "document": "4dc7628658c47c3fca890e2c1437068a6a88cd699c4ef2b8e0fe20f6b90211f3",
+  "decisions": "5f2bc2bc3cce0bce2930966e2a7ef80b65551bcfd536cbf5727e932f937e512b",
+  "matrix": "dc1634a34593ceb84a264809108f7128f99b6275a31c8f88c3e8f04f0ba7bd00"
+ },
+ "examples/atlas-industries/repos/company-portfolio/engmod.yml": {
+  "validate": null,
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-001 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-003]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-001 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-003]"
+   }
+  ],
+  "document": "60bc6de56a8f771481500c0e75dec591fb0ec59c985e73bd91db3ff5102684ae",
+  "decisions": "5ada24d23935214d8f7e4dcc7598fa5b606c6253da376026f798f52d5cddf6bf",
+  "matrix": "c376126ca49d25079743431ed349a90b4c3c39568a51cb364c88bedb28653a34"
+ },
+ "examples/atlas-industries/repos/orion-relay/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-ORI-ADMISSION is a test with status partial but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-ORI-ADMISSION is Needs Review in the Gemara evaluation log: its verifications need review: CV-ORI-ADMISSION (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-ORI-ADMISSION is a test with status partial but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-ORI-ADMISSION is Needs Review in the Gemara evaluation log: its verifications need review: CV-ORI-ADMISSION (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-001 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-003]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-004]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-005]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-001 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-003]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-004]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-005]"
+   }
+  ],
+  "document": "af0fba52f81cf3de607454dd6e48cb42990b9ba05ef76a2fae7745ddecca5c1f",
+  "decisions": "ccd4fd92f092bff77f5e6de838d6e887558dc71699d7fe29b02a3b0cfcd5686b",
+  "matrix": "02cc307e715af03933900151be626bae1812c40416468fcbdbd917f590211071"
+ },
+ "examples/atlas-industries/repos/shared-cloud-platform/engmod.yml": {
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-CLOUD-BACKUP is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-CLOUD-BACKUP",
+    "path": "authoredArchitecture.controls[0]"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-cloud-platform"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-CLOUD-BACKUP is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-CLOUD-BACKUP",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-CLOUD-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-CLOUD-002]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-cloud-platform"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-CLOUD-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-CLOUD-002]"
+   }
+  ],
+  "document": "f5952c6ad5736d5ed2790ad6ca83c8022dfbf33b1fa68545c0402b8acf0ecae4",
+  "decisions": "653761fb07142f8913d826580b95c476688e01187d9c8373b823f5c97e4fd743",
+  "matrix": "5d5b09ecdafaada215431da9387abdcf66882ecf8a28676bf5ecb290c8f122ac"
+ },
+ "examples/atlas-industries/repos/shared-compliance-baseline/engmod.yml": {
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-ACCESS-REVIEW is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-ACCESS-REVIEW (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-EVIDENCE-RETENTION is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-EVIDENCE-RETENTION",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-POLICY-ACKNOWLEDGMENT is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-POLICY-ACKNOWLEDGMENT",
+    "path": "authoredArchitecture.controls[3]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-SECURITY-AWARENESS is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-AWARENESS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[4]"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-compliance-baseline"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-ACCESS-REVIEW is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-ACCESS-REVIEW (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-EVIDENCE-RETENTION is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-EVIDENCE-RETENTION",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-POLICY-ACKNOWLEDGMENT is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-POLICY-ACKNOWLEDGMENT",
+    "path": "authoredArchitecture.controls[3]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-SECURITY-AWARENESS is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-AWARENESS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[4]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-003]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-004]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-005]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-006 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-006]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-007 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-007]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-008 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-008]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-compliance-baseline"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-003]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-004]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-005]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-006 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-006]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-007 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-007]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-008 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-008]"
+   }
+  ],
+  "document": "51fa6dabd2abcc58d80ad5a6fb8461f2df986f659b03c0b522e5e8e7b20b12e7",
+  "decisions": "d43b500bb3742b01553c7f50deddb5398f294db43d7d4bbde2839f239ec23a44",
+  "matrix": "4af99addd15763a8a332fb4603ecefd179eafbb83ad1776df70ca235ba20bd38"
+ },
+ "examples/atlas-industries/repos/shared-edge-platform/engmod.yml": {
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-EDGE-SIGNED-WORKLOAD is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-EDGE-SIGNED-WORKLOAD",
+    "path": "authoredArchitecture.controls[0]"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-edge-platform"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-EDGE-SIGNED-WORKLOAD is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-EDGE-SIGNED-WORKLOAD",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-EDGE-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-EDGE-002]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-edge-platform"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-EDGE-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-EDGE-002]"
+   }
+  ],
+  "document": "547bf7065c262f41d1150dc754f1270f54a9bf37421eebfaaaa73ec21d850da1",
+  "decisions": "d88e9bf4aabb7585cc2ebd5f84a54d0cc37071b903311c76c1e50c4982c3773a",
+  "matrix": "d805814e741a75e4eea2fc6944f02a7f0c0b0b6a3c47bed7366e887cd31b5809"
+ },
+ "examples/atlas-industries/repos/shared-security-services/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-SEC-TOKEN-REPLAY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-SEC-AUDIT-INTEGRITY is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-SEC-AUDIT-INTEGRITY",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "behavior.event_unused",
+    "severity": "warning",
+    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event",
+    "path": "authoredArchitecture.events[0]"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-security-services"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-SEC-TOKEN-REPLAY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-SEC-AUDIT-INTEGRITY is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-SEC-AUDIT-INTEGRITY",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "behavior.event_unused",
+    "severity": "warning",
+    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event",
+    "path": "authoredArchitecture.events[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SEC-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SEC-002]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-security-services"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SEC-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SEC-002]"
+   }
+  ],
+  "document": "e93ec72754bd36f3f21cd3eb58e8fc0b54e4bf57a340a4d192daf1a06a86e3cc",
+  "decisions": "6cbf7a88aead6410d6c452ad8b757fcff0562e9064bc4d69501fba43cb62db0e",
+  "matrix": "6f4a007a836258931ab4728d6d9c477f47b3ddb4e94f037e33024c025902211f"
+ },
+ "examples/bedrock-pr-review-github-app-sample/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-BEDROCK-WEBHOOK-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-WEBHOOK-SIGNATURE is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-SECRETS-ROTATION is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-REDACTION-CHECK (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-BEDROCK-PR-REVIEW\" step \"publish-review\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[0].steps[3].onError"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-BEDROCK-WEBHOOK-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-WEBHOOK-SIGNATURE is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-SECRETS-ROTATION is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-REDACTION-CHECK (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-BEDROCK-PR-REVIEW\" step \"publish-review\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[0].steps[3].onError"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PRR-009]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-010 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PRR-010]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PRR-009]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-010 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PRR-010]"
+   }
+  ],
+  "document": "8bb1c740f46eef706a1c3ea183ff6aad7786789a77b469def651418bd8edde89",
+  "decisions": "f72eba7ecc063199304d79acdd174a065a4c1e7d9c101f15aa7650ddb3a4aac7",
+  "matrix": "61eb7d749c9e696ae580449bad78acdfa756c1c45b21016917322d0763cd4410"
+ },
+ "examples/coffee-appliance-six-view/engmod.yml": {
+  "validate": null,
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-appliance-six-view"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COFFEE-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COFFEE-001]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-appliance-six-view"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COFFEE-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COFFEE-001]"
+   }
+  ],
+  "document": "def7f388f4718aab589fd2b0e6f981f699e6bb0862cb4233e66b82559fdbb0f4",
+  "decisions": "b0337f907bbdc37c99e05898f17f7af02d6d6c1366cef712c363ea3a4fe6518f",
+  "matrix": "9cdb95ae492ec89e8ff25c437a80de70867c36180936a18fd00f45cc2f0ab419"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-FW-SIGNATURE-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-DEVICE-IDENTITY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COFFEE-DEVICE-IDENTITY is Needs Review in the Gemara evaluation log: its verifications need review: CV-COFFEE-TELEMETRY-REPLAY (partial), CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-COFFEE-TELEMETRY-INGEST\" step \"collect-and-send-telemetry\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[1].steps[1].onError"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-001-TELEMETRY is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[0].status"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-003-OTA-AGENT is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[1].status"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-002-CLOUD-API is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[2].status"
+   }
+  ],
+  "generate": [
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-FW-SIGNATURE-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-DEVICE-IDENTITY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COFFEE-DEVICE-IDENTITY is Needs Review in the Gemara evaluation log: its verifications need review: CV-COFFEE-TELEMETRY-REPLAY (partial), CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-COFFEE-TELEMETRY-INGEST\" step \"collect-and-send-telemetry\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[1].steps[1].onError"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-001-TELEMETRY is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[0].status"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-003-OTA-AGENT is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[1].status"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-002-CLOUD-API is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[2].status"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-COF-011 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[10]"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-COF-012 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[11]"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-COF-009 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[8]"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-COF-010 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[9]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COF-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COF-009]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COF-010 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COF-010]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COF-011 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COF-011]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COF-012 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COF-012]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-COF-011 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[10]"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-COF-012 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[11]"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-COF-009 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[8]"
+   },
+   {
+    "code": "requirement.unsatisfied",
+    "severity": "warning",
+    "message": "requirement REQ-COF-010 is satisfied by nothing: no code or test of this model links it, no reqLinks entry names it as parent, and it is not derived",
+    "path": "requirements[9]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COF-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COF-009]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COF-010 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COF-010]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COF-011 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COF-011]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COF-012 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COF-012]"
+   }
+  ],
+  "document": "f53ee31516ec824f66c643d826d0d6e12aa77afcbf15708f8436db0b6c74a44b",
+  "decisions": "7cd31e907f0cc78d0b4555a74dcc72c7b23c9d886df835b8ee1c8e3854c89ca2",
+  "matrix": "2ab0df221fb23ac8a2c90040f421361235589842850a59065f4fd6cd5e16cca3"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-INGEST-AUTH is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-INGEST-AUTH is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
+   }
+  ],
+  "document": "00bef2523e741ad439f25a38cdf4a70a44437598cd09f39738447642b067f99d",
+  "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "matrix": "d6f56d7620759d89519ef731a9013537438579cbadef733a291baff86e75d122"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-FIRMWARE-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-FIRMWARE-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent"
+   }
+  ],
+  "document": "4d07b96c946ad68fc714b1cf356e564985b7a63e505655bbc2771d51d6e78417",
+  "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "matrix": "ad47a0820d2ac936c7908b48f9eb8cf195a2dae932f9ab0654df164102577d52"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-TELEM-INTEGRITY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-TELEM-INTEGRITY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry"
+   }
+  ],
+  "document": "68ce52387b674e28f5e0af340e1f657db532c669a3182037428433aa6cc31165",
+  "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "matrix": "b2ac7cacdb041d9ad63d6c8eabc07217f3b0ba242665828b9336fede4d749819"
+ },
+ "examples/dal-c-flight-control-sample/engmod.yml": {
+  "validate": [
+   {
+    "code": "behavior.event_unused",
+    "severity": "warning",
+    "message": "event \"EVT-YAW-RATE-RECEIVED\" is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event",
+    "path": "authoredArchitecture.events[0]"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
+   },
+   {
+    "code": "behavior.event_unused",
+    "severity": "warning",
+    "message": "event \"EVT-YAW-RATE-RECEIVED\" is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event",
+    "path": "authoredArchitecture.events[0]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-HLR-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-HLR-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-LLR-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-LLR-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-SYS-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-SYS-001]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-HLR-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-HLR-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-LLR-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-LLR-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-SYS-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-SYS-001]"
+   }
+  ],
+  "document": "28f3d32ae6cf76810e5ebd9eb43c62e24589e6ae78eaf43ba12e0a305ba0bd18",
+  "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "matrix": "bc454a80f62d417211a58ec188d580b8c4943a806ac6c4acc6a7b2dbfbaa7e07"
+ },
+ "examples/payments-engineering-sample/engmod.yml": {
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CHECKOUT-SCHEMA-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CALLBACK-REPLAY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-SSO-MFA is Needs Review in the Gemara evaluation log: its verifications need review: CV-PAYMENTS-MANUAL-REVIEW-TRACE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-IMAGE-DIGEST is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-PAYMENTS-IMAGE-DIGEST",
+    "path": "authoredArchitecture.controls[1]"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CHECKOUT-SCHEMA-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CALLBACK-REPLAY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-SSO-MFA is Needs Review in the Gemara evaluation log: its verifications need review: CV-PAYMENTS-MANUAL-REVIEW-TRACE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-IMAGE-DIGEST is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-PAYMENTS-IMAGE-DIGEST",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-007 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PAY-007]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PAY-009]"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:15"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:7"
+   }
+  ],
+  "trace": [
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-007 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PAY-007]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PAY-009]"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:15"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:7"
+   }
+  ],
+  "document": "b21302f3ced2abc529f87fb962a0f2107c52f0c3ea0ca704fc2e153be9482299",
+  "decisions": "44e91ab386658c49becbe8eccc24091b00822a491bc46d8d012dfd64037f5d0b",
+  "matrix": "7f4f73670f7000797eadcca1d0d6ad7427bce86bfbd7d22c8f0e5cbf0ac3c0eb"
+ },
+ "examples/requirement-links/repos/child-a/engmod.yml": {
+  "validate": null,
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-a"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-003]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-004]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-a"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-003]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-004]"
+   }
+  ],
+  "document": "758bf61fffb74561ceb25d48a130c5b373c3c3f6df49fc75dd78ce971be129f7",
+  "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "matrix": "74a256a22bca12a3319ebc07195c268747c9a4c17a769d308f6302097e93ab71"
+ },
+ "examples/requirement-links/repos/child-b/engmod.yml": {
+  "validate": null,
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-b"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-B-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-B-001]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-b"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-B-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-B-001]"
+   }
+  ],
+  "document": "57ba6403807244c0abf4fd583d2204c301641403a4544cc8f41efce9398390b8",
+  "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "matrix": "0bd422e7d3fb02e656449d65be1e261661418aa2454bf87a689dc803eddfaf02"
+ },
+ "examples/requirement-links/repos/system/engmod.yml": {
+  "validate": null,
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-003]"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-001]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-002]"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-003]"
+   }
+  ],
+  "document": "59f2cb730e17acf717d8521f23aafa7bc3114adc9c68209138bd3f7d13ca74bc",
+  "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "matrix": "63835051641a75f2a98c967b0000dd79fa1b734146febdf3f81ad4c99f5a2d9b"
+ }
+}
