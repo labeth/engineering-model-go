@@ -458,6 +458,18 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-065';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-066";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-066';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-067";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-067';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -498,6 +510,126 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'AV-UNTRUSTED-CHECKOUT-CONTENT';
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-AIRBORNE-ASSURANCE";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-AIRBORNE-ASSURANCE' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-ARCHITECTURE-INTERCHANGE";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-ARCHITECTURE-INTERCHANGE' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-CODE-HEALTH";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-CODE-HEALTH' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-COMPLIANCE-EXPORT";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-COMPLIANCE-EXPORT' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-FORMAL-BEHAVIOR";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-FORMAL-BEHAVIOR' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-GENERATION-PIPELINE";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-GENERATION-PIPELINE' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-LIFECYCLE-POLICY";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-LIFECYCLE-POLICY' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-MCP-INTEGRATION";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-MCP-INTEGRATION' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-MODEL-AUTHORING";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-MODEL-AUTHORING' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-MODEL-CHANGE";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-MODEL-CHANGE' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-MODEL-VALIDATION";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-MODEL-VALIDATION' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-PUBLICATION";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-PUBLICATION' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-REQUIREMENT-LINKS";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-REQUIREMENT-LINKS' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-SYSTEM-COMPOSITION";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-SYSTEM-COMPOSITION' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-TRACEABILITY";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-TRACEABILITY' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
 
     @EngineeringElement {
         sourceId = "CONCERN-01977FA76B0309BF";
@@ -776,7 +908,7 @@ package 'engineering-model-go' {
         conceptKind = "concern_usage";
     }
     concern 'CONCERN-33D4D7D52CB8AC91' : EngineeringConcern {
-        attribute 'narrative' : 'String' = "Resolves a parent model's downward subsystem references into a federated system-of-systems from local paths, external git repositories, or exact-version CUE modules in OCI registries.";
+        attribute 'narrative' : 'String' = "Resolves a parent model's downward subsystem references into a federated system-of-systems from local paths, workspace replacements, or exact-version CUE modules in OCI registries.";
     }
 
     @EngineeringElement {
@@ -1710,6 +1842,18 @@ package 'engineering-model-go' {
     attribute 'DATA-TRLC-PACKAGE';
 
     @EngineeringElement {
+        sourceId = "DEC-HEALTH-BASELINE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-HEALTH-BASELINE';
+
+    @EngineeringElement {
+        sourceId = "DEC-TIER-OPERATIONAL";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-OPERATIONAL';
+
+    @EngineeringElement {
         sourceId = "DEP-CI-PIPELINE";
         conceptKind = "part_definition";
     }
@@ -1840,10 +1984,40 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-03758739C61FBDFA";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-03758739C61FBDFA';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-139EC30ED19D5D0E";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-139EC30ED19D5D0E';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-40EB3F8D004E3DF8";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-40EB3F8D004E3DF8';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-5EE38555C003B5C1";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-5EE38555C003B5C1';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-703C9B14599B7165";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-703C9B14599B7165';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-725B15125C07AEF5";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-725B15125C07AEF5';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-73A27A3950E0B1C9";
@@ -1852,16 +2026,82 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-73A27A3950E0B1C9';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-780029A25582C103";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-780029A25582C103';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-785435EA6C3FA885";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-785435EA6C3FA885';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-7BCB58B049112FF6";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-7BCB58B049112FF6';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-94C1E990F59187C8";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-94C1E990F59187C8';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-A755D795A790DDDB";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-A755D795A790DDDB';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-BB4E54DC3575C2A8";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-BB4E54DC3575C2A8';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-D1A0C0EF613B1206";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-D1A0C0EF613B1206';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-D356ACB215A4C41E";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-D356ACB215A4C41E';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-DF786B86FD0C4795";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-DF786B86FD0C4795';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-E7E572C202CD7329";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-E7E572C202CD7329';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-EF5710F27BBD8EC7";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-EF5710F27BBD8EC7';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-FA3941B5C5E1E07C";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-FA3941B5C5E1E07C';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-FB2594F142C7A666";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-FB2594F142C7A666';
 
     @EngineeringElement {
         sourceId = "EVT-ARTIFACT-GENERATED";
@@ -1928,6 +2168,12 @@ package 'engineering-model-go' {
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-RELEASE-CHECK-REQUESTED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-REQUIREMENTS-CANDIDATE-VALIDATED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-REQUIREMENTS-CANDIDATE-VALIDATED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED";
@@ -2484,6 +2730,102 @@ package 'engineering-model-go' {
     attribute 'POAM-MCP-PATH-FUZZING';
 
     @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-01";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-01';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-02";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-02';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-03";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-03';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-04";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-04';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-05";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-05';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-06";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-06';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-07";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-07';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-08";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-08';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-09";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-09';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-10";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-10';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-11";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-11';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-12";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-12';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-13";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-13';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-14";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-14';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-15";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-15';
+
+    @EngineeringElement {
+        sourceId = "POAM-TIER-OPERATIONAL-16";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-TIER-OPERATIONAL-16';
+
+    @EngineeringElement {
         sourceId = "POAM-TRACE-COVERAGE-GATE";
         conceptKind = "engineering_extension";
     }
@@ -2675,7 +3017,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-016' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve the subsystem references declared by the parent system from local subdirectory paths.";
-        attribute 'notes' : 'String' = "Recursive system-of-systems composition; local subdirectory references, with external git repositories cloned into the .engmod cache (REQ-EMG-027, ADR-EMG-008, ADR-EMG-010).";
+        attribute 'notes' : 'String' = "Recursive system-of-systems composition; local subdirectory references and manifest dependencies; the clone of external git repositories into the .engmod cache (ADR-EMG-008) was retired with REQ-EMG-027.";
     }
 
     @EngineeringElement {
@@ -2774,7 +3116,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-027' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve an external git subsystem reference by cloning the repository into the workspace .engmod cache.";
-        attribute 'notes' : 'String' = "A subsystem may reference an external repository with git (and an optional rev and path). The model is cloned once into .engmod/subsystems/<id> — a gitignored, temporary cache reused while it points at the same repository — and resolved like a local subsystem, giving a full cross-repository composed view. References stay downward-only.";
+        attribute 'notes' : 'String' = "Retired: the engine no longer clones external git repositories. A schema version 2 subsystem resolves through a manifest dependency (local path, workspace replacement or exact CUE module version, REQ-EMG-047, REQ-EMG-048), and composition.clone_failed no longer exists. Former behavior: a subsystem may reference an external repository with git (and an optional rev and path). The model is cloned once into .engmod/subsystems/<id> — a gitignored, temporary cache reused while it points at the same repository — and resolved like a local subsystem, giving a full cross-repository composed view. References stay downward-only.";
     }
 
     @EngineeringElement {
@@ -3593,7 +3935,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-124' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.";
-        attribute 'notes' : 'String' = "ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; default [foundation], foundation always included), tierDecision, raise} is optional (CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; absent means Foundation) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle gives byte-identical diagnostics, documents and trace matrices to v0.9.0 (golden test over every example model; the script that compared the repository's own model, scripts/lifecycle-golden-self.sh, was retired in v0.11.0).";
+        attribute 'notes' : 'String' = "ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; foundation always included, bundles must be written), tierDecision, raise} is required (lifecycle.missing, ADR-EMG-061 and ADR-EMG-066; CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; required) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle is the error lifecycle.missing (REQ-EMG-162); the golden test over every example model (TestExamplesGolden) records each example's diagnostics and document hashes at its declared tier, and the script that compared the repository's own model with v0.9.0 was retired in v0.11.0.";
     }
 
     @EngineeringElement {
@@ -3930,6 +4272,78 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-162";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-162' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report the error lifecycle.missing for a model without a lifecycle block.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. lifecycle.missing is a rank-0 code: no tier, raise entry or POA&M defers entry changes it. The library functions that load a model stay lenient so that embedding tools can report; validation and every command line tool error. Remedy: run the ef-tier-up skill.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-163";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-163' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an error when the lifecycle has no bundles, no tier decision, or a tier decision without a Bundles line.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. lifecycle.bundles_missing, lifecycle.tier_decision_missing and lifecycle.tier_decision_mismatch. The default of Foundation for a missing Bundles line is removed. Each error carries the remedy of the ef-tier-up skill.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-164";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-164' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an error when requirementLinks or lintRun.mode is missing, invalid or guided at mvp or above.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. model.requirement_links_missing, lint.mode_missing, lint.mode_invalid and lint.mode_guided_at_tier. Guided is allowed only below mvp. The mode is read case-insensitively.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-165";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-165' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report health.block_missing at the tiers product and operational for a manifest without a health block.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. The baseline file stays optional because a model without debt needs none. Remedy: the ef-tier-up skill writes the block with its debt list, then enghealth baseline write.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-166";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-166' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. The loader error and the diagnostic both carry the remedy: run engflow upgrade or set schemaVersion 2. The CUE constant fills a missing field in, so a missing version is caught in Go on the decoded document.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-167";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-167' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report model.id_missing for an empty model identifier.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. The projection helper keeps its deterministic default for library use; validation errors. Remedy: set module.modelId.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-168";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-168' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall print the remedy of a required-switch diagnostic and carry it in the structured output.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. validate.Diagnostic has a remedy field; every command line tool prints a fix line from one helper; JSON and MCP outputs carry the field; the authoring contract (v7) lists the required switches with their codes and remedies; the README table is generated from the same list.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-169";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-169' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall keep a remedy for every required-switch code in one table that an inventory test compares with the codes in both directions.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. TestRequiredSwitchesHaveRemedies triggers each required code from a complete bundle with one switch removed and compares the codes with the remedy table in both directions.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
@@ -4159,6 +4573,59 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "SM-MCP-SESSION";
+        conceptKind = "state_definition";
+    }
+    state def 'SM-MCP-SESSION' {
+        doc /* Whether the model a running MCP server holds equals the model files on disk. The server compares a content fingerprint of the model files on every tool call and reloads when it changed, so a result always reflects the files at call time. Implemented by FU-MCP-SERVER. */
+        entry;
+        then 'STATE-MCP-MODEL-CURRENT';
+        state 'STATE-MCP-MODEL-CURRENT';
+        @EngineeringElement about 'STATE-MCP-MODEL-CURRENT' {
+            sourceId = "STATE-MCP-MODEL-CURRENT";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-MCP-MODEL-OUTDATED';
+        @EngineeringElement about 'STATE-MCP-MODEL-OUTDATED' {
+            sourceId = "STATE-MCP-MODEL-OUTDATED";
+            conceptKind = "state_usage";
+        }
+        transition 'TR-MCP-CALL-RELOADS'
+            first 'STATE-MCP-MODEL-OUTDATED'
+            accept 'on-EVT-MCP-TOOL-CALL-RECEIVED' :> 'EVT-MCP-TOOL-CALL-RECEIVED'
+            then 'STATE-MCP-MODEL-CURRENT' {
+                doc /* A tool call finds the fingerprint of the model files changed and reloads the model before it answers, so the result is built from the files at call time (REQ-EMG-089). */
+            }
+        @EngineeringRelationship about 'TR-MCP-CALL-RELOADS' {
+            sourceId = "TR-MCP-CALL-RELOADS";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-MCP-CALL-SERVED'
+            first 'STATE-MCP-MODEL-CURRENT'
+            accept 'on-EVT-MCP-TOOL-CALL-RECEIVED' :> 'EVT-MCP-TOOL-CALL-RECEIVED'
+            then 'STATE-MCP-MODEL-CURRENT' {
+                doc /* A tool call finds the fingerprint unchanged and answers from the held model (REQ-EMG-007, REQ-EMG-089). */
+            }
+        @EngineeringRelationship about 'TR-MCP-CALL-SERVED' {
+            sourceId = "TR-MCP-CALL-SERVED";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-MCP-MODEL-FILE-CHANGES'
+            first 'STATE-MCP-MODEL-CURRENT'
+            accept 'on-EVT-MODEL-UPDATED' :> 'EVT-MODEL-UPDATED'
+            then 'STATE-MCP-MODEL-OUTDATED' {
+                doc /* A model file is edited, by an author or by the server's own model.patch, while the server runs. */
+            }
+        @EngineeringRelationship about 'TR-MCP-MODEL-FILE-CHANGES' {
+            sourceId = "TR-MCP-MODEL-FILE-CHANGES";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+    }
+
+    @EngineeringElement {
         sourceId = "SM-MODEL-VALIDATION";
         conceptKind = "state_definition";
     }
@@ -4209,6 +4676,123 @@ package 'engineering-model-go' {
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
+    }
+
+    @EngineeringElement {
+        sourceId = "SM-REQUIREMENTS-DELTA";
+        conceptKind = "state_definition";
+    }
+    state def 'SM-REQUIREMENTS-DELTA' {
+        doc /* One requirements delta from the moment it is received until it is rejected or atomically applied. The variable written records that the requirements document was replaced; validate and diff never write it. Implemented by FU-MODEL-CHANGE. */
+        attribute written : Boolean := false;
+        entry;
+        then 'STATE-DELTA-NONE';
+        state 'STATE-DELTA-APPLIED';
+        @EngineeringElement about 'STATE-DELTA-APPLIED' {
+            sourceId = "STATE-DELTA-APPLIED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-DELTA-NONE';
+        @EngineeringElement about 'STATE-DELTA-NONE' {
+            sourceId = "STATE-DELTA-NONE";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-DELTA-PLANNED';
+        @EngineeringElement about 'STATE-DELTA-PLANNED' {
+            sourceId = "STATE-DELTA-PLANNED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-DELTA-PLANNING';
+        @EngineeringElement about 'STATE-DELTA-PLANNING' {
+            sourceId = "STATE-DELTA-PLANNING";
+            conceptKind = "state_usage";
+        }
+        transition 'TR-DELTA-APPLY'
+            first 'STATE-DELTA-PLANNED'
+            accept 'on-EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED' :> 'EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED'
+            do assign written := true
+            then 'STATE-DELTA-APPLIED' {
+                doc /* Apply is requested for a validated candidate, which atomically replaces the requirements document (REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-APPLY' {
+            sourceId = "TR-DELTA-APPLY";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-RECEIVE'
+            first 'STATE-DELTA-NONE'
+            accept 'on-EVT-REQUIREMENTS-DELTA-RECEIVED' :> 'EVT-REQUIREMENTS-DELTA-RECEIVED'
+            then 'STATE-DELTA-PLANNING' {
+                doc /* A delta is received and the strict decode and the stable-ID operation uniqueness check begin (REQ-EMG-031). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-RECEIVE' {
+            sourceId = "TR-DELTA-RECEIVE";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-RECEIVE-AFTER-APPLY'
+            first 'STATE-DELTA-APPLIED'
+            accept 'on-EVT-REQUIREMENTS-DELTA-RECEIVED' :> 'EVT-REQUIREMENTS-DELTA-RECEIVED'
+            do assign written := false
+            then 'STATE-DELTA-PLANNING' {
+                doc /* A new delta follows an applied one before the model update was seen (REQ-EMG-031). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-RECEIVE-AFTER-APPLY' {
+            sourceId = "TR-DELTA-RECEIVE-AFTER-APPLY";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-REJECT'
+            first 'STATE-DELTA-PLANNING'
+            accept 'on-EVT-VALIDATION-FAILED' :> 'EVT-VALIDATION-FAILED'
+            then 'STATE-DELTA-NONE' {
+                doc /* The strict decode or the candidate validation fails, so the diagnostics are returned and the requirements document is not modified (REQ-EMG-032). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-REJECT' {
+            sourceId = "TR-DELTA-REJECT";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-SETTLE'
+            first 'STATE-DELTA-APPLIED'
+            accept 'on-EVT-MODEL-UPDATED' :> 'EVT-MODEL-UPDATED'
+            do assign written := false
+            then 'STATE-DELTA-NONE' {
+                doc /* The replaced requirements document is seen as a model update, which ends the delta. */
+            }
+        @EngineeringRelationship about 'TR-DELTA-SETTLE' {
+            sourceId = "TR-DELTA-SETTLE";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-SUPERSEDE'
+            first 'STATE-DELTA-PLANNED'
+            accept 'on-EVT-REQUIREMENTS-DELTA-RECEIVED' :> 'EVT-REQUIREMENTS-DELTA-RECEIVED'
+            then 'STATE-DELTA-PLANNING' {
+                doc /* A new delta replaces a planned one that was never applied (REQ-EMG-031). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-SUPERSEDE' {
+            sourceId = "TR-DELTA-SUPERSEDE";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-VALIDATED'
+            first 'STATE-DELTA-PLANNING'
+            accept 'on-EVT-REQUIREMENTS-CANDIDATE-VALIDATED' :> 'EVT-REQUIREMENTS-CANDIDATE-VALIDATED'
+            then 'STATE-DELTA-PLANNED' {
+                doc /* The candidate passes the complete-model validation and the deterministic change summary is produced without writing (REQ-EMG-032, REQ-EMG-034). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-VALIDATED' {
+            sourceId = "TR-DELTA-VALIDATED";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        // invariant INV-DELTA-APPLIED-WRITTEN is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-DELTA-APPLIED) implies written
+        // invariant INV-DELTA-DRY-RUN-NOT-WRITTEN is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: (in_state(STATE-DELTA-PLANNING) or in_state(STATE-DELTA-PLANNED)) implies not written
+        // invariant INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: written implies in_state(STATE-DELTA-APPLIED)
     }
 
     @EngineeringElement {

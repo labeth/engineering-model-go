@@ -14,10 +14,10 @@ aviation:
     claimsDisclaimer: DRAFT / NOT A COMPLIANCE OR CERTIFICATION DETERMINATION; readiness-only sample with intentionally open gaps.
   lifecycleData:
     - {id: DATA-PSAC, categoryCode: PLAN-SOFTWARE-ASPECTS-CERTIFICATION, categoryName: Plan for Software Aspects of Certification, source: {id: EVID-PSAC, path: generated/do178c/PSAC-OUTLINE-DRAFT.md, version: draft-1, hash: sha256:placeholder-psac}, baseline: BASELINE-YD-001, owner: Certification Lead, state: planned, objectiveRefs: [OBJ-CUSTOMER-001]}
-    - {id: DATA-SDP, categoryCode: SOFTWARE-DEVELOPMENT-PLAN, categoryName: Software Development Plan, owner: Software Lead, state: declared}
-    - {id: DATA-SVP, categoryCode: SOFTWARE-VERIFICATION-PLAN, categoryName: Software Verification Plan, owner: Verification Lead, state: declared}
-    - {id: DATA-SCMP, categoryCode: SOFTWARE-CONFIGURATION-MANAGEMENT-PLAN, categoryName: Software Configuration Management Plan, owner: CM Lead, state: declared}
-    - {id: DATA-SQAP, categoryCode: SOFTWARE-QUALITY-ASSURANCE-PLAN, categoryName: Software Quality Assurance Plan, owner: SQA Lead, state: declared}
+    - {id: DATA-SDP, categoryCode: SOFTWARE-DEVELOPMENT-PLAN, categoryName: Software Development Plan, owner: Software Lead, state: planned}
+    - {id: DATA-SVP, categoryCode: SOFTWARE-VERIFICATION-PLAN, categoryName: Software Verification Plan, owner: Verification Lead, state: planned}
+    - {id: DATA-SCMP, categoryCode: SOFTWARE-CONFIGURATION-MANAGEMENT-PLAN, categoryName: Software Configuration Management Plan, owner: CM Lead, state: planned}
+    - {id: DATA-SQAP, categoryCode: SOFTWARE-QUALITY-ASSURANCE-PLAN, categoryName: Software Quality Assurance Plan, owner: SQA Lead, state: planned}
     - {id: DATA-SRS, categoryCode: SOFTWARE-REQUIREMENTS-STANDARDS, categoryName: Software Requirements Standards, owner: Requirements Lead, state: declared}
     - {id: DATA-SDS, categoryCode: SOFTWARE-DESIGN-STANDARDS, categoryName: Software Design Standards, owner: Design Lead, state: declared}
     - {id: DATA-SCS, categoryCode: SOFTWARE-CODE-STANDARDS, categoryName: Software Code Standards, owner: Software Lead, state: declared}

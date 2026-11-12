@@ -37,3 +37,9 @@ publications:
   - REQ-CLOUD-001
   - REQ-CLOUD-002
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

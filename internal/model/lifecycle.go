@@ -26,8 +26,8 @@ var Tiers = []string{TierPoC, TierPrototype, TierMVP, TierProduct, TierOperation
 var Bundles = []string{BundleFoundation, BundleSafety, BundleSecurity}
 
 // ManifestLifecycle is engmod.yml lifecycle: the project tier (the bar for
-// the default branch and every release), the assurance bundles (default
-// foundation), the accepted DEC-TIER-* decision that set the tier, and rule
+// the default branch and every release), the assurance bundles (validation
+// requires them to be written; foundation always applies), the accepted DEC-TIER-* decision that set the tier, and rule
 // codes raised to error regardless of tier.
 // TRLC-LINKS: REQ-EMG-124
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -53,7 +53,8 @@ func TierRank(tier string) int {
 }
 
 // EffectiveBundles returns the bundles of a lifecycle: the declared ones,
-// lowercased, with foundation always included; [foundation] when none.
+// lowercased, with foundation always included (library behaviour;
+// validation requires the bundles to be written, lifecycle.bundles_missing).
 // TRLC-LINKS: REQ-EMG-124
 // ENGMODEL-LINKS: FU-MODEL-LOADER
 func (l ManifestLifecycle) EffectiveBundles() []string {

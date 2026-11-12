@@ -8,9 +8,48 @@ import (
 	"testing"
 )
 
+// CompleteSwitches is the manifest text of the lifecycle of a complete model at tier poc, with every
+// switch the validator requires (ADR-EMG-061): lifecycle with bundles and an
+// accepted DEC-TIER-POC, requirementLinks guided (strict is required from mvp).
+const CompleteSwitches = `requirementLinks: guided
+lifecycle:
+  tier: poc
+  bundles: [foundation]
+  tierDecision: DEC-TIER-POC
+`
+
+// TierDecisionPoC is a decisions.yml with the accepted decision that records
+// CompleteSwitches.
+const TierDecisionPoC = `schemaVersion: 2
+decisions:
+  - id: DEC-TIER-POC
+    title: Fixture runs at the poc tier with the foundation bundle
+    status: accepted
+    date: 2026-11-12
+    context: A test fixture is a complete model at one stated tier.
+    decision: |-
+      Tier: PoC
+      Bundles: foundation
+    consequences:
+      - The fixture meets the required lifecycle switches.
+`
+
+// withCompleteSwitches adds CompleteSwitches to a manifest block unless the
+// block already writes lifecycle or requirementLinks itself.
+// TRLC-LINKS: REQ-EMG-162, REQ-EMG-163, REQ-EMG-164
+func withCompleteSwitches(manifestExtra string) string {
+	if strings.Contains(manifestExtra, "lifecycle:") || strings.Contains(manifestExtra, "requirementLinks:") {
+		return manifestExtra
+	}
+	return manifestExtra + CompleteSwitches
+}
+
 // WriteV2ModuleFiles writes a schema-v2 model module (cue.mod, engmod.yml and
 // the eight domain documents) to dir; manifestExtra is inserted before the
-// documents block and architecture is the body of architecture.yml.
+// documents block and architecture is the body of architecture.yml. The module
+// is complete at tier poc (lifecycle, accepted DEC-TIER-POC, requirementLinks
+// guided, lintRun mode guided) unless manifestExtra writes lifecycle or
+// requirementLinks itself.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
 func WriteV2ModuleFiles(t testing.TB, dir, modulePath, version, modelID, manifestExtra, architecture string) {
 	t.Helper()
@@ -26,7 +65,7 @@ module:
   title: `+modelID+`
   introduction: ""
   kind: system
-`+manifestExtra+`documents:
+`+withCompleteSwitches(manifestExtra)+`documents:
   catalog: model/catalog.yml
   requirements: model/requirements.yml
   architecture: model/architecture.yml
@@ -37,13 +76,13 @@ module:
   decisions: model/decisions.yml
 `)
 	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-CHILD\n    text: Child requirement.\n  - id: REQ-SHARED-001\n    text: Shared requirement.\n  - id: REQ-PARENT\n    text: Parent requirement.\n")
+	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-CHILD\n    text: Child requirement.\n  - id: REQ-SHARED-001\n    text: Shared requirement.\n  - id: REQ-PARENT\n    text: Parent requirement.\n")
 	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n"+architecture)
 	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
-	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), TierDecisionPoC)
 }
 
 // WriteInterfaceModule writes the example.com/iface@v0 module: it publishes an
@@ -60,7 +99,7 @@ module:
   title: Interface
   introduction: ""
   kind: system
-publications:
+`+CompleteSwitches+`publications:
   - id: public
     architecture: [FG-NATS, FU-NATS, IF-WS, DO-WS, ACT-OWNER, CAP-SCHEMA]
     assurance: [TB-BUS, CTRL-SCHEMA]
@@ -75,7 +114,7 @@ documents:
   decisions: model/decisions.yml
 `)
 	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n")
+	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n")
 	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), `schemaVersion: 2
 architecture:
   functionalGroups:
@@ -120,7 +159,7 @@ assurance:
 `)
 	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
-	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), TierDecisionPoC)
 }
 
 // WriteV2CompositionModule writes a v2 module that provides one capability
@@ -195,4 +234,21 @@ func WriteParentWithOCIModule(t testing.TB, dir, modulePath, version string) {
         to: SUB-SHARED
         target: shared::CAP-SHARED-EDGE
 `)
+}
+
+// WithoutSwitches rewrites the manifest at path without the lifecycle and
+// requirementLinks that CompleteSwitches added: the incomplete model that the
+// tests of kept library behaviour (a scan or a load of a model without a
+// tier) need. The validator reports such a model as an error.
+// TRLC-LINKS: REQ-EMG-162, REQ-EMG-163, REQ-EMG-164
+func WithoutSwitches(t testing.TB, manifest string) {
+	t.Helper()
+	data, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), CompleteSwitches) {
+		t.Fatalf("%s does not hold the complete switches", manifest)
+	}
+	WriteFile(t, manifest, strings.Replace(string(data), CompleteSwitches, "", 1))
 }

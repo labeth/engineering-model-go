@@ -114,7 +114,8 @@ func TestAviationLoadSplitWithLifecycle(t *testing.T) {
 			}
 			text := string(data)
 			if rel == "engmod.yml" {
-				text += lifecycle
+				// The sample's own lifecycle block is the last key; the case replaces it.
+				text = text[:strings.Index(text, "lifecycle:")] + lifecycle
 			}
 			if rel == "model/aviation.yml" && edit != "" {
 				old, new, _ := strings.Cut(edit, "=>")

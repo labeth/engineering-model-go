@@ -10,3 +10,5 @@ requirements:
   notes: Minimal observable brew-cycle requirement for the example.
   appliesTo:
   - CAP-BREW-BEVERAGE
+  derived: true
+  derivedRationale: Top-level brew need of the single-appliance view example; no system model above this model records a parent, so it is stated as derived from the appliance purpose.

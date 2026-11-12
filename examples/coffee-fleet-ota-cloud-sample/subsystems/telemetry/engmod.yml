@@ -40,3 +40,9 @@ publications:
   - REQ-TELEM-002
   - REQ-TELEM-003
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

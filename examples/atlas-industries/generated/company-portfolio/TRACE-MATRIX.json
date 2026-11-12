@@ -7,7 +7,14 @@
       "units": [
         "FU-PORT-GOVERNANCE"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-GOVERNANCE-GO--REPORTPORTFOLIOSTATUS",
+          "path": "src/governance.go",
+          "line": 6
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-ATLAS-PORTFOLIO"
       ]
@@ -66,8 +73,8 @@
       ],
       "delegatedStatus": {
         "requirement": "REQ-AEG-001",
-        "status": "not-available",
-        "implemented": false,
+        "status": "implemented",
+        "implemented": true,
         "testLinked": false
       },
       "provenance": {
@@ -91,7 +98,7 @@
       ],
       "delegatedStatus": {
         "requirement": "REQ-AEG-002",
-        "status": "not-available",
+        "status": "orphan",
         "implemented": false,
         "testLinked": false
       },
@@ -116,7 +123,7 @@
       ],
       "delegatedStatus": {
         "requirement": "REQ-AEG-003",
-        "status": "not-available",
+        "status": "orphan",
         "implemented": false,
         "testLinked": false
       },
@@ -142,7 +149,7 @@
       ],
       "delegatedStatus": {
         "requirement": "REQ-AEG-004",
-        "status": "not-available",
+        "status": "orphan",
         "implemented": false,
         "testLinked": false
       },
@@ -183,8 +190,8 @@
       ],
       "delegatedStatus": {
         "requirement": "REQ-ORI-001",
-        "status": "not-available",
-        "implemented": false,
+        "status": "implemented",
+        "implemented": true,
         "testLinked": false
       },
       "provenance": {
@@ -208,7 +215,7 @@
       ],
       "delegatedStatus": {
         "requirement": "REQ-ORI-002",
-        "status": "not-available",
+        "status": "orphan",
         "implemented": false,
         "testLinked": false
       },
@@ -233,7 +240,7 @@
       ],
       "delegatedStatus": {
         "requirement": "REQ-ORI-003",
-        "status": "not-available",
+        "status": "orphan",
         "implemented": false,
         "testLinked": false
       },
@@ -259,7 +266,7 @@
       ],
       "delegatedStatus": {
         "requirement": "REQ-ORI-004",
-        "status": "not-available",
+        "status": "orphan",
         "implemented": false,
         "testLinked": false
       },
@@ -295,13 +302,12 @@
   ],
   "danglingLinks": null,
   "orphanRequirements": [
-    "REQ-PORT-001",
     "REQ-PORT-002",
     "REQ-PORT-003"
   ],
   "summary": {
     "requirements": 13,
-    "implemented": 0,
+    "implemented": 1,
     "verified": 0,
     "tested": 0,
     "testLinked": 0,
@@ -309,7 +315,7 @@
     "delegated": 0,
     "delegatedImplemented": 0,
     "delegatedTestLinked": 0,
-    "orphan": 3,
+    "orphan": 2,
     "danglingLinks": 0,
     "gatedOnly": 0,
     "linksNeedReview": 0,

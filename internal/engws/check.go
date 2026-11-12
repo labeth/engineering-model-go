@@ -387,6 +387,9 @@ func libraryCheck(target CheckTarget) CheckResult {
 		case validate.SeverityError:
 			result.Errors++
 			result.Lines = append(result.Lines, fmt.Sprintf("%s [error] %s (%s)", d.Code, d.Message, d.Path))
+			if fix := d.FixLine(); fix != "" {
+				result.Lines = append(result.Lines, fix)
+			}
 		case validate.SeverityWarning:
 			result.Warnings++
 		}

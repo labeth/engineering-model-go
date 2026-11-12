@@ -16,8 +16,8 @@ This package is a readiness aid. It does not reproduce licensed objective text a
 
 ## Evidence states
 
-- declared: 9
-- planned: 3
+- declared: 5
+- planned: 7
 - executed: 4
 - reviewed: 7
 - accepted: 0
@@ -38,15 +38,15 @@ This package is a readiness aid. It does not reproduce licensed objective text a
 - **DATA-RESULTS** (lifecycle-data/reviewed): Software Verification Results is not accepted
 - **DATA-SAS** (lifecycle-data/planned): Missing source for Software Accomplishment Summary
 - **DATA-SCI** (lifecycle-data/planned): Missing source for Software Configuration Index
-- **DATA-SCMP** (lifecycle-data/declared): Missing source for Software Configuration Management Plan
+- **DATA-SCMP** (lifecycle-data/planned): Missing source for Software Configuration Management Plan
 - **DATA-SCS** (lifecycle-data/declared): Missing source for Software Code Standards
-- **DATA-SDP** (lifecycle-data/declared): Missing source for Software Development Plan
+- **DATA-SDP** (lifecycle-data/planned): Missing source for Software Development Plan
 - **DATA-SDS** (lifecycle-data/declared): Missing source for Software Design Standards
 - **DATA-SOURCE** (lifecycle-data/reviewed): Source Code is not accepted
-- **DATA-SQAP** (lifecycle-data/declared): Missing source for Software Quality Assurance Plan
+- **DATA-SQAP** (lifecycle-data/planned): Missing source for Software Quality Assurance Plan
 - **DATA-SQAR** (lifecycle-data/executed): Missing source for Software Quality Assurance Records
 - **DATA-SRS** (lifecycle-data/declared): Missing source for Software Requirements Standards
-- **DATA-SVP** (lifecycle-data/declared): Missing source for Software Verification Plan
+- **DATA-SVP** (lifecycle-data/planned): Missing source for Software Verification Plan
 - **DATA-TRACE** (lifecycle-data/executed): Missing source for Traceability Data
 - **OBJ-CUSTOMER-001** (objective/reviewed): Objective applicability or evidence remains open
 - **PR-YD-001** (problem-report/planned): Boundary test does not yet execute one defensive clamp statement.

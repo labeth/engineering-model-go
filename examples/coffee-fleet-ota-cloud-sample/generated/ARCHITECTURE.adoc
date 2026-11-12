@@ -358,6 +358,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Separate edge OTA execution from cloud campaign orchestration
 |accepted
 |2026-04-29
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|coffee fleet ota cloud sample runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend
@@ -3955,6 +3959,9 @@ flowchart TB
   REQC_REQ_COF_009 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CODE_REQ_COF_009_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 12"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING --->|implemented_by| CODE_REQ_COF_009_FLEET_OBSERVABILITY_REPORTING_TS
+  REQC_REQ_COF_009 -->|code trace| CODE_REQ_COF_009_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -4002,6 +4009,11 @@ flowchart TB
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_010 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_RUNTIME
+  CODE_REQ_COF_010_OTA_UPDATE_AGENT_RS["ota_update_agent.rs: 16"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME --->|implemented_by| CODE_REQ_COF_010_OTA_UPDATE_AGENT_RS
+  REQC_REQ_COF_010 -->|code trace| CODE_REQ_COF_010_OTA_UPDATE_AGENT_RS
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   REQC_REQ_COF_010 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
@@ -4053,6 +4065,11 @@ flowchart TB
   FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   REQC_REQ_COF_011 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME["Machine Telemetry Collection runtime (inferred)"]:::runtime_element
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
+  CODE_REQ_COF_011_MACHINE_TELEMETRY_RS["machine_telemetry.rs: 24"]:::code_element
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME --->|implemented_by| CODE_REQ_COF_011_MACHINE_TELEMETRY_RS
+  REQC_REQ_COF_011 -->|code trace| CODE_REQ_COF_011_MACHINE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -4112,6 +4129,9 @@ flowchart TB
   REQC_REQ_COF_012 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CODE_REQ_COF_012_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 18"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING --->|implemented_by| CODE_REQ_COF_012_FLEET_OBSERVABILITY_REPORTING_TS
+  REQC_REQ_COF_012 -->|code trace| CODE_REQ_COF_012_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -8045,6 +8065,20 @@ Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from src/machine_t
 |Kind |Code symbol
 |Owner |FU-MACHINE-TELEMETRY-COLLECTION
 |Source |src/machine_telemetry.rs:18
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_24_SRC_MACHINE_TELEMETRY_RS_24]]
+[discrete]
+==== machine_telemetry.rs:24
+
+Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from src/machine_telemetry.rs:24.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-MACHINE-TELEMETRY-COLLECTION
+|Source |src/machine_telemetry.rs:24
 |Mentioned In |n/a
 |===
 [[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_5_SRC_MACHINE_TELEMETRY_RS_5]]

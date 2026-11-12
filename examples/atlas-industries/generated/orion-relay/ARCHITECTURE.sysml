@@ -112,6 +112,12 @@ package 'atlas-orion-relay' {
     attribute 'DATA-ORI-MESSAGE';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DO-ORI-MESSAGE";
         conceptKind = "item_definition";
     }

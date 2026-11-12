@@ -1,5 +1,5 @@
 requirement,status,units,code,verifications,delegatedTo,provenance,result
-REQ-ORI-001,orphan,FU-ORI-ROUTER,,,,,
+REQ-ORI-001,implemented,FU-ORI-ROUTER,src/router.go:6,,,,
 REQ-ORI-002,orphan,FU-ORI-LINK,,,,,
 REQ-ORI-003,orphan,FU-ORI-ROUTER,,,,,
 REQ-ORI-004,orphan,FU-ORI-LINK FU-ORI-ROUTER,,,,,

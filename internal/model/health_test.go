@@ -86,10 +86,10 @@ func TestManifestHealthBlockRejectsMalformedShapes(t *testing.T) {
 }
 
 // The authoring contract lists the health block as a manifest top-level
-// field, at version v6.
+// field, at version v7 (the required switches).
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-160
-func TestAuthoringContractV6ListsHealth(t *testing.T) {
-	if AuthoringContractVersion != "engineering-model.authoring.v6" {
+func TestAuthoringContractV7ListsHealth(t *testing.T) {
+	if AuthoringContractVersion != "engineering-model.authoring.v7" {
 		t.Fatalf("contract version = %s", AuthoringContractVersion)
 	}
 	dir := writeV2Fixture(t, validManifest+healthBlock)

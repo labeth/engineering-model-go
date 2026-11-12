@@ -277,7 +277,14 @@
         "FU-FLEET-INGESTION-API",
         "FU-FLEET-OBSERVABILITY-REPORTING"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-FLEET-OBSERVABILITY-REPORTING-TS--PERSISTAUDITLOG",
+          "path": "src/fleet_observability_reporting.ts",
+          "line": 12
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-COFFEE-FLEET-AUDIT"
       ]
@@ -290,7 +297,14 @@
         "FU-OTA-UPDATE-AGENT",
         "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-OTA-UPDATE-AGENT-RS--ROLLBACKANDREPORT",
+          "path": "src/ota_update_agent.rs",
+          "line": 16
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-COFFEE-FLEET-OTA"
       ]
@@ -302,7 +316,14 @@
         "FU-FLEET-INGESTION-API",
         "FU-MACHINE-TELEMETRY-COLLECTION"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-MACHINE-TELEMETRY-RS--FLUSHRETRYQUEUE",
+          "path": "src/machine_telemetry.rs",
+          "line": 24
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-COFFEE-FLEET-TELEMETRY"
       ]
@@ -315,7 +336,14 @@
         "FU-FLEET-INGESTION-API",
         "FU-FLEET-OBSERVABILITY-REPORTING"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-FLEET-OBSERVABILITY-REPORTING-TS--NOTIFYREPLAYABUSE",
+          "path": "src/fleet_observability_reporting.ts",
+          "line": 18
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-COFFEE-FLEET-AUDIT"
       ]
@@ -522,15 +550,10 @@
     }
   ],
   "danglingLinks": null,
-  "orphanRequirements": [
-    "REQ-COF-009",
-    "REQ-COF-010",
-    "REQ-COF-011",
-    "REQ-COF-012"
-  ],
+  "orphanRequirements": null,
   "summary": {
     "requirements": 20,
-    "implemented": 8,
+    "implemented": 12,
     "verified": 6,
     "tested": 6,
     "testLinked": 6,
@@ -538,7 +561,7 @@
     "delegated": 0,
     "delegatedImplemented": 0,
     "delegatedTestLinked": 0,
-    "orphan": 4,
+    "orphan": 0,
     "danglingLinks": 0,
     "gatedOnly": 0,
     "linksNeedReview": 3,

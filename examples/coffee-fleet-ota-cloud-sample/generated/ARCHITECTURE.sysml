@@ -606,6 +606,12 @@ package 'sample-coffee-fleet-ota-cloud-model' {
     attribute 'DATA-OTA-STATUS';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DEP-COFFEE-CLOUD-PROD";
         conceptKind = "part_definition";
     }

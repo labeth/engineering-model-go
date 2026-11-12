@@ -82,6 +82,12 @@ package 'COF-CLOUD-API' {
     attribute 'DATA-FLEET-METRIC';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DO-FLEET-METRIC";
         conceptKind = "item_definition";
     }

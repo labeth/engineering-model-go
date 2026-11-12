@@ -69,6 +69,9 @@ func main() {
 
 	for _, d := range diags {
 		fmt.Fprintf(os.Stderr, "%s [%s] %s\n", d.Code, d.Severity, d.Message)
+		if fix := d.FixLine(); fix != "" {
+			fmt.Fprintln(os.Stderr, fix)
+		}
 	}
 	if validate.HasErrors(diags) {
 		os.Exit(1)

@@ -30,3 +30,8 @@ dependencies:
   - public
 publications: []
 inferenceHints: {}
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

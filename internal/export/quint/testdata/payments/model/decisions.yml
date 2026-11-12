@@ -1,2 +1,12 @@
 schemaVersion: 2
-decisions: []
+decisions:
+- id: DEC-TIER-MVP
+  title: The Quint payments fixture runs at the mvp tier with the foundation bundle
+  status: accepted
+  date: 2026-11-12
+  context: The fixture is a complete model at one stated tier so that the required lifecycle switches (ADR-EMG-061) are met.
+  decision: |-
+    Tier: MVP
+    Bundles: foundation
+  consequences:
+  - The strict requirement link rules apply from the mvp tier.

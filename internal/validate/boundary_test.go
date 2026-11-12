@@ -21,7 +21,7 @@ func TestBoundaryMembershipAcrossSoftwareHardwareAndActors(t *testing.T) {
 			},
 		}, Views: []model.View{{ID: "VIEW-SEC", Kind: "security", Roots: []string{"TB-DEVICE"}}},
 	}})
-	if d := Bundle(b); HasErrors(d) {
+	if d := Bundle(b); hasErrors(d) {
 		t.Fatalf("valid boundary memberships rejected: %+v", d)
 	}
 	// Supporting more member kinds must not permit a non-boundary target.

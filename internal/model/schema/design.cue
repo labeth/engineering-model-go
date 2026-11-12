@@ -24,7 +24,7 @@ package model
 }
 
 #DesignDocument: {
-	schemaVersion?: #SchemaVersion
+	schemaVersion: #SchemaVersion
 	design: #DesignModel
 }
 

@@ -29,3 +29,8 @@ publications:
   - REQ-A-002
   - REQ-A-003
 inferenceHints: {}
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

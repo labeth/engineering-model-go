@@ -99,7 +99,7 @@ func wantOne(t *testing.T, diags []Diagnostic, severity Severity, path string, f
 func TestMachineBaselineReportsNothing(t *testing.T) {
 	diags := Bundle(machineBundle(nil))
 	for _, d := range diags {
-		if strings.HasPrefix(d.Code, "behavior.") || d.Severity == SeverityError {
+		if strings.HasPrefix(d.Code, "behavior.") || (d.Severity == SeverityError && d.Code != "lifecycle.missing") {
 			t.Fatalf("well-formed machine must be clean, got %+v", d)
 		}
 	}

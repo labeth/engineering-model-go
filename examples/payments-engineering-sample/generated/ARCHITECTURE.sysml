@@ -518,6 +518,12 @@ package 'sample-payments-layered-model' {
     attribute 'DATA-RISK-SCORE';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DEP-PAYMENTS-BANK-EDGE";
         conceptKind = "part_definition";
     }

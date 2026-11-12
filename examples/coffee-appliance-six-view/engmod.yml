@@ -17,3 +17,9 @@ documents:
   decisions: model/decisions.yml
 dependencies: []
 publications: []
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

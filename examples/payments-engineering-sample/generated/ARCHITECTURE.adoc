@@ -341,6 +341,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Keep payment authorization separate from checkout handling
 |accepted
 |2026-04-29
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|payments engineering sample runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend

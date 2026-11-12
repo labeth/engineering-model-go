@@ -32,7 +32,7 @@ func TestModelCheckReportsStaleControlVerificationStatus(t *testing.T) {
       group: FG-A
 `)
 	testutil.WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog:\n  systems:\n    - id: SYS-UNIT\n      name: unit\n      definition: The decoding unit.\n")
-	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-CV-001\n    text: The unit shall decode.\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-CV-001\n    text: The unit shall decode.\n")
 	assurance := `schemaVersion: 2
 assurance:
   controls:

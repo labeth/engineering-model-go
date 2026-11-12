@@ -6,6 +6,6 @@ package model
 }
 
 #WorkspaceDocument: {
-	schemaVersion?: #SchemaVersion
+	schemaVersion: #SchemaVersion
 	replacements: [...#WorkspaceReplacement]
 }

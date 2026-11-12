@@ -39,6 +39,9 @@ architecture:
       name: Flight Control Computer
       kind: computer
   contract:
-    provides: []
+    provides:
+      - id: CAP-YAW-DAMPING
+        kind: capability
+        note: Damp aircraft yaw with a bounded rudder command computed from the filtered yaw rate.
     requires: []
   semantics: {}

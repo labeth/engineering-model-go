@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -390,7 +391,7 @@ documents:
 dependencies: []
 publications: []
 inferenceHints: {}
-`)
+`+testutil.CompleteSwitches)
 	writeFixtureFile(t, filepath.Join(root, "model", "architecture.yml"), `
 schemaVersion: 2
 architecture:
@@ -460,7 +461,7 @@ expected: []
 	writeFixtureFile(t, filepath.Join(root, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
 	writeFixtureFile(t, filepath.Join(root, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
 	writeFixtureFile(t, filepath.Join(root, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
-	writeFixtureFile(t, filepath.Join(root, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+	writeFixtureFile(t, filepath.Join(root, "model", "decisions.yml"), testutil.TierDecisionPoC)
 	return root
 }
 

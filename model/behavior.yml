@@ -148,6 +148,108 @@ behavior:
       requirements: [REQ-EMG-094, REQ-EMG-101]
       expr: (in_state(STATE-LINK-ABSENT) or in_state(STATE-LINK-CLAIMED)) implies not reviewed
       description: A link that is not recorded or only claimed has no recorded review, so only a review request moves it toward accepted.
+  - id: SM-MCP-SESSION
+    name: MCP Session Model Currency
+    description: Whether the model a running MCP server holds equals the model files on disk. The server compares a content fingerprint of the model files on every tool call and reloads when it changed, so a result always reflects the files at call time.
+    owner: FU-MCP-SERVER
+    initial: STATE-MCP-MODEL-CURRENT
+    states:
+    - id: STATE-MCP-MODEL-CURRENT
+      name: MCP Model Current
+      description: The model the server holds was loaded from the model files as they are on disk.
+    - id: STATE-MCP-MODEL-OUTDATED
+      name: MCP Model Outdated
+      description: A model file changed after the server loaded it, so the held model is no longer what is on disk.
+    transitions:
+    - id: TR-MCP-MODEL-FILE-CHANGES
+      from: STATE-MCP-MODEL-CURRENT
+      to: STATE-MCP-MODEL-OUTDATED
+      on: EVT-MODEL-UPDATED
+      description: A model file is edited, by an author or by the server's own model.patch, while the server runs.
+    - id: TR-MCP-CALL-RELOADS
+      from: STATE-MCP-MODEL-OUTDATED
+      to: STATE-MCP-MODEL-CURRENT
+      on: EVT-MCP-TOOL-CALL-RECEIVED
+      description: A tool call finds the fingerprint of the model files changed and reloads the model before it answers, so the result is built from the files at call time (REQ-EMG-089).
+    - id: TR-MCP-CALL-SERVED
+      from: STATE-MCP-MODEL-CURRENT
+      to: STATE-MCP-MODEL-CURRENT
+      on: EVT-MCP-TOOL-CALL-RECEIVED
+      description: A tool call finds the fingerprint unchanged and answers from the held model (REQ-EMG-007, REQ-EMG-089).
+  - id: SM-REQUIREMENTS-DELTA
+    name: Requirements Delta
+    description: One requirements delta from the moment it is received until it is rejected or atomically applied. The variable written records that the requirements document was replaced; validate and diff never write it.
+    owner: FU-MODEL-CHANGE
+    initial: STATE-DELTA-NONE
+    variables:
+    - name: written
+      type: Boolean
+      initial: false
+    states:
+    - id: STATE-DELTA-NONE
+      name: Delta None
+      description: No requirements delta is being processed; the requirements document is as authored.
+    - id: STATE-DELTA-PLANNING
+      name: Delta Planning
+      description: A delta was received and is being strictly decoded, merged into a candidate and validated; the requirements document is untouched.
+    - id: STATE-DELTA-PLANNED
+      name: Delta Planned
+      description: The candidate requirements document is valid and its change summary is available; the requirements document is untouched until an apply is requested (engchange validate and diff stop here).
+    - id: STATE-DELTA-APPLIED
+      name: Delta Applied
+      description: The valid candidate atomically replaced the requirements document (engchange apply); the model update that follows ends the delta.
+    transitions:
+    - id: TR-DELTA-RECEIVE
+      from: STATE-DELTA-NONE
+      to: STATE-DELTA-PLANNING
+      on: EVT-REQUIREMENTS-DELTA-RECEIVED
+      description: A delta is received and the strict decode and the stable-ID operation uniqueness check begin (REQ-EMG-031).
+    - id: TR-DELTA-SUPERSEDE
+      from: STATE-DELTA-PLANNED
+      to: STATE-DELTA-PLANNING
+      on: EVT-REQUIREMENTS-DELTA-RECEIVED
+      description: A new delta replaces a planned one that was never applied (REQ-EMG-031).
+    - id: TR-DELTA-RECEIVE-AFTER-APPLY
+      from: STATE-DELTA-APPLIED
+      to: STATE-DELTA-PLANNING
+      on: EVT-REQUIREMENTS-DELTA-RECEIVED
+      effect: written := false
+      description: A new delta follows an applied one before the model update was seen (REQ-EMG-031).
+    - id: TR-DELTA-REJECT
+      from: STATE-DELTA-PLANNING
+      to: STATE-DELTA-NONE
+      on: EVT-VALIDATION-FAILED
+      description: The strict decode or the candidate validation fails, so the diagnostics are returned and the requirements document is not modified (REQ-EMG-032).
+    - id: TR-DELTA-VALIDATED
+      from: STATE-DELTA-PLANNING
+      to: STATE-DELTA-PLANNED
+      on: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+      description: The candidate passes the complete-model validation and the deterministic change summary is produced without writing (REQ-EMG-032, REQ-EMG-034).
+    - id: TR-DELTA-APPLY
+      from: STATE-DELTA-PLANNED
+      to: STATE-DELTA-APPLIED
+      on: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+      effect: written := true
+      description: Apply is requested for a validated candidate, which atomically replaces the requirements document (REQ-EMG-033).
+    - id: TR-DELTA-SETTLE
+      from: STATE-DELTA-APPLIED
+      to: STATE-DELTA-NONE
+      on: EVT-MODEL-UPDATED
+      effect: written := false
+      description: The replaced requirements document is seen as a model update, which ends the delta.
+    invariants:
+    - id: INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED
+      requirements: [REQ-EMG-033]
+      expr: written implies in_state(STATE-DELTA-APPLIED)
+      description: The requirements document is replaced only by an apply of a validated candidate.
+    - id: INV-DELTA-APPLIED-WRITTEN
+      requirements: [REQ-EMG-033]
+      expr: in_state(STATE-DELTA-APPLIED) implies written
+      description: An applied delta always replaced the requirements document.
+    - id: INV-DELTA-DRY-RUN-NOT-WRITTEN
+      requirements: [REQ-EMG-032]
+      expr: (in_state(STATE-DELTA-PLANNING) or in_state(STATE-DELTA-PLANNED)) implies not written
+      description: While a delta is only planned or validated, the requirements document is not modified.
   events:
   - id: EVT-MODEL-UPDATED
     name: Model Updated
@@ -170,6 +272,9 @@ behavior:
   - id: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
     name: Requirements Delta Apply Requested
     description: A validated requirements candidate is ready for atomic replacement.
+  - id: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+    name: Requirements Candidate Validated
+    description: The candidate requirements document built from a delta passed complete-model validation and has a deterministic change summary.
   - id: EVT-DEPENDENCY-BUMP-REQUESTED
     name: Dependency Bump Requested
     description: A developer asked engws to move a dependency of a checkout to another version (engws bump).

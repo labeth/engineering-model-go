@@ -210,6 +210,12 @@ package 'atlas-shared-compliance-baseline' {
     attribute 'DATA-TRAINING-RECORD';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DO-COMP-EVIDENCE";
         conceptKind = "item_definition";
     }

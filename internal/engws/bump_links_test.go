@@ -154,10 +154,8 @@ func TestBumpWarnsOfManifestKeysTheEngineRejects(t *testing.T) {
 	registry := newLinksRegistry(t)
 	registry.publish("child-b", "v0.1.0", nil)
 	registry.publish("child-a", "v0.1.0", nil)
-	registry.publish("child-a", "v0.2.0", func(dir string) {
-		manifest := filepath.Join(dir, "engmod.yml")
-		write(t, manifest, read(t, manifest)+"lifecycle:\n  tier: mvp\n")
-	})
+	// The example child-a declares lifecycle (every model must, ADR-EMG-061).
+	registry.publish("child-a", "v0.2.0", nil)
 	registry.serve()
 	for engine, want := range map[string]bool{"v0.9.0": true, "v0.10.0": false} {
 		root, system := systemWorkspace(t)

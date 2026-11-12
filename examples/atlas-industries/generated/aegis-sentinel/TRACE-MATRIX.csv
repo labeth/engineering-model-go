@@ -1,5 +1,5 @@
 requirement,status,units,code,verifications,delegatedTo,provenance,result
-REQ-AEG-001,orphan,FU-AEG-MISSION,,,,,
+REQ-AEG-001,implemented,FU-AEG-MISSION,src/mission.go:6,,,,
 REQ-AEG-002,orphan,FU-AEG-SENSOR-FUSION,,,,,
 REQ-AEG-003,orphan,FU-AEG-MISSION,,,,,
 REQ-AEG-004,orphan,FU-AEG-MISSION FU-AEG-SENSOR-FUSION,,,,,

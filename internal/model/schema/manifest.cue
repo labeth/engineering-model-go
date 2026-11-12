@@ -52,12 +52,15 @@ package model
 
 // #ManifestLifecycle declares the project tier: the bar for the default
 // branch and every release. Validation keys the severity of the tier rules
-// on it (internal/validate.TierPolicy); without it every severity is that
-// of engineering-model-go v0.9.0.
+// on it (internal/validate.TierPolicy). The schema leaves lifecycle, bundles
+// and tierDecision optional so that tools can load and report an incomplete
+// model; internal/validate reports each absent one as an error with its
+// remedy (lifecycle.missing, lifecycle.bundles_missing,
+// lifecycle.tier_decision_missing).
 #ManifestLifecycle: {
 	tier:          #Tier
-	bundles?:      [...#Bundle]    // default [foundation]
-	tierDecision?: #StableID       // an accepted DEC-TIER-* whose Tier:/Bundles: lines agree
+	bundles?:      [...#Bundle]    // required by validation; foundation always applies
+	tierDecision?: #StableID       // required by validation: an accepted DEC-TIER-* whose Tier:/Bundles: lines agree
 	raise?:        [...#NonEmpty]  // codes raised to error regardless of tier; never lowers
 }
 

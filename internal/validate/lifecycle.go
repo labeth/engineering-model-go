@@ -13,20 +13,23 @@ import (
 // decisionLine finds a labelled line (Tier: or Bundles:) of a decision text.
 var decisionLine = regexp.MustCompile(`(?im)^\s*(tier|bundles)\s*:\s*(.*?)\s*$`)
 
-// lifecycleDiagnostics checks engmod.yml lifecycle and the rules it adds:
-// tier and bundles (lifecycle.invalid_tier, lifecycle.invalid_bundle, which
-// the CUE schema already rejects on load), the tier decision
+// lifecycleDiagnostics checks engmod.yml lifecycle and the rules it adds. A
+// manifest without lifecycle is lifecycle.missing (ADR-EMG-061): the model
+// has no tier. With one: tier and bundles (lifecycle.invalid_tier,
+// lifecycle.invalid_bundle, which the CUE schema already rejects on load),
+// the bundles that must be written (lifecycle.bundles_missing), the tier
+// decision that must be named (lifecycle.tier_decision_missing) and agree
 // (lifecycle.tier_decision_mismatch), requirementLinks guided at mvp or
 // above (lifecycle.requirement_links_conflict), the safety bundle's aviation
 // profile and software level, requirement status (lifecycle.requirement_*)
-// and POA&M defers naming a rank-0 code (lifecycle.poam_defers_core). A
-// model without lifecycle gets none of them.
-// TRLC-LINKS: REQ-EMG-124, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129
+// and POA&M defers naming a rank-0 code (lifecycle.poam_defers_core).
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-162, REQ-EMG-163
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func lifecycleDiagnostics(b model.Bundle) []Diagnostic {
 	l := b.Manifest.Lifecycle
 	if l == nil {
-		return nil
+		return []Diagnostic{{Code: "lifecycle.missing", Severity: SeverityError, Path: "lifecycle",
+			Message: "engmod.yml has no lifecycle block: the model has no tier, so no tier rule applies and the project is not at any stage"}}
 	}
 	var diags []Diagnostic
 	add := func(code string, severity Severity, path, format string, args ...any) {
@@ -41,14 +44,17 @@ func lifecycleDiagnostics(b model.Bundle) []Diagnostic {
 			add("lifecycle.invalid_bundle", SeverityError, fmt.Sprintf("lifecycle.bundles[%d]", i), "lifecycle bundle %q must be one of %s", bundle, strings.Join(model.Bundles, ", "))
 		}
 	}
-	if ref := strings.TrimSpace(l.TierDecision); ref != "" {
-		if problem := tierDecisionProblem(b, *l, ref); problem != "" {
-			add("lifecycle.tier_decision_mismatch", SeverityError, "lifecycle.tierDecision", "lifecycle.tierDecision %s: %s", ref, problem)
-		}
+	if len(l.Bundles) == 0 {
+		add("lifecycle.bundles_missing", SeverityError, "lifecycle.bundles", "lifecycle.bundles is empty: write the assurance bundles (foundation, safety, security) explicitly; there is no default")
+	}
+	if ref := strings.TrimSpace(l.TierDecision); ref == "" {
+		add("lifecycle.tier_decision_missing", SeverityError, "lifecycle.tierDecision", "lifecycle.tierDecision is empty: name the accepted DEC-TIER-* decision that records the tier")
+	} else if problem := tierDecisionProblem(b, *l, ref); problem != "" {
+		add("lifecycle.tier_decision_mismatch", SeverityError, "lifecycle.tierDecision", "lifecycle.tierDecision %s: %s", ref, problem)
 	}
 	if rank >= model.TierRank(model.TierMVP) && strings.EqualFold(strings.TrimSpace(b.Manifest.RequirementLinks), model.RequirementLinksGuided) {
 		add("lifecycle.requirement_links_conflict", SeverityError, "requirementLinks",
-			"requirementLinks guided at tier %s: the tier requires strict requirement links from mvp; set requirementLinks: strict or remove it", strings.ToLower(l.Tier))
+			"requirementLinks guided at tier %s: the tier requires strict requirement links from mvp; set requirementLinks: strict", strings.ToLower(l.Tier))
 	}
 	if l.HasBundle(model.BundleSafety) {
 		if b.Aviation == nil {
@@ -108,7 +114,7 @@ func deferNamesCore(code string) bool {
 // tierDecisionProblem returns why the decision named by tierDecision does
 // not record the lifecycle, or "" when it does: it must exist, be accepted,
 // and its Tier: line (one tier, case-insensitive) and Bundles: line (comma
-// separated; absent means Foundation) must equal lifecycle.tier and the
+// separated; required, there is no default) must equal lifecycle.tier and the
 // effective bundles.
 // TRLC-LINKS: REQ-EMG-124
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
@@ -128,6 +134,7 @@ func tierDecisionProblem(b model.Bundle, l model.ManifestLifecycle, ref string) 
 	var tier string
 	var bundles []string
 	tierSeen := false
+	bundlesSeen := false
 	for _, m := range decisionLine.FindAllStringSubmatch(dec.Decision, -1) {
 		switch strings.ToLower(m[1]) {
 		case "tier":
@@ -135,6 +142,7 @@ func tierDecisionProblem(b model.Bundle, l model.ManifestLifecycle, ref string) 
 				tier, tierSeen = strings.ToLower(m[2]), true
 			}
 		case "bundles":
+			bundlesSeen = true
 			for _, part := range strings.Split(m[2], ",") {
 				if p := strings.ToLower(strings.TrimSpace(part)); p != "" {
 					bundles = append(bundles, p)
@@ -144,6 +152,9 @@ func tierDecisionProblem(b model.Bundle, l model.ManifestLifecycle, ref string) 
 	}
 	if !tierSeen {
 		return "the decision text has no Tier: line"
+	}
+	if !bundlesSeen || len(bundles) == 0 {
+		return "the decision text has no Bundles: line naming at least one bundle"
 	}
 	if tier != strings.ToLower(strings.TrimSpace(l.Tier)) {
 		return fmt.Sprintf("the decision records Tier: %s, lifecycle.tier is %s", displayTier(tier), l.Tier)

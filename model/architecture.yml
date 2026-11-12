@@ -95,7 +95,7 @@ architecture:
   - id: FU-SYSTEM-COMPOSITION
     name: System Composition
     group: FG-MODEL-AUTHORING
-    prose: Resolves downward subsystem references from local paths, external git repositories, or exact-version CUE modules
+    prose: Resolves downward subsystem references from local paths, workspace replacements, or exact-version CUE modules
       fetched from OCI registries into the .engmod cache, and composes a federated system-of-systems model.
   - id: FU-ALLOCATION-TRACE
     name: Allocation Trace
@@ -410,3 +410,50 @@ architecture:
     cluster: shared-runner
     namespace: engineering-model-go
     trustZone: automation
+  contract:
+    provides:
+    - id: CAP-EMG-MODEL-AUTHORING
+      kind: capability
+      note: Load an engineering model from engmod.yml and its documents under the strict schema version 2, normalize it into the canonical semantic model, and reject input that violates the schema. Owner FU-MODEL-LOADER.
+    - id: CAP-EMG-MODEL-VALIDATION
+      kind: capability
+      note: Check the authored model for consistency - identifiers, references, EARS requirement lint, catalog terms, assurance records, NAF metadata and behavior wiring - and report each finding as a diagnostic with a severity. Owner FU-VALIDATION-ENGINE.
+    - id: CAP-EMG-MODEL-CHANGE
+      kind: capability
+      note: Plan, validate, summarize and atomically apply a typed stable-ID requirements delta, and render the matching OpenSpec spec delta. Owner FU-MODEL-CHANGE.
+    - id: CAP-EMG-TRACEABILITY
+      kind: capability
+      note: Infer code and test coverage of each requirement from trace markers, flag dangling links and orphan requirements, and export the traceability matrix that shows how far each requirement is implemented and verified. Owner FU-CODEMAP-INFERENCE.
+    - id: CAP-EMG-GENERATION-PIPELINE
+      kind: capability
+      note: Generate every artifact only from a validated model, deterministically, so that regeneration is reproducible in local development and in CI. Owner FU-CLI-ORCHESTRATION.
+    - id: CAP-EMG-PUBLICATION
+      kind: capability
+      note: Publish the architecture, requirements, decisions and views as clean, deterministic AsciiDoc documents and NAF v4.1 architecture products for human readers. Owner FU-ASCIIDOC-GENERATOR.
+    - id: CAP-EMG-ARCHITECTURE-INTERCHANGE
+      kind: capability
+      note: Export the model to architecture and threat tools - SysML v2 textual and project interchange, Structurizr DSL, Threat Dragon and Open Threat Model - with schema and metamodel conformance checks. Owner FU-SYSML-EXPORTER.
+    - id: CAP-EMG-COMPLIANCE-EXPORT
+      kind: capability
+      note: Export traceability and assurance records to compliance tooling - TRLC, LOBSTER, OSCAL and OpenSSF Gemara - from the modeled requirements, controls and risks. Owner FU-OSCAL-EXPORTER.
+    - id: CAP-EMG-AIRBORNE-ASSURANCE
+      kind: capability
+      note: Check an aviation assurance profile for evidence readiness and generate clearly marked draft lifecycle data, trace and gap reports without claiming compliance, and keep AI agents from holding assurance credit. Owner FU-AIRBORNE-ASSURANCE-EXPORTER.
+    - id: CAP-EMG-SYSTEM-COMPOSITION
+      kind: capability
+      note: Compose a system of systems from subsystem references that resolve to local paths, workspace replacements or exact CUE module versions, with a lock, a workspace and rejection of references that escape or cycle, and trace requirements across the composed systems. Owner FU-SYSTEM-COMPOSITION.
+    - id: CAP-EMG-REQUIREMENT-LINKS
+      kind: capability
+      note: Let a model publish contract items (capabilities and assumptions of use) with their realizing requirements, link its own requirements to a dependency's contract items at a pinned version, and review, bump, diff and release-check those links. Owner FU-ALLOCATION-TRACE.
+    - id: CAP-EMG-MCP-INTEGRATION
+      kind: capability
+      note: Serve model-aware tools to AI agents over MCP with strict input schemas, structured errors, a workspace path boundary, the model authoring contract and validated model edits. Owner FU-MCP-SERVER.
+    - id: CAP-EMG-LIFECYCLE-POLICY
+      kind: capability
+      note: Apply the life-cycle tier policy - the severity of each tier-keyed diagnostic, the gap to a target tier and the required switches, each reported with the remedy that fixes it. Owner FU-VALIDATION-ENGINE.
+    - id: CAP-EMG-FORMAL-BEHAVIOR
+      kind: capability
+      note: Model behavior as state machines with guarded transitions and invariants linked to requirements, validate them, generate one Quint module per machine, and record fresh pass or fail results as formal evidence. Owner FU-QUINT-EXPORTER.
+    - id: CAP-EMG-CODE-HEALTH
+      kind: capability
+      note: Score source files and functions for maintainability with an explainable model, roll the scores up to functional units and requirements, and check new or worsened findings against a base revision under a tier-keyed policy. Owner FU-CODE-HEALTH.

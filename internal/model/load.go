@@ -30,10 +30,36 @@ func ResolveDocumentReferences(meta ModelMeta) (DocumentReferences, error) {
 	return refs, nil
 }
 
-// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+// SchemaVersionRemedy is the fix for a document whose schemaVersion is
+// missing or not the current one (ADR-EMG-061).
+const SchemaVersionRemedy = "run engflow upgrade (engineering-flow) or set schemaVersion: 2"
+
+// SchemaVersionError reports a schemaVersion that is missing (0) or not the
+// current one. Problem is the message without the remedy; Error appends it.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+type SchemaVersionError struct {
+	Version int
+}
+
+// Problem returns what is wrong, without the remedy.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+func (e *SchemaVersionError) Problem() string {
+	return fmt.Sprintf("unsupported schemaVersion %d; supported version is %d", e.Version, CurrentSchemaVersion)
+}
+
+// Error returns the problem and the fix.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+func (e *SchemaVersionError) Error() string {
+	return e.Problem() + "; fix: " + SchemaVersionRemedy
+}
+
+// EffectiveSchemaVersion returns the version when it is the current schema
+// version and a *SchemaVersionError (naming its remedy) otherwise.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
 func EffectiveSchemaVersion(version int) (int, error) {
 	if version != CurrentSchemaVersion {
-		return 0, fmt.Errorf("unsupported schemaVersion %d; supported version is %d", version, CurrentSchemaVersion)
+		return 0, &SchemaVersionError{Version: version}
 	}
 	return version, nil
 }

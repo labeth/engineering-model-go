@@ -17,6 +17,9 @@ func tierBundle(tier string, bundles ...string) model.Bundle {
 	b := behaviorTestBundle(nil, nil)
 	if tier != "" {
 		b.Manifest.Lifecycle = &model.ManifestLifecycle{Tier: tier, Bundles: bundles}
+		if model.TierRank(tier) >= model.TierRank(model.TierMVP) {
+			b.Manifest.RequirementLinks = model.RequirementLinksStrict
+		}
 	}
 	return b
 }
@@ -145,7 +148,7 @@ func TestTierPolicyMonotonic(t *testing.T) {
 }
 
 // codeLiteral finds diagnostic code literals in Go source.
-var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health)\.[a-z_.]+)"`)
+var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint)\.[a-z_.]+)"`)
 
 // emittedCodes returns every code literal in the module's non-test Go
 // source.
@@ -191,6 +194,9 @@ func TestCoreCodesAreClosedAndNeverTierKeyed(t *testing.T) {
 		"risk.acceptance_unrecorded",
 		"lifecycle.invalid_tier", "lifecycle.invalid_bundle", "lifecycle.tier_decision_mismatch",
 		"lifecycle.requirement_links_conflict", "lifecycle.poam_defers_core",
+		"lifecycle.missing", "lifecycle.bundles_missing", "lifecycle.tier_decision_missing",
+		"model.requirement_links_missing", "model.unsupported_schema_version", "model.id_missing",
+		"lint.mode_missing", "lint.mode_invalid", "lint.mode_guided_at_tier", "health.block_missing",
 		"aviation.ai_actor_as_credit", "aviation.authority_state_unevidenced",
 	}
 	got := CoreCodes()

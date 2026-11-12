@@ -17,18 +17,24 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
-// goldenNoLifecycle is the record of every example model's diagnostics and
-// generated outputs, captured with engineering-model-go v0.9.0 (before the
-// life-cycle tier existed) and regenerated for v0.11.0, which replaced the
-// behavior state vocabulary by machines (ADR-EMG-044, ADR-EMG-045).
-// ENGMOD_UPDATE_GOLDEN=1 rewrites it. The repository's own model is not part
-// of it: its trace changes with every code edit.
-const goldenNoLifecycle = "internal/integration/testdata/no-lifecycle-golden.json"
+// goldenExamples is the record of every example model at the tier it
+// declares in engmod.yml (ADR-EMG-061, ADR-EMG-066): per model the tier and
+// bundles, the diagnostics of model validation, of document generation and of
+// the trace build as JSON, and the SHA-256 of the generated document, the
+// decisions document and the trace matrix. It replaces the golden of models
+// without lifecycle captured with v0.9.0: a model without lifecycle is an
+// error now, so there is nothing to keep byte-identical. A change of a rule,
+// a severity or a generated artifact shows here. ENGMOD_UPDATE_GOLDEN=1
+// rewrites it. The repository's own model is not part of it: its trace
+// changes with every code edit.
+const goldenExamples = "internal/integration/testdata/examples-golden.json"
 
 // goldenModel is one model's observable result: the diagnostics of model
 // validation, document generation and the trace build as JSON, and the
 // SHA-256 of the generated document, decisions document and trace matrix.
 type goldenModel struct {
+	Tier      string          `json:"tier"`
+	Bundles   []string        `json:"bundles"`
 	Validate  json.RawMessage `json:"validate"`
 	Generate  json.RawMessage `json:"generate"`
 	GenError  string          `json:"generateError,omitempty"`
@@ -38,11 +44,13 @@ type goldenModel struct {
 	Matrix    string          `json:"matrix"`
 }
 
-// A manifest without lifecycle gives byte-identical diagnostics and outputs
-// to v0.9.0 for every example model: validation, the AsciiDoc document and
-// its diagnostics, and the trace matrix and its diagnostics.
+// Every example model declares a lifecycle and gives the recorded diagnostics
+// and outputs at that tier: validation, the AsciiDoc document and its
+// diagnostics, and the trace matrix and its diagnostics.
+// Mutation: dropping an example's lifecycle, changing its tier or a tier
+// rule, or changing a generated artifact fails the comparison.
 // TRLC-LINKS: REQ-EMG-124
-func TestNoLifecycleGoldenOverExamples(t *testing.T) {
+func TestExamplesGolden(t *testing.T) {
 	t.Setenv(model.WorkspaceEnv, "")
 	t.Setenv(composition.LockEnv, composition.LockModeCheck)
 	t.Setenv(composition.ModuleCacheEnv, composition.ModuleCacheReuse)
@@ -82,10 +90,11 @@ func TestNoLifecycleGoldenOverExamples(t *testing.T) {
 		if err != nil {
 			t.Fatalf("load %s: %v", manifest, err)
 		}
-		if bundle.Manifest.Lifecycle != nil {
-			t.Fatalf("%s declares lifecycle; the golden covers models without it", manifest)
+		if bundle.Manifest.Lifecycle == nil {
+			t.Fatalf("%s declares no lifecycle; every example is at a stated tier", manifest)
 		}
 		var g goldenModel
+		g.Tier, g.Bundles = bundle.Manifest.Lifecycle.Tier, bundle.Manifest.Lifecycle.EffectiveBundles()
 		g.Validate = raw(engmodel.SortDiagnostics(engmodel.ValidateBundle(bundle)))
 		doc, gerr := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: filepath.Dir(manifest)})
 		if gerr != nil {
@@ -97,21 +106,24 @@ func TestNoLifecycleGoldenOverExamples(t *testing.T) {
 			t.Fatalf("trace %s: %v", manifest, terr)
 		}
 		g.Trace = raw(diags)
+		if engmodel.HasErrors(engmodel.ValidateBundle(bundle)) || engmodel.HasErrors(doc.Diagnostics) || engmodel.HasErrors(diags) {
+			t.Errorf("%s has errors at its declared tier %s; an example is a complete, valid model", manifest, g.Tier)
+		}
 		data, _ := json.Marshal(matrix)
 		g.Matrix = hash(string(data))
 		got[filepath.ToSlash(manifest)] = g
 	}
 	if os.Getenv("ENGMOD_UPDATE_GOLDEN") == "1" {
 		data, _ := json.MarshalIndent(got, "", " ")
-		if err := os.MkdirAll(filepath.Dir(goldenNoLifecycle), 0o755); err != nil {
+		if err := os.MkdirAll(filepath.Dir(goldenExamples), 0o755); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.WriteFile(goldenNoLifecycle, append(data, '\n'), 0o644); err != nil {
+		if err := os.WriteFile(goldenExamples, append(data, '\n'), 0o644); err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
-	data, err := os.ReadFile(goldenNoLifecycle)
+	data, err := os.ReadFile(goldenExamples)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,7 +143,7 @@ func TestNoLifecycleGoldenOverExamples(t *testing.T) {
 		wj, _ := json.Marshal(w)
 		gj, _ := json.Marshal(g)
 		if string(wj) != string(gj) {
-			t.Errorf("%s differs from v0.9.0:\nwant %s\ngot  %s", name, wj, gj)
+			t.Errorf("%s differs from the golden (ENGMOD_UPDATE_GOLDEN=1 rewrites it):\nwant %s\ngot  %s", name, wj, gj)
 		}
 	}
 }

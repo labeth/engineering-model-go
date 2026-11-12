@@ -166,11 +166,15 @@ func TestScanTierOverrideAndManifestThresholds(t *testing.T) {
 }
 
 // A model without a lifecycle tier is scanned with the default limits and every
-// finding is a warning; the health block is optional.
+// finding is a warning; the health block is optional. This is kept library
+// behaviour for tools that embed the scanner (ADR-EMG-066 item 3): the
+// validator reports such a model as lifecycle.missing, so the test strips the
+// complete switches from the fixture's manifest.
 //
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-160
 func TestScanWithoutLifecycleIsWarnings(t *testing.T) {
 	_, manifest := fixture(t, "")
+	testutil.WithoutSwitches(t, manifest)
 	r, err := Scan(Options{ManifestPath: manifest})
 	if err != nil {
 		t.Fatal(err)

@@ -490,7 +490,7 @@ package model
 }
 
 #ArchitectureDocument: {
-	schemaVersion?:        #SchemaVersion
+	schemaVersion:         #SchemaVersion
 	model:                 #ModelMeta
 	semantics?:            #SemanticContent
 	authoredArchitecture?: #AuthoredArchitecture

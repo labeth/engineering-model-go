@@ -99,10 +99,6 @@ func main() {
 // ENGMODEL-LINKS: IF-CLI-ENGDOC, FU-CLI-ORCHESTRATION, FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
-		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)
-		if strings.TrimSpace(d.Path) != "" {
-			fmt.Fprintf(os.Stderr, " (%s)", d.Path)
-		}
-		fmt.Fprintln(os.Stderr)
+		validate.WriteDiagnostic(os.Stderr, d)
 	}
 }

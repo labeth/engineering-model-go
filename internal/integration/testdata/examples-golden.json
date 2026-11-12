@@ -1,0 +1,2741 @@
+{
+ "examples/atlas-industries/repos/aegis-sentinel/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-AEG-TRACK-CONFIDENCE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-AEG-TRACK-CONFIDENCE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-005]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-AEG-005]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "ea4f0a9c302729f5439e6fd91c6c8fffae7f415c504aab4b298e5575c478556b",
+  "decisions": "8e1616aa411fede7399cc61fd531ccf6a46a6694f3f189c6282f2dc21b698887",
+  "matrix": "f7237932c6ae7f8020ce99adac8b454af97b8c88d9bbe8db5d5206a0a713758e"
+ },
+ "examples/atlas-industries/repos/company-portfolio/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio/engmod.lock.yml"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-003]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PORT-003]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "3582cf801704a399ce0c249b317645d7e7a8dbdb4d07ad583213f4c3a8179d22",
+  "decisions": "41adaefb246e0121500994e9217879b4f1ca2e138875ef3b6011b5ce360734dc",
+  "matrix": "8c71057a715e8f9c4bc787cde02c123a90f3151980aaaf1b34cdb1918029f1d8"
+ },
+ "examples/atlas-industries/repos/orion-relay/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-ORI-ADMISSION is a test with status partial but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-ORI-ADMISSION is Needs Review in the Gemara evaluation log: its verifications need review: CV-ORI-ADMISSION (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-ORI-ADMISSION is a test with status partial but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-ORI-ADMISSION is Needs Review in the Gemara evaluation log: its verifications need review: CV-ORI-ADMISSION (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-005]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-ORI-005]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "74b02ea768d9bd3802f31c5919cddcf9bc57af5ac866e7c739026cacc42e1ab8",
+  "decisions": "422188d05d246aa72d8b11bca54ba45c2885d4d4a0338423b72ecfa526031b44",
+  "matrix": "3e4fc49e00cb05a844d477b0bd2e4baef7df49c102d7034e64d0bd14031e6124"
+ },
+ "examples/atlas-industries/repos/shared-cloud-platform/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-CLOUD-BACKUP is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-CLOUD-BACKUP",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-cloud-platform"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-CLOUD-BACKUP is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-CLOUD-BACKUP",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-CLOUD-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-CLOUD-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-cloud-platform"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-CLOUD-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-CLOUD-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "116b0ca70e20b628398c3f77de161299cc44ca371ab6a8444ec974af41c722c3",
+  "decisions": "d6f7a7581451253a87728b5b8bcdc3e21c29ac2f24abbe74b1198bd785811f48",
+  "matrix": "5d5b09ecdafaada215431da9387abdcf66882ecf8a28676bf5ecb290c8f122ac"
+ },
+ "examples/atlas-industries/repos/shared-compliance-baseline/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-ACCESS-REVIEW is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-ACCESS-REVIEW (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-EVIDENCE-RETENTION is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-EVIDENCE-RETENTION",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-POLICY-ACKNOWLEDGMENT is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-POLICY-ACKNOWLEDGMENT",
+    "path": "authoredArchitecture.controls[3]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-SECURITY-AWARENESS is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-AWARENESS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[4]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-compliance-baseline"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-ACCESS-REVIEW is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-ACCESS-REVIEW (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-EVIDENCE-RETENTION is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-EVIDENCE-RETENTION",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-POLICY-ACKNOWLEDGMENT is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-POLICY-ACKNOWLEDGMENT",
+    "path": "authoredArchitecture.controls[3]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-SECURITY-AWARENESS is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-AWARENESS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[4]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-005]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-006 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-006]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-007 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-007]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-008 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-008]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-compliance-baseline"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-005 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-005]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-006 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-006]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-007 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-007]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-008 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COMP-008]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "81332bc42fca47968fb1c14b5c613a0bd318f4f10b787a8b21efe88af64173b4",
+  "decisions": "d52c4a74e59edc9882846bdd75a9536af110cf133e639a7f1f96119ab14fc7e5",
+  "matrix": "4af99addd15763a8a332fb4603ecefd179eafbb83ad1776df70ca235ba20bd38"
+ },
+ "examples/atlas-industries/repos/shared-edge-platform/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-EDGE-SIGNED-WORKLOAD is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-EDGE-SIGNED-WORKLOAD",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-edge-platform"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-EDGE-SIGNED-WORKLOAD is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-EDGE-SIGNED-WORKLOAD",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-EDGE-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-EDGE-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-edge-platform"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-EDGE-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-EDGE-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "27242934afb8913db617285c684c776e484f2b168f716028cc5d525d2df6f49b",
+  "decisions": "2a8202e720a17793fae880a2df8f7e74bc7936171cff2e3dbb6d354d610ca59b",
+  "matrix": "d805814e741a75e4eea2fc6944f02a7f0c0b0b6a3c47bed7366e887cd31b5809"
+ },
+ "examples/atlas-industries/repos/shared-security-services/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-SEC-TOKEN-REPLAY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-SEC-AUDIT-INTEGRITY is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-SEC-AUDIT-INTEGRITY",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "behavior.event_unused",
+    "severity": "warning",
+    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no machine transition (on), semantic transition trigger or flow; name it in the on of the machine transition it causes or remove the event",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-security-services"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-SEC-TOKEN-REPLAY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-SEC-AUDIT-INTEGRITY is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-SEC-AUDIT-INTEGRITY",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "behavior.event_unused",
+    "severity": "warning",
+    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no machine transition (on), semantic transition trigger or flow; name it in the on of the machine transition it causes or remove the event",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SEC-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SEC-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-security-services"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SEC-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SEC-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "4583d1164863acb0cacc29ac762e119a142541d33b6c46cbef72419d5b4dbe25",
+  "decisions": "80460111061e1288e3610fea87984751e1f77ca2335d05478153f683f9f24d43",
+  "matrix": "6f4a007a836258931ab4728d6d9c477f47b3ddb4e94f037e33024c025902211f"
+ },
+ "examples/bedrock-pr-review-github-app-sample/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-BEDROCK-WEBHOOK-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-WEBHOOK-SIGNATURE is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-SECRETS-ROTATION is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-REDACTION-CHECK (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-BEDROCK-PR-REVIEW\" step \"publish-review\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[0].steps[3].onError",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-011 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[10].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-010 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[9].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-BEDROCK-WEBHOOK-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-WEBHOOK-SIGNATURE is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-SECRETS-ROTATION is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-REDACTION-CHECK (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-BEDROCK-PR-REVIEW\" step \"publish-review\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[0].steps[3].onError",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-011 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[10].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-010 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[9].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PRR-009]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-010 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PRR-010]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PRR-009]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-010 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PRR-010]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "7f05cf84ae017fdac5bba33473945f4b123ee6742440ea71d34c03fd6e4629ac",
+  "decisions": "bd471a4df845ea61e03a028defecb6f0db0f23055142d9d37f81ae385c87376e",
+  "matrix": "8020678ca1916c1c7c26b6945ddc28872576cd734b931a31bccc16fcc071972a"
+ },
+ "examples/coffee-appliance-six-view/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COFFEE-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-appliance-six-view"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COFFEE-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COFFEE-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COFFEE-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-appliance-six-view"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COFFEE-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-COFFEE-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "296d051bf1b298ea44ff236cc2fa3aa8028a15a1485be479935bce77d5ed38d5",
+  "decisions": "cf02f6663c34b99e227a2c05252c55be2b128fc43dd3e535cf20dad006525696",
+  "matrix": "9cdb95ae492ec89e8ff25c437a80de70867c36180936a18fd00f45cc2f0ab419"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-FW-SIGNATURE-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-DEVICE-IDENTITY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COFFEE-DEVICE-IDENTITY is Needs Review in the Gemara evaluation log: its verifications need review: CV-COFFEE-TELEMETRY-REPLAY (partial), CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-COFFEE-TELEMETRY-INGEST\" step \"collect-and-send-telemetry\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[1].steps[1].onError",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-001-TELEMETRY is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[0].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-003-OTA-AGENT is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[1].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-002-CLOUD-API is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[2].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-011 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[10].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-012 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[11].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-010 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[9].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-FW-SIGNATURE-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-DEVICE-IDENTITY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COFFEE-DEVICE-IDENTITY is Needs Review in the Gemara evaluation log: its verifications need review: CV-COFFEE-TELEMETRY-REPLAY (partial), CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-COFFEE-TELEMETRY-INGEST\" step \"collect-and-send-telemetry\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[1].steps[1].onError",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-001-TELEMETRY is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[0].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-003-OTA-AGENT is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[1].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-002-CLOUD-API is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[2].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-011 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[10].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-012 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[11].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-COF-010 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[9].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "trace": [
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/engmod.lock.yml"
+   }
+  ],
+  "document": "316cdc5b09654c214c7288aa07a1cd23103ea483c0062acb6fde3534ba19ccef",
+  "decisions": "d14e8c4ba67465efff45954b0caa3da9875360f69c25cb44b0439ef169449b3c",
+  "matrix": "1a66f030a71e48d0226665f5323cac0abf10f410f0a982379524e3d780bbc608"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-INGEST-AUTH is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-INGEST-AUTH is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
+   }
+  ],
+  "document": "5f87c76ac35cc13c1d3e62bacc5fd3bef5f309f69edeaca2103bec320cb79614",
+  "decisions": "d50e04d7eefcc62407f32c0a6d1b571d64a534af1fefcbcab03ad30f9e60fb9f",
+  "matrix": "d6f56d7620759d89519ef731a9013537438579cbadef733a291baff86e75d122"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-FIRMWARE-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-OTA-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-OTA-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-OTA-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-FIRMWARE-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-OTA-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-OTA-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-OTA-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent"
+   }
+  ],
+  "document": "329449fb33e7ec9aef63d5e882eccf1296e23b0effc8e5968446e587ca316556",
+  "decisions": "f6258b9d3aa93d00ca541bca3612bb2582fb06e1701c8f348841214c1d92fad1",
+  "matrix": "ad47a0820d2ac936c7908b48f9eb8cf195a2dae932f9ab0654df164102577d52"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-TELEM-INTEGRITY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-TELEM-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-TELEM-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-TELEM-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-TELEM-INTEGRITY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-TELEM-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-TELEM-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-TELEM-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry"
+   }
+  ],
+  "document": "8f2965566e9740b16e4d471e5201afe7620e1770c7b016368a66367dd5e7f1eb",
+  "decisions": "540e5e9b9c96f9e156ea51f6d1e56de18059da3a7dbeaef760226ba30b5e8ec9",
+  "matrix": "b2ac7cacdb041d9ad63d6c8eabc07217f3b0ba242665828b9336fede4d749819"
+ },
+ "examples/dal-c-flight-control-sample/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation",
+   "safety"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-YD-SYS-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-YD-HLR-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-YD-LLR-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-YD-SYS-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-YD-HLR-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-YD-LLR-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-HLR-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-HLR-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-LLR-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-LLR-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-SYS-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-SYS-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-HLR-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-HLR-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-LLR-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-LLR-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-SYS-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-YD-SYS-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "f66fd53ac1b247af256f30091c4e111ccd46f1c4e04b9fb168ea954de29acb50",
+  "decisions": "3b27a44616fb45658a74eaf90c65d3fba3628504c35c45002d1406d4b3a45ae9",
+  "matrix": "8bd590469e4497e46b807086e6d5e059ca3f81ea9c23a07cdb5d62a2e43e3f56"
+ },
+ "examples/payments-engineering-sample/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CHECKOUT-SCHEMA-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CALLBACK-REPLAY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-SSO-MFA is Needs Review in the Gemara evaluation log: its verifications need review: CV-PAYMENTS-MANUAL-REVIEW-TRACE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-IMAGE-DIGEST is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-PAYMENTS-IMAGE-DIGEST",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CHECKOUT-SCHEMA-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CALLBACK-REPLAY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-SSO-MFA is Needs Review in the Gemara evaluation log: its verifications need review: CV-PAYMENTS-MANUAL-REVIEW-TRACE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-IMAGE-DIGEST is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-PAYMENTS-IMAGE-DIGEST",
+    "path": "authoredArchitecture.controls[1]"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PAY-009]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:15"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:7"
+   }
+  ],
+  "trace": [
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-009 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-PAY-009]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:15"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:7"
+   }
+  ],
+  "document": "0416edb310853f3e56dc455bb8e2f1b8c82f516b5cec5e010b5f532088f64d69",
+  "decisions": "a77197093328b7dc407178bd2f8c6ce910f8235095861194ff476d829afb8773",
+  "matrix": "c7be8041c5a799f1f914da651625a593bc785af408e5ecd88dcf9ffc6dddbd41"
+ },
+ "examples/requirement-links/repos/child-a/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-A-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-A-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-A-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-A-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-a"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-A-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-A-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-A-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-A-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-004]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-a"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-004 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-A-004]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "784c78d480a19d9f2ef4dc0ec5968bc9df810f7eb005e5ccffe9cd74dad2c1d7",
+  "decisions": "e9fd530f4a70dd65b4e5a7c37ce639522fcbe4a02dcafda696d64ee2a750cf15",
+  "matrix": "74a256a22bca12a3319ebc07195c268747c9a4c17a769d308f6302097e93ab71"
+ },
+ "examples/requirement-links/repos/child-b/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-B-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-b"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-B-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-B-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-B-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-b"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-B-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-B-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "5cdd295420842224e7174de048fe66c8c30df5e1172d934eb25d607a9f47d979",
+  "decisions": "2b967f6d611294d3a7a4ebe412ea02235c46813483a93648d9ca7f4c073bcc84",
+  "matrix": "0bd422e7d3fb02e656449d65be1e261661418aa2454bf87a689dc803eddfaf02"
+ },
+ "examples/requirement-links/repos/system/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system/engmod.lock.yml"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-003]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-001 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-002 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-003 is traced by no code, verification, or delegation",
+    "path": "requirements[REQ-SYS-003]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "00595d12549a5ce14eeebe830d8e4f85c91c1d113bc7546a1ec941c040740065",
+  "decisions": "e8bfcc2a6183ffb33a19d4eb77b19477b493576cc2fcb9cf1f2e5476ea42c72f",
+  "matrix": "63835051641a75f2a98c967b0000dd79fa1b734146febdf3f81ad4c99f5a2d9b"
+ }
+}

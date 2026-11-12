@@ -569,6 +569,9 @@ func runBump(root, repo, alias, version string, opts BumpOptions, show bool, w i
 	for _, d := range result.Diagnostics {
 		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
 			fmt.Fprintf(w, "    %s [error] %s (%s)\n", d.Code, d.Message, d.Path)
+			if fix := d.FixLine(); fix != "" {
+				fmt.Fprintf(w, "    %s\n", strings.TrimSpace(fix))
+			}
 		}
 	}
 	if err != nil {

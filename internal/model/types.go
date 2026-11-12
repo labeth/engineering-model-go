@@ -245,13 +245,16 @@ type ManifestDocument struct {
 	Dependencies   []ManifestDependency  `yaml:"dependencies"`
 	Publications   []ManifestPublication `yaml:"publications"`
 	InferenceHints InferenceHints        `yaml:"inferenceHints"`
-	// RequirementLinks is the requirement link strictness: strict or guided
-	// (the default when empty). See RequirementLinkMode.
+	// RequirementLinks is the requirement link strictness: strict or guided.
+	// Validation requires it (model.requirement_links_missing); the library
+	// reads empty as guided. See RequirementLinkMode.
 	RequirementLinks string `yaml:"requirementLinks,omitempty"`
-	// Lifecycle declares the life-cycle tier of the module; nil keeps every
-	// severity of engineering-model-go v0.9.0. See ManifestLifecycle.
+	// Lifecycle declares the life-cycle tier of the module. Validation
+	// requires it (lifecycle.missing); the library accepts nil so that tools
+	// can load and report a model without one. See ManifestLifecycle.
 	Lifecycle *ManifestLifecycle `yaml:"lifecycle,omitempty"`
-	// Health configures the optional code health report; nil means no
+	// Health configures the code health report; validation requires it from
+	// tier product (health.block_missing); the library reads nil as no
 	// health block (nothing is validated or reported). See ManifestHealth.
 	Health *ManifestHealth `yaml:"health,omitempty"`
 }

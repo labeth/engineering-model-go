@@ -154,3 +154,9 @@ inferenceHints:
   - explicit_annotation
   - path_convention
   - unresolved_warning
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

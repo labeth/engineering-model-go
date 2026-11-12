@@ -621,6 +621,11 @@ func validateIntegrityWithIDs(modelIDs map[string]bool, requirements model.Requi
 		if covered[id] || verified[id] || len(delegationsByReq[id]) > 0 {
 			continue
 		}
+		// A retired or rejected requirement is not expected to have code: it
+		// is exempt here as it is from lifecycle.requirement_unverified.
+		if status := strings.ToLower(strings.TrimSpace(r.Status)); status == "retired" || status == "rejected" {
+			continue
+		}
 		diags = append(diags, validate.Diagnostic{
 			Code: "requirement.orphan", Severity: validate.SeverityWarning,
 			Message: fmt.Sprintf("requirement %s is traced by no code, verification, or delegation", id),

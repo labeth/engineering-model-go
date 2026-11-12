@@ -2,6 +2,7 @@
 package validate
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"sort"
@@ -294,7 +295,12 @@ func Bundle(b model.Bundle) []Diagnostic {
 		"decisions.schemaVersion":    b.Decisions.SchemaVersion,
 	} {
 		if _, err := model.EffectiveSchemaVersion(version); err != nil {
-			diags = append(diags, Diagnostic{Code: "model.unsupported_schema_version", Severity: SeverityError, Message: err.Error(), Path: path})
+			message := err.Error()
+			var versionErr *model.SchemaVersionError
+			if errors.As(err, &versionErr) {
+				message = versionErr.Problem()
+			}
+			diags = append(diags, Diagnostic{Code: "model.unsupported_schema_version", Severity: SeverityError, Message: message, Path: path})
 		}
 	}
 	if explicit, legacy := strings.TrimSpace(b.Architecture.Model.Documents.Catalog), strings.TrimSpace(b.Architecture.Model.BaseCatalogRef); explicit != "" && legacy != "" {
@@ -1293,6 +1299,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	diags = append(diags, acceptanceDiagnostics(b)...)
 	diags = append(diags, requirementLinkDiagnostics(b, validID)...)
 	diags = append(diags, lifecycleDiagnostics(b)...)
+	diags = append(diags, requiredSwitchDiagnostics(b)...)
 	diags = append(diags, healthDiagnostics(b)...)
 	diags = append(diags, aviationTierDiagnostics(b)...)
 
@@ -1316,7 +1323,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 		diags = append(diags, Diagnostic{Code: "model.ambiguous_code_reference", Severity: SeverityError, Message: fmt.Sprintf("CODE id %q is produced by more than one file or declaration; rename one or exclude it from the code scope", id), Path: id})
 	}
 
-	return SortDiagnostics(diags)
+	return SortDiagnostics(withRemedies(diags))
 }
 
 // TRLC-LINKS: REQ-EMG-041, REQ-EMG-043

@@ -1,5 +1,5 @@
 requirement,status,units,code,verifications,delegatedTo,provenance,result
-REQ-PORT-001,orphan,FU-PORT-GOVERNANCE,,,,,
+REQ-PORT-001,implemented,FU-PORT-GOVERNANCE,src/governance.go:6,,,,
 REQ-PORT-002,orphan,FU-PORT-GOVERNANCE,,,,,
 REQ-PORT-003,orphan,FU-PORT-GOVERNANCE,,,,,
 aegis::REQ-AEG-001,published,aegis::FU-AEG-MISSION,,,,aegis:public@v0.1.0,

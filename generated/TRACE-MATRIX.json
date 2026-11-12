@@ -187,27 +187,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--DECODEYAMLFILE",
           "path": "internal/model/load.go",
-          "line": 267
+          "line": 293
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--ENSURESINGLEYAMLDOCUMENT",
           "path": "internal/model/load.go",
-          "line": 290
+          "line": 316
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADDESIGN",
           "path": "internal/model/load.go",
-          "line": 250
+          "line": 276
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADREQUIREMENTS",
           "path": "internal/model/load.go",
-          "line": 232
+          "line": 258
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CATALOGENTRY",
@@ -327,27 +327,32 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--HASERRORS",
           "path": "internal/validate/diagnostic.go",
-          "line": 66
+          "line": 108
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--LINE",
+          "path": "internal/validate/diagnostic.go",
+          "line": 43
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--SORTDIAGNOSTICS",
           "path": "internal/validate/diagnostic.go",
-          "line": 33
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1526
+          "line": 1533
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1514
+          "line": 1521
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -399,7 +404,10 @@
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GENERATION-PIPELINE"
+      ]
     },
     {
       "id": "REQ-EMG-003",
@@ -1330,7 +1338,10 @@
         "VER-INF-TEST-TEXTUTIL_TEST-33792B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-PUBLICATION"
+      ]
     },
     {
       "id": "REQ-EMG-004",
@@ -1415,7 +1426,10 @@
         "VER-INF-TEST-THREAT_MODEL_EXPORT_TEST-ED4975"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-ARCHITECTURE-INTERCHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-005",
@@ -1605,7 +1619,10 @@
         "VER-INF-TEST-STRUCTURIZR_EXPORT_TEST-36AE65"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-ARCHITECTURE-INTERCHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-006",
@@ -1687,7 +1704,10 @@
         "VER-INF-TEST-TRLC_EXPORT_TEST-B0F5F9"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-COMPLIANCE-EXPORT"
+      ]
     },
     {
       "id": "REQ-EMG-007",
@@ -2025,7 +2045,10 @@
         "VER-INF-TEST-SERVER_TEST-79BF84"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-008",
@@ -2152,7 +2175,10 @@
         "VER-INF-TEST-SERVER_TEST-79BF84"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-009",
@@ -2280,7 +2306,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 313
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DEDUPE-GO--DEDUPEDIAGNOSTICS",
@@ -2290,27 +2316,32 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--HASERRORS",
           "path": "internal/validate/diagnostic.go",
-          "line": 66
+          "line": 108
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--LINE",
+          "path": "internal/validate/diagnostic.go",
+          "line": 43
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--SORTDIAGNOSTICS",
           "path": "internal/validate/diagnostic.go",
-          "line": 33
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1526
+          "line": 1533
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1514
+          "line": 1521
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -2347,7 +2378,10 @@
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GENERATION-PIPELINE"
+      ]
     },
     {
       "id": "REQ-EMG-010",
@@ -2918,7 +2952,10 @@
         "VER-INF-TEST-VERILOG_TEST-5CCB98"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-011",
@@ -3007,27 +3044,27 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--HASERRORS",
           "path": "internal/validate/diagnostic.go",
-          "line": 66
+          "line": 108
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--SORTDIAGNOSTICS",
           "path": "internal/validate/diagnostic.go",
-          "line": 33
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1526
+          "line": 1533
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1514
+          "line": 1521
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--DEDUPEDIAGNOSTICS",
@@ -3056,7 +3093,10 @@
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-ARCHITECTURE-INTERCHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-012",
@@ -3188,7 +3228,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--SORTDIAGNOSTICS",
           "path": "internal/validate/diagnostic.go",
-          "line": 33
+          "line": 75
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--SORTDIAGNOSTICS",
@@ -3207,7 +3247,10 @@
         "VER-INF-TEST-THREAT_MODEL_EXPORT_TEST-ED4975"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GENERATION-PIPELINE"
+      ]
     },
     {
       "id": "REQ-EMG-013",
@@ -3510,7 +3553,10 @@
         "VER-INF-TEST-TEXTUTIL_TEST-33792B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-COMPLIANCE-EXPORT"
+      ]
     },
     {
       "id": "REQ-EMG-014",
@@ -3565,7 +3611,10 @@
         "VER-INF-TEST-ASCIIDOC_TEST-FBEE21"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-PUBLICATION"
+      ]
     },
     {
       "id": "REQ-EMG-015",
@@ -4106,7 +4155,10 @@
         "VER-INF-TEST-TEXTUTIL_TEST-33792B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-COMPLIANCE-EXPORT"
+      ]
     },
     {
       "id": "REQ-EMG-016",
@@ -4171,7 +4223,10 @@
         "VER-INF-TEST-COMPOSITION_TEST-312837"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-017",
@@ -4201,7 +4256,10 @@
         "VER-INF-TEST-COMPOSITION_CONFINEMENT_TEST-A17396"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-018",
@@ -4217,7 +4275,10 @@
           "line": 428
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-019",
@@ -4238,7 +4299,10 @@
           "line": 1071
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-020",
@@ -4267,7 +4331,10 @@
         "VER-INF-TEST-COMPOSITION_GENERATION_TEST-F36487"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-021",
@@ -4283,7 +4350,10 @@
           "line": 1071
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-022",
@@ -4314,7 +4384,10 @@
           "line": 1071
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-023",
@@ -4330,7 +4403,10 @@
           "line": 20
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-024",
@@ -4375,7 +4451,10 @@
         "VER-INF-TEST-ASCIIDOC_HARDWARE_LABELS_TEST-2AB44B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-PUBLICATION"
+      ]
     },
     {
       "id": "REQ-EMG-025",
@@ -4406,7 +4485,10 @@
           "line": 1023
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-026",
@@ -4443,7 +4525,10 @@
           "line": 134
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-027",
@@ -4452,7 +4537,10 @@
         "FU-MODEL-LOADER",
         "FU-SYSTEM-COMPOSITION"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-028",
@@ -4476,17 +4564,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 824
+          "line": 829
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--KNOWNMODELIDS",
@@ -4510,10 +4598,14 @@
         }
       ],
       "verifications": [
+        "VER-INF-TEST-ORPHAN_STATUS_TEST-A2F2DB",
         "VER-INF-TEST-TRACE_MATRIX_TEST-315E77"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-029",
@@ -4535,10 +4627,14 @@
         }
       ],
       "verifications": [
+        "VER-INF-TEST-ORPHAN_STATUS_TEST-A2F2DB",
         "VER-INF-TEST-TRACE_MATRIX_TEST-315E77"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-030",
@@ -4591,32 +4687,32 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 824
+          "line": 829
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIX",
           "path": "internal/trace/trace_matrix.go",
-          "line": 636
+          "line": 641
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 656
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--CSV",
           "path": "internal/trace/trace_matrix.go",
-          "line": 1078
+          "line": 1083
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--EFFECTIVECODEROOTS",
@@ -4626,7 +4722,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--REQUIREMENTRESULTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 782
+          "line": 787
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--SCOPECODETOMODEL",
@@ -4643,7 +4739,10 @@
         "VER-INF-TEST-TRACE_MATRIX_TEST-315E77"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-031",
@@ -4671,7 +4770,7 @@
         {
           "symbol": "CODE-CMD-ENGCHANGE-MAIN-GO--USAGE",
           "path": "cmd/engchange/main.go",
-          "line": 80
+          "line": 76
         },
         {
           "symbol": "CODE-INTERNAL-REQDELTA-REQUIREMENTS-DELTA-GO--APPLYREQUIREMENTSDELTA",
@@ -4713,7 +4812,10 @@
         "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-54E12D"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-CHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-032",
@@ -4795,10 +4897,31 @@
         }
       ],
       "verifications": [
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
         "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-54E12D"
       ],
-      "result": "not-run",
-      "status": "implemented"
+      "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-EMG-032",
+          "machine": "SM-REQUIREMENTS-DELTA",
+          "invariant": "INV-DELTA-DRY-RUN-NOT-WRITTEN",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_requirements_delta.qnt",
+          "qntSha256": "a4636a6a09805ed3fb163bd43db5adb2f1eff04a91bb6f2bc4f83f72be9afda6",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-DELTA-DRY-RUN-NOT-WRITTEN of SM-REQUIREMENTS-DELTA holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-CHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-033",
@@ -4851,10 +4974,42 @@
         }
       ],
       "verifications": [
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
         "VER-INF-TEST-REQUIREMENTS_DELTA_TEST-54E12D"
       ],
-      "result": "not-run",
-      "status": "implemented"
+      "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-EMG-033",
+          "machine": "SM-REQUIREMENTS-DELTA",
+          "invariant": "INV-DELTA-APPLIED-WRITTEN",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_requirements_delta.qnt",
+          "qntSha256": "a4636a6a09805ed3fb163bd43db5adb2f1eff04a91bb6f2bc4f83f72be9afda6",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-DELTA-APPLIED-WRITTEN of SM-REQUIREMENTS-DELTA holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        },
+        {
+          "requirement": "REQ-EMG-033",
+          "machine": "SM-REQUIREMENTS-DELTA",
+          "invariant": "INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_requirements_delta.qnt",
+          "qntSha256": "a4636a6a09805ed3fb163bd43db5adb2f1eff04a91bb6f2bc4f83f72be9afda6",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED of SM-REQUIREMENTS-DELTA holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-CHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-034",
@@ -4875,7 +5030,10 @@
           "line": 576
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-CHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-035",
@@ -5269,7 +5427,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VIEW-PROJECT-GO--BUILD",
@@ -5317,7 +5475,10 @@
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-AUTHORING"
+      ]
     },
     {
       "id": "REQ-EMG-036",
@@ -5846,7 +6007,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VIEW-PROJECT-GO--BUILD",
@@ -5891,7 +6052,10 @@
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-ARCHITECTURE-INTERCHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-037",
@@ -6025,7 +6189,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-MODEL-API-GO--VALIDATESEMANTICMODEL",
@@ -6046,7 +6210,10 @@
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-ARCHITECTURE-INTERCHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-038",
@@ -6328,7 +6495,10 @@
         "VER-INF-TEST-METAMODEL_TEST-81AF9A"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-ARCHITECTURE-INTERCHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-039",
@@ -6723,7 +6893,10 @@
         "VER-INF-TEST-SYSML_EXPORT_TEST-819D9B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-ARCHITECTURE-INTERCHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-040",
@@ -6818,7 +6991,10 @@
         "VER-INF-TEST-SYSML_INTERCHANGE_TEST-280926"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-ARCHITECTURE-INTERCHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-041",
@@ -6862,37 +7038,37 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ENABLED",
           "path": "internal/model/types.go",
-          "line": 938
+          "line": 941
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFCONCERN",
           "path": "internal/model/types.go",
-          "line": 952
+          "line": 955
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 961
+          "line": 964
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPROFILE",
           "path": "internal/model/types.go",
-          "line": 927
+          "line": 930
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFSTAKEHOLDER",
           "path": "internal/model/types.go",
-          "line": 945
+          "line": 948
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1324
+          "line": 1331
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -6905,7 +7081,10 @@
         "VER-INF-TEST-SCHEMA_TEST-21FC79"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-042",
@@ -6929,12 +7108,12 @@
         {
           "symbol": "CODE-CMD-ENGNAF-MAIN-GO--MAIN",
           "path": "cmd/engnaf/main.go",
-          "line": 16
+          "line": 17
         },
         {
           "symbol": "CODE-CMD-ENGNAF-MAIN-GO--RUN",
           "path": "cmd/engnaf/main.go",
-          "line": 21
+          "line": 22
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-NAF-NAF-EXPORT-GO--ASCIIDOCCELL",
@@ -6959,7 +7138,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 961
+          "line": 964
         }
       ],
       "verifications": [
@@ -6967,7 +7146,10 @@
         "VER-INF-TEST-NAF_EXPORT_TEST-A32B0B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-PUBLICATION"
+      ]
     },
     {
       "id": "REQ-EMG-043",
@@ -6991,12 +7173,12 @@
         {
           "symbol": "CODE-CMD-ENGNAF-MAIN-GO--MAIN",
           "path": "cmd/engnaf/main.go",
-          "line": 16
+          "line": 17
         },
         {
           "symbol": "CODE-CMD-ENGNAF-MAIN-GO--RUN",
           "path": "cmd/engnaf/main.go",
-          "line": 21
+          "line": 22
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-NAF-NAF-EXPORT-GO--GENERATEV41",
@@ -7021,12 +7203,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1324
+          "line": 1331
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -7040,7 +7222,10 @@
         "VER-INF-TEST-SCHEMA_TEST-21FC79"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-044",
@@ -7059,37 +7244,52 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 110
+          "line": 114
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--CONTRACTSCHEMAVERSION",
           "path": "internal/model/authoring.go",
-          "line": 180
+          "line": 185
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--EFFECTIVESCHEMAVERSION",
           "path": "internal/model/load.go",
-          "line": 34
+          "line": 60
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--ERROR",
+          "path": "internal/model/load.go",
+          "line": 53
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADDESIGN",
           "path": "internal/model/load.go",
-          "line": 250
+          "line": 276
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADREQUIREMENTS",
           "path": "internal/model/load.go",
-          "line": 232
+          "line": 258
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--PROBLEM",
+          "path": "internal/model/load.go",
+          "line": 47
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--RESOLVEDOCUMENTREFERENCES",
           "path": "internal/model/load.go",
           "line": 18
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--SCHEMAVERSIONERROR",
+          "path": "internal/model/load.go",
+          "line": 41
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-PROJECTION-GO--LOADCANONICALBUNDLE",
@@ -7099,32 +7299,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 739
+          "line": 742
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 833
+          "line": 836
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 812
+          "line": 815
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 840
+          "line": 843
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 884
+          "line": 887
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 910
+          "line": 913
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7134,7 +7334,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 901
+          "line": 904
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
@@ -7149,7 +7349,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 847
+          "line": 850
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7181,10 +7381,14 @@
         "VER-INF-TEST-FACADE_TEST-E17700",
         "VER-INF-TEST-LOAD_TEST-E1FF39",
         "VER-INF-TEST-SCHEMA_TEST-21FC79",
+        "VER-INF-TEST-SCHEMA_VERSION_REQUIRED_TEST-AC7296",
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-AUTHORING"
+      ]
     },
     {
       "id": "REQ-EMG-045",
@@ -7207,27 +7411,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 110
+          "line": 114
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--CONTRACTSCHEMAVERSION",
           "path": "internal/model/authoring.go",
-          "line": 180
+          "line": 185
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--YAMLTOPLEVELFIELDS",
           "path": "internal/model/authoring.go",
-          "line": 185
+          "line": 190
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 313
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--SORTEDKEYS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 345
+          "line": 350
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7244,10 +7448,14 @@
         "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F",
         "VER-INF-TEST-FILES_OWNER_TEST-1C4F5F",
         "VER-INF-TEST-LOAD_TEST-E1FF39",
+        "VER-INF-TEST-REQUIRED_SWITCHES_TEST-397B98",
         "VER-INF-TEST-SERVER_TEST-79BF84"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-046",
@@ -7261,27 +7469,42 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--EFFECTIVESCHEMAVERSION",
           "path": "internal/model/load.go",
-          "line": 34
+          "line": 60
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--ERROR",
+          "path": "internal/model/load.go",
+          "line": 53
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADDESIGN",
           "path": "internal/model/load.go",
-          "line": 250
+          "line": 276
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADREQUIREMENTS",
           "path": "internal/model/load.go",
-          "line": 232
+          "line": 258
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--PROBLEM",
+          "path": "internal/model/load.go",
+          "line": 47
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--RESOLVEDOCUMENTREFERENCES",
           "path": "internal/model/load.go",
           "line": 18
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--SCHEMAVERSIONERROR",
+          "path": "internal/model/load.go",
+          "line": 41
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-PROJECTION-GO--LOADCANONICALBUNDLE",
@@ -7291,32 +7514,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 739
+          "line": 742
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 833
+          "line": 836
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 812
+          "line": 815
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 840
+          "line": 843
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 884
+          "line": 887
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 910
+          "line": 913
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7326,7 +7549,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 901
+          "line": 904
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
@@ -7336,12 +7559,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 847
+          "line": 850
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--SCHEMAV2BUNDLE",
           "path": "internal/testutil/schema_v2_bundle.go",
-          "line": 9
+          "line": 12
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -7367,10 +7590,14 @@
       "verifications": [
         "VER-INF-TEST-LOAD_TEST-E1FF39",
         "VER-INF-TEST-SCHEMA_TEST-21FC79",
+        "VER-INF-TEST-SCHEMA_VERSION_REQUIRED_TEST-AC7296",
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-AUTHORING"
+      ]
     },
     {
       "id": "REQ-EMG-047",
@@ -7503,12 +7730,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 110
+          "line": 114
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--AGGREGATECOMPOSITION",
           "path": "internal/model/load.go",
-          "line": 219
+          "line": 245
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SUBSYSTEM-GO--PARSEEXACTMODULEVERSION",
@@ -7538,7 +7765,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1052
+          "line": 1055
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
@@ -7553,27 +7780,27 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEOCIMODULEFIXTURE",
           "path": "internal/testutil/fixtures.go",
-          "line": 172
+          "line": 211
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEPARENTWITHOCIMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 181
+          "line": 220
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 129
+          "line": 168
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONPARENT",
           "path": "internal/testutil/fixtures.go",
-          "line": 164
+          "line": 203
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2MODULEFILES",
           "path": "internal/testutil/fixtures.go",
-          "line": 15
+          "line": 54
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7589,7 +7816,10 @@
         "VER-INF-TEST-SYSML_EXPORT_TEST-819D9B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-048",
@@ -7662,7 +7892,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 110
+          "line": 114
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--FINDWORKSPACE",
@@ -7697,27 +7927,27 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEOCIMODULEFIXTURE",
           "path": "internal/testutil/fixtures.go",
-          "line": 172
+          "line": 211
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEPARENTWITHOCIMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 181
+          "line": 220
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 129
+          "line": 168
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONPARENT",
           "path": "internal/testutil/fixtures.go",
-          "line": 164
+          "line": 203
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2MODULEFILES",
           "path": "internal/testutil/fixtures.go",
-          "line": 15
+          "line": 54
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7746,7 +7976,10 @@
         "VER-INF-TEST-SERVER_TEST-79BF84"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-049",
@@ -7910,17 +8143,17 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 110
+          "line": 114
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--AGGREGATECOMPOSITION",
           "path": "internal/model/load.go",
-          "line": 219
+          "line": 245
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SUBSYSTEM-GO--PARSEEXACTMODULEVERSION",
@@ -7940,7 +8173,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1079
+          "line": 1082
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -7960,12 +8193,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 1090
+          "line": 1093
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1052
+          "line": 1055
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--LOADWORKSPACE",
@@ -7985,22 +8218,22 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 129
+          "line": 168
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONPARENT",
           "path": "internal/testutil/fixtures.go",
-          "line": 164
+          "line": 203
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2MODULEFILES",
           "path": "internal/testutil/fixtures.go",
-          "line": 15
+          "line": 54
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -8041,7 +8274,10 @@
         "VER-INF-TEST-COMPOSITION_ZIP_SAFETY_TEST-5473B0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-050",
@@ -8248,17 +8484,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 1014
+          "line": 1019
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 824
+          "line": 829
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
@@ -8281,7 +8517,10 @@
         "VER-INF-TEST-SYSML_EXPORT_TEST-819D9B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-051",
@@ -8571,12 +8810,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--AGGREGATECOMPOSITION",
           "path": "internal/model/load.go",
-          "line": 219
+          "line": 245
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SUBSYSTEM-GO--PARSEQUALIFIEDREFERENCE",
@@ -8591,7 +8830,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1079
+          "line": 1082
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -8611,12 +8850,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 1090
+          "line": 1093
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1052
+          "line": 1055
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -8626,32 +8865,32 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 129
+          "line": 168
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONPARENT",
           "path": "internal/testutil/fixtures.go",
-          "line": 164
+          "line": 203
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2MODULEFILES",
           "path": "internal/testutil/fixtures.go",
-          "line": 15
+          "line": 54
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 1014
+          "line": 1019
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 824
+          "line": 829
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
@@ -8682,7 +8921,10 @@
         "VER-INF-TEST-LOAD_TEST-E1FF39"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-052",
@@ -8827,7 +9069,10 @@
         "VER-INF-TEST-SCHEMA_TEST-21FC79"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-PUBLICATION"
+      ]
     },
     {
       "id": "REQ-EMG-053",
@@ -8851,7 +9096,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 110
+          "line": 114
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AVIATION-GO--AVIATIONDOCUMENT",
@@ -8866,7 +9111,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--RESOLVEDOCUMENTREFERENCES",
@@ -8895,7 +9140,10 @@
         "VER-INF-TEST-LOAD_TEST-E1FF39"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-AIRBORNE-ASSURANCE"
+      ]
     },
     {
       "id": "REQ-EMG-054",
@@ -8943,7 +9191,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SCHEMA-GO--VALIDATECANONICALYAML",
@@ -8960,7 +9208,10 @@
         "VER-INF-TEST-AVIATION_TEST-ED811A"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-AIRBORNE-ASSURANCE"
+      ]
     },
     {
       "id": "REQ-EMG-055",
@@ -9050,7 +9301,10 @@
         "VER-INF-TEST-AIRBORNE_ASSURANCE_TEST-398C8C"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-AIRBORNE-ASSURANCE"
+      ]
     },
     {
       "id": "REQ-EMG-056",
@@ -9072,7 +9326,10 @@
         "VER-INF-TEST-LOAD_TEST-E1FF39"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-AIRBORNE-ASSURANCE"
+      ]
     },
     {
       "id": "REQ-EMG-057",
@@ -9204,7 +9461,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--UNREFERENCEABLEINFERREDID",
           "path": "internal/validate/validate.go",
-          "line": 1539
+          "line": 1546
         }
       ],
       "verifications": [
@@ -9212,7 +9469,10 @@
         "VER-INF-TEST-CODE_SCOPE_TEST-2A4254"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-060",
@@ -9224,14 +9484,17 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--REFERENCEDELEMENTURIDIAGNOSTICS",
           "path": "internal/validate/validate.go",
-          "line": 1551
+          "line": 1558
         }
       ],
       "verifications": [
         "VER-INF-TEST-CODE_SCOPE_TEST-2A4254"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-061",
@@ -9310,7 +9573,10 @@
         "VER-INF-TEST-TRACE_MATRIX_TEST-315E77"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-062",
@@ -9371,7 +9637,10 @@
         "VER-INF-TEST-GEMARA_TRUTHFULNESS_TEST-F6F279"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-COMPLIANCE-EXPORT"
+      ]
     },
     {
       "id": "REQ-EMG-063",
@@ -9490,7 +9759,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 810
+          "line": 815
         },
         {
           "symbol": "CODE-MODEL-API-GO--FINDWORKSPACEWITH",
@@ -9503,7 +9772,10 @@
         "VER-INF-TEST-WORKSPACE_TEST-F6AA18"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-064",
@@ -9655,7 +9927,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 810
+          "line": 815
         }
       ],
       "verifications": [
@@ -9666,7 +9938,10 @@
         "VER-INF-TEST-COMPOSITION_TEST-96C07F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-065",
@@ -9750,22 +10025,22 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEINTERFACEMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 52
+          "line": 91
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 656
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
@@ -9775,7 +10050,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -9789,7 +10064,10 @@
         "VER-INF-TEST-VALIDATE_TEST-4C11F0"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-066",
@@ -9887,17 +10165,17 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 810
+          "line": 815
         }
       ],
       "verifications": [
@@ -9906,7 +10184,10 @@
         "VER-INF-TEST-COMPOSITION_LOCK_TEST-BBD437"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-067",
@@ -9944,27 +10225,27 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPLYDELEGATEDSTATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 984
+          "line": 989
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--DEPENDENCYTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 918
+          "line": 923
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 952
+          "line": 957
         }
       ],
       "verifications": [
@@ -9972,7 +10253,10 @@
         "VER-INF-TEST-TRACE_DELEGATED_TEST-5F315E"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-068",
@@ -10030,7 +10314,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CHECK-GO--CHECKALLDRIFT",
           "path": "internal/engws/check.go",
-          "line": 418
+          "line": 421
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CHECK-GO--CHECKENVIRONMENT",
@@ -10100,12 +10384,12 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CHECK-GO--WORKFILEDRIFT",
           "path": "internal/engws/check.go",
-          "line": 408
+          "line": 411
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CHECK-GO--WORKFILEDRIFT",
           "path": "internal/engws/check.go",
-          "line": 430
+          "line": 433
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--MAIN",
@@ -10328,7 +10612,10 @@
         "VER-INF-TEST-YAMLEDIT_TEST-8FA671"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-069",
@@ -10530,7 +10817,10 @@
         "VER-INF-TEST-DIAGNOSE_COMPOSITION_TEST-BBA37F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-070",
@@ -10552,7 +10842,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -10564,7 +10854,10 @@
         "VER-INF-TEST-BEHAVIOR_TEST-948115"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-071",
@@ -10583,7 +10876,10 @@
         "VER-INF-TEST-CATALOG_NAMES_TEST-9DFC7E"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-072",
@@ -10607,7 +10903,10 @@
         "VER-INF-TEST-EARS_PREFLIGHT_TEST-F8DE08"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-073",
@@ -10620,7 +10919,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
@@ -10639,7 +10938,10 @@
         "VER-INF-TEST-VERIFICATION_STATUS_TEST-CC7606"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-080",
@@ -10657,7 +10959,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
           "path": "internal/engws/cli.go",
-          "line": 628
+          "line": 631
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
@@ -10764,7 +11066,10 @@
         "VER-INF-TEST-STAGE_TEST-4E9FDB"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-081",
@@ -10829,7 +11134,10 @@
         "VER-INF-TEST-SPEC_DELTA_TEST-F60AB7"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-CHANGE"
+      ]
     },
     {
       "id": "REQ-EMG-082",
@@ -10846,12 +11154,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 313
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -10868,7 +11176,10 @@
         "VER-INF-TEST-ASSURANCE_TEST-EE1618"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-083",
@@ -10901,12 +11212,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 313
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -10924,7 +11235,10 @@
         "VER-INF-TEST-GEMARA_TRUTHFULNESS_TEST-F6F279"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-084",
@@ -11036,7 +11350,10 @@
         "VER-INF-TEST-INFERENCE_TRACE_TEST-B704D6"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-085",
@@ -11099,12 +11416,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 313
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -11123,7 +11440,10 @@
         "VER-INF-TEST-LOAD_TEST-E1FF39"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-086",
@@ -11162,7 +11482,10 @@
         "VER-INF-TEST-SYNC_TEST-864483"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-087",
@@ -11175,22 +11498,22 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 313
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--FIELDSETS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 227
+          "line": 232
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--PUBLICATIONSECTIONS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 200
+          "line": 205
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--YAMLFIELDS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 213
+          "line": 218
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -11203,7 +11526,10 @@
         "VER-INF-TEST-FILES_OWNER_TEST-1C4F5F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-088",
@@ -11232,7 +11558,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--NONNILSTRINGS",
           "path": "internal/mcp/composition.go",
-          "line": 262
+          "line": 266
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
@@ -11242,7 +11568,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 656
         }
       ],
       "verifications": [
@@ -11251,7 +11577,10 @@
         "VER-INF-TEST-TRACE_DELEGATED_TEST-5F315E"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-089",
@@ -11276,7 +11605,10 @@
         "VER-INF-TEST-GEMARA_TEST-DD5C1F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-090",
@@ -11334,7 +11666,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-MODEL-API-GO--REQUIREMENTLINKMODE",
@@ -11350,7 +11682,10 @@
         "VER-INF-TEST-REQLINKS_TEST-EB8F67"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-091",
@@ -11373,7 +11708,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CONTRACTASSUMPTION",
           "path": "internal/model/types.go",
-          "line": 1024
+          "line": 1027
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--CAPABILITYREFS",
@@ -11409,7 +11744,10 @@
         "VER-INF-TEST-REQLINKS_TEST-EB8F67"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-092",
@@ -11448,7 +11786,10 @@
         "VER-INF-TEST-REQLINKS_TEST-493BCD"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-093",
@@ -11467,7 +11808,10 @@
         "VER-INF-TEST-REQLINKS_TEST-493BCD"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-094",
@@ -11480,12 +11824,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 110
+          "line": 114
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-REQLINKS-GO--REQLINK",
@@ -11515,7 +11859,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [
@@ -11544,7 +11888,10 @@
           "notes": "INV-LINK-UNREVIEWED-NOT-ACCEPTED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-095",
@@ -11645,7 +11992,10 @@
         "VER-INF-TEST-TEXTUTIL_TEST-33792B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-096",
@@ -11659,7 +12009,10 @@
         "VER-INF-TEST-REQLINKS_TEST-EB8F67"
       ],
       "result": "not-run",
-      "status": "verified"
+      "status": "verified",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-097",
@@ -11762,7 +12115,10 @@
         "VER-INF-TEST-REQLINKS_TEST-76AA55"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-098",
@@ -11785,12 +12141,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--UNSATISFIEDREQUIREMENTS",
@@ -11814,7 +12170,10 @@
         "VER-INF-TEST-REQLINKS_TRACE_TEST-82F62C"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-099",
@@ -11827,7 +12186,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 313
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
@@ -11840,7 +12199,10 @@
         "VER-INF-TEST-REQLINKS_TEST-493BCD"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-100",
@@ -11893,7 +12255,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTBUMPLINK",
           "path": "internal/engws/cli.go",
-          "line": 604
+          "line": 607
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
@@ -11968,7 +12330,10 @@
         "VER-INF-TEST-REVIEWLINKS_TEST-39A109"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-101",
@@ -12235,7 +12600,10 @@
           "notes": "INV-LINK-UNREVIEWED-NOT-ACCEPTED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
         }
       ],
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-102",
@@ -12306,7 +12674,10 @@
         "VER-INF-TEST-RELEASECHECK_TEST-A300F7"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-103",
@@ -12366,7 +12737,10 @@
         "VER-INF-TEST-RELEASECHECK_TEST-A300F7"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-104",
@@ -12547,7 +12921,10 @@
         "VER-INF-TEST-YAMLEDIT_TEST-8FA671"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-105",
@@ -12565,7 +12942,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--NONNILSTRINGS",
           "path": "internal/mcp/composition.go",
-          "line": 262
+          "line": 266
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
@@ -12630,22 +13007,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 1014
+          "line": 1019
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 656
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--LINKREF",
@@ -12655,7 +13032,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 952
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CAPABILITYLINKPARENTS",
@@ -12674,7 +13051,10 @@
         "VER-INF-TEST-REQLINKS_TRACE_TEST-82F62C"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-106",
@@ -12830,7 +13210,10 @@
         "VER-INF-TEST-REQLINKS_TEST-98C2BD"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-107",
@@ -12922,7 +13305,10 @@
         "VER-INF-INTEGRATION-REQUIREMENT_LINKS_RENDER_TEST-BB7550"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-108",
@@ -12963,7 +13349,10 @@
         "VER-INF-TEST-WORKSPACE_TEST-F6AA18"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-SYSTEM-COMPOSITION"
+      ]
     },
     {
       "id": "REQ-EMG-109",
@@ -12972,7 +13361,10 @@
         "FU-ALLOCATION-TRACE",
         "FU-SYSTEM-COMPOSITION"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-110",
@@ -12996,7 +13388,10 @@
         "VER-INF-TEST-ASCIIDOC_REQLINKS_TEST-2E90ED"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-PUBLICATION"
+      ]
     },
     {
       "id": "REQ-EMG-111",
@@ -13015,7 +13410,10 @@
         "VER-INF-TEST-REQLINKS_TEST-493BCD"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-112",
@@ -13034,7 +13432,10 @@
         "VER-INF-TEST-REQLINKS_TEST-493BCD"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-113",
@@ -13166,7 +13567,10 @@
         "VER-INF-TEST-REQLINKS_TEST-98C2BD"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-114",
@@ -13218,7 +13622,10 @@
         "VER-INF-TEST-SCOPE_TEST-F45215"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-115",
@@ -13231,12 +13638,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--FIELDTYPES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 270
+          "line": 275
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--YAMLTYPE",
           "path": "internal/validate/authoring_rules.go",
-          "line": 238
+          "line": 243
         }
       ],
       "verifications": [
@@ -13244,7 +13651,10 @@
         "VER-INF-TEST-FILES_OWNER_TEST-1C4F5F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-116",
@@ -13263,7 +13673,10 @@
         "VER-INF-TEST-ACCEPTANCE_TEST-71CB24"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-117",
@@ -13282,7 +13695,10 @@
         "VER-INF-TEST-ASSURANCE_TEST-EE1618"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-118",
@@ -13318,7 +13734,10 @@
         "VER-INF-TEST-REQLINKS_TEST-493BCD"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-119",
@@ -13364,7 +13783,10 @@
         "VER-INF-TEST-LINKADD_TEST-F6472F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     },
     {
       "id": "REQ-EMG-120",
@@ -13398,7 +13820,10 @@
         "VER-INF-TEST-REPO_ARG_TEST-598D0F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MCP-INTEGRATION"
+      ]
     },
     {
       "id": "REQ-EMG-121",
@@ -13431,7 +13856,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 656
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
@@ -13443,7 +13868,10 @@
         "VER-INF-TEST-INFERENCE_TRACE_TEST-B704D6"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     },
     {
       "id": "REQ-EMG-122",
@@ -13508,7 +13936,10 @@
         "VER-INF-TEST-STATUSSUGGEST_TEST-7D4089"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-123",
@@ -13537,7 +13968,10 @@
         "VER-INF-TEST-EARS_PREFLIGHT_TEST-F8DE08"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-VALIDATION"
+      ]
     },
     {
       "id": "REQ-EMG-124",
@@ -13550,12 +13984,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-LIFECYCLE-GO--EFFECTIVEBUNDLES",
           "path": "internal/model/lifecycle.go",
-          "line": 59
+          "line": 60
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LIFECYCLE-GO--HASBUNDLE",
           "path": "internal/model/lifecycle.go",
-          "line": 74
+          "line": 75
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LIFECYCLE-GO--MANIFESTLIFECYCLE",
@@ -13568,29 +14002,59 @@
           "line": 45
         },
         {
+          "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
+          "path": "internal/validate/authoring_rules.go",
+          "line": 318
+        },
+        {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--DISPLAYTIER",
           "path": "internal/validate/lifecycle.go",
-          "line": 163
+          "line": 174
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--LIFECYCLEDIAGNOSTICS",
           "path": "internal/validate/lifecycle.go",
-          "line": 26
+          "line": 28
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--TIERDECISIONPROBLEM",
           "path": "internal/validate/lifecycle.go",
-          "line": 115
+          "line": 121
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REMEDYFOR",
+          "path": "internal/validate/remedies.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDSWITCHES",
+          "path": "internal/validate/remedies.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDSWITCHESMARKDOWN",
+          "path": "internal/validate/remedies.go",
+          "line": 70
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--WITHREMEDIES",
+          "path": "internal/validate/remedies.go",
+          "line": 96
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQUIRED-SWITCHES-GO--REQUIREDSWITCHDIAGNOSTICS",
+          "path": "internal/validate/required_switches.go",
+          "line": 22
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVETIER",
           "path": "internal/validate/tier_policy.go",
-          "line": 271
+          "line": 274
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-MODEL-API-GO--TIERRANK",
@@ -13604,11 +14068,15 @@
         }
       ],
       "verifications": [
-        "VER-INF-INTEGRATION-LIFECYCLE_GOLDEN_TEST-FA0AEE",
-        "VER-INF-TEST-LIFECYCLE_TEST-785E0D"
+        "VER-INF-INTEGRATION-EXAMPLES_GOLDEN_TEST-6E21D7",
+        "VER-INF-TEST-LIFECYCLE_TEST-785E0D",
+        "VER-INF-TEST-REQUIRED_SWITCHES_TEST-397B98"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-125",
@@ -13624,74 +14092,144 @@
           "line": 75
         },
         {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--EFFECTIVESCHEMAVERSION",
+          "path": "internal/model/load.go",
+          "line": 60
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--ERROR",
+          "path": "internal/model/load.go",
+          "line": 53
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--PROBLEM",
+          "path": "internal/model/load.go",
+          "line": 47
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--SCHEMAVERSIONERROR",
+          "path": "internal/model/load.go",
+          "line": 41
+        },
+        {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 835
+          "line": 840
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
+          "path": "internal/validate/authoring_rules.go",
+          "line": 318
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--FIXLINE",
+          "path": "internal/validate/diagnostic.go",
+          "line": 55
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--LINE",
+          "path": "internal/validate/diagnostic.go",
+          "line": 43
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--WRITEDIAGNOSTIC",
+          "path": "internal/validate/diagnostic.go",
+          "line": 66
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--LIFECYCLEDIAGNOSTICS",
+          "path": "internal/validate/lifecycle.go",
+          "line": 28
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REMEDYFOR",
+          "path": "internal/validate/remedies.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDSWITCHES",
+          "path": "internal/validate/remedies.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDSWITCHESMARKDOWN",
+          "path": "internal/validate/remedies.go",
+          "line": 70
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--WITHREMEDIES",
+          "path": "internal/validate/remedies.go",
+          "line": 96
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQUIRED-SWITCHES-GO--REQUIREDSWITCHDIAGNOSTICS",
+          "path": "internal/validate/required_switches.go",
+          "line": 22
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 336
+          "line": 339
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--CORECODES",
           "path": "internal/validate/tier_policy.go",
-          "line": 149
+          "line": 152
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVETIER",
           "path": "internal/validate/tier_policy.go",
-          "line": 271
+          "line": 274
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ISCORECODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 156
+          "line": 159
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--LETTERSEVERITY",
           "path": "internal/validate/tier_policy.go",
-          "line": 178
+          "line": 181
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--MATCHCODEPATTERN",
           "path": "internal/validate/tier_policy.go",
-          "line": 168
+          "line": 171
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--RAISED",
           "path": "internal/validate/tier_policy.go",
-          "line": 297
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--REQUIREDFROM",
           "path": "internal/validate/tier_policy.go",
-          "line": 200
+          "line": 203
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ROWSEVERITIES",
           "path": "internal/validate/tier_policy.go",
-          "line": 190
+          "line": 193
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERKEYED",
           "path": "internal/validate/tier_policy.go",
-          "line": 261
+          "line": 264
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 214
+          "line": 217
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERPOLICYMARKDOWN",
           "path": "internal/validate/tier_policy.go",
-          "line": 234
+          "line": 237
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--APPLYTIERPOLICY",
@@ -13731,10 +14269,15 @@
       ],
       "verifications": [
         "VER-INF-INTEGRATION-LIFECYCLE_TEST-B69CC9",
+        "VER-INF-TEST-REQUIRED_SWITCHES_TEST-397B98",
+        "VER-INF-TEST-SCHEMA_VERSION_REQUIRED_TEST-AC7296",
         "VER-INF-TEST-TIER_POLICY_TEST-D12B71"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-126",
@@ -13782,32 +14325,32 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--ACCEPTEDRISKDEPENDENCIES",
           "path": "internal/validate/lifecycle.go",
-          "line": 190
+          "line": 201
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--ACCEPTEDRISKSCOPES",
           "path": "internal/validate/lifecycle.go",
-          "line": 181
+          "line": 192
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--ACCEPTEDRISKVALUES",
           "path": "internal/validate/lifecycle.go",
-          "line": 197
+          "line": 208
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 336
+          "line": 339
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--DECLAREDALIASLIST",
           "path": "internal/validate/validate.go",
-          "line": 1570
+          "line": 1577
         }
       ],
       "verifications": [
@@ -13816,7 +14359,10 @@
         "VER-INF-TEST-BUMP_LINKS_TEST-FEBA3E"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-127",
@@ -13828,7 +14374,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--LIFECYCLEDIAGNOSTICS",
           "path": "internal/validate/lifecycle.go",
-          "line": 26
+          "line": 28
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKRULES",
@@ -13836,14 +14382,19 @@
           "line": 22
         },
         {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQUIRED-SWITCHES-GO--REQUIREDSWITCHDIAGNOSTICS",
+          "path": "internal/validate/required_switches.go",
+          "line": 22
+        },
+        {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 336
+          "line": 339
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVEREQUIREMENTLINKMODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 287
+          "line": 290
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--EFFECTIVEREQUIREMENTLINKMODE",
@@ -13853,10 +14404,14 @@
       ],
       "verifications": [
         "VER-INF-TEST-LIFECYCLE_TEST-785E0D",
+        "VER-INF-TEST-REQUIRED_SWITCHES_TEST-397B98",
         "VER-INF-TEST-TIER_POLICY_TEST-D12B71"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-128",
@@ -13879,12 +14434,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--LIFECYCLEDIAGNOSTICS",
           "path": "internal/validate/lifecycle.go",
-          "line": 26
+          "line": 28
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [
@@ -13892,7 +14447,10 @@
         "VER-INF-TEST-TRACE_MATRIX_TEST-315E77"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-129",
@@ -13904,27 +14462,27 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--DEFERNAMESCORE",
           "path": "internal/validate/lifecycle.go",
-          "line": 94
+          "line": 100
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--LIFECYCLEDIAGNOSTICS",
           "path": "internal/validate/lifecycle.go",
-          "line": 26
+          "line": 28
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 336
+          "line": 339
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ISCORECODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 156
+          "line": 159
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--POAMDEFERS",
           "path": "internal/validate/tier_policy.go",
-          "line": 384
+          "line": 387
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--APPLYTIERPOLICY",
@@ -13933,10 +14491,14 @@
         }
       ],
       "verifications": [
-        "VER-INF-TEST-LIFECYCLE_TEST-785E0D"
+        "VER-INF-TEST-LIFECYCLE_TEST-785E0D",
+        "VER-INF-TEST-REQUIRED_SWITCHES_TEST-397B98"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-130",
@@ -13959,12 +14521,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--RENDERSDESPITE",
           "path": "internal/validate/tier_policy.go",
-          "line": 316
+          "line": 319
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERKEYED",
           "path": "internal/validate/tier_policy.go",
-          "line": 261
+          "line": 264
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--RENDERSDESPITE",
@@ -13976,7 +14538,10 @@
         "VER-INF-INTEGRATION-LIFECYCLE_TEST-B69CC9"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-131",
@@ -13989,19 +14554,22 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 313
+          "line": 318
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--SETOF",
           "path": "internal/validate/authoring_rules.go",
-          "line": 95
+          "line": 99
         }
       ],
       "verifications": [
         "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-132",
@@ -14024,7 +14592,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
           "path": "internal/model/load.go",
-          "line": 43
+          "line": 69
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AVIATION-TIER-GO--AUTHORITYSTATEDIAGNOSTICS",
@@ -14059,7 +14627,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [
@@ -14067,7 +14635,10 @@
         "VER-INF-TEST-AVIATION_TIER_TEST-B2B68E"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-AIRBORNE-ASSURANCE"
+      ]
     },
     {
       "id": "REQ-EMG-133",
@@ -14094,14 +14665,17 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [
         "VER-INF-TEST-AVIATION_TIER_TEST-B2B68E"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-AIRBORNE-ASSURANCE"
+      ]
     },
     {
       "id": "REQ-EMG-134",
@@ -14130,7 +14704,7 @@
         {
           "symbol": "CODE-CMD-ENGTRACE-MAIN-GO--PRINTTIERGAP",
           "path": "cmd/engtrace/main.go",
-          "line": 82
+          "line": 85
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DIGESTMODULEDIRECTORY",
@@ -14140,7 +14714,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TIERGAP",
           "path": "internal/mcp/composition.go",
-          "line": 274
+          "line": 278
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TIER-GAP-GO--TIERGAPFROMFILES",
@@ -14150,7 +14724,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AVIATION-TIER-GO--AVIATIONFLOORGAPS",
@@ -14164,7 +14738,10 @@
         "VER-INF-TEST-TIER_GAP_TEST-6789F6"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
     },
     {
       "id": "REQ-EMG-135",
@@ -14176,34 +14753,37 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINE",
           "path": "internal/model/types.go",
-          "line": 758
+          "line": 761
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINEINVARIANT",
           "path": "internal/model/types.go",
-          "line": 803
+          "line": 806
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINESTATE",
           "path": "internal/model/types.go",
-          "line": 780
+          "line": 783
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINETRANSITION",
           "path": "internal/model/types.go",
-          "line": 790
+          "line": 793
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINEVARIABLE",
           "path": "internal/model/types.go",
-          "line": 772
+          "line": 775
         }
       ],
       "verifications": [
         "VER-INF-TEST-MACHINE_TEST-A54F9F"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-136",
@@ -14710,7 +15290,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         }
       ],
       "verifications": [
@@ -14720,7 +15300,10 @@
         "VER-INF-TEST-TIER_POLICY_TEST-D12B71"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-139",
@@ -14758,7 +15341,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--DECODEYAMLFILE",
           "path": "internal/model/load.go",
-          "line": 267
+          "line": 293
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-MACHINE-QUERY-GO--MACHINESTATES",
@@ -14773,12 +15356,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--STATE",
           "path": "internal/model/types.go",
-          "line": 500
+          "line": 503
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
           "path": "internal/validate/validate.go",
-          "line": 286
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VIEW-PROJECT-GO--BUILD",
@@ -14805,7 +15388,10 @@
         "VER-INF-TEST-RENDER_TEST-E71E8D"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-140",
@@ -14836,7 +15422,10 @@
         "VER-INF-TEST-TIER_POLICY_TEST-D12B71"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-141",
@@ -14997,7 +15586,10 @@
         "VER-INF-TEST-QUINT_EXPORT_TEST-48801A"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-142",
@@ -15137,7 +15729,10 @@
         "VER-INF-TEST-VERIFY_TEST-A21DCB"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-143",
@@ -15286,7 +15881,10 @@
         "VER-INF-TEST-VERIFY_TEST-A21DCB"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-144",
@@ -15417,7 +16015,10 @@
         "VER-INF-TEST-VERIFY_TEST-A21DCB"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-145",
@@ -15599,7 +16200,10 @@
         "VER-INF-TEST-INTEGRATION_TEST-5AE068"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-146",
@@ -15742,12 +16346,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 853
+          "line": 858
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 651
+          "line": 656
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--TIERVERIFICATIONDIAGNOSTICS",
@@ -15771,7 +16375,10 @@
         "VER-INF-TEST-INTEGRATION_TEST-5AE068"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-147",
@@ -15831,7 +16438,10 @@
         "VER-INF-TEST-GEMARA_FORMAL_TEST-562B49"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-148",
@@ -15878,12 +16488,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 110
+          "line": 114
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--MACHINEGUIDE",
           "path": "internal/model/authoring.go",
-          "line": 202
+          "line": 207
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-FORMAL-EVIDENCE-GO--FORMALREQUIREMENTRESULT",
@@ -15895,7 +16505,10 @@
         "VER-INF-TEST-FORMAL_TEST-BFD398"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-149",
@@ -15946,7 +16559,10 @@
         "VER-INF-TEST-MAIN_TEST-CA33B3"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-FORMAL-BEHAVIOR"
+      ]
     },
     {
       "id": "REQ-EMG-150",
@@ -16467,7 +17083,10 @@
         "VER-INF-TEST-VOCABULARY_TEST-A9F27B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-151",
@@ -16570,7 +17189,10 @@
         "VER-INF-TEST-VOCABULARY_TEST-A9F27B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-152",
@@ -16637,7 +17259,10 @@
         "VER-INF-TEST-SCAN_TEST-EFDB41"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-153",
@@ -16755,7 +17380,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--HEALTHGUIDE",
           "path": "internal/model/authoring.go",
-          "line": 244
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--ENCODEHEALTHBASELINE",
@@ -16897,7 +17522,10 @@
         "VER-INF-TEST-VOCABULARY_TEST-A9F27B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-154",
@@ -16970,7 +17598,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--HEALTHGUIDE",
           "path": "internal/model/authoring.go",
-          "line": 244
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEENTRY",
@@ -17046,7 +17674,10 @@
         "VER-INF-TEST-WAIVER_TEST-E71CAE"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-155",
@@ -17309,7 +17940,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--HEALTHGUIDE",
           "path": "internal/model/authoring.go",
-          "line": 244
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHPOLICY",
@@ -17349,7 +17980,10 @@
         "VER-INF-TEST-TYPES_TEST-EF2B08"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-156",
@@ -17745,7 +18379,10 @@
         "VER-INF-TEST-POLICY_TEST-A3CC9E"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-157",
@@ -17944,7 +18581,10 @@
         "VER-INF-TEST-VOCABULARY_TEST-A9F27B"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-158",
@@ -18242,7 +18882,10 @@
         "VER-INF-TEST-SCAN_TEST-EFDB41"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-159",
@@ -18456,7 +19099,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--HEALTHGUIDE",
           "path": "internal/model/authoring.go",
-          "line": 244
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTHEALTH",
@@ -18479,7 +19122,10 @@
         "VER-INF-TEST-SCAN_TEST-EFDB41"
       ],
       "result": "not-run",
-      "status": "implemented"
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
     },
     {
       "id": "REQ-EMG-161",
@@ -18655,6 +19301,263 @@
           "line": 156
         }
       ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
+    },
+    {
+      "id": "REQ-EMG-162",
+      "text": "When model updated event is received, the engineering model go shall report the error lifecycle.missing for a model without a lifecycle block.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHCOMPLETESWITCHES",
+          "path": "internal/testutil/fixtures.go",
+          "line": 40
+        },
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHOUTSWITCHES",
+          "path": "internal/testutil/fixtures.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--COMPLETESWITCHES",
+          "path": "internal/testutil/schema_v2_bundle.go",
+          "line": 31
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--LIFECYCLEDIAGNOSTICS",
+          "path": "internal/validate/lifecycle.go",
+          "line": 28
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQUIRED-SWITCHES-GO--REQUIREDSWITCHDIAGNOSTICS",
+          "path": "internal/validate/required_switches.go",
+          "line": 22
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-163",
+      "text": "When model updated event is received, the engineering model go shall report an error when the lifecycle has no bundles, no tier decision, or a tier decision without a Bundles line.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHCOMPLETESWITCHES",
+          "path": "internal/testutil/fixtures.go",
+          "line": 40
+        },
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHOUTSWITCHES",
+          "path": "internal/testutil/fixtures.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--COMPLETESWITCHES",
+          "path": "internal/testutil/schema_v2_bundle.go",
+          "line": 31
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--LIFECYCLEDIAGNOSTICS",
+          "path": "internal/validate/lifecycle.go",
+          "line": 28
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQUIRED-SWITCHES-GO--REQUIREDSWITCHDIAGNOSTICS",
+          "path": "internal/validate/required_switches.go",
+          "line": 22
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-164",
+      "text": "When model updated event is received, the engineering model go shall report an error when requirementLinks or lintRun.mode is missing, invalid or guided at mvp or above.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHCOMPLETESWITCHES",
+          "path": "internal/testutil/fixtures.go",
+          "line": 40
+        },
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHOUTSWITCHES",
+          "path": "internal/testutil/fixtures.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--COMPLETESWITCHES",
+          "path": "internal/testutil/schema_v2_bundle.go",
+          "line": 31
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQUIRED-SWITCHES-GO--REQUIREDSWITCHDIAGNOSTICS",
+          "path": "internal/validate/required_switches.go",
+          "line": 22
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-165",
+      "text": "When model updated event is received, the engineering model go shall report health.block_missing at the tiers product and operational for a manifest without a health block.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQUIRED-SWITCHES-GO--REQUIREDSWITCHDIAGNOSTICS",
+          "path": "internal/validate/required_switches.go",
+          "line": 22
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-166",
+      "text": "When model updated event is received, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.",
+      "units": [
+        "FU-MODEL-LOADER",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--EFFECTIVESCHEMAVERSION",
+          "path": "internal/model/load.go",
+          "line": 60
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--ERROR",
+          "path": "internal/model/load.go",
+          "line": 53
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--PROBLEM",
+          "path": "internal/model/load.go",
+          "line": 47
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--SCHEMAVERSIONERROR",
+          "path": "internal/model/load.go",
+          "line": 41
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-AUTHORING"
+      ]
+    },
+    {
+      "id": "REQ-EMG-167",
+      "text": "When model updated event is received, the engineering model go shall report model.id_missing for an empty model identifier.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REQUIRED-SWITCHES-GO--REQUIREDSWITCHDIAGNOSTICS",
+          "path": "internal/validate/required_switches.go",
+          "line": 22
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-MODEL-AUTHORING"
+      ]
+    },
+    {
+      "id": "REQ-EMG-168",
+      "text": "When generation run is requested, the engineering model go shall print the remedy of a required-switch diagnostic and carry it in the structured output.",
+      "units": [
+        "FU-CLI-ORCHESTRATION",
+        "FU-MCP-SERVER",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--FIXLINE",
+          "path": "internal/validate/diagnostic.go",
+          "line": 55
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-DIAGNOSTIC-GO--WRITEDIAGNOSTIC",
+          "path": "internal/validate/diagnostic.go",
+          "line": 66
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REMEDYFOR",
+          "path": "internal/validate/remedies.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDSWITCHES",
+          "path": "internal/validate/remedies.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDSWITCHESMARKDOWN",
+          "path": "internal/validate/remedies.go",
+          "line": 70
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--WITHREMEDIES",
+          "path": "internal/validate/remedies.go",
+          "line": 96
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-LIFECYCLE-POLICY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-169",
+      "text": "When model updated event is received, the engineering model go shall keep a remedy for every required-switch code in one table that an inventory test compares with the codes in both directions.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REMEDYFOR",
+          "path": "internal/validate/remedies.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDSWITCHES",
+          "path": "internal/validate/remedies.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDSWITCHESMARKDOWN",
+          "path": "internal/validate/remedies.go",
+          "line": 70
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--WITHREMEDIES",
+          "path": "internal/validate/remedies.go",
+          "line": 96
+        }
+      ],
       "status": "implemented"
     }
   ],
@@ -18664,12 +19567,12 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 154,
-    "implemented": 151,
+    "requirements": 162,
+    "implemented": 159,
     "verified": 143,
     "tested": 143,
     "testLinked": 143,
-    "passed": 2,
+    "passed": 4,
     "delegated": 0,
     "delegatedImplemented": 0,
     "delegatedTestLinked": 0,

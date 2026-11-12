@@ -252,6 +252,10 @@ func diagRows(diags []validate.Diagnostic) []map[string]any {
 		if d.PoamRef != "" {
 			row["poamRef"] = d.PoamRef
 		}
+		// The remedy of a required switch: the skill or command that fixes it.
+		if d.Remedy != "" {
+			row["remedy"] = d.Remedy
+		}
 		out = append(out, row)
 	}
 	return out

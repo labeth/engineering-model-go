@@ -564,6 +564,12 @@ package 'sample-bedrock-pr-review-model' {
     attribute 'DATA-WEBHOOK-SIGNATURE';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DEP-BEDROCK-GITHUB-BOUNDARY";
         conceptKind = "part_definition";
     }

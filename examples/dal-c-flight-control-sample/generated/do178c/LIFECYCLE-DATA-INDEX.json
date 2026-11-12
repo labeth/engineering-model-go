@@ -40,7 +40,7 @@
       },
       "baseline": "",
       "owner": "Software Lead",
-      "state": "declared",
+      "state": "planned",
       "approvals": null,
       "objectiveRefs": null
     },
@@ -57,7 +57,7 @@
       },
       "baseline": "",
       "owner": "Verification Lead",
-      "state": "declared",
+      "state": "planned",
       "approvals": null,
       "objectiveRefs": null
     },
@@ -74,7 +74,7 @@
       },
       "baseline": "",
       "owner": "CM Lead",
-      "state": "declared",
+      "state": "planned",
       "approvals": null,
       "objectiveRefs": null
     },
@@ -91,7 +91,7 @@
       },
       "baseline": "",
       "owner": "SQA Lead",
-      "state": "declared",
+      "state": "planned",
       "approvals": null,
       "objectiveRefs": null
     },

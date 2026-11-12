@@ -17,14 +17,31 @@ import (
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestTierGapTool(t *testing.T) {
 	root := copyLinksExample(t)
-	for _, repo := range []string{"system", "child-a"} {
-		manifest := filepath.Join(root, "repos", repo, "engmod.yml")
+	// The examples declare lifecycle mvp; the case lowers child-a to prototype
+	// (the tier decision follows) and leaves child-b without a tier, the kept
+	// library behaviour of a dependency without one.
+	for repo, tier := range map[string]string{"system": "mvp", "child-a": "prototype", "child-b": ""} {
+		dir := filepath.Join(root, "repos", repo)
+		manifest := filepath.Join(dir, "engmod.yml")
 		data, err := os.ReadFile(manifest)
 		if err != nil {
 			t.Fatal(err)
 		}
-		tier := map[string]string{"system": "mvp", "child-a": "prototype"}[repo]
-		if err := os.WriteFile(manifest, append(data, []byte("lifecycle:\n  tier: "+tier+"\n")...), 0o644); err != nil {
+		text := string(data)
+		text = text[:strings.Index(text, "lifecycle:")]
+		if tier != "" {
+			text += "lifecycle:\n  tier: " + tier + "\n  bundles: [foundation]\n  tierDecision: DEC-TIER-" + strings.ToUpper(tier) + "\n"
+			decisions := filepath.Join(dir, "model", "decisions.yml")
+			dec, err := os.ReadFile(decisions)
+			if err != nil {
+				t.Fatal(err)
+			}
+			out := strings.NewReplacer("DEC-TIER-MVP", "DEC-TIER-"+strings.ToUpper(tier), "Tier: MVP", "Tier: "+tier).Replace(string(dec))
+			if err := os.WriteFile(decisions, []byte(out), 0o644); err != nil {
+				t.Fatal(err)
+			}
+		}
+		if err := os.WriteFile(manifest, []byte(text), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}

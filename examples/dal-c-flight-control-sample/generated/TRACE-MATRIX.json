@@ -7,7 +7,10 @@
       "units": [
         "FU-YAW-CONTROL"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-YAW-DAMPING"
+      ]
     },
     {
       "id": "REQ-YD-LLR-001",
@@ -23,7 +26,10 @@
       "units": [
         "FU-YAW-CONTROL"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-YAW-DAMPING"
+      ]
     }
   ],
   "danglingLinks": null,

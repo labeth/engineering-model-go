@@ -221,6 +221,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Compose products through published contracts
 |accepted
 |2026-09-19
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|company portfolio runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend
@@ -318,6 +322,11 @@ flowchart TB
   REQC_REQ_PORT_001["REQ-PORT-001"]:::requirement
   FU_FU_PORT_GOVERNANCE["Portfolio Governance Service"]:::functional_unit
   REQC_REQ_PORT_001 -->|applies_to| FU_FU_PORT_GOVERNANCE
+  RTC_FU_PORT_GOVERNANCE_RUNTIME["Portfolio Governance Service runtime (inferred)"]:::runtime_element
+  FU_FU_PORT_GOVERNANCE -->|runtime evidence| RTC_FU_PORT_GOVERNANCE_RUNTIME
+  CODE_REQ_PORT_001_GOVERNANCE_GO["governance.go: 6"]:::code_element
+  RTC_FU_PORT_GOVERNANCE_RUNTIME --->|implemented_by| CODE_REQ_PORT_001_GOVERNANCE_GO
+  REQC_REQ_PORT_001 -->|code trace| CODE_REQ_PORT_001_GOVERNANCE_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -702,16 +711,16 @@ Each requirement of this model with the requirement links (`model/req-links.yml`
 ** no requirement link
 * *REQ-PORT-002*: The atlas industries portfolio shall provide perimeter awareness using the Aegis Sentinel product capability.
 ** link LNK-PORT-002-AEGIS (unchanged, accepted) to `aegis::CAP-AEGIS-MISSION`: Reviewed perimeter incident detection.
-*** `aegis::REQ-AEG-001` (status not available): The aegis sentinel system shall present each perimeter track to the security operator.
-*** `aegis::REQ-AEG-002` (status not available): The aegis sentinel system shall execute the sensor fusion software on managed edge compute.
-*** `aegis::REQ-AEG-003` (status not available): The aegis sentinel system shall retain each perimeter track using managed cloud operations.
-*** `aegis::REQ-AEG-004` (status not available): The aegis sentinel system shall authenticate product services using shared security services.
+*** `aegis::REQ-AEG-001` (implemented, not test linked): The aegis sentinel system shall present each perimeter track to the security operator.
+*** `aegis::REQ-AEG-002` (not implemented, not test linked): The aegis sentinel system shall execute the sensor fusion software on managed edge compute.
+*** `aegis::REQ-AEG-003` (not implemented, not test linked): The aegis sentinel system shall retain each perimeter track using managed cloud operations.
+*** `aegis::REQ-AEG-004` (not implemented, not test linked): The aegis sentinel system shall authenticate product services using shared security services.
 * *REQ-PORT-003*: The atlas industries portfolio shall provide resilient communications using the Orion Relay product capability.
 ** link LNK-PORT-003-ORION (unchanged, accepted) to `orion::CAP-ORION-MISSION`: Resilient prioritized remote message delivery.
-*** `orion::REQ-ORI-001` (status not available): The orion relay system shall deliver each relay message according to network controller priority.
-*** `orion::REQ-ORI-002` (status not available): The orion relay system shall execute the link scheduler software on managed edge compute.
-*** `orion::REQ-ORI-003` (status not available): The orion relay system shall retain relay configuration using managed cloud operations.
-*** `orion::REQ-ORI-004` (status not available): The orion relay system shall authenticate product services using shared security services.
+*** `orion::REQ-ORI-001` (implemented, not test linked): The orion relay system shall deliver each relay message according to network controller priority.
+*** `orion::REQ-ORI-002` (not implemented, not test linked): The orion relay system shall execute the link scheduler software on managed edge compute.
+*** `orion::REQ-ORI-003` (not implemented, not test linked): The orion relay system shall retain relay configuration using managed cloud operations.
+*** `orion::REQ-ORI-004` (not implemented, not test linked): The orion relay system shall authenticate product services using shared security services.
 
 
 <<<
@@ -1699,5 +1708,33 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
+[[REF_CODE_SOURCE_FILE_GOVERNANCE_GO_SRC_GOVERNANCE_GO]]
+[discrete]
+==== governance.go
+
+reports portfolio status to the portfolio executive
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-PORT-GOVERNANCE
+|Source |src/governance.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_GOVERNANCE_GO_6_SRC_GOVERNANCE_GO_6]]
+[discrete]
+==== governance.go:6
+
+Inferred code symbol owned by FU-PORT-GOVERNANCE from src/governance.go:6.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-PORT-GOVERNANCE
+|Source |src/governance.go:6
+|Mentioned In |n/a
+|===
 
 === Verification References

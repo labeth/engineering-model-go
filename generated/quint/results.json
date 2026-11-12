@@ -167,6 +167,143 @@
         }
       ],
       "warnings": []
+    },
+    {
+      "machine": "SM-MCP-SESSION",
+      "module": "sm_mcp_session",
+      "qntFile": "generated/quint/sm_mcp_session.qnt",
+      "qntSha256": "fa6005509345c4aa949a3b516bb2947c33e824b73c53509979d567095e16b25d",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [],
+      "witnesses": [
+        {
+          "name": "wit_state_mcp_model_current",
+          "state": "STATE-MCP-MODEL-CURRENT",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_mcp_model_outdated",
+          "state": "STATE-MCP-MODEL-OUTDATED",
+          "witnessed": 10000,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "machine": "SM-REQUIREMENTS-DELTA",
+      "module": "sm_requirements_delta",
+      "qntFile": "generated/quint/sm_requirements_delta.qnt",
+      "qntSha256": "a4636a6a09805ed3fb163bd43db5adb2f1eff04a91bb6f2bc4f83f72be9afda6",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_delta_written_only_when_applied",
+          "id": "INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED",
+          "requirements": [
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_applied_written",
+          "id": "INV-DELTA-APPLIED-WRITTEN",
+          "requirements": [
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_dry_run_not_written",
+          "id": "INV-DELTA-DRY-RUN-NOT-WRITTEN",
+          "requirements": [
+            "REQ-EMG-032"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_delta_none",
+          "state": "STATE-DELTA-NONE",
+          "witnessed": 9997,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_planning",
+          "state": "STATE-DELTA-PLANNING",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_planned",
+          "state": "STATE-DELTA-PLANNED",
+          "witnessed": 9982,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_applied",
+          "state": "STATE-DELTA-APPLIED",
+          "witnessed": 9264,
+          "total": 10000
+        }
+      ],
+      "warnings": []
     }
   ]
 }

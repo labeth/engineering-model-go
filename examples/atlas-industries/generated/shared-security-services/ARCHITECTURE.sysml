@@ -120,6 +120,12 @@ package 'atlas-shared-security-services' {
     attribute 'DATA-AUDIT-EVENT';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DO-SEC-AUDIT-EVENT";
         conceptKind = "item_definition";
     }

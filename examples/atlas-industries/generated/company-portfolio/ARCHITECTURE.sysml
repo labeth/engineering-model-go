@@ -80,6 +80,12 @@ package 'atlas-industries-portfolio' {
     attribute 'DATA-PORT-STATUS';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DO-PORT-STATUS";
         conceptKind = "item_definition";
     }

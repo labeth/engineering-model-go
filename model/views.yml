@@ -59,6 +59,8 @@ views:
   - SM-MODEL-VALIDATION
   - SM-ARTIFACT-FRESHNESS
   - SM-LINK-LIFECYCLE
+  - SM-MCP-SESSION
+  - SM-REQUIREMENTS-DELTA
   includeKinds:
   - state
   - event
@@ -601,7 +603,7 @@ design:
       architecture_intent:
         title: System Composition Intent
         narrative: Resolves a parent model's downward subsystem references into a federated system-of-systems from local paths,
-          external git repositories, or exact-version CUE modules in OCI registries.
+          workspace replacements, or exact-version CUE modules in OCI registries.
       communication:
         title: System Composition Communication
         narrative: Binds each subsystem's provides/requires contract to the parent's allocations and satisfactions without

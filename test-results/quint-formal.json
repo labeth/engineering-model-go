@@ -5,6 +5,42 @@
   "backend": "typescript",
   "results": [
     {
+      "requirement": "REQ-EMG-032",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-REQUIREMENTS-DELTA",
+      "invariant": "INV-DELTA-DRY-RUN-NOT-WRITTEN",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_requirements_delta.qnt",
+      "qntSha256": "a4636a6a09805ed3fb163bd43db5adb2f1eff04a91bb6f2bc4f83f72be9afda6",
+      "notes": "INV-DELTA-DRY-RUN-NOT-WRITTEN of SM-REQUIREMENTS-DELTA holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-EMG-033",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-REQUIREMENTS-DELTA",
+      "invariant": "INV-DELTA-APPLIED-WRITTEN",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_requirements_delta.qnt",
+      "qntSha256": "a4636a6a09805ed3fb163bd43db5adb2f1eff04a91bb6f2bc4f83f72be9afda6",
+      "notes": "INV-DELTA-APPLIED-WRITTEN of SM-REQUIREMENTS-DELTA holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-EMG-033",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-REQUIREMENTS-DELTA",
+      "invariant": "INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_requirements_delta.qnt",
+      "qntSha256": "a4636a6a09805ed3fb163bd43db5adb2f1eff04a91bb6f2bc4f83f72be9afda6",
+      "notes": "INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED of SM-REQUIREMENTS-DELTA holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
       "requirement": "REQ-EMG-094",
       "status": "pass",
       "method": "analysis",

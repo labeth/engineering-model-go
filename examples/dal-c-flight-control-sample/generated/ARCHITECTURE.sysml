@@ -44,6 +44,14 @@ package 'DAL-C-FLIGHT-CONTROL-SAMPLE' {
     item def 'ACT-SYSTEMS-ENGINEER';
 
     @EngineeringElement {
+        sourceId = "CAP-YAW-DAMPING";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-YAW-DAMPING' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
         sourceId = "CONCERN-2F87CC2FF83FAEB7";
         conceptKind = "concern_usage";
     }
@@ -66,6 +74,12 @@ package 'DAL-C-FLIGHT-CONTROL-SAMPLE' {
     concern 'CONCERN-9A2910DA260B2C56' : EngineeringConcern {
         attribute 'narrative' : 'String' = "The flight-control group contains the bounded yaw damping capability.";
     }
+
+    @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
 
     @EngineeringElement {
         sourceId = "DOC-SOFTWARE-DESIGN";

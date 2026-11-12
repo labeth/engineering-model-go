@@ -4,6 +4,12 @@ Proposed decisions: ADR-EMG-061 (no backwards compatibility, every required fiel
 ADR-EMG-060 (no legacy state), ADR-EMG-062 (both repositories run at operational). This plan comes from two read-only
 audits of `engineering-model-go` (engine) and `engineering-flow` (flow) on 2026-11-12 and orders the removal.
 
+Status 2026-11-12: the tier-up of `engineering-model-go` (ADR-EMG-062) is done. `engmod.yml` declares lifecycle tier
+`operational` (`DEC-TIER-OPERATIONAL`, accepted on the owner's instruction "same for model, i want it at the highest
+level"), its code health debt is in `model/health-baseline.json` (`DEC-HEALTH-BASELINE`), and the requirements that have
+no recorded RED check are deferred by the open POA&M items `POAM-TIER-OPERATIONAL-01` to `-16` (due 2027-06-30). The
+tier-up of `engineering-flow` is still open.
+
 ## Rule
 
 1. A model, a schema version, an engine pin, a tier decision, an installed file and a lock must be at the current version.
@@ -20,7 +26,7 @@ audits of `engineering-model-go` (engine) and `engineering-flow` (flow) on 2026-
 
 **Engine (about 40 items):** `lifecycle` is optional and absent in all 20 manifests (18 examples, the Quint test model,
 the repository's own); `requirementLinks`, `bundles`, `tierDecision`, `lintRun.mode` and the `health` block silently
-default; the golden `no-lifecycle-golden.json` and about 20 tests pin the no-lifecycle behaviour; deprecated
+default; the golden `no-lifecycle-golden.json` and about 20 tests pinned the no-lifecycle behaviour (phase 2 replaced the golden by `examples-golden.json` at each example's declared tier); deprecated
 `composition.allocations`, `contract.provides[].ref` and `pinned.fingerprint` are still read; `migrate-links`,
 `--allow-suspect`, `engoscal --out`, MCP `links.suspect`, `entities.list` and many MCP argument aliases exist only for
 old callers; `Summary.Verified`, `LinksSuspect`, `BaseCatalogRef`, `Compatibility` and `InferenceHints.CodeSources` are

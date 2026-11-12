@@ -61,7 +61,7 @@ func TestAcceptedRecordsNeedAnOwnerAcceptance(t *testing.T) {
 	if got := behaviorDiags(b, "risk.acceptance_unrecorded"); len(got) != 0 {
 		t.Fatalf("complete records must clear the error, got %+v", got)
 	}
-	if HasErrors(Bundle(b)) {
+	if hasErrors(Bundle(b)) {
 		t.Fatalf("bundle with complete acceptance records has errors: %+v", Bundle(b))
 	}
 }
@@ -184,7 +184,7 @@ func TestAcceptanceByDecisionOnlyWarns(t *testing.T) {
 	if want := "authoredArchitecture.risks[0].acceptedBy.statement,authoredArchitecture.threatScenarios[0].acceptedBy.statement"; strings.Join(paths, ",") != want {
 		t.Fatalf("risk.acceptance_by_decision_only paths = %v, want %s", paths, want)
 	}
-	if HasErrors(Bundle(b)) {
+	if hasErrors(Bundle(b)) {
 		t.Fatalf("decision-only acceptance must stay a warning: %+v", Bundle(b))
 	}
 }

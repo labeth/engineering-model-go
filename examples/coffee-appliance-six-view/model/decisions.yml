@@ -9,3 +9,15 @@ decisions:
   consequences:
   - Process views show the operator-visible sequence without hiding the temperature self-message.
   - Implementation and deployment views retain separate software responsibilities.
+- id: DEC-TIER-MVP
+  title: coffee appliance six view runs at the mvp tier with the foundation bundle
+  status: accepted
+  date: 2026-11-12
+  context: The example is a complete model at one stated tier so that the required lifecycle switches (ADR-EMG-061) are met and its generated artifacts show the diagnostics of that tier.
+  decision: |-
+    Tier: MVP
+    Bundles: foundation
+    The example declares lifecycle tier mvp with requirementLinks strict and lintRun mode strict.
+  consequences:
+  - The strict requirement link rules apply from the mvp tier.
+  - The tier rules of mvp key the severity of the example's findings.

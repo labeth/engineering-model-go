@@ -138,6 +138,9 @@ var coreCodes = []string{
 	"risk.acceptance_unrecorded",
 	"lifecycle.invalid_tier", "lifecycle.invalid_bundle", "lifecycle.tier_decision_mismatch",
 	"lifecycle.requirement_links_conflict", "lifecycle.poam_defers_core",
+	"lifecycle.missing", "lifecycle.bundles_missing", "lifecycle.tier_decision_missing",
+	"model.requirement_links_missing", "model.unsupported_schema_version", "model.id_missing",
+	"lint.mode_missing", "lint.mode_invalid", "lint.mode_guided_at_tier", "health.block_missing",
 	"aviation.ai_actor_as_credit", "aviation.authority_state_unevidenced",
 }
 

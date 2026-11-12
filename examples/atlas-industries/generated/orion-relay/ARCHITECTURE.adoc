@@ -227,6 +227,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Keep adaptive radio scheduling product-specific
 |accepted
 |2026-09-19
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|orion relay runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend
@@ -324,6 +328,11 @@ flowchart TB
   REQC_REQ_ORI_001["REQ-ORI-001"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
   REQC_REQ_ORI_001 -->|applies_to| FU_FU_ORI_ROUTER
+  RTC_FU_ORI_ROUTER_RUNTIME["Message Router Software runtime (inferred)"]:::runtime_element
+  FU_FU_ORI_ROUTER -->|runtime evidence| RTC_FU_ORI_ROUTER_RUNTIME
+  CODE_REQ_ORI_001_ROUTER_GO["router.go: 6"]:::code_element
+  RTC_FU_ORI_ROUTER_RUNTIME --->|implemented_by| CODE_REQ_ORI_001_ROUTER_GO
+  REQC_REQ_ORI_001 -->|code trace| CODE_REQ_ORI_001_ROUTER_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2138,5 +2147,33 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
+[[REF_CODE_SOURCE_FILE_ROUTER_GO_SRC_ROUTER_GO]]
+[discrete]
+==== router.go
+
+delivers relay messages according to network controller priority
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-ORI-ROUTER
+|Source |src/router.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_ROUTER_GO_6_SRC_ROUTER_GO_6]]
+[discrete]
+==== router.go:6
+
+Inferred code symbol owned by FU-ORI-ROUTER from src/router.go:6.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-ORI-ROUTER
+|Source |src/router.go:6
+|Mentioned In |n/a
+|===
 
 === Verification References

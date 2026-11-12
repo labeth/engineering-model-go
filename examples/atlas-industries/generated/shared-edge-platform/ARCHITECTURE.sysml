@@ -86,6 +86,12 @@ package 'atlas-shared-edge-platform' {
     attribute 'DATA-EDGE-TELEMETRY';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DO-EDGE-TELEMETRY";
         conceptKind = "item_definition";
     }

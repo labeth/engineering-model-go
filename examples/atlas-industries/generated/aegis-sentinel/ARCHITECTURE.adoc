@@ -227,6 +227,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Keep sensor fusion product-specific
 |accepted
 |2026-09-19
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|aegis sentinel runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend
@@ -324,6 +328,11 @@ flowchart TB
   REQC_REQ_AEG_001["REQ-AEG-001"]:::requirement
   FU_FU_AEG_MISSION["Mission Coordination Software"]:::functional_unit
   REQC_REQ_AEG_001 -->|applies_to| FU_FU_AEG_MISSION
+  RTC_FU_AEG_MISSION_RUNTIME["Mission Coordination Software runtime (inferred)"]:::runtime_element
+  FU_FU_AEG_MISSION -->|runtime evidence| RTC_FU_AEG_MISSION_RUNTIME
+  CODE_REQ_AEG_001_MISSION_GO["mission.go: 6"]:::code_element
+  RTC_FU_AEG_MISSION_RUNTIME --->|implemented_by| CODE_REQ_AEG_001_MISSION_GO
+  REQC_REQ_AEG_001 -->|code trace| CODE_REQ_AEG_001_MISSION_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -2148,5 +2157,33 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
+[[REF_CODE_SOURCE_FILE_MISSION_GO_SRC_MISSION_GO]]
+[discrete]
+==== mission.go
+
+presents each perimeter track to the security operator
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-AEG-MISSION
+|Source |src/mission.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_MISSION_GO_6_SRC_MISSION_GO_6]]
+[discrete]
+==== mission.go:6
+
+Inferred code symbol owned by FU-AEG-MISSION from src/mission.go:6.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-AEG-MISSION
+|Source |src/mission.go:6
+|Mentioned In |n/a
+|===
 
 === Verification References

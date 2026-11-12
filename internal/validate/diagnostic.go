@@ -1,7 +1,11 @@
 // ENGMODEL-OWNER-UNIT: FU-VALIDATION-ENGINE
 package validate
 
-import "sort"
+import (
+	"fmt"
+	"io"
+	"sort"
+)
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type Severity string
@@ -26,6 +30,44 @@ type Diagnostic struct {
 	RequiredFrom string `json:"requiredFrom,omitempty"`
 	// PoamRef is the POA&M item that defers the diagnostic.
 	PoamRef string `json:"poamRef,omitempty"`
+	// Remedy says how to fix the diagnostic: the skill to run or the
+	// command to execute. It is set for the codes of the required-switch
+	// table (remedies.go) and printed as "fix: <remedy>" by every CLI.
+	Remedy string `json:"remedy,omitempty"`
+}
+
+// Line renders a diagnostic as "code [severity] message (path)", the form
+// the CLIs print; the path is left out when empty.
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-125
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (d Diagnostic) Line() string {
+	line := fmt.Sprintf("%s [%s] %s", d.Code, d.Severity, d.Message)
+	if d.Path != "" {
+		line += " (" + d.Path + ")"
+	}
+	return line
+}
+
+// FixLine returns "  fix: <remedy>" for a diagnostic that has a remedy and
+// "" otherwise.
+// TRLC-LINKS: REQ-EMG-125, REQ-EMG-168
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (d Diagnostic) FixLine() string {
+	if d.Remedy == "" {
+		return ""
+	}
+	return "  fix: " + d.Remedy
+}
+
+// WriteDiagnostic writes Line and, when the diagnostic has a remedy, a
+// following FixLine to w: the common printing form of the CLIs.
+// TRLC-LINKS: REQ-EMG-125, REQ-EMG-168
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func WriteDiagnostic(w io.Writer, d Diagnostic) {
+	fmt.Fprintln(w, d.Line())
+	if fix := d.FixLine(); fix != "" {
+		fmt.Fprintln(w, fix)
+	}
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED

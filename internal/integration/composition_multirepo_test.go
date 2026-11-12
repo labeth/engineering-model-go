@@ -66,7 +66,7 @@ behavior:
 `,
 		assurance:    "schemaVersion: 2\nassurance: {}\n",
 		views:        "schemaVersion: 2\nviews: []\n",
-		requirements: "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-SVC-001\n    text: The service shall publish the state.\n    appliesTo: [FU-SVC, nats::IF-WS]\n",
+		requirements: "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-SVC-001\n    text: The service shall publish the state.\n    appliesTo: [FU-SVC, nats::IF-WS]\n",
 		code: `package svc
 
 // TRLC-LINKS: REQ-SVC-001
@@ -95,7 +95,7 @@ module:
   title: Service
   introduction: ""
   kind: system
-dependencies:
+`+testutil.CompleteSwitches+`dependencies:
   - alias: nats
     path: example.com/iface@v0
     version: v0.1.0
@@ -117,7 +117,7 @@ documents:
 	testutil.WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), docs.assurance)
 	testutil.WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
 	testutil.WriteFile(t, filepath.Join(dir, "model", "views.yml"), docs.views)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), testutil.TierDecisionPoC)
 	testutil.WriteFile(t, filepath.Join(dir, "src", "svc.go"), docs.code)
 	return f
 }
@@ -504,7 +504,7 @@ func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
       owner: FU-CORE
 `)
 	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), `schemaVersion: 2
-lintRun: {}
+lintRun: {mode: guided}
 requirements:
   - id: REQ-SOLO-001
     text: The solo system shall store values.

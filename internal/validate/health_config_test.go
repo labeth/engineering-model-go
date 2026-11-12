@@ -308,7 +308,7 @@ func TestAuthoringRulesDescribeHealth(t *testing.T) {
 		t.Errorf("health.thresholds type = %+v", thresholds)
 	}
 	text := strings.Join(rules.FieldRules, "\n")
-	for _, want := range []string{"Code health (optional)", "health.waiver_unjustified", "model.invalid_health_threshold", "lifecycle.raise: [health.*]", "health.regression", "health.policy_weakened", "policyDecision"} {
+	for _, want := range []string{"Code health: engmod.yml health", "health.block_missing", "health.waiver_unjustified", "model.invalid_health_threshold", "lifecycle.raise: [health.*]", "health.regression", "health.policy_weakened", "policyDecision"} {
 		if !strings.Contains(text, want) {
 			t.Errorf("field rules lack %q", want)
 		}

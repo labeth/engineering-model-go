@@ -95,6 +95,21 @@ publications:
   - DO-THREAT-DRAGON-JSON
   - DEP-LOCAL-WORKSPACE
   - DEP-CI-PIPELINE
+  - CAP-EMG-MODEL-AUTHORING
+  - CAP-EMG-MODEL-VALIDATION
+  - CAP-EMG-MODEL-CHANGE
+  - CAP-EMG-TRACEABILITY
+  - CAP-EMG-GENERATION-PIPELINE
+  - CAP-EMG-PUBLICATION
+  - CAP-EMG-ARCHITECTURE-INTERCHANGE
+  - CAP-EMG-COMPLIANCE-EXPORT
+  - CAP-EMG-AIRBORNE-ASSURANCE
+  - CAP-EMG-SYSTEM-COMPOSITION
+  - CAP-EMG-REQUIREMENT-LINKS
+  - CAP-EMG-MCP-INTEGRATION
+  - CAP-EMG-LIFECYCLE-POLICY
+  - CAP-EMG-FORMAL-BEHAVIOR
+  - CAP-EMG-CODE-HEALTH
   behavior:
   - STATE-MODEL-VALID
   - STATE-MODEL-INVALID
@@ -186,6 +201,118 @@ publications:
   - REQ-EMG-049
   - REQ-EMG-050
   - REQ-EMG-051
+  - REQ-EMG-052
+  - REQ-EMG-053
+  - REQ-EMG-054
+  - REQ-EMG-055
+  - REQ-EMG-056
+  - REQ-EMG-057
+  - REQ-EMG-058
+  - REQ-EMG-059
+  - REQ-EMG-060
+  - REQ-EMG-061
+  - REQ-EMG-062
+  - REQ-EMG-063
+  - REQ-EMG-064
+  - REQ-EMG-065
+  - REQ-EMG-066
+  - REQ-EMG-067
+  - REQ-EMG-068
+  - REQ-EMG-069
+  - REQ-EMG-070
+  - REQ-EMG-071
+  - REQ-EMG-072
+  - REQ-EMG-073
+  - REQ-EMG-080
+  - REQ-EMG-081
+  - REQ-EMG-082
+  - REQ-EMG-083
+  - REQ-EMG-084
+  - REQ-EMG-085
+  - REQ-EMG-086
+  - REQ-EMG-087
+  - REQ-EMG-088
+  - REQ-EMG-089
+  - REQ-EMG-090
+  - REQ-EMG-091
+  - REQ-EMG-092
+  - REQ-EMG-093
+  - REQ-EMG-094
+  - REQ-EMG-095
+  - REQ-EMG-096
+  - REQ-EMG-097
+  - REQ-EMG-098
+  - REQ-EMG-099
+  - REQ-EMG-100
+  - REQ-EMG-101
+  - REQ-EMG-102
+  - REQ-EMG-103
+  - REQ-EMG-104
+  - REQ-EMG-105
+  - REQ-EMG-106
+  - REQ-EMG-107
+  - REQ-EMG-108
+  - REQ-EMG-109
+  - REQ-EMG-110
+  - REQ-EMG-111
+  - REQ-EMG-112
+  - REQ-EMG-113
+  - REQ-EMG-114
+  - REQ-EMG-115
+  - REQ-EMG-116
+  - REQ-EMG-117
+  - REQ-EMG-118
+  - REQ-EMG-119
+  - REQ-EMG-120
+  - REQ-EMG-121
+  - REQ-EMG-122
+  - REQ-EMG-123
+  - REQ-EMG-124
+  - REQ-EMG-125
+  - REQ-EMG-126
+  - REQ-EMG-127
+  - REQ-EMG-128
+  - REQ-EMG-129
+  - REQ-EMG-130
+  - REQ-EMG-131
+  - REQ-EMG-132
+  - REQ-EMG-133
+  - REQ-EMG-134
+  - REQ-EMG-135
+  - REQ-EMG-136
+  - REQ-EMG-137
+  - REQ-EMG-138
+  - REQ-EMG-139
+  - REQ-EMG-140
+  - REQ-EMG-141
+  - REQ-EMG-142
+  - REQ-EMG-143
+  - REQ-EMG-144
+  - REQ-EMG-145
+  - REQ-EMG-146
+  - REQ-EMG-147
+  - REQ-EMG-148
+  - REQ-EMG-149
+  - REQ-EMG-150
+  - REQ-EMG-151
+  - REQ-EMG-152
+  - REQ-EMG-153
+  - REQ-EMG-154
+  - REQ-EMG-155
+  - REQ-EMG-156
+  - REQ-EMG-157
+  - REQ-EMG-158
+  - REQ-EMG-159
+  - REQ-EMG-160
+  - REQ-EMG-161
+  - REQ-EMG-162
+  - REQ-EMG-163
+  - REQ-EMG-164
+  - REQ-EMG-165
+  - REQ-EMG-166
+  - REQ-EMG-167
+  - REQ-EMG-168
+  - REQ-EMG-169
   views:
   - VIEW-ARCHITECTURE-INTENT
   - VIEW-TRACEABILITY
@@ -213,3 +340,16 @@ inferenceHints:
   - explicit_annotation
   - path_convention
   - unresolved_warning
+lifecycle:
+  tier: operational
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-OPERATIONAL
+requirementLinks: strict
+health:
+  exclude:
+  - generated/**
+  - internal/model/sysml_metamodel_generated.go
+  baseline:
+    file: model/health-baseline.json
+    decision: DEC-HEALTH-BASELINE

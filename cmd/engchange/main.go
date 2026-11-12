@@ -67,11 +67,7 @@ func main() {
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-VALIDATION-ENGINE, IF-CLI-ENGCHANGE
 func printDiagnostics(diagnostics []validate.Diagnostic) {
 	for _, diagnostic := range diagnostics {
-		fmt.Fprintf(os.Stderr, "%s [%s] %s", diagnostic.Code, diagnostic.Severity, diagnostic.Message)
-		if diagnostic.Path != "" {
-			fmt.Fprintf(os.Stderr, " (%s)", diagnostic.Path)
-		}
-		fmt.Fprintln(os.Stderr)
+		validate.WriteDiagnostic(os.Stderr, diagnostic)
 	}
 }
 

@@ -86,6 +86,12 @@ package 'atlas-shared-cloud-platform' {
     attribute 'DATA-CLOUD-EVENT';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DO-CLOUD-EVENT";
         conceptKind = "item_definition";
     }

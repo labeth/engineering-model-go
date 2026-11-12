@@ -95,8 +95,8 @@ It is not a runtime observability or incident/compliance runtime system.
 - AsciiDoc architecture generation with chapter scope diagrams
 - view-level filtering controls (`includeKinds`, `excludeKinds`, `includeMappings`, `excludeMappings`, `maxDepth`)
 - EARS preflight linting via `github.com/labeth/ears-lint-go`
-  - `lintRun.mode: strict` is the default and recommended project mode
-  - `guided` is optional for drafting workflows and non-blocking author guidance
+  - `lintRun.mode` is required (`lint.mode_missing`): `strict` is the project mode from tier mvp
+  - `guided` is allowed only below mvp, for drafting (`lint.mode_guided_at_tier` from mvp)
 - Tree-sitter based code symbol extraction and trace mapping for:
   - Go
   - TypeScript/TSX
@@ -816,6 +816,37 @@ counterexample as the ordered transitions, for example
   runs `generate` and `check --mode both` for every model that has machines (set
   `ENGMOD_QUINT_SKIP_EXTERNAL=1` to skip the check locally; CI installs the pinned tools).
 
+## Required model switches
+
+Everything the system needs in order to function is an error when it is absent, and the error says how to
+fix it (ADR-EMG-061: there is no backwards compatibility and there are no silent defaults). Each
+diagnostic below carries a `remedy` (JSON field; the CLIs print it on a `fix:` line, MCP rows have a
+`remedy` key). The codes are rank-0 core codes: no tier, `lifecycle.raise` or POA&M item changes or
+defers them. `LoadBundle` stays lenient so that tools which embed the engine can load an incomplete
+model and report it; `ValidateBundle` and every CLI error. `rules.required` of the authoring contract
+(v7) lists the same table, and `TestRequiredSwitchesHaveRemedies` keeps the table and its inventory equal.
+
+| Switch | Error code | Remedy |
+|---|---|---|
+| engmod.yml lifecycle | `lifecycle.missing` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.tier | `lifecycle.invalid_tier` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.bundles | `lifecycle.bundles_missing` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.bundles (value) | `lifecycle.invalid_bundle` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.tierDecision | `lifecycle.tier_decision_missing` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.tierDecision (accepted decision with Tier: and Bundles: lines) | `lifecycle.tier_decision_mismatch` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| engmod.yml requirementLinks | `model.requirement_links_missing` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp) |
+| engmod.yml requirementLinks (value) | `model.invalid_requirement_links` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp) |
+| requirementLinks guided at mvp or above | `lifecycle.requirement_links_conflict` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp) |
+| requirements.yml lintRun.mode | `lint.mode_missing` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
+| lintRun.mode (value) | `lint.mode_invalid` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
+| lintRun.mode guided at mvp or above | `lint.mode_guided_at_tier` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
+| engmod.yml health block (tier product and operational) | `health.block_missing` | run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write |
+| schemaVersion 2 in every document | `model.unsupported_schema_version` | run engflow upgrade (engineering-flow) or set schemaVersion: 2 |
+| module.modelId | `model.id_missing` | set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM) |
+
+The tier decision named by `lifecycle.tierDecision` must be accepted and carry a `Tier:` line and a
+`Bundles:` line; a decision without a `Bundles:` line no longer means Foundation.
+
 ## Life-cycle tier
 
 A module may declare its life-cycle tier in `engmod.yml` (v0.10.0, ADR-EMG-031). The tier is the
@@ -825,14 +856,14 @@ engine does not model.
 ```yaml
 lifecycle:
   tier: product                      # poc < prototype < mvp < product < operational
-  bundles: [foundation, security]    # default [foundation]; safety adds the DO-178C rules
+  bundles: [foundation, security]    # required, no default; safety adds the DO-178C rules
   tierDecision: DEC-TIER-PRODUCT     # accepted decision with "Tier: Product" and "Bundles: ..." lines
   raise: [behavior.*]                # codes raised to error regardless of tier; never lowers
 ```
 
-Without `lifecycle` the diagnostics, documents and trace matrices of a model do not depend on the tier
-(`TestNoLifecycleGoldenOverExamples` pins them for every example; the v0.11.0 golden was regenerated
-for the machines rewrite, ADR-EMG-045). With it, every public
+A model without `lifecycle` is the error `lifecycle.missing` (see Required model switches below). The
+library still loads such a model and applies no tier rule to it, so that tools can report; the validator
+and every CLI treat it as an error. Every public
 entry (`ValidateBundle`, `GenerateAsciiDoc`, the trace builders, `engws check`, MCP) applies
 `ApplyTierPolicy` once to its merged diagnostics:
 
@@ -845,8 +876,8 @@ entry (`ValidateBundle`, `GenerateAsciiDoc`, the trace builders, `engws check`, 
 - `lifecycle.raise` makes the named codes (or `family.*`) errors;
 - rank-0 core codes (`CoreCodes()`: `model.duplicate_id`, `model.broken_reference`, `model.invalid_*`,
   `model.missing_*`, `code.dangling_*`, `composition.cycle`, `composition.lock_*`, the link integrity
-  codes, `risk.acceptance_unrecorded`, the structural `lifecycle.*` codes and the AI-credit and
-  authority-evidence aviation codes) are errors at every tier and never deferred, and every code the
+  codes, `risk.acceptance_unrecorded`, the structural `lifecycle.*` codes, the required-switch codes
+  and the AI-credit and authority-evidence aviation codes) are errors at every tier and never deferred, and every code the
   table does not key keeps its severity;
 - requirement links are strict from mvp whatever `requirementLinks` says; `requirementLinks: guided`
   at mvp or above is `lifecycle.requirement_links_conflict` (error);
@@ -946,9 +977,10 @@ with `requirementLinks: strict`):
 
 ### Code health configuration
 
-Code health is optional and opt-in (ADR-EMG-051, ADR-EMG-052). A manifest without a `health:` block
-validates, renders and traces byte for byte as before (`TestNoLifecycleGoldenOverExamples`); the
-block only configures the report and is checked on load and by `ValidateBundle`:
+The `health:` block (ADR-EMG-051, ADR-EMG-052) is required from tier product (`health.block_missing`,
+see Required model switches; an empty block `health: {}` is complete when the project has no debt).
+Below product a manifest without one reports nothing about health. The block configures the report and
+is checked on load and by `ValidateBundle`:
 
 ```yaml
 health:

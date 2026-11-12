@@ -116,7 +116,7 @@ catalog:
     - enggemara
   - id: FU-SYSTEM-COMPOSITION
     name: system composition
-    definition: Resolves downward subsystem references from local paths, external git repositories, or versioned CUE modules
+    definition: Resolves downward subsystem references from local paths, workspace replacements, or versioned CUE modules
       in OCI registries and composes a federated system-of-systems model.
     aliases:
     - composition
@@ -277,6 +277,11 @@ catalog:
     definition: Event indicating a validated requirements change should replace the canonical document.
     aliases:
     - requirements apply requested
+  - id: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+    name: requirements candidate is validated
+    definition: Event indicating the candidate requirements document built from a delta passed complete-model validation.
+    aliases:
+    - candidate validated
   - id: EVT-WORKSPACE-SYNC-REQUESTED
     name: workspace sync is requested
     definition: Event indicating a developer asked engws to rebuild the local multi-repository workspace or report its state.
@@ -384,6 +389,36 @@ catalog:
     definition: State where the child item of a requirement link no longer exists.
     aliases:
     - broken link
+  - id: STATE-MCP-MODEL-CURRENT
+    name: mcp model is current
+    definition: State where the model held by a running MCP server equals the model files on disk.
+    aliases:
+    - current mcp model
+  - id: STATE-MCP-MODEL-OUTDATED
+    name: mcp model is outdated
+    definition: State where a model file changed after the MCP server loaded its model.
+    aliases:
+    - outdated mcp model
+  - id: STATE-DELTA-NONE
+    name: no requirements delta is pending
+    definition: State where no requirements delta is being processed and the requirements document is as authored.
+    aliases:
+    - no delta pending
+  - id: STATE-DELTA-PLANNING
+    name: requirements delta is being planned
+    definition: State where a received delta is being decoded, merged into a candidate and validated without writing.
+    aliases:
+    - delta planning
+  - id: STATE-DELTA-PLANNED
+    name: requirements delta is planned
+    definition: State where the candidate requirements document is valid and not yet written.
+    aliases:
+    - delta planned
+  - id: STATE-DELTA-APPLIED
+    name: requirements delta is applied
+    definition: State where a valid candidate atomically replaced the requirements document.
+    aliases:
+    - delta applied
   features:
   - id: FEAT-MCP-SERVER
     name: mcp server is enabled
@@ -428,7 +463,7 @@ catalog:
     - gemara generation
   - id: FEAT-SYSTEM-COMPOSITION
     name: system composition is enabled
-    definition: Feature enabling recursive composition of subsystem models from local paths, external git repositories, or
+    definition: Feature enabling recursive composition of subsystem models from local paths, workspace replacements, or
       CUE modules in OCI registries.
     aliases:
     - system of systems

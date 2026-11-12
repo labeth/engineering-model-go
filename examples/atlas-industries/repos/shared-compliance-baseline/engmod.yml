@@ -67,3 +67,9 @@ publications:
   - REQ-COMP-007
   - REQ-COMP-008
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

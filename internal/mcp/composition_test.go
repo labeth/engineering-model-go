@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
 // TestCompositionAndTraceMatrixTools verifies the composition.resolve and trace.matrix
@@ -96,7 +98,7 @@ module:
   title: `+modelID+`
   introduction: ""
   kind: system
-`+manifestExtra+`documents:
+`+manifestExtra+testutil.CompleteSwitches+`documents:
   catalog: model/catalog.yml
   requirements: model/requirements.yml
   architecture: model/architecture.yml
@@ -107,13 +109,13 @@ module:
   decisions: model/decisions.yml
 `)
 	writeMCPFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-PARENT\n    text: Parent requirement.\n  - id: REQ-CHILD\n    text: Child requirement.\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-PARENT\n    text: Parent requirement.\n  - id: REQ-CHILD\n    text: Child requirement.\n")
 	writeMCPFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n"+architecture)
 	writeMCPFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
 	writeMCPFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
 	writeMCPFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
 	writeMCPFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "decisions.yml"), testutil.TierDecisionPoC)
 }
 
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
