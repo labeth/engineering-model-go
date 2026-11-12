@@ -1239,16 +1239,61 @@ package 'sample-coffee-fleet-ota-cloud-model' {
     attribute 'RISK-COFFEE-TELEMETRY-REPLAY';
 
     @EngineeringElement {
-        sourceId = "STATE-COFFEE-OTA-APPLIED";
+        sourceId = "SM-COFFEE-OTA-ROLLOUT";
         conceptKind = "state_definition";
     }
-    state def 'STATE-COFFEE-OTA-APPLIED';
-
-    @EngineeringElement {
-        sourceId = "STATE-COFFEE-OTA-SCHEDULED";
-        conceptKind = "state_definition";
+    state def 'SM-COFFEE-OTA-ROLLOUT' {
+        doc /* Lifecycle of one OTA campaign from the scheduled rollout to the applied firmware on the target cohort. Implemented by FU-UPDATE-CAMPAIGN-ORCHESTRATION. */
+        attribute firmwareApplied : Boolean := false;
+        entry;
+        then 'STATE-COFFEE-OTA-SCHEDULED';
+        state 'STATE-COFFEE-OTA-APPLIED';
+        @EngineeringElement about 'STATE-COFFEE-OTA-APPLIED' {
+            sourceId = "STATE-COFFEE-OTA-APPLIED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-COFFEE-OTA-ROLLING-OUT';
+        @EngineeringElement about 'STATE-COFFEE-OTA-ROLLING-OUT' {
+            sourceId = "STATE-COFFEE-OTA-ROLLING-OUT";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-COFFEE-OTA-SCHEDULED';
+        @EngineeringElement about 'STATE-COFFEE-OTA-SCHEDULED' {
+            sourceId = "STATE-COFFEE-OTA-SCHEDULED";
+            conceptKind = "state_usage";
+        }
+        succession 'REL-AB2EF48047D64FF3' first 'STATE-COFFEE-OTA-APPLIED' then done;
+        @EngineeringRelationship about 'REL-AB2EF48047D64FF3' {
+            sourceId = "REL-AB2EF48047D64FF3";
+            conceptKind = "succession";
+            relationshipKind = "machine_final";
+        }
+        transition 'TR-COFFEE-OTA-APPLY'
+            first 'STATE-COFFEE-OTA-ROLLING-OUT'
+            accept 'on-EVT-COFFEE-OTA-COMPLETED' :> 'EVT-COFFEE-OTA-COMPLETED'
+            do assign firmwareApplied := true
+            then 'STATE-COFFEE-OTA-APPLIED' {
+                doc /* The cohort reported the rollout complete. */
+            }
+        @EngineeringRelationship about 'TR-COFFEE-OTA-APPLY' {
+            sourceId = "TR-COFFEE-OTA-APPLY";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-COFFEE-OTA-START'
+            first 'STATE-COFFEE-OTA-SCHEDULED'
+            accept 'on-EVT-COFFEE-OTA-REQUESTED' :> 'EVT-COFFEE-OTA-REQUESTED'
+            then 'STATE-COFFEE-OTA-ROLLING-OUT' {
+                doc /* The accepted campaign request starts the rollout to the cohort. */
+            }
+        @EngineeringRelationship about 'TR-COFFEE-OTA-START' {
+            sourceId = "TR-COFFEE-OTA-START";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        // invariant INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-COFFEE-OTA-APPLIED) implies firmwareApplied
     }
-    state def 'STATE-COFFEE-OTA-SCHEDULED';
 
     @EngineeringElement {
         sourceId = "STATE-FLEET-OPERATION-ACTIVE";
@@ -1462,17 +1507,6 @@ package 'sample-coffee-fleet-ota-cloud-model' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-0632D237122444D8";
-        conceptKind = "event_trigger";
-        relationshipKind = "triggered_by";
-    }
-    state 'REL-0632D237122444D8-context' : EngineeringState {
-        state 'STATE-COFFEE-OTA-APPLIED' : EngineeringState;
-        action transitionEffect : EngineeringAction;
-        transition 'REL-0632D237122444D8' first 'STATE-COFFEE-OTA-APPLIED' accept 'EVT-COFFEE-OTA-COMPLETED' : EngineeringItem then transitionEffect;
-    }
-
-    @EngineeringRelationship {
         sourceId = "REL-0C8339650D08AE89";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -1569,17 +1603,6 @@ package 'sample-coffee-fleet-ota-cloud-model' {
     dependency 'REL-293D74A94A71C701' from 'AV-TELEMETRY-REPLAY-ABUSE' to 'FU-FLEET-OBSERVABILITY-REPORTING';
 
     @EngineeringRelationship {
-        sourceId = "REL-2B93239071435232";
-        conceptKind = "transition";
-        relationshipKind = "transitions_to";
-    }
-    state 'REL-2B93239071435232-context' : EngineeringState {
-        action 'STATE-COFFEE-OTA-SCHEDULED' : EngineeringAction;
-        action 'STATE-COFFEE-OTA-APPLIED' : EngineeringAction;
-        transition 'REL-2B93239071435232' first 'STATE-COFFEE-OTA-SCHEDULED' then 'STATE-COFFEE-OTA-APPLIED';
-    }
-
-    @EngineeringRelationship {
         sourceId = "REL-2DCD89BD5855C90E";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -1634,17 +1657,6 @@ package 'sample-coffee-fleet-ota-cloud-model' {
         part 'FU-MACHINE-TELEMETRY-COLLECTION' : EngineeringPart { port pOut : EngineeringPort; }
         part 'FU-FLEET-INGESTION-API' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-39E3521A07ECD778' from 'FU-MACHINE-TELEMETRY-COLLECTION'.pOut to 'FU-FLEET-INGESTION-API'.pIn;
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-3A35ACDB501D1468";
-        conceptKind = "event_trigger";
-        relationshipKind = "triggered_by";
-    }
-    state 'REL-3A35ACDB501D1468-context' : EngineeringState {
-        state 'STATE-COFFEE-OTA-SCHEDULED' : EngineeringState;
-        action transitionEffect : EngineeringAction;
-        transition 'REL-3A35ACDB501D1468' first 'STATE-COFFEE-OTA-SCHEDULED' accept 'EVT-COFFEE-OTA-REQUESTED' : EngineeringItem then transitionEffect;
     }
 
     @EngineeringRelationship {

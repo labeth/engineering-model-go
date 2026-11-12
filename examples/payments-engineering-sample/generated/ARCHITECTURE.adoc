@@ -380,7 +380,7 @@ flowchart LR
   FU --> DEPT
   FU --> CTRL
   FU --> TB
-  ST -->|triggered_by| EVT
+  ST -->|on_event| EVT
   ST -->|guarded_by| CTRL
   FLOW --> FSTEP
   FSTEP -->|flow_ref| FU
@@ -471,7 +471,9 @@ N_REF_BANK_GATEWAY_ENDPOINT["Bank Gateway Endpoint"]:::referenced_element
 N_REF_HELM_PLATFORM["Helm Runtime Platform"]:::referenced_element
 N_REF_POSTGRES_DRIVER["PostgreSQL Client Driver"]:::referenced_element
 N_STATE_PAYMENTS_AUTHORIZED(["Payment Authorized"]):::state
+N_STATE_PAYMENTS_AUTHORIZING(["Payment Authorizing"]):::state
 N_STATE_PAYMENTS_CHECKOUT_RECEIVED(["Checkout Received"]):::state
+N_STATE_PAYMENTS_DECLINED(["Payment Declined"]):::state
 N_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
 N_TB_PAYMENTS_PLATFORM_CONTROL[/"Platform Control Boundary"\]:::trust_boundary
 N_ACT_CUSTOMER --> N_FU_CHECKOUT
@@ -518,10 +520,13 @@ N_FU_SUPPORT_REVIEW -->|writes| N_DO_PAYMENTS_REVIEW_TICKET
 N_FU_SUPPORT_REVIEW -->|subscribes| N_DO_PAYMENTS_RISK_SIGNAL
 N_IF_PAYMENTS_BANK_AUTH --> N_DEP_PAYMENTS_BANK_EDGE
 N_STATE_PAYMENTS_AUTHORIZED --> N_CTRL_PAYMENTS_SSO_MFA
-N_STATE_PAYMENTS_AUTHORIZED --> N_EVT_PAYMENTS_AUTH_COMPLETED
 N_STATE_PAYMENTS_AUTHORIZED --> N_TB_PAYMENTS_EXTERNAL_BANK
+N_STATE_PAYMENTS_AUTHORIZING --> N_EVT_PAYMENTS_AUTH_COMPLETED
+N_STATE_PAYMENTS_AUTHORIZING --> N_STATE_PAYMENTS_AUTHORIZED
+N_STATE_PAYMENTS_AUTHORIZING --> N_STATE_PAYMENTS_CHECKOUT_RECEIVED
+N_STATE_PAYMENTS_AUTHORIZING --> N_STATE_PAYMENTS_DECLINED
 N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_EVT_PAYMENTS_AUTH_REQUESTED
-N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_STATE_PAYMENTS_AUTHORIZED
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_STATE_PAYMENTS_AUTHORIZING
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -809,17 +814,17 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 
 <<REF_IDX-CATALOG_FU_CHECKOUT,Checkout handling>> is the user-facing entrypoint where payment requests are initiated and normalized.
 It validates request shape, preserves transaction context, and returns clear <<REF_IDX-CATALOG_ACT_CUSTOMER,customer>> feedback for each outcome.
-It delegates decision logic to <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> while protecting the user experience boundary.
+It delegates decision logic to <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,payment authorization>> while protecting the user experience boundary.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+functional responsibility for <<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>>; includes decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment Authorization>>
 
 [discrete]
 ====== Key Collaborators
 
-<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+<<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment Authorization>>
 
 [discrete]
 ====== Linked Requirements
@@ -837,14 +842,14 @@ functional responsibility for <<REF_IDX-CATALOG_FU_CHECKOUT,checkout handling>>;
 
 
 
-<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment authorization>> orchestrates the final transaction decision path.
+<<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment authorization>> orchestrates the final transaction decision path.
 It coordinates <<REF_IDX-CATALOG_FRAUD_SCORING,fraud scoring>>, external bank interactions, and escalation to <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,support review>> when needed.
 The unit returns deterministic outcomes so downstream behavior remains consistent and testable.
 
 [discrete]
 ====== Owned Responsibility
 
-functional responsibility for <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>>; includes decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>
+functional responsibility for <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,payment authorization>>; includes decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>> and decision and orchestration <<REF_IDX-ENGMODEL_TERM_FLOW,flow>> to <<REF_IDX-CATALOG_FU_RISK_SCORING,Risk Scoring>>
 
 [discrete]
 ====== Key Collaborators
@@ -1620,7 +1625,7 @@ Deployment design favors fast rollback and compatibility checks with the current
 |===
 |Deployment Aspect |View-Scoped Detail
 |Deployment trigger context |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>, <<REF_IDX-REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_IDX-REQ_REQ_PAY_008,REQ-PAY-008>>
-|Deployment dependencies |<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Deployment dependencies |<<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment Authorization>>
 |Inferred deployment evidence |runtime: <<REF_IDX-CATALOG_FG_PAYMENTS,payments>>, <<REF_RT_HELMRELEASE_PAYMENTS_CHECKOUT_API,payments/checkout-api>>; code modules: src
 |===
 
@@ -1635,7 +1640,7 @@ Deployment design favors fast rollback and compatibility checks with the current
 
 ====== Payment Authorization Deployment Design
 
-<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> deployment is policy-sensitive and therefore rollout-cautious.
+<<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,payment authorization>> deployment is policy-sensitive and therefore rollout-cautious.
 Releases should stage gradually, verify dependency health, and preserve in-flight transaction continuity.
 
 
@@ -2098,7 +2103,7 @@ A compromised <<REF_IDX-CATALOG_ACT_SUPPORT,support>> or workflow path modifies 
 |Status |identified
 |Owner |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>>
 |Attack Vector |<<REF_IDX-CATALOG_AV_FRAUDULENT_TRANSACTION_PATTERN,Fraudulent Transaction Pattern>>
-|Scope |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,Manual Review Ticket>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
+|Scope |<<REF_IDX-DO_DO_PAYMENTS_REVIEW_TICKET,Manual Review Ticket>>, <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment Authorization>>, <<REF_IDX-CATALOG_FU_SUPPORT_REVIEW,Support Review>>
 |Flows |<<REF_IDX-FLOW_FLOW_PAYMENTS_MANUAL_REVIEW,High-Risk Manual Review Flow>>
 |Likelihood |low
 |Impact |high
@@ -2140,7 +2145,7 @@ Replayed callback message tries to overwrite or duplicate prior decision outcome
 |Status |mitigating
 |Owner |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>>
 |Attack Vector |<<REF_IDX-CATALOG_AV_REPLAYED_AUTH_CALLBACK,Replayed Authorization Callback>>
-|Scope |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,Authorization Decision>>, <<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+|Scope |<<REF_IDX-DO_DO_PAYMENTS_AUTH_DECISION,Authorization Decision>>, <<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>, <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment Authorization>>
 |Flows |<<REF_IDX-FLOW_FLOW_CUSTOMER_CHECKOUT,Customer Checkout Authorization Flow>>
 |Likelihood |medium
 |Impact |high
@@ -2263,7 +2268,7 @@ Crafted payload shape attempts to force ambiguous authorization behavior and byp
 |===
 |ID |Title |Status |Owner |Applies To |Rationale
 
-|ASM-PAYMENTS-BANK-SIGNING-VALID |Bank callback signatures are managed securely |accepted |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>, <<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |Contractual controls and quarterly partner assurance reviews <<REF_IDX-CATALOG_ACT_SUPPORT,support>> this assumption.
+|ASM-PAYMENTS-BANK-SIGNING-VALID |Bank callback signatures are managed securely |accepted |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>, <<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>>, <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment Authorization>> |Contractual controls and quarterly partner assurance reviews <<REF_IDX-CATALOG_ACT_SUPPORT,support>> this assumption.
 
 |===
 
@@ -2277,7 +2282,7 @@ Crafted payload shape attempts to force ambiguous authorization behavior and byp
 
 |OOS-PAYMENTS-BANK-HSM-OPERATIONS |Bank partner HSM internals |approved |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |<<REF_IDX-CATALOG_REF_BANK_GATEWAY_ENDPOINT,Bank Gateway Endpoint>>, <<REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK,External Bank Boundary>> |2027-12-31 |Key management implementation details within the partner bank infrastructure are not accessible to this team.
 
-|OOS-PAYMENTS-SI-10-LOW-BASELINE |Callback nonce <<REF_IDX-ENGMODEL_TERM_CONTROL,control>> outside NIST 800-53 Low profile |approved |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>, <<REF_IDX-CTRL_CTRL_PAYMENTS_CALLBACK_NONCE,Callback Nonce and Idempotency Guard>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>> |2027-12-31 |SI-10 input <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> is retained as a local protocol-integrity <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>, but it is not selected by the NIST SP 800-53 Rev. 5 Low baseline profile used by this sample.
+|OOS-PAYMENTS-SI-10-LOW-BASELINE |Callback nonce <<REF_IDX-ENGMODEL_TERM_CONTROL,control>> outside NIST 800-53 Low profile |approved |<<REF_IDX-CATALOG_ACT_PLATFORM_OPERATOR,Platform Operator>> |<<REF_IDX-IF_IF_PAYMENTS_BANK_AUTH,Bank Authorization Interface>>, <<REF_IDX-CTRL_CTRL_PAYMENTS_CALLBACK_NONCE,Callback Nonce and Idempotency Guard>>, <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment Authorization>> |2027-12-31 |SI-10 input <<REF_IDX-ENGMODEL_TERM_VALIDATION,validation>> is retained as a local protocol-integrity <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>, but it is not selected by the NIST SP 800-53 Rev. 5 Low baseline profile used by this sample.
 
 |===
 
@@ -2391,7 +2396,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ===== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 
-<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> security protects decision integrity and callback integrity.
+<<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,payment authorization>> security protects decision integrity and callback integrity.
 The design defends against replay, policy probing, and ambiguous error channels that could be abused.
 
 
@@ -2500,7 +2505,7 @@ are contained without harming legitimate <<REF_IDX-CATALOG_ACT_CUSTOMER,customer
 [discrete]
 ====== Attack Surface
 
-<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,Payment Authorization>>
+<<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,Payment Authorization>>
 
 [discrete]
 ====== Security Evidence Present
@@ -2564,7 +2569,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 ===== Payment Authorization (FU-PAYMENT-AUTHORIZATION)
 
 
-<<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> security protects decision integrity and callback integrity.
+<<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,payment authorization>> security protects decision integrity and callback integrity.
 The design defends against replay, policy probing, and ambiguous error channels that could be abused.
 
 
@@ -2726,13 +2731,18 @@ N_CTRL_PAYMENTS_SSO_MFA[["SSO MFA Enforcement"]]:::control
 N_EVT_PAYMENTS_AUTH_COMPLETED(("Authorization Completed")):::event
 N_EVT_PAYMENTS_AUTH_REQUESTED(("Authorization Requested")):::event
 N_STATE_PAYMENTS_AUTHORIZED(["Payment Authorized"]):::state
+N_STATE_PAYMENTS_AUTHORIZING(["Payment Authorizing"]):::state
 N_STATE_PAYMENTS_CHECKOUT_RECEIVED(["Checkout Received"]):::state
+N_STATE_PAYMENTS_DECLINED(["Payment Declined"]):::state
 N_TB_PAYMENTS_EXTERNAL_BANK[/"External Bank Boundary"\]:::trust_boundary
 N_STATE_PAYMENTS_AUTHORIZED --> N_CTRL_PAYMENTS_SSO_MFA
-N_STATE_PAYMENTS_AUTHORIZED --> N_EVT_PAYMENTS_AUTH_COMPLETED
 N_STATE_PAYMENTS_AUTHORIZED --> N_TB_PAYMENTS_EXTERNAL_BANK
+N_STATE_PAYMENTS_AUTHORIZING --> N_EVT_PAYMENTS_AUTH_COMPLETED
+N_STATE_PAYMENTS_AUTHORIZING --> N_STATE_PAYMENTS_AUTHORIZED
+N_STATE_PAYMENTS_AUTHORIZING --> N_STATE_PAYMENTS_CHECKOUT_RECEIVED
+N_STATE_PAYMENTS_AUTHORIZING --> N_STATE_PAYMENTS_DECLINED
 N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_EVT_PAYMENTS_AUTH_REQUESTED
-N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_STATE_PAYMENTS_AUTHORIZED
+N_STATE_PAYMENTS_CHECKOUT_RECEIVED --> N_STATE_PAYMENTS_AUTHORIZING
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3033,10 +3043,20 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>
+|pass
+|test-results/quint-formal.json; INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,SM-PAYMENTS-AUTH>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
+
 |<<REF_IDX-VER_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,VER-INF-INTEGRATION-FRAUD_GATE_TEST-12F3BD>>
 |<<REF_IDX-REQ_REQ_PAY_002,REQ-PAY-002>>
 |pass
 |test-results/integration-fraud-gate.json
+
+|<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>
+|pass
+|test-results/quint-formal.json; INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,SM-PAYMENTS-AUTH>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
 
 |<<REF_IDX-VER_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE>>
 |<<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>
@@ -3062,6 +3082,16 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |<<REF_IDX-REQ_REQ_PAY_006,REQ-PAY-006>>
 |pass
 |test-results/contract-checkout-decline.json
+
+|<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|<<REF_IDX-REQ_REQ_PAY_007,REQ-PAY-007>>
+|pass
+|test-results/quint-formal.json; INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL of <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,SM-PAYMENTS-AUTH>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
+
+|<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|<<REF_IDX-REQ_REQ_PAY_008,REQ-PAY-008>>
+|pass
+|test-results/quint-formal.json; INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,SM-PAYMENTS-AUTH>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
 
 |<<REF_IDX-VER_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93>>
 |<<REF_IDX-REQ_REQ_PAY_008,REQ-PAY-008>>
@@ -3116,6 +3146,8 @@ flowchart TB
   VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 -->|verifies| REQC_REQ_PAY_001
   VERCODE_REQ_PAY_001_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_AUTHORIZED_CHECKOUT_FLOW_YAML["authorized_checkout_flow.yaml"]:::code_element
   VERC_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597 --->|implemented_by| VERCODE_REQ_PAY_001_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597_AUTHORIZED_CHECKOUT_FLOW_YAML
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_PAY_001
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3220,6 +3252,8 @@ flowchart TB
   CODE_REQ_PAY_003_CHECKOUT_API_GO["checkout_api.go: 44, 50"]:::code_element
   RTC_FU_CHECKOUT_PAYMENTS --->|implemented_by| CODE_REQ_PAY_003_CHECKOUT_API_GO
   REQC_REQ_PAY_003 -->|code trace| CODE_REQ_PAY_003_CHECKOUT_API_GO
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_PAY_003
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE["VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE (pass)"]:::verification
   VERC_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE -->|verifies| REQC_REQ_PAY_003
   VERCODE_REQ_PAY_003_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE_CHECKOUT_DECLINE_RESPONSE_TEST_GO["checkout_decline_response_test.go: 7"]:::code_element
@@ -3451,6 +3485,8 @@ flowchart TB
   REQC_REQ_PAY_007 -->|applies_to| FU_FU_PAYMENT_AUTHORIZATION
   RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE["payments/payment-engine"]:::runtime_element
   FU_FU_PAYMENT_AUTHORIZATION -->|runtime evidence| RTC_FU_PAYMENT_AUTHORIZATION_PAYMENTS_PAYMENT_ENGINE
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_PAY_007
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3498,6 +3534,8 @@ flowchart TB
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS
   RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API["payments/checkout-api"]:::runtime_element
   FU_FU_CHECKOUT -->|runtime evidence| RTC_FU_CHECKOUT_PAYMENTS_CHECKOUT_API
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_PAY_008
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93["VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93 (not-run)"]:::verification
   VERC_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93 -->|verifies| REQC_REQ_PAY_008
   VERCODE_REQ_PAY_008_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93_CHECKOUT_DECLINE_REASON_TEST_GO["checkout_decline_reason_test.go: 20"]:::code_element
@@ -3592,7 +3630,27 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Result Summary |not-run:1
 |Evidence |tests/e2e/authorized_checkout_flow.yaml
 
-|Notes |executes <<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,authorized checkout flow>> from session start through <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,payment authorization>> success
+|Notes |executes <<REF_IDX-VER_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,authorized checkout flow>> from session start through <<REF_IDX-MACHINE_SM_PAYMENTS_AUTH,payment authorization>> success
+
+|===
+
+
+[[REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F]]
+==== Quint Formal
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|Kind |formal
+|Status |pass
+|Verifies Requirements |<<REF_IDX-REQ_REQ_PAY_001,REQ-PAY-001>>, <<REF_IDX-REQ_REQ_PAY_003,REQ-PAY-003>>, <<REF_IDX-REQ_REQ_PAY_007,REQ-PAY-007>>, <<REF_IDX-REQ_REQ_PAY_008,REQ-PAY-008>>
+|Test Code Elements |none
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_CHECKOUT,FU-CHECKOUT>>, <<REF_IDX-CATALOG_FU_PAYMENT_AUTHORIZATION,FU-PAYMENT-AUTHORIZATION>>
+|Result Summary |pass:4
+|Evidence |test-results/quint-formal.json
+
+|Notes |Formal verification of machine invariants with Quint (analysis); a result counts only while the sha256 of its module matches.
 
 |===
 
@@ -4078,6 +4136,19 @@ protocol=https; endpoint=/risk/score; schemaRef=schemas/risk-score.json; owner=F
 |Name |Risk Score Interface
 |Mentioned In |n/a
 |===
+[[REF_IDX-MACHINE_SM_PAYMENTS_AUTH]]
+[discrete]
+==== SM-PAYMENTS-AUTH
+
+owner=FU-PAYMENT-AUTHORIZATION; initial=STATE-PAYMENTS-CHECKOUT-RECEIVED; states=4; transitions=4
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Machine
+|Name |Payment authorization
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>
+|===
 [[REF_IDX-REQ_REQ_PAY_001]]
 [discrete]
 ==== REQ-PAY-001
@@ -4089,7 +4160,7 @@ While normal mode is active, when payment authorization is requested, the paymen
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-001
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>
 |===
 [[REF_IDX-REQ_REQ_PAY_002]]
 [discrete]
@@ -4115,7 +4186,7 @@ If payment is declined, then the payments system shall present a decline reason 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-003
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,Checkout Decline Response Test>>, <<REF_VERIFY_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,Checkout Decline Reason Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,Checkout Decline Response Test>>, <<REF_VERIFY_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,Checkout Decline Reason Test>>
 |===
 [[REF_IDX-REQ_REQ_PAY_004]]
 [discrete]
@@ -4167,7 +4238,7 @@ While checkout is active, when payment authorization is requested and 3DS verifi
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-007
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>
 |===
 [[REF_IDX-REQ_REQ_PAY_008]]
 [discrete]
@@ -4180,7 +4251,7 @@ If payment is declined, then the payments system shall present a retry option to
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PAY-008
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,Checkout Decline Reason Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,Checkout Decline Reason Test>>
 |===
 [[REF_IDX-REQ_REQ_PAY_009]]
 [discrete]
@@ -4208,6 +4279,19 @@ Authorization decision approved.
 |Name |Payment Authorized
 |Mentioned In |n/a
 |===
+[[REF_IDX-STATE_STATE_PAYMENTS_AUTHORIZING]]
+[discrete]
+==== STATE-PAYMENTS-AUTHORIZING
+
+Authorization requested from the bank gateway and waiting for the decision.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |State
+|Name |Payment Authorizing
+|Mentioned In |n/a
+|===
 [[REF_IDX-STATE_STATE_PAYMENTS_CHECKOUT_RECEIVED]]
 [discrete]
 ==== STATE-PAYMENTS-CHECKOUT-RECEIVED
@@ -4219,6 +4303,19 @@ Payment request accepted at checkout boundary.
 |Key |Value
 |Kind |State
 |Name |Checkout Received
+|Mentioned In |n/a
+|===
+[[REF_IDX-STATE_STATE_PAYMENTS_DECLINED]]
+[discrete]
+==== STATE-PAYMENTS-DECLINED
+
+Authorization declined and no retry is left.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |State
+|Name |Payment Declined
 |Mentioned In |n/a
 |===
 [[REF_IDX-TB_TB_PAYMENTS_EXTERNAL_BANK]]
@@ -5079,7 +5176,7 @@ Handles checkout session start and customer-facing payment messaging.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |checkout handling
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,Checkout Decline Response Test>>, <<REF_VERIFY_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,Checkout Decline Reason Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,Checkout Decline Response Test>>, <<REF_VERIFY_VER_INF_UNIT_CHECKOUT_DECLINE_REASON_TEST_5F4C93,Checkout Decline Reason Test>>
 |===
 [[REF_IDX-CATALOG_FU_CLUSTER_PROVISIONING]]
 [discrete]
@@ -5118,7 +5215,7 @@ Coordinates authorization flow and bank gateway interaction.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |payment authorization
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>, <<REF_VERIFY_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,Checkout Decline Response Test>>
+|Mentioned In |<<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_FRAUD_GATE_TEST_12F3BD,Fraud Gate Test>>, <<REF_VERIFY_VER_INF_TEST_CHECKOUT_DECLINE_RESPONSE_TEST_365ACE,Checkout Decline Response Test>>
 |===
 [[REF_IDX-CATALOG_FU_RISK_SCORING]]
 [discrete]
@@ -6968,6 +7065,21 @@ executes authorized checkout flow from session start through payment authorizati
 |Source |tests/e2e/authorized_checkout_flow.yaml
 |Name |Authorized Checkout Flow
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_AUTHORIZED_CHECKOUT_FLOW_8C6597,Authorized Checkout Flow>>
+|===
+[[REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F]]
+[discrete]
+==== VER-INF-FORMAL-QUINT_FORMAL-5B471F
+
+Formal verification of machine invariants with Quint (analysis); a result counts only while the sha256 of its module matches.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |formal
+|Status |pass
+|Source |test-results/quint-formal.json
+|Name |Quint Formal
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>
 |===
 [[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_RECORD_PERSISTENCE_TEST_B333A2]]
 [discrete]

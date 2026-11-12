@@ -450,7 +450,7 @@ requirements:
       - FU-MCP-SERVER
   - id: REQ-EMG-070
     text: When model updated event is received, the engineering model go shall warn about every unconnected behavior element.
-    notes: 'Three warnings. behavior.event_unused names an authored behavior event that no triggered_by relationship targets, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references (catalog-only events are covered by catalog.term_unreferenced). behavior.state_unreachable names, in a model with at least one transitions_to relationship or semantic transition, an authored state other than the first declared one that no transition enters; the schema has no initial marker, so the first declared state is the initial state, and a model without transitions reports nothing. behavior.flow_step_no_onerror names a flow step with boundaryCrossing true and no onError step, at its onError path. Imported alias::ID entities are skipped.'
+    notes: 'Three warnings. behavior.event_unused names an authored behavior event that no machine transition names in on, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references (catalog-only events are covered by catalog.term_unreferenced). behavior.state_unreachable names a machine state that no path of transitions leads to from the initial state of the machine (v0.11.0, ADR-EMG-038; the first-declared-state heuristic and the transitions_to relationship are gone), and a machine without transitions reports its other states. behavior.flow_step_no_onerror names a flow step with boundaryCrossing true and no onError step, at its onError path. Imported alias::ID entities are skipped.'
     appliesTo:
       - FU-VALIDATION-ENGINE
   - id: REQ-EMG-071
@@ -517,7 +517,7 @@ requirements:
       - FU-CLI-ORCHESTRATION
   - id: REQ-EMG-087
     text: While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the allowed fields of each entity kind with the model authoring contract.
-    notes: 'validate.AuthoringRules (model.authoringContract rules) adds fieldSets, the YAML field names each entity kind accepts (risk, control, threatScenario, flowStep and the others), derived from the strict-decoding Go types, and publicationSections, the manifest publication sections (architecture, behavior, assurance, compliance, requirements, views; decisions cannot be published). fieldRules state that boundaryCrossing true needs trustBoundaryRef (model.missing_flow_boundary_ref), what behavior.event_unused counts as a use (triggered_by targets, semantic relationship sources, targets and triggers, flow and flow step sourceRef and destinationRef, flow step ref; not properties or prose), the lint.multiple_responses field-list exemption (one shall, the list opens with with, including or of, no list item after the first starts a verb with a determiner) and that in strict EARS mode the system term is a catalog system, functional group or functional unit name or alias.'
+    notes: 'validate.AuthoringRules (model.authoringContract rules) adds fieldSets, the YAML field names each entity kind accepts (risk, control, threatScenario, flowStep and the others), derived from the strict-decoding Go types, and publicationSections, the manifest publication sections (architecture, behavior, assurance, compliance, requirements, views; decisions cannot be published). fieldRules state that boundaryCrossing true needs trustBoundaryRef (model.missing_flow_boundary_ref), what behavior.event_unused counts as a use (the on of machine transitions, semantic relationship sources, targets and triggers, flow and flow step sourceRef and destinationRef, flow step ref; not properties or prose), the lint.multiple_responses field-list exemption (one shall, the list opens with with, including or of, no list item after the first starts a verb with a determiner) and that in strict EARS mode the system term is a catalog system, functional group or functional unit name or alias.'
     verificationCriteria: When the authoring contract is requested, then its rules list the fields of risk (with acceptedBy) and control (id, name, category, description), the six publication sections without decisions, and field rules naming trustBoundaryRef, behavior.event_unused, lint.multiple_responses and the strict EARS system term.
     appliesTo:
       - FU-VALIDATION-ENGINE
@@ -887,3 +887,109 @@ requirements:
       - FU-ALLOCATION-TRACE
       - FU-MCP-SERVER
       - FU-SYSTEM-COMPOSITION
+  - id: REQ-EMG-135
+    text: When model updated event is received, the engineering model go shall load each machine authored in a behavior document with its variables, states, initial state, final states, transitions and invariants.
+    notes: 'ADR-EMG-037. behavior.yml gains a first-class machines block: each machine has an id SM-*, an owner functional unit, variables (type Integer, Boolean or String, each with an initial value), states that keep their STATE-* IDs (optional final true), exactly one machine-level initial, transitions TR-* with from, to and an optional on event of behavior.events, an optional guard and an optional effect as short strings, and invariants INV-* linked to one or more REQ-* with a Boolean expression string. Strict decoding rejects unknown fields. Schema and loader land in v0.11.0 (ADR-EMG-044).'
+    verificationMethods: [test]
+    verificationCriteria: When a behavior document holds one machine with two variables, three states one of them final, an initial state, two transitions one with an event, guard and effect, and one invariant linked to two requirements, then the loaded model holds the machine with every field and ID; an unknown machine field is refused by strict decoding.
+    appliesTo:
+      - FU-MODEL-LOADER
+  - id: REQ-EMG-136
+    text: When model updated event is received, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error.
+    notes: 'ADR-EMG-039. One small built-in parser reads the operators and, or, not, implies, ==, !=, <, <=, >, >=, +, -, *, the assignment :=, effect lists separated by ; and the predicate in_state(STATE-ID). The result is a stored expression tree, not text. The operator table is one shared Go table used by the parser, the validator and the Quint generator. A syntax error is a diagnostic at the field with the character offset.'
+    verificationMethods: [test]
+    verificationCriteria: When a guard reads count < 3 and in_state(STATE-IDLE), an effect reads count := count + 1; flag := true and an invariant reads count >= 0 implies not flag, then each parses to the expected tree; when a guard has an unbalanced parenthesis or an unknown token, then the diagnostic names the field and the offset of the error.
+    appliesTo:
+      - FU-MODEL-LOADER
+  - id: REQ-EMG-137
+    text: When model updated event is received, the engineering model go shall project each loaded machine into elements of the canonical semantic model.
+    notes: 'ADR-EMG-037 and ADR-EMG-040. A machine becomes a state_definition, its states state_usage elements, its transitions transition relationships carrying triggers, guard and effect, and its invariants constraint_usage elements with a Boolean result feature, because the generated SysML binding gives constraint_usage no authorable expression property. Stable model IDs are preserved, so the SysML exporter and the views need no machine-specific code.'
+    verificationMethods: [test]
+    verificationCriteria: When a machine with three states, two transitions and one invariant is loaded, then the canonical model holds one state_definition, three state_usage elements, two transition relationships with their trigger, guard and effect, and one constraint_usage with a Boolean result feature, all under the stable model IDs, and the SysML export of that model still validates.
+    appliesTo:
+      - FU-MODEL-LOADER
+  - id: REQ-EMG-138
+    text: When model updated event is received, the engineering model go shall validate each machine against the machine rules.
+    notes: 'ADR-EMG-039 and ADR-EMG-043. Structural errors are always errors: a machine without exactly one initial state, a transition whose from or to is not a state of the same machine, an on that is not a behavior event, an undeclared variable, a type mismatch, an operator not in the table, in_state naming a state of another machine, and a duplicate state, transition or invariant ID. Advisory codes follow the tier policy: behavior.machine_deadlock (a non-final state without outgoing transition), behavior.transition_nondeterministic (two transitions from one state on the same event whose guards can both hold), behavior.transition_no_trigger (a transition without on and without guard), behavior.invariant_unlinked (an invariant without a REQ-*).'
+    verificationMethods: [test]
+    verificationCriteria: When a machine has two initial states, a transition to a state of another machine, an unknown event, an undeclared variable and a string compared with <, then each is an error at its field; when a non-final state has no outgoing transition, two transitions leave one state on one event without guards, a transition has no event and no guard, and an invariant has no requirement, then each advisory code is reported at its path; a final state without outgoing transition and a well-formed machine report nothing.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-139
+    text: When model updated event is received, the engineering model go shall reject free-floating behavior states with a diagnostic that names the machines block.
+    notes: 'ADR-EMG-038. Every state belongs to exactly one machine and STATE-* IDs are kept. The free-floating list and the transitions_to and triggered_by relationship types are removed in v0.11.0 (ADR-EMG-044): the loader rejects a document that still uses them, with no opt-in mode and no automatic migration; the diagnostic message names machines: and the owner rewrites the model by hand. The own model/behavior.yml of this repository is rewritten to machines (SM-MODEL-VALIDATION, SM-ARTIFACT-FRESHNESS, SM-LINK-LIFECYCLE).'
+    verificationMethods: [test]
+    verificationCriteria: When a behavior document lists states outside a machine, then loading fails with an error at behavior.states naming machines:; when a relationship has the type transitions_to or triggered_by, then loading fails with an error at that field naming machines:; a document with only a machines block reports neither.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-MODEL-LOADER
+  - id: REQ-EMG-140
+    text: When model updated event is received, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier.
+    notes: 'ADR-EMG-043 (OWNER decision, proposed). behavior.machine_deadlock, behavior.transition_nondeterministic, behavior.transition_no_trigger and behavior.invariant_unlinked are keyed in TierPolicy with the hygiene row DDWWE: deferred at poc and prototype (a warning with the deferred flag, the off of the owner decision), warning at mvp and product, error at operational. Structural machine errors (REQ-EMG-138) are never keyed and stay errors at every tier. Quint requirements by tier (ADR-EMG-043): mvp requires the generated modules to be fresh (drift check); product requires engquint check in run mode when machines exist; operational requires verify mode for each machine owned by a functional unit in a safety or mission flow.'
+    verificationMethods: [test]
+    verificationCriteria: When the four advisory codes are reported at tiers poc to operational, then each is deferred, deferred, warning, warning, error; without lifecycle each keeps its authored severity; a structural machine error stays an error at poc; the authoring contract tierPolicy lists the four rows.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-141
+    text: When generation run is requested, the engineering model go shall generate one deterministic Quint module for each machine.
+    notes: 'ADR-EMG-040. One .qnt module per machine, byte-identical for the same model. The first line is the comment Generated by engineering-model-go from <machine ID>; do not edit. Variables are prefixed v_ and IDs are sanitised to snake_case for identifiers only; a lastTransition str variable carries the TR-* ID of the last step; every variable is assigned in every action, with explicit unchanged assignments; each invariant is a val inv_<requirement or constraint, snake case>; each state gets a reachability witness wit_<state>. Guards, effects and invariants are rendered from the expression trees with the shared operator table. New package internal/export/quint, root facade api_quint.go.'
+    verificationMethods: [test]
+    verificationCriteria: When a machine with two variables, three states and two transitions is generated twice, then both modules are byte-identical, start with the generated comment naming the machine ID, prefix the variables with v_, assign every variable in every action, define inv_ and wit_ values and set lastTransition to the TR-* ID; an ID with a hyphen is sanitised to snake_case in identifiers only; a Quint typecheck of the module passes.
+    appliesTo:
+      - FU-QUINT-EXPORTER
+  - id: REQ-EMG-142
+    text: When generation run is requested, the engineering model go shall generate Quint modules with engquint generate and check them with engquint check, exiting 0 on pass, 1 on a violation or a stale result and 2 on a setup error.
+    notes: 'ADR-EMG-040 and ADR-EMG-041. cmd/engquint has the subcommands generate and check. The output directory is a CLI flag: manifest.cue has no generator-output configuration, and generated/quint/ is the path the scripts use. A setup error (missing quint, wrong version, missing Java in verify mode, unreadable model) exits 2 and never counts as a pass.'
+    verificationMethods: [test]
+    verificationCriteria: When engquint generate runs on a model with one machine, then it writes the module under the output flag and exits 0; when check passes it exits 0, when an invariant is violated or a result is stale it exits 1, and when quint is not installed or the model does not load it exits 2.
+    appliesTo:
+      - FU-QUINT-EXPORTER
+  - id: REQ-EMG-143
+    text: When generation run is requested, the engineering model go shall run Quint on the TypeScript backend once for each invariant.
+    notes: 'ADR-EMG-040 and ADR-EMG-041. quint run --backend=typescript is mandatory: the default Rust backend downloads its binary at run time. One quint run per invariant, with --max-steps, --max-samples, --seed, --invariant and --witnesses, so a violation names one invariant. A trace of length zero (a deadlocked or unsatisfiable initial state) is an error, not a pass, because it checks nothing. The counterexample states carry lastTransition, so the report lists the TR-* IDs in order.'
+    verificationMethods: [test]
+    verificationCriteria: When a machine with two invariants is checked in run mode, then quint is called twice with --backend=typescript and the bounds and seed; a machine whose initial state deadlocks gives an error for the zero-length trace; a violated invariant reports the ordered TR-* IDs of the counterexample; a witness that is never reached is reported.
+    appliesTo:
+      - FU-QUINT-EXPORTER
+  - id: REQ-EMG-144
+    text: When generation run is requested, the engineering model go shall verify each machine in verify mode against a pre-provisioned pinned Apalache without a download at run time.
+    notes: 'ADR-EMG-041 and ADR-EMG-044. quint verify uses Apalache 0.62.4, provisioned beforehand under QUINT_HOME, offline, and needs Java 21 or later. If the pinned Apalache or Java is missing, engquint exits 2 with the missing item and does not fetch it. Owner statement of 2026-11-12 (verbatim): "all the tools are approved use them in CI even if you cannot install them here now." (quint npm 0.33.1, Apalache 0.62.4 tarball sha256 8ac8488422c30d552735bae11b92a2d014d8e02e8608702acc08f9a2d8a9abb2, Temurin JDK 21).'
+    verificationMethods: [test]
+    verificationCriteria: When verify mode runs with a fake quint that records its environment, then it passes the QUINT_HOME of the provisioned Apalache and no network fetch is attempted; with Apalache or Java 21 missing it exits 2 naming the missing tool; a verify counterexample is mapped to TR-* IDs like a run counterexample.
+    appliesTo:
+      - FU-QUINT-EXPORTER
+  - id: REQ-EMG-145
+    text: When generation run is requested, the engineering model go shall record each Quint result with the sha256 of its module so that a stale result is no evidence.
+    notes: 'ADR-EMG-041 and ADR-EMG-042. The results file holds, per machine and invariant, the verdict, the sha256 of the .qnt it was produced from, the quint version, backend, mode (run or verify), the bounds (max-steps, max-samples) and the seed. A result whose sha256 differs from the committed module is stale: it is never evidence, and check warns with the machine and invariant.'
+    verificationMethods: [test]
+    verificationCriteria: When a result is written for a module and the module is then changed, then check reports the result as stale with a warning and exit 1, and the result is not evidence; the results file holds the sha256, quint version, backend, mode, bounds and seed.
+    appliesTo:
+      - FU-QUINT-EXPORTER
+  - id: REQ-EMG-146
+    text: When model updated event is received, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix.
+    notes: 'ADR-EMG-042. engquint check writes a sha-verified result into test-results/ with kind formal; internal/trace and the codescan inferred verification read it. A pass whose sha256 matches the module is analysis evidence for each REQ-* the invariant is linked to; failed and stale results are not evidence. The tier policy and the verification status roll-up treat it like any other verification entry.'
+    verificationMethods: [test]
+    verificationCriteria: When a formal result passes for an invariant linked to a requirement and its sha256 matches the module, then the trace matrix lists analysis evidence for that requirement; when the sha256 differs or the verdict is failed, then no evidence is listed and the result is reported as stale or failed.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+  - id: REQ-EMG-147
+    text: When generation run is requested, the engineering model go shall write a requirement-keyed formal entry for each Quint result into the Gemara evaluation log.
+    notes: 'ADR-EMG-042. Entries are keyed by requirement, so no requirement-to-control mapping is needed: a passing non-stale result is a passed entry, a failed result a failed one and a stale result a not-run one with the reason.'
+    verificationMethods: [test]
+    verificationCriteria: When a model has a passing formal result for one requirement and a failed one for another, then the evaluation log holds one entry per requirement with the matching result and the machine and invariant in the evidence, and a stale result is not reported as passed.
+    appliesTo:
+      - FU-GEMARA-EXPORTER
+  - id: REQ-EMG-148
+    text: While mcp server is enabled, when mcp tool call is received, the engineering model go shall report requirement-level formal results in the verification tools.
+    notes: 'ADR-EMG-042. MCP verification.status and verification.gaps gain a requirement-level formal result of pass, failed or stale; model.authoringContract documents the machines block (fieldSets for machine, variable, state, transition and invariant, the expression operator table, the machine diagnostics and their tier rows).'
+    verificationMethods: [test]
+    verificationCriteria: When a requirement has a passing, a failed and a stale formal result in three cases, then verification.status reports pass, failed and stale for them and verification.gaps lists the failed and stale ones; the authoring rules name the machine field sets, the operator table and the four advisory codes.
+    appliesTo:
+      - FU-MCP-SERVER
+  - id: REQ-EMG-149
+    text: When generation run is requested, the engineering model go shall keep the generated Quint modules with the other generated artifacts and report any drift in the artifact freshness gate.
+    notes: 'ADR-EMG-040 and ADR-EMG-043. The modules under generated/quint/ (hard-coded in the scripts) are regenerated by scripts/validate-all.sh; the freshness gate compares the hashes before and after, so a model change without regenerated modules fails. This is the mvp-tier Quint requirement.'
+    verificationMethods: [test]
+    verificationCriteria: When a machine guard changes and the modules are not regenerated, then the freshness gate reports the changed generated/quint file; after regeneration it reports no drift.
+    appliesTo:
+      - FU-QUINT-EXPORTER

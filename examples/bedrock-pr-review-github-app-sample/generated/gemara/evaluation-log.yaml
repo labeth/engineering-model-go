@@ -13,6 +13,9 @@ metadata:
   - id: ENGMOD-CONTROL-CATALOG
     title: Control Catalog
     version: 1.1.0
+  - id: ENGMOD-REQUIREMENTS
+    title: Requirements
+    version: 1.1.0
 result: Needs Review
 evaluations:
 - name: Webhook Signature Verification
@@ -86,6 +89,63 @@ evaluations:
       collected-at: "2026-09-19T00:00:00Z"
       payload: src/review_publication.go
       description: Redaction and output formatting pipeline.
+- name: Formal verification of REQ-PRR-005
+  result: Passed
+  message: 2 formal result(s) recorded for requirement REQ-PRR-005.
+  control:
+    reference-id: ENGMOD-REQUIREMENTS
+    entry-id: REQ-PRR-005
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-REQUIREMENTS
+      entry-id: INV-BEDROCK-NO-EARLY-PUBLICATION
+    description: "Assessment of REQ-PRR-005 via analysis: Quint invariant INV-BEDROCK-NO-EARLY-PUBLICATION of machine SM-BEDROCK-PR-REVIEW."
+    result: Passed
+    message: "Formal result pass: machine SM-BEDROCK-PR-REVIEW, invariant INV-BEDROCK-NO-EARLY-PUBLICATION, mode run+verify, result hash e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105."
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraFormalStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: REQ-PRR-005-FORMAL-1
+      type: FormalVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload:
+        invariant: INV-BEDROCK-NO-EARLY-PUBLICATION
+        machine: SM-BEDROCK-PR-REVIEW
+        method: analysis
+        mode: run+verify
+        qntFile: generated/quint/sm_bedrock_pr_review.qnt
+        qntSha256: e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105
+        result: pass
+      description: "Quint result for INV-BEDROCK-NO-EARLY-PUBLICATION: pass, sha256 e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105."
+  - requirement:
+      reference-id: ENGMOD-REQUIREMENTS
+      entry-id: INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED
+    description: "Assessment of REQ-PRR-005 via analysis: Quint invariant INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED of machine SM-BEDROCK-PR-REVIEW."
+    result: Passed
+    message: "Formal result pass: machine SM-BEDROCK-PR-REVIEW, invariant INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED, mode run+verify, result hash e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105."
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraFormalStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: REQ-PRR-005-FORMAL-2
+      type: FormalVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload:
+        invariant: INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED
+        machine: SM-BEDROCK-PR-REVIEW
+        method: analysis
+        mode: run+verify
+        qntFile: generated/quint/sm_bedrock_pr_review.qnt
+        qntSha256: e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105
+        result: pass
+      description: "Quint result for INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED: pass, sha256 e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105."
 target:
   id: sample-bedrock-pr-review-model
   name: Bedrock Lambda GitHub PR Review App Architecture

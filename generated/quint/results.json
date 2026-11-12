@@ -1,0 +1,172 @@
+{
+  "schema": "engmod-quint-results/1",
+  "modules": [
+    {
+      "machine": "SM-MODEL-VALIDATION",
+      "module": "sm_model_validation",
+      "qntFile": "generated/quint/sm_model_validation.qnt",
+      "qntSha256": "939b67fc99ba316739b814348da4a7efb506e669f9eec603a6297444eea9d663",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [],
+      "witnesses": [
+        {
+          "name": "wit_state_model_valid",
+          "state": "STATE-MODEL-VALID",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_model_invalid",
+          "state": "STATE-MODEL-INVALID",
+          "witnessed": 10000,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "machine": "SM-ARTIFACT-FRESHNESS",
+      "module": "sm_artifact_freshness",
+      "qntFile": "generated/quint/sm_artifact_freshness.qnt",
+      "qntSha256": "4179c588ca4d123b01c8899b154019ea14de0f4efd1215fa3bec99067d31b519",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [],
+      "witnesses": [
+        {
+          "name": "wit_state_artifacts_fresh",
+          "state": "STATE-ARTIFACTS-FRESH",
+          "witnessed": 9987,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_artifacts_stale",
+          "state": "STATE-ARTIFACTS-STALE",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_artifacts_regenerating",
+          "state": "STATE-ARTIFACTS-REGENERATING",
+          "witnessed": 10000,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "machine": "SM-LINK-LIFECYCLE",
+      "module": "sm_link_lifecycle",
+      "qntFile": "generated/quint/sm_link_lifecycle.qnt",
+      "qntSha256": "2c77b8668436090abd238c47e6eefd93e28c556081549431b14dfacb51e018e1",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_link_accepted_reviewed",
+          "id": "INV-LINK-ACCEPTED-REVIEWED",
+          "requirements": [
+            "REQ-EMG-101"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_link_unreviewed_not_accepted",
+          "id": "INV-LINK-UNREVIEWED-NOT-ACCEPTED",
+          "requirements": [
+            "REQ-EMG-094",
+            "REQ-EMG-101"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_link_absent",
+          "state": "STATE-LINK-ABSENT",
+          "witnessed": 9740,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_link_claimed",
+          "state": "STATE-LINK-CLAIMED",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_link_accepted",
+          "state": "STATE-LINK-ACCEPTED",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_link_suspect",
+          "state": "STATE-LINK-SUSPECT",
+          "witnessed": 9222,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_link_broken",
+          "state": "STATE-LINK-BROKEN",
+          "witnessed": 9791,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    }
+  ]
+}

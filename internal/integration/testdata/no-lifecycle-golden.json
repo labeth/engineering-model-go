@@ -114,7 +114,7 @@
     "path": "requirements[REQ-AEG-005]"
    }
   ],
-  "document": "4dc7628658c47c3fca890e2c1437068a6a88cd699c4ef2b8e0fe20f6b90211f3",
+  "document": "6953fc73b5e61b04c8eef7b6c33241c28fcd82d7a5b5e878a09b745f24faf73c",
   "decisions": "5f2bc2bc3cce0bce2930966e2a7ef80b65551bcfd536cbf5727e932f937e512b",
   "matrix": "dc1634a34593ceb84a264809108f7128f99b6275a31c8f88c3e8f04f0ba7bd00"
  },
@@ -196,7 +196,7 @@
     "path": "requirements[REQ-PORT-003]"
    }
   ],
-  "document": "60bc6de56a8f771481500c0e75dec591fb0ec59c985e73bd91db3ff5102684ae",
+  "document": "72e72c91129e4177a68ba81693bbeab4f6a2c79f4256d7f3b8eba7bc6744904b",
   "decisions": "5ada24d23935214d8f7e4dcc7598fa5b606c6253da376026f798f52d5cddf6bf",
   "matrix": "c376126ca49d25079743431ed349a90b4c3c39568a51cb364c88bedb28653a34"
  },
@@ -327,7 +327,7 @@
     "path": "requirements[REQ-ORI-005]"
    }
   ],
-  "document": "af0fba52f81cf3de607454dd6e48cb42990b9ba05ef76a2fae7745ddecca5c1f",
+  "document": "c7d5d524ff31f5ccab31d4666d4b72c0a2adcad0a8dce630b5f8547f18770193",
   "decisions": "ccd4fd92f092bff77f5e6de838d6e887558dc71699d7fe29b02a3b0cfcd5686b",
   "matrix": "02cc307e715af03933900151be626bae1812c40416468fcbdbd917f590211071"
  },
@@ -386,7 +386,7 @@
     "path": "requirements[REQ-CLOUD-002]"
    }
   ],
-  "document": "f5952c6ad5736d5ed2790ad6ca83c8022dfbf33b1fa68545c0402b8acf0ecae4",
+  "document": "5c4bfe7252825943dcfbb50786f3dd81e15143ad8bdae2eda87b39c713d7f279",
   "decisions": "653761fb07142f8913d826580b95c476688e01187d9c8373b823f5c97e4fd743",
   "matrix": "5d5b09ecdafaada215431da9387abdcf66882ecf8a28676bf5ecb290c8f122ac"
  },
@@ -553,7 +553,7 @@
     "path": "requirements[REQ-COMP-008]"
    }
   ],
-  "document": "51fa6dabd2abcc58d80ad5a6fb8461f2df986f659b03c0b522e5e8e7b20b12e7",
+  "document": "a17fea54f51b24d08a97f3daa54bc506b95f7ffd36a3fac4b819b3b429a18605",
   "decisions": "d43b500bb3742b01553c7f50deddb5398f294db43d7d4bbde2839f239ec23a44",
   "matrix": "4af99addd15763a8a332fb4603ecefd179eafbb83ad1776df70ca235ba20bd38"
  },
@@ -612,7 +612,7 @@
     "path": "requirements[REQ-EDGE-002]"
    }
   ],
-  "document": "547bf7065c262f41d1150dc754f1270f54a9bf37421eebfaaaa73ec21d850da1",
+  "document": "bbc849bc912827cf6b7fc61155f3bf1aa9a1a0d167147c4ca43026e5503908f7",
   "decisions": "d88e9bf4aabb7585cc2ebd5f84a54d0cc37071b903311c76c1e50c4982c3773a",
   "matrix": "d805814e741a75e4eea2fc6944f02a7f0c0b0b6a3c47bed7366e887cd31b5809"
  },
@@ -633,7 +633,7 @@
    {
     "code": "behavior.event_unused",
     "severity": "warning",
-    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event",
+    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no machine transition (on), semantic transition trigger or flow; name it in the on of the machine transition it causes or remove the event",
     "path": "authoredArchitecture.events[0]"
    }
   ],
@@ -659,7 +659,7 @@
    {
     "code": "behavior.event_unused",
     "severity": "warning",
-    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event",
+    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no machine transition (on), semantic transition trigger or flow; name it in the on of the machine transition it causes or remove the event",
     "path": "authoredArchitecture.events[0]"
    },
    {
@@ -695,7 +695,7 @@
     "path": "requirements[REQ-SEC-002]"
    }
   ],
-  "document": "e93ec72754bd36f3f21cd3eb58e8fc0b54e4bf57a340a4d192daf1a06a86e3cc",
+  "document": "aa46ed216fbc28f196d4327f45ac30316316a1906059af7ab0a443e8d428b806",
   "decisions": "6cbf7a88aead6410d6c452ad8b757fcff0562e9064bc4d69501fba43cb62db0e",
   "matrix": "6f4a007a836258931ab4728d6d9c477f47b3ddb4e94f037e33024c025902211f"
  },
@@ -778,9 +778,9 @@
     "path": "requirements[REQ-PRR-010]"
    }
   ],
-  "document": "8bb1c740f46eef706a1c3ea183ff6aad7786789a77b469def651418bd8edde89",
+  "document": "32b4a2f52bd0251777648531fc7f648707c1e33237d62895f06c28a28a462949",
   "decisions": "f72eba7ecc063199304d79acdd174a065a4c1e7d9c101f15aa7650ddb3a4aac7",
-  "matrix": "61eb7d749c9e696ae580449bad78acdfa756c1c45b21016917322d0763cd4410"
+  "matrix": "8020678ca1916c1c7c26b6945ddc28872576cd734b931a31bccc16fcc071972a"
  },
  "examples/coffee-appliance-six-view/engmod.yml": {
   "validate": null,
@@ -812,7 +812,7 @@
     "path": "requirements[REQ-COFFEE-001]"
    }
   ],
-  "document": "def7f388f4718aab589fd2b0e6f981f699e6bb0862cb4233e66b82559fdbb0f4",
+  "document": "2ea5b4e455bc1f2fff1936c4c0d99a1557d20b92cbcfbcd82738269efb70e384",
   "decisions": "b0337f907bbdc37c99e05898f17f7af02d6d6c1366cef712c363ea3a4fe6518f",
   "matrix": "9cdb95ae492ec89e8ff25c437a80de70867c36180936a18fd00f45cc2f0ab419"
  },
@@ -1015,9 +1015,9 @@
     "path": "requirements[REQ-COF-012]"
    }
   ],
-  "document": "f53ee31516ec824f66c643d826d0d6e12aa77afcbf15708f8436db0b6c74a44b",
+  "document": "3d470ea23567e909c5d6a55f36dabffa4b2ea60108c4e2ec6c5f0f3ed103e160",
   "decisions": "7cd31e907f0cc78d0b4555a74dcc72c7b23c9d886df835b8ee1c8e3854c89ca2",
-  "matrix": "2ab0df221fb23ac8a2c90040f421361235589842850a59065f4fd6cd5e16cca3"
+  "matrix": "eb721ee5f6a423f53532bf8673a657ac9642b5e62ab04ff11b37cd9411b78fa1"
  },
  "examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api/engmod.yml": {
   "validate": [
@@ -1050,7 +1050,7 @@
     "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
    }
   ],
-  "document": "00bef2523e741ad439f25a38cdf4a70a44437598cd09f39738447642b067f99d",
+  "document": "ff64b6ef38f85c039bab4e42b9b78a366980e684e8dd3571871183d2fce482af",
   "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "matrix": "d6f56d7620759d89519ef731a9013537438579cbadef733a291baff86e75d122"
  },
@@ -1085,7 +1085,7 @@
     "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent"
    }
   ],
-  "document": "4d07b96c946ad68fc714b1cf356e564985b7a63e505655bbc2771d51d6e78417",
+  "document": "dcf1f15a6a6b69c50bb2c3ceb36fcac2f603a614e1abba0ecc17d9ad865c6fe2",
   "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "matrix": "ad47a0820d2ac936c7908b48f9eb8cf195a2dae932f9ab0654df164102577d52"
  },
@@ -1120,31 +1120,18 @@
     "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry"
    }
   ],
-  "document": "68ce52387b674e28f5e0af340e1f657db532c669a3182037428433aa6cc31165",
+  "document": "4016c2664469a4b191ebc51ae538f01618ec291cdcdd2feb49403a8758fcce68",
   "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "matrix": "b2ac7cacdb041d9ad63d6c8eabc07217f3b0ba242665828b9336fede4d749819"
  },
  "examples/dal-c-flight-control-sample/engmod.yml": {
-  "validate": [
-   {
-    "code": "behavior.event_unused",
-    "severity": "warning",
-    "message": "event \"EVT-YAW-RATE-RECEIVED\" is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event",
-    "path": "authoredArchitecture.events[0]"
-   }
-  ],
+  "validate": null,
   "generate": [
    {
     "code": "verification.no_artifacts_found",
     "severity": "warning",
     "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
     "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
-   },
-   {
-    "code": "behavior.event_unused",
-    "severity": "warning",
-    "message": "event \"EVT-YAW-RATE-RECEIVED\" is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event",
-    "path": "authoredArchitecture.events[0]"
    },
    {
     "code": "requirement.orphan",
@@ -1191,7 +1178,7 @@
     "path": "requirements[REQ-YD-SYS-001]"
    }
   ],
-  "document": "28f3d32ae6cf76810e5ebd9eb43c62e24589e6ae78eaf43ba12e0a305ba0bd18",
+  "document": "390ff7f9e7abcab866088cd3aa096f34c4ba5bf09ca42ac7e0d3f62745bf2e6f",
   "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "matrix": "bc454a80f62d417211a58ec188d580b8c4943a806ac6c4acc6a7b2dbfbaa7e07"
  },
@@ -1250,12 +1237,6 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PAY-007 is traced by no code, verification, or delegation",
-    "path": "requirements[REQ-PAY-007]"
-   },
-   {
-    "code": "requirement.orphan",
-    "severity": "warning",
     "message": "requirement REQ-PAY-009 is traced by no code, verification, or delegation",
     "path": "requirements[REQ-PAY-009]"
    },
@@ -1276,12 +1257,6 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PAY-007 is traced by no code, verification, or delegation",
-    "path": "requirements[REQ-PAY-007]"
-   },
-   {
-    "code": "requirement.orphan",
-    "severity": "warning",
     "message": "requirement REQ-PAY-009 is traced by no code, verification, or delegation",
     "path": "requirements[REQ-PAY-009]"
    },
@@ -1298,9 +1273,9 @@
     "path": "tests/unit/checkout_decline_reason_test.go:7"
    }
   ],
-  "document": "b21302f3ced2abc529f87fb962a0f2107c52f0c3ea0ca704fc2e153be9482299",
+  "document": "ab360935f97a54cadf3145e8f3badac1c80dbd1660df10ed79a7165cd9dcf1b5",
   "decisions": "44e91ab386658c49becbe8eccc24091b00822a491bc46d8d012dfd64037f5d0b",
-  "matrix": "7f4f73670f7000797eadcca1d0d6ad7427bce86bfbd7d22c8f0e5cbf0ac3c0eb"
+  "matrix": "c7be8041c5a799f1f914da651625a593bc785af408e5ecd88dcf9ffc6dddbd41"
  },
  "examples/requirement-links/repos/child-a/engmod.yml": {
   "validate": null,
@@ -1368,7 +1343,7 @@
     "path": "requirements[REQ-A-004]"
    }
   ],
-  "document": "758bf61fffb74561ceb25d48a130c5b373c3c3f6df49fc75dd78ce971be129f7",
+  "document": "3fdd5f40f6e8a0350e99c18f9927d96682b33e647fd891a34ea9f09dde2b7f22",
   "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "matrix": "74a256a22bca12a3319ebc07195c268747c9a4c17a769d308f6302097e93ab71"
  },
@@ -1402,7 +1377,7 @@
     "path": "requirements[REQ-B-001]"
    }
   ],
-  "document": "57ba6403807244c0abf4fd583d2204c301641403a4544cc8f41efce9398390b8",
+  "document": "4b5f5f0a2910a0221859386b9f625547333ea9402e113e3573f4fc1a1487916d",
   "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "matrix": "0bd422e7d3fb02e656449d65be1e261661418aa2454bf87a689dc803eddfaf02"
  },
@@ -1472,7 +1447,7 @@
     "path": "requirements[REQ-SYS-003]"
    }
   ],
-  "document": "59f2cb730e17acf717d8521f23aafa7bc3114adc9c68209138bd3f7d13ca74bc",
+  "document": "e9cb099aab72c9b24e513f1165f4bdfeb87b19df291b4accad919b81c688f00f",
   "decisions": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "matrix": "63835051641a75f2a98c967b0000dd79fa1b734146febdf3f81ad4c99f5a2d9b"
  }

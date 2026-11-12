@@ -1,7 +1,7 @@
 requirement,status,units,code,verifications,delegatedTo,provenance,result
 REQ-COF-001,implemented,FU-FLEET-INGESTION-API FU-MACHINE-TELEMETRY-COLLECTION,src/fleet_ingestion_api.go:13 src/machine_telemetry.rs:12,VER-INF-TEST-TELEMETRY_INGEST_CONTRACT_TEST-394794,,,passed
 REQ-COF-002,implemented,FU-FLEET-INGESTION-API FU-FLEET-OBSERVABILITY-REPORTING,src/fleet_ingestion_api.go:13 src/fleet_observability_reporting.ts:6,VER-INF-INTEGRATION-LOGGING_PIPELINE_TEST-B39BBF,,,not-run
-REQ-COF-003,implemented,FU-OTA-UPDATE-AGENT FU-UPDATE-CAMPAIGN-ORCHESTRATION,src/ota_update_agent.rs:6 src/update_campaign_orchestrator.ts:6,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8,,,passed
+REQ-COF-003,implemented,FU-OTA-UPDATE-AGENT FU-UPDATE-CAMPAIGN-ORCHESTRATION,src/ota_update_agent.rs:6 src/update_campaign_orchestrator.ts:6,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC VER-INF-FORMAL-QUINT_FORMAL-5B471F VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8,,,passed
 REQ-COF-004,implemented,FU-DEVICE-IDENTITY-SECRETS FU-OTA-UPDATE-AGENT,src/device_identity_secrets.ts:5 src/ota_update_agent.rs:6,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8,,,passed
 REQ-COF-005,implemented,FU-FLEET-OBSERVABILITY-REPORTING FU-OTA-UPDATE-AGENT FU-UPDATE-CAMPAIGN-ORCHESTRATION,src/ota_update_agent.rs:16 src/update_campaign_orchestrator.ts:12,VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC,,,not-run
 REQ-COF-006,implemented,FU-FLEET-INGESTION-API FU-MACHINE-TELEMETRY-COLLECTION,src/machine_telemetry.rs:18,,,,

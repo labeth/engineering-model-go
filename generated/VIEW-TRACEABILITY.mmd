@@ -1,3 +1,4 @@
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-TRACEABILITY (traceability)
 N_DEP_CI_PIPELINE["CI Pipeline Runner"]:::deployment_target
@@ -9,6 +10,7 @@ N_FU_LOBSTER_EXPORTER["LOBSTER Exporter"]:::functional_unit
 N_FU_MCP_SERVER["MCP Server"]:::functional_unit
 N_FU_MODEL_CHANGE["Model Change"]:::functional_unit
 N_FU_MODEL_LOADER["Model Loader"]:::functional_unit
+N_FU_QUINT_EXPORTER["Quint Exporter"]:::functional_unit
 N_FU_TRLC_EXPORTER["TRLC Exporter"]:::functional_unit
 N_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
 N_REF_GO_TOOLCHAIN["Go Toolchain"]:::referenced_element
@@ -24,6 +26,8 @@ N_FU_MCP_SERVER --> N_FU_MODEL_LOADER
 N_FU_MCP_SERVER --> N_FU_VALIDATION_ENGINE
 N_FU_MODEL_CHANGE --> N_FU_MODEL_LOADER
 N_FU_MODEL_CHANGE --> N_FU_VALIDATION_ENGINE
+N_FU_QUINT_EXPORTER --> N_FU_MODEL_LOADER
+N_FU_QUINT_EXPORTER --> N_FU_VALIDATION_ENGINE
 N_FU_TRLC_EXPORTER --> N_REF_TRLC_TOOLCHAIN
 N_FU_VALIDATION_ENGINE --> N_REF_GO_TOOLCHAIN
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;

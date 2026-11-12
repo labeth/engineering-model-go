@@ -75,6 +75,11 @@ catalog:
     definition: Generates SysML v2 model artifacts from the canonical semantic model and reports conformance coverage.
     aliases:
     - engsysml
+  - id: FU-QUINT-EXPORTER
+    name: quint exporter
+    definition: Generates Quint specifications from behavior machines and runs or verifies them as formal evidence.
+    aliases:
+    - engquint
   - id: FU-NAF-EXPORTER
     name: naf exporter
     definition: Validates NATO Architecture Framework 4.1 profile metadata and generates NAF architecture products from canonical
@@ -337,6 +342,21 @@ catalog:
     definition: State where generated outputs reflect the latest authored model inputs.
     aliases:
     - up to date
+  - id: STATE-ARTIFACTS-STALE
+    name: generated artifacts are stale
+    definition: State where generated outputs no longer reflect the latest authored model inputs.
+    aliases:
+    - out of date
+  - id: STATE-ARTIFACTS-REGENERATING
+    name: generated artifacts are regenerating
+    definition: State where a generation run was requested and has not yet produced the artifacts.
+    aliases:
+    - regenerating
+  - id: STATE-LINK-ABSENT
+    name: requirement link is absent
+    definition: State where a requirement link is not recorded yet.
+    aliases:
+    - absent link
   - id: STATE-LINK-CLAIMED
     name: requirement link is claimed
     definition: State where a requirement link is recorded but not yet reviewed.

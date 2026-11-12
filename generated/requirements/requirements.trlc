@@ -50,7 +50,7 @@ Requirement REQ_EMG_009 {
 Requirement REQ_EMG_010 {
   id         = "REQ-EMG-010"
   text       = "Where requirement trace is complete, when model updated event is received, the engineering model go shall infer traceability coverage from trace markers."
-  notes      = "Links runtime, code, and test markers to modeled requirement coverage. Code and metadata scanning excludes dependency caches (node_modules, vendor) and dot-directories (.git, .engmod, tool caches) so coverage reflects only committed first-party source and stays reproducible."
+  notes      = "Links runtime, code, and test markers to modeled requirement coverage. Python and JavaScript declarations and lexical Verilog modules support explicit source links. Python decorators preserve definition coordinates; strings cannot create trace or ownership markers, and syntax errors are diagnosed; Verilog extraction does not elaborate HDL or expand macros. Individual source files and overlapping source directories preserve distinct file identities without double counting. Code and metadata scanning excludes dependency caches (node_modules, vendor) and dot-directories (.git, .engmod, tool caches) so coverage reflects only committed first-party source and stays reproducible."
   applies_to = ["FU-CODEMAP-INFERENCE"]
 }
 Requirement REQ_EMG_011 {
@@ -170,7 +170,7 @@ Requirement REQ_EMG_029 {
 Requirement REQ_EMG_030 {
   id         = "REQ-EMG-030"
   text       = "When generation run is requested, the engineering model go shall export a machine-readable traceability matrix that links each requirement to its implementing code and verification and delegated subsystem requirement."
-  notes      = "One consolidated matrix (JSON) replaces having to read it out of prose and diagrams. Code is attributed to the model whose architecture.yml is its nearest enclosing root, so a parent model never validates or counts a child model's trace links (monorepo scoping)."
+  notes      = "One consolidated matrix (JSON) replaces having to read it out of prose and diagrams. Test-only source links count as verification, not production implementation. Code is attributed to the model whose engmod.yml is its nearest enclosing root, so a parent model never validates or counts a child model's trace links (monorepo scoping)."
   applies_to = ["FU-ALLOCATION-TRACE", "FU-CODEMAP-INFERENCE"]
 }
 Requirement REQ_EMG_031 {
@@ -284,7 +284,7 @@ Requirement REQ_EMG_048 {
 Requirement REQ_EMG_049 {
   id         = "REQ-EMG-049"
   text       = "While ci validation mode is active, when generation run is requested, the engineering model go shall reject invalid manifest dependency plus publication plus workspace replacement plus qualified reference declarations."
-  notes      = "Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported."
+  notes      = "Every dependency requires one alias, one major-qualified module path, one exact version, and at least one exported publication. Aliases are unique, module identities match cue.mod/module.cue, workspace paths remain contained, imported references use alias double-colon stable-id syntax, and transitive entities are unavailable unless re-exported. A resolved dependency (registry module or workspace replacement) is confined to its module root: before any of its documents is read, every document reference, inferenceHints runtimeSources entry and inferenceHints exclude glob, engmod.yml and cue.mod/module.cue that is absolute or resolves after symlinks outside the module is rejected as composition.dependency_path_escape naming the dependency alias and field, and no content of the target is read; the root model's own paths are not confined this way. A fetched module zip is checked before extraction (modzip rejects .. and absolute entries, the registry client verifies the blob digest) and an entry that is not a regular file or directory, such as a symlink, fails the fetch."
   applies_to = ["FU-CLI-ORCHESTRATION", "FU-SYSTEM-COMPOSITION", "FU-VALIDATION-ENGINE"]
 }
 Requirement REQ_EMG_050 {
@@ -328,4 +328,526 @@ Requirement REQ_EMG_056 {
   text       = "When example validation is requested, the engineering model go shall validate a schema version 2 DAL C flight control software example with placeholder planning plus requirements plus design plus code plus verification plus coverage plus configuration plus quality assurance plus certification liaison evidence."
   notes      = "The example demonstrates realistic output shapes and intentionally open findings without claiming DO-178C compliance or certification."
   applies_to = ["FU-AIRBORNE-ASSURANCE-EXPORTER", "FU-ASCIIDOC-GENERATOR", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_057 {
+  id         = "REQ-EMG-057"
+  text       = "When model updated event is received, the engineering model go shall derive the default code scan root from the enclosing module boundary."
+  notes      = "Without codeSources or an explicit code root, the scan root is the git working tree root, unless another engmod.yml exists between the manifest directory and that root, in which case it is the manifest directory. Directories holding another engmod.yml belong to that module and are skipped. Files ignored by git and paths matching inferenceHints.exclude glob patterns (relative to the module root, with dir/** for whole subtrees) are skipped. Explicit codeSources and code roots still override the default root."
+  applies_to = ["FU-CODEMAP-INFERENCE"]
+}
+Requirement REQ_EMG_058 {
+  id         = "REQ-EMG-058"
+  text       = "When model updated event is received, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations."
+  notes      = "A file identifier is CODE- followed by its module-root-relative path, upper-cased with runs of non-alphanumeric characters folded to one hyphen (app/internal/capture.go becomes CODE-APP-INTERNAL-CAPTURE-GO). A declaration identifier appends two hyphens and the folded declaration name, so same-named declarations in different files stay distinct. Explicit TRACE-ID markers keep their authored value. Identifiers do not carry commit or blob versions because the model and the code are versioned together."
+  applies_to = ["FU-CODEMAP-INFERENCE"]
+}
+Requirement REQ_EMG_059 {
+  id         = "REQ-EMG-059"
+  text       = "When model updated event is received, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files."
+  notes      = "An unknown CODE identifier is a broken reference, an identifier produced by more than one file or declaration is rejected as ambiguous, and inferred RT- and AUTO- identifiers remain unreferenceable. The code index is built only when the model references a CODE identifier, so models without such references pay no scanning cost."
+  applies_to = ["FU-CODEMAP-INFERENCE", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_060 {
+  id         = "REQ-EMG-060"
+  text       = "When model updated event is received, the engineering model go shall reject referenced elements whose uri addresses a local path."
+  notes      = "Referenced elements describe artifacts outside the repository. A uri without a scheme or with the file scheme is rejected with a hint to reference the CODE identifier instead. A referenced element with a uri must declare a version unless the uri itself is immutable (a doi, or a uri carrying a full 40-hex commit id). Referenced elements without a uri remain valid for offline documents identified by number and edition."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_061 {
+  id         = "REQ-EMG-061"
+  text       = "When generation run is requested, the engineering model go shall count a requirement as tested only through test entry points."
+  notes      = "Test entry points are Go Test/Benchmark/Fuzz/Example functions, Rust"
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CODEMAP-INFERENCE"]
+}
+Requirement REQ_EMG_062 {
+  id         = "REQ-EMG-062"
+  text       = "Where gemara export is enabled, when generation run is requested, the engineering model go shall derive each gemara enforcement disposition plus policy risk treatment from the model status."
+  notes      = "Only a completed POA&M item is Enforced and only an accepted one Tolerated; planned, in-progress, deferred and unset items are Undetermined, and so is the log aggregate while any item is unresolved. The policy lists a risk as mitigated only when its status is closed and as accepted only when its status is accepted or its response is accept; open and mitigating risks are left out with a gemara.policy_risks_untreated warning. The generator author is typed Software unless overridden. gemara.validate reports claims the model does not support as modelConsistencyErrors."
+  applies_to = ["FU-GEMARA-EXPORTER", "FU-MCP-SERVER"]
+}
+Requirement REQ_EMG_063 {
+  id         = "REQ-EMG-063"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall select the model workspace from the ENGMOD_WORK setting."
+  notes      = "ENGMOD_WORK=off ignores every engmod.work.yml (CI and the pre-push gate); ENGMOD_WORK=<path> uses that file only and skips the parent search; unset searches parent directories as before. A path that does not exist is an error. CLI tools and the MCP server accept --workspace=off|<path> with the same meaning."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-MODEL-LOADER", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_064 {
+  id         = "REQ-EMG-064"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall write or check the composition lock according to the lock mode."
+  notes      = "While workspace replacements are active the committed engmod.lock.yml is never modified and the resolved lock goes to engmod.lock.local.yml. With ENGMOD_LOCK=check (or --lock=check) the resolved lock is compared with engmod.lock.yml and composition.lock_missing, composition.lock_invalid or composition.lock_mismatch (missing, extra or version-changed dependency, changed content digest after a moved tag) is reported and nothing is written. Exception: while workspace replacements are active the committed lock is not compared (it pins published content, the replacements are local) and the warning composition.lock_check_skipped says that it is checked only with ENGMOD_WORK=off. Otherwise engmod.lock.yml is written as before. A cached registry module is reused offline, except that ENGMOD_MODULE_CACHE=refresh and lock regeneration (write mode with the workspace off) re-fetch every dependency, ENGMOD_MODULE_CACHE=reuse (ResolutionOptions.ModuleCache) reuses the cache offline in every lock mode, and otherwise lock check mode compares each cached module's recorded manifest digest with the registry (one lookup per dependency, cache reused when offline) and re-fetches a moved tag, so a warm cache never masks it. Diagnostics located in a fetched dependency name it as module@version:path instead of the cache directory."
+  applies_to = ["FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_065 {
+  id         = "REQ-EMG-065"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall validate each qualified reference against the published entities of the selected dependencies."
+  notes      = "Covers relationships, flows and flow steps, appliesTo, interface and data references, ownership (functional unit group, interface owner, trust boundary parent, risk, threat and verification owners), view roots and code ENGMODEL-LINKS. Requirements stay local, so trace counts do not include imported requirements. A qualified reference to an entity the dependency does not publish is reported once as composition.unpublished_reference with its field path, not as a generic broken reference. Only reference-typed fields are checked; prose (descriptions, notes, rationale, flow step actions) and file or URL fields (schemaRef, catalogRef, href) may contain :: freely."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-SYSTEM-COMPOSITION", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_066 {
+  id         = "REQ-EMG-066"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall return the composition diagnostics with the generation result."
+  notes      = "GenerateAsciiDoc and the trace matrix return every composition diagnostic, so callers need not compose again; composition runs once per call and its result is reused. An unsatisfied required interface is an error for a model of kind system that has no parent and a warning otherwise; an allocation whose target is not a contract provides entry is a warning."
+  applies_to = ["FU-ASCIIDOC-GENERATOR", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_067 {
+  id         = "REQ-EMG-067"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall show the trace status of each delegated requirement in its target repository."
+  notes      = "For a delegated row the matrix computes the target requirement's own trace status (implemented, test linked, orphan) from the resolved dependency at its pinned or replaced version and reports it as delegatedStatus. The dependency's code scope is its own module directory (the workspace checkout or the module cache entry) minus its inferenceHints exclude globs, never the consumer repository around it; a dependency without code there shows not-available."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_068 {
+  id         = "REQ-EMG-068"
+  text       = "When workspace sync is requested, the engineering model go shall write a local workspace that replaces only changed or pinned checkouts."
+  notes      = "engws scans direct child directories with engmod.yml. A checkout is changed when its git tree is dirty, HEAD is not at tag v<module.version>, or that version is not in the registry configured by CUE_REGISTRY; .engws.yml pins force local. The root search stops below $HOME (never $HOME or an ancestor) and refuses a world-writable root unless --root names it; every command prints the root first. sync skips with a warning a checkout whose module.path is not a valid major-qualified CUE module path or whose directory name is outside [A-Za-z0-9._-]. sync writes engmod.work.yml with the local checkouts and a go.work with every checkout that has go.mod (a non-local checkout is at its published tag, so go test and go run work in every checkout; go.work is removed when none has go.mod), and writes nothing inside any checkout. status and skew report SKEW when a local checkout's version differs from a version another checkout pins, or when a consumer's go.mod requires a checkout's Go module at another version than the checkout's version tag, and exit 1. check runs the model check in every local checkout affected by the change (reverse dependencies inside the workspace) and the top system with summary output; a repository's own .github/engmod-check is trusted code (stated in the help and the check output; --in-process is the choice for untrusted checkouts) and runs with an allowlisted environment (PATH, HOME, Go, CUE, proxy, certificate, XDG, DOCKER_CONFIG, CI and ENGMOD_* variables; no API keys or other credentials) and GOWORK set to its .github/engmod-check/go.work when present and off otherwise, never the root go.work; the in-process check relies on the library's qualified-reference validation; --refresh re-fetches dependencies; --all does not warn that engmod.work.yml lacks the unchanged checkouts. bump writes inside the consumer checkout: it updates a dependency version in engmod.yml, the matching go.mod require and go.sum (go get with GOWORK=off, after validating the Go module path) and the lock together, and restores all of them on any failure; pin and unpin write .engws.yml at the root."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_069 {
+  id         = "REQ-EMG-069"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return authoring assistance for an edited model document."
+  notes      = "model.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), catalog terms, allowed enum values and relationship type pairs that match a prefix and an optional field; model.diagnose validates the model with one document's content supplied in the call and returns that document's diagnostics; dependencies resolve from the real project's workspace and module cache while the root system, its composition and its alias::ID references are taken from the submitted content, and no lock is written. Both work offline from the local cache; no central service is involved. Every composing MCP read tool (model.complete, model.diagnose, composition.resolve, trace.matrix) resolves with lock check unless ENGMOD_LOCK is set and with module cache reuse unless ENGMOD_MODULE_CACHE or ENGMOD_LOCK is set, so it never writes engmod.lock.yml and makes no registry request when the cache is warm. composition.resolve returns resolved directories relative to the workspace root, or as module@version for module cache entries, never as absolute paths."
+  applies_to = ["FU-MCP-SERVER"]
+}
+Requirement REQ_EMG_070 {
+  id         = "REQ-EMG-070"
+  text       = "When model updated event is received, the engineering model go shall warn about every unconnected behavior element."
+  notes      = "Three warnings. behavior.event_unused names an authored behavior event that no machine transition names in on, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references (catalog-only events are covered by catalog.term_unreferenced). behavior.state_unreachable names a machine state that no path of transitions leads to from the initial state of the machine (v0.11.0, ADR-EMG-038; the first-declared-state heuristic and the transitions_to relationship are gone), and a machine without transitions reports its other states. behavior.flow_step_no_onerror names a flow step with boundaryCrossing true and no onError step, at its onError path. Imported alias::ID entities are skipped."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_071 {
+  id         = "REQ-EMG-071"
+  text       = "When model updated event is received, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator."
+  notes      = "catalog.name_has_operator is reported once at the catalog name or alias field (catalog.<group>[i].name or .aliases[j]) of an actor, event, state, feature, mode, condition or data term that contains a standalone and, or, not, a comma or a parenthesis. Such a term cannot match in a requirement clause, because the EARS expression parser splits it at the operator, and the requirement otherwise shows only unresolved-term diagnostics. System, functional group and unit names are matched whole by EARS and are not checked."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_072 {
+  id         = "REQ-EMG-072"
+  text       = "When model updated event is received, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action."
+  notes      = "lint.multiple_responses from ears-lint-go is dropped when the text has one shall and no semicolon, no and, or or comma comes before the first with, including or of in the response, that field list holds no then, and no list item after the first reads as a verb with its object (its second word is the, a, an, its, their, each, every or all). \\\"publish one world state message with UTC time, latitude, longitude and altitude\\\" is not reported; \\\"log the event and notify the operator\\\", \\\"log the event with the timestamp and notify the operator\\\" and \\\"stop all of the motors and close the valve\\\" still are."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_073 {
+  id         = "REQ-EMG-073"
+  text       = "When generation run is requested, the engineering model go shall warn about each control verification status that lags its existing tests."
+  notes      = "A control verification may name its tests in verificationRefs: inferred CODE identifiers of test declarations (CODE-<PATH>--<NAME>) or requirement IDs whose linked test entry points verify it; any other entry is the error model.invalid_control_verification_ref. verification.status_stale is a warning at the status of a control verification whose status is unset or not-run while a referenced test declaration exists in the scanned code or a referenced requirement is test linked, and at the status of a threat mitigation whose status is unset or planned while a control verification it references has such tests. The status stays authored. The AsciiDoc generation and the trace matrix both report it."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_080 {
+  id         = "REQ-EMG-080"
+  text       = "When workspace staging is requested, the engineering model go shall publish every workspace checkout into the local staging area in dependency order."
+  notes      = "engws stage [--version-from manifest|tag] [--serve] [--addr] writes only under <root>/.engmod/staging, never inside a checkout. registry/<module path>/ holds each CUE module as an OCI image layout with the content cue mod publish would push (source kind git: the committed files from git ls-files with VCS metadata; kind self: the directory). goproxy/ is a GOPROXY file tree (<module>/@v/<version>.info, .mod, .zip and list) for each checkout with go.mod at its top, zipped from committed files. The version is module.version from engmod.yml; with --version-from tag HEAD must be at tag v<module.version>. A checkout cue mod publish would refuse (dirty tree, no source field, module path mismatch) is reported, and then nothing is staged. A consumer pinning a family module at another version than the staged one is warned about. CUE has no file registry, so --serve loads the layouts into an in-memory read-only OCI registry on a loopback address only and serves it in the foreground until interrupted. stage prints the gate environment: CUE_REGISTRY routes for the staged modules merged with the current CUE_REGISTRY (with --serve), GOPROXY=file://<staging>/goproxy,off, GONOPROXY=none, GONOSUMDB with the staged Go modules plus the current GONOSUMDB or GOPRIVATE, GOWORK=off and ENGMOD_WORK=off; no -mod flag."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_081 {
+  id         = "REQ-EMG-081"
+  text       = "When spec delta is requested, the engineering model go shall render OpenSpec spec delta text from the selected model requirements."
+  notes      = "engmodel.RenderSpecDelta and RenderSpecDeltaFromModel, and the engspec CLI (--model, --ids or --prefix, --capability, --modified, --out), render ## ADDED (or MODIFIED) Requirements and per requirement a ### Requirement heading (title, else ID; a repeated title names its ID), the line <ID>: <model text> with whitespace collapsed and whole-word shall and must upper-cased, so it starts with the model text under the engineering-flow consistency normalization (lower case, collapsed whitespace, no backticks or trailing period), and one #### Scenario from verificationCriteria: GIVEN, WHEN and THEN bullets when the criteria are shaped [given …,] when …, then …; otherwise WHEN the requirement is verified and THEN the criteria. Requirements without shall or must, or without verificationCriteria, are returned as warnings; an unknown ID is an error."
+  applies_to = ["FU-MODEL-CHANGE"]
+}
+Requirement REQ_EMG_082 {
+  id         = "REQ-EMG-082"
+  text       = "When model updated event is received, the engineering model go shall report each assurance record whose verification links disagree."
+  notes      = "threat.verification_missing is a warning at a threat scenario's verificationRefs when it omits a control verification that one of its threat mitigations (threatScenarioRef) lists in verificationRefs or that names the threat in threatScenarioRefs. mitigation.verification_control_mismatch is an error at a threat mitigation verificationRefs entry naming a control verification whose controlRef is another control than the mitigation's controlRef. verification.unlinked is a warning at the verificationRefs of a control verification with method test and status pass or partial that has no verificationRefs, so no test declaration or requirement evidences it; analysis, inspection and other methods are evidenced by their evidence entries and are not reported. Imported alias::ID records are skipped. The AsciiDoc generation, the trace and model.diagnose report them through validation."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_083 {
+  id         = "REQ-EMG-083"
+  text       = "When model updated event is received, the engineering model go shall warn at each control that the gemara evaluation log would mark for review."
+  notes      = "gemara.control_needs_review is a warning at a control that the Gemara L5 evaluation log gives the result Needs Review: no control verification names it in controlRef, or at least one of its control verifications has a status that needs review (partial, planned, in-progress, review, needs-review) and none failed or has an unrecognized status, since Failed and Unknown outrank Needs Review in the log's aggregate. validate.ClassifyVerificationStatus and validate.ControlNeedsReview are the one status mapping the evaluation log and the warning share. When a control without verification has a threat mitigation that references another control's verification, the message names it (\\\"<CV> verifies <other control>\\\"); for a control whose verifications need review it names them with their status. Validation emits it, so the check path (engdoc, the trace, model.diagnose) reports it without rendering Gemara."
+  applies_to = ["FU-GEMARA-EXPORTER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_084 {
+  id         = "REQ-EMG-084"
+  text       = "When model updated event is received, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts."
+  notes      = "The code scanner reads TRLC-LINKS, ENGMODEL-LINKS and ENGMODEL-OWNER-UNIT in # comment lines of files named Dockerfile or Containerfile or ending in .Dockerfile or .Containerfile, and in HTML comments (<!-- TRLC-LINKS: REQ-… -->, also spanning lines) that start a line outside fenced code blocks of .md and .markdown files. The markers apply to the whole file: it becomes one symbol with its file CODE identifier (CODE-<PATH>) that implements the linked requirements, never verifies them, also under tests/. Markers are optional: such a file without them yields no item and no code.missing_trlc_link. The module code scope applies, including git-ignored files and inferenceHints.exclude; an invalid requirement ID is code.invalid_trlc_link."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CODEMAP-INFERENCE"]
+}
+Requirement REQ_EMG_085 {
+  id         = "REQ-EMG-085"
+  text       = "When model updated event is received, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record."
+  notes      = "A risk with status accepted or response accept, and a threat scenario with status accepted, must carry acceptedBy with actor (an existing ACT-* actor), date (a YYYY-MM-DD calendar date, parsed, so 2026-13-45 is rejected) and statement (the owner's own words) or decisionRef (an existing decision with status accepted whose context quotes the owner); otherwise risk.acceptance_unrecorded is an error at its acceptedBy field naming the missing parts. An acceptedBy actor, date or decisionRef that does not resolve, or a decisionRef to a decision that is not accepted, is model.invalid_acceptance (error). risk.acceptance_not_owner is a warning at the acceptedBy actor of a risk whose owner is set and differs from the actor. risk.accept_while_open is a warning at a risk status when response is accept and status is open, since the Gemara policy would otherwise list it as accepted while it is open. The Gemara policy lists a risk under risks.accepted only when its acceptance record is complete and resolves (validate.AcceptanceRefs, shared with validation) and its status is accepted, or its response is accept and its status is not open; gemara.validate (CheckGemaraModelConsistency) reports an accepted entry that does not meet this. Imported alias::ID records are skipped; the schema rejects :: in authored risk and threat scenario IDs, so a local ID cannot pose as imported. The record is an authored claim: these checks make it complete and consistent, and human review of the diff that adds it is the actual control that the owner gave it."
+  applies_to = ["FU-GEMARA-EXPORTER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_086 {
+  id         = "REQ-EMG-086"
+  text       = "When workspace sync is requested, the engineering model go shall write a go workspace replace directive for each required version of a workspace go module."
+  notes      = "engws sync writes, next to the use entries of the family go.work, one line replace <module> <version> => ./<dir> for every Go module of a checkout listed in use and every distinct version at which any checkout's go.mod requires that module; a module no checkout requires gets no replace. go resolves the go.mod of a required version even when the module is in use, so an unpublished family module fails to build without it; an unversioned replace is rejected for a workspace module. The generated-file header and the hand-written file check are unchanged. A repository's .github/engmod-check uses its own go.work or GOWORK=off and is not affected."
+  applies_to = ["FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_087 {
+  id         = "REQ-EMG-087"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the allowed fields of each entity kind with the model authoring contract."
+  notes      = "validate.AuthoringRules (model.authoringContract rules) adds fieldSets, the YAML field names each entity kind accepts (risk, control, threatScenario, flowStep and the others), derived from the strict-decoding Go types, and publicationSections, the manifest publication sections (architecture, behavior, assurance, compliance, requirements, views; decisions cannot be published). fieldRules state that boundaryCrossing true needs trustBoundaryRef (model.missing_flow_boundary_ref), what behavior.event_unused counts as a use (the on of machine transitions, semantic relationship sources, targets and triggers, flow and flow step sourceRef and destinationRef, flow step ref; not properties or prose), the lint.multiple_responses field-list exemption (one shall, the list opens with with, including or of, no list item after the first starts a verb with a determiner) and that in strict EARS mode the system term is a catalog system, functional group or functional unit name or alias."
+  applies_to = ["FU-MCP-SERVER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_088 {
+  id         = "REQ-EMG-088"
+  text       = "When model updated event is received, the engineering model go shall report each requirement whose linked tests are all environment gated."
+  notes      = "A Go test entry point whose first statements include an if whose condition calls os.Getenv, os.LookupEnv or testing.Short and whose body calls t.Skip, t.Skipf or t.SkipNow is gated (the variable name, or testing.Short). A requirement linked from a test file only by gated tests carries that gate in the verification check; a trace row whose every verification is gated for it has gated true and its gates, and the summary counts it in gatedOnly and lists it in gatedOnlyRequirements. testLinked still counts it. The MCP trace.matrix summary returns gatedOnly and gatedOnlyRequirements and its rows gated."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CODEMAP-INFERENCE", "FU-MCP-SERVER"]
+}
+Requirement REQ_EMG_089 {
+  id         = "REQ-EMG-089"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return mcp tool result from the module model files on disk at call time."
+  notes      = "The server fingerprints this module's model files at load: the manifest, every document it names, the requirements and design paths, and the lock and workspace files next to the manifest (engmod.lock.yml, engmod.lock.local.yml, engmod.work.yml). Before each tools/call it recomputes the fingerprint and reloads the model when it differs; a reload that fails is returned as the call error (-32001) instead of the previous model, and the next call retries. Documents of dependencies resolved from sibling checkouts or the module cache are not fingerprinted: after editing a sibling checkout the client re-sends initialize. Only regular files up to 16 MiB are hashed; a larger file is compared by size and modification time and a non-regular file by its mode."
+  applies_to = ["FU-MCP-SERVER"]
+}
+Requirement REQ_EMG_090 {
+  id         = "REQ-EMG-090"
+  text       = "When model updated event is received, the engineering model go shall report each requirement without an upward trace."
+  notes      = "No model can know it is top level, because any system may later be used by one above (decision D22, ADR-EMG-028), so every requirement traces through a capability. A requirement traces upward iff (a) it realizes a local capability or assumption of use (or is named by a deprecated capability ref), (b) it is the parent of a reqLinks entry whose child is a dependency capability (alias::CAP-*), or (c) it is derived: true with derivedRationale. Stakeholder sourceRefs do not count, and no model is exempt (inferenceHints.topLevel does not exist; the strict schema rejects it). Otherwise requirement.no_parent is reported at the requirement with a message naming exactly these three options: an error with requirementLinks strict in every model; a warning with guided (the default) only in a model that publishes a contract item or has reqLinks; nothing in a guided standalone model. A realizes target that is a requirement, an imported alias::ID, an interface entry or unknown is requirement.realizes_unknown (error). requirementLinks other than strict or guided is model.invalid_requirement_links (error). The rule needs only the child repository."
+  applies_to = ["FU-MODEL-LOADER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_091 {
+  id         = "REQ-EMG-091"
+  text       = "When model updated event is received, the engineering model go shall load assumptions of use as contract items with their realizing requirements."
+  notes      = "contract.assumptions entries have id (AOU-*), text and optional verificationCriteria. They are published in a publication architecture list like capabilities, imported as alias::AOU-* by a composing bundle, and count as contract items: a requirement may realize them and engws bump compares their meaning between versions. Contract items are contract.provides entries of kind capability and the assumptions; interface entries are not link targets."
+  applies_to = ["FU-MODEL-LOADER", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_092 {
+  id         = "REQ-EMG-092"
+  text       = "When model updated event is received, the engineering model go shall report each requirement that realizes a published contract item without being published itself."
+  notes      = "contract.realizer_unpublished is an error at a requirement that realizes (through realizes or a deprecated ref) a contract item that a publication exposes, when that publication does not list the requirement under requirements. A using system compares the item with its realizers from the published content alone, so every realizer must be visible to it."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_093 {
+  id         = "REQ-EMG-093"
+  text       = "When model updated event is received, the engineering model go shall warn at each published capability without a realizing requirement."
+  notes      = "contract.unrealized (warning) names a published capability with no realizing requirement. contract.ref_deprecated (warning) is reported at each contract.provides ref; the ref still counts as a realizer for one release."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_094 {
+  id         = "REQ-EMG-094"
+  text       = "Where system composition is enabled, when model updated event is received, the engineering model go shall validate each requirement link against the manifest dependency pins."
+  notes      = "The optional document documents.reqLinks (model/req-links.yml) holds reqLinks entries {id, parent, child, evidence, pinned {version}, status claimed|accepted, rationale, reviewedBy, reviewedOn}, strictly decoded and checked by the CUE schema (pinned.fingerprint is deprecated: still accepted for one release and ignored, REQ-EMG-118). A parent that is no local requirement, a link with neither parent nor evidence, or evidence that is no local ID is link.parent_unknown; a child that is not alias::ID of a declared dependency selected by a composition subsystem is link.child_unpublished; pinned.version other than the dependency version is link.version_mismatch (errors; the link was reviewed at another version and needs review at this one, decision D23); status claimed is link.claimed_only (warning). A dependency version may be a Go-style pseudo-version."
+  applies_to = ["FU-MODEL-LOADER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_095 {
+  id         = "REQ-EMG-095"
+  text       = "The engineering model go shall compare the meaning of each contract item with its realizing requirements between two versions."
+  notes      = "reqlinks.ItemMeaning is compact JSON {\\\"item\\\":{id,kind,text,verificationCriteria},\\\"realizers\\\":[{id,text,verificationCriteria}...]} with realizers sorted by id, every string whitespace-collapsed and trimmed, case kept, no HTML escaping and no trailing newline; the text of a capability is its note. reqlinks.SameMeaning compares two versions and reqlinks.MeaningChanges names each difference by ID (item kind, item text, item verificationCriteria, <REQ> added, removed, text, verificationCriteria). A realizers status, notes, criticality, verification methods, title, rationale, appliesTo, priority and tags are not compared: they do not change what the item obliges, and a status change must not trigger a review (decision D23). No hash is computed or recorded. A using system compares the published items and realizers (reqlinks.PublishedItems), so a change to a requirement that realizes no linked item never changes one."
+  applies_to = ["FU-ALLOCATION-TRACE"]
+}
+Requirement REQ_EMG_096 {
+  id         = "REQ-EMG-096"
+  text       = "Where system composition is enabled, the engineering model go shall accept a dependency version that is a release tag or a pseudo-version carrying a commit."
+  notes      = "The CUE #ExactVersion and ParseExactModuleVersion accept a canonical semantic version, including Go-style pseudo-versions v1.2.4-0.20261102103400-abcdef123456. A release only uses tags; engws release-check rejects pseudo-versions (REQ-EMG-103)."
+  applies_to = ["FU-MODEL-LOADER", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_097 {
+  id         = "REQ-EMG-097"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose contract item does not exist at the pinned dependency version."
+  notes      = "Composition evaluates each reqLinks entry against the resolved dependency without comparing content (reqlinks.EvaluateLinks, decision D23): unchanged (pin equal to the dependency pin, item published), version_mismatch (the pin differs; reported by validation, REQ-EMG-094), broken (the item does not exist at the dependency pin, also behind a stale pin; link.broken error), child_unpublished (it exists but is not a published capability or assumption of use; link.child_unpublished error), unresolved, or local: a dependency resolved from a workspace replacement is a checkout, not a version, and raises no link finding at all (no link.broken, child_unpublished or aou_unverified), so editing a child in a workspace never churns the system. The diagnostics join the composition diagnostics, so engdoc, engmod-check and model.diagnose report them, one line per link with its ID; they do not stop the lock from being written. link.suspect no longer exists."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_098 {
+  id         = "REQ-EMG-098"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each dependency assumption of use without an evidence link and each system requirement satisfied by nothing."
+  notes      = "link.aou_unverified is reported for every published assumption of use of a composed dependency that no reqLinks entry with evidence names as child. requirement.unsatisfied is reported by the trace integrity check at a requirement of a model with composition subsystems that no code or test of the model links, no reqLinks entry names as parent, no allocation delegates and that is not derived. Both are errors with requirementLinks strict and warnings with guided where links apply (validate.RequirementLinkRules)."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_099 {
+  id         = "REQ-EMG-099"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall describe requirement links in the model authoring contract."
+  notes      = "The authoring contract field rules describe realizes, contract.assumptions, the reqLinks document and the requirementLinks strictness, and fieldSets list contractAssumption, reqLink and reqLinkPin; the reqLinks document is listed when the manifest names it. Each composition.allocations entry is composition.allocation_deprecated (warning) and still materializes as before for one release."
+  applies_to = ["FU-MCP-SERVER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_100 {
+  id         = "REQ-EMG-100"
+  text       = "When dependency bump is requested, the engineering model go shall move the pin of each requirement link whose contract item means the same at the new version and keep the pin of every other link for review."
+  notes      = "engws bump <repo> <alias> <version> [--allow-review] [--show] updates the pin, go.mod and lock, then compares each reqLinks entry of the consumer on the bumped alias between its pinned version and the new version, both published and resolved with the workspace off (linkreview.ItemsAtVersion; module cache verified against the registry digest, else the registry), by meaning (reqlinks.SameMeaning, REQ-EMG-095). Decision D23: the same meaning moves pinned.version to the new version (moved); a changed meaning (review, printed with the changes by ID), a pinned version that cannot be resolved (review, saying so) or an item gone at the new version (broken) keeps the old pin, so the model check reports link.version_mismatch (or link.broken) until engws review-links --accept. A link already at the new version is current. One line per link, IDs only; --show adds the item before and after. The bump is written either way; exit 1 when a link needs review, 0 with --allow-review (--allow-suspect is a deprecated alias); any failure restores engmod.yml, go.mod, go.sum, engmod.lock.yml and model/req-links.yml. link.* diagnostics do not block lock regeneration."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_101 {
+  id         = "REQ-EMG-101"
+  text       = "When link review is requested, the engineering model go shall show the child item change of each requirement link that needs review."
+  notes      = "engws review-links [--repo DIR] [--json] [--show] lists every link that needs review (version_mismatch, broken or claimed; linkreview.NeedsReview), composed with the workspace off (the published dependencies; a workspace checkout has no version to review), one line per link: ID, child, state, claimed, pinned and dependency version and what changed in meaning between the item at the pinned version (before) and at the dependency pin (after) by ID, or same meaning, or why it is unknown. --show adds the parent requirement text and the item with its realizing requirements before and after, changed lines marked - and +; --json gives the full reviews. Cached modules are verified against the registrys manifest digest and refetched when it differs, so a version re-staged with other content (engws stage) is seen. Exit 0 when nothing needs review, 1 otherwise. --accept LNK-ID --by ACT-ID --rationale TEXT writes into the requirement link file, editing only the touched lines (yaml.v3 node positions, comments and order kept): pinned.version (the dependency pin), reviewedBy, reviewedOn (today), rationale and status accepted, and removes a deprecated pinned.fingerprint; it refuses an actor the model does not define, an unknown link, a broken link and one whose item is not resolved at the dependency pin with the workspace off (decision D9), writing nothing. After writing it evaluates the link again and exits 1 naming the finding when it still does not pass (for example link.parent_unknown). A file it rewrites keeps its permission bits."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_102 {
+  id         = "REQ-EMG-102"
+  text       = "When contract diff is requested, the engineering model go shall classify each contract item change between two git refs with its semantic version impact."
+  notes      = "engws contract-diff <from-ref> <to-ref> [--repo DIR] [--json] reads engmod.yml and every document it names at each ref (git show ref:path, relative to the repository prefix; a ref that is empty or starts with - is refused), loads them with the model loader from a temporary directory (0700, files 0600), and compares the published contract items (reqlinks.PublishedItems): added, removed, changed (text, realizers) or unchanged. Impact: capability removed, capability text changed (printed as \\\"text changed: treated as major\\\"), assumption added, assumption text or verificationCriteria changed, or an item kind changed are major; assumption removed, capability added and changes of realizing requirements only are minor; anything else is patch. Exit 0, or 2 on a usage or IO error."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_103 {
+  id         = "REQ-EMG-103"
+  text       = "When release check is requested, the engineering model go shall reject a release that pins an unreleased dependency or whose tag bump is smaller than its contract diff requires."
+  notes      = "engws release-check [--repo DIR] [--tag vX.Y.Z] reports dependency.unreleased_pin (error) for every engmod.yml dependency or engmod.lock.yml version that is a pre-release or pseudo-version, and contract.semver_too_small (error) when the bump of the tag (--tag, else the highest release tag at HEAD) over the previous release tag (the highest release semver tag below it among the tags merged into the released commit, git tag --merged: the nearest ancestor release) is smaller than contract-diff(previous, the tag if it exists, else HEAD) requires. In v0.x (previous and tag major 0) a minor bump is major-capable and a patch bump minor-capable, so a breaking change needs a minor bump. Without a tag or a previous release tag the semver gate is skipped with a note. Exit 0 ok, 1 findings, 2 usage or IO error."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_104 {
+  id         = "REQ-EMG-104"
+  text       = "When link migration is requested, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model."
+  notes      = "engws migrate-links [--repo DIR] [--dry-run] writes one reqLinks entry per composition.allocations entry (id LNK-<requirement without REQ->-<ALIAS> upper case, made unique with -2, -3 ...; the target as child; parent the requirement for a capability, evidence [the requirement] for an assumption of use, so the next check does not report link.aou_unverified; pinned.version the dependency pin; status claimed; rationale from the allocation; a target whose dependency cannot be resolved is still written, with a note that its kind was not checked), creates or extends the requirement link file, adds documents.reqLinks: model/req-links.yml to engmod.yml when missing, removes the converted allocations (D13: an allocation whose resolvable target is an interface or other contract entry that is not a published capability or assumption of use is kept in place, keeps reporting composition.allocation_deprecated and is printed as kept allocation REQ → alias::ID with the reason), appends each capability contract.provides[].ref to realizes of the referenced requirement (deduplicated) and drops the ref; a ref on a non-capability entry or naming an unknown requirement is kept and reported; and removes every deprecated pinned.fingerprint of the existing link file, printing the count (REQ-EMG-118). Every edit keeps the other lines of the files; every file to write is snapshot first and, when one write fails, the files already written are restored and the ones it created removed. It prints the requirements that then report requirement.no_parent (a requirement that became the parent of a capability link is traced, D22). A second run changes nothing; --dry-run writes nothing."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_105 {
+  id         = "REQ-EMG-105"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall report the parents and children of each requirement and roll each linked system requirement up from its realizing child requirements."
+  notes      = "trace.Matrix rows carry parents (the contract items a requirement realizes through realizes or a deprecated ref, qualified alias::ID on a published requirement row, none for a requirement traced only by its links or derivation; stakeholder sourceRefs are not parents, D22) and children (for a requirement that is the parent of reqLinks entries: each linked child item alias::CAP-* followed by its realizing requirements alias::REQ-* at the resolved version; none for a child requirement), links (id, child, evaluated state, review status) and satisfiedBy. A requirement with no code or test of its own whose every link is accepted, evaluates unchanged and resolves to an item with realizing requirements that are all implemented (or all test linked) in their own repository trace is implemented (or test linked) with satisfiedBy links (decision D18: a claimed, version-mismatched or broken link gives satisfiedBy links-unreviewed and does not count), linksImplemented and linksTestLinked, is counted in the summary implemented and testLinked, and is no orphan. The summary counts linksNeedReview (each link that is version-mismatched, broken or claimed, once; local workspace links excluded), linksVersionMismatch, linksBroken, linksClaimed and unparented (local requirements that fail the upward-trace rule of REQ-EMG-090 where the requirement link rules apply); linksSuspect is kept as a deprecated alias of linksVersionMismatch (D23). MCP trace.matrix returns the counts, also with summaryOnly, and parents, children, links and satisfiedBy per row."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-MCP-SERVER"]
+}
+Requirement REQ_EMG_106 {
+  id         = "REQ-EMG-106"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the requirement links of the loaded model with their state and the trace of each requirement through them."
+  notes      = "links.list returns every reqLinks entry with id, parent, child, evidence, state (reqlinks.EvaluateLinks at the composed pins; no content comparison, D23), review status, needsReview, local (the dependency is a workspace checkout), pinnedVersion, dependencyVersion, reviewedBy and reviewedOn. links.suspect (name kept for compatibility) returns the links that need review (version_mismatch, broken, claimed) as engws review-links --json does, composed with the workspace off (published dependencies, module cache, offline): parent text, the child item and its realizing requirements before (at the pinned version) and after (at the dependency pin), and changes (the difference in meaning by ID). links.review {linkId, by, rationale?} writes nothing (model.patch refuses the link file, ADR-EMG-029), composes like engws review-links --accept with the workspace off and takes reviewedOn from the server clock: it refuses an actor the model does not define, an unknown and a broken link like engws review-links --accept, and returns the command engws review-links --accept LNK --by ACT --rationale ..., the link file path relative to the model and the line patch the command writes (pinned version, status, rationale, reviewedBy, reviewedOn, a removed fingerprint). requirements.parents {requirementId} returns realizes, parents (the realized items; sourceRefs are no upward trace, D22), sourceRefs, derived, derivedRationale, the links the requirement is parent of with state, status and the linked item (id, kind, text, qualified realizers) and children (each linked item then its realizers). requirements.get adds parents, links and children. Every tool reads only the loaded model and the dependencies it composes, with the lock checked and the module cache reused."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-MCP-SERVER"]
+}
+Requirement REQ_EMG_107 {
+  id         = "REQ-EMG-107"
+  text       = "When generation run is requested, the engineering model go shall render the requirement link tree of a using model and the contract items of a child model without disclosing the users of the child."
+  notes      = "A model with reqLinks gets an AsciiDoc chapter \\\"Requirement Links\\\": for each requirement a list item, then each link it is the parent of with its state (unchanged, local, or marked *VERSION MISMATCH* with the reviewed and the dependency version, *BROKEN*, *UNPUBLISHED*) and review status (accepted, or *CLAIMED*), the linked child item alias::ID with its text, and the realizing requirements alias::REQ with their trace status in the dependency (trace.DependencyRequirementStatus), or derived with its rationale, or no requirement link; and \\\"Assumptions of Use\\\" with each dependency assumption and the links whose evidence covers it (*UNVERIFIED* otherwise). A model that publishes contract items gets \\\"Contract Items\\\": each published capability and assumption of use with its text, verification criteria and realizing published requirements (no fingerprint, D23). Only when the caller opts in (AsciiDocOptions.UsedBy, engdoc --used-by; off by default, also when a workspace is found), the render resolves an active workspace (engmod.work.yml found, the workspace not off) and a sibling replacement checkout has reqLinks onto these items through a dependency on this module path, a \\\"Used By\\\" section (item, using model id, link id, parent requirement, status) is added, computed at render time by composition.WorkspaceLinkUsers and never written into the model; a document rendered with it must not be committed into the child (D16). By default a child names no using system in AsciiDoc, Gemara or MCP output. link.* findings and the strict-mode trace findings requirement.no_parent, requirement.unsatisfied and contract.realizer_unpublished are reported but do not stop the render (D15)."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-ASCIIDOC-GENERATOR", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_108 {
+  id         = "REQ-EMG-108"
+  text       = "When model updated event is received, the engineering model go shall ignore each workspace file and sibling checkout that another user could have written or that leaves the workspace."
+  notes      = "The upward search for engmod.work.yml (FindWorkspaceWith with an empty mode and ENGMOD_WORK unset) refuses a world-writable file and, where the platform has file owners, a file owned by neither the current user nor root, with an error naming ENGMOD_WORK=<path> as the way to use it anyway; an explicit path is used as given. The Used By scan (composition.WorkspaceLinkUsers) reads only replacement directories inside the workspace directory (composition.PathWithin) whose manifest names no path outside its own directory (the dependency confinement, composition.dependency_path_escape), so a crafted workspace or sibling manifest cannot make a render read files elsewhere. The upward search does not stop at a git top-level: a workspace sits above sibling repositories by design."
+  applies_to = ["FU-MODEL-LOADER", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_109 {
+  id         = "REQ-EMG-109"
+  text       = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose recorded fingerprint uses another canonical form than the engineering model go writes."
+  notes      = "Retired by decision D23 (ADR-EMG-030): links record no fingerprint, so there is no canonical form to be outdated. A recorded pinned.fingerprint is now link.fingerprint_deprecated (REQ-EMG-118); link.fingerprint_outdated no longer exists."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_110 {
+  id         = "REQ-EMG-110"
+  text       = "When generation run is requested, the engineering model go shall render requirement link and contract item text without AsciiDoc passthrough."
+  notes      = "Text in the Requirement Links, Assumptions of Use, Contract Items and Used By sections comes partly from dependency models (another repository). Every such string is whitespace-collapsed and its passthrough forms (+++...+++, ++...++, $$...$$, pass:[...] and other pass macros) are broken with {empty}, so it renders literally and cannot emit raw HTML into the document."
+  applies_to = ["FU-ASCIIDOC-GENERATOR"]
+}
+Requirement REQ_EMG_111 {
+  id         = "REQ-EMG-111"
+  text       = "When model updated event is received, the engineering model go shall report each accepted requirement link without a resolving reviewer and review date."
+  notes      = "A reqLinks entry with status accepted and no reviewedBy or no reviewedOn is link.review_unrecorded (error); a reviewedBy that is not an actor of the model and a reviewedOn that is not a YYYY-MM-DD calendar date are link.review_unrecorded too, at that field. A claimed link may carry neither. engws review-links --accept writes both; the check shows only that a modeled role and a date are recorded, review of the diff shows that the role gave it."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_112 {
+  id         = "REQ-EMG-112"
+  text       = "When model updated event is received, the engineering model go shall report each requirement link to a capability without a parent requirement."
+  notes      = "A link whose child is alias::CAP-* says that the capability satisfies a local requirement, so it needs parent: link.parent_missing (error) otherwise, also when it carries evidence. A link to an assumption of use (alias::AOU-*) may have evidence instead of a parent."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_113 {
+  id         = "REQ-EMG-113"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall write an edit of one model entity only when the edited model is valid."
+  notes      = "model.patch {document, id, set?: {field: value}, unset?: [field], append?: {listField: item or [items]}, remove?: {listField: value or [values]}, write?: bool} finds the one list item with that id anywhere in the document (yamledit.FindByID: top-level entities and nested ones such as flow steps; no match or two matches are errors), applies set, unset, append and remove in that order with line-preserving edits (yamledit.SetPath, UnsetPath, AppendPath, RemovePath: dotted field paths such as acceptedBy.statement, a missing field or intermediate mapping is added, a flow list stays a flow list, an object item is removed by its id, comments and every untouched line are kept), validates the whole model with the edited document exactly like model.diagnose, and returns valid, diagnostics, otherDiagnostics, parseErrors, patch (unified diff with three lines of context, git apply format) and written. The input schema is strict (additionalProperties false; field paths ^[A-Za-z][A-Za-z0-9_]*(\\\\.[A-Za-z][A-Za-z0-9_]*)*$; write a JSON boolean); setting or unsetting id is refused. Decision ADR-EMG-029: it is the one MCP tool that writes, and only with write true, only a valid result, only a manifest-listed document other than the manifest and the requirement link file (whose write path is engws review-links, D14), only when every manifest document resolves inside the model root after symlinks, only when the file did not change during the call, through an atomic replace that keeps the file mode."
+  applies_to = ["FU-MCP-SERVER", "FU-MODEL-CHANGE"]
+}
+Requirement REQ_EMG_114 {
+  id         = "REQ-EMG-114"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall scan the same code scope as the model check."
+  notes      = "The MCP code tools (coverage.strictStatus, files.forRequirement, files.forControl, files.forThreat, model.implementations, tests.*, interfaces.implementations, code.contextForTask) scan through codescan.ScanCodeScope and codescan.CodeScopeSkip, the skip function the check and the trace use (codeScanSkipper): files git does not track or would ignore (git ls-files --cached --others --exclude-standard), paths matching inferenceHints.exclude and directories of nested modules are left out. Before, the MCP scanner walked repoRoot with only a fixed list of skipped directories, so git-ignored build output (viewer/dist/assets/*.js) failed coverage.strictStatus while the check passed. inferenceHints.exclude accepts dir, dir/, dir/* and dir/** (each leaves the whole directory out), ./dir, a file path and a glob with * ? [...] within one path segment (*.gen.go), relative to the module root; a pattern matches a path and every ancestor directory of it. A pattern the scan cannot apply (empty, absolute, with .., ** other than a trailing /**, a malformed glob) is model.invalid_exclude_pattern (error) at inferenceHints.exclude[i], naming the accepted forms."
+  applies_to = ["FU-CODEMAP-INFERENCE", "FU-MCP-SERVER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_115 {
+  id         = "REQ-EMG-115"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the type of every authorable field with the authoring rules."
+  notes      = "validate.Rules.fieldTypes (model.authoringContract rules) gives, per fieldSets kind and in the same order, each field as {name, type, of?}: type string, bool, int, list<string>, list<object>, object or map<string,string>, derived by reflection from the strict-decoding Go types (fieldSetTypes); of names the fieldSets kind of an object or list<object> field (flow steps: flowStep; acceptedBy: acceptanceRecord; every *Evidence and *Artifact struct: evidence). fieldSets stays the list of names. The field rules also state: every flow step needs ref (model.missing_flow_step_ref) and step IDs are unique across all flows (model.duplicate_flow_step_id within a flow, semantic.duplicate_identity across flows); threatScenario stride is one string while preconditions, exploitPath, detection and controlVerification findings are lists; catalog.term_unreferenced is reported only with lintRun.mode strict and only for a term no requirement text names, whose ID no architecture, behavior, assurance, compliance, views, decisions, design or aviation string contains and whose name no other authored text contains (so a state referenced by a flow step ref is in use); and the exclude forms of REQ-EMG-114."
+  applies_to = ["FU-MCP-SERVER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_116 {
+  id         = "REQ-EMG-116"
+  text       = "When model updated event is received, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement."
+  notes      = "risk.acceptance_by_decision_only (warning) at acceptedBy.statement of a risk or threat scenario whose acceptedBy has a decisionRef but no statement. A decision can bundle an acceptance with other choices, so the owner's own words accepting this risk belong on the risk; the message asks for acceptedBy.statement and for asking the owner about the risk by name. The record stays complete (no risk.acceptance_unrecorded) and the Gemara policy still lists the risk as accepted. Imported alias::ID records are skipped."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_117 {
+  id         = "REQ-EMG-117"
+  text       = "When model updated event is received, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model."
+  notes      = "Three warnings (validate.assuranceConsistencyDiagnostics). risk.severity_inconsistent at the severity of each threat scenario whose (likelihood, impact) pair, compared case-insensitively, maps to more than one severity among the model's threat scenarios; the message names the other severities and their scenarios and asks for one scoring method recorded as a decision. Only threat scenarios carry likelihood, impact and severity together: a risk has likelihood, impact and residualRisk but no severity, so risks are not compared. controlVerification.risk_control_unlinked at a riskRefs entry of a control verification that names a local risk whose relatedControls omit the verification's controlRef (risk-to-control trace in both directions). threat.attack_vector_missing at the attackVectorRef of a threat scenario without one when another local threat scenario names its attack vector. Imported alias::ID records and unknown risks (reported elsewhere) are skipped."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_118 {
+  id         = "REQ-EMG-118"
+  text       = "When model updated event is received, the engineering model go shall warn at each requirement link that records a deprecated fingerprint."
+  notes      = "Decision D23 (ADR-EMG-030): the pinned version is the review record. pinned.fingerprint is still accepted by the CUE schema for one release (any string, optional) and ignored by every evaluation; validation reports link.fingerprint_deprecated (warning) at reqLinks[i].pinned.fingerprint naming engws migrate-links, which removes it (and prints the count); engws review-links --accept removes it from the link it accepts."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_119 {
+  id         = "REQ-EMG-119"
+  text       = "When link add is requested, the engineering model go shall write a claimed requirement link pinned to the dependency version after checking its parent and child."
+  notes      = "engws link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-...|alias::AOU-...> [--rationale TEXT] (decision D23): the link id is LNK-<REQ>-<ALIAS> made unique; pinned.version is the dependency pin of the alias in engmod.yml; status claimed. Before writing it validates the model with the link added (parent requirement, evidence IDs, declared and composed alias, a capability link needs a parent) and composes with the workspace off to check the child is a published capability or assumption of use at the pinned version (an assumption needs evidence); it refuses a link that joins the same parent and evidence to the same child. The link is appended to the link file with every other line kept; a model without one gets model/req-links.yml and documents.reqLinks in engmod.yml. Nothing is written on refusal (exit 1)."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_120 {
+  id         = "REQ-EMG-120"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall answer a model-reading tool for the family member checkout its repo argument names."
+  notes      = "Retro 1104 item 1 (decision D24). The model-reading tools (model.diagnose, model.patch, model.list, model.entity, model.complete, model.authoringContract, entities.list, trace.matrix, composition.resolve, links.*, requirements.*, threats.*, verification.*, flow.detail, flows.forRequirement, graph.*, generation.*, every gemara.*) list an optional repo string in their strict input schema. The engine resolves the workspace on every call with model.FindWorkspaceWith from the server's own model directory (the upward search refuses a world-writable engmod.work.yml or one owned by another user; ENGMOD_WORK names one explicitly), so a server started before engws sync wrote engmod.work.yml sees it as soon as it exists. repo is relative to the workspace root (the directory of that file, or the server's own model directory without one) or absolute, must hold engmod.yml and must resolve inside the root after symlinks; the tool then runs on a server initialized on that engmod.yml (cached per directory, reloading its model per call), its output scrubbed relative to that checkout. Without repo the server answers for its own checkout. The file and code tools stay on the server's own checkout. The MCP bridge of engineering-flow computes the family root once at startup and confines calls to it; it must re-run that per call to benefit."
+  applies_to = ["FU-MCP-SERVER"]
+}
+Requirement REQ_EMG_121 {
+  id         = "REQ-EMG-121"
+  text       = "When model updated event is received, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify."
+  notes      = "Retro 1104 item 6. The code scanner marks a test entry point that is a benchmark (codemap.Symbol.Benchmark: Go Benchmark* in _test.go, Rust #[bench], now also detected as a test entry point); Criterion benchmarks are plain functions and JS bench files have no test entry-point detection, so neither is classified. A requirement whose every linking test entry point, across all test files, is a benchmark has a trace row with benchmarkOnly; when its verificationCriteria contain a digit, the trace integrity check reports verification.benchmark_only (warning) at requirements[i]: a benchmark measures but asserts nothing, so add a Test that checks the value. A Test* or Fuzz* link in any file clears it. The requirement stays test linked."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CODEMAP-INFERENCE"]
+}
+Requirement REQ_EMG_122 {
+  id         = "REQ-EMG-122"
+  text       = "When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree."
+  notes      = "Retro 1104 item 7. engws status-suggest [--repo DIR] [--tree HASH] [--json] writes nothing. The tree is the working-tree hash as engineering-flow tree-hash.mjs computes it (git add -A into a temporary copy of the index, git write-tree; the real index is unchanged), or --tree. Evidence is the trace matrix of the model (lock check, module cache reuse) and the lines of <git top level>/.engflow/red-checks.jsonl with that tree, verdict RED, failure not build and the requirement in reqs (lines without reqs are not attributed). A local requirement earns implemented when code links it (or reviewed links roll it up as implemented); verified when also a test links it that is not environment gated (Row.Gated) and not only benchmarks (Row.BenchmarkOnly) and a RED line names it, or reviewed links roll it up as implemented and test linked; else nothing. A control verification earns pass when it names at least one requirement in verificationRefs and every requirement it names earns verified; a CODE-* reference is not judged and keeps the current status. The table prints current, suggested and why per row; --json the same. Exit 0, 1 on a model or git error."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-CLI-ORCHESTRATION"]
+}
+Requirement REQ_EMG_123 {
+  id         = "REQ-EMG-123"
+  text       = "When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression."
+  notes      = "Retro 1104 model findings. ears-lint reports catalog.<role>_unresolved at the same span as expr.unknown_term, the role coming from the clause position (When: event, While: state, the system term: system, and so on). Both diagnostics then say unknown term \\\"<term>\\\" in expression (or unresolved catalog term \\\"<term>\\\") and add it to catalog.<section> (or an alias of an existing entry), the section from the role (systems, actors, events, states, features, modes, conditions, dataTerms). A diagnostic without a paired role keeps its message."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_124 {
+  id         = "REQ-EMG-124"
+  text       = "When model updated event is received, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle."
+  notes      = "ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; default [foundation], foundation always included), tierDecision, raise} is optional (CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; absent means Foundation) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle gives byte-identical diagnostics, documents and trace matrices to v0.9.0 (golden test over every example model; scripts/lifecycle-golden-self.sh for the repository's own model)."
+  applies_to = ["FU-MODEL-LOADER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_125 {
+  id         = "REQ-EMG-125"
+  text       = "When model updated event is received, the engineering model go shall report each tier-keyed diagnostic with the severity of the project tier."
+  notes      = "ADR-EMG-031, internal/validate/tier_policy.go. TierPolicy() is the table of tier-keyed codes with a severity per tier: D deferred (a warning with deferred true: evidence debt, reported, never failing a check), W warning or E error, a row for the safety bundle, and requiredFrom (the first tier where it is an error). ApplyTierPolicy(bundle, diags) runs at each public entry on the merged list: ValidateBundle, GenerateAsciiDoc (before the render gate and after the trace integrity check), BuildTraceMatrixFromFiles(With), engws check and the MCP diagnose, patch, trace.matrix and composition.resolve answers. It sets each tier-keyed code's severity and requiredFrom, then an open POA&M defer (REQ-EMG-129), then lifecycle.raise (exact codes or family.* patterns made errors; it never lowers). Rank-0 core codes (CoreCodes(), a closed list: model.duplicate_id, model.broken_reference, model.invalid_*, model.missing_*, code.dangling_*, composition.cycle, composition.lock_*, link.version_mismatch, link.broken, link.parent_unknown, link.parent_missing, link.child_unpublished, link.review_unrecorded, link.invalid_status, contract.realizer_unpublished, requirement.realizes_unknown, risk.acceptance_unrecorded, the structural lifecycle.* codes and aviation.ai_actor_as_credit and aviation.authority_state_unevidenced) and every code the table does not key keep their severity. Strict code linking (code.missing_trlc_link, code.invalid_trlc_link, code.scan_failed: what coverage.strictStatus reports) is W below product and E from product. It is idempotent, does not modify its input and returns the input unchanged without lifecycle. Every row is non-decreasing from poc to operational and the safety row is never lower than the base row (TestTierPolicyMonotonic). The README Life-cycle tier section holds TierPolicyMarkdown()."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_126 {
+  id         = "REQ-EMG-126"
+  text       = "When model updated event is received, the engineering model go shall report a composed dependency whose life-cycle tier is below or unknown to the tier of the system."
+  notes      = "ADR-EMG-034. With lifecycle in the composing system, each composed dependency (a composition subsystem resolved at its pin) is compared with its own manifest lifecycle: a child tier below the parent tier is composition.dependency_below_tier (tier keyed: D D W E E) unless a local risk recorded as accepted with a complete, resolving acceptedBy names the dependency alias in its dependencies field (preferred; each entry must be an engmod.yml dependency alias, else model.invalid_risk_dependency, error) or the composition subsystem that composes the dependency in appliesTo (older form, still honoured); the finding names both forms, the alias first; the one finding per dependency names the alias, the child and parent tiers and the system requirements whose links point into the child, in place of a requirement.unsatisfied per requirement (a linked requirement is never requirement.unsatisfied); a child without lifecycle is composition.dependency_tier_unknown (W at every tier; E from product with the safety bundle). A system without lifecycle gets neither. engws bump warns when the dependency at the new version declares lifecycle and the consumer pins an engine older than v0.10.0 in its .github/engmod-check go.mod (that engine rejects the key: composition.load_failed)."
+  applies_to = ["FU-CLI-ORCHESTRATION", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_127 {
+  id         = "REQ-EMG-127"
+  text       = "When model updated event is received, the engineering model go shall apply strict requirement links from life-cycle tier mvp."
+  notes      = "ADR-EMG-031 amends ADR-EMG-022. The effective requirement link mode is the maximum of requirementLinks and the tier default (guided below mvp, strict from mvp): from mvp the rules requirement.no_parent, requirement.unsatisfied and link.aou_unverified apply in every model and the tier policy makes them errors (row D D E E E); with requirementLinks: strict declared they are errors at every tier, as in v0.9.0. requirementLinks: guided at mvp or above is lifecycle.requirement_links_conflict (error, rank 0) at requirementLinks; strict at poc is allowed. EffectiveRequirementLinkMode is exported."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_128 {
+  id         = "REQ-EMG-128"
+  text       = "When model updated event is received, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier."
+  notes      = "ADR-EMG-031. With lifecycle only: lifecycle.requirement_unapproved at requirements[i].status for status draft or proposed (row D D W E E); lifecycle.requirement_unverified for a status other than verified, rejected or retired, unset included (D D D W E); the trace integrity check reports verification.failed at requirements[i] when the linked test results roll up to failed (fail, blocked, partial or flaky) and verification.gated_only when every linked test is environment gated (both D D D W E); the safety bundle needs documents.aviation (lifecycle.aviation_profile_missing) and aviation.profile.softwareLevel (lifecycle.software_level_missing), both D D E E E. Imported alias::REQ requirements are skipped."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_129 {
+  id         = "REQ-EMG-129"
+  text       = "When model updated event is received, the engineering model go shall report a diagnostic that an open POA&M item of the project tier defers as a deferred warning naming the item."
+  notes      = "ADR-EMG-033. #POAMItem gains defers [{code, path?}]. A tier-keyed diagnostic or a warning is deferred (warning, deferred true, poamRef the item ID; an untiered error is never deferred) when a POA&M item with milestone tier:<project tier> (case-insensitive), status other than completed and a defers entry whose code matches (exact or family.*) and whose path is empty or equal names it; another tier's item, a completed item and another path do not. lifecycle.raise overrides a deferral. A defers entry naming a rank-0 code (or a pattern covering one) is lifecycle.poam_defers_core (error, rank 0) at poamItems[i].defers[j].code, and a rank-0 diagnostic is never deferred. The engine has no clock: an overdue item is raised by engineering-flow (tier.debt_open)."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_130 {
+  id         = "REQ-EMG-130"
+  text       = "When generation run is requested, the engineering model go shall render the document despite errors that only the life-cycle tier raises."
+  notes      = "ADR-EMG-032 extends D15 (REQ-EMG-107). In a model with lifecycle, an error whose code the tier policy keys or lifecycle.raise names (validate.RendersDespite) fails the check (HasErrors) but does not stop GenerateAsciiDoc: the document is produced for reviewers. Rank-0 codes and every other untiered error still stop the render, and link.* and the D15 trace findings keep not stopping it."
+  applies_to = ["FU-ASCIIDOC-GENERATOR", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_131 {
+  id         = "REQ-EMG-131"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the severity of each tier-keyed code per life-cycle tier in the authoring contract."
+  notes      = "validate.Rules gains tierPolicy (TierPolicy()); enums lifecycle.tier and lifecycle.bundles; fieldSets lifecycle (tier, bundles, tierDecision, raise) and poamDefer (code, path), and poamItem lists defers; field rules describe lifecycle, the deferred flag and requiredFrom, tierDecision and lifecycle.tier_decision_mismatch, lifecycle.raise, the requirementLinks conflict, the state rules, the rank-0 codes, the POA&M binding (defers, tier:<project tier>, lifecycle.poam_defers_core) and aviation.ai_actor_as_credit. engineering-flow renders the Severity by tier table of MODEL-RULES.md from it."
+  applies_to = ["FU-MCP-SERVER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_132 {
+  id         = "REQ-EMG-132"
+  text       = "When model updated event is received, the engineering model go shall report each aviation evidence record below the evidence floor of the life-cycle tier."
+  notes      = "ADR-EMG-035. Only with lifecycle: the load splits ValidateAviation into structural codes (references, duplicates, hashes, arithmetic, mismatches, aviation.authority.acceptance_missing; still load-fatal) and the state and completeness codes aviation.lifecycle.missing_category, aviation.tool.incomplete_credit_assessment and aviation.derived.incomplete_safety_feedback (model.AviationStateCode), which validation reports as tier-keyed diagnostics; without lifecycle all stay load-fatal as in v0.9.0. With the safety bundle, aviation.state_below_tier (D D E E E) names each record below the floor of the tier on the order declared < planned < executed < reviewed < accepted < authority-accepted: none below mvp; the five plans (PSAC, SDP, SVP, SCMP, SQAP) planned at mvp and reviewed from product; executions executed from product; every record accepted at operational; from product a software level A, B or C needs a coverage record of its metric (mcdc, decision, statement). not-applicable satisfies a floor only with lifecycleData rationale (new optional field). Applicability and independence stay those of the level's objectives. aviation.authority_state_unevidenced (error, rank 0) names a record in state authority-accepted with no liaison entry in authorityState authority-accepted with an authorityRecord that covers it."
+  applies_to = ["FU-MODEL-LOADER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_133 {
+  id         = "REQ-EMG-133"
+  text       = "When model updated event is received, the engineering model go shall report each aviation assurance record that names an AI agent as the person holding the credit."
+  notes      = "ADR-EMG-035. With lifecycle and the safety bundle, aviation.ai_actor_as_credit (error, rank 0, every tier) at aviation.reviews.<id>.reviewer, aviation.independence.<id>.producer and .verifier, aviation.executions.<id>.producer and .verifier and aviation.approvals.<id>.approver when the value, trimmed and lowercased, is a registered engineering-flow agent (validate.AIAgentNames: architecture-review, classification-review, ef-experimenter, ef-implementer, ef-modeler, export-control-review, governance-review, operability-review, performance-review, quality-review, safety-review, security-review, verification-review; the init/installer.mjs reviewers and workers). The message says AI output is input to people, asks for the person who directed and accepted the output, and to record the agent as a tool with creditClaimed false. Generic words such as ai or agent are not matched: they can be part of a person's role name."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_134 {
+  id         = "REQ-EMG-134"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return what a target life-cycle tier requires that the model does not meet."
+  notes      = "ADR-EMG-031. engtrace --tier-gap <tier> (JSON on stdout or --out; exit 2 for an unknown tier) and MCP tier.gap {target, repo?} return TierGapReport: currentTier (empty without lifecycle), targetTier, blocking (each diagnostic of validation, composition and the trace that is an error with lifecycle.tier set to the target in memory and not an error now: code, requiredFrom, severityNow (warning or absent), deferredNow, poamRef, path, message; a lifecycle.tier_decision_mismatch that the in-memory tier causes is left out), byCode, aviationBelowFloor (safety bundle: the records below the target's evidence floor with state and floor, REQ-EMG-132) and dependencies (each composed dependency below the target tier or without one, with alias, subsystem, module, version, tier and required). It names rule codes only; engineering-flow joins them to life-cycle objective IDs. The engine also leaves .engflow (engineering-flow's local experiment state and variant worktrees) out of the MCP repository index and the composition module digest, like .git and .engmod."
+  applies_to = ["FU-ALLOCATION-TRACE", "FU-MCP-SERVER", "FU-SYSTEM-COMPOSITION"]
+}
+Requirement REQ_EMG_135 {
+  id         = "REQ-EMG-135"
+  text       = "When model updated event is received, the engineering model go shall load each machine authored in a behavior document with its variables, states, initial state, final states, transitions and invariants."
+  notes      = "ADR-EMG-037. behavior.yml gains a first-class machines block: each machine has an id SM-*, an owner functional unit, variables (type Integer, Boolean or String, each with an initial value), states that keep their STATE-* IDs (optional final true), exactly one machine-level initial, transitions TR-* with from, to and an optional on event of behavior.events, an optional guard and an optional effect as short strings, and invariants INV-* linked to one or more REQ-* with a Boolean expression string. Strict decoding rejects unknown fields. Schema and loader land in v0.11.0 (ADR-EMG-044)."
+  applies_to = ["FU-MODEL-LOADER"]
+}
+Requirement REQ_EMG_136 {
+  id         = "REQ-EMG-136"
+  text       = "When model updated event is received, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error."
+  notes      = "ADR-EMG-039. One small built-in parser reads the operators and, or, not, implies, ==, !=, <, <=, >, >=, +, -, *, the assignment :=, effect lists separated by ; and the predicate in_state(STATE-ID). The result is a stored expression tree, not text. The operator table is one shared Go table used by the parser, the validator and the Quint generator. A syntax error is a diagnostic at the field with the character offset."
+  applies_to = ["FU-MODEL-LOADER"]
+}
+Requirement REQ_EMG_137 {
+  id         = "REQ-EMG-137"
+  text       = "When model updated event is received, the engineering model go shall project each loaded machine into elements of the canonical semantic model."
+  notes      = "ADR-EMG-037 and ADR-EMG-040. A machine becomes a state_definition, its states state_usage elements, its transitions transition relationships carrying triggers, guard and effect, and its invariants constraint_usage elements with a Boolean result feature, because the generated SysML binding gives constraint_usage no authorable expression property. Stable model IDs are preserved, so the SysML exporter and the views need no machine-specific code."
+  applies_to = ["FU-MODEL-LOADER"]
+}
+Requirement REQ_EMG_138 {
+  id         = "REQ-EMG-138"
+  text       = "When model updated event is received, the engineering model go shall validate each machine against the machine rules."
+  notes      = "ADR-EMG-039 and ADR-EMG-043. Structural errors are always errors: a machine without exactly one initial state, a transition whose from or to is not a state of the same machine, an on that is not a behavior event, an undeclared variable, a type mismatch, an operator not in the table, in_state naming a state of another machine, and a duplicate state, transition or invariant ID. Advisory codes follow the tier policy: behavior.machine_deadlock (a non-final state without outgoing transition), behavior.transition_nondeterministic (two transitions from one state on the same event whose guards can both hold), behavior.transition_no_trigger (a transition without on and without guard), behavior.invariant_unlinked (an invariant without a REQ-*)."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_139 {
+  id         = "REQ-EMG-139"
+  text       = "When model updated event is received, the engineering model go shall reject free-floating behavior states with a diagnostic that names the machines block."
+  notes      = "ADR-EMG-038. Every state belongs to exactly one machine and STATE-* IDs are kept. The free-floating list and the transitions_to and triggered_by relationship types are removed in v0.11.0 (ADR-EMG-044): the loader rejects a document that still uses them, with no opt-in mode and no automatic migration; the diagnostic message names machines: and the owner rewrites the model by hand. The own model/behavior.yml of this repository is rewritten to machines (SM-MODEL-VALIDATION, SM-ARTIFACT-FRESHNESS, SM-LINK-LIFECYCLE)."
+  applies_to = ["FU-MODEL-LOADER", "FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_140 {
+  id         = "REQ-EMG-140"
+  text       = "When model updated event is received, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier."
+  notes      = "ADR-EMG-043 (OWNER decision, proposed). behavior.machine_deadlock, behavior.transition_nondeterministic, behavior.transition_no_trigger and behavior.invariant_unlinked are keyed in TierPolicy with the hygiene row DDWWE: deferred at poc and prototype (a warning with the deferred flag, the off of the owner decision), warning at mvp and product, error at operational. Structural machine errors (REQ-EMG-138) are never keyed and stay errors at every tier. Quint requirements by tier (ADR-EMG-043): mvp requires the generated modules to be fresh (drift check); product requires engquint check in run mode when machines exist; operational requires verify mode for each machine owned by a functional unit in a safety or mission flow."
+  applies_to = ["FU-VALIDATION-ENGINE"]
+}
+Requirement REQ_EMG_141 {
+  id         = "REQ-EMG-141"
+  text       = "When generation run is requested, the engineering model go shall generate one deterministic Quint module for each machine."
+  notes      = "ADR-EMG-040. One .qnt module per machine, byte-identical for the same model. The first line is the comment Generated by engineering-model-go from <machine ID>; do not edit. Variables are prefixed v_ and IDs are sanitised to snake_case for identifiers only; a lastTransition str variable carries the TR-* ID of the last step; every variable is assigned in every action, with explicit unchanged assignments; each invariant is a val inv_<requirement or constraint, snake case>; each state gets a reachability witness wit_<state>. Guards, effects and invariants are rendered from the expression trees with the shared operator table. New package internal/export/quint, root facade api_quint.go."
+  applies_to = ["FU-QUINT-EXPORTER"]
+}
+Requirement REQ_EMG_142 {
+  id         = "REQ-EMG-142"
+  text       = "When generation run is requested, the engineering model go shall generate Quint modules with engquint generate and check them with engquint check, exiting 0 on pass, 1 on a violation or a stale result and 2 on a setup error."
+  notes      = "ADR-EMG-040 and ADR-EMG-041. cmd/engquint has the subcommands generate and check. The output directory is a CLI flag: manifest.cue has no generator-output configuration, and generated/quint/ is the path the scripts use. A setup error (missing quint, wrong version, missing Java in verify mode, unreadable model) exits 2 and never counts as a pass."
+  applies_to = ["FU-QUINT-EXPORTER"]
+}
+Requirement REQ_EMG_143 {
+  id         = "REQ-EMG-143"
+  text       = "When generation run is requested, the engineering model go shall run Quint on the TypeScript backend once for each invariant."
+  notes      = "ADR-EMG-040 and ADR-EMG-041. quint run --backend=typescript is mandatory: the default Rust backend downloads its binary at run time. One quint run per invariant, with --max-steps, --max-samples, --seed, --invariant and --witnesses, so a violation names one invariant. A trace of length zero (a deadlocked or unsatisfiable initial state) is an error, not a pass, because it checks nothing. The counterexample states carry lastTransition, so the report lists the TR-* IDs in order."
+  applies_to = ["FU-QUINT-EXPORTER"]
+}
+Requirement REQ_EMG_144 {
+  id         = "REQ-EMG-144"
+  text       = "When generation run is requested, the engineering model go shall verify each machine in verify mode against a pre-provisioned pinned Apalache without a download at run time."
+  notes      = "ADR-EMG-041 and ADR-EMG-044. quint verify uses Apalache 0.62.4, provisioned beforehand under QUINT_HOME, offline, and needs Java 21 or later. If the pinned Apalache or Java is missing, engquint exits 2 with the missing item and does not fetch it. Owner statement of 2026-11-12 (verbatim): \\\"all the tools are approved use them in CI even if you cannot install them here now.\\\" (quint npm 0.33.1, Apalache 0.62.4 tarball sha256 8ac8488422c30d552735bae11b92a2d014d8e02e8608702acc08f9a2d8a9abb2, Temurin JDK 21)."
+  applies_to = ["FU-QUINT-EXPORTER"]
+}
+Requirement REQ_EMG_145 {
+  id         = "REQ-EMG-145"
+  text       = "When generation run is requested, the engineering model go shall record each Quint result with the sha256 of its module so that a stale result is no evidence."
+  notes      = "ADR-EMG-041 and ADR-EMG-042. The results file holds, per machine and invariant, the verdict, the sha256 of the .qnt it was produced from, the quint version, backend, mode (run or verify), the bounds (max-steps, max-samples) and the seed. A result whose sha256 differs from the committed module is stale: it is never evidence, and check warns with the machine and invariant."
+  applies_to = ["FU-QUINT-EXPORTER"]
+}
+Requirement REQ_EMG_146 {
+  id         = "REQ-EMG-146"
+  text       = "When model updated event is received, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix."
+  notes      = "ADR-EMG-042. engquint check writes a sha-verified result into test-results/ with kind formal; internal/trace and the codescan inferred verification read it. A pass whose sha256 matches the module is analysis evidence for each REQ-* the invariant is linked to; failed and stale results are not evidence. The tier policy and the verification status roll-up treat it like any other verification entry."
+  applies_to = ["FU-ALLOCATION-TRACE"]
+}
+Requirement REQ_EMG_147 {
+  id         = "REQ-EMG-147"
+  text       = "When generation run is requested, the engineering model go shall write a requirement-keyed formal entry for each Quint result into the Gemara evaluation log."
+  notes      = "ADR-EMG-042. Entries are keyed by requirement, so no requirement-to-control mapping is needed: a passing non-stale result is a passed entry, a failed result a failed one and a stale result a not-run one with the reason."
+  applies_to = ["FU-GEMARA-EXPORTER"]
+}
+Requirement REQ_EMG_148 {
+  id         = "REQ-EMG-148"
+  text       = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall report requirement-level formal results in the verification tools."
+  notes      = "ADR-EMG-042. MCP verification.status and verification.gaps gain a requirement-level formal result of pass, failed or stale; model.authoringContract documents the machines block (fieldSets for machine, variable, state, transition and invariant, the expression operator table, the machine diagnostics and their tier rows)."
+  applies_to = ["FU-MCP-SERVER"]
+}
+Requirement REQ_EMG_149 {
+  id         = "REQ-EMG-149"
+  text       = "When generation run is requested, the engineering model go shall keep the generated Quint modules with the other generated artifacts and report any drift in the artifact freshness gate."
+  notes      = "ADR-EMG-040 and ADR-EMG-043. The modules under generated/quint/ (hard-coded in the scripts) are regenerated by scripts/validate-all.sh; the freshness gate compares the hashes before and after, so a model change without regenerated modules fails. This is the mvp-tier Quint requirement."
+  applies_to = ["FU-QUINT-EXPORTER"]
 }

@@ -179,10 +179,30 @@ package 'DAL-C-FLIGHT-CONTROL-SAMPLE' {
     }
 
     @EngineeringElement {
-        sourceId = "STATE-OPERATIONAL";
+        sourceId = "SM-YAW-CONTROL";
         conceptKind = "state_definition";
     }
-    state def 'STATE-OPERATIONAL';
+    state def 'SM-YAW-CONTROL' {
+        doc /* The yaw damping software stays operational and processes each received yaw rate sample; it has no other mode in this sample, so the state is not final. Implemented by FU-YAW-CONTROL. */
+        entry;
+        then 'STATE-OPERATIONAL';
+        state 'STATE-OPERATIONAL';
+        @EngineeringElement about 'STATE-OPERATIONAL' {
+            sourceId = "STATE-OPERATIONAL";
+            conceptKind = "state_usage";
+        }
+        transition 'TR-YAW-SAMPLE'
+            first 'STATE-OPERATIONAL'
+            accept 'on-EVT-YAW-RATE-RECEIVED' :> 'EVT-YAW-RATE-RECEIVED'
+            then 'STATE-OPERATIONAL' {
+                doc /* Each received yaw rate sample is processed in the operational mode. */
+            }
+        @EngineeringRelationship about 'TR-YAW-SAMPLE' {
+            sourceId = "TR-YAW-SAMPLE";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+    }
 
     @EngineeringElement {
         sourceId = "TERM-RUDDER-COMMAND";

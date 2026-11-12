@@ -13,6 +13,9 @@ metadata:
   - id: ENGMOD-CONTROL-CATALOG
     title: Control Catalog
     version: 1.1.0
+  - id: ENGMOD-REQUIREMENTS
+    title: Requirements
+    version: 1.1.0
 result: Needs Review
 evaluations:
 - name: SSO MFA Enforcement
@@ -104,6 +107,159 @@ evaluations:
       collected-at: "2026-09-19T00:00:00Z"
       payload: tests/contract/checkout_decline_response_test.go
       description: Replay and idempotency assertions for callback path.
+- name: Formal verification of REQ-PAY-001
+  result: Passed
+  message: 1 formal result(s) recorded for requirement REQ-PAY-001.
+  control:
+    reference-id: ENGMOD-REQUIREMENTS
+    entry-id: REQ-PAY-001
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-REQUIREMENTS
+      entry-id: INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED
+    description: "Assessment of REQ-PAY-001 via analysis: Quint invariant INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of machine SM-PAYMENTS-AUTH."
+    result: Passed
+    message: "Formal result pass: machine SM-PAYMENTS-AUTH, invariant INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED, mode run+verify, result hash 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraFormalStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: REQ-PAY-001-FORMAL-1
+      type: FormalVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload:
+        invariant: INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED
+        machine: SM-PAYMENTS-AUTH
+        method: analysis
+        mode: run+verify
+        qntFile: generated/quint/sm_payments_auth.qnt
+        qntSha256: 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c
+        result: pass
+      description: "Quint result for INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED: pass, sha256 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+- name: Formal verification of REQ-PAY-003
+  result: Passed
+  message: 1 formal result(s) recorded for requirement REQ-PAY-003.
+  control:
+    reference-id: ENGMOD-REQUIREMENTS
+    entry-id: REQ-PAY-003
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-REQUIREMENTS
+      entry-id: INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES
+    description: "Assessment of REQ-PAY-003 via analysis: Quint invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of machine SM-PAYMENTS-AUTH."
+    result: Passed
+    message: "Formal result pass: machine SM-PAYMENTS-AUTH, invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES, mode run+verify, result hash 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraFormalStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: REQ-PAY-003-FORMAL-1
+      type: FormalVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload:
+        invariant: INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES
+        machine: SM-PAYMENTS-AUTH
+        method: analysis
+        mode: run+verify
+        qntFile: generated/quint/sm_payments_auth.qnt
+        qntSha256: 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c
+        result: pass
+      description: "Quint result for INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES: pass, sha256 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+- name: Formal verification of REQ-PAY-007
+  result: Passed
+  message: 1 formal result(s) recorded for requirement REQ-PAY-007.
+  control:
+    reference-id: ENGMOD-REQUIREMENTS
+    entry-id: REQ-PAY-007
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-REQUIREMENTS
+      entry-id: INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL
+    description: "Assessment of REQ-PAY-007 via analysis: Quint invariant INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL of machine SM-PAYMENTS-AUTH."
+    result: Passed
+    message: "Formal result pass: machine SM-PAYMENTS-AUTH, invariant INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL, mode run+verify, result hash 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraFormalStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: REQ-PAY-007-FORMAL-1
+      type: FormalVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload:
+        invariant: INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL
+        machine: SM-PAYMENTS-AUTH
+        method: analysis
+        mode: run+verify
+        qntFile: generated/quint/sm_payments_auth.qnt
+        qntSha256: 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c
+        result: pass
+      description: "Quint result for INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL: pass, sha256 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+- name: Formal verification of REQ-PAY-008
+  result: Passed
+  message: 2 formal result(s) recorded for requirement REQ-PAY-008.
+  control:
+    reference-id: ENGMOD-REQUIREMENTS
+    entry-id: REQ-PAY-008
+  assessment-logs:
+  - requirement:
+      reference-id: ENGMOD-REQUIREMENTS
+      entry-id: INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED
+    description: "Assessment of REQ-PAY-008 via analysis: Quint invariant INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of machine SM-PAYMENTS-AUTH."
+    result: Passed
+    message: "Formal result pass: machine SM-PAYMENTS-AUTH, invariant INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED, mode run+verify, result hash 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraFormalStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: REQ-PAY-008-FORMAL-1
+      type: FormalVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload:
+        invariant: INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED
+        machine: SM-PAYMENTS-AUTH
+        method: analysis
+        mode: run+verify
+        qntFile: generated/quint/sm_payments_auth.qnt
+        qntSha256: 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c
+        result: pass
+      description: "Quint result for INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED: pass, sha256 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+  - requirement:
+      reference-id: ENGMOD-REQUIREMENTS
+      entry-id: INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES
+    description: "Assessment of REQ-PAY-008 via analysis: Quint invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of machine SM-PAYMENTS-AUTH."
+    result: Passed
+    message: "Formal result pass: machine SM-PAYMENTS-AUTH, invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES, mode run+verify, result hash 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
+    applicability:
+    - all-systems
+    steps:
+    - github.com/labeth/engineering-model-go/internal/export/gemara.gemaraFormalStep
+    start: "2026-09-19T00:00:00Z"
+    confidence-level: High
+    evidence:
+    - id: REQ-PAY-008-FORMAL-2
+      type: FormalVerification
+      collected-at: "2026-09-19T00:00:00Z"
+      payload:
+        invariant: INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES
+        machine: SM-PAYMENTS-AUTH
+        method: analysis
+        mode: run+verify
+        qntFile: generated/quint/sm_payments_auth.qnt
+        qntSha256: 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c
+        result: pass
+      description: "Quint result for INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES: pass, sha256 18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c."
 target:
   id: sample-payments-layered-model
   name: Sample Payments Layered Architecture

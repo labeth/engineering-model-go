@@ -99,9 +99,27 @@
       ],
       "verifications": [
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
       "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-COF-003",
+          "machine": "SM-COFFEE-OTA-ROLLOUT",
+          "invariant": "INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_coffee_ota_rollout.qnt",
+          "qntSha256": "bb7d701984d0d2b19f86dbda99eb09ca665e466030a8bd0d21a7238eefccf333",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT of SM-COFFEE-OTA-ROLLOUT holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
       "status": "implemented",
       "children": [
         "ota-agent::CAP-OTA-APPLY",

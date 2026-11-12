@@ -1,3 +1,4 @@
+%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%
 flowchart LR
 %% view: VIEW-SECURITY (security)
 N_AV_MALFORMED_MODEL_INPUT(("Malformed Model Input")):::attack_vector
@@ -14,6 +15,7 @@ N_FU_LOBSTER_EXPORTER["LOBSTER Exporter"]:::functional_unit
 N_FU_MCP_SERVER["MCP Server"]:::functional_unit
 N_FU_MODEL_CHANGE["Model Change"]:::functional_unit
 N_FU_MODEL_LOADER["Model Loader"]:::functional_unit
+N_FU_QUINT_EXPORTER["Quint Exporter"]:::functional_unit
 N_FU_STRUCTURIZR_EXPORTER["Structurizr Exporter"]:::functional_unit
 N_FU_SYSML_EXPORTER["SysML Exporter"]:::functional_unit
 N_FU_THREAT_EXPORTER["Threat Exporter"]:::functional_unit
@@ -47,6 +49,9 @@ N_FU_MCP_SERVER --> N_FU_VALIDATION_ENGINE
 N_FU_MCP_SERVER --> N_TB_REPO_WORKSPACE
 N_FU_MODEL_CHANGE --> N_FU_MODEL_LOADER
 N_FU_MODEL_CHANGE --> N_FU_VALIDATION_ENGINE
+N_FU_QUINT_EXPORTER --> N_FU_MODEL_LOADER
+N_FU_QUINT_EXPORTER --> N_FU_VALIDATION_ENGINE
+N_FU_QUINT_EXPORTER --> N_TB_EXTERNAL_VALIDATION_TOOLS
 N_FU_STRUCTURIZR_EXPORTER --> N_REF_STRUCTURIZR_VALIDATOR
 N_FU_STRUCTURIZR_EXPORTER --> N_TB_EXTERNAL_VALIDATION_TOOLS
 N_FU_SYSML_EXPORTER --> N_REF_SYSML_V2_TOOLCHAIN

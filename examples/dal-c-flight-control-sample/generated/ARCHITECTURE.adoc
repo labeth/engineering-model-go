@@ -261,7 +261,7 @@ flowchart LR
   FU --> DEPT
   FU --> CTRL
   FU --> TB
-  ST -->|triggered_by| EVT
+  ST -->|on_event| EVT
   ST -->|guarded_by| CTRL
   FLOW --> FSTEP
   FSTEP -->|flow_ref| FU
@@ -730,6 +730,19 @@ protocol=sampled-data; endpoint=input; schemaRef=n/a; owner=FU-YAW-CONTROL
 |Kind |Interface
 |Name |Yaw Rate Input
 |Mentioned In |<<REF_REQ_REQ_YD_HLR_001,REQ-YD-HLR-001>>
+|===
+[[REF_IDX-MACHINE_SM_YAW_CONTROL]]
+[discrete]
+==== SM-YAW-CONTROL
+
+owner=FU-YAW-CONTROL; initial=STATE-OPERATIONAL; states=1; transitions=1
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Machine
+|Name |Yaw damping mode
+|Mentioned In |n/a
 |===
 [[REF_IDX-REQ_REQ_YD_HLR_001]]
 [discrete]

@@ -1,27 +1,153 @@
 schemaVersion: 2
 behavior:
-  states:
-  - id: STATE-MODEL-VALID
-    name: Model Valid
-    description: Model passes architecture and relationship validation checks.
-  - id: STATE-MODEL-INVALID
-    name: Model Invalid
-    description: Model has validation diagnostics that block generation or trusted use.
-  - id: STATE-ARTIFACTS-FRESH
-    name: Artifacts Fresh
-    description: Generated artifacts are aligned with current authored model and code evidence.
-  - id: STATE-LINK-CLAIMED
-    name: Link Claimed
-    description: A requirement link is recorded (status claimed) but nobody has reviewed it; it does not count toward the trace roll-up.
-  - id: STATE-LINK-ACCEPTED
-    name: Link Accepted
-    description: A requirement link is reviewed (status accepted, reviewer and date recorded) at the version its dependency is pinned to.
-  - id: STATE-LINK-SUSPECT
-    name: Link Suspect
-    description: The dependency is pinned to another version than the link was reviewed at (link.version_mismatch), because a bump found the item's meaning changed or could not resolve the reviewed version; the check fails until the link is reviewed again (D23).
-  - id: STATE-LINK-BROKEN
-    name: Link Broken
-    description: The linked child item no longer exists as a published contract item at the resolved version; the link must be removed or relinked.
+  machines:
+  - id: SM-MODEL-VALIDATION
+    name: Model Validation
+    description: Whether the authored model passes validation, from the validation engine's point of view. A failed validation blocks generation and trusted use until a model update resolves the diagnostics.
+    owner: FU-VALIDATION-ENGINE
+    initial: STATE-MODEL-VALID
+    states:
+    - id: STATE-MODEL-VALID
+      name: Model Valid
+      description: Model passes architecture and relationship validation checks.
+    - id: STATE-MODEL-INVALID
+      name: Model Invalid
+      description: Model has validation diagnostics that block generation or trusted use.
+    transitions:
+    - id: TR-MODEL-VALIDATION-FAILS
+      from: STATE-MODEL-VALID
+      to: STATE-MODEL-INVALID
+      on: EVT-VALIDATION-FAILED
+      description: Validation or schema checks report errors, so generation and trusted use are blocked.
+    - id: TR-MODEL-VALIDATION-RECOVERS
+      from: STATE-MODEL-INVALID
+      to: STATE-MODEL-VALID
+      on: EVT-MODEL-UPDATED
+      description: Model becomes valid after an update resolves the diagnostics.
+    - id: TR-MODEL-STATUS-SUGGEST
+      from: STATE-MODEL-VALID
+      to: STATE-MODEL-VALID
+      on: EVT-STATUS-SUGGEST-REQUESTED
+      description: engws status-suggest reads a valid model and its tree's evidence and writes nothing, so the model stays valid (REQ-EMG-122).
+  - id: SM-ARTIFACT-FRESHNESS
+    name: Artifact Freshness
+    description: Whether the generated artifacts are aligned with the current authored model and code evidence. Any model update makes them stale and a successful generation cycle makes them fresh again.
+    owner: FU-CLI-ORCHESTRATION
+    initial: STATE-ARTIFACTS-FRESH
+    states:
+    - id: STATE-ARTIFACTS-FRESH
+      name: Artifacts Fresh
+      description: Generated artifacts are aligned with current authored model and code evidence.
+    - id: STATE-ARTIFACTS-STALE
+      name: Artifacts Stale
+      description: The authored model changed after the generated artifacts were produced, so they no longer reflect it.
+    - id: STATE-ARTIFACTS-REGENERATING
+      name: Artifacts Regenerating
+      description: A generation run was requested and has not yet produced the artifacts; it stops when validation fails.
+    transitions:
+    - id: TR-ARTIFACTS-GO-STALE
+      from: STATE-ARTIFACTS-FRESH
+      to: STATE-ARTIFACTS-STALE
+      on: EVT-MODEL-UPDATED
+      description: Any model update can invalidate freshness and triggers regeneration.
+    - id: TR-ARTIFACTS-GENERATION-RUN
+      from: STATE-ARTIFACTS-STALE
+      to: STATE-ARTIFACTS-REGENERATING
+      on: EVT-GENERATION-RUN-REQUESTED
+      description: A generation run is requested for the stale artifacts.
+    - id: TR-ARTIFACTS-GENERATION-BLOCKED
+      from: STATE-ARTIFACTS-REGENERATING
+      to: STATE-ARTIFACTS-STALE
+      on: EVT-VALIDATION-FAILED
+      description: A failed validation stops the generation run, so the artifacts stay stale.
+    - id: TR-ARTIFACTS-REGENERATED
+      from: STATE-ARTIFACTS-REGENERATING
+      to: STATE-ARTIFACTS-FRESH
+      on: EVT-ARTIFACT-GENERATED
+      description: Fresh state is reached after a successful generation cycle.
+  - id: SM-LINK-LIFECYCLE
+    name: Requirement Link Lifecycle
+    description: One requirement link from the moment it is written until it is accepted, found suspect or found broken. The variable reviewed records that a reviewer and date were recorded for the link.
+    owner: FU-ALLOCATION-TRACE
+    initial: STATE-LINK-ABSENT
+    variables:
+    - name: reviewed
+      type: Boolean
+      initial: false
+    states:
+    - id: STATE-LINK-ABSENT
+      name: Link Absent
+      description: The requirement link is not recorded yet.
+    - id: STATE-LINK-CLAIMED
+      name: Link Claimed
+      description: A requirement link is recorded (status claimed) but nobody has reviewed it; it does not count toward the trace roll-up.
+    - id: STATE-LINK-ACCEPTED
+      name: Link Accepted
+      description: A requirement link is reviewed (status accepted, reviewer and date recorded) at the version its dependency is pinned to.
+    - id: STATE-LINK-SUSPECT
+      name: Link Suspect
+      description: The dependency is pinned to another version than the link was reviewed at (link.version_mismatch), because a bump found the item's meaning changed or could not resolve the reviewed version; the check fails until the link is reviewed again (D23).
+    - id: STATE-LINK-BROKEN
+      name: Link Broken
+      description: The linked child item no longer exists as a published contract item at the resolved version; the link must be removed or relinked.
+    transitions:
+    - id: TR-LINK-ADD
+      from: STATE-LINK-ABSENT
+      to: STATE-LINK-CLAIMED
+      on: EVT-LINK-ADD-REQUESTED
+      description: engws link add writes a claimed link pinned to the dependency version (REQ-EMG-119).
+    - id: TR-LINK-MIGRATE
+      from: STATE-LINK-ABSENT
+      to: STATE-LINK-CLAIMED
+      on: EVT-LINK-MIGRATION-REQUESTED
+      description: engws migrate-links records each converted allocation as a claimed link (REQ-EMG-104).
+    - id: TR-LINK-ACCEPT
+      from: STATE-LINK-CLAIMED
+      to: STATE-LINK-ACCEPTED
+      on: EVT-LINK-REVIEW-REQUESTED
+      effect: reviewed := true
+      description: On link review requested (engws review-links --accept by a model actor) a claimed link is accepted and its reviewer and date are recorded (REQ-EMG-101).
+    - id: TR-LINK-MISMATCH
+      from: STATE-LINK-ACCEPTED
+      to: STATE-LINK-SUSPECT
+      on: EVT-DEPENDENCY-BUMP-REQUESTED
+      description: On dependency bump requested, a changed meaning of the child item or a realizer, or a reviewed version that cannot be resolved, leaves an accepted link at its old pin, version-mismatched (REQ-EMG-100, REQ-EMG-094).
+    - id: TR-LINK-BREAK
+      from: STATE-LINK-ACCEPTED
+      to: STATE-LINK-BROKEN
+      on: EVT-MODEL-UPDATED
+      description: On model updated, a child item missing at the published dependency pin breaks an accepted link (REQ-EMG-097, REQ-EMG-094).
+    - id: TR-LINK-REACCEPT
+      from: STATE-LINK-SUSPECT
+      to: STATE-LINK-ACCEPTED
+      on: EVT-LINK-REVIEW-REQUESTED
+      effect: reviewed := true
+      description: On link review requested (engws review-links --accept) a version-mismatched link is pinned to the dependency version and accepted again (REQ-EMG-101).
+    - id: TR-LINK-REMOVE
+      from: STATE-LINK-BROKEN
+      to: STATE-LINK-ABSENT
+      on: EVT-MODEL-UPDATED
+      effect: reviewed := false
+      description: A broken link is removed from the model (or relinked, which records a new claimed link), so no link is recorded any more and its review is gone (REQ-EMG-097).
+    - id: TR-LINK-CONTRACT-DIFF
+      from: STATE-LINK-ACCEPTED
+      to: STATE-LINK-ACCEPTED
+      on: EVT-CONTRACT-DIFF-REQUESTED
+      description: A child's contract diff states the semver impact of the changes its users' links will see and leaves the link as it is (REQ-EMG-102).
+    - id: TR-LINK-RELEASE-CHECK
+      from: STATE-LINK-ACCEPTED
+      to: STATE-LINK-ACCEPTED
+      on: EVT-RELEASE-CHECK-REQUESTED
+      description: A release is refused while it pins unreleased dependencies or under-states a contract change; the link itself stays accepted (REQ-EMG-103).
+    invariants:
+    - id: INV-LINK-ACCEPTED-REVIEWED
+      requirements: [REQ-EMG-101]
+      expr: in_state(STATE-LINK-ACCEPTED) implies reviewed
+      description: An accepted link always has a recorded review.
+    - id: INV-LINK-UNREVIEWED-NOT-ACCEPTED
+      requirements: [REQ-EMG-094, REQ-EMG-101]
+      expr: (in_state(STATE-LINK-ABSENT) or in_state(STATE-LINK-CLAIMED)) implies not reviewed
+      description: A link that is not recorded or only claimed has no recorded review, so only a review request moves it toward accepted.
   events:
   - id: EVT-MODEL-UPDATED
     name: Model Updated
@@ -316,6 +442,9 @@ behavior:
     to: FU-SYSML-EXPORTER
   - type: contains
     from: FG-ARTIFACT-GENERATION
+    to: FU-QUINT-EXPORTER
+  - type: contains
+    from: FG-ARTIFACT-GENERATION
     to: FU-NAF-EXPORTER
   - type: contains
     from: FG-TRACEABILITY-COMPLIANCE
@@ -397,6 +526,12 @@ behavior:
     from: FU-SYSML-EXPORTER
     to: DO-SYSML-V2-METAMODEL
   - type: depends_on
+    from: FU-QUINT-EXPORTER
+    to: FU-MODEL-LOADER
+  - type: depends_on
+    from: FU-QUINT-EXPORTER
+    to: FU-VALIDATION-ENGINE
+  - type: depends_on
     from: FU-NAF-EXPORTER
     to: FU-VIEW-PROJECTION
   - type: depends_on
@@ -429,6 +564,9 @@ behavior:
   - type: contains
     from: FU-SYSML-EXPORTER
     to: IF-CLI-ENGSYSML
+  - type: contains
+    from: FU-QUINT-EXPORTER
+    to: IF-CLI-ENGQUINT
   - type: contains
     from: FU-NAF-EXPORTER
     to: IF-CLI-ENGNAF
@@ -511,6 +649,9 @@ behavior:
     from: FU-SYSML-EXPORTER
     to: TB-EXTERNAL-VALIDATION-TOOLS
   - type: bounded_by
+    from: FU-QUINT-EXPORTER
+    to: TB-EXTERNAL-VALIDATION-TOOLS
+  - type: bounded_by
     from: FU-TRLC-EXPORTER
     to: TB-EXTERNAL-VALIDATION-TOOLS
   - type: bounded_by
@@ -540,71 +681,7 @@ behavior:
   - type: mitigated_by
     from: AV-TRACEABILITY-GAP-DRIFT
     to: CTRL-TRACEABILITY-COVERAGE
-  - type: transitions_to
-    from: STATE-MODEL-INVALID
-    to: STATE-MODEL-VALID
-    description: Model becomes valid after diagnostics are resolved.
-  - type: triggered_by
-    from: STATE-MODEL-VALID
-    to: EVT-MODEL-UPDATED
-    description: Any model update can invalidate freshness and trigger regeneration.
-  - type: triggered_by
-    from: STATE-ARTIFACTS-FRESH
-    to: EVT-ARTIFACT-GENERATED
-    description: Fresh-state reached after successful generation cycle.
   - type: guarded_by
     from: STATE-MODEL-VALID
     to: CTRL-STRICT-MCP-INPUT-SCHEMA
     description: Model-aware tool usage requires strict MCP input semantics.
-  - type: transitions_to
-    from: STATE-LINK-CLAIMED
-    to: STATE-LINK-ACCEPTED
-    description: On link review requested (engws review-links --accept by a model actor) a claimed link is accepted (REQ-EMG-101).
-  - type: transitions_to
-    from: STATE-LINK-ACCEPTED
-    to: STATE-LINK-SUSPECT
-    description: On dependency bump requested, a changed meaning of the child item or a realizer, or a reviewed version that cannot be resolved, leaves an accepted link at its old pin, version-mismatched (REQ-EMG-100, REQ-EMG-094).
-  - type: transitions_to
-    from: STATE-LINK-ACCEPTED
-    to: STATE-LINK-BROKEN
-    description: On dependency bump requested or model updated, a child item missing at the published dependency pin breaks an accepted link (REQ-EMG-097, REQ-EMG-100).
-  - type: transitions_to
-    from: STATE-LINK-SUSPECT
-    to: STATE-LINK-ACCEPTED
-    description: On link review requested (engws review-links --accept) a version-mismatched link is pinned to the dependency version and accepted again (REQ-EMG-101).
-  - type: triggered_by
-    from: STATE-LINK-CLAIMED
-    to: EVT-LINK-MIGRATION-REQUESTED
-    description: engws migrate-links records each converted allocation as a claimed link (REQ-EMG-104).
-  - type: triggered_by
-    from: STATE-LINK-CLAIMED
-    to: EVT-LINK-ADD-REQUESTED
-    description: engws link add writes a claimed link pinned to the dependency version (REQ-EMG-119).
-  - type: triggered_by
-    from: STATE-MODEL-VALID
-    to: EVT-STATUS-SUGGEST-REQUESTED
-    description: engws status-suggest reads a valid model and its tree's evidence and writes nothing (REQ-EMG-122).
-  - type: triggered_by
-    from: STATE-LINK-CLAIMED
-    to: EVT-LINK-REVIEW-REQUESTED
-    description: A claimed link is listed and may be accepted (REQ-EMG-101).
-  - type: triggered_by
-    from: STATE-LINK-SUSPECT
-    to: EVT-LINK-REVIEW-REQUESTED
-    description: A version-mismatched link is shown with its change in meaning and may be accepted (REQ-EMG-101).
-  - type: triggered_by
-    from: STATE-LINK-BROKEN
-    to: EVT-LINK-REVIEW-REQUESTED
-    description: A broken link is shown but refused for acceptance (REQ-EMG-101).
-  - type: triggered_by
-    from: STATE-LINK-ACCEPTED
-    to: EVT-DEPENDENCY-BUMP-REQUESTED
-    description: bump compares accepted links between versions by meaning; the same meaning moves the pin (REQ-EMG-100).
-  - type: triggered_by
-    from: STATE-LINK-ACCEPTED
-    to: EVT-CONTRACT-DIFF-REQUESTED
-    description: A child's contract diff states the semver impact of the changes its users' links will see (REQ-EMG-102).
-  - type: triggered_by
-    from: STATE-LINK-ACCEPTED
-    to: EVT-RELEASE-CHECK-REQUESTED
-    description: A release is refused while it pins unreleased dependencies or under-states a contract change (REQ-EMG-103).

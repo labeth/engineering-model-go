@@ -8,6 +8,13 @@
           },
           "title": "Control Catalog",
           "uuid": "dac3bf31-99f9-536b-959a-4504f3478037"
+        },
+        {
+          "citation": {
+            "text": "*Requirements*. "
+          },
+          "title": "Requirements",
+          "uuid": "c26e3dbe-6c95-55be-8804-0da2b290d6d7"
         }
       ]
     },
@@ -84,6 +91,30 @@
               "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-BEDROCK-SECRETS-ROTATION / CV-BEDROCK-REDACTION-CHECK",
               "uuid": "2594bd0b-5efc-5a87-bc8b-2c3cbd806d84"
+            },
+            {
+              "description": "Assessment of REQ-PRR-005 via analysis: Quint invariant INV-BEDROCK-NO-EARLY-PUBLICATION of machine SM-BEDROCK-PR-REVIEW.",
+              "logged-by": [
+                {
+                  "party-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "REQ-PRR-005 / INV-BEDROCK-NO-EARLY-PUBLICATION",
+              "uuid": "cbc73071-48cb-5969-8062-73ad792ab3a4"
+            },
+            {
+              "description": "Assessment of REQ-PRR-005 via analysis: Quint invariant INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED of machine SM-BEDROCK-PR-REVIEW.",
+              "logged-by": [
+                {
+                  "party-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "REQ-PRR-005 / INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED",
+              "uuid": "0c1c49d5-4db2-5d2e-bb7f-38abb7be9d03"
             }
           ]
         },
@@ -149,6 +180,37 @@
             },
             "title": "Secret Rotation Enforcement",
             "uuid": "d001bdbe-dd57-50c3-927d-354f94b08a96"
+          },
+          {
+            "description": "2 formal result(s) recorded for requirement REQ-PRR-005.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "d4357dac-b032-517a-b668-cc8fb86d6fc1"
+              },
+              {
+                "observation-uuid": "fcc8052b-74ff-5435-b6f3-498d824c3ae5"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "req-prr-005",
+              "type": "objective-id"
+            },
+            "title": "Formal verification of REQ-PRR-005",
+            "uuid": "60f7cee0-4d28-55d8-86f6-9eedc2eaafb2"
           }
         ],
         "local-definitions": {
@@ -279,6 +341,78 @@
               }
             ],
             "uuid": "d72c509d-72ca-549e-9517-2d18a204ae74"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of REQ-PRR-005 via analysis: Quint invariant INV-BEDROCK-NO-EARLY-PUBLICATION of machine SM-BEDROCK-PR-REVIEW.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "INV-BEDROCK-NO-EARLY-PUBLICATION"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "REQ-PRR-005"
+              }
+            ],
+            "uuid": "d4357dac-b032-517a-b668-cc8fb86d6fc1"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of REQ-PRR-005 via analysis: Quint invariant INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED of machine SM-BEDROCK-PR-REVIEW.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "197e8a3c-5b16-5708-9706-fdfcc9e6ac95",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "REQ-PRR-005"
+              }
+            ],
+            "uuid": "fcc8052b-74ff-5435-b6f3-498d824c3ae5"
           }
         ],
         "props": [
@@ -297,6 +431,9 @@
                 },
                 {
                   "control-id": "ctrl-bedrock-secrets-rotation"
+                },
+                {
+                  "control-id": "req-prr-005"
                 }
               ]
             }

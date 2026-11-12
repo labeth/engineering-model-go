@@ -1,12 +1,44 @@
 schemaVersion: 2
 behavior:
-  states:
-  - id: STATE-COFFEE-OTA-SCHEDULED
-    name: OTA Scheduled
-    description: Campaign prepared and waiting for rollout execution.
-  - id: STATE-COFFEE-OTA-APPLIED
-    name: OTA Applied
-    description: Firmware update successfully applied to target cohort.
+  machines:
+  - id: SM-COFFEE-OTA-ROLLOUT
+    name: OTA rollout
+    description: Lifecycle of one OTA campaign from the scheduled rollout to the applied firmware on the target cohort.
+    owner: FU-UPDATE-CAMPAIGN-ORCHESTRATION
+    initial: STATE-COFFEE-OTA-SCHEDULED
+    variables:
+    - name: firmwareApplied
+      type: Boolean
+      initial: false
+    states:
+    - id: STATE-COFFEE-OTA-SCHEDULED
+      name: OTA Scheduled
+      description: Campaign prepared and waiting for rollout execution.
+    - id: STATE-COFFEE-OTA-ROLLING-OUT
+      name: OTA Rolling Out
+      description: Signed firmware bundle is being delivered to and installed on the target cohort.
+    - id: STATE-COFFEE-OTA-APPLIED
+      name: OTA Applied
+      description: Firmware update successfully applied to target cohort.
+      final: true
+    transitions:
+    - id: TR-COFFEE-OTA-START
+      from: STATE-COFFEE-OTA-SCHEDULED
+      to: STATE-COFFEE-OTA-ROLLING-OUT
+      on: EVT-COFFEE-OTA-REQUESTED
+      description: The accepted campaign request starts the rollout to the cohort.
+    - id: TR-COFFEE-OTA-APPLY
+      from: STATE-COFFEE-OTA-ROLLING-OUT
+      to: STATE-COFFEE-OTA-APPLIED
+      on: EVT-COFFEE-OTA-COMPLETED
+      effect: firmwareApplied := true
+      description: The cohort reported the rollout complete.
+    invariants:
+    - id: INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT
+      requirements:
+      - REQ-COF-003
+      expr: in_state(STATE-COFFEE-OTA-APPLIED) implies firmwareApplied
+      description: The applied state is reached only through a completed rollout.
   events:
   - id: EVT-COFFEE-OTA-REQUESTED
     name: OTA Requested
@@ -374,15 +406,6 @@ behavior:
   - type: contains
     from: FU-MACHINE-TELEMETRY-COLLECTION
     to: DO-COFFEE-TELEMETRY-EVENT
-  - type: transitions_to
-    from: STATE-COFFEE-OTA-SCHEDULED
-    to: STATE-COFFEE-OTA-APPLIED
-  - type: triggered_by
-    from: STATE-COFFEE-OTA-SCHEDULED
-    to: EVT-COFFEE-OTA-REQUESTED
-  - type: triggered_by
-    from: STATE-COFFEE-OTA-APPLIED
-    to: EVT-COFFEE-OTA-COMPLETED
   - type: guarded_by
     from: STATE-COFFEE-OTA-APPLIED
     to: CTRL-COFFEE-FIRMWARE-SIGNATURE

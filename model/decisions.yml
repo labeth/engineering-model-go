@@ -1062,3 +1062,266 @@ decisions:
   consequences:
   - Users of v0.9.0 opt in by adding lifecycle after the engine bump; nothing changes until then.
   - engineering-flow 0.7.0 reads TierPolicy() for its MODEL-RULES.md "Severity by tier" table.
+- id: ADR-EMG-037
+  title: Behavior state machines are a first-class machines block projected into the canonical semantic model
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The Quint behavior-verification plan (D1, D2) put machines into an optional semantics block of the behavior document,
+    as raw semantic elements: a state_definition with attribute features for the variables, state_usage elements, succession
+    relationships for the initial and final states and transition relationships. Authoring that shape by hand is error
+    prone (an initial state is an edge, a variable is a feature kind, a final state is a second edge back to the machine),
+    and it asks the author to know the SysML binding. The code facts: the canonical semantic graph already has
+    state_definition, state_usage, constraint_usage and the transition relationship with triggers, guard and effect; the
+    behavior document today holds only a free list of states, events, flows and typed relationships.
+    Settled in a grilling session with the owner on 2026-11-12. OWNER items: the block name machines, the ID prefixes SM-,
+    TR- and INV-, and the variable types Integer, Boolean and String.
+  decision: |-
+    behavior.yml gains a first-class machines block, not a semantics block. A machine has an id SM-*, an owner functional
+    unit, variables (type Integer, Boolean or String, each with an initial value), states that keep their STATE-* IDs
+    (optional final true), exactly one machine-level initial, transitions TR-* (from, to, optional on naming an event of
+    behavior.events, optional guard, optional effect, both short strings) and invariants INV-* (one or more REQ-* links and a
+    Boolean expression string). Strict decoding rejects unknown fields. The loader projects each machine into the
+    canonical semantic graph: machine to state_definition, states to state_usage, transitions to transition relationships
+    with triggers, guard and effect, invariants to constraint_usage elements (ADR-EMG-040), so the SysML exporter and the
+    views need no machine-specific code. IDs are unique across architecture and behavior documents as for every element.
+    Covers REQ-EMG-135, REQ-EMG-137.
+  consequences:
+  - Authors write one readable block per machine; the initial state, final states and variables are fields, not edges and features.
+  - The semantic graph stays the single projection source; SysML and Quint are both projections of the machine.
+  - An optional semantics block in the behavior document is not added; the plan D1 is replaced.
+- id: ADR-EMG-038
+  title: Machine states are the only states and behavior.states and transitions_to are retired
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The plan (D5) kept the free-floating behavior.states list with transitions_to, triggered_by and guarded_by as a
+    migration input and added an adapter with the diagnostics behavior.mapping_lossy and behavior.duplicate_transition_source.
+    That leaves two ways to state the same transition, with a lossy mapping between them. The existing hygiene checks
+    (behavior.state_unreachable, behavior.event_unused) already treat states as part of one behavior graph.
+    Settled in a grilling session with the owner on 2026-11-12. OWNER item: no adapter and no coexistence.
+  decision: |-
+    Every state belongs to exactly one machine and keeps its STATE-* ID, so references from requirements, flows and views
+    stay valid. The behavior.states list and the relationship types transitions_to and triggered_by are removed in v0.11.0; the
+    loader errors point to machines: instead of translating them. There is no adapter, no
+    opt-in mode and no automatic migration: the owner rewrites every model by hand (ADR-EMG-044), as this repository did
+    for its own model/behavior.yml. guarded_by keeps its relationship meaning (protected by) and is never translated into a
+    transition guard.
+    Covers REQ-EMG-139.
+  consequences:
+  - One way to state a transition; the codes behavior.mapping_lossy and behavior.duplicate_transition_source are not needed.
+  - Models that list states outside a machine, or use transitions_to or triggered_by, fail to load with a message naming machines until rewritten.
+- id: ADR-EMG-039
+  title: Guards, effects and invariants are short strings parsed by a built-in parser with one shared operator table
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The plan (D3) required structured SemanticExpression trees in YAML, which is verbose for the author (an effect
+    count := count + 1 is a tree of three nodes) and rejects free text. The code facts: SemanticExpression can hold operator
+    and operands, so a stored tree can still be the canonical form.
+    Settled in a grilling session with the owner on 2026-11-12. OWNER items: the operator list and the Integer-only
+    arithmetic rule.
+  decision: |-
+    Guards, effects and invariants are authored as short strings and parsed by a small built-in parser into structured
+    expression trees, which are stored in the model. The operators are and, or, not, implies, ==, !=, <, <=, >, >=,
+    + - *, the assignment :=, effect lists separated by ; and the predicate in_state(STATE-ID). The operator table (name,
+    arity, operand types, result type, Quint rendering) is one Go table used by the parser, the validator and the Quint
+    generator. Typing rules: variables are Integer, Boolean or String; arithmetic and ordering need Integer operands; == and
+    != need equal types; and, or, not and implies need Boolean; a guard and an invariant are Boolean; an assignment target is
+    a declared variable of the type of its right side; in_state names a state of the same machine. A syntax error is a
+    diagnostic with the position in the string. Covers REQ-EMG-136, REQ-EMG-138.
+  consequences:
+  - Authors write count < 3 and in_state(STATE-IDLE) instead of a tree; reviewers read the same text the generator renders.
+  - The parser is a new surface to test and fuzz; a grammar change changes the generated Quint, which the drift gate shows.
+  - Free text is not accepted as a guard, effect or invariant.
+- id: ADR-EMG-040
+  title: Invariants are Boolean result features and the generated Quint module has a fixed shape
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The plan (D4, D6, D7) left open where an invariant expression lives, and described a Quint module with a State sum
+    type, plain variable names, one inv_all conjunction checked by a single run, and an output path configurable in
+    engmod.yml. Code facts that forced changes: the generated SysML metamodel binding gives constraint_usage no authorable
+    expression property, so the plan fallback (a result feature) is the only option; manifest.cue has no
+    generator-output configuration, and the scripts hard-code generated/quint/; and the default Quint backend (Rust)
+    downloads its binary at run time. One inv_all run also hides which invariant, and so which requirement, is violated.
+    Settled in a grilling session with the owner on 2026-11-12. OWNER items: the identifier scheme and the witnesses.
+  decision: |-
+    An invariant is projected to a constraint_usage owned by the machine, with references to its REQ-* and a single
+    feature result of type Boolean whose value is the expression. engineering-model-go emits one .qnt module per machine,
+    deterministic (authored order, fixed formatting, trailing newline), first line "// Generated by engineering-model-go from
+    <machine ID>; do not edit." Variables are prefixed v_ and IDs are sanitised to snake_case for identifiers only
+    (comments and strings keep the original IDs); a lastTransition str variable carries the TR-* ID of the last step; every
+    variable is assigned in every action, with an explicit unchanged assignment for those the effect leaves alone; there is
+    a val inv_<requirement or constraint, snake case> per invariant and a reachability witness wit_<state> per state.
+    There is no inv_all. The output directory is a CLI flag of engquint and the committed path is generated/quint/. Quint
+    is always called with --backend=typescript, because the default Rust backend downloads at run time. New internal/export/quint
+    package, root facade api_quint.go. Covers REQ-EMG-137, REQ-EMG-141, REQ-EMG-142, REQ-EMG-149.
+  consequences:
+  - Each invariant is checked and reported alone, with its requirement.
+  - Identifier sanitisation can collide (two IDs with one snake_case form), and the generator reports that as an error.
+  - The plan statements on a semantics block, inv_all, the succession edges and a configurable output path no longer apply.
+- id: ADR-EMG-041
+  title: Quint is run once per invariant and verified offline against a pinned Apalache
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The plan (D7) ran one quint run with --invariant=inv_all and left verify mode as "ship run mode only if no offline
+    Apalache works". Code and tool facts: quint verify downloads Apalache at run time by default; the owner provisions
+    Apalache 0.62.4 beforehand under QUINT_HOME, which works offline with Java 21 or later. A trace of length zero (a
+    deadlocked or unsatisfiable initial state) makes quint run report no violation, which would count a vacuous pass as evidence.
+    Settled in a grilling session with the owner on 2026-11-12.
+  decision: |-
+    run mode is quint run --backend=typescript once per invariant, with --max-steps, --max-samples, --seed, --invariant
+    and --witnesses; the bounds and the seed have fixed defaults for reproducibility. verify mode (quint verify with the
+    pre-provisioned Apalache 0.62.4 under QUINT_HOME, offline, Java 21 or later) is in scope. engquint never downloads a
+    tool; a missing pinned tool is a setup error (exit 2). A trace of length zero is an error. A counterexample is mapped
+    to the ordered TR-* IDs through lastTransition. engquint check exits 0 on a pass, 1 on a violation or a stale result and 2
+    on a setup error. Covers REQ-EMG-142, REQ-EMG-143, REQ-EMG-144, REQ-EMG-145.
+  consequences:
+  - go test never needs quint; the tests use a fake quint and the CI job installs the pinned tools.
+  - Per-invariant runs cost one process each; the bounds keep that small.
+  - Witnesses show which states a run reached, so a vacuous pass is visible.
+- id: ADR-EMG-042
+  title: A sha-verified formal result is analysis evidence in the trace, the Gemara log and the MCP tools
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The plan (D8) fed results to the verification status and the Gemara evaluation log without naming the path. Code facts:
+    the trace matrix and the codescan inferred verification read test-results/ entries by kind; the Gemara evaluation log
+    is keyed by control, and the model has no requirement-to-control mapping for machines; MCP verification.status and
+    verification.gaps know test results only.
+    Settled in a grilling session with the owner on 2026-11-12.
+  decision: |-
+    engquint check writes a result into test-results/ with kind formal, carrying the module sha256, so a passing, non-stale
+    result is analysis evidence for each REQ-* the invariant is linked to in the trace matrix (internal/trace, codescan
+    inferred verification). A result whose sha256 no longer matches the committed module is stale: no evidence and a warning.
+    The Gemara evaluation log gets requirement-keyed formal entries, so no requirement-to-control mapping is needed.
+    MCP verification.status and verification.gaps gain requirement-level formal results (pass, failed, stale) and
+    model.authoringContract documents the machine contract. A requirement whose only linked invariant fails is failed, not
+    unverified. Covers REQ-EMG-145, REQ-EMG-146, REQ-EMG-147, REQ-EMG-148.
+  consequences:
+  - Formal evidence uses the same roll-up and tier rows as test evidence.
+  - A model change without a new engquint check run turns the evidence stale, which the gate shows.
+  - The Gemara log mixes control-keyed and requirement-keyed entries.
+- id: ADR-EMG-043
+  title: Machine diagnostics and Quint requirements are keyed by life-cycle tier
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The plan left severities open. ADR-EMG-031 keys a closed table of codes by tier with the rows D, W and E; the
+    hygiene row DDWWE already covers behavior.state_unreachable and behavior.event_unused.
+    Settled in a grilling session with the owner on 2026-11-12. This is an OWNER decision, recorded as proposed.
+  decision: |-
+    Structural machine errors are always errors and are never keyed. The advisory codes behavior.machine_deadlock,
+    behavior.transition_nondeterministic, behavior.transition_no_trigger and behavior.invariant_unlinked follow the existing
+    hygiene row across poc, prototype, mvp, product and operational: off (deferred, reported and never failing), off,
+    warning, warning, error. Quint requirements by tier: at mvp the generated modules must be fresh (drift check,
+    REQ-EMG-149); at product engquint check in run mode is required when machines exist; at operational verify mode is
+    required for each machine owned by a functional unit in a safety or mission flow. Covers REQ-EMG-138, REQ-EMG-140,
+    REQ-EMG-149.
+  consequences:
+  - A poc or prototype project can author machines without failing on advisory findings.
+  - The tier-gap report lists the Quint requirements of the target tier.
+  - The OWNER items, the rows and the tier thresholds above are proposals until accepted.
+- id: ADR-EMG-044
+  title: The machine model is a breaking v0.11.0 release with a full hand rewrite of the repo model and examples
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The plan (non-goals) kept the existing behavior relationships as a migration input. The owner decided against any
+    compatibility path. The Quint toolchain adds third-party tools to CI: quint (npm), Apalache and a JDK.
+    Settled in a grilling session with the owner on 2026-11-12. OWNER items: the version number and the supply-chain approval.
+  decision: |-
+    The release is v0.11.0 and is breaking: there is no opt-in mode and no automatic migration. The owner rewrites all
+    models by hand: this repository's own model and every example under examples/ are rewritten in the same effort, so
+    every model in scripts/validate-all.sh uses machines: when the release is cut. Supply chain: quint 0.33.1 (npm),
+    Apalache 0.62.4 (tarball sha256 8ac8488422c30d552735bae11b92a2d014d8e02e8608702acc08f9a2d8a9abb2) and Temurin JDK 21
+    are approved for CI. Owner statement, verbatim, 2026-11-12: "all the tools are approved use them in CI even if you cannot
+    install them here now." Pin versions and check the download sha256 in CI. Covers REQ-EMG-139, REQ-EMG-144.
+  consequences:
+  - Models written for v0.10.0 do not validate until rewritten; the CHANGELOG says so.
+  - CI installs the three tools with scripts/install-quint-toolchain.sh (pinned versions, sha256-checked Apalache, quint from a lockfile with --ignore-scripts). The development environment of this change installs the same pins under .engmod/tooling; tests that run quint skip when ENGMOD_QUINT is unset, and the runner is also tested against a fake quint.
+  - Transferring repository content to an AI provider is not authorised by this approval.
+- id: ADR-EMG-045
+  title: Implementation decisions taken during the machines and Quint work, recorded as proposed
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The owner asked for the work to continue without questions, taking the recommended option and documenting each choice
+    as an ADR. These choices were made by the implementing agent while building REQ-EMG-135..149 and have not been
+    reviewed by the owner. They are all OWNER items.
+  decision: |-
+    (1) Machine IDs match SM-[A-Z0-9-]+; state, transition and invariant IDs keep the stable-ID pattern, and the machine
+    state IDs keep the STATE-* form. (2) The expression tree marks every node with a kind: operator, literal, variable or
+    reference. A variable leaf is a scalar value (the variable name), not a typedValue reference, because a reference must
+    resolve to a model element. (3) An effect always parses to an all node, even for one assignment. (4) Empty string
+    literals are rejected by the parser and by the variable initial value, because the semantic value type cannot represent
+    an empty string. (5) Invariants are named after their own INV-* ID (val inv_<snake id>) and the results map the
+    invariant to its requirements through the model; there is no combined inv_all, so each invariant is checked and
+    reported alone. (6) A state constructor in the generated Quint type is the PascalCase form of the whole state ID, so it
+    is unique and stable; a collision after sanitising is a generation error. (7) Reachability is computed from the
+    machine's declared initial state; the first-declared-state heuristic of v0.10.0 is dropped. (8) A document that still
+    uses behavior.states, transitions_to or a state triggered_by fails to load with a message naming machines and
+    ADR-EMG-038. (9) A construct that SysML v2 cannot express validly is exported as a comment and reported as a
+    sysml.machine_construct_commented warning, never as invalid text. (10) Quint is always called with --backend=typescript
+    and engquint never downloads a tool.
+    (11) Quint 0.33.1 has no string escapes, so a string value containing a double quote, a carriage return or a line feed
+    cannot be generated and is a generation error (quint.unsupported_string); other strings are emitted raw. (12) A
+    single-state machine is emitted as `type State = | X`, because Quint reads the form without the bar as a type alias.
+    (13) The runner is the subpackage internal/export/quint/check, so its exported names are not part of the root facade;
+    cmd/engquint imports it directly. (14) quint verify reports a deadlock as a violation, which would fail every machine
+    with a final state, so verify runs with an Apalache configuration that sets no-deadlock; run mode reports a deadlock at
+    the initial state as a warning and a zero-length trace as an error. (15) A violated invariant is written to the evidence
+    file as a failing entry, so a requirement whose only invariant fails is failed and not unverified. (16) A stale formal
+    result is a not-run result with a verification.formal_stale warning; the scan compares the sha256 of the named .qnt file
+    with the recorded one. (17) A counterexample lists the ordered TR-* IDs and omits the initial state. (18) SysML export
+    renders a machine as a state definition with entry, transitions with accept, if and do, and invariants as constraints;
+    in_state has no SysML expression form, so a guard, effect or invariant using it is exported as a comment. (19) A
+    machine variable whose name is a SysML keyword is quoted, and one that collides with a name the state definition
+    inherits gets a _var suffix and a comment with the authored name.
+    (20) Formal evidence rolls up per requirement as failed over pass over stale over not-run (internal/trace
+    formal_evidence.go). A current failing result makes the requirement failed: the formal check stays linked, the row result is
+    failed, the row status is unchanged (verified when no code implements it) and verification.failed names the machine and
+    invariant in a model with lifecycle. A current passing result is analysis evidence: the formal check is a linked
+    verification, so a requirement without code is verified, and the row result is passed unless a linked test fails. A stale
+    or not-run result is no evidence: the requirement is removed from the formal check before any roll-up, so it neither
+    verifies nor fails the requirement, does not downgrade a requirement another passing test or current invariant verifies, and
+    a requirement with only stale results stays orphan, with the warning verification.formal_stale from the scan. Status
+    inference is otherwise unchanged and a row without formal evidence is byte-identical. (21) Trace rows gain two additive
+    fields, both omitted without formal evidence: evidenceMethods (analysis, plus test when a test is also linked) and formal
+    (one entry per invariant result with machine, invariant, mode, result, qntFile, qntSha256, evidence file and notes, stale
+    entries included); the CSV columns are unchanged. (22) The codescan check carries no machine, invariant or hash, so
+    internal/trace re-reads the evidence files named in the formal check's evidence and recomputes staleness with the codescan
+    rule; the Gemara exporter, which the layering keeps from importing the trace, mirrors that reader and the MCP tools read the
+    results from the trace matrix rows. (23) The Gemara evaluation log gets one
+    ControlEvaluation per requirement with formal evidence: its control is the requirement under the mapping reference
+    ENGMOD-REQUIREMENTS (declared in the metadata only when formal evidence exists), each assessment log maps the invariant ID,
+    pass is Passed, fail is Failed, a stale or not-run result is Not Run with the reason in the message, and the evidence
+    (type FormalVerification) carries machine, invariant, mode, method analysis, qntFile and qntSha256 in a payload map; only
+    fields the control entries already use are written. The cue vet of scripts/validate-gemara.sh could not run offline, so the
+    structure is checked with the SDK type detection and in-repo invariants; the evidence file is searched under the model
+    test-results directory and beside the code root, and the entries reach the OSCAL assessment results through the same log. The Gemara cross-reference check treats the declared ENGMOD-REQUIREMENTS reference as external, since the requirements are not a rendered Gemara artifact.
+    (24) MCP verification.status gains formalResults (requirement, rolled-up result pass, failed, stale or not-run, and each
+    invariant result), narrowed by entityId or id naming a requirement, machine or invariant; verification.gaps gains formalGaps
+    (requirements whose result is not pass); trace.matrix rows gain formal and evidenceMethods; the results are read live from
+    the model test-results directory through the trace matrix (a model without an evidence file skips that build), only for requirements of the model, and every key is absent without formal evidence. (25) model.authoringContract moves to
+    engineering-model.authoring.v3 with a machines section (expression grammar, type rules, the operator table generated from
+    the table the parser and Quint generator share, the engquint workflow and the evidence semantics) and the SM, TR and INV
+    identifier prefixes; the field sets and the machine diagnostics stay in rules. (26) The tier-gap listing of the Quint
+    requirements by tier (ADR-EMG-043) is deferred to engineering-flow's gate steps: the operational rule needs the machines
+    of functional units in safety or mission flows, and flow kind and criticality are free text the model does not classify,
+    so tier.gap does not list them.
+    (27) The initial state of a machine is never reported as an unreachable state by the runner, because Quint's witness
+    count does not include the state a trace starts in; the witness count is still recorded as is. (28) The script
+    scripts/lifecycle-golden-self.sh is retired: it compared the repository's own model with the v0.9.0 engine, which cannot
+    load models that use machines, and no gate ran it. The no-lifecycle golden over the examples stays and was regenerated.
+    (29) The Gemara, compliance and security outputs under generated/ are left as committed: they were already behind the
+    engine, the freshness gate does not regenerate them, and regenerating them would bury the machines change in unrelated
+    differences. (30) Published machines and machine states are not merged into an importing model on composition; merging
+    needs qualified expressions and is left for a later release. (31) model.State is kept as a deprecated alias of
+    model.MachineState for one release, so the public facade does not break in the same release that removes behavior.states.
+  consequences:
+  - Each choice can be changed by a later ADR without changing the authored YAML form, except (1) and (2).
+  - Choice (4) means a String variable cannot start empty; use a one-character sentinel or an Integer or Boolean encoding.
+  - The owner should review this ADR before the release is tagged.

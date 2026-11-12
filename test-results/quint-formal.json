@@ -1,0 +1,44 @@
+{
+  "schema": "engmod-formal-evidence/1",
+  "tool": "quint",
+  "quintVersion": "0.33.1",
+  "backend": "typescript",
+  "results": [
+    {
+      "requirement": "REQ-EMG-094",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-LINK-LIFECYCLE",
+      "invariant": "INV-LINK-UNREVIEWED-NOT-ACCEPTED",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_link_lifecycle.qnt",
+      "qntSha256": "2c77b8668436090abd238c47e6eefd93e28c556081549431b14dfacb51e018e1",
+      "notes": "INV-LINK-UNREVIEWED-NOT-ACCEPTED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-EMG-101",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-LINK-LIFECYCLE",
+      "invariant": "INV-LINK-ACCEPTED-REVIEWED",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_link_lifecycle.qnt",
+      "qntSha256": "2c77b8668436090abd238c47e6eefd93e28c556081549431b14dfacb51e018e1",
+      "notes": "INV-LINK-ACCEPTED-REVIEWED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-EMG-101",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-LINK-LIFECYCLE",
+      "invariant": "INV-LINK-UNREVIEWED-NOT-ACCEPTED",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_link_lifecycle.qnt",
+      "qntSha256": "2c77b8668436090abd238c47e6eefd93e28c556081549431b14dfacb51e018e1",
+      "notes": "INV-LINK-UNREVIEWED-NOT-ACCEPTED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    }
+  ]
+}

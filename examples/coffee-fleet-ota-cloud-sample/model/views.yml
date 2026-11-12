@@ -83,15 +83,15 @@ views:
 - id: VIEW-STATE-LIFECYCLE
   kind: state-lifecycle
   roots:
-  - STATE-COFFEE-OTA-SCHEDULED
+  - SM-COFFEE-OTA-ROLLOUT
   includeKinds:
   - state
   - event
   - control
   - trust_boundary
   includeMappings:
-  - transitions_to
-  - triggered_by
+  - transition
+  - on_event
   - guarded_by
   authoredStatus: in-review
   authoredStatusExplanation: OTA lifecycle transitions and guards are authored for deterministic operational progression.

@@ -75,6 +75,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-MODEL-LOADER` |functional_unit |Model Loader
 |`FU-NAF-EXPORTER` |functional_unit |NAF Exporter
 |`FU-OSCAL-EXPORTER` |functional_unit |OSCAL Exporter
+|`FU-QUINT-EXPORTER` |functional_unit |Quint Exporter
 |`FU-STRUCTURIZR-EXPORTER` |functional_unit |Structurizr Exporter
 |`FU-SYSML-EXPORTER` |functional_unit |SysML Exporter
 |`FU-SYSTEM-COMPOSITION` |functional_unit |System Composition
@@ -90,6 +91,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`IF-CLI-ENGMCP` |interface |engmcp CLI
 |`IF-CLI-ENGNAF` |interface |engnaf CLI
 |`IF-CLI-ENGOSCAL` |interface |engoscal CLI
+|`IF-CLI-ENGQUINT` |interface |engquint CLI
 |`IF-CLI-ENGSPEC` |interface |engspec CLI
 |`IF-CLI-ENGSTRUCT` |interface |engstruct CLI
 |`IF-CLI-ENGSYSML` |interface |engsysml CLI
@@ -121,6 +123,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`ACT-IMPLEMENTATION-ENGINEER` |interacts_with |`FU-CLI-ORCHESTRATION` |interacts_with: Runs validation, generation, and export commands during implementation work.
 |`FG-ARTIFACT-GENERATION` |contains |`FU-ASCIIDOC-GENERATOR` |contains
 |`FG-ARTIFACT-GENERATION` |contains |`FU-NAF-EXPORTER` |contains
+|`FG-ARTIFACT-GENERATION` |contains |`FU-QUINT-EXPORTER` |contains
 |`FG-ARTIFACT-GENERATION` |contains |`FU-STRUCTURIZR-EXPORTER` |contains
 |`FG-ARTIFACT-GENERATION` |contains |`FU-SYSML-EXPORTER` |contains
 |`FG-ARTIFACT-GENERATION` |contains |`FU-THREAT-EXPORTER` |contains
@@ -169,6 +172,10 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-NAF-EXPORTER` |contains |`IF-CLI-ENGNAF` |contains
 |`FU-NAF-EXPORTER` |depends_on |`REF-NAF-V4-1-SPECIFICATION` |depends_on
 |`FU-OSCAL-EXPORTER` |contains |`IF-CLI-ENGOSCAL` |contains
+|`FU-QUINT-EXPORTER` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-QUINT-EXPORTER` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-QUINT-EXPORTER` |contains |`IF-CLI-ENGQUINT` |contains
+|`FU-QUINT-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
 |`FU-STRUCTURIZR-EXPORTER` |writes |`DO-STRUCTURIZR-DSL` |writes
 |`FU-STRUCTURIZR-EXPORTER` |contains |`IF-CLI-ENGSTRUCT` |contains
 |`FU-STRUCTURIZR-EXPORTER` |depends_on |`REF-STRUCTURIZR-VALIDATOR` |depends_on
@@ -212,6 +219,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-MCP-SERVER` |functional_unit |MCP Server
 |`FU-MODEL-CHANGE` |functional_unit |Model Change
 |`FU-MODEL-LOADER` |functional_unit |Model Loader
+|`FU-QUINT-EXPORTER` |functional_unit |Quint Exporter
 |`FU-TRLC-EXPORTER` |functional_unit |TRLC Exporter
 |`FU-VALIDATION-ENGINE` |functional_unit |Validation Engine
 |`REF-GO-TOOLCHAIN` |referenced_element |Go Toolchain
@@ -234,6 +242,8 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-MCP-SERVER` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
 |`FU-MODEL-CHANGE` |depends_on |`FU-MODEL-LOADER` |depends_on
 |`FU-MODEL-CHANGE` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-QUINT-EXPORTER` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-QUINT-EXPORTER` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
 |`FU-TRLC-EXPORTER` |depends_on |`REF-TRLC-TOOLCHAIN` |depends_on
 |`FU-VALIDATION-ENGINE` |depends_on |`REF-GO-TOOLCHAIN` |depends_on: Runs Go tests and static checks as part of repository validation.
 |===
@@ -282,7 +292,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 === P5 - Resource States
 
 *Product:* `NAF-P5-RESOURCE-STATES` +
-*Title:* Model validation and artifact freshness states +
+*Title:* Model validation, artifact freshness and link lifecycle states +
 *Canonical view:* `VIEW-STATE-LIFECYCLE` +
 *Concerns:* NAF-CONCERN-LIFECYCLE
 
@@ -292,8 +302,25 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |===
 |Canonical ID |Kind |Label
 |`CTRL-STRICT-MCP-INPUT-SCHEMA` |control |Strict MCP Input Schemas
+|`EVT-ARTIFACT-GENERATED` |event |Artifact Generated
+|`EVT-CONTRACT-DIFF-REQUESTED` |event |Contract Diff Requested
+|`EVT-DEPENDENCY-BUMP-REQUESTED` |event |Dependency Bump Requested
+|`EVT-GENERATION-RUN-REQUESTED` |event |Generation Run Requested
+|`EVT-LINK-ADD-REQUESTED` |event |Link Add Requested
+|`EVT-LINK-MIGRATION-REQUESTED` |event |Link Migration Requested
+|`EVT-LINK-REVIEW-REQUESTED` |event |Link Review Requested
 |`EVT-MODEL-UPDATED` |event |Model Updated
+|`EVT-RELEASE-CHECK-REQUESTED` |event |Release Check Requested
 |`EVT-STATUS-SUGGEST-REQUESTED` |event |Status Suggest Requested
+|`EVT-VALIDATION-FAILED` |event |Validation Failed
+|`STATE-ARTIFACTS-FRESH` |state |Artifacts Fresh
+|`STATE-ARTIFACTS-REGENERATING` |state |Artifacts Regenerating
+|`STATE-ARTIFACTS-STALE` |state |Artifacts Stale
+|`STATE-LINK-ABSENT` |state |Link Absent
+|`STATE-LINK-ACCEPTED` |state |Link Accepted
+|`STATE-LINK-BROKEN` |state |Link Broken
+|`STATE-LINK-CLAIMED` |state |Link Claimed
+|`STATE-LINK-SUSPECT` |state |Link Suspect
 |`STATE-MODEL-INVALID` |state |Model Invalid
 |`STATE-MODEL-VALID` |state |Model Valid
 |===
@@ -303,8 +330,37 @@ Architecture elements and relationships remain defined once in the canonical Sys
 [cols="2,2,2,4",options="header"]
 |===
 |From |Type |To |Description
-|`STATE-MODEL-INVALID` |transitions_to |`STATE-MODEL-VALID` |transitions_to: Model becomes valid after diagnostics are resolved.
+|`STATE-ARTIFACTS-FRESH` |on_event |`EVT-MODEL-UPDATED` |on_event
+|`STATE-ARTIFACTS-FRESH` |transition |`STATE-ARTIFACTS-STALE` |transition: TR-ARTIFACTS-GO-STALE on EVT-MODEL-UPDATED
+|`STATE-ARTIFACTS-REGENERATING` |on_event |`EVT-ARTIFACT-GENERATED` |on_event
+|`STATE-ARTIFACTS-REGENERATING` |on_event |`EVT-VALIDATION-FAILED` |on_event
+|`STATE-ARTIFACTS-REGENERATING` |transition |`STATE-ARTIFACTS-FRESH` |transition: TR-ARTIFACTS-REGENERATED on EVT-ARTIFACT-GENERATED
+|`STATE-ARTIFACTS-REGENERATING` |transition |`STATE-ARTIFACTS-STALE` |transition: TR-ARTIFACTS-GENERATION-BLOCKED on EVT-VALIDATION-FAILED
+|`STATE-ARTIFACTS-STALE` |on_event |`EVT-GENERATION-RUN-REQUESTED` |on_event
+|`STATE-ARTIFACTS-STALE` |transition |`STATE-ARTIFACTS-REGENERATING` |transition: TR-ARTIFACTS-GENERATION-RUN on EVT-GENERATION-RUN-REQUESTED
+|`STATE-LINK-ABSENT` |on_event |`EVT-LINK-ADD-REQUESTED` |on_event
+|`STATE-LINK-ABSENT` |on_event |`EVT-LINK-MIGRATION-REQUESTED` |on_event
+|`STATE-LINK-ABSENT` |transition |`STATE-LINK-CLAIMED` |transition: TR-LINK-ADD on EVT-LINK-ADD-REQUESTED
+|`STATE-LINK-ABSENT` |transition |`STATE-LINK-CLAIMED` |transition: TR-LINK-MIGRATE on EVT-LINK-MIGRATION-REQUESTED
+|`STATE-LINK-ACCEPTED` |on_event |`EVT-CONTRACT-DIFF-REQUESTED` |on_event
+|`STATE-LINK-ACCEPTED` |on_event |`EVT-DEPENDENCY-BUMP-REQUESTED` |on_event
+|`STATE-LINK-ACCEPTED` |on_event |`EVT-MODEL-UPDATED` |on_event
+|`STATE-LINK-ACCEPTED` |on_event |`EVT-RELEASE-CHECK-REQUESTED` |on_event
+|`STATE-LINK-ACCEPTED` |transition |`STATE-LINK-ACCEPTED` |transition: TR-LINK-CONTRACT-DIFF on EVT-CONTRACT-DIFF-REQUESTED
+|`STATE-LINK-ACCEPTED` |transition |`STATE-LINK-ACCEPTED` |transition: TR-LINK-RELEASE-CHECK on EVT-RELEASE-CHECK-REQUESTED
+|`STATE-LINK-ACCEPTED` |transition |`STATE-LINK-BROKEN` |transition: TR-LINK-BREAK on EVT-MODEL-UPDATED
+|`STATE-LINK-ACCEPTED` |transition |`STATE-LINK-SUSPECT` |transition: TR-LINK-MISMATCH on EVT-DEPENDENCY-BUMP-REQUESTED
+|`STATE-LINK-BROKEN` |on_event |`EVT-MODEL-UPDATED` |on_event
+|`STATE-LINK-BROKEN` |transition |`STATE-LINK-ABSENT` |transition: TR-LINK-REMOVE on EVT-MODEL-UPDATED / reviewed := false
+|`STATE-LINK-CLAIMED` |on_event |`EVT-LINK-REVIEW-REQUESTED` |on_event
+|`STATE-LINK-CLAIMED` |transition |`STATE-LINK-ACCEPTED` |transition: TR-LINK-ACCEPT on EVT-LINK-REVIEW-REQUESTED / reviewed := true
+|`STATE-LINK-SUSPECT` |on_event |`EVT-LINK-REVIEW-REQUESTED` |on_event
+|`STATE-LINK-SUSPECT` |transition |`STATE-LINK-ACCEPTED` |transition: TR-LINK-REACCEPT on EVT-LINK-REVIEW-REQUESTED / reviewed := true
+|`STATE-MODEL-INVALID` |on_event |`EVT-MODEL-UPDATED` |on_event
+|`STATE-MODEL-INVALID` |transition |`STATE-MODEL-VALID` |transition: TR-MODEL-VALIDATION-RECOVERS on EVT-MODEL-UPDATED
 |`STATE-MODEL-VALID` |guarded_by |`CTRL-STRICT-MCP-INPUT-SCHEMA` |guarded_by: Model-aware tool usage requires strict MCP input semantics.
-|`STATE-MODEL-VALID` |triggered_by |`EVT-MODEL-UPDATED` |triggered_by: Any model update can invalidate freshness and trigger regeneration.
-|`STATE-MODEL-VALID` |triggered_by |`EVT-STATUS-SUGGEST-REQUESTED` |triggered_by: engws status-suggest reads a valid model and its tree's evidence and writes nothing (REQ-EMG-122).
+|`STATE-MODEL-VALID` |on_event |`EVT-STATUS-SUGGEST-REQUESTED` |on_event
+|`STATE-MODEL-VALID` |on_event |`EVT-VALIDATION-FAILED` |on_event
+|`STATE-MODEL-VALID` |transition |`STATE-MODEL-INVALID` |transition: TR-MODEL-VALIDATION-FAILS on EVT-VALIDATION-FAILED
+|`STATE-MODEL-VALID` |transition |`STATE-MODEL-VALID` |transition: TR-MODEL-STATUS-SUGGEST on EVT-STATUS-SUGGEST-REQUESTED
 |===

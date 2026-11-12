@@ -36,9 +36,27 @@
         }
       ],
       "verifications": [
-        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597"
+        "VER-INF-E2E-AUTHORIZED_CHECKOUT_FLOW-8C6597",
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F"
       ],
-      "result": "not-run",
+      "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-PAY-001",
+          "machine": "SM-PAYMENTS-AUTH",
+          "invariant": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_payments_auth.qnt",
+          "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
       "status": "implemented"
     },
     {
@@ -84,10 +102,28 @@
         }
       ],
       "verifications": [
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
         "VER-INF-TEST-CHECKOUT_DECLINE_RESPONSE_TEST-365ACE",
         "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93"
       ],
       "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-PAY-003",
+          "machine": "SM-PAYMENTS-AUTH",
+          "invariant": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_payments_auth.qnt",
+          "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
       "status": "implemented"
     },
     {
@@ -196,7 +232,27 @@
         "FU-CHECKOUT",
         "FU-PAYMENT-AUTHORIZATION"
       ],
-      "status": "orphan"
+      "verifications": [
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F"
+      ],
+      "result": "passed",
+      "evidenceMethods": [
+        "analysis"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-PAY-007",
+          "machine": "SM-PAYMENTS-AUTH",
+          "invariant": "INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_payments_auth.qnt",
+          "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
+      "status": "verified"
     },
     {
       "id": "REQ-PAY-008",
@@ -205,9 +261,38 @@
         "FU-CHECKOUT"
       ],
       "verifications": [
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
         "VER-INF-UNIT-CHECKOUT_DECLINE_REASON_TEST-5F4C93"
       ],
-      "result": "not-run",
+      "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-PAY-008",
+          "machine": "SM-PAYMENTS-AUTH",
+          "invariant": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_payments_auth.qnt",
+          "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        },
+        {
+          "requirement": "REQ-PAY-008",
+          "machine": "SM-PAYMENTS-AUTH",
+          "invariant": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_payments_auth.qnt",
+          "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
       "status": "verified"
     },
     {
@@ -222,20 +307,19 @@
   ],
   "danglingLinks": null,
   "orphanRequirements": [
-    "REQ-PAY-007",
     "REQ-PAY-009"
   ],
   "summary": {
     "requirements": 9,
     "implemented": 6,
-    "verified": 7,
-    "tested": 7,
-    "testLinked": 7,
-    "passed": 4,
+    "verified": 8,
+    "tested": 8,
+    "testLinked": 8,
+    "passed": 7,
     "delegated": 0,
     "delegatedImplemented": 0,
     "delegatedTestLinked": 0,
-    "orphan": 2,
+    "orphan": 1,
     "danglingLinks": 0,
     "gatedOnly": 0,
     "linksNeedReview": 0,

@@ -1,12 +1,49 @@
 schemaVersion: 2
 behavior:
-  states:
-  - id: STATE-BEDROCK-PR-RECEIVED
-    name: PR Received
-    description: PR webhook accepted and queued for analysis.
-  - id: STATE-BEDROCK-REVIEW-PUBLISHED
-    name: Review Published
-    description: Findings published to GitHub check run output.
+  machines:
+  - id: SM-BEDROCK-PR-REVIEW
+    name: Pull request review
+    description: Lifecycle of one pull request review from the accepted webhook to the published check run.
+    owner: FU-REVIEW-ORCHESTRATION
+    initial: STATE-BEDROCK-PR-RECEIVED
+    variables:
+    - name: findingsPublished
+      type: Boolean
+      initial: false
+    states:
+    - id: STATE-BEDROCK-PR-RECEIVED
+      name: PR Received
+      description: PR webhook accepted and queued for analysis.
+    - id: STATE-BEDROCK-REVIEW-IN-PROGRESS
+      name: Review In Progress
+      description: Context assembly, policy checks and analysis are running for the queued PR.
+    - id: STATE-BEDROCK-REVIEW-PUBLISHED
+      name: Review Published
+      description: Findings published to GitHub check run output.
+      final: true
+    transitions:
+    - id: TR-BEDROCK-REVIEW-START
+      from: STATE-BEDROCK-PR-RECEIVED
+      to: STATE-BEDROCK-REVIEW-IN-PROGRESS
+      on: EVT-BEDROCK-REVIEW-REQUESTED
+      description: A verified webhook starts the analysis orchestration.
+    - id: TR-BEDROCK-REVIEW-PUBLISH
+      from: STATE-BEDROCK-REVIEW-IN-PROGRESS
+      to: STATE-BEDROCK-REVIEW-PUBLISHED
+      on: EVT-BEDROCK-REVIEW-COMPLETED
+      effect: findingsPublished := true
+      description: The finished review is published as check run output.
+    invariants:
+    - id: INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED
+      requirements:
+      - REQ-PRR-005
+      expr: in_state(STATE-BEDROCK-REVIEW-PUBLISHED) implies findingsPublished
+      description: A review in the published state has published its check run summary.
+    - id: INV-BEDROCK-NO-EARLY-PUBLICATION
+      requirements:
+      - REQ-PRR-005
+      expr: findingsPublished implies in_state(STATE-BEDROCK-REVIEW-PUBLISHED)
+      description: Nothing is published to the repository maintainer before the review is completed.
   events:
   - id: EVT-BEDROCK-REVIEW-REQUESTED
     name: Review Requested
@@ -370,15 +407,6 @@ behavior:
   - type: contains
     from: FU-REVIEW-PUBLICATION
     to: DO-BEDROCK-REVIEW-FINDINGS
-  - type: transitions_to
-    from: STATE-BEDROCK-PR-RECEIVED
-    to: STATE-BEDROCK-REVIEW-PUBLISHED
-  - type: triggered_by
-    from: STATE-BEDROCK-PR-RECEIVED
-    to: EVT-BEDROCK-REVIEW-REQUESTED
-  - type: triggered_by
-    from: STATE-BEDROCK-REVIEW-PUBLISHED
-    to: EVT-BEDROCK-REVIEW-COMPLETED
   - type: guarded_by
     from: STATE-BEDROCK-REVIEW-PUBLISHED
     to: CTRL-BEDROCK-WEBHOOK-SIGNATURE

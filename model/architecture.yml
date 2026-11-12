@@ -55,6 +55,10 @@ architecture:
     group: FG-ARTIFACT-GENERATION
     prose: Generates SysML v2 textual and project interchange artifacts from the canonical semantic model while reporting
       conformance coverage.
+  - id: FU-QUINT-EXPORTER
+    name: Quint Exporter
+    group: FG-ARTIFACT-GENERATION
+    prose: Generates Quint specifications from behavior machines and runs or verifies them as formal evidence.
   - id: FU-NAF-EXPORTER
     name: NAF Exporter
     group: FG-ARTIFACT-GENERATION
@@ -191,6 +195,12 @@ architecture:
     endpoint: cmd/engsysml
     schemaRef: internal/export/sysml/sysml_export.go
     owner: FU-SYSML-EXPORTER
+  - id: IF-CLI-ENGQUINT
+    name: engquint CLI
+    protocol: cli
+    endpoint: cmd/engquint
+    schemaRef: internal/export/quint/quint_export.go
+    owner: FU-QUINT-EXPORTER
   - id: IF-CLI-ENGNAF
     name: engnaf CLI
     protocol: cli

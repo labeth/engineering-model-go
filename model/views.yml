@@ -56,17 +56,19 @@ views:
 - id: VIEW-STATE-LIFECYCLE
   kind: state-lifecycle
   roots:
-  - STATE-MODEL-INVALID
+  - SM-MODEL-VALIDATION
+  - SM-ARTIFACT-FRESHNESS
+  - SM-LINK-LIFECYCLE
   includeKinds:
   - state
   - event
   - control
   includeMappings:
-  - transitions_to
-  - triggered_by
+  - transition
+  - on_event
   - guarded_by
   authoredStatus: draft
-  authoredStatusExplanation: Captures model validity and artifact freshness lifecycle behavior.
+  authoredStatusExplanation: Captures the model validity, artifact freshness and requirement link lifecycle machines.
 naf:
   framework: NAF
   version: '4.1'
@@ -118,7 +120,7 @@ naf:
     - NAF-CONCERN-LIFECYCLE
   - id: NAF-P5-RESOURCE-STATES
     viewpoint: P5
-    title: Model validation and artifact freshness states
+    title: Model validation, artifact freshness and link lifecycle states
     viewRef: VIEW-STATE-LIFECYCLE
     concernRefs:
     - NAF-CONCERN-LIFECYCLE
@@ -417,6 +419,29 @@ design:
         title: SysML Exporter Traceability
         narrative: Preserves stable Engineering Model identifiers and emits executable coverage evidence for every mapped
           concept.
+  - id: FU-QUINT-EXPORTER
+    group: FG-ARTIFACT-GENERATION
+    views:
+      architecture_intent:
+        title: Quint Exporter Intent
+        narrative: Projects behavior machines into Quint specifications and records bounded model-checking results as formal
+          evidence.
+      communication:
+        title: Quint Exporter Communication
+        narrative: Emits one deterministic Quint module per machine and invokes the pinned Quint CLI once per invariant in
+          run mode or Apalache in verify mode.
+      deployment:
+        title: Quint Exporter Deployment
+        narrative: Runs through engquint locally and in CI; generated modules are committed and the Quint toolchain is provisioned
+          before the run, never downloaded at run time.
+      security:
+        title: Quint Exporter Security
+        narrative: Forces the TypeScript backend, runs offline against pre-provisioned pinned tools and treats a result whose
+          module hash no longer matches as no evidence.
+      traceability:
+        title: Quint Exporter Traceability
+        narrative: Keys each invariant to its requirements and each counterexample step to a transition ID, and writes sha256-bound
+          results that the trace matrix reads as analysis evidence.
   - id: FU-NAF-EXPORTER
     group: FG-ARTIFACT-GENERATION
     views:

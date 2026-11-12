@@ -1,0 +1,83 @@
+{
+  "schema": "engmod-quint-results/1",
+  "modules": [
+    {
+      "machine": "SM-BEDROCK-PR-REVIEW",
+      "module": "sm_bedrock_pr_review",
+      "qntFile": "generated/quint/sm_bedrock_pr_review.qnt",
+      "qntSha256": "e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_bedrock_review_published_once_finished",
+          "id": "INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED",
+          "requirements": [
+            "REQ-PRR-005"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 3
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_bedrock_no_early_publication",
+          "id": "INV-BEDROCK-NO-EARLY-PUBLICATION",
+          "requirements": [
+            "REQ-PRR-005"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 3
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_bedrock_pr_received",
+          "state": "STATE-BEDROCK-PR-RECEIVED",
+          "witnessed": 0,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_bedrock_review_in_progress",
+          "state": "STATE-BEDROCK-REVIEW-IN-PROGRESS",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_bedrock_review_published",
+          "state": "STATE-BEDROCK-REVIEW-PUBLISHED",
+          "witnessed": 10000,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    }
+  ]
+}

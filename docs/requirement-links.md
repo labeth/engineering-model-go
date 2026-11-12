@@ -81,7 +81,7 @@ Removed by D23: `link.suspect` and `link.fingerprint_outdated`.
 
 ## Behavior
 
-`model/behavior.yml` models the link lifecycle: states `STATE-LINK-CLAIMED`, `STATE-LINK-ACCEPTED`, `STATE-LINK-SUSPECT` (since D23: version-mismatched, the dependency pinned to another version than reviewed; the ID is kept) and `STATE-LINK-BROKEN`; claimed → accepted and version-mismatched → accepted on link review (`--accept`), accepted → version-mismatched when a bump finds a changed meaning or cannot resolve the reviewed version, accepted → broken when the item is gone at the published pin; the six engws events (link add included); flows `FLOW-DEPENDENCY-BUMP` (error path: restore every file) and `FLOW-LINK-REVIEW` (error path: refuse, write nothing).
+`model/behavior.yml` models the link lifecycle as the machine `SM-LINK-LIFECYCLE` (a link is absent until `engws link add` or `migrate-links` claims it; a `reviewed` variable records the review and an invariant keeps an accepted link reviewed; a broken link is final): states `STATE-LINK-ABSENT`, `STATE-LINK-CLAIMED`, `STATE-LINK-ACCEPTED`, `STATE-LINK-SUSPECT` (since D23: version-mismatched, the dependency pinned to another version than reviewed; the ID is kept) and `STATE-LINK-BROKEN`; claimed → accepted and version-mismatched → accepted on link review (`--accept`), accepted → version-mismatched when a bump finds a changed meaning or cannot resolve the reviewed version, accepted → broken when the item is gone at the published pin; the six engws events (link add included); flows `FLOW-DEPENDENCY-BUMP` (error path: restore every file) and `FLOW-LINK-REVIEW` (error path: refuse, write nothing).
 
 ## Out of scope
 
