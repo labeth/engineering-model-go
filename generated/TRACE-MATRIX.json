@@ -12248,7 +12248,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--CONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 278
+          "line": 286
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--CONTRACTDIFFRESULT",
@@ -12288,7 +12288,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--PRINTCONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 294
+          "line": 302
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--RANK",
@@ -12298,7 +12298,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--RUNCONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 318
+          "line": 326
         }
       ],
       "verifications": [
@@ -14720,9 +14720,24 @@
           "line": 29
         },
         {
+          "symbol": "CODE-INTERNAL-MODEL-LEGACY-STATE-GO--MAPPINGVALUE",
+          "path": "internal/model/legacy_state.go",
+          "line": 122
+        },
+        {
           "symbol": "CODE-INTERNAL-MODEL-LEGACY-STATE-GO--REJECTLEGACYSTATEVOCABULARY",
           "path": "internal/model/legacy_state.go",
           "line": 57
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LEGACY-STATE-GO--REMOVEMAPPINGKEY",
+          "path": "internal/model/legacy_state.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-LEGACY-STATE-GO--STRIPLEGACYSTATEVOCABULARY",
+          "path": "internal/model/legacy_state.go",
+          "line": 81
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--DECODEYAMLFILE",
@@ -14768,6 +14783,7 @@
       "verifications": [
         "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F",
         "VER-INF-TEST-BEHAVIOR_TEST-948115",
+        "VER-INF-TEST-CONTRACTDIFF_TEST-1D9C3E",
         "VER-INF-TEST-LEGACY_STATE_TEST-DD6946",
         "VER-INF-TEST-PROJECT_TEST-65BD53",
         "VER-INF-TEST-RENDER_TEST-E71E8D"

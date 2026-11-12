@@ -71,6 +71,10 @@ REQ-EMG-149). **Breaking release, no compatibility path**: state behavior is mod
   `scripts/validate-all.sh` runs generate and check for every model with machines
   (`ENGMOD_QUINT_SKIP_EXTERNAL=1` skips the check locally).
 
+- `engws release-check` and `contract-diff` read an earlier tag's contract with the retired state
+  vocabulary stripped (ADR-EMG-045), so the first release after the removal can be tagged; a model
+  being worked on is still refused.
+
 ### Removed (breaking)
 
 - `scripts/lifecycle-golden-self.sh` (ADR-EMG-045): v0.9.0 cannot load a model with machines.

@@ -1321,6 +1321,10 @@ decisions:
     differences. (30) Published machines and machine states are not merged into an importing model on composition; merging
     needs qualified expressions and is left for a later release. (31) model.State is kept as a deprecated alias of
     model.MachineState for one release, so the public facade does not break in the same release that removes behavior.states.
+    (32) engws release-check and contract-diff read the model of an earlier tag only for its contract (requirements and
+    interfaces). They load a behavior document committed before v0.11.0 with the retired state vocabulary stripped
+    (model.StripLegacyStateVocabulary), so the release check of the first tag after the removal does not fail on the previous
+    tag; the working tree is still refused.
   consequences:
   - Each choice can be changed by a later ADR without changing the authored YAML form, except (1) and (2).
   - Choice (4) means a String variable cannot start empty; use a one-character sentinel or an Integer or Boolean encoding.

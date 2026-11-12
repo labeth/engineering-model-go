@@ -257,6 +257,14 @@ func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 		if err != nil {
 			return model.Bundle{}, fmt.Errorf("documents.%s at %s: %w", key, ref, err)
 		}
+		// A model committed before v0.11.0 models state behavior with the
+		// retired behavior.states vocabulary, which the loader refuses. Only
+		// the contract is read at a ref, and the contract has no states.
+		if key == "behavior" {
+			if data, err = model.StripLegacyStateVocabulary(data); err != nil {
+				return model.Bundle{}, fmt.Errorf("documents.%s at %s: %w", key, ref, err)
+			}
+		}
 		dest := filepath.Join(tmp, filepath.FromSlash(clean))
 		if err := os.MkdirAll(filepath.Dir(dest), 0o700); err != nil {
 			return model.Bundle{}, err

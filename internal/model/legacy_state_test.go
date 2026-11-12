@@ -122,3 +122,53 @@ func TestLegacyStateVocabulary(t *testing.T) {
 		}
 	}
 }
+
+// TRLC-LINKS: REQ-EMG-139
+func TestStripLegacyStateVocabularyKeepsTheRestOfTheDocument(t *testing.T) {
+	source := []byte(`schemaVersion: 2
+behavior:
+  states:
+  - id: STATE-A
+    name: A
+  events:
+  - id: EVT-X
+    name: X
+  relationships:
+  - type: transitions_to
+    from: STATE-A
+    to: STATE-A
+  - type: triggered_by
+    from: STATE-A
+    to: EVT-X
+  - type: guarded_by
+    from: STATE-A
+    to: CTRL-Y
+`)
+	out, err := StripLegacyStateVocabulary(source)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, _, found := LegacyStateVocabulary(out); found {
+		t.Fatalf("legacy vocabulary survived:\n%s", out)
+	}
+	text := string(out)
+	for _, want := range []string{"EVT-X", "guarded_by", "CTRL-Y"} {
+		if !strings.Contains(text, want) {
+			t.Errorf("stripped document lost %q:\n%s", want, text)
+		}
+	}
+	for _, gone := range []string{"name: A", "transitions_to", "triggered_by"} {
+		if strings.Contains(text, gone) {
+			t.Errorf("stripped document still has %q:\n%s", gone, text)
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-139
+func TestStripLegacyStateVocabularyLeavesMachineDocumentsUntouched(t *testing.T) {
+	source := []byte("schemaVersion: 2\nbehavior:\n  machines: []\n")
+	out, err := StripLegacyStateVocabulary(source)
+	if err != nil || string(out) != string(source) {
+		t.Fatalf("got %q, %v", out, err)
+	}
+}
