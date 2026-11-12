@@ -1,0 +1,197 @@
+function f() {}
+
+// cycPos has nine ifs: cyclomatic 1 + 9 = 10.
+function cycPos(x) {
+  if (x.a) { f(); }
+  if (x.b) { f(); }
+  if (x.c) { f(); }
+  if (x.d) { f(); }
+  if (x.a) { f(); }
+  if (x.b) { f(); }
+  if (x.c) { f(); }
+  if (x.d) { f(); }
+  if (x.a) { f(); }
+}
+
+// cycNeg has eight ifs: cyclomatic 9.
+function cycNeg(x) {
+  if (x.a) { f(); }
+  if (x.b) { f(); }
+  if (x.c) { f(); }
+  if (x.d) { f(); }
+  if (x.a) { f(); }
+  if (x.b) { f(); }
+  if (x.c) { f(); }
+  if (x.d) { f(); }
+}
+
+// nestPos nests four ifs: depth 4, one bump, cyclomatic 5.
+function nestPos(x) {
+  if (x.a) {
+    if (x.b) {
+      if (x.c) {
+        if (x.d) {
+          f();
+        }
+      }
+    }
+  }
+}
+
+// nestNeg nests three ifs: depth 3, one bump, cyclomatic 4.
+function nestNeg(x) {
+  if (x.a) {
+    if (x.b) {
+      if (x.c) {
+        f();
+      }
+    }
+  }
+}
+
+// bumpsPos has two separate top-level blocks that reach depth 2.
+function bumpsPos(x) {
+  if (x.a) {
+    if (x.b) {
+      f();
+    }
+  }
+  f();
+  if (x.c) {
+    if (x.d) {
+      f();
+    }
+  }
+}
+
+// bumpsNeg has one nested block and one flat if.
+function bumpsNeg(x) {
+  if (x.a) {
+    if (x.b) {
+      f();
+    }
+  }
+  if (x.c) {
+    f();
+  }
+}
+
+// boolPos has three boolean operators in one condition.
+function boolPos(x) {
+  if (x.a && x.b && x.c || x.d) {
+    f();
+  }
+}
+
+// boolNeg has two boolean operators in one condition.
+function boolNeg(x) {
+  if (x.a && x.b || x.c) {
+    f();
+  }
+}
+
+// argsPos has five parameters.
+function argsPos(a, b, c, d, e) {}
+
+// argsNeg has four parameters.
+function argsNeg(a, b, c, d) {}
+
+// primPos would be primitive obsession in TypeScript; JavaScript declares no
+// types, so the smell is unsupported and never reported.
+function primPos(a, b, c, d) {}
+
+// primNeg: four parameters.
+function primNeg(a, b, c, d) {}
+
+// primFew: three parameters.
+function primFew(a, b, c) {}
+
+// params: plain, default-valued and rest parameters each count once.
+function params(a, b = 2, ...rest) {}
+
+// constructs uses every ECMAScript decision point once; default is not one.
+function constructs(a, xs, x) {
+  if (x.a && x.b || x.c) {
+    a++;
+  } else if (x.d) {
+    a--;
+  }
+  for (let i = 0; i < a; i++) {}
+  for (const e of xs) {}
+  for (const k in x) {}
+  while (a > 100) { a--; }
+  do { a++; } while (a < 3);
+  switch (a) {
+    case 1:
+    case 2:
+      break;
+    default:
+      break;
+  }
+  try { f(); } catch (e) { f(); }
+  const t = x.a ? 1 : 2;
+  const u = x.b ?? x.c;
+  a ||= 1;
+  a &&= 2;
+  a ??= 3;
+  return a;
+}
+
+// elseIf is a chain on one level.
+function elseIf(x) {
+  if (x.a) {
+    f();
+  } else if (x.b) {
+    f();
+  } else if (x.c) {
+    f();
+  } else {
+    f();
+  }
+}
+
+const arrow = (y) => {
+  if (y.a) { f(); }
+};
+
+class Service {
+  run(x) {
+    if (x.a) { f(); }
+  }
+
+  field = (x) => {
+    if (x.b) { f(); }
+  };
+}
+
+// closures: the callbacks are anonymous and count toward the function; run is
+// a named closure and a unit of its own; inner is a nested function.
+function closures(x, items) {
+  const run = () => {
+    if (x.a) { f(); }
+  };
+  items.forEach((item) => {
+    if (item.b) { f(); }
+  });
+  items.map(function (item) {
+    for (const k in item) { f(); }
+    return item;
+  });
+  function inner() {
+    if (x.c) { f(); }
+  }
+}
+
+// A single unparenthesised arrow parameter counts once.
+const single = x => x.a ? 1 : 2;
+
+export default function () {
+  if (single(1)) { f(); }
+}
+
+const holder = {
+  handler: function (e) { if (e) { f(); } },
+  method(e) { if (e) { f(); } },
+};
+
+exports.shared = function (e) { if (e) { f(); } };

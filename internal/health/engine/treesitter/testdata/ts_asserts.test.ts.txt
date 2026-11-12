@@ -1,0 +1,80 @@
+import test from 'node:test';
+
+describe('suite', () => {
+  // assert pos has a run of six: expect, await expect, assert.equal, assert(),
+  // an expect chain with not, assert.strictEqual. console.log ends the run.
+  it('assert pos', async () => {
+    expect(1).toBe(1);
+    await expect(p).resolves.toBe(1);
+    assert.equal(a, b);
+    assert(ok);
+    expect(a).not.toBe(2);
+    assert.strictEqual(a, 1);
+    console.log('not an assertion');
+  });
+
+  // assert neg has two runs of five: the longest is 5.
+  it('assert neg', () => {
+    expect(1).toBe(1);
+    expect(2).toBe(2);
+    expect(3).toBe(3);
+    expect(4).toBe(4);
+    expect(5).toBe(5);
+    console.log('break');
+    expect(1).toBe(1);
+    expect(2).toBe(2);
+    expect(3).toBe(3);
+    expect(4).toBe(4);
+    expect(5).toBe(5);
+  });
+
+  describe('nested', () => {
+    // dup a and dup b share four identical assertions.
+    it.only('dup a', () => {
+      expect(got.a).toBe(1);
+      expect(got.b).toBe(2);
+      expect(got.c).toBe(3);
+      expect(got.d).toBe(4);
+    });
+
+    test('dup b', () => {
+      expect(got.a).toBe(1);
+      expect(got.b).toBe(2);
+      expect(got.c).toBe(3);
+      expect(got.d).toBe(4);
+      check();
+    });
+  });
+
+  // near a and near b share only three identical assertions.
+  it('near a', () => {
+    expect(want.a).toBe(1);
+    expect(want.b).toBe(2);
+    expect(want.c).toBe(3);
+    expect(want.d).toBe(4);
+  });
+
+  it('near b', () => {
+    expect(want.a).toBe(1);
+    expect(want.b).toBe(2);
+    expect(want.c).toBe(3);
+    expect(want.e).toBe(5);
+  });
+
+  it.each([[1], [2]])('each %i', (n: number) => {
+    expect(n).toBe(n);
+  });
+});
+
+// node:test style: t.* calls are assertions, t.diagnostic is not.
+test('node style', async (t) => {
+  t.assert.equal(1, 1);
+  t.assert.ok(true);
+  t.diagnostic('x');
+  t.assert.equal(2, 2);
+});
+
+// helper is not a test callback: its assertions are not measured.
+function helper() {
+  expect(1).toBe(1);
+}

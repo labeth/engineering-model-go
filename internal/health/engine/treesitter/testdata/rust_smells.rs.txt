@@ -1,0 +1,180 @@
+struct Box_ { a: bool, b: bool, c: bool, d: bool }
+
+struct Worker;
+
+fn f() {}
+
+// cyc_pos has nine ifs: cyclomatic 1 + 9 = 10.
+fn cyc_pos(x: &Box_) {
+    if x.a { f() }
+    if x.b { f() }
+    if x.c { f() }
+    if x.d { f() }
+    if x.a { f() }
+    if x.b { f() }
+    if x.c { f() }
+    if x.d { f() }
+    if x.a { f() }
+}
+
+// cyc_neg has eight ifs: cyclomatic 9.
+fn cyc_neg(x: &Box_) {
+    if x.a { f() }
+    if x.b { f() }
+    if x.c { f() }
+    if x.d { f() }
+    if x.a { f() }
+    if x.b { f() }
+    if x.c { f() }
+    if x.d { f() }
+}
+
+// nest_pos nests four ifs: depth 4, one bump, cyclomatic 5.
+fn nest_pos(x: &Box_) {
+    if x.a {
+        if x.b {
+            if x.c {
+                if x.d {
+                    f();
+                }
+            }
+        }
+    }
+}
+
+// nest_neg nests three ifs: depth 3, one bump, cyclomatic 4.
+fn nest_neg(x: &Box_) {
+    if x.a {
+        if x.b {
+            if x.c {
+                f();
+            }
+        }
+    }
+}
+
+// bumps_pos has two separate top-level blocks that reach depth 2.
+fn bumps_pos(x: &Box_) {
+    if x.a {
+        if x.b {
+            f();
+        }
+    }
+    f();
+    if x.c {
+        if x.d {
+            f();
+        }
+    }
+}
+
+// bumps_neg has one nested block and one flat if.
+fn bumps_neg(x: &Box_) {
+    if x.a {
+        if x.b {
+            f();
+        }
+    }
+    if x.c {
+        f();
+    }
+}
+
+// bool_pos has three boolean operators in one condition.
+fn bool_pos(x: &Box_) {
+    if x.a && x.b && x.c || x.d {
+        f();
+    }
+}
+
+// bool_neg has two boolean operators in one condition.
+fn bool_neg(x: &Box_) {
+    if x.a && x.b || x.c {
+        f();
+    }
+}
+
+// args_pos has five parameters.
+fn args_pos(a: &Box_, b: &Box_, c: &Box_, d: &Box_, e: &Box_) {}
+
+// args_neg has four parameters.
+fn args_neg(a: &Box_, b: &Box_, c: &Box_, d: &Box_) {}
+
+// prim_pos has four parameters, three of them primitive (75%): &str, i32, bool.
+fn prim_pos(a: &str, b: i32, c: bool, d: &Box_) {}
+
+// prim_neg has four parameters, two of them primitive (50%).
+fn prim_neg(a: String, b: u8, c: &Box_, d: &Box_) {}
+
+// prim_few has three primitive parameters: too few for the smell.
+fn prim_few(a: &str, b: i32, c: bool) {}
+
+// constructs uses every Rust decision point once: if / else if, while let, for,
+// match arms beyond the first (the guard adds none), a let chain. loop nests
+// but is not a decision point, and ? is not counted.
+fn constructs(v: Option<i32>, xs: Vec<i32>) -> Option<i32> {
+    if let Some(a) = v && a > 0 {
+        f();
+    } else if v.is_none() {
+        f();
+    }
+    while let Some(y) = xs.pop() {
+        f();
+    }
+    for i in 0..3 {
+        f();
+    }
+    match v {
+        Some(n) if n > 1 && n < 9 => f(),
+        Some(_) => f(),
+        None => f(),
+    }
+    loop {
+        break;
+    }
+    let z = v?;
+    Some(z)
+}
+
+impl Worker {
+    fn method(&self, x: &Box_) {
+        if x.a {
+            f();
+        }
+    }
+
+    fn associated(x: &Box_) {}
+}
+
+trait Speaker {
+    fn speak(&self, x: &Box_) {
+        if x.a {
+            f();
+        }
+    }
+}
+
+// closures: the anonymous closure counts toward the function; run is a named
+// closure and a unit of its own; inner is a nested fn and a unit of its own.
+fn closures(x: &Box_) {
+    let run = |y: i32| {
+        if x.a {
+            f();
+        }
+    };
+    let apply = |g: &dyn Fn()| {
+        if x.b {
+            g();
+        }
+    };
+    fn inner(x: &Box_) {
+        if x.c {
+            f();
+        }
+    }
+    xs.iter().for_each(|e| {
+        if x.d {
+            f();
+        }
+    });
+}

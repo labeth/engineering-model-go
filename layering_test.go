@@ -50,6 +50,11 @@ var layerRules = map[string][]string{
 	"internal/asciidoc": {"internal/export/*", "internal/generate", "internal/reqlint", "internal/trace", "internal/reqlinks", "internal/codescan",
 		"internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view",
 		"internal/render/*"},
+	// The code health data model and the engines behind it: the engines read
+	// source through codemap and fill the types of internal/health; internal/health
+	// itself never imports an engine.
+	"internal/health":                   {"internal/codescan", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
+	"internal/health/engine/treesitter": {"internal/health", "internal/codescan", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
 	// Test-only package for cross-package end-to-end tests; its tests may
 	// also drive the public facade and the MCP server.
 	"internal/integration": {},

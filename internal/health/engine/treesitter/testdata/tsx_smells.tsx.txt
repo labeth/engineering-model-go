@@ -1,0 +1,18 @@
+type Props = { items: string[]; show: boolean; label: string };
+
+// Component: JSX is parsed with the tsx grammar. Decision points: the ternary
+// and the && inside the JSX expressions, the if; the arrow callback in map is
+// anonymous and counts toward Component.
+export function Component(props: Props) {
+  if (!props.show) {
+    return null;
+  }
+  return (
+    <ul>
+      {props.items.map((item) => (item ? <li>{item}</li> : null))}
+      {props.label && <span>{props.label}</span>}
+    </ul>
+  );
+}
+
+const Row = ({ label }: { label: string }) => <b>{label ? label : ''}</b>;

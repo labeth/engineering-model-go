@@ -46,6 +46,10 @@ const (
 	rowHygiene           = "DDWWE"
 	rowStrictCoverage    = "WWWEE"
 	rowSafetyFromMVP     = "DDEEE"
+	// rowHealthDebt is a warning at every tier; lifecycle.raise: [health.*]
+	// is the escape hatch that makes debt blocking.
+	rowHealthDebt     = "WWWWW"
+	rowHealthDebtNote = "code health debt (only with a health block); a warning at every tier, an error with lifecycle.raise: [health.*]"
 	// The requirement link rules follow the effective requirementLinks mode
 	// (ADR-EMG-022 amended): guided below mvp unless declared strict,
 	// strict from mvp.
@@ -93,6 +97,21 @@ var tierTable = map[string]tierRow{
 	"aviation.derived.incomplete_safety_feedback": {base: rowDebtToProduct, note: "load-fatal without lifecycle"},
 	"composition.dependency_below_tier":           {base: rowDebtToProduct, note: "unless a risk with recorded acceptance names the dependency alias in dependencies (or the composing subsystem in appliesTo)"},
 	"composition.dependency_tier_unknown":         {base: "WWWWW", safety: "WWWEE"},
+	// Code health (ADR-EMG-052): debt is reported at every tier and never
+	// blocks unless lifecycle.raise names health.*; only a regression, a new
+	// or worsened high finding against the baseline, is an error from product.
+	"health.complex_method":             {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.large_method":               {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.deep_nesting":               {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.bumpy_road":                 {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.complex_conditional":        {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.excess_arguments":           {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.primitive_obsession":        {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.brain_method":               {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.large_assertion_block":      {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.duplicated_assertion_block": {base: rowHealthDebt, note: rowHealthDebtNote},
+	"health.waiver_unused":              {base: rowHealthDebt, note: "a health waiver that matches no finding (only with a health block)"},
+	"health.regression":                 {base: "WWWEE", safety: "WWEEE", note: "a new or worsened high health finding against the baseline (only with a health block)"},
 }
 
 // coreCodes are the rank-0 code patterns: never tier keyed and never

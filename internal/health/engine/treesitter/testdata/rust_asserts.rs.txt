@@ -1,0 +1,74 @@
+fn production() {}
+
+#[cfg(test)]
+mod tests {
+    // assert_pos has a run of six assertions: assert!, assert_eq!, assert_ne!,
+    // debug_assert!, std::assert! and debug_assert_eq!.
+    #[test]
+    fn assert_pos() {
+        let got = production();
+        assert!(got.is_ok());
+        assert_eq!(got, 1);
+        assert_ne!(got, 2);
+        debug_assert!(got > 0);
+        std::assert!(got < 9);
+        debug_assert_eq!(got, 1);
+        println!("not an assertion");
+    }
+
+    // assert_neg has two runs of five: the longest is 5.
+    #[test]
+    fn assert_neg() {
+        assert!(a);
+        assert!(b);
+        assert!(c);
+        assert!(d);
+        assert!(e);
+        println!("break");
+        assert!(a);
+        assert!(b);
+        assert!(c);
+        assert!(d);
+        assert!(e);
+    }
+
+    // helper has no #[test]: not measured.
+    fn helper() {
+        assert!(a);
+    }
+
+    // dup_a and dup_b share four identical assertions.
+    #[test]
+    fn dup_a() {
+        assert_eq!(got.a, 1);
+        assert_eq!(got.b, 2);
+        assert_eq!(got.c, 3);
+        assert_eq!(got.d, 4);
+    }
+
+    #[tokio::test]
+    async fn dup_b() {
+        assert_eq!(got.a, 1);
+        assert_eq!(got.b, 2);
+        assert_eq!(got.c, 3);
+        assert_eq!(got.d, 4);
+        check();
+    }
+
+    // near_a and near_b share only three identical assertions.
+    #[test]
+    fn near_a() {
+        assert_eq!(want.a, 1);
+        assert_eq!(want.b, 2);
+        assert_eq!(want.c, 3);
+        assert_eq!(want.d, 4);
+    }
+
+    #[test]
+    fn near_b() {
+        assert_eq!(want.a, 1);
+        assert_eq!(want.b, 2);
+        assert_eq!(want.c, 3);
+        assert_eq!(want.e, 5);
+    }
+}

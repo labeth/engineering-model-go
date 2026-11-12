@@ -75,6 +75,12 @@ catalog:
     definition: Generates SysML v2 model artifacts from the canonical semantic model and reports conformance coverage.
     aliases:
     - engsysml
+  - id: FU-CODE-HEALTH
+    name: code health
+    definition: Analyses source functions for maintainability smells, scores files with our own explainable model and checks
+      new or worsened findings against a base revision. It is not CodeScene Code Health.
+    aliases:
+    - enghealth
   - id: FU-QUINT-EXPORTER
     name: quint exporter
     definition: Generates Quint specifications from behavior machines and runs or verifies them as formal evidence.

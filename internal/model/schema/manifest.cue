@@ -61,6 +61,39 @@ package model
 	raise?:        [...#NonEmpty]  // codes raised to error regardless of tier; never lowers
 }
 
+// #HealthThreshold is the warn and high limit of one code health smell.
+// Value rules (warn >= 1, high >= warn, known codes) are reported by
+// internal/validate with a path, not by the schema.
+#HealthThreshold: {
+	warn: int
+	high: int
+}
+
+// #HealthOverride replaces thresholds for the paths it names (the exclude
+// pattern dialect of inferenceHints.exclude).
+#HealthOverride: {
+	path:        #NonEmpty
+	thresholds?: [string]: #HealthThreshold
+}
+
+// #HealthWaiver waives one finding (code, path, function) on the strength
+// of an accepted decision.
+#HealthWaiver: {
+	code:     #NonEmpty
+	path:     #NonEmpty
+	function: #NonEmpty
+	decision: #NonEmpty
+}
+
+// #ManifestHealth configures the optional code health report (ADR-EMG-051):
+// without it nothing health related is computed or reported.
+#ManifestHealth: {
+	exclude?:    [...string]
+	thresholds?: [string]: #HealthThreshold
+	overrides?:  [...#HealthOverride]
+	waivers?:    [...#HealthWaiver]
+}
+
 #ManifestDocument: {
 	schemaVersion: #SchemaVersion
 	module:        #ModuleIdentity
@@ -70,4 +103,5 @@ package model
 	inferenceHints?: #InferenceHints
 	requirementLinks?: "strict" | "guided"
 	lifecycle?: #ManifestLifecycle
+	health?: #ManifestHealth
 }

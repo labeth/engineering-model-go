@@ -1381,3 +1381,228 @@ decisions:
   - Each choice can be changed by a later ADR without changing the authored YAML form, except (1) and (2).
   - Choice (4) means a String variable cannot start empty; use a one-character sentinel or an Integer or Boolean encoding.
   - The owner should review this ADR before the release is tagged.
+- id: ADR-EMG-046
+  title: Code health is an opt-in analysis in internal/health, shipped in the next minor release
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    A code health analysis in the spirit of CodeScene Code Health was planned, with our own definitions. It is named code
+    health, its diagnostics use the prefix health. and its command is enghealth. It is NOT CodeScene Code Health: the name
+    CodeHealth and the CodeScene branding are not used in code or documents except to say so. The smells come from public
+    definitions only (McCabe cyclomatic complexity, the brain method of Lanza and Marinescu, the bumpy road of Tornhill's public
+    writing); no code or weights are copied from CodeScene, repowise (AGPL) or Sonar. Scores are our own and are never
+    presented as CodeScene scores. The current release is v0.11.0, the machines release (ADR-EMG-044).
+    The decisions of ADR-EMG-046 to ADR-EMG-055 were taken by the implementing agent under the owner's instruction to take
+    the recommended decisions. OWNER items are listed in each decision and await the owner. The implementation plan
+    (code-health-implementation-plan.md) is background only; this decision and the following ones replace it where they differ.
+  decision: |-
+    The host package is internal/health, with the tree-sitter engine under engine/treesitter, and it has its own rows in
+    layering_test.go. internal/codemap gains small additive exports only; the existing behavior of codemap does not change.
+    The feature is opt-in through the manifest health block (ADR-EMG-051): a model without the block produces byte-identical
+    diagnostics and artifacts (REQ-EMG-160). The command is cmd/enghealth (interface IF-CLI-ENGHEALTH) of the functional unit
+    FU-CODE-HEALTH in the group FG-VALIDATION-ANALYSIS. The feature ships as the next minor release after v0.11.0 (OWNER:
+    the version number). Covers REQ-EMG-150 to REQ-EMG-160.
+  consequences:
+  - 'Statements of the plan that were wrong and are dropped: the codemap Symbol cannot carry metrics (it has no end line and only marker-linked functions are symbols), so health keeps its own function table; the parse tree is discarded after codemap scanning, so health parses the files itself; the git helpers of engws are not importable (engws is a top layer package), so health has a local git helper (ADR-EMG-053); no JSON Schema or SARIF precedent exists in the repository, so both are new code (ADR-EMG-050); the excludes are not gitignore semantics but the inferenceHints.exclude dialect (ADR-EMG-051); and the plan header named v0.10.0 while the current release is v0.11.0.'
+  - The new package adds layering rows that the layering test must list before health may import codemap, model, validate or the loader.
+  - A project that does not add a health block pays no cost and sees no change.
+  - The OWNER items and the release number are proposals until accepted.
+- id: ADR-EMG-047
+  title: Nine smells with named thresholds and a decision-point definition per language
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The smells must be computable from the tree-sitter grammars of Go, Rust, TypeScript and TSX, JavaScript and Python
+    with one definition per language, and every threshold is a proposal that a project can override (ADR-EMG-051).
+  decision: |-
+    Codes: health.complex_method, health.large_method, health.deep_nesting, health.bumpy_road, health.complex_conditional,
+    health.excess_arguments, health.primitive_obsession, health.brain_method, health.large_assertion_block and
+    health.duplicated_assertion_block. Default thresholds (warn / high): complex_method 10 / 20 cyclomatic complexity;
+    large_method 70 / 120 logical lines; deep_nesting 4 / 5 levels; bumpy_road 2 / 3 bumps; complex_conditional 3 / 5 boolean
+    operators in one condition; excess_arguments 5 / 7 parameters, excluding the receiver, self or this;
+    large_assertion_block 6 / 10 consecutive assertion statements in a test function. primitive_obsession: at least 4
+    parameters and at least 75 percent of them primitive, computed only where types are known (Go, Rust, TypeScript and
+    annotated Python, never JavaScript; where it cannot be computed it is reported unsupported). brain_method: large_method,
+    complex_method and deep_nesting all at warn or above, always severity high. duplicated_assertion_block: an identical
+    normalized block of at least 4 assertion statements in at least 2 tests of one file.
+    Decision points per language, corrected against the real grammars. Go: if, for, expression_case, type_case,
+    communication_case (default clauses do not count), and the operators && and ||. Rust: if_expression and while_expression
+    (including if let and while let, whose condition is a let_condition), loop_expression, for_expression, every match_arm
+    beyond the first, and && and ||; the question mark operator is NOT counted. TypeScript and JavaScript: if, for, for_in,
+    while, do, switch_case, catch, the ternary expression, and && || ?? together with the assignment forms &&=, ||= and ??=.
+    Python: if, elif, for, while, except, except_group, case_clause, conditional_expression, boolean_operator and the if_clause
+    of a comprehension. An anonymous closure counts toward its enclosing function and is not a function of its own.
+    Test detection: Go files named _test.go and functions Test, Benchmark, Fuzz and Example; Rust items with #[test] or inside
+    #[cfg(test)]; Python files test_*.py or *_test.py and the test functions in them; JavaScript and TypeScript by file name
+    (*.test.*, *.spec.*) and files under test, tests or __tests__. Assertion statements per language: Go calls to t.Error,
+    t.Errorf, t.Fatal, t.Fatalf and the require and assert packages; Rust assert macros (assert!, assert_eq!, assert_ne! and
+    the debug forms), matched in the text of the token tree; Python assert statements and unittest self.assert* calls;
+    JavaScript and TypeScript expect(...) chains and assert calls. Covers REQ-EMG-150.
+  consequences:
+  - A smell and a language pair that cannot be computed is listed unsupported, so a gap is visible and never a zero.
+  - Counting an anonymous closure in its enclosing function can raise the score of a function that uses many callbacks.
+  - The thresholds table is a proposal; the OWNER items are the values of the table and the decision to count closures in the enclosing function.
+- id: ADR-EMG-048
+  title: The file score starts at 10.0 and deducts weighted findings with diminishing returns
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    A score must be explainable: a reader must see which findings produced it, and a change of the formula must be visible in
+    reports. The weights are our own and are not derived from CodeScene or any other product.
+  decision: |-
+    The score of a file starts at 10.0. Each finding deducts its weight times a severity factor (warn 1, high 2).
+    Deductions of one function combine with diminishing returns: the worst counts fully, the next times 0.5 and the
+    rest times 0.25. The result is clamped to 1.0..10.0 and rounded to one decimal. The weights table is versioned,
+    scoringVersion 1: complex_method 1.0, large_method 0.8, deep_nesting 1.0, bumpy_road 1.0, complex_conditional 0.6,
+    excess_arguments 0.5, primitive_obsession 0.3, brain_method 1.5, large_assertion_block 0.3, duplicated_assertion_block 0.3.
+    Bands: green at 8.0 or above, yellow at 4.0 or above, red below 4.0 (OWNER). The report lists the deductions that produced
+    the score. Test files are scored separately and are excluded from production roll-ups by default. Covers REQ-EMG-151.
+  consequences:
+  - A change of a weight or a band bumps scoringVersion, and a report of another version is not compared by the delta check.
+  - Diminishing returns stop one very bad function from driving a file to 1.0 on its own through many small smells.
+  - The weights and the band limits are proposals until the owner accepts them.
+- id: ADR-EMG-049
+  title: Roll-ups per file, functional unit, requirement and project
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    Scores are useful to the model only if they reach the elements the model knows. The code map links code to the model by the
+    ENGMODEL-OWNER-UNIT marker (one value per file) and by TRLC-LINKS on symbols (Symbol.Implements).
+  decision: |-
+    File: the score of ADR-EMG-048. Functional unit: the LOC-weighted mean of its files plus the worst file, attributed by the
+    file-level ENGMODEL-OWNER-UNIT marker; it is one value per file, because attribution per function is ambiguous.
+    Requirement: functions are joined to marker-linked symbols by path and line range and reach a requirement through the
+    TRLC-LINKS of the symbol (Symbol.Implements); the worst function score is reported. Project: the LOC-weighted mean, the worst
+    performer and the count of files per band. Covers REQ-EMG-152.
+  consequences:
+  - A function that no marker-linked symbol covers counts for its file and the project only.
+  - A file with several units in it is attributed to one unit; splitting the file is the remedy.
+  - A symbol with no end line is bounded by the next symbol or the end of the file when joining by line range.
+- id: ADR-EMG-050
+  title: A neutral report format engmod-health/1, an engine seam and a SARIF 2.1.0 export
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    Another analysis engine may later replace the built-in one, and code scanning tools read SARIF. The repository has no
+    precedent for a published JSON Schema or for SARIF.
+  decision: |-
+    The HealthReport is JSON with the schema string engmod-health/1. A JSON Schema document describes it and a test validates
+    reports against that document. An Engine interface produces a HealthReport for a file set; the built-in engine is the first
+    implementation. A report that conforms to engmod-health/1 can be imported in place of the built-in analysis; an import with
+    another schema string or a missing required field is a setup error. SARIF 2.1.0 is exported (new code, one rule per code
+    and one result per finding). There is no CodeScene adapter. Covers REQ-EMG-157.
+  consequences:
+  - The schema string changes only with an incompatible report change.
+  - An imported report is data; it is validated and never executed, and its paths are checked against the repository root.
+  - The SARIF export is checked against the SARIF 2.1.0 structure in a test; no network is needed.
+- id: ADR-EMG-051
+  title: The manifest health block configures exclusions, thresholds, overrides and waivers
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    A project must be able to exclude generated code, tune a threshold for a path and accept known debt with a reason.
+  decision: |-
+    The manifest gets an optional health block with exclude, thresholds, overrides and waivers; the history setting is deferred
+    (ADR-EMG-055). exclude uses the dialect of inferenceHints.exclude, not gitignore semantics: path.Match per segment and only
+    a trailing /**. thresholds set warn and high per code. overrides set thresholds for a path. A waiver is {code, path,
+    function, decision}; the decision must exist and be accepted, and the check reuses the acceptance reference check of the
+    model. Covers REQ-EMG-153 and REQ-EMG-154.
+  consequences:
+  - A waiver ties known debt to a decision record that a reviewer has accepted; a proposed decision is not enough.
+  - The same exclude dialect keeps one rule set to learn and one implementation to test.
+  - The CUE contract and the Go decoder both change; both are in the scope of the implementation.
+- id: ADR-EMG-052
+  title: Debt findings are warnings at every tier; only a regression blocks, from product
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    Existing debt must not fail a gate, or no project could adopt the analysis. ADR-EMG-031 keys a closed table of codes by
+    tier with the rows D, W and E, and ADR-EMG-043 added the hygiene row.
+    This is an OWNER decision, recorded as proposed.
+  decision: |-
+    Debt codes (every health smell code) are warnings at every tier: the untiered-by-delta row WWWWW. health.regression, a new
+    or worsened high finding against the base revision, is the delta code with the tier row WWWEE: a warning at poc, prototype
+    and mvp, an error at product and operational. With the safety bundle the row is WWEEE (an error from mvp). health.waiver_unjustified is an
+    untiered error. health.waiver_unused is a warning. lifecycle.raise with the code pattern health.* remains the owner escape
+    hatch to make debt blocking. Findings appear in validation output only when the manifest has a health block. Covers
+    REQ-EMG-155, REQ-EMG-154 and REQ-EMG-160.
+  consequences:
+  - A project adopts the analysis without a failing gate and tightens it through lifecycle.raise or a higher tier.
+  - Only a change that makes the code worse can block, so the gate cannot be failed by history.
+  - The authoring contract tierPolicy gains the health.regression rows.
+- id: ADR-EMG-053
+  title: The delta check keys findings by path, qualified name and code and reads the base with git show
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    health.regression needs a comparison with a base revision. The git helpers of engws are not importable from internal
+    packages, because engws is a top layer package.
+  decision: |-
+    A finding is keyed by (path, qualified name, code). The base file is read with git show as raw bytes and never by a
+    checkout, so the working tree is not touched. Renames come from git diff -M --name-status; a renamed function with the same
+    body hash is not new. A finding is new when it is absent at base, worsened when the metric grew past a higher severity or by
+    at least 20 percent, and existing otherwise. An empty repository (no base commit): every finding is new and the check warns.
+    A shallow clone whose base revision is missing is a setup error (exit 2), not a pass. The git helper is local to
+    internal/health and calls the git binary with fixed arguments and no shell. Covers REQ-EMG-156.
+  consequences:
+  - A function moved to another file without the same body hash is new.
+  - The 20 percent limit is a proposal and a project can not change it in this release.
+  - A CI job must fetch enough history for the base revision; the setup error says so.
+- id: ADR-EMG-054
+  title: Per-file results are cached by content hash and the output is deterministic
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    The analysis runs on every file in every check, and committed reports must not produce noise.
+  decision: |-
+    The cache lives under .engmod/cache/health and is keyed by the sha256 of the file content together with the language, the
+    effective thresholds and scoringVersion. Targets: a single file under 300 ms when warm. Reports hold no timestamps and no
+    absolute paths, and all lists are sorted. Covers REQ-EMG-159.
+  consequences:
+  - The cache is a build product and is not committed; a missing or corrupt entry is a miss.
+  - Two runs on the same tree give byte-identical reports on any machine.
+  - The 300 ms target is measured by a benchmark and is not a gate.
+- id: ADR-EMG-055
+  title: Deferred and out of scope for the first code health release
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    Several items of the plan depend on decisions the owner has not taken or on a released engine.
+  decision: |-
+    Deferred: (1) MCP tools and governance.checkPatch: the handler receives only a diff string, so the server must locate the
+    repository and compute the base and head itself, which needs its own design. (2) History hotspots and author signals: this
+    repository has no privacy rule for them; if added they are counts and ratios only, never names or e-mail addresses, opt-in,
+    and need an owner decision. (3) Module smells (low_cohesion, brain_class, duplicated_code). (4) Engineering-flow gates, hooks
+    and skills: they need the released engine. (5) A CodeScene adapter: not planned. Covers REQ-EMG-150 to REQ-EMG-160 by
+    stating what they do not include.
+  consequences:
+  - The first release has a CLI, the validation diagnostics and the reports only.
+  - Each deferred item needs its own decision before work starts; none is partly built.
+- id: ADR-EMG-056
+  title: Consistency between the model and the code is checked in both directions, strict at operational, and enforced in CI
+  status: proposed
+  date: 2026-11-12
+  context: |-
+    A review of what the engine checks today (2026-11-12) found that links from code to the model are validated (a
+    TRLC-LINKS target must be a requirement, an ENGMODEL-LINKS target must be a model element, every function carries a
+    marker) and that requirements are traced to code or tests (requirement.orphan, requirement.unsatisfied), but that no check
+    says a state, event, interface, data object or flow has any code, that code naming a state is not compared with the
+    machine, and that a requirement about behavior need not have a state, transition or invariant behind it. The owner
+    instructed, verbatim: "once we are done with the code health then we should go into making sure that all the checks in all
+    directions exist and every missmatch is an error on in operation and tiered in a good way at lower tiers" and "and that is
+    checked in the ci pipeline to make sure that nothing can slipp past the agent". Taken by the implementing agent under the
+    owner's instruction to take recommended decisions. OWNER items: the tier rows and the list of element kinds.
+  decision: |-
+    After the code health work, a consistency effort adds every missing check in every direction between requirements, model
+    elements (states, events, machines, transitions, interfaces, data objects, flows, functional units, controls, verifications)
+    and code and tests, and tiers them: every mismatch is an error at the operational tier, warnings at the lower tiers on a
+    ladder decided per code and recorded in the tier table (debt codes warn from poc, error from product for the traceability
+    core, error at operational for the rest), with an explicit and recorded waiver for an element that is deliberately not
+    implemented (for example an external actor). The checks run in CI through the gate of the engineering-flow template, so a
+    mismatch cannot pass a pull request whatever the agent did locally; the same codes are enforced by engmod-check and the
+    pre-push gate. The work starts with a fact check of the current checks against the code (as for Quint and code health), then
+    a design recorded as ADRs, then implementation with independent reviews.
+  consequences:
+  - The element-coverage check, the check that code naming a state or event belongs to a machine whose requirements are traced, and conformance tests generated from the machine are in scope of this effort.
+  - Models that were clean at v0.11.0 may report new warnings at lower tiers and new errors at operational; the tier decision keeps lower tiers lenient.
+  - The effort follows the code health work on the same branch family and is released after it.

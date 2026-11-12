@@ -1,0 +1,69 @@
+import pytest
+
+
+class TestSuite(unittest.TestCase):
+    # test_pos has a run of six: assert, self.assertEqual, self.assertTrue, a
+    # with pytest.raises, self.assertIn and a pytest.raises call.
+    def test_pos(self):
+        got = compute()
+        assert got == 1
+        self.assertEqual(got, 1)
+        self.assertTrue(got)
+        with pytest.raises(ValueError):
+            compute()
+        self.assertIn(1, got)
+        pytest.raises(E, compute)
+        print("not an assertion")
+
+    def helper_check(self):
+        assert True
+
+
+# test_neg has two runs of five: the longest is 5.
+def test_neg():
+    assert 1 == 1
+    assert 2 == 2
+    assert 3 == 3
+    assert 4 == 4
+    assert 5 == 5
+    print("break")
+    assert 1 == 1
+    assert 2 == 2
+    assert 3 == 3
+    assert 4 == 4
+    assert 5 == 5
+
+
+# test_dup_a and test_dup_b share four identical assertions.
+def test_dup_a():
+    assert got.a == 1
+    assert got.b == 2
+    assert got.c == 3
+    assert got.d == 4
+
+
+def test_dup_b():
+    assert got.a == 1
+    assert got.b == 2
+    assert got.c == 3
+    assert got.d == 4
+    check()
+
+
+# test_near_a and test_near_b share only three identical assertions.
+def test_near_a():
+    assert want.a == 1
+    assert want.b == 2
+    assert want.c == 3
+    assert want.d == 4
+
+
+def test_near_b():
+    assert want.a == 1
+    assert want.b == 2
+    assert want.c == 3
+    assert want.e == 5
+
+
+def not_a_test():
+    assert True

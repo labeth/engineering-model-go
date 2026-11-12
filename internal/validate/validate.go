@@ -1293,6 +1293,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	diags = append(diags, acceptanceDiagnostics(b)...)
 	diags = append(diags, requirementLinkDiagnostics(b, validID)...)
 	diags = append(diags, lifecycleDiagnostics(b)...)
+	diags = append(diags, healthDiagnostics(b)...)
 	diags = append(diags, aviationTierDiagnostics(b)...)
 
 	semantic, projectionDiagnostics := model.ProjectSemanticModel(b)

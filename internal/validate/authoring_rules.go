@@ -134,6 +134,7 @@ var authoringFieldRules = []string{
 	"POA&M binding: a poamItem defers [{code, path?}] binds the item to the diagnostics it covers. While the item's status is not completed and its milestone is tier:<project tier> (for example tier:product), each diagnostic with that code (exact or family.*) and, when path is given, that path is reported as a warning with deferred: true and poamRef naming the item: the finding is still reported, never exempted. Naming a rank-0 core code is lifecycle.poam_defers_core (error) and defers nothing. Only tier-keyed codes and warnings are deferred; an untiered error keeps its severity; the engine has no clock, so an overdue item is the flow's to raise.",
 	"Machine errors, never tier keyed: behavior.transition_unknown_event (on names no behavior event), behavior.expression_unknown_variable (a guard, effect or invariant reads or assigns an undeclared variable), behavior.expression_type (an operand or result type the operator table rejects; guards and invariants must be Boolean and := needs the variable's type), behavior.in_state_foreign (in_state names a state of another machine or no state) and behavior.final_state_has_transitions (a final state has an outgoing transition). A missing or unresolved initial state (initial is a single field), unresolved transition ends, duplicate variables and expression syntax errors are reported by projection as semantic.invalid_machine and semantic.invalid_expression. Machine, state, transition and invariant IDs are unique across the model (model.duplicate_id).",
 	"Warnings: behavior.event_unused (a behavior event in no machine transition on, transition trigger or flow), behavior.state_unreachable (a machine state no path of transitions reaches from the initial state), behavior.flow_step_no_onerror (a boundaryCrossing step without onError) and catalog.name_has_operator (a clause-term catalog name or alias with a standalone and, or, not, a comma or a parenthesis, which EARS reads as operators). Tier keyed with the hygiene row (deferred at poc and prototype, warning at mvp and product, error at operational): behavior.state_unreachable, behavior.machine_deadlock (a non-final state without outgoing transition), behavior.transition_nondeterministic (two transitions from one state on one event, or both without, with no guards or the same guard), behavior.transition_no_trigger (a transition without on and without guard) and behavior.invariant_unlinked (an invariant linked to no existing requirement).",
+	"Code health (optional): engmod.yml health {exclude, thresholds, overrides, waivers} (fieldSets health, healthThreshold, healthOverride, healthWaiver; the health section of the contract lists the codes) configures the code health report; without the block nothing about health is validated or reported and every output is unchanged. exclude entries and overrides[].path use the inferenceHints.exclude pattern dialect (model.invalid_health_exclude, model.invalid_health_override). thresholds and overrides[].thresholds are keyed by health.complex_method, health.large_method, health.deep_nesting, health.bumpy_road, health.complex_conditional, health.excess_arguments or health.large_assertion_block with warn at least 1 and high at least warn (model.invalid_health_threshold). A waiver {code, path, function, decision} names a health smell code (model.invalid_health_waiver), the file, the function and a decision: health.waiver_unjustified (error, untiered, never deferred) when that decision does not exist or is not accepted. health.waiver_unused (a waiver that matches no finding) comes from the health report. Tier keyed: every health smell code and health.waiver_unused are warnings at every tier (lifecycle.raise: [health.*] makes debt an error); health.regression (a new or worsened high finding) is a warning at poc to mvp and an error from product, and from mvp with the safety bundle.",
 }
 
 // fieldSetTypes maps each entity kind of fieldSets to the strict-decoding Go
@@ -161,6 +162,10 @@ var fieldSetTypes = map[string]any{
 	"functionalUnit":      model.FunctionalUnit{},
 	"hardwareInterface":   model.HardwareInterface{},
 	"hardwareItem":        model.HardwareItem{},
+	"health":              model.ManifestHealth{},
+	"healthOverride":      model.HealthOverride{},
+	"healthThreshold":     model.HealthThreshold{},
+	"healthWaiver":        model.HealthWaiver{},
 	"interface":           model.Interface{},
 	"lifecycle":           model.ManifestLifecycle{},
 	"lintWaiver":          model.LintWaiver{},
@@ -247,8 +252,8 @@ func yamlType(t reflect.Type, kinds map[reflect.Type]string) (string, string) {
 	case reflect.Struct:
 		return "object", kinds[t]
 	case reflect.Map:
-		elem, _ := yamlType(t.Elem(), kinds)
-		return "map<string," + elem + ">", ""
+		elem, of := yamlType(t.Elem(), kinds)
+		return "map<string," + elem + ">", of
 	case reflect.Slice, reflect.Array:
 		elem, of := yamlType(t.Elem(), kinds)
 		return "list<" + elem + ">", of

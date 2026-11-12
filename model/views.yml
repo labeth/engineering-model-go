@@ -327,6 +327,29 @@ design:
         title: Codemap Inference Traceability
         narrative: Converts TRLC-LINKS (requirement) and ENGMODEL-LINKS (model element) markers into stable evidence relationships,
           existence-checked and scoped to the owning model.
+  - id: FU-CODE-HEALTH
+    group: FG-VALIDATION-ANALYSIS
+    views:
+      architecture_intent:
+        title: Code Health Intent
+        narrative: Makes maintainability debt visible per function, file, functional unit and requirement with our own explainable
+          score, and blocks only new or worsened findings, never existing debt.
+      communication:
+        title: Code Health Communication
+        narrative: Reads the manifest health block, the model and the code map, reports through enghealth and the validation
+          diagnostics, and exchanges reports in the neutral engmod-health/1 format and as SARIF 2.1.0.
+      deployment:
+        title: Code Health Deployment
+        narrative: Runs through enghealth locally and in CI against a base revision of the same repository, with per-file results
+          cached by content hash under .engmod/cache/health.
+      security:
+        title: Code Health Security
+        narrative: Parses source as data without executing it, reads the base revision with git show and never a checkout, validates
+          imported reports against a published schema and writes no timestamps or absolute paths.
+      traceability:
+        title: Code Health Traceability
+        narrative: Joins functions to functional units by the owner marker and to requirements by the TRLC-LINKS of marker-linked
+          symbols, and explains each score by the deductions that produced it.
   - id: FU-VIEW-PROJECTION
     group: FG-ARTIFACT-GENERATION
     views:

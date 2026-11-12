@@ -902,6 +902,19 @@ with `requirementLinks: strict`):
 | `composition.dependency_tier_unknown` | W | W | W | W | W |
 | `composition.dependency_tier_unknown` with safety | W | W | W | E | E |
 | `contract.unrealized` | D | D | W | W | E |
+| `health.brain_method` | W | W | W | W | W |
+| `health.bumpy_road` | W | W | W | W | W |
+| `health.complex_conditional` | W | W | W | W | W |
+| `health.complex_method` | W | W | W | W | W |
+| `health.deep_nesting` | W | W | W | W | W |
+| `health.duplicated_assertion_block` | W | W | W | W | W |
+| `health.excess_arguments` | W | W | W | W | W |
+| `health.large_assertion_block` | W | W | W | W | W |
+| `health.large_method` | W | W | W | W | W |
+| `health.primitive_obsession` | W | W | W | W | W |
+| `health.regression` | W | W | W | E | E |
+| `health.regression` with safety | W | W | E | E | E |
+| `health.waiver_unused` | W | W | W | W | W |
 | `lifecycle.aviation_profile_missing` (safety bundle) | D | D | E | E | E |
 | `lifecycle.requirement_unapproved` | D | D | W | E | E |
 | `lifecycle.requirement_unverified` | D | D | D | W | E |
@@ -916,6 +929,51 @@ with `requirementLinks: strict`):
 | `verification.gated_only` | D | D | D | W | E |
 | `verification.status_stale` | D | D | W | W | E |
 | `verification.unlinked` | D | D | W | E | E |
+
+### Code health configuration
+
+Code health is optional and opt-in (ADR-EMG-051, ADR-EMG-052). A manifest without a `health:` block
+validates, renders and traces byte for byte as before (`TestNoLifecycleGoldenOverExamples`); the
+block only configures the report and is checked on load and by `ValidateBundle`:
+
+```yaml
+health:
+  exclude: [vendor/**, "*.gen.go"]            # the inferenceHints.exclude pattern dialect
+  thresholds:                                  # per smell code with numeric limits
+    health.complex_method: {warn: 10, high: 15}
+  overrides:                                   # different limits for some paths
+  - path: internal/legacy/**
+    thresholds:
+      health.large_method: {warn: 120, high: 240}
+  waivers:                                     # accept one finding on an accepted decision
+  - {code: health.complex_method, path: internal/legacy/parse.go, function: parseAll, decision: ADR-LEGACY-PARSER}
+```
+
+Every key is optional. `thresholds` and `overrides[].thresholds` accept only the smell codes with
+numeric limits (`health.complex_method`, `health.large_method`, `health.deep_nesting`,
+`health.bumpy_road`, `health.complex_conditional`, `health.excess_arguments` and
+`health.large_assertion_block`); `warn` is at least 1 and `high` at least `warn`. The structural smells
+`health.primitive_obsession`, `health.brain_method` and `health.duplicated_assertion_block` take no limits.
+`exclude` and `overrides[].path` use the same dialect as `inferenceHints.exclude`: relative to the module
+root, `*` `?` `[...]` within one path segment, `**` only as a trailing `/**`, no negation.
+
+A configuration error is `model.invalid_health_exclude`, `model.invalid_health_threshold`,
+`model.invalid_health_override` or `model.invalid_health_waiver` (errors at every tier, never deferred).
+A waiver names a smell code, a file, a function and a decision. If the decision does not exist or is not
+accepted, the waiver is `health.waiver_unjustified` (an untiered error: no tier or POA&M item changes or
+defers it) and it waives nothing. `health.waiver_unused` (a waiver that matches no finding) is reported by
+the health report.
+
+Severity follows the table above. Every smell code and `health.waiver_unused` is a warning at every tier,
+with or without the safety bundle: debt is reported, never blocking by default. `health.regression`, a
+new or worsened high finding against the baseline, is a warning at poc, prototype and mvp and an error
+from product (from mvp with the safety bundle). `lifecycle.raise: [health.*]` is the escape hatch that
+makes the debt codes errors in a project that wants them to block.
+
+The scores come from this project's own heuristics over the scanned source (cyclomatic complexity, lines,
+nesting depth and similar); they are not CodeScene's Code Health and make no claim to match it. The
+authoring contract (`engineering-model.authoring.v4`) documents the block in its `health` section and the
+field sets `health`, `healthThreshold`, `healthOverride` and `healthWaiver`.
 
 
 ## System-of-Systems Composition

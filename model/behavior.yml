@@ -426,6 +426,9 @@ behavior:
     from: FG-VALIDATION-ANALYSIS
     to: FU-CODEMAP-INFERENCE
   - type: contains
+    from: FG-VALIDATION-ANALYSIS
+    to: FU-CODE-HEALTH
+  - type: contains
     from: FG-ARTIFACT-GENERATION
     to: FU-VIEW-PROJECTION
   - type: contains
@@ -532,6 +535,15 @@ behavior:
     from: FU-QUINT-EXPORTER
     to: FU-VALIDATION-ENGINE
   - type: depends_on
+    from: FU-CODE-HEALTH
+    to: FU-MODEL-LOADER
+  - type: depends_on
+    from: FU-CODE-HEALTH
+    to: FU-VALIDATION-ENGINE
+  - type: depends_on
+    from: FU-CODE-HEALTH
+    to: FU-CODEMAP-INFERENCE
+  - type: depends_on
     from: FU-NAF-EXPORTER
     to: FU-VIEW-PROJECTION
   - type: depends_on
@@ -567,6 +579,9 @@ behavior:
   - type: contains
     from: FU-QUINT-EXPORTER
     to: IF-CLI-ENGQUINT
+  - type: contains
+    from: FU-CODE-HEALTH
+    to: IF-CLI-ENGHEALTH
   - type: contains
     from: FU-NAF-EXPORTER
     to: IF-CLI-ENGNAF

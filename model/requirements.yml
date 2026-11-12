@@ -995,3 +995,82 @@ requirements:
     verificationCriteria: When a machine guard changes and the modules are not regenerated, then the freshness gate reports the changed generated/quint file; after regeneration it reports no drift.
     appliesTo:
       - FU-QUINT-EXPORTER
+  - id: REQ-EMG-150
+    text: When generation run is requested, the engineering model go shall report code health smells for each function of Go, Rust, TypeScript, JavaScript and Python source files.
+    notes: 'ADR-EMG-046, ADR-EMG-047. The named codes are health.complex_method, health.large_method, health.deep_nesting, health.bumpy_road, health.complex_conditional, health.excess_arguments, health.primitive_obsession, health.brain_method, health.large_assertion_block and health.duplicated_assertion_block. Thresholds, decision points and assertion statements per language are in ADR-EMG-047. A smell that cannot be computed for a language (primitive_obsession needs known types, so never for JavaScript) is reported as unsupported for that language and never as a silent zero. Anonymous closures count toward their enclosing function. The analysis is our own and is not CodeScene Code Health.'
+    verificationMethods: [test]
+    verificationCriteria: When a fixture function in each of the five languages exceeds a threshold, then the matching smell is reported with the function qualified name, the metric value and the severity warn or high; a function at the threshold minus one reports nothing; a smell not computable for a language, such as primitive_obsession in JavaScript, is listed as unsupported for that language and not as zero; an anonymous closure adds its decision points to the enclosing function; a brain method is reported high only when large_method, complex_method and deep_nesting are all at warn or above.
+    appliesTo:
+      - FU-CODE-HEALTH
+  - id: REQ-EMG-151
+    text: When generation run is requested, the engineering model go shall compute an explainable code health score from 1.0 to 10.0 for each source file.
+    notes: 'ADR-EMG-048. The score starts at 10.0 and each smell deducts its weight times a severity factor (warn 1, high 2); per-function deductions combine with diminishing returns (worst counts fully, next times 0.5, the rest times 0.25); the result is clamped to 1.0..10.0 with one decimal. Bands: green at 8.0 or above, yellow at 4.0 or above, red below 4.0 (OWNER). The weights table is versioned with scoringVersion 1 and published in the report. Test files are scored separately and are excluded from production roll-ups by default. The score is our own and is never presented as a CodeScene score.'
+    verificationMethods: [test]
+    verificationCriteria: When a file has no smells, then its score is 10.0 and its band green with no deductions; when a file has three smells in one function and one in another, then the deductions list each smell with code, function, weight, severity factor and the amount deducted after diminishing returns, and the sum matches 10.0 minus the score; many deductions clamp the score at 1.0; a score of 8.0, 4.0 and 3.9 falls in green, yellow and red; a test file is scored apart from production files and is absent from the production roll-up by default.
+    appliesTo:
+      - FU-CODE-HEALTH
+  - id: REQ-EMG-152
+    text: When generation run is requested, the engineering model go shall roll up file code health scores along the traceability of the model.
+    notes: 'ADR-EMG-049. A functional unit is the LOC-weighted mean of its files plus its worst file, attributed by the file-level ENGMODEL-OWNER-UNIT marker (one value per file). A requirement is reached through the TRLC-LINKS of marker-linked symbols (Symbol.Implements), joined to functions by path and line range, and reports its worst function score. The project roll-up is the LOC-weighted mean, the worst performer and the count per band.'
+    verificationMethods: [test]
+    verificationCriteria: When two files of one functional unit have different scores and sizes, then the unit score is the LOC-weighted mean and the worst file is named; a function inside the line range of a symbol that implements a requirement contributes to that requirement, and the requirement reports the worst of its function scores; the project roll-up gives the weighted mean, the worst file and the number of files in each band; a file without an owner marker contributes to the project roll-up only.
+    appliesTo:
+      - FU-CODE-HEALTH
+  - id: REQ-EMG-153
+    text: When model updated event is received, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.
+    notes: 'ADR-EMG-051. The health block is optional and opt-in. exclude uses the dialect of inferenceHints.exclude (path.Match per segment, only a trailing /**), not gitignore semantics. thresholds name known codes with warn and high values that are ordered; overrides apply thresholds by path; a waiver is {code, path, function, decision}. Unknown codes, malformed or unordered thresholds and unknown keys are rejected by the CUE contract and the loader with a diagnostic naming the field.'
+    verificationMethods: [test]
+    verificationCriteria: When a manifest has a health block with an unknown smell code, a threshold whose high value is below its warn value, an exclude with a leading double star or an unknown key, then loading fails with a diagnostic naming the field; a valid block with exclude, thresholds, overrides and waivers loads and round-trips; a manifest without the block loads as before.
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-154
+    text: When model updated event is received, the engineering model go shall require each code health waiver to cite an existing accepted decision.
+    notes: 'ADR-EMG-051 and ADR-EMG-052. health.waiver_unjustified is an error at every tier and is untiered: the cited decision is missing or its status is not accepted (the acceptance reference check of the model is reused). health.waiver_unused is a warning: the waiver matches no finding, so it can be removed. A waiver suppresses one code for one function in one file and is listed in the report as waived, never silently dropped.'
+    verificationMethods: [test]
+    verificationCriteria: When a waiver cites a decision that does not exist or is proposed, then health.waiver_unjustified is an error at every tier including poc; when the decision is accepted and the waiver matches a finding, then the finding is reported as waived and no diagnostic is raised; when the waiver matches no finding, then health.waiver_unused is a warning.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-CODE-HEALTH
+  - id: REQ-EMG-155
+    text: When model updated event is received, the engineering model go shall report code health findings with the severity of the project life-cycle tier.
+    notes: 'ADR-EMG-052 (OWNER decision). Debt findings (every health smell code) are warnings at every tier, the untiered-by-delta row WWWWW. health.regression, a new or worsened high finding against the base revision, is keyed in TierPolicy with the row WWWEE: a warning below product, an error from product, and from mvp with the safety bundle (row WWEEE). health.waiver_unjustified is an untiered error and health.waiver_unused a warning. lifecycle.raise with health.* stays the owner escape hatch that makes debt blocking. Findings appear in validation output only when the manifest has a health block.'
+    verificationMethods: [test]
+    verificationCriteria: When a model with a health block and a new high finding is validated at tiers poc to operational, then health.regression is a warning, warning, warning, error, error; with the safety bundle at mvp it is an error; a debt finding is a warning at every tier; lifecycle.raise naming health.complex_method turns that code into an error; the authoring contract tierPolicy lists the health.regression row.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+  - id: REQ-EMG-156
+    text: When generation run is requested, the engineering model go shall classify each code health finding against a base revision of the working tree.
+    notes: 'ADR-EMG-053. Findings are keyed by (path, qualified name, code). The base file is read with git show as raw bytes, never a checkout; renames come from git diff -M --name-status, and a renamed function with the same body hash is not new. New means absent at base; worsened means the metric grew past a higher severity or by at least 20 percent; otherwise existing. Existing debt never fails a gate. In an empty repository (no base commit) every finding is new and the check warns. In a shallow clone whose base revision is missing the check fails with a setup error (exit 2), because a silent pass would hide regressions.'
+    verificationMethods: [test]
+    verificationCriteria: When a function gains a decision point crossing from warn to high, then it is worsened; when a function with a warn smell grows by less than 20 percent and stays warn, then it is existing and does not fail the check; a function renamed with an unchanged body is not new; in a repository with no commit every finding is new and a warning is printed; in a shallow clone without the base commit the check exits 2 with a message naming the base revision.
+    appliesTo:
+      - FU-CODE-HEALTH
+  - id: REQ-EMG-157
+    text: When generation run is requested, the engineering model go shall write the code health report in the neutral format engmod-health/1.
+    notes: 'ADR-EMG-050. The report is also exported as SARIF 2.1.0, and the roll-up of the unit, requirement and project levels is ADR-EMG-049. The HealthReport JSON carries the schema string engmod-health/1 and is described by a published JSON Schema document that a test validates reports against. The SARIF 2.1.0 export is new code with no precedent in the repository. A report that conforms to engmod-health/1 can be imported in place of the built-in analysis: this is the seam for another engine behind an Engine interface. There is no CodeScene adapter.'
+    verificationMethods: [test]
+    verificationCriteria: When a scan runs on a fixture, then the JSON report validates against the published JSON Schema and carries the schema string engmod-health/1; the SARIF 2.1.0 export has one result per finding and a rule per code; an external report that conforms is imported and produces the same roll-ups and check result as the built-in report; a report with another schema string or a missing required field is rejected with a setup error.
+    appliesTo:
+      - FU-CODE-HEALTH
+  - id: REQ-EMG-158
+    text: When generation run is requested, the engineering model go shall run code health analysis with enghealth scan and check, exiting 0 when ok, 1 on blocking findings and 2 on a setup error.
+    notes: 'ADR-EMG-046, ADR-EMG-052 and ADR-EMG-053. cmd/enghealth has the subcommands scan (report and roll-ups) and check (delta between a base revision and the working tree, with the blocking decision of the tier policy). A setup error (unreadable model, missing base revision, unreadable or non-conforming imported report, a path outside the repository) exits 2 and never counts as a pass.'
+    verificationMethods: [test]
+    verificationCriteria: When enghealth scan runs on a model with a health block, then it writes the report and exits 0; when enghealth check finds a new high finding at product tier it exits 1, and with only existing debt it exits 0; when the model does not load, the base is missing or the imported report does not conform it exits 2.
+    appliesTo:
+      - FU-CODE-HEALTH
+  - id: REQ-EMG-159
+    text: When generation run is requested, the engineering model go shall cache the code health result of each file by content hash and produce deterministic output.
+    notes: 'ADR-EMG-054. The cache lives under .engmod/cache/health, keyed by the sha256 of the file content, the language, the thresholds and scoringVersion; a changed key is a miss. Output is sorted, and a committed report holds no timestamps and no absolute paths. Target: a single file under 300 ms when warm.'
+    verificationMethods: [test]
+    verificationCriteria: When a scan runs twice on unchanged files, then the second run reads every file result from the cache and the two reports are byte-identical; when a file or a threshold changes, then only the affected entries are recomputed; the report holds no timestamp and no absolute path and lists files, functions and findings in sorted order.
+    appliesTo:
+      - FU-CODE-HEALTH
+  - id: REQ-EMG-160
+    text: When model updated event is received, the engineering model go shall produce byte-identical output for a model without a health block.
+    notes: 'ADR-EMG-046 and ADR-EMG-052. Code health is opt-in through the manifest health block. Without the block, validation reports no health.* diagnostic, no tier row is added to the output, and every generated artifact is unchanged from the previous release.'
+    verificationMethods: [test]
+    verificationCriteria: When the example models and this repository model without a health block are validated and generated, then the diagnostics and all generated artifacts are byte-identical to those of the release before code health; only adding a health block can introduce health.* diagnostics.
+    appliesTo:
+      - FU-VALIDATION-ENGINE

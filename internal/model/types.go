@@ -175,6 +175,46 @@ type ManifestPublication struct {
 	Views        []string `yaml:"views"`
 }
 
+// ManifestHealth is engmod.yml health: the optional code health
+// configuration (ADR-EMG-051). Exclude lists paths left out of the report
+// (the inferenceHints.exclude dialect), Thresholds overrides the default
+// warn and high limit per smell code, Overrides does so for the paths it
+// names and Waivers waives single findings on an accepted decision. Value
+// rules are checked by internal/validate; a manifest without health leaves
+// every output unchanged.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+type ManifestHealth struct {
+	Exclude    []string                   `yaml:"exclude,omitempty"`
+	Thresholds map[string]HealthThreshold `yaml:"thresholds,omitempty"`
+	Overrides  []HealthOverride           `yaml:"overrides,omitempty"`
+	Waivers    []HealthWaiver             `yaml:"waivers,omitempty"`
+}
+
+// HealthThreshold is the limit pair of one smell code: a value at or above
+// Warn is a warning finding, at or above High a high finding.
+// TRLC-LINKS: REQ-EMG-153
+type HealthThreshold struct {
+	Warn int `yaml:"warn"`
+	High int `yaml:"high"`
+}
+
+// HealthOverride replaces thresholds for the paths matching Path.
+// TRLC-LINKS: REQ-EMG-153
+type HealthOverride struct {
+	Path       string                     `yaml:"path"`
+	Thresholds map[string]HealthThreshold `yaml:"thresholds,omitempty"`
+}
+
+// HealthWaiver waives the finding of Code in Function of the file Path; the
+// Decision must be an accepted decision.
+// TRLC-LINKS: REQ-EMG-154
+type HealthWaiver struct {
+	Code     string `yaml:"code"`
+	Path     string `yaml:"path"`
+	Function string `yaml:"function"`
+	Decision string `yaml:"decision"`
+}
+
 // ManifestDocument is the only schema-v2 model entry point.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-047, REQ-EMG-049, REQ-EMG-051
 type ManifestDocument struct {
@@ -190,6 +230,9 @@ type ManifestDocument struct {
 	// Lifecycle declares the life-cycle tier of the module; nil keeps every
 	// severity of engineering-model-go v0.9.0. See ManifestLifecycle.
 	Lifecycle *ManifestLifecycle `yaml:"lifecycle,omitempty"`
+	// Health configures the optional code health report; nil means no
+	// health block (nothing is validated or reported). See ManifestHealth.
+	Health *ManifestHealth `yaml:"health,omitempty"`
 }
 
 // ModelMeta is the aggregate model identity retained for downstream consumers.

@@ -1,0 +1,200 @@
+class Box:
+    a = b = c = d = False
+
+
+def f() -> None:
+    pass
+
+
+# cyc_pos has nine ifs: cyclomatic 1 + 9 = 10.
+def cyc_pos(x: Box) -> None:
+    if x.a: f()
+    if x.b: f()
+    if x.c: f()
+    if x.d: f()
+    if x.a: f()
+    if x.b: f()
+    if x.c: f()
+    if x.d: f()
+    if x.a: f()
+
+
+# cyc_neg has eight ifs: cyclomatic 9.
+def cyc_neg(x: Box) -> None:
+    if x.a: f()
+    if x.b: f()
+    if x.c: f()
+    if x.d: f()
+    if x.a: f()
+    if x.b: f()
+    if x.c: f()
+    if x.d: f()
+
+
+# nest_pos nests four ifs: depth 4, one bump, cyclomatic 5.
+def nest_pos(x: Box) -> None:
+    if x.a:
+        if x.b:
+            if x.c:
+                if x.d:
+                    f()
+
+
+# nest_neg nests three ifs: depth 3, one bump, cyclomatic 4.
+def nest_neg(x: Box) -> None:
+    if x.a:
+        if x.b:
+            if x.c:
+                f()
+
+
+# bumps_pos has two separate top-level blocks that reach depth 2.
+def bumps_pos(x: Box) -> None:
+    if x.a:
+        if x.b:
+            f()
+    f()
+    if x.c:
+        if x.d:
+            f()
+
+
+# bumps_neg has one nested block and one flat if.
+def bumps_neg(x: Box) -> None:
+    if x.a:
+        if x.b:
+            f()
+    if x.c:
+        f()
+
+
+# bool_pos has three boolean operators in one condition.
+def bool_pos(x: Box) -> None:
+    if x.a and x.b and x.c or x.d:
+        f()
+
+
+# bool_neg has two boolean operators in one condition.
+def bool_neg(x: Box) -> None:
+    if x.a and x.b or x.c:
+        f()
+
+
+# args_pos has five parameters.
+def args_pos(a: Box, b: Box, c: Box, d: Box, e: Box) -> None:
+    pass
+
+
+# args_neg has four parameters.
+def args_neg(a: Box, b: Box, c: Box, d: Box) -> None:
+    pass
+
+
+# prim_pos has four parameters, three of them primitive (75%).
+def prim_pos(a: str, b: int, c: bool, d: Box) -> None:
+    pass
+
+
+# prim_neg has four parameters, two of them primitive (50%); the unannotated
+# parameter is not primitive.
+def prim_neg(a: str, b: int, c, d: Box) -> None:
+    pass
+
+
+# prim_few has three primitive parameters: too few for the smell.
+def prim_few(a: str, b: int, c: bool) -> None:
+    pass
+
+
+# params: the * and / separators are not parameters; defaults, *args and
+# **kwargs each count once.
+def params(a: int, /, b, *, c=1, **kw) -> None:
+    pass
+
+
+# constructs uses every Python decision point once; case _ is not one, the
+# for of a comprehension is not one, the guard of a case is not counted twice.
+def constructs(a: int, xs: list, x: Box) -> int:
+    if x.a and x.b or x.c:
+        a += 1
+    elif x.d:
+        a -= 1
+    for e in xs:
+        f()
+    while a > 100:
+        a -= 1
+    try:
+        f()
+    except ValueError:
+        f()
+    except (KeyError, TypeError):
+        f()
+    match a:
+        case 1:
+            f()
+        case 2 | 3:
+            f()
+        case [y] if y > 1:
+            f()
+        case _:
+            f()
+    t = 1 if x.a else 2
+    u = [e for e in xs if e if e > 1]
+    v = sum(e for e in xs if e)
+    w = {k: 1 for k in xs if k}
+    s = {k for k in xs if k}
+    return a
+
+
+# group: except* is one decision point.
+def group(x: Box) -> None:
+    try:
+        f()
+    except* ValueError:
+        f()
+
+
+# else_if is a chain on one level.
+def else_if(x: Box) -> None:
+    if x.a:
+        f()
+    elif x.b:
+        f()
+    elif x.c:
+        f()
+    else:
+        f()
+
+
+def documented(x: Box) -> None:
+    """The docstring spans
+    two lines and is not logical code."""
+    # a comment is not logical code either
+
+    f()
+
+
+double = lambda v: v if v else 0
+
+
+class Service:
+    def run(self, x: Box) -> None:
+        if x.a:
+            f()
+
+    @classmethod
+    def make(cls, x: Box) -> None:
+        if x.b:
+            f()
+
+
+# closures: the anonymous lambda counts toward the function; run is a nested
+# function and a unit of its own, so is the assigned lambda.
+def closures(x: Box, items: list) -> None:
+    def run() -> None:
+        if x.a:
+            f()
+
+    pick = lambda e: e if e else 0
+    items.sort(key=lambda e: e if e else 0)
+    run()

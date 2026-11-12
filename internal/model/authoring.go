@@ -9,8 +9,9 @@ import (
 
 // AuthoringContractVersion identifies the contract shape. v3 added the
 // machines guide (expression grammar, operator table, Quint workflow and
-// formal evidence semantics) and the SM, TR and INV identifier prefixes.
-const AuthoringContractVersion = "engineering-model.authoring.v3"
+// formal evidence semantics) and the SM, TR and INV identifier prefixes. v4
+// adds the health guide, the manifest health block and the health field sets.
+const AuthoringContractVersion = "engineering-model.authoring.v4"
 
 // AuthoringContract is compact machine context for editing the canonical YAML set.
 type AuthoringContract struct {
@@ -21,6 +22,7 @@ type AuthoringContract struct {
 	StableIdentifiers StableIdentifierGuide `json:"stableIdentifiers"`
 	Dependencies      DependencyGuide       `json:"dependencies"`
 	Machines          MachineGuide          `json:"machines"`
+	Health            HealthGuide           `json:"health"`
 	AuthoringOrder    []string              `json:"authoringOrder"`
 	Invariants        []string              `json:"invariants"`
 	Compatibility     []string              `json:"compatibility"`
@@ -66,6 +68,26 @@ type MachineOperatorDoc struct {
 	Result           string   `json:"result"`
 	Precedence       int      `json:"precedence,omitempty"`
 	RightAssociative bool     `json:"rightAssociative,omitempty"`
+}
+
+// HealthGuide is the authoring contract of the optional engmod.yml health
+// block (ADR-EMG-051): the shape of the block, the health codes and the
+// rules that validate it. The field sets healthThreshold, healthOverride and
+// healthWaiver in the validation rules list the accepted keys.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-MODEL-AUTHORING-CONTRACT
+type HealthGuide struct {
+	Config []string        `json:"config"`
+	Codes  []HealthCodeDoc `json:"codes"`
+	Rules  []string        `json:"rules"`
+}
+
+// HealthCodeDoc is one health diagnostic code. Threshold is true for the
+// smell codes that take numeric warn and high limits.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-MODEL-AUTHORING-CONTRACT
+type HealthCodeDoc struct {
+	Code      string `json:"code"`
+	Meaning   string `json:"meaning"`
+	Threshold bool   `json:"threshold,omitempty"`
 }
 
 type DependencyGuide struct {
@@ -138,6 +160,7 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 			},
 		},
 		Machines:       machineGuide(),
+		Health:         healthGuide(),
 		AuthoringOrder: []string{"manifest", "catalog", "requirements", "architecture", "behavior", "assurance", "compliance", "aviation", "views", "decisions", "reqLinks"},
 		Invariants: []string{
 			"Define controlled vocabulary and stable IDs before referencing them.",
@@ -205,6 +228,50 @@ func machineGuide() MachineGuide {
 			"A failing result makes the requirement failed (verification.failed with a lifecycle tier), never unverified.",
 			"A result whose qntSha256 differs from the module (or whose module is missing) is stale: it is no evidence, reported as verification.formal_stale (warning), and it does not downgrade a requirement that other passing evidence verifies. Rerun engquint check.",
 			"An invariant linked to no requirement produces no evidence. The Gemara evaluation log holds one requirement-keyed entry per formal result, and verification.status and verification.gaps report pass, failed or stale per requirement.",
+		},
+	}
+}
+
+// healthGuide builds the health section of the authoring contract. The code
+// rows come from the code vocabulary of this package, so a smell code cannot
+// be documented without being valid in the block.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-155, REQ-EMG-160
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func healthGuide() HealthGuide {
+	meaning := map[string]string{
+		"health.complex_method":             "a function whose cyclomatic complexity reaches the limit",
+		"health.large_method":               "a function with too many lines",
+		"health.deep_nesting":               "a function nested too deeply",
+		"health.bumpy_road":                 "a function with several separate nested-conditional bumps",
+		"health.complex_conditional":        "a condition combining too many logical operators",
+		"health.excess_arguments":           "a function with too many parameters",
+		"health.primitive_obsession":        "a function whose parameters are mostly primitive types",
+		"health.brain_method":               "a function that is large, complex, deeply nested and takes many arguments at once",
+		"health.large_assertion_block":      "a test with too many consecutive assertions",
+		"health.duplicated_assertion_block": "a test whose assertion block repeats in another test",
+	}
+	codes := []HealthCodeDoc{}
+	for _, code := range HealthSmellCodes() {
+		codes = append(codes, HealthCodeDoc{Code: code, Meaning: meaning[code], Threshold: IsHealthThresholdCode(code)})
+	}
+	codes = append(codes,
+		HealthCodeDoc{Code: HealthRegressionCode, Meaning: "a new or worsened high finding against the compared baseline"},
+		HealthCodeDoc{Code: HealthWaiverUnusedCode, Meaning: "a waiver that matches no finding (emitted by the health report)"},
+		HealthCodeDoc{Code: HealthWaiverUnjustifiedCode, Meaning: "a waiver whose decision does not exist or is not accepted (error, untiered)"},
+	)
+	return HealthGuide{
+		Config: []string{
+			"health is an optional block of engmod.yml: health: {exclude: [pattern], thresholds: {<code>: {warn: int, high: int}}, overrides: [{path: pattern, thresholds: {<code>: {warn, high}}}], waivers: [{code, path, function, decision}]}. Every key is optional; without the block nothing about code health is validated, computed or reported.",
+			"exclude entries and overrides[].path use the pattern dialect of inferenceHints.exclude (relative to the module root; * ? [...] within one path segment; ** only as a trailing /**; no negation).",
+			"thresholds and overrides[].thresholds are keyed by a smell code that takes numeric limits (the codes with threshold: true); warn is at least 1 and high is at least warn. A threshold replaces the built-in default of the code for the whole module, an override for the paths it matches.",
+			"A waiver waives the finding of code in function of the file path (an exact module-relative path, not a pattern) and names the decision that justifies it. There is no history key.",
+		},
+		Codes: codes,
+		Rules: []string{
+			"A threshold key that is no smell code with numeric limits, a threshold whose warn is below 1 or whose high is below warn, an exclude or override path the pattern dialect rejects, and a waiver without code, path, function or decision, with a code that is no smell code or with a path that is no module-relative path are model.invalid_health_threshold, model.invalid_health_exclude, model.invalid_health_override and model.invalid_health_waiver (errors at every tier, never deferred).",
+			"health.waiver_unjustified (error, untiered: never changed or deferred by the tier policy) is reported at a waiver whose decision does not exist or whose status is not accepted; the message names the waiver and the decision. A waiver without an accepted decision waives nothing.",
+			"Tier policy: every smell code and health.waiver_unused is a warning at every tier (no safety or bundle change); health.regression is a warning at poc, prototype and mvp and an error from product, and with the safety bundle an error from mvp. lifecycle.raise: [health.*] makes the debt codes errors.",
+			"Scores are this project's own heuristics over the scanned source; they are not CodeScene's Code Health and do not claim to match it.",
 		},
 	}
 }
