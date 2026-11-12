@@ -19,7 +19,7 @@ import (
 )
 
 const formalQntFile = "generated/quint/sm_demo.qnt"
-const formalQntText = "module sm_demo { val x = 1 }\n"
+const formalQntText = codescan.FormalGeneratedHeader + "SM-DEMO; do not edit.\nmodule sm_demo { val x = 1 }\n"
 
 // formalFixtureEntry is one entry of a fixture evidence file.
 type formalFixtureEntry struct{ req, status, invariant string }
@@ -247,5 +247,51 @@ func TestReadFormalResultsAndRollUp(t *testing.T) {
 	plain.Method = "analysis"
 	if files := formalCheckFiles(plain); len(files) != 1 {
 		t.Fatalf("analysis check files: %v", files)
+	}
+}
+
+// A crafted evidence file is no evidence: a module outside the model root or a
+// file that is not a generated Quint module is stale (the requirement stays
+// orphan) whatever hash is recorded, while a module checked out with CRLF line
+// endings still matches the hash of its LF form.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func TestFormalEvidenceRejectsOutsideAndNonGeneratedModulesAndAcceptsCRLF(t *testing.T) {
+	plain := "module plain { val x = 1 }\n"
+	entry := func(req, file, text string) map[string]string {
+		sum := sha256.Sum256([]byte(text))
+		return map[string]string{"requirement": req, "status": "pass", "machine": "SM-DEMO", "invariant": "INV-" + req,
+			"qntFile": file, "qntSha256": hex.EncodeToString(sum[:])}
+	}
+	data, _ := json.Marshal(map[string]any{"results": []map[string]string{
+		entry("REQ-F-001", "../../../../dev/zero", ""),
+		entry("REQ-F-002", "generated/plain.qnt", plain),
+		entry("REQ-F-003", "generated/crlf.qnt", formalQntText),
+	}})
+	files := map[string]string{
+		"generated/plain.qnt":            plain,
+		"generated/crlf.qnt":             strings.ReplaceAll(formalQntText, "\n", "\r\n"),
+		"test-results/quint-formal.json": string(data),
+	}
+	m, _, diags := verificationFixture(t, files, "REQ-F-001", "REQ-F-002", "REQ-F-003")
+	for id, want := range map[string]string{"REQ-F-001": "not a local path", "REQ-F-002": "not a generated Quint module"} {
+		row := formalRow(t, m, id)
+		if row.Status != "orphan" || len(row.Formal) != 1 || row.Formal[0].Result != formalStaleResult || !strings.Contains(row.Formal[0].Notes, want) {
+			t.Errorf("%s: %+v", id, row)
+		}
+	}
+	crlf := formalRow(t, m, "REQ-F-003")
+	if crlf.Status != "verified" || crlf.Result != "passed" || len(crlf.Formal) != 1 || crlf.Formal[0].Result != formalPass {
+		t.Errorf("a CRLF checkout must stay current: %+v", crlf)
+	}
+	stale := 0
+	for _, d := range diags {
+		if d.Code == "verification.formal_stale" {
+			stale++
+		}
+	}
+	if stale != 2 {
+		t.Errorf("want two stale warnings, got %d in %+v", stale, diags)
 	}
 }

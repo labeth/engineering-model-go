@@ -16,11 +16,12 @@ import (
 
 	gemaraproj "github.com/gemaraproj/go-gemara"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 const formalFixtureModule = "generated/quint/sm_payments_auth.qnt"
-const formalFixtureText = "module sm_payments_auth { val x = 1 }\n"
+const formalFixtureText = codescan.FormalGeneratedHeader + "SM-PAYMENTS-AUTH; do not edit.\nmodule sm_payments_auth { val x = 1 }\n"
 
 type formalFixtureEntry struct{ req, invariant, status string }
 
@@ -251,5 +252,87 @@ func TestFormalEvaluationLogAbsentWithoutEvidence(t *testing.T) {
 	}
 	if got != want {
 		t.Fatalf("control entries changed:\n%s\nwant\n%s", got, want)
+	}
+}
+
+// The record-only step of an entry agrees with its result: a failed entry
+// does not name a passing step and a stale one is not claimed as evaluated.
+// The step is never run by the exporter and the log leaves steps-executed
+// unset (go-gemara reads only the step name and, for OSCAL, steps-executed).
+//
+// TRLC-LINKS: REQ-EMG-147
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER
+func TestFormalEvaluationStepAgreesWithResult(t *testing.T) {
+	pass := formalEvaluationLog(t, formalFixtureModel(t, []formalFixtureEntry{
+		{"REQ-PAYMENTS-001", "INV-PAYMENTS-001", "pass"}, {"REQ-PAYMENTS-002", "INV-PAYMENTS-002", "fail"},
+	}, false, false))
+	stale := formalEvaluationLog(t, formalFixtureModel(t, []formalFixtureEntry{{"REQ-PAYMENTS-001", "INV-PAYMENTS-001", "pass"}}, true, false))
+	for name, c := range map[string]struct {
+		res  EvaluationResult
+		req  string
+		want gemaraproj.Result
+	}{
+		"pass": {pass, "REQ-PAYMENTS-001", gemaraproj.Passed}, "fail": {pass, "REQ-PAYMENTS-002", gemaraproj.Failed},
+		"stale": {stale, "REQ-PAYMENTS-001", gemaraproj.NotRun},
+	} {
+		al := formalEvaluation(t, c.res, c.req).AssessmentLogs[0]
+		if len(al.Steps) != 1 || al.StepsExecuted != 0 || al.Result != c.want {
+			t.Fatalf("%s: %+v", name, al)
+		}
+		if got, _, _ := al.Steps[0](nil); got != al.Result {
+			t.Errorf("%s: the step yields %v but the entry is %v", name, got, al.Result)
+		}
+	}
+	if name := formalEvaluation(t, pass, "REQ-PAYMENTS-002").AssessmentLogs[0].Steps[0].String(); !strings.Contains(name, "Failed") {
+		t.Errorf("step name of a failed entry: %s", name)
+	}
+}
+
+// A crafted evidence file naming a module outside the model root, or a file
+// that is not a generated module, is NotRun with the reason; an evidence file
+// beside the code root is read (the same directories the verification scan
+// reads) and entries of the same requirement are ordered by evidence file.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-147
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER
+func TestFormalEvaluationLogContainmentAndScanDirectories(t *testing.T) {
+	manifest := formalFixtureModel(t, []formalFixtureEntry{{"REQ-PAYMENTS-001", "INV-PAYMENTS-001", "pass"}}, false, false)
+	root := filepath.Dir(manifest)
+	evidence, err := os.ReadFile(filepath.Join(root, "test-results", "quint-formal.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	crafted := strings.ReplaceAll(string(evidence), formalFixtureModule, "../../../../dev/zero")
+	// beside a code root one level down: <root>/code/src -> <root>/code/test-results
+	beside := filepath.Join(root, "code", "test-results")
+	if err := os.MkdirAll(beside, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(beside, "quint-formal.json"), []byte(crafted), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	bundle, err := model.LoadBundle(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	res, err := GenerateEvaluationLog(bundle, bundle.Requirements, filepath.Join("code", "src"), Options{Version: "1.0.0", Date: "2026-06-26T00:00:00Z"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	ce := formalEvaluation(t, res, "REQ-PAYMENTS-001")
+	if len(ce.AssessmentLogs) != 2 {
+		t.Fatalf("both evidence files are read: %+v", ce)
+	}
+	first, second := ce.AssessmentLogs[0], ce.AssessmentLogs[1]
+	if first.Result != gemaraproj.NotRun || !strings.Contains(first.Message, "not a local path") {
+		t.Errorf("code/test-results sorts first and is crafted: %+v", first)
+	}
+	if second.Result != gemaraproj.Passed {
+		t.Errorf("test-results is current: %+v", second)
+	}
+	// Without the code root the evidence beside it is not read.
+	plain := formalEvaluationLog(t, manifest)
+	if len(formalEvaluation(t, plain, "REQ-PAYMENTS-001").AssessmentLogs) != 1 {
+		t.Errorf("only the model's test-results is read without a code root")
 	}
 }

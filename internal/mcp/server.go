@@ -185,7 +185,7 @@ func NewServer() *Server {
 		{Name: "files.forThreat", Description: "List files for threat"},
 		{Name: "files.owner", Description: "Resolve owner for file"},
 		{Name: "verification.status", Description: "Get verification status: authored controlVerifications and, when the model has formal (Quint) evidence, formalResults per requirement (result pass, failed or stale; each invariant with machine, invariant, mode, qntFile and qntSha256)"},
-		{Name: "verification.gaps", Description: "List verification gaps: requirementsWithoutFiles and, when the model has formal (Quint) evidence, formalGaps (requirements whose formal result is failed, stale or not-run)"},
+		{Name: "verification.gaps", Description: "List verification gaps: requirementsWithoutFiles and, when the model has formal (Quint) evidence, formalGaps (requirements whose formal result is failed, stale or not-run) or formalError when the formal results could not be computed"},
 		{Name: "verification.recommend", Description: "Recommend verification actions"},
 		{Name: "threats.forRequirement", Description: "Get threats linked to requirement"},
 		{Name: "threats.coverage", Description: "Get threat-control-verification coverage"},
@@ -718,7 +718,11 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 			}
 		}
 		out := map[string]any{"controlVerifications": status}
-		if formal := s.formalStatus(entityID); len(formal) > 0 {
+		formal, formalErr := s.formalStatus(entityID)
+		if formalErr != nil {
+			// Verification could not run: say so, never report a clean status.
+			out["formalError"] = formalErr.Error()
+		} else if len(formal) > 0 {
 			// Requirement-level formal (Quint) results: pass, failed or stale.
 			out["formalResults"] = formal
 		}
@@ -731,7 +735,11 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 			}
 		}
 		out := map[string]any{"requirementsWithoutFiles": gaps}
-		if formal := s.formalGaps(); len(formal) > 0 {
+		formal, formalErr := s.formalGaps()
+		if formalErr != nil {
+			// Verification could not run: "no formal gaps" would read as clean.
+			out["formalError"] = formalErr.Error()
+		} else if len(formal) > 0 {
 			// Requirements whose formal result is failed or stale.
 			out["formalGaps"] = formal
 		}

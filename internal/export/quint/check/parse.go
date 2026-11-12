@@ -3,11 +3,13 @@ package check
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 var (
@@ -40,6 +42,9 @@ func parseQuintOutput(out Output) runParse {
 	p := runParse{ExitCode: out.ExitCode}
 	all := out.Stdout + "\n" + out.Stderr
 	switch {
+	case out.TimedOut || out.Truncated:
+		p.Status = StatusError
+		p.Message = errorMessage(out)
 	case out.ExitCode == 0 && okRe.MatchString(all):
 		p.Status = StatusPass
 		if m := statsRe.FindStringSubmatch(all); m != nil {
@@ -61,6 +66,12 @@ func parseQuintOutput(out Output) runParse {
 //
 // TRLC-LINKS: REQ-EMG-143
 func errorMessage(out Output) string {
+	switch {
+	case out.TimedOut:
+		return "quint was killed: it exceeded its time limit"
+	case out.Truncated:
+		return "quint output exceeded the capture limit and was cut off, so its verdict cannot be read"
+	}
 	lines := strings.Split(out.Stdout+"\n"+out.Stderr, "\n")
 	pick := ""
 	for _, line := range lines {
@@ -77,13 +88,28 @@ func errorMessage(out Output) string {
 		pick = firstLine(out.Stdout)
 	}
 	pick = strings.TrimSpace(timingRe.ReplaceAllString(pick, ""))
-	if len(pick) > 200 {
-		pick = pick[:200]
-	}
+	pick = truncateUTF8(pick, maxMessageBytes)
 	if pick == "" {
 		return fmt.Sprintf("quint exited with code %d", out.ExitCode)
 	}
 	return fmt.Sprintf("quint exited with code %d: %s", out.ExitCode, pick)
+}
+
+// maxMessageBytes bounds the quint message kept in a result.
+const maxMessageBytes = 200
+
+// truncateUTF8 cuts s to at most max bytes without splitting a rune.
+//
+// TRLC-LINKS: REQ-EMG-143
+func truncateUTF8(s string, max int) string {
+	if len(s) <= max {
+		return s
+	}
+	cut := max
+	for cut > 0 && !utf8.RuneStart(s[cut]) {
+		cut--
+	}
+	return s[:cut]
 }
 
 // witnessCount is one line of the Witnesses block of quint run.
@@ -118,6 +144,9 @@ func counterexampleFromITF(path string) ([]string, error) {
 	if err := json.Unmarshal(data, &trace); err != nil {
 		return nil, fmt.Errorf("parse ITF trace: %w", err)
 	}
+	if len(trace.States) == 0 {
+		return nil, errors.New("the ITF trace has no states")
+	}
 	var ids []string
 	for i, state := range trace.States {
 		if i == 0 {
@@ -132,6 +161,9 @@ func counterexampleFromITF(path string) ([]string, error) {
 			return nil, fmt.Errorf("state %d: lastTransition is not a string", i)
 		}
 		ids = append(ids, id)
+	}
+	if len(trace.States) > 1 && len(ids) == 0 {
+		return nil, errors.New("the ITF trace has steps but none names its lastTransition")
 	}
 	return ids, nil
 }

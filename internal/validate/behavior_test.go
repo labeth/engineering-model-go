@@ -444,7 +444,7 @@ func TestGuardedByAcceptsMachinesAndRejectsRemovedStateRelationships(t *testing.
 		t.Fatalf("want both removed types rejected, got %+v", removed)
 	}
 	for i, typ := range []string{"transitions_to", "triggered_by"} {
-		want := fmt.Sprintf("mapping type %q %s", typ, model.LegacyStateRemovedMessage)
+		want := fmt.Sprintf("mapping type %q was removed in v0.11.0: model state behavior with behavior.machines (see ADR-EMG-038)", typ)
 		if removed[i].Message != want {
 			t.Fatalf("message = %q, want %q", removed[i].Message, want)
 		}

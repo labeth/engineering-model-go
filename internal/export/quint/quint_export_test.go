@@ -522,3 +522,61 @@ func runQuint(t *testing.T, quint string, args ...string) (string, int) {
 	t.Fatalf("run %s: %v", quint, err)
 	return "", -1
 }
+
+// A module name is a file name, and Windows reserves the device names for
+// files with any extension, so such a machine ID is refused everywhere.
+//
+// TRLC-LINKS: REQ-EMG-141
+func TestMachineIDThatIsAWindowsDeviceNameIsRefused(t *testing.T) {
+	for _, id := range []string{"CON", "prn", "Aux", "NUL", "COM1", "com9", "LPT1", "lpt9"} {
+		m := expressionMachine("p", "", "")
+		m.ID = id
+		result, err := Generate(bundleWith(m))
+		msgs := diagnosticMessages(result)
+		if err == nil || len(result.Files) != 0 || !strings.Contains(msgs, "quint.name_collision") || !strings.Contains(msgs, "device name Windows reserves") {
+			t.Errorf("%s: err %v files %d\n%s", id, err, len(result.Files), msgs)
+		}
+	}
+	for _, id := range []string{"COM", "COM10", "CONSOLE", "LPT0", "SM-CON"} {
+		m := expressionMachine("p", "", "")
+		m.ID = id
+		if _, err := Generate(bundleWith(m)); err != nil {
+			t.Errorf("%s must be allowed: %v", id, err)
+		}
+	}
+}
+
+// A variable whose initial value fails is still declared, so only the root
+// cause is reported and not one "undeclared variable" for every reader.
+//
+// TRLC-LINKS: REQ-EMG-141
+func TestFailedVariableDeclarationReportsOnlyTheRootCause(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		mutate func(*model.Machine)
+		code   string
+	}{
+		{"wrong initial value", func(m *model.Machine) { m.Variables[0].Initial = "one" }, "quint.type_mismatch"},
+		{"unquotable string", func(m *model.Machine) { m.Variables[3].Initial = `say "hi"`; m.Invariants[0].Expr = `s == "x"` }, "quint.unsupported_string"},
+		{"unknown type", func(m *model.Machine) { m.Variables[0].Type = "Float" }, "quint.invalid_machine"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			m := expressionMachine("a < 5 and s == \"x\"", "a < 3", "a := a + 1")
+			m.Transitions = append(m.Transitions, model.MachineTransition{ID: "TR-BA", From: "STATE-B", To: "STATE-A", Guard: "a > 0 and s == \"x\"", Effect: "a := 0"})
+			tc.mutate(&m)
+			result, err := Generate(bundleWith(m))
+			if err == nil {
+				t.Fatal("expected an error")
+			}
+			var errors []string
+			for _, d := range result.Diagnostics {
+				if d.Severity == model.SemanticSeverityError {
+					errors = append(errors, d.Code+" "+d.Path)
+				}
+			}
+			if len(errors) != 1 || !strings.HasPrefix(errors[0], tc.code+" ") || !strings.Contains(errors[0], ".variables[") {
+				t.Fatalf("want only the root cause %s, got %v", tc.code, errors)
+			}
+		})
+	}
+}

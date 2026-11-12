@@ -2,7 +2,6 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"flag"
 	"fmt"
@@ -14,6 +13,7 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/export/quint/check"
 )
 
 // Exit codes shared by every subcommand: 0 success, 1 a generation or check
@@ -159,15 +159,17 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 }
 
 // writeIfChanged writes data to path unless the file already holds exactly
-// data, and reports "wrote" or "unchanged".
+// data, and reports "wrote" or "unchanged". It never writes through a symlink:
+// a target that is not a regular file is an error (see check.WriteFileIfChanged).
 //
 // TRLC-LINKS: REQ-EMG-149
 func writeIfChanged(path string, data []byte) (string, error) {
-	if existing, err := os.ReadFile(path); err == nil && bytes.Equal(existing, data) {
-		return "unchanged", nil
-	}
-	if err := os.WriteFile(path, data, 0o644); err != nil {
+	wrote, err := check.WriteFileIfChanged(path, data)
+	if err != nil {
 		return "", err
+	}
+	if !wrote {
+		return "unchanged", nil
 	}
 	return "wrote", nil
 }
@@ -197,7 +199,7 @@ func removeStale(dir string, produced map[string]bool) ([]string, error) {
 		if err != nil {
 			return removed, err
 		}
-		if !strings.HasPrefix(string(data), engmodel.QuintGeneratedHeader) {
+		if !check.IsGeneratedModule(data) {
 			continue
 		}
 		if err := os.Remove(path); err != nil {

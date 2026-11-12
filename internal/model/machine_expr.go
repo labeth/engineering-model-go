@@ -3,8 +3,10 @@ package model
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"unicode"
+	"unicode/utf8"
 )
 
 // MachineExprKind selects the entry rule of ParseMachineExpr.
@@ -38,6 +40,20 @@ const (
 	// MachineKindReference marks the state operand of in_state; TypedValue
 	// is a reference whose Reference is the state ID.
 	MachineKindReference = "reference"
+)
+
+// Limits on hostile or accidental input. The parser is recursive descent, so
+// unbounded nesting would exhaust the Go stack, which is a fatal error and not
+// a recoverable panic. Both limits produce a MachineExprDiagnostic.
+const (
+	// MaxMachineExprSourceBytes is the longest source ParseMachineExpr accepts
+	// (8 KiB). It also bounds the operands of a left-nested chain such as
+	// "a + a + a ..." to 4096, and with it the height of any parsed tree.
+	MaxMachineExprSourceBytes = 8 << 10
+	// MaxMachineExprDepth is the deepest nesting ParseMachineExpr accepts,
+	// counted across parentheses, prefix operators (not, unary minus) and the
+	// right-associative implies.
+	MaxMachineExprDepth = 64
 )
 
 // MachineExprDiagnostic is one syntax or static problem found while parsing a
@@ -83,11 +99,14 @@ const (
 )
 
 type machineToken struct {
-	kind       machineTokenKind
-	text       string // identifier, punctuation or state ID text; decoded string value
-	num        int64
-	start, end int // rune offsets into the source, end exclusive
-	err        string
+	kind machineTokenKind
+	text string // identifier, punctuation or state ID text; decoded string value
+	num  int64
+	// minMagnitude marks the literal 9223372036854775808, which only fits an
+	// int64 as the operand of a unary minus (num is then math.MinInt64).
+	minMagnitude bool
+	start, end   int // rune offsets into the source, end exclusive
+	err          string
 }
 
 type machineSyntaxError struct {
@@ -121,8 +140,16 @@ type machineSyntaxError struct {
 // An empty string literal is rejected because SemanticValue cannot represent
 // it (validateSemanticValue requires a non-empty string value).
 //
+// A source longer than MaxMachineExprSourceBytes, or nested deeper than
+// MaxMachineExprDepth, is rejected with a diagnostic and not parsed further.
+// The literal -9223372036854775808 (a unary minus applied to 9223372036854775808)
+// is the integer minimum; 9223372036854775808 alone is out of range.
+//
 // TRLC-LINKS: REQ-EMG-136
 func ParseMachineExpr(src string, kind MachineExprKind) (SemanticExpression, []MachineExprDiagnostic) {
+	if len(src) > MaxMachineExprSourceBytes {
+		return SemanticExpression{}, []MachineExprDiagnostic{machineSourceTooLong(src)}
+	}
 	runes := []rune(src)
 	p := &machineParser{src: runes, toks: lexMachineExpr(runes)}
 	var expr SemanticExpression
@@ -144,6 +171,31 @@ func ParseMachineExpr(src string, kind MachineExprKind) (SemanticExpression, []M
 		return SemanticExpression{}, p.diags
 	}
 	return expr, nil
+}
+
+// machineSourceTooLong reports the first byte beyond MaxMachineExprSourceBytes.
+// It walks only the accepted prefix, so a huge source costs no more than a
+// limit-sized one.
+//
+// TRLC-LINKS: REQ-EMG-136
+func machineSourceTooLong(src string) MachineExprDiagnostic {
+	line, column := 1, 1
+	for off, r := range src {
+		if _, size := utf8.DecodeRuneInString(src[off:]); off+size > MaxMachineExprSourceBytes {
+			break
+		}
+		if r == '\n' {
+			line++
+			column = 1
+		} else {
+			column++
+		}
+	}
+	return MachineExprDiagnostic{
+		Code:    MachineExprDiagnosticCode,
+		Message: fmt.Sprintf("expression is %d bytes long; the limit is %d bytes (8 KiB)", len(src), MaxMachineExprSourceBytes),
+		Line:    line, Column: column,
+	}
 }
 
 // lexMachineExpr tokenizes src. It stops after the first lexical error,
@@ -179,11 +231,16 @@ func lexMachineExpr(src []rune) []machineToken {
 			if i < len(src) && isMachineIdentStart(src[i]) {
 				return append(toks, machineToken{kind: mtError, start: start, end: i, err: "invalid integer literal: digits followed by a letter"})
 			}
-			v, err := strconv.ParseInt(string(src[start:i]), 10, 64)
+			digits := string(src[start:i])
+			v, err := strconv.ParseInt(digits, 10, 64)
 			if err != nil {
+				if u, uerr := strconv.ParseUint(digits, 10, 64); uerr == nil && u == 1<<63 {
+					toks = append(toks, machineToken{kind: mtInt, num: math.MinInt64, minMagnitude: true, text: digits, start: start, end: i})
+					continue
+				}
 				return append(toks, machineToken{kind: mtError, start: start, end: i, err: "integer literal out of range"})
 			}
-			toks = append(toks, machineToken{kind: mtInt, num: v, text: string(src[start:i]), start: start, end: i})
+			toks = append(toks, machineToken{kind: mtInt, num: v, text: digits, start: start, end: i})
 		case isMachineIdentStart(c):
 			for i < len(src) && (isMachineIdentStart(src[i]) || src[i] >= '0' && src[i] <= '9') {
 				i++
@@ -260,8 +317,24 @@ type machineParser struct {
 	src   []rune
 	toks  []machineToken
 	i     int
+	depth int // current nesting, see MaxMachineExprDepth
 	diags []MachineExprDiagnostic
 }
+
+// enter counts one level of nesting opened by tok and fails beyond
+// MaxMachineExprDepth. Every successful enter is paired with leave.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (p *machineParser) enter(tok machineToken) *machineSyntaxError {
+	if p.depth >= MaxMachineExprDepth {
+		return &machineSyntaxError{pos: tok.start, msg: fmt.Sprintf("expression is nested too deeply; the limit is %d levels of parentheses, 'not', unary '-' and 'implies'", MaxMachineExprDepth)}
+	}
+	p.depth++
+	return nil
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func (p *machineParser) leave() { p.depth-- }
 
 // diagnostic converts a rune offset into a 1-based line/column diagnostic.
 //
@@ -392,6 +465,10 @@ func (p *machineParser) parseImplies() (SemanticExpression, *machineSyntaxError)
 	if err != nil || !p.isWord("implies") {
 		return left, err
 	}
+	if err := p.enter(p.cur()); err != nil {
+		return SemanticExpression{}, err
+	}
+	defer p.leave()
 	p.advance()
 	right, err := p.parseImplies()
 	if err != nil {
@@ -431,6 +508,10 @@ func (p *machineParser) parseNot() (SemanticExpression, *machineSyntaxError) {
 	if !p.isWord("not") {
 		return p.parseComparison()
 	}
+	if err := p.enter(p.cur()); err != nil {
+		return SemanticExpression{}, err
+	}
+	defer p.leave()
 	p.advance()
 	operand, err := p.parseNot()
 	if err != nil {
@@ -501,6 +582,16 @@ func (p *machineParser) parseUnary() (SemanticExpression, *machineSyntaxError) {
 	if !p.isPunct("-") {
 		return p.parsePrimary()
 	}
+	if p.i+1 < len(p.toks) && p.toks[p.i+1].kind == mtInt && p.toks[p.i+1].minMagnitude {
+		v := p.toks[p.i+1].num
+		p.advance()
+		p.advance()
+		return SemanticExpression{Kind: MachineKindLiteral, TypedValue: &SemanticValue{Kind: "integer", Integer: &v}}, nil
+	}
+	if err := p.enter(p.cur()); err != nil {
+		return SemanticExpression{}, err
+	}
+	defer p.leave()
 	p.advance()
 	operand, err := p.parseUnary()
 	if err != nil {
@@ -514,6 +605,9 @@ func (p *machineParser) parsePrimary() (SemanticExpression, *machineSyntaxError)
 	t := p.cur()
 	switch t.kind {
 	case mtInt:
+		if t.minMagnitude {
+			return SemanticExpression{}, p.errAt(t, "integer literal out of range")
+		}
 		p.advance()
 		v := t.num
 		return SemanticExpression{Kind: MachineKindLiteral, TypedValue: &SemanticValue{Kind: "integer", Integer: &v}}, nil
@@ -555,6 +649,10 @@ func (p *machineParser) parseIdentifier(t machineToken) (SemanticExpression, *ma
 
 // TRLC-LINKS: REQ-EMG-136
 func (p *machineParser) parseParenthesised() (SemanticExpression, *machineSyntaxError) {
+	if err := p.enter(p.cur()); err != nil {
+		return SemanticExpression{}, err
+	}
+	defer p.leave()
 	p.advance()
 	inner, err := p.parseImplies()
 	if err != nil {

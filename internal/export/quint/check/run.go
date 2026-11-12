@@ -3,7 +3,6 @@ package check
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -40,18 +39,18 @@ func (c *checker) runModule(m *ModuleResult, file quint.File, path string) error
 	if len(file.Witnesses) > 0 {
 		args := append(c.runArgs(path, m.Module), "--witnesses")
 		args = append(args, file.Witnesses...)
-		out, err := c.run(c.ctx, Command{Path: c.quint, Args: args, Dir: c.scratch, Env: os.Environ()})
+		out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: c.env})
 		if err != nil {
-			return setupError(err, "cannot start %s", c.quint)
+			return err
 		}
 		c.recordWitnesses(m, file, out)
 	}
 	for i, inv := range file.Invariants {
 		itf := filepath.Join(c.scratch, fmt.Sprintf("%s.%s.run.itf.json", m.Module, inv.Name))
 		args := c.runArgs(path, m.Module, "--invariant="+inv.Name, "--out-itf="+itf)
-		out, err := c.run(c.ctx, Command{Path: c.quint, Args: args, Dir: c.scratch, Env: os.Environ()})
+		out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: c.env})
 		if err != nil {
-			return setupError(err, "cannot start %s", c.quint)
+			return err
 		}
 		step := stepFromOutput(out, itf)
 		if step.Status == StatusPass && step.TraceMax != nil {
@@ -125,6 +124,7 @@ func stepFromOutput(out Output, itfPath string) StepResult {
 		ids, err := counterexampleFromITF(itfPath)
 		if err != nil {
 			step.Message = "violation without a readable trace: " + err.Error()
+			step.TraceUnavailable = true
 		}
 		step.Counterexample = ids
 	}
@@ -138,7 +138,7 @@ func stepFromOutput(out Output, itfPath string) StepResult {
 //
 // TRLC-LINKS: REQ-EMG-144
 func (c *checker) verifyModule(m *ModuleResult, path string) error {
-	env := verifyEnv(os.Environ(), c.opts.QuintHome, c.scratch, c.javaDir)
+	env := verifyEnv(c.verifyBaseEnv, c.opts.QuintHome, c.scratch, c.javaDir)
 	for i, inv := range m.Invariants {
 		port, err := freePort()
 		if err != nil {
@@ -154,9 +154,9 @@ func (c *checker) verifyModule(m *ModuleResult, path string) error {
 			fmt.Sprintf("--server-endpoint=localhost:%d", port),
 			"--apalache-config=" + c.apalacheConfig,
 		}
-		out, err := c.run(c.ctx, Command{Path: c.quint, Args: args, Dir: c.scratch, Env: env})
+		out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: env})
 		if err != nil {
-			return setupError(err, "cannot start %s", c.quint)
+			return err
 		}
 		step := stepFromOutput(out, itf)
 		step.TraceMin, step.TraceMax = nil, nil
@@ -165,12 +165,18 @@ func (c *checker) verifyModule(m *ModuleResult, path string) error {
 	return nil
 }
 
-// FormatCounterexample renders a counterexample as "TR-A -> TR-B -> TR-C".
+// FormatCounterexample renders the counterexample of a violated step as
+// "TR-A -> TR-B -> TR-C". A violation whose trace could not be read says so
+// instead of blaming the initial state, which only a readable trace without
+// any transition proves.
 //
 // TRLC-LINKS: REQ-EMG-143
-func FormatCounterexample(ids []string) string {
-	if len(ids) == 0 {
+func FormatCounterexample(step StepResult) string {
+	switch {
+	case step.TraceUnavailable:
+		return "(trace unavailable: the violation has no readable counterexample)"
+	case len(step.Counterexample) == 0:
 		return "(no transition: the initial state violates the invariant)"
 	}
-	return strings.Join(ids, " -> ")
+	return strings.Join(step.Counterexample, " -> ")
 }

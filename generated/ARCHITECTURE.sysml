@@ -3415,7 +3415,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-124' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.";
-        attribute 'notes' : 'String' = "ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; default [foundation], foundation always included), tierDecision, raise} is optional (CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; absent means Foundation) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle gives byte-identical diagnostics, documents and trace matrices to v0.9.0 (golden test over every example model; scripts/lifecycle-golden-self.sh for the repository's own model).";
+        attribute 'notes' : 'String' = "ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; default [foundation], foundation always included), tierDecision, raise} is optional (CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; absent means Foundation) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle gives byte-identical diagnostics, documents and trace matrices to v0.9.0 (golden test over every example model; the script that compared the repository's own model, scripts/lifecycle-golden-self.sh, was retired in v0.11.0).";
     }
 
     @EngineeringElement {
@@ -3523,7 +3523,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-136' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error.";
-        attribute 'notes' : 'String' = "ADR-EMG-039. One small built-in parser reads the operators and, or, not, implies, ==, !=, <, <=, >, >=, +, -, *, the assignment :=, effect lists separated by ; and the predicate in_state(STATE-ID). The result is a stored expression tree, not text. The operator table is one shared Go table used by the parser, the validator and the Quint generator. A syntax error is a diagnostic at the field with the character offset.";
+        attribute 'notes' : 'String' = "ADR-EMG-039. One small built-in parser reads the operators and, or, not, implies, ==, !=, <, <=, >, >=, +, -, *, the assignment :=, effect lists separated by ; and the predicate in_state(STATE-ID). The result is a stored expression tree, not text. The operator table is one shared Go table used by the parser, the validator and the Quint generator. A syntax error is a diagnostic at the field with the line and column. A unary minus is the operator neg. A source over 8192 bytes or nested deeper than 64 levels is a diagnostic, not a crash (ADR-EMG-045 item 38).";
     }
 
     @EngineeringElement {
@@ -3532,7 +3532,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-137' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall project each loaded machine into elements of the canonical semantic model.";
-        attribute 'notes' : 'String' = "ADR-EMG-037 and ADR-EMG-040. A machine becomes a state_definition, its states state_usage elements, its transitions transition relationships carrying triggers, guard and effect, and its invariants constraint_usage elements with a Boolean result feature, because the generated SysML binding gives constraint_usage no authorable expression property. Stable model IDs are preserved, so the SysML exporter and the views need no machine-specific code.";
+        attribute 'notes' : 'String' = "ADR-EMG-037 and ADR-EMG-040. A machine becomes a state_definition, its states state_usage elements, its transitions transition relationships carrying triggers, guard and effect, and its invariants constraint_usage elements with a Boolean result feature, because the generated SysML binding gives constraint_usage no authorable expression property. The initial state and each final state are projected as succession relationships (machine_initial, machine_final). Stable model IDs are preserved, so the views need no machine-specific code; the SysML exporter renders machines with its own writer (REQ-EMG-137, ADR-EMG-045 item 18).";
     }
 
     @EngineeringElement {
@@ -3541,7 +3541,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-138' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall validate each machine against the machine rules.";
-        attribute 'notes' : 'String' = "ADR-EMG-039 and ADR-EMG-043. Structural errors are always errors: a machine without exactly one initial state, a transition whose from or to is not a state of the same machine, an on that is not a behavior event, an undeclared variable, a type mismatch, an operator not in the table, in_state naming a state of another machine, and a duplicate state, transition or invariant ID. Advisory codes follow the tier policy: behavior.machine_deadlock (a non-final state without outgoing transition), behavior.transition_nondeterministic (two transitions from one state on the same event whose guards can both hold), behavior.transition_no_trigger (a transition without on and without guard), behavior.invariant_unlinked (an invariant without a REQ-*).";
+        attribute 'notes' : 'String' = "ADR-EMG-039 and ADR-EMG-043. Structural errors are always errors: a machine whose initial state is missing or is not one of its states (initial is a single field, so two initial states cannot be written), a final state with an outgoing transition (behavior.final_state_has_transitions), a transition whose from or to is not a state of the same machine, an on that is not a behavior event, an undeclared variable, a type mismatch, an operator not in the table, in_state naming a state of another machine, and a duplicate state, transition or invariant ID. Advisory codes follow the tier policy: behavior.machine_deadlock (a non-final state without outgoing transition), behavior.transition_nondeterministic (two transitions from one state on the same event, or both without an event, that have no guard or the same guard text), behavior.transition_no_trigger (a transition without on and without guard), behavior.invariant_unlinked (an invariant without a REQ-*).";
     }
 
     @EngineeringElement {
@@ -3559,7 +3559,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-140' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier.";
-        attribute 'notes' : 'String' = "ADR-EMG-043 (OWNER decision, proposed). behavior.machine_deadlock, behavior.transition_nondeterministic, behavior.transition_no_trigger and behavior.invariant_unlinked are keyed in TierPolicy with the hygiene row DDWWE: deferred at poc and prototype (a warning with the deferred flag, the off of the owner decision), warning at mvp and product, error at operational. Structural machine errors (REQ-EMG-138) are never keyed and stay errors at every tier. Quint requirements by tier (ADR-EMG-043): mvp requires the generated modules to be fresh (drift check); product requires engquint check in run mode when machines exist; operational requires verify mode for each machine owned by a functional unit in a safety or mission flow.";
+        attribute 'notes' : 'String' = "ADR-EMG-043 (OWNER decision). behavior.machine_deadlock, behavior.transition_nondeterministic, behavior.transition_no_trigger and behavior.invariant_unlinked are keyed in TierPolicy with the hygiene row DDWWE: deferred at poc and prototype (a warning with the deferred flag, the off of the owner decision), warning at mvp and product, error at operational. Structural machine errors (REQ-EMG-138) are never keyed and stay errors at every tier. The Quint requirements by tier of ADR-EMG-043 (mvp: the generated modules are fresh; product: engquint check in run mode when machines exist; operational: verify mode for machines in safety or mission flows) are enforced by the gate steps of engineering-flow, not by the engine; this repository CI runs both modes for every model with machines whatever the tier (ADR-EMG-045 item 26).";
     }
 
     @EngineeringElement {
@@ -3568,7 +3568,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-141' {
         attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall generate one deterministic Quint module for each machine.";
-        attribute 'notes' : 'String' = "ADR-EMG-040. One .qnt module per machine, byte-identical for the same model. The first line is the comment Generated by engineering-model-go from <machine ID>; do not edit. Variables are prefixed v_ and IDs are sanitised to snake_case for identifiers only; a lastTransition str variable carries the TR-* ID of the last step; every variable is assigned in every action, with explicit unchanged assignments; each invariant is a val inv_<requirement or constraint, snake case>; each state gets a reachability witness wit_<state>. Guards, effects and invariants are rendered from the expression trees with the shared operator table. New package internal/export/quint, root facade api_quint.go.";
+        attribute 'notes' : 'String' = "ADR-EMG-040. One .qnt module per machine, byte-identical for the same model. The first line is the comment Generated by engineering-model-go from <machine ID>; do not edit. Variables are prefixed v_ and IDs are sanitised to snake_case for identifiers only; a lastTransition str variable carries the TR-* ID of the last step; every variable is assigned in every action, with explicit unchanged assignments; each invariant is a val named inv_ plus the snake case of its INV-* ID (the requirements it protects are named in a comment, and there is no combined inv_all); each state gets a reachability witness wit_<state>. Guards, effects and invariants are rendered from the expression trees with the shared operator table. New package internal/export/quint, root facade api_quint.go.";
     }
 
     @EngineeringElement {
@@ -3576,8 +3576,8 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-142' {
-        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall generate Quint modules with engquint generate and check them with engquint check, exiting 0 on pass, 1 on a violation or a stale result and 2 on a setup error.";
-        attribute 'notes' : 'String' = "ADR-EMG-040 and ADR-EMG-041. cmd/engquint has the subcommands generate and check. The output directory is a CLI flag: manifest.cue has no generator-output configuration, and generated/quint/ is the path the scripts use. A setup error (missing quint, wrong version, missing Java in verify mode, unreadable model) exits 2 and never counts as a pass.";
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall generate Quint modules with engquint generate and check them with engquint check, exiting 0 on pass, 1 on a violation, a stale or drifted module or a vacuous trace and 2 on a setup error.";
+        attribute 'notes' : 'String' = "ADR-EMG-040 and ADR-EMG-041. cmd/engquint has the subcommands generate and check. The output directory is a CLI flag: manifest.cue has no generator-output configuration, and generated/quint/ is the path the scripts use. A setup error (missing quint, a version that cannot be read, missing Apalache or Java in verify mode, an unreadable model; the pinned quint version is enforced by scripts/install-quint-toolchain.sh) exits 2 and never counts as a pass.";
     }
 
     @EngineeringElement {
@@ -3586,7 +3586,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-143' {
         attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall run Quint on the TypeScript backend once for each invariant.";
-        attribute 'notes' : 'String' = "ADR-EMG-040 and ADR-EMG-041. quint run --backend=typescript is mandatory: the default Rust backend downloads its binary at run time. One quint run per invariant, with --max-steps, --max-samples, --seed, --invariant and --witnesses, so a violation names one invariant. A trace of length zero (a deadlocked or unsatisfiable initial state) is an error, not a pass, because it checks nothing. The counterexample states carry lastTransition, so the report lists the TR-* IDs in order.";
+        attribute 'notes' : 'String' = "ADR-EMG-040 and ADR-EMG-041. quint run --backend=typescript is mandatory: the default Rust backend downloads its binary at run time. One quint run per invariant, with --max-steps, --max-samples, --seed, --invariant and --witnesses, so a violation names one invariant. A trace of length zero (an unsatisfiable initial state) is an error, not a pass, because it checks nothing; a trace of length one (no transition is enabled in the initial state) is a deadlock warning. One witnesses run per machine reports the reachability of each state; the initial state is never reported as unreachable. The counterexample states carry lastTransition, so the report lists the TR-* IDs in order.";
     }
 
     @EngineeringElement {
@@ -3595,7 +3595,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-144' {
         attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall verify each machine in verify mode against a pre-provisioned pinned Apalache without a download at run time.";
-        attribute 'notes' : 'String' = "ADR-EMG-041 and ADR-EMG-044. quint verify uses Apalache 0.62.4, provisioned beforehand under QUINT_HOME, offline, and needs Java 21 or later. If the pinned Apalache or Java is missing, engquint exits 2 with the missing item and does not fetch it. Owner statement of 2026-11-12 (verbatim): \"all the tools are approved use them in CI even if you cannot install them here now.\" (quint npm 0.33.1, Apalache 0.62.4 tarball sha256 8ac8488422c30d552735bae11b92a2d014d8e02e8608702acc08f9a2d8a9abb2, Temurin JDK 21).";
+        attribute 'notes' : 'String' = "ADR-EMG-041 and ADR-EMG-044. quint verify uses Apalache 0.62.4, provisioned beforehand under QUINT_HOME, offline, and needs Java 21 or later. If the pinned Apalache or Java is missing, engquint exits 2 with the missing item and does not fetch it. quint verify reports a deadlock as a violation, so verify runs with the Apalache option no-deadlock. Owner statement of 2026-11-12 (verbatim): \"all the tools are approved use them in CI even if you cannot install them here now.\" The pins (quint npm 0.33.1, Apalache 0.62.4 tarball sha256 8ac8488422c30d552735bae11b92a2d014d8e02e8608702acc08f9a2d8a9abb2, Temurin JDK 21) were chosen by the implementing agent and await the owner confirmation.";
     }
 
     @EngineeringElement {
@@ -3613,7 +3613,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-146' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix.";
-        attribute 'notes' : 'String' = "ADR-EMG-042. engquint check writes a sha-verified result into test-results/ with kind formal; internal/trace and the codescan inferred verification read it. A pass whose sha256 matches the module is analysis evidence for each REQ-* the invariant is linked to; failed and stale results are not evidence. The tier policy and the verification status roll-up treat it like any other verification entry.";
+        attribute 'notes' : 'String' = "ADR-EMG-042. engquint check writes a sha-verified result into test-results/ with kind formal; internal/trace and the codescan inferred verification read it. A pass whose sha256 matches the module is analysis evidence for each REQ-* the invariant is linked to; a stale result is not evidence, and a failed result is recorded as failed, so the requirement is failed and never unverified (ADR-EMG-045 item 20). The tier policy and the verification status roll-up treat it like any other verification entry. A result is current only if the named module is a generated Quint module of that machine inside the model root (ADR-EMG-045 items 42 to 44).";
     }
 
     @EngineeringElement {

@@ -344,11 +344,11 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `gemara.control_needs_review` | `…controls[i]` | the Gemara evaluation log marks the control Needs Review: no control verification names it (the message names another control's verification when that is its only evidence), or its verifications need review (for example `partial`) and none failed |
 
 State behavior is modeled with `behavior.machines` only (v0.11.0, ADR-EMG-037, ADR-EMG-038).
-Every state belongs to one machine and keeps its `STATE-*` ID. The three advisory machine rows
+Every state belongs to one machine and keeps its `STATE-*` ID. The four advisory machine rows
 above (`machine_deadlock`, `transition_nondeterministic`, `transition_no_trigger`,
 `invariant_unlinked`) and `state_unreachable` follow the hygiene row of the tier table; the
-structural errors marked (error) are errors at every tier. A missing, unresolved or repeated
-initial state and expression syntax errors are reported by projection as
+structural errors marked (error) are errors at every tier. A missing or unresolved
+initial state (initial is a single field) and expression syntax errors are reported by projection as
 `semantic.invalid_machine` and `semantic.invalid_expression`. A `behavior.states` list and the
 relationship types `transitions_to` and `triggered_by` are rejected when the model loads (see the
 changelog for the rewrite):
@@ -776,7 +776,10 @@ go run ./cmd/engquint check    --model engmod.yml --mode both   # also quint ver
 ```
 
 `check` flags: `--mode run|verify|both` (default `run`), `--quint path`, `--quint-home dir`,
-`--max-steps N` (20), `--max-samples M` (10000), `--seed S` (`1`), `--verify-steps N` (10),
+`--max-steps N` (20, at most 1000), `--max-samples M` (10000, at most 1000000), `--seed S` (`1`),
+`--verify-steps N` (10, at most 100), `--timeout D` (30m overall; each quint call is limited to 10m and
+is killed with its whole process group), `--pass-env a,b` (extra environment names for the quint
+processes; they get an allow-listed environment only),
 `--out dir` (committed modules, default `generated/quint`), `--results path`,
 `--evidence path` and `--no-evidence`. Exit codes: 0 everything passed (warnings allowed);
 1 a violated invariant, a stale (drifted) module, a vacuous or erroring run or a type error;

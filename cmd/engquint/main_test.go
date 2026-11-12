@@ -160,6 +160,32 @@ func TestGenerateIsIdempotentAndRewritesOnlyChanges(t *testing.T) {
 	}
 }
 
+// A symlink at the module path is refused, not written through, and nothing
+// else is removed or changed.
+//
+// TRLC-LINKS: REQ-EMG-149
+func TestGenerateRefusesToWriteThroughASymlink(t *testing.T) {
+	manifest := copyFixture(t)
+	out := filepath.Join(t.TempDir(), "q")
+	if err := os.MkdirAll(out, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	victim := filepath.Join(t.TempDir(), "victim.txt")
+	if err := os.WriteFile(victim, []byte("precious"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(victim, filepath.Join(out, "sm_payments_auth.qnt")); err != nil {
+		t.Skipf("no symlinks here: %v", err)
+	}
+	code, _, stderr := runCLI("generate", "--model", manifest, "--out", out)
+	if code != 1 || !strings.Contains(stderr, "refusing to write") || !strings.Contains(stderr, "symlink") {
+		t.Fatalf("exit %d %q", code, stderr)
+	}
+	if mustRead(t, victim) != "precious" {
+		t.Fatal("the module was written through the symlink")
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-149
 func TestGenerateRemovesOnlyStaleGeneratedModules(t *testing.T) {
 	manifest := copyFixture(t)

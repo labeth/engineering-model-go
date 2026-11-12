@@ -117,12 +117,14 @@ func MachineOperators() []MachineOperator {
 }
 
 // LookupMachineOperator returns the table entry for a SemanticExpression
-// operator name.
+// operator name. Only the found entry is copied, so a lookup per tree node does
+// not copy the whole table.
 //
 // TRLC-LINKS: REQ-EMG-138
 func LookupMachineOperator(name string) (MachineOperator, bool) {
-	for _, op := range MachineOperators() {
+	for _, op := range machineOperatorTable {
 		if op.Name == name {
+			op.Operands = append([]MachineType(nil), op.Operands...)
 			return op, true
 		}
 	}

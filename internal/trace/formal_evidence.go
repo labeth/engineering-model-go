@@ -8,8 +8,9 @@ package trace
 // verification.formal_stale warning. That check carries no machine, invariant
 // or hash, so this file reads the same evidence files again to give the matrix
 // rows that detail (Row.Formal); the MCP tools read it from the rows. The
-// Gemara exporter may not import this package (the layering) and mirrors the
-// reader in internal/export/gemara/gemara_formal.go.
+// reader, the stale rule and the status mapping live once in
+// internal/codescan/formal_evidence_read.go; the Gemara exporter and the MCP
+// tools use the same one.
 //
 // The roll-up rule of a requirement (the Gemara log and the MCP tools apply
 // the same order):
@@ -26,11 +27,6 @@ package trace
 //     current invariant) verifies. It stays visible in Row.Formal as "stale".
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
-	"fmt"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -38,20 +34,17 @@ import (
 	"github.com/labeth/engineering-model-go/internal/codescan"
 )
 
-// formalEvidenceName is the file engquint check writes into test-results/.
-const formalEvidenceName = "quint-formal.json"
-
 // Formal result values: the requirement-level and per-entry result.
 const (
 	// formalPass is a current passing result: analysis evidence.
-	formalPass = "pass"
+	formalPass = codescan.FormalPass
 	// formalFailed is a current failing result.
-	formalFailed = "failed"
-	// formalStaleResult is a result whose module changed (or is missing) since it
-	// was produced: no evidence.
-	formalStaleResult = "stale"
+	formalFailed = codescan.FormalFailed
+	// formalStaleResult is a result whose module changed (or is missing, or is
+	// not a trusted generated module) since it was produced: no evidence.
+	formalStaleResult = codescan.FormalStale
 	// formalNotRun is any other recorded status: no evidence.
-	formalNotRun = "not-run"
+	formalNotRun = codescan.FormalNotRun
 )
 
 // formalResult is one entry of a formal evidence file with its result
@@ -75,107 +68,22 @@ type formalResult struct {
 	Notes string `json:"notes,omitempty"`
 }
 
-// formalFileEntry is one results[] entry of the evidence file.
-type formalFileEntry struct {
-	Requirement string `json:"requirement"`
-	Status      string `json:"status"`
-	Machine     string `json:"machine"`
-	Invariant   string `json:"invariant"`
-	Mode        string `json:"mode"`
-	QntFile     string `json:"qntFile"`
-	QntSha256   string `json:"qntSha256"`
-	Notes       string `json:"notes"`
-}
-
-// readFormalResults reads the evidence files (paths relative to baseDir) and
-// evaluates each entry against the sha256 of the module it names: a current
-// entry is pass or failed, a stale one (module changed, missing, no hash or
-// path recorded) is stale with the reason in Notes, any other status is
-// not-run. An unreadable or invalid file contributes nothing (the codescan
-// reports it as verification.formal_unreadable). The result is sorted by
-// requirement, machine, invariant and file.
+// readFormalResults reads the evidence files (paths relative to baseDir) with
+// the shared codescan reader (codescan.ReadFormalEvidence) and converts the
+// entries to matrix form: a current entry is pass or failed, a stale one is
+// stale with the reason in Notes, any other status is not-run. An unreadable
+// or invalid file contributes nothing (the codescan reports it as
+// verification.formal_unreadable). The result is sorted by requirement,
+// machine, invariant and file.
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 // TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
 func readFormalResults(baseDir string, files []string) []formalResult {
 	var out []formalResult
-	hashes := map[string]string{}
-	for _, rel := range files {
-		data, err := os.ReadFile(filepath.Join(baseDir, filepath.FromSlash(rel)))
-		if err != nil {
-			continue
-		}
-		var file struct {
-			Results []formalFileEntry `json:"results"`
-		}
-		if json.Unmarshal(data, &file) != nil {
-			continue
-		}
-		for _, e := range file.Results {
-			req := strings.TrimSpace(e.Requirement)
-			if req == "" {
-				continue
-			}
-			r := formalResult{Requirement: req, Machine: strings.TrimSpace(e.Machine), Invariant: strings.TrimSpace(e.Invariant),
-				Mode: strings.TrimSpace(e.Mode), QntFile: strings.TrimSpace(e.QntFile), QntSha256: strings.ToLower(strings.TrimSpace(e.QntSha256)),
-				Evidence: filepath.ToSlash(rel), Notes: strings.TrimSpace(e.Notes)}
-			switch codescan.NormalizeResultStatus(e.Status) {
-			case "pass":
-				r.Result = formalPass
-			case "fail", "blocked", "partial", "flaky":
-				r.Result = formalFailed
-			default:
-				r.Result = formalNotRun
-			}
-			if reason := formalStaleReason(baseDir, r, hashes); reason != "" {
-				r.Result = formalStaleResult
-				r.Notes = "stale: " + reason + "; rerun engquint check"
-			}
-			out = append(out, r)
-		}
+	for _, e := range codescan.ReadFormalEvidence(baseDir, files) {
+		out = append(out, formalResult{Requirement: e.Requirement, Machine: e.Machine, Invariant: e.Invariant, Mode: e.Mode,
+			Result: e.Result, QntFile: e.QntFile, QntSha256: e.QntSha256, Evidence: e.Evidence, Notes: e.Notes})
 	}
-	sort.SliceStable(out, func(i, j int) bool {
-		a, b := out[i], out[j]
-		if a.Requirement != b.Requirement {
-			return a.Requirement < b.Requirement
-		}
-		if a.Machine != b.Machine {
-			return a.Machine < b.Machine
-		}
-		if a.Invariant != b.Invariant {
-			return a.Invariant < b.Invariant
-		}
-		return a.Evidence < b.Evidence
-	})
 	return out
-}
-
-// formalStaleReason returns why a result is stale, or "" when the sha256 of its
-// module still matches. It applies the codescan rule: no qntFile or hash
-// recorded, an absolute qntFile, a missing module or a differing hash.
-// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
-func formalStaleReason(baseDir string, r formalResult, hashes map[string]string) string {
-	if r.QntFile == "" || r.QntSha256 == "" {
-		return "the entry records no qntFile or qntSha256"
-	}
-	if filepath.IsAbs(r.QntFile) {
-		return fmt.Sprintf("qntFile %s is not relative to the model root", r.QntFile)
-	}
-	got, seen := hashes[r.QntFile]
-	if !seen {
-		got = "missing"
-		if data, err := os.ReadFile(filepath.Join(baseDir, filepath.FromSlash(r.QntFile))); err == nil {
-			sum := sha256.Sum256(data)
-			got = hex.EncodeToString(sum[:])
-		}
-		hashes[r.QntFile] = got
-	}
-	switch {
-	case got == "missing":
-		return fmt.Sprintf("module %s is missing", r.QntFile)
-	case got != r.QntSha256:
-		return fmt.Sprintf("the sha256 of %s no longer matches the one the result was produced from", r.QntFile)
-	}
-	return ""
 }
 
 // formalRequirementResult rolls the entries of one requirement into one
@@ -214,7 +122,7 @@ func formalCheckFiles(c codescan.VerificationCheck) []string {
 	}
 	var files []string
 	for _, ev := range c.Evidence {
-		if strings.EqualFold(filepath.Base(filepath.ToSlash(ev)), formalEvidenceName) {
+		if strings.EqualFold(filepath.Base(filepath.ToSlash(ev)), codescan.FormalEvidenceFile) {
 			files = append(files, ev)
 		}
 	}

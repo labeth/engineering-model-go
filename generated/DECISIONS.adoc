@@ -1128,7 +1128,7 @@ deterministic (authored order, fixed formatting, trailing newline), first line "
 <machine ID>; do not edit." Variables are prefixed v_ and IDs are sanitised to snake_case for identifiers only
 (comments and strings keep the original IDs); a lastTransition str variable carries the TR-* ID of the last step; every
 variable is assigned in every action, with an explicit unchanged assignment for those the effect leaves alone; there is
-a val inv_<requirement or constraint, snake case> per invariant and a reachability witness wit_<state> per state.
+a val inv_<snake case of the INV-* ID> per invariant (ADR-EMG-045 item 5) and a reachability witness wit_<state> per state.
 There is no inv_all. The output directory is a CLI flag of engquint and the committed path is generated/quint/. Quint
 is always called with --backend=typescript, because the default Rust backend downloads at run time. New internal/export/quint
 package, root facade api_quint.go. Covers REQ-EMG-137, REQ-EMG-141, REQ-EMG-142, REQ-EMG-149.
@@ -1137,7 +1137,7 @@ package, root facade api_quint.go. Covers REQ-EMG-137, REQ-EMG-141, REQ-EMG-142,
 
 - Each invariant is checked and reported alone, with its requirement.
 - Identifier sanitisation can collide (two IDs with one snake_case form), and the generator reports that as an error.
-- The plan statements on a semantics block, inv_all, the succession edges and a configurable output path no longer apply.
+- The plan statements on an authored semantics block, inv_all, authored succession edges and a configurable output path no longer apply; the initial and final successions are projected from the machine.
 
 [[ADR-EMG-041]]
 == ADR-EMG-041: Quint is run once per invariant and verified offline against a pinned Apalache
@@ -1161,6 +1161,10 @@ pre-provisioned Apalache 0.62.4 under QUINT_HOME, offline, Java 21 or later) is 
 tool; a missing pinned tool is a setup error (exit 2). A trace of length zero is an error. A counterexample is mapped
 to the ordered TR-* IDs through lastTransition. engquint check exits 0 on a pass, 1 on a violation or a stale result and 2
 on a setup error. Covers REQ-EMG-142, REQ-EMG-143, REQ-EMG-144, REQ-EMG-145.
+One witnesses run per machine is separate from the per-invariant runs; a trace of length one (no transition enabled in the
+initial state) is a deadlock warning. engquint check exits 1 on a violation, a stale or drifted module or a vacuous
+trace. quint verify runs with the Apalache option no-deadlock, a free local server port, a scratch working and temporary
+directory and NO_PROXY=localhost,127.0.0.1. The defaults are 20 run steps, 10000 samples, seed 1 and 10 verify steps.
 
 === Consequences
 
@@ -1223,7 +1227,7 @@ REQ-EMG-149.
 === Consequences
 
 - A poc or prototype project can author machines without failing on advisory findings.
-- The tier-gap report lists the Quint requirements of the target tier.
+- The Quint requirements by tier (drift check at mvp, run at product, verify at operational) are enforced by the gate steps of engineering-flow, not by the engine, and the tier-gap report does not list them (ADR-EMG-045 item 26). This repository CI runs both modes for every model with machines, whatever the tier.
 - The OWNER items, the rows and the tier thresholds above are proposals until accepted.
 
 [[ADR-EMG-044]]
@@ -1242,15 +1246,17 @@ Settled in a grilling session with the owner on 2026-11-12. OWNER items: the ver
 
 The release is v0.11.0 and is breaking: there is no opt-in mode and no automatic migration. The owner rewrites all
 models by hand: this repository's own model and every example under examples/ are rewritten in the same effort, so
-every model in scripts/validate-all.sh uses machines: when the release is cut. Supply chain: quint 0.33.1 (npm),
-Apalache 0.62.4 (tarball sha256 8ac8488422c30d552735bae11b92a2d014d8e02e8608702acc08f9a2d8a9abb2) and Temurin JDK 21
-are approved for CI. Owner statement, verbatim, 2026-11-12: "all the tools are approved use them in CI even if you cannot
-install them here now." Pin versions and check the download sha256 in CI. Covers REQ-EMG-139, REQ-EMG-144.
+every model that has state behavior uses machines: when the release is cut. Supply chain: owner statement,
+verbatim, 2026-11-12: "all the tools are approved use them in CI even if you cannot
+install them here now." The statement approves the tools for CI. The pins were chosen by the implementing agent and await
+the owner confirmation: quint 0.33.1 (npm), Apalache 0.62.4 (tarball sha256
+8ac8488422c30d552735bae11b92a2d014d8e02e8608702acc08f9a2d8a9abb2) and Temurin JDK 21. Versions are pinned and the
+download sha256 is checked in CI. Covers REQ-EMG-139, REQ-EMG-144.
 
 === Consequences
 
 - Models written for v0.10.0 do not validate until rewritten; the CHANGELOG says so.
-- CI installs the three tools with scripts/install-quint-toolchain.sh (pinned versions, sha256-checked Apalache, quint from a lockfile with --ignore-scripts). The development environment of this change installs the same pins under .engmod/tooling; tests that run quint skip when ENGMOD_QUINT is unset, and the runner is also tested against a fake quint.
+- CI installs the three tools with scripts/install-quint-toolchain.sh (pinned versions, sha256-checked Apalache, quint from a lockfile with --ignore-scripts). The same pins are also installed under .engmod/tooling in the development environment of this change to run the checks locally; the owner statement approves CI and did not cover that. Tests that run quint skip when ENGMOD_QUINT is unset, and the runner is also tested against a fake quint.
 - Transferring repository content to an AI provider is not authorised by this approval.
 
 [[ADR-EMG-045]]
@@ -1267,7 +1273,7 @@ reviewed by the owner. They are all OWNER items.
 
 === Decision
 
-(1) Machine IDs match SM-[A-Z0-9-]+; state, transition and invariant IDs keep the stable-ID pattern, and the machine
+(1) Machine IDs match ^SM-[A-Z0-9][A-Z0-9-]*$; state, transition and invariant IDs keep the stable-ID pattern, and the machine
 state IDs keep the STATE-* form. (2) The expression tree marks every node with a kind: operator, literal, variable or
 reference. A variable leaf is a scalar value (the variable name), not a typedValue reference, because a reference must
 resolve to a model element. (3) An effect always parses to an all node, even for one assignment. (4) Empty string
@@ -1340,6 +1346,52 @@ model.MachineState for one release, so the public facade does not break in the s
 interfaces). They load a behavior document committed before v0.11.0 with the retired state vocabulary stripped
 (model.StripLegacyStateVocabulary), so the release check of the first tag after the removal does not fail on the previous
 tag; the working tree is still refused.
+(33) behavior.final_state_has_transitions (a final state with an outgoing transition) is a structural error; two initial
+states cannot be written because initial is a single field. (34) Nondeterminism is syntactic: two transitions from one
+state on the same event, or both without one, with no guard or the same guard text. (35) Duplicate assignments in an
+effect and a keyword used as a variable name are parse errors. (36) A violated invariant makes the module result
+violated; if another invariant of the module is in error, the module status is error and no failing evidence is
+written. (37) The evidence file is part of the artifact freshness hash of validate-all.sh, so a stale committed
+evidence file fails the gate and not only warns. Covers REQ-EMG-137 (9, 18, 19), REQ-EMG-138 (7, 33, 34), REQ-EMG-139 (8,
+28, 30, 31, 32), REQ-EMG-141 (5, 6, 11, 12, 19), REQ-EMG-142 to REQ-EMG-145 (13 to 17, 36), REQ-EMG-146 to
+REQ-EMG-148 (20 to 26) and REQ-EMG-136 (2, 3, 4, 35).
+(38) The expression parser rejects a source longer than 8192 bytes (MaxMachineExprSourceBytes) and nesting deeper than 64
+levels of parentheses, not, unary minus and implies (MaxMachineExprDepth) with a semantic.invalid_expression diagnostic
+at a line and column, so a hostile model cannot exhaust the stack; the length is counted in bytes. (39) The literal
+-9223372036854775808 is one integer literal; 9223372036854775808 alone is out of range. (40) The Quint output keeps every
+compound operand parenthesised, so a long left-deep chain produces nested parentheses; the renderer is linear in time and
+memory. (41) No separate limit on the length of an operator chain: the source limit bounds it at 4096 operands.
+(42) One reader of the formal evidence lives in internal/codescan (FormalEvidenceFile, ReadFormalEvidence,
+FormalStaleReason, VerificationResultRoots); the trace, the Gemara exporter and the MCP tools call it, and the copies are
+gone. The directories scanned are exactly those of the verification inference: <model root>/test-results, plus
+test-results beside the code root when one is given. (43) An evidence entry is current only if its qntFile is a local
+path (no rooted path, no drive, no ..) that resolves, after symlinks, inside the model root to a regular file of at most
+4 MiB whose first line starts with the generated header and names the entry machine, and whose sha256 matches; anything
+else is stale with a reason, never an error. The evidence file itself is capped at 16 MiB. Committed evidence is
+unsigned; CI must rerun engquint check. A race between the check and the open is accepted. (44) The sha256 of a module is
+taken over its content with CRLF replaced by LF, and .gitattributes keeps *.qnt on LF. (45) The MCP verification tools
+report a formalError field when the trace matrix cannot be built, and omit the formal results, instead of showing a clean
+result. (46) The Gemara evaluation log has one record-only step per outcome (Passed, Failed, NotRun), and an entry names the
+step that matches its result.
+(47) Each Quint process runs in its own process group with a 5 second WaitDelay; on a timeout or cancel the whole group is
+killed and swept, so no Apalache or Node child outlives a call, and the CLI turns an interrupt into a cancel. The limit
+is 10 minutes per call and 30 minutes overall (--timeout); a per-call timeout is an error for that invariant, and an
+overall deadline exits 1 without writing anything. (48) Captured output is capped at 8 MiB per stream and a truncated call
+is an error; --max-steps, --max-samples and --verify-steps have maxima of 1000, 1000000 and 100, and a larger value is a
+setup error. (49) A Quint call gets an allow-listed environment (PATH, HOME, LANG, LC_ALL, TMPDIR, TEMP, TMP, TERM,
+JAVA_HOME, QUINT_HOME, some Windows system variables; proxy variables only for verify; NODE_OPTIONS and JAVA_TOOL_OPTIONS
+dropped); further names pass only with --pass-env. A nil environment is empty, never inherited. (50) engquint never writes
+through a symlink: it refuses a target that is not a regular file and otherwise writes a temporary file and renames it;
+an identical file is not rewritten. (51) When a check cannot run (generation error, drift with no module, a model with no
+machines), an existing evidence file with entries is rewritten with no entries, so the trace no longer shows an old pass;
+a missing file is not created. (52) The sha256 and the drift comparison use the content with CRLF replaced by LF; a lone
+carriage return is kept. (53) A counterexample whose trace cannot be read says so; "the initial state violates the
+invariant" is printed only for a readable trace that holds just the initial state. (54) A variable whose initial value or
+type is wrong stays declared, so only the root cause is reported; Windows device names (CON, PRN, AUX, NUL, COM1 to COM9,
+LPT1 to LPT9) are not accepted as module names. (55) Errors of LoadBundleAtRef are reported in sorted document order. (56)
+The CI workflow has top-level contents: read permissions, and the real-Quint tests run in the validate job; a lint job is
+deferred because the repository has no lint configuration. (57) install-quint-toolchain.sh records the verified archive
+hash in the Apalache distribution and re-unpacks one without the marker; curl accepts https only.
 
 === Consequences
 

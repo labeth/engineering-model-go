@@ -105,6 +105,11 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"WithCodeIndex", "WithDefaultCodeRoot",
 			// the code scope the MCP tools share with the check (REQ-EMG-114).
 			"CodeScopeSkip", "ScanCodeScope",
+			// the one reader of formal (Quint) evidence, shared by internal/trace,
+			// internal/export/gemara and internal/mcp (REQ-EMG-145..148).
+			"FormalEntry", "FormalEvidenceFile", "FormalEvidenceFiles", "FormalFailed",
+			"FormalGeneratedHeader", "FormalNotRun", "FormalPass", "FormalStale",
+			"FormalStaleReason", "ReadFormalEvidence", "VerificationResultRoots",
 			// codescan.LoadBundle attaches the code index; the root LoadBundle is
 			// model.LoadBundle, a different function.
 			"LoadBundle",

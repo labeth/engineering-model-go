@@ -4,6 +4,7 @@ package quint
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
 )
@@ -19,6 +20,14 @@ type problem struct {
 //
 // TRLC-LINKS: REQ-EMG-141
 func (p *problem) Error() string { return p.msg }
+
+// errSilent is the problem of an expression that reads a variable whose own
+// declaration was already reported; it is not reported a second time.
+var errSilent = &problem{code: "quint.suppressed", msg: "depends on an invalid variable declaration"}
+
+// invalidVariableType marks a variable whose declaration failed and whose type
+// is therefore unknown.
+const invalidVariableType model.MachineType = "?"
 
 const (
 	codeUnresolved = "quint.unresolved_reference"
@@ -78,6 +87,9 @@ func (r exprRenderer) effect(e model.SemanticExpression) ([]assignment, *problem
 		if !ok {
 			return nil, &problem{codeUnresolved, fmt.Sprintf("effect assigns undeclared variable %q", name)}
 		}
+		if want == invalidVariableType {
+			return nil, errSilent
+		}
 		text, got, err := r.expr(assign.Operands[1])
 		if err != nil {
 			return nil, err
@@ -91,32 +103,67 @@ func (r exprRenderer) effect(e model.SemanticExpression) ([]assignment, *problem
 }
 
 // expr renders e and returns its type, applying the typing rules of the shared
-// operator table (model.MachineOperators).
+// operator table (model.MachineOperators). The text is written once into a
+// shared builder, so rendering is linear in the size of the tree and output.
 //
 // TRLC-LINKS: REQ-EMG-141
 func (r exprRenderer) expr(e model.SemanticExpression) (string, model.MachineType, *problem) {
+	var sb strings.Builder
+	typ, err := r.write(&sb, e)
+	if err != nil {
+		return "", "", err
+	}
+	return sb.String(), typ, nil
+}
+
+// write appends the Quint text of e to sb and returns its type. On a problem
+// the content already written to sb is meaningless and must be discarded.
+// Operands of infix operators that need it are parenthesised explicitly.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (r exprRenderer) write(sb *strings.Builder, e model.SemanticExpression) (model.MachineType, *problem) {
 	if e.Operator == "" {
-		return r.leaf(e)
+		return r.writeLeaf(sb, e)
 	}
 	op, known := model.LookupMachineOperator(e.Operator)
 	if !known {
-		return "", "", &problem{codeExpression, fmt.Sprintf("unknown operator %q", e.Operator)}
+		return "", &problem{codeExpression, fmt.Sprintf("unknown operator %q", e.Operator)}
 	}
 	if op.Name == "in_state" {
-		return r.inState(e)
+		return r.writeInState(sb, e)
 	}
 	if op.Form == model.MachineFormAssign || op.Form == model.MachineFormSequence {
-		return "", "", &problem{codeExpression, fmt.Sprintf("operator %q is only allowed in effects", op.Name)}
+		return "", &problem{codeExpression, fmt.Sprintf("operator %q is only allowed in effects", op.Name)}
 	}
 	if len(e.Operands) != len(op.Operands) {
-		return "", "", &problem{codeExpression, fmt.Sprintf("operator %q takes %d operand(s), got %d", op.Name, len(op.Operands), len(e.Operands))}
+		return "", &problem{codeExpression, fmt.Sprintf("operator %q takes %d operand(s), got %d", op.Name, len(op.Operands), len(e.Operands))}
 	}
-	texts := make([]string, len(e.Operands))
+	switch op.Form {
+	case model.MachineFormInfix:
+	case model.MachineFormPrefix:
+		if op.Name == "not" {
+			sb.WriteString("not(")
+		} else {
+			sb.WriteString("-(")
+		}
+	default:
+		return "", &problem{codeExpression, fmt.Sprintf("operator %q has no Quint rendering", op.Name)}
+	}
 	var same model.MachineType
 	for i, operand := range e.Operands {
-		text, typ, err := r.expr(operand)
+		if i > 0 {
+			sb.WriteString(" " + op.Syntax + " ")
+		}
+		wrap := op.Form == model.MachineFormInfix && isCompound(operand)
+		if wrap {
+			sb.WriteByte('(')
+		}
+		typ, err := r.write(sb, operand)
 		if err != nil {
-			return "", "", err
+			return "", err
+		}
+		if wrap {
+			sb.WriteByte(')')
 		}
 		want := op.Operands[i]
 		if want == model.MachineTypeAny {
@@ -126,23 +173,13 @@ func (r exprRenderer) expr(e model.SemanticExpression) (string, model.MachineTyp
 			want = same
 		}
 		if typ != want {
-			return "", "", &problem{codeType, fmt.Sprintf("operator %q needs %s for operand %d, got %s in %q", op.Name, want, i+1, typ, model.MachineExprString(operand))}
-		}
-		texts[i] = text
-		if op.Form == model.MachineFormInfix && isCompound(operand) {
-			texts[i] = "(" + text + ")"
+			return "", &problem{codeType, fmt.Sprintf("operator %q needs %s for operand %d, got %s in %q", op.Name, want, i+1, typ, model.MachineExprString(operand))}
 		}
 	}
-	switch op.Form {
-	case model.MachineFormInfix:
-		return texts[0] + " " + op.Syntax + " " + texts[1], op.Result, nil
-	case model.MachineFormPrefix:
-		if op.Name == "not" {
-			return "not(" + texts[0] + ")", op.Result, nil
-		}
-		return "-(" + texts[0] + ")", op.Result, nil
+	if op.Form == model.MachineFormPrefix {
+		sb.WriteByte(')')
 	}
-	return "", "", &problem{codeExpression, fmt.Sprintf("operator %q has no Quint rendering", op.Name)}
+	return op.Result, nil
 }
 
 // isCompound reports whether an operand needs parentheses inside an infix
@@ -157,46 +194,54 @@ func isCompound(e model.SemanticExpression) bool {
 	return e.Operator != "not" && e.Operator != "neg"
 }
 
-// inState is part of the Quint module generation.
+// writeInState appends "state == Ctor" for an in_state node.
 //
 // TRLC-LINKS: REQ-EMG-141
-func (r exprRenderer) inState(e model.SemanticExpression) (string, model.MachineType, *problem) {
+func (r exprRenderer) writeInState(sb *strings.Builder, e model.SemanticExpression) (model.MachineType, *problem) {
 	if len(e.Operands) != 1 || e.Operands[0].Kind != model.MachineKindReference || e.Operands[0].TypedValue == nil {
-		return "", "", &problem{codeExpression, "in_state needs one state ID"}
+		return "", &problem{codeExpression, "in_state needs one state ID"}
 	}
 	id := e.Operands[0].TypedValue.Reference
 	ctor, ok := r.stateCtor[id]
 	if !ok {
-		return "", "", &problem{codeUnresolved, fmt.Sprintf("in_state(%s) names a state that is not in this machine", id)}
+		return "", &problem{codeUnresolved, fmt.Sprintf("in_state(%s) names a state that is not in this machine", id)}
 	}
-	return "state == " + ctor, model.MachineTypeBoolean, nil
+	sb.WriteString("state == " + ctor)
+	return model.MachineTypeBoolean, nil
 }
 
-// leaf is part of the Quint module generation.
+// writeLeaf appends a variable or literal to sb.
 //
 // TRLC-LINKS: REQ-EMG-141
-func (r exprRenderer) leaf(e model.SemanticExpression) (string, model.MachineType, *problem) {
+func (r exprRenderer) writeLeaf(sb *strings.Builder, e model.SemanticExpression) (model.MachineType, *problem) {
 	if e.Kind == model.MachineKindVariable {
 		typ, ok := r.variables[e.Value]
 		if !ok {
-			return "", "", &problem{codeUnresolved, fmt.Sprintf("undeclared variable %q", e.Value)}
+			return "", &problem{codeUnresolved, fmt.Sprintf("undeclared variable %q", e.Value)}
 		}
-		return varIdent(e.Value), typ, nil
+		if typ == invalidVariableType {
+			return "", errSilent
+		}
+		sb.WriteString(varIdent(e.Value))
+		return typ, nil
 	}
 	v := e.TypedValue
 	switch {
 	case v == nil:
-		return "", "", &problem{codeExpression, "expression leaf has neither a variable nor a literal value"}
+		return "", &problem{codeExpression, "expression leaf has neither a variable nor a literal value"}
 	case v.Integer != nil:
-		return strconv.FormatInt(*v.Integer, 10), model.MachineTypeInteger, nil
+		sb.WriteString(strconv.FormatInt(*v.Integer, 10))
+		return model.MachineTypeInteger, nil
 	case v.Boolean != nil:
-		return strconv.FormatBool(*v.Boolean), model.MachineTypeBoolean, nil
+		sb.WriteString(strconv.FormatBool(*v.Boolean))
+		return model.MachineTypeBoolean, nil
 	case v.Kind == "string":
 		text, ok := quintString(v.String)
 		if !ok {
-			return "", "", &problem{codeString, fmt.Sprintf("string literal %q cannot be written in Quint (no double quote or line break)", v.String)}
+			return "", &problem{codeString, fmt.Sprintf("string literal %q cannot be written in Quint (no double quote or line break)", v.String)}
 		}
-		return text, model.MachineTypeString, nil
+		sb.WriteString(text)
+		return model.MachineTypeString, nil
 	}
-	return "", "", &problem{codeExpression, fmt.Sprintf("unsupported literal of kind %q", v.Kind)}
+	return "", &problem{codeExpression, fmt.Sprintf("unsupported literal of kind %q", v.Kind)}
 }

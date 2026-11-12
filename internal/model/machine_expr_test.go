@@ -3,10 +3,12 @@ package model
 
 import (
 	"encoding/json"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 )
 
 // sexpr renders a tree in fully parenthesised prefix form so precedence and
@@ -391,21 +393,104 @@ func TestMachineOperatorTable(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-138
 func TestMachineOperatorsMatchParserPrecedence(t *testing.T) {
-	// Every infix/prefix operator the parser can emit is in the table with a
-	// precedence consistent with its sexpr structure.
-	prec := map[string]int{}
+	table := map[string]MachineOperator{}
 	for _, op := range MachineOperators() {
-		prec[op.Name] = op.Precedence
+		table[op.Name] = op
 	}
-	for _, pair := range [][2]string{
-		{"implies", "or"}, {"or", "and"}, {"and", "not"}, {"not", "=="}, {"==", "+"}, {"+", "*"}, {"*", "neg"}, {"neg", "in_state"},
+	// Each case parses src and checks that the child of the root at operand
+	// index "at" is the operator "inner". The case passes only if the parser
+	// bound inner tighter than outer AND the table says the same, so swapping
+	// two binding levels in the parser fails the test. Every adjacent pair of
+	// levels is covered from both sides.
+	for _, tc := range []struct {
+		src, outer string
+		at         int
+		inner      string
+	}{
+		{"a implies b or c", "implies", 1, "or"},
+		{"a or b implies c", "implies", 0, "or"},
+		{"a or b and c", "or", 1, "and"},
+		{"a and b or c", "or", 0, "and"},
+		{"a and not b", "and", 1, "not"},
+		{"not a and b", "and", 0, "not"},
+		{"not a == b", "not", 0, "=="},
+		{"not a < b", "not", 0, "<"},
+		{"a == b + c", "==", 1, "+"},
+		{"a + b == c", "==", 0, "+"},
+		{"a >= b - c", ">=", 1, "-"},
+		{"a + b * c", "+", 1, "*"},
+		{"a * b + c", "+", 0, "*"},
+		{"a - b * c", "-", 1, "*"},
+		{"-a * b", "*", 0, "neg"},
+		{"a * -b", "*", 1, "neg"},
+		{"a - -b", "-", 1, "neg"},
+		{"-in_state(S)", "neg", 0, "in_state"},
+		// associativity: right for implies, left for every other binary level
+		{"a implies b implies c", "implies", 1, "implies"},
+		{"a or b or c", "or", 0, "or"},
+		{"a and b and c", "and", 0, "and"},
+		{"a + b + c", "+", 0, "+"},
+		{"a - b - c", "-", 0, "-"},
+		{"a + b - c", "-", 0, "+"},
+		{"a - b + c", "+", 0, "-"},
+		{"a * b * c", "*", 0, "*"},
+		{"not not a", "not", 0, "not"},
+		{"- - a", "neg", 0, "neg"},
 	} {
-		if prec[pair[0]] >= prec[pair[1]] {
-			t.Errorf("%s (%d) must bind looser than %s (%d)", pair[0], prec[pair[0]], pair[1], prec[pair[1]])
+		t.Run(tc.src, func(t *testing.T) {
+			expr := mustParse(t, tc.src, MachineExprBoolean)
+			if expr.Operator != tc.outer || len(expr.Operands) <= tc.at || expr.Operands[tc.at].Operator != tc.inner {
+				t.Fatalf("parse %q = %s, want %s with %s as operand %d", tc.src, sexpr(expr), tc.outer, tc.inner, tc.at)
+			}
+			outer, inner := table[tc.outer], table[tc.inner]
+			if outer.Name != tc.outer || inner.Name != tc.inner {
+				t.Fatalf("operator table lacks %q or %q", tc.outer, tc.inner)
+			}
+			if tc.outer == tc.inner || outer.Precedence == inner.Precedence {
+				// Same level: the table associativity must agree with the
+				// side the parser nested on.
+				wantAt := 0
+				if outer.RightAssociative {
+					wantAt = 1
+				}
+				if outer.Form == MachineFormPrefix {
+					wantAt = 0
+				}
+				if tc.at != wantAt {
+					t.Errorf("%s nests on operand %d but the table says RightAssociative=%v", tc.outer, tc.at, outer.RightAssociative)
+				}
+				return
+			}
+			if inner.Precedence <= outer.Precedence {
+				t.Errorf("parser binds %s tighter than %s but the table has %d <= %d", tc.inner, tc.outer, inner.Precedence, outer.Precedence)
+			}
+		})
+	}
+	// Operators of one level share a precedence.
+	for _, group := range [][]string{{"==", "!=", "<", "<=", ">", ">="}, {"+", "-"}} {
+		for _, name := range group[1:] {
+			if table[name].Precedence != table[group[0]].Precedence {
+				t.Errorf("%s and %s must share a precedence level", name, group[0])
+			}
 		}
 	}
-	if prec["<"] != prec["=="] || prec["-"] != prec["+"] {
-		t.Errorf("same-level operators differ: %v", prec)
+	// Comparisons are non-associative in the parser: no pair nests, and the
+	// table never marks one right associative.
+	for _, a := range []string{"==", "!=", "<", "<=", ">", ">="} {
+		if table[a].RightAssociative {
+			t.Errorf("%s must not be right associative", a)
+		}
+		for _, b := range []string{"==", "<"} {
+			_, diags := ParseMachineExpr("x "+a+" y "+b+" z", MachineExprBoolean)
+			if len(diags) != 1 || !strings.Contains(diags[0].Message, "not associative") {
+				t.Errorf("x %s y %s z: diagnostics %v, want non-associative error", a, b, diags)
+			}
+		}
+	}
+	// A comparison operand may itself be arithmetic but never a comparison;
+	// parentheses restore it.
+	if expr := mustParse(t, "(a < b) == (c < d)", MachineExprBoolean); expr.Operator != "==" || expr.Operands[0].Operator != "<" || expr.Operands[1].Operator != "<" {
+		t.Errorf("parenthesised comparisons = %s", sexpr(expr))
 	}
 }
 
@@ -561,6 +646,210 @@ func TestIsMachineKeyword(t *testing.T) {
 	}
 }
 
+// wantMachineDiag parses src and requires exactly one diagnostic at line:col
+// whose message contains contains.
+func wantMachineDiag(t *testing.T, src string, kind MachineExprKind, line, col int, contains string) {
+	t.Helper()
+	expr, diags := ParseMachineExpr(src, kind)
+	if len(diags) != 1 {
+		t.Fatalf("diagnostics = %v, want exactly one", diags)
+	}
+	d := diags[0]
+	if d.Code != MachineExprDiagnosticCode || d.Line != line || d.Column != col || !strings.Contains(d.Message, contains) {
+		t.Errorf("diagnostic = %+v, want %d:%d containing %q", d, line, col, contains)
+	}
+	if !reflect.DeepEqual(expr, SemanticExpression{}) {
+		t.Errorf("expression must be zero on error")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func TestParseMachineExprSourceLengthLimit(t *testing.T) {
+	if MaxMachineExprSourceBytes != 8192 {
+		t.Fatalf("limit = %d, want 8 KiB", MaxMachineExprSourceBytes)
+	}
+	atLimit := strings.Repeat("x", MaxMachineExprSourceBytes)
+	for _, kind := range []MachineExprKind{MachineExprBoolean, MachineExprEffect} {
+		src := atLimit
+		if kind == MachineExprEffect {
+			src = "v := " + atLimit[5:]
+		}
+		if _, diags := ParseMachineExpr(src, kind); len(diags) != 0 {
+			t.Fatalf("%s source of exactly the limit must parse: %v", kind, diags)
+		}
+		wantMachineDiag(t, src+"x", kind, 1, MaxMachineExprSourceBytes+1, "8192 bytes")
+	}
+	// Line and column of the first byte beyond the limit across lines.
+	multi := strings.Repeat("x\n", MaxMachineExprSourceBytes/2)
+	if _, diags := ParseMachineExpr(multi, MachineExprBoolean); len(diags) == 0 || diags[0].Message == "" {
+		t.Fatalf("multi-line filler must fail on content, not length")
+	}
+	wantMachineDiag(t, multi+"y", MachineExprBoolean, MaxMachineExprSourceBytes/2+1, 1, "limit is 8192")
+	// The column counts runes: the byte beyond the limit is the second byte of
+	// a two-byte rune that starts at the limit boundary minus one.
+	wantMachineDiag(t, strings.Repeat("x", MaxMachineExprSourceBytes-1)+"é", MachineExprBoolean, 1, MaxMachineExprSourceBytes, "limit is 8192")
+	// Invalid UTF-8 counts one column per byte, like the lexer.
+	wantMachineDiag(t, strings.Repeat("x", MaxMachineExprSourceBytes)+"\xff\xfe", MachineExprBoolean, 1, MaxMachineExprSourceBytes+1, "limit is 8192")
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func TestParseMachineExprHugeInputIsRejectedQuickly(t *testing.T) {
+	for _, filler := range []string{"(", "not ", "-", "a implies ", "x"} {
+		src := strings.Repeat(filler, (1<<20)/len(filler))
+		start := time.Now()
+		wantMachineDiag(t, src, MachineExprBoolean, 1, MaxMachineExprSourceBytes+1, "limit is 8192")
+		wantMachineDiag(t, src, MachineExprEffect, 1, MaxMachineExprSourceBytes+1, "limit is 8192")
+		if elapsed := time.Since(start); elapsed > 2*time.Second {
+			t.Errorf("rejecting 1 MiB of %q took %v", filler, elapsed)
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func TestParseMachineExprNestingLimit(t *testing.T) {
+	if MaxMachineExprDepth != 64 {
+		t.Fatalf("depth limit = %d, want 64", MaxMachineExprDepth)
+	}
+	n := MaxMachineExprDepth
+	for _, tc := range []struct {
+		name string
+		open func(k int) string // k nested levels around or before "x"
+		tail func(k int) string
+		// column of the first construct beyond the limit
+		col func() int
+	}{
+		{"parentheses", func(k int) string { return strings.Repeat("(", k) }, func(k int) string { return strings.Repeat(")", k) }, func() int { return n + 1 }},
+		{"not", func(k int) string { return strings.Repeat("not ", k) }, func(int) string { return "" }, func() int { return 4*n + 1 }},
+		{"unary minus", func(k int) string { return strings.Repeat("-", k) }, func(int) string { return "" }, func() int { return n + 1 }},
+		{"implies", func(k int) string { return strings.Repeat("x implies ", k) }, func(int) string { return "" }, func() int { return 10*n + 3 }},
+		{"mixed", func(k int) string { return strings.Repeat("(not -", k/3) + strings.Repeat("(", k%3) }, func(k int) string { return strings.Repeat(")", k/3+k%3) }, func() int { return 0 }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			for _, kind := range []MachineExprKind{MachineExprBoolean, MachineExprEffect} {
+				prefix := ""
+				if kind == MachineExprEffect {
+					prefix = "v := "
+				}
+				ok := prefix + tc.open(n) + "x" + tc.tail(n)
+				if tc.name == "implies" {
+					ok = prefix + tc.open(n) + "x"
+				}
+				if _, diags := ParseMachineExpr(ok, kind); len(diags) != 0 {
+					t.Fatalf("depth %d must parse: %v", n, diags)
+				}
+				tooDeep := prefix + tc.open(n+1) + "x" + tc.tail(n+1)
+				if tc.name == "implies" {
+					tooDeep = prefix + tc.open(n+1) + "x"
+				}
+				_, diags := ParseMachineExpr(tooDeep, kind)
+				if len(diags) != 1 || diags[0].Code != MachineExprDiagnosticCode || diags[0].Line != 1 || !strings.Contains(diags[0].Message, "nested too deeply") || !strings.Contains(diags[0].Message, "64") {
+					t.Fatalf("depth %d: diagnostics = %v", n+1, diags)
+				}
+				if col := tc.col(); col != 0 && diags[0].Column != len(prefix)+col {
+					t.Errorf("column = %d, want %d", diags[0].Column, len(prefix)+col)
+				}
+			}
+		})
+	}
+	// Levels are released: siblings never add up.
+	sequential := strings.Repeat("(x) and ", 500) + "not (x) and -(1) == (2) implies (a implies b)"
+	if _, diags := ParseMachineExpr(sequential, MachineExprBoolean); len(diags) != 0 {
+		t.Fatalf("sequential groups must parse: %v", diags)
+	}
+	// Prefix operators inside parentheses count together.
+	if _, diags := ParseMachineExpr(strings.Repeat("(", 32)+strings.Repeat("not ", 32)+"x"+strings.Repeat(")", 32), MachineExprBoolean); len(diags) != 0 {
+		t.Fatalf("32 + 32 levels must parse: %v", diags)
+	}
+	wantMachineDiag(t, strings.Repeat("(", 32)+strings.Repeat("not ", 33)+"x"+strings.Repeat(")", 32), MachineExprBoolean, 1, 32+4*32+1, "nested too deeply")
+	// A deep input of the maximum length fails with the nesting diagnostic.
+	wantMachineDiag(t, strings.Repeat("(", MaxMachineExprSourceBytes), MachineExprBoolean, 1, MaxMachineExprDepth+1, "nested too deeply")
+	// An earlier syntax error is reported before the nesting problem.
+	wantMachineDiag(t, "$"+strings.Repeat("(", 100), MachineExprBoolean, 1, 1, "unexpected character")
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func TestParseMachineExprLongLeftChainsAreBounded(t *testing.T) {
+	// "a+a+...+a" of exactly the limit: 4096 operands, a left-nested tree of
+	// height 4095. Every consumer handles it.
+	src := strings.Repeat("a+", (MaxMachineExprSourceBytes-2)/2) + "a"
+	if len(src) >= MaxMachineExprSourceBytes {
+		t.Fatalf("test source has %d bytes", len(src))
+	}
+	expr := mustParse(t, src, MachineExprBoolean)
+	height := 0
+	for e := expr; e.Operator == "+"; e = e.Operands[0] {
+		height++
+	}
+	if height != (MaxMachineExprSourceBytes-2)/2 {
+		t.Fatalf("height = %d", height)
+	}
+	if got := MachineExprVariables(expr); !reflect.DeepEqual(got, []string{"a"}) {
+		t.Errorf("variables = %v", got)
+	}
+	if printed := MachineExprString(expr); printed != strings.Repeat("a + ", height)+"a" {
+		t.Errorf("printed form starts %.20q", printed)
+	}
+	raw, err := json.Marshal(expr)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var back SemanticExpression
+	if err := json.Unmarshal(raw, &back); err != nil {
+		t.Fatalf("JSON round trip of the longest chain: %v", err)
+	}
+	if !reflect.DeepEqual(expr, back) {
+		t.Errorf("JSON round trip changed the longest chain")
+	}
+	wantMachineDiag(t, src+"+a", MachineExprBoolean, 1, MaxMachineExprSourceBytes+1, "limit is 8192")
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func TestParseMachineExprMinimumInteger(t *testing.T) {
+	min := func(e SemanticExpression) bool {
+		return e.Kind == MachineKindLiteral && e.Operator == "" && e.TypedValue != nil && e.TypedValue.Integer != nil && *e.TypedValue.Integer == math.MinInt64
+	}
+	for _, tc := range []struct{ src, want string }{
+		{"-9223372036854775808", "min"},
+		{"- 9223372036854775808", "min"},
+		{"-0009223372036854775808", "min"},
+		{"x == -9223372036854775808", "(== x min)"},
+		{"x - -9223372036854775808", "(- x min)"},
+		{"-9223372036854775808 * 2", "(* min 2)"},
+		{"--9223372036854775808", "(neg min)"},
+		{"-(-9223372036854775808)", "(neg min)"},
+		{"-9223372036854775807", "(neg 9223372036854775807)"},
+		{"9223372036854775807", "9223372036854775807"},
+	} {
+		expr := mustParse(t, tc.src, MachineExprBoolean)
+		got := sexpr(expr)
+		got = strings.ReplaceAll(got, "-9223372036854775808", "min")
+		if got != tc.want {
+			t.Errorf("%q = %s, want %s", tc.src, got, tc.want)
+		}
+		if tc.want == "min" && !min(expr) {
+			t.Errorf("%q is not the int64 minimum literal: %s", tc.src, sexpr(expr))
+		}
+		printed := MachineExprString(expr)
+		if again := mustParse(t, printed, MachineExprBoolean); !reflect.DeepEqual(expr, again) {
+			t.Errorf("%q printed as %q re-parses to a different tree", tc.src, printed)
+		}
+	}
+	effect := mustParse(t, "x := -9223372036854775808", MachineExprEffect)
+	if !min(effect.Operands[0].Operands[1]) {
+		t.Errorf("effect value = %s", sexpr(effect))
+	}
+	// The magnitude alone and anything larger stay out of range.
+	wantMachineDiag(t, "9223372036854775808", MachineExprBoolean, 1, 1, "out of range")
+	wantMachineDiag(t, "0009223372036854775808", MachineExprBoolean, 1, 1, "out of range")
+	wantMachineDiag(t, "x - 9223372036854775808", MachineExprBoolean, 1, 5, "out of range")
+	wantMachineDiag(t, "-(9223372036854775808)", MachineExprBoolean, 1, 3, "out of range")
+	wantMachineDiag(t, "x := 9223372036854775808", MachineExprEffect, 1, 6, "out of range")
+	wantMachineDiag(t, "-9223372036854775809", MachineExprBoolean, 1, 2, "out of range")
+	wantMachineDiag(t, "9223372036854775809", MachineExprBoolean, 1, 1, "out of range")
+	wantMachineDiag(t, "-99999999999999999999", MachineExprBoolean, 1, 2, "out of range")
+	wantMachineDiag(t, "9223372036854775808x", MachineExprBoolean, 1, 1, "digits followed by a letter")
+}
+
 // TRLC-LINKS: REQ-EMG-136
 func FuzzParseMachineExpr(f *testing.F) {
 	for _, seed := range []string{
@@ -568,6 +857,10 @@ func FuzzParseMachineExpr(f *testing.F) {
 		`s == "x\"y\\z"`, "in_state(STATE-PAY-CLOSED) and attempts < 3", "(attempts <= 3) and not in_state(S-1)",
 		`attempts := attempts + 1; status := "retry"`, "x := 1; x := 2", "((", "a :=", "a b", "\"", "in_state(", "9999999999999999999",
 		"a\n and\n b", "a < b < c", "- - -1", "x := y implies z;",
+		"-9223372036854775808", "x - -9223372036854775808", "9223372036854775808", "-(9223372036854775808)",
+		strings.Repeat("(", 63) + "x" + strings.Repeat(")", 63), strings.Repeat("(", 100), strings.Repeat("not ", 100) + "x",
+		strings.Repeat("-", 100) + "1", strings.Repeat("x implies ", 100) + "x", strings.Repeat("(not -", 40) + "x",
+		strings.Repeat("a+", 4000) + "a", strings.Repeat("(", MaxMachineExprSourceBytes+1), strings.Repeat("x", MaxMachineExprSourceBytes+1),
 	} {
 		f.Add(seed, true)
 		f.Add(seed, false)
@@ -587,6 +880,10 @@ func FuzzParseMachineExpr(f *testing.F) {
 			return
 		}
 		printed := MachineExprString(expr)
+		if len(printed) > MaxMachineExprSourceBytes {
+			// Canonical spacing can push a valid source past the length limit.
+			return
+		}
 		again, diags := ParseMachineExpr(printed, kind)
 		if len(diags) > 0 {
 			t.Fatalf("printed form %q of %q does not re-parse: %v", printed, src, diags)

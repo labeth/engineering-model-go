@@ -7,6 +7,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -28,8 +30,15 @@ type env struct {
 	dir      string
 }
 
+// fakeEnvNames are the variables that steer the fake quint script; the
+// environment allow-list does not pass them on unless a test asks for them.
+var fakeEnvNames = []string{"FAKE_QUINT_LOG", "FAKE_QUINT_VIOLATE", "FAKE_QUINT_RUNTIME_ERR", "FAKE_QUINT_TRACE_MAX", "FAKE_QUINT_WIT_ZERO", "FAKE_QUINT_TYPE_ERROR", "FAKE_QUINT_SEQUENCE", "FAKE_QUINT_VERSION"}
+
 func newEnv(t *testing.T) env {
 	t.Helper()
+	if runtime.GOOS == "windows" {
+		t.Skip("the fake quint and java are /bin/sh scripts")
+	}
 	dir := t.TempDir()
 	copyTree(t, fixtureDir, filepath.Join(dir, "model-root"))
 	e := env{dir: dir, manifest: filepath.Join(dir, "model-root", "engmod.yml")}
@@ -43,14 +52,14 @@ func newEnv(t *testing.T) env {
 	writeFile(t, e.quint, string(script), 0o755)
 	e.log = filepath.Join(dir, "fake-quint.log")
 	t.Setenv("FAKE_QUINT_LOG", e.log)
-	for _, name := range []string{"FAKE_QUINT_VIOLATE", "FAKE_QUINT_RUNTIME_ERR", "FAKE_QUINT_TRACE_MAX", "FAKE_QUINT_WIT_ZERO", "FAKE_QUINT_TYPE_ERROR", "FAKE_QUINT_SEQUENCE", "FAKE_QUINT_VERSION"} {
+	for _, name := range fakeEnvNames[1:] {
 		t.Setenv(name, "")
 	}
 	return e
 }
 
 func (e env) opts() CheckOptions {
-	return CheckOptions{ModelPath: e.manifest, QuintPath: e.quint}
+	return CheckOptions{ModelPath: e.manifest, QuintPath: e.quint, PassEnv: fakeEnvNames}
 }
 
 // calls returns the logged invocations of the fake quint with the given
@@ -204,7 +213,10 @@ func TestCheckRunModePassesAndRecordsResults(t *testing.T) {
 			t.Errorf("results.json lacks %s", want)
 		}
 	}
-	for _, banned := range []string{"ms", "timestamp", "duration"} {
+	if timing := regexp.MustCompile(`\d+ms`).FindString(results); timing != "" {
+		t.Errorf("results.json contains the timing %q:\n%s", timing, results)
+	}
+	for _, banned := range []string{"timestamp", "duration"} {
 		if strings.Contains(results, banned) {
 			t.Errorf("results.json contains %q:\n%s", banned, results)
 		}
@@ -243,7 +255,7 @@ func TestCheckViolationMapsCounterexampleToOrderedTransitionIDs(t *testing.T) {
 	if bad.Status != StatusViolated || strings.Join(bad.Run.Counterexample, ",") != strings.Join(want, ",") || bad.Run.ExitCode != 1 {
 		t.Fatalf("violated invariant %+v run %+v", bad, bad.Run)
 	}
-	if got := FormatCounterexample(bad.Run.Counterexample); got != "TR-PAYMENTS-001 -> TR-PAYMENTS-003 -> TR-PAYMENTS-001" {
+	if got := FormatCounterexample(*bad.Run); got != "TR-PAYMENTS-001 -> TR-PAYMENTS-003 -> TR-PAYMENTS-001" {
 		t.Errorf("formatted %q", got)
 	}
 	if good := invariant(t, m, "INV-PAYMENTS-002"); good.Status != StatusPass {

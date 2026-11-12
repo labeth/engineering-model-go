@@ -8,8 +8,7 @@ package mcp
 // changes. A model without formal evidence adds nothing to any response.
 
 import (
-	"io/fs"
-	"path/filepath"
+	"fmt"
 	"sort"
 	"strings"
 
@@ -42,23 +41,22 @@ type formalRequirement struct {
 	Invariants  []formalInvariant `json:"invariants"`
 }
 
-// hasFormalEvidence reports whether the model's test-results directory holds
-// a formal evidence file; a model without one skips the trace build.
+// hasFormalEvidence reports whether the model has a formal evidence file in
+// the directories the verification scan reads (codescan.FormalEvidenceFiles,
+// with no code root, as the matrix is built below); a model without one skips
+// the trace build.
 // TRLC-LINKS: REQ-EMG-148
 func (s *Server) hasFormalEvidence() bool {
 	if s.bundle == nil {
 		return false
 	}
-	found := false
-	_ = filepath.WalkDir(filepath.Join(codescan.ModelRootDir(*s.bundle), "test-results"), func(path string, d fs.DirEntry, err error) error {
-		if err == nil && !d.IsDir() && strings.EqualFold(d.Name(), "quint-formal.json") {
-			found = true
-			return fs.SkipAll
-		}
-		return nil
-	})
-	return found
+	return len(codescan.FormalEvidenceFiles(codescan.ModelRootDir(*s.bundle), formalCodeRoot)) > 0
 }
+
+// formalCodeRoot is the code root the tools build the trace matrix with: none,
+// so the result directories scanned are the model root's test-results. The
+// evidence check and the matrix build use this one value.
+const formalCodeRoot = ""
 
 // formalRollUp rolls invariant results into one requirement result: failed
 // over pass over stale over not-run.
@@ -78,16 +76,17 @@ func formalRollUp(entries []formalInvariant) string {
 // with a formal result, sorted by requirement; nil when the model has no
 // formal evidence. The results come from the trace matrix rows, so the stale
 // rule is the one the matrix applies (the sha256 of the module is compared at
-// call time).
+// call time). A failing matrix build is an error, never an empty result: the
+// caller must not report "no formal gaps" when verification could not run.
 // TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
-func (s *Server) formalRequirements() []formalRequirement {
+func (s *Server) formalRequirements() ([]formalRequirement, error) {
 	if !s.hasFormalEvidence() {
-		return nil
+		return nil, nil
 	}
-	matrix, _, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
+	matrix, _, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, formalCodeRoot, engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
-		return nil
+		return nil, fmt.Errorf("formal evidence found but the trace matrix could not be built: %w", err)
 	}
 	var out []formalRequirement
 	for _, row := range matrix.Requirements {
@@ -103,19 +102,23 @@ func (s *Server) formalRequirements() []formalRequirement {
 		out = append(out, fr)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Requirement < out[j].Requirement })
-	return out
+	return out, nil
 }
 
 // formalStatus is the formal part of verification.status: every requirement
 // with a formal result, narrowed to entityID when it names a requirement, a
-// machine or an invariant. It is nil when there is nothing to report.
+// machine or an invariant. It is nil when there is nothing to report; the
+// error says verification could not run.
 // TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER
-func (s *Server) formalStatus(entityID string) []formalRequirement {
-	all := s.formalRequirements()
+func (s *Server) formalStatus(entityID string) ([]formalRequirement, error) {
+	all, err := s.formalRequirements()
+	if err != nil {
+		return nil, err
+	}
 	entityID = strings.TrimSpace(entityID)
 	if entityID == "" {
-		return all
+		return all, nil
 	}
 	var out []formalRequirement
 	for _, fr := range all {
@@ -127,19 +130,24 @@ func (s *Server) formalStatus(entityID string) []formalRequirement {
 			out = append(out, fr)
 		}
 	}
-	return out
+	return out, nil
 }
 
 // formalGaps is the formal part of verification.gaps: the requirements whose
-// formal result is failed, stale or not-run (no passing current result).
+// formal result is failed, stale or not-run (no passing current result). The
+// error says verification could not run, which is not "no gaps".
 // TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER
-func (s *Server) formalGaps() []formalRequirement {
+func (s *Server) formalGaps() ([]formalRequirement, error) {
+	all, err := s.formalRequirements()
+	if err != nil {
+		return nil, err
+	}
 	var out []formalRequirement
-	for _, fr := range s.formalRequirements() {
+	for _, fr := range all {
 		if fr.Result != "pass" {
 			out = append(out, fr)
 		}
 	}
-	return out
+	return out, nil
 }

@@ -135,6 +135,9 @@ func (b *machineBuild) fail(code, path, format string, args ...any) {
 //
 // TRLC-LINKS: REQ-EMG-141
 func (b *machineBuild) failProblem(path, what string, p *problem) {
+	if p == errSilent {
+		return
+	}
 	b.fail(p.code, path, "machine %q %s: %s", b.machine, what, p.msg)
 }
 
@@ -169,8 +172,8 @@ func generateMachine(path string, m model.Machine) (File, []model.SemanticDiagno
 		if module[0] >= '0' && module[0] <= '9' {
 			module = "m_" + module
 		}
-		if quintReserved[module] {
-			b.fail("quint.name_collision", path+".id", "machine ID %q maps to the reserved Quint word %q", m.ID, module)
+		if why := reservedModule(module); why != "" {
+			b.fail("quint.name_collision", path+".id", "machine ID %q maps to the module name %q, %s", m.ID, module, why)
 		}
 	}
 	file.Module = module
@@ -178,6 +181,7 @@ func generateMachine(path string, m model.Machine) (File, []model.SemanticDiagno
 
 	// Variables.
 	variables := map[string]model.MachineType{}
+	declared := map[string]bool{}
 	type variable struct {
 		name    string
 		typ     model.MachineType
@@ -195,9 +199,18 @@ func generateMachine(path string, m model.Machine) (File, []model.SemanticDiagno
 			continue
 		}
 		typ := model.MachineType(strings.TrimSpace(v.Type))
+		declared[v.Name] = true
 		initial, problem := initialLiteral(typ, v.Initial)
 		if problem != nil {
 			b.fail(problem.code, vpath+".initial", "machine %q variable %q: %s", m.ID, v.Name, problem.msg)
+			// The name stays declared, so an expression that reads it is not
+			// reported as an undeclared variable on top of the root cause: a
+			// variable of a valid type keeps it and a variable of an invalid
+			// type is marked so that its readers are silently skipped.
+			if typ != model.MachineTypeInteger && typ != model.MachineTypeBoolean && typ != model.MachineTypeString {
+				typ = invalidVariableType
+			}
+			variables[v.Name] = typ
 			continue
 		}
 		variables[v.Name] = typ

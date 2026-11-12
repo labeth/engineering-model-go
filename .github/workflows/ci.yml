@@ -6,6 +6,9 @@ on:
     tags: ["v*"]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -90,6 +93,15 @@ jobs:
         # sha256-checked tarball unpacked where Quint looks for it, so `quint
         # verify` never downloads at run time (ADR-EMG-041).
         run: scripts/install-quint-toolchain.sh
+
+      - name: Quint tests against the pinned tools
+        # The tests that run the real quint (run and verify mode) skip unless
+        # ENGMOD_QUINT and QUINT_HOME are set, so the test job alone would pass
+        # without exercising them.
+        env:
+          ENGMOD_QUINT: ${{ github.workspace }}/.engmod/tooling/quint/node_modules/.bin/quint
+          QUINT_HOME: ${{ github.workspace }}/.engmod/tooling/quint-home
+        run: go test -count=1 ./internal/export/quint/... ./cmd/engquint/...
 
       - name: Validation gauntlet
         # Enforces the generation gates (engdoc 0 errors = trace integrity, dangling

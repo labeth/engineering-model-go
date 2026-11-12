@@ -213,3 +213,24 @@ func TestLoadBundleAtRefToleratesTheRetiredStateVocabulary(t *testing.T) {
 		t.Fatalf("the working tree must still be refused, got %v", err)
 	}
 }
+
+// The documents of a manifest are read in sorted key order, so a model with
+// several unreadable documents always reports the same one first.
+// Mutation: ranging over the documents map directly reports a random one and
+// fails this test on some runs.
+// TRLC-LINKS: REQ-EMG-102
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func TestLoadBundleAtRefReportsTheFirstMissingDocumentInKeyOrder(t *testing.T) {
+	dir := gitModel(t, "child-a", "v1.0.0")
+	for _, doc := range []string{"views", "assurance", "decisions"} {
+		runGit(t, dir, "rm", "-q", filepath.Join("model", doc+".yml"))
+	}
+	runGit(t, dir, "commit", "-q", "-m", "drop documents")
+	runGit(t, dir, "tag", "v1.0.1")
+	for i := 0; i < 20; i++ {
+		_, err := LoadBundleAtRef(dir, "v1.0.1")
+		if err == nil || !strings.Contains(err.Error(), "documents.assurance at v1.0.1") {
+			t.Fatalf("run %d: want the alphabetically first missing document, got %v", i, err)
+		}
+	}
+}

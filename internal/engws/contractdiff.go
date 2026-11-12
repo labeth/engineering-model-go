@@ -248,7 +248,13 @@ func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 	if err := os.WriteFile(filepath.Join(tmp, "engmod.yml"), manifest, 0o600); err != nil {
 		return model.Bundle{}, err
 	}
-	for key, rel := range meta.Documents {
+	keys := make([]string, 0, len(meta.Documents))
+	for key := range meta.Documents {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		rel := meta.Documents[key]
 		clean := path.Clean(filepath.ToSlash(strings.TrimSpace(rel)))
 		if clean == "." || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") {
 			return model.Bundle{}, fmt.Errorf("engmod.yml at %s: documents.%s %q leaves the model directory", ref, key, rel)

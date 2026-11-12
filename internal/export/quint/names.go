@@ -17,6 +17,31 @@ var quintReserved = map[string]bool{
 	"init": true, "step": true, "from": true, "as": true,
 }
 
+// windowsDeviceNames lists the file names Windows reserves for devices, with
+// or without an extension ("con.qnt" is the console there). A module name is
+// also a file name, so it must not be one of them. The names are compared in
+// the lower case the module names have.
+var windowsDeviceNames = map[string]bool{
+	"con": true, "prn": true, "aux": true, "nul": true,
+	"com1": true, "com2": true, "com3": true, "com4": true, "com5": true,
+	"com6": true, "com7": true, "com8": true, "com9": true,
+	"lpt1": true, "lpt2": true, "lpt3": true, "lpt4": true, "lpt5": true,
+	"lpt6": true, "lpt7": true, "lpt8": true, "lpt9": true,
+}
+
+// reservedModule explains why a module name is not usable, or returns "".
+//
+// TRLC-LINKS: REQ-EMG-141
+func reservedModule(module string) string {
+	switch {
+	case quintReserved[module]:
+		return "the reserved Quint word"
+	case windowsDeviceNames[module]:
+		return "a device name Windows reserves for files (it cannot be the module file name)"
+	}
+	return ""
+}
+
 // snakeCase turns a model ID into a Quint identifier part: ASCII letters and
 // digits are lower-cased and every other run of characters becomes one
 // underscore ("SM-PAYMENTS-AUTH" -> "sm_payments_auth"). The result is empty

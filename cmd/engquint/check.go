@@ -2,11 +2,15 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
 	"io"
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 	"text/tabwriter"
 
 	"github.com/labeth/engineering-model-go/internal/export/quint/check"
@@ -26,10 +30,12 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	quintPath := flags.String("quint", "", "quint executable; defaults to $ENGMOD_QUINT, else quint on PATH")
 	quintHome := flags.String("quint-home", "", "directory with the pre-provisioned Apalache; defaults to $QUINT_HOME (verify mode)")
 	mode := flags.String("mode", string(check.ModeRun), "run, verify or both")
-	maxSteps := flags.Int("max-steps", check.DefaultMaxSteps, "maximum trace length of quint run")
-	maxSamples := flags.Int("max-samples", check.DefaultMaxSamples, "number of traces quint run simulates")
+	maxSteps := flags.Int("max-steps", check.DefaultMaxSteps, fmt.Sprintf("maximum trace length of quint run (at most %d)", check.MaxStepsLimit))
+	maxSamples := flags.Int("max-samples", check.DefaultMaxSamples, fmt.Sprintf("number of traces quint run simulates (at most %d)", check.MaxSamplesLimit))
 	seed := flags.String("seed", check.DefaultSeed, "random seed of quint run")
-	verifySteps := flags.Int("verify-steps", check.DefaultVerifySteps, "maximum depth of quint verify")
+	verifySteps := flags.Int("verify-steps", check.DefaultVerifySteps, fmt.Sprintf("maximum depth of quint verify (at most %d)", check.MaxVerifyStepsLimit))
+	timeout := flags.Duration("timeout", check.DefaultTimeout, "overall time limit of the check; the running tool is killed when it expires (one call is limited to "+check.DefaultCallTimeout.String()+")")
+	passEnv := flags.String("pass-env", "", "comma-separated names of extra environment variables to pass to the tools; by default only PATH, HOME, LANG, LC_ALL, TMPDIR, TEMP, TMP, TERM, JAVA_HOME, QUINT_HOME (and proxy variables in verify mode) are")
 	outDir := flags.String("out", "", "directory with the committed modules; defaults to generated/quint next to the model's engmod.yml")
 	results := flags.String("results", "", "results file; defaults to <out>/results.json")
 	evidence := flags.String("evidence", "", "formal evidence file; defaults to test-results/quint-formal.json next to the model")
@@ -45,14 +51,19 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		return exitUsage
 	}
 	if strings.TrimSpace(*modelPath) == "" {
-		fmt.Fprintln(stderr, "usage: engquint check --model <engmod.yml> [--mode run|verify|both] [--quint path] [--quint-home dir] [--max-steps N] [--max-samples M] [--seed S] [--verify-steps N] [--out dir] [--results path] [--evidence path] [--no-evidence]")
+		fmt.Fprintln(stderr, "usage: engquint check --model <engmod.yml> [--mode run|verify|both] [--quint path] [--quint-home dir] [--max-steps N] [--max-samples M] [--seed S] [--verify-steps N] [--timeout 30m] [--pass-env NAME,...] [--out dir] [--results path] [--evidence path] [--no-evidence]")
 		return exitUsage
 	}
 
+	// An interrupt or a termination signal cancels the check, which kills the
+	// tool's whole process group instead of leaving it behind.
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	report, err := check.Check(check.CheckOptions{
 		ModelPath: *modelPath, QuintPath: *quintPath, QuintHome: *quintHome, Mode: check.Mode(*mode),
 		MaxSteps: *maxSteps, MaxSamples: *maxSamples, Seed: *seed, VerifySteps: *verifySteps,
 		OutDir: *outDir, ResultsPath: *results, EvidencePath: *evidence, NoEvidence: *noEvidence,
+		Context: ctx, Timeout: *timeout, PassEnv: splitNames(*passEnv),
 	})
 	if err != nil {
 		fmt.Fprintln(stderr, "error:", err)
@@ -77,10 +88,12 @@ func printReport(stdout, stderr io.Writer, report check.CheckReport) {
 	}
 	if len(report.GenerationErrors) > 0 {
 		fmt.Fprintln(stdout, "result: FAIL (the model does not generate; fix the diagnostics above)")
+		printCleared(stdout, report)
 		return
 	}
 	if report.NoMachines {
 		fmt.Fprintln(stdout, "model has no machines; nothing to check")
+		printCleared(stdout, report)
 		return
 	}
 	for _, d := range report.Drift {
@@ -101,6 +114,29 @@ func printReport(stdout, stderr io.Writer, report check.CheckReport) {
 	if report.EvidencePath != "" {
 		fmt.Fprintf(stdout, "evidence: %s (%d entries)\n", report.EvidencePath, report.EvidenceEntries)
 	}
+}
+
+// printCleared says that the evidence file lost its entries because the model
+// no longer generates or has no machines.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func printCleared(stdout io.Writer, report check.CheckReport) {
+	if report.EvidencePath != "" {
+		fmt.Fprintf(stdout, "evidence: %s (cleared: its entries no longer apply)\n", report.EvidencePath)
+	}
+}
+
+// splitNames splits a comma-separated list of names and drops empty ones.
+//
+// TRLC-LINKS: REQ-EMG-142
+func splitNames(list string) []string {
+	var names []string
+	for _, name := range strings.Split(list, ",") {
+		if name = strings.TrimSpace(name); name != "" {
+			names = append(names, name)
+		}
+	}
+	return names
 }
 
 // printModule prints the invariant table, the warnings and the counterexamples
@@ -130,7 +166,10 @@ func printModule(w io.Writer, m check.ModuleResult) {
 			}
 			switch named.step.Status {
 			case check.StatusViolated:
-				fmt.Fprintf(w, "  %s violated: %s (%s; %s)\n", inv.ID, check.FormatCounterexample(named.step.Counterexample), named.mode, strings.Join(inv.Requirements, ", "))
+				fmt.Fprintf(w, "  %s violated: %s (%s; %s)\n", inv.ID, check.FormatCounterexample(*named.step), named.mode, strings.Join(inv.Requirements, ", "))
+				if named.step.TraceUnavailable {
+					fmt.Fprintf(w, "    %s\n", named.step.Message)
+				}
 			case check.StatusError:
 				fmt.Fprintf(w, "  %s error (%s): %s\n", inv.ID, named.mode, named.step.Message)
 			}

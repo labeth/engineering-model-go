@@ -14,7 +14,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
-const formalQnt = "module sm_x { val inv_x = true }\n"
+const formalQnt = FormalGeneratedHeader + "SM-X; do not edit.\nmodule sm_x { val inv_x = true }\n"
 
 // formalFixture writes a module and an evidence file under a temporary model
 // root and returns the root. entries is the JSON of the results array; %SHA%

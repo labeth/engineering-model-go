@@ -10,10 +10,12 @@ package check
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/labeth/engineering-model-go/internal/export/quint"
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -45,6 +47,15 @@ const (
 	DefaultMaxSamples  = 10000
 	DefaultSeed        = "1"
 	DefaultVerifySteps = 10
+)
+
+// Largest values of the search bounds. A larger value is a setup error: the
+// cost of a run grows with steps times samples, and a typo must not turn a
+// check into a multi-hour job (the time limits would kill it anyway).
+const (
+	MaxStepsLimit       = 1000
+	MaxSamplesLimit     = 1000000
+	MaxVerifyStepsLimit = 100
 )
 
 // Backend is the only Quint run backend: the default Rust backend downloads
@@ -81,6 +92,24 @@ type CheckOptions struct {
 	NoEvidence bool
 	// Runner starts external processes; default ExecRunner. Tests inject a fake.
 	Runner Runner
+	// Context bounds the whole check; default context.Background(). Cancelling
+	// it kills the running tool and ends the check with an error.
+	Context context.Context
+	// Timeout is the overall deadline of the check, all calls together (default
+	// DefaultTimeout, 30 minutes). When it expires the running tool is killed
+	// and Check returns an error that wraps ErrTimeout.
+	Timeout time.Duration
+	// CallTimeout is the limit of one Quint, Apalache or Java call (default
+	// DefaultCallTimeout, 10 minutes).
+	CallTimeout time.Duration
+	// MaxOutput is the number of bytes captured from each output stream of one
+	// call (default DefaultMaxOutput, 8 MiB).
+	MaxOutput int
+	// PassEnv names environment variables passed to the tools in addition to
+	// the built-in allow-list (PATH, HOME, LANG, LC_ALL, TMPDIR, TEMP, TMP,
+	// TERM, JAVA_HOME, QUINT_HOME; proxy variables in verify mode). Nothing
+	// else of the caller's environment is inherited.
+	PassEnv []string
 }
 
 // Bounds are the search bounds recorded with a result.
@@ -101,6 +130,10 @@ type StepResult struct {
 	TraceMax *int `json:"traceMax,omitempty"`
 	// Counterexample is the ordered TR-* IDs of a violating trace.
 	Counterexample []string `json:"counterexample,omitempty"`
+	// TraceUnavailable is set when the step violated the invariant but its
+	// counterexample trace could not be read, so Counterexample is empty
+	// without the initial state being the violation.
+	TraceUnavailable bool `json:"traceUnavailable,omitempty"`
 	// Message explains an error.
 	Message string `json:"message,omitempty"`
 }
@@ -195,6 +228,10 @@ type checker struct {
 	modelDir  string
 	verifying bool
 	running   bool
+	// env and verifyBaseEnv are the allow-listed environments of a call and of
+	// a verify call before verifyEnv completes it.
+	env           []string
+	verifyBaseEnv []string
 	// apalacheConfig is the Apalache configuration file verify passes.
 	apalacheConfig string
 }
@@ -226,7 +263,7 @@ func Check(opts CheckOptions) (CheckReport, error) {
 		if len(report.GenerationErrors) == 0 {
 			report.GenerationErrors = []string{genErr.Error()}
 		}
-		return report, nil
+		return report, dropEvidence(opts, &report)
 	}
 
 	drifts, moduleDrift, err := compareWithCommitted(opts.OutDir, generated.Files)
@@ -236,12 +273,16 @@ func Check(opts CheckOptions) (CheckReport, error) {
 	report.Drift = drifts
 	if len(generated.Files) == 0 {
 		report.NoMachines = len(drifts) == 0
-		return report, nil
+		return report, dropEvidence(opts, &report)
 	}
 
-	c := &checker{ctx: context.Background(), opts: opts, run: opts.Runner, modelDir: filepath.Dir(opts.ModelPath)}
+	ctx, cancel := context.WithTimeout(opts.Context, opts.Timeout)
+	defer cancel()
+	c := &checker{ctx: ctx, opts: opts, run: opts.Runner, modelDir: filepath.Dir(opts.ModelPath)}
 	c.running = opts.Mode == ModeRun || opts.Mode == ModeBoth
 	c.verifying = opts.Mode == ModeVerify || opts.Mode == ModeBoth
+	c.env = allowEnv(os.Environ(), opts.PassEnv, false)
+	c.verifyBaseEnv = allowEnv(os.Environ(), opts.PassEnv, true)
 	if err := c.prepare(); err != nil {
 		return report, err
 	}
@@ -269,6 +310,27 @@ func Check(opts CheckOptions) (CheckReport, error) {
 		report.EvidenceEntries = len(entries)
 	}
 	return report, nil
+}
+
+// dropEvidence is the evidence rule of a check that ends before any module is
+// run (the model does not generate, it has no machines, or only extra
+// generated modules drifted): an existing evidence file loses its entries, so
+// the trace stops showing a pass for a model that no longer generates. A file
+// that does not exist is not created.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func dropEvidence(opts CheckOptions, report *CheckReport) error {
+	if opts.NoEvidence {
+		return nil
+	}
+	cleared, err := clearEvidence(opts.EvidencePath)
+	if err != nil {
+		return fmt.Errorf("write evidence: %w", err)
+	}
+	if cleared {
+		report.EvidencePath = opts.EvidencePath
+	}
+	return nil
 }
 
 // withDefaults fills the zero values of opts.
@@ -300,6 +362,14 @@ func withDefaults(opts CheckOptions) (CheckOptions, error) {
 	if opts.VerifySteps <= 0 {
 		opts.VerifySteps = DefaultVerifySteps
 	}
+	for _, bound := range []struct {
+		name         string
+		value, limit int
+	}{{"max-steps", opts.MaxSteps, MaxStepsLimit}, {"max-samples", opts.MaxSamples, MaxSamplesLimit}, {"verify-steps", opts.VerifySteps, MaxVerifyStepsLimit}} {
+		if bound.value > bound.limit {
+			return opts, setupError(nil, "%s %d is above the maximum %d", bound.name, bound.value, bound.limit)
+		}
+	}
 	if strings.TrimSpace(opts.Seed) == "" {
 		opts.Seed = DefaultSeed
 	}
@@ -325,6 +395,21 @@ func withDefaults(opts CheckOptions) (CheckOptions, error) {
 	}
 	if opts.Runner == nil {
 		opts.Runner = ExecRunner
+	}
+	if opts.Context == nil {
+		opts.Context = context.Background()
+	}
+	if opts.Timeout < 0 || opts.CallTimeout < 0 || opts.MaxOutput < 0 {
+		return opts, setupError(nil, "timeouts and the output limit must not be negative")
+	}
+	if opts.Timeout == 0 {
+		opts.Timeout = DefaultTimeout
+	}
+	if opts.CallTimeout == 0 {
+		opts.CallTimeout = DefaultCallTimeout
+	}
+	if opts.MaxOutput == 0 {
+		opts.MaxOutput = DefaultMaxOutput
 	}
 	return opts, nil
 }
@@ -361,10 +446,10 @@ func (c *checker) prepare() error {
 			return setupError(err, "write the Apalache configuration")
 		}
 	}
-	out, err := c.run(c.ctx, Command{Path: c.quint, Args: []string{"--version"}, Dir: c.scratch, Env: os.Environ()})
+	out, err := c.call(Command{Path: c.quint, Args: []string{"--version"}, Dir: c.scratch, Env: c.env})
 	if err != nil {
 		os.RemoveAll(c.scratch)
-		return setupError(err, "cannot start %s", c.quint)
+		return err
 	}
 	c.version = strings.TrimSpace(firstLine(out.Stdout))
 	if out.ExitCode != 0 || c.version == "" {
@@ -412,7 +497,7 @@ func (c *checker) checkModule(file quint.File, drift string) (ModuleResult, erro
 		Drift: drift, Invariants: []InvariantResult{}, Witnesses: []WitnessResult{}, Warnings: []string{},
 	}
 	if data, readErr := os.ReadFile(path); readErr == nil {
-		m.QntSha256 = sha256Hex(data)
+		m.QntSha256 = sha256Hex(normalizeEOL(data))
 	}
 	for _, inv := range file.Invariants {
 		m.Invariants = append(m.Invariants, InvariantResult{Name: inv.Name, ID: inv.ID, Requirements: inv.Requirements})
@@ -501,15 +586,51 @@ func (m *ModuleResult) addWarning(text string) {
 	m.Warnings = append(m.Warnings, text)
 }
 
+// call runs one external command under the limits of the check. A process that
+// cannot start is a setup error; an expired overall deadline or a cancelled
+// context ends the check with an error that wraps ErrTimeout or the context
+// error, because the tool was killed and its output means nothing.
+//
+// TRLC-LINKS: REQ-EMG-143
+func (c *checker) call(cmd Command) (Output, error) {
+	if err := c.ctxError(); err != nil {
+		return Output{}, err
+	}
+	cmd.Timeout, cmd.MaxOutput = c.opts.CallTimeout, c.opts.MaxOutput
+	out, err := c.run(c.ctx, cmd)
+	if ctxErr := c.ctxError(); ctxErr != nil {
+		return out, ctxErr
+	}
+	if err != nil {
+		return out, setupError(err, "cannot start %s", cmd.Path)
+	}
+	return out, nil
+}
+
+// ctxError reports the expiry or cancellation of the check's context.
+//
+// TRLC-LINKS: REQ-EMG-143
+func (c *checker) ctxError() error {
+	err := c.ctx.Err()
+	switch {
+	case err == nil:
+		return nil
+	case errors.Is(err, context.DeadlineExceeded):
+		return fmt.Errorf("%w: the check exceeded its overall limit of %s (raise it with --timeout)", ErrTimeout, c.opts.Timeout)
+	default:
+		return fmt.Errorf("check cancelled: %w", err)
+	}
+}
+
 // typecheck runs quint typecheck on the module. Type errors are recorded and
 // return false; only a process that cannot start is an error.
 //
 // TRLC-LINKS: REQ-EMG-142
 func (c *checker) typecheck(m *ModuleResult, path string) (bool, error) {
 	jsonPath := filepath.Join(c.scratch, m.Module+".typecheck.json")
-	out, err := c.run(c.ctx, Command{Path: c.quint, Args: []string{"typecheck", path, "--out=" + jsonPath}, Dir: c.scratch, Env: os.Environ()})
+	out, err := c.call(Command{Path: c.quint, Args: []string{"typecheck", path, "--out=" + jsonPath}, Dir: c.scratch, Env: c.env})
 	if err != nil {
-		return false, setupError(err, "cannot start %s", c.quint)
+		return false, err
 	}
 	if out.ExitCode == 0 {
 		return true, nil

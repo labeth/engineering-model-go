@@ -45,18 +45,21 @@ install_apalache() {
   local archive="$download_dir/apalache-${APALACHE_VERSION}.tgz"
   local url="https://github.com/apalache-mc/apalache/releases/download/v${APALACHE_VERSION}/apalache.tgz"
   local dist="$quint_home/apalache-dist-${APALACHE_VERSION}"
-  if [ -x "$dist/apalache/bin/apalache-mc" ]; then
+  # An existing dist counts only when the marker written at unpacking names
+  # the pinned archive hash; a dist of another build is replaced.
+  if [ -x "$dist/apalache/bin/apalache-mc" ] && [ "$(cat "$dist/.sha256" 2>/dev/null || true)" = "$APALACHE_SHA256" ]; then
     return
   fi
   if ! { [ -f "$archive" ] && verify_sha256 "$APALACHE_SHA256" "$archive" >/dev/null 2>&1; }; then
     rm -f "$archive"
-    curl --fail --location --retry 3 --output "$archive" "$url"
+    curl --fail --location --proto '=https' --proto-redir '=https' --tlsv1.2 --retry 3 --output "$archive" "$url"
     verify_sha256 "$APALACHE_SHA256" "$archive"
   fi
   rm -rf "$dist"
   mkdir -p "$dist"
   tar -xzf "$archive" -C "$dist"
   test -x "$dist/apalache/bin/apalache-mc"
+  printf '%s\n' "$APALACHE_SHA256" > "$dist/.sha256"
 }
 
 case "${1:-all}" in

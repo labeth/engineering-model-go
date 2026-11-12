@@ -65,15 +65,10 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 		[]string{
 			filepath.Join(baseDir, "tests"),
 		},
-		inferredSiblingDirs(baseDir, bundle, codeRootOption, "tests")...,
+		inferredSiblingDirs(baseDir, codeRootOption, "tests")...,
 	))
 	testRoots = UniqueExistingSources(append(testRoots, inferredCodeRoots(baseDir, bundle, codeRootOption)...))
-	resultRoots := uniqueExistingDirs(append(
-		[]string{
-			filepath.Join(baseDir, "test-results"),
-		},
-		inferredSiblingDirs(baseDir, bundle, codeRootOption, "test-results")...,
-	))
+	resultRoots := VerificationResultRoots(baseDir, codeRootOption)
 
 	diags := []validate.Diagnostic{}
 	codeBySource := buildVerificationCodeElementIndex(inferredCode)
@@ -774,7 +769,7 @@ func ownersForRequirements(reqOwners map[string][]string, reqs []string) []strin
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func inferredSiblingDirs(baseDir string, bundle model.Bundle, codeRootOption, sibling string) []string {
+func inferredSiblingDirs(baseDir, codeRootOption, sibling string) []string {
 	out := []string{}
 	if strings.TrimSpace(codeRootOption) != "" {
 		root := codeRootOption

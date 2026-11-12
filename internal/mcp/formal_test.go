@@ -14,6 +14,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
@@ -22,6 +23,13 @@ import (
 type formalMCPEntry struct {
 	req, invariant, status, machine string
 	stale                           bool
+}
+
+// formalMCPModuleText is the generated module of a machine in the fixtures.
+//
+// TRLC-LINKS: REQ-EMG-148
+func formalMCPModuleText(machine string) string {
+	return codescan.FormalGeneratedHeader + machine + "; do not edit.\nmodule " + machine + " { val x = 1 }\n"
 }
 
 // formalMCPServer builds a fixture model with the evidence entries and
@@ -50,7 +58,7 @@ func formalMCPServer(t *testing.T, entries ...formalMCPEntry) *Server {
 	var results []map[string]string
 	for _, e := range entries {
 		file := "generated/quint/" + strings.ToLower(strings.ReplaceAll(e.machine, "-", "_")) + ".qnt"
-		text := "module " + e.machine + " { val x = 1 }\n"
+		text := formalMCPModuleText(e.machine)
 		sum := sha256.Sum256([]byte(text))
 		sha := hex.EncodeToString(sum[:])
 		if e.stale {
@@ -128,7 +136,7 @@ func TestVerificationToolsReportFormalPassFailedStale(t *testing.T) {
 		}
 	}
 	pass := formalEntryOf(t, status, "formalResults", "REQ-PAYMENTS-001")["invariants"].([]any)[0].(map[string]any)
-	sum := sha256.Sum256([]byte("module SM-ONE { val x = 1 }\n"))
+	sum := sha256.Sum256([]byte(formalMCPModuleText("SM-ONE")))
 	if pass["machine"] != "SM-ONE" || pass["invariant"] != "INV-F-1" || pass["mode"] != "run" || pass["requirement"] != "REQ-PAYMENTS-001" ||
 		pass["result"] != "pass" || pass["qntSha256"] != hex.EncodeToString(sum[:]) {
 		t.Fatalf("invariant entry: %+v", pass)
@@ -300,5 +308,76 @@ func TestGemaraToolsAcceptFormalEvaluationEntries(t *testing.T) {
 	valid := callToolPayload(t, s, "gemara.validate", map[string]any{})
 	if errs, _ := valid["crossReferenceErrors"].([]any); len(errs) != 0 || valid["valid"] != true {
 		t.Fatalf("gemara.validate: %+v", valid)
+	}
+}
+
+// When the trace matrix cannot be built the tools say so with formalError and
+// carry no formalResults or formalGaps, so "no formal gaps" is never reported
+// for a verification that did not run.
+//
+// TRLC-LINKS: REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func TestVerificationToolsReportFormalErrorWhenMatrixFails(t *testing.T) {
+	s := formalMCPServer(t, formalMCPEntry{req: "REQ-PAYMENTS-001", invariant: "INV-F-1", status: "fail", machine: "SM-ONE"})
+	// Break only the matrix build: the fingerprint is refreshed so the tool call
+	// does not reload the model (and fail there) first.
+	s.requirementsPath = filepath.Join(t.TempDir(), "missing-requirements.yml")
+	s.fingerprint = s.modelFileFingerprint()
+
+	if _, err := s.formalGaps(); err == nil {
+		t.Fatalf("formalGaps must return the matrix error")
+	}
+	if _, err := s.formalStatus(""); err == nil {
+		t.Fatalf("formalStatus must return the matrix error")
+	}
+	for _, tool := range []string{"verification.status", "verification.gaps"} {
+		payload := callToolPayload(t, s, tool, map[string]any{})
+		msg, _ := payload["formalError"].(string)
+		if !strings.Contains(msg, "trace matrix could not be built") {
+			t.Errorf("%s: formalError = %q in %+v", tool, msg, payload)
+		}
+		if _, ok := payload["formalGaps"]; ok {
+			t.Errorf("%s reports gaps next to an error: %+v", tool, payload)
+		}
+		if _, ok := payload["formalResults"]; ok {
+			t.Errorf("%s reports results next to an error: %+v", tool, payload)
+		}
+	}
+}
+
+// The tools look for evidence in the directories the verification scan reads:
+// a file in a nested directory of test-results is found by hasFormalEvidence
+// and by the matrix rows alike, and one beside the model (outside test-results)
+// is found by neither.
+//
+// TRLC-LINKS: REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func TestFormalEvidenceDirectoriesAgreeWithTheVerificationScan(t *testing.T) {
+	s := formalMCPServer(t, formalMCPEntry{req: "REQ-PAYMENTS-001", invariant: "INV-F-1", status: "pass", machine: "SM-ONE"})
+	root := codescan.ModelRootDir(*s.bundle)
+	from := filepath.Join(root, "test-results", "quint-formal.json")
+	nested := filepath.Join(root, "test-results", "ci", "quint-formal.json")
+	if err := os.MkdirAll(filepath.Dir(nested), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(from, nested); err != nil {
+		t.Fatal(err)
+	}
+	if !s.hasFormalEvidence() {
+		t.Fatalf("a nested evidence file is in the scanned directories")
+	}
+	got, err := s.formalRequirements()
+	if err != nil || len(got) != 1 || got[0].Invariants[0].Evidence != "test-results/ci/quint-formal.json" {
+		t.Fatalf("matrix rows: %+v (%v)", got, err)
+	}
+	outside := filepath.Join(root, "quint-formal.json")
+	if err := os.Rename(nested, outside); err != nil {
+		t.Fatal(err)
+	}
+	if s.hasFormalEvidence() {
+		t.Fatalf("an evidence file outside test-results is not scanned")
+	}
+	if got, err := s.formalRequirements(); err != nil || got != nil {
+		t.Fatalf("no evidence in the scanned directories: %+v (%v)", got, err)
 	}
 }
