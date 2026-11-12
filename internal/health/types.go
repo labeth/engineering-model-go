@@ -9,8 +9,9 @@ package health
 // ReportSchema is the schema string of the JSON report.
 const ReportSchema = "engmod-health/1"
 
-// ScoringVersion is the version of the weights table in scoring.go.
-const ScoringVersion = 1
+// ScoringVersion is the version of the scoring in scoring.go: the weights
+// table and the combination rule (version 2 caps the tail, ADR-EMG-059).
+const ScoringVersion = 2
 
 // Severity of one finding.
 type Severity string
@@ -35,6 +36,25 @@ const (
 	CodeLargeAssertionBlock = "health.large_assertion_block"
 	CodeDuplicatedAssertion = "health.duplicated_assertion_block"
 )
+
+// Diagnostic codes about the analysis itself (a source file that could not be
+// analysed). A file that is not analysed is no clean file: both have the level
+// of health.regression at the tier, so they block where a regression blocks.
+const (
+	CodeFileSkipped = "health.file_skipped"
+	CodeFileFailed  = "health.file_failed"
+	// CodeSyntaxError marks a file the parser could only partly read: the
+	// functions it lost are not measured, so the file must not read as clean.
+	CodeSyntaxError = "health.syntax_error"
+	// CodeRollupUnavailable marks a report whose unit and requirement roll-ups
+	// could not be built from the code scan of the model.
+	CodeRollupUnavailable = "health.rollup_unavailable"
+)
+
+// SyntaxErrorCap bounds the number of ERROR and MISSING syntax nodes an engine
+// counts in one file (FileResult.SyntaxErrors); a count at the cap means "at
+// least".
+const SyntaxErrorCap = 1000
 
 // Codes lists every finding code in report order.
 //
@@ -71,6 +91,28 @@ func DefaultThresholds() map[string]Threshold {
 	}
 }
 
+// DefaultThresholdsForTier returns the limits the scan applies for a project
+// life-cycle tier (ADR-EMG-057, calibrated by ADR-EMG-059, OWNER items). The tiers product and operational
+// share the stricter set because findings are errors there and AI-assisted
+// work needs cleaner code; every other tier, and an empty tier, gets
+// DefaultThresholds.
+//
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-155
+func DefaultThresholdsForTier(tier string) map[string]Threshold {
+	if tier != "product" && tier != "operational" {
+		return DefaultThresholds()
+	}
+	return map[string]Threshold{
+		CodeComplexMethod:       {Warn: 8, High: 15},
+		CodeLargeMethod:         {Warn: 50, High: 100},
+		CodeDeepNesting:         {Warn: 3, High: 4},
+		CodeBumpyRoad:           {Warn: 2, High: 3},
+		CodeComplexConditional:  {Warn: 3, High: 5},
+		CodeExcessArguments:     {Warn: 4, High: 6},
+		CodeLargeAssertionBlock: {Warn: 5, High: 8},
+	}
+}
+
 // Config is what an engine needs to produce findings.
 type Config struct {
 	// Thresholds override DefaultThresholds per code (never partially: a code
@@ -92,14 +134,16 @@ type Finding struct {
 }
 
 // Function is one function, method or named closure with its metrics.
-// Anonymous closures count toward their enclosing function (ADR-EMG-047).
+// Anonymous closures count toward their enclosing function; a nested named
+// function is a Function of its own and its rows are not in the LOC of the
+// enclosing one (ADR-EMG-047).
 type Function struct {
 	// Name is the qualified name: Type.Method, Outer.inner, or the plain name.
 	Name       string    `json:"name"`
 	Kind       string    `json:"kind"` // function, method
 	StartLine  int       `json:"startLine"`
 	EndLine    int       `json:"endLine"`
-	LOC        int       `json:"loc"` // logical lines: not blank, not comment
+	LOC        int       `json:"loc"` // logical lines: not blank, not comment, without the rows of nested named units
 	Parameters int       `json:"parameters"`
 	Cyclomatic int       `json:"cyclomatic"`
 	MaxNesting int       `json:"maxNesting"`
@@ -128,6 +172,10 @@ type FileResult struct {
 	// Unsupported lists smells that cannot be computed reliably for this
 	// language; they are reported as unsupported, never as a silent zero.
 	Unsupported []string `json:"unsupported,omitempty"`
+	// SyntaxErrors counts the ERROR and MISSING nodes of the syntax tree, up to
+	// SyntaxErrorCap. A file with any is analysed as far as the parser recovered
+	// it and carries a health.syntax_error diagnostic.
+	SyntaxErrors int `json:"syntaxErrors,omitempty"`
 }
 
 // Engine analyses source files. Implementations must be deterministic: the
@@ -138,3 +186,36 @@ type Engine interface {
 	Version() string
 	Analyze(inputs []FileInput, cfg Config) ([]FileResult, error)
 }
+
+// Bands of a file score (ADR-EMG-048, OWNER items).
+const (
+	BandGreen  = "green"  // score >= 8.0
+	BandYellow = "yellow" // score >= 4.0
+	BandRed    = "red"    // score < 4.0
+)
+
+// Deduction is one finding's contribution to a file score; a score always
+// carries the deductions that produced it.
+type Deduction struct {
+	Code     string   `json:"code"`
+	Function string   `json:"function"`
+	Severity Severity `json:"severity"`
+	// Points is weight(code) x severity factor (warn 1, high 2), before the
+	// diminishing-returns combination across functions.
+	Points float64 `json:"points"`
+	// Counted is what the combination left of it (worst function x1, next
+	// x0.5, the rest x0.25).
+	Counted float64 `json:"counted"`
+}
+
+// FileScore is the explainable score of one file.
+type FileScore struct {
+	Score      float64     `json:"score"` // 1.0 .. 10.0, one decimal
+	Band       string      `json:"band"`
+	Deductions []Deduction `json:"deductions,omitempty"`
+}
+
+// Scorer turns an engine result into a score. ScoreFile (scoring.go) is the
+// implementation; the delta check takes a Scorer so that it does not depend
+// on the weights table.
+type Scorer func(FileResult) FileScore

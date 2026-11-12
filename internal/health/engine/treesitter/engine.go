@@ -10,6 +10,7 @@ package treesitter
 
 import (
 	"fmt"
+	"time"
 
 	sitter "github.com/tree-sitter/go-tree-sitter"
 
@@ -19,7 +20,7 @@ import (
 
 // EngineVersion is the version string of the engine; it changes whenever an
 // analysis change could alter a result.
-const EngineVersion = "1"
+const EngineVersion = "2"
 
 // Engine is the tree-sitter implementation of health.Engine.
 type Engine struct{}
@@ -40,7 +41,8 @@ func (Engine) Version() string { return EngineVersion }
 
 // Analyze measures every input file; a file whose language is not supported is
 // an error. A file with syntax errors is analysed as far as the parser
-// recovered it.
+// recovered it and carries the count of its ERROR and MISSING nodes
+// (FileResult.SyntaxErrors).
 // TRLC-LINKS: REQ-EMG-150, REQ-EMG-159
 func (Engine) Analyze(inputs []health.FileInput, cfg health.Config) ([]health.FileResult, error) {
 	thresholds := health.DefaultThresholds()
@@ -58,6 +60,68 @@ func (Engine) Analyze(inputs []health.FileInput, cfg health.Config) ([]health.Fi
 	return results, nil
 }
 
+// MaxSyntaxDepth is the deepest syntax tree the engine walks. The walk is
+// recursive, and a file of a few MiB of opening brackets would otherwise
+// exhaust the stack of the process, which no recover can catch. The check is
+// iterative, so the file is refused (an error, reported by the caller as a file
+// that was not analysed) before any recursion starts.
+var MaxSyntaxDepth = 10000
+
+// syntaxDepth returns the depth of the tree under root, or limit+1 as soon as
+// it is deeper than limit. It walks with a tree cursor and uses no recursion.
+// TRLC-LINKS: REQ-EMG-150
+func syntaxDepth(root *sitter.Node, limit int) int {
+	cursor := root.Walk()
+	defer cursor.Close()
+	depth, deepest := 1, 1
+	for {
+		if cursor.GotoFirstChild() {
+			if depth++; depth > deepest {
+				if deepest = depth; deepest > limit {
+					return deepest
+				}
+			}
+			continue
+		}
+		for !cursor.GotoNextSibling() {
+			if !cursor.GotoParent() {
+				return deepest
+			}
+			depth--
+		}
+	}
+}
+
+// syntaxErrors counts the ERROR and MISSING nodes under root, up to limit. It
+// walks with a tree cursor and descends only into nodes that hold an error, so a
+// clean file costs one HasError call.
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-155
+func syntaxErrors(root *sitter.Node, limit int) int {
+	if !root.HasError() {
+		return 0
+	}
+	cursor := root.Walk()
+	defer cursor.Close()
+	count := 0
+	for {
+		if n := cursor.Node(); n.HasError() {
+			if n.IsError() || n.IsMissing() {
+				if count++; count >= limit {
+					return limit
+				}
+			}
+			if cursor.GotoFirstChild() {
+				continue
+			}
+		}
+		for !cursor.GotoNextSibling() {
+			if !cursor.GotoParent() {
+				return count
+			}
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-150
 func analyzeFile(in health.FileInput, thresholds map[string]health.Threshold) (health.FileResult, error) {
 	name := in.Language
@@ -70,7 +134,15 @@ func analyzeFile(in health.FileInput, thresholds map[string]health.Threshold) (h
 	}
 	var res health.FileResult
 	err := codemap.ParseSource(name, in.Source, func(root *sitter.Node, _ string) error {
-		res = analyzeTree(l, in, root, thresholds)
+		if depth := syntaxDepth(root, MaxSyntaxDepth); depth > MaxSyntaxDepth {
+			return fmt.Errorf("the syntax is nested more than %d levels deep", MaxSyntaxDepth)
+		}
+		var ctx *fileCtx
+		res, ctx = analyzeTree(l, in, root, thresholds)
+		if ctx.over {
+			return fmt.Errorf("the analysis exceeded its budget of %s (deeply nested source?)", AnalysisBudget)
+		}
+		res.SyntaxErrors = syntaxErrors(root, health.SyntaxErrorCap)
 		return nil
 	})
 	if err != nil {
@@ -97,8 +169,8 @@ type collector struct {
 }
 
 // TRLC-LINKS: REQ-EMG-150
-func analyzeTree(l *language, in health.FileInput, root *sitter.Node, thresholds map[string]health.Threshold) health.FileResult {
-	c := &fileCtx{src: in.Source, path: in.Path}
+func analyzeTree(l *language, in health.FileInput, root *sitter.Node, thresholds map[string]health.Threshold) (health.FileResult, *fileCtx) {
+	c := &fileCtx{src: in.Source, path: in.Path, deadline: time.Now().Add(AnalysisBudget)}
 	c.isTest = l.fileIsTest(c, root)
 	col := &collector{l: l, c: c}
 	col.collect(root, "")
@@ -121,11 +193,37 @@ func analyzeTree(l *language, in health.FileInput, root *sitter.Node, thresholds
 		res.Unsupported = []string{health.CodePrimitiveObsession}
 	}
 	for i, u := range col.units {
-		u.fn.LOC = lines.count(u.fn.StartLine-1, u.fn.EndLine-1)
+		u.fn.LOC = ownLOC(lines, col.units, i)
 		u.fn.Findings = functionFindings(u, supported, duplicates[i], thresholds)
 		res.Functions = append(res.Functions, u.fn)
 	}
-	return res
+	return res, c
+}
+
+// ownLOC is the logical lines of unit i without the rows of the named units
+// nested in it. They are measured and reported on their own, and the other
+// metrics of the unit skip them as well, so no row counts twice: every row of a
+// nested unit's span, its header row included, belongs to that unit. units is
+// in source order, so the units nested in i follow it; the rows of a unit are
+// subtracted once even when several nested units share a row or one lies inside
+// another (the latter takes its own nested units out of its own count).
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-159
+func ownLOC(lines lineIndex, units []*unitRecord, i int) int {
+	u := units[i]
+	first, last := u.fn.StartLine-1, u.fn.EndLine-1
+	loc := lines.count(first, last)
+	done := first - 1 // the last row already subtracted
+	for _, v := range units[i+1:] {
+		if v.fn.StartLine-1 > last {
+			break
+		}
+		from, to := max(v.fn.StartLine-1, done+1), min(v.fn.EndLine-1, last)
+		if to >= from {
+			loc -= lines.count(from, to)
+			done = to
+		}
+	}
+	return max(loc, 0)
 }
 
 // collect visits the named children of n; scope qualifies the names of the
@@ -141,6 +239,9 @@ func (col *collector) collect(n *sitter.Node, scope string) {
 
 // TRLC-LINKS: REQ-EMG-150
 func (col *collector) visit(n *sitter.Node, scope string) {
+	if col.c.expired() {
+		return
+	}
 	kind := n.Kind()
 	if isCommentKind(kind) || (kind == "expression_statement" && col.l.name == "python" && pythonDocstring(n)) {
 		col.comments = append(col.comments, byteRange{n.StartByte(), n.EndByte()})

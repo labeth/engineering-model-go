@@ -86,10 +86,10 @@ func TestManifestHealthBlockRejectsMalformedShapes(t *testing.T) {
 }
 
 // The authoring contract lists the health block as a manifest top-level
-// field, at version v4.
+// field, at version v6.
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-160
-func TestAuthoringContractV4ListsHealth(t *testing.T) {
-	if AuthoringContractVersion != "engineering-model.authoring.v4" {
+func TestAuthoringContractV6ListsHealth(t *testing.T) {
+	if AuthoringContractVersion != "engineering-model.authoring.v6" {
 		t.Fatalf("contract version = %s", AuthoringContractVersion)
 	}
 	dir := writeV2Fixture(t, validManifest+healthBlock)
@@ -120,10 +120,57 @@ func TestAuthoringContractV4ListsHealth(t *testing.T) {
 			t.Errorf("%s has no meaning", c.Code)
 		}
 	}
-	if len(guide.Config) == 0 || len(guide.Codes) != 13 || thresholds != 7 || len(guide.Rules) == 0 {
+	if len(guide.Config) == 0 || len(guide.Codes) != 16 || thresholds != 7 || len(guide.Rules) == 0 {
 		t.Fatalf("incomplete health guide: %+v", guide)
 	}
 	if !strings.Contains(strings.Join(guide.Rules, "\n"), "health.waiver_unjustified") {
 		t.Fatalf("the health guide must describe the waiver rule: %v", guide.Rules)
+	}
+}
+
+// health.policyDecision loads into the typed block, is optional, and the guide
+// documents the code health.policy_weakened and the field. An empty value is
+// rejected by the schema.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-155
+func TestManifestHealthPolicyDecisionLoads(t *testing.T) {
+	dir := writeV2Fixture(t, validManifest+"health:\n  policyDecision: ADR-POLICY\n")
+	bundle, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
+	if err != nil || bundle.Manifest.Health == nil || bundle.Manifest.Health.PolicyDecision != "ADR-POLICY" {
+		t.Fatalf("policyDecision: %v %+v", err, bundle.Manifest.Health)
+	}
+	plain := writeV2Fixture(t, validManifest+healthBlock)
+	bundle, err = LoadBundle(filepath.Join(plain, "engmod.yml"))
+	if err != nil || bundle.Manifest.Health.PolicyDecision != "" {
+		t.Fatalf("policyDecision must be optional: %v %+v", err, bundle.Manifest.Health)
+	}
+	empty := writeV2Fixture(t, validManifest+"health:\n  policyDecision: \"\"\n")
+	if _, err := LoadBundle(filepath.Join(empty, "engmod.yml")); err == nil || !strings.Contains(err.Error(), "policyDecision") {
+		t.Fatalf("an empty policyDecision must be rejected naming the field: %v", err)
+	}
+	found := false
+	for _, c := range BuildAuthoringContract(bundle).Health.Codes {
+		found = found || c.Code == HealthPolicyWeakenedCode
+	}
+	if !found || !strings.Contains(strings.Join(BuildAuthoringContract(bundle).Health.Config, "\n"), "policyDecision") {
+		t.Error("the health guide must document health.policy_weakened and policyDecision")
+	}
+}
+
+// ParseHealthPolicy reads the lifecycle and health blocks of a manifest of
+// another revision leniently: unknown keys and the rest of the document are
+// ignored, an empty document is the empty policy, and a document that is not a
+// YAML mapping is an error.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-155
+func TestParseHealthPolicyIsLenient(t *testing.T) {
+	policy, err := ParseHealthPolicy([]byte("schemaVersion: 1\nsomethingNew: [1, 2]\nlifecycle:\n  tier: product\n  futureKey: x\nhealth:\n  policyDecision: ADR-A\n  exclude: [gen/**]\n  thresholds:\n    health.complex_method: {warn: 9, high: 16}\n"))
+	if err != nil || policy.Lifecycle == nil || policy.Lifecycle.Tier != "product" || policy.Health == nil ||
+		policy.Health.PolicyDecision != "ADR-A" || policy.Health.Thresholds["health.complex_method"].High != 16 {
+		t.Fatalf("policy = %+v, %v", policy, err)
+	}
+	if policy, err = ParseHealthPolicy(nil); err != nil || policy.Lifecycle != nil || policy.Health != nil {
+		t.Errorf("an empty document: %+v, %v", policy, err)
+	}
+	if _, err = ParseHealthPolicy([]byte("- a\n- b\n")); err == nil {
+		t.Error("a list is no manifest")
 	}
 }

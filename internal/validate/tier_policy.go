@@ -46,10 +46,14 @@ const (
 	rowHygiene           = "DDWWE"
 	rowStrictCoverage    = "WWWEE"
 	rowSafetyFromMVP     = "DDEEE"
-	// rowHealthDebt is a warning at every tier; lifecycle.raise: [health.*]
-	// is the escape hatch that makes debt blocking.
-	rowHealthDebt     = "WWWWW"
-	rowHealthDebtNote = "code health debt (only with a health block); a warning at every tier, an error with lifecycle.raise: [health.*]"
+	// rowHealthDebt is a warning up to mvp and an error at product and
+	// operational, the two highest tiers, where the bar for code quality is the
+	// same and highest (ADR-EMG-057); with the safety bundle it is an error from
+	// mvp. lifecycle.raise: [health.*] remains the escape hatch that makes debt
+	// blocking at a lower tier.
+	rowHealthDebt       = "WWWEE"
+	rowHealthDebtSafety = "WWEEE"
+	rowHealthDebtNote   = "code health debt (only with a health block); a warning up to mvp, an error at product and operational (from mvp with the safety bundle), an error at any tier with lifecycle.raise: [health.*]"
 	// The requirement link rules follow the effective requirementLinks mode
 	// (ADR-EMG-022 amended): guided below mvp unless declared strict,
 	// strict from mvp.
@@ -97,21 +101,31 @@ var tierTable = map[string]tierRow{
 	"aviation.derived.incomplete_safety_feedback": {base: rowDebtToProduct, note: "load-fatal without lifecycle"},
 	"composition.dependency_below_tier":           {base: rowDebtToProduct, note: "unless a risk with recorded acceptance names the dependency alias in dependencies (or the composing subsystem in appliesTo)"},
 	"composition.dependency_tier_unknown":         {base: "WWWWW", safety: "WWWEE"},
-	// Code health (ADR-EMG-052): debt is reported at every tier and never
-	// blocks unless lifecycle.raise names health.*; only a regression, a new
-	// or worsened high finding against the baseline, is an error from product.
-	"health.complex_method":             {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.large_method":               {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.deep_nesting":               {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.bumpy_road":                 {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.complex_conditional":        {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.excess_arguments":           {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.primitive_obsession":        {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.brain_method":               {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.large_assertion_block":      {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.duplicated_assertion_block": {base: rowHealthDebt, note: rowHealthDebtNote},
-	"health.waiver_unused":              {base: rowHealthDebt, note: "a health waiver that matches no finding (only with a health block)"},
-	"health.regression":                 {base: "WWWEE", safety: "WWEEE", note: "a new or worsened high health finding against the baseline (only with a health block)"},
+	// Code health (ADR-EMG-052, ADR-EMG-057): debt is a warning up to mvp and an
+	// error at product and operational (from mvp with the safety bundle);
+	// lifecycle.raise: [health.*] makes it an error at any tier. A regression, a
+	// new or worsened high finding against the base revision, has the same row.
+	"health.complex_method":             {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.large_method":               {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.deep_nesting":               {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.bumpy_road":                 {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.complex_conditional":        {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.excess_arguments":           {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.primitive_obsession":        {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.brain_method":               {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.large_assertion_block":      {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.duplicated_assertion_block": {base: rowHealthDebt, safety: rowHealthDebtSafety, note: rowHealthDebtNote},
+	"health.waiver_unused":              {base: rowHealthDebt, safety: rowHealthDebtSafety, note: "a health waiver that matches no finding (only with a health block); a stale waiver hides debt, so it is an error where the debt is an error"},
+	// A stale baseline entry is a debt that was paid but not removed from the
+	// file: a warning at every tier below operational (the baseline can only
+	// shrink, ADR-EMG-059) and an error at operational, where the debt is zero
+	// or accepted.
+	"health.baseline_stale": {base: "WWWWE", note: "a health baseline entry that matches no finding, so it can be removed (only with a health baseline)"},
+	"health.regression":     {base: "WWWEE", safety: "WWEEE", note: "a new or worsened high health finding against the baseline (only with a health block)"},
+	// A change that weakens the policy it is measured by (a higher limit, a
+	// wider exclude or override, a lower tier) is reported against the base
+	// revision by enghealth check; a policyDecision records it.
+	"health.policy_weakened": {base: "WWWEE", safety: "WWEEE", note: "a change that raises a health limit, widens health.exclude or an override or lowers the tier against the base revision, without an accepted health.policyDecision (only with a health block)"},
 }
 
 // coreCodes are the rank-0 code patterns: never tier keyed and never

@@ -67,6 +67,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-ALLOCATION-TRACE` |functional_unit |Allocation Trace
 |`FU-ASCIIDOC-GENERATOR` |functional_unit |AsciiDoc Generator
 |`FU-CLI-ORCHESTRATION` |functional_unit |CLI Orchestration
+|`FU-CODE-HEALTH` |functional_unit |Code health analysis
 |`FU-CODEMAP-INFERENCE` |functional_unit |Codemap Inference
 |`FU-GEMARA-EXPORTER` |functional_unit |Gemara Exporter
 |`FU-LOBSTER-EXPORTER` |functional_unit |LOBSTER Exporter
@@ -87,6 +88,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`IF-CLI-ENGDOC` |interface |engdoc CLI
 |`IF-CLI-ENGDRAGON` |interface |engdragon CLI
 |`IF-CLI-ENGGEMARA` |interface |enggemara CLI
+|`IF-CLI-ENGHEALTH` |interface |enghealth CLI
 |`IF-CLI-ENGLOBSTER` |interface |englobster CLI
 |`IF-CLI-ENGMCP` |interface |engmcp CLI
 |`IF-CLI-ENGNAF` |interface |engnaf CLI
@@ -138,6 +140,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FG-TRACEABILITY-COMPLIANCE` |contains |`FU-LOBSTER-EXPORTER` |contains
 |`FG-TRACEABILITY-COMPLIANCE` |contains |`FU-OSCAL-EXPORTER` |contains
 |`FG-TRACEABILITY-COMPLIANCE` |contains |`FU-TRLC-EXPORTER` |contains
+|`FG-VALIDATION-ANALYSIS` |contains |`FU-CODE-HEALTH` |contains
 |`FG-VALIDATION-ANALYSIS` |contains |`FU-CODEMAP-INFERENCE` |contains
 |`FG-VALIDATION-ANALYSIS` |contains |`FU-VALIDATION-ENGINE` |contains
 |`FU-ALLOCATION-TRACE` |contains |`IF-CLI-ENGTRACE` |contains
@@ -146,6 +149,10 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-ASCIIDOC-GENERATOR` |depends_on
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-MODEL-LOADER` |depends_on
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-CODE-HEALTH` |depends_on |`FU-CODEMAP-INFERENCE` |depends_on
+|`FU-CODE-HEALTH` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-CODE-HEALTH` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-CODE-HEALTH` |contains |`IF-CLI-ENGHEALTH` |contains
 |`FU-CODEMAP-INFERENCE` |bounded_by |`TB-REPO-WORKSPACE` |bounded_by
 |`FU-GEMARA-EXPORTER` |contains |`IF-CLI-ENGGEMARA` |contains
 |`FU-LOBSTER-EXPORTER` |contains |`IF-CLI-ENGLOBSTER` |contains
@@ -214,6 +221,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`DEP-LOCAL-WORKSPACE` |deployment_target |Local Workspace
 |`FU-ASCIIDOC-GENERATOR` |functional_unit |AsciiDoc Generator
 |`FU-CLI-ORCHESTRATION` |functional_unit |CLI Orchestration
+|`FU-CODE-HEALTH` |functional_unit |Code health analysis
 |`FU-CODEMAP-INFERENCE` |functional_unit |Codemap Inference
 |`FU-LOBSTER-EXPORTER` |functional_unit |LOBSTER Exporter
 |`FU-MCP-SERVER` |functional_unit |MCP Server
@@ -236,6 +244,9 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-ASCIIDOC-GENERATOR` |depends_on
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-MODEL-LOADER` |depends_on
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-CODE-HEALTH` |depends_on |`FU-CODEMAP-INFERENCE` |depends_on
+|`FU-CODE-HEALTH` |depends_on |`FU-MODEL-LOADER` |depends_on
+|`FU-CODE-HEALTH` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
 |`FU-LOBSTER-EXPORTER` |depends_on |`REF-LOBSTER-TOOLCHAIN` |depends_on
 |`FU-MCP-SERVER` |deployed_to |`DEP-LOCAL-WORKSPACE` |deployed_to
 |`FU-MCP-SERVER` |depends_on |`FU-MODEL-LOADER` |depends_on

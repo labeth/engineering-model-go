@@ -55,6 +55,10 @@ var layerRules = map[string][]string{
 	// itself never imports an engine.
 	"internal/health":                   {"internal/codescan", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
 	"internal/health/engine/treesitter": {"internal/health", "internal/codescan", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
+	// The scan pipeline picks and constructs the engine, so it sits above both:
+	// it is the one package that imports the tree-sitter engine and the code
+	// scope of the other tools.
+	"internal/health/scan": {"internal/health", "internal/health/engine/treesitter", "internal/codescan", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
 	// Test-only package for cross-package end-to-end tests; its tests may
 	// also drive the public facade and the MCP server.
 	"internal/integration": {},

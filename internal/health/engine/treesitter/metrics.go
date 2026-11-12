@@ -7,7 +7,8 @@ import (
 
 // measurer computes the structural metrics of one function unit by walking its
 // body once. Nested named units are skipped (they are measured on their own);
-// anonymous closures are walked and count toward the unit.
+// anonymous closures are walked and count toward the unit. The logical lines of
+// a nested named unit are taken out of the unit by ownLOC (engine.go).
 type measurer struct {
 	l   *language
 	c   *fileCtx
@@ -47,6 +48,9 @@ func isUnitKind(l *language, c *fileCtx, n *sitter.Node, kind string) bool {
 
 // TRLC-LINKS: REQ-EMG-150
 func (m *measurer) walk(n *sitter.Node, depth int, top bool) {
+	if m.c.expired() {
+		return
+	}
 	kind := n.Kind()
 	if !top && isUnitKind(m.l, m.c, n, kind) {
 		return

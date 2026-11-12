@@ -25,8 +25,12 @@ import (
 //     a path that is absolute or leaves the module root.
 //   - health.waiver_unjustified (error, untiered) at a waiver whose decision
 //     is no decision or not accepted.
+//   - health.waiver_unjustified (error, untiered) at a policyDecision that is
+//     no decision or not accepted; the message names the policy decision.
+//   - the baseline rules of healthBaselineDiagnostics (ADR-EMG-059).
 //
-// health.waiver_unused needs the report and is emitted by the health package.
+// health.waiver_unused and health.baseline_stale need the report and are
+// emitted by the health package.
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func healthDiagnostics(b model.Bundle) []Diagnostic {
@@ -80,6 +84,100 @@ func healthDiagnostics(b model.Bundle) []Diagnostic {
 				w.Code, w.Function, w.Path, w.Decision, problem)
 		}
 	}
+	if decision := strings.TrimSpace(h.PolicyDecision); decision != "" {
+		if problem := waiverDecisionProblem(refs, decision); problem != "" {
+			add(model.HealthWaiverUnjustifiedCode, "health.policyDecision",
+				"health policy decision %s is unjustified: it %s; a recorded policy weakening needs an accepted decision", decision, problem)
+		}
+	}
+	return append(diags, healthBaselineDiagnostics(b, refs)...)
+}
+
+// AcceptedHealthPolicyDecision returns the policyDecision of the health block
+// when it names an accepted decision, else "". A policyDecision that does not
+// exist or is not accepted records nothing (health.waiver_unjustified reports
+// it in validation), so a weakening of the policy it was meant to cover stays
+// a health.policy_weakened finding.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-155
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func AcceptedHealthPolicyDecision(b model.Bundle) string {
+	h := b.Manifest.Health
+	if h == nil {
+		return ""
+	}
+	decision := strings.TrimSpace(h.PolicyDecision)
+	if decision == "" || waiverDecisionProblem(NewAcceptanceRefs(b), decision) != "" {
+		return ""
+	}
+	return decision
+}
+
+// HealthBaselineDecisionProblem returns why the decision of health.baseline
+// cannot justify the baseline (it is empty, does not exist or is not
+// accepted), or "" when it can or the manifest has no baseline. The scan calls
+// it so that a baseline without an accepted decision suppresses nothing.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-161
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func HealthBaselineDecisionProblem(b model.Bundle) string {
+	h := b.Manifest.Health
+	if h == nil || h.Baseline == nil {
+		return ""
+	}
+	decision := strings.TrimSpace(h.Baseline.Decision)
+	if decision == "" {
+		return "has no decision"
+	}
+	if problem := waiverDecisionProblem(NewAcceptanceRefs(b), decision); problem != "" {
+		return "decision " + decision + " " + problem
+	}
+	return ""
+}
+
+// healthBaselineDiagnostics checks health.baseline (ADR-EMG-059):
+//
+//   - model.invalid_health_baseline (error) at a missing file or decision and
+//     at a file path that is absolute, leaves the manifest directory or is not
+//     a file name.
+//   - health.waiver_unjustified (error, untiered, the code of a waiver) at a
+//     baseline whose decision is no decision or not accepted; the message
+//     names the baseline.
+//   - health.baseline_unreadable (error, untiered) when the file, read
+//     relative to the manifest directory, is missing, is not valid JSON, is not
+//     engmod-health-baseline/1 or holds an invalid entry. The file format
+//     lives in internal/model, so this layer reads it without importing the
+//     health package; which entries are stale needs a scan and is reported
+//     by the health package (health.baseline_stale). A bundle without a
+//     manifest path (built in memory) has no directory to read from, so only
+//     the manifest fields are checked.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-161
+func healthBaselineDiagnostics(b model.Bundle, refs AcceptanceRefs) []Diagnostic {
+	base := b.Manifest.Health.Baseline
+	if base == nil {
+		return nil
+	}
+	var diags []Diagnostic
+	add := func(code, path, format string, args ...any) {
+		diags = append(diags, Diagnostic{Code: code, Severity: SeverityError, Message: fmt.Sprintf(format, args...), Path: path})
+	}
+	file, decision := strings.TrimSpace(base.File), strings.TrimSpace(base.Decision)
+	fileProblem := model.HealthBaselinePathProblem(file)
+	if fileProblem != "" {
+		add("model.invalid_health_baseline", "health.baseline.file", "health.baseline file %q %s; name a file relative to the manifest directory", base.File, fileProblem)
+	}
+	if decision == "" {
+		add("model.invalid_health_baseline", "health.baseline.decision", "health.baseline needs a decision (an accepted decision that justifies the baseline)")
+	} else if problem := waiverDecisionProblem(refs, decision); problem != "" {
+		add(model.HealthWaiverUnjustifiedCode, "health.baseline.decision",
+			"health baseline %s is unjustified: decision %s %s; a baseline needs an accepted decision", base.File, base.Decision, problem)
+	}
+	if fileProblem == "" && b.ManifestPath != "" {
+		if _, err := model.LoadHealthBaseline(b.ManifestPath, file); err != nil {
+			add(model.HealthBaselineUnreadableCode, "health.baseline.file", "health baseline %s is unreadable: %s", base.File, strings.TrimPrefix(err.Error(), model.ErrHealthBaseline.Error()+": "))
+		}
+	}
 	return diags
 }
 
@@ -123,4 +221,24 @@ func healthThresholdDiagnostics(path string, thresholds map[string]model.HealthT
 		}
 	}
 	return diags
+}
+
+// AcceptedHealthWaivers keeps the waivers of the manifest health block whose
+// decision exists and is accepted. A waiver with any other decision waives
+// nothing (health.waiver_unjustified reports it in validation), so a waiver
+// that was proposed but not yet accepted cannot hide a finding in a scan or a
+// delta check.
+//
+// TRLC-LINKS: REQ-EMG-154
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func AcceptedHealthWaivers(b model.Bundle, waivers []model.HealthWaiver) []model.HealthWaiver {
+	refs := NewAcceptanceRefs(b)
+	kept := make([]model.HealthWaiver, 0, len(waivers))
+	for _, w := range waivers {
+		decision := strings.TrimSpace(w.Decision)
+		if decision != "" && waiverDecisionProblem(refs, decision) == "" {
+			kept = append(kept, w)
+		}
+	}
+	return kept
 }

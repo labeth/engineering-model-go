@@ -333,7 +333,7 @@ design:
       architecture_intent:
         title: Code Health Intent
         narrative: Makes maintainability debt visible per function, file, functional unit and requirement with our own explainable
-          score, and blocks only new or worsened findings, never existing debt.
+          score, reports findings with the severity of the tier (errors at product and operational), blocks regressions, and lets a committed baseline or a waiver with an accepted decision carry existing debt.
       communication:
         title: Code Health Communication
         narrative: Reads the manifest health block, the model and the code map, reports through enghealth and the validation

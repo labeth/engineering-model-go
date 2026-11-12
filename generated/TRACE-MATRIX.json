@@ -342,12 +342,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1525
+          "line": 1526
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1513
+          "line": 1514
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -2280,7 +2280,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 307
+          "line": 313
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-DEDUPE-GO--DEDUPEDIAGNOSTICS",
@@ -2305,12 +2305,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1525
+          "line": 1526
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1513
+          "line": 1514
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -3022,12 +3022,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--FIRSTNONEMPTY",
           "path": "internal/validate/validate.go",
-          "line": 1525
+          "line": 1526
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--MAPPINGPAIRALLOWED",
           "path": "internal/validate/validate.go",
-          "line": 1513
+          "line": 1514
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--DEDUPEDIAGNOSTICS",
@@ -6862,27 +6862,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ENABLED",
           "path": "internal/model/types.go",
-          "line": 874
+          "line": 938
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFCONCERN",
           "path": "internal/model/types.go",
-          "line": 888
+          "line": 952
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 897
+          "line": 961
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPROFILE",
           "path": "internal/model/types.go",
-          "line": 863
+          "line": 927
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFSTAKEHOLDER",
           "path": "internal/model/types.go",
-          "line": 881
+          "line": 945
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -6892,7 +6892,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1323
+          "line": 1324
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -6959,7 +6959,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 897
+          "line": 961
         }
       ],
       "verifications": [
@@ -7026,7 +7026,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--VALIDATENAFPROFILE",
           "path": "internal/validate/validate.go",
-          "line": 1323
+          "line": 1324
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
@@ -7059,12 +7059,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 84
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--CONTRACTSCHEMAVERSION",
           "path": "internal/model/authoring.go",
-          "line": 153
+          "line": 180
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--EFFECTIVESCHEMAVERSION",
@@ -7099,32 +7099,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 675
+          "line": 739
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 769
+          "line": 833
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 748
+          "line": 812
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 776
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 820
+          "line": 884
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 846
+          "line": 910
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7134,12 +7134,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 837
+          "line": 901
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 180
+          "line": 241
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MODULEIDENTITY",
@@ -7149,7 +7149,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 783
+          "line": 847
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7207,27 +7207,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 84
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--CONTRACTSCHEMAVERSION",
           "path": "internal/model/authoring.go",
-          "line": 153
+          "line": 180
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--YAMLTOPLEVELFIELDS",
           "path": "internal/model/authoring.go",
-          "line": 158
+          "line": 185
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 307
+          "line": 313
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--SORTEDKEYS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 339
+          "line": 345
         },
         {
           "symbol": "CODE-MODEL-API-GO--BUILDAUTHORINGCONTRACT",
@@ -7291,32 +7291,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 675
+          "line": 739
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 769
+          "line": 833
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 748
+          "line": 812
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 776
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 820
+          "line": 884
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 846
+          "line": 910
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7326,17 +7326,17 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 837
+          "line": 901
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 180
+          "line": 241
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 783
+          "line": 847
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--SCHEMAV2BUNDLE",
@@ -7503,7 +7503,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 84
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--AGGREGATECOMPOSITION",
@@ -7523,7 +7523,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 180
+          "line": 241
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTPUBLICATION",
@@ -7538,7 +7538,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 988
+          "line": 1052
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
@@ -7662,7 +7662,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 84
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--FINDWORKSPACE",
@@ -7910,7 +7910,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 84
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--AGGREGATECOMPOSITION",
@@ -7940,7 +7940,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1015
+          "line": 1079
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -7950,7 +7950,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 180
+          "line": 241
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTPUBLICATION",
@@ -7960,12 +7960,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 1026
+          "line": 1090
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 988
+          "line": 1052
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--LOADWORKSPACE",
@@ -8591,7 +8591,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1015
+          "line": 1079
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -8601,7 +8601,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 180
+          "line": 241
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTPUBLICATION",
@@ -8611,12 +8611,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 1026
+          "line": 1090
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 988
+          "line": 1052
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -8851,7 +8851,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 84
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AVIATION-GO--AVIATIONDOCUMENT",
@@ -9204,7 +9204,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--UNREFERENCEABLEINFERREDID",
           "path": "internal/validate/validate.go",
-          "line": 1538
+          "line": 1539
         }
       ],
       "verifications": [
@@ -9224,7 +9224,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--REFERENCEDELEMENTURIDIAGNOSTICS",
           "path": "internal/validate/validate.go",
-          "line": 1550
+          "line": 1551
         }
       ],
       "verifications": [
@@ -10846,7 +10846,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 307
+          "line": 313
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -10901,7 +10901,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 307
+          "line": 313
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -11099,7 +11099,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 307
+          "line": 313
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -11175,22 +11175,22 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 307
+          "line": 313
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--FIELDSETS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 221
+          "line": 227
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--PUBLICATIONSECTIONS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 194
+          "line": 200
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--YAMLFIELDS",
           "path": "internal/validate/authoring_rules.go",
-          "line": 207
+          "line": 213
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
@@ -11373,7 +11373,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CONTRACTASSUMPTION",
           "path": "internal/model/types.go",
-          "line": 960
+          "line": 1024
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--CAPABILITYREFS",
@@ -11480,7 +11480,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 84
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-LOAD-GO--LOADBUNDLE",
@@ -11827,7 +11827,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 307
+          "line": 313
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
@@ -13231,12 +13231,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--FIELDTYPES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 264
+          "line": 270
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--YAMLTYPE",
           "path": "internal/validate/authoring_rules.go",
-          "line": 232
+          "line": 238
         }
       ],
       "verifications": [
@@ -13585,7 +13585,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVETIER",
           "path": "internal/validate/tier_policy.go",
-          "line": 238
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -13636,62 +13636,62 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 303
+          "line": 336
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--CORECODES",
           "path": "internal/validate/tier_policy.go",
-          "line": 116
+          "line": 149
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVETIER",
           "path": "internal/validate/tier_policy.go",
-          "line": 238
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ISCORECODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 123
+          "line": 156
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--LETTERSEVERITY",
           "path": "internal/validate/tier_policy.go",
-          "line": 145
+          "line": 178
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--MATCHCODEPATTERN",
           "path": "internal/validate/tier_policy.go",
-          "line": 135
+          "line": 168
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--RAISED",
           "path": "internal/validate/tier_policy.go",
-          "line": 264
+          "line": 297
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--REQUIREDFROM",
           "path": "internal/validate/tier_policy.go",
-          "line": 167
+          "line": 200
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ROWSEVERITIES",
           "path": "internal/validate/tier_policy.go",
-          "line": 157
+          "line": 190
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERKEYED",
           "path": "internal/validate/tier_policy.go",
-          "line": 228
+          "line": 261
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 181
+          "line": 214
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERPOLICYMARKDOWN",
           "path": "internal/validate/tier_policy.go",
-          "line": 201
+          "line": 234
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--APPLYTIERPOLICY",
@@ -13797,7 +13797,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 303
+          "line": 336
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -13807,7 +13807,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--DECLAREDALIASLIST",
           "path": "internal/validate/validate.go",
-          "line": 1569
+          "line": 1570
         }
       ],
       "verifications": [
@@ -13838,12 +13838,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 303
+          "line": 336
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVEREQUIREMENTLINKMODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 254
+          "line": 287
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--EFFECTIVEREQUIREMENTLINKMODE",
@@ -13914,17 +13914,17 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 303
+          "line": 336
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ISCORECODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 123
+          "line": 156
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--POAMDEFERS",
           "path": "internal/validate/tier_policy.go",
-          "line": 351
+          "line": 384
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--APPLYTIERPOLICY",
@@ -13959,12 +13959,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--RENDERSDESPITE",
           "path": "internal/validate/tier_policy.go",
-          "line": 283
+          "line": 316
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERKEYED",
           "path": "internal/validate/tier_policy.go",
-          "line": 228
+          "line": 261
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--RENDERSDESPITE",
@@ -13989,7 +13989,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
           "path": "internal/validate/authoring_rules.go",
-          "line": 307
+          "line": 313
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--SETOF",
@@ -14176,27 +14176,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINE",
           "path": "internal/model/types.go",
-          "line": 694
+          "line": 758
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINEINVARIANT",
           "path": "internal/model/types.go",
-          "line": 739
+          "line": 803
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINESTATE",
           "path": "internal/model/types.go",
-          "line": 716
+          "line": 780
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINETRANSITION",
           "path": "internal/model/types.go",
-          "line": 726
+          "line": 790
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINEVARIABLE",
           "path": "internal/model/types.go",
-          "line": 708
+          "line": 772
         }
       ],
       "verifications": [
@@ -14773,7 +14773,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--STATE",
           "path": "internal/model/types.go",
-          "line": 436
+          "line": 500
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -15878,12 +15878,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
           "path": "internal/model/authoring.go",
-          "line": 84
+          "line": 110
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--MACHINEGUIDE",
           "path": "internal/model/authoring.go",
-          "line": 175
+          "line": 202
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-FORMAL-EVIDENCE-GO--FORMALREQUIREMENTRESULT",
@@ -15947,6 +15947,2715 @@
       ],
       "result": "not-run",
       "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-150",
+      "text": "When generation run is requested, the engineering model go shall report code health smells for each function of Go, Rust, TypeScript, JavaScript and Python source files.",
+      "units": [
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-HEALTH-GO--SCANHEALTH",
+          "path": "api_health.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--GRAMMARFOR",
+          "path": "internal/codemap/parse.go",
+          "line": 55
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--ISGOTESTFILE",
+          "path": "internal/codemap/parse.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--ISGOTESTFUNCTION",
+          "path": "internal/codemap/parse.go",
+          "line": 141
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--ISPYTHONTESTFILE",
+          "path": "internal/codemap/parse.go",
+          "line": 136
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--ISPYTHONTESTFUNCTION",
+          "path": "internal/codemap/parse.go",
+          "line": 147
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--ISRUSTINTESTSCOPE",
+          "path": "internal/codemap/parse.go",
+          "line": 158
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--ISRUSTTESTFUNCTION",
+          "path": "internal/codemap/parse.go",
+          "line": 152
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--LANGUAGEFORPATH",
+          "path": "internal/codemap/parse.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--PARSEFILE",
+          "path": "internal/codemap/parse.go",
+          "line": 78
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-PARSE-GO--PARSESOURCE",
+          "path": "internal/codemap/parse.go",
+          "line": 94
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ASSERTIONS-GO--ASSERTIONRUNS",
+          "path": "internal/health/engine/treesitter/assertions.go",
+          "line": 32
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ASSERTIONS-GO--DUPLICATEFINDINGS",
+          "path": "internal/health/engine/treesitter/assertions.go",
+          "line": 124
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ASSERTIONS-GO--LONGESTRUN",
+          "path": "internal/health/engine/treesitter/assertions.go",
+          "line": 111
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ASSERTIONS-GO--NORMALIZEDTEXT",
+          "path": "internal/health/engine/treesitter/assertions.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ASSERTIONS-GO--RUNSIN",
+          "path": "internal/health/engine/treesitter/assertions.go",
+          "line": 53
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--ANALYZE",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 47
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--ANALYZEFILE",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 126
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--ANALYZETREE",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 172
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--COLLECT",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 232
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--MEASUREUNIT",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 274
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--NAME",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--NEW",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 32
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--OWNLOC",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 211
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--QUALIFY",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 265
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--SYNTAXDEPTH",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 73
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--SYNTAXERRORS",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 99
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--VISIT",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 241
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-FINDINGS-GO--FUNCTIONFINDINGS",
+          "path": "internal/health/engine/treesitter/findings.go",
+          "line": 53
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-FINDINGS-GO--SEVERITYOF",
+          "path": "internal/health/engine/treesitter/findings.go",
+          "line": 39
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMAASSERTION",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 275
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMAASSIGNEDNAME",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMAAUGMENTED",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMADECLNAME",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 120
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMAPARAMS",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 237
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMASCOPE",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 218
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMATESTCALL",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 173
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMATESTPATH",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 76
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMATITLE",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 208
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--ECMAUNIT",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 95
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-ECMA-GO--NEWECMALANGUAGE",
+          "path": "internal/health/engine/treesitter/lang_ecma.go",
+          "line": 41
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--CALLROOT",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 211
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--COUNTCHILDKIND",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 182
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--EXPIRED",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--ISCOMMENT",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 144
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--ISCOMMENTKIND",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 147
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--ISFIELDOF",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 154
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--LANGUAGEFOR",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 117
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--NAMEDCHILDREN",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--OPERATOROF",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 174
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--PATHHASDIR",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 195
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--SAMENODE",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 150
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--TEXT",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 136
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--BINARYBOOLOPS",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 45
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--GOASSERTION",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 173
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--GOASSERTIONBLOCK",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 218
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--GOASSERTIONCALL",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 184
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--GOASSERTIONIF",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 209
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--GOASSIGNEDNAME",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 98
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--GOPARAMS",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 141
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--GORECEIVERTYPE",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO-GO--GOUNIT",
+          "path": "internal/health/engine/treesitter/lang_go.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--B2I",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 49
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--PYTHONASSERTCALL",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 202
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--PYTHONASSERTION",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 181
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--PYTHONEXTRA",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 99
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--PYTHONINCLASS",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 85
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--PYTHONPARAMS",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 133
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--PYTHONRECEIVER",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--PYTHONUNIT",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 57
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-PYTHON-GO--PYTHONWILDCARDCASE",
+          "path": "internal/health/engine/treesitter/lang_python.go",
+          "line": 111
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-RUST-GO--RUSTASSERTION",
+          "path": "internal/health/engine/treesitter/lang_rust.go",
+          "line": 165
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-RUST-GO--RUSTBOOLOPS",
+          "path": "internal/health/engine/treesitter/lang_rust.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-RUST-GO--RUSTMATCHARM",
+          "path": "internal/health/engine/treesitter/lang_rust.go",
+          "line": 89
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-RUST-GO--RUSTPARAMS",
+          "path": "internal/health/engine/treesitter/lang_rust.go",
+          "line": 114
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-RUST-GO--RUSTPRIMITIVE",
+          "path": "internal/health/engine/treesitter/lang_rust.go",
+          "line": 147
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-RUST-GO--RUSTSCOPE",
+          "path": "internal/health/engine/treesitter/lang_rust.go",
+          "line": 75
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-RUST-GO--RUSTUNIT",
+          "path": "internal/health/engine/treesitter/lang_rust.go",
+          "line": 49
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LOC-GO--COUNT",
+          "path": "internal/health/engine/treesitter/loc.go",
+          "line": 56
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LOC-GO--INCOMMENT",
+          "path": "internal/health/engine/treesitter/loc.go",
+          "line": 49
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LOC-GO--NEWLINEINDEX",
+          "path": "internal/health/engine/treesitter/loc.go",
+          "line": 24
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LOC-GO--PYTHONDOCSTRING",
+          "path": "internal/health/engine/treesitter/loc.go",
+          "line": 71
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LOC-GO--TOTAL",
+          "path": "internal/health/engine/treesitter/loc.go",
+          "line": 66
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-METRICS-GO--BOOLCHAIN",
+          "path": "internal/health/engine/treesitter/metrics.go",
+          "line": 94
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-METRICS-GO--CHAINCOUNT",
+          "path": "internal/health/engine/treesitter/metrics.go",
+          "line": 109
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-METRICS-GO--ISUNIT",
+          "path": "internal/health/engine/treesitter/metrics.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-METRICS-GO--ISUNITKIND",
+          "path": "internal/health/engine/treesitter/metrics.go",
+          "line": 41
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-METRICS-GO--MEASURE",
+          "path": "internal/health/engine/treesitter/metrics.go",
+          "line": 28
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-METRICS-GO--WALK",
+          "path": "internal/health/engine/treesitter/metrics.go",
+          "line": 50
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--SYNTAXDIAGNOSTIC",
+          "path": "internal/health/report.go",
+          "line": 203
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--FILEDIAGNOSTIC",
+          "path": "internal/health/scan/scan.go",
+          "line": 216
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--LISTSOURCES",
+          "path": "internal/health/scan/scan.go",
+          "line": 282
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--READCAPPED",
+          "path": "internal/health/scan/scan.go",
+          "line": 389
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--READSOURCES",
+          "path": "internal/health/scan/scan.go",
+          "line": 354
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SHOWNPATH",
+          "path": "internal/health/scan/scan.go",
+          "line": 206
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--WALKPROBLEM",
+          "path": "internal/health/scan/scan.go",
+          "line": 342
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-TYPES-GO--CODES",
+          "path": "internal/health/types.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-TYPES-GO--DEFAULTTHRESHOLDS",
+          "path": "internal/health/types.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-TYPES-GO--DEFAULTTHRESHOLDSFORTIER",
+          "path": "internal/health/types.go",
+          "line": 101
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-ENGINE_TEST-DBE450",
+        "VER-INF-TEST-PARSE_TEST-5530DD",
+        "VER-INF-TEST-REPORT_TEST-3EF4FF",
+        "VER-INF-TEST-SCAN_HARDENING_TEST-BFB136",
+        "VER-INF-TEST-SCAN_SECOND_PASS_TEST-1C9D1B",
+        "VER-INF-TEST-SCAN_TEST-EFDB41",
+        "VER-INF-TEST-TYPES_TEST-EF2B08",
+        "VER-INF-TEST-VOCABULARY_TEST-A9F27B"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-151",
+      "text": "When generation run is requested, the engineering model go shall compute an explainable code health score from 1.0 to 10.0 for each source file.",
+      "units": [
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-HEALTH-GO--SCANHEALTH",
+          "path": "api_health.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--READABLESCORINGVERSION",
+          "path": "internal/health/import.go",
+          "line": 25
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
+          "path": "internal/health/report.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--BANDOF",
+          "path": "internal/health/scoring.go",
+          "line": 80
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--CODEORDER",
+          "path": "internal/health/scoring.go",
+          "line": 103
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--COLLECTDEDUCTIONS",
+          "path": "internal/health/scoring.go",
+          "line": 154
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--COMBINEFACTOR",
+          "path": "internal/health/scoring.go",
+          "line": 116
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--COUNTDEDUCTIONS",
+          "path": "internal/health/scoring.go",
+          "line": 210
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--FUNCTIONDEDUCTIONS",
+          "path": "internal/health/scoring.go",
+          "line": 136
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--RANKFUNCTIONS",
+          "path": "internal/health/scoring.go",
+          "line": 172
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--ROUNDTO",
+          "path": "internal/health/scoring.go",
+          "line": 94
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--SCALETAIL",
+          "path": "internal/health/scoring.go",
+          "line": 193
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--SCOREFILE",
+          "path": "internal/health/scoring.go",
+          "line": 248
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--SEVERITYFACTOR",
+          "path": "internal/health/scoring.go",
+          "line": 67
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--SORTDEDUCTIONS",
+          "path": "internal/health/scoring.go",
+          "line": 227
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCORING-GO--WEIGHTS",
+          "path": "internal/health/scoring.go",
+          "line": 55
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-BASELINE_TEST-6E1D38",
+        "VER-INF-TEST-IMPORT_TEST-280BD9",
+        "VER-INF-TEST-REPORT_TEST-3EF4FF",
+        "VER-INF-TEST-SCORING_TEST-9DF5BB",
+        "VER-INF-TEST-VOCABULARY_TEST-A9F27B"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-152",
+      "text": "When generation run is requested, the engineering model go shall roll up file code health scores along the traceability of the model.",
+      "units": [
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-HEALTH-GO--SCANHEALTH",
+          "path": "api_health.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--WORSTHEALTHFUNCTIONS",
+          "path": "api_health.go",
+          "line": 119
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
+          "path": "internal/health/report.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ROLLUP-GO--AGGREGATE",
+          "path": "internal/health/rollup.go",
+          "line": 80
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ROLLUP-GO--BUILDROLLUPS",
+          "path": "internal/health/rollup.go",
+          "line": 121
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ROLLUP-GO--INNERMOSTFUNCTION",
+          "path": "internal/health/rollup.go",
+          "line": 215
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ROLLUP-GO--REQUIREMENTROLLUPS",
+          "path": "internal/health/rollup.go",
+          "line": 158
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ROLLUP-GO--WORSTFUNCTIONS",
+          "path": "internal/health/rollup.go",
+          "line": 242
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--ATTRIBUTION",
+          "path": "internal/health/scan/scan.go",
+          "line": 419
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-REPORT_TEST-3EF4FF",
+        "VER-INF-TEST-ROLLUP_TEST-295558",
+        "VER-INF-TEST-SCAN_SECOND_PASS_TEST-1C9D1B",
+        "VER-INF-TEST-SCAN_TEST-EFDB41"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-153",
+      "text": "When model updated event is received, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.",
+      "units": [
+        "FU-MODEL-LOADER",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--BASELINETARGET",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 116
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--BASELINEWANTED",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 195
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--CHECKBASELINE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 266
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--KEEPOUTSIDESCAN",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 247
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--READEXISTINGBASELINE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--RUNBASELINE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 35
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--WRITEBASELINEFILE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 292
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-SAFE-GO--WRITEFILEATOMIC",
+          "path": "cmd/enghealth/safe.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--APPLYBASELINE",
+          "path": "internal/health/baseline.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--APPLYBASELINE",
+          "path": "internal/health/baseline.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--BASELINEDIFF",
+          "path": "internal/health/baseline.go",
+          "line": 216
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--BASELINEENTRIES",
+          "path": "internal/health/baseline.go",
+          "line": 196
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--CONFIGFOR",
+          "path": "internal/health/config.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--DEFAULTEXCLUDES",
+          "path": "internal/health/config.go",
+          "line": 20
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--EXCLUDED",
+          "path": "internal/health/config.go",
+          "line": 54
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--PATHMATCHES",
+          "path": "internal/health/config.go",
+          "line": 32
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--OUTOFSCOPE",
+          "path": "internal/health/scan/check.go",
+          "line": 210
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--LISTSOURCES",
+          "path": "internal/health/scan/scan.go",
+          "line": 282
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--LOADBASELINE",
+          "path": "internal/health/scan/scan.go",
+          "line": 156
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-TYPES-GO--DEFAULTTHRESHOLDS",
+          "path": "internal/health/types.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--HEALTHGUIDE",
+          "path": "internal/model/authoring.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--ENCODEHEALTHBASELINE",
+          "path": "internal/model/health_baseline.go",
+          "line": 212
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEENTRY",
+          "path": "internal/model/health_baseline.go",
+          "line": 38
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEENTRYPROBLEM",
+          "path": "internal/model/health_baseline.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEFILE",
+          "path": "internal/model/health_baseline.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEKEY",
+          "path": "internal/model/health_baseline.go",
+          "line": 48
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEPATHPROBLEM",
+          "path": "internal/model/health_baseline.go",
+          "line": 71
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--KEY",
+          "path": "internal/model/health_baseline.go",
+          "line": 52
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--LOADHEALTHBASELINE",
+          "path": "internal/model/health_baseline.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--PARSEHEALTHBASELINE",
+          "path": "internal/model/health_baseline.go",
+          "line": 134
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--RESOLVEHEALTHBASELINEPATH",
+          "path": "internal/model/health_baseline.go",
+          "line": 94
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--SORTHEALTHBASELINEENTRIES",
+          "path": "internal/model/health_baseline.go",
+          "line": 182
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHPOLICY",
+          "path": "internal/model/health.go",
+          "line": 75
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHSMELLCODES",
+          "path": "internal/model/health.go",
+          "line": 51
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHTHRESHOLDCODES",
+          "path": "internal/model/health.go",
+          "line": 41
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--ISHEALTHTHRESHOLDCODE",
+          "path": "internal/model/health.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--PARSEHEALTHPOLICY",
+          "path": "internal/model/health.go",
+          "line": 86
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHBASELINE",
+          "path": "internal/model/types.go",
+          "line": 209
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHOVERRIDE",
+          "path": "internal/model/types.go",
+          "line": 224
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHTHRESHOLD",
+          "path": "internal/model/types.go",
+          "line": 217
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTHEALTH",
+          "path": "internal/model/types.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--ACCEPTEDHEALTHPOLICYDECISION",
+          "path": "internal/validate/health_config.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDECISIONPROBLEM",
+          "path": "internal/validate/health_config.go",
+          "line": 123
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 156
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHTHRESHOLDDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 201
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-BASELINE_TEST-160260",
+        "VER-INF-TEST-BASELINE_TEST-6E1D38",
+        "VER-INF-TEST-BASELINE_TEST-FD5D93",
+        "VER-INF-TEST-CHECK_TEST-C6CAB5",
+        "VER-INF-TEST-CONFIG_TEST-B6646E",
+        "VER-INF-TEST-HEALTH_BASELINE_TEST-6C7156",
+        "VER-INF-TEST-HEALTH_BASELINE_TEST-DE6BE9",
+        "VER-INF-TEST-HEALTH_CONFIG_TEST-AF362C",
+        "VER-INF-TEST-HEALTH_TEST-73229A",
+        "VER-INF-TEST-SCAN_TEST-EFDB41",
+        "VER-INF-TEST-VOCABULARY_TEST-A9F27B"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-154",
+      "text": "When model updated event is received, the engineering model go shall require each code health waiver to cite an existing accepted decision.",
+      "units": [
+        "FU-CODE-HEALTH",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ANALYZE",
+          "path": "internal/health/check.go",
+          "line": 297
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--NAME",
+          "path": "internal/health/check.go",
+          "line": 287
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--VERSION",
+          "path": "internal/health/check.go",
+          "line": 292
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--WAIVED",
+          "path": "internal/health/check.go",
+          "line": 321
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
+          "path": "internal/health/report.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECKENGINE",
+          "path": "internal/health/scan/check.go",
+          "line": 88
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--LOADBASELINE",
+          "path": "internal/health/scan/scan.go",
+          "line": 156
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-WAIVER-GO--APPLYWAIVERS",
+          "path": "internal/health/waiver.go",
+          "line": 46
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-WAIVER-GO--MATCHWAIVER",
+          "path": "internal/health/waiver.go",
+          "line": 99
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-WAIVER-GO--WAIVERMATCHESPATH",
+          "path": "internal/health/waiver.go",
+          "line": 28
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-WAIVER-GO--WAIVERSFORFILES",
+          "path": "internal/health/waiver.go",
+          "line": 113
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--HEALTHGUIDE",
+          "path": "internal/model/authoring.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEENTRY",
+          "path": "internal/model/health_baseline.go",
+          "line": 38
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEFILE",
+          "path": "internal/model/health_baseline.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHSMELLCODES",
+          "path": "internal/model/health.go",
+          "line": 51
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--ISHEALTHSMELLCODE",
+          "path": "internal/model/health.go",
+          "line": 67
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHBASELINE",
+          "path": "internal/model/types.go",
+          "line": 209
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHWAIVER",
+          "path": "internal/model/types.go",
+          "line": 232
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTHEALTH",
+          "path": "internal/model/types.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--ACCEPTEDHEALTHWAIVERS",
+          "path": "internal/validate/health_config.go",
+          "line": 234
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDECISIONPROBLEM",
+          "path": "internal/validate/health_config.go",
+          "line": 123
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 156
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--WAIVERDECISIONPROBLEM",
+          "path": "internal/validate/health_config.go",
+          "line": 188
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-BASELINE_TEST-160260",
+        "VER-INF-TEST-BASELINE_TEST-FD5D93",
+        "VER-INF-TEST-CHECK_TEST-C6CAB5",
+        "VER-INF-TEST-CHECK_TEST-E247CD",
+        "VER-INF-TEST-HEALTH_BASELINE_TEST-DE6BE9",
+        "VER-INF-TEST-HEALTH_CONFIG_TEST-AF362C",
+        "VER-INF-TEST-HEALTH_TEST-73229A",
+        "VER-INF-TEST-REPORT_TEST-3EF4FF",
+        "VER-INF-TEST-SCAN_TEST-EFDB41",
+        "VER-INF-TEST-WAIVER_TEST-E71CAE"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-155",
+      "text": "When model updated event is received, the engineering model go shall report code health findings in enghealth reports with the severity of the project life-cycle tier.",
+      "units": [
+        "FU-CODE-HEALTH",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-HEALTH-GO--CHECKHEALTH",
+          "path": "api_health.go",
+          "line": 187
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--RELEVELHEALTHREPORT",
+          "path": "api_health.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURELINES",
+          "path": "cmd/enghealth/check.go",
+          "line": 169
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURESUMMARY",
+          "path": "cmd/enghealth/check.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--POLICYERRORS",
+          "path": "cmd/enghealth/check.go",
+          "line": 159
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-TEXT-GO--FINDINGLEVEL",
+          "path": "cmd/enghealth/text.go",
+          "line": 74
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--ANNOTATEGROWN",
+          "path": "internal/health/baseline.go",
+          "line": 141
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--APPLYBASELINE",
+          "path": "internal/health/baseline.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--APPLYBASELINE",
+          "path": "internal/health/baseline.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--BASELINEDSET",
+          "path": "internal/health/baseline.go",
+          "line": 168
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--COLLECTBASELINED",
+          "path": "internal/health/baseline.go",
+          "line": 115
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--ISBASELINED",
+          "path": "internal/health/baseline.go",
+          "line": 183
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDPOLICYRESULTS",
+          "path": "internal/health/check.go",
+          "line": 251
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--BLOCKS",
+          "path": "internal/health/check.go",
+          "line": 122
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--CHECKLEVELS",
+          "path": "internal/health/check.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REGRESSIONLEVELOF",
+          "path": "internal/health/check.go",
+          "line": 72
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--CONFIGFOR",
+          "path": "internal/health/config.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--LEVELS",
+          "path": "internal/health/config.go",
+          "line": 128
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--RELEVEL",
+          "path": "internal/health/config.go",
+          "line": 162
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--WITHTIER",
+          "path": "internal/health/config.go",
+          "line": 108
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--LISTNEWSYNTAXERRORS",
+          "path": "internal/health/delta.go",
+          "line": 266
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--SYNTAXERRORS",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 99
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--BASEOVERRIDELIMIT",
+          "path": "internal/health/policy.go",
+          "line": 230
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--EFFECTIVELIMIT",
+          "path": "internal/health/policy.go",
+          "line": 76
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--EXCLUDEWEAKENINGS",
+          "path": "internal/health/policy.go",
+          "line": 165
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--LEVELOFCODE",
+          "path": "internal/health/policy.go",
+          "line": 268
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--NORMALIZEPATTERN",
+          "path": "internal/health/policy.go",
+          "line": 190
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--OVERRIDEWEAKENINGS",
+          "path": "internal/health/policy.go",
+          "line": 199
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYFROMMANIFEST",
+          "path": "internal/health/policy.go",
+          "line": 60
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYLEVELOF",
+          "path": "internal/health/policy.go",
+          "line": 252
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYOF",
+          "path": "internal/health/policy.go",
+          "line": 50
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYWEAKENINGS",
+          "path": "internal/health/policy.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--RAISES",
+          "path": "internal/health/policy.go",
+          "line": 88
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--SETSTHRESHOLD",
+          "path": "internal/health/policy.go",
+          "line": 153
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--STRING",
+          "path": "internal/health/policy.go",
+          "line": 95
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--THRESHOLDWEAKENINGS",
+          "path": "internal/health/policy.go",
+          "line": 135
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--TIERLABEL",
+          "path": "internal/health/policy.go",
+          "line": 124
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
+          "path": "internal/health/report.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--LEVELOF",
+          "path": "internal/health/report.go",
+          "line": 118
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--SUMMARIZE",
+          "path": "internal/health/report.go",
+          "line": 221
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--SYNTAXDIAGNOSTIC",
+          "path": "internal/health/report.go",
+          "line": 203
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--BASEMANIFESTPOLICY",
+          "path": "internal/health/scan/check.go",
+          "line": 182
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
+          "path": "internal/health/scan/check.go",
+          "line": 105
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECKSETUP",
+          "path": "internal/health/scan/check.go",
+          "line": 59
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--POLICYVERDICT",
+          "path": "internal/health/scan/check.go",
+          "line": 143
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--ATTRIBUTION",
+          "path": "internal/health/scan/scan.go",
+          "line": 419
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--FILEDIAGNOSTIC",
+          "path": "internal/health/scan/scan.go",
+          "line": 216
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--LOADBASELINE",
+          "path": "internal/health/scan/scan.go",
+          "line": 156
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-TYPES-GO--DEFAULTTHRESHOLDSFORTIER",
+          "path": "internal/health/types.go",
+          "line": 101
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--HEALTHGUIDE",
+          "path": "internal/model/authoring.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHPOLICY",
+          "path": "internal/model/health.go",
+          "line": 75
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--PARSEHEALTHPOLICY",
+          "path": "internal/model/health.go",
+          "line": 86
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--ACCEPTEDHEALTHPOLICYDECISION",
+          "path": "internal/validate/health_config.go",
+          "line": 104
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-BASELINE_TEST-160260",
+        "VER-INF-TEST-BASELINE_TEST-6E1D38",
+        "VER-INF-TEST-BASELINE_TEST-FD5D93",
+        "VER-INF-TEST-CHECK_TEST-C6CAB5",
+        "VER-INF-TEST-CHECK_TEST-E247CD",
+        "VER-INF-TEST-CONFIG_TEST-B6646E",
+        "VER-INF-TEST-DELTA_ENGINE_TEST-CB74C7",
+        "VER-INF-TEST-ENGINE_TEST-DBE450",
+        "VER-INF-TEST-HARDENING_TEST-D353C6",
+        "VER-INF-TEST-HEALTH_BASELINE_TEST-DE6BE9",
+        "VER-INF-TEST-HEALTH_CONFIG_TEST-AF362C",
+        "VER-INF-TEST-HEALTH_TEST-73229A",
+        "VER-INF-TEST-MAIN_TEST-7EC1C0",
+        "VER-INF-TEST-POLICY_TEST-A3CC9E",
+        "VER-INF-TEST-REPORT_TEST-3EF4FF",
+        "VER-INF-TEST-SCAN_HARDENING_TEST-BFB136",
+        "VER-INF-TEST-SCAN_SECOND_PASS_TEST-1C9D1B",
+        "VER-INF-TEST-SCAN_TEST-EFDB41",
+        "VER-INF-TEST-TYPES_TEST-EF2B08"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-156",
+      "text": "When generation run is requested, the engineering model go shall classify each code health finding against a base revision of the working tree.",
+      "units": [
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-HEALTH-GO--CHECKHEALTH",
+          "path": "api_health.go",
+          "line": 187
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--CHECKVERDICT",
+          "path": "cmd/enghealth/check.go",
+          "line": 116
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURELINES",
+          "path": "cmd/enghealth/check.go",
+          "line": 169
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURESUMMARY",
+          "path": "cmd/enghealth/check.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--REGRESSIONLINES",
+          "path": "cmd/enghealth/check.go",
+          "line": 216
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RUNCHECK",
+          "path": "cmd/enghealth/check.go",
+          "line": 89
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--SKIPPEDERRORS",
+          "path": "cmd/enghealth/check.go",
+          "line": 149
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ANALYZE",
+          "path": "internal/health/check.go",
+          "line": 297
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDSKIPPEDRESULTS",
+          "path": "internal/health/check.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--BLOCKS",
+          "path": "internal/health/check.go",
+          "line": 122
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--COUNTENTRIES",
+          "path": "internal/health/check.go",
+          "line": 91
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--NEWCHECKREPORT",
+          "path": "internal/health/check.go",
+          "line": 132
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REQUIREWORKTREE",
+          "path": "internal/health/check.go",
+          "line": 349
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--TRANSITION",
+          "path": "internal/health/check.go",
+          "line": 164
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--ANALYZE",
+          "path": "internal/health/delta.go",
+          "line": 576
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--BASEERROR",
+          "path": "internal/health/delta.go",
+          "line": 378
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--BODYHASH",
+          "path": "internal/health/delta.go",
+          "line": 644
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--CHECK",
+          "path": "internal/health/delta.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--CLASSIFY",
+          "path": "internal/health/delta.go",
+          "line": 182
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--COMPAREFILES",
+          "path": "internal/health/delta.go",
+          "line": 661
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--CONFIG",
+          "path": "internal/health/delta.go",
+          "line": 449
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FILEDELTAS",
+          "path": "internal/health/delta.go",
+          "line": 590
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FINDINGOF",
+          "path": "internal/health/delta.go",
+          "line": 771
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FUNCTIONENTRIES",
+          "path": "internal/health/delta.go",
+          "line": 746
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FUNCTIONREFS",
+          "path": "internal/health/delta.go",
+          "line": 626
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--LANGUAGEOF",
+          "path": "internal/health/delta.go",
+          "line": 150
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--LISTNEWSYNTAXERRORS",
+          "path": "internal/health/delta.go",
+          "line": 266
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--LOAD",
+          "path": "internal/health/delta.go",
+          "line": 459
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--MATCHBYHASH",
+          "path": "internal/health/delta.go",
+          "line": 706
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--MOVEDENTRIES",
+          "path": "internal/health/delta.go",
+          "line": 730
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--NEWENTRY",
+          "path": "internal/health/delta.go",
+          "line": 761
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--PATH",
+          "path": "internal/health/delta.go",
+          "line": 205
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--PLAN",
+          "path": "internal/health/delta.go",
+          "line": 300
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--READBASE",
+          "path": "internal/health/delta.go",
+          "line": 558
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--READHEAD",
+          "path": "internal/health/delta.go",
+          "line": 517
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--REGRESSIONS",
+          "path": "internal/health/delta.go",
+          "line": 156
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SELECTFILES",
+          "path": "internal/health/delta.go",
+          "line": 392
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SEVERITYRANK",
+          "path": "internal/health/delta.go",
+          "line": 169
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SHORTSHA",
+          "path": "internal/health/delta.go",
+          "line": 367
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SKIP",
+          "path": "internal/health/delta.go",
+          "line": 549
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SPLITRANGE",
+          "path": "internal/health/delta.go",
+          "line": 278
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--USEMERGEBASEWITHHEAD",
+          "path": "internal/health/delta.go",
+          "line": 345
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FINGERPRINT-GO--BODYHASH",
+          "path": "internal/health/fingerprint.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FINGERPRINT-GO--BODYTOKENS",
+          "path": "internal/health/fingerprint.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FINGERPRINT-GO--ISWORDBYTE",
+          "path": "internal/health/fingerprint.go",
+          "line": 52
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FINGERPRINT-GO--RUSTCHAREND",
+          "path": "internal/health/fingerprint.go",
+          "line": 168
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FINGERPRINT-GO--SKIPBLOCKCOMMENT",
+          "path": "internal/health/fingerprint.go",
+          "line": 111
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FINGERPRINT-GO--SKIPLINE",
+          "path": "internal/health/fingerprint.go",
+          "line": 101
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FINGERPRINT-GO--STRINGEND",
+          "path": "internal/health/fingerprint.go",
+          "line": 135
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--ADDEDFILES",
+          "path": "internal/health/git.go",
+          "line": 429
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--CHANGEDFILES",
+          "path": "internal/health/git.go",
+          "line": 371
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--CHECKREV",
+          "path": "internal/health/git.go",
+          "line": 191
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--GITARGS",
+          "path": "internal/health/git.go",
+          "line": 149
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--GITENV",
+          "path": "internal/health/git.go",
+          "line": 90
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--GITENVFOR",
+          "path": "internal/health/git.go",
+          "line": 96
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--GITPATH",
+          "path": "internal/health/git.go",
+          "line": 233
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--HASCOMMITS",
+          "path": "internal/health/git.go",
+          "line": 282
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--HASCONTROLCHAR",
+          "path": "internal/health/git.go",
+          "line": 207
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--ISSHALLOW",
+          "path": "internal/health/git.go",
+          "line": 296
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--MERGEBASE",
+          "path": "internal/health/git.go",
+          "line": 262
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--NEWGITREPO",
+          "path": "internal/health/git.go",
+          "line": 72
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--NORMALIZEREPOPATH",
+          "path": "internal/health/git.go",
+          "line": 220
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--PARSENAMESTATUS",
+          "path": "internal/health/git.go",
+          "line": 453
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--RESOLVE",
+          "path": "internal/health/git.go",
+          "line": 245
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--RUN",
+          "path": "internal/health/git.go",
+          "line": 157
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--SHOWFILE",
+          "path": "internal/health/git.go",
+          "line": 309
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--TRACKEDFILES",
+          "path": "internal/health/git.go",
+          "line": 336
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--WRITE",
+          "path": "internal/health/git.go",
+          "line": 122
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--WRITE",
+          "path": "internal/health/git.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYWEAKENINGS",
+          "path": "internal/health/policy.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--ANCESTORS",
+          "path": "internal/health/scan/check.go",
+          "line": 231
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--BASEMANIFESTPOLICY",
+          "path": "internal/health/scan/check.go",
+          "line": 182
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
+          "path": "internal/health/scan/check.go",
+          "line": 105
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--OUTOFSCOPE",
+          "path": "internal/health/scan/check.go",
+          "line": 210
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--POLICYVERDICT",
+          "path": "internal/health/scan/check.go",
+          "line": 143
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-CHECK_TEST-C6CAB5",
+        "VER-INF-TEST-CHECK_TEST-E247CD",
+        "VER-INF-TEST-DELTA_ENGINE_TEST-CB74C7",
+        "VER-INF-TEST-DELTA_TEST-198F82",
+        "VER-INF-TEST-FINGERPRINT_TEST-B206E0",
+        "VER-INF-TEST-GIT_TEST-A0E0F9",
+        "VER-INF-TEST-HARDENING_TEST-D353C6",
+        "VER-INF-TEST-POLICY_TEST-A3CC9E"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-157",
+      "text": "When generation run is requested, the engineering model go shall write the code health report in the neutral format engmod-health/1.",
+      "units": [
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHCHECK",
+          "path": "api_health.go",
+          "line": 209
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHREPORT",
+          "path": "api_health.go",
+          "line": 94
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--HEALTHCHECKSARIF",
+          "path": "api_health.go",
+          "line": 218
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--HEALTHREPORTSCHEMAJSON",
+          "path": "api_health.go",
+          "line": 110
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--HEALTHSARIF",
+          "path": "api_health.go",
+          "line": 102
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--IMPORTHEALTHREPORT",
+          "path": "api_health.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--RELEVELHEALTHREPORT",
+          "path": "api_health.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--SCANHEALTH",
+          "path": "api_health.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RENDERCHECK",
+          "path": "cmd/enghealth/check.go",
+          "line": 67
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--IMPORTREPORT",
+          "path": "cmd/enghealth/main.go",
+          "line": 190
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--RUNSCAN",
+          "path": "cmd/enghealth/main.go",
+          "line": 93
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDPOLICYRESULTS",
+          "path": "internal/health/check.go",
+          "line": 251
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDSKIPPEDRESULTS",
+          "path": "internal/health/check.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--CHECKSARIF",
+          "path": "internal/health/check.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ENCODECHECK",
+          "path": "internal/health/check.go",
+          "line": 176
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--RELEVEL",
+          "path": "internal/health/config.go",
+          "line": 162
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--CANONICALIZE",
+          "path": "internal/health/import.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--CHECKIMPORTED",
+          "path": "internal/health/import.go",
+          "line": 85
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--CHECKPATH",
+          "path": "internal/health/import.go",
+          "line": 143
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--HASDRIVELETTER",
+          "path": "internal/health/import.go",
+          "line": 153
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--IMPORT",
+          "path": "internal/health/import.go",
+          "line": 43
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--READABLESCORINGVERSION",
+          "path": "internal/health/import.go",
+          "line": 25
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
+          "path": "internal/health/report.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--ENCODE",
+          "path": "internal/health/report.go",
+          "line": 253
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--ENCODEJSON",
+          "path": "internal/health/report.go",
+          "line": 260
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--FINDINGFINGERPRINT",
+          "path": "internal/health/sarif.go",
+          "line": 149
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--RESULTKEY",
+          "path": "internal/health/sarif.go",
+          "line": 256
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--SARIF",
+          "path": "internal/health/sarif.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--SARIFLEVEL",
+          "path": "internal/health/sarif.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--SARIFURI",
+          "path": "internal/health/sarif.go",
+          "line": 101
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCHEMA-GO--COMPILEDREPORTSCHEMA",
+          "path": "internal/health/schema.go",
+          "line": 39
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCHEMA-GO--REPORTSCHEMAJSON",
+          "path": "internal/health/schema.go",
+          "line": 26
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCHEMA-GO--VALIDATEREPORTDOCUMENT",
+          "path": "internal/health/schema.go",
+          "line": 68
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCHEMA-GO--VALIDATEREPORTJSON",
+          "path": "internal/health/schema.go",
+          "line": 57
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-BASELINE_TEST-6E1D38",
+        "VER-INF-TEST-CHECK_TEST-C6CAB5",
+        "VER-INF-TEST-CHECK_TEST-E247CD",
+        "VER-INF-TEST-CONFIG_TEST-B6646E",
+        "VER-INF-TEST-HARDENING_TEST-D353C6",
+        "VER-INF-TEST-IMPORT_TEST-280BD9",
+        "VER-INF-TEST-MAIN_TEST-7EC1C0",
+        "VER-INF-TEST-REPORT_TEST-3EF4FF",
+        "VER-INF-TEST-SARIF_TEST-680DA5",
+        "VER-INF-TEST-SCHEMA_TEST-D503E6",
+        "VER-INF-TEST-VOCABULARY_TEST-A9F27B"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-158",
+      "text": "When generation run is requested, the engineering model go shall run code health analysis with enghealth scan, check and baseline, exiting 0 when ok, 1 on blocking findings and 2 on a setup error.",
+      "units": [
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-HEALTH-GO--CHECKHEALTH",
+          "path": "api_health.go",
+          "line": 187
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHCHECK",
+          "path": "api_health.go",
+          "line": 209
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--HEALTHCHECKSARIF",
+          "path": "api_health.go",
+          "line": 218
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--SCANHEALTH",
+          "path": "api_health.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--BASELINETARGET",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 116
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--BASELINEUSAGE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 72
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--BASELINEWANTED",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 195
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--CHECKBASELINE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 266
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--INSIDEDIR",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 152
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--PARSEBASELINEFLAGS",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--REALEXISTING",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--RUNBASELINE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 35
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--CHANGEDFILESTEXT",
+          "path": "cmd/enghealth/check.go",
+          "line": 228
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--CHECKVERDICT",
+          "path": "cmd/enghealth/check.go",
+          "line": 116
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURELINES",
+          "path": "cmd/enghealth/check.go",
+          "line": 169
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURESUMMARY",
+          "path": "cmd/enghealth/check.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FINDINGKINDS",
+          "path": "cmd/enghealth/check.go",
+          "line": 243
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--PARSECHECKARGS",
+          "path": "cmd/enghealth/check.go",
+          "line": 25
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--POLICYERRORS",
+          "path": "cmd/enghealth/check.go",
+          "line": 159
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--REGRESSIONLINES",
+          "path": "cmd/enghealth/check.go",
+          "line": 216
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RENDERCHECK",
+          "path": "cmd/enghealth/check.go",
+          "line": 67
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RENDERCHECKTEXT",
+          "path": "cmd/enghealth/check.go",
+          "line": 276
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RUNCHECK",
+          "path": "cmd/enghealth/check.go",
+          "line": 89
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--SCORETEXT",
+          "path": "cmd/enghealth/check.go",
+          "line": 205
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--SHORTREV",
+          "path": "cmd/enghealth/check.go",
+          "line": 195
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--SKIPPEDERRORS",
+          "path": "cmd/enghealth/check.go",
+          "line": 149
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--VERDICTTEXT",
+          "path": "cmd/enghealth/check.go",
+          "line": 260
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--WRITEOUTPUT",
+          "path": "cmd/enghealth/check.go",
+          "line": 184
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--IMPORTREPORT",
+          "path": "cmd/enghealth/main.go",
+          "line": 190
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--MAIN",
+          "path": "cmd/enghealth/main.go",
+          "line": 42
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--RUN",
+          "path": "cmd/enghealth/main.go",
+          "line": 50
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--RUNSCAN",
+          "path": "cmd/enghealth/main.go",
+          "line": 93
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--TIERNAME",
+          "path": "cmd/enghealth/main.go",
+          "line": 209
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--USAGE",
+          "path": "cmd/enghealth/main.go",
+          "line": 72
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-SAFE-GO--ISCONTROL",
+          "path": "cmd/enghealth/safe.go",
+          "line": 48
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-SAFE-GO--SAFETEXT",
+          "path": "cmd/enghealth/safe.go",
+          "line": 20
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-SAFE-GO--WRITEFILEATOMIC",
+          "path": "cmd/enghealth/safe.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-TEXT-GO--FINDINGLEVEL",
+          "path": "cmd/enghealth/text.go",
+          "line": 74
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-TEXT-GO--RENDERTEXT",
+          "path": "cmd/enghealth/text.go",
+          "line": 21
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--CHECKLEVELS",
+          "path": "internal/health/check.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--CHECKSARIF",
+          "path": "internal/health/check.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ENCODECHECK",
+          "path": "internal/health/check.go",
+          "line": 176
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--NEWCHECKREPORT",
+          "path": "internal/health/check.go",
+          "line": 132
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REGRESSIONLEVELOF",
+          "path": "internal/health/check.go",
+          "line": 72
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REQUIREWORKTREE",
+          "path": "internal/health/check.go",
+          "line": 349
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--TRANSITION",
+          "path": "internal/health/check.go",
+          "line": 164
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--LEVELOFCODE",
+          "path": "internal/health/policy.go",
+          "line": 268
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYLEVELOF",
+          "path": "internal/health/policy.go",
+          "line": 252
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
+          "path": "internal/health/scan/check.go",
+          "line": 105
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECKSETUP",
+          "path": "internal/health/scan/check.go",
+          "line": 59
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--INSCOPE",
+          "path": "internal/health/scan/scan.go",
+          "line": 260
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--LOADBASELINE",
+          "path": "internal/health/scan/scan.go",
+          "line": 156
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--RESOLVESCOPE",
+          "path": "internal/health/scan/scan.go",
+          "line": 228
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCOPETOUCHES",
+          "path": "internal/health/scan/scan.go",
+          "line": 326
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-BASELINE_TEST-160260",
+        "VER-INF-TEST-BASELINE_TEST-FD5D93",
+        "VER-INF-TEST-CHECK_TEST-C6CAB5",
+        "VER-INF-TEST-CHECK_TEST-E247CD",
+        "VER-INF-TEST-HARDENING_TEST-D353C6",
+        "VER-INF-TEST-MAIN_TEST-7EC1C0",
+        "VER-INF-TEST-POLICY_TEST-A3CC9E",
+        "VER-INF-TEST-SCAN_HARDENING_TEST-BFB136",
+        "VER-INF-TEST-SCAN_SECOND_PASS_TEST-1C9D1B",
+        "VER-INF-TEST-SCAN_TEST-EFDB41"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-159",
+      "text": "When generation run is requested, the engineering model go shall cache the code health result of each file by content hash and produce deterministic output.",
+      "units": [
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHCHECK",
+          "path": "api_health.go",
+          "line": 209
+        },
+        {
+          "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHREPORT",
+          "path": "api_health.go",
+          "line": 94
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--ANALYZE",
+          "path": "internal/health/cache.go",
+          "line": 261
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--CACHEKEY",
+          "path": "internal/health/cache.go",
+          "line": 86
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--DIR",
+          "path": "internal/health/cache.go",
+          "line": 57
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--ENTRYDIGEST",
+          "path": "internal/health/cache.go",
+          "line": 197
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--GET",
+          "path": "internal/health/cache.go",
+          "line": 149
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--NAME",
+          "path": "internal/health/cache.go",
+          "line": 250
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--NEWCACHE",
+          "path": "internal/health/cache.go",
+          "line": 52
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--OPENCACHE",
+          "path": "internal/health/cache.go",
+          "line": 317
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--PUT",
+          "path": "internal/health/cache.go",
+          "line": 211
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--READ",
+          "path": "internal/health/cache.go",
+          "line": 160
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--STATS",
+          "path": "internal/health/cache.go",
+          "line": 64
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--USABLE",
+          "path": "internal/health/cache.go",
+          "line": 124
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--VALIDKEY",
+          "path": "internal/health/cache.go",
+          "line": 108
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CACHE-GO--VERSION",
+          "path": "internal/health/cache.go",
+          "line": 255
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ENCODECHECK",
+          "path": "internal/health/check.go",
+          "line": 176
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--CHECK",
+          "path": "internal/health/delta.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SORTENTRIES",
+          "path": "internal/health/delta.go",
+          "line": 786
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--ANALYZE",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 47
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--OWNLOC",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 211
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--VERSION",
+          "path": "internal/health/engine/treesitter/engine.go",
+          "line": 40
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-LANG-GO--EXPIRED",
+          "path": "internal/health/engine/treesitter/lang.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-METRICS-GO--MEASURE",
+          "path": "internal/health/engine/treesitter/metrics.go",
+          "line": 28
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-GIT-GO--TRACKEDFILES",
+          "path": "internal/health/git.go",
+          "line": 336
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--CANONICALIZE",
+          "path": "internal/health/import.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
+          "path": "internal/health/report.go",
+          "line": 131
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--ENCODE",
+          "path": "internal/health/report.go",
+          "line": 253
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--ENCODEJSON",
+          "path": "internal/health/report.go",
+          "line": 260
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--FINDINGFINGERPRINT",
+          "path": "internal/health/sarif.go",
+          "line": 149
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
+          "path": "internal/health/scan/check.go",
+          "line": 105
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECKENGINE",
+          "path": "internal/health/scan/check.go",
+          "line": 88
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--CACHEDENGINE",
+          "path": "internal/health/scan/scan.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-CACHE_TEST-338A03",
+        "VER-INF-TEST-CHECK_TEST-C6CAB5",
+        "VER-INF-TEST-CHECK_TEST-E247CD",
+        "VER-INF-TEST-DELTA_ENGINE_TEST-CB74C7",
+        "VER-INF-TEST-DELTA_TEST-198F82",
+        "VER-INF-TEST-ENGINE_TEST-DBE450",
+        "VER-INF-TEST-FINGERPRINT_TEST-BB13D5",
+        "VER-INF-TEST-GIT_TEST-A0E0F9",
+        "VER-INF-TEST-HARDENING_TEST-D353C6",
+        "VER-INF-TEST-REPORT_TEST-3EF4FF",
+        "VER-INF-TEST-SARIF_TEST-680DA5",
+        "VER-INF-TEST-SCAN_HARDENING_TEST-BFB136",
+        "VER-INF-TEST-SCAN_TEST-EFDB41",
+        "VER-INF-TEST-SCORING_TEST-9DF5BB"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-160",
+      "text": "When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--HEALTHGUIDE",
+          "path": "internal/model/authoring.go",
+          "line": 244
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTHEALTH",
+          "path": "internal/model/types.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 36
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-BASELINE_TEST-6E1D38",
+        "VER-INF-TEST-BASELINE_TEST-FD5D93",
+        "VER-INF-TEST-HEALTH_BASELINE_TEST-6C7156",
+        "VER-INF-TEST-HEALTH_BASELINE_TEST-DE6BE9",
+        "VER-INF-TEST-HEALTH_CONFIG_TEST-AF362C",
+        "VER-INF-TEST-HEALTH_TEST-73229A",
+        "VER-INF-TEST-SCAN_TEST-EFDB41"
+      ],
+      "result": "not-run",
+      "status": "implemented"
+    },
+    {
+      "id": "REQ-EMG-161",
+      "text": "When generation run is requested, the engineering model go shall treat a finding listed in the committed health baseline as accepted debt.",
+      "units": [
+        "FU-CODE-HEALTH",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--BASELINETARGET",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 116
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--BASELINEUSAGE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 72
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--BASELINEWANTED",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 195
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--CHECKBASELINE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 266
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--INSIDEDIR",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 152
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--KEEPOUTSIDESCAN",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 247
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--PARSEBASELINEFLAGS",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--READEXISTINGBASELINE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--REALEXISTING",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--RUNBASELINE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 35
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-BASELINE-GO--WRITEBASELINEFILE",
+          "path": "cmd/enghealth/baseline.go",
+          "line": 292
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--ANNOTATEGROWN",
+          "path": "internal/health/baseline.go",
+          "line": 141
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--APPLYBASELINE",
+          "path": "internal/health/baseline.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--APPLYBASELINE",
+          "path": "internal/health/baseline.go",
+          "line": 69
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--BASELINEDIFF",
+          "path": "internal/health/baseline.go",
+          "line": 216
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--BASELINEDSET",
+          "path": "internal/health/baseline.go",
+          "line": 168
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--BASELINEENTRIES",
+          "path": "internal/health/baseline.go",
+          "line": 196
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--COLLECTBASELINED",
+          "path": "internal/health/baseline.go",
+          "line": 115
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--ISBASELINED",
+          "path": "internal/health/baseline.go",
+          "line": 183
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--LOADBASELINE",
+          "path": "internal/health/scan/scan.go",
+          "line": 156
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--ENCODEHEALTHBASELINE",
+          "path": "internal/model/health_baseline.go",
+          "line": 212
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEENTRY",
+          "path": "internal/model/health_baseline.go",
+          "line": 38
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEENTRYPROBLEM",
+          "path": "internal/model/health_baseline.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEFILE",
+          "path": "internal/model/health_baseline.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEKEY",
+          "path": "internal/model/health_baseline.go",
+          "line": 48
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--HEALTHBASELINEPATHPROBLEM",
+          "path": "internal/model/health_baseline.go",
+          "line": 71
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--KEY",
+          "path": "internal/model/health_baseline.go",
+          "line": 52
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--LOADHEALTHBASELINE",
+          "path": "internal/model/health_baseline.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--PARSEHEALTHBASELINE",
+          "path": "internal/model/health_baseline.go",
+          "line": 134
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--RESOLVEHEALTHBASELINEPATH",
+          "path": "internal/model/health_baseline.go",
+          "line": 94
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-BASELINE-GO--SORTHEALTHBASELINEENTRIES",
+          "path": "internal/model/health_baseline.go",
+          "line": 182
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDECISIONPROBLEM",
+          "path": "internal/validate/health_config.go",
+          "line": 123
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 156
+        }
+      ],
+      "status": "implemented"
     }
   ],
   "danglingLinks": null,
@@ -15955,11 +18664,11 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 142,
-    "implemented": 139,
-    "verified": 132,
-    "tested": 132,
-    "testLinked": 132,
+    "requirements": 154,
+    "implemented": 151,
+    "verified": 143,
+    "tested": 143,
+    "testLinked": 143,
     "passed": 2,
     "delegated": 0,
     "delegatedImplemented": 0,

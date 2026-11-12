@@ -11,7 +11,11 @@ import (
 // machines guide (expression grammar, operator table, Quint workflow and
 // formal evidence semantics) and the SM, TR and INV identifier prefixes. v4
 // adds the health guide, the manifest health block and the health field sets.
-const AuthoringContractVersion = "engineering-model.authoring.v4"
+// v5 adds health.baseline (the committed baseline of accepted debt), the
+// healthBaseline field set and the codes health.baseline_stale and
+// health.baseline_unreadable. v6 adds health.policyDecision, the code
+// health.policy_weakened and the metric value of a baseline entry.
+const AuthoringContractVersion = "engineering-model.authoring.v6"
 
 // AuthoringContract is compact machine context for editing the canonical YAML set.
 type AuthoringContract struct {
@@ -257,20 +261,27 @@ func healthGuide() HealthGuide {
 	codes = append(codes,
 		HealthCodeDoc{Code: HealthRegressionCode, Meaning: "a new or worsened high finding against the compared baseline"},
 		HealthCodeDoc{Code: HealthWaiverUnusedCode, Meaning: "a waiver that matches no finding (emitted by the health report)"},
-		HealthCodeDoc{Code: HealthWaiverUnjustifiedCode, Meaning: "a waiver whose decision does not exist or is not accepted (error, untiered)"},
+		HealthCodeDoc{Code: HealthWaiverUnjustifiedCode, Meaning: "a waiver or a baseline whose decision does not exist or is not accepted (error, untiered)"},
+		HealthCodeDoc{Code: HealthBaselineStaleCode, Meaning: "a baseline entry that matches no finding, so it can be removed (emitted by the health report)"},
+		HealthCodeDoc{Code: HealthBaselineUnreadableCode, Meaning: "a baseline file that is missing, not valid JSON or not engmod-health-baseline/1 (error, untiered)"},
+		HealthCodeDoc{Code: HealthPolicyWeakenedCode, Meaning: "a change that raises a health limit, widens health.exclude or an override or lowers the tier against the base revision, without an accepted policyDecision (reported by enghealth check)"},
 	)
 	return HealthGuide{
 		Config: []string{
-			"health is an optional block of engmod.yml: health: {exclude: [pattern], thresholds: {<code>: {warn: int, high: int}}, overrides: [{path: pattern, thresholds: {<code>: {warn, high}}}], waivers: [{code, path, function, decision}]}. Every key is optional; without the block nothing about code health is validated, computed or reported.",
+			"health is an optional block of engmod.yml: health: {exclude: [pattern], thresholds: {<code>: {warn: int, high: int}}, overrides: [{path: pattern, thresholds: {<code>: {warn, high}}}], waivers: [{code, path, function, decision}], baseline: {file, decision}, policyDecision: <decision id>}. Every key is optional; without the block nothing about code health is validated, computed or reported.",
 			"exclude entries and overrides[].path use the pattern dialect of inferenceHints.exclude (relative to the module root; * ? [...] within one path segment; ** only as a trailing /**; no negation).",
 			"thresholds and overrides[].thresholds are keyed by a smell code that takes numeric limits (the codes with threshold: true); warn is at least 1 and high is at least warn. A threshold replaces the built-in default of the code for the whole module, an override for the paths it matches.",
-			"A waiver waives the finding of code in function of the file path (an exact module-relative path, not a pattern) and names the decision that justifies it. There is no history key.",
+			"A waiver waives the finding of code in function of the file path (a file path or a pattern of the exclude dialect, relative to the module root) and names the decision that justifies it. There is no history key.",
+			"baseline {file, decision} accepts existing debt: file is a path relative to the manifest directory (no absolute path, no ..) of a JSON file {schema: engmod-health-baseline/1, entries: [{path, function, code, value}]} sorted by path, function and code, written by enghealth baseline write and never edited by hand (value is the metric value of the finding when it was written, at least 1); decision is an accepted decision. A finding listed in the baseline is reported as baselined while its current value is at most the recorded value: it still counts toward the score but is neither an error nor counted by the gate. A finding whose value grew past the recorded one is no longer baselined and counts at the level of its code. A regression (a new or worsened high finding) is never baselined. A baseline whose decision is missing or not accepted suppresses nothing.",
+			"policyDecision is an accepted decision that records a weakening of this block against the base revision (a higher limit, a new exclude, an override that raises a limit, a lower tier). enghealth check reads the manifest of the base revision and reports such a change as health.policy_weakened unless the head names a policyDecision that the base did not already name; the decision is the reviewable record (decisions.yml is code-owned).",
 		},
 		Codes: codes,
 		Rules: []string{
 			"A threshold key that is no smell code with numeric limits, a threshold whose warn is below 1 or whose high is below warn, an exclude or override path the pattern dialect rejects, and a waiver without code, path, function or decision, with a code that is no smell code or with a path that is no module-relative path are model.invalid_health_threshold, model.invalid_health_exclude, model.invalid_health_override and model.invalid_health_waiver (errors at every tier, never deferred).",
-			"health.waiver_unjustified (error, untiered: never changed or deferred by the tier policy) is reported at a waiver whose decision does not exist or whose status is not accepted; the message names the waiver and the decision. A waiver without an accepted decision waives nothing.",
-			"Tier policy: every smell code and health.waiver_unused is a warning at every tier (no safety or bundle change); health.regression is a warning at poc, prototype and mvp and an error from product, and with the safety bundle an error from mvp. lifecycle.raise: [health.*] makes the debt codes errors.",
+			"health.waiver_unjustified (error, untiered: never changed or deferred by the tier policy) is reported at a waiver whose decision does not exist or whose status is not accepted; the message names the waiver and the decision. A waiver without an accepted decision waives nothing. The same code is reported for health.baseline.decision (the message names the baseline) and for health.policyDecision (the message names the policy decision).",
+			"health.baseline_unreadable (error, untiered) is reported when the baseline file is missing, is not valid JSON, is not engmod-health-baseline/1 or holds an invalid entry. An empty or unclean baseline file path, or an empty decision, is model.invalid_health_baseline (error at every tier, never deferred).",
+			"health.baseline_stale (a baseline entry that matches no finding) is a warning at poc to product and an error at operational, so the baseline can only shrink; it is emitted by the health report and not reported for a file outside a path-restricted scan.",
+			"Tier policy: every smell code and health.waiver_unused is a warning up to mvp and an error at product and operational (from mvp with the safety bundle); health.regression and health.policy_weakened are warnings at poc, prototype and mvp and errors from product, and with the safety bundle errors from mvp (a source file that enghealth skipped or failed to analyse has the level of health.regression). lifecycle.raise: [health.*] makes the debt codes errors.",
 			"Scores are this project's own heuristics over the scanned source; they are not CodeScene's Code Health and do not claim to match it.",
 		},
 	}

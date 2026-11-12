@@ -38,3 +38,24 @@ openspec/
 # local multi-repo state (engmod.work.yml replacements, engws)
 engmod.lock.local.yml
 .engws.yml
+
+# Binaries built from cmd/ at the repository root (go build ./cmd/<name>)
+/engair
+/engchange
+/engdoc
+/engdragon
+/enggemara
+/enghealth
+/englobster
+/engmcp
+/engnaf
+/engoscal
+/engquint
+/engspec
+/engstruct
+/engsysml
+/engtrace
+/engtrlc
+/engview
+/engws
+/sysmlmetamodel

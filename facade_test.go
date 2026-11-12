@@ -216,6 +216,14 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"Generate": "GenerateQuint", "GenerateFromFile": "GenerateQuintFromFile",
 			"GeneratedHeader": "QuintGeneratedHeader",
 		}},
+		{dir: filepath.Join("internal", "health", "scan"), rootName: map[string]string{
+			"Options": "HealthScanOptions", "Scan": "ScanHealth", "ErrSetup": "ErrHealthSetup",
+			"CheckOptions": "HealthCheckOptions", "Check": "CheckHealth",
+		}, internalOnly: []string{
+			// pipeline constants: the diagnostic codes of a file that was not
+			// analysed and the size limit, read from the report.
+			"CodeFileSkipped", "CodeFileFailed", "MaxFileBytes",
+		}},
 		{dir: filepath.Join("internal", "export", "exportutil"), internalOnly: []string{
 			// generation timestamps shared by the Gemara and OSCAL exporters.
 			"NormalizeGeneratedTimestamp", "ResolveGeneratedTimestamp",

@@ -338,6 +338,126 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-045';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-046";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-046';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-047";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-047';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-048";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-048';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-049";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-049';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-050";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-050';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-051";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-051';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-052";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-052';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-053";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-053';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-054";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-054';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-055";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-055';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-056";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-056';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-057";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-057';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-058";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-058';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-059";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-059';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-060";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-060';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-061";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-061';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-062";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-062';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-063";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-063';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-064";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-064';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-065";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-065';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -628,6 +748,14 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "CONCERN-2C35A8581846968E";
+        conceptKind = "concern_usage";
+    }
+    concern 'CONCERN-2C35A8581846968E' : EngineeringConcern {
+        attribute 'narrative' : 'String' = "Runs through enghealth locally and in CI against a base revision of the same repository, with per-file results cached by content hash under .engmod/cache/health.";
+    }
+
+    @EngineeringElement {
         sourceId = "CONCERN-2C5C3496BD19AD07";
         conceptKind = "concern_usage";
     }
@@ -649,6 +777,14 @@ package 'engineering-model-go' {
     }
     concern 'CONCERN-33D4D7D52CB8AC91' : EngineeringConcern {
         attribute 'narrative' : 'String' = "Resolves a parent model's downward subsystem references into a federated system-of-systems from local paths, external git repositories, or exact-version CUE modules in OCI registries.";
+    }
+
+    @EngineeringElement {
+        sourceId = "CONCERN-34035127581BDF3F";
+        conceptKind = "concern_usage";
+    }
+    concern 'CONCERN-34035127581BDF3F' : EngineeringConcern {
+        attribute 'narrative' : 'String' = "Joins functions to functional units by the owner marker and to requirements by the TRLC-LINKS of marker-linked symbols, and explains each score by the deductions that produced it.";
     }
 
     @EngineeringElement {
@@ -828,6 +964,14 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "CONCERN-5FC4DD345C8CFFEC";
+        conceptKind = "concern_usage";
+    }
+    concern 'CONCERN-5FC4DD345C8CFFEC' : EngineeringConcern {
+        attribute 'narrative' : 'String' = "Makes maintainability debt visible per function, file, functional unit and requirement with our own explainable score, reports findings with the severity of the tier (errors at product and operational), blocks regressions, and lets a committed baseline or a waiver with an accepted decision carry existing debt.";
+    }
+
+    @EngineeringElement {
         sourceId = "CONCERN-636DA8CDB9D1B586";
         conceptKind = "concern_usage";
     }
@@ -977,6 +1121,14 @@ package 'engineering-model-go' {
     }
     concern 'CONCERN-911646C7D11C0EDE' : EngineeringConcern {
         attribute 'narrative' : 'String' = "Rolls up requirement status as implemented, verified, delegated, or orphan, and flags untraceable delegations.";
+    }
+
+    @EngineeringElement {
+        sourceId = "CONCERN-925975803E1D5A2B";
+        conceptKind = "concern_usage";
+    }
+    concern 'CONCERN-925975803E1D5A2B' : EngineeringConcern {
+        attribute 'narrative' : 'String' = "Parses source as data without executing it, reads the base revision with git show and never a checkout, validates imported reports against a published schema and writes no timestamps or absolute paths.";
     }
 
     @EngineeringElement {
@@ -1257,6 +1409,14 @@ package 'engineering-model-go' {
     }
     concern 'CONCERN-E72B950676ED1DF3' : EngineeringConcern {
         attribute 'narrative' : 'String' = "Blocks malformed or unsafe model transitions before downstream processing.";
+    }
+
+    @EngineeringElement {
+        sourceId = "CONCERN-E7488CE9E15D1599";
+        conceptKind = "concern_usage";
+    }
+    concern 'CONCERN-E7488CE9E15D1599' : EngineeringConcern {
+        attribute 'narrative' : 'String' = "Reads the manifest health block, the model and the code map, reports through enghealth and the validation diagnostics, and exchanges reports in the neutral engmod-health/1 format and as SARIF 2.1.0.";
     }
 
     @EngineeringElement {
@@ -1994,6 +2154,12 @@ package 'engineering-model-go' {
     part 'FU-CLI-ORCHESTRATION' : EngineeringPart;
 
     @EngineeringElement {
+        sourceId = "FU-CODE-HEALTH";
+        conceptKind = "part_usage";
+    }
+    part 'FU-CODE-HEALTH' : EngineeringPart;
+
+    @EngineeringElement {
         sourceId = "FU-CODEMAP-INFERENCE";
         conceptKind = "part_usage";
     }
@@ -2147,6 +2313,18 @@ package 'engineering-model-go' {
         attribute 'protocol' : 'String' = "cli";
         attribute 'endpoint' : 'String' = "cmd/enggemara";
         attribute 'schemaRef' : 'String' = "internal/export/gemara/gemara_export.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-CLI-ENGHEALTH";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-CLI-ENGHEALTH' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "cmd/enghealth";
+        attribute 'schemaRef' : 'String' = "internal/health/types.go";
     }
 
     @EngineeringElement {
@@ -3644,6 +3822,114 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-150";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-150' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall report code health smells for each function of Go, Rust, TypeScript, JavaScript and Python source files.";
+        attribute 'notes' : 'String' = "ADR-EMG-046, ADR-EMG-047. The named codes are health.complex_method, health.large_method, health.deep_nesting, health.bumpy_road, health.complex_conditional, health.excess_arguments, health.primitive_obsession, health.brain_method, health.large_assertion_block and health.duplicated_assertion_block. Thresholds, decision points and assertion statements per language are in ADR-EMG-047. A smell that cannot be computed for a language (primitive_obsession needs known types, so never for JavaScript) is reported as unsupported for that language and never as a silent zero. Anonymous closures count toward their enclosing function. The analysis is our own and is not CodeScene Code Health.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-151";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-151' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall compute an explainable code health score from 1.0 to 10.0 for each source file.";
+        attribute 'notes' : 'String' = "ADR-EMG-048. The score starts at 10.0 and each smell deducts its weight times a severity factor (warn 1, high 2); per-function deductions combine with diminishing returns (worst counts fully, next times 0.5, the rest times 0.25 with the whole tail counted at most 2.0 points, ADR-EMG-059); the result is clamped to 1.0..10.0 with one decimal. Bands: green at 8.0 or above, yellow at 4.0 or above, red below 4.0 (OWNER). The weights table is versioned (scoringVersion 2 since the capped tail; an imported report of version 1 or 2 is read as it is) and published in the report. Test files are scored separately and are excluded from production roll-ups by default. The score is our own and is never presented as a CodeScene score.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-152";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-152' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall roll up file code health scores along the traceability of the model.";
+        attribute 'notes' : 'String' = "ADR-EMG-049. A functional unit is the LOC-weighted mean of its files plus its worst file, attributed by the file-level ENGMODEL-OWNER-UNIT marker (one value per file). A requirement is reached through the TRLC-LINKS of marker-linked symbols (Symbol.Implements), joined to functions by path and line range, and reports its findings and the worst score of the files of those functions (a function has no score of its own). The project roll-up is the LOC-weighted mean, the worst performer and the count per band.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-153";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-153' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.";
+        attribute 'notes' : 'String' = "ADR-EMG-051. The health block is optional and opt-in. exclude uses the dialect of inferenceHints.exclude (path.Match per segment, only a trailing /**), not gitignore semantics. thresholds name known codes with warn and high values that are ordered; overrides apply thresholds by path; a waiver is {code, path, function, decision}. Unknown keys and malformed shapes are rejected by the CUE contract and the loader; unknown codes, unordered thresholds and exclude patterns outside the dialect are the errors model.invalid_health_exclude, model.invalid_health_threshold, model.invalid_health_override and model.invalid_health_waiver of validation, each naming the field.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-154";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-154' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall require each code health waiver to cite an existing accepted decision.";
+        attribute 'notes' : 'String' = "ADR-EMG-051 and ADR-EMG-052. health.waiver_unjustified is an error at every tier and is untiered: the cited decision is missing or its status is not accepted (the acceptance reference check of the model is reused). health.waiver_unused follows the debt row (a warning up to mvp, an error from product): the waiver matches no finding, so it can be removed. A waiver whose decision is not accepted waives nothing in scan and check. A waiver suppresses one code for one function in one file and is listed in the report as waived, never silently dropped.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-155";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-155' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report code health findings in enghealth reports with the severity of the project life-cycle tier.";
+        attribute 'notes' : 'String' = "ADR-EMG-052 (OWNER decision). Debt findings (every health smell code) are warnings up to mvp and errors at product and operational, the row WWWEE (WWEEE with the safety bundle; ADR-EMG-057). health.regression, a new or worsened high finding against the base revision, is keyed in TierPolicy with the row WWWEE: a warning below product, an error from product, and from mvp with the safety bundle (row WWEEE). health.waiver_unjustified is an untiered error and health.waiver_unused follows the debt row. lifecycle.raise with health.* stays the owner escape hatch that makes debt blocking at a lower tier. Smell findings, regressions, unused waivers and stale baseline entries exist only in enghealth reports (internal/health imports internal/validate, so validation cannot emit them); validation reports only the configuration and waiver diagnostics of the health block.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-156";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-156' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall classify each code health finding against a base revision of the working tree.";
+        attribute 'notes' : 'String' = "ADR-EMG-053. Findings are keyed by (path, qualified name, code). The base file is read with git show as raw bytes, never a checkout; renames come from git diff -M --name-status, and a renamed function with the same body hash is not new. New means absent at base; worsened means the metric grew past a higher severity or by at least 20 percent; otherwise existing. Existing debt never fails enghealth check (enghealth scan --fail-on-error does fail on an error finding that is neither waived nor baselined). In an empty repository (no base commit) every finding is new and the check warns. In a shallow clone whose base revision is missing the check fails with a setup error (exit 2), because a silent pass would hide regressions.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-157";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-157' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall write the code health report in the neutral format engmod-health/1.";
+        attribute 'notes' : 'String' = "ADR-EMG-050. The report is also exported as SARIF 2.1.0, and the roll-up of the unit, requirement and project levels is ADR-EMG-049. The HealthReport JSON carries the schema string engmod-health/1 and is described by a published JSON Schema document that a test validates reports against. The SARIF 2.1.0 export is new code with no precedent in the repository. A report that conforms to engmod-health/1 can be imported in place of the built-in analysis: this is the seam for another engine behind an Engine interface. There is no CodeScene adapter.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-158";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-158' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall run code health analysis with enghealth scan, check and baseline, exiting 0 when ok, 1 on blocking findings and 2 on a setup error.";
+        attribute 'notes' : 'String' = "ADR-EMG-046, ADR-EMG-052 and ADR-EMG-053. cmd/enghealth has the subcommands scan (report and roll-ups; it exits 1 only with --fail-on-error and an error finding that is neither waived nor baselined), baseline (write and --check the committed baseline) and check (delta between a base revision and the working tree, with the blocking decision of the tier policy). A setup error (unreadable model, missing base revision, unreadable or non-conforming imported report, a path outside the repository) exits 2 and never counts as a pass.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-159";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-159' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall cache the code health result of each file by content hash and produce deterministic output.";
+        attribute 'notes' : 'String' = "ADR-EMG-054. The cache lives under .engmod/cache/health, keyed by the sha256 of the file content, the language, the thresholds and scoringVersion; a changed key is a miss. Output is sorted, and a committed report holds no timestamps and no absolute paths. The cache key also holds the path, the engine name and version and a key-layout version. The cache is used by check and by scan (--no-cache turns it off), it is off by default when CI is set, and it is refused when files under .engmod are tracked by git (an unprotected cache entry could hide a finding). Target: a check of one changed file under 1 s when warm (measured 0.2 to 0.4 s in docs/code-health-dogfood.md).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-160";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-160' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block.";
+        attribute 'notes' : 'String' = "ADR-EMG-046 and ADR-EMG-052. Code health is opt-in through the manifest health block (ADR-EMG-061 makes the block required at product and operational for new releases). Without the block, validation reports no health.* diagnostic and every generated document is unchanged; the tier policy table and the authoring contract are the same for every model, so they gain the health rows and the health section (authoring contract v5) whether or not a block exists.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-161";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-161' {
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall treat a finding listed in the committed health baseline as accepted debt.";
+        attribute 'notes' : 'String' = "ADR-EMG-059. The manifest health.baseline names a file and an accepted decision. A finding in the file, matched by path, qualified function name and code, is reported as baselined: it counts toward the score and is neither an error nor counted by --fail-on-error. A baseline entry that matches no finding is health.baseline_stale (a warning below operational, an error at operational), so the baseline can only shrink. health.baseline_unreadable is an untiered error for a missing or malformed file. A new or worsened high finding (health.regression) is never baselined. enghealth baseline write creates the file and --check verifies it.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
@@ -4616,6 +4902,13 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-44F9EB024D1E3000";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-44F9EB024D1E3000' from 'FU-CODE-HEALTH' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
         sourceId = "REL-4672CF188E6130EB";
         conceptKind = "succession";
         relationshipKind = "flow_next";
@@ -4888,6 +5181,13 @@ package 'engineering-model-go' {
     succession 'REL-8AAA646D9D1CF563' first 'repin-unchanged-links' then 'restore-bump-files';
 
     @EngineeringRelationship {
+        sourceId = "REL-9193754A0A36B23E";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-9193754A0A36B23E' from 'FU-CODE-HEALTH' to 'FU-VALIDATION-ENGINE';
+
+    @EngineeringRelationship {
         sourceId = "REL-99640AD91A774667";
         conceptKind = "dependency";
         relationshipKind = "targets";
@@ -5090,6 +5390,13 @@ package 'engineering-model-go' {
         relationshipKind = "flow_ref";
     }
     dependency 'REL-E75B93B894A74F66' from 'show-links' to 'FU-ALLOCATION-TRACE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-E842157F9969B70A";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-E842157F9969B70A' from 'FU-CODE-HEALTH' to 'FU-CODEMAP-INFERENCE';
 
     @EngineeringRelationship {
         sourceId = "REL-EC073BE26257DD9C";

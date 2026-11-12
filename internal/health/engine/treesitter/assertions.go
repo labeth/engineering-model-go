@@ -33,6 +33,9 @@ func assertionRuns(l *language, c *fileCtx, body *sitter.Node) []assertRun {
 	var runs []assertRun
 	var visit func(n *sitter.Node)
 	visit = func(n *sitter.Node) {
+		if c.expired() {
+			return
+		}
 		if l.containers[n.Kind()] {
 			runs = append(runs, runsIn(l, c, n)...)
 		}

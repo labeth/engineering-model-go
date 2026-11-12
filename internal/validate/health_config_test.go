@@ -167,9 +167,11 @@ func TestHealthWaiverUnjustifiedIsUntieredAndNeverDeferred(t *testing.T) {
 }
 
 // The health tier rows end to end through ApplyTierPolicy with lifecycle at
-// each tier: debt and unused waivers are warnings everywhere; the regression
-// code is W,W,W,E,E, and W,W,E,E,E with the safety bundle; lifecycle.raise
-// health.* makes debt an error; without lifecycle nothing is keyed.
+// each tier: debt, unused waivers, regressions and policy weakenings are
+// W,W,W,E,E (warnings up to mvp, errors at product and operational), and
+// W,W,E,E,E with the safety bundle; a stale baseline entry is W,W,W,W,E;
+// lifecycle.raise health.* makes debt an error; without lifecycle nothing is
+// keyed.
 // TRLC-LINKS: REQ-EMG-155
 func TestHealthTierRowsEndToEnd(t *testing.T) {
 	debt := model.HealthSmellCodes()
@@ -180,19 +182,25 @@ func TestHealthTierRowsEndToEnd(t *testing.T) {
 	}{
 		{"health.regression", nil, "WWWEE"},
 		{"health.regression", []string{"safety"}, "WWEEE"},
-		{"health.waiver_unused", nil, "WWWWW"},
-		{"health.waiver_unused", []string{"safety"}, "WWWWW"},
+		{model.HealthPolicyWeakenedCode, nil, "WWWEE"},
+		{model.HealthPolicyWeakenedCode, []string{"safety"}, "WWEEE"},
+		{"health.waiver_unused", nil, "WWWEE"},
+		{"health.waiver_unused", []string{"safety"}, "WWEEE"},
+		// A stale baseline entry is a warning below operational and an error at
+		// operational, with or without the safety bundle (ADR-EMG-059).
+		{model.HealthBaselineStaleCode, nil, "WWWWE"},
+		{model.HealthBaselineStaleCode, []string{"safety"}, "WWWWE"},
 	}
 	for _, code := range debt {
 		rows = append(rows, struct {
 			code    string
 			bundles []string
 			want    string
-		}{code, nil, "WWWWW"}, struct {
+		}{code, nil, "WWWEE"}, struct {
 			code    string
 			bundles []string
 			want    string
-		}{code, []string{"safety"}, "WWWWW"})
+		}{code, []string{"safety"}, "WWEEE"})
 	}
 	for _, r := range rows {
 		var got strings.Builder
@@ -236,7 +244,7 @@ func TestHealthCodesAreInTheTierTable(t *testing.T) {
 	for _, r := range TierPolicy() {
 		keyed[r.Code] = r
 	}
-	for _, code := range append(model.HealthSmellCodes(), "health.waiver_unused", "health.regression") {
+	for _, code := range append(model.HealthSmellCodes(), "health.waiver_unused", "health.regression", model.HealthPolicyWeakenedCode, model.HealthBaselineStaleCode) {
 		r, ok := keyed[code]
 		if !ok || IsCoreCode(code) {
 			t.Errorf("%s: tier keyed=%v core=%v", code, ok, IsCoreCode(code))
@@ -252,16 +260,22 @@ func TestHealthCodesAreInTheTierTable(t *testing.T) {
 	}
 	md := TierPolicyMarkdown()
 	for _, row := range []string{
-		"| `health.complex_method` | W | W | W | W | W |",
+		"| `health.complex_method` | W | W | W | E | E |",
+		"| `health.complex_method` with safety | W | W | E | E | E |",
 		"| `health.regression` | W | W | W | E | E |",
 		"| `health.regression` with safety | W | W | E | E | E |",
-		"| `health.waiver_unused` | W | W | W | W | W |",
+		"| `health.policy_weakened` | W | W | W | E | E |",
+		"| `health.policy_weakened` with safety | W | W | E | E | E |",
+		"| `health.waiver_unused` | W | W | W | E | E |",
 	} {
 		if !strings.Contains(md, row) {
 			t.Errorf("table lacks %s", row)
 		}
 	}
-	for _, code := range []string{"health.waiver_unjustified"} {
+	if !strings.Contains(md, "| `health.baseline_stale` | W | W | W | W | E |") {
+		t.Error("table lacks the health.baseline_stale row")
+	}
+	for _, code := range []string{"health.waiver_unjustified", model.HealthBaselineUnreadableCode} {
 		if TierKeyed(code) {
 			t.Errorf("%s must be untiered", code)
 		}
@@ -274,7 +288,8 @@ func TestHealthCodesAreInTheTierTable(t *testing.T) {
 func TestAuthoringRulesDescribeHealth(t *testing.T) {
 	rules := AuthoringRules()
 	for kind, want := range map[string]string{
-		"health":          "exclude,thresholds,overrides,waivers",
+		"health":          "exclude,thresholds,overrides,waivers,baseline,policyDecision",
+		"healthBaseline":  "file,decision",
 		"healthThreshold": "warn,high",
 		"healthOverride":  "path,thresholds",
 		"healthWaiver":    "code,path,function,decision",
@@ -293,9 +308,14 @@ func TestAuthoringRulesDescribeHealth(t *testing.T) {
 		t.Errorf("health.thresholds type = %+v", thresholds)
 	}
 	text := strings.Join(rules.FieldRules, "\n")
-	for _, want := range []string{"Code health (optional)", "health.waiver_unjustified", "model.invalid_health_threshold", "lifecycle.raise: [health.*]", "health.regression"} {
+	for _, want := range []string{"Code health (optional)", "health.waiver_unjustified", "model.invalid_health_threshold", "lifecycle.raise: [health.*]", "health.regression", "health.policy_weakened", "policyDecision"} {
 		if !strings.Contains(text, want) {
 			t.Errorf("field rules lack %q", want)
+		}
+	}
+	for _, want := range []string{"health.baseline", "health.baseline_stale", "health.baseline_unreadable", "model.invalid_health_baseline", "engmod-health-baseline/1", "never baselined", "suppresses nothing", "path, function, code, value"} {
+		if !strings.Contains(text, want) {
+			t.Errorf("field rules lack the baseline term %q", want)
 		}
 	}
 	for _, code := range model.HealthThresholdCodes() {
@@ -308,4 +328,64 @@ func TestAuthoringRulesDescribeHealth(t *testing.T) {
 // waivers is a health block with the given waivers.
 func waivers(w ...model.HealthWaiver) model.ManifestHealth {
 	return model.ManifestHealth{Waivers: w}
+}
+
+// health.policyDecision records a weakening of the health policy and is
+// justified like a waiver: an accepted decision passes; a proposed and a
+// missing decision are health.waiver_unjustified (error, untiered) at
+// health.policyDecision, naming the policy decision; without it nothing is
+// reported (REQ-EMG-160).
+//
+// Mutation: not checking the decision, or reporting another code, fails.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+func TestHealthPolicyDecisionNeedsAnAcceptedDecision(t *testing.T) {
+	if got := healthCodes(healthBundle(&model.ManifestHealth{PolicyDecision: "ADR-OK"})); len(got) != 0 {
+		t.Fatalf("accepted decision: got %+v", got)
+	}
+	if got := healthCodes(healthBundle(&model.ManifestHealth{})); len(got) != 0 {
+		t.Fatalf("no policy decision: got %+v", got)
+	}
+	for decision, problem := range map[string]string{"ADR-DRAFT": `has status "proposed", not accepted`, "ADR-NONE": "does not exist"} {
+		got := healthCodes(healthBundle(&model.ManifestHealth{PolicyDecision: decision}))
+		if len(got) != 1 || got[0].Code != model.HealthWaiverUnjustifiedCode || got[0].Severity != SeverityError || got[0].Path != "health.policyDecision" {
+			t.Fatalf("%s: got %+v", decision, got)
+		}
+		for _, want := range []string{"policy decision", decision, problem} {
+			if !strings.Contains(got[0].Message, want) {
+				t.Errorf("%s: message %q lacks %q", decision, got[0].Message, want)
+			}
+		}
+		if AcceptedHealthPolicyDecision(healthBundle(&model.ManifestHealth{PolicyDecision: decision})) != "" {
+			t.Errorf("%s must record nothing", decision)
+		}
+	}
+	if got := AcceptedHealthPolicyDecision(healthBundle(&model.ManifestHealth{PolicyDecision: " ADR-OK "})); got != "ADR-OK" {
+		t.Errorf("AcceptedHealthPolicyDecision = %q", got)
+	}
+	if got := AcceptedHealthPolicyDecision(healthBundle(nil)); got != "" {
+		t.Errorf("no health block = %q", got)
+	}
+	if TierKeyed("health.waiver_unjustified") {
+		t.Error("the diagnostic must stay untiered")
+	}
+}
+
+// HealthBaselineDecisionProblem says why a baseline is unjustified and is empty
+// for an accepted decision and for a model without a baseline.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154
+func TestHealthBaselineDecisionProblem(t *testing.T) {
+	with := func(decision string) model.Bundle {
+		return healthBundle(&model.ManifestHealth{Baseline: &model.HealthBaseline{File: "model/b.json", Decision: decision}})
+	}
+	for decision, want := range map[string]string{"ADR-OK": "", "ADR-DRAFT": "not accepted", "ADR-NONE": "does not exist", "": "no decision"} {
+		got := HealthBaselineDecisionProblem(with(decision))
+		if (want == "") != (got == "") || !strings.Contains(got, want) {
+			t.Errorf("decision %q: problem %q, want it to contain %q", decision, got, want)
+		}
+	}
+	if HealthBaselineDecisionProblem(healthBundle(&model.ManifestHealth{})) != "" || HealthBaselineDecisionProblem(healthBundle(nil)) != "" {
+		t.Error("a model without a baseline has no problem")
+	}
 }

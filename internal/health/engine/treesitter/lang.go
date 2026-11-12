@@ -9,6 +9,7 @@ package treesitter
 import (
 	"path/filepath"
 	"strings"
+	"time"
 
 	sitter "github.com/tree-sitter/go-tree-sitter"
 )
@@ -40,6 +41,31 @@ type fileCtx struct {
 	src    []byte
 	path   string
 	isTest bool
+	// deadline bounds the analysis of the file (see AnalysisBudget); ticks
+	// counts the nodes seen so the clock is read once in a while, and over is
+	// set when the deadline has passed.
+	deadline time.Time
+	ticks    int
+	over     bool
+}
+
+// AnalysisBudget bounds the walk over the syntax tree of one file. The parse
+// has its own timeout (codemap.ParseTimeout); the walk is linear in the size of
+// the tree but each parent lookup of the binding costs the depth of the node,
+// so a file of deeply nested blocks costs quadratic time. A file that exceeds
+// the budget is an error, never a stall.
+var AnalysisBudget = 15 * time.Second
+
+// expired counts a node and reports whether the budget of the file is spent.
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-159
+func (c *fileCtx) expired() bool {
+	if c.over {
+		return true
+	}
+	if c.ticks++; c.ticks%512 == 0 && time.Now().After(c.deadline) {
+		c.over = true
+	}
+	return c.over
 }
 
 // unitInfo describes one function unit found by language.unit.

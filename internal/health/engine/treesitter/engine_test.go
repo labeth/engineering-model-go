@@ -123,6 +123,14 @@ func checkLOC(t *testing.T, res health.FileResult, src []byte, prefix string, sk
 	}
 }
 
+// wantLOC checks the logical lines of one function.
+func wantLOC(t *testing.T, res health.FileResult, name string, loc int) {
+	t.Helper()
+	if got := function(t, res, name).LOC; got != loc {
+		t.Errorf("%s: loc %d, want %d", name, got, loc)
+	}
+}
+
 func contains(list []string, s string) bool {
 	for _, v := range list {
 		if v == s {
@@ -177,7 +185,10 @@ func TestGoSmells(t *testing.T) {
 		fn("Closures", "function", 1, 3, 1, 0, 0),
 		fn("Closures.run", "function", 0, 2, 1, 0, 0),
 	})
-	checkLOC(t, res, load(t, "go_smells.go"), "//")
+	// Closures spans 18 logical lines; run owns 5 (its "run := func() {" row
+	// included), so Closures counts 13.
+	checkLOC(t, res, load(t, "go_smells.go"), "//", "Closures")
+	wantLOC(t, res, "Closures", 13)
 	if res.IsTest || len(res.Unsupported) != 0 {
 		t.Errorf("a plain Go file: IsTest %v, Unsupported %v", res.IsTest, res.Unsupported)
 	}
@@ -215,7 +226,9 @@ func TestRustSmells(t *testing.T) {
 		fn("closures.apply", "function", 1, 2, 1, 0, 0),
 		fn("closures.inner", "function", 1, 2, 1, 0, 0),
 	})
-	checkLOC(t, res, load(t, "rust_smells.rs"), "//")
+	// closures spans 22 logical lines; run, apply and inner own 5 rows each.
+	checkLOC(t, res, load(t, "rust_smells.rs"), "//", "closures")
+	wantLOC(t, res, "closures", 7)
 }
 
 // ecmaWants are the expectations shared by the TypeScript and JavaScript
@@ -268,7 +281,9 @@ func ecmaWants(javascript bool) []want {
 func TestTypeScriptSmells(t *testing.T) {
 	res := analyzeFixture(t, "ts_smells.ts", "src/smells.ts")
 	checkFunctions(t, res, ecmaWants(false))
-	checkLOC(t, res, load(t, "ts_smells.ts"), "//")
+	// closures spans 15 logical lines; run and inner own 3 rows each.
+	checkLOC(t, res, load(t, "ts_smells.ts"), "//", "closures")
+	wantLOC(t, res, "closures", 9)
 	if len(res.Unsupported) != 0 {
 		t.Errorf("TypeScript declares parameter types, Unsupported = %v", res.Unsupported)
 	}
@@ -288,7 +303,8 @@ func TestJavaScriptSmells(t *testing.T) {
 		fn("exports.shared", "function", 1, 2, 1, 0, 0),
 	)
 	checkFunctions(t, res, wants)
-	checkLOC(t, res, load(t, "js_smells.js"), "//")
+	checkLOC(t, res, load(t, "js_smells.js"), "//", "closures")
+	wantLOC(t, res, "closures", 9)
 	if !reflect.DeepEqual(res.Unsupported, []string{health.CodePrimitiveObsession}) {
 		t.Errorf("JavaScript has no parameter types, Unsupported = %v", res.Unsupported)
 	}
@@ -348,7 +364,10 @@ func TestPythonSmells(t *testing.T) {
 		fn("closures.run", "function", 0, 2, 1, 0, 0),
 		fn("closures.pick", "function", 1, 2, 0, 0, 0),
 	})
-	checkLOC(t, res, load(t, "python_smells.py"), "#", "documented")
+	// closures spans 7 logical lines; run owns 3 (def, if, f()) and the assigned
+	// lambda "pick = lambda ..." owns its row.
+	checkLOC(t, res, load(t, "python_smells.py"), "#", "documented", "closures")
+	wantLOC(t, res, "closures", 3)
 	if got := function(t, res, "documented"); got.LOC != 2 || got.StartLine != 169 || got.EndLine != 174 {
 		t.Errorf("documented: loc %d lines %d-%d, want 2 logical lines in 169-174", got.LOC, got.StartLine, got.EndLine)
 	}
@@ -837,7 +856,7 @@ func TestLogicalLines(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-150
 func TestEngineIdentityAndErrors(t *testing.T) {
 	e := New()
-	if e.Name() != "treesitter" || e.Version() != "1" {
+	if e.Name() != "treesitter" || e.Version() != "2" {
 		t.Errorf("Name %q Version %q", e.Name(), e.Version())
 	}
 	var _ health.Engine = e
@@ -913,4 +932,283 @@ func repositoryInputs(tb testing.TB) []health.FileInput {
 		tb.Fatal(err)
 	}
 	return inputs
+}
+
+// A source file of deeply nested syntax must not crash the engine, exhaust its
+// stack or stall it. Nesting beyond MaxSyntaxDepth is refused before the
+// recursive walk starts (an error, in every language), nesting below it is
+// walked under a time budget, and a 4 MiB file of opening brackets, which
+// would overflow the stack of the process, is refused too.
+//
+// Mutation: removing the depth check makes the 4 MiB case abort the test
+// binary with a stack overflow; TestExhaustedBudgetIsAnError fails without
+// the budget check (the parent lookup of the binding costs the depth of the
+// node, so the walk over nested blocks is quadratic).
+//
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-159
+func TestDeeplyNestedSourcesDoNotCrashOrStall(t *testing.T) {
+	oldBudget := AnalysisBudget
+	AnalysisBudget = time.Second
+	t.Cleanup(func() { AnalysisBudget = oldBudget })
+	type source struct{ path, src string }
+	sources := func(depth int) map[string]source {
+		blocks := func(header, open, closer, footer string) string {
+			return header + strings.Repeat(open, depth) + "f()\n" + strings.Repeat(closer, depth) + footer
+		}
+		parens := func(header, footer string) string {
+			return header + strings.Repeat("(", depth) + "1" + strings.Repeat(")", depth) + footer
+		}
+		return map[string]source{
+			"go blocks":     {"deep.go", blocks("package p\nfunc f(x bool) {\n", "if x {\n", "}\n", "}\n")},
+			"go parens":     {"deep_parens.go", parens("package p\nfunc f() int { return ", " }\n")},
+			"rust blocks":   {"deep.rs", blocks("fn f(x: bool) {\n", "if x {\n", "}\n", "}\n")},
+			"rust parens":   {"deep_parens.rs", parens("fn f() -> i32 { ", " }\n")},
+			"ts blocks":     {"deep.ts", blocks("function f(x: boolean): void {\n", "if (x) {\n", "}\n", "}\n")},
+			"tsx parens":    {"deep_parens.tsx", parens("function f(): number { return ", "; }\n")},
+			"js blocks":     {"deep.js", blocks("function f(x) {\n", "if (x) {\n", "}\n", "}\n")},
+			"js parens":     {"deep_parens.js", parens("function f() { return ", "; }\n")},
+			"python calls":  {"deep_calls.py", "def f():\n    return " + strings.Repeat("g(", depth) + "1" + strings.Repeat(")", depth) + "\n"},
+			"python parens": {"deep_parens.py", parens("def f():\n    return ", "\n")},
+		}
+	}
+	analyze := func(t *testing.T, c source) (time.Duration, error) {
+		start := time.Now()
+		_, err := New().Analyze([]health.FileInput{{Path: c.path, Language: languageOf(t, c.path), Source: []byte(c.src)}}, health.Config{})
+		return time.Since(start), err
+	}
+	t.Run("beyond the depth limit", func(t *testing.T) {
+		for name, c := range sources(MaxSyntaxDepth * 2) {
+			if _, err := analyze(t, c); err == nil || !strings.Contains(err.Error(), "levels deep") {
+				t.Errorf("%s: err = %v, want a refusal naming the depth", name, err)
+			}
+		}
+	})
+	t.Run("below the depth limit", func(t *testing.T) {
+		for name, c := range sources(MaxSyntaxDepth / 4) {
+			// An error (the budget) is as good as a result; a stall is not.
+			if elapsed, err := analyze(t, c); elapsed > 15*time.Second {
+				t.Errorf("%s: took %s (error %v), want it bounded by the budget", name, elapsed, err)
+			}
+		}
+	})
+	t.Run("a 4 MiB file of opening brackets", func(t *testing.T) {
+		const depth = 2000000
+		c := source{"huge.go", "package p\nfunc f() int { return " + strings.Repeat("(", depth) + "1" + strings.Repeat(")", depth) + " }\n"}
+		if _, err := analyze(t, c); err == nil || !strings.Contains(err.Error(), "levels deep") {
+			t.Errorf("err = %v, want a refusal naming the depth", err)
+		}
+	})
+}
+
+// A long flat file (many statements, many functions, many parameters) is
+// analysed completely and quickly.
+//
+// TRLC-LINKS: REQ-EMG-150
+func TestLongFlatSourcesAreAnalysed(t *testing.T) {
+	cases := map[string]struct {
+		path, src string
+		functions int
+	}{
+		"go statements":     {"flat.go", "package p\nfunc f() {\n" + strings.Repeat("\tg()\n", 100000) + "}\n", 1},
+		"python statements": {"flat.py", "def f():\n" + strings.Repeat("    g()\n", 100000), 1},
+		"rust functions":    {"many.rs", strings.Repeat("fn f() {}\n", 50000), 50000},
+		"ts parameters":     {"params.ts", "function f(" + strings.Repeat("a: number, ", 20000) + "z: number) {}\n", 1},
+	}
+	for name, c := range cases {
+		t.Run(name, func(t *testing.T) {
+			start := time.Now()
+			res := analyzeSource(t, c.path, []byte(c.src), health.Config{})
+			if len(res.Functions) != c.functions {
+				t.Errorf("found %d functions, want %d", len(res.Functions), c.functions)
+			}
+			if elapsed := time.Since(start); elapsed > 20*time.Second {
+				t.Errorf("took %s", elapsed)
+			}
+		})
+	}
+}
+
+// The engine reports an exhausted budget as an error naming the budget, not as
+// a partial result.
+//
+// TRLC-LINKS: REQ-EMG-150
+func TestExhaustedBudgetIsAnError(t *testing.T) {
+	old := AnalysisBudget
+	AnalysisBudget = time.Nanosecond
+	t.Cleanup(func() { AnalysisBudget = old })
+	src := "package p\n" + strings.Repeat("func f() {}\n", 5000)
+	_, err := New().Analyze([]health.FileInput{{Path: "a.go", Language: "go", Source: []byte(src)}}, health.Config{})
+	if err == nil || !strings.Contains(err.Error(), "budget") {
+		t.Fatalf("err = %v, want one naming the budget", err)
+	}
+}
+
+// High severity is reached in every language, not only in Go: five nested
+// ifs are deep_nesting at high and twenty decision points are complex_method
+// at high, at the default limits.
+//
+// Mutation: a language module that cut its nesting or decision count short
+// (for example by not counting else-if or elif) fails here.
+//
+// TRLC-LINKS: REQ-EMG-150
+func TestHighSeverityInEveryLanguage(t *testing.T) {
+	for _, name := range shapeOrder {
+		s := shapes[name]
+		t.Run(name, func(t *testing.T) {
+			// 5 nested ifs: depth 5 (high), cyclomatic 1 + 5 + 14 flat = 20 (high).
+			f, _ := analyzeShape(t, s, 5, 14, 0)
+			if f.MaxNesting != 5 || f.Cyclomatic != 20 {
+				t.Fatalf("nesting %d cyclomatic %d, want 5 and 20", f.MaxNesting, f.Cyclomatic)
+			}
+			got := codesOf(f)
+			for _, want := range []string{"deep_nesting:high", "complex_method:high"} {
+				if !contains(got, want) {
+					t.Errorf("findings %v lack %s", got, want)
+				}
+			}
+			// One step below each limit: warn, not high.
+			f, _ = analyzeShape(t, s, 4, 14, 0)
+			if got := codesOf(f); !contains(got, "deep_nesting:warn") || contains(got, "deep_nesting:high") {
+				t.Errorf("depth 4 findings %v, want deep_nesting:warn only", got)
+			}
+			f, _ = analyzeShape(t, s, 5, 13, 0)
+			if f.Cyclomatic != 19 || !contains(codesOf(f), "complex_method:warn") || contains(codesOf(f), "complex_method:high") {
+				t.Errorf("cyclomatic %d findings %v, want complex_method:warn only", f.Cyclomatic, codesOf(f))
+			}
+		})
+	}
+}
+
+// A named nested unit is reported on its own, so its rows are not counted again
+// in the function around it (Q2 of the second review pass): a 15-line function
+// with a 60-line named closure is not a large method. Each source has the same
+// shape: outer holds a header, a call and a closing brace of its own; mid is a
+// named closure of 62 rows (header, 50 plain lines, a nested closure of 5 rows
+// with its call, 4 plain lines and the closing brace); inner is nested in mid.
+// Mutation: counting the whole range of the outer function gives 70 and more.
+//
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-159
+func TestNestedUnitsLinesAreNotCountedTwice(t *testing.T) {
+	body := func(indent, line string, n int) string {
+		return strings.Repeat(indent+line+"\n", n)
+	}
+	cases := []struct {
+		name, path, src   string
+		outer, mid, inner string
+		outerLOC, midLOC  int
+		innerLOC          int
+	}{
+		{
+			name: "go", path: "a.go",
+			src: "package p\n\nfunc Outer() {\n\tmid := func() {\n" + body("\t\t", "work()", 50) +
+				"\t\tinner := func() {\n" + body("\t\t\t", "more()", 3) + "\t\t}\n\t\tinner()\n" + body("\t\t", "work()", 4) +
+				"\t}\n\tmid()\n}\n",
+			outer: "Outer", mid: "Outer.mid", inner: "Outer.mid.inner",
+			// Outer: func line, mid() and the closing brace. mid: 62 rows minus the
+			// 5 of inner. inner: header, 3 plain lines, closing brace.
+			outerLOC: 3, midLOC: 57, innerLOC: 5,
+		},
+		{
+			name: "typescript", path: "a.ts",
+			src: "function outer(): void {\n  const mid = () => {\n" + body("    ", "work();", 50) +
+				"    const inner = () => {\n" + body("      ", "more();", 3) + "    };\n    inner();\n" + body("    ", "work();", 4) +
+				"  };\n  mid();\n}\n",
+			outer: "outer", mid: "outer.mid", inner: "outer.mid.inner",
+			outerLOC: 3, midLOC: 57, innerLOC: 5,
+		},
+		{
+			name: "javascript", path: "a.js",
+			src: "function outer() {\n  const mid = function () {\n" + body("    ", "work();", 50) +
+				"    const inner = () => {\n" + body("      ", "more();", 3) + "    };\n    inner();\n" + body("    ", "work();", 4) +
+				"  };\n  mid();\n}\n",
+			outer: "outer", mid: "outer.mid", inner: "outer.mid.inner",
+			outerLOC: 3, midLOC: 57, innerLOC: 5,
+		},
+		{
+			name: "python", path: "a.py",
+			src: "def outer():\n    def mid():\n" + body("        ", "work()", 50) +
+				"        def inner():\n" + body("            ", "more()", 3) + "        inner()\n" + body("        ", "work()", 4) +
+				"    mid()\n",
+			outer: "outer", mid: "outer.mid", inner: "outer.mid.inner",
+			// outer: def and mid(). mid: def, 50 lines, inner() and 4 lines. inner:
+			// def and 3 lines.
+			outerLOC: 2, midLOC: 56, innerLOC: 4,
+		},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			res := analyzeSource(t, tc.path, []byte(tc.src), health.Config{})
+			outer, mid, inner := function(t, res, tc.outer), function(t, res, tc.mid), function(t, res, tc.inner)
+			if outer.LOC != tc.outerLOC || mid.LOC != tc.midLOC || inner.LOC != tc.innerLOC {
+				t.Errorf("loc outer %d mid %d inner %d, want %d %d %d", outer.LOC, mid.LOC, inner.LOC, tc.outerLOC, tc.midLOC, tc.innerLOC)
+			}
+			if outer.LOC > 15 {
+				t.Errorf("outer has %d lines of its own, want a small function", outer.LOC)
+			}
+			for _, finding := range outer.Findings {
+				if finding.Code == health.CodeLargeMethod || finding.Code == health.CodeBrainMethod {
+					t.Errorf("%s: %s although only %d lines are its own", outer.Name, finding.Code, outer.LOC)
+				}
+			}
+			// The lines of the units add up to the lines of the file (the Go file
+			// also holds its package clause): nothing is counted twice or lost.
+			sum := outer.LOC + mid.LOC + inner.LOC
+			if tc.name == "go" {
+				sum++
+			}
+			if sum != res.LOC {
+				t.Errorf("the units hold %d lines, the file %d", sum, res.LOC)
+			}
+		})
+	}
+}
+
+// Units that share a row, and a unit that ends where the next begins, are
+// subtracted once.
+//
+// TRLC-LINKS: REQ-EMG-150
+func TestNestedUnitsOnOneRowAreSubtractedOnce(t *testing.T) {
+	src := "function outer() {\n  const a = () => 1, b = () => 2;\n  const c = () => {\n    return 3;\n  };\n  return a() + b() + c();\n}\n"
+	res := analyzeSource(t, "a.js", []byte(src), health.Config{})
+	if got := function(t, res, "outer").LOC; got != 3 {
+		t.Errorf("outer: loc %d, want 3 (header, return, closing brace)", got)
+	}
+	if got := function(t, res, "outer.c").LOC; got != 3 {
+		t.Errorf("outer.c: loc %d, want 3", got)
+	}
+}
+
+// A file the parser only partly read carries the count of its ERROR and MISSING
+// nodes, so it never reads as clean (Q5 of the second review pass); a clean file
+// has none, and the count stops at the cap.
+// Mutation: not counting leaves SyntaxErrors zero for every broken source.
+//
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-155
+func TestSyntaxErrorsAreCounted(t *testing.T) {
+	cases := []struct{ name, path, clean, broken string }{
+		{"go", "a.go", "package p\n\nfunc F() int { return 1 }\n", "package p\n\nfunc F() int { return 1 }\n\nfunc G( {\n\tif x {\n"},
+		{"rust", "a.rs", "fn f() -> i32 { 1 }\n", "fn f() -> i32 { 1 }\n\nfn g( {\n    if x {\n"},
+		{"typescript", "a.ts", "function f(): number { return 1; }\n", "function f(): number { return 1; }\n\nfunction g( {\n  if (x) {\n"},
+		{"tsx", "a.tsx", "export const A = () => <div />;\n", "export const A = () => <div />;\n\nfunction g( {\n  if (x) {\n"},
+		{"javascript", "a.js", "function f() { return 1; }\n", "function f() { return 1; }\n\nfunction g( {\n  if (x) {\n"},
+		{"python", "a.py", "def f():\n    return 1\n", "def f():\n    return 1\n\ndef g(:\n    if x\n"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := analyzeSource(t, tc.path, []byte(tc.clean), health.Config{}).SyntaxErrors; got != 0 {
+				t.Errorf("clean source: %d syntax errors", got)
+			}
+			res := analyzeSource(t, tc.path, []byte(tc.broken), health.Config{})
+			if res.SyntaxErrors == 0 {
+				t.Errorf("broken source reads as clean: %+v", res)
+			}
+			if len(res.Functions) == 0 {
+				t.Errorf("the function before the error should still be measured: %+v", res.Functions)
+			}
+		})
+	}
+	many := strings.Repeat("func ( {\n", 3*health.SyntaxErrorCap)
+	if got := analyzeSource(t, "a.go", []byte("package p\n\n"+many), health.Config{}).SyntaxErrors; got < 1 || got > health.SyntaxErrorCap {
+		t.Errorf("the count %d must stay within the cap %d", got, health.SyntaxErrorCap)
+	}
 }

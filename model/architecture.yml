@@ -35,7 +35,7 @@ architecture:
     group: FG-VALIDATION-ANALYSIS
     prose: Infers code/runtime ownership and verification links from source and tests.
   - id: FU-CODE-HEALTH
-    name: Code Health
+    name: Code health analysis
     group: FG-VALIDATION-ANALYSIS
     prose: Analyses source functions for maintainability smells, scores files with our own explainable model, rolls the scores
       up to functional units, requirements and the project, and checks new or worsened findings against a base revision.

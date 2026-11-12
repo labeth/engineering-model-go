@@ -902,19 +902,33 @@ with `requirementLinks: strict`):
 | `composition.dependency_tier_unknown` | W | W | W | W | W |
 | `composition.dependency_tier_unknown` with safety | W | W | W | E | E |
 | `contract.unrealized` | D | D | W | W | E |
-| `health.brain_method` | W | W | W | W | W |
-| `health.bumpy_road` | W | W | W | W | W |
-| `health.complex_conditional` | W | W | W | W | W |
-| `health.complex_method` | W | W | W | W | W |
-| `health.deep_nesting` | W | W | W | W | W |
-| `health.duplicated_assertion_block` | W | W | W | W | W |
-| `health.excess_arguments` | W | W | W | W | W |
-| `health.large_assertion_block` | W | W | W | W | W |
-| `health.large_method` | W | W | W | W | W |
-| `health.primitive_obsession` | W | W | W | W | W |
+| `health.baseline_stale` | W | W | W | W | E |
+| `health.brain_method` | W | W | W | E | E |
+| `health.brain_method` with safety | W | W | E | E | E |
+| `health.bumpy_road` | W | W | W | E | E |
+| `health.bumpy_road` with safety | W | W | E | E | E |
+| `health.complex_conditional` | W | W | W | E | E |
+| `health.complex_conditional` with safety | W | W | E | E | E |
+| `health.complex_method` | W | W | W | E | E |
+| `health.complex_method` with safety | W | W | E | E | E |
+| `health.deep_nesting` | W | W | W | E | E |
+| `health.deep_nesting` with safety | W | W | E | E | E |
+| `health.duplicated_assertion_block` | W | W | W | E | E |
+| `health.duplicated_assertion_block` with safety | W | W | E | E | E |
+| `health.excess_arguments` | W | W | W | E | E |
+| `health.excess_arguments` with safety | W | W | E | E | E |
+| `health.large_assertion_block` | W | W | W | E | E |
+| `health.large_assertion_block` with safety | W | W | E | E | E |
+| `health.large_method` | W | W | W | E | E |
+| `health.large_method` with safety | W | W | E | E | E |
+| `health.policy_weakened` | W | W | W | E | E |
+| `health.policy_weakened` with safety | W | W | E | E | E |
+| `health.primitive_obsession` | W | W | W | E | E |
+| `health.primitive_obsession` with safety | W | W | E | E | E |
 | `health.regression` | W | W | W | E | E |
 | `health.regression` with safety | W | W | E | E | E |
-| `health.waiver_unused` | W | W | W | W | W |
+| `health.waiver_unused` | W | W | W | E | E |
+| `health.waiver_unused` with safety | W | W | E | E | E |
 | `lifecycle.aviation_profile_missing` (safety bundle) | D | D | E | E | E |
 | `lifecycle.requirement_unapproved` | D | D | W | E | E |
 | `lifecycle.requirement_unverified` | D | D | D | W | E |
@@ -947,6 +961,9 @@ health:
       health.large_method: {warn: 120, high: 240}
   waivers:                                     # accept one finding on an accepted decision
   - {code: health.complex_method, path: internal/legacy/parse.go, function: parseAll, decision: ADR-LEGACY-PARSER}
+  baseline:                                    # accept all existing debt on an accepted decision
+    {file: model/health-baseline.json, decision: ADR-DEBT-BASELINE}
+  policyDecision: ADR-RAISE-LIMITS             # records a weakening of this very block (see below)
 ```
 
 Every key is optional. `thresholds` and `overrides[].thresholds` accept only the smell codes with
@@ -961,19 +978,256 @@ A configuration error is `model.invalid_health_exclude`, `model.invalid_health_t
 `model.invalid_health_override` or `model.invalid_health_waiver` (errors at every tier, never deferred).
 A waiver names a smell code, a file, a function and a decision. If the decision does not exist or is not
 accepted, the waiver is `health.waiver_unjustified` (an untiered error: no tier or POA&M item changes or
-defers it) and it waives nothing. `health.waiver_unused` (a waiver that matches no finding) is reported by
-the health report.
+defers it) and it waives nothing. The path of a waiver is a file path or a pattern of the exclude dialect.
+`health.waiver_unused` (a waiver that matches no finding) is reported by the health report.
 
-Severity follows the table above. Every smell code and `health.waiver_unused` is a warning at every tier,
-with or without the safety bundle: debt is reported, never blocking by default. `health.regression`, a
-new or worsened high finding against the baseline, is a warning at poc, prototype and mvp and an error
-from product (from mvp with the safety bundle). `lifecycle.raise: [health.*]` is the escape hatch that
-makes the debt codes errors in a project that wants them to block.
+Severity follows the table above. The bar for code quality is highest and the same at product and
+operational, the two highest tiers, because AI-assisted work needs cleaner code than human-only work to
+stay free of bugs (ADR-EMG-057): every smell code and `health.waiver_unused` is a warning up to mvp and
+an error at product and operational (from mvp with the safety bundle), and the scan applies the stricter
+threshold set at both. `health.regression`,
+a new or worsened high finding against the base revision, is a warning at poc, prototype and mvp and an
+error from product (from mvp with the safety bundle). `lifecycle.raise: [health.*]` is the escape hatch
+that makes the debt codes errors at a lower tier.
+
+**Baseline.** A project that already has debt cannot raise its tier to product, where every finding is an
+error, unless it can accept that debt as a whole (ADR-EMG-059). `health.baseline` names a JSON file,
+relative to the manifest directory (no absolute path, no `..`), and an accepted decision that justifies
+it. The file, `{"schema": "engmod-health-baseline/1", "entries": [{"path", "function", "code", "value"}]}`,
+lists the accepted findings by path, qualified function name and smell code with the metric value each
+had when the file was written (at least 1), sorted, without timestamps;
+`enghealth baseline write --model engmod.yml [--tier t] [--out file] [paths...]` creates it from a scan
+that ignores any existing baseline (every finding, or with `--tier` only those that are errors at that
+tier; it refuses to write outside the manifest directory and is idempotent), and `--check` exits 0 when the
+file is exactly what `write` would produce, 1 when it differs (it prints the stale and the missing
+entries, each with its value, so a function whose metric changed is both stale and missing) and 2 on a
+setup error. A finding in the baseline is *baselined* while its current value is at most the recorded
+one: the report lists it under `baselined`, it still counts toward the score (the score stays honest about
+the code), and it is neither an error nor a warning of the summary, so `enghealth scan --fail-on-error`
+ignores it. A finding whose value grew past the recorded one is not baselined: it counts at the level of
+its code (an error from product) and its message says what the baseline accepted, so small increases
+cannot ratchet in silently; a finding that shrank stays baselined and `--check` asks for a rewrite. A
+baseline whose decision is missing or not accepted suppresses nothing: the scan does not read the file
+and reports `health.waiver_unjustified` (an error at every tier, naming the baseline), which counts for
+`--fail-on-error`. An entry that
+matches no finding is `health.baseline_stale`, a warning at poc to product and an error at operational
+(row `WWWWE`), so the baseline can only shrink; a scan restricted to some paths does not report entries of
+files outside them. A regression is never baselined: the delta check compares the working tree with a base
+revision and does not read the baseline. The validation errors are `health.waiver_unjustified` (the
+decision of a baseline is missing or not accepted; untiered, as for a waiver), `health.baseline_unreadable`
+(the file is missing, not valid JSON, not `engmod-health-baseline/1` or holds an invalid entry; untiered,
+read by validation through the format of `internal/model`) and `model.invalid_health_baseline` (an empty or
+unclean file path, or no decision). A missing or malformed file is a setup error (exit 2) for `enghealth`.
+
+**The policy is defined by the pull request.** A change can raise a threshold, widen `health.exclude` or an
+override, or lower the tier, and the weakened configuration then applies to both sides of a delta. So
+`enghealth check` also reads the manifest of the *base* revision (`git cat-file`; one that is not there has
+the default limits of the tier) and reports `health.policy_weakened` when the head has a limit (warn or
+high) above the effective limit of the base for any code (the default of the tier for a code the manifest
+does not set), a new exclude pattern, an override that raises a limit, or a lower tier. The code has the row
+`WWWEE` (`WWEEE` with the safety bundle) and is evaluated at the stricter of the base and the head tier, so
+lowering the tier does not lower the level of its own weakening: it makes `check` exit 1 from product. The
+weakening is recorded, and then does not fail the check, when the head's `health.policyDecision` names an
+accepted decision that the base manifest did not already name; `decisions.yml` is code-owned, so the
+weakening is reviewable. A `policyDecision` that does not exist or is not accepted is
+`health.waiver_unjustified` and records nothing. `--tier` applies to both sides.
 
 The scores come from this project's own heuristics over the scanned source (cyclomatic complexity, lines,
 nesting depth and similar); they are not CodeScene's Code Health and make no claim to match it. The
-authoring contract (`engineering-model.authoring.v4`) documents the block in its `health` section and the
-field sets `health`, `healthThreshold`, `healthOverride` and `healthWaiver`.
+authoring contract (`engineering-model.authoring.v6`) documents the block in its `health` section and the
+field sets `health` (with `policyDecision`), `healthThreshold`, `healthOverride`, `healthWaiver` and
+`healthBaseline`.
+
+
+## Code health (enghealth)
+
+`enghealth scan` measures the maintainability of the source of a model and writes a report. It
+reads Go, Rust, TypeScript and TSX, JavaScript and Python with the tree-sitter grammars of the code
+scan. It needs no `health:` block (the block only configures it, see above) and it is separate from
+`engdoc`: nothing in validation or generation changes.
+
+**What it measures.** For each function, method and named closure (anonymous closures count toward
+the function around them; a named closure or nested function is a unit of its own and its rows
+are not counted again in the function around it): cyclomatic complexity, logical lines, nesting depth, bumps (top-level control
+structures that contain another control structure, "bumpy road"), boolean operators in one condition, parameters and, in tests, the
+longest run of consecutive assertions. Ten smells follow, `health.complex_method`, `health.large_method`,
+`health.deep_nesting`, `health.bumpy_road`, `health.complex_conditional`, `health.excess_arguments`,
+`health.primitive_obsession`, `health.brain_method`, `health.large_assertion_block` and
+`health.duplicated_assertion_block`, each with a `warn` and a `high` limit (ADR-EMG-047). A smell that
+cannot be computed for a language (primitive obsession needs known types, so never for JavaScript) is
+listed as unsupported in the report and is never a silent zero.
+
+**Whose scores these are.** The definitions, limits, weights and bands are this project's own, built
+from public ideas (McCabe complexity, the brain method of Lanza and Marinescu, the bumpy road of
+Tornhill's public writing). They are not CodeScene's Code Health and make no claim to match it; no
+CodeScene code or weights are used.
+
+**Score.** A file starts at 10.0. Each finding deducts the weight of its code times a severity factor
+(warn 1, high 2). The deductions of one function add up; across the functions of the file the worst
+function counts fully, the next times 0.5 and every other function times 0.25, but what the functions
+beyond the second count adds up to at most 2.0 points in total (scoring version 2, ADR-EMG-059; if it
+would be more, those deductions are scaled down together, so the number of mediocre functions in a file
+cannot decide its band alone). The result is clamped to 1.0..10.0 and rounded to one decimal. Bands:
+green from 8.0, yellow from 4.0, red below. Weights (`scoringVersion` 2; version 1 had the same weights
+and no cap): complex_method 1.0, large_method 0.8, deep_nesting 1.0, bumpy_road 1.0,
+complex_conditional 0.6, excess_arguments 0.5, primitive_obsession 0.3, brain_method 1.5,
+large_assertion_block 0.3, duplicated_assertion_block 0.3. Every score carries the deductions that
+produced it. Example: function A with a high complex_method (2.0) and a warn deep_nesting (1.0), function
+B with a warn large_method (0.8) and function C with a warn excess_arguments (0.5) count
+2.0 + 1.0 + 0.8 x 0.5 + 0.5 x 0.25 = 3.525, so the file scores 6.475, rounded to 6.5, yellow. With the
+cap: a file whose worst function deducts 3.0, whose second deducts 2.0 and whose other eight functions
+deduct 2.0 each counts 3.0 + 2.0 x 0.5 + min(8 x 2.0 x 0.25 = 4.0, 2.0) = 6.0 and scores 4.0, yellow
+(version 1 counted 8.0 and scored 2.0, red); each of the eight is shown with `counted` 0.25 x 2.0 x 0.5
+= 0.25 in the deductions, so the counted amounts still add up to what was deducted. The report carries
+`scoringVersion`; scores of different versions are not comparable. Test files are scored apart and are
+left out of the production roll-ups.
+
+**Roll-ups.** File, functional unit (the LOC-weighted mean of its production files and the worst file,
+attributed by the file-level `ENGMODEL-OWNER-UNIT` marker), requirement (the functions that
+marker-linked symbols with `TRLC-LINKS` lie in, joined by path and line range; the findings and the
+worst file score), and project (LOC-weighted mean, worst file, files per band). A `tests` block reports
+the test files.
+
+```bash
+go run ./cmd/enghealth scan --model engmod.yml                         # text summary
+go run ./cmd/enghealth scan --model engmod.yml --format json --out health.json
+go run ./cmd/enghealth scan --model engmod.yml --format sarif --out health.sarif
+go run ./cmd/enghealth scan --model engmod.yml --tier operational --fail-on-error internal/health
+go run ./cmd/enghealth scan --import other-engine.json --format sarif  # re-render a conforming report
+```
+
+Flags: `--model` (engmod.yml), `--format text|json|sarif` (default text), `--out file`, `--tier` (scan at
+this life-cycle tier instead of the declared one), `--fail-on-error`, `--import report.json`, `--cache`,
+`--no-cache` and paths
+(files or directories inside the project root; they must come after the flags). The scan covers the code
+scope the other tools use: the module root minus git-ignored files, nested modules, dot directories,
+`node_modules`, `vendor`, `inferenceHints.exclude`, `health.exclude` and the default excludes
+`generated/**`, `vendor/**`, `node_modules/**`, `.engmod/**` and `.git/**`. A source file above 4 MiB, one
+that is not a regular file or cannot be read, one whose path holds a control character, and one the engine
+cannot analyse (including syntax nested more than 10,000 levels deep or an analysis that exceeds its 15
+second budget) is listed as a `health.file_skipped` or `health.file_failed` diagnostic; so is a directory
+the walk cannot read (`health.file_skipped`, with the directory as its path). A file the parser could only
+partly read (ERROR or MISSING syntax nodes, counted in `syntaxErrors` of the file, at most 1000) is
+analysed as far as the parser recovered it and gets a `health.syntax_error` diagnostic, since the functions
+it lost are not measured. When the code scan of the model fails, the unit and requirement roll-ups are
+empty and a `health.rollup_unavailable` diagnostic says so (for example one line longer than the scanner
+accepts). A file that was not analysed is not a clean file: these diagnostics have the level of
+`health.regression` at the tier (computed by the same tier policy: a warning up to mvp, an error from
+product and from mvp with the safety bundle), so from product they count in the errors of the summary and
+fail `--fail-on-error`. The parse has a 10 second timeout.
+
+**Result cache.** `scan` and `check` cache the result of each file under `.engmod/cache/health` (keyed by
+the content, the limits, the scoring version and the engine version), which is what makes a repeated run
+fast. The cache is not trusted by default, because its key can be computed from public inputs and a
+committed entry could turn a finding into a pass. It is therefore off where the environment variable `CI`
+is non-empty unless `--cache` is given, and it is refused for a run (a note on stderr; the run goes on
+without it) while `git ls-files .engmod` lists any tracked file. Each entry also carries a structural
+digest (sha256 over the key and the canonical JSON of the result), so an entry that was edited or
+truncated is a miss. The digest is not a signature and does not stop a forged entry made with the public
+key rule, which is why the two rules above exist. `--no-cache` turns the cache off.
+
+**Formats.** `json` is the report `engmod-health/1` (`docs/health-report.schema.json`, JSON Schema draft
+2020-12): engine and scoring version, the tier, the level (error or warning) of each code at that tier,
+files with scores, deductions and functions, waived findings, roll-ups and a summary. It has no timestamp
+and no absolute path, every list is sorted and the encoding is canonical, so two runs on one tree are
+byte-identical. `sarif` is SARIF 2.1.0 (one run, driver `enghealth`, one rule per code, one result per
+finding, stable `partialFingerprints`; a waived finding is a suppressed result). `--import` loads a report
+that another engine wrote, validates it against the schema (another schema string, a missing required
+field, an unknown field, a `scoringVersion` other than 1 or 2, a score outside 1.0..10.0, a band that does
+not match its score or a path outside the repository is a setup error) and renders it in any format;
+with `--tier` or `--model` the levels are recomputed for that tier. The scores of an imported report are
+taken as they are and not recomputed; the scoring version that was read is printed on stderr. The levels
+of an imported report are not trusted either: `--fail-on-error` with `--import` needs `--model` or
+`--tier` (otherwise exit 2). Text output escapes every control character of a path or message
+(`\x0a`, `\x1b`), so a file name cannot start a workflow command in a CI log or move a terminal cursor;
+`--out` writes through a temporary file and a rename and refuses an existing target that is not a regular
+file (a symbolic link, for instance).
+
+**Exit codes.** 0 ok; 1 findings or diagnostics (a skipped or failed file included) that are errors at the
+tier, only with `--fail-on-error`; 2 a setup or
+usage error (the model does not load, a bad flag, tier or path, an unreadable output file, a report that
+does not conform), which is never a pass. `enghealth check` has its own rules (below).
+
+**Tiers.** Severity follows the tier policy of `engdoc` (`ValidateBundle` uses the same table): every
+smell code is a warning up to mvp and an error at product and operational (from mvp with the safety
+bundle), `lifecycle.raise: [health.*]` makes them errors at any tier, and a project without a tier gets
+warnings. At product and operational the scan also applies stricter default limits (complex_method 8 and
+15, large_method 50 and 100, deep_nesting 3 and 4, bumpy_road 2 and 3, complex_conditional 3 and 5,
+excess_arguments 4 and 6, large_assertion_block 5 and 8; ADR-EMG-059); below product the defaults apply
+(10 and 20, 70 and 120, 4 and 5, 2 and 3, 3 and 5, 5 and 7, 6 and 10). A `health.thresholds` entry or an
+override still replaces the limits of its code. The strict limits are calibrated by the dogfood report
+(`docs/code-health-dogfood.md`); the project owner confirms or moves them.
+
+**Waiving.** To keep a finding at product or operational, add a decision with status `accepted` that
+explains why, and a waiver for the code, file and qualified function name (`Type.Method`) in the
+`health` block. The finding then appears under `waived` with its decision instead of in the function and
+no longer lowers the score. A waiver that matches no finding is reported as `health.waiver_unused`
+(an error where the debt is an error), so a stale waiver does not hide debt. A decision that is missing or
+not accepted is `health.waiver_unjustified`.
+
+### Gate on regressions: enghealth check
+
+`enghealth check` compares the source files that changed against a base revision and fails only on a
+regression, so a project with existing debt can hold new code to the bar at once (ADR-EMG-053,
+ADR-EMG-059). A finding is keyed by file, qualified function name and code. It is **new** when it is
+absent at base, **worsened** when it is present at base and at head either of a higher severity or with a
+metric that grew by at least 20 percent, and **existing** otherwise. A **regression** (`health.regression`)
+is a new or worsened finding of severity high. A function that was renamed or moved with the same body is
+not new, a deleted file or function produces nothing, and a finding that a waiver covers is left out of
+both sides, so it is existing and never a regression (it is counted as waived). The base file is read with
+`git show` as raw bytes; nothing is checked out.
+
+```bash
+go run ./cmd/enghealth check --model engmod.yml                        # uncommitted work against HEAD
+go run ./cmd/enghealth check --model engmod.yml --base origin/main      # the work tree against a branch
+go run ./cmd/enghealth check --model engmod.yml --base origin/main...HEAD --format sarif --out regressions.sarif
+go run ./cmd/enghealth check --model engmod.yml --base v1.2.0 --head HEAD~1 --tier product internal/health
+```
+
+Flags: `--model` (required), `--base REV` (default `HEAD`; the comparison is always with the merge base of
+`REV` and the head, as `git diff base...head` does, so a branch that is behind `REV` does not see the later
+work of `REV` as its own regressions; `Base` of the report is that merge base and a note says when it differs
+from the tip of `REV`; without a common ancestor the tip of `REV` is used, with a note; `base...head` names
+both revisions), `--head REV` (default: the working tree, untracked files included),
+`--tier`, `--format text|json|sarif`, `--out file`, `--cache`, `--no-cache` and paths (files or
+directories inside the project root, after the flags). The limits, excludes, thresholds, overrides and
+waivers are those of `scan`, and so is the result cache (see above: `.engmod/cache/health`, off in CI
+unless `--cache`, refused while `.engmod` is tracked, off with `--no-cache`). The check
+reads only the model, git and the changed files; it does not build the roll-ups, so it takes about 0.3 s
+on a one-file change with a warm cache.
+
+**Level and exit codes.** Whether a regression fails the gate follows the tier policy like any other code:
+`health.regression` is a warning below product and an error from product (from mvp with the safety bundle;
+`lifecycle.raise` is honoured). Exit 0: no regression, or only regressions that are warnings at the
+tier. Exit 1: at least one regression that is an error at the tier; each is printed as
+`file:line function: code (new|worsened) metric before -> metric after` with its message. Exit 1 also when
+a *changed* source file was skipped (above 4 MiB, the same cap for the work tree and for `--head REV`, or
+not a regular file) or has syntax errors the change brought in (the parser lost functions) at a tier where a regression is an error, since its findings are unknown, and when the
+policy is weakened against the base revision without a recorded `policyDecision` where
+`health.policy_weakened` is an error (see above). Exit 2: a setup
+error, never a pass: the model does not load, an unknown tier, a path outside the project or a bad
+flag or format, the project is not in a git work tree, an invalid revision, or a base revision that is not
+available (an unknown name, or a shallow clone that lacks it; the message says to fetch more history, for
+example `fetch-depth: 0` in CI) or a manifest at the base that is not YAML. In a repository without a
+commit there is no base: every finding is new, and a note says so. The git child gets an allow-listed
+environment with the user and system configuration switched off (`GIT_CONFIG_GLOBAL=/dev/null`,
+`GIT_CONFIG_NOSYSTEM=1`, so a `safe.directory` setting does not apply), the hooks, the filesystem monitor,
+external diff and textconv drivers disabled, and at most 64 KiB of its stderr kept; a file name with a
+control character is refused (exit 2).
+
+**Formats.** `text` is a short summary (the changed files with score and band before and after, the
+regressions, the counts of new, worsened, existing and waived findings, the verdict). `json` is the delta
+report `engmod-health-delta/1` (base and head commits, notes, files, all entries, the blocking entries and
+the skipped files) plus `levels`, `regressionLevel`, `counts`, `waived`, `policyWeakened`, `policyLevel`,
+`policyDecision` and `failed`; it is sorted, canonical and without
+timestamps or absolute paths, so two runs are byte-identical. `sarif` is SARIF 2.1.0 with the regressions
+as its results (rule `health.regression`, the level it has at the tier, the smell code in the
+`properties` of the result; the artifact `uri` is the repository-relative path with each segment
+percent-encoded, for example `app/%5Bid%5D.tsx`; plus `health.file_skipped` for each skipped changed file and
+`health.policy_weakened` for each unrecorded weakening, their rules present only when there are results). With `--out` the failure is still printed on stderr.
+
+The same engine is available in Go as `ScanHealth`, `CheckHealth`, `ImportHealthReport`,
+`EncodeHealthReport`, `EncodeHealthCheck`, `HealthSARIF` and `HealthCheckSARIF`.
 
 
 ## System-of-Systems Composition
@@ -1366,7 +1620,7 @@ Core files:
 ├── layering_test.go            the package import direction below holds
 ├── cmd/                        command-line tools (engdoc, engview, engtrace, engchange, engspec,
 │                               enggemara, engoscal, engsysml, engstruct, engdragon, engnaf,
-│                               engtrlc, englobster, engair, engquint, engmcp, engws, sysmlmetamodel)
+│                               engtrlc, englobster, engair, engquint, enghealth, engmcp, engws, sysmlmetamodel)
 ├── internal/
 │   ├── model/                  model types, loader, canonical bundle, embedded CUE schema (schema/)
 │   ├── validate/               diagnostics and bundle validation rules
@@ -1375,6 +1629,9 @@ Core files:
 │   ├── render/                 diagramstyle, mermaid and svg renderers of a projected view
 │   ├── composition/            system-of-systems composition (CUE modules, workspace, lock)
 │   ├── codescan/               code, runtime and verification evidence inference
+│   ├── health/                 code health: report, scoring, roll-ups, delta check, baseline, cache, git
+│   │   ├── engine/treesitter/  the tree-sitter engine (functions, metrics, smells)
+│   │   └── scan/               scan and check pipelines (the one package that builds the engine)
 │   ├── trace/                  traceability matrix
 │   ├── reqlint/                EARS preflight, catalog description and requirement link lint
 │   ├── reqdelta/               requirements delta planning and atomic application, spec delta rendering
@@ -1399,9 +1656,12 @@ Core files:
 Package layering: imports point down only. `textutil` and `model` import nothing in the
 module; `validate` builds on `model`; `codemap` and `view` on those; `render/*` on `view`;
 `composition` on `model`, `validate` and `textutil`; `codescan` on `composition` and
-`codemap`; `trace` on `codescan`; `reqlint` on `model` and `validate`; `reqdelta` on
+`codemap`; `health` on `validate`, `codescan` and `codemap` (it never imports an engine);
+`health/engine/treesitter` on `health` and `codemap`; `health/scan` on `health`, the engine and
+`codescan`; `trace` on `codescan`; `reqlint` on `model` and `validate`; `reqdelta` on
 `reqlint` and `trace`; `generate` on `view`, `render/*` and `codescan`; `export/*` on the
-layers below `trace`; `asciidoc` on all of these, never on `mcp` or `engws`. Only `cmd/*`,
+layers below `trace`; `asciidoc` on all of these, never on `mcp` or `engws`; `cmd/enghealth` uses the
+root facade (and `internal/health` for the baseline helpers). Only `cmd/*`,
 `internal/mcp` and `internal/engws` import the root facade (among tests, only
 `internal/integration`), and `mcp` and `engws` do not import each other. `layering_test.go` enforces the rules with `go list`.
 

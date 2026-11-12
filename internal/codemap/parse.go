@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strings"
+	"time"
 
 	sitter "github.com/tree-sitter/go-tree-sitter"
 	tsgo "github.com/tree-sitter/tree-sitter-go/bindings/go"
@@ -82,8 +83,13 @@ func ParseFile(path string, src []byte, fn func(root *sitter.Node, language stri
 	return ParseSource(language, src, fn)
 }
 
+// ParseTimeout bounds one parse. The progress callback of the tree-sitter
+// binding cancels a parse that runs longer, and the parse is an error, so a
+// file that makes the parser slow cannot stall a scan.
+var ParseTimeout = 10 * time.Second
+
 // ParseSource is ParseFile for a given language name (see the Language
-// constants).
+// constants). A parse that exceeds ParseTimeout is an error.
 // TRLC-LINKS: REQ-EMG-150
 func ParseSource(language string, src []byte, fn func(root *sitter.Node, language string) error) error {
 	grammar, ok := grammarFor(language)
@@ -95,7 +101,20 @@ func ParseSource(language string, src []byte, fn func(root *sitter.Node, languag
 	if err := parser.SetLanguage(grammar); err != nil {
 		return fmt.Errorf("set parser language %s: %w", language, err)
 	}
-	tree := parser.Parse(src, nil)
+	deadline := time.Now().Add(ParseTimeout)
+	timedOut := false
+	tree := parser.ParseWithOptions(func(offset int, _ sitter.Point) []byte {
+		if offset < len(src) {
+			return src[offset:]
+		}
+		return []byte{}
+	}, nil, &sitter.ParseOptions{ProgressCallback: func(sitter.ParseState) bool {
+		timedOut = timedOut || time.Now().After(deadline)
+		return timedOut
+	}})
+	if tree == nil && timedOut {
+		return fmt.Errorf("parse %s: cancelled after %s", language, ParseTimeout)
+	}
 	if tree == nil {
 		return fmt.Errorf("parse %s: tree-sitter produced no syntax tree", language)
 	}

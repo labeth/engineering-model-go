@@ -179,7 +179,9 @@ type ManifestPublication struct {
 // configuration (ADR-EMG-051). Exclude lists paths left out of the report
 // (the inferenceHints.exclude dialect), Thresholds overrides the default
 // warn and high limit per smell code, Overrides does so for the paths it
-// names and Waivers waives single findings on an accepted decision. Value
+// names, Waivers waives single findings on an accepted decision, Baseline
+// accepts a whole file of existing findings on one and PolicyDecision records
+// a weakening of this very block. Value
 // rules are checked by internal/validate; a manifest without health leaves
 // every output unchanged.
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
@@ -188,6 +190,25 @@ type ManifestHealth struct {
 	Thresholds map[string]HealthThreshold `yaml:"thresholds,omitempty"`
 	Overrides  []HealthOverride           `yaml:"overrides,omitempty"`
 	Waivers    []HealthWaiver             `yaml:"waivers,omitempty"`
+	// Baseline names the committed file of accepted existing findings
+	// (ADR-EMG-059); nil means no baseline.
+	Baseline *HealthBaseline `yaml:"baseline,omitempty"`
+	// PolicyDecision is an accepted decision that records a weakening of the
+	// health policy (a higher limit, a wider exclude, a lower tier) that a
+	// change makes against its base revision (ADR-EMG-051, amended by the review). It is validated
+	// like a waiver decision; without it enghealth check reports the weakening
+	// as health.policy_weakened.
+	PolicyDecision string `yaml:"policyDecision,omitempty"`
+}
+
+// HealthBaseline is health.baseline: File is a path relative to the manifest
+// directory of a JSON file in the format engmod-health-baseline/1 (see
+// health_baseline.go) and Decision the accepted decision that justifies
+// carrying that debt.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154
+type HealthBaseline struct {
+	File     string `yaml:"file"`
+	Decision string `yaml:"decision"`
 }
 
 // HealthThreshold is the limit pair of one smell code: a value at or above

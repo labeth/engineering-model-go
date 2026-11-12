@@ -85,6 +85,15 @@ package model
 	decision: #NonEmpty
 }
 
+// #HealthBaseline names the committed baseline of accepted existing findings
+// (ADR-EMG-059): a path relative to the manifest directory and the decision
+// that justifies it. The path rules and the acceptance of the decision are
+// reported by internal/validate.
+#HealthBaseline: {
+	file:     #NonEmpty
+	decision: #NonEmpty
+}
+
 // #ManifestHealth configures the optional code health report (ADR-EMG-051):
 // without it nothing health related is computed or reported.
 #ManifestHealth: {
@@ -92,6 +101,10 @@ package model
 	thresholds?: [string]: #HealthThreshold
 	overrides?:  [...#HealthOverride]
 	waivers?:    [...#HealthWaiver]
+	baseline?:   #HealthBaseline
+	// policyDecision is the accepted decision that records a weakening of
+	// this block against the base revision (ADR-EMG-051, amended by the review).
+	policyDecision?: #NonEmpty
 }
 
 #ManifestDocument: {

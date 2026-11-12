@@ -113,12 +113,12 @@ func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	if !ok {
 		t.Fatalf("missing authoring contract: %+v", payload)
 	}
-	if contract["contractVersion"] != "engineering-model.authoring.v4" {
+	if contract["contractVersion"] != "engineering-model.authoring.v6" {
 		t.Fatalf("unexpected contract version: %v", contract["contractVersion"])
 	}
 	health, _ := contract["health"].(map[string]any)
-	if codes, _ := health["codes"].([]any); len(codes) != 13 {
-		t.Fatalf("the v4 contract must carry the health guide with 13 codes: %+v", health)
+	if codes, _ := health["codes"].([]any); len(codes) != 16 {
+		t.Fatalf("the v6 contract must carry the health guide with 16 codes: %+v", health)
 	}
 	if rules, _ := health["rules"].([]any); len(rules) == 0 || !strings.Contains(fmt.Sprint(rules...), "health.waiver_unjustified") {
 		t.Fatalf("the health guide must state the waiver rule: %+v", health)
