@@ -19,10 +19,10 @@ import (
 
 // goldenNoLifecycle is the record of every example model's diagnostics and
 // generated outputs, captured with engineering-model-go v0.9.0 (before the
-// life-cycle tier existed). ENGMOD_UPDATE_GOLDEN=1 rewrites it. The
-// repository's own model is compared by scripts/lifecycle-golden-self.sh,
-// which runs the v0.9.0 and the current binaries on the same tree: its trace
-// changes with every code edit, so a stored record cannot hold for it.
+// life-cycle tier existed) and regenerated for v0.11.0, which replaced the
+// behavior state vocabulary by machines (ADR-EMG-044, ADR-EMG-045).
+// ENGMOD_UPDATE_GOLDEN=1 rewrites it. The repository's own model is not part
+// of it: its trace changes with every code edit.
 const goldenNoLifecycle = "internal/integration/testdata/no-lifecycle-golden.json"
 
 // goldenModel is one model's observable result: the diagnostics of model

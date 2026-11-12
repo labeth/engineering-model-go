@@ -428,12 +428,12 @@ type TrustBoundary struct {
 	Members      []string `yaml:"members"`
 }
 
-// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, STATE-MODEL-VALID, STATE-MODEL-INVALID, STATE-ARTIFACTS-FRESH
-type State struct {
-	ID          string `yaml:"id"`
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
-}
+// State is the former name of MachineState. behavior.states was removed in
+// v0.11.0 (ADR-EMG-038): every state belongs to exactly one machine.
+//
+// Deprecated: use MachineState; the alias only keeps older callers compiling.
+// TRLC-LINKS: REQ-EMG-139
+type State = MachineState
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, EVT-MODEL-UPDATED, EVT-GENERATION-RUN-REQUESTED, EVT-VALIDATION-FAILED, EVT-ARTIFACT-GENERATED
 type Event struct {
@@ -627,9 +627,9 @@ type AuthoredArchitecture struct {
 	Risks                []Risk                `yaml:"risks"`
 	POAMItems            []POAMItem            `yaml:"poamItems"`
 	TrustBoundaries      []TrustBoundary       `yaml:"trustBoundaries"`
-	States               []State               `yaml:"states"`
 	Events               []Event               `yaml:"events"`
 	Flows                []Flow                `yaml:"flows"`
+	Machines             []Machine             `yaml:"machines"`
 	ThreatScenarios      []ThreatScenario      `yaml:"threatScenarios"`
 	ThreatAssumptions    []ThreatAssumption    `yaml:"threatAssumptions"`
 	ThreatOutOfScope     []ThreatOutOfScope    `yaml:"threatOutOfScope"`
@@ -679,10 +679,68 @@ type ArchitectureInputDocument struct {
 
 // BehaviorModel owns authored behavior and typed relationships.
 type BehaviorModel struct {
-	States        []State   `yaml:"states"`
 	Events        []Event   `yaml:"events"`
 	Flows         []Flow    `yaml:"flows"`
 	Relationships []Mapping `yaml:"relationships"`
+	Machines      []Machine `yaml:"machines"`
+}
+
+// Machine is a first-class state machine authored in behavior.machines. It
+// has exactly one initial state, typed variables, guarded transitions and
+// invariants. Guards, effects and invariant expressions stay source strings in
+// the authored model and are parsed during semantic projection.
+//
+// TRLC-LINKS: REQ-EMG-135
+type Machine struct {
+	ID          string              `yaml:"id"`
+	Name        string              `yaml:"name"`
+	Description string              `yaml:"description"`
+	Owner       string              `yaml:"owner"`   // implementing functional unit
+	Initial     string              `yaml:"initial"` // id of the initial machine state
+	Variables   []MachineVariable   `yaml:"variables"`
+	States      []MachineState      `yaml:"states"`
+	Transitions []MachineTransition `yaml:"transitions"`
+	Invariants  []MachineInvariant  `yaml:"invariants"`
+}
+
+// MachineVariable is one typed machine variable with its initial literal.
+// TRLC-LINKS: REQ-EMG-135
+type MachineVariable struct {
+	Name    string `yaml:"name"`
+	Type    string `yaml:"type"`    // Integer|Boolean|String
+	Initial any    `yaml:"initial"` // int, bool or string literal matching Type
+}
+
+// MachineState is one state of a machine; final states end the machine.
+// TRLC-LINKS: REQ-EMG-135
+type MachineState struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	Final       bool   `yaml:"final"`
+}
+
+// MachineTransition moves a machine between two of its states, optionally
+// triggered by an event and constrained by a guard and an effect.
+// TRLC-LINKS: REQ-EMG-135
+type MachineTransition struct {
+	ID          string `yaml:"id"`
+	From        string `yaml:"from"`
+	To          string `yaml:"to"`
+	On          string `yaml:"on"`
+	Guard       string `yaml:"guard"`
+	Effect      string `yaml:"effect"`
+	Description string `yaml:"description"`
+}
+
+// MachineInvariant is a boolean expression over machine variables that must
+// hold in every reachable state, tied to the requirements it protects.
+// TRLC-LINKS: REQ-EMG-135
+type MachineInvariant struct {
+	ID           string   `yaml:"id"`
+	Requirements []string `yaml:"requirements"`
+	Expr         string   `yaml:"expr"`
+	Description  string   `yaml:"description"`
 }
 
 // BehaviorDocument is the schema-v2 behavioral document.

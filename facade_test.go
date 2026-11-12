@@ -206,9 +206,16 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"Result":           "AirborneAssuranceResult",
 			"GenerateFromFile": "GenerateAirborneAssuranceFromFile",
 		}},
+		{dir: filepath.Join("internal", "export", "quint"), rootName: map[string]string{
+			"Result": "QuintExportResult", "File": "QuintFile", "Invariant": "QuintInvariant",
+			"Generate": "GenerateQuint", "GenerateFromFile": "GenerateQuintFromFile",
+			"GeneratedHeader": "QuintGeneratedHeader",
+		}},
 		{dir: filepath.Join("internal", "export", "exportutil"), internalOnly: []string{
 			// generation timestamps shared by the Gemara and OSCAL exporters.
 			"NormalizeGeneratedTimestamp", "ResolveGeneratedTimestamp",
+			// external tool lookup shared by the exporters.
+			"ResolveExternalTool",
 		}},
 	}
 	root := exportedNames(t, ".")

@@ -48,8 +48,18 @@ type Row struct {
 	// test-result artifacts report only passes, "failed" when any reports a
 	// failure (or a blocked, partial or flaky run), "not-run" otherwise. It is
 	// empty when no verification is linked.
-	Result      string      `json:"result,omitempty"`
-	DelegatedTo *Delegation `json:"delegatedTo,omitempty"`
+	Result string `json:"result,omitempty"`
+	// EvidenceMethods lists the methods of the linked evidence ("analysis",
+	// "test") when a formal (Quint) result is among it; it is omitted for a
+	// requirement without formal evidence. A passing current formal result
+	// is analysis evidence; see formal_evidence.go for the roll-up rule.
+	EvidenceMethods []string `json:"evidenceMethods,omitempty"`
+	// Formal lists every formal result recorded for the requirement (pass,
+	// failed, stale or not-run) with machine, invariant, mode and the sha256
+	// of the module; omitted without formal evidence. A stale entry is
+	// listed but links no verification.
+	Formal      []formalResult `json:"formal,omitempty"`
+	DelegatedTo *Delegation    `json:"delegatedTo,omitempty"`
 	// DelegatedStatus is the delegated (or imported) requirement's own trace
 	// status in its target repository at the resolved version.
 	DelegatedStatus *DelegatedStatus `json:"delegatedStatus,omitempty"`
@@ -258,7 +268,10 @@ func KnownModelIDs(bundle model.Bundle, requirements model.RequirementsDocument)
 	for _, x := range a.TrustBoundaries {
 		add(x.ID)
 	}
-	for _, x := range a.States {
+	for _, m := range a.Machines {
+		add(m.ID)
+	}
+	for _, x := range a.MachineStates() {
 		add(x.ID)
 	}
 	for _, x := range a.Events {
@@ -394,9 +407,10 @@ func ScopeCodeToModel(items []codescan.CodeItem, roots []string, modelDir string
 // code, verification, or delegation). The code is assumed already scoped to this model.
 // It also reports assurance records whose status lags the tests they name
 // (verification.status_stale).
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073, REQ-EMG-098, REQ-EMG-121, REQ-EMG-128
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-029, REQ-EMG-073, REQ-EMG-098, REQ-EMG-121, REQ-EMG-128, REQ-EMG-146
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
 func ValidateIntegrity(bundle model.Bundle, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) []validate.Diagnostic {
+	verification = effectiveVerification(codescan.ModelRootDir(bundle), verification)
 	diags := validateIntegrityWithIDs(KnownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
 	diags = append(diags, unsatisfiedRequirements(bundle, requirements, scopedCode, verification, delegationsByReq)...)
 	diags = append(diags, benchmarkOnlyDiagnostics(requirements, verification)...)
@@ -408,14 +422,33 @@ func ValidateIntegrity(bundle model.Bundle, requirements model.RequirementsDocum
 // verification.failed (warning) at each requirement whose linked test
 // results include a failure and verification.gated_only (warning) at each
 // requirement whose every linked test is environment gated; the tier policy
-// sets their severity.
-// TRLC-LINKS: REQ-EMG-128
+// sets their severity. A failing current formal (Quint) result fails the
+// requirement like a failing test (formal_evidence.go): the message then
+// names the machine and invariant; the message for a requirement without a
+// formal failure is unchanged.
+// TRLC-LINKS: REQ-EMG-128, REQ-EMG-146
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
 func tierVerificationDiagnostics(bundle model.Bundle, requirements model.RequirementsDocument, verification []codescan.VerificationCheck) []validate.Diagnostic {
 	if _, _, ok := validate.EffectiveTier(bundle); !ok {
 		return nil
 	}
+	verification = effectiveVerification(codescan.ModelRootDir(bundle), verification)
 	results := requirementResults(verification)
+	var testChecks []codescan.VerificationCheck
+	formalFailures := map[string][]string{}
+	for _, f := range formalResultsOf(codescan.ModelRootDir(bundle), verification) {
+		if f.Result == formalFailed {
+			formalFailures[f.Requirement] = append(formalFailures[f.Requirement], fmt.Sprintf("invariant %s of machine %s", textutil.NonEmpty(f.Invariant, "(unnamed)"), textutil.NonEmpty(f.Machine, "(unnamed)")))
+		}
+	}
+	if len(formalFailures) > 0 {
+		for _, v := range verification {
+			if v.Method != "analysis" {
+				testChecks = append(testChecks, v)
+			}
+		}
+	}
+	testResults := requirementResults(testChecks)
 	gated, ungated := map[string]bool{}, map[string]bool{}
 	for _, v := range verification {
 		for _, r := range v.Verifies {
@@ -432,8 +465,16 @@ func tierVerificationDiagnostics(bundle model.Bundle, requirements model.Require
 		id := strings.TrimSpace(r.ID)
 		path := fmt.Sprintf("requirements[%d]", i)
 		if results[id] == "failed" {
-			diags = append(diags, validate.Diagnostic{Code: "verification.failed", Severity: validate.SeverityWarning, Path: path,
-				Message: fmt.Sprintf("requirement %s has a failed, blocked, partial or flaky linked test result; fix the code or the test and record a passing run", id)})
+			message := fmt.Sprintf("requirement %s has a failed, blocked, partial or flaky linked test result; fix the code or the test and record a passing run", id)
+			if failures := textutil.UniqueSorted(formalFailures[id]); len(failures) > 0 {
+				formal := fmt.Sprintf("formal result failed: %s; fix the model or the invariant and rerun engquint check", strings.Join(failures, ", "))
+				if testResults[id] == "failed" {
+					message += "; " + formal
+				} else {
+					message = fmt.Sprintf("requirement %s has a failed %s", id, formal)
+				}
+			}
+			diags = append(diags, validate.Diagnostic{Code: "verification.failed", Severity: validate.SeverityWarning, Path: path, Message: message})
 		}
 		if gated[id] && !ungated[id] {
 			diags = append(diags, validate.Diagnostic{Code: "verification.gated_only", Severity: validate.SeverityWarning, Path: path,
@@ -599,10 +640,18 @@ func buildTraceMatrix(bundle model.Bundle, requirements model.RequirementsDocume
 // buildTraceMatrixWithIDs is buildTraceMatrix resolving ENGMODEL-LINKS against
 // an explicit ID set, which may include published alias::ID entities. A row
 // whose every linked verification is environment gated is Gated and counted
-// in Summary.GatedOnly.
-// TRLC-LINKS: REQ-EMG-030, REQ-EMG-065, REQ-EMG-088, REQ-EMG-105, REQ-EMG-121
+// in Summary.GatedOnly. Formal (Quint) evidence rolls up by the rule in
+// formal_evidence.go: a stale result links no verification and shows only in
+// Row.Formal; a current one links the formal check, adds "analysis" to
+// Row.EvidenceMethods and takes part in Row.Result like a test result. Status
+// inference is unchanged: code gives implemented, a delegation delegated, any
+// linked verification (formal included) verified, else orphan.
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-065, REQ-EMG-088, REQ-EMG-105, REQ-EMG-121, REQ-EMG-146
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
 func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requirements model.RequirementsDocument, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck, delegationsByReq map[string][]composition.MaterializedAllocation) Matrix {
+	baseDir := codescan.ModelRootDir(bundle)
+	verification = effectiveVerification(baseDir, verification)
+	formalByReq := formalByRequirement(formalResultsOf(baseDir, verification))
 	reqIDs := requirementIDSet(requirements)
 	codeByReq := map[string][]CodeRef{}
 	var dangling []DanglingLink
@@ -631,9 +680,15 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 	verByReq := map[string][]string{}
 	gatesByReq := map[string][]string{}
 	ungatedReq := map[string]bool{}
+	analysisReq, testReq := map[string]bool{}, map[string]bool{}
 	for _, v := range verification {
 		for _, r := range v.Verifies {
 			id := strings.TrimSpace(r)
+			if v.Method == "analysis" {
+				analysisReq[id] = true
+			} else {
+				testReq[id] = true
+			}
 			verByReq[id] = append(verByReq[id], strings.TrimSpace(v.ID))
 			if g := v.Gates[r]; len(g) > 0 {
 				gatesByReq[id] = textutil.AppendUniqueSlice(gatesByReq[id], g)
@@ -658,6 +713,15 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 				row.Gated, row.Gates = true, textutil.UniqueSorted(gatesByReq[id])
 			}
 			row.BenchmarkOnly = benchOnly[id]
+		}
+		if len(formalByReq[id]) > 0 {
+			row.Formal = formalByReq[id]
+			if analysisReq[id] {
+				row.EvidenceMethods = []string{"analysis"}
+				if testReq[id] {
+					row.EvidenceMethods = append(row.EvidenceMethods, "test")
+				}
+			}
 		}
 		if d := delegationsByReq[id]; len(d) > 0 {
 			row.DelegatedTo = &Delegation{Subsystem: d[0].Subsystem, Target: d[0].Target, TargetRequirement: d[0].TargetRef}
@@ -784,7 +848,7 @@ func BuildFromFilesWith(modelPath, requirementsPath, codeRoot string, options Op
 // buildFromBundle is BuildFromFilesWith for a loaded bundle (its
 // requirements set): the trace of the bundle as given, so a caller may
 // change it in memory first (TierGap sets the target tier).
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-098, REQ-EMG-105, REQ-EMG-125, REQ-EMG-134
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-098, REQ-EMG-105, REQ-EMG-125, REQ-EMG-134, REQ-EMG-146
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
 func buildFromBundle(bundle model.Bundle, modelPath, codeRoot string, options Options) (Matrix, []validate.Diagnostic, error) {
 	canonical, err := model.NewCanonicalBundle(bundle)
@@ -799,6 +863,8 @@ func buildFromBundle(bundle model.Bundle, modelPath, codeRoot string, options Op
 	}
 	inferredCode, codeDiags := codescan.InferCodeItems(bundle, resolvedRoot)
 	inferredVerification, verDiags := codescan.InferVerificationChecks(bundle, requirements, inferredCode, resolvedRoot)
+	// A stale formal result is no evidence: drop it before any roll-up.
+	inferredVerification = effectiveVerification(codescan.ModelRootDir(bundle), inferredVerification)
 	diags := append([]validate.Diagnostic(nil), codeDiags...)
 	diags = append(diags, verDiags...)
 

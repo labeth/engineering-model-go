@@ -435,10 +435,14 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 					TrustBoundaryRef: "TB-MEDIACHESTV-DEVICE",
 				}},
 			}},
-			States: []model.State{
-				{ID: "STATE-MEDIACHESTV-IDLE", Name: "Idle"},
-				{ID: "STATE-MEDIACHESTV-APPLYING", Name: "Applying"},
-			},
+			Machines: []model.Machine{{
+				ID: "SM-MEDIACHESTV-DEPLOY", Owner: "FU-MEDIACHESTV-CORE", Initial: "STATE-MEDIACHESTV-IDLE",
+				States: []model.MachineState{
+					{ID: "STATE-MEDIACHESTV-IDLE", Name: "Idle"},
+					{ID: "STATE-MEDIACHESTV-APPLYING", Name: "Applying"},
+				},
+				Transitions: []model.MachineTransition{{ID: "TR-MEDIACHESTV-APPLY", From: "STATE-MEDIACHESTV-IDLE", To: "STATE-MEDIACHESTV-APPLYING", On: "EVT-MEDIACHESTV-DEPLOY-REQUESTED"}},
+			}},
 			Events: []model.Event{{ID: "EVT-MEDIACHESTV-DEPLOY-REQUESTED", Name: "Deploy Requested"}},
 			Mappings: []model.Mapping{
 				{Type: "contains", From: "FG-MEDIACHESTV-CORE", To: "FU-MEDIACHESTV-CORE"},
@@ -450,8 +454,6 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 				{Type: "targets", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "FU-MEDIACHESTV-CORE"},
 				{Type: "mitigated_by", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
 				{Type: "bounded_by", From: "FU-MEDIACHESTV-CORE", To: "TB-MEDIACHESTV-DEVICE"},
-				{Type: "transitions_to", From: "STATE-MEDIACHESTV-IDLE", To: "STATE-MEDIACHESTV-APPLYING"},
-				{Type: "triggered_by", From: "STATE-MEDIACHESTV-IDLE", To: "EVT-MEDIACHESTV-DEPLOY-REQUESTED"},
 				{Type: "guarded_by", From: "STATE-MEDIACHESTV-APPLYING", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
 				{Type: "guarded_by", From: "STATE-MEDIACHESTV-IDLE", To: "TB-MEDIACHESTV-DEVICE"},
 			},
@@ -462,7 +464,7 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 			{ID: "VIEW-DEPLOYMENT", Kind: "deployment", Roots: []string{"FU-MEDIACHESTV-CORE"}, IncludeMappings: []string{"deployed_to", "bounded_by"}},
 			{ID: "VIEW-SECURITY", Kind: "security", Roots: []string{"AV-MEDIACHESTV-INPUT-SPOOF"}},
 			{ID: "VIEW-TRACEABILITY", Kind: "traceability", Roots: []string{"FU-MEDIACHESTV-CORE"}},
-			{ID: "VIEW-STATE-LIFECYCLE", Kind: "state-lifecycle", Roots: []string{"STATE-MEDIACHESTV-IDLE"}, IncludeKinds: []string{"state", "event", "control", "trust_boundary"}, IncludeMappings: []string{"transitions_to", "triggered_by", "guarded_by"}},
+			{ID: "VIEW-STATE-LIFECYCLE", Kind: "state-lifecycle", Roots: []string{"STATE-MEDIACHESTV-IDLE"}, IncludeKinds: []string{"state", "event", "control", "trust_boundary"}, IncludeMappings: []string{"transition", "on_event", "guarded_by"}},
 		},
 	}, Catalog: model.CatalogDocument{}}
 

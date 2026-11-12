@@ -1,0 +1,8 @@
+{
+  "name": "engmod-quint-tool",
+  "private": true,
+  "description": "Pins the Quint CLI used by engquint (see scripts/quint-toolchain.env).",
+  "dependencies": {
+    "@informalsystems/quint": "0.33.1"
+  }
+}

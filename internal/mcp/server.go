@@ -184,8 +184,8 @@ func NewServer() *Server {
 		{Name: "files.forControl", Description: "List files for control"},
 		{Name: "files.forThreat", Description: "List files for threat"},
 		{Name: "files.owner", Description: "Resolve owner for file"},
-		{Name: "verification.status", Description: "Get verification status"},
-		{Name: "verification.gaps", Description: "List verification gaps"},
+		{Name: "verification.status", Description: "Get verification status: authored controlVerifications and, when the model has formal (Quint) evidence, formalResults per requirement (result pass, failed or stale; each invariant with machine, invariant, mode, qntFile and qntSha256)"},
+		{Name: "verification.gaps", Description: "List verification gaps: requirementsWithoutFiles and, when the model has formal (Quint) evidence, formalGaps (requirements whose formal result is failed, stale or not-run)"},
 		{Name: "verification.recommend", Description: "Recommend verification actions"},
 		{Name: "threats.forRequirement", Description: "Get threats linked to requirement"},
 		{Name: "threats.coverage", Description: "Get threat-control-verification coverage"},
@@ -570,7 +570,7 @@ func (s *Server) modelFileFingerprint() string {
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-045, REQ-EMG-069, REQ-EMG-106
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-045, REQ-EMG-069, REQ-EMG-106, REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION, FU-CODEMAP-INFERENCE
 func (s *Server) callTool(name string, args map[string]any) (map[string]any, error) {
 	if s.bundle == nil {
@@ -717,7 +717,12 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 				status = append(status, cv)
 			}
 		}
-		return simple(map[string]any{"controlVerifications": status})
+		out := map[string]any{"controlVerifications": status}
+		if formal := s.formalStatus(entityID); len(formal) > 0 {
+			// Requirement-level formal (Quint) results: pass, failed or stale.
+			out["formalResults"] = formal
+		}
+		return simple(out)
 	case "verification.gaps":
 		gaps := []string{}
 		for _, r := range s.requirementIDs() {
@@ -725,7 +730,12 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 				gaps = append(gaps, r)
 			}
 		}
-		return simple(map[string]any{"requirementsWithoutFiles": gaps})
+		out := map[string]any{"requirementsWithoutFiles": gaps}
+		if formal := s.formalGaps(); len(formal) > 0 {
+			// Requirements whose formal result is failed or stale.
+			out["formalGaps"] = formal
+		}
+		return simple(out)
 	case "verification.recommend":
 		return simple(map[string]any{"recommendations": s.verificationRecommendations()})
 	case "gemara.controlCatalog", "gemara.threatCatalog", "gemara.riskCatalog",
@@ -2135,7 +2145,12 @@ func (s *Server) modelEntity(id string) (string, any, bool) {
 			return "trust_boundary", x, true
 		}
 	}
-	for _, x := range a.States {
+	for _, x := range a.Machines {
+		if x.ID == id {
+			return "machine", x, true
+		}
+	}
+	for _, x := range a.MachineStates() {
 		if x.ID == id {
 			return "state", x, true
 		}
@@ -2591,7 +2606,10 @@ func (s *Server) graphNodes(query string, max int) []map[string]any {
 	for _, x := range a.TrustBoundaries {
 		add("trust_boundary", x.ID, x.Name)
 	}
-	for _, x := range a.States {
+	for _, x := range a.Machines {
+		add("machine", x.ID, x.Name)
+	}
+	for _, x := range a.MachineStates() {
 		add("state", x.ID, x.Name)
 	}
 	for _, x := range a.Events {

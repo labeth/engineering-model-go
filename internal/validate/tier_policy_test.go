@@ -48,6 +48,11 @@ func TestApplyTierPolicySeverityByTier(t *testing.T) {
 		{"requirement.orphan", [5]string{"D", "D", "W", "E", "E"}, "product", nil, SeverityWarning, SeverityWarning},
 		{"verification.failed", [5]string{"D", "D", "D", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 		{"behavior.event_unused", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+		{"behavior.machine_deadlock", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+		{"behavior.transition_nondeterministic", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+		{"behavior.transition_no_trigger", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+		{"behavior.invariant_unlinked", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+		{"behavior.state_unreachable", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 		{"code.missing_trlc_link", [5]string{"W", "W", "W", "E", "E"}, "product", nil, SeverityError, SeverityError},
 		{"composition.dependency_tier_unknown", [5]string{"W", "W", "W", "W", "W"}, "", nil, SeverityWarning, SeverityWarning},
 		{"composition.dependency_tier_unknown", [5]string{"W", "W", "W", "E", "E"}, "product", []string{"safety"}, SeverityWarning, SeverityWarning},
@@ -252,5 +257,79 @@ func TestTierPolicyMarkdownIsInReadme(t *testing.T) {
 	}
 	if !strings.Contains(string(readme), table) {
 		t.Fatalf("README.md does not contain the current TierPolicyMarkdown() table:\n%s", table)
+	}
+}
+
+// The four advisory machine codes follow the hygiene row end to end: a model
+// with a deadlocked, nondeterministic, trigger-less and unlinked machine
+// reports each as deferred at poc and prototype, a warning at mvp and
+// product and an error at operational, while a structural machine error
+// (an unknown event) stays a plain error at poc and the tier policy does not
+// key it.
+// Mutation: dropping a code from the table leaves it a warning at operational;
+// keying a structural code defers it at poc.
+// TRLC-LINKS: REQ-EMG-140, REQ-EMG-138
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestMachineAdvisoryCodesFollowTheHygieneRowEndToEnd(t *testing.T) {
+	advisory := []string{"behavior.machine_deadlock", "behavior.transition_nondeterministic", "behavior.transition_no_trigger", "behavior.invariant_unlinked"}
+	build := func(tier string) model.Bundle {
+		b := tierBundle(tier)
+		m := baseTestMachine()
+		m.States[2].Final = false // STATE-STOP deadlocks
+		m.Transitions = append(m.Transitions,
+			model.MachineTransition{ID: "TR-DUP", From: "STATE-IDLE", To: "STATE-RUN", On: "EVT-START"}, // same event as TR-START, no guards
+			model.MachineTransition{ID: "TR-AUTO", From: "STATE-RUN", To: "STATE-IDLE"})                 // no event, no guard
+		m.Invariants = []model.MachineInvariant{{ID: "INV-A", Expr: "count >= 0"}} // no requirement
+		b.Architecture.AuthoredArchitecture.Machines = []model.Machine{m}
+		b.Architecture.AuthoredArchitecture.Machines[0].Transitions[1].On = "EVT-NOPE" // a structural error
+		return b
+	}
+	want := map[string][5]string{}
+	for _, code := range advisory {
+		want[code] = [5]string{"D", "D", "W", "W", "E"}
+	}
+	for i, tier := range model.Tiers {
+		b := build(tier)
+		diags := ApplyTierPolicy(b, Bundle(b))
+		for _, code := range advisory {
+			found := false
+			for _, d := range diags {
+				if d.Code != code {
+					continue
+				}
+				found = true
+				gotLetter := map[bool]string{true: "D", false: map[Severity]string{SeverityWarning: "W", SeverityError: "E"}[d.Severity]}[d.Deferred]
+				if gotLetter != want[code][i] {
+					t.Errorf("%s at %s: got %s (%+v), want %s", code, tier, gotLetter, d, want[code][i])
+				}
+			}
+			if !found {
+				t.Errorf("%s not reported at %s", code, tier)
+			}
+		}
+		structural := 0
+		for _, d := range diags {
+			if d.Code == "behavior.transition_unknown_event" {
+				structural++
+				if d.Severity != SeverityError || d.Deferred {
+					t.Errorf("structural machine error changed at %s: %+v", tier, d)
+				}
+			}
+		}
+		if structural != 1 {
+			t.Errorf("want one structural machine error at %s, got %d", tier, structural)
+		}
+	}
+	if TierKeyed("behavior.transition_unknown_event") || TierKeyed("behavior.expression_type") || TierKeyed("behavior.final_state_has_transitions") {
+		t.Error("structural machine codes must not be tier keyed")
+	}
+	// Without lifecycle the advisory codes keep their authored warning.
+	plain := build("")
+	for _, d := range ApplyTierPolicy(plain, Bundle(plain)) {
+		for _, code := range advisory {
+			if d.Code == code && (d.Severity != SeverityWarning || d.Deferred || d.RequiredFrom != "") {
+				t.Errorf("%s without lifecycle changed: %+v", code, d)
+			}
+		}
 	}
 }

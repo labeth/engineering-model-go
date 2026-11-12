@@ -169,9 +169,10 @@ func GenerateV2(bundle model.Bundle) (ExportResult, error) {
 
 // GenerateV2Projection renders a pre-built semantic graph. Missing
 // rendering rules are errors; official concepts are never replaced by a
-// generic item declaration.
+// generic item declaration. Behavior machines are rendered as one state
+// definition each; see writeMachine.
 //
-// TRLC-LINKS: REQ-EMG-036
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-137
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
 func GenerateV2Projection(semantic model.SemanticModel) (string, []model.SemanticDiagnostic) {
 	var out bytes.Buffer
@@ -211,9 +212,13 @@ func GenerateV2Projection(semantic model.SemanticModel) (string, []model.Semanti
 	fmt.Fprintln(&out, "    attribute 'engineeringModelInterchange';")
 
 	elements := append([]model.SemanticElement(nil), semantic.Elements...)
+	machines := indexMachines(semantic)
 	children := map[string][]model.SemanticElement{}
 	for _, element := range elements {
 		if element.Kind == model.ElementPackageDefinition && element.ID == semantic.ID {
+			continue
+		}
+		if machines.ownsElement(element.ID) {
 			continue
 		}
 		namespace := strings.TrimSpace(element.Namespace)
@@ -223,12 +228,12 @@ func GenerateV2Projection(semantic model.SemanticModel) (string, []model.Semanti
 		children[namespace] = append(children[namespace], element)
 	}
 	externalEndpoints := compositionExternalEndpoints(semantic.Relationships, elementIDs)
-	writeNamespaceElements(&out, semantic.ID, "    ", children, semantic.Imports, elementIDs, &diagnostics)
+	writeNamespaceElements(&out, semantic.ID, "    ", children, semantic.Imports, elementIDs, machines, &diagnostics)
 	writeCompositionExternalEndpoints(&out, externalEndpoints, elementIDs)
 
 	relationships := append([]model.SemanticRelationship(nil), semantic.Relationships...)
 	for _, relationship := range relationships {
-		if relationship.Kind == model.RelationshipContainment {
+		if relationship.Kind == model.RelationshipContainment || machines.ownsRelationship(relationship.ID) {
 			continue
 		}
 		fmt.Fprintln(&out)
@@ -315,16 +320,16 @@ func writeElementAnnotation(out *bytes.Buffer, element model.SemanticElement) {
 	fmt.Fprintln(out, "    }")
 }
 
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func writeNamespaceElements(out *bytes.Buffer, namespace, indent string, children map[string][]model.SemanticElement, imports []model.SemanticImport, elementIDs map[string]bool, diagnostics *[]model.SemanticDiagnostic) {
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-137
+func writeNamespaceElements(out *bytes.Buffer, namespace, indent string, children map[string][]model.SemanticElement, imports []model.SemanticImport, elementIDs map[string]bool, machines *machineIndex, diagnostics *[]model.SemanticDiagnostic) {
 	for _, element := range children[namespace] {
 		fmt.Fprintln(out)
-		writeElement(out, element, indent, children, imports, elementIDs, diagnostics)
+		writeElement(out, element, indent, children, imports, elementIDs, machines, diagnostics)
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func writeElement(out *bytes.Buffer, element model.SemanticElement, indent string, children map[string][]model.SemanticElement, imports []model.SemanticImport, elementIDs map[string]bool, diagnostics *[]model.SemanticDiagnostic) {
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-137
+func writeElement(out *bytes.Buffer, element model.SemanticElement, indent string, children map[string][]model.SemanticElement, imports []model.SemanticImport, elementIDs map[string]bool, machines *machineIndex, diagnostics *[]model.SemanticDiagnostic) {
 	writeElementAnnotationAt(out, element, indent)
 	keyword, ok := nativeElementKeyword(element)
 	if !ok {
@@ -342,8 +347,12 @@ func writeElement(out *bytes.Buffer, element model.SemanticElement, indent strin
 				writeImport(out, imported, indent+"    ")
 			}
 		}
-		writeNamespaceElements(out, element.ID, indent+"    ", children, imports, elementIDs, diagnostics)
+		writeNamespaceElements(out, element.ID, indent+"    ", children, imports, elementIDs, machines, diagnostics)
 		fmt.Fprintf(out, "%s}\n", indent)
+		return
+	}
+	if machines.isMachine(element.ID) {
+		writeMachine(out, element, indent, children, imports, elementIDs, machines, diagnostics)
 		return
 	}
 	fmt.Fprintf(out, "%s%s ", indent, keyword)
@@ -367,7 +376,7 @@ func writeElement(out *bytes.Buffer, element model.SemanticElement, indent strin
 	for _, feature := range element.Features {
 		writeFeature(out, feature, indent+"    ")
 	}
-	writeNamespaceElements(out, element.ID, indent+"    ", children, imports, elementIDs, diagnostics)
+	writeNamespaceElements(out, element.ID, indent+"    ", children, imports, elementIDs, machines, diagnostics)
 	fmt.Fprintf(out, "%s}\n", indent)
 }
 

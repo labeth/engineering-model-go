@@ -127,7 +127,9 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 // implementation, verification, and delegation status, with orphans and dangling links.
 // Delegated rows carry the target requirement's own trace status
 // (delegatedStatus). With summaryOnly it returns only the summary and diagnostics.
-// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105
+// A requirement with formal (Quint) evidence also carries formal (each
+// result with machine, invariant, mode and sha256) and evidenceMethods.
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105, REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
@@ -203,6 +205,12 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 		row["children"] = nonNilStrings(r.Children)
 		if len(r.Links) > 0 {
 			row["links"] = r.Links
+		}
+		if len(r.Formal) > 0 {
+			row["formal"] = r.Formal
+		}
+		if len(r.EvidenceMethods) > 0 {
+			row["evidenceMethods"] = r.EvidenceMethods
 		}
 		if r.SatisfiedBy != "" {
 			row["satisfiedBy"] = r.SatisfiedBy

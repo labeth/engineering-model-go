@@ -1,0 +1,19 @@
+schemaVersion: 2
+module:
+  path: models.example/quint-payments-fixture@v0
+  version: v0.1.0
+  modelId: quint-payments-fixture
+  title: Quint payments fixture
+  introduction: A minimal model with one payment authorization machine, used to test Quint generation.
+  kind: system
+documents:
+  catalog: model/catalog.yml
+  requirements: model/requirements.yml
+  architecture: model/architecture.yml
+  behavior: model/behavior.yml
+  assurance: model/assurance.yml
+  compliance: model/compliance.yml
+  views: model/views.yml
+  decisions: model/decisions.yml
+dependencies: []
+publications: []

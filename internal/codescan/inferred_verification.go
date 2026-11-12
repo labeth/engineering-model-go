@@ -29,9 +29,12 @@ type VerificationResult struct {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type VerificationCheck struct {
-	ID            string
-	Name          string
-	Kind          string
+	ID   string
+	Name string
+	Kind string
+	// Method is the verification method when it is not a test: "analysis"
+	// for a sha-verified formal result; empty means test.
+	Method        string
 	Status        string
 	Description   string
 	Verifies      []string
@@ -199,6 +202,8 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 	type artifact struct {
 		Path    string
 		Results []artifactResult
+		// Formal marks a formal evidence file; it always gets its own check.
+		Formal bool
 	}
 
 	artifacts := make([]artifact, 0)
@@ -207,7 +212,17 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			if err != nil || d.IsDir() {
 				return nil
 			}
-			res, ok := parseVerificationArtifact(path)
+			formal := isFormalEvidencePath(path)
+			var res []VerificationResult
+			var ok bool
+			if formal {
+				var formalDiags []validate.Diagnostic
+				res, formalDiags = parseFormalEvidence(baseDir, path)
+				diags = append(diags, formalDiags...)
+				ok = true
+			} else {
+				res, ok = parseVerificationArtifact(path)
+			}
 			if !ok || len(res) == 0 {
 				return nil
 			}
@@ -221,7 +236,7 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 					Notes:       r.Notes,
 				})
 			}
-			artifacts = append(artifacts, artifact{Path: rel, Results: arts})
+			artifacts = append(artifacts, artifact{Path: rel, Results: arts, Formal: formal})
 			return nil
 		})
 		if err != nil {
@@ -258,9 +273,11 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 			candidateIDs = append(candidateIDs, id)
 		}
 		sort.Strings(candidateIDs)
-		bestID = selectBestVerificationCheckID(candidateIDs, checkByID, checkIdentityByID, reqSet, artifactKeys, false)
+		if !a.Formal {
+			bestID = selectBestVerificationCheckID(candidateIDs, checkByID, checkIdentityByID, reqSet, artifactKeys, false)
+		}
 
-		if bestID == "" {
+		if bestID == "" && !a.Formal {
 			allIDs := make([]string, 0, len(checkByID))
 			for id := range checkByID {
 				allIDs = append(allIDs, id)
@@ -279,8 +296,9 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 				ID:            id,
 				Name:          verificationNameFromPath(a.Path),
 				Kind:          verificationKindFromPath(a.Path),
+				Method:        verificationMethodFromPath(a.Path),
 				Status:        "not-run",
-				Description:   verificationDescriptionFromResultArtifact(baseDir, a.Path),
+				Description:   verificationDescriptionForArtifact(baseDir, a.Path),
 				Verifies:      reqs,
 				CodeElements:  verificationCodeElementsForPath(a.Path, codeBySource),
 				DerivedOwners: ownersForRequirements(reqOwners, reqs),
@@ -795,6 +813,8 @@ func uniqueExistingDirs(in []string) []string {
 func verificationKindFromPath(path string) string {
 	p := strings.ToLower(filepath.ToSlash(path))
 	switch {
+	case isFormalEvidencePath(p):
+		return "formal"
 	case strings.Contains(p, "/unit/"):
 		return "unit"
 	case strings.Contains(p, "/integration/"):

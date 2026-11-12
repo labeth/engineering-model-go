@@ -25,7 +25,8 @@ type index struct {
 	targets            map[string]model.DeploymentTarget
 	controls           map[string]model.Control
 	boundaries         map[string]model.TrustBoundary
-	states             map[string]model.State
+	states             map[string]model.MachineState
+	machines           map[string]model.Machine
 	events             map[string]model.Event
 	flows              map[string]model.Flow
 	threats            map[string]model.ThreatScenario
@@ -35,7 +36,7 @@ type index struct {
 	verifications      map[string]model.ControlVerification
 }
 
-// TRLC-LINKS: REQ-EMG-003, REQ-EMG-035, REQ-EMG-036
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-035, REQ-EMG-036, REQ-EMG-139
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic) {
 	canonical, err := model.NewCanonicalBundle(b)
@@ -80,18 +81,28 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 		return buildInteractionFlowView(v, idx, b.Architecture.AuthoredArchitecture.Mappings, includeKinds, excludeKinds, includeMappings, excludeMappings, maxDepth), nil
 	}
 
+	mappings := viewMappings(b.Architecture.AuthoredArchitecture)
 	included := map[string]bool{}
 	depth := map[string]int{}
 	queue := []string{}
+	seed := func(id string) {
+		if !included[id] {
+			included[id] = true
+			depth[id] = 0
+			queue = append(queue, id)
+		}
+	}
 	for _, root := range v.Roots {
 		root = strings.TrimSpace(root)
 		if root == "" {
 			continue
 		}
-		if !included[root] {
-			included[root] = true
-			depth[root] = 0
-			queue = append(queue, root)
+		seed(root)
+		// A machine root stands for all its states.
+		for _, state := range idx.machines[root].States {
+			if id := strings.TrimSpace(state.ID); id != "" {
+				seed(id)
+			}
 		}
 	}
 
@@ -101,7 +112,7 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 		if depth[current] >= maxDepth {
 			continue
 		}
-		for _, m := range b.Architecture.AuthoredArchitecture.Mappings {
+		for _, m := range mappings {
 			if !mappingAllowed(strings.TrimSpace(m.Type), includeMappings, excludeMappings) {
 				continue
 			}
@@ -137,7 +148,7 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 		}
 		pv.Nodes = append(pv.Nodes, toNode(id, idx))
 	}
-	for _, m := range b.Architecture.AuthoredArchitecture.Mappings {
+	for _, m := range mappings {
 		if !mappingAllowed(strings.TrimSpace(m.Type), includeMappings, excludeMappings) {
 			continue
 		}
@@ -151,6 +162,56 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 	}
 
 	return sortView(pv), nil
+}
+
+// Edge types the machine transitions project to: MappingTransition runs
+// state -> state, MappingOnEvent state -> event for the event a transition
+// from the state waits for. They are view-only mapping types; authored
+// relationships cannot use them.
+const (
+	MappingTransition = "transition"
+	MappingOnEvent    = "on_event"
+)
+
+// viewMappings returns the authored relationships followed by the mappings
+// that the machine transitions project to, so the state lifecycle view is
+// driven by machines (ADR-EMG-038).
+//
+// TRLC-LINKS: REQ-EMG-139
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func viewMappings(a model.AuthoredArchitecture) []model.Mapping {
+	out := append([]model.Mapping(nil), a.Mappings...)
+	seen := map[string]bool{}
+	for _, m := range a.Machines {
+		for _, t := range m.Transitions {
+			from, to, on := strings.TrimSpace(t.From), strings.TrimSpace(t.To), strings.TrimSpace(t.On)
+			out = append(out, model.Mapping{Type: MappingTransition, From: from, To: to, Description: transitionDescription(t)})
+			if key := from + "|" + on; on != "" && !seen[key] {
+				seen[key] = true
+				out = append(out, model.Mapping{Type: MappingOnEvent, From: from, To: on})
+			}
+		}
+	}
+	return out
+}
+
+// transitionDescription renders a transition as "TR-ID on EVT [guard] / effect".
+//
+// TRLC-LINKS: REQ-EMG-139
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func transitionDescription(t model.MachineTransition) string {
+	var parts []string
+	parts = append(parts, strings.TrimSpace(t.ID))
+	if on := strings.TrimSpace(t.On); on != "" {
+		parts = append(parts, "on "+on)
+	}
+	if guard := strings.TrimSpace(t.Guard); guard != "" {
+		parts = append(parts, "["+guard+"]")
+	}
+	if effect := strings.TrimSpace(t.Effect); effect != "" {
+		parts = append(parts, "/ "+effect)
+	}
+	return strings.Join(parts, " ")
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -169,7 +230,8 @@ func buildIndex(b model.Bundle) index {
 		targets:            map[string]model.DeploymentTarget{},
 		controls:           map[string]model.Control{},
 		boundaries:         map[string]model.TrustBoundary{},
-		states:             map[string]model.State{},
+		states:             map[string]model.MachineState{},
+		machines:           map[string]model.Machine{},
 		events:             map[string]model.Event{},
 		flows:              map[string]model.Flow{},
 		threats:            map[string]model.ThreatScenario{},
@@ -214,7 +276,10 @@ func buildIndex(b model.Bundle) index {
 	for _, x := range b.Architecture.AuthoredArchitecture.TrustBoundaries {
 		idx.boundaries[x.ID] = x
 	}
-	for _, x := range b.Architecture.AuthoredArchitecture.States {
+	for _, x := range b.Architecture.AuthoredArchitecture.Machines {
+		idx.machines[x.ID] = x
+	}
+	for _, x := range b.Architecture.AuthoredArchitecture.MachineStates() {
 		idx.states[x.ID] = x
 	}
 	for _, x := range b.Architecture.AuthoredArchitecture.Events {
@@ -290,6 +355,9 @@ func toNode(id string, idx index) Node {
 	}
 	if x, ok := idx.boundaries[id]; ok {
 		return Node{ID: id, Label: nonEmpty(x.Name, id), Kind: "trust_boundary"}
+	}
+	if x, ok := idx.machines[id]; ok {
+		return Node{ID: id, Label: nonEmpty(x.Name, id), Kind: "machine"}
 	}
 	if x, ok := idx.states[id]; ok {
 		return Node{ID: id, Label: nonEmpty(x.Name, id), Kind: "state"}
@@ -380,7 +448,7 @@ func resolveViewSemantics(v model.View) (map[string]bool, map[string]bool, map[s
 			includeMappings = setFromSlice([]string{"implements", "satisfies", "verified_by", "allocated_to", "deployed_to", "depends_on"})
 			includeKinds = setFromSlice([]string{"functional_group", "functional_unit", "interface", "data_object", "deployment_target", "control", "referenced_element"})
 		case "state-lifecycle":
-			includeMappings = setFromSlice([]string{"transitions_to", "triggered_by", "guarded_by"})
+			includeMappings = setFromSlice([]string{MappingTransition, MappingOnEvent, "guarded_by"})
 			includeKinds = setFromSlice([]string{"state", "event", "control", "trust_boundary", "referenced_element"})
 		case "interaction-flow":
 			includeMappings = setFromSlice([]string{"flow_next", "flow_error", "flow_async", "flow_ref"})

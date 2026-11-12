@@ -7,7 +7,10 @@ import (
 	"strings"
 )
 
-const AuthoringContractVersion = "engineering-model.authoring.v2"
+// AuthoringContractVersion identifies the contract shape. v3 added the
+// machines guide (expression grammar, operator table, Quint workflow and
+// formal evidence semantics) and the SM, TR and INV identifier prefixes.
+const AuthoringContractVersion = "engineering-model.authoring.v3"
 
 // AuthoringContract is compact machine context for editing the canonical YAML set.
 type AuthoringContract struct {
@@ -17,6 +20,7 @@ type AuthoringContract struct {
 	Documents         []AuthoringDocument   `json:"documents"`
 	StableIdentifiers StableIdentifierGuide `json:"stableIdentifiers"`
 	Dependencies      DependencyGuide       `json:"dependencies"`
+	Machines          MachineGuide          `json:"machines"`
 	AuthoringOrder    []string              `json:"authoringOrder"`
 	Invariants        []string              `json:"invariants"`
 	Compatibility     []string              `json:"compatibility"`
@@ -36,6 +40,34 @@ type StableIdentifierGuide struct {
 	Prefixes map[string]string `json:"prefixes"`
 }
 
+// MachineGuide is the authoring contract of behavior.machines beyond the
+// field sets and diagnostics that the validation rules list: the expression
+// grammar and operator table (derived from the table the parser, validator and
+// Quint generator share), the Quint workflow and the formal evidence
+// semantics.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-MODEL-AUTHORING-CONTRACT
+type MachineGuide struct {
+	Grammar   []string             `json:"grammar"`
+	Types     []string             `json:"types"`
+	Operators []MachineOperatorDoc `json:"operators"`
+	Workflow  []string             `json:"workflow"`
+	Evidence  []string             `json:"evidence"`
+}
+
+// MachineOperatorDoc is one row of the machine expression operator table.
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-MODEL-AUTHORING-CONTRACT
+type MachineOperatorDoc struct {
+	Operator         string   `json:"operator"`
+	Syntax           string   `json:"syntax,omitempty"`
+	Form             string   `json:"form"`
+	Operands         []string `json:"operands"`
+	Variadic         bool     `json:"variadic,omitempty"`
+	SameType         bool     `json:"sameType,omitempty"`
+	Result           string   `json:"result"`
+	Precedence       int      `json:"precedence,omitempty"`
+	RightAssociative bool     `json:"rightAssociative,omitempty"`
+}
+
 type DependencyGuide struct {
 	PreferredSourceField string   `json:"preferredSourceField"`
 	SourceKinds          []string `json:"sourceKinds"`
@@ -47,7 +79,7 @@ type DependencyGuide struct {
 }
 
 // BuildAuthoringContract describes the loaded input model without copying its domain graph.
-// TRLC-LINKS: REQ-EMG-044, REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-053, REQ-EMG-094
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-053, REQ-EMG-094, REQ-EMG-148
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 	baseDir := filepath.Dir(bundle.ManifestPath)
@@ -86,6 +118,7 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 				"IF": "interface", "DO": "data object", "FLOW": "flow", "ACT": "actor",
 				"CTRL": "control", "STATE": "state", "EVT": "event", "ADR": "decision",
 				"CAP": "contract capability", "AOU": "assumption of use", "LNK": "requirement link",
+				"SM": "state machine", "TR": "machine transition", "INV": "machine invariant",
 			},
 		},
 		Dependencies: DependencyGuide{
@@ -104,6 +137,7 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 				"A dependency version is a release tag (v1.2.3) or a Go-style pseudo-version carrying the commit (v1.2.4-0.20261102103400-abcdef123456); a reqLinks pinned.version must equal it.",
 			},
 		},
+		Machines:       machineGuide(),
 		AuthoringOrder: []string{"manifest", "catalog", "requirements", "architecture", "behavior", "assurance", "compliance", "aviation", "views", "decisions", "reqLinks"},
 		Invariants: []string{
 			"Define controlled vocabulary and stable IDs before referencing them.",
@@ -131,4 +165,46 @@ func yamlTopLevelFields(value any) []string {
 		}
 	}
 	return fields
+}
+
+// machineGuide builds the machines section of the authoring contract. The
+// operator rows come from MachineOperators, so they cannot drift from the
+// parser, the validator and the Quint generator.
+// TRLC-LINKS: REQ-EMG-148
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func machineGuide() MachineGuide {
+	operators := []MachineOperatorDoc{}
+	for _, op := range MachineOperators() {
+		operands := make([]string, len(op.Operands))
+		for i, t := range op.Operands {
+			operands[i] = string(t)
+		}
+		operators = append(operators, MachineOperatorDoc{Operator: op.Name, Syntax: op.Syntax, Form: string(op.Form), Operands: operands,
+			Variadic: op.Variadic, SameType: op.SameType, Result: string(op.Result), Precedence: op.Precedence, RightAssociative: op.RightAssociative})
+	}
+	return MachineGuide{
+		Grammar: []string{
+			"A guard and an invariant (expr) are Boolean expressions; an effect is a list of assignments 'variable := expression' separated by semicolons (an optional trailing semicolon; each variable at most once per effect).",
+			"Precedence from loosest to tightest: implies (right associative), or, and, not (prefix), comparison (== != < <= > >=, non-associative), + and - (left), * (left), unary minus, primary.",
+			"A primary is an integer literal, true, false, a double-quoted string, a variable name, in_state(STATE-ID) or a parenthesized expression. Whitespace is insignificant.",
+			"The words and, or, not, implies, true, false and in_state are reserved: a variable cannot use them. An empty string literal is rejected; a string literal has no escapes in the generated Quint, so it must not contain a double quote or a line break.",
+			"Types are Integer, Boolean and String. Arithmetic and ordering need Integer operands; == and != need two operands of one type; := needs the variable's type; in_state names a state of the same machine.",
+		},
+		Types:     []string{string(MachineTypeInteger), string(MachineTypeBoolean), string(MachineTypeString)},
+		Operators: operators,
+		Workflow: []string{
+			"Author the machine in behavior.machines (see rules.fieldSets: machine, machineVariable, machineState, machineTransition, machineInvariant) and link each invariant to the requirements it protects.",
+			"engquint generate --model engmod.yml [--out dir] writes one deterministic Quint module per machine to generated/quint/ (sm_<id>.qnt); regenerate after every machine change, the artifact freshness gate fails on drift.",
+			"engquint check --model engmod.yml [--mode run|verify|both] regenerates and compares the committed modules (drift is reported as stale and runs nothing), runs quint run on each invariant (mode run; verify or both adds quint verify with Apalache) and writes generated/quint/results.json and test-results/quint-formal.json.",
+			"Quint is called with --backend=typescript; engquint never downloads a tool. Set ENGMOD_QUINT (and QUINT_HOME for verify) or put quint on PATH.",
+			"A violated invariant fails the check and prints a counterexample as the ordered transition IDs; fix the model or the invariant, regenerate and check again.",
+		},
+		Evidence: []string{
+			"test-results/quint-formal.json holds one entry per requirement an invariant is linked to: requirement, status pass or fail, machine, invariant, mode (run, verify or run+verify), qntFile and qntSha256 of the module the result was produced from.",
+			"A passing result whose qntSha256 still matches the committed module is analysis evidence for the linked requirement: the trace matrix row records the method analysis and the result passed.",
+			"A failing result makes the requirement failed (verification.failed with a lifecycle tier), never unverified.",
+			"A result whose qntSha256 differs from the module (or whose module is missing) is stale: it is no evidence, reported as verification.formal_stale (warning), and it does not downgrade a requirement that other passing evidence verifies. Rerun engquint check.",
+			"An invariant linked to no requirement produces no evidence. The Gemara evaluation log holds one requirement-keyed entry per formal result, and verification.status and verification.gaps report pass, failed or stale per requirement.",
+		},
+	}
 }

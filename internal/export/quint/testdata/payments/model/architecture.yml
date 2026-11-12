@@ -1,0 +1,6 @@
+schemaVersion: 2
+architecture:
+  functionalUnits:
+  - id: FU-PAYMENTS-AUTH
+    name: Payments Authorization
+    prose: Authorizes card payments.

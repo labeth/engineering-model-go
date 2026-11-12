@@ -366,8 +366,10 @@ func importedKindAndTitle(e engmodel.PublishedProjectionEntity) (string, string)
 		kind = "hardware_interface"
 	case model.ContractEntry:
 		kind = "contract_entry"
-	case model.State:
+	case model.MachineState:
 		kind = "state"
+	case model.Machine:
+		kind = "machine"
 	case model.Event:
 		kind = "event"
 	case model.Flow:
@@ -815,8 +817,9 @@ var authoredArchitectureDocuments = map[string][2]string{
 	"interfaces": {"architecture", "architecture.interfaces"}, "dataObjects": {"architecture", "architecture.dataObjects"},
 	"deploymentTargets": {"architecture", "architecture.deploymentTargets"}, "hardwareItems": {"architecture", "architecture.hardwareItems"},
 	"hardwareInterfaces": {"architecture", "architecture.hardwareInterfaces"},
-	"states":             {"behavior", "behavior.states"}, "events": {"behavior", "behavior.events"},
-	"flows": {"behavior", "behavior.flows"}, "mappings": {"behavior", "behavior.relationships"},
+	"events":             {"behavior", "behavior.events"},
+	"flows":              {"behavior", "behavior.flows"}, "mappings": {"behavior", "behavior.relationships"},
+	"machines":      {"behavior", "behavior.machines"},
 	"attackVectors": {"assurance", "assurance.attackVectors"}, "controls": {"assurance", "assurance.controls"},
 	"risks": {"assurance", "assurance.risks"}, "poamItems": {"assurance", "assurance.poamItems"},
 	"trustBoundaries": {"assurance", "assurance.trustBoundaries"}, "threatScenarios": {"assurance", "assurance.threatScenarios"},

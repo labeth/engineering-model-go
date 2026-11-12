@@ -79,10 +79,26 @@ jobs:
       - name: Install pinned SysML validator and Sysand
         run: scripts/install-sysml-toolchain.sh
 
+      - name: Cache pinned Quint toolchain
+        uses: actions/cache@v4
+        with:
+          path: .engmod/tooling/downloads
+          key: quint-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/quint-toolchain.env', 'scripts/install-quint-toolchain.sh', 'scripts/quint-tool/package-lock.json') }}
+
+      - name: Install pinned Quint and Apalache
+        # quint comes from the lockfile with --ignore-scripts; Apalache is a
+        # sha256-checked tarball unpacked where Quint looks for it, so `quint
+        # verify` never downloads at run time (ADR-EMG-041).
+        run: scripts/install-quint-toolchain.sh
+
       - name: Validation gauntlet
         # Enforces the generation gates (engdoc 0 errors = trace integrity, dangling
         # links, EARS, composition), zero-gap SysML coverage, official parser and
-        # native KPAR source round trip, artifact freshness, and schema validation.
+        # native KPAR source round trip, artifact freshness, formal behavior
+        # verification (engquint check: run and verify), and schema validation.
+        env:
+          ENGMOD_QUINT: ${{ github.workspace }}/.engmod/tooling/quint/node_modules/.bin/quint
+          QUINT_HOME: ${{ github.workspace }}/.engmod/tooling/quint-home
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
           scripts/validate-all.sh

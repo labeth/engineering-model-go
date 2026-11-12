@@ -204,16 +204,20 @@ func TestBundleValidation_Decisions(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
-		FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
-		FunctionalUnits:    []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
-		Actors:             []model.Actor{{ID: "ACT-A", Name: "Actor A"}},
-		AttackVectors:      []model.AttackVector{{ID: "AV-A", Name: "Attack"}},
-		Interfaces:         []model.Interface{{ID: "IF-A", Name: "API", Owner: "FU-A"}},
-		DataObjects:        []model.DataObject{{ID: "DATA-A", Name: "Payload"}},
-		DeploymentTargets:  []model.DeploymentTarget{{ID: "DEP-A", Name: "Prod"}},
-		Controls:           []model.Control{{ID: "CTRL-A", Name: "Digest Pinning"}},
-		TrustBoundaries:    []model.TrustBoundary{{ID: "TB-A", Name: "Boundary"}},
-		States:             []model.State{{ID: "STATE-A", Name: "Ready"}, {ID: "STATE-B", Name: "Applied"}},
+		FunctionalGroups:  []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+		FunctionalUnits:   []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
+		Actors:            []model.Actor{{ID: "ACT-A", Name: "Actor A"}},
+		AttackVectors:     []model.AttackVector{{ID: "AV-A", Name: "Attack"}},
+		Interfaces:        []model.Interface{{ID: "IF-A", Name: "API", Owner: "FU-A"}},
+		DataObjects:       []model.DataObject{{ID: "DATA-A", Name: "Payload"}},
+		DeploymentTargets: []model.DeploymentTarget{{ID: "DEP-A", Name: "Prod"}},
+		Controls:          []model.Control{{ID: "CTRL-A", Name: "Digest Pinning"}},
+		TrustBoundaries:   []model.TrustBoundary{{ID: "TB-A", Name: "Boundary"}},
+		Machines: []model.Machine{{
+			ID: "SM-A", Owner: "FU-A", Initial: "STATE-A",
+			States:      []model.MachineState{{ID: "STATE-A", Name: "Ready"}, {ID: "STATE-B", Name: "Applied"}},
+			Transitions: []model.MachineTransition{{ID: "TR-A", From: "STATE-A", To: "STATE-B", On: "EVT-A"}},
+		}},
 		Events:             []model.Event{{ID: "EVT-A", Name: "Deploy Requested"}},
 		ReferencedElements: []model.ReferencedElement{{ID: "REF-A", Name: "Reference", Kind: "ext", Layer: "external"}},
 		Mappings: []model.Mapping{
@@ -222,9 +226,8 @@ func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 			{Type: "deployed_to", From: "FU-A", To: "DEP-A"},
 			{Type: "mitigated_by", From: "AV-A", To: "CTRL-A"},
 			{Type: "bounded_by", From: "FU-A", To: "TB-A"},
-			{Type: "triggered_by", From: "STATE-A", To: "EVT-A"},
-			{Type: "transitions_to", From: "STATE-A", To: "STATE-B"},
 			{Type: "guarded_by", From: "STATE-B", To: "CTRL-A"},
+			{Type: "guarded_by", From: "SM-A", To: "CTRL-A"},
 		},
 	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
 

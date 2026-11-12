@@ -119,8 +119,6 @@ var allowedMappingTypes = map[string]bool{
 	"satisfies":      true,
 	"allocated_to":   true,
 	"verified_by":    true,
-	"transitions_to": true,
-	"triggered_by":   true,
 	"guarded_by":     true,
 	"deployed_to":    true,
 	"mitigated_by":   true,
@@ -142,12 +140,12 @@ var allowedViewMappingTypes = map[string]bool{
 	"satisfies":      true,
 	"allocated_to":   true,
 	"verified_by":    true,
-	"transitions_to": true,
-	"triggered_by":   true,
 	"guarded_by":     true,
 	"deployed_to":    true,
 	"mitigated_by":   true,
 	"bounded_by":     true,
+	"transition":     true,
+	"on_event":       true,
 	"flow_next":      true,
 	"flow_error":     true,
 	"flow_async":     true,
@@ -167,6 +165,7 @@ var allowedViewEntityKinds = map[string]bool{
 	"deployment_target":    true,
 	"control":              true,
 	"trust_boundary":       true,
+	"machine":              true,
 	"state":                true,
 	"event":                true,
 	"flow":                 true,
@@ -283,7 +282,7 @@ var allowedFlowFrequency = map[string]bool{
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-126, REQ-EMG-128, REQ-EMG-132, REQ-EMG-133
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-126, REQ-EMG-128, REQ-EMG-132, REQ-EMG-133, REQ-EMG-138, REQ-EMG-139
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
@@ -335,7 +334,6 @@ func Bundle(b model.Bundle) []Diagnostic {
 	deploymentTargets := map[string]bool{}
 	controls := map[string]bool{}
 	trustBoundaries := map[string]bool{}
-	states := map[string]bool{}
 	events := map[string]bool{}
 	risks := map[string]bool{}
 	threatScenarios := map[string]bool{}
@@ -436,10 +434,22 @@ func Bundle(b model.Bundle) []Diagnostic {
 			diags = append(diags, Diagnostic{Code: "model.invalid_trust_boundary_parent", Severity: SeverityError, Message: fmt.Sprintf("trust boundary %q cannot parent itself", x.ID), Path: path})
 		}
 	}
-	for i, x := range b.Architecture.AuthoredArchitecture.States {
-		addID(x.ID, fmt.Sprintf("authoredArchitecture.states[%d]", i))
-		states[x.ID] = true
-		kindByID[x.ID] = "state"
+	for i, m := range b.Architecture.AuthoredArchitecture.Machines {
+		path := fmt.Sprintf("authoredArchitecture.machines[%d]", i)
+		addID(m.ID, path)
+		kindByID[m.ID] = "machine"
+		for j, x := range m.States {
+			addID(x.ID, fmt.Sprintf("%s.states[%d]", path, j))
+			kindByID[x.ID] = "state"
+		}
+		for j, x := range m.Transitions {
+			addID(x.ID, fmt.Sprintf("%s.transitions[%d]", path, j))
+			kindByID[x.ID] = "transition"
+		}
+		for j, x := range m.Invariants {
+			addID(x.ID, fmt.Sprintf("%s.invariants[%d]", path, j))
+			kindByID[x.ID] = "invariant"
+		}
 	}
 	for i, x := range b.Architecture.AuthoredArchitecture.Events {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.events[%d]", i))
@@ -650,8 +660,13 @@ func Bundle(b model.Bundle) []Diagnostic {
 
 	for i, m := range b.Architecture.AuthoredArchitecture.Mappings {
 		path := fmt.Sprintf("authoredArchitecture.mappings[%d]", i)
+		removedStateMapping := m.Type == "transitions_to" || m.Type == "triggered_by"
 		if !allowedMappingTypes[m.Type] {
-			diags = append(diags, Diagnostic{Code: "model.unknown_mapping_type", Severity: SeverityError, Message: fmt.Sprintf("unknown mapping type %q", m.Type), Path: path})
+			message := fmt.Sprintf("unknown mapping type %q", m.Type)
+			if removedStateMapping {
+				message = fmt.Sprintf("mapping type %q %s", m.Type, model.LegacyStateRemovedMessage)
+			}
+			diags = append(diags, Diagnostic{Code: "model.unknown_mapping_type", Severity: SeverityError, Message: message, Path: path})
 		}
 		if !validID(m.From) {
 			diags = append(diags, Diagnostic{Code: "model.broken_reference", Severity: SeverityError, Message: fmt.Sprintf("mapping from %q does not exist", m.From), Path: path})
@@ -668,16 +683,10 @@ func Bundle(b model.Bundle) []Diagnostic {
 		if m.Type == "targets" && !vectors[m.From] {
 			diags = append(diags, Diagnostic{Code: "model.invalid_target", Severity: SeverityError, Message: "targets must originate from an attack vector", Path: path})
 		}
-		if m.Type == "triggered_by" && !events[m.To] {
-			diags = append(diags, Diagnostic{Code: "model.invalid_trigger", Severity: SeverityError, Message: "triggered_by must target an event", Path: path})
-		}
 		if m.Type == "guarded_by" && !(controls[m.To] || trustBoundaries[m.To] || references[m.To]) {
 			diags = append(diags, Diagnostic{Code: "model.invalid_guard", Severity: SeverityError, Message: "guarded_by must target a control, trust boundary, or referenced element", Path: path})
 		}
-		if m.Type == "transitions_to" && !(states[m.From] && states[m.To]) {
-			diags = append(diags, Diagnostic{Code: "model.invalid_transition", Severity: SeverityError, Message: "transitions_to must be state -> state", Path: path})
-		}
-		if fromKind, toKind := kindByID[m.From], kindByID[m.To]; fromKind != "" && toKind != "" && !mappingPairAllowed(m.Type, fromKind, toKind) {
+		if fromKind, toKind := kindByID[m.From], kindByID[m.To]; fromKind != "" && toKind != "" && !removedStateMapping && !mappingPairAllowed(m.Type, fromKind, toKind) {
 			diags = append(diags, Diagnostic{Code: "model.invalid_mapping_pair", Severity: SeverityError, Message: fmt.Sprintf("mapping type %q is not valid for %s -> %s", m.Type, fromKind, toKind), Path: path})
 		}
 	}
@@ -1273,7 +1282,11 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 	}
 	diags = append(diags, validateNAFProfile(b.Architecture, actors)...)
-	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics)...)
+	requirementIDs := map[string]bool{}
+	for _, requirement := range b.Requirements.Requirements {
+		requirementIDs[strings.TrimSpace(requirement.ID)] = true
+	}
+	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics, requirementIDs)...)
 	diags = append(diags, catalogNameDiagnostics(b.Catalog.Catalog)...)
 	diags = append(diags, assuranceLinkDiagnostics(b.Architecture.AuthoredArchitecture)...)
 	diags = append(diags, assuranceConsistencyDiagnostics(b.Architecture.AuthoredArchitecture)...)
@@ -1470,16 +1483,13 @@ var mappingPairs = map[string]map[string]bool{
 		"functional_unit:referenced_element": true,
 		"control:referenced_element":         true,
 	},
-	"transitions_to": {
-		"state:state": true,
-	},
-	"triggered_by": {
-		"state:event": true,
-	},
 	"guarded_by": {
-		"state:control":            true,
-		"state:trust_boundary":     true,
-		"state:referenced_element": true,
+		"state:control":              true,
+		"state:trust_boundary":       true,
+		"state:referenced_element":   true,
+		"machine:control":            true,
+		"machine:trust_boundary":     true,
+		"machine:referenced_element": true,
 	},
 	"deployed_to": {
 		"functional_unit:deployment_target": true,

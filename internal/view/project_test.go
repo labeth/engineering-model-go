@@ -48,37 +48,88 @@ func TestBuild_AppliesViewFiltersAndDepth(t *testing.T) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-003
-func TestBuild_StateLifecycleDefaults(t *testing.T) {
-	b := model.Bundle{Architecture: model.ArchitectureDocument{
+func stateLifecycleBundle(roots ...string) model.Bundle {
+	return model.Bundle{Architecture: model.ArchitectureDocument{
 		AuthoredArchitecture: model.AuthoredArchitecture{
-			States:   []model.State{{ID: "STATE-A", Name: "Ready"}, {ID: "STATE-B", Name: "Applied"}},
+			FunctionalUnits: []model.FunctionalUnit{{ID: "FU-A", Name: "Unit"}},
+			Machines: []model.Machine{{
+				ID: "SM-A", Name: "Update", Owner: "FU-A", Initial: "STATE-A",
+				Variables: []model.MachineVariable{{Name: "tries", Type: "Integer", Initial: 0}},
+				States:    []model.MachineState{{ID: "STATE-A", Name: "Ready"}, {ID: "STATE-B", Name: "Applied"}, {ID: "STATE-C", Name: "Failed"}},
+				Transitions: []model.MachineTransition{
+					{ID: "TR-A", From: "STATE-A", To: "STATE-B", On: "EVT-A", Guard: "tries < 3", Effect: "tries := tries + 1"},
+					{ID: "TR-B", From: "STATE-A", To: "STATE-C", On: "EVT-A", Guard: "tries >= 3"},
+				},
+			}},
 			Events:   []model.Event{{ID: "EVT-A", Name: "Requested"}},
 			Controls: []model.Control{{ID: "CTRL-A", Name: "Gate"}},
-			Mappings: []model.Mapping{
-				{Type: "triggered_by", From: "STATE-A", To: "EVT-A"},
-				{Type: "transitions_to", From: "STATE-A", To: "STATE-B"},
-				{Type: "guarded_by", From: "STATE-B", To: "CTRL-A"},
-			},
+			Mappings: []model.Mapping{{Type: "guarded_by", From: "STATE-B", To: "CTRL-A"}},
 		},
-		Views: []model.View{{ID: "V-STATE", Kind: "state-lifecycle", Roots: []string{"STATE-A"}}},
+		Views: []model.View{{ID: "V-STATE", Kind: "state-lifecycle", Roots: roots}},
 	}}
+}
 
-	v, diags := Build(b, "V-STATE")
+// The state lifecycle view is driven by machines: every transition is a
+// "transition" edge between its states with the transition ID, event, guard
+// and effect in the label, the event a state waits for is an "on_event"
+// edge (once per state and event), and guarded_by edges stay.
+// Mutation: dropping the machine mappings from the view leaves no edges.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-139
+func TestBuild_StateLifecycleDefaults(t *testing.T) {
+	v, diags := Build(stateLifecycleBundle("STATE-A"), "V-STATE")
 	if len(diags) > 0 {
 		t.Fatalf("unexpected diagnostics: %+v", diags)
 	}
-	if len(v.Edges) != 3 {
-		t.Fatalf("expected 3 lifecycle edges, got %d", len(v.Edges))
-	}
-	hasTransition := false
+	type edge struct{ from, to, typ string }
+	got := map[edge]string{}
 	for _, e := range v.Edges {
-		if e.Type == "transitions_to" {
-			hasTransition = true
+		got[edge{e.From, e.To, e.Type}] = e.Label
+	}
+	want := map[edge]string{
+		{"STATE-A", "STATE-B", "transition"}: "transition: TR-A on EVT-A [tries < 3] / tries := tries + 1",
+		{"STATE-A", "STATE-C", "transition"}: "transition: TR-B on EVT-A [tries >= 3]",
+		{"STATE-A", "EVT-A", "on_event"}:     "on_event",
+		{"STATE-B", "CTRL-A", "guarded_by"}:  "guarded_by",
+	}
+	if len(v.Edges) != len(want) {
+		t.Fatalf("want %d lifecycle edges, got %d: %+v", len(want), len(v.Edges), v.Edges)
+	}
+	for e, label := range want {
+		if got[e] != label {
+			t.Fatalf("edge %+v label = %q, want %q (all: %+v)", e, got[e], label, got)
 		}
 	}
-	if !hasTransition {
-		t.Fatalf("expected transitions_to edge in lifecycle view")
+	kinds := map[string]string{}
+	for _, n := range v.Nodes {
+		kinds[n.ID] = n.Kind
+	}
+	for id, kind := range map[string]string{"STATE-A": "state", "STATE-B": "state", "STATE-C": "state", "EVT-A": "event", "CTRL-A": "control"} {
+		if kinds[id] != kind {
+			t.Fatalf("node %s kind = %q, want %q (all: %+v)", id, kinds[id], kind, kinds)
+		}
+	}
+	if _, ok := kinds["SM-A"]; ok {
+		t.Fatalf("the machine itself is not a lifecycle node: %+v", v.Nodes)
+	}
+}
+
+// A machine ID as view root selects all of its states, so a view needs no
+// list of state IDs.
+// Mutation: not expanding a machine root yields an empty view.
+// TRLC-LINKS: REQ-EMG-139
+func TestBuild_StateLifecycleMachineRootExpandsToStates(t *testing.T) {
+	v, diags := Build(stateLifecycleBundle("SM-A"), "V-STATE")
+	if len(diags) > 0 {
+		t.Fatalf("unexpected diagnostics: %+v", diags)
+	}
+	states := 0
+	for _, n := range v.Nodes {
+		if n.Kind == "state" {
+			states++
+		}
+	}
+	if states != 3 || len(v.Edges) != 4 {
+		t.Fatalf("machine root must project 3 states and 4 edges, got %d states, edges %+v", states, v.Edges)
 	}
 }
 

@@ -1,0 +1,48 @@
+schemaVersion: 2
+behavior:
+  machines:
+  - id: SM-PAYMENTS-AUTH
+    name: Payment authorization
+    owner: FU-PAYMENTS-AUTH
+    initial: STATE-PAYMENTS-IDLE
+    variables:
+    - name: attempts
+      type: Integer
+      initial: 0
+    states:
+    - id: STATE-PAYMENTS-IDLE
+      name: Idle
+    - id: STATE-PAYMENTS-AUTHORIZING
+      name: Authorizing
+    - id: STATE-PAYMENTS-AUTHORIZED
+      name: Authorized
+      final: true
+    - id: STATE-PAYMENTS-DECLINED
+      name: Declined
+      final: true
+    transitions:
+    - id: TR-PAYMENTS-001
+      from: STATE-PAYMENTS-IDLE
+      to: STATE-PAYMENTS-AUTHORIZING
+      on: EVT-PAYMENTS-AUTH-REQUESTED
+      guard: attempts < 3
+      effect: attempts := attempts + 1
+    - id: TR-PAYMENTS-002
+      from: STATE-PAYMENTS-AUTHORIZING
+      to: STATE-PAYMENTS-AUTHORIZED
+      on: EVT-PAYMENTS-AUTH-GRANTED
+    - id: TR-PAYMENTS-003
+      from: STATE-PAYMENTS-AUTHORIZING
+      to: STATE-PAYMENTS-IDLE
+      guard: attempts < 3
+    - id: TR-PAYMENTS-004
+      from: STATE-PAYMENTS-AUTHORIZING
+      to: STATE-PAYMENTS-DECLINED
+      guard: attempts >= 3
+    invariants:
+    - id: INV-PAYMENTS-001
+      requirements: [REQ-PAYMENTS-001]
+      expr: attempts >= 0 and attempts <= 3
+    - id: INV-PAYMENTS-002
+      requirements: [REQ-PAYMENTS-001, REQ-PAYMENTS-002]
+      expr: in_state(STATE-PAYMENTS-AUTHORIZED) implies attempts > 0

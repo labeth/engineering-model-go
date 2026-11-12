@@ -203,7 +203,6 @@ package model
 	members?:      #StringList
 }
 
-#State: #Actor
 #Event: #Actor
 
 #FlowStep: {
@@ -349,7 +348,6 @@ package model
 	risks?: [...#Risk]
 	poamItems?: [...#POAMItem]
 	trustBoundaries?: [...#TrustBoundary]
-	states?: [...#State]
 	events?: [...#Event]
 	flows?: [...#Flow]
 	threatScenarios?: [...#ThreatScenario]

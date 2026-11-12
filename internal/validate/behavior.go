@@ -9,35 +9,27 @@ import (
 )
 
 // behaviorDiagnostics reports behavior that is declared but not wired, as
-// warnings:
+// warnings, and validates the machines (machineDiagnostics):
 //
-//   - behavior.event_unused: an authored behavior event that no triggered_by
-//     relationship targets, no semantic transition lists as a trigger and no
+//   - behavior.event_unused: an authored behavior event that no machine
+//     transition names in on, no semantic transition lists as a trigger and no
 //     semantic relationship, flow or flow step references. Catalog-only events
 //     are EARS vocabulary and are covered by catalog.term_unreferenced.
-//   - behavior.state_unreachable: in a model with at least one transition
-//     (transitions_to relationship or semantic transition), an authored state
-//     other than the first declared state that no transition enters. The
-//     schema has no initial-state marker, so the first declared state is the
-//     initial state; without any transition nothing is reported.
+//   - behavior.state_unreachable: a machine state that no path of transitions
+//     leads to from the machine's initial state.
 //   - behavior.flow_step_no_onerror: a flow step with boundaryCrossing: true
 //     and no onError target.
 //
 // Imported alias::ID entities belong to their own model and are skipped.
-// TRLC-LINKS: REQ-EMG-070
+// requirements holds the IDs of the model's requirements, for invariant links.
+// TRLC-LINKS: REQ-EMG-070, REQ-EMG-138, REQ-EMG-140
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
-func behaviorDiagnostics(a model.AuthoredArchitecture, semantics model.SemanticContent) []Diagnostic {
+func behaviorDiagnostics(a model.AuthoredArchitecture, semantics model.SemanticContent, requirements map[string]bool) []Diagnostic {
 	var diags []Diagnostic
 	usedEvents := map[string]bool{}
-	entered := map[string]bool{}
-	transitions := 0
-	for _, m := range a.Mappings {
-		switch strings.TrimSpace(m.Type) {
-		case "triggered_by":
-			usedEvents[strings.TrimSpace(m.To)] = true
-		case "transitions_to":
-			transitions++
-			entered[strings.TrimSpace(m.To)] = true
+	for _, m := range a.Machines {
+		for _, t := range m.Transitions {
+			usedEvents[strings.TrimSpace(t.On)] = true
 		}
 	}
 	for _, r := range semantics.Relationships {
@@ -45,10 +37,6 @@ func behaviorDiagnostics(a model.AuthoredArchitecture, semantics model.SemanticC
 		usedEvents[strings.TrimSpace(r.Target)] = true
 		for _, trigger := range r.Triggers {
 			usedEvents[strings.TrimSpace(trigger)] = true
-		}
-		if r.Kind == model.RelationshipTransition {
-			transitions++
-			entered[strings.TrimSpace(r.Target)] = true
 		}
 	}
 	for _, f := range a.Flows {
@@ -67,28 +55,8 @@ func behaviorDiagnostics(a model.AuthoredArchitecture, semantics model.SemanticC
 			continue
 		}
 		diags = append(diags, Diagnostic{Code: "behavior.event_unused", Severity: SeverityWarning,
-			Message: fmt.Sprintf("event %q is in no triggered_by relationship, transition trigger or flow; add the state that handles it (triggered_by), the transition it causes (a semantic transition trigger) or remove the event", id),
+			Message: fmt.Sprintf("event %q is in no machine transition (on), semantic transition trigger or flow; name it in the on of the machine transition it causes or remove the event", id),
 			Path:    fmt.Sprintf("authoredArchitecture.events[%d]", i)})
-	}
-
-	if transitions > 0 {
-		initial := true
-		for i, s := range a.States {
-			id := strings.TrimSpace(s.ID)
-			if id == "" || strings.Contains(id, "::") {
-				continue
-			}
-			if initial {
-				initial = false
-				continue
-			}
-			if entered[id] {
-				continue
-			}
-			diags = append(diags, Diagnostic{Code: "behavior.state_unreachable", Severity: SeverityWarning,
-				Message: fmt.Sprintf("state %q is the target of no transition and is not the initial (first declared) state; add a transitions_to into it", id),
-				Path:    fmt.Sprintf("authoredArchitecture.states[%d]", i)})
-		}
 	}
 
 	for i, f := range a.Flows {
@@ -101,5 +69,5 @@ func behaviorDiagnostics(a model.AuthoredArchitecture, semantics model.SemanticC
 				Path:    fmt.Sprintf("authoredArchitecture.flows[%d].steps[%d].onError", i, j)})
 		}
 	}
-	return diags
+	return append(diags, machineDiagnostics(a, requirements)...)
 }

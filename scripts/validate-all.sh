@@ -12,12 +12,18 @@
 #      bit-for-bit.
 #   6. Authoritative format validation for AsciiDoc, Mermaid, Structurizr,
 #      SysML, TRLC, LOBSTER, OSCAL, Gemara, Threat Dragon, Open OTM, JSON, CSV.
+#   7. Formal behavior verification: engquint generate/check --mode both for
+#      every model with behavior machines (no machines, nothing to check).
 #
 # External validation may only be skipped locally by explicitly setting the
-# relevant ENGMOD_*_SKIP_EXTERNAL flag. CI installs and requires pinned tools.
+# relevant ENGMOD_*_SKIP_EXTERNAL flag (ENGMOD_QUINT_SKIP_EXTERNAL=1 for the
+# Quint checks). CI installs and requires pinned tools.
 set -uo pipefail
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
+
+# shellcheck source=quint-models.sh
+source "$repo_root/scripts/quint-models.sh"
 
 fail=0
 section() { printf '\n========== %s ==========\n' "$*"; }
@@ -96,6 +102,36 @@ go run ./cmd/engoscal --model engmod.yml --requirements model/requirements.yml \
   --ar-out generated/compliance/OSCAL-ASSESSMENT-RESULTS.json \
   --ap-href ./ASSESSMENT-PLAN.json \
   --last-modified 2026-09-19T00:00:00Z >/dev/null
+
+section "Formal behavior verification (Quint)"
+quint_manifests=()
+while IFS= read -r manifest; do quint_manifests+=("$manifest"); done < <(quint_models .)
+if [ "${#quint_manifests[@]}" -eq 0 ]; then
+  echo "  ok   no model has behavior machines; nothing to generate or check"
+else
+  for manifest in "${quint_manifests[@]}"; do
+    if go run ./cmd/engquint generate --model "$manifest" >"$log_dir/quint-generate.log" 2>&1; then
+      echo "  ok   engquint generate $manifest"
+    else
+      echo "  FAIL engquint generate $manifest"; tail -10 "$log_dir/quint-generate.log" | sed 's/^/         /'; fail=1
+    fi
+  done
+  if [ "${ENGMOD_QUINT_SKIP_EXTERNAL:-0}" = "1" ]; then
+    echo "  skip engquint check: external Quint validation explicitly disabled (ENGMOD_QUINT_SKIP_EXTERNAL=1)"
+  elif [ -z "${ENGMOD_QUINT:-}" ] || [ ! -x "$ENGMOD_QUINT" ]; then
+    echo "  FAIL engquint check needs ENGMOD_QUINT=<quint executable> (scripts/install-quint-toolchain.sh)"; fail=1
+  elif [ -z "${QUINT_HOME:-}" ] || ! command -v java >/dev/null 2>&1; then
+    echo "  FAIL engquint check --mode both needs QUINT_HOME (pinned Apalache) and Java 21 on PATH (scripts/install-quint-toolchain.sh)"; fail=1
+  else
+    for manifest in "${quint_manifests[@]}"; do
+      if go run ./cmd/engquint check --model "$manifest" --mode both >"$log_dir/quint-check.log" 2>&1; then
+        echo "  ok   engquint check $manifest"
+      else
+        echo "  FAIL engquint check $manifest"; tail -25 "$log_dir/quint-check.log" | sed 's/^/         /'; fail=1
+      fi
+    done
+  fi
+fi
 
 section "SysML v2 official parser and KPAR round trip"
 if bash scripts/validate-sysml.sh; then

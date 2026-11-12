@@ -161,8 +161,9 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		Interfaces: input.Interfaces, DataObjects: input.DataObjects,
 		DeploymentTargets: input.DeploymentTargets, HardwareItems: input.HardwareItems,
 		HardwareInterfaces: input.HardwareInterfaces,
-		States:             behavior.Behavior.States, Events: behavior.Behavior.Events,
-		Flows: behavior.Behavior.Flows, Mappings: behavior.Behavior.Relationships,
+		Events:             behavior.Behavior.Events,
+		Flows:              behavior.Behavior.Flows, Mappings: behavior.Behavior.Relationships,
+		Machines:      behavior.Behavior.Machines,
 		AttackVectors: assurance.Assurance.AttackVectors, Controls: assurance.Assurance.Controls,
 		Risks: assurance.Assurance.Risks, POAMItems: assurance.Assurance.POAMItems,
 		TrustBoundaries:      assurance.Assurance.TrustBoundaries,
@@ -262,11 +263,14 @@ func LoadDesign(path string) (DesignDocument, error) {
 	return DesignDocument{SchemaVersion: views.SchemaVersion, Design: views.Design}, nil
 }
 
-// TRLC-LINKS: REQ-EMG-001
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-139
 func decodeYAMLFile(path string, out any) error {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("read %s: %w", path, err)
+	}
+	if err := rejectLegacyStateVocabulary(path, b, out); err != nil {
+		return err
 	}
 	if err := validateCanonicalYAML(path, b, out); err != nil {
 		return fmt.Errorf("validate %s: %w", path, err)

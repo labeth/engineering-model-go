@@ -43,6 +43,10 @@ var layerRules = map[string][]string{
 	"internal/generate":            {"internal/codescan", "internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view", "internal/render/*"},
 	"internal/export/*": {"internal/export/*", "internal/codescan", "internal/composition", "internal/codemap", "internal/model",
 		"internal/validate", "internal/textutil", "internal/view", "internal/sysmlmetamodel"},
+	// The Quint check runner builds on the Quint generator and the shared tool
+	// lookup only; it reads no trace or scan package (the evidence file is the
+	// contract with internal/codescan, which must not import internal/export).
+	"internal/export/quint/check": {"internal/export/quint", "internal/export/exportutil", "internal/model"},
 	"internal/asciidoc": {"internal/export/*", "internal/generate", "internal/reqlint", "internal/trace", "internal/reqlinks", "internal/codescan",
 		"internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view",
 		"internal/render/*"},

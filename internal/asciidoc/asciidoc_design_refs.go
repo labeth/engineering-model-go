@@ -128,7 +128,10 @@ func buildLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	for _, x := range a.TrustBoundaries {
 		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
-	for _, x := range a.States {
+	for _, m := range a.Machines {
+		out[m.ID] = textutil.NonEmpty(m.Name, m.ID)
+	}
+	for _, x := range a.MachineStates() {
 		out[x.ID] = textutil.NonEmpty(x.Name, x.ID)
 	}
 	for _, x := range a.Events {
@@ -214,7 +217,10 @@ func buildReferenceIndex(bundle model.Bundle, requirements model.RequirementsDoc
 	for _, x := range bundle.Architecture.AuthoredArchitecture.TrustBoundaries {
 		addAuthored("idx-tb", "Trust Boundary", x.ID, textutil.NonEmpty(x.Name, x.ID), textutil.NonEmpty(strings.TrimSpace(x.Description), "n/a"))
 	}
-	for _, x := range bundle.Architecture.AuthoredArchitecture.States {
+	for _, m := range bundle.Architecture.AuthoredArchitecture.Machines {
+		addAuthored("idx-machine", "Machine", m.ID, textutil.NonEmpty(m.Name, m.ID), fmt.Sprintf("owner=%s; initial=%s; states=%d; transitions=%d", textutil.NonEmpty(strings.TrimSpace(m.Owner), "n/a"), textutil.NonEmpty(strings.TrimSpace(m.Initial), "n/a"), len(m.States), len(m.Transitions)))
+	}
+	for _, x := range bundle.Architecture.AuthoredArchitecture.MachineStates() {
 		addAuthored("idx-state", "State", x.ID, textutil.NonEmpty(x.Name, x.ID), textutil.NonEmpty(strings.TrimSpace(x.Description), "n/a"))
 	}
 	for _, x := range bundle.Architecture.AuthoredArchitecture.Events {

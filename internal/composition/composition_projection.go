@@ -327,10 +327,9 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 		case model.ContractAssumption:
 			value.ID = q
 			bundle.Architecture.Contract.Assumptions = append(bundle.Architecture.Contract.Assumptions, value)
-		case model.State:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.States = append(bundle.Architecture.AuthoredArchitecture.States, value)
-			bundle.Behavior.Behavior.States = append(bundle.Behavior.Behavior.States, value)
+		case model.MachineState, model.Machine:
+			// A machine is not merged into the importing model: its states,
+			// transitions and expressions belong to the publishing model.
 		case model.Event:
 			value.ID = q
 			bundle.Architecture.AuthoredArchitecture.Events = append(bundle.Architecture.AuthoredArchitecture.Events, value)

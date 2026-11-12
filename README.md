@@ -286,8 +286,9 @@ Expanded mapping relation vocabulary includes:
 - Base: `contains`, `depends_on`, `interacts_with`, `targets`
 - Communication/data: `calls`, `publishes`, `subscribes`, `reads`, `writes`, `streams`
 - Traceability/deployment: `implements`, `satisfies`, `allocated_to`, `verified_by`, `deployed_to`
-- Security/lifecycle: `mitigated_by`, `bounded_by`, `transitions_to`, `triggered_by`, `guarded_by`
+- Security/guards: `mitigated_by`, `bounded_by`, `guarded_by` (a machine or machine state is protected by a control, trust boundary or referenced element)
 - Flow projection (view-only): `flow_next`, `flow_error`, `flow_async`, `flow_ref`
+- State lifecycle projection (view-only): `transition` (state to state, label `TR-ID on EVT [guard] / effect`), `on_event` (state to the event a transition from it waits for)
 
 `bounded_by` links a functional unit, deployment target, interface, actor, hardware item or data object to a trust boundary. Default security views retain these member kinds. Membership describes the modeled boundary; it does not establish authentication or enforcement. Author an explicit relationship when it should appear in the projected view.
 
@@ -314,8 +315,17 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 
 | Code | Reported at | Rule |
 | --- | --- | --- |
-| `behavior.event_unused` | `authoredArchitecture.events[i]` | a behavior event no `triggered_by` relationship targets, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references |
-| `behavior.state_unreachable` | `authoredArchitecture.states[i]` | with at least one transition in the model, a state other than the first declared one (the initial state; the schema has no initial marker) that no `transitions_to` or semantic transition enters |
+| `behavior.event_unused` | `authoredArchitecture.events[i]` | a behavior event no machine transition names in `on`, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references |
+| `behavior.state_unreachable` | `authoredArchitecture.machines[i].states[j]` | a machine state that no path of transitions leads to from the machine's `initial` state |
+| `behavior.machine_deadlock` | `authoredArchitecture.machines[i].states[j]` | a state that is not `final: true` and has no outgoing transition |
+| `behavior.transition_nondeterministic` | `authoredArchitecture.machines[i].transitions[j]` | the transition leaves a state on the same `on` event (or both have none) as an earlier transition and neither has a guard or both have the same guard |
+| `behavior.transition_no_trigger` | `authoredArchitecture.machines[i].transitions[j]` | a transition with neither `on` nor `guard` |
+| `behavior.invariant_unlinked` | `authoredArchitecture.machines[i].invariants[j].requirements` | an invariant that lists no existing `REQ-*` |
+| `behavior.transition_unknown_event` (error) | `…machines[i].transitions[j].on` | `on` names no `behavior.events` entry |
+| `behavior.expression_unknown_variable` (error) | `…transitions[j].guard`, `.effect`, `…invariants[k].expr` | the expression reads or assigns a variable the machine does not declare |
+| `behavior.expression_type` (error) | `…transitions[j].guard`, `.effect`, `…invariants[k].expr` | an operand or result type the operator table rejects: a guard or invariant that is not Boolean, `<`, `<=`, `>`, `>=`, `+`, `-`, `*` on a non-Integer, `==` or `!=` on different types, `and`, `or`, `not`, `implies` on a non-Boolean, or `:=` of a value whose type is not the variable's |
+| `behavior.in_state_foreign` (error) | `…transitions[j].guard`, `…invariants[k].expr` | `in_state(STATE-…)` names a state of another machine or no state |
+| `behavior.final_state_has_transitions` (error) | `…machines[i].transitions[j].from` | a transition leaves a `final: true` state |
 | `behavior.flow_step_no_onerror` | `authoredArchitecture.flows[i].steps[j].onError` | a step with `boundaryCrossing: true` and no `onError` |
 | `catalog.name_has_operator` | `catalog.<group>[i].name` or `.aliases[j]` | an actor, event, state, feature, mode, condition or data term name or alias with a standalone `and`, `or`, `not`, a comma or a parenthesis, which the EARS clause parser reads as operators |
 | `verification.status_stale` | `…controlVerifications[i].status`, `…threatMitigations[i].status` | the referenced tests exist but the status still says they have not run (see above); reported by `engdoc` and `engtrace` |
@@ -333,9 +343,41 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `threat.attack_vector_missing` | `…threatScenarios[i].attackVectorRef` | the scenario names no attack vector while other threat scenarios of the model name theirs |
 | `gemara.control_needs_review` | `…controls[i]` | the Gemara evaluation log marks the control Needs Review: no control verification names it (the message names another control's verification when that is its only evidence), or its verifications need review (for example `partial`) and none failed |
 
-`triggered_by` (state → event) means the event is handled within the state. The event that
-enters a state belongs to a `transitions_to`, in its description or structurally as an
-`architecture.semantics.relationships` entry with `kind: transition` and `triggers: [EVT-…]`.
+State behavior is modeled with `behavior.machines` only (v0.11.0, ADR-EMG-037, ADR-EMG-038).
+Every state belongs to one machine and keeps its `STATE-*` ID. The three advisory machine rows
+above (`machine_deadlock`, `transition_nondeterministic`, `transition_no_trigger`,
+`invariant_unlinked`) and `state_unreachable` follow the hygiene row of the tier table; the
+structural errors marked (error) are errors at every tier. A missing, unresolved or repeated
+initial state and expression syntax errors are reported by projection as
+`semantic.invalid_machine` and `semantic.invalid_expression`. A `behavior.states` list and the
+relationship types `transitions_to` and `triggered_by` are rejected when the model loads (see the
+changelog for the rewrite):
+
+```yaml
+behavior:
+  events:
+    - {id: EVT-PAY-REQUESTED, name: Payment requested}
+  machines:
+    - id: SM-PAYMENT
+      owner: FU-PAYMENTS
+      initial: STATE-PAY-IDLE
+      variables:
+        - {name: attempts, type: Integer, initial: 0}
+      states:
+        - {id: STATE-PAY-IDLE, name: Idle}
+        - {id: STATE-PAY-AUTH, name: Authorizing}
+        - {id: STATE-PAY-DONE, name: Done, final: true}
+      transitions:
+        - {id: TR-PAY-START, from: STATE-PAY-IDLE, to: STATE-PAY-AUTH, on: EVT-PAY-REQUESTED, guard: "attempts < 3", effect: "attempts := attempts + 1"}
+        - {id: TR-PAY-FINISH, from: STATE-PAY-AUTH, to: STATE-PAY-DONE, on: EVT-PAY-REQUESTED, guard: "attempts >= 3"}
+      invariants:
+        - {id: INV-PAY-BOUND, requirements: [REQ-PAY-001], expr: "attempts <= 3"}
+  relationships:
+    - {type: guarded_by, from: STATE-PAY-AUTH, to: CTRL-PAY-GATE}
+```
+
+A `state-lifecycle` view is driven by machines: a machine ID as root selects all of its states,
+its transitions are `transition` edges and the events they wait for `on_event` edges.
 
 ### Code trace markers
 
@@ -721,6 +763,56 @@ Additional export/validation docs:
 - TRLC requirements export and validation: `docs/trlc-export-testing.md`
 - TRLC + LOBSTER traceability report pipeline: `docs/lobster-traceability.md`
 
+## Formal behavior verification (engquint)
+
+`engquint` projects each behavior machine (`behavior.machines`) to a deterministic Quint
+module and checks its invariants (ADR-EMG-040, ADR-EMG-041, ADR-EMG-042). A model without
+machines produces nothing and `engquint check` prints "no machines" and exits 0.
+
+```bash
+go run ./cmd/engquint generate --model engmod.yml          # writes generated/quint/<machine>.qnt
+go run ./cmd/engquint check    --model engmod.yml          # quint run, once per invariant
+go run ./cmd/engquint check    --model engmod.yml --mode both   # also quint verify (Apalache)
+```
+
+`check` flags: `--mode run|verify|both` (default `run`), `--quint path`, `--quint-home dir`,
+`--max-steps N` (20), `--max-samples M` (10000), `--seed S` (`1`), `--verify-steps N` (10),
+`--out dir` (committed modules, default `generated/quint`), `--results path`,
+`--evidence path` and `--no-evidence`. Exit codes: 0 everything passed (warnings allowed);
+1 a violated invariant, a stale (drifted) module, a vacuous or erroring run or a type error;
+2 a setup error (missing quint, missing Apalache or Java 21 in verify mode, model that does
+not load). The report names the violated invariant with its requirements and the
+counterexample as the ordered transitions, for example
+`INV-PAYMENTS-001 violated: TR-PAYMENTS-001 -> TR-PAYMENTS-003 -> TR-PAYMENTS-001`.
+
+- Tools: `ENGMOD_QUINT` names the quint executable (else `quint` on `PATH`); `QUINT_HOME`
+  names the directory with the pinned Apalache for verify mode. `engquint` never downloads a
+  tool. `scripts/install-quint-toolchain.sh` installs the pinned Quint (npm 0.33.1) under
+  `.engmod/tooling/quint` and Apalache 0.62.4 (sha256-checked) under
+  `.engmod/tooling/quint-home/apalache-dist-0.62.4`; verify mode also needs Java 21 or later
+  on `PATH`. Run mode needs neither.
+- `quint run` always uses `--backend=typescript`: the default Rust backend downloads its
+  binary at run time. Verify mode switches Apalache's deadlock check off (a machine with a
+  final state has no enabled transition there); a machine that deadlocks in its initial state
+  is a `deadlock` warning in run mode, and a trace of length zero is an error because it
+  checks nothing. A state no trace reaches is an `unreachable state` warning.
+- Drift is stale: `check` compares a fresh in-memory generation with the committed modules;
+  any changed, missing or extra generated module fails the check, nothing runs for it and no
+  evidence is written for it. Regenerate with `engquint generate` and commit.
+- `generated/quint/results.json` records, per module, the sha256 of the `.qnt`, the Quint
+  version, backend, mode, bounds and seed, and per invariant the run and verify verdicts,
+  trace statistics and the counterexample. It holds no timings or timestamps, so identical
+  inputs give identical bytes.
+- `test-results/quint-formal.json` is the evidence the trace reads: one entry per
+  requirement of an invariant (`pass`, or `fail` for a violated invariant) with
+  `method: analysis`, `kind: formal` and the `qntFile` and `qntSha256` it was produced from.
+  Modules with drift or an error contribute no entry. When the code scan reads it, a
+  result whose module no longer hashes to `qntSha256` is stale: it counts as no evidence and
+  yields the warning `verification.formal_stale`.
+- `scripts/generate-examples.sh` runs `engquint generate` and `scripts/validate-all.sh`
+  runs `generate` and `check --mode both` for every model that has machines (set
+  `ENGMOD_QUINT_SKIP_EXTERNAL=1` to skip the check locally; CI installs the pinned tools).
+
 ## Life-cycle tier
 
 A module may declare its life-cycle tier in `engmod.yml` (v0.10.0, ADR-EMG-031). The tier is the
@@ -735,8 +827,9 @@ lifecycle:
   raise: [behavior.*]                # codes raised to error regardless of tier; never lowers
 ```
 
-Without `lifecycle` every diagnostic, document and trace matrix is byte-identical to v0.9.0
-(`TestNoLifecycleGoldenOverExamples`, `scripts/lifecycle-golden-self.sh`). With it, every public
+Without `lifecycle` the diagnostics, documents and trace matrices of a model do not depend on the tier
+(`TestNoLifecycleGoldenOverExamples` pins them for every example; the v0.11.0 golden was regenerated
+for the machines rewrite, ADR-EMG-045). With it, every public
 entry (`ValidateBundle`, `GenerateAsciiDoc`, the trace builders, `engws check`, MCP) applies
 `ApplyTierPolicy` once to its merged diagnostics:
 
@@ -794,7 +887,11 @@ with `requirementLinks: strict`):
 | `aviation.tool.incomplete_credit_assessment` | D | D | W | E | E |
 | `behavior.event_unused` | D | D | W | W | E |
 | `behavior.flow_step_no_onerror` | D | D | W | W | E |
+| `behavior.invariant_unlinked` | D | D | W | W | E |
+| `behavior.machine_deadlock` | D | D | W | W | E |
 | `behavior.state_unreachable` | D | D | W | W | E |
+| `behavior.transition_no_trigger` | D | D | W | W | E |
+| `behavior.transition_nondeterministic` | D | D | W | W | E |
 | `code.invalid_trlc_link` | W | W | W | E | E |
 | `code.missing_trlc_link` | W | W | W | E | E |
 | `code.scan_failed` | W | W | W | E | E |
@@ -1208,7 +1305,7 @@ Core files:
 ├── layering_test.go            the package import direction below holds
 ├── cmd/                        command-line tools (engdoc, engview, engtrace, engchange, engspec,
 │                               enggemara, engoscal, engsysml, engstruct, engdragon, engnaf,
-│                               engtrlc, englobster, engair, engmcp, engws, sysmlmetamodel)
+│                               engtrlc, englobster, engair, engquint, engmcp, engws, sysmlmetamodel)
 ├── internal/
 │   ├── model/                  model types, loader, canonical bundle, embedded CUE schema (schema/)
 │   ├── validate/               diagnostics and bundle validation rules

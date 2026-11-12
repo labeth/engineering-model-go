@@ -99,4 +99,13 @@ go run ./cmd/engtrace --model "$coffee_six_view/engmod.yml" \
 go run ./cmd/engview --model "$coffee_six_view/engmod.yml" --out-dir "$coffee_six_view/generated"
 go run ./cmd/engsysml --model "$coffee_six_view/engmod.yml" --out "$coffee_six_view/generated/ARCHITECTURE.sysml"
 
+# Quint modules of behavior machines (generated/quint next to each manifest). A
+# model without machines produces nothing; the modules are part of the artifact
+# freshness gate.
+# shellcheck source=quint-models.sh
+source scripts/quint-models.sh
+while IFS= read -r manifest; do
+  go run ./cmd/engquint generate --model "$manifest"
+done < <(quint_models .)
+
 examples/atlas-industries/generate.sh

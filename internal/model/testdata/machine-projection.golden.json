@@ -1,0 +1,754 @@
+{
+  "elements": [
+    {
+      "id": "INV-PAY-001",
+      "name": "INV-PAY-001",
+      "kind": "constraint_usage",
+      "metaclass": "SysML::ConstraintUsage",
+      "properties": {
+        "declaredName": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "INV-PAY-001"
+            }
+          ]
+        },
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "INV-PAY-001"
+            }
+          ]
+        },
+        "owner": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "SM-PAY"
+            }
+          ],
+          "derived": true
+        },
+        "owningNamespace": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "MODEL-A"
+            }
+          ],
+          "derived": true
+        }
+      },
+      "namespace": "MODEL-A",
+      "owner": "SM-PAY",
+      "references": [
+        "REQ-A"
+      ],
+      "features": [
+        {
+          "name": "result",
+          "kind": "attribute",
+          "type": "Boolean",
+          "value": {
+            "kind": "operator",
+            "operator": "\u003c=",
+            "operands": [
+              {
+                "kind": "variable",
+                "value": "attempts"
+              },
+              {
+                "kind": "literal",
+                "typedValue": {
+                  "kind": "integer",
+                  "integer": 3
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.machine_invariant",
+          "target": "INV-PAY-001",
+          "properties": {
+            "description": {
+              "kind": "string",
+              "string": "Bounded"
+            },
+            "expr": {
+              "kind": "string",
+              "string": "attempts \u003c= 3"
+            },
+            "id": {
+              "kind": "string",
+              "string": "INV-PAY-001"
+            },
+            "requirements": {
+              "kind": "list",
+              "list": [
+                {
+                  "kind": "string",
+                  "string": "REQ-A"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "extensionNamespace": "engineering",
+      "extension": "engineering.machine_invariant"
+    },
+    {
+      "id": "SM-PAY",
+      "name": "Payment authorization",
+      "kind": "state_definition",
+      "metaclass": "SysML::StateDefinition",
+      "properties": {
+        "declaredName": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "Payment authorization"
+            }
+          ]
+        },
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "SM-PAY"
+            }
+          ]
+        },
+        "owner": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "FU-A"
+            }
+          ],
+          "derived": true
+        },
+        "owningNamespace": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "MODEL-A"
+            }
+          ],
+          "derived": true
+        }
+      },
+      "namespace": "MODEL-A",
+      "owner": "FU-A",
+      "features": [
+        {
+          "name": "attempts",
+          "kind": "attribute",
+          "type": "Integer",
+          "value": {
+            "kind": "literal",
+            "typedValue": {
+              "kind": "integer",
+              "integer": 0
+            }
+          }
+        },
+        {
+          "name": "approved",
+          "kind": "attribute",
+          "type": "Boolean",
+          "value": {
+            "kind": "literal",
+            "typedValue": {
+              "kind": "boolean",
+              "boolean": false
+            }
+          }
+        },
+        {
+          "name": "reason",
+          "kind": "attribute",
+          "type": "String",
+          "value": {
+            "kind": "literal",
+            "typedValue": {
+              "kind": "string",
+              "string": "none"
+            }
+          }
+        }
+      ],
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.machine",
+          "target": "SM-PAY",
+          "properties": {
+            "description": {
+              "kind": "string",
+              "string": "Authorizes a payment."
+            },
+            "id": {
+              "kind": "string",
+              "string": "SM-PAY"
+            },
+            "initial": {
+              "kind": "string",
+              "string": "STATE-PAY-IDLE"
+            },
+            "name": {
+              "kind": "string",
+              "string": "Payment authorization"
+            },
+            "owner": {
+              "kind": "string",
+              "string": "FU-A"
+            }
+          }
+        }
+      ],
+      "extensionNamespace": "engineering",
+      "extension": "engineering.machine"
+    },
+    {
+      "id": "STATE-PAY-AUTH",
+      "name": "Authorizing",
+      "kind": "state_usage",
+      "metaclass": "SysML::StateUsage",
+      "properties": {
+        "declaredName": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "Authorizing"
+            }
+          ]
+        },
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "STATE-PAY-AUTH"
+            }
+          ]
+        },
+        "owner": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "SM-PAY"
+            }
+          ],
+          "derived": true
+        },
+        "owningNamespace": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "MODEL-A"
+            }
+          ],
+          "derived": true
+        }
+      },
+      "namespace": "MODEL-A",
+      "owner": "SM-PAY",
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.machine_state",
+          "target": "STATE-PAY-AUTH",
+          "properties": {
+            "description": {
+              "kind": "string"
+            },
+            "final": {
+              "kind": "boolean",
+              "boolean": false
+            },
+            "id": {
+              "kind": "string",
+              "string": "STATE-PAY-AUTH"
+            },
+            "name": {
+              "kind": "string",
+              "string": "Authorizing"
+            }
+          }
+        }
+      ],
+      "extensionNamespace": "engineering",
+      "extension": "engineering.machine_state"
+    },
+    {
+      "id": "STATE-PAY-DONE",
+      "name": "Done",
+      "kind": "state_usage",
+      "metaclass": "SysML::StateUsage",
+      "properties": {
+        "declaredName": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "Done"
+            }
+          ]
+        },
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "STATE-PAY-DONE"
+            }
+          ]
+        },
+        "owner": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "SM-PAY"
+            }
+          ],
+          "derived": true
+        },
+        "owningNamespace": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "MODEL-A"
+            }
+          ],
+          "derived": true
+        }
+      },
+      "namespace": "MODEL-A",
+      "owner": "SM-PAY",
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.machine_state",
+          "target": "STATE-PAY-DONE",
+          "properties": {
+            "description": {
+              "kind": "string"
+            },
+            "final": {
+              "kind": "boolean",
+              "boolean": true
+            },
+            "id": {
+              "kind": "string",
+              "string": "STATE-PAY-DONE"
+            },
+            "name": {
+              "kind": "string",
+              "string": "Done"
+            }
+          }
+        }
+      ],
+      "extensionNamespace": "engineering",
+      "extension": "engineering.machine_state"
+    },
+    {
+      "id": "STATE-PAY-IDLE",
+      "name": "Idle",
+      "kind": "state_usage",
+      "metaclass": "SysML::StateUsage",
+      "properties": {
+        "declaredName": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "Idle"
+            }
+          ]
+        },
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "STATE-PAY-IDLE"
+            }
+          ]
+        },
+        "owner": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "SM-PAY"
+            }
+          ],
+          "derived": true
+        },
+        "owningNamespace": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "MODEL-A"
+            }
+          ],
+          "derived": true
+        }
+      },
+      "namespace": "MODEL-A",
+      "owner": "SM-PAY",
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.machine_state",
+          "target": "STATE-PAY-IDLE",
+          "properties": {
+            "description": {
+              "kind": "string"
+            },
+            "final": {
+              "kind": "boolean",
+              "boolean": false
+            },
+            "id": {
+              "kind": "string",
+              "string": "STATE-PAY-IDLE"
+            },
+            "name": {
+              "kind": "string",
+              "string": "Idle"
+            }
+          }
+        }
+      ],
+      "extensionNamespace": "engineering",
+      "extension": "engineering.machine_state"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "REL-277A9D25288A0BD9",
+      "kind": "succession",
+      "metaclass": "KerML::Succession",
+      "properties": {
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "REL-277A9D25288A0BD9"
+            }
+          ]
+        },
+        "owningRelatedElement": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "SM-PAY"
+            }
+          ]
+        },
+        "source": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "SM-PAY"
+            }
+          ]
+        },
+        "target": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "STATE-PAY-IDLE"
+            }
+          ]
+        }
+      },
+      "source": "SM-PAY",
+      "target": "STATE-PAY-IDLE",
+      "owner": "SM-PAY",
+      "sourceType": "machine_initial",
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.relationship.machine_initial",
+          "target": "REL-277A9D25288A0BD9",
+          "properties": {
+            "initial": {
+              "kind": "string",
+              "string": "STATE-PAY-IDLE"
+            },
+            "machine": {
+              "kind": "string",
+              "string": "SM-PAY"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "REL-805FEC22BFCBFF50",
+      "kind": "succession",
+      "metaclass": "KerML::Succession",
+      "properties": {
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "REL-805FEC22BFCBFF50"
+            }
+          ]
+        },
+        "owningRelatedElement": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "SM-PAY"
+            }
+          ]
+        },
+        "source": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "STATE-PAY-DONE"
+            }
+          ]
+        },
+        "target": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "SM-PAY"
+            }
+          ]
+        }
+      },
+      "source": "STATE-PAY-DONE",
+      "target": "SM-PAY",
+      "owner": "SM-PAY",
+      "sourceType": "machine_final",
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.relationship.machine_final",
+          "target": "REL-805FEC22BFCBFF50",
+          "properties": {
+            "final": {
+              "kind": "string",
+              "string": "STATE-PAY-DONE"
+            },
+            "machine": {
+              "kind": "string",
+              "string": "SM-PAY"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "TR-PAY-001",
+      "kind": "transition",
+      "metaclass": "SysML::TransitionUsage",
+      "properties": {
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "TR-PAY-001"
+            }
+          ]
+        },
+        "source": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "STATE-PAY-IDLE"
+            }
+          ],
+          "derived": true
+        },
+        "target": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "STATE-PAY-AUTH"
+            }
+          ],
+          "derived": true
+        }
+      },
+      "source": "STATE-PAY-IDLE",
+      "target": "STATE-PAY-AUTH",
+      "owner": "SM-PAY",
+      "sourceType": "machine_transition",
+      "triggers": [
+        "EVT-A"
+      ],
+      "guard": {
+        "kind": "operator",
+        "operator": "\u003c",
+        "operands": [
+          {
+            "kind": "variable",
+            "value": "attempts"
+          },
+          {
+            "kind": "literal",
+            "typedValue": {
+              "kind": "integer",
+              "integer": 3
+            }
+          }
+        ]
+      },
+      "effect": {
+        "kind": "operator",
+        "operator": "all",
+        "operands": [
+          {
+            "kind": "operator",
+            "operator": ":=",
+            "operands": [
+              {
+                "kind": "variable",
+                "value": "attempts"
+              },
+              {
+                "kind": "operator",
+                "operator": "+",
+                "operands": [
+                  {
+                    "kind": "variable",
+                    "value": "attempts"
+                  },
+                  {
+                    "kind": "literal",
+                    "typedValue": {
+                      "kind": "integer",
+                      "integer": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.relationship.machine_transition",
+          "target": "TR-PAY-001",
+          "properties": {
+            "description": {
+              "kind": "string",
+              "string": "Start"
+            },
+            "effect": {
+              "kind": "string",
+              "string": "attempts := attempts + 1"
+            },
+            "from": {
+              "kind": "string",
+              "string": "STATE-PAY-IDLE"
+            },
+            "guard": {
+              "kind": "string",
+              "string": "attempts \u003c 3"
+            },
+            "id": {
+              "kind": "string",
+              "string": "TR-PAY-001"
+            },
+            "on": {
+              "kind": "string",
+              "string": "EVT-A"
+            },
+            "to": {
+              "kind": "string",
+              "string": "STATE-PAY-AUTH"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "TR-PAY-002",
+      "kind": "transition",
+      "metaclass": "SysML::TransitionUsage",
+      "properties": {
+        "elementId": {
+          "values": [
+            {
+              "kind": "string",
+              "string": "TR-PAY-002"
+            }
+          ]
+        },
+        "source": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "STATE-PAY-AUTH"
+            }
+          ],
+          "derived": true
+        },
+        "target": {
+          "values": [
+            {
+              "kind": "reference",
+              "reference": "STATE-PAY-DONE"
+            }
+          ],
+          "derived": true
+        }
+      },
+      "source": "STATE-PAY-AUTH",
+      "target": "STATE-PAY-DONE",
+      "owner": "SM-PAY",
+      "sourceType": "machine_transition",
+      "guard": {
+        "kind": "variable",
+        "value": "approved"
+      },
+      "metadata": [
+        {
+          "namespace": "engineering",
+          "type": "engineering.relationship.machine_transition",
+          "target": "TR-PAY-002",
+          "properties": {
+            "description": {
+              "kind": "string"
+            },
+            "effect": {
+              "kind": "string"
+            },
+            "from": {
+              "kind": "string",
+              "string": "STATE-PAY-AUTH"
+            },
+            "guard": {
+              "kind": "string",
+              "string": "approved"
+            },
+            "id": {
+              "kind": "string",
+              "string": "TR-PAY-002"
+            },
+            "on": {
+              "kind": "string"
+            },
+            "to": {
+              "kind": "string",
+              "string": "STATE-PAY-DONE"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

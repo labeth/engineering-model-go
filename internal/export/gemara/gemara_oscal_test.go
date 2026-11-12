@@ -40,11 +40,11 @@ func TestGemaraOSCALBridge(t *testing.T) {
 		t.Fatalf("oscal catalog missing 'catalog' root: keys=%v", keysOf(cat))
 	}
 
-	arJSON, err := GenerateOSCALAssessmentResults(bundle, model.RequirementsDocument{}, "", opts)
+	arJSON, err := GenerateOSCALAssessmentResults(bundle, bundle.Requirements, "", opts)
 	if err != nil {
 		t.Fatalf("oscal assessment results: %v", err)
 	}
-	repeatedAR, err := GenerateOSCALAssessmentResults(bundle, model.RequirementsDocument{}, "", opts)
+	repeatedAR, err := GenerateOSCALAssessmentResults(bundle, bundle.Requirements, "", opts)
 	if err != nil {
 		t.Fatalf("repeat OSCAL assessment results: %v", err)
 	}
