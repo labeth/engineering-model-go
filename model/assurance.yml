@@ -700,6 +700,368 @@ assurance:
       ref: REQ-EMG-057
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-058
+  - id: POAM-CONSISTENCY-BATCH1
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/requirements.yml
+      description: 'Evidence debt of the consistency checks of ADR-EMG-069 batch 1 (CAP-EMG-TRACEABILITY, CAP-EMG-MODEL-VALIDATION, CAP-EMG-FORMAL-BEHAVIOR): Status verified needs a linked, ungated test and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 4 with linked test but no recorded RED check. The hand mutations of the implementation all failed a test, but they were not recorded as red checks. Requirements: REQ-EMG-170, REQ-EMG-171, REQ-EMG-172, REQ-EMG-173.'
+    defers:
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-170
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-171
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-172
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-173
+  - id: POAM-CONSISTENCY-CONTROLS
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/assurance.yml
+      description: 'Six controls are Needs Review in the Gemara evaluation log (gemara.control_needs_review). CTRL-MCP-PATH-BOUNDARY (VER-MCP-PATH-BOUNDARY), CTRL-TRACEABILITY-COVERAGE (VER-TRACEABILITY-COVERAGE) and CTRL-ACCEPTANCE-RECORD-CHECK (VER-ACCEPTANCE-RECORD-CHECK) have a partial verification: its requirements (REQ-EMG-008, REQ-EMG-085) are not verified, since no RED check is recorded for this tree, and the trace-coverage verification rests on analysis evidence only. CTRL-STRICT-MCP-INPUT-SCHEMA (VER-STRICT-MCP-INPUT-SCHEMA), CTRL-TRACE-LINK-INTEGRITY (VER-TRACE-LINK-INTEGRITY) and CTRL-ARTIFACT-FRESHNESS-GATE (VER-ARTIFACT-FRESHNESS-GATE) have a partial verification newly recorded: unknown-argument rejection is tested for one MCP tool only, the dangling-link rejection has no recorded RED check, and the CI hash comparison of scripts/validate-all.sh has no test of its own. Each control is recorded pass once its verification is known.'
+    defers:
+    - code: gemara.control_needs_review
+      path: authoredArchitecture.controls[0]
+    - code: gemara.control_needs_review
+      path: authoredArchitecture.controls[1]
+    - code: gemara.control_needs_review
+      path: authoredArchitecture.controls[2]
+    - code: gemara.control_needs_review
+      path: authoredArchitecture.controls[3]
+    - code: gemara.control_needs_review
+      path: authoredArchitecture.controls[4]
+    - code: gemara.control_needs_review
+      path: authoredArchitecture.controls[7]
+  - id: POAM-CONSISTENCY-MODELING-01
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-AIRBORNE-ASSURANCE: the event-driven requirements below (3) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-056, REQ-EMG-132, REQ-EMG-133.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-056
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-132
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-133
+  - id: POAM-CONSISTENCY-MODELING-02
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-ARCHITECTURE-INTERCHANGE: the event-driven requirements below (1) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-040.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-040
+  - id: POAM-CONSISTENCY-MODELING-03
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-CODE-HEALTH: the event-driven requirements below (11) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-150, REQ-EMG-151, REQ-EMG-152, REQ-EMG-153, REQ-EMG-154, REQ-EMG-155, REQ-EMG-156, REQ-EMG-157, REQ-EMG-158, REQ-EMG-160, REQ-EMG-161.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-150
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-151
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-152
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-153
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-154
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-155
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-156
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-157
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-158
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-160
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-161
+  - id: POAM-CONSISTENCY-MODELING-04
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-FORMAL-BEHAVIOR: the event-driven requirements below (13) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-135, REQ-EMG-138, REQ-EMG-139, REQ-EMG-140, REQ-EMG-141, REQ-EMG-142, REQ-EMG-143, REQ-EMG-144, REQ-EMG-145, REQ-EMG-146, REQ-EMG-147, REQ-EMG-149, REQ-EMG-173.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-135
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-138
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-139
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-140
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-141
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-142
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-143
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-144
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-145
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-146
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-147
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-149
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-173
+  - id: POAM-CONSISTENCY-MODELING-05
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-GENERATION-PIPELINE: the event-driven requirements below (1) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-012.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-012
+  - id: POAM-CONSISTENCY-MODELING-06
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-LIFECYCLE-POLICY: the event-driven requirements below (13) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-122, REQ-EMG-124, REQ-EMG-125, REQ-EMG-126, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-130, REQ-EMG-162, REQ-EMG-163, REQ-EMG-164, REQ-EMG-165, REQ-EMG-168.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-122
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-124
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-125
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-126
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-127
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-128
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-129
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-130
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-162
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-163
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-164
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-165
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-168
+  - id: POAM-CONSISTENCY-MODELING-07
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-MCP-INTEGRATION: the event-driven requirements below (1) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-008.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-008
+  - id: POAM-CONSISTENCY-MODELING-08
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-MODEL-AUTHORING: the event-driven requirements below (4) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-035, REQ-EMG-044, REQ-EMG-166, REQ-EMG-167.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-035
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-044
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-166
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-167
+  - id: POAM-CONSISTENCY-MODELING-09
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-MODEL-CHANGE: the event-driven requirements below (3) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-031, REQ-EMG-034, REQ-EMG-081.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-031
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-034
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-081
+  - id: POAM-CONSISTENCY-MODELING-10
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-MODEL-VALIDATION: the event-driven requirements below (13) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-023, REQ-EMG-060, REQ-EMG-070, REQ-EMG-071, REQ-EMG-072, REQ-EMG-073, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-116, REQ-EMG-117, REQ-EMG-123, REQ-EMG-172.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-023
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-060
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-070
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-071
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-072
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-073
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-082
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-083
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-085
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-116
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-117
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-123
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-172
+  - id: POAM-CONSISTENCY-MODELING-11
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-PUBLICATION: the event-driven requirements below (1) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-110.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-110
+  - id: POAM-CONSISTENCY-MODELING-12
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-REQUIREMENT-LINKS: the event-driven requirements below (11) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-090, REQ-EMG-091, REQ-EMG-092, REQ-EMG-093, REQ-EMG-100, REQ-EMG-102, REQ-EMG-103, REQ-EMG-107, REQ-EMG-111, REQ-EMG-112, REQ-EMG-118.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-090
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-091
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-092
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-093
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-100
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-102
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-103
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-107
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-111
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-112
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-118
+  - id: POAM-CONSISTENCY-MODELING-13
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-SYSTEM-COMPOSITION: the event-driven requirements below (5) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-050, REQ-EMG-068, REQ-EMG-080, REQ-EMG-086, REQ-EMG-108.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-050
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-068
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-080
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-086
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-108
+  - id: POAM-CONSISTENCY-MODELING-14
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Modeling debt of capability group CAP-EMG-TRACEABILITY: the event-driven requirements below (11) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-028, REQ-EMG-029, REQ-EMG-030, REQ-EMG-058, REQ-EMG-059, REQ-EMG-061, REQ-EMG-084, REQ-EMG-088, REQ-EMG-121, REQ-EMG-170, REQ-EMG-171.'
+    defers:
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-028
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-029
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-030
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-058
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-059
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-061
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-084
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-088
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-121
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-170
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-171
   trustBoundaries:
   - id: TB-REPO-WORKSPACE
     name: Repository Workspace Boundary
@@ -749,6 +1111,7 @@ assurance:
     - CTRL-STRICT-MCP-INPUT-SCHEMA
     verificationRefs:
     - VER-MCP-PATH-BOUNDARY
+    - VER-STRICT-MCP-INPUT-SCHEMA
   - id: TS-TRACEABILITY-DRIFT
     title: Requirement traceability drifts from implementation
     summary: Code and tests change without corresponding requirement trace updates.
@@ -768,6 +1131,7 @@ assurance:
     - CTRL-TRACEABILITY-COVERAGE
     verificationRefs:
     - VER-TRACEABILITY-COVERAGE
+    - VER-TRACE-LINK-INTEGRITY
   - id: TS-GO-WORK-INJECTION
     title: Crafted go.mod injects go.work directives
     summary: A sibling checkout's go.mod declares a quoted module or require path with a line break, so engws sync writes
@@ -1141,3 +1505,46 @@ assurance:
     - CODE-INTERNAL-ENGWS-CONTRACTDIFF-TEST-GO--TESTLOADBUNDLEATREFREJECTSOPTIONREFS
     findings:
     - Refs starting with "-" and empty refs are refused before git runs and no file is written.
+  - id: VER-STRICT-MCP-INPUT-SCHEMA
+    controlRef: CTRL-STRICT-MCP-INPUT-SCHEMA
+    threatScenarioRefs:
+    - TS-MCP-PATH-TRAVERSAL
+    method: test
+    status: partial
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - REQ-EMG-007
+    - REQ-EMG-134
+    findings:
+    - Partial because REQ-EMG-007 and REQ-EMG-134 are not verified, since no RED check is recorded for this tree. A malformed arguments object and a missing required argument are refused, and tier.gap refuses an unknown argument and publishes a schema with additionalProperties false. No test exercises the unknown-argument refusal of every tool.
+    evidence:
+    - path: internal/mcp/server_test.go
+      description: Invalid params and missing required argument tests of the MCP tools/call path.
+    - path: internal/mcp/tier_gap_test.go
+      description: Unknown argument refused and strict input schema of tier.gap.
+  - id: VER-TRACE-LINK-INTEGRITY
+    controlRef: CTRL-TRACE-LINK-INTEGRITY
+    threatScenarioRefs:
+    - TS-TRACEABILITY-DRIFT
+    method: test
+    status: partial
+    owner: ACT-COMPLIANCE-ENGINEER
+    verificationRefs:
+    - REQ-EMG-028
+    findings:
+    - Partial because REQ-EMG-028 is not verified, since no RED check is recorded for this tree. The trace matrix tests report a code link that resolves to no requirement or model element and the orphan rollup.
+    evidence:
+    - path: internal/trace/trace_matrix_test.go
+      description: Dangling trace link and traceability matrix rollup tests.
+  - id: VER-ARTIFACT-FRESHNESS-GATE
+    controlRef: CTRL-ARTIFACT-FRESHNESS-GATE
+    method: test
+    status: partial
+    owner: ACT-ARCHITECTURE-AUTHOR
+    verificationRefs:
+    - REQ-EMG-149
+    findings:
+    - Partial because REQ-EMG-149 is not verified, since no RED check is recorded for this tree. engquint check reports a changed generated Quint module as stale. The hash comparison of the generated artifacts in scripts/validate-all.sh has no test of its own; the CI run is its evidence.
+    evidence:
+    - path: cmd/engquint/main_test.go
+      description: Stale and drifted generated Quint module detection of engquint check.

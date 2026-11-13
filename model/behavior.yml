@@ -6,6 +6,10 @@ behavior:
     description: Whether the authored model passes validation, from the validation engine's point of view. A failed validation blocks generation and trusted use until a model update resolves the diagnostics.
     owner: FU-VALIDATION-ENGINE
     initial: STATE-MODEL-VALID
+    variables:
+    - name: generationPermitted
+      type: Boolean
+      initial: true
     states:
     - id: STATE-MODEL-VALID
       name: Model Valid
@@ -18,22 +22,33 @@ behavior:
       from: STATE-MODEL-VALID
       to: STATE-MODEL-INVALID
       on: EVT-VALIDATION-FAILED
+      effect: generationPermitted := false
       description: Validation or schema checks report errors, so generation and trusted use are blocked.
     - id: TR-MODEL-VALIDATION-RECOVERS
       from: STATE-MODEL-INVALID
       to: STATE-MODEL-VALID
       on: EVT-MODEL-UPDATED
+      effect: generationPermitted := true
       description: Model becomes valid after an update resolves the diagnostics.
     - id: TR-MODEL-STATUS-SUGGEST
       from: STATE-MODEL-VALID
       to: STATE-MODEL-VALID
       on: EVT-STATUS-SUGGEST-REQUESTED
       description: engws status-suggest reads a valid model and its tree's evidence and writes nothing, so the model stays valid (REQ-EMG-122).
+    invariants:
+    - id: INV-MODEL-GENERATION-ONLY-WHEN-VALID
+      requirements: [REQ-EMG-046]
+      expr: generationPermitted implies in_state(STATE-MODEL-VALID)
+      description: Generation and trusted use are permitted only while the model passes validation; a failed validation blocks them until a model update resolves the diagnostics.
   - id: SM-ARTIFACT-FRESHNESS
     name: Artifact Freshness
     description: Whether the generated artifacts are aligned with the current authored model and code evidence. Any model update makes them stale and a successful generation cycle makes them fresh again.
     owner: FU-CLI-ORCHESTRATION
     initial: STATE-ARTIFACTS-FRESH
+    variables:
+    - name: validated
+      type: Boolean
+      initial: true
     states:
     - id: STATE-ARTIFACTS-FRESH
       name: Artifacts Fresh
@@ -49,7 +64,8 @@ behavior:
       from: STATE-ARTIFACTS-FRESH
       to: STATE-ARTIFACTS-STALE
       on: EVT-MODEL-UPDATED
-      description: Any model update can invalidate freshness and triggers regeneration.
+      effect: validated := false
+      description: Any model update can invalidate freshness and triggers regeneration; the changed model has not been validated yet.
     - id: TR-ARTIFACTS-GENERATION-RUN
       from: STATE-ARTIFACTS-STALE
       to: STATE-ARTIFACTS-REGENERATING
@@ -59,12 +75,29 @@ behavior:
       from: STATE-ARTIFACTS-REGENERATING
       to: STATE-ARTIFACTS-STALE
       on: EVT-VALIDATION-FAILED
+      effect: validated := false
       description: A failed validation stops the generation run, so the artifacts stay stale.
+    - id: TR-ARTIFACTS-VALIDATED
+      from: STATE-ARTIFACTS-REGENERATING
+      to: STATE-ARTIFACTS-REGENERATING
+      on: EVT-VALIDATION-PASSED
+      effect: validated := true
+      description: The validation and tests of the generation run pass, so artifact generation may proceed (REQ-EMG-009).
     - id: TR-ARTIFACTS-REGENERATED
       from: STATE-ARTIFACTS-REGENERATING
       to: STATE-ARTIFACTS-FRESH
       on: EVT-ARTIFACT-GENERATED
-      description: Fresh state is reached after a successful generation cycle.
+      guard: validated
+      description: Fresh state is reached after a successful generation cycle, only once validation passed (REQ-EMG-009).
+    invariants:
+    - id: INV-ARTIFACTS-FRESH-VALIDATED
+      requirements: [REQ-EMG-009]
+      expr: in_state(STATE-ARTIFACTS-FRESH) implies validated
+      description: Generated artifacts are fresh only when the model they were generated from passed validation, so the artifact generated event is never raised before validation.
+    - id: INV-ARTIFACTS-STALE-NOT-VALIDATED
+      requirements: [REQ-EMG-009]
+      expr: in_state(STATE-ARTIFACTS-STALE) implies not validated
+      description: A generation run always validates again; a stale model never carries the result of an earlier validation into the run.
   - id: SM-LINK-LIFECYCLE
     name: Requirement Link Lifecycle
     description: One requirement link from the moment it is written until it is accepted, found suspect or found broken. The variable reviewed records that a reviewer and date were recorded for the link.
@@ -145,14 +178,18 @@ behavior:
       expr: in_state(STATE-LINK-ACCEPTED) implies reviewed
       description: An accepted link always has a recorded review.
     - id: INV-LINK-UNREVIEWED-NOT-ACCEPTED
-      requirements: [REQ-EMG-094, REQ-EMG-101]
+      requirements: [REQ-EMG-094, REQ-EMG-101, REQ-EMG-104, REQ-EMG-119]
       expr: (in_state(STATE-LINK-ABSENT) or in_state(STATE-LINK-CLAIMED)) implies not reviewed
-      description: A link that is not recorded or only claimed has no recorded review, so only a review request moves it toward accepted.
+      description: A link that is not recorded or only claimed has no recorded review, so only a review request moves it toward accepted; link add and migrate-links write claimed links and never a reviewed one.
   - id: SM-MCP-SESSION
     name: MCP Session Model Currency
     description: Whether the model a running MCP server holds equals the model files on disk. The server compares a content fingerprint of the model files on every tool call and reloads when it changed, so a result always reflects the files at call time.
     owner: FU-MCP-SERVER
     initial: STATE-MCP-MODEL-CURRENT
+    variables:
+    - name: fingerprintMatches
+      type: Boolean
+      initial: true
     states:
     - id: STATE-MCP-MODEL-CURRENT
       name: MCP Model Current
@@ -165,17 +202,28 @@ behavior:
       from: STATE-MCP-MODEL-CURRENT
       to: STATE-MCP-MODEL-OUTDATED
       on: EVT-MODEL-UPDATED
+      effect: fingerprintMatches := false
       description: A model file is edited, by an author or by the server's own model.patch, while the server runs.
     - id: TR-MCP-CALL-RELOADS
       from: STATE-MCP-MODEL-OUTDATED
       to: STATE-MCP-MODEL-CURRENT
       on: EVT-MCP-TOOL-CALL-RECEIVED
+      effect: fingerprintMatches := true
       description: A tool call finds the fingerprint of the model files changed and reloads the model before it answers, so the result is built from the files at call time (REQ-EMG-089).
     - id: TR-MCP-CALL-SERVED
       from: STATE-MCP-MODEL-CURRENT
       to: STATE-MCP-MODEL-CURRENT
       on: EVT-MCP-TOOL-CALL-RECEIVED
       description: A tool call finds the fingerprint unchanged and answers from the held model (REQ-EMG-007, REQ-EMG-089).
+    invariants:
+    - id: INV-MCP-CURRENT-FINGERPRINT-MATCHES
+      requirements: [REQ-EMG-089]
+      expr: in_state(STATE-MCP-MODEL-CURRENT) implies fingerprintMatches
+      description: The server answers from the held model only while the fingerprint of the model files equals the one recorded at the last load, so a result reflects the files at call time.
+    - id: INV-MCP-OUTDATED-FINGERPRINT-DIFFERS
+      requirements: [REQ-EMG-089]
+      expr: in_state(STATE-MCP-MODEL-OUTDATED) implies not fingerprintMatches
+      description: While the held model is outdated the recorded fingerprint differs from the files; a reload that fails keeps the old fingerprint and returns the error (-32001), so the next call retries instead of serving the previous model.
   - id: SM-REQUIREMENTS-DELTA
     name: Requirements Delta
     description: One requirements delta from the moment it is received until it is rejected or atomically applied. The variable written records that the requirements document was replaced; validate and diff never write it.
@@ -260,6 +308,9 @@ behavior:
   - id: EVT-VALIDATION-FAILED
     name: Validation Failed
     description: Validation or schema checks failed for model or generated output.
+  - id: EVT-VALIDATION-PASSED
+    name: Validation Passed
+    description: Validation and tests of a generation run passed for the current model.
   - id: EVT-ARTIFACT-GENERATED
     name: Artifact Generated
     description: One or more generated artifacts were produced successfully.

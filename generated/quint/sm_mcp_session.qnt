@@ -2,27 +2,32 @@
 module sm_mcp_session {
   type State = StateMcpModelCurrent | StateMcpModelOutdated
   var state: State
+  var v_fingerprintMatches: bool
   var lastTransition: str
   action init = all {
     state' = StateMcpModelCurrent,
+    v_fingerprintMatches' = true,
     lastTransition' = "init",
   }
   // TR-MCP-MODEL-FILE-CHANGES (EVT-MODEL-UPDATED): MCP Model Current -> MCP Model Outdated
   action tr_mcp_model_file_changes = all {
     state == StateMcpModelCurrent,
     state' = StateMcpModelOutdated,
+    v_fingerprintMatches' = false,
     lastTransition' = "TR-MCP-MODEL-FILE-CHANGES",
   }
   // TR-MCP-CALL-RELOADS (EVT-MCP-TOOL-CALL-RECEIVED): MCP Model Outdated -> MCP Model Current
   action tr_mcp_call_reloads = all {
     state == StateMcpModelOutdated,
     state' = StateMcpModelCurrent,
+    v_fingerprintMatches' = true,
     lastTransition' = "TR-MCP-CALL-RELOADS",
   }
   // TR-MCP-CALL-SERVED (EVT-MCP-TOOL-CALL-RECEIVED): MCP Model Current -> MCP Model Current
   action tr_mcp_call_served = all {
     state == StateMcpModelCurrent,
     state' = StateMcpModelCurrent,
+    v_fingerprintMatches' = v_fingerprintMatches,
     lastTransition' = "TR-MCP-CALL-SERVED",
   }
   action step = any {
@@ -30,6 +35,10 @@ module sm_mcp_session {
     tr_mcp_call_reloads,
     tr_mcp_call_served,
   }
+  // INV-MCP-CURRENT-FINGERPRINT-MATCHES protects REQ-EMG-089
+  val inv_mcp_current_fingerprint_matches = (state == StateMcpModelCurrent) implies v_fingerprintMatches
+  // INV-MCP-OUTDATED-FINGERPRINT-DIFFERS protects REQ-EMG-089
+  val inv_mcp_outdated_fingerprint_differs = (state == StateMcpModelOutdated) implies not(v_fingerprintMatches)
   // Reachability witnesses, one per state
   val wit_state_mcp_model_current = state == StateMcpModelCurrent
   val wit_state_mcp_model_outdated = state == StateMcpModelOutdated

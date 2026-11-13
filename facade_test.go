@@ -96,7 +96,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			// and internal/asciidoc; none of it is public API.
 			"CodeItem", "EvidenceFileKey", "EvidenceLabel", "EvidenceLabelLookup",
 			"GroupedEvidenceLabels", "GroupedFileLabels", "InferCodeItems",
-			"InferRuntimeItems", "InferVerificationChecks", "IsVerificationCodeItem",
+			"InferRuntimeItems", "InferVerificationChecks", "IsGeneratedSource", "IsVerificationCodeItem",
 			"ItemDisplayName", "ItemEvidenceElement", "ItemPath", "JoinLineNumbers",
 			"LanguageFromPath", "ModelRootDir", "NormalizeResultStatus",
 			"ParseLineNumberList", "RuntimeItem", "SanitizeNode", "SanitizeSourcePath",

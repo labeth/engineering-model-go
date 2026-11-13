@@ -1,3 +1,5 @@
+// ENGMODEL-OWNER-UNIT: FU-ALLOCATION-TRACE
+
 // Package linkreview evaluates the requirement links of one model and
 // prepares their review: the links that need review (pinned to another
 // version than the dependency, broken or claimed) with the child item before

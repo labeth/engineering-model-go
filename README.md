@@ -321,6 +321,8 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `behavior.transition_nondeterministic` | `authoredArchitecture.machines[i].transitions[j]` | the transition leaves a state on the same `on` event (or both have none) as an earlier transition and neither has a guard or both have the same guard |
 | `behavior.transition_no_trigger` | `authoredArchitecture.machines[i].transitions[j]` | a transition with neither `on` nor `guard` |
 | `behavior.invariant_unlinked` | `authoredArchitecture.machines[i].invariants[j].requirements` | an invariant that lists no existing `REQ-*` |
+| `behavior.machine_unverified` | `authoredArchitecture.machines[i]`, `…machines[i].invariants[j]` | a machine with no invariant; when a formal evidence file (`test-results/quint-formal.json`) exists, also an invariant with no current formal result (a stale or missing result is none). Remedy: the `ef-formal-behavior` skill |
+| `behavior.requirement_unmodeled` | `requirements[REQ-ID]` | an event-driven or state-driven EARS requirement that no machine invariant lists in `requirements` and whose `appliesTo` names no machine, state, transition, event or flow; asked only of a model that declares a machine, and retired, rejected and derived requirements are exempt. Remedy: the `ef-behavior` skill |
 | `behavior.transition_unknown_event` (error) | `…machines[i].transitions[j].on` | `on` names no `behavior.events` entry |
 | `behavior.expression_unknown_variable` (error) | `…transitions[j].guard`, `.effect`, `…invariants[k].expr` | the expression reads or assigns a variable the machine does not declare |
 | `behavior.expression_type` (error) | `…transitions[j].guard`, `.effect`, `…invariants[k].expr` | an operand or result type the operator table rejects: a guard or invariant that is not Boolean, `<`, `<=`, `>`, `>=`, `+`, `-`, `*` on a non-Integer, `==` or `!=` on different types, `and`, `or`, `not`, `implies` on a non-Boolean, or `:=` of a value whose type is not the variable's |
@@ -332,6 +334,8 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `verification.benchmark_only` | `requirements[i]` | the requirement's `verificationCriteria` contain a number and every test linking it is a benchmark (Go `Benchmark*`, Rust `#[bench]`): a benchmark asserts nothing, add a `Test*` that checks the value; the trace row has `benchmarkOnly` |
 | `threat.verification_missing` | `…threatScenarios[i].verificationRefs` | the threat does not list a control verification that one of its mitigations references or that names the threat in `threatScenarioRefs` |
 | `mitigation.verification_control_mismatch` (error) | `…threatMitigations[i].verificationRefs[j]` | the referenced control verification's `controlRef` is another control than the mitigation's |
+| `code.owner_unresolved` | the source file | a source file whose `ENGMODEL-OWNER-UNIT` marker is missing or names an ID that is not a functional unit; test files, generated files (`Code generated … DO NOT EDIT`) and `alias::ID` owners are left out; reported once per file. Remedy: the `ef-code-linking` skill |
+| `code.model_link_kind_mismatch` | the code symbol | an `ENGMODEL-LINKS` target that exists but is a requirement ID or a catalog term, not a model element (a requirement belongs in `TRLC-LINKS`); a target that exists nowhere is `code.dangling_model_link`. Remedy: the `ef-code-linking` skill |
 | `verification.unlinked` | `…controlVerifications[i].verificationRefs` | a `method: test` verification with status `pass` or `partial` and no `verificationRefs`, so no test or requirement evidences it |
 | `risk.acceptance_unrecorded` (error) | `…risks[i].acceptedBy`, `…threatScenarios[i].acceptedBy` | an accepted risk or threat scenario without a complete `acceptedBy` record (the message lists the missing parts) |
 | `model.invalid_acceptance` (error) | `…acceptedBy.actor`, `.date`, `.decisionRef` | the actor is no actor, the date is not a YYYY-MM-DD calendar date, or the decisionRef is no decision or a decision whose status is not `accepted` |
@@ -923,16 +927,22 @@ with `requirementLinks: strict`):
 | `behavior.flow_step_no_onerror` | D | D | W | W | E |
 | `behavior.invariant_unlinked` | D | D | W | W | E |
 | `behavior.machine_deadlock` | D | D | W | W | E |
+| `behavior.machine_unverified` | D | D | W | W | E |
+| `behavior.requirement_unmodeled` | D | D | W | W | E |
 | `behavior.state_unreachable` | D | D | W | W | E |
 | `behavior.transition_no_trigger` | D | D | W | W | E |
 | `behavior.transition_nondeterministic` | D | D | W | W | E |
 | `code.invalid_trlc_link` | W | W | W | E | E |
 | `code.missing_trlc_link` | W | W | W | E | E |
+| `code.model_link_kind_mismatch` | W | W | W | E | E |
+| `code.owner_unresolved` | W | W | W | E | E |
 | `code.scan_failed` | W | W | W | E | E |
+| `code.trace_unattached` | W | W | W | E | E |
 | `composition.dependency_below_tier` | D | D | W | E | E |
 | `composition.dependency_tier_unknown` | W | W | W | W | W |
 | `composition.dependency_tier_unknown` with safety | W | W | W | E | E |
 | `contract.unrealized` | D | D | W | W | E |
+| `gemara.control_needs_review` | D | D | D | W | E |
 | `health.baseline_stale` | W | W | W | W | E |
 | `health.brain_method` | W | W | W | E | E |
 | `health.brain_method` with safety | W | W | E | E | E |

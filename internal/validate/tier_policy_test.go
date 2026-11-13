@@ -57,6 +57,12 @@ func TestApplyTierPolicySeverityByTier(t *testing.T) {
 		{"behavior.invariant_unlinked", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 		{"behavior.state_unreachable", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 		{"code.missing_trlc_link", [5]string{"W", "W", "W", "E", "E"}, "product", nil, SeverityError, SeverityError},
+		{"code.owner_unresolved", [5]string{"W", "W", "W", "E", "E"}, "product", nil, SeverityWarning, SeverityWarning},
+		{"code.model_link_kind_mismatch", [5]string{"W", "W", "W", "E", "E"}, "product", nil, SeverityWarning, SeverityWarning},
+		{"code.trace_unattached", [5]string{"W", "W", "W", "E", "E"}, "product", nil, SeverityWarning, SeverityWarning},
+		{"behavior.requirement_unmodeled", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+		{"behavior.machine_unverified", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+		{"gemara.control_needs_review", [5]string{"D", "D", "D", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 		{"composition.dependency_tier_unknown", [5]string{"W", "W", "W", "W", "W"}, "", nil, SeverityWarning, SeverityWarning},
 		{"composition.dependency_tier_unknown", [5]string{"W", "W", "W", "E", "E"}, "product", []string{"safety"}, SeverityWarning, SeverityWarning},
 		{"lifecycle.aviation_profile_missing", [5]string{"D", "D", "E", "E", "E"}, "mvp", []string{"safety"}, SeverityWarning, SeverityWarning},
@@ -148,7 +154,7 @@ func TestTierPolicyMonotonic(t *testing.T) {
 }
 
 // codeLiteral finds diagnostic code literals in Go source.
-var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint)\.[a-z_.]+)"`)
+var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint|gemara)\.[a-z_.]+)"`)
 
 // emittedCodes returns every code literal in the module's non-test Go
 // source.
@@ -336,6 +342,27 @@ func TestMachineAdvisoryCodesFollowTheHygieneRowEndToEnd(t *testing.T) {
 			if d.Code == code && (d.Severity != SeverityWarning || d.Deferred || d.RequiredFrom != "") {
 				t.Errorf("%s without lifecycle changed: %+v", code, d)
 			}
+		}
+	}
+}
+
+// Each consistency check (ADR-EMG-069) names its remedy: the skill that fixes
+// it. Any other code has none.
+// Mutation: dropping a code from consistencyRemedies, or naming another skill,
+// fails its row.
+// TRLC-LINKS: REQ-EMG-125
+func TestConsistencyRemedies(t *testing.T) {
+	cases := map[string]string{
+		"code.owner_unresolved":          "ef-code-linking",
+		"code.model_link_kind_mismatch":  "ef-code-linking",
+		"behavior.requirement_unmodeled": "ef-behavior",
+		"behavior.machine_unverified":    "ef-formal-behavior",
+		"requirement.orphan":             "",
+	}
+	for code, skill := range cases {
+		got := ConsistencyRemedy(code)
+		if (skill == "") != (got == "") || !strings.Contains(got, skill) {
+			t.Errorf("%s: remedy %q, want one naming %q", code, got, skill)
 		}
 	}
 }

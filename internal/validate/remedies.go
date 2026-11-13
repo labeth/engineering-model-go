@@ -102,3 +102,31 @@ func withRemedies(diags []Diagnostic) []Diagnostic {
 	}
 	return diags
 }
+
+// The remedies of the consistency checks (ADR-EMG-069): the skill that
+// writes the missing link, or the edit that fixes the model.
+const (
+	remedyOwnerUnit     = "run the ef-code-linking skill (engineering-flow) to add the ENGMODEL-OWNER-UNIT: FU-* marker, naming a functional unit of the model, to the file header"
+	remedyModelLinkKind = "run the ef-code-linking skill (engineering-flow) to move a requirement ID from ENGMODEL-LINKS to TRLC-LINKS, or to name the model element (unit, interface, machine, state, flow) the code realizes"
+	remedyUnmodeled     = "run the ef-behavior skill (engineering-flow) to model the requirement as a state, transition or event of a machine, or add an invariant that lists it in requirements, or name the element in the requirement's appliesTo"
+	remedyMachineVerify = "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
+)
+
+// consistencyRemedies maps the codes of the consistency checks to their
+// remedy.
+var consistencyRemedies = map[string]string{
+	"code.owner_unresolved":          remedyOwnerUnit,
+	"code.model_link_kind_mismatch":  remedyModelLinkKind,
+	"behavior.requirement_unmodeled": remedyUnmodeled,
+	"behavior.machine_unverified":    remedyMachineVerify,
+}
+
+// ConsistencyRemedy returns the remedy of a consistency-check code
+// (ADR-EMG-069), or "" for any other code. The emitting packages set it on
+// their diagnostics, because the trace and the requirement lint do not pass
+// through Bundle.
+// TRLC-LINKS: REQ-EMG-125
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func ConsistencyRemedy(code string) string {
+	return consistencyRemedies[code]
+}

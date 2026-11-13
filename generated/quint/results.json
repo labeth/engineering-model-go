@@ -5,7 +5,7 @@
       "machine": "SM-MODEL-VALIDATION",
       "module": "sm_model_validation",
       "qntFile": "generated/quint/sm_model_validation.qnt",
-      "qntSha256": "939b67fc99ba316739b814348da4a7efb506e669f9eec603a6297444eea9d663",
+      "qntSha256": "34dff5bf42189471b7a95cf6f25f915313cf9f3f449fddc3e1272dceba51037f",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -19,7 +19,26 @@
         "verifySteps": 10
       },
       "status": "pass",
-      "invariants": [],
+      "invariants": [
+        {
+          "name": "inv_model_generation_only_when_valid",
+          "id": "INV-MODEL-GENERATION-ONLY-WHEN-VALID",
+          "requirements": [
+            "REQ-EMG-046"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
       "witnesses": [
         {
           "name": "wit_state_model_valid",
@@ -40,7 +59,7 @@
       "machine": "SM-ARTIFACT-FRESHNESS",
       "module": "sm_artifact_freshness",
       "qntFile": "generated/quint/sm_artifact_freshness.qnt",
-      "qntSha256": "4179c588ca4d123b01c8899b154019ea14de0f4efd1215fa3bec99067d31b519",
+      "qntSha256": "711cdcfc7ed2db0bf81db1ee9e791b85f4a3b3a7fae980af4e46286a7d4d95e4",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -54,12 +73,49 @@
         "verifySteps": 10
       },
       "status": "pass",
-      "invariants": [],
+      "invariants": [
+        {
+          "name": "inv_artifacts_fresh_validated",
+          "id": "INV-ARTIFACTS-FRESH-VALIDATED",
+          "requirements": [
+            "REQ-EMG-009"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_artifacts_stale_not_validated",
+          "id": "INV-ARTIFACTS-STALE-NOT-VALIDATED",
+          "requirements": [
+            "REQ-EMG-009"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
       "witnesses": [
         {
           "name": "wit_state_artifacts_fresh",
           "state": "STATE-ARTIFACTS-FRESH",
-          "witnessed": 9987,
+          "witnessed": 8592,
           "total": 10000
         },
         {
@@ -81,7 +137,7 @@
       "machine": "SM-LINK-LIFECYCLE",
       "module": "sm_link_lifecycle",
       "qntFile": "generated/quint/sm_link_lifecycle.qnt",
-      "qntSha256": "2c77b8668436090abd238c47e6eefd93e28c556081549431b14dfacb51e018e1",
+      "qntSha256": "78213f5818182b9259627cb6b704853f990e3320965a301564ae138c1b9d0db4",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -119,7 +175,9 @@
           "id": "INV-LINK-UNREVIEWED-NOT-ACCEPTED",
           "requirements": [
             "REQ-EMG-094",
-            "REQ-EMG-101"
+            "REQ-EMG-101",
+            "REQ-EMG-104",
+            "REQ-EMG-119"
           ],
           "status": "pass",
           "run": {
@@ -172,7 +230,7 @@
       "machine": "SM-MCP-SESSION",
       "module": "sm_mcp_session",
       "qntFile": "generated/quint/sm_mcp_session.qnt",
-      "qntSha256": "fa6005509345c4aa949a3b516bb2947c33e824b73c53509979d567095e16b25d",
+      "qntSha256": "a80062a7f1dd9f1f1e6a4865c90ef50c9a281ac4b76042264e4fe2e2fd075d58",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -186,7 +244,44 @@
         "verifySteps": 10
       },
       "status": "pass",
-      "invariants": [],
+      "invariants": [
+        {
+          "name": "inv_mcp_current_fingerprint_matches",
+          "id": "INV-MCP-CURRENT-FINGERPRINT-MATCHES",
+          "requirements": [
+            "REQ-EMG-089"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_mcp_outdated_fingerprint_differs",
+          "id": "INV-MCP-OUTDATED-FINGERPRINT-DIFFERS",
+          "requirements": [
+            "REQ-EMG-089"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
       "witnesses": [
         {
           "name": "wit_state_mcp_model_current",

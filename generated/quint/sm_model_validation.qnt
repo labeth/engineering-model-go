@@ -2,27 +2,32 @@
 module sm_model_validation {
   type State = StateModelValid | StateModelInvalid
   var state: State
+  var v_generationPermitted: bool
   var lastTransition: str
   action init = all {
     state' = StateModelValid,
+    v_generationPermitted' = true,
     lastTransition' = "init",
   }
   // TR-MODEL-VALIDATION-FAILS (EVT-VALIDATION-FAILED): Model Valid -> Model Invalid
   action tr_model_validation_fails = all {
     state == StateModelValid,
     state' = StateModelInvalid,
+    v_generationPermitted' = false,
     lastTransition' = "TR-MODEL-VALIDATION-FAILS",
   }
   // TR-MODEL-VALIDATION-RECOVERS (EVT-MODEL-UPDATED): Model Invalid -> Model Valid
   action tr_model_validation_recovers = all {
     state == StateModelInvalid,
     state' = StateModelValid,
+    v_generationPermitted' = true,
     lastTransition' = "TR-MODEL-VALIDATION-RECOVERS",
   }
   // TR-MODEL-STATUS-SUGGEST (EVT-STATUS-SUGGEST-REQUESTED): Model Valid -> Model Valid
   action tr_model_status_suggest = all {
     state == StateModelValid,
     state' = StateModelValid,
+    v_generationPermitted' = v_generationPermitted,
     lastTransition' = "TR-MODEL-STATUS-SUGGEST",
   }
   action step = any {
@@ -30,6 +35,8 @@ module sm_model_validation {
     tr_model_validation_recovers,
     tr_model_status_suggest,
   }
+  // INV-MODEL-GENERATION-ONLY-WHEN-VALID protects REQ-EMG-046
+  val inv_model_generation_only_when_valid = v_generationPermitted implies (state == StateModelValid)
   // Reachability witnesses, one per state
   val wit_state_model_valid = state == StateModelValid
   val wit_state_model_invalid = state == StateModelInvalid

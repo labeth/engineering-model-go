@@ -414,8 +414,8 @@ func ValidateIntegrity(bundle model.Bundle, requirements model.RequirementsDocum
 	diags := validateIntegrityWithIDs(KnownModelIDs(bundle, requirements), requirements, scopedCode, verification, delegationsByReq)
 	diags = append(diags, unsatisfiedRequirements(bundle, requirements, scopedCode, verification, delegationsByReq)...)
 	diags = append(diags, benchmarkOnlyDiagnostics(requirements, verification)...)
-	diags = append(diags, tierVerificationDiagnostics(bundle, requirements, verification)...)
-	return append(diags, staleVerificationStatus(bundle, scopedCode, verification)...)
+	bundle.Requirements = requirements
+	return append(diags, integrityTail(bundle, scopedCode, verification)...)
 }
 
 // tierVerificationDiagnostics reports, in a model with lifecycle only,
@@ -895,8 +895,7 @@ func buildFromBundle(bundle model.Bundle, modelPath, codeRoot string, options Op
 	scoped := ScopeCodeToModel(inferredCode, EffectiveCodeRoots(bundle, resolvedRoot), codescan.ModelRootDir(bundle))
 	diags = append(diags, validateIntegrityWithIDs(linkIDs, requirements, scoped, inferredVerification, delegationsByReq)...)
 	diags = append(diags, unsatisfiedRequirements(bundle, requirements, scoped, inferredVerification, delegationsByReq)...)
-	diags = append(diags, tierVerificationDiagnostics(bundle, requirements, inferredVerification)...)
-	diags = append(diags, staleVerificationStatus(bundle, scoped, inferredVerification)...)
+	diags = append(diags, integrityTail(bundle, scoped, inferredVerification)...)
 	matrix := buildTraceMatrixWithIDs(bundle, linkIDs, requirements, scoped, inferredVerification, delegationsByReq)
 	appendPublishedRequirementTraceRows(&matrix, compositionProjection, compositionResult)
 	traces := dependencyTraces{}

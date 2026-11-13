@@ -320,7 +320,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-ORI-ADMISSION is Needs Review in the Gemara evaluation log: its verifications need review: CV-ORI-ADMISSION (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -387,7 +389,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-ORI-ADMISSION is Needs Review in the Gemara evaluation log: its verifications need review: CV-ORI-ADMISSION (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -514,7 +518,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-CLOUD-BACKUP is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-CLOUD-BACKUP",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -544,7 +550,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-CLOUD-BACKUP is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-CLOUD-BACKUP",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -613,25 +621,33 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COMP-ACCESS-REVIEW is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-ACCESS-REVIEW (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COMP-EVIDENCE-RETENTION is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-EVIDENCE-RETENTION",
-    "path": "authoredArchitecture.controls[1]"
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COMP-POLICY-ACKNOWLEDGMENT is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-POLICY-ACKNOWLEDGMENT",
-    "path": "authoredArchitecture.controls[3]"
+    "path": "authoredArchitecture.controls[3]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COMP-SECURITY-AWARENESS is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-AWARENESS (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[4]"
+    "path": "authoredArchitecture.controls[4]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -709,25 +725,33 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COMP-ACCESS-REVIEW is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-ACCESS-REVIEW (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COMP-EVIDENCE-RETENTION is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-EVIDENCE-RETENTION",
-    "path": "authoredArchitecture.controls[1]"
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COMP-POLICY-ACKNOWLEDGMENT is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-POLICY-ACKNOWLEDGMENT",
-    "path": "authoredArchitecture.controls[3]"
+    "path": "authoredArchitecture.controls[3]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COMP-SECURITY-AWARENESS is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-AWARENESS (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[4]"
+    "path": "authoredArchitecture.controls[4]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -928,7 +952,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-EDGE-SIGNED-WORKLOAD is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-EDGE-SIGNED-WORKLOAD",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -958,7 +984,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-EDGE-SIGNED-WORKLOAD is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-EDGE-SIGNED-WORKLOAD",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1034,7 +1062,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-SEC-AUDIT-INTEGRITY is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-SEC-AUDIT-INTEGRITY",
-    "path": "authoredArchitecture.controls[1]"
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "behavior.event_unused",
@@ -1078,7 +1108,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-SEC-AUDIT-INTEGRITY is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-SEC-AUDIT-INTEGRITY",
-    "path": "authoredArchitecture.controls[1]"
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "behavior.event_unused",
@@ -1161,13 +1193,17 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-BEDROCK-WEBHOOK-SIGNATURE is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-BEDROCK-SECRETS-ROTATION is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-REDACTION-CHECK (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[1]"
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "behavior.flow_step_no_onerror",
@@ -1277,13 +1313,17 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-BEDROCK-WEBHOOK-SIGNATURE is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-BEDROCK-SECRETS-ROTATION is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-REDACTION-CHECK (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[1]"
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "behavior.flow_step_no_onerror",
@@ -1496,7 +1536,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COFFEE-DEVICE-IDENTITY is Needs Review in the Gemara evaluation log: its verifications need review: CV-COFFEE-TELEMETRY-REPLAY (partial), CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "behavior.flow_step_no_onerror",
@@ -1648,7 +1690,9 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-COFFEE-DEVICE-IDENTITY is Needs Review in the Gemara evaluation log: its verifications need review: CV-COFFEE-TELEMETRY-REPLAY (partial), CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "behavior.flow_step_no_onerror",
@@ -2078,6 +2122,14 @@
     "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
    },
    {
+    "code": "behavior.machine_unverified",
+    "severity": "warning",
+    "message": "machine SM-YAW-CONTROL has no invariant, so no formal check states what it must always satisfy; add an invariant that lists the requirement it protects",
+    "path": "authoredArchitecture.machines[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-YD-SYS-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -2102,6 +2154,14 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "behavior.requirement_unmodeled",
+    "severity": "warning",
+    "message": "event-driven requirement REQ-YD-HLR-001 is modeled by no machine: no invariant lists it and its appliesTo names no machine, state, transition, event or flow",
+    "path": "requirements[REQ-YD-HLR-001]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to model the requirement as a state, transition or event of a machine, or add an invariant that lists it in requirements, or name the element in the requirement's appliesTo"
+   },
+   {
     "code": "requirement.orphan",
     "severity": "warning",
     "message": "requirement REQ-YD-HLR-001 is traced by no code, verification, or delegation",
@@ -2114,6 +2174,14 @@
     "message": "requirement REQ-YD-LLR-001 is traced by no code, verification, or delegation",
     "path": "requirements[REQ-YD-LLR-001]",
     "requiredFrom": "product"
+   },
+   {
+    "code": "behavior.requirement_unmodeled",
+    "severity": "warning",
+    "message": "event-driven requirement REQ-YD-SYS-001 is modeled by no machine: no invariant lists it and its appliesTo names no machine, state, transition, event or flow",
+    "path": "requirements[REQ-YD-SYS-001]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to model the requirement as a state, transition or event of a machine, or add an invariant that lists it in requirements, or name the element in the requirement's appliesTo"
    },
    {
     "code": "requirement.orphan",
@@ -2129,6 +2197,14 @@
     "severity": "warning",
     "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
     "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
+   },
+   {
+    "code": "behavior.machine_unverified",
+    "severity": "warning",
+    "message": "machine SM-YAW-CONTROL has no invariant, so no formal check states what it must always satisfy; add an invariant that lists the requirement it protects",
+    "path": "authoredArchitecture.machines[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
    },
    {
     "code": "requirement.orphan",
@@ -2180,13 +2256,17 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-PAYMENTS-SSO-MFA is Needs Review in the Gemara evaluation log: its verifications need review: CV-PAYMENTS-MANUAL-REVIEW-TRACE (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-PAYMENTS-IMAGE-DIGEST is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-PAYMENTS-IMAGE-DIGEST",
-    "path": "authoredArchitecture.controls[1]"
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -2280,13 +2360,17 @@
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-PAYMENTS-SSO-MFA is Needs Review in the Gemara evaluation log: its verifications need review: CV-PAYMENTS-MANUAL-REVIEW-TRACE (partial); record the verification result once it is known (pass or fail)",
-    "path": "authoredArchitecture.controls[0]"
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "gemara.control_needs_review",
     "severity": "warning",
     "message": "control CTRL-PAYMENTS-IMAGE-DIGEST is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-PAYMENTS-IMAGE-DIGEST",
-    "path": "authoredArchitecture.controls[1]"
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
    },
    {
     "code": "lifecycle.requirement_unverified",

@@ -32,7 +32,7 @@ func LintModelRequirementsEARS(bundle model.Bundle, requirements model.Requireme
 	for id := range catalogTermsNamedInModel(bundle, requirements) {
 		used[id] = true
 	}
-	diags := lintRequirementsEARSWithUsage(requirements, bundle.Catalog, used)
+	diags := append(lintRequirementsEARSWithUsage(requirements, bundle.Catalog, used), lintRequirementsModeled(bundle, requirements)...)
 	for i, d := range diags {
 		if d.Code == "catalog.term_unreferenced" {
 			diags[i].Message = strings.Replace(d.Message, "is not referenced by any requirement text", "is not referenced anywhere in the model", 1)

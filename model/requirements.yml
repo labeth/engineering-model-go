@@ -1469,3 +1469,39 @@ requirements:
       - FU-VALIDATION-ENGINE
     derived: true
     derivedRationale: 'Mechanism of REQ-EMG-168: the remedy table and its inventory test keep every required-switch code printing its remedy.'
+  - id: REQ-EMG-170
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a source file whose owner unit marker is missing or names no functional unit.
+    notes: 'ADR-EMG-069. code.owner_unresolved is reported once per file, row WWWEE. Test files, generated files (a Code generated header or an at-generated tag in the first 10 lines) and files owned by an alias are left out. The remedy names the ef-code-linking skill.'
+    verificationMethods: [test]
+    verificationCriteria: When a scanned source file has no ENGMODEL-OWNER-UNIT marker, or a marker naming an identifier that is not a functional unit, then code.owner_unresolved is reported once for the file with a remedy; a test file, a generated file and a file owned by an alias are not reported.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-171
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a model link marker that names a requirement or a catalog term instead of a model element.
+    notes: 'ADR-EMG-069. code.model_link_kind_mismatch, row WWWEE. KnownModelIDs stays as it is and a second view maps each identifier to its kind. A requirement belongs in the trace link marker of the requirement, not in the model link marker.'
+    verificationMethods: [test]
+    verificationCriteria: When a model link marker names an existing requirement identifier or a catalog term, then code.model_link_kind_mismatch is reported with the kind found; a marker naming a model element is not reported.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-172
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report an event-driven or state-driven requirement that no machine invariant or applies-to element models.
+    notes: 'ADR-EMG-069. behavior.requirement_unmodeled, row DDWWE. The requirement pattern comes from the EARS lint. Only a model that declares at least one machine is asked, and retired, rejected and derived requirements are exempt.'
+    verificationMethods: [test]
+    verificationCriteria: When a model has a machine and an event-driven requirement that no invariant lists and whose appliesTo names no machine, state, transition, event or flow, then behavior.requirement_unmodeled is reported for it; a model without machines, a retired requirement and a requirement listed by an invariant are not reported.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+    realizes: [CAP-EMG-MODEL-VALIDATION]
+  - id: REQ-EMG-173
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a machine without an invariant and an invariant without a current formal result.
+    notes: 'ADR-EMG-069. behavior.machine_unverified, row DDWWE. A pass or fail result counts as current and a stale or not-run result does not. Without an evidence file only the missing invariant is reported.'
+    verificationMethods: [test]
+    verificationCriteria: When a machine has no invariant, or the formal evidence file holds no current result for one of its invariants, then behavior.machine_unverified is reported at the machine or the invariant; with no evidence file a machine with invariants is not reported.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+    realizes: [CAP-EMG-FORMAL-BEHAVIOR]
