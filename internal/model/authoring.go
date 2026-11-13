@@ -33,7 +33,6 @@ type AuthoringContract struct {
 	Health            HealthGuide           `json:"health"`
 	AuthoringOrder    []string              `json:"authoringOrder"`
 	Invariants        []string              `json:"invariants"`
-	Compatibility     []string              `json:"compatibility"`
 }
 
 type AuthoringDocument struct {
@@ -177,7 +176,6 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 			"Run CUE validation before strict Go decoding and cross-document validation.",
 			"Write every required switch (rules.required): a missing lifecycle, tierDecision, bundles, requirementLinks, lintRun.mode, health block (from product), schemaVersion or model id is an error whose remedy names the skill or command that fixes it; there is no backwards compatibility.",
 		},
-		Compatibility: []string{},
 	}
 }
 

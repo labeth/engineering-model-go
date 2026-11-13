@@ -1,10 +1,9 @@
 package model
 
 #ModelMeta: {
-	id:             string & !=""
-	title?:         string
-	introduction?:  string
-	baseCatalogRef?: string & !=""
+	id:            string & !=""
+	title?:        string
+	introduction?: string
 }
 
 #FunctionalGroup: {

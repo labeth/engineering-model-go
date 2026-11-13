@@ -133,8 +133,9 @@ func TestScopeCodeExcludesNestedModel(t *testing.T) {
 }
 
 // TestTraceSummaryJSONReportsTestLinked verifies the summary serializes
-// testLinked (equal to tested) and keeps verified as a deprecated alias.
-// TRLC-LINKS: REQ-EMG-030, REQ-EMG-061
+// testLinked (equal to tested) and carries no verified or linksSuspect key
+// (ADR-EMG-073).
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-061, REQ-EMG-182
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}}}
@@ -148,10 +149,16 @@ func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
 	if err := json.Unmarshal(raw, &got); err != nil {
 		t.Fatal(err)
 	}
-	for _, key := range []string{"testLinked", "tested", "verified"} {
+	for _, key := range []string{"testLinked", "tested"} {
 		if got[key] != float64(1) {
 			t.Fatalf("summary %s = %v, want 1 (%s)", key, got[key], raw)
 		}
+	}
+	if _, present := got["verified"]; present {
+		t.Fatalf("summary must not carry the removed counter verified: %s", raw)
+	}
+	if _, present := got["linksSuspect"]; present {
+		t.Fatalf("summary must not carry the removed counter linksSuspect: %s", raw)
 	}
 }
 

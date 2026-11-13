@@ -163,10 +163,6 @@ type DanglingLink struct {
 type Summary struct {
 	Requirements int `json:"requirements"`
 	Implemented  int `json:"implemented"`
-	// Verified is deprecated: it counts test-linked requirements and always
-	// equals TestLinked and Tested. A linked test is not a verification; use
-	// TestLinked for links and Passed for requirements with recorded passes.
-	Verified int `json:"verified"`
 	// Tested counts requirements with at least one linked test function (or
 	// verification artifact).
 	Tested int `json:"tested"`
@@ -193,14 +189,11 @@ type Summary struct {
 	// (decision D23): pinned to another version than the dependency
 	// (LinksVersionMismatch), broken (LinksBroken: the item does not exist
 	// at the dependency pin) or claimed (LinksClaimed: not yet reviewed); a
-	// link is counted once. LinksSuspect is a deprecated alias of
-	// LinksVersionMismatch: no link is compared with content at check time
-	// any more. Unparented counts the local requirements that trace upward
-	// to nothing (requirement.no_parent where the requirement link rules
-	// apply).
+	// link is counted once; no link is compared with content at check time.
+	// Unparented counts the local requirements that trace upward to nothing
+	// (requirement.no_parent where the requirement link rules apply).
 	LinksNeedReview      int `json:"linksNeedReview"`
 	LinksVersionMismatch int `json:"linksVersionMismatch"`
-	LinksSuspect         int `json:"linksSuspect"`
 	LinksBroken          int `json:"linksBroken"`
 	LinksClaimed         int `json:"linksClaimed"`
 	Unparented           int `json:"unparented"`
@@ -786,7 +779,6 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 	}
 	matrix.Summary.DanglingLinks = len(dangling)
 	matrix.Summary.Unparented = countUnparented(bundle, requirements)
-	matrix.Summary.Verified = matrix.Summary.Tested
 	matrix.Summary.TestLinked = matrix.Summary.Tested
 	return matrix
 }
@@ -1074,7 +1066,6 @@ func appendPublishedRequirementTraceRows(matrix *Matrix, projection composition.
 		matrix.Requirements = append(matrix.Requirements, row)
 		matrix.Summary.Requirements++
 		if len(row.Verifications) > 0 {
-			matrix.Summary.Verified++
 			matrix.Summary.Tested++
 			matrix.Summary.TestLinked++
 		}

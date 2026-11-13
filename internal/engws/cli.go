@@ -87,8 +87,7 @@ commands:
                              review-links accepts it; one line per link, IDs
                              only (--show adds the text before and after);
                              exit 1 when a link needs review unless
-                             --allow-review (--allow-suspect is a deprecated
-                             alias); any failure restores all files
+                             --allow-review; any failure restores all files
   review-links [--repo DIR] [--json] [--show]
                              list the requirement links of the model in DIR
                              (default .) that need review: pinned to another
@@ -243,7 +242,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	serve := sub.Bool("serve", false, "")
 	addr := sub.String("addr", "127.0.0.1:0", "")
 	allowReview := sub.Bool("allow-review", false, "")
-	sub.BoolVar(allowReview, "allow-suspect", false, "") // deprecated name of --allow-review
 	show := sub.Bool("show", false, "")
 	repoFlag := sub.String("repo", ".", "")
 	asJSON := sub.Bool("json", false, "")

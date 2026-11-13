@@ -290,11 +290,10 @@ type ManifestDocument struct {
 
 // ModelMeta is the aggregate model identity retained for downstream consumers.
 type ModelMeta struct {
-	ID             string             `yaml:"id"`
-	Title          string             `yaml:"title"`
-	Introduction   string             `yaml:"introduction"`
-	Documents      DocumentReferences `yaml:"-"`
-	BaseCatalogRef string             `yaml:"-"`
+	ID           string             `yaml:"id"`
+	Title        string             `yaml:"title"`
+	Introduction string             `yaml:"introduction"`
+	Documents    DocumentReferences `yaml:"-"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL

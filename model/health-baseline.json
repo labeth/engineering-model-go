@@ -575,7 +575,7 @@
       "path": "cmd/engoscal/main.go",
       "function": "main",
       "code": "health.brain_method",
-      "value": 44
+      "value": 42
     },
     {
       "path": "cmd/engoscal/main.go",
@@ -593,7 +593,7 @@
       "path": "cmd/engoscal/main.go",
       "function": "main",
       "code": "health.complex_method",
-      "value": 44
+      "value": 42
     },
     {
       "path": "cmd/engoscal/main.go",
@@ -605,7 +605,7 @@
       "path": "cmd/engoscal/main.go",
       "function": "main",
       "code": "health.large_method",
-      "value": 171
+      "value": 167
     },
     {
       "path": "cmd/engquint/check.go",
@@ -887,7 +887,7 @@
       "path": "internal/asciidoc/asciidoc.go",
       "function": "Generate",
       "code": "health.large_method",
-      "value": 568
+      "value": 567
     },
     {
       "path": "internal/asciidoc/asciidoc.go",
@@ -954,30 +954,6 @@
       "function": "applyReferenceBacklinks",
       "code": "health.large_method",
       "value": 57
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_code_references_test.go",
-      "function": "TestInferCodeItemsDistinctFilesAndOverlappingRoots",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_code_references_test.go",
-      "function": "TestInferCodeItemsDistinctFilesAndOverlappingRoots",
-      "code": "health.complex_conditional",
-      "value": 5
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_code_references_test.go",
-      "function": "TestInferCodeItemsDistinctFilesAndOverlappingRoots",
-      "code": "health.complex_method",
-      "value": 16
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_code_references_test.go",
-      "function": "TestInferCodeItemsDistinctFilesAndOverlappingRoots",
-      "code": "health.deep_nesting",
-      "value": 3
     },
     {
       "path": "internal/asciidoc/asciidoc_complete_diagram_test.go",
@@ -3761,7 +3737,7 @@
       "path": "internal/composition/composition.go",
       "function": "checkCompositionLock",
       "code": "health.complex_method",
-      "value": 11
+      "value": 10
     },
     {
       "path": "internal/composition/composition.go",
@@ -4553,7 +4529,7 @@
       "path": "internal/engws/cli.go",
       "function": "Main",
       "code": "health.large_method",
-      "value": 160
+      "value": 159
     },
     {
       "path": "internal/engws/cli.go",
@@ -10829,7 +10805,7 @@
       "path": "internal/integration/requirement_links_trace_test.go",
       "function": "TestRequirementLinksTraceRollUp",
       "code": "health.complex_method",
-      "value": 39
+      "value": 38
     },
     {
       "path": "internal/integration/requirement_links_trace_test.go",
@@ -11279,7 +11255,7 @@
       "path": "internal/mcp/composition.go",
       "function": "Server.traceMatrix",
       "code": "health.large_method",
-      "value": 90
+      "value": 88
     },
     {
       "path": "internal/mcp/composition_offline_test.go",
@@ -11327,7 +11303,7 @@
       "path": "internal/mcp/composition_test.go",
       "function": "TestTraceMatrixToolSummaryAndSummaryOnly",
       "code": "health.complex_method",
-      "value": 13
+      "value": 12
     },
     {
       "path": "internal/mcp/composition_test.go",
@@ -11753,7 +11729,7 @@
       "path": "internal/mcp/server.go",
       "function": "NewServer",
       "code": "health.large_method",
-      "value": 86
+      "value": 85
     },
     {
       "path": "internal/mcp/server.go",
@@ -11771,13 +11747,13 @@
       "path": "internal/mcp/server.go",
       "function": "Server.callTool",
       "code": "health.brain_method",
-      "value": 181
+      "value": 179
     },
     {
       "path": "internal/mcp/server.go",
       "function": "Server.callTool",
       "code": "health.complex_method",
-      "value": 181
+      "value": 179
     },
     {
       "path": "internal/mcp/server.go",
@@ -11789,7 +11765,7 @@
       "path": "internal/mcp/server.go",
       "function": "Server.callTool",
       "code": "health.large_method",
-      "value": 535
+      "value": 531
     },
     {
       "path": "internal/mcp/server.go",
@@ -12152,12 +12128,6 @@
       "value": 9
     },
     {
-      "path": "internal/mcp/server.go",
-      "function": "validateToolArguments",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
       "path": "internal/mcp/server_test.go",
       "function": "TestDeveloperContextToolsReturnGroupedImplementations",
       "code": "health.complex_method",
@@ -12179,7 +12149,7 @@
       "path": "internal/mcp/server_test.go",
       "function": "TestModelAuthoringContractIsCompactAndActionable",
       "code": "health.complex_method",
-      "value": 15
+      "value": 14
     },
     {
       "path": "internal/mcp/server_test.go",
@@ -12329,7 +12299,7 @@
       "path": "internal/model/authoring.go",
       "function": "BuildAuthoringContract",
       "code": "health.large_method",
-      "value": 63
+      "value": 62
     },
     {
       "path": "internal/model/aviation.go",
@@ -12545,7 +12515,7 @@
       "path": "internal/model/load_test.go",
       "function": "TestBuildAuthoringContractDescribesSchemaV2",
       "code": "health.complex_method",
-      "value": 10
+      "value": 9
     },
     {
       "path": "internal/model/load_test.go",
@@ -14429,7 +14399,7 @@
       "path": "internal/trace/inference_trace_test.go",
       "function": "TestJavaScriptTestOnlyLinksDoNotImplement",
       "code": "health.complex_method",
-      "value": 11
+      "value": 10
     },
     {
       "path": "internal/trace/inference_trace_test.go",
@@ -14441,7 +14411,7 @@
       "path": "internal/trace/inference_trace_test.go",
       "function": "TestPythonTestOnlyLinksDoNotImplement",
       "code": "health.complex_method",
-      "value": 10
+      "value": 9
     },
     {
       "path": "internal/trace/inference_trace_test.go",
@@ -14452,14 +14422,8 @@
     {
       "path": "internal/trace/inference_trace_test.go",
       "function": "TestVerification_RustCfgTestHelpersDoNotVerifyOrImplement",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/trace/inference_trace_test.go",
-      "function": "TestVerification_RustCfgTestHelpersDoNotVerifyOrImplement",
       "code": "health.complex_method",
-      "value": 14
+      "value": 13
     },
     {
       "path": "internal/trace/inference_trace_test.go",
@@ -14483,7 +14447,7 @@
       "path": "internal/trace/inference_trace_test.go",
       "function": "TestVerilogExcludedSourcesAndVerification",
       "code": "health.complex_method",
-      "value": 16
+      "value": 15
     },
     {
       "path": "internal/trace/inference_trace_test.go",
@@ -14531,7 +14495,7 @@
       "path": "internal/trace/reqlinks_trace.go",
       "function": "applyRequirementLinks",
       "code": "health.large_method",
-      "value": 90
+      "value": 88
     },
     {
       "path": "internal/trace/reqlinks_trace.go",
@@ -14693,7 +14657,7 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "appendPublishedRequirementTraceRows",
       "code": "health.large_method",
-      "value": 60
+      "value": 59
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -14777,7 +14741,7 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "buildTraceMatrixWithIDs",
       "code": "health.large_method",
-      "value": 125
+      "value": 124
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -16097,13 +16061,13 @@
       "path": "internal/validate/validate.go",
       "function": "Bundle",
       "code": "health.brain_method",
-      "value": 401
+      "value": 398
     },
     {
       "path": "internal/validate/validate.go",
       "function": "Bundle",
       "code": "health.bumpy_road",
-      "value": 28
+      "value": 27
     },
     {
       "path": "internal/validate/validate.go",
@@ -16115,7 +16079,7 @@
       "path": "internal/validate/validate.go",
       "function": "Bundle",
       "code": "health.complex_method",
-      "value": 401
+      "value": 398
     },
     {
       "path": "internal/validate/validate.go",
@@ -16127,7 +16091,7 @@
       "path": "internal/validate/validate.go",
       "function": "Bundle",
       "code": "health.large_method",
-      "value": 977
+      "value": 972
     },
     {
       "path": "internal/validate/validate.go",

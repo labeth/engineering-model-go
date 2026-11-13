@@ -105,9 +105,8 @@ type asciidocSummary struct {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 type asciidocModelMeta struct {
-	ID             string
-	Title          string
-	BaseCatalogRef string
+	ID    string
+	Title string
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED

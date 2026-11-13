@@ -118,7 +118,7 @@ func TestRequirementLinksTraceRollUp(t *testing.T) {
 	registry.publish("child-b", "v0.1.0")
 	registry.serve()
 	m = systemMatrix(t, root, "system")
-	if m.Summary.LinksBroken != 1 || m.Summary.LinksVersionMismatch != 1 || m.Summary.LinksSuspect != 1 || m.Summary.LinksClaimed != 1 || m.Summary.LinksNeedReview != 3 {
+	if m.Summary.LinksBroken != 1 || m.Summary.LinksVersionMismatch != 1 || m.Summary.LinksClaimed != 1 || m.Summary.LinksNeedReview != 3 {
 		t.Fatalf("published: want 1 broken, 1 version mismatch, 1 claimed, 3 to review: %+v", m.Summary)
 	}
 	// The child alone: REQ-A-003 now traces to nothing.

@@ -17,7 +17,6 @@ import (
 // ENGMODEL-LINKS: IF-CLI-ENGOSCAL, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FU-VALIDATION-ENGINE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-CLI-ORCHESTRATION
 func main() {
 	modelPath := flag.String("model", "", "path to engmod.yml manifest")
-	outPath := flag.String("out", "", "legacy SSP output path; equivalent to --ssp-out")
 	profileOut := flag.String("profile-out", "", "optional output path for aggregate OSCAL Profile JSON")
 	sspOut := flag.String("ssp-out", "", "optional output path for OSCAL SSP JSON")
 	apOut := flag.String("ap-out", "", "optional output path for OSCAL Assessment Plan JSON")
@@ -40,9 +39,6 @@ func main() {
 	if strings.TrimSpace(*modelPath) == "" {
 		fmt.Fprintln(os.Stderr, "usage: engoscal --model <engmod.yml> [--profile-out <profile.json>] [--ssp-out <ssp.json>] [--ap-out <ap.json>] [--ar-out <ar.json>] [--poam-out <poam.json>] [--requirements <model/requirements.yml>] [--code-root <dir>] [--profile <href>] [--import-profile-href <href>] [--catalog <href>] [--system-name <name>] [--system-description <text>] [--ap-href <assessment-plan.json>] [--ssp-href <ssp.json>]")
 		os.Exit(2)
-	}
-	if strings.TrimSpace(*sspOut) == "" && strings.TrimSpace(*outPath) != "" {
-		*sspOut = strings.TrimSpace(*outPath)
 	}
 
 	emitProfile := strings.TrimSpace(*profileOut) != ""

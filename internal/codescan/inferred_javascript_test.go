@@ -30,7 +30,7 @@ func TestJavaScriptOwnershipAndTestOnlyTraceInference(t *testing.T) {
 			if metadata[impl].Owner != "FU-WEB" {
 				t.Fatalf("ownership lost: %+v", metadata)
 			}
-			bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{impl, test}}}}
+			bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 			code, diags := InferCodeItems(bundle, "")
 			if len(diags) != 0 || len(code) != 4 {
 				t.Fatalf("code inference: %+v %+v", code, diags)

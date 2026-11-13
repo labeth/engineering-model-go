@@ -150,7 +150,7 @@ func TestTraceMatrixToolReportsRequirementLinks(t *testing.T) {
 	s := linksServer(t, root, "system")
 	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
 		summary := callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any)
-		for _, key := range []string{"linksNeedReview", "linksVersionMismatch", "linksSuspect", "linksBroken", "linksClaimed", "unparented"} {
+		for _, key := range []string{"linksNeedReview", "linksVersionMismatch", "linksBroken", "linksClaimed", "unparented"} {
 			if summary[key] != float64(0) {
 				t.Fatalf("summary %v: %s = %v, want 0: %+v", args, key, summary[key], summary)
 			}

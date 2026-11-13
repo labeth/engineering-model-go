@@ -144,7 +144,6 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			"tested":       matrix.Summary.Tested,
 			"testLinked":   matrix.Summary.TestLinked,
 			"passed":       matrix.Summary.Passed,
-			"verified":     matrix.Summary.Verified, // deprecated alias of testLinked
 			"delegated":    matrix.Summary.Delegated,
 			// Delegated rows whose target requirement is implemented or
 			// test linked in the target repository.
@@ -158,9 +157,8 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			"gatedOnlyRequirements": nonNilStrings(matrix.Summary.GatedOnlyRequirements),
 			// Requirement links: the links that need review (version
 			// mismatch, broken, claimed) and local requirements without an
-			// upward trace; linksSuspect is a deprecated alias.
+			// upward trace.
 			"linksNeedReview": matrix.Summary.LinksNeedReview, "linksVersionMismatch": matrix.Summary.LinksVersionMismatch,
-			"linksSuspect": matrix.Summary.LinksSuspect,
 			"linksBroken":  matrix.Summary.LinksBroken,
 			"linksClaimed": matrix.Summary.LinksClaimed,
 			"unparented":   matrix.Summary.Unparented,

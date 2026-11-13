@@ -170,3 +170,13 @@ func TestBumpWarnsOfManifestKeysTheEngineRejects(t *testing.T) {
 		}
 	}
 }
+
+// The deprecated flag --allow-suspect is gone: bump rejects it as an unknown
+// flag (ADR-EMG-073). Mutation: registering the flag again fails this test.
+// TRLC-LINKS: REQ-EMG-182
+func TestBumpRejectsTheRemovedAllowSuspectFlag(t *testing.T) {
+	code, _, errOut := runMain(t, NewCUERegistry(), "bump", "system", "encoder", "v0.3.0", "--allow-suspect")
+	if code == 0 || !strings.Contains(errOut, "allow-suspect") {
+		t.Fatalf("bump --allow-suspect must be rejected as an unknown flag: %d\n%s", code, errOut)
+	}
+}

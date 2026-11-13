@@ -31,7 +31,7 @@ func TestJavaScriptTestOnlyLinksDoNotImplement(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{impl, test}}}}
+			bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 			code, diags := codescan.InferCodeItems(bundle, "")
 			if len(diags) != 0 || len(code) != 4 {
 				t.Fatalf("code inference: %+v %+v", code, diags)
@@ -42,7 +42,7 @@ func TestJavaScriptTestOnlyLinksDoNotImplement(t *testing.T) {
 				t.Fatalf("checks: %+v %+v", checks, diags)
 			}
 			matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
-			if matrix.Summary.Implemented != 1 || matrix.Summary.Verified != 2 {
+			if matrix.Summary.Implemented != 1 {
 				t.Fatalf("test-only links counted as implementation: %+v", matrix)
 			}
 		})
@@ -60,7 +60,7 @@ func TestPythonTestOnlyLinksDoNotImplement(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"worker.py", "test_worker.py"}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, diags := codescan.InferCodeItems(bundle, "")
 	if len(diags) != 0 || len(code) != 4 {
 		t.Fatalf("code: %+v diagnostics: %+v", code, diags)
@@ -71,7 +71,7 @@ func TestPythonTestOnlyLinksDoNotImplement(t *testing.T) {
 		t.Fatalf("checks: %+v %+v", checks, diags)
 	}
 	matrix := buildTraceMatrix(bundle, requirements, code, checks, nil)
-	if matrix.Summary.Implemented != 1 || matrix.Summary.Verified != 2 {
+	if matrix.Summary.Implemented != 1 {
 		t.Fatalf("test-only code credited: %+v", matrix)
 	}
 }
@@ -110,7 +110,7 @@ func TestVerilogExcludedSourcesAndVerification(t *testing.T) {
 		t.Fatalf("bad verification inference: %+v %+v", checks, diags)
 	}
 	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
-	if matrix.Summary.Implemented != 1 || matrix.Summary.Verified != 2 {
+	if matrix.Summary.Implemented != 1 {
 		t.Fatalf("test-only links must not imply implementation: %+v", matrix)
 	}
 	roots := EffectiveCodeRoots(bundle, "")
@@ -214,7 +214,7 @@ func TestVerification_RustCfgTestHelpersDoNotVerifyOrImplement(t *testing.T) {
 	if got := helperLinkPaths(t, diags); !got["src/x.rs:10"] || len(got) != 1 {
 		t.Fatalf("expected one helper_link at src/x.rs:10, got %v (all %+v)", got, diags)
 	}
-	if m.Summary.Implemented != 1 || m.Summary.Tested != 1 || m.Summary.Verified != 1 || m.Summary.Passed != 0 {
+	if m.Summary.Implemented != 1 || m.Summary.Tested != 1 || m.Summary.Passed != 0 {
 		t.Fatalf("summary: %+v", m.Summary)
 	}
 	if r := rows["REQ-SIM-001"]; r.Result != "not-run" {
@@ -275,7 +275,7 @@ func TestVerification_ResultArtifactsDrivePassedAndRowResult(t *testing.T) {
 			t.Errorf("%s result = %q, want %q", id, rows[id].Result, want)
 		}
 	}
-	if m.Summary.Tested != 3 || m.Summary.Verified != 3 || m.Summary.Passed != 1 {
+	if m.Summary.Tested != 3 || m.Summary.Passed != 1 {
 		t.Fatalf("summary: %+v", m.Summary)
 	}
 }
@@ -353,7 +353,7 @@ func TestVerificationCodeUsesAbsoluteSourceContext(t *testing.T) {
 	if err := os.WriteFile(path, []byte("// ENGMODEL-OWNER-UNIT: FU-A\npackage fixture\n// TRLC-LINKS: REQ-TEST-001\nfunc helper() {}\n"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{path}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, diags := codescan.InferCodeItems(bundle, "")
 	if len(diags) != 0 || len(code) != 2 {
 		t.Fatalf("inference failed: %+v %+v", code, diags)
@@ -455,7 +455,7 @@ func TestLong(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, "other_test.go"), []byte(other), 0600); err != nil {
 		t.Fatal(err)
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"sim_test.go", "other_test.go"}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, _ := codescan.InferCodeItems(bundle, "")
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-G-001"}, {ID: "REQ-G-002"}, {ID: "REQ-G-003"}, {ID: "REQ-G-004"}}}
 	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
@@ -520,7 +520,7 @@ func FuzzDecode(f *testing.F) {}
 			t.Fatal(err)
 		}
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"sim_test.go", "lib.rs", "other_test.go"}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, _ := codescan.InferCodeItems(bundle, "")
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{
 		{ID: "REQ-B-001", VerificationCriteria: "One sentence is encoded in under 50 microseconds."},

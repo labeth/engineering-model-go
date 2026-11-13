@@ -151,8 +151,8 @@ func TestVerificationToolsReportFormalPassFailedStale(t *testing.T) {
 	if list, _ := one["formalResults"].([]any); len(list) != 1 {
 		t.Fatalf("entityId REQ-PAYMENTS-002: %+v", one)
 	}
-	if list, _ := callToolPayload(t, s, "verification.status", map[string]any{"id": "SM-ONE"})["formalResults"].([]any); len(list) != 2 {
-		t.Fatalf("id SM-ONE should match two requirements: %+v", list)
+	if list, _ := callToolPayload(t, s, "verification.status", map[string]any{"entityId": "SM-ONE"})["formalResults"].([]any); len(list) != 2 {
+		t.Fatalf("entityId SM-ONE should match two requirements: %+v", list)
 	}
 
 	gaps := callToolPayload(t, s, "verification.gaps", map[string]any{})

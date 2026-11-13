@@ -349,11 +349,6 @@ func Bundle(b model.Bundle) []Diagnostic {
 			diags = append(diags, Diagnostic{Code: "model.unsupported_schema_version", Severity: SeverityError, Message: message, Path: v.path})
 		}
 	}
-	if explicit, legacy := strings.TrimSpace(b.Architecture.Model.Documents.Catalog), strings.TrimSpace(b.Architecture.Model.BaseCatalogRef); explicit != "" && legacy != "" {
-		if _, err := model.ResolveDocumentReferences(b.Architecture.Model); err != nil {
-			diags = append(diags, Diagnostic{Code: "model.conflicting_document_reference", Severity: SeverityError, Message: err.Error(), Path: "model.documents.catalog"})
-		}
-	}
 	for i, subsystem := range b.Architecture.Composition.Subsystems {
 		path := fmt.Sprintf("composition.subsystems[%d]", i)
 		if strings.TrimSpace(subsystem.Dependency) == "" {

@@ -72,12 +72,7 @@ func TestInferVerificationChecks_UsesRootGoTestFilesFromCodeRoot(t *testing.T) {
 		t.Fatalf("write test fixture: %v", err)
 	}
 
-	bundle := model.Bundle{
-		ArchitecturePath: filepath.Join(root, "engmod.yml"),
-		Architecture: model.ArchitectureDocument{
-			InferenceHints: model.InferenceHints{CodeSources: []string{"./"}},
-		},
-	}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	requirements := model.RequirementsDocument{
 		Requirements: []model.Requirement{{ID: "REQ-ROOT-001", AppliesTo: []string{"FU-ROOT"}}},
 	}

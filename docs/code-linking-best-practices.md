@@ -307,8 +307,7 @@ Stacked `TRLC-LINKS` lines above one declaration accumulate.
 
 The trace matrix separates two facts. `summary.tested` counts requirements with at
 least one linked test (or verification artifact) and `summary.testLinked` reports
-the same count under a name that says what it is. `summary.verified` is deprecated:
-it is kept for compatibility and equals `testLinked`; a linked test is not a
+the same count under a name that says what it is; a linked test is not a
 verification. `summary.passed` counts
 requirements whose linked verification has a recorded pass and no recorded failure
 in a parsed `test-results/` artifact (JUnit XML, JSON or text). Each row with a

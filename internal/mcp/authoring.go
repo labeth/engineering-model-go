@@ -90,7 +90,7 @@ var idFieldKinds = map[string][]string{
 // TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, DO-MODEL-AUTHORING-CONTRACT, FU-SYSTEM-COMPOSITION
 func (s *Server) modelComplete(args map[string]any) map[string]any {
-	prefix := firstNonEmptyArg(args, "prefix", "query", "q")
+	prefix := firstNonEmptyArg(args, "prefix")
 	field := strings.TrimSpace(toString(args["field"]))
 	max := maxArg(args, defaultCompletionMax)
 	if max <= 0 {
@@ -586,7 +586,7 @@ func readManifestDocuments(manifestPath string) ([]byte, map[string]string, erro
 // TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
 func diagnoseArguments(args map[string]any) (document, content string, err error) {
-	document = firstNonEmptyArg(args, "document", "path")
+	document = firstNonEmptyArg(args, "document")
 	if document == "" {
 		return "", "", fmt.Errorf("model.diagnose requires document")
 	}

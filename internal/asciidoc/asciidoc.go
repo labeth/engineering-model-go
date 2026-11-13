@@ -634,9 +634,8 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 		ReaderTracks: []string{"Product/domain engineers: Functional + Runtime", "Platform/SRE engineers: Deployment + Runtime", "Implementation engineers: Realization + Functional", "Security engineers: Security + Functional"},
 		Legend:       []string{"Authored: intentional functional architecture", "Inferred: discovered runtime or code realization", "realizes: runtime to functional unit", "implemented_by: verification to test code", "verifies: verification to requirement"},
 		ModelMeta: asciidocModelMeta{
-			ID:             strings.TrimSpace(bundle.Architecture.Model.ID),
-			Title:          strings.TrimSpace(bundle.Architecture.Model.Title),
-			BaseCatalogRef: strings.TrimSpace(bundle.Architecture.Model.BaseCatalogRef),
+			ID:    strings.TrimSpace(bundle.Architecture.Model.ID),
+			Title: strings.TrimSpace(bundle.Architecture.Model.Title),
 		},
 		LintRun: asciidocLintRun{
 			ID:         strings.TrimSpace(requirements.LintRun.ID),

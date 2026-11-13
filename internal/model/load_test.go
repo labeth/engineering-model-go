@@ -204,7 +204,7 @@ func TestBuildAuthoringContractDescribesSchemaV2(t *testing.T) {
 	}
 
 	contract := BuildAuthoringContract(bundle)
-	if contract.ContractVersion != AuthoringContractVersion || len(contract.Documents) != 9 || len(contract.Compatibility) != 0 {
+	if contract.ContractVersion != AuthoringContractVersion || len(contract.Documents) != 9 {
 		t.Fatalf("unexpected schema-v2 authoring contract: %+v", contract)
 	}
 

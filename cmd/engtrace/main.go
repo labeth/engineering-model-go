@@ -131,8 +131,8 @@ func emitMatrix(data []byte, matrix engmodel.TraceMatrix, out string) int {
 		fmt.Fprintln(os.Stderr, "error writing output:", err)
 		return 1
 	}
-	fmt.Fprintf(os.Stdout, "Wrote traceability matrix: %s (%d requirements, %d implemented, %d verified, %d delegated, %d orphan, %d dangling)\n",
-		out, matrix.Summary.Requirements, matrix.Summary.Implemented, matrix.Summary.Verified, matrix.Summary.Delegated, matrix.Summary.Orphan, matrix.Summary.DanglingLinks)
+	fmt.Fprintf(os.Stdout, "Wrote traceability matrix: %s (%d requirements, %d implemented, %d test-linked, %d delegated, %d orphan, %d dangling)\n",
+		out, matrix.Summary.Requirements, matrix.Summary.Implemented, matrix.Summary.TestLinked, matrix.Summary.Delegated, matrix.Summary.Orphan, matrix.Summary.DanglingLinks)
 	return 0
 }
 

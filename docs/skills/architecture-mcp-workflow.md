@@ -21,7 +21,7 @@ so the agent's job is to keep the model, the code, and the trace links consisten
 
 Discover and inspect the model:
 - `model.authoringContract` — call this first to discover the canonical document set and editing rules without scanning implementation code.
-- `model.list` / `entities.list`, `model.entity`, `model.implementations` — enumerate and inspect any entity (functional units, interfaces, data objects, flows, controls, threats, risks, hardware items, hardware interfaces).
+- `model.list`, `model.entity`, `model.implementations` — enumerate and inspect any entity (functional units, interfaces, data objects, flows, controls, threats, risks, hardware items, hardware interfaces).
 - `requirements.get`, `requirements.impact`, `requirements.supportPath`, `requirements.suggestEditPlan` — requirement context and edit planning.
 - `files.forRequirement` / `files.forControl` / `files.forThreat` / `files.owner` — find the code linked to a model id.
 - `code.contextForTask` — assemble compact code + model context for a task.

@@ -165,13 +165,13 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 	s := initializedPaymentsServer(t)
 	full := callToolPayload(t, s, "trace.matrix", map[string]any{})
 	summary, _ := full["summary"].(map[string]any)
-	for _, key := range []string{"requirements", "implemented", "tested", "testLinked", "passed", "verified", "delegated", "orphan", "dangling"} {
+	for _, key := range []string{"requirements", "implemented", "tested", "testLinked", "passed", "delegated", "orphan", "dangling"} {
 		if _, ok := summary[key]; !ok {
 			t.Fatalf("trace.matrix summary missing %q: %+v", key, summary)
 		}
 	}
-	if summary["testLinked"] != summary["tested"] || summary["verified"] != summary["tested"] {
-		t.Fatalf("testLinked/verified must equal tested: %+v", summary)
+	if summary["testLinked"] != summary["tested"] {
+		t.Fatalf("testLinked must equal tested: %+v", summary)
 	}
 	if rows, _ := full["requirements"].([]any); len(rows) == 0 {
 		t.Fatalf("full trace.matrix must list requirement rows")
@@ -197,5 +197,20 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 	props, _ := schema["properties"].(map[string]any)
 	if _, ok := props["summaryOnly"]; !ok {
 		t.Fatalf("trace.matrix inputSchema must declare summaryOnly: %+v", schema)
+	}
+}
+
+// The trace.matrix summary carries no verified and no linksSuspect counter
+// (ADR-EMG-073). Mutation: serializing either counter again fails this test.
+// TRLC-LINKS: REQ-EMG-182
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func TestTraceMatrixToolSummaryHasNoRemovedCounters(t *testing.T) {
+	s := initializedPaymentsServer(t)
+	summary, _ := callToolPayload(t, s, "trace.matrix", map[string]any{"summaryOnly": true})["summary"].(map[string]any)
+	if _, present := summary["verified"]; present {
+		t.Fatalf("summary carries the removed counter verified: %+v", summary)
+	}
+	if _, present := summary["linksSuspect"]; present {
+		t.Fatalf("summary carries the removed counter linksSuspect: %+v", summary)
 	}
 }

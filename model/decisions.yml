@@ -2145,3 +2145,27 @@ decisions:
   consequences:
   - A workspace that relied on the fallback now reports each stale repository, which is the point.
   - The remedy names engflow upgrade, which exists since the flow's feat/engflow-upgrade branch.
+- id: ADR-EMG-073
+  title: Phase 3 removes the aliases and dead fields that no caller uses and keeps the two that are live features
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    The audit of 2026-11-13 (removal plan phase 3) checked every alias, duplicate and dead field against both repositories. The
+    owner instructed, verbatim: "i dont want any backwards compatabillity in the model yet, it should always require a full
+    upgrade." Taken by the implementing agent under the owner's instruction to take recommended decisions. OWNER items: the
+    name of links.suspect, and whether interface allocations keep a replacement before phase 4.
+  decision: |-
+    (1) Removed in this slice: every MCP argument alias, the duplicate tool entities.list, the engws flag --allow-suspect, the
+    engoscal flag --out, the fields BaseCatalogRef and Compatibility, the trace summary counters Verified and LinksSuspect (engtrace
+    prints the linked-and-tested count instead) and the eight inert CodeSources literals of tests. (2) Kept: the rejection
+    model.code_sources_removed, because it carries the remedy that engineering-flow's model rules section keys on, and the tool
+    links.suspect, because it is not a duplicate: it returns the before and after meaning that links.list lacks. Renaming it is an
+    OWNER item and a later slice. (3) Phase 4 follows in its own order: the two Atlas requires ref lines, provides.ref, composition
+    allocations and delegation (an allocation to an interface entry has no link replacement, an OWNER item), pinned.fingerprint as
+    an error with a remedy, and engws migrate-links last. (4) Phase 5: composition.dependency_tier_unknown becomes a core error,
+    the two aviation state codes move to row DDEEE, and catalog.term_unreferenced becomes a tier row (not an untiered error, which
+    would stop the render) after the three unreferenced terms of this repository are referenced. Covers REQ-EMG-182.
+  consequences:
+  - A caller that used an alias fails with the canonical argument named, which is the intended full upgrade.
+  - The generated trace matrices and the example goldens change by the removed counters and are regenerated.
+  - engineering-flow's tool list drops entities.list in its own slice.

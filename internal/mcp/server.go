@@ -84,40 +84,39 @@ var stableIDPattern = regexp.MustCompile(`^[A-Z][A-Z0-9-]*$`)
 
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 var toolArgsAllowlist = map[string][]string{
-	"requirements.get":             {"requirementId", "id", "reqId"},
-	"requirements.parents":         {"requirementId", "id", "reqId"},
+	"requirements.get":             {"requirementId"},
+	"requirements.parents":         {"requirementId"},
 	"links.list":                   {},
 	"links.suspect":                {},
-	"links.review":                 {"linkId", "id", "by", "rationale"},
-	"requirements.impact":          {"requirementId", "id", "reqId"},
-	"requirements.supportPath":     {"requirementId", "id", "reqId"},
-	"requirements.suggestEditPlan": {"requirementId", "id", "reqId"},
-	"files.forRequirement":         {"requirementId", "id", "reqId"},
-	"files.forControl":             {"controlId", "id"},
-	"files.forThreat":              {"threatId", "id"},
-	"files.owner":                  {"path", "file"},
-	"verification.status":          {"entityId", "id"},
+	"links.review":                 {"linkId", "by", "rationale"},
+	"requirements.impact":          {"requirementId"},
+	"requirements.supportPath":     {"requirementId"},
+	"requirements.suggestEditPlan": {"requirementId"},
+	"files.forRequirement":         {"requirementId"},
+	"files.forControl":             {"controlId"},
+	"files.forThreat":              {"threatId"},
+	"files.owner":                  {"path"},
+	"verification.status":          {"entityId"},
 	"verification.gaps":            {},
 	"verification.recommend":       {},
-	"threats.forRequirement":       {"requirementId", "id", "reqId"},
+	"threats.forRequirement":       {"requirementId"},
 	"threats.coverage":             {},
 	"threats.unmitigated":          {},
-	"flows.forRequirement":         {"requirementId", "id", "reqId"},
-	"flows.diff":                   {"fromFlowId", "toFlowId", "left", "right"},
-	"graph.neighborhood":           {"query", "q", "name", "id"},
+	"flows.forRequirement":         {"requirementId"},
+	"flows.diff":                   {"fromFlowId", "toFlowId"},
+	"graph.neighborhood":           {"query"},
 	"graph.explainEdge":            {"from", "to"},
-	"graph.search":                 {"query", "q", "name", "id"},
-	"model.list":                   {"query", "q", "kind", "max"},
-	"entities.list":                {"query", "q", "kind", "max"},
+	"graph.search":                 {"query"},
+	"model.list":                   {"query", "kind", "max"},
 	"model.authoringContract":      {},
-	"model.complete":               {"prefix", "query", "q", "field", "max"},
-	"model.diagnose":               {"document", "path", "content"},
+	"model.complete":               {"prefix", "field", "max"},
+	"model.diagnose":               {"document", "content"},
 	"model.patch":                  {"document", "id", "set", "unset", "append", "remove", "write"},
-	"model.entity":                 {"entityId", "id"},
-	"model.implementations":        {"entityId", "id", "groupBy", "max"},
-	"code.contextForTask":          {"query", "q", "requirementId", "reqId", "entityId", "id", "path", "file", "max"},
-	"views.recommend":              {"taskType", "task"},
-	"views.renderContext":          {"viewId", "id"},
+	"model.entity":                 {"entityId"},
+	"model.implementations":        {"entityId", "groupBy", "max"},
+	"code.contextForTask":          {"query", "requirementId", "entityId", "path", "max"},
+	"views.recommend":              {"taskType"},
+	"views.renderContext":          {"viewId"},
 	"generation.plan":              {},
 	"generation.status":            {},
 	"composition.resolve":          {},
@@ -127,26 +126,26 @@ var toolArgsAllowlist = map[string][]string{
 	"governance.checkPatch":        {"diff"},
 	"tasks.entryPoints":            {},
 	"tasks.nextBestActions":        {},
-	"interfaces.resolve":           {"interfaceId", "id", "name", "environment", "env"},
-	"interfaces.implementations":   {"interfaceId", "id", "name", "groupBy", "max"},
-	"interfaces.matchFromCode":     {"path", "file"},
+	"interfaces.resolve":           {"interfaceId", "environment"},
+	"interfaces.implementations":   {"interfaceId", "groupBy", "max"},
+	"interfaces.matchFromCode":     {"path"},
 	"interfaces.ambiguities":       {},
-	"environments.resolve":         {"environment", "env"},
-	"endpoints.resolve":            {"interfaceId", "id", "name", "environment", "env"},
-	"identity.resolve":             {"interfaceId", "id", "name"},
-	"policy.resolve":               {"interfaceId", "id", "name"},
-	"schema.resolve":               {"interfaceId", "id", "name"},
-	"schema.diff":                  {"fromSchemaRef", "leftSchemaRef", "toSchemaRef", "rightSchemaRef", "fromInterfaceId", "leftInterfaceId", "toInterfaceId", "rightInterfaceId"},
-	"flow.detail":                  {"flowId", "id"},
-	"flow.implementations":         {"flowId", "id", "groupBy", "max"},
-	"tests.forRequirement":         {"requirementId", "id", "reqId", "max"},
-	"tests.forEntity":              {"entityId", "id", "max"},
-	"coverage.strictStatus":        {"path", "file"},
-	"ownership.resolve":            {"entityId", "id"},
-	"runtime.resolve":              {"entityId", "id"},
-	"confidence.explain":           {"entityId", "id"},
+	"environments.resolve":         {"environment"},
+	"endpoints.resolve":            {"interfaceId", "environment"},
+	"identity.resolve":             {"interfaceId"},
+	"policy.resolve":               {"interfaceId"},
+	"schema.resolve":               {"interfaceId"},
+	"schema.diff":                  {"fromSchemaRef", "toSchemaRef", "fromInterfaceId", "toInterfaceId"},
+	"flow.detail":                  {"flowId"},
+	"flow.implementations":         {"flowId", "groupBy", "max"},
+	"tests.forRequirement":         {"requirementId", "max"},
+	"tests.forEntity":              {"entityId", "max"},
+	"coverage.strictStatus":        {"path"},
+	"ownership.resolve":            {"entityId"},
+	"runtime.resolve":              {"entityId"},
+	"confidence.explain":           {"entityId"},
 	"staleness.check":              {"path"},
-	"changes.preflight":            {"requirementId", "id", "reqId"},
+	"changes.preflight":            {"requirementId"},
 	"gemara.controlCatalog":        {},
 	"gemara.threatCatalog":         {},
 	"gemara.riskCatalog":           {},
@@ -197,7 +196,6 @@ func NewServer() *Server {
 		{Name: "graph.explainEdge", Description: "Explain graph edge"},
 		{Name: "graph.search", Description: "Search graph entities"},
 		{Name: "model.list", Description: "List model entities"},
-		{Name: "entities.list", Description: "List model entities"},
 		{Name: "model.authoringContract", Description: "Get the compact canonical YAML authoring contract"},
 		{Name: "model.complete", Description: "Complete a value while editing model YAML: local IDs, imported alias::ID from selected dependency publications (workspace replacement or local module cache; offline), catalog term names, allowed enum values and relationship types with their kind pairs. prefix is matched case-insensitively (empty lists all); field narrows candidates, e.g. appliesTo, owner, interfaceRef, relationship.type, flow.kind, status, risk.status, catalog; max defaults to 50. Returns candidates [{value, kind, source (local, rules or the dependency alias), title}] and a note when imports cannot be resolved"},
 		{Name: "model.diagnose", Description: "Validate the model with one document's content replaced in memory (nothing is written): document is a manifest document key (catalog, requirements, architecture, behavior, assurance, compliance, views, decisions) or its path; content is the full YAML text. Returns valid, that document's diagnostics with line/column where they can be located, a count of other diagnostics and YAML parse errors with line and column"},
@@ -210,7 +208,7 @@ func NewServer() *Server {
 		{Name: "generation.plan", Description: "Plan artifact regeneration"},
 		{Name: "generation.status", Description: "Get artifact freshness status"},
 		{Name: "composition.resolve", Description: "Resolve the system-of-systems: subsystems, their contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics"},
-		{Name: "trace.matrix", Description: "Traceability matrix: summary (requirements, implemented, tested/testLinked, passed, delegated, orphan, dangling, gatedOnly and gatedOnlyRequirements: test-linked requirements whose every test is environment gated; verified is a deprecated alias of testLinked; linksNeedReview (version-mismatched, broken or claimed, each counted once), linksVersionMismatch, linksBroken, linksClaimed and unparented for requirement links; linksSuspect is a deprecated alias of linksVersionMismatch), per-requirement status, parents, children, links and satisfiedBy (links: satisfied through linked child items), code references and dangling code trace links. summaryOnly=true returns only the summary and diagnostics"},
+		{Name: "trace.matrix", Description: "Traceability matrix: summary (requirements, implemented, tested/testLinked, passed, delegated, orphan, dangling, gatedOnly and gatedOnlyRequirements: test-linked requirements whose every test is environment gated; linksNeedReview (version-mismatched, broken or claimed, each counted once), linksVersionMismatch, linksBroken, linksClaimed and unparented for requirement links), per-requirement status, parents, children, links and satisfiedBy (links: satisfied through linked child items), code references and dangling code trace links. summaryOnly=true returns only the summary and diagnostics"},
 		{Name: "tier.gap", Description: "Life-cycle tier gap: what target (poc, prototype, mvp, product or operational; required) requires that the model does not meet: currentTier, targetTier, blocking (each finding that is an error at the target and not now: code, requiredFrom, severityNow, deferredNow, poamRef, path, message), byCode, aviationBelowFloor (safety bundle: records below the target's evidence floor with state and floor) and dependencies (composed dependencies below the target tier or without one). Rule codes only, no life-cycle objective IDs"},
 		{Name: "governance.policy", Description: "Get governance policy"},
 		{Name: "governance.checkPatch", Description: "Check patch against governance"},
@@ -583,11 +581,11 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		return nil, fmt.Errorf("canonical semantic model not loaded")
 	}
 	a := s.bundle.Architecture.AuthoredArchitecture
-	reqID := firstNonEmptyArg(args, "requirementId", "id", "reqId")
-	entityID := firstNonEmptyArg(args, "entityId", "id")
-	interfaceID := firstNonEmptyArg(args, "interfaceId", "id", "name")
-	env := firstNonEmptyArg(args, "environment", "env")
-	query := strings.ToLower(firstNonEmptyArg(args, "query", "q", "name", "id"))
+	reqID := firstNonEmptyArg(args, "requirementId")
+	entityID := firstNonEmptyArg(args, "entityId")
+	interfaceID := firstNonEmptyArg(args, "interfaceId")
+	env := firstNonEmptyArg(args, "environment")
+	query := strings.ToLower(firstNonEmptyArg(args, "query"))
 
 	simple := func(data map[string]any) (map[string]any, error) {
 		data["ok"] = true
@@ -640,7 +638,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(data)
 	case "links.review":
-		linkID, by := firstNonEmptyArg(args, "linkId", "id"), firstNonEmptyArg(args, "by")
+		linkID, by := firstNonEmptyArg(args, "linkId"), firstNonEmptyArg(args, "by")
 		if linkID == "" || by == "" {
 			return nil, fmt.Errorf("links.review requires linkId and by")
 		}
@@ -677,7 +675,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(map[string]any{"files": s.filesForRequirement(reqID)})
 	case "files.forControl":
-		controlID := strings.TrimSpace(firstNonEmptyArg(args, "controlId", "id"))
+		controlID := strings.TrimSpace(firstNonEmptyArg(args, "controlId"))
 		if controlID == "" {
 			return nil, fmt.Errorf("files.forControl requires controlId")
 		}
@@ -686,7 +684,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(map[string]any{"files": s.filesContaining(controlID)})
 	case "files.forThreat":
-		threatID := strings.TrimSpace(firstNonEmptyArg(args, "threatId", "id"))
+		threatID := strings.TrimSpace(firstNonEmptyArg(args, "threatId"))
 		if threatID == "" {
 			return nil, fmt.Errorf("files.forThreat requires threatId")
 		}
@@ -695,7 +693,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(map[string]any{"files": s.filesContaining(threatID)})
 	case "files.owner":
-		path := firstNonEmptyArg(args, "path", "file")
+		path := firstNonEmptyArg(args, "path")
 		if path == "" {
 			return nil, fmt.Errorf("files.owner requires path")
 		}
@@ -795,8 +793,8 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(map[string]any{"flows": s.flowsForRequirement(reqID)})
 	case "flows.diff":
-		left := firstNonEmptyArg(args, "fromFlowId", "left")
-		right := firstNonEmptyArg(args, "toFlowId", "right")
+		left := firstNonEmptyArg(args, "fromFlowId")
+		right := firstNonEmptyArg(args, "toFlowId")
 		if left == "" || right == "" {
 			return nil, fmt.Errorf("flows.diff requires fromFlowId and toFlowId")
 		}
@@ -824,7 +822,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		return simple(map[string]any{"exists": false, "explanation": "No authored mapping found"})
 	case "graph.search":
 		return simple(map[string]any{"nodes": s.graphNodes(query, 200)})
-	case "model.list", "entities.list":
+	case "model.list":
 		return simple(map[string]any{"entities": s.modelEntityNodes(query, firstNonEmptyArg(args, "kind"), maxArg(args, 500))})
 	case "model.authoringContract":
 		return simple(map[string]any{"contract": model.BuildAuthoringContract(*s.bundle), "rules": validate.AuthoringRules()})
@@ -843,7 +841,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(data)
 	case "model.entity":
-		id := firstNonEmptyArg(args, "entityId", "id")
+		id := firstNonEmptyArg(args, "entityId")
 		if id == "" {
 			return nil, fmt.Errorf("model.entity requires entityId")
 		}
@@ -853,7 +851,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		kind, entity, ok := s.modelEntity(id)
 		return simple(map[string]any{"exists": ok, "kind": kind, "entity": entity})
 	case "model.implementations":
-		id := firstNonEmptyArg(args, "entityId", "id")
+		id := firstNonEmptyArg(args, "entityId")
 		if id == "" {
 			return nil, fmt.Errorf("model.implementations requires entityId")
 		}
@@ -870,10 +868,10 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 	case "code.contextForTask":
 		return simple(s.contextForTask(args))
 	case "views.recommend":
-		taskType := strings.ToLower(firstNonEmptyArg(args, "taskType", "task"))
+		taskType := strings.ToLower(firstNonEmptyArg(args, "taskType"))
 		return simple(map[string]any{"recommendedViews": s.recommendedViews(taskType)})
 	case "views.renderContext":
-		viewID := firstNonEmptyArg(args, "viewId", "id")
+		viewID := firstNonEmptyArg(args, "viewId")
 		if viewID == "" {
 			return nil, fmt.Errorf("views.renderContext requires viewId")
 		}
@@ -948,7 +946,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		implementations = limitRows(implementations, maxArg(args, 0))
 		return simple(map[string]any{"interface": iface, "implementations": implementations, "files": groupImplementationsByFile(implementations), "diagnostics": diagnostics})
 	case "interfaces.matchFromCode":
-		path := firstNonEmptyArg(args, "path", "file")
+		path := firstNonEmptyArg(args, "path")
 		if path == "" {
 			return nil, fmt.Errorf("interfaces.matchFromCode requires path")
 		}
@@ -999,14 +997,10 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(map[string]any{"interface": iface, "authHints": s.authHintsForInterface(interfaceID)})
 	case "policy.resolve":
-		if interfaceID == "" && firstNonEmptyArg(args, "id") == "" {
-			return nil, fmt.Errorf("policy.resolve requires interfaceId or id")
+		if interfaceID == "" {
+			return nil, fmt.Errorf("policy.resolve requires interfaceId")
 		}
-		id := firstNonEmptyArg(args, "id")
-		if id == "" {
-			id = interfaceID
-		}
-		return simple(s.policyForEntity(id))
+		return simple(s.policyForEntity(interfaceID))
 	case "schema.resolve":
 		if interfaceID == "" {
 			return nil, fmt.Errorf("schema.resolve requires interfaceId")
@@ -1020,13 +1014,13 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(map[string]any{"schemaRef": iface.SchemaRef, "protocol": iface.Protocol})
 	case "schema.diff":
-		left := firstNonEmptyArg(args, "fromSchemaRef", "leftSchemaRef")
-		right := firstNonEmptyArg(args, "toSchemaRef", "rightSchemaRef")
+		left := firstNonEmptyArg(args, "fromSchemaRef")
+		right := firstNonEmptyArg(args, "toSchemaRef")
 		if left == "" {
-			left = s.schemaRefForInterface(firstNonEmptyArg(args, "fromInterfaceId", "leftInterfaceId"))
+			left = s.schemaRefForInterface(firstNonEmptyArg(args, "fromInterfaceId"))
 		}
 		if right == "" {
-			right = s.schemaRefForInterface(firstNonEmptyArg(args, "toInterfaceId", "rightInterfaceId"))
+			right = s.schemaRefForInterface(firstNonEmptyArg(args, "toInterfaceId"))
 		}
 		if left == "" && right == "" {
 			return nil, fmt.Errorf("schema.diff requires schema refs or interface ids")
@@ -1034,7 +1028,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		status, note, leftMeta, rightMeta := s.diffSchemaRefs(left, right)
 		return simple(map[string]any{"fromSchemaRef": left, "toSchemaRef": right, "status": status, "message": note, "fromSchema": leftMeta, "toSchema": rightMeta})
 	case "flow.detail":
-		flowID := firstNonEmptyArg(args, "flowId", "id")
+		flowID := firstNonEmptyArg(args, "flowId")
 		if flowID == "" {
 			return nil, fmt.Errorf("flow.detail requires flowId")
 		}
@@ -1044,7 +1038,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		flow := s.findFlow(flowID)
 		return simple(map[string]any{"exists": flow != nil, "flow": flow, "implementations": s.implementationFilesForModelLink(flowID)})
 	case "flow.implementations":
-		flowID := firstNonEmptyArg(args, "flowId", "id")
+		flowID := firstNonEmptyArg(args, "flowId")
 		if flowID == "" {
 			return nil, fmt.Errorf("flow.implementations requires flowId")
 		}
@@ -1058,7 +1052,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		implementations = limitRows(implementations, maxArg(args, 0))
 		return simple(map[string]any{"flowId": flowID, "implementations": implementations, "files": groupImplementationsByFile(implementations), "diagnostics": diagnostics})
 	case "tests.forRequirement":
-		r := firstNonEmptyArg(args, "requirementId", "id", "reqId")
+		r := firstNonEmptyArg(args, "requirementId")
 		if r == "" {
 			return nil, fmt.Errorf("tests.forRequirement requires requirementId")
 		}
@@ -1069,7 +1063,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		tests = limitRows(tests, maxArg(args, 0))
 		return simple(map[string]any{"requirementId": r, "tests": tests, "files": groupImplementationsByFile(tests), "diagnostics": diagnostics})
 	case "tests.forEntity":
-		id := firstNonEmptyArg(args, "entityId", "id")
+		id := firstNonEmptyArg(args, "entityId")
 		if id == "" {
 			return nil, fmt.Errorf("tests.forEntity requires entityId")
 		}
@@ -1083,7 +1077,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		tests = limitRows(tests, maxArg(args, 0))
 		return simple(map[string]any{"entityId": id, "tests": tests, "files": groupImplementationsByFile(tests), "diagnostics": diagnostics})
 	case "coverage.strictStatus":
-		path := firstNonEmptyArg(args, "path", "file")
+		path := firstNonEmptyArg(args, "path")
 		status := s.strictCoverageStatus(path)
 		return simple(status)
 	case "ownership.resolve":
@@ -1111,7 +1105,7 @@ func (s *Server) callTool(name string, args map[string]any) (map[string]any, err
 		}
 		return simple(s.stalenessForPath(path))
 	case "changes.preflight":
-		r := firstNonEmptyArg(args, "requirementId", "id")
+		r := firstNonEmptyArg(args, "requirementId")
 		if r == "" {
 			return nil, fmt.Errorf("changes.preflight requires requirementId")
 		}
@@ -2275,10 +2269,10 @@ func (s *Server) findFlow(id string) *model.Flow {
 // TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 func (s *Server) contextForTask(args map[string]any) map[string]any {
-	reqID := firstNonEmptyArg(args, "requirementId", "reqId")
-	entityID := firstNonEmptyArg(args, "entityId", "id")
-	path := firstNonEmptyArg(args, "path", "file")
-	query := strings.ToLower(firstNonEmptyArg(args, "query", "q"))
+	reqID := firstNonEmptyArg(args, "requirementId")
+	entityID := firstNonEmptyArg(args, "entityId")
+	path := firstNonEmptyArg(args, "path")
+	query := strings.ToLower(firstNonEmptyArg(args, "query"))
 	max := maxArg(args, 25)
 
 	entities := []map[string]any{}
@@ -2780,7 +2774,7 @@ func containsString(in []string, target string) bool {
 // on the server's own checkout (their paths are relative to it).
 var repoTools = map[string]bool{
 	"model.diagnose": true, "model.patch": true, "model.list": true, "model.entity": true, "model.authoringContract": true,
-	"model.complete": true, "entities.list": true, "trace.matrix": true, "tier.gap": true, "composition.resolve": true,
+	"model.complete": true, "trace.matrix": true, "tier.gap": true, "composition.resolve": true,
 	"links.list": true, "links.suspect": true, "links.review": true,
 	"requirements.get": true, "requirements.parents": true, "requirements.impact": true, "requirements.supportPath": true,
 	"requirements.suggestEditPlan": true, "threats.coverage": true, "threats.unmitigated": true, "threats.forRequirement": true,
@@ -2824,6 +2818,32 @@ func inputSchemaForTool(name string) map[string]any {
 	return map[string]any{"type": "object", "properties": props, "additionalProperties": false}
 }
 
+// formerToolArgs maps an argument name that earlier versions accepted as an
+// alias to the canonical names it stood for; the canonical name of a tool is
+// the first one its allowlist holds. A former name is rejected like any unknown
+// argument and the message names the canonical one (ADR-EMG-073).
+var formerToolArgs = map[string][]string{
+	"id":    {"requirementId", "entityId", "interfaceId", "linkId", "controlId", "threatId", "viewId", "flowId", "query"},
+	"reqId": {"requirementId"}, "name": {"interfaceId", "query"}, "q": {"query", "prefix"},
+	"query": {"prefix"}, "file": {"path"}, "env": {"environment"}, "path": {"document"},
+	"left": {"fromFlowId"}, "right": {"toFlowId"}, "task": {"taskType"},
+	"leftSchemaRef": {"fromSchemaRef"}, "rightSchemaRef": {"toSchemaRef"},
+	"leftInterfaceId": {"fromInterfaceId"}, "rightInterfaceId": {"toInterfaceId"},
+}
+
+// canonicalArgFor returns the canonical argument of tool that a former alias
+// stood for, or "" when the name was never an alias for the tool.
+// TRLC-LINKS: REQ-EMG-182
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-STRICT-MCP-INPUT-SCHEMA
+func canonicalArgFor(tool, former string) string {
+	for _, candidate := range formerToolArgs[former] {
+		if containsString(toolArgsAllowlist[tool], candidate) {
+			return candidate
+		}
+	}
+	return ""
+}
+
 // TRLC-LINKS: REQ-EMG-008
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
 func validateToolArguments(name string, args map[string]any) error {
@@ -2836,18 +2856,30 @@ func validateToolArguments(name string, args map[string]any) error {
 	}
 	for k := range args {
 		if !allowedKeys[k] {
-			allowed := append([]string{}, toolArgsAllowlist[name]...)
-			if repoTools[name] {
-				allowed = append(allowed, "repo")
-			}
-			sort.Strings(allowed)
-			if len(allowed) == 0 {
-				return fmt.Errorf("%s accepts no arguments; got %q", name, k)
-			}
-			return fmt.Errorf("unexpected argument %q for %s (allowed: %s)", k, name, strings.Join(allowed, ", "))
+			return unexpectedArgumentError(name, k)
 		}
 	}
 	return nil
+}
+
+// unexpectedArgumentError reports an argument the tool does not accept: the
+// message lists the allowed arguments and, for a former alias, names the
+// canonical argument.
+// TRLC-LINKS: REQ-EMG-008, REQ-EMG-182
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-STRICT-MCP-INPUT-SCHEMA
+func unexpectedArgumentError(name, k string) error {
+	allowed := append([]string{}, toolArgsAllowlist[name]...)
+	if repoTools[name] {
+		allowed = append(allowed, "repo")
+	}
+	sort.Strings(allowed)
+	if len(allowed) == 0 {
+		return fmt.Errorf("%s accepts no arguments; got %q", name, k)
+	}
+	if canonical := canonicalArgFor(name, k); canonical != "" {
+		return fmt.Errorf("unexpected argument %q for %s: use %q (allowed: %s)", k, name, canonical, strings.Join(allowed, ", "))
+	}
+	return fmt.Errorf("unexpected argument %q for %s (allowed: %s)", k, name, strings.Join(allowed, ", "))
 }
 
 // TRLC-LINKS: REQ-EMG-008

@@ -104,7 +104,7 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-182
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	s := initializedPaymentsServer(t)
@@ -132,8 +132,8 @@ func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	if len(documents) != 9 {
 		t.Fatalf("expected manifest plus eight domain documents, got %d", len(documents))
 	}
-	if compatibility, ok := contract["compatibility"].([]any); !ok || len(compatibility) != 0 {
-		t.Fatalf("schema-v2 contract must not advertise compatibility modes: %+v", contract)
+	if _, present := contract["compatibility"]; present {
+		t.Fatalf("the authoring contract must carry no compatibility field (ADR-EMG-073): %+v", contract)
 	}
 	dependencies, ok := contract["dependencies"].(map[string]any)
 	if !ok || dependencies["registryEnvironment"] != "CUE_REGISTRY" || dependencies["workspaceFile"] != model.WorkspaceFileName {
@@ -314,7 +314,7 @@ func argsForTool(name string) map[string]any {
 		return map[string]any{"query": "payments"}
 	case "graph.explainEdge":
 		return map[string]any{"from": "FG-PAYMENTS", "to": "FU-CHECKOUT"}
-	case "model.list", "entities.list":
+	case "model.list":
 		return map[string]any{"query": "checkout"}
 	case "model.entity":
 		return map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"}

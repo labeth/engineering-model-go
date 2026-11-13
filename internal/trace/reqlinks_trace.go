@@ -91,7 +91,6 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 		switch s.State {
 		case reqlinks.StateVersionMismatch:
 			matrix.Summary.LinksVersionMismatch++
-			matrix.Summary.LinksSuspect++
 		case reqlinks.StateBroken:
 			matrix.Summary.LinksBroken++
 		}
@@ -154,7 +153,6 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 		if roll.testLinked {
 			matrix.Summary.Tested++
 			matrix.Summary.TestLinked++
-			matrix.Summary.Verified++
 		}
 		satisfied[id] = true
 	}
