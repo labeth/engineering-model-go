@@ -839,8 +839,10 @@ counterexample as the ordered transitions, for example
 Everything the system needs in order to function is an error when it is absent, and the error says how to
 fix it (ADR-EMG-061: there is no backwards compatibility and there are no silent defaults). Each
 diagnostic below carries a `remedy` (JSON field; the CLIs print it on a `fix:` line, MCP rows have a
-`remedy` key). The codes are rank-0 core codes: no tier, `lifecycle.raise` or POA&M item changes or
-defers them. `LoadBundle` stays lenient so that tools which embed the engine can load an incomplete
+`remedy` key). The codes are rank-0 core codes (the last two rows, `engine.check_template_stale` and
+`engine.pin_outdated`, are emitted by `engws check` and are untiered errors): no tier, `lifecycle.raise` or POA&M item changes or
+defers them. In the last three rows `<dir>`, `<version>` and `<repo> <alias> <version>` stand for the repository, the running
+engine version and the arguments of `engws bump`; the emitters fill the first two in (ADR-EMG-072). `LoadBundle` stays lenient so that tools which embed the engine can load an incomplete
 model and report it; `ValidateBundle` and every CLI error. `rules.required` of the authoring contract
 (v7) lists the same table, and `TestRequiredSwitchesHaveRemedies` keeps the table and its inventory equal.
 
@@ -861,6 +863,9 @@ model and report it; `ValidateBundle` and every CLI error. `rules.required` of t
 | engmod.yml health block (tier product and operational) | `health.block_missing` | run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write |
 | schemaVersion 2 in every document | `model.unsupported_schema_version` | set schemaVersion: 2 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet) |
 | module.modelId | `model.id_missing` | set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM) |
+| engmod.lock.yml schemaVersion (the version the engine writes) | `composition.lock_schema_outdated` | regenerate the lock with the current engine: run engws bump <repo> <alias> <version> (it rewrites engmod.lock.yml with the current schemaVersion), then engws sync |
+| repository .github/engmod-check that takes --workspace-root | `engine.check_template_stale` | run engflow upgrade --root <dir> to replace .github/engmod-check with the current template that takes --workspace-root |
+| engineering-model-go pin of .github/engmod-check (not older than the running engine) | `engine.pin_outdated` | bump the pin: go get github.com/labeth/engineering-model-go@<version> in .github/engmod-check |
 
 The tier decision named by `lifecycle.tierDecision` must be accepted and carry a `Tier:` line and a
 `Bundles:` line; a decision without a `Bundles:` line no longer means Foundation.

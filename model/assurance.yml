@@ -708,7 +708,7 @@ assurance:
     responsibleRole: ACT-COMPLIANCE-ENGINEER
     artifacts:
     - path: model/requirements.yml
-      description: 'Evidence debt of the consistency checks of ADR-EMG-069 batch 1 (CAP-EMG-TRACEABILITY, CAP-EMG-MODEL-VALIDATION, CAP-EMG-FORMAL-BEHAVIOR): Status verified needs a linked, ungated test and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 9 with linked test but no recorded RED check. The hand mutations of the implementation all failed a test, but they were not recorded as red checks. Requirements: REQ-EMG-170, REQ-EMG-171, REQ-EMG-172, REQ-EMG-173, REQ-EMG-174, REQ-EMG-175, REQ-EMG-176, REQ-EMG-177, REQ-EMG-178.'
+      description: 'Evidence debt of the consistency checks of ADR-EMG-069 batch 1 (CAP-EMG-TRACEABILITY, CAP-EMG-MODEL-VALIDATION, CAP-EMG-FORMAL-BEHAVIOR): Status verified needs a linked, ungated test and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 12 with linked test but no recorded RED check. The hand mutations of the implementation all failed a test, but they were not recorded as red checks. Requirements: REQ-EMG-170, REQ-EMG-171, REQ-EMG-172, REQ-EMG-173, REQ-EMG-174, REQ-EMG-175, REQ-EMG-176, REQ-EMG-177, REQ-EMG-178, REQ-EMG-179, REQ-EMG-180, REQ-EMG-181.'
     defers:
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-170
@@ -728,6 +728,12 @@ assurance:
       ref: REQ-EMG-177
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-178
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-179
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-180
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-181
   - id: POAM-CONSISTENCY-MODEL-ONLY
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -1074,7 +1080,7 @@ assurance:
     responsibleRole: ACT-COMPLIANCE-ENGINEER
     artifacts:
     - path: model/behavior.yml
-      description: 'Modeling debt of capability group CAP-EMG-SYSTEM-COMPOSITION: the event-driven requirements below (5) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-050, REQ-EMG-068, REQ-EMG-080, REQ-EMG-086, REQ-EMG-108.'
+      description: 'Modeling debt of capability group CAP-EMG-SYSTEM-COMPOSITION: the event-driven requirements below (8) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-050, REQ-EMG-068, REQ-EMG-080, REQ-EMG-086, REQ-EMG-108.'
     defers:
     - code: behavior.requirement_unmodeled
       ref: REQ-EMG-050
@@ -1086,6 +1092,12 @@ assurance:
       ref: REQ-EMG-086
     - code: behavior.requirement_unmodeled
       ref: REQ-EMG-108
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-179
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-180
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-181
   - id: POAM-CONSISTENCY-MODELING-14
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational

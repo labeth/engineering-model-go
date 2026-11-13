@@ -59,9 +59,13 @@ commands:
                              see Trust) is used when it supports
                              --workspace-root, run with GOWORK set to its
                              .github/engmod-check/go.work if present, else
-                             off; otherwise the built-in library (--in-process
-                             forces it: the safe choice for untrusted
-                             checkouts); --refresh re-fetches every registry
+                             off; a repo without one that takes the flag is
+                             the error engine.check_template_stale (run
+                             engflow upgrade --root <repo>), not checked by the
+                             library, and a pin older than this engine is
+                             engine.pin_outdated; --in-process uses the
+                             built-in library for every repo (the safe choice
+                             for untrusted checkouts); --refresh re-fetches every registry
                              dependency (ENGMOD_MODULE_CACHE=refresh); exit 1
                              on failure
   bump <repo> <alias> <version> [--allow-review] [--show]

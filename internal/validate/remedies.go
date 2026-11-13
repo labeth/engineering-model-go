@@ -20,6 +20,12 @@ const (
 	remedyLint    = "run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp)"
 	remedyHealth  = "run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write"
 	remedyModelID = "set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM)"
+	// The remedies of the engine side of removal phase 1 (ADR-EMG-072). The
+	// emitters replace <dir> and <version> with the repository and the
+	// running engine version.
+	remedyLockSchema    = "regenerate the lock with the current engine: run engws bump <repo> <alias> <version> (it rewrites engmod.lock.yml with the current schemaVersion), then engws sync"
+	remedyCheckTemplate = "run engflow upgrade --root <dir> to replace .github/engmod-check with the current template that takes --workspace-root"
+	remedyEnginePin     = "bump the pin: go get github.com/labeth/engineering-model-go@<version> in .github/engmod-check"
 )
 
 // RequiredSwitch is one row of the required-switch table: the switch, the
@@ -53,6 +59,9 @@ var requiredSwitches = []RequiredSwitch{
 	{"engmod.yml health block (tier product and operational)", "health.block_missing", remedyHealth},
 	{"schemaVersion 2 in every document", "model.unsupported_schema_version", remedyUpgrade},
 	{"module.modelId", "model.id_missing", remedyModelID},
+	{"engmod.lock.yml schemaVersion (the version the engine writes)", "composition.lock_schema_outdated", remedyLockSchema},
+	{"repository .github/engmod-check that takes --workspace-root", "engine.check_template_stale", remedyCheckTemplate},
+	{"engineering-model-go pin of .github/engmod-check (not older than the running engine)", "engine.pin_outdated", remedyEnginePin},
 }
 
 // RequiredSwitches returns the table of required model switches with the
@@ -88,6 +97,15 @@ func remedyFor(code string) string {
 		}
 	}
 	return ""
+}
+
+// RequiredRemedy returns the remedy of a required-switch code, or "" for a
+// code that is no required switch: the form the emitters outside this
+// package (composition, engws) use to set Diagnostic.Remedy.
+// TRLC-LINKS: REQ-EMG-179, REQ-EMG-180, REQ-EMG-181
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func RequiredRemedy(code string) string {
+	return remedyFor(code)
 }
 
 // withRemedies sets the remedy of every diagnostic whose code is a required

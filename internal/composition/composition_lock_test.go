@@ -4,6 +4,8 @@ package composition
 import (
 	"os"
 	"path/filepath"
+	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -377,5 +379,76 @@ func TestModuleDigestSkipsEngflowState(t *testing.T) {
 	}
 	if after, _ := digestModuleDirectory(dir); after == before {
 		t.Fatal("a module file did not change the digest")
+	}
+}
+
+// lockCase is one committed lock content and the one error expected for it.
+type lockCase struct {
+	name    string
+	content string // "" writes no lock file
+	want    string // code of the one expected error, "" for none
+}
+
+// diagKey is the part of a diagnostic the lock tests compare.
+type diagKey struct {
+	code     string
+	severity validate.Severity
+	path     string
+}
+
+// A committed lock whose schemaVersion is missing or not the current one is
+// composition.lock_schema_outdated at the lock with a remedy that names
+// engws bump and engws sync, and reports nothing else; a lock at the current
+// version is not reported, and a missing lock stays composition.lock_missing.
+// Mutation: dropping the lockSchemaDiagnostics call in checkCompositionLock,
+// or comparing with > instead of !=, fails a row.
+// TRLC-LINKS: REQ-EMG-179
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func TestLockSchemaVersionIsChecked(t *testing.T) {
+	deps := "dependencies: []\n"
+	current := "schemaVersion: " + strconv.Itoa(CompositionLockSchemaVersion) + "\n"
+	for _, c := range []lockCase{
+		{"missing schemaVersion", deps, "composition.lock_schema_outdated"},
+		{"schemaVersion 0", "schemaVersion: 0\n" + deps, "composition.lock_schema_outdated"},
+		{"older schemaVersion", "schemaVersion: -1\n" + deps, "composition.lock_schema_outdated"},
+		{"newer schemaVersion", "schemaVersion: 99\n" + deps, "composition.lock_schema_outdated"},
+		{"current schemaVersion", current + deps, ""},
+		{"no lock file", "", "composition.lock_missing"},
+	} {
+		t.Run(c.name, func(t *testing.T) { assertLockCase(t, c) })
+	}
+}
+
+// assertLockCase checks one lock content against the current resolved lock.
+// TRLC-LINKS: REQ-EMG-179
+func assertLockCase(t *testing.T, c lockCase) {
+	t.Helper()
+	path := filepath.Join(t.TempDir(), CompositionLockFileName)
+	if c.content != "" {
+		testutil.WriteFile(t, path, c.content)
+	}
+	diags := checkCompositionLock(path, CompositionLockDocument{SchemaVersion: CompositionLockSchemaVersion})
+	var got, want []diagKey
+	for _, d := range diags {
+		got = append(got, diagKey{d.Code, d.Severity, d.Path})
+	}
+	if c.want != "" {
+		want = []diagKey{{c.want, validate.SeverityError, path}}
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("diagnostics %+v, want %+v", diags, want)
+	}
+	if c.want == "composition.lock_schema_outdated" {
+		assertLockRemedy(t, diags[0])
+	}
+}
+
+// assertLockRemedy checks that the remedy is the table's and names engws
+// bump and engws sync.
+// TRLC-LINKS: REQ-EMG-179
+func assertLockRemedy(t *testing.T, d validate.Diagnostic) {
+	t.Helper()
+	if d.Remedy != validate.RequiredRemedy(d.Code) || !strings.Contains(d.Remedy, "engws bump") || !strings.Contains(d.Remedy, "engws sync") {
+		t.Fatalf("remedy %q must be the table's and name engws bump and engws sync", d.Remedy)
 	}
 }

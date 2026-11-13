@@ -51,6 +51,9 @@ type CompositionProjection = composition.CompositionProjection
 
 const CompositionLockFileName = composition.CompositionLockFileName
 
+// CompositionLockSchemaVersion is the schemaVersion of engmod.lock.yml the engine writes and requires.
+const CompositionLockSchemaVersion = composition.CompositionLockSchemaVersion
+
 // CompositionLocalLockFileName receives the resolved lock while workspace
 // replacements are active, so the committed lock never pins unpublished content.
 const CompositionLocalLockFileName = composition.CompositionLocalLockFileName

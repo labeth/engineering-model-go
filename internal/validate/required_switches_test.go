@@ -81,7 +81,7 @@ type requiredCase struct {
 	code   string
 	remedy string // substring of the remedy
 	path   string
-	edit   func(*model.Bundle)
+	edit   func(*model.Bundle) // nil: emitted outside the validator (the emitting package tests it)
 }
 
 var requiredCases = []requiredCase{
@@ -120,6 +120,11 @@ var requiredCases = []requiredCase{
 		func(b *model.Bundle) { b.Design.SchemaVersion = 1 }},
 	{"no model id", "model.id_missing", "module.modelId", "model.id",
 		func(b *model.Bundle) { b.Architecture.Model.ID = "" }},
+	// Emitted by composition (the lock) and engws check (the template and the
+	// pin), which set the remedy from RequiredRemedy; their tests drive them.
+	{"outdated lock schema", "composition.lock_schema_outdated", "engws bump", "engmod.lock.yml", nil},
+	{"stale check template", "engine.check_template_stale", "engflow upgrade --root", ".github/engmod-check", nil},
+	{"outdated engine pin", "engine.pin_outdated", "go get github.com/labeth/engineering-model-go@", ".github/engmod-check/go.mod", nil},
 }
 
 // literalRemedies pins the remedy text of every required switch code. They
@@ -141,6 +146,9 @@ var literalRemedies = map[string]string{
 	"health.block_missing":                 "run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write",
 	"model.unsupported_schema_version":     "set schemaVersion: 2 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)",
 	"model.id_missing":                     "set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM)",
+	"composition.lock_schema_outdated":     "regenerate the lock with the current engine: run engws bump <repo> <alias> <version> (it rewrites engmod.lock.yml with the current schemaVersion), then engws sync",
+	"engine.check_template_stale":          "run engflow upgrade --root <dir> to replace .github/engmod-check with the current template that takes --workspace-root",
+	"engine.pin_outdated":                  "bump the pin: go get github.com/labeth/engineering-model-go@<version> in .github/engmod-check",
 }
 
 // codeShape is a diagnostic code literal: family.name.
@@ -244,6 +252,10 @@ func TestRequiredSwitchesHaveRemedies(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
 func assertRequiredCase(t *testing.T, c requiredCase) {
 	t.Helper()
+	if c.edit == nil {
+		assertExternalCase(t, c)
+		return
+	}
 	b := completeBundle(t)
 	c.edit(&b)
 	got := codesOf(ApplyTierPolicy(b, Bundle(b)), c.code)
@@ -258,6 +270,20 @@ func assertRequiredCase(t *testing.T, c requiredCase) {
 	}
 	assertRequiredRemedy(t, c, d)
 	assertRankZeroCode(t, c)
+}
+
+// assertExternalCase checks a row whose code is emitted outside the validator:
+// the remedy a table lookup gives is the pinned one and contains the row's
+// words, the code is never tier keyed, and the lock code is a core code.
+// TRLC-LINKS: REQ-EMG-179, REQ-EMG-180, REQ-EMG-181
+func assertExternalCase(t *testing.T, c requiredCase) {
+	t.Helper()
+	if got := RequiredRemedy(c.code); got != literalRemedies[c.code] || !strings.Contains(got, c.remedy) {
+		t.Errorf("%s: RequiredRemedy %q, want the pinned remedy containing %q", c.name, got, c.remedy)
+	}
+	if TierKeyed(c.code) || IsCoreCode(c.code) != strings.HasPrefix(c.code, "composition.") {
+		t.Errorf("%s: %s must be untiered, and core only for the lock code", c.name, c.code)
+	}
 }
 
 // assertUndeferredError checks that a diagnostic is an undeferred error.
@@ -332,9 +358,11 @@ func assertPinnedRemedies(t *testing.T, tableCodes map[string]bool) {
 	if len(literalRemedies) != len(tableCodes) {
 		t.Errorf("%d pinned remedies for %d table codes", len(literalRemedies), len(tableCodes))
 	}
-	for _, text := range literalRemedies {
-		if strings.Contains(text, "engflow upgrade") || strings.Contains(text, "run engflow") {
-			t.Errorf("remedy names a command that does not exist: %q", text)
+	for code, text := range literalRemedies {
+		// engflow upgrade exists since ADR-EMG-072; only the remedy of the
+		// stale check template may name it.
+		if (strings.Contains(text, "engflow upgrade") || strings.Contains(text, "run engflow")) && code != "engine.check_template_stale" {
+			t.Errorf("remedy of %s names a command that does not exist: %q", code, text)
 		}
 	}
 }
@@ -403,6 +431,9 @@ func assertNotRequiredSwitchesAreNotInTheTable(t *testing.T, tableCodes map[stri
 // TRLC-LINKS: REQ-EMG-125, REQ-EMG-129
 func TestRequiredSwitchesCannotBeDeferred(t *testing.T) {
 	for _, c := range requiredCases {
+		if c.edit == nil && !IsCoreCode(c.code) {
+			continue // the engine.* codes are untiered errors outside the tier policy
+		}
 		t.Run(c.name, func(t *testing.T) { assertRequiredCodeCannotBeDeferred(t, c) })
 	}
 }
@@ -414,7 +445,9 @@ func TestRequiredSwitchesCannotBeDeferred(t *testing.T) {
 func deferringBundle(t *testing.T, c requiredCase) model.Bundle {
 	t.Helper()
 	b := completeBundle(t)
-	c.edit(&b)
+	if c.edit != nil {
+		c.edit(&b)
+	}
 	tier := "mvp"
 	if lc := b.Manifest.Lifecycle; lc != nil {
 		tier = strings.ToLower(lc.Tier)

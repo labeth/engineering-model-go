@@ -1551,3 +1551,30 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
     realizes: [CAP-EMG-MODEL-VALIDATION]
+  - id: REQ-EMG-179
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a composition lock whose schema version is not the current one.
+    notes: 'ADR-EMG-072, removal plan phase 1. composition.lock_schema_outdated is a core error: the lock file schema version is read and compared with the version the engine writes, and an older or missing version is an error whose remedy names engws bump and engws sync instead of a mode that still works. Before this the version was never checked.'
+    verificationMethods: [test]
+    verificationCriteria: When engmod.lock.yml has no schemaVersion or another one than the current version, then composition.lock_schema_outdated is reported at the lock with a remedy; a lock at the current version is not reported.
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+    realizes: [CAP-EMG-SYSTEM-COMPOSITION]
+  - id: REQ-EMG-180
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a repository check template that cannot take the workspace root instead of checking the repository with the library.
+    notes: 'ADR-EMG-072, removal plan phase 1. engine.check_template_stale replaces the silent fallback of engws check to the in-process library: a repository whose .github/engmod-check lacks workspace root support is reported with the remedy to upgrade the check template with engflow upgrade, and it is not checked by another route. A repository with no .github/engmod-check at all is checked by the library only when the caller names the in-process option.'
+    verificationMethods: [test]
+    verificationCriteria: When a checked repository has a .github/engmod-check whose source lacks the workspace root flag, then its result is the error engine.check_template_stale with a remedy and no library check runs for it; with the in-process option the library check runs; a repository with a current template is checked by it.
+    appliesTo:
+      - FU-CLI-ORCHESTRATION
+    realizes: [CAP-EMG-SYSTEM-COMPOSITION]
+  - id: REQ-EMG-181
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.
+    notes: 'ADR-EMG-072, removal plan phase 1. engine.pin_outdated compares the engineering-model-go version in the go.mod of the repository check template with the engine version of the running binary and reports an older pin with the remedy to bump the pin. An unparsable version or a local replacement is not compared.'
+    verificationMethods: [test]
+    verificationCriteria: When the go.mod of .github/engmod-check pins an engine version older than the running engine, then engine.pin_outdated is reported with a remedy; an equal or newer pin, a replace directive and a missing go.mod are not reported.
+    appliesTo:
+      - FU-CLI-ORCHESTRATION
+    realizes: [CAP-EMG-SYSTEM-COMPOSITION]

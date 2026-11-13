@@ -103,7 +103,9 @@ func (r CheckResult) Line() string {
 
 // CheckOptions configures RunChecks.
 type CheckOptions struct {
-	// InProcess forces the library check even when a repo pins its own.
+	// InProcess forces the library check even when a repo pins its own; without
+	// it a repository whose check template cannot take the workspace root is
+	// engine.check_template_stale, not checked by the library (ADR-EMG-072).
 	InProcess bool
 	// Jobs bounds the concurrent exec checks; 0 means GOMAXPROCS.
 	Jobs int
@@ -115,10 +117,14 @@ type CheckOptions struct {
 // RunChecks runs the model check in every target. A repository that ships
 // .github/engmod-check with --workspace-root support is checked with its
 // own pinned engine (go run with GOWORK from ToolGoWork, so the root go.work
-// never captures the check module); otherwise the library in this binary checks it
-// in-process. Exec checks run concurrently; in-process checks run one at a
-// time because they share process state (environment, caches).
-// TRLC-LINKS: REQ-EMG-068
+// never captures the check module), and its result carries engine.pin_outdated
+// when that pin is older than the running engine (ADR-EMG-072). A repository
+// without such a template is not checked by another route: its result is the
+// error engine.check_template_stale with the remedy engflow upgrade, unless
+// opts.InProcess asks for the library in this binary, which then checks every
+// target in-process. Exec checks run concurrently; in-process checks run one
+// at a time because they share process state (environment, caches).
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-180, REQ-EMG-181
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func RunChecks(ctx context.Context, root string, targets []CheckTarget, opts CheckOptions) []CheckResult {
 	results := make([]CheckResult, len(targets))
@@ -134,19 +140,20 @@ func RunChecks(ctx context.Context, root string, targets []CheckTarget, opts Che
 	var wg sync.WaitGroup
 	var inProcess []int
 	for i, target := range targets {
-		if !opts.InProcess && pinnedCheckSupportsWorkspace(target.Entry.Dir) {
+		switch routeOf(target.Entry.Dir, opts) {
+		case routeExec:
 			wg.Add(1)
 			go func(i int, target CheckTarget) {
 				defer wg.Done()
 				sem <- struct{}{}
 				defer func() { <-sem }()
-				restore := guardLock(target.Entry.Dir)
-				results[i] = execCheck(ctx, root, target)
-				restore(&results[i])
+				results[i] = pinnedExec(ctx, root, target)
 			}(i, target)
-			continue
+		case routeStale:
+			results[i] = staleResult(target)
+		default:
+			inProcess = append(inProcess, i)
 		}
-		inProcess = append(inProcess, i)
 	}
 	for _, i := range inProcess {
 		restore := guardLock(targets[i].Entry.Dir)

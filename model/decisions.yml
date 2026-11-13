@@ -2122,3 +2122,26 @@ decisions:
   consequences:
   - The gate of this repository is green without the agent accepting anything, and the debt is visible and dated.
   - The defers paths are positions in model/behavior.yml; a change to those machines needs the item reviewed, and lifecycle.poam_defers_unused reports an entry that matches nothing.
+- id: ADR-EMG-072
+  title: The engine side of removal phase 1 turns the silent fallbacks of the lock and of engws check into errors
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    The removal plan (docs/no-backwards-compatibility-plan.md, phase 1) found that the composition lock file version is never
+    checked and that engws check silently falls back to the in-process library when a repository's own check template cannot
+    take the workspace root. Both accept an out-of-date project without saying so. The owner instructed, verbatim: "i dont want
+    any backwards compatabillity in the model yet, it should always require a full upgrade." Taken by the implementing agent
+    under the owner's instruction to take recommended decisions. OWNER items: whether an engine pin older than the running
+    engine is an error at every tier or only reported.
+  decision: |-
+    (1) composition.lock_schema_outdated is a core error (rank 0, never deferred) for a lock whose schemaVersion is missing or not
+    the current one; its remedy names engws bump and engws sync. (2) engws check no longer falls back to the library for a
+    repository whose .github/engmod-check cannot take the workspace root: the result is the error engine.check_template_stale
+    with the remedy engflow upgrade --root <repo>. A repository with no .github/engmod-check at all keeps the library check only
+    when the in-process option is given; without it the result is the same error. (3) engine.pin_outdated is an error when the go.mod
+    of the check template pins an engineering-model-go older than the running engine, with the remedy to bump the pin; it is
+    untiered, like the flow side's engine.pin_too_old. (4) The three codes are listed in the required-switch inventory with
+    remedies and are covered by the inventory test. Covers REQ-EMG-179 to REQ-EMG-181.
+  consequences:
+  - A workspace that relied on the fallback now reports each stale repository, which is the point.
+  - The remedy names engflow upgrade, which exists since the flow's feat/engflow-upgrade branch.

@@ -66,6 +66,11 @@ type ImportedEntityProvenance struct {
 
 const CompositionLockFileName = "engmod.lock.yml"
 
+// CompositionLockSchemaVersion is the schemaVersion the engine writes into
+// engmod.lock.yml and requires when it reads one (ADR-EMG-072): a lock with
+// another version, or none, is composition.lock_schema_outdated.
+const CompositionLockSchemaVersion = 1
+
 // CompositionLockDocument is deterministic generated dependency state.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
 type CompositionLockDocument struct {
@@ -306,7 +311,7 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 	root, provenance, locks, diags := resolver.resolveSystem("", "", "", absTop, ancestry, true)
 	res := CompositionResult{
 		Root: root, Provenance: provenance,
-		Lock:        CompositionLockDocument{SchemaVersion: 1, Dependencies: locks},
+		Lock:        CompositionLockDocument{SchemaVersion: CompositionLockSchemaVersion, Dependencies: locks},
 		Diagnostics: diags,
 		Workspace:   workspace, cacheNames: resolver.cacheNames,
 	}
@@ -364,6 +369,9 @@ func checkCompositionLock(path string, resolved CompositionLockDocument) []valid
 	if err := yaml.Unmarshal(data, &committed); err != nil {
 		return []validate.Diagnostic{errDiag("composition.lock_invalid", fmt.Sprintf("%s cannot be read: %v", filepath.Base(path), err), path)}
 	}
+	if outdated := lockSchemaDiagnostics(path, committed.SchemaVersion); outdated != nil {
+		return outdated
+	}
 	byAlias := map[string]CompositionLockDependency{}
 	for _, dependency := range committed.Dependencies {
 		byAlias[dependency.Alias] = dependency
@@ -381,12 +389,36 @@ func checkCompositionLock(path string, resolved CompositionLockDocument) []valid
 			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q %s: content digest %s differs from the locked %s (tag moved or content changed)", got.Alias, moduleAt(got.Path, got.Version), got.Digest, want.Digest), path))
 		}
 	}
-	extra := make([]string, 0, len(byAlias))
-	for alias := range byAlias {
-		extra = append(extra, alias)
+	return append(diags, extraLockDiagnostics(byAlias, path)...)
+}
+
+// lockSchemaDiagnostics reports a committed lock whose schemaVersion is not
+// the one the engine writes (ADR-EMG-072, REQ-EMG-179): a missing key reads
+// as 0. It returns nil for a lock at the current version.
+// TRLC-LINKS: REQ-EMG-179
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func lockSchemaDiagnostics(path string, version int) []validate.Diagnostic {
+	if version == CompositionLockSchemaVersion {
+		return nil
 	}
-	sort.Strings(extra)
-	for _, alias := range extra {
+	msg := fmt.Sprintf("%s has schemaVersion %d but the engine writes %d (0 means the key is missing)", filepath.Base(path), version, CompositionLockSchemaVersion)
+	d := errDiag("composition.lock_schema_outdated", msg, path)
+	d.Remedy = validate.RequiredRemedy(d.Code)
+	return []validate.Diagnostic{d}
+}
+
+// extraLockDiagnostics reports the committed dependencies the manifest no
+// longer resolves, in alias order.
+// TRLC-LINKS: REQ-EMG-064
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func extraLockDiagnostics(extra map[string]CompositionLockDependency, path string) []validate.Diagnostic {
+	aliases := make([]string, 0, len(extra))
+	for alias := range extra {
+		aliases = append(aliases, alias)
+	}
+	sort.Strings(aliases)
+	diags := make([]validate.Diagnostic, 0, len(aliases))
+	for _, alias := range aliases {
 		diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("committed lock lists dependency %q that the manifest no longer resolves", alias), path))
 	}
 	return diags
