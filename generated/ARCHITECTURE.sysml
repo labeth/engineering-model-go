@@ -512,6 +512,24 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-074';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-075";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-075';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-076";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-076';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-077";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-077';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -2350,6 +2368,12 @@ package 'engineering-model-go' {
     event occurrence 'EVT-REQUIREMENTS-DELTA-RECEIVED' : EngineeringEvent;
 
     @EngineeringElement {
+        sourceId = "EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN' : EngineeringEvent;
+
+    @EngineeringElement {
         sourceId = "EVT-SPEC-DELTA-REQUESTED";
         conceptKind = "engineering_extension";
     }
@@ -3932,7 +3956,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-093' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each published capability without a realizing requirement.";
-        attribute 'notes' : 'String' = "contract.unrealized (warning) names a published capability with no realizing requirement. contract.ref_deprecated (warning) is reported at each contract.provides ref; the ref still counts as a realizer for one release.";
+        attribute 'notes' : 'String' = "contract.unrealized (warning) names a published capability with no realizing requirement. A contract.provides entry that carries ref is the error model.provides_ref_removed (REQ-EMG-184) and the ref counts as no realizer; the realizing requirement names the capability with realizes.";
     }
 
     @EngineeringElement {
@@ -4076,7 +4100,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-109' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose recorded fingerprint uses another canonical form than the engineering model go writes.";
-        attribute 'notes' : 'String' = "Retired by decision D23 (ADR-EMG-030): links record no fingerprint, so there is no canonical form to be outdated. A recorded pinned.fingerprint is now link.fingerprint_deprecated (REQ-EMG-118); link.fingerprint_outdated no longer exists.";
+        attribute 'notes' : 'String' = "Retired by decision D23 (ADR-EMG-030): links record no fingerprint, so there is no canonical form to be outdated. A recorded pinned.fingerprint is the error model.pinned_fingerprint_removed (REQ-EMG-118, REQ-EMG-184); link.fingerprint_outdated no longer exists.";
     }
 
     @EngineeringElement {
@@ -4157,7 +4181,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-118' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each requirement link that records a deprecated fingerprint.";
-        attribute 'notes' : 'String' = "Decision D23 (ADR-EMG-030): the pinned version is the review record. pinned.fingerprint is still accepted by the CUE schema for one release (any string, optional) and ignored by every evaluation; validation reports link.fingerprint_deprecated (warning) at reqLinks[i].pinned.fingerprint naming engws migrate-links, which removes it (and prints the count); engws review-links --accept removes it from the link it accepts.";
+        attribute 'notes' : 'String' = "Decision D23 (ADR-EMG-030): the pinned version is the review record. pinned.fingerprint still decodes (any string, optional) so that its error can carry the remedy, and every evaluation ignores it; validation reports model.pinned_fingerprint_removed (error, REQ-EMG-184) at reqLinks[i].pinned.fingerprint; engws migrate-links reports each one and leaves the file alone.";
     }
 
     @EngineeringElement {
@@ -4746,6 +4770,33 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-184";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-184' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall reject a deprecated pinned fingerprint and a deprecated provides reference with an error that names the remedy.";
+        attribute 'notes' : 'String' = "ADR-EMG-075, removal plan phase 4. A requirement link that carries pinned.fingerprint is the error model.pinned_fingerprint_removed and a contract provides entry that carries ref is the error model.provides_ref_removed. Each is an untiered error whose message names the field to delete, instead of the warning pinned.fingerprint was or a bare strict-decoding error. The two requires ref lines of the Atlas examples are deleted because nothing reads them.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-185";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-185' {
+        attribute 'text' : 'String' = "When requirements delta apply is requested, the engineering model go shall refuse to write when another apply holds the lock, when the candidate is invalid or when the requirements document changed while the delta was planned.";
+        attribute 'notes' : 'String' = "The apply takes an exclusive lock on the requirements document before it plans, refuses a candidate with blocking diagnostics and re-reads the document immediately before the atomic write, so no change is lost and a refused run writes nothing. The re-read refusal (requirements changed while delta was being planned) has no test: the lock already excludes every other run of this tool, so only an editor changing the file between planning and the write can reach it, and a test needs a seam in the code that was not added. It is defence in depth that the machine models and the verification debt of this requirement records. SM-REQUIREMENTS-DELTA models these guards and its invariants (written implies a valid candidate and an unchanged source) fail when a guard is removed.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-186";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-186' {
+        attribute 'text' : 'String' = "When release check is requested, the engineering model go shall reject a release whose changelog entry declares a breaking release and whose model schema version is not greater than the schema version at the previous release.";
+        attribute 'notes' : 'String' = "ADR-EMG-077. engws release-check reads the CHANGELOG section of the tag, and when it contains the words Breaking release it loads the manifest at the previous tag and reports release.schema_version_not_bumped (error, untiered) unless the schemaVersion of the head manifest is greater. A model whose schemaVersion is older than the engine supports is model.unsupported_schema_version with the remedy, so a model written for an earlier release fails on its version first. Reading the previous tag is the only place an older schema version is accepted: the copy read for the contract diff is stamped with the current version in a temporary directory.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
@@ -5001,6 +5052,8 @@ package 'engineering-model-go' {
     state def 'SM-MCP-SESSION' {
         doc /* Whether the model a running MCP server holds equals the model files on disk. The server compares a content fingerprint of the model files on every tool call and reloads when it changed, so a result always reflects the files at call time. Implemented by FU-MCP-SERVER. */
         attribute fingerprintMatches : Boolean := true;
+        attribute reloadFails : Boolean := false;
+        attribute lastCallFailed : Boolean := false;
         entry;
         then 'STATE-MCP-MODEL-CURRENT';
         state 'STATE-MCP-MODEL-CURRENT';
@@ -5016,9 +5069,14 @@ package 'engineering-model-go' {
         transition 'TR-MCP-CALL-RELOADS'
             first 'STATE-MCP-MODEL-OUTDATED'
             accept 'on-EVT-MCP-TOOL-CALL-RECEIVED' :> 'EVT-MCP-TOOL-CALL-RECEIVED'
-            do assign fingerprintMatches := true
+            if not reloadFails
+            do action {
+                // simultaneous assignment: every right-hand side reads the pre-transition values
+                assign fingerprintMatches := true;
+                assign lastCallFailed := false;
+            }
             then 'STATE-MCP-MODEL-CURRENT' {
-                doc /* A tool call finds the fingerprint of the model files changed and reloads the model before it answers, so the result is built from the files at call time (REQ-EMG-089). */
+                doc /* A tool call finds the fingerprint of the model files changed and the files load, so it reloads the model before it answers and the result is built from the files at call time (REQ-EMG-089). */
             }
         @EngineeringRelationship about 'TR-MCP-CALL-RELOADS' {
             sourceId = "TR-MCP-CALL-RELOADS";
@@ -5036,6 +5094,18 @@ package 'engineering-model-go' {
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
+        transition 'TR-MCP-FILES-LOADABILITY-CHANGES'
+            first 'STATE-MCP-MODEL-OUTDATED'
+            accept 'on-EVT-MODEL-UPDATED' :> 'EVT-MODEL-UPDATED'
+            do assign reloadFails := not reloadFails
+            then 'STATE-MCP-MODEL-OUTDATED' {
+                doc /* A further edit of the model files while the held model is outdated breaks them so they no longer load, or repairs them so they load again; the held model stays outdated either way (REQ-EMG-089). */
+            }
+        @EngineeringRelationship about 'TR-MCP-FILES-LOADABILITY-CHANGES' {
+            sourceId = "TR-MCP-FILES-LOADABILITY-CHANGES";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
         transition 'TR-MCP-MODEL-FILE-CHANGES'
             first 'STATE-MCP-MODEL-CURRENT'
             accept 'on-EVT-MODEL-UPDATED' :> 'EVT-MODEL-UPDATED'
@@ -5048,10 +5118,27 @@ package 'engineering-model-go' {
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
+        transition 'TR-MCP-RELOAD-FAILS'
+            first 'STATE-MCP-MODEL-OUTDATED'
+            accept 'on-EVT-MCP-TOOL-CALL-RECEIVED' :> 'EVT-MCP-TOOL-CALL-RECEIVED'
+            if reloadFails
+            do assign lastCallFailed := true
+            then 'STATE-MCP-MODEL-OUTDATED' {
+                doc /* A tool call finds the fingerprint changed but the reload of the model files fails, so it returns the error -32001 instead of a result, keeps the old fingerprint and the loaded model, and the model stays outdated so the next call retries (REQ-EMG-089, REQ-EMG-007). */
+            }
+        @EngineeringRelationship about 'TR-MCP-RELOAD-FAILS' {
+            sourceId = "TR-MCP-RELOAD-FAILS";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
         // invariant INV-MCP-CURRENT-FINGERPRINT-MATCHES is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
         //     authored: in_state(STATE-MCP-MODEL-CURRENT) implies fingerprintMatches
+        // invariant INV-MCP-FAILED-CALL-KEEPS-OUTDATED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: lastCallFailed implies (in_state(STATE-MCP-MODEL-OUTDATED) and not fingerprintMatches)
         // invariant INV-MCP-OUTDATED-FINGERPRINT-DIFFERS is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
         //     authored: in_state(STATE-MCP-MODEL-OUTDATED) implies not fingerprintMatches
+        // invariant INV-MCP-UNLOADABLE-FILES-NOT-CURRENT is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: reloadFails implies in_state(STATE-MCP-MODEL-OUTDATED)
     }
 
     @EngineeringElement {
@@ -5119,11 +5206,20 @@ package 'engineering-model-go' {
     state def 'SM-REQUIREMENTS-DELTA' {
         doc /* One requirements delta from the moment it is received until it is rejected or atomically applied. The variable written records that the requirements document was replaced; validate and diff never write it. Implemented by FU-MODEL-CHANGE. */
         attribute written : Boolean := false;
+        attribute locked : Boolean := false;
+        attribute otherHoldsLock : Boolean := false;
+        attribute candidateValid : Boolean := false;
+        attribute sourceUnchanged : Boolean := true;
         entry;
         then 'STATE-DELTA-NONE';
         state 'STATE-DELTA-APPLIED';
         @EngineeringElement about 'STATE-DELTA-APPLIED' {
             sourceId = "STATE-DELTA-APPLIED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-DELTA-LOCKED';
+        @EngineeringElement about 'STATE-DELTA-LOCKED' {
+            sourceId = "STATE-DELTA-LOCKED";
             conceptKind = "state_usage";
         }
         state 'STATE-DELTA-NONE';
@@ -5141,21 +5237,100 @@ package 'engineering-model-go' {
             sourceId = "STATE-DELTA-PLANNING";
             conceptKind = "state_usage";
         }
+        state 'STATE-DELTA-REFUSED';
+        @EngineeringElement about 'STATE-DELTA-REFUSED' {
+            sourceId = "STATE-DELTA-REFUSED";
+            conceptKind = "state_usage";
+        }
         transition 'TR-DELTA-APPLY'
-            first 'STATE-DELTA-PLANNED'
+            first 'STATE-DELTA-LOCKED'
             accept 'on-EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED' :> 'EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED'
-            do assign written := true
+            if locked and candidateValid and sourceUnchanged
+            do action {
+                // simultaneous assignment: every right-hand side reads the pre-transition values
+                assign written := true;
+                assign locked := false;
+            }
             then 'STATE-DELTA-APPLIED' {
-                doc /* Apply is requested for a validated candidate, which atomically replaces the requirements document (REQ-EMG-033). */
+                doc /* With the lock held, a candidate without blocking diagnostics and a requirements document unchanged since it was planned, the candidate atomically replaces the requirements document and the lock is released (REQ-EMG-033). */
             }
         @EngineeringRelationship about 'TR-DELTA-APPLY' {
             sourceId = "TR-DELTA-APPLY";
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
+        transition 'TR-DELTA-CANDIDATE-INVALIDATED'
+            first 'STATE-DELTA-LOCKED'
+            accept 'on-EVT-VALIDATION-FAILED' :> 'EVT-VALIDATION-FAILED'
+            if candidateValid
+            do assign candidateValid := false
+            then 'STATE-DELTA-LOCKED' {
+                doc /* The delta planned again under the lock yields a candidate with blocking diagnostics, for example because the model changed since the earlier dry run (REQ-EMG-032, REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-CANDIDATE-INVALIDATED' {
+            sourceId = "TR-DELTA-CANDIDATE-INVALIDATED";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-LOCK'
+            first 'STATE-DELTA-PLANNED'
+            accept 'on-EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED' :> 'EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED'
+            if not otherHoldsLock
+            do assign locked := true
+            then 'STATE-DELTA-LOCKED' {
+                doc /* Apply is requested and no other run holds the requirements change lock, so this run takes it before it plans the delta again (REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-LOCK' {
+            sourceId = "TR-DELTA-LOCK";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-LOCK-BUSY'
+            first 'STATE-DELTA-PLANNED'
+            accept 'on-EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED' :> 'EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED'
+            if otherHoldsLock
+            then 'STATE-DELTA-REFUSED' {
+                doc /* Apply is requested while another run holds the requirements change lock, so it fails with requirements change already in progress and writes nothing (REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-LOCK-BUSY' {
+            sourceId = "TR-DELTA-LOCK-BUSY";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-OTHER-RUN-LOCKS'
+            first 'STATE-DELTA-PLANNED'
+            accept 'on-EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN' :> 'EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN'
+            if not otherHoldsLock
+            do assign otherHoldsLock := true
+            then 'STATE-DELTA-PLANNED' {
+                doc /* Another engchange run takes the requirements change lock; it can only do so while this run does not hold it (REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-OTHER-RUN-LOCKS' {
+            sourceId = "TR-DELTA-OTHER-RUN-LOCKS";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-OTHER-RUN-UNLOCKS'
+            first 'STATE-DELTA-PLANNED'
+            accept 'on-EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN' :> 'EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN'
+            if otherHoldsLock
+            do assign otherHoldsLock := false
+            then 'STATE-DELTA-PLANNED' {
+                doc /* Another engchange run releases the requirements change lock (REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-OTHER-RUN-UNLOCKS' {
+            sourceId = "TR-DELTA-OTHER-RUN-UNLOCKS";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
         transition 'TR-DELTA-RECEIVE'
             first 'STATE-DELTA-NONE'
             accept 'on-EVT-REQUIREMENTS-DELTA-RECEIVED' :> 'EVT-REQUIREMENTS-DELTA-RECEIVED'
+            do action {
+                // simultaneous assignment: every right-hand side reads the pre-transition values
+                assign candidateValid := false;
+                assign sourceUnchanged := true;
+            }
             then 'STATE-DELTA-PLANNING' {
                 doc /* A delta is received and the strict decode and the stable-ID operation uniqueness check begin (REQ-EMG-031). */
             }
@@ -5167,12 +5342,59 @@ package 'engineering-model-go' {
         transition 'TR-DELTA-RECEIVE-AFTER-APPLY'
             first 'STATE-DELTA-APPLIED'
             accept 'on-EVT-REQUIREMENTS-DELTA-RECEIVED' :> 'EVT-REQUIREMENTS-DELTA-RECEIVED'
-            do assign written := false
+            do action {
+                // simultaneous assignment: every right-hand side reads the pre-transition values
+                assign written := false;
+                assign candidateValid := false;
+                assign sourceUnchanged := true;
+            }
             then 'STATE-DELTA-PLANNING' {
                 doc /* A new delta follows an applied one before the model update was seen (REQ-EMG-031). */
             }
         @EngineeringRelationship about 'TR-DELTA-RECEIVE-AFTER-APPLY' {
             sourceId = "TR-DELTA-RECEIVE-AFTER-APPLY";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-RECEIVE-AFTER-REFUSAL'
+            first 'STATE-DELTA-REFUSED'
+            accept 'on-EVT-REQUIREMENTS-DELTA-RECEIVED' :> 'EVT-REQUIREMENTS-DELTA-RECEIVED'
+            do action {
+                // simultaneous assignment: every right-hand side reads the pre-transition values
+                assign candidateValid := false;
+                assign sourceUnchanged := true;
+            }
+            then 'STATE-DELTA-PLANNING' {
+                doc /* A new delta follows a refused apply and is decoded strictly again (REQ-EMG-031). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-RECEIVE-AFTER-REFUSAL' {
+            sourceId = "TR-DELTA-RECEIVE-AFTER-REFUSAL";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-REFUSE-CHANGED'
+            first 'STATE-DELTA-LOCKED'
+            accept 'on-EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED' :> 'EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED'
+            if candidateValid and not sourceUnchanged
+            do assign locked := false
+            then 'STATE-DELTA-REFUSED' {
+                doc /* The requirements document changed while the delta was being planned, so apply fails with requirements changed while delta was being planned, releases the lock and writes nothing (REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-REFUSE-CHANGED' {
+            sourceId = "TR-DELTA-REFUSE-CHANGED";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-DELTA-REFUSE-INVALID'
+            first 'STATE-DELTA-LOCKED'
+            accept 'on-EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED' :> 'EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED'
+            if not candidateValid
+            do assign locked := false
+            then 'STATE-DELTA-REFUSED' {
+                doc /* The candidate has blocking diagnostics, so apply fails with requirements delta candidate is invalid, releases the lock and writes nothing (REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-REFUSE-INVALID' {
+            sourceId = "TR-DELTA-REFUSE-INVALID";
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
@@ -5199,9 +5421,27 @@ package 'engineering-model-go' {
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
+        transition 'TR-DELTA-SOURCE-CHANGES'
+            first 'STATE-DELTA-LOCKED'
+            accept 'on-EVT-MODEL-UPDATED' :> 'EVT-MODEL-UPDATED'
+            if sourceUnchanged
+            do assign sourceUnchanged := false
+            then 'STATE-DELTA-LOCKED' {
+                doc /* The requirements document is edited by someone who does not use the lock after the plan read it; the re-read before the write finds it (REQ-EMG-033). */
+            }
+        @EngineeringRelationship about 'TR-DELTA-SOURCE-CHANGES' {
+            sourceId = "TR-DELTA-SOURCE-CHANGES";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
         transition 'TR-DELTA-SUPERSEDE'
             first 'STATE-DELTA-PLANNED'
             accept 'on-EVT-REQUIREMENTS-DELTA-RECEIVED' :> 'EVT-REQUIREMENTS-DELTA-RECEIVED'
+            do action {
+                // simultaneous assignment: every right-hand side reads the pre-transition values
+                assign candidateValid := false;
+                assign sourceUnchanged := true;
+            }
             then 'STATE-DELTA-PLANNING' {
                 doc /* A new delta replaces a planned one that was never applied (REQ-EMG-031). */
             }
@@ -5213,6 +5453,7 @@ package 'engineering-model-go' {
         transition 'TR-DELTA-VALIDATED'
             first 'STATE-DELTA-PLANNING'
             accept 'on-EVT-REQUIREMENTS-CANDIDATE-VALIDATED' :> 'EVT-REQUIREMENTS-CANDIDATE-VALIDATED'
+            do assign candidateValid := true
             then 'STATE-DELTA-PLANNED' {
                 doc /* The candidate passes the complete-model validation and the deterministic change summary is produced without writing (REQ-EMG-032, REQ-EMG-034). */
             }
@@ -5225,8 +5466,36 @@ package 'engineering-model-go' {
         //     authored: in_state(STATE-DELTA-APPLIED) implies written
         // invariant INV-DELTA-DRY-RUN-NOT-WRITTEN is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
         //     authored: (in_state(STATE-DELTA-PLANNING) or in_state(STATE-DELTA-PLANNED)) implies not written
+        constraint 'INV-DELTA-LOCK-EXCLUSIVE' {
+            doc /* Two runs never hold the requirements change lock at the same time. Protects REQ-EMG-033, REQ-EMG-185. */
+            locked implies not otherHoldsLock
+        }
+        @EngineeringElement about 'INV-DELTA-LOCK-EXCLUSIVE' {
+            sourceId = "INV-DELTA-LOCK-EXCLUSIVE";
+            conceptKind = "constraint_usage";
+        }
+        // invariant INV-DELTA-LOCK-RELEASED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: locked implies in_state(STATE-DELTA-LOCKED)
+        // invariant INV-DELTA-REFUSED-NOT-WRITTEN is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: (in_state(STATE-DELTA-LOCKED) or in_state(STATE-DELTA-REFUSED)) implies not written
+        constraint 'INV-DELTA-WRITTEN-CANDIDATE-VALID' {
+            doc /* The requirements document is replaced only by a candidate without blocking diagnostics, also when the delta was planned again under the lock. Protects REQ-EMG-032, REQ-EMG-033, REQ-EMG-185. */
+            written implies candidateValid
+        }
+        @EngineeringElement about 'INV-DELTA-WRITTEN-CANDIDATE-VALID' {
+            sourceId = "INV-DELTA-WRITTEN-CANDIDATE-VALID";
+            conceptKind = "constraint_usage";
+        }
         // invariant INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
         //     authored: written implies in_state(STATE-DELTA-APPLIED)
+        constraint 'INV-DELTA-WRITTEN-SOURCE-UNCHANGED' {
+            doc /* The requirements document is replaced only when it still equals what the delta was planned from, so no concurrent edit is lost. Protects REQ-EMG-033, REQ-EMG-185. */
+            written implies sourceUnchanged
+        }
+        @EngineeringElement about 'INV-DELTA-WRITTEN-SOURCE-UNCHANGED' {
+            sourceId = "INV-DELTA-WRITTEN-SOURCE-UNCHANGED";
+            conceptKind = "constraint_usage";
+        }
     }
 
     @EngineeringElement {

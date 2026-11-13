@@ -326,6 +326,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`EVT-REQUIREMENTS-CANDIDATE-VALIDATED` |event |Requirements Candidate Validated
 |`EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED` |event |Requirements Delta Apply Requested
 |`EVT-REQUIREMENTS-DELTA-RECEIVED` |event |Requirements Delta Received
+|`EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN` |event |Requirements Lock Changed By Other Run
 |`EVT-STATUS-SUGGEST-REQUESTED` |event |Status Suggest Requested
 |`EVT-VALIDATION-FAILED` |event |Validation Failed
 |`EVT-VALIDATION-PASSED` |event |Validation Passed
@@ -333,9 +334,11 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`STATE-ARTIFACTS-REGENERATING` |state |Artifacts Regenerating
 |`STATE-ARTIFACTS-STALE` |state |Artifacts Stale
 |`STATE-DELTA-APPLIED` |state |Delta Applied
+|`STATE-DELTA-LOCKED` |state |Delta Locked
 |`STATE-DELTA-NONE` |state |Delta None
 |`STATE-DELTA-PLANNED` |state |Delta Planned
 |`STATE-DELTA-PLANNING` |state |Delta Planning
+|`STATE-DELTA-REFUSED` |state |Delta Refused
 |`STATE-LINK-ABSENT` |state |Link Absent
 |`STATE-LINK-ACCEPTED` |state |Link Accepted
 |`STATE-LINK-BROKEN` |state |Link Broken
@@ -365,17 +368,31 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`STATE-DELTA-APPLIED` |on_event |`EVT-MODEL-UPDATED` |on_event
 |`STATE-DELTA-APPLIED` |on_event |`EVT-REQUIREMENTS-DELTA-RECEIVED` |on_event
 |`STATE-DELTA-APPLIED` |transition |`STATE-DELTA-NONE` |transition: TR-DELTA-SETTLE on EVT-MODEL-UPDATED / written := false
-|`STATE-DELTA-APPLIED` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-RECEIVE-AFTER-APPLY on EVT-REQUIREMENTS-DELTA-RECEIVED / written := false
+|`STATE-DELTA-APPLIED` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-RECEIVE-AFTER-APPLY on EVT-REQUIREMENTS-DELTA-RECEIVED / written := false; candidateValid := false; sourceUnchanged := true
+|`STATE-DELTA-LOCKED` |on_event |`EVT-MODEL-UPDATED` |on_event
+|`STATE-DELTA-LOCKED` |on_event |`EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED` |on_event
+|`STATE-DELTA-LOCKED` |on_event |`EVT-VALIDATION-FAILED` |on_event
+|`STATE-DELTA-LOCKED` |transition |`STATE-DELTA-APPLIED` |transition: TR-DELTA-APPLY on EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED [locked and candidateValid and sourceUnchanged] / written := true; locked := false
+|`STATE-DELTA-LOCKED` |transition |`STATE-DELTA-LOCKED` |transition: TR-DELTA-CANDIDATE-INVALIDATED on EVT-VALIDATION-FAILED [candidateValid] / candidateValid := false
+|`STATE-DELTA-LOCKED` |transition |`STATE-DELTA-LOCKED` |transition: TR-DELTA-SOURCE-CHANGES on EVT-MODEL-UPDATED [sourceUnchanged] / sourceUnchanged := false
+|`STATE-DELTA-LOCKED` |transition |`STATE-DELTA-REFUSED` |transition: TR-DELTA-REFUSE-CHANGED on EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED [candidateValid and not sourceUnchanged] / locked := false
+|`STATE-DELTA-LOCKED` |transition |`STATE-DELTA-REFUSED` |transition: TR-DELTA-REFUSE-INVALID on EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED [not candidateValid] / locked := false
 |`STATE-DELTA-NONE` |on_event |`EVT-REQUIREMENTS-DELTA-RECEIVED` |on_event
-|`STATE-DELTA-NONE` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-RECEIVE on EVT-REQUIREMENTS-DELTA-RECEIVED
+|`STATE-DELTA-NONE` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-RECEIVE on EVT-REQUIREMENTS-DELTA-RECEIVED / candidateValid := false; sourceUnchanged := true
 |`STATE-DELTA-PLANNED` |on_event |`EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED` |on_event
 |`STATE-DELTA-PLANNED` |on_event |`EVT-REQUIREMENTS-DELTA-RECEIVED` |on_event
-|`STATE-DELTA-PLANNED` |transition |`STATE-DELTA-APPLIED` |transition: TR-DELTA-APPLY on EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED / written := true
-|`STATE-DELTA-PLANNED` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-SUPERSEDE on EVT-REQUIREMENTS-DELTA-RECEIVED
+|`STATE-DELTA-PLANNED` |on_event |`EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN` |on_event
+|`STATE-DELTA-PLANNED` |transition |`STATE-DELTA-LOCKED` |transition: TR-DELTA-LOCK on EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED [not otherHoldsLock] / locked := true
+|`STATE-DELTA-PLANNED` |transition |`STATE-DELTA-PLANNED` |transition: TR-DELTA-OTHER-RUN-LOCKS on EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN [not otherHoldsLock] / otherHoldsLock := true
+|`STATE-DELTA-PLANNED` |transition |`STATE-DELTA-PLANNED` |transition: TR-DELTA-OTHER-RUN-UNLOCKS on EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN [otherHoldsLock] / otherHoldsLock := false
+|`STATE-DELTA-PLANNED` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-SUPERSEDE on EVT-REQUIREMENTS-DELTA-RECEIVED / candidateValid := false; sourceUnchanged := true
+|`STATE-DELTA-PLANNED` |transition |`STATE-DELTA-REFUSED` |transition: TR-DELTA-LOCK-BUSY on EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED [otherHoldsLock]
 |`STATE-DELTA-PLANNING` |on_event |`EVT-REQUIREMENTS-CANDIDATE-VALIDATED` |on_event
 |`STATE-DELTA-PLANNING` |on_event |`EVT-VALIDATION-FAILED` |on_event
 |`STATE-DELTA-PLANNING` |transition |`STATE-DELTA-NONE` |transition: TR-DELTA-REJECT on EVT-VALIDATION-FAILED
-|`STATE-DELTA-PLANNING` |transition |`STATE-DELTA-PLANNED` |transition: TR-DELTA-VALIDATED on EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+|`STATE-DELTA-PLANNING` |transition |`STATE-DELTA-PLANNED` |transition: TR-DELTA-VALIDATED on EVT-REQUIREMENTS-CANDIDATE-VALIDATED / candidateValid := true
+|`STATE-DELTA-REFUSED` |on_event |`EVT-REQUIREMENTS-DELTA-RECEIVED` |on_event
+|`STATE-DELTA-REFUSED` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-RECEIVE-AFTER-REFUSAL on EVT-REQUIREMENTS-DELTA-RECEIVED / candidateValid := false; sourceUnchanged := true
 |`STATE-LINK-ABSENT` |on_event |`EVT-LINK-ADD-REQUESTED` |on_event
 |`STATE-LINK-ABSENT` |on_event |`EVT-LINK-MIGRATION-REQUESTED` |on_event
 |`STATE-LINK-ABSENT` |transition |`STATE-LINK-CLAIMED` |transition: TR-LINK-ADD on EVT-LINK-ADD-REQUESTED
@@ -399,7 +416,10 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`STATE-MCP-MODEL-CURRENT` |transition |`STATE-MCP-MODEL-CURRENT` |transition: TR-MCP-CALL-SERVED on EVT-MCP-TOOL-CALL-RECEIVED
 |`STATE-MCP-MODEL-CURRENT` |transition |`STATE-MCP-MODEL-OUTDATED` |transition: TR-MCP-MODEL-FILE-CHANGES on EVT-MODEL-UPDATED / fingerprintMatches := false
 |`STATE-MCP-MODEL-OUTDATED` |on_event |`EVT-MCP-TOOL-CALL-RECEIVED` |on_event
-|`STATE-MCP-MODEL-OUTDATED` |transition |`STATE-MCP-MODEL-CURRENT` |transition: TR-MCP-CALL-RELOADS on EVT-MCP-TOOL-CALL-RECEIVED / fingerprintMatches := true
+|`STATE-MCP-MODEL-OUTDATED` |on_event |`EVT-MODEL-UPDATED` |on_event
+|`STATE-MCP-MODEL-OUTDATED` |transition |`STATE-MCP-MODEL-CURRENT` |transition: TR-MCP-CALL-RELOADS on EVT-MCP-TOOL-CALL-RECEIVED [not reloadFails] / fingerprintMatches := true; lastCallFailed := false
+|`STATE-MCP-MODEL-OUTDATED` |transition |`STATE-MCP-MODEL-OUTDATED` |transition: TR-MCP-FILES-LOADABILITY-CHANGES on EVT-MODEL-UPDATED / reloadFails := not reloadFails
+|`STATE-MCP-MODEL-OUTDATED` |transition |`STATE-MCP-MODEL-OUTDATED` |transition: TR-MCP-RELOAD-FAILS on EVT-MCP-TOOL-CALL-RECEIVED [reloadFails] / lastCallFailed := true
 |`STATE-MODEL-INVALID` |on_event |`EVT-MODEL-UPDATED` |on_event
 |`STATE-MODEL-INVALID` |transition |`STATE-MODEL-VALID` |transition: TR-MODEL-VALIDATION-RECOVERS on EVT-MODEL-UPDATED / generationPermitted := true
 |`STATE-MODEL-VALID` |guarded_by |`CTRL-STRICT-MCP-INPUT-SCHEMA` |guarded_by: Model-aware tool usage requires strict MCP input semantics.
