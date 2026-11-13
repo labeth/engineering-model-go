@@ -488,6 +488,12 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-070';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-071";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-071';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -1860,6 +1866,12 @@ package 'engineering-model-go' {
     attribute 'DATA-TRLC-PACKAGE';
 
     @EngineeringElement {
+        sourceId = "DEC-CODE-EXEMPT-MODEL-ONLY";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-CODE-EXEMPT-MODEL-ONLY';
+
+    @EngineeringElement {
         sourceId = "DEC-HEALTH-BASELINE";
         conceptKind = "engineering_extension";
     }
@@ -2014,16 +2026,64 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-139EC30ED19D5D0E';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-17C6EF1A7DB19DC3";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-17C6EF1A7DB19DC3';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-1C5C91CFE3071C27";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-1C5C91CFE3071C27';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-1F759AEA9CF11C3A";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-1F759AEA9CF11C3A';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-247FD595AB3F2229";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-247FD595AB3F2229';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-40EB3F8D004E3DF8";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-40EB3F8D004E3DF8';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-43B6184BF8DE5E9F";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-43B6184BF8DE5E9F';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-4D65C1F858E3498F";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-4D65C1F858E3498F';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-5AD0ABA192E838BB";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-5AD0ABA192E838BB';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-5EE38555C003B5C1";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-5EE38555C003B5C1';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-6847186E5CC923DB";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-6847186E5CC923DB';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-703C9B14599B7165";
@@ -2056,10 +2116,34 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-785435EA6C3FA885';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-7A4B55CD125B2278";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-7A4B55CD125B2278';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-7BCB58B049112FF6";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-7BCB58B049112FF6';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-7E819123F3B686F2";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-7E819123F3B686F2';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-86534EAF0B866FF8";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-86534EAF0B866FF8';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-8BC6A59A329C4B02";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-8BC6A59A329C4B02';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-94C1E990F59187C8";
@@ -2068,10 +2152,40 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-94C1E990F59187C8';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-95186CA263D4A74D";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-95186CA263D4A74D';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-98FAD0125D12E38A";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-98FAD0125D12E38A';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-A058B3374B208985";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-A058B3374B208985';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-A3621B641F8230F2";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-A3621B641F8230F2';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-A755D795A790DDDB";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-A755D795A790DDDB';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-AA409C8F49AB186F";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-AA409C8F49AB186F';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-BB4E54DC3575C2A8";
@@ -2098,6 +2212,18 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-DF786B86FD0C4795';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-E4E9DF285AEBDD56";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-E4E9DF285AEBDD56';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-E5BC6B02C1A6B8E0";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-E5BC6B02C1A6B8E0';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-E7E572C202CD7329";
         conceptKind = "engineering_extension";
     }
@@ -2120,6 +2246,18 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-FB2594F142C7A666';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-FE94E22EA4EF2F8E";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-FE94E22EA4EF2F8E';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-FEACEF702B8F0028";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-FEACEF702B8F0028';
 
     @EngineeringElement {
         sourceId = "EVT-ARTIFACT-GENERATED";
@@ -2222,6 +2360,12 @@ package 'engineering-model-go' {
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-VALIDATION-FAILED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-VALIDATION-PASSED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-VALIDATION-PASSED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-WORKSPACE-STAGING-REQUESTED";
@@ -2740,6 +2884,108 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'MODE-LOCAL-DEVELOPMENT';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-BATCH1";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-BATCH1';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-CONTROLS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-CONTROLS';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODEL-ONLY";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODEL-ONLY';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-01";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-01';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-02";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-02';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-03";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-03';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-04";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-04';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-05";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-05';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-06";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-06';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-07";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-07';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-08";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-08';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-09";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-09';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-10";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-10';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-11";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-11';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-12";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-12';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-13";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-13';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODELING-14";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODELING-14';
 
     @EngineeringElement {
         sourceId = "POAM-MCP-PATH-FUZZING";
@@ -4362,6 +4608,69 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-170";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-170' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a source file whose owner unit marker is missing or names no functional unit.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. code.owner_unresolved is reported once per file, row WWWEE. Test files, generated files (a Code generated header or an at-generated tag in the first 10 lines) and files owned by an alias are left out. The remedy names the ef-code-linking skill.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-171";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-171' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a model link marker that names a requirement or a catalog term instead of a model element.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. code.model_link_kind_mismatch, row WWWEE. KnownModelIDs stays as it is and a second view maps each identifier to its kind. A requirement belongs in the trace link marker of the requirement, not in the model link marker.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-172";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-172' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an event-driven or state-driven requirement that no machine invariant or applies-to element models.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. behavior.requirement_unmodeled, row DDWWE. The requirement pattern comes from the EARS lint. Only a model that declares at least one machine is asked, and retired, rejected and derived requirements are exempt.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-173";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-173' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a machine without an invariant and an invariant without a current formal result.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. behavior.machine_unverified, row DDWWE. A pass or fail result counts as current and a stale or not-run result does not. Without an evidence file only the missing invariant is reported.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-174";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-174' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall keep every model link marker stacked above one declaration.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. The scanner accumulated stacked trace link lines and overwrote stacked model link lines, so a second line hid the first and element to code coverage would have missed links. Both now accumulate, in the order written, without duplicates.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-175";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-175' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a functional unit, machine or software interface that no source code names.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. code.unit_unlinked, code.machine_unlinked and code.interface_unlinked, row DDWEE. An element counts as named when an owner marker, a model link marker or a trace part marker in scanned non-test source carries its identifier. Actors, attack vectors, trust boundaries, threat scenarios, assumptions, out-of-scope entries, risks, POA&M items, deployment targets, decisions, catalog terms, views and imported alias elements are never asked. A model without a code root is not asked.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-176";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-176' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. codeCoverage.exempt in engmod.yml is a list of an element identifier, a reason and an accepted decision, shaped like a health waiver. A missing or unaccepted decision is the untiered error code.exemption_unjustified, and an exemption that matches no unlinked element is code.exemption_unused (a warning, an error at operational).";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
@@ -4385,6 +4694,7 @@ package 'engineering-model-go' {
     }
     state def 'SM-ARTIFACT-FRESHNESS' {
         doc /* Whether the generated artifacts are aligned with the current authored model and code evidence. Any model update makes them stale and a successful generation cycle makes them fresh again. Implemented by FU-CLI-ORCHESTRATION. */
+        attribute validated : Boolean := true;
         entry;
         then 'STATE-ARTIFACTS-FRESH';
         state 'STATE-ARTIFACTS-FRESH';
@@ -4405,6 +4715,7 @@ package 'engineering-model-go' {
         transition 'TR-ARTIFACTS-GENERATION-BLOCKED'
             first 'STATE-ARTIFACTS-REGENERATING'
             accept 'on-EVT-VALIDATION-FAILED' :> 'EVT-VALIDATION-FAILED'
+            do assign validated := false
             then 'STATE-ARTIFACTS-STALE' {
                 doc /* A failed validation stops the generation run, so the artifacts stay stale. */
             }
@@ -4427,8 +4738,9 @@ package 'engineering-model-go' {
         transition 'TR-ARTIFACTS-GO-STALE'
             first 'STATE-ARTIFACTS-FRESH'
             accept 'on-EVT-MODEL-UPDATED' :> 'EVT-MODEL-UPDATED'
+            do assign validated := false
             then 'STATE-ARTIFACTS-STALE' {
-                doc /* Any model update can invalidate freshness and triggers regeneration. */
+                doc /* Any model update can invalidate freshness and triggers regeneration; the changed model has not been validated yet. */
             }
         @EngineeringRelationship about 'TR-ARTIFACTS-GO-STALE' {
             sourceId = "TR-ARTIFACTS-GO-STALE";
@@ -4438,14 +4750,31 @@ package 'engineering-model-go' {
         transition 'TR-ARTIFACTS-REGENERATED'
             first 'STATE-ARTIFACTS-REGENERATING'
             accept 'on-EVT-ARTIFACT-GENERATED' :> 'EVT-ARTIFACT-GENERATED'
+            if validated
             then 'STATE-ARTIFACTS-FRESH' {
-                doc /* Fresh state is reached after a successful generation cycle. */
+                doc /* Fresh state is reached after a successful generation cycle, only once validation passed (REQ-EMG-009). */
             }
         @EngineeringRelationship about 'TR-ARTIFACTS-REGENERATED' {
             sourceId = "TR-ARTIFACTS-REGENERATED";
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
+        transition 'TR-ARTIFACTS-VALIDATED'
+            first 'STATE-ARTIFACTS-REGENERATING'
+            accept 'on-EVT-VALIDATION-PASSED' :> 'EVT-VALIDATION-PASSED'
+            do assign validated := true
+            then 'STATE-ARTIFACTS-REGENERATING' {
+                doc /* The validation and tests of the generation run pass, so artifact generation may proceed (REQ-EMG-009). */
+            }
+        @EngineeringRelationship about 'TR-ARTIFACTS-VALIDATED' {
+            sourceId = "TR-ARTIFACTS-VALIDATED";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        // invariant INV-ARTIFACTS-FRESH-VALIDATED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-ARTIFACTS-FRESH) implies validated
+        // invariant INV-ARTIFACTS-STALE-NOT-VALIDATED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-ARTIFACTS-STALE) implies not validated
     }
 
     @EngineeringElement {
@@ -4596,6 +4925,7 @@ package 'engineering-model-go' {
     }
     state def 'SM-MCP-SESSION' {
         doc /* Whether the model a running MCP server holds equals the model files on disk. The server compares a content fingerprint of the model files on every tool call and reloads when it changed, so a result always reflects the files at call time. Implemented by FU-MCP-SERVER. */
+        attribute fingerprintMatches : Boolean := true;
         entry;
         then 'STATE-MCP-MODEL-CURRENT';
         state 'STATE-MCP-MODEL-CURRENT';
@@ -4611,6 +4941,7 @@ package 'engineering-model-go' {
         transition 'TR-MCP-CALL-RELOADS'
             first 'STATE-MCP-MODEL-OUTDATED'
             accept 'on-EVT-MCP-TOOL-CALL-RECEIVED' :> 'EVT-MCP-TOOL-CALL-RECEIVED'
+            do assign fingerprintMatches := true
             then 'STATE-MCP-MODEL-CURRENT' {
                 doc /* A tool call finds the fingerprint of the model files changed and reloads the model before it answers, so the result is built from the files at call time (REQ-EMG-089). */
             }
@@ -4633,6 +4964,7 @@ package 'engineering-model-go' {
         transition 'TR-MCP-MODEL-FILE-CHANGES'
             first 'STATE-MCP-MODEL-CURRENT'
             accept 'on-EVT-MODEL-UPDATED' :> 'EVT-MODEL-UPDATED'
+            do assign fingerprintMatches := false
             then 'STATE-MCP-MODEL-OUTDATED' {
                 doc /* A model file is edited, by an author or by the server's own model.patch, while the server runs. */
             }
@@ -4641,6 +4973,10 @@ package 'engineering-model-go' {
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
+        // invariant INV-MCP-CURRENT-FINGERPRINT-MATCHES is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-MCP-MODEL-CURRENT) implies fingerprintMatches
+        // invariant INV-MCP-OUTDATED-FINGERPRINT-DIFFERS is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-MCP-MODEL-OUTDATED) implies not fingerprintMatches
     }
 
     @EngineeringElement {
@@ -4649,6 +4985,7 @@ package 'engineering-model-go' {
     }
     state def 'SM-MODEL-VALIDATION' {
         doc /* Whether the authored model passes validation, from the validation engine's point of view. A failed validation blocks generation and trusted use until a model update resolves the diagnostics. Implemented by FU-VALIDATION-ENGINE. */
+        attribute generationPermitted : Boolean := true;
         entry;
         then 'STATE-MODEL-VALID';
         state 'STATE-MODEL-INVALID';
@@ -4675,6 +5012,7 @@ package 'engineering-model-go' {
         transition 'TR-MODEL-VALIDATION-FAILS'
             first 'STATE-MODEL-VALID'
             accept 'on-EVT-VALIDATION-FAILED' :> 'EVT-VALIDATION-FAILED'
+            do assign generationPermitted := false
             then 'STATE-MODEL-INVALID' {
                 doc /* Validation or schema checks report errors, so generation and trusted use are blocked. */
             }
@@ -4686,6 +5024,7 @@ package 'engineering-model-go' {
         transition 'TR-MODEL-VALIDATION-RECOVERS'
             first 'STATE-MODEL-INVALID'
             accept 'on-EVT-MODEL-UPDATED' :> 'EVT-MODEL-UPDATED'
+            do assign generationPermitted := true
             then 'STATE-MODEL-VALID' {
                 doc /* Model becomes valid after an update resolves the diagnostics. */
             }
@@ -4694,6 +5033,8 @@ package 'engineering-model-go' {
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }
+        // invariant INV-MODEL-GENERATION-ONLY-WHEN-VALID is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: generationPermitted implies in_state(STATE-MODEL-VALID)
     }
 
     @EngineeringElement {
@@ -4964,6 +5305,12 @@ package 'engineering-model-go' {
     verification 'VER-ACCEPTANCE-RECORD-CHECK' : EngineeringVerification;
 
     @EngineeringElement {
+        sourceId = "VER-ARTIFACT-FRESHNESS-GATE";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-ARTIFACT-FRESHNESS-GATE' : EngineeringVerification;
+
+    @EngineeringElement {
         sourceId = "VER-ARTIFACT-SCAN-BOUNDS";
         conceptKind = "verification_case_usage";
     }
@@ -5010,6 +5357,18 @@ package 'engineering-model-go' {
         conceptKind = "verification_case_usage";
     }
     verification 'VER-REPO-LOCAL-WRITES' : EngineeringVerification;
+
+    @EngineeringElement {
+        sourceId = "VER-STRICT-MCP-INPUT-SCHEMA";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-STRICT-MCP-INPUT-SCHEMA' : EngineeringVerification;
+
+    @EngineeringElement {
+        sourceId = "VER-TRACE-LINK-INTEGRITY";
+        conceptKind = "verification_case_usage";
+    }
+    verification 'VER-TRACE-LINK-INTEGRITY' : EngineeringVerification;
 
     @EngineeringElement {
         sourceId = "VER-TRACEABILITY-COVERAGE";
@@ -5607,6 +5966,16 @@ package 'engineering-model-go' {
     dependency 'REL-53DF7944D31ADC40' from 'FU-NAF-EXPORTER' to 'REF-NAF-V4-1-SPECIFICATION';
 
     @EngineeringRelationship {
+        sourceId = "REL-55FCE3068F28156D";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-55FCE3068F28156D' : EngineeringVerification {
+        subject 'VER-STRICT-MCP-INPUT-SCHEMA' : EngineeringItem;
+        objective 'CTRL-STRICT-MCP-INPUT-SCHEMA' : EngineeringRequirement;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-56D94B0E429D076D";
         conceptKind = "verification";
         relationshipKind = "verifies";
@@ -5781,6 +6150,26 @@ package 'engineering-model-go' {
         relationshipKind = "flow_error";
     }
     succession 'REL-8AAA646D9D1CF563' first 'repin-unchanged-links' then 'restore-bump-files';
+
+    @EngineeringRelationship {
+        sourceId = "REL-8DBF533D769DA3FA";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-8DBF533D769DA3FA' : EngineeringVerification {
+        subject 'VER-TRACE-LINK-INTEGRITY' : EngineeringItem;
+        objective 'CTRL-TRACE-LINK-INTEGRITY' : EngineeringRequirement;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-91335AEB5E1C9FD0";
+        conceptKind = "verification";
+        relationshipKind = "verifies";
+    }
+    verification 'REL-91335AEB5E1C9FD0' : EngineeringVerification {
+        subject 'VER-ARTIFACT-FRESHNESS-GATE' : EngineeringItem;
+        objective 'CTRL-ARTIFACT-FRESHNESS-GATE' : EngineeringRequirement;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-9193754A0A36B23E";
