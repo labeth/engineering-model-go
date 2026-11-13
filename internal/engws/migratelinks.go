@@ -26,13 +26,6 @@ type MigratedLink struct {
 	Note string // why the target's kind could not be checked, when it could not
 }
 
-// MigratedRef is one contract ref converted to realizes (or kept, with Note).
-// TRLC-LINKS: REQ-EMG-104
-type MigratedRef struct {
-	Capability, Requirement string
-	Note                    string
-}
-
 // KeptAllocation is an allocation migrate-links leaves in place because its
 // target is not a link target (D13), with the reason printed for it.
 // TRLC-LINKS: REQ-EMG-104
@@ -47,15 +40,15 @@ type KeptAllocation struct {
 // TRLC-LINKS: REQ-EMG-104
 type MigrateResult struct {
 	Links []MigratedLink
-	// DroppedFingerprints counts the deprecated pinned.fingerprint entries
-	// removed from the existing link file (D23).
-	DroppedFingerprints int
-	Kept                []KeptAllocation
-	Refs                []MigratedRef
-	AddedDocument       bool
-	Files               []string // files written (or to write)
-	NoParent            []string
-	NoParentSeverity    validate.Severity
+	Kept  []KeptAllocation
+	// Removed are the removed fields the model still carries
+	// (model.pinned_fingerprint_removed, model.provides_ref_removed, ADR-EMG-075):
+	// reported with their remedy, never edited.
+	Removed          []validate.Diagnostic
+	AddedDocument    bool
+	Files            []string // files written (or to write)
+	NoParent         []string
+	NoParentSeverity validate.Severity
 }
 
 // Changed reports whether the migration changes anything.
@@ -66,12 +59,12 @@ func (r MigrateResult) Changed() bool { return len(r.Files) > 0 }
 // repo: each composition.allocations entry becomes a claimed reqLinks entry
 // pinned to the dependency version (a parent link to a capability, an
 // evidence link to an assumption of use), documents.reqLinks is added when
-// missing, the allocations are removed, each capability
-// contract.provides[].ref becomes realizes on the referenced requirement,
-// and every deprecated pinned.fingerprint of the link file is removed
-// (D23). Every edit keeps the other lines of the files. dryRun writes
+// missing and the allocations are removed. It writes no pinned.fingerprint and
+// edits no contract.provides[].ref or pinned.fingerprint the model still
+// carries: both are errors of their own (ADR-EMG-075) and are only reported in
+// Removed. Every edit keeps the other lines of the files. dryRun writes
 // nothing. A second run changes nothing.
-// TRLC-LINKS: REQ-EMG-104, REQ-EMG-118
+// TRLC-LINKS: REQ-EMG-104, REQ-EMG-118, REQ-EMG-184
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
 // ENGMODEL-LINKS: TR-LINK-MIGRATE
 func MigrateLinks(repo string, dryRun bool) (MigrateResult, error) {
@@ -89,11 +82,6 @@ func MigrateLinks(repo string, dryRun bool) (MigrateResult, error) {
 		return os.ReadFile(path)
 	}
 
-	// Contract refs -> realizes.
-	if err := migrateRefs(bundle, read, writes, &result); err != nil {
-		return result, err
-	}
-
 	// Allocations -> reqLinks.
 	if allocations := bundle.Architecture.Composition.Allocations; len(allocations) > 0 {
 		if err := migrateAllocations(bundle, manifestPath, read, writes, &result); err != nil {
@@ -101,10 +89,7 @@ func MigrateLinks(repo string, dryRun bool) (MigrateResult, error) {
 		}
 	}
 
-	// Deprecated fingerprints of the existing link file.
-	if err := dropFingerprints(bundle, read, writes, &result); err != nil {
-		return result, err
-	}
+	result.Removed = validate.RemovedFieldDiagnostics(bundle)
 
 	for path := range writes {
 		result.Files = append(result.Files, path)
@@ -186,148 +171,16 @@ func writeAllOrNothing(paths []string, writes map[string][]byte) error {
 	return nil
 }
 
-// dropFingerprints removes pinned.fingerprint from every link of the
-// existing link file that records one and counts them.
-// TRLC-LINKS: REQ-EMG-118
-func dropFingerprints(b model.Bundle, read func(string) ([]byte, error), writes map[string][]byte, result *MigrateResult) error {
-	if b.ReqLinksPath == "" {
-		return nil
-	}
-	var ids []string
-	for _, l := range b.ReqLinks.ReqLinks {
-		if l.Pinned.Fingerprint != "" {
-			ids = append(ids, strings.TrimSpace(l.ID))
-		}
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	data, err := read(b.ReqLinksPath)
-	if err != nil {
-		return err
-	}
-	for _, id := range ids {
-		var removed bool
-		if data, removed, err = yamledit.RemoveKey(data, yamledit.FindListItem([]string{"reqLinks"}, "id", id, "pinned"), "fingerprint"); err != nil {
-			return fmt.Errorf("%s: link %s: %w", b.ReqLinksPath, id, err)
-		}
-		if removed {
-			result.DroppedFingerprints++
-		}
-	}
-	writes[b.ReqLinksPath] = data
-	return nil
-}
-
-// applyInMemory applies the ref conversion of a dry run to a bundle copy,
-// so the no_parent list matches what a real run would leave.
+// applyInMemory applies the links of a dry run to a bundle copy, so the
+// no_parent list matches what a real run would leave.
 // TRLC-LINKS: REQ-EMG-104
 func applyInMemory(b model.Bundle, result MigrateResult) model.Bundle {
-	reqs := append([]model.Requirement(nil), b.Requirements.Requirements...)
-	for _, ref := range result.Refs {
-		if ref.Note != "" {
-			continue
-		}
-		for i := range reqs {
-			if strings.TrimSpace(reqs[i].ID) == ref.Requirement {
-				reqs[i].Realizes = append(append([]string(nil), reqs[i].Realizes...), ref.Capability)
-			}
-		}
-	}
-	b.Requirements.Requirements = reqs
 	links := append([]model.ReqLink(nil), b.ReqLinks.ReqLinks...)
 	for _, m := range result.Links {
 		links = append(links, m.Link)
 	}
 	b.ReqLinks.ReqLinks = links
 	return b
-}
-
-// migrateRefs moves each capability's contract ref to realizes on the
-// referenced requirement (appended, deduplicated) and drops the ref. A ref
-// on a non-capability entry or naming no local requirement is kept and
-// reported.
-// TRLC-LINKS: REQ-EMG-104
-func migrateRefs(b model.Bundle, read func(string) ([]byte, error), writes map[string][]byte, result *MigrateResult) error {
-	requirements := map[string]model.Requirement{}
-	for _, r := range b.Requirements.Requirements {
-		requirements[strings.TrimSpace(r.ID)] = r
-	}
-	realizes := map[string][]string{} // requirement -> capabilities to add
-	var drop []string
-	for _, entry := range b.Architecture.Contract.Provides {
-		id, ref := strings.TrimSpace(entry.ID), strings.TrimSpace(entry.Ref)
-		if ref == "" || strings.Contains(id, "::") {
-			continue
-		}
-		r, known := requirements[ref]
-		switch {
-		case !strings.EqualFold(strings.TrimSpace(entry.Kind), string(reqlinks.KindCapability)):
-			result.Refs = append(result.Refs, MigratedRef{Capability: id, Requirement: ref, Note: fmt.Sprintf("kept: %s is a %s, not a capability; realizes names capabilities and assumptions of use only", id, entry.Kind)})
-			continue
-		case !known:
-			result.Refs = append(result.Refs, MigratedRef{Capability: id, Requirement: ref, Note: fmt.Sprintf("kept: %s is not a requirement of this model", ref)})
-			continue
-		}
-		result.Refs = append(result.Refs, MigratedRef{Capability: id, Requirement: ref})
-		if !containsTrimmed(r.Realizes, id) && !containsTrimmed(realizes[ref], id) {
-			realizes[ref] = append(realizes[ref], id)
-		}
-		drop = append(drop, id)
-	}
-	if len(drop) == 0 {
-		return nil
-	}
-	reqData, err := read(b.RequirementsPath)
-	if err != nil {
-		return err
-	}
-	ids := make([]string, 0, len(realizes))
-	for id := range realizes {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
-	for _, id := range ids {
-		values := append(append([]string(nil), requirements[id].Realizes...), realizes[id]...)
-		if reqData, err = yamledit.SetKey(reqData, yamledit.FindListItem([]string{"requirements"}, "id", id), "realizes", flowList(values)); err != nil {
-			return fmt.Errorf("%s: requirement %s: %w", b.RequirementsPath, id, err)
-		}
-	}
-	if len(ids) > 0 {
-		writes[b.RequirementsPath] = reqData
-	}
-	archData, err := read(b.ArchitecturePath)
-	if err != nil {
-		return err
-	}
-	for _, id := range drop {
-		if archData, _, err = yamledit.RemoveKey(archData, yamledit.FindListItem([]string{"architecture", "contract", "provides"}, "id", id), "ref"); err != nil {
-			return fmt.Errorf("%s: contract entry %s: %w", b.ArchitecturePath, id, err)
-		}
-	}
-	writes[b.ArchitecturePath] = archData
-	return nil
-}
-
-// flowList encodes IDs as a YAML flow sequence.
-// TRLC-LINKS: REQ-EMG-104
-func flowList(values []string) string {
-	quoted := make([]string, 0, len(values))
-	for _, v := range values {
-		quoted = append(quoted, yamledit.Scalar(strings.TrimSpace(v)))
-	}
-	return "[" + strings.Join(quoted, ", ") + "]"
-}
-
-// containsTrimmed reports whether values holds want after trimming.
-// TRLC-LINKS: REQ-EMG-104
-func containsTrimmed(values []string, want string) bool {
-	for _, v := range values {
-		if strings.TrimSpace(v) == want {
-			return true
-		}
-	}
-	return false
 }
 
 // migrateAllocations writes one claimed link per allocation, adds
@@ -582,13 +435,6 @@ func runMigrateLinks(repo string, dryRun bool, w io.Writer) (int, error) {
 	if dryRun {
 		prefix = "dry run: "
 	}
-	for _, r := range result.Refs {
-		if r.Note != "" {
-			fmt.Fprintf(w, "  %sref %s -> %s %s\n", prefix, r.Capability, r.Requirement, r.Note)
-		} else {
-			fmt.Fprintf(w, "  %sref %s -> %s realizes [%s]\n", prefix, r.Capability, r.Requirement, r.Capability)
-		}
-	}
 	for _, m := range result.Links {
 		from := m.Link.Parent
 		if from == "" {
@@ -602,8 +448,8 @@ func runMigrateLinks(repo string, dryRun bool, w io.Writer) (int, error) {
 	for _, k := range result.Kept {
 		fmt.Fprintf(w, "  %skept allocation %s → %s: %s\n", prefix, k.Requirement, k.Target, k.Reason)
 	}
-	if result.DroppedFingerprints > 0 {
-		fmt.Fprintf(w, "  %sremoved %d deprecated fingerprint(s) from the link file: the pinned version is the review record\n", prefix, result.DroppedFingerprints)
+	for _, d := range result.Removed {
+		fmt.Fprintf(w, "  %snot migrated, edit the file: %s %s: %s; %s\n", prefix, d.Path, d.Code, d.Message, d.Remedy)
 	}
 	if result.AddedDocument {
 		fmt.Fprintf(w, "  %sadded documents.reqLinks: %s\n", prefix, DefaultReqLinksPath)

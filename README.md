@@ -26,7 +26,7 @@ model. See
 
 Each model directory has one schema-v2 manifest entry point and eight required
 domain documents. An optional ninth `documents.aviation` document adds an
-airborne software evidence-readiness profile without changing models that omit it:
+airborne software evidence-readiness profile that models without it do not need:
 
 ```yaml
 schemaVersion: 2
@@ -53,7 +53,16 @@ publications:
     architecture: [FU-EXAMPLE]
     requirements: [REQ-EXAMPLE-001]
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp                      # poc < prototype < mvp < product < operational
+  bundles: [foundation]          # required, no default
+  tierDecision: DEC-TIER-MVP     # an accepted decision with "Tier: MVP" and "Bundles: foundation" lines
 ```
+
+A manifest without `lifecycle`, `requirementLinks` and a `lintRun.mode` in `requirements.yml` is an
+error that names its remedy (see [Required model switches](#required-model-switches)); from tier
+product it also needs a `health` block.
 
 `engmod.yml` is the only model entry point. Every manifest and domain document
 uses `schemaVersion: 2`; paths are explicit and no companion filename is
@@ -870,6 +879,23 @@ model and report it; `ValidateBundle` and every CLI error. `rules.required` of t
 The tier decision named by `lifecycle.tierDecision` must be accepted and carry a `Tier:` line and a
 `Bundles:` line; a decision without a `Bundles:` line no longer means Foundation.
 
+### Removed fields
+
+Two fields that were deprecated are removed (ADR-EMG-075). They still decode, so that the error names
+the field; each is an untiered error (no tier or POA&M item changes it) at the field, with its remedy.
+Nothing in the engine reads or writes them: `engws review-links` leaves a fingerprint in place and
+`engws migrate-links` only reports either field.
+
+| Error code | Remedy |
+|---|---|
+| `model.pinned_fingerprint_removed` | delete pinned.fingerprint; pin the dependency version only |
+| `model.provides_ref_removed` | name the realizing requirement with realizes, not ref |
+
+`model.pinned_fingerprint_removed` replaces the warning `link.fingerprint_deprecated` and applies to a
+requirement link that carries `pinned.fingerprint`. `model.provides_ref_removed` replaces the warning
+`contract.ref_deprecated` and applies to a `contract.provides` entry that carries `ref`; the `ref` of a
+`contract.requires` entry is read by nothing and was deleted from the examples.
+
 ## Life-cycle tier
 
 A module declares its life-cycle tier in `engmod.yml` (required since v0.11.0, ADR-EMG-031, ADR-EMG-061). The tier is the
@@ -884,7 +910,7 @@ lifecycle:
   raise: [behavior.*]                # codes raised to error regardless of tier; never lowers
 ```
 
-A model without `lifecycle` is the error `lifecycle.missing` (see Required model switches below). The
+A model without `lifecycle` is the error `lifecycle.missing` (see [Required model switches](#required-model-switches)). The
 library still loads such a model and applies no tier rule to it, so that tools can report; the validator
 and every CLI treat it as an error. Every public
 entry (`ValidateBundle`, `GenerateAsciiDoc`, the trace builders, `engws check`, MCP) applies
@@ -1108,7 +1134,7 @@ weakening is reviewable. A `policyDecision` that does not exist or is not accept
 
 The scores come from this project's own heuristics over the scanned source (cyclomatic complexity, lines,
 nesting depth and similar); they are not CodeScene's Code Health and make no claim to match it. The
-authoring contract (`engineering-model.authoring.v6`) documents the block in its `health` section and the
+authoring contract (`engineering-model.authoring.v8`) documents the block in its `health` section and the
 field sets `health` (with `policyDecision`), `healthThreshold`, `healthOverride`, `healthWaiver` and
 `healthBaseline`.
 
@@ -1472,8 +1498,10 @@ when it still does not pass. An accepted link without a model actor in `reviewed
 calendar date in `reviewedOn` is `link.review_unrecorded`; only accepted links at the
 dependency pin count toward the trace roll-up of the system requirement.
 
-`pinned.fingerprint` (v0.8.0) is deprecated: still accepted for one release, ignored, and
-reported as `link.fingerprint_deprecated` (warning). `engws migrate-links` removes it.
+`pinned.fingerprint` is removed: a link that carries it is the error
+`model.pinned_fingerprint_removed` at that field (untiered; remedy: delete
+`pinned.fingerprint` and pin the dependency version only). Nothing reads or writes it;
+`engws review-links` and `engws migrate-links` leave it in place.
 
 **`engws status-suggest [--repo DIR] [--tree HASH] [--json]`** prints the status each
 requirement and control verification earns from this tree's evidence, and writes nothing:
@@ -1513,11 +1541,12 @@ project, run it in the pre-push hook for a tag push as well. It fails (exit 1) w
 Exit 2 is a usage, git or model error.
 
 **`engws migrate-links [--repo DIR] [--dry-run]`** converts a model from the deprecated
-`composition.allocations` and `contract.provides[].ref` (run it in the dependencies
-first, then in the system):
+`composition.allocations` (run it in the dependencies first, then in the system). It does
+not edit `contract.provides[].ref` or `pinned.fingerprint`: both are errors
+(`model.provides_ref_removed`, `model.pinned_fingerprint_removed`) that it only reports
+with their remedy:
 
 ```text
-  ref CAP-TELEM-REPORT -> REQ-TELEM-001 realizes [CAP-TELEM-REPORT]
   link LNK-COF-001-TELEMETRY REQ-COF-001 -> telemetry::CAP-TELEM-REPORT (v0.1.0, claimed)
   added documents.reqLinks: model/req-links.yml
 engws: wrote engmod.yml, model/architecture.yml, model/req-links.yml
@@ -1528,8 +1557,7 @@ engws: 9 requirement(s) without an upward trace (requirement.no_parent):
 
 Each allocation becomes a `status: claimed` link pinned to the dependency version (a
 `parent` link to a capability, an `evidence` link to an assumption of use; a note when the
-dependency cannot be resolved); each capability `ref` becomes `realizes` on the requirement
-it names; every deprecated `pinned.fingerprint` is removed and counted. An allocation to an
+dependency cannot be resolved). An allocation to an
 interface entry is not a link target and stays in place (`kept allocation REQ-… →
 alias::IF-…: interface entries are not link targets; publish a capability that realizes it
 and link that`), still reported as `composition.allocation_deprecated`. Only the touched lines of
@@ -1561,7 +1589,8 @@ modules through OCI coordinates.
 
 `composition.allocations` (a parent requirement bound `to` a subsystem with a `target` contract
 id) is deprecated in favour of requirement links (`composition.allocation_deprecated`); it is
-still read for one release. A delegation without a resolvable target raises
+still read for one release. A delegation to a contract entry names no subsystem requirement
+(the entry's `ref` was removed) and always raises
 `composition.untraceable_delegation`, and a delegated requirement is not an orphan. Convert
 allocations with `engws migrate-links`; both maintained composition examples are migrated.
 

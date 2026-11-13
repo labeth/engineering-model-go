@@ -3725,13 +3725,13 @@
       "path": "internal/composition/composition.go",
       "function": "MaterializeAllocations",
       "code": "health.complex_method",
-      "value": 11
+      "value": 9
     },
     {
       "path": "internal/composition/composition.go",
       "function": "MaterializeAllocations",
       "code": "health.deep_nesting",
-      "value": 5
+      "value": 3
     },
     {
       "path": "internal/composition/composition.go",
@@ -3881,7 +3881,7 @@
       "path": "internal/composition/composition.go",
       "function": "validateComposition",
       "code": "health.brain_method",
-      "value": 27
+      "value": 26
     },
     {
       "path": "internal/composition/composition.go",
@@ -3893,7 +3893,7 @@
       "path": "internal/composition/composition.go",
       "function": "validateComposition",
       "code": "health.complex_method",
-      "value": 27
+      "value": 26
     },
     {
       "path": "internal/composition/composition.go",
@@ -3905,7 +3905,7 @@
       "path": "internal/composition/composition.go",
       "function": "validateComposition",
       "code": "health.large_method",
-      "value": 88
+      "value": 84
     },
     {
       "path": "internal/composition/composition.go",
@@ -4787,7 +4787,7 @@
       "path": "internal/engws/migratelinks.go",
       "function": "MigrateLinks",
       "code": "health.complex_method",
-      "value": 18
+      "value": 16
     },
     {
       "path": "internal/engws/migratelinks.go",
@@ -4806,30 +4806,6 @@
       "function": "appendLinks",
       "code": "health.excess_arguments",
       "value": 5
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "applyInMemory",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "dropFingerprints",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "dropFingerprints",
-      "code": "health.complex_method",
-      "value": 9
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "dropFingerprints",
-      "code": "health.excess_arguments",
-      "value": 4
     },
     {
       "path": "internal/engws/migratelinks.go",
@@ -4863,30 +4839,6 @@
     },
     {
       "path": "internal/engws/migratelinks.go",
-      "function": "migrateRefs",
-      "code": "health.bumpy_road",
-      "value": 3
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "migrateRefs",
-      "code": "health.complex_method",
-      "value": 18
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "migrateRefs",
-      "code": "health.excess_arguments",
-      "value": 4
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "migrateRefs",
-      "code": "health.large_method",
-      "value": 60
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
       "function": "notLinkTarget",
       "code": "health.deep_nesting",
       "value": 4
@@ -4913,19 +4865,19 @@
       "path": "internal/engws/migratelinks.go",
       "function": "runMigrateLinks",
       "code": "health.brain_method",
-      "value": 18
+      "value": 16
     },
     {
       "path": "internal/engws/migratelinks.go",
       "function": "runMigrateLinks",
       "code": "health.bumpy_road",
-      "value": 3
+      "value": 2
     },
     {
       "path": "internal/engws/migratelinks.go",
       "function": "runMigrateLinks",
       "code": "health.complex_method",
-      "value": 18
+      "value": 16
     },
     {
       "path": "internal/engws/migratelinks.go",
@@ -4937,7 +4889,7 @@
       "path": "internal/engws/migratelinks.go",
       "function": "runMigrateLinks",
       "code": "health.large_method",
-      "value": 63
+      "value": 56
     },
     {
       "path": "internal/engws/migratelinks.go",
@@ -4959,12 +4911,6 @@
     },
     {
       "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksAssumptionsAndFingerprints",
-      "code": "health.complex_method",
-      "value": 11
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
       "function": "TestMigrateLinksCoffeeFleet",
       "code": "health.bumpy_road",
       "value": 6
@@ -4979,13 +4925,13 @@
       "path": "internal/engws/migratelinks_test.go",
       "function": "TestMigrateLinksCoffeeFleet",
       "code": "health.complex_method",
-      "value": 33
+      "value": 31
     },
     {
       "path": "internal/engws/migratelinks_test.go",
       "function": "TestMigrateLinksCoffeeFleet",
       "code": "health.large_method",
-      "value": 86
+      "value": 72
     },
     {
       "path": "internal/engws/migratelinks_test.go",
@@ -5021,7 +4967,7 @@
       "path": "internal/engws/migratelinks_test.go",
       "function": "TestMigrateLinksUnresolvedAndUnique",
       "code": "health.complex_method",
-      "value": 14
+      "value": 10
     },
     {
       "path": "internal/engws/plan.go",
@@ -10589,7 +10535,7 @@
       "path": "internal/integration/lifecycle_test.go",
       "function": "TestCompositionTierRules",
       "code": "health.complex_method",
-      "value": 14
+      "value": 11
     },
     {
       "path": "internal/integration/lifecycle_test.go",
@@ -10871,7 +10817,7 @@
       "path": "internal/linkreview/linkreview.go",
       "function": "Accept",
       "code": "health.complex_method",
-      "value": 16
+      "value": 15
     },
     {
       "path": "internal/linkreview/linkreview.go",
@@ -10883,7 +10829,7 @@
       "path": "internal/linkreview/linkreview.go",
       "function": "Accept",
       "code": "health.large_method",
-      "value": 60
+      "value": 57
     },
     {
       "path": "internal/linkreview/linkreview.go",
@@ -11608,14 +11554,8 @@
     {
       "path": "internal/mcp/reqlinks.go",
       "function": "Server.requirementTrace",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/mcp/reqlinks.go",
-      "function": "Server.requirementTrace",
       "code": "health.complex_method",
-      "value": 11
+      "value": 8
     },
     {
       "path": "internal/mcp/reqlinks.go",
@@ -13695,12 +13635,6 @@
     },
     {
       "path": "internal/reqlinks/reqlinks.go",
-      "function": "CapabilityRefs",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/reqlinks/reqlinks.go",
       "function": "ItemsFromBundle",
       "code": "health.bumpy_road",
       "value": 3
@@ -14207,7 +14141,7 @@
       "path": "internal/testutil/fixtures.go",
       "function": "WriteInterfaceModule",
       "code": "health.large_method",
-      "value": 73
+      "value": 72
     },
     {
       "path": "internal/testutil/fixtures.go",
@@ -14498,12 +14432,6 @@
       "value": 88
     },
     {
-      "path": "internal/trace/reqlinks_trace.go",
-      "function": "publishedCapabilityRefs",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
       "path": "internal/trace/reqlinks_trace_test.go",
       "function": "TestRequirementUnsatisfied",
       "code": "health.complex_method",
@@ -14741,7 +14669,7 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "buildTraceMatrixWithIDs",
       "code": "health.large_method",
-      "value": 124
+      "value": 123
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -15821,13 +15749,13 @@
       "path": "internal/validate/reqlinks.go",
       "function": "reqLinkFileDiagnostics",
       "code": "health.brain_method",
-      "value": 27
+      "value": 26
     },
     {
       "path": "internal/validate/reqlinks.go",
       "function": "reqLinkFileDiagnostics",
       "code": "health.complex_method",
-      "value": 27
+      "value": 26
     },
     {
       "path": "internal/validate/reqlinks.go",
@@ -15839,7 +15767,7 @@
       "path": "internal/validate/reqlinks.go",
       "function": "reqLinkFileDiagnostics",
       "code": "health.large_method",
-      "value": 72
+      "value": 69
     },
     {
       "path": "internal/validate/reqlinks.go",
@@ -15851,19 +15779,19 @@
       "path": "internal/validate/reqlinks.go",
       "function": "requirementLinkDiagnostics",
       "code": "health.brain_method",
-      "value": 29
+      "value": 24
     },
     {
       "path": "internal/validate/reqlinks.go",
       "function": "requirementLinkDiagnostics",
       "code": "health.bumpy_road",
-      "value": 4
+      "value": 3
     },
     {
       "path": "internal/validate/reqlinks.go",
       "function": "requirementLinkDiagnostics",
       "code": "health.complex_method",
-      "value": 29
+      "value": 24
     },
     {
       "path": "internal/validate/reqlinks.go",
@@ -15875,7 +15803,7 @@
       "path": "internal/validate/reqlinks.go",
       "function": "requirementLinkDiagnostics",
       "code": "health.large_method",
-      "value": 88
+      "value": 72
     },
     {
       "path": "internal/validate/reqlinks.go",
@@ -15899,13 +15827,7 @@
       "path": "internal/validate/reqlinks_test.go",
       "function": "TestContractItemRules",
       "code": "health.complex_method",
-      "value": 12
-    },
-    {
-      "path": "internal/validate/reqlinks_test.go",
-      "function": "TestFingerprintIsDeprecated",
-      "code": "health.complex_conditional",
-      "value": 4
+      "value": 10
     },
     {
       "path": "internal/validate/reqlinks_test.go",

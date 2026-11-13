@@ -89,7 +89,7 @@ func TestManifestHealthBlockRejectsMalformedShapes(t *testing.T) {
 // field, at version v7 (the required switches).
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-160
 func TestAuthoringContractV7ListsHealth(t *testing.T) {
-	if AuthoringContractVersion != "engineering-model.authoring.v7" {
+	if AuthoringContractVersion != "engineering-model.authoring.v8" {
 		t.Fatalf("contract version = %s", AuthoringContractVersion)
 	}
 	dir := writeV2Fixture(t, validManifest+healthBlock)

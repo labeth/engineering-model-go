@@ -219,14 +219,14 @@ func TestPublicationSectionsAreManifestPublicationFields(t *testing.T) {
 // version-pinned review, and requirementLinks strictness, and lists the
 // fields of an assumption and a link; it no longer tells an agent to keep
 // an engine-written fingerprint.
-// TRLC-LINKS: REQ-EMG-099, REQ-EMG-119
+// TRLC-LINKS: REQ-EMG-099, REQ-EMG-119, REQ-EMG-184
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func TestAuthoringRulesDescribeRequirementLinks(t *testing.T) {
 	rules := AuthoringRules()
 	text := strings.Join(rules.FieldRules, "\n")
 	for _, want := range []string{
 		"realizes", "requirement.no_parent", "parent of a reqLinks entry to a dependency's capability", "A system publishes its own capabilities so a system above can link to them", "contract.assumptions", "contract.realizer_unpublished",
-		"documents.reqLinks", "engws link add", "link.version_mismatch", "link.fingerprint_deprecated", "not status or notes", "link.aou_unverified", "requirementLinks in engmod.yml is required and is strict or guided", "model.requirement_links_missing", "pseudo-version",
+		"documents.reqLinks", "engws link add", "link.version_mismatch", "model.pinned_fingerprint_removed", "model.provides_ref_removed", "not status or notes", "link.aou_unverified", "requirementLinks in engmod.yml is required and is strict or guided", "model.requirement_links_missing", "pseudo-version",
 	} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("authoring field rules must contain %q", want)

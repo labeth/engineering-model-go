@@ -143,13 +143,7 @@ func shellQuote(s string) string {
 // TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) requirementTrace(r model.Requirement) (realizes []string, parents []string, links []map[string]any, children []string, err error) {
-	refs := map[string]string{}
-	for _, entry := range s.bundle.Architecture.Contract.Provides {
-		if ref := strings.TrimSpace(entry.Ref); ref != "" && strings.EqualFold(strings.TrimSpace(entry.Kind), string(reqlinks.KindCapability)) {
-			refs[ref] = strings.TrimSpace(entry.ID)
-		}
-	}
-	realizes = nonNilStrings(reqlinks.RealizedItems(r, refs))
+	realizes = nonNilStrings(reqlinks.RealizedItems(r))
 	parents = append([]string{}, realizes...)
 	links, children = []map[string]any{}, []string{}
 	if s.bundle.ReqLinksPath == "" {

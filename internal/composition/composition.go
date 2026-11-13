@@ -15,6 +15,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 	"sync/atomic"
@@ -93,9 +94,9 @@ type MaterializedAllocation struct {
 	Requirement       string
 	Subsystem         string
 	Target            string // public id within the subsystem
-	TargetRef         string // the subsystem requirement that realizes the target (its contract ref)
+	TargetRef         string // the one subsystem requirement that realizes the target (realizes; provides.ref was removed, ADR-EMG-075)
 	Resolved          bool   // target is published in the subsystem contract
-	TargetRefResolved bool   // TargetRef names a requirement that exists in the subsystem
+	TargetRefResolved bool   // TargetRef names a requirement of the subsystem (true whenever it is set)
 	Note              string
 }
 
@@ -1069,14 +1070,7 @@ func MaterializeAllocations(sys *ComposedSystem) []MaterializedAllocation {
 				ma.Note = "target is not visible through the selected publication"
 			} else {
 				ma.Resolved = true
-				if entry, provided := contractProvidedEntry(child.Bundle, targetID); provided {
-					ma.TargetRef = strings.TrimSpace(entry.Ref)
-					if ma.TargetRef != "" {
-						ma.TargetRefResolved = requirementExists(child.Requirements, ma.TargetRef)
-					} else {
-						ma.Note = "no contract ref: delegation does not resolve to a specific requirement"
-					}
-				}
+				resolveDelegation(&ma, child, targetID)
 			}
 		} else if hardwareItem(sys.Bundle, a.To) {
 			ma.Resolved = true
@@ -1128,8 +1122,7 @@ func validateComposition(sys *ComposedSystem, top bool) []validate.Diagnostic {
 			diags = append(diags, errDiag("composition.allocation_to_internal", fmt.Sprintf("allocation in %s targets %q which is not visible through dependency %q publication %q", owner, a.Target, child.Dependency, child.Publication), loc()))
 			continue
 		}
-		entry, provided := contractProvidedEntry(child.Bundle, targetID)
-		if !provided {
+		if _, provided := contractProvidedEntry(child.Bundle, targetID); !provided {
 			diags = append(diags, validate.Diagnostic{
 				Code: "composition.allocation_target_not_contract", Severity: validate.SeverityWarning,
 				Message: fmt.Sprintf("allocation of %s in %s targets %q, which is not a contract provides entry of subsystem %q; the delegation names no subsystem requirement", a.Requirement, owner, a.Target, a.To),
@@ -1137,15 +1130,12 @@ func validateComposition(sys *ComposedSystem, top bool) []validate.Diagnostic {
 			})
 			continue
 		}
-		ref := strings.TrimSpace(entry.Ref)
-		if ref == "" {
+		if delegationTarget(child.Requirements, targetID) == "" {
 			diags = append(diags, validate.Diagnostic{
 				Code: "composition.untraceable_delegation", Severity: validate.SeverityWarning,
-				Message: fmt.Sprintf("allocation in %s to %s/%s does not resolve to a specific requirement; declare a contract ref on %s naming the subsystem requirement that satisfies it", owner, a.To, a.Target, a.Target),
+				Message: fmt.Sprintf("allocation in %s to %s/%s does not resolve to a specific requirement; have exactly one requirement of %s realize %s, or record the allocation as a reqLinks entry (parent %s, child %s)", owner, a.To, a.Target, a.To, a.Target, a.Requirement, a.Target),
 				Path:    loc(),
 			})
-		} else if !requirementExists(child.Requirements, ref) {
-			diags = append(diags, errDiag("composition.unknown_target_requirement", fmt.Sprintf("allocation in %s to %s/%s names requirement %q, which subsystem %q does not define", owner, a.To, a.Target, ref, a.To), loc()))
 		}
 	}
 
@@ -1332,6 +1322,41 @@ func isReferenceField(tag string) bool {
 		lower == "datain" || lower == "dataout" || lower == "next" || lower == "onerror"
 }
 
+// resolveDelegation sets the subsystem requirement an allocation to a provided
+// contract entry delegates to: the one requirement of the subsystem that
+// realizes the target (ADR-EMG-075: the entry's ref was removed). Without one
+// it leaves the target unresolved and says so in the note.
+// TRLC-LINKS: REQ-EMG-022, REQ-EMG-184
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func resolveDelegation(ma *MaterializedAllocation, child *ComposedSystem, targetID string) {
+	if !contractProvides(child.Bundle, targetID) {
+		return
+	}
+	if ma.TargetRef = delegationTarget(child.Requirements, targetID); ma.TargetRef == "" {
+		ma.Note = "no single requirement of the subsystem realizes the target: delegation does not resolve to a specific requirement"
+		return
+	}
+	ma.TargetRefResolved = true
+}
+
+// delegationTarget returns the ID of the one requirement that realizes the
+// contract item targetID, or "" when none or several do.
+// TRLC-LINKS: REQ-EMG-022, REQ-EMG-184
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func delegationTarget(reqs model.RequirementsDocument, targetID string) string {
+	found, want := "", strings.TrimSpace(targetID)
+	for _, r := range reqs.Requirements {
+		if !slices.ContainsFunc(r.Realizes, func(v string) bool { return strings.TrimSpace(v) == want }) {
+			continue
+		}
+		if found != "" {
+			return ""
+		}
+		found = strings.TrimSpace(r.ID)
+	}
+	return found
+}
+
 // contractProvidedEntry returns the bundle's provided contract entry with the given id.
 // TRLC-LINKS: REQ-EMG-022
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
@@ -1351,19 +1376,6 @@ func contractProvidedEntry(bundle model.Bundle, id string) (model.ContractEntry,
 func contractProvides(bundle model.Bundle, id string) bool {
 	_, ok := contractProvidedEntry(bundle, id)
 	return ok
-}
-
-// requirementExists reports whether a requirements document defines the given id.
-// TRLC-LINKS: REQ-EMG-022, REQ-EMG-026
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
-func requirementExists(reqs model.RequirementsDocument, id string) bool {
-	id = strings.TrimSpace(id)
-	for _, r := range reqs.Requirements {
-		if strings.TrimSpace(r.ID) == id {
-			return true
-		}
-	}
-	return false
 }
 
 // hardwareItem reports whether the bundle declares a hardware item with the given id.

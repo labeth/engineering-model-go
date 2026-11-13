@@ -21,7 +21,6 @@ import (
 	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
-	"github.com/labeth/engineering-model-go/internal/reqlinks"
 	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
@@ -710,10 +709,9 @@ func buildTraceMatrixWithIDs(bundle model.Bundle, modelIDs map[string]bool, requ
 	resultByReq := requirementResults(verification)
 
 	matrix := Matrix{Model: strings.TrimSpace(bundle.Architecture.Model.ID)}
-	refs := reqlinks.CapabilityRefs(bundle)
 	for _, r := range requirements.Requirements {
 		id := strings.TrimSpace(r.ID)
-		row := Row{ID: id, Text: strings.TrimSpace(r.Text), Units: textutil.UniqueSorted(r.AppliesTo), Parents: requirementParents(r, refs)}
+		row := Row{ID: id, Text: strings.TrimSpace(r.Text), Units: textutil.UniqueSorted(r.AppliesTo), Parents: requirementParents(r)}
 		row.Code = codeByReq[id]
 		row.Verifications = textutil.UniqueSorted(verByReq[id])
 		if len(row.Verifications) > 0 {
@@ -1027,7 +1025,7 @@ func appendPublishedRequirementTraceRows(matrix *Matrix, projection composition.
 		row := Row{
 			ID: entity.QualifiedID, Text: strings.TrimSpace(requirement.Text),
 			Units:   entity.QualifyList(requirement.AppliesTo),
-			Parents: entity.QualifyList(requirementParents(requirement, publishedCapabilityRefs(composed, entity.Provenance.Alias))),
+			Parents: entity.QualifyList(requirementParents(requirement)),
 			Provenance: &Provenance{
 				Alias: entity.Provenance.Alias, ModulePath: entity.Provenance.ModulePath,
 				Version: entity.Provenance.Version, SourceModel: entity.Provenance.SourceModel,

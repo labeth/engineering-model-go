@@ -135,7 +135,7 @@ documents:
   decisions: model/decisions.yml
 `)
 	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n")
+	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    realizes: [CAP-SCHEMA]\n")
 	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), `schemaVersion: 2
 architecture:
   functionalGroups:
@@ -160,8 +160,7 @@ architecture:
   contract:
     provides:
       - id: CAP-SCHEMA
-        kind: interface
-        ref: REQ-IF-001
+        kind: capability
 `)
 	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), `schemaVersion: 2
@@ -200,8 +199,8 @@ func WriteV2CompositionModule(t testing.TB, dir, modulePath, version, modelID, p
     provides:
       - id: `+capabilityID+`
         kind: capability
-        ref: `+requirementID+`
 `)
+	fixtureRealization{requirement: requirementID, capability: capabilityID}.write(t, dir)
 	var publicationYAML strings.Builder
 	publicationYAML.WriteString("publications:\n  - id: " + publication + "\n")
 	if len(architectureIDs) > 0 {
@@ -218,6 +217,38 @@ func WriteV2CompositionModule(t testing.TB, dir, modulePath, version, modelID, p
 	WriteFile(t, path, strings.Replace(string(data), "documents:\n", publicationYAML.String()+"documents:\n", 1))
 }
 
+// fixtureRealization is the requirement of a WriteV2CompositionModule module
+// that realizes its capability (provides.ref was removed, ADR-EMG-075).
+type fixtureRealization struct{ requirement, capability string }
+
+// fixtureRequirementTexts are the requirements WriteV2ModuleFiles writes, in
+// order, with their text.
+var fixtureRequirementTexts = []struct{ id, text string }{
+	{"REQ-CHILD", "Child requirement."}, {"REQ-SHARED-001", "Shared requirement."}, {"REQ-PARENT", "Parent requirement."},
+}
+
+// write replaces the fixed requirements of the module in dir by the same
+// requirements, the realizing one with realizes; the realizing requirement is
+// added when the fixed ones lack it.
+// TRLC-LINKS: REQ-EMG-047, REQ-EMG-184
+func (r fixtureRealization) write(t testing.TB, dir string) {
+	t.Helper()
+	var b strings.Builder
+	b.WriteString("schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n")
+	found := false
+	for _, x := range fixtureRequirementTexts {
+		b.WriteString("  - id: " + x.id + "\n    text: " + x.text + "\n")
+		if x.id == r.requirement {
+			found = true
+			b.WriteString("    realizes: [" + r.capability + "]\n")
+		}
+	}
+	if !found {
+		b.WriteString("  - id: " + r.requirement + "\n    text: Provider requirement.\n    realizes: [" + r.capability + "]\n")
+	}
+	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), b.String())
+}
+
 // WriteV2CompositionParent writes the example.com/parent@v1 module with the
 // given dependencies block and architecture body.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
@@ -227,7 +258,7 @@ func WriteV2CompositionParent(t testing.TB, dir, dependencies, architecture stri
 }
 
 // WriteOCIModuleFixture writes a publishable module providing capabilityID
-// (ref requirementID) under the publication "public".
+// (realized by requirementID) under the publication "public".
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048
 func WriteOCIModuleFixture(t testing.TB, dir, modulePath, modelID, capabilityID, requirementID string) {
 	t.Helper()

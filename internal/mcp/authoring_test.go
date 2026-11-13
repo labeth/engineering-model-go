@@ -176,7 +176,6 @@ func writeAuthoringCompositionFixture(t *testing.T, withWorkspace bool) string {
     provides:
       - id: CAP-CHILD
         kind: capability
-        ref: REQ-CHILD
 `)
 	writeMCPModule(t, parent, "example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
   - alias: child

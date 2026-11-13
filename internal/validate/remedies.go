@@ -134,7 +134,11 @@ const (
 	// remedyDependencyTier is the remedy of composition.dependency_tier_unknown
 	// (ADR-EMG-073): the dependency's owner declares and releases lifecycle.
 	remedyDependencyTier = "ask the owner of the dependency to declare lifecycle {tier, bundles, tierDecision} in its engmod.yml and release it, then run engws bump to pin the new release"
-	remedyExemption      = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
+	// The remedies of the removed fields (ADR-EMG-075): the edit that deletes
+	// the field, as for model.code_sources_removed.
+	remedyPinnedFingerprint = "delete pinned.fingerprint; pin the dependency version only"
+	remedyProvidesRef       = "name the realizing requirement with realizes, not ref"
+	remedyExemption         = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
 )
 
 // consistencyRemedies maps the codes of the consistency checks to their
@@ -160,13 +164,16 @@ var consistencyRemedies = map[string]string{
 	"model.invalid_code_exemption":   remedyExemption,
 
 	"composition.dependency_tier_unknown": remedyDependencyTier,
+
+	"model.pinned_fingerprint_removed": remedyPinnedFingerprint,
+	"model.provides_ref_removed":       remedyProvidesRef,
 }
 
 // ConsistencyRemedy returns the remedy of a consistency-check code
-// (ADR-EMG-069), or "" for any other code. The emitting packages set it on
-// their diagnostics, because the trace and the requirement lint do not pass
-// through Bundle.
-// TRLC-LINKS: REQ-EMG-125
+// (ADR-EMG-069) or of a removed-field code (ADR-EMG-075), or "" for any other
+// code. The emitting packages set it on their diagnostics, because the trace
+// and the requirement lint do not pass through Bundle.
+// TRLC-LINKS: REQ-EMG-125, REQ-EMG-184
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func ConsistencyRemedy(code string) string {
 	return consistencyRemedies[code]

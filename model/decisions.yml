@@ -2190,3 +2190,44 @@ decisions:
   consequences:
   - A composition with an undeclared dependency tier fails, which is the intended full upgrade for the dependency's owner.
   - A model that kept unused vocabulary fails from product; the remedy is to delete the term or reference it.
+- id: ADR-EMG-075
+  title: Phase 4 removes the deprecated fingerprint and provides reference first, and keeps allocations and migrate-links until their replacement is decided
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    The audit of 2026-11-13 classified the deprecated features of removal phase 4. pinned.fingerprint and provides.ref are used by
+    none of the 18 examples; the two Atlas examples carry ref only on requires, where nothing reads it. composition.allocations and
+    delegation are used by none of the examples either, but an allocation to an interface entry has no link replacement, and
+    engws migrate-links is the migration path for the three others. The owner instructed, verbatim: "i dont want any backwards
+    compatabillity in the model yet, it should always require a full upgrade." Taken by the implementing agent under the owner's
+    instruction to take recommended decisions. OWNER items: whether interface allocations get a link replacement.
+  decision: |-
+    (1) In this slice: pinned.fingerprint and provides.ref become errors with a remedy (model.pinned_fingerprint_removed,
+    model.provides_ref_removed), not bare strict-decoding errors; the two requires ref lines of the Atlas examples are deleted.
+    (2) composition.allocations and delegation stay for now: removing them is a decision about interface allocations that has no
+    replacement, and no checked-in model uses them. They are removed in a later slice once the owner decides, and
+    engws migrate-links is removed in that same slice because it is the migration path for them. (3) Until then both stay
+    documented as deprecated, and a model that uses allocations is reported by the existing diagnostics. Covers REQ-EMG-184.
+  consequences:
+  - A model that still pins a fingerprint or a provides ref fails with the field named, which is the intended full upgrade.
+  - The slice is small and reversible; the larger removal waits on the interface allocation decision.
+- id: ADR-EMG-076
+  title: Phase 7 bumps the authoring contract to v8 and makes the README sample manifest a valid model
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    The authoring contract is what an agent reads to write a model. Since v7 this release removed the compatibility field and added
+    codeCoverage, the requirements list on machine states, transitions and events, the non-deferrable codes, the POA&M ref and
+    the as-of date. The README sample manifest still showed a manifest without lifecycle or requirementLinks, which the validator
+    now rejects, so the first example a reader copies failed. The owner instructed, verbatim: "anything that is importatnt for
+    the function of the system shall be filled in or give errors". Taken by the implementing agent under the owner's instruction
+    to take recommended decisions.
+  decision: |-
+    (1) AuthoringContractVersion is engineering-model.authoring.v8; a contract that reads as v7 is an old contract and a client that
+    pins v7 fails, which is the intended full upgrade. (2) The README sample manifest carries requirementLinks strict and a
+    lifecycle with tier, bundles and tierDecision, and says which other switches a model needs and where their remedies are listed.
+    (3) The README text that called the lifecycle optional or that said a feature "stays unchanged for models that omit it" is
+    corrected. (4) The CHANGELOG records this release as breaking in full, with the list of removed names and added errors.
+  consequences:
+  - Every tool that pins the contract version changes in the same release, in engineering-flow's model rules section and tests.
+  - The contract version test is the one place that states the current version.

@@ -30,7 +30,6 @@ func countingRegistry(t *testing.T) *atomic.Int64 {
     provides:
       - id: CAP-CHILD
         kind: capability
-        ref: REQ-CHILD
 `)
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {

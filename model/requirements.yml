@@ -733,9 +733,9 @@ requirements:
   - id: REQ-EMG-093
     status: implemented
     text: When model updated event is received, the engineering model go shall warn at each published capability without a realizing requirement.
-    notes: 'contract.unrealized (warning) names a published capability with no realizing requirement. contract.ref_deprecated (warning) is reported at each contract.provides ref; the ref still counts as a realizer for one release.'
+    notes: 'contract.unrealized (warning) names a published capability with no realizing requirement. A contract.provides entry that carries ref is the error model.provides_ref_removed (REQ-EMG-184) and the ref counts as no realizer; the realizing requirement names the capability with realizes.'
     verificationMethods: [test]
-    verificationCriteria: When one published capability has no realizer and another names its requirement in ref, then validation warns contract.unrealized for the first and contract.ref_deprecated at the ref of the second.
+    verificationCriteria: When one published capability has no realizer and another names its requirement only in ref, then validation warns contract.unrealized for the first and reports model.provides_ref_removed at the ref of the second, which still has no realizer.
     appliesTo:
       - FU-VALIDATION-ENGINE
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
@@ -891,7 +891,7 @@ requirements:
   - id: REQ-EMG-109
     text: Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose recorded fingerprint uses another canonical form than the engineering model go writes.
     status: retired
-    notes: 'Retired by decision D23 (ADR-EMG-030): links record no fingerprint, so there is no canonical form to be outdated. A recorded pinned.fingerprint is now link.fingerprint_deprecated (REQ-EMG-118); link.fingerprint_outdated no longer exists.'
+    notes: 'Retired by decision D23 (ADR-EMG-030): links record no fingerprint, so there is no canonical form to be outdated. A recorded pinned.fingerprint is the error model.pinned_fingerprint_removed (REQ-EMG-118, REQ-EMG-184); link.fingerprint_outdated no longer exists.'
     verificationMethods: [test]
     verificationCriteria: When a link records an unversioned or a v9 fingerprint of an item that exists, then the link evaluates fingerprint_outdated and the check reports link.fingerprint_outdated naming engws review-links --accept and the link, and no link.suspect.
     appliesTo:
@@ -977,9 +977,9 @@ requirements:
   - id: REQ-EMG-118
     status: implemented
     text: When model updated event is received, the engineering model go shall warn at each requirement link that records a deprecated fingerprint.
-    notes: 'Decision D23 (ADR-EMG-030): the pinned version is the review record. pinned.fingerprint is still accepted by the CUE schema for one release (any string, optional) and ignored by every evaluation; validation reports link.fingerprint_deprecated (warning) at reqLinks[i].pinned.fingerprint naming engws migrate-links, which removes it (and prints the count); engws review-links --accept removes it from the link it accepts.'
+    notes: 'Decision D23 (ADR-EMG-030): the pinned version is the review record. pinned.fingerprint still decodes (any string, optional) so that its error can carry the remedy, and every evaluation ignores it; validation reports model.pinned_fingerprint_removed (error, REQ-EMG-184) at reqLinks[i].pinned.fingerprint; engws migrate-links reports each one and leaves the file alone.'
     verificationMethods: [test]
-    verificationCriteria: When one link records a fingerprint and another does not, then validation warns link.fingerprint_deprecated only at the first link's pinned.fingerprint naming engws migrate-links; a fingerprint of any form loads; migrate-links removes two recorded fingerprints and prints the count.
+    verificationCriteria: When one link records a fingerprint and another does not, then validation reports model.pinned_fingerprint_removed only at the first link's pinned.fingerprint; a fingerprint of any form still decodes; migrate-links reports two recorded fingerprints with their remedy and writes none.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-CLI-ORCHESTRATION
@@ -1598,3 +1598,13 @@ requirements:
       - FU-VALIDATION-ENGINE
       - FU-SYSTEM-COMPOSITION
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
+  - id: REQ-EMG-184
+    status: implemented
+    text: When model updated event is received, the engineering model go shall reject a deprecated pinned fingerprint and a deprecated provides reference with an error that names the remedy.
+    notes: 'ADR-EMG-075, removal plan phase 4. A requirement link that carries pinned.fingerprint is the error model.pinned_fingerprint_removed and a contract provides entry that carries ref is the error model.provides_ref_removed. Each is an untiered error whose message names the field to delete, instead of the warning pinned.fingerprint was or a bare strict-decoding error. The two requires ref lines of the Atlas examples are deleted because nothing reads them.'
+    verificationMethods: [test]
+    verificationCriteria: When a link pins a fingerprint, then model.pinned_fingerprint_removed is reported at the link with the remedy delete pinned.fingerprint; when a provides entry carries ref, then model.provides_ref_removed is reported with the remedy to use realizes; a link without a fingerprint and a provides entry without ref are not reported, and the Atlas examples carry no ref on requires.
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FU-ALLOCATION-TRACE
+    realizes: [CAP-EMG-REQUIREMENT-LINKS]

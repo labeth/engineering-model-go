@@ -425,6 +425,8 @@ package model
 #ContractEntry: {
 	id?:   string
 	kind?: string
+	// On a provides entry ref is removed (ADR-EMG-075): decoded only so
+	// validation reports model.provides_ref_removed with its remedy.
 	ref?:  string
 	note?: string
 }

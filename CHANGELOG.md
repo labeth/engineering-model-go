@@ -6,7 +6,45 @@ semantic versioning.
 
 ## [Unreleased]
 
-## [0.11.0] — 2026-11-12: State machines and formal behavior verification with Quint
+## [0.11.0] — 2026-11-13: State machines, code health, required model switches and consistency checks
+
+**Breaking release, no compatibility path** (owner instruction: "i dont want any backwards compatabillity in the model yet, it should always require a full upgrade"). A model, a lock, a check template or an engine pin that is not current is an error that names its remedy, never a mode that still works. The authoring contract is `engineering-model.authoring.v8`.
+
+### Required model switches (ADR-EMG-060, 061, 066, 072, 074, 076)
+
+- `lifecycle` (tier, bundles, tierDecision), `requirementLinks`, `lintRun.mode`, the `health` block from tier product, `schemaVersion` and the model id are required; each absence is an error with a `fix:` line (`lifecycle.missing`, `model.requirement_links_missing`, `lint.mode_missing`, `health.block_missing`, `model.unsupported_schema_version`, ...). The legacy state vocabulary is gone.
+- A composition lock whose schema version is not current (`composition.lock_schema_outdated`), a repository check template that cannot take the workspace root (`engine.check_template_stale`, `engws check` no longer falls back to the library unless `--in-process`) and an engine pin older than the running engine (`engine.pin_outdated`) are errors.
+- `composition.dependency_tier_unknown` is an error at every tier; `aviation.tool.incomplete_credit_assessment` and `aviation.derived.incomplete_safety_feedback` are errors from mvp; `catalog.term_unreferenced` is an error from product.
+- `engtrlc` and `englobster` now require `--model` and every exporter runs the validation gate and prints the `fix:` line.
+
+### Code health (ADR-EMG-046 to 059)
+
+- `enghealth` scans the code of a model with a tree-sitter engine (complexity, size, nesting, bumpy road, conditionals, arguments, assertions), scores files, writes `engmod-health/1` JSON and SARIF, keeps a baseline of accepted debt that can only shrink (`engmod-health-baseline/1`), compares with a base revision (`enghealth check`, including the model level policy: tier, bundles, lint mode, POA&M defers, accepted tier decisions) and reports `health.policy_weakened`. Debt is an error from product.
+
+### Consistency checks (ADR-EMG-056, 069)
+
+- `code.owner_unresolved`, `code.model_link_kind_mismatch`, `behavior.requirement_unmodeled`, `behavior.machine_unverified`, `code.unit_unlinked`, `code.machine_unlinked`, `code.interface_unlinked`, `code.state_unlinked`, `code.transition_unlinked`, `code.event_unlinked`, `code.flow_unlinked`, `code.data_unlinked` and the machine element requirement links (`requirements` on states, transitions and events with `behavior.state_unlinked`, `behavior.transition_unlinked`, `behavior.event_unlinked`); `codeCoverage.exempt` records an element deliberately not implemented. Stacked `ENGMODEL-LINKS` lines accumulate.
+
+### POA&M and gate hardening (ADR-EMG-064, 068)
+
+- A POA&M item expires by its `dueDate` (`lifecycle.poam_overdue`); a defers entry can name a requirement with `ref` and one that matches nothing is `lifecycle.poam_defers_unused`; the policy gate codes (`health.policy_weakened`, `health.regression`, `health.baseline_stale`, `health.waiver_unused`, `verification.failed`) can never be deferred. Model strings are escaped in diagnostic output.
+
+### Removed (ADR-EMG-073, 075)
+
+- Every MCP argument alias (a former name is rejected as an unknown argument that names the canonical one), the duplicate tool `entities.list`, `engws --allow-suspect`, `engoscal --out`, the fields `BaseCatalogRef` and `Compatibility` and the trace summary counters `verified` and `linksSuspect`.
+- **`pinned.fingerprint` and `contract.provides[].ref`** (REQ-EMG-184, ADR-EMG-075, removal plan phase 4).
+  A link that carries `pinned.fingerprint` is the untiered error `model.pinned_fingerprint_removed`
+  (remedy: delete it and pin the dependency version only); a `contract.provides` entry that carries `ref` is
+  the untiered error `model.provides_ref_removed` (remedy: name the realizing requirement with `realizes`).
+  They replace the warnings `link.fingerprint_deprecated` and `contract.ref_deprecated`. The fields still
+  decode so the error names them; nothing reads or writes them: `engws review-links` keeps a fingerprint,
+  `engws migrate-links` only reports either field, the facade function `ContractCapabilityRefs` is gone and
+  `RealizedContractItems` takes no refs. An allocation resolves to the one requirement of the subsystem that
+  realizes the target (it used to read the entry's `ref`). The two `requires` ref lines of the Atlas examples
+  are deleted; they were read by nothing.
+
+
+### State machines and Quint (earlier entries of this release)
 
 Quint behavior verification (ADR-EMG-037 to ADR-EMG-045, REQ-EMG-135 to
 REQ-EMG-149). **Breaking release, no compatibility path**: state behavior is modeled with

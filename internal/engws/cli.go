@@ -104,8 +104,8 @@ commands:
                              record the review in the requirement link file:
                              pinned.version set to the dependency pin,
                              reviewedBy, reviewedOn (today), rationale and
-                             status accepted, a deprecated fingerprint
-                             removed; only those lines change; refuse an
+                             status accepted; only those lines change (a
+                             pinned.fingerprint is left in place); refuse an
                              actor the model does not define, a broken link
                              and a dependency that does not resolve with the
                              workspace off; then evaluate the link again and
@@ -147,11 +147,10 @@ commands:
                              claimed link in model/req-links.yml (id
                              LNK-<REQ>-<ALIAS>, the dependency pin; parent for
                              a capability, evidence for an assumption of
-                             use), every deprecated pinned.fingerprint is
-                             removed (count printed), documents.reqLinks is added, the
-                             allocations are removed, and each capability
-                             contract.provides[].ref becomes realizes on its
-                             requirement; other lines are kept; print the
+                             use), documents.reqLinks is added and the
+                             allocations are removed; other lines are kept; a
+                             pinned.fingerprint or contract.provides[].ref is
+                             not edited and is printed with its remedy; print the
                              requirements left with requirement.no_parent;
                              a second run changes nothing; a failed write
                              restores every file; migrate the dependencies

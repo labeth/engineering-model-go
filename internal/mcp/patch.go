@@ -215,7 +215,7 @@ func (s *Server) modelPatch(args map[string]any) (map[string]any, error) {
 		return nil, fmt.Errorf("%s", strings.Replace(err.Error(), "model.diagnose", "model.patch", 1))
 	}
 	if key == "reqLinks" {
-		// The link file records reviews and engine-written fingerprints; engws
+		// The link file records reviews; engws
 		// review-links is its one write path (D14).
 		return nil, fmt.Errorf("model.patch does not edit the requirement link file %s: record a review with engws review-links --accept (links.review prepares it)", rel)
 	}

@@ -64,11 +64,6 @@ func SortedContractItemRealizers(in []ContractItemRealizer) []ContractItemRealiz
 	return reqlinks.SortedRealizers(in)
 }
 
-// ContractCapabilityRefs maps each requirement a capability names in its deprecated ref to it.
-// TRLC-LINKS: REQ-EMG-091
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func ContractCapabilityRefs(bundle Bundle) map[string]string { return reqlinks.CapabilityRefs(bundle) }
-
 // LinkDependency is one resolved dependency as requirement link evaluation sees it.
 // TRLC-LINKS: REQ-EMG-097
 type LinkDependency = reqlinks.Dependency
@@ -106,8 +101,8 @@ func ContractItemsFromBundle(bundle Bundle) map[string]ContractItem {
 // RealizedContractItems returns the contract item IDs a requirement realizes.
 // TRLC-LINKS: REQ-EMG-090
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func RealizedContractItems(r Requirement, refs map[string]string) []string {
-	return reqlinks.RealizedItems(r, refs)
+func RealizedContractItems(r Requirement) []string {
+	return reqlinks.RealizedItems(r)
 }
 
 // PublishedContractItems returns the contract items and realizers the publications expose.

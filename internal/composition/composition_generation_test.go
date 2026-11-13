@@ -35,3 +35,30 @@ func TestDelegationsByRequirementIndexesTrimmedIDs(t *testing.T) {
 		t.Fatalf("delegations by requirement: %+v", got)
 	}
 }
+
+// A delegation resolves to the one requirement of the subsystem that lists
+// the target in realizes (ADR-EMG-075); a contract ref names nothing, and none
+// or several realizers leave the delegation unresolved.
+// Mutation: reading provides.ref again, taking the first of several
+// realizers or not trimming the IDs fails a row.
+// TRLC-LINKS: REQ-EMG-184
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func TestDelegationTargetIsTheRealizer(t *testing.T) {
+	cases := []struct {
+		name string
+		reqs []model.Requirement
+		want string
+	}{
+		{"one realizer", []model.Requirement{{ID: " REQ-A ", Realizes: []string{" CAP-X "}}, {ID: "REQ-B"}}, "REQ-A"},
+		{"no realizer", []model.Requirement{{ID: "REQ-A"}, {ID: "REQ-B", Realizes: []string{"CAP-Y"}}}, ""},
+		{"two realizers", []model.Requirement{{ID: "REQ-A", Realizes: []string{"CAP-X"}}, {ID: "REQ-B", Realizes: []string{"CAP-X"}}}, ""},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := delegationTarget(model.RequirementsDocument{Requirements: c.reqs}, "CAP-X")
+			if got != c.want {
+				t.Errorf("delegationTarget = %q, want %q", got, c.want)
+			}
+		})
+	}
+}

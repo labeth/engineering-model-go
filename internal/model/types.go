@@ -1074,7 +1074,7 @@ type ContractAssumption struct {
 type ContractEntry struct {
 	ID   string `yaml:"id"`
 	Kind string `yaml:"kind"` // interface|capability|assumption
-	Ref  string `yaml:"ref"`  // optional local id this contract entry exposes
+	Ref  string `yaml:"ref"`  // removed on provides (model.provides_ref_removed): decoded only to report it
 	Note string `yaml:"note"`
 }
 

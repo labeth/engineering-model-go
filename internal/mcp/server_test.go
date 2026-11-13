@@ -113,7 +113,7 @@ func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	if !ok {
 		t.Fatalf("missing authoring contract: %+v", payload)
 	}
-	if contract["contractVersion"] != "engineering-model.authoring.v7" {
+	if contract["contractVersion"] != "engineering-model.authoring.v8" {
 		t.Fatalf("unexpected contract version: %v", contract["contractVersion"])
 	}
 	health, _ := contract["health"].(map[string]any)

@@ -136,7 +136,8 @@ func TestRequirementRealizesUnknown(t *testing.T) {
 }
 
 // contract.unrealized warns at a published capability no requirement
-// realizes; a deprecated ref counts and warns contract.ref_deprecated.
+// realizes; a requirement that realizes a capability counts, and a ref counts
+// for nothing (model.provides_ref_removed, TestRemovedFieldDiagnostics).
 // contract.realizer_unpublished is an error at a realizer the publication of
 // its item does not list.
 // TRLC-LINKS: REQ-EMG-091, REQ-EMG-092, REQ-EMG-093
@@ -145,15 +146,16 @@ func TestContractItemRules(t *testing.T) {
 	b := linkTestBundle("strict")
 	b.Architecture.Contract.Provides = append(b.Architecture.Contract.Provides,
 		model.ContractEntry{ID: "CAP-B", Kind: "capability", Note: "B."},
-		model.ContractEntry{ID: "CAP-C", Kind: "capability", Ref: "REQ-S", Note: "C."})
+		model.ContractEntry{ID: "CAP-C", Kind: "capability", Note: "C."})
+	b.Requirements.Requirements[2].Realizes = []string{"CAP-C"}
 	b.Manifest.Publications[0].Architecture = append(b.Manifest.Publications[0].Architecture, "CAP-B", "CAP-C")
 	b.Manifest.Publications[0].Requirements = append(b.Manifest.Publications[0].Requirements, "REQ-S")
 	diags := Bundle(b)
 	if got := codesOf(diags, "contract.unrealized"); len(got) != 1 || got[0].Severity != SeverityWarning || !strings.Contains(got[0].Message, "CAP-B") {
 		t.Fatalf("contract.unrealized = %+v", got)
 	}
-	if got := codesOf(diags, "contract.ref_deprecated"); len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "contract.provides[2].ref" {
-		t.Fatalf("contract.ref_deprecated = %+v", got)
+	if got := codesOf(diags, "contract.ref_deprecated"); len(got) != 0 {
+		t.Fatalf("contract.ref_deprecated is no longer reported, got %+v", got)
 	}
 	if got := codesOf(diags, "contract.realizer_unpublished"); len(got) != 0 {
 		t.Fatalf("all realizers published, got %+v", got)
@@ -312,26 +314,4 @@ func TestLinkFileIntegrityRules(t *testing.T) {
 	check("model.duplicate_id", "error reqLinks[1].id")
 	check("link.invalid_status", "error reqLinks[2].status")
 	check("model.invalid_assumption", "error contract.assumptions[1],error contract.assumptions[2]")
-}
-
-// A link that still records pinned.fingerprint is link.fingerprint_deprecated
-// (warning) at that field, naming engws migrate-links; the fingerprint is
-// ignored, so the link evaluates by its version alone. A link without one
-// reports nothing.
-// Mutation: dropping the warning or reporting it as an error fails this
-// test.
-// TRLC-LINKS: REQ-EMG-118
-// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
-func TestFingerprintIsDeprecated(t *testing.T) {
-	old := linkPin
-	old.Fingerprint = "sha256:v1:" + strings.Repeat("a", 64)
-	b := linkFileBundle(
-		model.ReqLink{ID: "LNK-OLD", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: old, Status: "claimed"},
-		model.ReqLink{ID: "LNK-NEW", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: linkPin, Status: "claimed"},
-	)
-	got := codesOf(Bundle(b), "link.fingerprint_deprecated")
-	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "reqLinks[0].pinned.fingerprint" ||
-		!strings.Contains(got[0].Message, "engws migrate-links") || !strings.Contains(got[0].Message, "LNK-OLD") {
-		t.Fatalf("link.fingerprint_deprecated = %+v", got)
-	}
 }

@@ -109,7 +109,7 @@ func childBundle() model.Bundle {
 	b.Architecture.Contract = model.ContractModel{
 		Provides: []model.ContractEntry{
 			{ID: "CAP-A", Kind: "capability", Note: "Deliver A."},
-			{ID: "CAP-B", Kind: "capability", Ref: "REQ-B", Note: "Deliver B."},
+			{ID: "CAP-B", Kind: "capability", Note: "Deliver B."},
 			{ID: "IF-A", Kind: "interface", Note: "Wire A."},
 		},
 		Assumptions: []model.ContractAssumption{
@@ -120,7 +120,7 @@ func childBundle() model.Bundle {
 	b.Requirements.Requirements = []model.Requirement{
 		{ID: "REQ-A1", Text: "The child shall do A1.", Realizes: []string{"CAP-A"}},
 		{ID: "REQ-A2", Text: "The child shall do A2.", Realizes: []string{"CAP-A", "AOU-A"}},
-		{ID: "REQ-B", Text: "The child shall do B."},
+		{ID: "REQ-B", Text: "The child shall do B.", Realizes: []string{"CAP-B"}},
 		{ID: "REQ-D", Text: "The child shall log.", Derived: true, DerivedRationale: "Ops."},
 		{ID: "REQ-A3", Text: "The child shall do A3 privately.", Realizes: []string{"CAP-A"}},
 	}
@@ -132,7 +132,7 @@ func childBundle() model.Bundle {
 }
 
 // ItemsFromBundle returns every capability and assumption of use with its
-// realizers (a deprecated contract ref counts as a realizer), never an
+// realizers (a contract ref counts for nothing, ADR-EMG-075), never an
 // interface entry; PublishedItems keeps only the items and realizers the
 // publication exposes.
 // TRLC-LINKS: REQ-EMG-095
@@ -146,7 +146,7 @@ func TestItemsFromBundle(t *testing.T) {
 		t.Fatalf("CAP-A realizers = %s", got)
 	}
 	if got := realizerIDs(items["CAP-B"]); got != "REQ-B" || items["CAP-B"].Text != "Deliver B." {
-		t.Fatalf("CAP-B (ref) = %+v", items["CAP-B"])
+		t.Fatalf("CAP-B = %+v", items["CAP-B"])
 	}
 	if a := items["AOU-A"]; a.Kind != KindAssumption || a.VerificationCriteria != "Shown by user." || realizerIDs(a) != "REQ-A2" {
 		t.Fatalf("AOU-A = %+v", a)
@@ -273,5 +273,38 @@ func TestEvaluateLinksOfLocalDependency(t *testing.T) {
 	}
 	if !strings.Contains(got["LNK-GONE"].Detail, "workspace") || got["LNK-OK"].Item == nil {
 		t.Fatalf("local statuses: %+v", got)
+	}
+}
+
+// A contract.provides ref is read by nothing (ADR-EMG-075): a requirement
+// that a capability names in ref is no realizer of it and traces to nothing,
+// while a requirement that lists the capability in realizes is its realizer.
+// Mutation: crediting a ref in ItemsFromBundle or RealizedItems fails a row.
+// TRLC-LINKS: REQ-EMG-184
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func TestProvidesRefIsIgnored(t *testing.T) {
+	cases := []struct {
+		name         string
+		ref          string
+		realizes     []string
+		wantRealizer string
+		wantRealized string
+	}{
+		{"ref only", "REQ-X", nil, "", ""},
+		{"realizes only", "", []string{"CAP-X"}, "REQ-X", "CAP-X"},
+		{"ref and realizes", "REQ-X", []string{"CAP-X"}, "REQ-X", "CAP-X"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			var b model.Bundle
+			b.Architecture.Contract.Provides = []model.ContractEntry{{ID: "CAP-X", Kind: "capability", Ref: c.ref}}
+			b.Requirements.Requirements = []model.Requirement{{ID: "REQ-X", Text: "The unit shall x.", Realizes: c.realizes}}
+			if got := realizerIDs(ItemsFromBundle(b)["CAP-X"]); got != c.wantRealizer {
+				t.Errorf("realizers %q, want %q", got, c.wantRealizer)
+			}
+			if got := strings.Join(RealizedItems(b.Requirements.Requirements[0]), ","); got != c.wantRealized {
+				t.Errorf("realized items %q, want %q", got, c.wantRealized)
+			}
+		})
 	}
 }

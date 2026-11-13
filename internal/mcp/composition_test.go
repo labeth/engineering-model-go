@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/testutil"
@@ -65,7 +66,6 @@ func writeMCPCompositionFixture(t *testing.T) string {
     provides:
       - id: CAP-CHILD
         kind: capability
-        ref: REQ-CHILD
 `)
 	writeMCPModule(t, parent, "example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
   - alias: child
@@ -109,7 +109,11 @@ module:
   decisions: model/decisions.yml
 `)
 	writeMCPFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-PARENT\n    text: Parent requirement.\n  - id: REQ-CHILD\n    text: Child requirement.\n")
+	requirements := "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-PARENT\n    text: Parent requirement.\n  - id: REQ-CHILD\n    text: Child requirement.\n"
+	if strings.Contains(architecture, "- id: CAP-CHILD\n") {
+		requirements += "    realizes: [CAP-CHILD]\n" // the child requirement realizes its capability (provides.ref was removed)
+	}
+	writeMCPFile(t, filepath.Join(dir, "model", "requirements.yml"), requirements)
 	writeMCPFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n"+architecture)
 	writeMCPFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
 	writeMCPFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")

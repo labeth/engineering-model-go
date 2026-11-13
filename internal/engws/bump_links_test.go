@@ -33,7 +33,7 @@ func publishEncoderReleases(t *testing.T) *linksRegistry {
 }
 
 // pinOf returns the pinned version of a link in the file and whether the
-// link still records a (deprecated) fingerprint.
+// link still records a (removed) fingerprint.
 func pinOf(t *testing.T, path, id string) (string, bool) {
 	t.Helper()
 	var doc model.ReqLinksDocument

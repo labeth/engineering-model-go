@@ -86,7 +86,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"ItemsFromBundle": "ContractItemsFromBundle", "RealizedItems": "RealizedContractItems",
 			"PublishedItems": "PublishedContractItems", "EvaluateLinks": "EvaluateRequirementLinks",
 			"SortedRealizers": "SortedContractItemRealizers",
-			"CapabilityRefs":  "ContractCapabilityRefs", "Reason": "LinkReason", "ReasonNone": "LinkReasonNone",
+			"Reason":          "LinkReason", "ReasonNone": "LinkReasonNone",
 			"ReasonUndeclaredAlias": "LinkReasonUndeclaredAlias", "ReasonUnresolved": "LinkReasonUnresolved",
 			"ReasonNotInPublication": "LinkReasonNotInPublication", "ReasonNotContractItem": "LinkReasonNotContractItem",
 			"ReasonMissing": "LinkReasonMissing", "NonItemReason": "ContractNonItemReason",

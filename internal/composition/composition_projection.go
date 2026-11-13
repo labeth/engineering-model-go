@@ -318,7 +318,7 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 				bundle.Architecture.AuthoredArchitecture.HardwareInterfaces = append(bundle.Architecture.AuthoredArchitecture.HardwareInterfaces, value)
 			}
 		case model.ContractEntry:
-			value.ID, value.Ref = q, entity.qualify(value.Ref)
+			value.ID, value.Ref = q, ""
 			if projectionContractRequires(entity) {
 				bundle.Architecture.Contract.Requires = append(bundle.Architecture.Contract.Requires, value)
 			} else {

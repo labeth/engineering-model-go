@@ -372,10 +372,10 @@ type Acceptance struct {
 }
 
 // Accept prepares the review of link id in ctx: pinned.version set to the
-// dependency pin (the version reviewed), a deprecated pinned.fingerprint
-// removed, reviewedBy, reviewedOn (date, YYYY-MM-DD), the rationale and
-// status accepted, editing only the touched lines of data (the requirement
-// link file). It refuses an actor the model does not define, an unknown
+// dependency pin (the version reviewed), reviewedBy, reviewedOn (date,
+// YYYY-MM-DD), the rationale and status accepted, editing only the touched
+// lines of data (the requirement link file); a pinned.fingerprint is left as
+// it is (validation reports model.pinned_fingerprint_removed). It refuses an actor the model does not define, an unknown
 // link, a broken link and one whose item is not resolved at the dependency
 // pin. Nothing is written.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
@@ -428,9 +428,6 @@ func Accept(ctx Context, data []byte, id, by, rationale, date string) (Acceptanc
 		if edited, err = yamledit.SetKey(edited, e.find, e.key, yamledit.Scalar(e.value)); err != nil {
 			return Acceptance{Status: *status}, fmt.Errorf("%s: link %s: %w", filepath.Base(path), id, err)
 		}
-	}
-	if edited, _, err = yamledit.RemoveKey(edited, pinned, "fingerprint"); err != nil {
-		return Acceptance{Status: *status}, fmt.Errorf("%s: link %s: %w", filepath.Base(path), id, err)
 	}
 	var check model.ReqLinksDocument
 	dec := yaml.NewDecoder(bytes.NewReader(edited))

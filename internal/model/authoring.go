@@ -18,8 +18,12 @@ import (
 // the required switches (ADR-EMG-061): the rules carry a required section
 // (switch, code, remedy), and lifecycle with bundles and tierDecision,
 // requirementLinks, lintRun.mode, the health block from tier product,
-// schemaVersion and the model id are errors when absent.
-const AuthoringContractVersion = "engineering-model.authoring.v7"
+// schemaVersion and the model id are errors when absent. v8 (ADR-EMG-076) adds
+// codeCoverage.exempt, the requirements list of machine states, transitions
+// and events, the non-deferrable gate codes, the POA&M ref and overdue date,
+// the removed-field errors and the lock, check template and engine pin errors,
+// and removes the compatibility field.
+const AuthoringContractVersion = "engineering-model.authoring.v8"
 
 // AuthoringContract is compact machine context for editing the canonical YAML set.
 type AuthoringContract struct {
