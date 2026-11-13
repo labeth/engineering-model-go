@@ -4,6 +4,7 @@ package testutil
 import (
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -34,22 +35,35 @@ decisions:
       - The fixture meets the required lifecycle switches.
 `
 
-// withCompleteSwitches adds CompleteSwitches to a manifest block unless the
-// block already writes lifecycle or requirementLinks itself.
+// manifestKey matches a top-level manifest key at the start of a line.
 // TRLC-LINKS: REQ-EMG-162, REQ-EMG-163, REQ-EMG-164
-func withCompleteSwitches(manifestExtra string) string {
-	if strings.Contains(manifestExtra, "lifecycle:") || strings.Contains(manifestExtra, "requirementLinks:") {
-		return manifestExtra
+func manifestKey(manifestExtra, key string) bool {
+	return regexp.MustCompile(`(?m)^` + regexp.QuoteMeta(key) + `:`).MatchString(manifestExtra)
+}
+
+// withCompleteSwitches adds the lifecycle of CompleteSwitches to a manifest
+// block that writes no lifecycle key itself, and requirementLinks guided
+// unless the block writes requirementLinks. A block with its own lifecycle is
+// returned unchanged. The boolean reports whether the lifecycle (and with it
+// the need for the accepted DEC-TIER-POC) was added.
+// TRLC-LINKS: REQ-EMG-162, REQ-EMG-163, REQ-EMG-164
+func withCompleteSwitches(manifestExtra string) (string, bool) {
+	if manifestKey(manifestExtra, "lifecycle") {
+		return manifestExtra, false
 	}
-	return manifestExtra + CompleteSwitches
+	if manifestKey(manifestExtra, "requirementLinks") {
+		return manifestExtra + strings.TrimPrefix(CompleteSwitches, "requirementLinks: guided\n"), true
+	}
+	return manifestExtra + CompleteSwitches, true
 }
 
 // WriteV2ModuleFiles writes a schema-v2 model module (cue.mod, engmod.yml and
 // the eight domain documents) to dir; manifestExtra is inserted before the
 // documents block and architecture is the body of architecture.yml. The module
 // is complete at tier poc (lifecycle, accepted DEC-TIER-POC, requirementLinks
-// guided, lintRun mode guided) unless manifestExtra writes lifecycle or
-// requirementLinks itself.
+// guided, lintRun mode guided); manifestExtra that writes lifecycle itself
+// gets no lifecycle, no DEC-TIER-POC (an empty decisions document) and, as
+// one that writes requirementLinks, no requirementLinks added.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
 func WriteV2ModuleFiles(t testing.TB, dir, modulePath, version, modelID, manifestExtra, architecture string) {
 	t.Helper()
@@ -57,6 +71,7 @@ func WriteV2ModuleFiles(t testing.TB, dir, modulePath, version, modelID, manifes
 		t.Fatal(err)
 	}
 	WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePath+"\"\nlanguage: version: \"v0.17.0\"\n")
+	manifestExtra, addedLifecycle := withCompleteSwitches(manifestExtra)
 	WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
 module:
   path: `+modulePath+`
@@ -65,7 +80,7 @@ module:
   title: `+modelID+`
   introduction: ""
   kind: system
-`+withCompleteSwitches(manifestExtra)+`documents:
+`+manifestExtra+`documents:
   catalog: model/catalog.yml
   requirements: model/requirements.yml
   architecture: model/architecture.yml
@@ -82,7 +97,13 @@ module:
 	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
-	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), TierDecisionPoC)
+	// DEC-TIER-POC records only the lifecycle this helper added; a manifest with
+	// its own lifecycle names its own decision and gets no stray one.
+	decisions := "schemaVersion: 2\ndecisions: []\n"
+	if addedLifecycle {
+		decisions = TierDecisionPoC
+	}
+	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), decisions)
 }
 
 // WriteInterfaceModule writes the example.com/iface@v0 module: it publishes an

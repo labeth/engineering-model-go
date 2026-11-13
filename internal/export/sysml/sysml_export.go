@@ -19,6 +19,32 @@ import (
 type ExportResult struct {
 	Text        string                     `json:"text"`
 	Diagnostics []model.SemanticDiagnostic `json:"diagnostics"`
+	// Validation holds the validation diagnostics of the run with their
+	// remedies; Diagnostics holds the same findings without the remedy.
+	Validation []validate.Diagnostic `json:"-"`
+}
+
+// PrintableDiagnostics returns Diagnostics as validate diagnostics, each with
+// the remedy of the validation diagnostic of the same code, path and message,
+// so that a CLI prints the "fix:" line of a required-switch error.
+//
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-168
+// ENGMODEL-LINKS: FU-SYSML-EXPORTER, IF-CLI-ENGSYSML
+func (r ExportResult) PrintableDiagnostics() []validate.Diagnostic {
+	remedies := map[[3]string]string{}
+	for _, v := range r.Validation {
+		if v.Remedy != "" {
+			remedies[[3]string{v.Code, v.Path, v.Message}] = v.Remedy
+		}
+	}
+	out := make([]validate.Diagnostic, 0, len(r.Diagnostics))
+	for _, d := range r.Diagnostics {
+		out = append(out, validate.Diagnostic{
+			Code: d.Code, Severity: validate.Severity(d.Severity), Message: d.Message, Path: d.Path,
+			Remedy: remedies[[3]string{d.Code, d.Path, d.Message}],
+		})
+	}
+	return out
 }
 
 type RendererCoverage struct {
@@ -48,12 +74,14 @@ func GenerateV2FromFile(architecturePath string) (ExportResult, error) {
 		return ExportResult{}, err
 	}
 	var compositionDiagnostics []model.SemanticDiagnostic
+	var compositionValidation []validate.Diagnostic
 	var projection composition.CompositionProjection
 	if composition.HasComposition(bundle) {
 		composed, err := composition.GenerateCompositionFromFile(bundle.ManifestPath)
 		if err != nil {
 			return ExportResult{}, err
 		}
+		compositionValidation = composed.Diagnostics
 		for _, diagnostic := range composed.Diagnostics {
 			compositionDiagnostics = append(compositionDiagnostics, model.SemanticDiagnostic{
 				Code: diagnostic.Code, Severity: model.SemanticSeverity(diagnostic.Severity),
@@ -61,7 +89,7 @@ func GenerateV2FromFile(architecturePath string) (ExportResult, error) {
 			})
 		}
 		if semanticDiagnosticsHaveErrors(compositionDiagnostics) {
-			return ExportResult{Diagnostics: sortSemanticDiagnostics(compositionDiagnostics)}, fmt.Errorf("composition validation failed")
+			return ExportResult{Diagnostics: sortSemanticDiagnostics(compositionDiagnostics), Validation: compositionValidation}, fmt.Errorf("composition validation failed")
 		}
 		projection = composition.BuildCompositionProjection(composed)
 	}
@@ -70,6 +98,7 @@ func GenerateV2FromFile(architecturePath string) (ExportResult, error) {
 		result.Text = enrichSysMLWithPublications(result.Text, projection)
 	}
 	result.Diagnostics = sortSemanticDiagnostics(append(result.Diagnostics, compositionDiagnostics...))
+	result.Validation = append(result.Validation, compositionValidation...)
 	return result, err
 }
 
@@ -143,28 +172,29 @@ func publishedSysMLKeyword(entity composition.PublishedProjectionEntity) string 
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
 func GenerateV2(bundle model.Bundle) (ExportResult, error) {
 	var diagnostics []model.SemanticDiagnostic
-	for _, diagnostic := range validate.Bundle(bundle) {
+	validation := validate.Bundle(bundle)
+	for _, diagnostic := range validation {
 		diagnostics = append(diagnostics, model.SemanticDiagnostic{
 			Code: diagnostic.Code, Severity: model.SemanticSeverity(diagnostic.Severity),
 			Message: diagnostic.Message, Path: diagnostic.Path,
 		})
 	}
 	if semanticDiagnosticsHaveErrors(diagnostics) {
-		return ExportResult{Diagnostics: sortSemanticDiagnostics(diagnostics)}, fmt.Errorf("validation failed")
+		return ExportResult{Diagnostics: sortSemanticDiagnostics(diagnostics), Validation: validation}, fmt.Errorf("validation failed")
 	}
 
 	semantic, projectionDiagnostics := model.ProjectSemanticModel(bundle)
 	diagnostics = append(diagnostics, projectionDiagnostics...)
 	if semanticDiagnosticsHaveErrors(diagnostics) {
-		return ExportResult{Diagnostics: sortSemanticDiagnostics(diagnostics)}, fmt.Errorf("semantic projection failed")
+		return ExportResult{Diagnostics: sortSemanticDiagnostics(diagnostics), Validation: validation}, fmt.Errorf("semantic projection failed")
 	}
 
 	text, renderingDiagnostics := GenerateV2Projection(semantic)
 	diagnostics = append(diagnostics, renderingDiagnostics...)
 	if semanticDiagnosticsHaveErrors(diagnostics) {
-		return ExportResult{Text: text, Diagnostics: sortSemanticDiagnostics(diagnostics)}, fmt.Errorf("SysML rendering failed")
+		return ExportResult{Text: text, Diagnostics: sortSemanticDiagnostics(diagnostics), Validation: validation}, fmt.Errorf("SysML rendering failed")
 	}
-	return ExportResult{Text: text, Diagnostics: sortSemanticDiagnostics(diagnostics)}, nil
+	return ExportResult{Text: text, Diagnostics: sortSemanticDiagnostics(diagnostics), Validation: validation}, nil
 }
 
 // GenerateV2Projection renders a pre-built semantic graph. Missing

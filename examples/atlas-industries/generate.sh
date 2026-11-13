@@ -30,8 +30,8 @@ for name in "${repositories[@]}"; do
     --format csv --out "$out/TRACE-MATRIX.csv"
   go run ./cmd/engstruct --model "$model_dir/engmod.yml" --out "$out/STRUCTURIZR.dsl"
   go run ./cmd/engsysml --model "$model_dir/engmod.yml" --out "$out/ARCHITECTURE.sysml"
-  go run ./cmd/engtrlc --requirements "$model_dir/model/requirements.yml" --out-dir "$out/requirements"
-  go run ./cmd/englobster --tests-dir "$model_dir" --out "$out/requirements/tests.lobster.json"
+  go run ./cmd/engtrlc --model "$model_dir/engmod.yml" --requirements "$model_dir/model/requirements.yml" --out-dir "$out/requirements"
+  go run ./cmd/englobster --model "$model_dir/engmod.yml" --tests-dir "$model_dir" --out "$out/requirements/tests.lobster.json"
   go run ./cmd/engdragon --model "$model_dir/engmod.yml" --format threat-dragon-v2 --out "$out/security/THREAT-MODEL.threat-dragon.json"
   go run ./cmd/engdragon --model "$model_dir/engmod.yml" --format open-otm --out "$out/security/THREAT-MODEL.open-otm.json"
   go run ./cmd/engoscal --model "$model_dir/engmod.yml" --requirements "$model_dir/model/requirements.yml" \

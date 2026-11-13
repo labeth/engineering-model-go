@@ -230,7 +230,7 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 }
 
 // diagRows renders diagnostics as compact maps for MCP tool responses.
-// TRLC-LINKS: REQ-EMG-016
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-168
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func diagRows(diags []validate.Diagnostic) []map[string]any {
 	out := make([]map[string]any, 0, len(diags))

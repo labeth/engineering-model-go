@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
@@ -134,13 +135,10 @@ func writeOutput(path string, data []byte, stdout, stderr io.Writer) int {
 	return 0
 }
 
-// TRLC-LINKS: REQ-EMG-036
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-168
+// ENGMODEL-LINKS: FU-SYSML-EXPORTER, IF-CLI-ENGSYSML
 func printDiagnostics(stderr io.Writer, result engmodel.SysMLExportResult) {
-	for _, diagnostic := range result.Diagnostics {
-		fmt.Fprintf(stderr, "%s [%s] %s", diagnostic.Code, diagnostic.Severity, diagnostic.Message)
-		if diagnostic.Path != "" {
-			fmt.Fprintf(stderr, " (%s)", diagnostic.Path)
-		}
-		fmt.Fprintln(stderr)
+	for _, diagnostic := range result.PrintableDiagnostics() {
+		validate.WriteDiagnostic(stderr, diagnostic)
 	}
 }

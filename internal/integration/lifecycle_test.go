@@ -163,9 +163,9 @@ func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 			}
 		}
 	}
-	unapproved := diagnosticsOf(engmodel.ValidateBundle(bundle), "lifecycle.requirement_unverified")
-	if len(unapproved) == 0 || !unapproved[0].Deferred {
-		t.Fatalf("ValidateBundle at poc: lifecycle.requirement_unverified %+v, want deferred", unapproved)
+	unverified := diagnosticsOf(engmodel.ValidateBundle(bundle), "lifecycle.requirement_unverified")
+	if len(unverified) == 0 || !unverified[0].Deferred {
+		t.Fatalf("ValidateBundle at poc: lifecycle.requirement_unverified %+v, want deferred", unverified)
 	}
 
 	manifest = setLifecycle(t, dir, "product")

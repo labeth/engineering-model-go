@@ -30,6 +30,21 @@ func (r *checkRepo) setManifest(old, replacement string) {
 	}
 }
 
+// setFile replaces a text in a file of the project.
+//
+// TRLC-LINKS: REQ-EMG-155
+func (r *checkRepo) setFile(rel, old, replacement string) {
+	r.t.Helper()
+	data, err := os.ReadFile(filepath.Join(r.dir, filepath.FromSlash(rel)))
+	if err != nil {
+		r.t.Fatal(err)
+	}
+	if !strings.Contains(string(data), old) {
+		r.t.Fatalf("%s has no %q:\n%s", rel, old, data)
+	}
+	r.write(rel, strings.Replace(string(data), old, replacement, 1))
+}
+
 // An edit that weakens the policy it is measured by is health.policy_weakened:
 // a higher limit, a new exclude, an override that raises a limit and a lower
 // tier each make the check exit 1 where the rule is an error (product and

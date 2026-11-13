@@ -115,6 +115,53 @@ jobs:
           export PATH="$PATH:$(go env GOPATH)/bin"
           scripts/validate-all.sh
 
+  health:
+    # The code health gate of this repository's own model (ADR-EMG-051,
+    # ADR-EMG-059): the scan fails on any finding that is an error at the tier
+    # of engmod.yml, and the delta check fails on a regression or on a
+    # weakening of the policy (limits, excludes, tier, bundles, lint and
+    # requirement link strictness, POA&M defers, tier and health decisions,
+    # a growing baseline) against the base revision, unless an accepted
+    # policyDecision records it. The base policy is read from the merge-base,
+    # so the checkout needs the whole history.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build enghealth
+        run: go build -o "${RUNNER_TEMP}/enghealth" ./cmd/enghealth
+
+      - name: Code health scan
+        run: |
+          "${RUNNER_TEMP}/enghealth" scan --model engmod.yml --fail-on-error
+
+      - name: Code health check against the target branch
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          "${RUNNER_TEMP}/enghealth" check --model engmod.yml --base "origin/${BASE_REF}"
+
+      - name: Code health check against the previous commit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [ -n "${BEFORE_SHA//0/}" ] && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            "${RUNNER_TEMP}/enghealth" check --model engmod.yml --base "${BEFORE_SHA}" --head HEAD
+          else
+            echo "skip: no previous commit to compare with (new branch or history rewritten); the pull request run checked this change"
+          fi
+
   release-check:
     # A release tag is gated on the model's own release rules: no dependency
     # pinned to a pre-release or pseudo-version, and a tag bump at least as

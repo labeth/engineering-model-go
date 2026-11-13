@@ -14,6 +14,12 @@
 #      SysML, TRLC, LOBSTER, OSCAL, Gemara, Threat Dragon, Open OTM, JSON, CSV.
 #   7. Formal behavior verification: engquint generate/check --mode both for
 #      every model with behavior machines (no machines, nothing to check).
+#   8. Code health gate of this repository's own model: enghealth scan fails on
+#      any finding that is an error at the tier of engmod.yml, and enghealth
+#      check fails on a regression or a weakening of the policy against the base
+#      revision (ENGMOD_HEALTH_BASE, else GITHUB_BASE_REF, else origin/main or
+#      main). The check is skipped, with a message, when there is no base
+#      revision or the clone is shallow.
 #
 # External validation may only be skipped locally by explicitly setting the
 # relevant ENGMOD_*_SKIP_EXTERNAL flag (ENGMOD_QUINT_SKIP_EXTERNAL=1 for the
@@ -48,6 +54,34 @@ MODELS=(
 
 section "Build"
 go build ./... && echo "  ok" || fail=1
+
+section "Code health gate (enghealth scan and check)"
+enghealth_bin="$log_dir/enghealth"
+if ! go build -o "$enghealth_bin" ./cmd/enghealth; then
+  echo "  FAIL build enghealth"; fail=1
+else
+  if "$enghealth_bin" scan --model engmod.yml --fail-on-error >"$log_dir/enghealth-scan.log" 2>&1; then
+    echo "  ok   enghealth scan: no finding is an error at the tier"
+  else
+    echo "  FAIL enghealth scan"; tail -12 "$log_dir/enghealth-scan.log" | sed 's/^/         /'; fail=1
+  fi
+  health_base="${ENGMOD_HEALTH_BASE:-}"
+  if [ -z "$health_base" ] && [ -n "${GITHUB_BASE_REF:-}" ]; then health_base="origin/${GITHUB_BASE_REF}"; fi
+  if [ -z "$health_base" ]; then
+    for candidate in origin/main main; do
+      if git rev-parse --verify --quiet "${candidate}^{commit}" >/dev/null 2>&1; then health_base="$candidate"; break; fi
+    done
+  fi
+  if [ -z "$health_base" ] || ! git rev-parse --verify --quiet "${health_base}^{commit}" >/dev/null 2>&1; then
+    echo "  skip enghealth check: no base revision (set ENGMOD_HEALTH_BASE=<rev>)"
+  elif [ "$(git rev-parse --is-shallow-repository 2>/dev/null)" = "true" ]; then
+    echo "  skip enghealth check: shallow clone, the merge base with $health_base is unavailable (the health job of CI runs it with full history)"
+  elif "$enghealth_bin" check --model engmod.yml --base "$health_base" >"$log_dir/enghealth-check.log" 2>&1; then
+    echo "  ok   enghealth check against $health_base"
+  else
+    echo "  FAIL enghealth check against $health_base"; tail -12 "$log_dir/enghealth-check.log" | sed 's/^/         /'; fail=1
+  fi
+fi
 
 section "Enterprise OCI workspace"
 if go test ./internal/integration -run '^TestAtlasIndustriesCompanyExample$' -count=1; then

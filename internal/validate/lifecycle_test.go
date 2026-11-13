@@ -43,7 +43,7 @@ func TestLifecycleTierDecisionMustAgree(t *testing.T) {
 		ref     string
 		want    string
 	}{
-		{"tier differs", "product", []string{"foundation", "safety"}, ok, "", "Tier: MVP"},
+		{"tier differs", "product", []string{"foundation", "safety"}, ok, "", `Tier: "MVP"`},
 		{"bundles differ", "mvp", nil, ok, "", "Bundles"},
 		{"proposed", "mvp", []string{"safety"}, tierDecision("DEC-TIER-MVP", "proposed", "Tier: MVP\nBundles: Foundation, Safety"), "", "accepted"},
 		{"no bundles line", "poc", []string{"foundation"}, tierDecision("DEC-TIER-POC", "accepted", "Tier: PoC"), "", "Bundles:"},

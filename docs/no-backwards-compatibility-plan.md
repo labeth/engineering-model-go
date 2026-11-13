@@ -1,14 +1,18 @@
 # Removing backwards compatibility: audit and plan
 
 Proposed decisions: ADR-EMG-061 (no backwards compatibility, every required field is an error that names its remedy),
-ADR-EMG-060 (no legacy state), ADR-EMG-062 (both repositories run at operational). This plan comes from two read-only
+ADR-EMG-060 (no legacy state), ADR-EMG-062 (both repositories run at operational), ADR-EMG-063 (this plan), ADR-EMG-066
+(the engine part of phase 2) and ADR-EMG-067 (the tier-up of this repository). This plan comes from two read-only
 audits of `engineering-model-go` (engine) and `engineering-flow` (flow) on 2026-11-12 and orders the removal.
 
-Status 2026-11-12: the tier-up of `engineering-model-go` (ADR-EMG-062) is done. `engmod.yml` declares lifecycle tier
-`operational` (`DEC-TIER-OPERATIONAL`, accepted on the owner's instruction "same for model, i want it at the highest
-level"), its code health debt is in `model/health-baseline.json` (`DEC-HEALTH-BASELINE`), and the requirements that have
-no recorded RED check are deferred by the open POA&M items `POAM-TIER-OPERATIONAL-01` to `-16` (due 2027-06-30). The
-tier-up of `engineering-flow` is still open.
+Status 2026-11-13: the engine part of phase 2 and the tier-up of `engineering-model-go` (ADR-EMG-062, 067) are
+implemented and independently reviewed. `engmod.yml` declares lifecycle tier `operational` (`DEC-TIER-OPERATIONAL`, from
+the owner's instruction "same for model, i want it at the highest level"), its code health debt is in
+`model/health-baseline.json` (`DEC-HEALTH-BASELINE`), and the requirements that have no recorded RED check are deferred by
+the open POA&M items `POAM-TIER-OPERATIONAL-01` to `-16` (due 2027-06-30). **Both decisions are `proposed`, not accepted:
+the owner has not reviewed them, and an agent must not accept the decision that opens its own gate.** The gate of this
+repository therefore stays red until the owner accepts them. Flow phases 1 and 2, the tier-up of `engineering-flow` and
+phases 3 to 7 are open.
 
 ## Rule
 
@@ -20,7 +24,8 @@ tier-up of `engineering-flow` is still open.
 3. The CI gate prints every such error with its remedy in the job summary and fails, so an agent that skipped the skill is
    told what to run. The same codes run in the pre-push hook. A test keeps an inventory of required fields and remedies.
 4. The engine stays usable as a library by tools that embed it: `LoadBundle` stays lenient so tools can report; the
-   validate step and the CLIs error. This is the only place where an "absent is accepted" path survives.
+   validate step and the CLIs error. This is the only place where an "absent is accepted" path survives, and it ends
+   with phases 6 and 7 (ADR-EMG-066 item 3).
 
 ## What the audits found
 
@@ -48,7 +53,7 @@ Each phase is one reviewable change set with its own tests; the tier-up effort (
 | Phase | Engine | Flow |
 |---|---|---|
 | **1. Upgrade foundation** | `lock` schema check (`composition.lock_schema_outdated`), `engine.pin_outdated`, `engine.check_template_stale` replace the silent fallbacks | `engflow upgrade` (rewrites the managed set, checks the seed files, stamps `.github/engflow.json`); `engflow.version_mismatch`, `engine.pin_too_old`, `tier.policy_missing`, `ci.engflow_config_missing`, `skills.missing`, `openspec.config_missing`, `repo.gitignore_incomplete`; every remedy then points at a real command |
-| **2. Required switches** | `lifecycle.missing` (rank 0, not deferrable) with `tierDecision`, explicit `bundles`, `requirementLinks`, `lintRun.mode`, `schemaVersion` required; `health.block_missing` / `health.baseline_missing` at product and operational; add lifecycle and a tier decision to the 18 examples, the Quint test model and the shared fixtures; replace the no-lifecycle golden by a golden at a stated tier | `tier.decision_missing` and `tier.lifecycle_missing` become errors; delete `legacy` (Go, scripts, PR template, OpenSpec config, skills, docs); delete `available`, `engflowVersion`, `Not yet enforced:` and `TIERS.md`'s column |
+| **2. Required switches** | `lifecycle.missing` (rank 0, not deferrable) with `tierDecision`, explicit `bundles`, `requirementLinks`, `lintRun.mode`, `schemaVersion` required; `health.block_missing` at product and operational (the baseline stays optional, ADR-EMG-066); add lifecycle and a tier decision to the 18 examples, the Quint test model and the shared fixtures; replace the no-lifecycle golden by a golden at a stated tier | `tier.decision_missing` and `tier.lifecycle_missing` become errors; delete `legacy` (Go, scripts, PR template, OpenSpec config, skills, docs); delete `available`, `engflowVersion`, `Not yet enforced:` and `TIERS.md`'s column |
 | **3. Alias and dead code** | MCP argument aliases and duplicate tools, `Summary.Verified`, `LinksSuspect`, `BaseCatalogRef`, `Compatibility`, `CodeSources`, `--allow-suspect`, `engoscal --out` | old skill-directory fallbacks, `previousHookScripts`, `.engflow/approved-usage.md`, the sync-spec fallback |
 | **4. Deprecated features** | delete `composition.allocations` and delegation code, `contract.provides[].ref` (migrate the two Atlas examples), `pinned.fingerprint`, `engws migrate-links` | PR-policy legacy rules and `--require-agree` |
 | **5. Warnings to errors** | `dependency_tier_unknown`, aviation profile, `catalog.term_unreferenced` where strict | the floor rules (`ci.*`, `spec.scenario_drift`, `openspec.substage_missing`), `ci.language_job_missing`, a local `ci.ai_path_record_missing` |
@@ -60,7 +65,9 @@ Phase 6 waits for the first tag after v0.11.0, because `release-check` still rea
 ## Proposed decisions and the OWNER items
 
 - `engflow upgrade` is the single upgrade command; `stig project upgrade` stays the route for STIG projects.
-- Phase 1 comes before phase 2: a remedy that names a command that does not exist is a lie.
+- Phase 1 comes before phase 2: a remedy that names a command that does not exist is a lie. The engine part of phase 2
+  ran first, so its remedies name only the manual fix (`set schemaVersion: 2`) and the skills; `engflow upgrade` is named
+  only after phase 1 of the flow part ships.
 - A fresh `engflow init` seeds a tier decision as **proposed**; the first run fails until the owner accepts it (OWNER).
 - The remedy for `health`, `lintRun` and `requirementLinks` problems is `ef-tier-up` unless the owner names another skill (OWNER).
 - The lock mode default `write` may become `check` (OWNER); `ImportSysMLV2Project` for legacy payloads is a separate decision (OWNER).

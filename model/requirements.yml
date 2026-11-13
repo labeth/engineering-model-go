@@ -288,7 +288,7 @@ requirements:
   - id: REQ-EMG-035
     status: implemented
     text: When model updated event is received, the engineering model go shall normalize architecture model plus requirements document into canonical semantic model.
-    notes: The canonical semantic model is SysML v2 and KerML aligned. Existing Engineering Model concepts map into that model once; legacy YAML remains an input adapter during migration and must not create a parallel set of parts, interfaces, flows, requirements, allocations, or views.
+    notes: The canonical semantic model is SysML v2 and KerML aligned. Existing Engineering Model concepts map into that model once; the authored YAML is the single input and no legacy adapter exists (ADR-EMG-061); it must not create a parallel set of parts, interfaces, flows, requirements, allocations, or views.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
@@ -497,8 +497,7 @@ requirements:
     notes: A file identifier is CODE- followed by its module-root-relative path, upper-cased with runs of non-alphanumeric characters folded to one hyphen (app/internal/capture.go becomes CODE-APP-INTERNAL-CAPTURE-GO). A declaration identifier appends two hyphens and the folded declaration name, so same-named declarations in different files stay distinct. Explicit TRACE-ID markers keep their authored value. Identifiers do not carry commit or blob versions because the model and the code are versioned together.
     appliesTo:
       - FU-CODEMAP-INFERENCE
-    derived: true
-    derivedRationale: 'Mechanism of REQ-EMG-010 and REQ-EMG-059: path-derived CODE identifiers are how markers and references address code; users are promised the coverage, not the identifier scheme.'
+    realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-059
     status: implemented
     text: When model updated event is received, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.
@@ -1038,7 +1037,7 @@ requirements:
     text: When model updated event is received, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.
     notes: 'ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; foundation always included, bundles must be written), tierDecision, raise} is required (lifecycle.missing, ADR-EMG-061 and ADR-EMG-066; CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; required) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle is the error lifecycle.missing (REQ-EMG-162); the golden test over every example model (TestExamplesGolden) records each example''s diagnostics and document hashes at its declared tier, and the script that compared the repository''s own model with v0.9.0 was retired in v0.11.0.'
     verificationMethods: [test]
-    verificationCriteria: When tierDecision names an accepted decision with Tier MVP and Bundles Foundation, Safety at tier mvp with bundles foundation and safety, then nothing is reported, and a decision without a Bundles line is a mismatch; a decision with another tier, other bundles, status proposed, no Tier line or an unknown ID is one lifecycle.tier_decision_mismatch error at lifecycle.tierDecision naming the problem; every example model without lifecycle gives the recorded v0.9.0 diagnostics, document, decisions document and trace matrix.
+    verificationCriteria: When tierDecision names an accepted decision with Tier MVP and Bundles Foundation, Safety at tier mvp with bundles foundation and safety, then nothing is reported, and a decision without a Bundles line is a mismatch; a decision with another tier, other bundles, status proposed, no Tier line or an unknown ID is one lifecycle.tier_decision_mismatch error at lifecycle.tierDecision naming the problem; every example model declares a lifecycle and an accepted tier decision and is validated and generated at its declared tier (the golden examples-golden.json); a model without lifecycle is lifecycle.missing (REQ-EMG-162).
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MODEL-LOADER
@@ -1311,9 +1310,9 @@ requirements:
   - id: REQ-EMG-153
     status: implemented
     text: When model updated event is received, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.
-    notes: 'ADR-EMG-051. The health block is optional and opt-in. exclude uses the dialect of inferenceHints.exclude (path.Match per segment, only a trailing /**), not gitignore semantics. thresholds name known codes with warn and high values that are ordered; overrides apply thresholds by path; a waiver is {code, path, function, decision}. Unknown keys and malformed shapes are rejected by the CUE contract and the loader; unknown codes, unordered thresholds and exclude patterns outside the dialect are the errors model.invalid_health_exclude, model.invalid_health_threshold, model.invalid_health_override and model.invalid_health_waiver of validation, each naming the field.'
+    notes: 'ADR-EMG-051. The health block is optional below product and required at product and operational (REQ-EMG-165). exclude uses the dialect of inferenceHints.exclude (path.Match per segment, only a trailing /**), not gitignore semantics. thresholds name known codes with warn and high values that are ordered; overrides apply thresholds by path; a waiver is {code, path, function, decision}. Unknown keys and malformed shapes are rejected by the CUE contract and the loader; unknown codes, unordered thresholds and exclude patterns outside the dialect are the errors model.invalid_health_exclude, model.invalid_health_threshold, model.invalid_health_override and model.invalid_health_waiver of validation, each naming the field.'
     verificationMethods: [test]
-    verificationCriteria: When a manifest has a health block with an unknown smell code, a threshold whose high value is below its warn value, an exclude with a leading double star or an unknown key, then the unknown key fails loading and the others are validation errors, each naming the field; a valid block with exclude, thresholds, overrides and waivers loads and validates; a manifest without the block validates as before.
+    verificationCriteria: When a manifest has a health block with an unknown smell code, a threshold whose high value is below its warn value, an exclude with a leading double star or an unknown key, then the unknown key fails loading and the others are validation errors, each naming the field; a valid block with exclude, thresholds, overrides and waivers loads and validates; a manifest without the block at tier mvp or below reports no health diagnostic, and at product or operational it reports health.block_missing.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
@@ -1377,10 +1376,10 @@ requirements:
     derivedRationale: 'Mechanism of REQ-EMG-158: the content-hash cache only makes the scan fast; the promise is the scan result, which is unchanged by it.'
   - id: REQ-EMG-160
     status: implemented
-    text: When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block.
-    notes: 'ADR-EMG-046 and ADR-EMG-052. Code health is opt-in through the manifest health block (ADR-EMG-061 makes the block required at product and operational for new releases). Without the block, validation reports no health.* diagnostic and every generated document is unchanged; the tier policy table and the authoring contract are the same for every model, so they gain the health rows and the health section (authoring contract v5) whether or not a block exists.'
+    text: When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block at the tiers below product.
+    notes: 'ADR-EMG-046 and ADR-EMG-052, narrowed by ADR-EMG-066. Code health is opt-in through the manifest health block below product; at product and operational the block is required (REQ-EMG-165) and its absence is the error health.block_missing. Below product and without the block, validation reports no health.* diagnostic and the generated documents carry no health section; the tier policy table and the authoring contract are the same for every model.'
     verificationMethods: [test]
-    verificationCriteria: When the example models and this repository model without a health block are validated and generated, then the diagnostics and the generated documents, decisions and trace matrices are byte-identical to those of the release before code health; only adding a health block can introduce health.* diagnostics.
+    verificationCriteria: When an example at tier mvp or below and a model without a health block are validated and generated twice, then no health.* diagnostic is reported and the outputs are byte-identical to each other; at product and operational the same model reports health.block_missing.
     appliesTo:
       - FU-VALIDATION-ENGINE
     realizes: [CAP-EMG-CODE-HEALTH]
@@ -1433,7 +1432,7 @@ requirements:
   - id: REQ-EMG-166
     status: implemented
     text: When model updated event is received, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.
-    notes: 'ADR-EMG-061 and ADR-EMG-066. The loader error and the diagnostic both carry the remedy: run engflow upgrade or set schemaVersion 2. The CUE constant fills a missing field in, so a missing version is caught in Go on the decoded document.'
+    notes: 'ADR-EMG-061 and ADR-EMG-066. The loader error and the diagnostic both carry the remedy: set schemaVersion 2 at the top of the file (an upgrade command is planned in engineering-flow and is not named until it exists). The loader checks schemaVersion in Go before the CUE contract for every document type, so a missing version and a version other than 2 get the remedy, not a CUE conflict message.'
     verificationMethods: [test]
     verificationCriteria: When a document has no schemaVersion or another one than 2, then loading fails and validation reports model.unsupported_schema_version with the remedy.
     appliesTo:

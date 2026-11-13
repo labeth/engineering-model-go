@@ -6,17 +6,19 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TRLC-LINKS: REQ-EMG-041, REQ-EMG-042
 // ENGMODEL-LINKS: FU-NAF-EXPORTER, DO-NAF-V4-ARCHITECTURE, REF-NAF-V4-1-SPECIFICATION
 func TestGenerateNAFV41UsesCanonicalViews(t *testing.T) {
-	first, err := GenerateV41FromFile("engmod.yml")
+	manifest := testutil.AcceptedRepoModel(t)
+	first, err := GenerateV41FromFile(manifest)
 	if err != nil {
 		t.Fatalf("generate NAF document: %v\n%+v", err, first.Diagnostics)
 	}
-	second, err := GenerateV41FromFile("engmod.yml")
+	second, err := GenerateV41FromFile(manifest)
 	if err != nil {
 		t.Fatalf("regenerate NAF document: %v", err)
 	}

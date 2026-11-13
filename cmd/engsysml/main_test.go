@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
@@ -53,7 +54,7 @@ func TestRunValidateCoverageRejectsStaleArtifact(t *testing.T) {
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, IF-CLI-ENGSYSML, DO-SYSML-V2-MODEL
 func TestRunGeneratesProjectionAndDiagnostic(t *testing.T) {
 	var stdout, stderr bytes.Buffer
-	modelPath := filepath.Join("..", "..", "engmod.yml")
+	modelPath := testutil.AcceptedRepoModel(t)
 	if code := run([]string{"--model", modelPath}, &stdout, &stderr); code != 0 {
 		t.Fatalf("run returned %d: %s", code, stderr.String())
 	}

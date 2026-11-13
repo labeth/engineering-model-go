@@ -39,7 +39,7 @@ for model_dir in "${examples[@]}"; do
     --format csv --out "$out/TRACE-MATRIX.csv"
   go run ./cmd/engstruct --model "$model" --out "$out/STRUCTURIZR.dsl"
   go run ./cmd/engsysml --model "$model" --out "$out/ARCHITECTURE.sysml"
-  go run ./cmd/engtrlc --requirements "$requirements" --out-dir "$out/trlc"
+  go run ./cmd/engtrlc --model "$model" --requirements "$requirements" --out-dir "$out/trlc"
   go run ./cmd/engdragon --model "$model" --format threat-dragon-v2 --out "$out/threat-dragon-v2.json"
   go run ./cmd/engdragon --model "$model" --format open-otm --out "$out/open-threat-model.json"
   rm -rf "$out/do178c"

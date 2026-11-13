@@ -160,7 +160,7 @@ assurance:
     responsibleRole: ACT-ARCHITECTURE-AUTHOR
     artifacts:
     - path: internal/mcp/server_test.go
-      description: Path-boundary test coverage to extend with fuzzing.
+      description: Path-boundary test coverage to extend with fuzzing. Overdue since 2026-09-30; the owner re-dates or closes this item (lifecycle.poam_overdue reports it).
   - id: POAM-TRACE-COVERAGE-GATE
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: Enforce strict trace coverage in the CI gate
@@ -169,7 +169,7 @@ assurance:
     responsibleRole: ACT-COMPLIANCE-ENGINEER
     artifacts:
     - path: internal/codemap/scan.go
-      description: Strict code-linking scanner backing the coverage gate.
+      description: Strict code-linking scanner backing the coverage gate. Overdue since 2026-08-31; the owner re-dates or closes this item (lifecycle.poam_overdue reports it).
   - id: POAM-TIER-OPERATIONAL-01
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -184,17 +184,17 @@ assurance:
         REQ-EMG-056.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[124].status
+      ref: REQ-EMG-132
     - code: lifecycle.requirement_unverified
-      path: requirements[125].status
+      ref: REQ-EMG-133
     - code: lifecycle.requirement_unverified
-      path: requirements[51].status
+      ref: REQ-EMG-053
     - code: lifecycle.requirement_unverified
-      path: requirements[52].status
+      ref: REQ-EMG-054
     - code: lifecycle.requirement_unverified
-      path: requirements[53].status
+      ref: REQ-EMG-055
     - code: lifecycle.requirement_unverified
-      path: requirements[54].status
+      ref: REQ-EMG-056
   - id: POAM-TIER-OPERATIONAL-02
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -209,21 +209,21 @@ assurance:
         REQ-EMG-040, REQ-EMG-005, REQ-EMG-011.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[2].status
+      ref: REQ-EMG-004
     - code: lifecycle.requirement_unverified
-      path: requirements[34].status
+      ref: REQ-EMG-036
     - code: lifecycle.requirement_unverified
-      path: requirements[35].status
+      ref: REQ-EMG-037
     - code: lifecycle.requirement_unverified
-      path: requirements[36].status
+      ref: REQ-EMG-038
     - code: lifecycle.requirement_unverified
-      path: requirements[37].status
+      ref: REQ-EMG-039
     - code: lifecycle.requirement_unverified
-      path: requirements[38].status
+      ref: REQ-EMG-040
     - code: lifecycle.requirement_unverified
-      path: requirements[3].status
+      ref: REQ-EMG-005
     - code: lifecycle.requirement_unverified
-      path: requirements[9].status
+      ref: REQ-EMG-011
   - id: POAM-TIER-OPERATIONAL-03
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -238,27 +238,27 @@ assurance:
         REQ-EMG-154, REQ-EMG-155, REQ-EMG-156, REQ-EMG-157, REQ-EMG-158, REQ-EMG-160, REQ-EMG-161.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[142].status
+      ref: REQ-EMG-150
     - code: lifecycle.requirement_unverified
-      path: requirements[143].status
+      ref: REQ-EMG-151
     - code: lifecycle.requirement_unverified
-      path: requirements[144].status
+      ref: REQ-EMG-152
     - code: lifecycle.requirement_unverified
-      path: requirements[145].status
+      ref: REQ-EMG-153
     - code: lifecycle.requirement_unverified
-      path: requirements[146].status
+      ref: REQ-EMG-154
     - code: lifecycle.requirement_unverified
-      path: requirements[147].status
+      ref: REQ-EMG-155
     - code: lifecycle.requirement_unverified
-      path: requirements[148].status
+      ref: REQ-EMG-156
     - code: lifecycle.requirement_unverified
-      path: requirements[149].status
+      ref: REQ-EMG-157
     - code: lifecycle.requirement_unverified
-      path: requirements[150].status
+      ref: REQ-EMG-158
     - code: lifecycle.requirement_unverified
-      path: requirements[152].status
+      ref: REQ-EMG-160
     - code: lifecycle.requirement_unverified
-      path: requirements[153].status
+      ref: REQ-EMG-161
   - id: POAM-TIER-OPERATIONAL-04
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -272,13 +272,13 @@ assurance:
         linked test but no recorded RED check. Requirements: REQ-EMG-013, REQ-EMG-015, REQ-EMG-006, REQ-EMG-062.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[11].status
+      ref: REQ-EMG-013
     - code: lifecycle.requirement_unverified
-      path: requirements[13].status
+      ref: REQ-EMG-015
     - code: lifecycle.requirement_unverified
-      path: requirements[4].status
+      ref: REQ-EMG-006
     - code: lifecycle.requirement_unverified
-      path: requirements[60].status
+      ref: REQ-EMG-062
   - id: POAM-TIER-OPERATIONAL-05
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -293,31 +293,31 @@ assurance:
         REQ-EMG-142, REQ-EMG-143, REQ-EMG-144, REQ-EMG-145, REQ-EMG-146, REQ-EMG-147, REQ-EMG-148, REQ-EMG-149.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[127].status
+      ref: REQ-EMG-135
     - code: lifecycle.requirement_unverified
-      path: requirements[130].status
+      ref: REQ-EMG-138
     - code: lifecycle.requirement_unverified
-      path: requirements[131].status
+      ref: REQ-EMG-139
     - code: lifecycle.requirement_unverified
-      path: requirements[132].status
+      ref: REQ-EMG-140
     - code: lifecycle.requirement_unverified
-      path: requirements[133].status
+      ref: REQ-EMG-141
     - code: lifecycle.requirement_unverified
-      path: requirements[134].status
+      ref: REQ-EMG-142
     - code: lifecycle.requirement_unverified
-      path: requirements[135].status
+      ref: REQ-EMG-143
     - code: lifecycle.requirement_unverified
-      path: requirements[136].status
+      ref: REQ-EMG-144
     - code: lifecycle.requirement_unverified
-      path: requirements[137].status
+      ref: REQ-EMG-145
     - code: lifecycle.requirement_unverified
-      path: requirements[138].status
+      ref: REQ-EMG-146
     - code: lifecycle.requirement_unverified
-      path: requirements[139].status
+      ref: REQ-EMG-147
     - code: lifecycle.requirement_unverified
-      path: requirements[140].status
+      ref: REQ-EMG-148
     - code: lifecycle.requirement_unverified
-      path: requirements[141].status
+      ref: REQ-EMG-149
   - id: POAM-TIER-OPERATIONAL-06
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -331,11 +331,11 @@ assurance:
         linked test but no recorded RED check. Requirements: REQ-EMG-001, REQ-EMG-012, REQ-EMG-009.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[0].status
+      ref: REQ-EMG-001
     - code: lifecycle.requirement_unverified
-      path: requirements[10].status
+      ref: REQ-EMG-012
     - code: lifecycle.requirement_unverified
-      path: requirements[7].status
+      ref: REQ-EMG-009
   - id: POAM-TIER-OPERATIONAL-07
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -351,35 +351,35 @@ assurance:
         REQ-EMG-165, REQ-EMG-168.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[114].status
+      ref: REQ-EMG-122
     - code: lifecycle.requirement_unverified
-      path: requirements[116].status
+      ref: REQ-EMG-124
     - code: lifecycle.requirement_unverified
-      path: requirements[117].status
+      ref: REQ-EMG-125
     - code: lifecycle.requirement_unverified
-      path: requirements[118].status
+      ref: REQ-EMG-126
     - code: lifecycle.requirement_unverified
-      path: requirements[119].status
+      ref: REQ-EMG-127
     - code: lifecycle.requirement_unverified
-      path: requirements[120].status
+      ref: REQ-EMG-128
     - code: lifecycle.requirement_unverified
-      path: requirements[121].status
+      ref: REQ-EMG-129
     - code: lifecycle.requirement_unverified
-      path: requirements[122].status
+      ref: REQ-EMG-130
     - code: lifecycle.requirement_unverified
-      path: requirements[123].status
+      ref: REQ-EMG-131
     - code: lifecycle.requirement_unverified
-      path: requirements[126].status
+      ref: REQ-EMG-134
     - code: lifecycle.requirement_unverified
-      path: requirements[154].status
+      ref: REQ-EMG-162
     - code: lifecycle.requirement_unverified
-      path: requirements[155].status
+      ref: REQ-EMG-163
     - code: lifecycle.requirement_unverified
-      path: requirements[156].status
+      ref: REQ-EMG-164
     - code: lifecycle.requirement_unverified
-      path: requirements[157].status
+      ref: REQ-EMG-165
     - code: lifecycle.requirement_unverified
-      path: requirements[160].status
+      ref: REQ-EMG-168
   - id: POAM-TIER-OPERATIONAL-08
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -394,29 +394,29 @@ assurance:
         REQ-EMG-007, REQ-EMG-069, REQ-EMG-008, REQ-EMG-087, REQ-EMG-089, REQ-EMG-099, REQ-EMG-106.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[105].status
+      ref: REQ-EMG-113
     - code: lifecycle.requirement_unverified
-      path: requirements[106].status
+      ref: REQ-EMG-114
     - code: lifecycle.requirement_unverified
-      path: requirements[107].status
+      ref: REQ-EMG-115
     - code: lifecycle.requirement_unverified
-      path: requirements[112].status
+      ref: REQ-EMG-120
     - code: lifecycle.requirement_unverified
-      path: requirements[43].status
+      ref: REQ-EMG-045
     - code: lifecycle.requirement_unverified
-      path: requirements[5].status
+      ref: REQ-EMG-007
     - code: lifecycle.requirement_unverified
-      path: requirements[67].status
+      ref: REQ-EMG-069
     - code: lifecycle.requirement_unverified
-      path: requirements[6].status
+      ref: REQ-EMG-008
     - code: lifecycle.requirement_unverified
-      path: requirements[79].status
+      ref: REQ-EMG-087
     - code: lifecycle.requirement_unverified
-      path: requirements[81].status
+      ref: REQ-EMG-089
     - code: lifecycle.requirement_unverified
-      path: requirements[91].status
+      ref: REQ-EMG-099
     - code: lifecycle.requirement_unverified
-      path: requirements[98].status
+      ref: REQ-EMG-106
   - id: POAM-TIER-OPERATIONAL-09
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -431,15 +431,15 @@ assurance:
         REQ-EMG-046.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[158].status
+      ref: REQ-EMG-166
     - code: lifecycle.requirement_unverified
-      path: requirements[159].status
+      ref: REQ-EMG-167
     - code: lifecycle.requirement_unverified
-      path: requirements[33].status
+      ref: REQ-EMG-035
     - code: lifecycle.requirement_unverified
-      path: requirements[42].status
+      ref: REQ-EMG-044
     - code: lifecycle.requirement_unverified
-      path: requirements[44].status
+      ref: REQ-EMG-046
   - id: POAM-TIER-OPERATIONAL-10
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -454,15 +454,15 @@ assurance:
         REQ-EMG-081.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[29].status
+      ref: REQ-EMG-031
     - code: lifecycle.requirement_unverified
-      path: requirements[30].status
+      ref: REQ-EMG-032
     - code: lifecycle.requirement_unverified
-      path: requirements[31].status
+      ref: REQ-EMG-033
     - code: lifecycle.requirement_unverified
-      path: requirements[32].status
+      ref: REQ-EMG-034
     - code: lifecycle.requirement_unverified
-      path: requirements[73].status
+      ref: REQ-EMG-081
   - id: POAM-TIER-OPERATIONAL-11
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -478,33 +478,33 @@ assurance:
         REQ-EMG-085.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[108].status
+      ref: REQ-EMG-116
     - code: lifecycle.requirement_unverified
-      path: requirements[109].status
+      ref: REQ-EMG-117
     - code: lifecycle.requirement_unverified
-      path: requirements[115].status
+      ref: REQ-EMG-123
     - code: lifecycle.requirement_unverified
-      path: requirements[21].status
+      ref: REQ-EMG-023
     - code: lifecycle.requirement_unverified
-      path: requirements[39].status
+      ref: REQ-EMG-041
     - code: lifecycle.requirement_unverified
-      path: requirements[41].status
+      ref: REQ-EMG-043
     - code: lifecycle.requirement_unverified
-      path: requirements[58].status
+      ref: REQ-EMG-060
     - code: lifecycle.requirement_unverified
-      path: requirements[68].status
+      ref: REQ-EMG-070
     - code: lifecycle.requirement_unverified
-      path: requirements[69].status
+      ref: REQ-EMG-071
     - code: lifecycle.requirement_unverified
-      path: requirements[70].status
+      ref: REQ-EMG-072
     - code: lifecycle.requirement_unverified
-      path: requirements[71].status
+      ref: REQ-EMG-073
     - code: lifecycle.requirement_unverified
-      path: requirements[74].status
+      ref: REQ-EMG-082
     - code: lifecycle.requirement_unverified
-      path: requirements[75].status
+      ref: REQ-EMG-083
     - code: lifecycle.requirement_unverified
-      path: requirements[77].status
+      ref: REQ-EMG-085
   - id: POAM-TIER-OPERATIONAL-12
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -518,17 +518,17 @@ assurance:
         test but no recorded RED check. Requirements: REQ-EMG-110, REQ-EMG-014, REQ-EMG-003, REQ-EMG-024, REQ-EMG-042, REQ-EMG-052.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[102].status
+      ref: REQ-EMG-110
     - code: lifecycle.requirement_unverified
-      path: requirements[12].status
+      ref: REQ-EMG-014
     - code: lifecycle.requirement_unverified
-      path: requirements[1].status
+      ref: REQ-EMG-003
     - code: lifecycle.requirement_unverified
-      path: requirements[22].status
+      ref: REQ-EMG-024
     - code: lifecycle.requirement_unverified
-      path: requirements[40].status
+      ref: REQ-EMG-042
     - code: lifecycle.requirement_unverified
-      path: requirements[50].status
+      ref: REQ-EMG-052
   - id: POAM-TIER-OPERATIONAL-13
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -544,43 +544,43 @@ assurance:
         REQ-EMG-102, REQ-EMG-103, REQ-EMG-104, REQ-EMG-105, REQ-EMG-107.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[103].status
+      ref: REQ-EMG-111
     - code: lifecycle.requirement_unverified
-      path: requirements[104].status
+      ref: REQ-EMG-112
     - code: lifecycle.requirement_unverified
-      path: requirements[110].status
+      ref: REQ-EMG-118
     - code: lifecycle.requirement_unverified
-      path: requirements[111].status
+      ref: REQ-EMG-119
     - code: lifecycle.requirement_unverified
-      path: requirements[82].status
+      ref: REQ-EMG-090
     - code: lifecycle.requirement_unverified
-      path: requirements[83].status
+      ref: REQ-EMG-091
     - code: lifecycle.requirement_unverified
-      path: requirements[84].status
+      ref: REQ-EMG-092
     - code: lifecycle.requirement_unverified
-      path: requirements[85].status
+      ref: REQ-EMG-093
     - code: lifecycle.requirement_unverified
-      path: requirements[86].status
+      ref: REQ-EMG-094
     - code: lifecycle.requirement_unverified
-      path: requirements[87].status
+      ref: REQ-EMG-095
     - code: lifecycle.requirement_unverified
-      path: requirements[89].status
+      ref: REQ-EMG-097
     - code: lifecycle.requirement_unverified
-      path: requirements[90].status
+      ref: REQ-EMG-098
     - code: lifecycle.requirement_unverified
-      path: requirements[92].status
+      ref: REQ-EMG-100
     - code: lifecycle.requirement_unverified
-      path: requirements[93].status
+      ref: REQ-EMG-101
     - code: lifecycle.requirement_unverified
-      path: requirements[94].status
+      ref: REQ-EMG-102
     - code: lifecycle.requirement_unverified
-      path: requirements[95].status
+      ref: REQ-EMG-103
     - code: lifecycle.requirement_unverified
-      path: requirements[96].status
+      ref: REQ-EMG-104
     - code: lifecycle.requirement_unverified
-      path: requirements[97].status
+      ref: REQ-EMG-105
     - code: lifecycle.requirement_unverified
-      path: requirements[99].status
+      ref: REQ-EMG-107
   - id: POAM-TIER-OPERATIONAL-14
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -597,53 +597,53 @@ assurance:
         REQ-EMG-086, REQ-EMG-096.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[100].status
+      ref: REQ-EMG-108
     - code: lifecycle.requirement_unverified
-      path: requirements[14].status
+      ref: REQ-EMG-016
     - code: lifecycle.requirement_unverified
-      path: requirements[15].status
+      ref: REQ-EMG-017
     - code: lifecycle.requirement_unverified
-      path: requirements[16].status
+      ref: REQ-EMG-018
     - code: lifecycle.requirement_unverified
-      path: requirements[17].status
+      ref: REQ-EMG-019
     - code: lifecycle.requirement_unverified
-      path: requirements[18].status
+      ref: REQ-EMG-020
     - code: lifecycle.requirement_unverified
-      path: requirements[19].status
+      ref: REQ-EMG-021
     - code: lifecycle.requirement_unverified
-      path: requirements[20].status
+      ref: REQ-EMG-022
     - code: lifecycle.requirement_unverified
-      path: requirements[23].status
+      ref: REQ-EMG-025
     - code: lifecycle.requirement_unverified
-      path: requirements[24].status
+      ref: REQ-EMG-026
     - code: lifecycle.requirement_unverified
-      path: requirements[45].status
+      ref: REQ-EMG-047
     - code: lifecycle.requirement_unverified
-      path: requirements[46].status
+      ref: REQ-EMG-048
     - code: lifecycle.requirement_unverified
-      path: requirements[47].status
+      ref: REQ-EMG-049
     - code: lifecycle.requirement_unverified
-      path: requirements[48].status
+      ref: REQ-EMG-050
     - code: lifecycle.requirement_unverified
-      path: requirements[49].status
+      ref: REQ-EMG-051
     - code: lifecycle.requirement_unverified
-      path: requirements[61].status
+      ref: REQ-EMG-063
     - code: lifecycle.requirement_unverified
-      path: requirements[62].status
+      ref: REQ-EMG-064
     - code: lifecycle.requirement_unverified
-      path: requirements[63].status
+      ref: REQ-EMG-065
     - code: lifecycle.requirement_unverified
-      path: requirements[64].status
+      ref: REQ-EMG-066
     - code: lifecycle.requirement_unverified
-      path: requirements[65].status
+      ref: REQ-EMG-067
     - code: lifecycle.requirement_unverified
-      path: requirements[66].status
+      ref: REQ-EMG-068
     - code: lifecycle.requirement_unverified
-      path: requirements[72].status
+      ref: REQ-EMG-080
     - code: lifecycle.requirement_unverified
-      path: requirements[78].status
+      ref: REQ-EMG-086
     - code: lifecycle.requirement_unverified
-      path: requirements[88].status
+      ref: REQ-EMG-096
   - id: POAM-TIER-OPERATIONAL-15
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -658,23 +658,23 @@ assurance:
         REQ-EMG-084, REQ-EMG-088, REQ-EMG-010.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[113].status
+      ref: REQ-EMG-121
     - code: lifecycle.requirement_unverified
-      path: requirements[26].status
+      ref: REQ-EMG-028
     - code: lifecycle.requirement_unverified
-      path: requirements[27].status
+      ref: REQ-EMG-029
     - code: lifecycle.requirement_unverified
-      path: requirements[28].status
+      ref: REQ-EMG-030
     - code: lifecycle.requirement_unverified
-      path: requirements[57].status
+      ref: REQ-EMG-059
     - code: lifecycle.requirement_unverified
-      path: requirements[59].status
+      ref: REQ-EMG-061
     - code: lifecycle.requirement_unverified
-      path: requirements[76].status
+      ref: REQ-EMG-084
     - code: lifecycle.requirement_unverified
-      path: requirements[80].status
+      ref: REQ-EMG-088
     - code: lifecycle.requirement_unverified
-      path: requirements[8].status
+      ref: REQ-EMG-010
   - id: POAM-TIER-OPERATIONAL-16
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -689,17 +689,17 @@ assurance:
         REQ-EMG-169, REQ-EMG-057, REQ-EMG-058.'
     defers:
     - code: lifecycle.requirement_unverified
-      path: requirements[128].status
+      ref: REQ-EMG-136
     - code: lifecycle.requirement_unverified
-      path: requirements[129].status
+      ref: REQ-EMG-137
     - code: lifecycle.requirement_unverified
-      path: requirements[151].status
+      ref: REQ-EMG-159
     - code: lifecycle.requirement_unverified
-      path: requirements[161].status
+      ref: REQ-EMG-169
     - code: lifecycle.requirement_unverified
-      path: requirements[55].status
+      ref: REQ-EMG-057
     - code: lifecycle.requirement_unverified
-      path: requirements[56].status
+      ref: REQ-EMG-058
   trustBoundaries:
   - id: TB-REPO-WORKSPACE
     name: Repository Workspace Boundary
@@ -1006,12 +1006,12 @@ assurance:
     threatScenarioRefs:
     - TS-MCP-PATH-TRAVERSAL
     method: test
-    status: pass
+    status: partial
     owner: ACT-ARCHITECTURE-AUTHOR
     verificationRefs:
     - REQ-EMG-008
     findings:
-    - Path traversal rejected and error payload returned in MCP tests.
+    - Path traversal rejected and error payload returned in MCP tests. Partial because REQ-EMG-008 is not verified, since no RED check is recorded for this tree (POAM-TIER-OPERATIONAL-01 to 16).
     evidence:
     - path: internal/mcp/server_test.go
       description: Traversal rejection tests for MCP path arguments.
@@ -1059,12 +1059,12 @@ assurance:
     threatScenarioRefs:
     - TS-FALSE-RISK-ACCEPTANCE
     method: test
-    status: pass
+    status: partial
     owner: ACT-COMPLIANCE-ENGINEER
     verificationRefs:
     - REQ-EMG-085
     findings:
-    - Missing, unresolvable and non-owner acceptance records are reported, and the Gemara policy and its consistency check
+    - Partial because REQ-EMG-085 is not verified, since no RED check is recorded for this tree. Missing, unresolvable and non-owner acceptance records are reported, and the Gemara policy and its consistency check
       accept only resolving records. The tests cannot show that the owner gave the acceptance; review of the diff does.
   - id: VER-CHILD-USER-NONDISCLOSURE
     controlRef: CTRL-CHILD-USER-NONDISCLOSURE

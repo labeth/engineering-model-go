@@ -37,7 +37,6 @@ type goldenModel struct {
 	Bundles   []string        `json:"bundles"`
 	Validate  json.RawMessage `json:"validate"`
 	Generate  json.RawMessage `json:"generate"`
-	GenError  string          `json:"generateError,omitempty"`
 	Trace     json.RawMessage `json:"trace"`
 	Document  string          `json:"document"`
 	Decisions string          `json:"decisions"`
@@ -98,7 +97,9 @@ func TestExamplesGolden(t *testing.T) {
 		g.Validate = raw(engmodel.SortDiagnostics(engmodel.ValidateBundle(bundle)))
 		doc, gerr := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: filepath.Dir(manifest)})
 		if gerr != nil {
-			g.GenError = gerr.Error()
+			// A generation error is never a golden: it fails the run, also
+			// when the goldens are being updated.
+			t.Fatalf("generate %s: %v", manifest, gerr)
 		}
 		g.Generate, g.Document, g.Decisions = raw(doc.Diagnostics), hash(doc.Document), hash(doc.DecisionsDocument)
 		matrix, diags, terr := engmodel.BuildTraceMatrixFromFiles(manifest, bundle.RequirementsPath, filepath.Dir(manifest))

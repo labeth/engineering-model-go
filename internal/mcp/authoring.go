@@ -531,103 +531,211 @@ func resolveDiagnoseDocument(documents map[string]string, document string) (stri
 // modelDiagnose validates the model with one document's content replaced and
 // returns that document's diagnostics, the counts of the others and YAML parse
 // errors. The model is copied to a private temporary directory and never written.
-// TRLC-LINKS: REQ-EMG-069
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
 func (s *Server) modelDiagnose(args map[string]any) (map[string]any, error) {
-	document := firstNonEmptyArg(args, "document", "path")
-	if document == "" {
-		return nil, fmt.Errorf("model.diagnose requires document")
-	}
-	content, ok := args["content"].(string)
-	if !ok {
-		return nil, fmt.Errorf("model.diagnose requires content (the full YAML text of the document)")
-	}
-	if s.bundle == nil || strings.TrimSpace(s.bundle.ManifestPath) == "" {
-		return nil, fmt.Errorf("model.diagnose requires a model loaded from engmod.yml")
-	}
-	root := filepath.Dir(s.bundle.ManifestPath)
-	manifestBytes, err := os.ReadFile(s.bundle.ManifestPath)
+	target, err := s.diagnoseTarget(args)
 	if err != nil {
-		return nil, fmt.Errorf("read manifest: %w", err)
+		return nil, err
+	}
+	out := map[string]any{"document": target.key, "path": target.rel}
+	if parseErrors := yamlParseErrors(target.content); len(parseErrors) > 0 {
+		return parseErrorResult(out, parseErrors), nil
+	}
+	diags, err := diagnoseWithContent(target.root, target.manifestBytes, target.documents, target.rel, target.content)
+	if err != nil {
+		return nil, err
+	}
+	tally := tallyDiagnostics(diags, target, s.bundle.ManifestPath+":")
+	out["valid"] = tally.allErrors == 0
+	out["errors"] = tally.docErrors
+	out["warnings"] = tally.docWarnings
+	out["diagnostics"] = tally.rows
+	out["otherDiagnostics"] = tally.otherSummary()
+	out["parseErrors"] = []map[string]any{}
+	return out, nil
+}
+
+// diagnoseRequest is a validated model.diagnose request: the replaced content,
+// the model root, the manifest and the document it names.
+type diagnoseRequest struct {
+	content       string
+	root          string
+	key           string
+	rel           string
+	manifestBytes []byte
+	documents     map[string]string
+}
+
+// readManifestDocuments reads the manifest and returns its bytes and documents.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func readManifestDocuments(manifestPath string) ([]byte, map[string]string, error) {
+	manifestBytes, err := os.ReadFile(manifestPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("read manifest: %w", err)
 	}
 	var manifest model.ManifestDocument
 	if err := goyaml.Unmarshal(manifestBytes, &manifest); err != nil {
-		return nil, fmt.Errorf("decode manifest: %w", err)
+		return nil, nil, fmt.Errorf("decode manifest: %w", err)
 	}
-	documents := manifestDocuments(manifest.Documents)
+	return manifestBytes, manifestDocuments(manifest.Documents), nil
+}
+
+// diagnoseArguments returns the document and the replacement content.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func diagnoseArguments(args map[string]any) (document, content string, err error) {
+	document = firstNonEmptyArg(args, "document", "path")
+	if document == "" {
+		return "", "", fmt.Errorf("model.diagnose requires document")
+	}
+	content, ok := args["content"].(string)
+	if !ok {
+		return "", "", fmt.Errorf("model.diagnose requires content (the full YAML text of the document)")
+	}
+	return document, content, nil
+}
+
+// diagnoseTarget validates the arguments and resolves the document to replace.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func (s *Server) diagnoseTarget(args map[string]any) (diagnoseRequest, error) {
+	document, content, err := diagnoseArguments(args)
+	if err != nil {
+		return diagnoseRequest{}, err
+	}
+	if s.bundle == nil || strings.TrimSpace(s.bundle.ManifestPath) == "" {
+		return diagnoseRequest{}, fmt.Errorf("model.diagnose requires a model loaded from engmod.yml")
+	}
+	root := filepath.Dir(s.bundle.ManifestPath)
+	manifestBytes, documents, err := readManifestDocuments(s.bundle.ManifestPath)
+	if err != nil {
+		return diagnoseRequest{}, err
+	}
 	key, rel, err := resolveDiagnoseDocument(documents, document)
 	if err != nil {
-		return nil, err
+		return diagnoseRequest{}, err
 	}
 	if err := confineDocuments(root, documents); err != nil {
-		return nil, err
+		return diagnoseRequest{}, err
 	}
+	return diagnoseRequest{content: content, root: root, key: key, rel: rel, manifestBytes: manifestBytes, documents: documents}, nil
+}
 
-	out := map[string]any{"document": key, "path": rel}
-	if parseErrors := yamlParseErrors(content); len(parseErrors) > 0 {
-		out["valid"] = false
-		out["parseErrors"] = parseErrors
-		out["diagnostics"] = []map[string]any{}
-		out["errors"] = len(parseErrors)
-		out["warnings"] = 0
-		out["otherDiagnostics"] = map[string]any{"total": 0, "errors": 0, "warnings": 0}
-		out["note"] = "the content is not valid YAML; fix the parse errors to see validation diagnostics"
-		return out, nil
-	}
+// parseErrorResult fills the model.diagnose result for content that is not
+// valid YAML.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func parseErrorResult(out map[string]any, parseErrors []map[string]any) map[string]any {
+	out["valid"] = false
+	out["parseErrors"] = parseErrors
+	out["diagnostics"] = []map[string]any{}
+	out["errors"] = len(parseErrors)
+	out["warnings"] = 0
+	out["otherDiagnostics"] = map[string]any{"total": 0, "errors": 0, "warnings": 0}
+	out["note"] = "the content is not valid YAML; fix the parse errors to see validation diagnostics"
+	return out
+}
 
-	diags, err := diagnoseWithContent(root, manifestBytes, documents, rel, content)
-	if err != nil {
-		return nil, err
+// diagnoseTally splits diagnostics into those of the replaced document and a
+// summary of the others.
+type diagnoseTally struct {
+	rows        []map[string]any
+	other       map[string]int
+	otherByCode map[string]int
+	remedies    map[string]string
+	docErrors   int
+	docWarnings int
+	allErrors   int
+}
+
+// tallyDiagnostics assigns each diagnostic to the replaced document or to the
+// others and counts them.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func tallyDiagnostics(diags []validate.Diagnostic, target diagnoseRequest, manifestPrefix string) *diagnoseTally {
+	t := &diagnoseTally{
+		rows:        []map[string]any{},
+		other:       map[string]int{"total": 0, "errors": 0, "warnings": 0},
+		otherByCode: map[string]int{},
+		remedies:    map[string]string{},
 	}
-	docRows := []map[string]any{}
-	other := map[string]int{"total": 0, "errors": 0, "warnings": 0}
-	otherByCode := map[string]int{}
-	docErrors, docWarnings, allErrors := 0, 0, 0
-	tree, _ := parser.ParseBytes([]byte(content), 0)
-	manifestPrefix := s.bundle.ManifestPath + ":"
+	tree, _ := parser.ParseBytes([]byte(target.content), 0)
 	for _, d := range diags {
 		// Composition reports root-model fields as <engmod.yml>:<field path>;
 		// the field path names the document.
 		d.Path = strings.TrimPrefix(d.Path, manifestPrefix)
 		if d.Severity == validate.SeverityError {
-			allErrors++
+			t.allErrors++
 		}
-		if diagnosticDocument(d.Path, root, documents) != key {
-			other["total"]++
-			if d.Severity == validate.SeverityError {
-				other["errors"]++
-			} else {
-				other["warnings"]++
-			}
-			otherByCode[d.Code]++
+		if diagnosticDocument(d.Path, target.root, target.documents) != target.key {
+			t.addOther(d)
 			continue
 		}
-		row := diagRows([]validate.Diagnostic{d})[0]
-		if line, column := messagePosition(d.Message, rel); line > 0 {
-			row["line"] = line
-			row["column"] = column
-		} else if line, column := diagnosticLine(tree, key, d, requirementIDsForLines(key, content)); line > 0 {
-			row["line"] = line
-			row["column"] = column
-		}
-		if d.Severity == validate.SeverityError {
-			docErrors++
-		} else {
-			docWarnings++
-		}
-		docRows = append(docRows, row)
+		t.addDocument(d, documentRow(d, tree, target))
 	}
-	otherSummary := map[string]any{"total": other["total"], "errors": other["errors"], "warnings": other["warnings"]}
-	if len(otherByCode) > 0 {
-		otherSummary["byCode"] = otherByCode
+	return t
+}
+
+// addOther counts a diagnostic of another document.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func (t *diagnoseTally) addOther(d validate.Diagnostic) {
+	t.other["total"]++
+	if d.Severity == validate.SeverityError {
+		t.other["errors"]++
+	} else {
+		t.other["warnings"]++
 	}
-	out["valid"] = allErrors == 0
-	out["errors"] = docErrors
-	out["warnings"] = docWarnings
-	out["diagnostics"] = docRows
-	out["otherDiagnostics"] = otherSummary
-	out["parseErrors"] = []map[string]any{}
-	return out, nil
+	t.otherByCode[d.Code]++
+	if d.Remedy != "" {
+		t.remedies[d.Code] = d.Remedy
+	}
+}
+
+// addDocument records a diagnostic row of the replaced document.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func (t *diagnoseTally) addDocument(d validate.Diagnostic, row map[string]any) {
+	if d.Severity == validate.SeverityError {
+		t.docErrors++
+	} else {
+		t.docWarnings++
+	}
+	t.rows = append(t.rows, row)
+}
+
+// documentRow renders a diagnostic of the replaced document with its position.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func documentRow(d validate.Diagnostic, tree *ast.File, target diagnoseRequest) map[string]any {
+	row := diagRows([]validate.Diagnostic{d})[0]
+	line, column := messagePosition(d.Message, target.rel)
+	if line == 0 {
+		line, column = diagnosticLine(tree, target.key, d, requirementIDsForLines(target.key, target.content))
+	}
+	if line > 0 {
+		row["line"] = line
+		row["column"] = column
+	}
+	return row
+}
+
+// otherSummary renders the counts of the diagnostics of the other documents. A
+// required-switch error of the manifest (lifecycle.missing) belongs to no
+// document; its remedy is reported by code.
+// TRLC-LINKS: REQ-EMG-069, REQ-EMG-168
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, FU-VALIDATION-ENGINE
+func (t *diagnoseTally) otherSummary() map[string]any {
+	summary := map[string]any{"total": t.other["total"], "errors": t.other["errors"], "warnings": t.other["warnings"]}
+	if len(t.otherByCode) > 0 {
+		summary["byCode"] = t.otherByCode
+	}
+	if len(t.remedies) > 0 {
+		summary["remedies"] = t.remedies
+	}
+	return summary
 }
 
 // TRLC-LINKS: REQ-EMG-069

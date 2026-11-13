@@ -607,6 +607,7 @@ decisions:
   - The direction stays child to parent; no child names a user.
   - Amended by ADR-EMG-028; no model is exempt from the upward trace as top level.
   - Amended by ADR-EMG-031; with a life-cycle tier the mode is the maximum of requirementLinks and the tier default (strict from mvp), and the strict findings are errors from the tier where the rule is required.
+  - Amended by ADR-EMG-061 and ADR-EMG-066, so a lifecycle is required; a model without one is the error lifecycle.missing, not v0.9.0 behaviour.
 - id: ADR-EMG-023
   title: The using system fingerprints the child item from the content it resolved
   status: superseded
@@ -880,6 +881,7 @@ decisions:
   - Every consumer of the engine gives one result for a tier; engineering-flow renders the table from TierPolicy() instead of keeping its own.
   - A project can declare a low tier and see its debt as deferred findings instead of failing on rules it has not reached.
   - A low tier cannot hide integrity errors; rank-0 codes and untiered codes never change.
+  - Amended by ADR-EMG-061 and ADR-EMG-066, so a lifecycle is required; a model without one is the error lifecycle.missing, not v0.9.0 behaviour.
 - id: ADR-EMG-032
   title: Only untiered errors stop the AsciiDoc render (D15 extended)
   status: accepted
@@ -903,6 +905,7 @@ decisions:
   consequences:
   - A project raising its tier gets a document and a failing check, not a failing render.
   - Integrity errors keep stopping generation at every tier.
+  - Amended by ADR-EMG-061 and ADR-EMG-066, so a lifecycle is required; a model without one is the error lifecycle.missing, not v0.9.0 behaviour.
 - id: ADR-EMG-033
   title: A POA&M item defers the diagnostics it names for the project tier
   status: accepted
@@ -1005,6 +1008,7 @@ decisions:
   - An mvp safety project loads an incomplete aviation document and sees its gaps as tier-keyed findings.
   - AI agents are recorded as tools with creditClaimed false; people hold every DO-178C credit.
   - Without lifecycle, aviation validation is exactly that of v0.9.0.
+  - Amended by ADR-EMG-061 and ADR-EMG-066, so a lifecycle is required; a model without one is the error lifecycle.missing, not v0.9.0 behaviour.
 - id: ADR-EMG-036
   title: The life-cycle tier ships in v0.10.0 adapted to the version-pinned link model
   status: accepted
@@ -1062,6 +1066,7 @@ decisions:
   consequences:
   - Users of v0.9.0 opt in by adding lifecycle after the engine bump; nothing changes until then.
   - engineering-flow 0.7.0 reads TierPolicy() for its MODEL-RULES.md "Severity by tier" table.
+  - Amended by ADR-EMG-061 and ADR-EMG-066, so a lifecycle is required; a model without one is the error lifecycle.missing, not v0.9.0 behaviour.
 - id: ADR-EMG-037
   title: Behavior state machines are a first-class machines block projected into the canonical semantic model
   status: proposed
@@ -1632,6 +1637,7 @@ decisions:
   - A project that raises its tier to product meets its existing code smells as errors; the tier-up guidance (ef-tier-up) must say so and the debt list (tier.mjs debt) must group them.
   - Code that is clean enough for the defaults but not for the strict limits is reported only from product, so the smaller tiers stay usable.
   - The engineering-flow mirror needs the keyed health codes with raise rows at product (engine true), and its skills must say that agents write to the strict limits at product and operational.
+  - Superseded in its numeric limits by ADR-EMG-059 with the limits complex_method 8/15, large_method 50/100, deep_nesting 3/4, bumpy_road 2/3, complex_conditional 3/5, excess_arguments 4/6, large_assertion_block 5/8, and the rest of this decision stands.
 - id: ADR-EMG-058
   title: Code that looks like a state machine and is not in the model is reported, and is cleared by modeling it or by a suppression comment with a reason
   status: proposed
@@ -1735,6 +1741,7 @@ decisions:
   - The consistency effort of ADR-EMG-056 includes this inventory and its test.
   - Covers the requirements of the consistency and upgrade efforts, which are written when those efforts start (docs/no-backwards-compatibility-plan.md).
 
+  - Amended by ADR-EMG-066, so the engine validator and the command line tools now error; only the library functions stay lenient until phases 6 and 7 of the removal plan.
 - id: ADR-EMG-061
   title: No backwards compatibility in the model; every required field is an error that names the skill or command that fixes it
   status: proposed
@@ -1798,6 +1805,7 @@ decisions:
   - The repositories become the first full test of every rule they ship.
   - Covers the requirements of the consistency and upgrade efforts, which are written when those efforts start (docs/no-backwards-compatibility-plan.md).
 
+  - Amended by ADR-EMG-067 and DEC-TIER-OPERATIONAL, so the repository declares the foundation bundle only; the security bundle is not yet declared (OWNER item).
 - id: ADR-EMG-063
   title: Backwards compatibility is removed in seven ordered phases, starting with an upgrade command, and the plan lives in docs/no-backwards-compatibility-plan.md
   status: proposed
@@ -1904,11 +1912,11 @@ decisions:
     removed). (2) validate.Diagnostic has a remedy field filled from one table (internal/validate/remedies.go); the command line
     tools print a fix line from one helper; JSON and MCP outputs carry the field; the authoring contract is v7 and lists the
     required switches; the README table is generated from the table and tested. The remedy for tier, bundles, links, lint mode
-    and health is the ef-tier-up skill; for the schema version it is engflow upgrade, which does not exist yet and is built in
+    and health is the ef-tier-up skill; for the schema version it is setting schemaVersion 2 by hand, because engflow upgrade does not exist yet and is built in
     phase 1 of the flow part of the plan. (3) The library functions (LoadBundle, ApplyTierPolicy without lifecycle, EffectiveTier,
     the projection defaults) stay lenient until phases 6 and 7 of the plan, because embedding tools still call them; only the
-    validator and the command line tools error. (4) The CUE schemaVersion requirement has no effect because the constant fills a
-    missing value; the Go check on the decoded document is what catches it. (5) A POA&M defers entry that names a lint.mode code
+    validator and the command line tools error. (4) The CUE schemaVersion constant fills a
+    missing value, so the loader checks schemaVersion in Go before the CUE contract, for every document type. (5) A POA&M defers entry that names a lint.mode code
     is lifecycle.poam_defers_core. (6) The baseline file stays optional: a model with no debt needs none (this narrows ADR-EMG-061
     item 2). Covers REQ-EMG-162 to REQ-EMG-169.
   consequences:
@@ -1917,12 +1925,15 @@ decisions:
   - The remedy text is part of the interface and is tested.
 - id: DEC-TIER-OPERATIONAL
   title: engineering-model-go runs at the operational tier with the foundation bundle
-  status: accepted
+  status: proposed
   date: 2026-11-12
   context: |-
     ADR-EMG-062 sets the tier of this repository. The owner instructed, verbatim: "same for model, i want it at the highest
     level", in the context of the tier of engineering-flow, whose recommended tier had been product; operational is the highest
     tier. The security bundle of ADR-EMG-062 is not declared here because this tier-up covers the foundation bundle only.
+    The owner's words cover the tier. Foundation only, the POA&M deferral and its due dates are the implementing agent's
+    proposals. The status is proposed because the owner has not accepted this record; until the owner sets it to accepted the
+    gate of this repository reports lifecycle.tier_decision_mismatch (OWNER item).
   decision: |-
     Tier: operational
     Bundles: foundation
@@ -1930,16 +1941,17 @@ decisions:
     cannot be produced yet is recorded as POA&M items with milestone tier:operational (POAM-TIER-OPERATIONAL-*), not hidden.
   consequences:
   - The operational rows of the tier policy apply to this repository's own model, code health and trace.
-  - Requirement status verified is set only from evidence (engws status-suggest); the rest is deferred by open POA&M items that expire by date.
+  - Requirement status verified is set only from evidence (engws status-suggest); the rest is deferred by open POA&M items whose due dates the flow debt check enforces; this engine does not expire them (it has no clock) except through lifecycle.poam_overdue.
 - id: DEC-HEALTH-BASELINE
   title: The existing code health debt of engineering-model-go is recorded in model/health-baseline.json
-  status: accepted
+  status: proposed
   date: 2026-11-12
   context: |-
     The owner's instruction to run this repository at the highest tier (DEC-TIER-OPERATIONAL, "same for model, i want it at the
     highest level") requires the code health debt that existed before the tier-up to be recorded, because findings are errors at
-    operational. This acceptance is derived by the implementing agent from that instruction; the owner did not review the
-    individual findings. The strict limits (the defaults of the operational tier, ADR-EMG-059) are the implementer's proposal.
+    operational. This record is proposed: it was drafted by the implementing agent from that instruction; the owner did not review
+    the individual findings. Until the owner sets it to accepted the baseline suppresses nothing and every listed finding is
+    an error (OWNER item). The strict limits (the defaults of the operational tier, ADR-EMG-059) are the implementer's proposal.
     The owner can reverse this decision at any time.
   decision: |-
     Accept the findings listed in model/health-baseline.json (health.baseline, written by enghealth baseline write at the
@@ -1958,17 +1970,17 @@ decisions:
     for model, i want it at the highest level". The tier-gap report of 2026-11-12 listed 310 blocking items for engineering-model-go
     and the engine now errors when lifecycle, bundles, tier decision, requirementLinks, lintRun mode or the health block is missing
     (ADR-EMG-066). The work was done in two parts on 2026-11-12 and 2026-11-13. Taken by the implementing agent under the owner's
-    instruction to take recommended decisions. OWNER items: the acceptance of the two decisions below, the status list and the
-    due dates.
+    instruction to take recommended decisions. OWNER items: the acceptance of DEC-TIER-OPERATIONAL and DEC-HEALTH-BASELINE (set to proposed after the independent
+    reviews of 2026-11-13: the agent must not accept its own gate), the status list and the due dates.
   decision: |-
     (1) The repository declares lifecycle {tier: operational, bundles: [foundation], tierDecision: DEC-TIER-OPERATIONAL} with
-    requirementLinks strict; the decision is accepted with the owner's words quoted; the security bundle of ADR-EMG-062 is not yet
+    requirementLinks strict; the decision carries the owner's words and stays proposed until the owner accepts it; the security bundle of ADR-EMG-062 is not yet
     declared. (2) The 153 parentless requirements were given structure, not a ledger: 15 published capabilities (CAP-EMG-*) that
     156 requirements realize and 6 internal-mechanism requirements marked derived with a rationale; two machines (SM-MCP-SESSION,
     SM-REQUIREMENTS-DELTA) replace three unused events and pass Quint in both modes; REQ-EMG-027 (git subsystem cloning, code
     gone) is retired; the orphan rule exempts retired and rejected requirements. (3) The existing code health debt, 2,822
-    findings at the strict operational limits, is recorded in model/health-baseline.json under the accepted decision
-    DEC-HEALTH-BASELINE; the acceptance is derived from the owner's instruction and can be reversed; the baseline can only
+    findings at the strict operational limits, is recorded in model/health-baseline.json under the proposed decision
+    DEC-HEALTH-BASELINE, which suppresses nothing until the owner accepts it; the baseline can only
     shrink and a grown finding is not baselined. (4) Requirement status was set by running engws status-suggest and applying its
     output by script (159 requirements are implemented, none verified, because no RED check is recorded); the owner's approval of
     that list has not been given. (5) Because verification evidence cannot be produced now, the 160 unverified requirements are

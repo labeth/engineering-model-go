@@ -12,6 +12,7 @@ import (
 	engmodel "github.com/labeth/engineering-model-go"
 	"github.com/labeth/engineering-model-go/internal/mcp"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -26,7 +27,6 @@ func TestSchemaV2ProjectionContract(t *testing.T) {
 	architecture := filepath.Join(payments, "engmod.yml")
 	requirements := filepath.Join(payments, "model", "requirements.yml")
 	design := filepath.Join(payments, "model", "views.yml")
-
 	contracts := []struct {
 		name     string
 		generate func() (string, error)
@@ -60,7 +60,7 @@ func TestSchemaV2ProjectionContract(t *testing.T) {
 		{
 			name: "naf",
 			generate: func() (string, error) {
-				result, err := engmodel.GenerateNAFV41FromFile("engmod.yml")
+				result, err := engmodel.GenerateNAFV41FromFile(testutil.AcceptedRepoModel(t))
 				return result.Document, err
 			},
 			contains: []string{":naf-version: 4.1", "=== A2 - Architecture Products", "`VIEW-ARCHITECTURE-INTENT`"},

@@ -192,6 +192,9 @@ package model
 #POAMDefer: {
 	code:  #NonEmpty
 	path?: string
+	// ref limits the defer to one requirement by ID; the validator resolves
+	// it to the requirement's current path, so it survives reordering.
+	ref?: #NonEmpty
 }
 
 #TrustBoundary: {

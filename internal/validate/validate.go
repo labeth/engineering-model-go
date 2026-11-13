@@ -282,25 +282,71 @@ var allowedFlowFrequency = map[string]bool{
 	"on-demand": true,
 }
 
+// documentVersion is the schemaVersion of one document the bundle holds.
+type documentVersion struct {
+	path    string
+	version int
+}
+
+// schemaVersions lists the schemaVersion of every document the bundle holds:
+// the five that are always present, and the manifest, behavior, assurance,
+// compliance, views, aviation and reqLinks documents of a bundle that was
+// loaded from files (their path is set) or that carries them. A bundle built
+// in code without those documents is not judged on documents it does not hold.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func schemaVersions(b model.Bundle) []documentVersion {
+	out := []documentVersion{
+		{"schemaVersion", b.Architecture.SchemaVersion},
+		{"catalog.schemaVersion", b.Catalog.SchemaVersion},
+		{"requirements.schemaVersion", b.Requirements.SchemaVersion},
+		{"design.schemaVersion", b.Design.SchemaVersion},
+		{"decisions.schemaVersion", b.Decisions.SchemaVersion},
+	}
+	optional := []struct {
+		held bool
+		documentVersion
+	}{
+		{b.ManifestPath != "", documentVersion{"manifest.schemaVersion", b.Manifest.SchemaVersion}},
+		{b.BehaviorPath != "", documentVersion{"behavior.schemaVersion", b.Behavior.SchemaVersion}},
+		{b.AssurancePath != "", documentVersion{"assurance.schemaVersion", b.Assurance.SchemaVersion}},
+		{b.CompliancePath != "", documentVersion{"compliance.schemaVersion", b.Compliance.SchemaVersion}},
+		{b.ViewsPath != "", documentVersion{"views.schemaVersion", b.Views.SchemaVersion}},
+		{b.Aviation != nil, documentVersion{"aviation.schemaVersion", aviationSchemaVersion(b)}},
+		{b.ReqLinksPath != "", documentVersion{"reqLinks.schemaVersion", b.ReqLinks.SchemaVersion}},
+	}
+	for _, o := range optional {
+		if o.held {
+			out = append(out, o.documentVersion)
+		}
+	}
+	return out
+}
+
+// aviationSchemaVersion is the schemaVersion of the aviation document, 0
+// without one.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func aviationSchemaVersion(b model.Bundle) int {
+	if b.Aviation == nil {
+		return 0
+	}
+	return b.Aviation.SchemaVersion
+}
+
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-126, REQ-EMG-128, REQ-EMG-132, REQ-EMG-133, REQ-EMG-138, REQ-EMG-139
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
-	for path, version := range map[string]int{
-		"schemaVersion":              b.Architecture.SchemaVersion,
-		"catalog.schemaVersion":      b.Catalog.SchemaVersion,
-		"requirements.schemaVersion": b.Requirements.SchemaVersion,
-		"design.schemaVersion":       b.Design.SchemaVersion,
-		"decisions.schemaVersion":    b.Decisions.SchemaVersion,
-	} {
-		if _, err := model.EffectiveSchemaVersion(version); err != nil {
+	for _, v := range schemaVersions(b) {
+		if _, err := model.EffectiveSchemaVersion(v.version); err != nil {
 			message := err.Error()
 			var versionErr *model.SchemaVersionError
 			if errors.As(err, &versionErr) {
 				message = versionErr.Problem()
 			}
-			diags = append(diags, Diagnostic{Code: "model.unsupported_schema_version", Severity: SeverityError, Message: message, Path: path})
+			diags = append(diags, Diagnostic{Code: "model.unsupported_schema_version", Severity: SeverityError, Message: message, Path: v.path})
 		}
 	}
 	if explicit, legacy := strings.TrimSpace(b.Architecture.Model.Documents.Catalog), strings.TrimSpace(b.Architecture.Model.BaseCatalogRef); explicit != "" && legacy != "" {
@@ -1298,7 +1344,8 @@ func Bundle(b model.Bundle) []Diagnostic {
 	diags = append(diags, assuranceConsistencyDiagnostics(b.Architecture.AuthoredArchitecture)...)
 	diags = append(diags, acceptanceDiagnostics(b)...)
 	diags = append(diags, requirementLinkDiagnostics(b, validID)...)
-	diags = append(diags, lifecycleDiagnostics(b)...)
+	asOf := AsOf()
+	diags = append(diags, lifecycleDiagnostics(b, asOf)...)
 	diags = append(diags, requiredSwitchDiagnostics(b)...)
 	diags = append(diags, healthDiagnostics(b)...)
 	diags = append(diags, aviationTierDiagnostics(b)...)
@@ -1322,6 +1369,12 @@ func Bundle(b model.Bundle) []Diagnostic {
 	for id := range ambiguousCodeIDs {
 		diags = append(diags, Diagnostic{Code: "model.ambiguous_code_reference", Severity: SeverityError, Message: fmt.Sprintf("CODE id %q is produced by more than one file or declaration; rename one or exclude it from the code scope", id), Path: id})
 	}
+
+	// Only the lifecycle.* entries are judged here: those diagnostics are
+	// emitted by Bundle alone. Entries for codes the scanners emit later
+	// (health, code, verification, composition) are judged by UnusedDefers on
+	// the merged list.
+	diags = append(diags, unusedDefers(b, diags, deferScope{asOf: asOf, inScope: func(pattern string) bool { return strings.HasPrefix(pattern, "lifecycle.") }})...)
 
 	return SortDiagnostics(withRemedies(diags))
 }

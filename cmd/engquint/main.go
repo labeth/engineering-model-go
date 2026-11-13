@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/export/exportgate"
 	"github.com/labeth/engineering-model-go/internal/export/quint/check"
 )
 
@@ -86,37 +87,16 @@ func usage(w io.Writer) {
 
 // runGenerate writes the Quint modules of a model.
 //
-// TRLC-LINKS: REQ-EMG-141, REQ-EMG-142, REQ-EMG-149
+// TRLC-LINKS: REQ-EMG-141, REQ-EMG-142, REQ-EMG-149, REQ-EMG-168
 // ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
 func runGenerate(args []string, stdout, stderr io.Writer) int {
-	flags := flag.NewFlagSet("engquint generate", flag.ContinueOnError)
-	flags.SetOutput(stderr)
-	modelPath := flags.String("model", "", "path to engmod.yml manifest")
-	outDir := flags.String("out", "", "output directory; defaults to generated/quint next to the model's engmod.yml")
-	if err := flags.Parse(args); err != nil {
-		if errors.Is(err, flag.ErrHelp) {
-			return exitOK
-		}
-		return exitUsage
+	modelPath, out, code, done := parseGenerateFlags(args, stderr)
+	if done {
+		return code
 	}
-	if flags.NArg() > 0 {
-		fmt.Fprintf(stderr, "engquint generate: unexpected argument %q\n", flags.Arg(0))
-		return exitUsage
-	}
-	if strings.TrimSpace(*modelPath) == "" {
-		fmt.Fprintln(stderr, "usage: engquint generate --model <engmod.yml> [--out <dir>]")
-		return exitUsage
-	}
-	out := strings.TrimSpace(*outDir)
-	if out == "" {
-		out = filepath.Join(filepath.Dir(*modelPath), "generated", "quint")
-	}
-
-	// A model that does not load is a setup error, not a generation failure.
-	bundle, err := engmodel.LoadBundle(*modelPath)
-	if err != nil {
-		fmt.Fprintln(stderr, "error loading model:", err)
-		return exitUsage
+	bundle, code, done := gateModel(modelPath, stderr)
+	if done {
+		return code
 	}
 	result, err := engmodel.GenerateQuint(bundle)
 	printDiagnostics(stderr, result)
@@ -124,36 +104,121 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "error:", err)
 		return exitFail
 	}
+	return writeModules(out, result, streams{stdout: stdout, stderr: stderr})
+}
 
-	produced := map[string]bool{}
-	for _, file := range result.Files {
-		produced[file.Name] = true
-	}
-	if len(result.Files) > 0 {
-		if err := os.MkdirAll(out, 0o755); err != nil {
-			fmt.Fprintln(stderr, "error creating output directory:", err)
-			return exitFail
+// parseGenerateFlags parses the generate flags and resolves the model path and
+// the output directory. done is true when the command ends with code.
+//
+// TRLC-LINKS: REQ-EMG-141, REQ-EMG-142, REQ-EMG-149, REQ-EMG-168
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+func parseGenerateFlags(args []string, stderr io.Writer) (modelPath, out string, code int, done bool) {
+	flags := flag.NewFlagSet("engquint generate", flag.ContinueOnError)
+	flags.SetOutput(stderr)
+	model := flags.String("model", "", "path to engmod.yml manifest")
+	outDir := flags.String("out", "", "output directory; defaults to generated/quint next to the model's engmod.yml")
+	if err := flags.Parse(args); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			return "", "", exitOK, true
 		}
+		return "", "", exitUsage, true
+	}
+	if flags.NArg() > 0 {
+		fmt.Fprintf(stderr, "engquint generate: unexpected argument %q\n", flags.Arg(0))
+		return "", "", exitUsage, true
+	}
+	if strings.TrimSpace(*model) == "" {
+		fmt.Fprintln(stderr, "usage: engquint generate --model <engmod.yml> [--out <dir>]")
+		return "", "", exitUsage, true
+	}
+	out = strings.TrimSpace(*outDir)
+	if out == "" {
+		out = filepath.Join(filepath.Dir(*model), "generated", "quint")
+	}
+	return *model, out, exitOK, false
+}
+
+// gateModel loads and validates the model. A model that does not load is a
+// setup error, not a generation failure; a model with errors is refused before
+// any module is written, and the fix of a required-switch error is printed.
+// done is true when the command ends with code.
+//
+// TRLC-LINKS: REQ-EMG-141, REQ-EMG-142, REQ-EMG-149, REQ-EMG-168
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+func gateModel(modelPath string, stderr io.Writer) (bundle engmodel.Bundle, code int, done bool) {
+	bundle, ok, err := exportgate.ValidationGate(modelPath, stderr)
+	if err != nil {
+		fmt.Fprintln(stderr, "error loading model:", err)
+		return bundle, exitUsage, true
+	}
+	if !ok {
+		fmt.Fprintln(stderr, "error: model validation failed; no Quint modules written")
+		return bundle, exitFail, true
+	}
+	return bundle, exitOK, false
+}
+
+// streams are the output writers of a command.
+type streams struct {
+	stdout, stderr io.Writer
+}
+
+// writeModules writes the generated modules into out and removes the stale
+// generated ones.
+//
+// TRLC-LINKS: REQ-EMG-141, REQ-EMG-142, REQ-EMG-149, REQ-EMG-168
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+func writeModules(out string, result engmodel.QuintExportResult, std streams) int {
+	if code := writeFiles(out, result, std); code != exitOK {
+		return code
+	}
+	return removeStaleReport(out, result, std)
+}
+
+// writeFiles creates out when there is a module and writes each module.
+//
+// TRLC-LINKS: REQ-EMG-141, REQ-EMG-142, REQ-EMG-149, REQ-EMG-168
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+func writeFiles(out string, result engmodel.QuintExportResult, std streams) int {
+	if len(result.Files) == 0 {
+		return exitOK
+	}
+	if err := os.MkdirAll(out, 0o755); err != nil {
+		fmt.Fprintln(std.stderr, "error creating output directory:", err)
+		return exitFail
 	}
 	for _, file := range result.Files {
 		path := filepath.Join(out, file.Name)
 		status, err := writeIfChanged(path, []byte(file.Text))
 		if err != nil {
-			fmt.Fprintln(stderr, "error writing module:", err)
+			fmt.Fprintln(std.stderr, "error writing module:", err)
 			return exitFail
 		}
-		fmt.Fprintf(stdout, "%s %s\n", status, path)
+		fmt.Fprintf(std.stdout, "%s %s\n", status, path)
+	}
+	return exitOK
+}
+
+// removeStaleReport removes the generated modules that no machine produces
+// any more and reports each removal.
+//
+// TRLC-LINKS: REQ-EMG-141, REQ-EMG-142, REQ-EMG-149, REQ-EMG-168
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+func removeStaleReport(out string, result engmodel.QuintExportResult, std streams) int {
+	produced := map[string]bool{}
+	for _, file := range result.Files {
+		produced[file.Name] = true
 	}
 	removed, err := removeStale(out, produced)
 	for _, path := range removed {
-		fmt.Fprintf(stdout, "removed %s\n", path)
+		fmt.Fprintf(std.stdout, "removed %s\n", path)
 	}
 	if err != nil {
-		fmt.Fprintln(stderr, "error removing stale module:", err)
+		fmt.Fprintln(std.stderr, "error removing stale module:", err)
 		return exitFail
 	}
 	if len(result.Files) == 0 {
-		fmt.Fprintln(stdout, "model has no machines; no Quint modules written")
+		fmt.Fprintln(std.stdout, "model has no machines; no Quint modules written")
 	}
 	return exitOK
 }

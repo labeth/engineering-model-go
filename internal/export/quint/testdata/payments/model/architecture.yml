@@ -1,6 +1,11 @@
 schemaVersion: 2
 architecture:
+  functionalGroups:
+  - id: FG-PAYMENTS
+    name: Payments
+    prose: Payment functions.
   functionalUnits:
   - id: FU-PAYMENTS-AUTH
+    group: FG-PAYMENTS
     name: Payments Authorization
     prose: Authorizes card payments.

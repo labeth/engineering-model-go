@@ -12,8 +12,9 @@ import (
 // so a change of skill or command is one edit here.
 const (
 	remedyTier = "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}"
-	// remedyUpgrade is the schemaVersion remedy; engflow upgrade is built by
-	// the engineering-flow upgrade foundation, so the text also names the manual fix.
+	// remedyUpgrade is the schemaVersion remedy. It names only what exists:
+	// the manual edit. The upgrade command of engineering-flow is planned and
+	// not built, so the text says so instead of naming it as a command to run.
 	remedyUpgrade = model.SchemaVersionRemedy
 	remedyLinks   = "run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp)"
 	remedyLint    = "run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp)"

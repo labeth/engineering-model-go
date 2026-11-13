@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
 func TestSysMLProjectSourceDoesNotEmbedCanonicalSemantics(t *testing.T) {
-	result, err := GenerateV2FromFile("engmod.yml")
+	result, err := GenerateV2FromFile(testutil.AcceptedRepoModel(t))
 	if err != nil {
 		t.Fatalf("generate: %v", err)
 	}

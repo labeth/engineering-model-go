@@ -1,5 +1,12 @@
 schemaVersion: 2
 behavior:
+  events:
+  - id: EVT-PAYMENTS-AUTH-REQUESTED
+    name: Authorization Requested
+    description: A card payment authorization is requested.
+  - id: EVT-PAYMENTS-AUTH-GRANTED
+    name: Authorization Granted
+    description: The issuer grants the authorization.
   machines:
   - id: SM-PAYMENTS-AUTH
     name: Payment authorization

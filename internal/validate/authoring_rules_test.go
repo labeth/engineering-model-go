@@ -333,7 +333,7 @@ func TestAuthoringRulesDescribeLifecycle(t *testing.T) {
 	if got := strings.Join(rules.FieldSets["lifecycle"], ","); got != "tier,bundles,tierDecision,raise" {
 		t.Errorf("lifecycle fields = %s", got)
 	}
-	if got := strings.Join(rules.FieldSets["poamDefer"], ","); got != "code,path" {
+	if got := strings.Join(rules.FieldSets["poamDefer"], ","); got != "code,path,ref" {
 		t.Errorf("poamDefer fields = %s", got)
 	}
 	if !containsTrimmed(rules.FieldSets["poamItem"], "defers") {

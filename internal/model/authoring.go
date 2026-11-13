@@ -173,7 +173,7 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 		Invariants: []string{
 			"Define controlled vocabulary and stable IDs before referencing them.",
 			"Represent each semantic concept once; outputs are projections of the canonical graph.",
-			"Use requirements deltas through engflow instead of rewriting requirements.yml directly.",
+			"Use the requirements delta tools (engws and the MCP requirements delta tools) instead of rewriting requirements.yml directly.",
 			"Run CUE validation before strict Go decoding and cross-document validation.",
 			"Write every required switch (rules.required): a missing lifecycle, tierDecision, bundles, requirementLinks, lintRun.mode, health block (from product), schemaVersion or model id is an error whose remedy names the skill or command that fixes it; there is no backwards compatibility.",
 		},
@@ -273,7 +273,7 @@ func healthGuide() HealthGuide {
 	)
 	return HealthGuide{
 		Config: []string{
-			"health is a block of engmod.yml, required from tier product (health.block_missing): health: {exclude: [pattern], thresholds: {<code>: {warn: int, high: int}}, overrides: [{path: pattern, thresholds: {<code>: {warn, high}}}], waivers: [{code, path, function, decision}], baseline: {file, decision}, policyDecision: <decision id>}. Every key is optional; without the block nothing about code health is validated, computed or reported.",
+			"health is a block of engmod.yml, required from tier product (health.block_missing): health: {exclude: [pattern], thresholds: {<code>: {warn: int, high: int}}, overrides: [{path: pattern, thresholds: {<code>: {warn, high}}}], waivers: [{code, path, function, decision}], baseline: {file, decision}, policyDecision: <decision id>}. Every key is optional; below product, without the block nothing about code health is validated, computed or reported, and from product its absence is the error health.block_missing.",
 			"exclude entries and overrides[].path use the pattern dialect of inferenceHints.exclude (relative to the module root; * ? [...] within one path segment; ** only as a trailing /**; no negation).",
 			"thresholds and overrides[].thresholds are keyed by a smell code that takes numeric limits (the codes with threshold: true); warn is at least 1 and high is at least warn. A threshold replaces the built-in default of the code for the whole module, an override for the paths it matches.",
 			"A waiver waives the finding of code in function of the file path (a file path or a pattern of the exclude dialect, relative to the module root) and names the decision that justifies it. There is no history key.",

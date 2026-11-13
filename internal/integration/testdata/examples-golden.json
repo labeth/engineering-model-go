@@ -15,7 +15,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -23,7 +23,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -31,7 +31,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -39,7 +39,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -47,7 +47,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -76,7 +76,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -84,7 +84,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -92,7 +92,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -100,7 +100,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -108,7 +108,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-AEG-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-AEG-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -197,7 +197,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PORT-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PORT-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -205,7 +205,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PORT-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PORT-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -213,7 +213,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PORT-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PORT-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -235,7 +235,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PORT-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PORT-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -243,7 +243,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PORT-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PORT-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -251,7 +251,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PORT-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PORT-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -325,7 +325,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -333,7 +333,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -341,7 +341,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -349,7 +349,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -357,7 +357,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -392,7 +392,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -400,7 +400,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -408,7 +408,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -416,7 +416,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -424,7 +424,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-ORI-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-ORI-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -519,7 +519,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -527,7 +527,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-CLOUD-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -549,7 +549,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -557,7 +557,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-CLOUD-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -636,7 +636,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -644,7 +644,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -652,7 +652,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -660,7 +660,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -668,7 +668,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -676,7 +676,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[5].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -684,7 +684,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[6].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -692,7 +692,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[7].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -732,7 +732,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -740,7 +740,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -748,7 +748,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -756,7 +756,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -764,7 +764,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -772,7 +772,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[5].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -780,7 +780,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[6].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -788,7 +788,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COMP-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COMP-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[7].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -933,7 +933,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-EDGE-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-EDGE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -941,7 +941,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-EDGE-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-EDGE-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -963,7 +963,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-EDGE-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-EDGE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -971,7 +971,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-EDGE-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-EDGE-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1046,7 +1046,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SEC-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SEC-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1054,7 +1054,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SEC-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SEC-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1090,7 +1090,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SEC-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SEC-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1098,7 +1098,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SEC-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SEC-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1179,7 +1179,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1187,7 +1187,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-011 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-011\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[10].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1195,7 +1195,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1203,7 +1203,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1211,7 +1211,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1219,7 +1219,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1227,7 +1227,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[5].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1235,7 +1235,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[6].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1243,7 +1243,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[7].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1251,7 +1251,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[8].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1259,7 +1259,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-010 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-010\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[9].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1295,7 +1295,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1303,7 +1303,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-011 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-011\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[10].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1311,7 +1311,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1319,7 +1319,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1327,7 +1327,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1335,7 +1335,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1343,7 +1343,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[5].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1351,7 +1351,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[6].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1359,7 +1359,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[7].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1367,7 +1367,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[8].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1375,7 +1375,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PRR-010 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PRR-010\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[9].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1424,7 +1424,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COFFEE-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COFFEE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1440,7 +1440,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COFFEE-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COFFEE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1529,7 +1529,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1537,7 +1537,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-011 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-011\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[10].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1545,7 +1545,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-012 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-012\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[11].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1553,7 +1553,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1561,7 +1561,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1569,7 +1569,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1577,7 +1577,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1585,7 +1585,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[5].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1593,7 +1593,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[6].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1601,7 +1601,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[7].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1609,7 +1609,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[8].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1617,7 +1617,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-010 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-010\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[9].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1681,7 +1681,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1689,7 +1689,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-011 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-011\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[10].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1697,7 +1697,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-012 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-012\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[11].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1705,7 +1705,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1713,7 +1713,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1721,7 +1721,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1729,7 +1729,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1737,7 +1737,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[5].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1745,7 +1745,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[6].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1753,7 +1753,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[7].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1761,7 +1761,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[8].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1769,7 +1769,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-COF-010 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-COF-010\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[9].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1803,7 +1803,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1811,7 +1811,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-CLOUD-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1834,7 +1834,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1842,7 +1842,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-CLOUD-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1876,7 +1876,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-OTA-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-OTA-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1884,7 +1884,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-OTA-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-OTA-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1892,7 +1892,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-OTA-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-OTA-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1915,7 +1915,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-OTA-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-OTA-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1923,7 +1923,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-OTA-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-OTA-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1931,7 +1931,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-OTA-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-OTA-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1965,7 +1965,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-TELEM-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-TELEM-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1973,7 +1973,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-TELEM-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-TELEM-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -1981,7 +1981,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-TELEM-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-TELEM-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2004,7 +2004,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-TELEM-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-TELEM-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2012,7 +2012,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-TELEM-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-TELEM-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2020,7 +2020,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-TELEM-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-TELEM-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2048,7 +2048,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-YD-SYS-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-YD-SYS-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2056,7 +2056,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-YD-HLR-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-YD-HLR-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2064,7 +2064,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-YD-LLR-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-YD-LLR-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2080,7 +2080,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-YD-SYS-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-YD-SYS-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2088,7 +2088,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-YD-HLR-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-YD-HLR-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2096,7 +2096,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-YD-LLR-001 has status approved, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-YD-LLR-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2191,7 +2191,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2199,7 +2199,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2207,7 +2207,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2215,7 +2215,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2223,7 +2223,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2231,7 +2231,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[5].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2239,7 +2239,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[6].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2247,7 +2247,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[7].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2255,7 +2255,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[8].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2291,7 +2291,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2299,7 +2299,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2307,7 +2307,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2315,7 +2315,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2323,7 +2323,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-005 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[4].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2331,7 +2331,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-006 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[5].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2339,7 +2339,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-007 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[6].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2347,7 +2347,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-008 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[7].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2355,7 +2355,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-PAY-009 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-PAY-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[8].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2414,7 +2414,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-A-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-A-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2422,7 +2422,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-A-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-A-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2430,7 +2430,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-A-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-A-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2438,7 +2438,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-A-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-A-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2454,7 +2454,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-A-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-A-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2462,7 +2462,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-A-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-A-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2470,7 +2470,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-A-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-A-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2478,7 +2478,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-A-004 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-A-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[3].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2561,7 +2561,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-B-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-B-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2577,7 +2577,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-B-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-B-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2618,7 +2618,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SYS-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SYS-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2626,7 +2626,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SYS-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SYS-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2634,7 +2634,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SYS-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SYS-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2656,7 +2656,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SYS-001 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SYS-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[0].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2664,7 +2664,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SYS-002 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SYS-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[1].status",
     "deferred": true,
     "requiredFrom": "operational"
@@ -2672,7 +2672,7 @@
    {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
-    "message": "requirement REQ-SYS-003 has status unset, not verified; record verified once its verification passed (engws status-suggest)",
+    "message": "requirement \"REQ-SYS-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
     "path": "requirements[2].status",
     "deferred": true,
     "requiredFrom": "operational"

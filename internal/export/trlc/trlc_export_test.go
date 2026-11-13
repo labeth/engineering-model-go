@@ -42,10 +42,11 @@ func TestGenerateTRLCRequirementsFromFile_Examples(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-006
 func TestEngTRLC_CLIAndValidation(t *testing.T) {
+	manifest := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
 	reqPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
 	outDir := filepath.Join(t.TempDir(), "trlc")
 
-	cmd := exec.Command("go", "run", "./cmd/engtrlc", "--requirements", reqPath, "--out-dir", outDir, "--package", "PaymentsReqs")
+	cmd := exec.Command("go", "run", "./cmd/engtrlc", "--model", manifest, "--requirements", reqPath, "--out-dir", outDir, "--package", "PaymentsReqs")
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("engtrlc failed: %v\noutput:\n%s", err, string(out))

@@ -372,7 +372,7 @@ behavior:
     channel: local-shell
     dataRefs:
     - DO-ARCHITECTURE-MODEL
-    description: engws bump pins a dependency version, regenerates the lock against the registry and evaluates the requirement links on the bumped alias; any failure, or a suspect or broken link without --allow-suspect, restores every file (D8).
+    description: engws bump pins a dependency version, regenerates the lock against the registry and evaluates the requirement links on the bumped alias; any failure, or a suspect or broken link, restores every file (D8).
     entry:
     - pin-version
     exits:

@@ -149,29 +149,47 @@ func policyVerdict(opts CheckOptions, bundle model.Bundle, tier, baseRev string)
 	if err != nil {
 		return health.PolicyVerdict{}, err
 	}
-	var lifecycle *model.ManifestLifecycle
-	if basePolicy.Lifecycle != nil {
-		copied := *basePolicy.Lifecycle
-		if override != "" {
-			copied.Tier = override
-		}
-		lifecycle = &copied
+	modelChanges, err := modelPolicyChanges(opts.ManifestPath, baseRev, opts.Head)
+	if err != nil {
+		return health.PolicyVerdict{}, err
 	}
-	verdict := health.PolicyVerdict{
-		Changes: health.PolicyWeakenings(health.PolicyFromManifest(basePolicy, override), health.PolicyOf(bundle)),
-		Level:   health.PolicyLevelOf(bundle, lifecycle),
+	changes := append(health.PolicyWeakenings(health.PolicyFromManifest(basePolicy, override), health.PolicyOf(bundle)), modelChanges...)
+	health.SortPolicyChanges(changes)
+	verdict := health.PolicyVerdict{Changes: changes, Level: health.PolicyLevelOf(bundle, baseLifecycle(basePolicy, override))}
+	if len(changes) > 0 {
+		verdict.Decision = recordingDecision(basePolicy, bundle)
 	}
-	if len(verdict.Changes) == 0 {
-		return verdict, nil
+	return verdict, nil
+}
+
+// baseLifecycle is the life-cycle block of the base, at the tier override of
+// the run when there is one; nil without a block.
+//
+// TRLC-LINKS: REQ-EMG-155
+func baseLifecycle(basePolicy model.HealthPolicy, override string) *model.ManifestLifecycle {
+	if basePolicy.Lifecycle == nil {
+		return nil
 	}
+	copied := *basePolicy.Lifecycle
+	if override != "" {
+		copied.Tier = override
+	}
+	return &copied
+}
+
+// recordingDecision is the accepted policyDecision of the head that the base
+// did not already name, or "".
+//
+// TRLC-LINKS: REQ-EMG-155
+func recordingDecision(basePolicy model.HealthPolicy, bundle model.Bundle) string {
 	named := ""
 	if basePolicy.Health != nil {
 		named = strings.TrimSpace(basePolicy.Health.PolicyDecision)
 	}
-	if decision := validate.AcceptedHealthPolicyDecision(bundle); decision != "" && decision != named {
-		verdict.Decision = decision
+	if decision := validate.AcceptedHealthPolicyDecision(bundle); decision != named {
+		return decision
 	}
-	return verdict, nil
+	return ""
 }
 
 // baseManifestPolicy reads the lifecycle and health blocks of the manifest at
@@ -197,6 +215,75 @@ func baseManifestPolicy(manifestPath, baseRev string) (model.HealthPolicy, error
 	policy, err := model.ParseHealthPolicy(source)
 	if err != nil {
 		return model.HealthPolicy{}, fmt.Errorf("%w: the manifest at the base revision: %v", ErrSetup, err)
+	}
+	return policy, nil
+}
+
+// modelPolicyChanges compares the model-level policy of the working tree (the
+// life-cycle bundles and tier decision, the strictness switches, the health
+// block, the POA&M defers, the tier and health decisions) and the health
+// baseline with the manifest and documents at the base revision, read with git.
+// With a head revision the head side is read at that revision, else from the
+// working tree. Without a base commit, or with a manifest that was not in it, there is
+// nothing to compare. A base that cannot be read is a setup error, never a
+// skipped comparison.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156
+func modelPolicyChanges(manifestPath, baseRev, headRev string) ([]health.PolicyChange, error) {
+	if baseRev == "" {
+		return nil, nil
+	}
+	abs, err := filepath.Abs(manifestPath)
+	if err != nil {
+		return nil, fmt.Errorf("%w: resolve the manifest: %v", ErrSetup, err)
+	}
+	repo := health.NewGitRepo(filepath.Dir(abs))
+	base, found, err := policyAtRevision(repo, baseRev, filepath.Base(abs))
+	if err != nil || !found {
+		return nil, err
+	}
+	head, err := policyToCheck(repo, headRev, abs)
+	if err != nil {
+		return nil, err
+	}
+	return health.ModelPolicyChanges(base, head), nil
+}
+
+// policyAtRevision reads the model policy at a revision; found is false when
+// the manifest was not in it.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156
+func policyAtRevision(repo health.GitRepo, rev, manifest string) (policy health.ModelPolicy, found bool, err error) {
+	source, err := repo.ShowFile(rev, manifest)
+	if errors.Is(err, health.ErrNotInRev) {
+		return health.ModelPolicy{}, false, nil
+	}
+	if err != nil {
+		return health.ModelPolicy{}, false, fmt.Errorf("%w: read the manifest at %s: %v", ErrSetup, rev, err)
+	}
+	policy, err = health.ParseModelPolicy(source, health.GitPolicyReader(repo, rev))
+	if err != nil {
+		return health.ModelPolicy{}, false, fmt.Errorf("%w: the model policy at %s: %v", ErrSetup, rev, err)
+	}
+	return policy, true, nil
+}
+
+// policyToCheck reads the model policy of the side that is checked: the
+// working tree, or the revision when there is one.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156
+func policyToCheck(repo health.GitRepo, headRev, manifestAbs string) (health.ModelPolicy, error) {
+	if headRev != "" {
+		policy, _, err := policyAtRevision(repo, headRev, filepath.Base(manifestAbs))
+		return policy, err
+	}
+	source, err := health.ReadWorkTreeFile(manifestAbs)
+	if err != nil {
+		return health.ModelPolicy{}, fmt.Errorf("%w: read the manifest to check: %v", ErrSetup, err)
+	}
+	policy, err := health.ParseModelPolicy(source, health.WorkTreePolicyReader(repo.Dir))
+	if err != nil {
+		return health.ModelPolicy{}, fmt.Errorf("%w: the model policy of the working tree: %v", ErrSetup, err)
 	}
 	return policy, nil
 }

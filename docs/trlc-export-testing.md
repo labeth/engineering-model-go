@@ -6,6 +6,7 @@ This repo can generate TRLC requirement files from `model/requirements.yml`.
 
 ```bash
 go run ./cmd/engtrlc \
+  --model examples/payments-engineering-sample/engmod.yml \
   --requirements examples/payments-engineering-sample/model/requirements.yml \
   --out-dir examples/payments-engineering-sample/generated/trlc \
   --package PaymentsRequirements
@@ -42,6 +43,7 @@ The root package is generated with:
 
 ```bash
 go run ./cmd/engtrlc \
+  --model engmod.yml \
   --requirements model/requirements.yml \
   --out-dir generated/trlc \
   --package EngineeringModelRequirements

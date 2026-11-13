@@ -5,9 +5,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
+	"sort"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -57,9 +63,9 @@ func TestCompleteBundleHasNoErrors(t *testing.T) {
 	if got := errorCodes(Bundle(completeBundle(t))); len(got) != 0 {
 		t.Fatalf("complete mvp bundle has errors %v", got)
 	}
-	for _, tier := range model.Tiers {
+	for _, tier := range []string{"poc", "prototype", "mvp", "product", "operational"} {
 		b := completeBundleAt(tier)
-		if model.TierRank(tier) < model.TierRank(model.TierMVP) {
+		if tier == "poc" || tier == "prototype" {
 			b.Manifest.RequirementLinks = model.RequirementLinksGuided
 		}
 		if got := errorCodes(ApplyTierPolicy(b, Bundle(b))); len(got) != 0 {
@@ -108,7 +114,7 @@ var requiredCases = []requiredCase{
 			*b = completeBundleAt(model.TierProduct)
 			b.Manifest.Health = nil
 		}},
-	{"schemaVersion 0", "model.unsupported_schema_version", "engflow upgrade (engineering-flow) or set schemaVersion: 2", "requirements.schemaVersion",
+	{"schemaVersion 0", "model.unsupported_schema_version", "set schemaVersion: 2 at the top of the file", "requirements.schemaVersion",
 		func(b *model.Bundle) { b.Requirements.SchemaVersion = 0 }},
 	{"schemaVersion 1", "model.unsupported_schema_version", "schemaVersion: 2", "design.schemaVersion",
 		func(b *model.Bundle) { b.Design.SchemaVersion = 1 }},
@@ -116,42 +122,180 @@ var requiredCases = []requiredCase{
 		func(b *model.Bundle) { b.Architecture.Model.ID = "" }},
 }
 
+// literalRemedies pins the remedy text of every required switch code. They
+// are literals on purpose: comparing with remedyFor would pass for any text,
+// and these are the words users act on.
+var literalRemedies = map[string]string{
+	"lifecycle.missing":                    "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}",
+	"lifecycle.invalid_tier":               "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}",
+	"lifecycle.bundles_missing":            "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}",
+	"lifecycle.invalid_bundle":             "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}",
+	"lifecycle.tier_decision_missing":      "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}",
+	"lifecycle.tier_decision_mismatch":     "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}",
+	"model.requirement_links_missing":      "run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp)",
+	"model.invalid_requirement_links":      "run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp)",
+	"lifecycle.requirement_links_conflict": "run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp)",
+	"lint.mode_missing":                    "run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp)",
+	"lint.mode_invalid":                    "run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp)",
+	"lint.mode_guided_at_tier":             "run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp)",
+	"health.block_missing":                 "run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write",
+	"model.unsupported_schema_version":     "set schemaVersion: 2 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)",
+	"model.id_missing":                     "set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM)",
+}
+
+// codeShape is a diagnostic code literal: family.name.
+var codeShape = regexp.MustCompile(`^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$`)
+
+// notRequiredSwitches are codes the two required-switch emitters report that
+// are no required switch: tier-keyed warnings and the POA&M checks. Every
+// other code those files emit must be in the remedy table.
+var notRequiredSwitches = map[string]bool{
+	"lifecycle.requirement_unapproved": true, "lifecycle.requirement_unverified": true,
+	"lifecycle.aviation_profile_missing": true, "lifecycle.software_level_missing": true,
+	"lifecycle.poam_defers_core": true, "lifecycle.poam_overdue": true, "lifecycle.poam_defers_unused": true,
+}
+
+// emittedBy parses a Go source file of this package and returns the
+// diagnostic code literals it emits: the first argument of the add helper and
+// the Code field of a Diagnostic literal.
+func emittedBy(t *testing.T, file string) map[string]bool {
+	t.Helper()
+	parsed, err := parser.ParseFile(token.NewFileSet(), file, nil, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	codes := map[string]bool{}
+	ast.Inspect(parsed, func(n ast.Node) bool {
+		if e := emittedCodeExpr(n); e != nil {
+			takeCode(codes, e)
+		}
+		return true
+	})
+	return codes
+}
+
+// emittedCodeExpr returns the expression holding a diagnostic code when the
+// node is a call of the add helper (its first argument) or the Code field of
+// a literal, and nil otherwise.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func emittedCodeExpr(n ast.Node) ast.Expr {
+	switch x := n.(type) {
+	case *ast.CallExpr:
+		if isIdentNamed(x.Fun, "add") && len(x.Args) > 0 {
+			return x.Args[0]
+		}
+	case *ast.KeyValueExpr:
+		if isIdentNamed(x.Key, "Code") {
+			return x.Value
+		}
+	}
+	return nil
+}
+
+// isIdentNamed reports whether an expression is the identifier name.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func isIdentNamed(e ast.Expr, name string) bool {
+	id, ok := e.(*ast.Ident)
+	return ok && id.Name == name
+}
+
+// takeCode records a string literal that has the shape of a diagnostic code.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func takeCode(codes map[string]bool, e ast.Expr) {
+	lit, ok := e.(*ast.BasicLit)
+	if !ok || lit.Kind != token.STRING {
+		return
+	}
+	if v, err := strconv.Unquote(lit.Value); err == nil && codeShape.MatchString(v) {
+		codes[v] = true
+	}
+}
+
 // TestRequiredSwitchesHaveRemedies is the inventory of required switches
 // (ADR-EMG-061): each row removes one switch from a complete model and
-// expects its code, an error that no tier changes, and the remedy text.
-// Every code of the remedy table has a row and every row's code has a
-// remedy, so adding a required code without a remedy fails here.
-// Mutation: dropping a remedy from requiredSwitches, or a code from the
-// rows, fails the inventory comparison.
+// expects its code, an error that no tier changes, and the remedy text,
+// pinned literally. The codes are derived from the emitters' source: every
+// code lifecycle.go and required_switches.go can emit is either in the remedy
+// table or listed as not a required switch, and every table code has a row
+// and a pinned remedy, so adding a required code without a remedy fails here.
+// Mutation: dropping a remedy from requiredSwitches, a code from the rows, or
+// adding an emitted code to neither list fails the comparison.
 // TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
 func TestRequiredSwitchesHaveRemedies(t *testing.T) {
 	rowCodes := map[string]bool{}
 	for _, c := range requiredCases {
 		rowCodes[c.code] = true
-		b := completeBundle(t)
-		c.edit(&b)
-		got := codesOf(ApplyTierPolicy(b, Bundle(b)), c.code)
-		if len(got) == 0 {
-			t.Errorf("%s: %s not reported", c.name, c.code)
-			continue
-		}
-		d := got[0]
-		if d.Severity != SeverityError || d.Deferred || d.PoamRef != "" {
-			t.Errorf("%s: %s must be an undeferred error, got %+v", c.name, c.code, d)
-		}
-		if d.Path != c.path {
-			t.Errorf("%s: path %q, want %q", c.name, d.Path, c.path)
-		}
-		if !strings.Contains(d.Remedy, c.remedy) {
-			t.Errorf("%s: remedy %q lacks %q", c.name, d.Remedy, c.remedy)
-		}
-		if d.Remedy != remedyFor(c.code) || d.Remedy == "" {
-			t.Errorf("%s: remedy %q differs from the table %q", c.name, d.Remedy, remedyFor(c.code))
-		}
-		if !IsCoreCode(c.code) || TierKeyed(c.code) {
-			t.Errorf("%s: %s must be a rank-0 core code and not tier keyed", c.name, c.code)
-		}
+		t.Run(c.name, func(t *testing.T) { assertRequiredCase(t, c) })
 	}
+	tableCodes := assertRemedyTable(t, rowCodes)
+	assertInventoryCodesHaveRemedies(t, rowCodes, tableCodes)
+	assertPinnedRemedies(t, tableCodes)
+	emitted := requiredSourceCodes(t)
+	assertEmittedCodesAreListed(t, emitted, tableCodes)
+	assertSourceScanFindsKnownCodes(t, emitted)
+	assertNotRequiredSwitchesAreNotInTheTable(t, tableCodes)
+	if remedyFor("requirement.orphan") != "" {
+		t.Error("a code outside the table must have no remedy")
+	}
+}
+
+// assertRequiredCase checks that the row's edit reports its code at its path
+// as an undeferred rank-0 error with the remedy.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertRequiredCase(t *testing.T, c requiredCase) {
+	t.Helper()
+	b := completeBundle(t)
+	c.edit(&b)
+	got := codesOf(ApplyTierPolicy(b, Bundle(b)), c.code)
+	if len(got) == 0 {
+		t.Errorf("%s: %s not reported", c.name, c.code)
+		return
+	}
+	d := got[0]
+	assertUndeferredError(t, c, d)
+	if d.Path != c.path {
+		t.Errorf("%s: path %q, want %q", c.name, d.Path, c.path)
+	}
+	assertRequiredRemedy(t, c, d)
+	assertRankZeroCode(t, c)
+}
+
+// assertUndeferredError checks that a diagnostic is an undeferred error.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertUndeferredError(t *testing.T, c requiredCase, d Diagnostic) {
+	t.Helper()
+	if d.Severity != SeverityError || d.Deferred || d.PoamRef != "" {
+		t.Errorf("%s: %s must be an undeferred error, got %+v", c.name, c.code, d)
+	}
+}
+
+// assertRequiredRemedy checks the remedy of a row: the substring of the row
+// and the pinned literal.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertRequiredRemedy(t *testing.T, c requiredCase, d Diagnostic) {
+	t.Helper()
+	if !strings.Contains(d.Remedy, c.remedy) {
+		t.Errorf("%s: remedy %q lacks %q", c.name, d.Remedy, c.remedy)
+	}
+	if want := literalRemedies[c.code]; want == "" || d.Remedy != want {
+		t.Errorf("%s: remedy %q, want the pinned %q", c.name, d.Remedy, want)
+	}
+}
+
+// assertRankZeroCode checks that the code of a row is core and not tier keyed.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertRankZeroCode(t *testing.T, c requiredCase) {
+	t.Helper()
+	if !IsCoreCode(c.code) || TierKeyed(c.code) {
+		t.Errorf("%s: %s must be a rank-0 core code and not tier keyed", c.name, c.code)
+	}
+}
+
+// assertRemedyTable checks every required switch of the remedy table against
+// the inventory rows and the pinned remedies, and returns the table's codes.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertRemedyTable(t *testing.T, rowCodes map[string]bool) map[string]bool {
+	t.Helper()
 	tableCodes := map[string]bool{}
 	for _, s := range RequiredSwitches() {
 		tableCodes[s.Code] = true
@@ -161,41 +305,177 @@ func TestRequiredSwitchesHaveRemedies(t *testing.T) {
 		if !rowCodes[s.Code] {
 			t.Errorf("remedy table code %s has no inventory row", s.Code)
 		}
+		if s.Remedy != literalRemedies[s.Code] {
+			t.Errorf("table remedy of %s is %q, pinned %q", s.Code, s.Remedy, literalRemedies[s.Code])
+		}
 	}
+	return tableCodes
+}
+
+// assertInventoryCodesHaveRemedies checks that every inventory code is in the
+// remedy table.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertInventoryCodesHaveRemedies(t *testing.T, rowCodes, tableCodes map[string]bool) {
+	t.Helper()
 	for code := range rowCodes {
 		if !tableCodes[code] {
 			t.Errorf("inventory code %s has no remedy in the table", code)
 		}
 	}
-	if remedyFor("requirement.orphan") != "" {
-		t.Error("a code outside the table must have no remedy")
+}
+
+// assertPinnedRemedies checks that there is one pinned remedy per table code
+// and that none names a command that does not exist.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertPinnedRemedies(t *testing.T, tableCodes map[string]bool) {
+	t.Helper()
+	if len(literalRemedies) != len(tableCodes) {
+		t.Errorf("%d pinned remedies for %d table codes", len(literalRemedies), len(tableCodes))
+	}
+	for _, text := range literalRemedies {
+		if strings.Contains(text, "engflow upgrade") || strings.Contains(text, "run engflow") {
+			t.Errorf("remedy names a command that does not exist: %q", text)
+		}
+	}
+}
+
+// requiredSourceCodes returns the codes the emitters can report, read from their
+// source.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func requiredSourceCodes(t *testing.T) map[string]bool {
+	t.Helper()
+	emitted := map[string]bool{}
+	for _, file := range []string{"required_switches.go", "lifecycle.go"} {
+		for code := range emittedBy(t, file) {
+			emitted[code] = true
+		}
+	}
+	return emitted
+}
+
+// assertEmittedCodesAreListed checks that every emitted code has a remedy or
+// a not-a-switch entry.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertEmittedCodesAreListed(t *testing.T, emitted, tableCodes map[string]bool) {
+	t.Helper()
+	var unlisted []string
+	for code := range emitted {
+		if !tableCodes[code] && !notRequiredSwitches[code] {
+			unlisted = append(unlisted, code)
+		}
+	}
+	sort.Strings(unlisted)
+	if len(unlisted) > 0 {
+		t.Errorf("emitted codes with neither a remedy nor a not-a-switch entry: %v", unlisted)
+	}
+}
+
+// assertSourceScanFindsKnownCodes checks that the source scan finds codes
+// known to be emitted: a broken scan would pass the comparison vacuously.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertSourceScanFindsKnownCodes(t *testing.T, emitted map[string]bool) {
+	t.Helper()
+	for _, code := range []string{"lifecycle.missing", "lifecycle.tier_decision_mismatch", "health.block_missing", "model.id_missing", "lint.mode_guided_at_tier", "lifecycle.poam_defers_core", "lifecycle.poam_overdue"} {
+		if !emitted[code] {
+			t.Errorf("source scan did not find %s: the scan is broken", code)
+		}
+	}
+}
+
+// assertNotRequiredSwitchesAreNotInTheTable checks that no code is both a
+// required switch and listed as not one.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
+func assertNotRequiredSwitchesAreNotInTheTable(t *testing.T, tableCodes map[string]bool) {
+	t.Helper()
+	for code := range notRequiredSwitches {
+		if tableCodes[code] {
+			t.Errorf("%s is listed as both a required switch and not one", code)
+		}
 	}
 }
 
 // Each required code is rank 0 end to end: an open POA&M item at the
 // project tier cannot defer it, lifecycle.raise changes nothing, and the
-// POA&M that names it is itself an error.
+// POA&M that names it is itself an error. A control entry for a deferrable
+// code in the same item proves the item is honoured, so the refusal is the
+// code's and not the item's. A model without lifecycle (lifecycle.missing)
+// still reports the defer: the POA&M check does not depend on the block.
 // TRLC-LINKS: REQ-EMG-125, REQ-EMG-129
 func TestRequiredSwitchesCannotBeDeferred(t *testing.T) {
 	for _, c := range requiredCases {
-		b := completeBundle(t)
-		c.edit(&b)
-		if b.Manifest.Lifecycle == nil {
-			b.Manifest.Lifecycle = &model.ManifestLifecycle{Tier: "mvp", Bundles: []string{"foundation"}}
-		}
-		tier := strings.ToLower(b.Manifest.Lifecycle.Tier)
-		if model.TierRank(tier) == 0 {
-			tier = "mvp"
-		}
-		b.Architecture.AuthoredArchitecture.POAMItems = []model.POAMItem{{ID: "POAM-X", Milestone: "tier:" + tier, Status: "in-progress", Defers: []model.POAMDefer{{Code: c.code}}}}
-		in := []Diagnostic{{Code: c.code, Severity: SeverityError, Path: c.path}}
-		out := ApplyTierPolicy(b, in)
-		if out[0].Severity != SeverityError || out[0].Deferred || out[0].PoamRef != "" {
-			t.Errorf("%s: %s was changed by the tier policy: %+v", c.name, c.code, out[0])
-		}
-		if got := codesOf(Bundle(b), "lifecycle.poam_defers_core"); len(got) != 1 {
-			t.Errorf("%s: a defer naming %s must be lifecycle.poam_defers_core, got %+v", c.name, c.code, got)
-		}
+		t.Run(c.name, func(t *testing.T) { assertRequiredCodeCannotBeDeferred(t, c) })
+	}
+}
+
+// deferringBundle is the row's model with a POA&M item that defers the row's
+// code and a control code, at the model's own tier (even the unknown one: the
+// most adversarial item for that row), and lifecycle.raise naming the code.
+// TRLC-LINKS: REQ-EMG-125, REQ-EMG-129
+func deferringBundle(t *testing.T, c requiredCase) model.Bundle {
+	t.Helper()
+	b := completeBundle(t)
+	c.edit(&b)
+	tier := "mvp"
+	if lc := b.Manifest.Lifecycle; lc != nil {
+		tier = strings.ToLower(lc.Tier)
+		lc.Raise = []string{c.code}
+	}
+	b.Architecture.AuthoredArchitecture.POAMItems = []model.POAMItem{{ID: "POAM-X", Milestone: "tier:" + tier, Status: "in-progress",
+		Defers: []model.POAMDefer{{Code: c.code}, {Code: "requirement.orphan"}}}}
+	return b
+}
+
+// assertRequiredCodeCannotBeDeferred checks that the tier policy leaves the
+// row's code alone, honours the control defer and reports the defers entry.
+// TRLC-LINKS: REQ-EMG-125, REQ-EMG-129
+func assertRequiredCodeCannotBeDeferred(t *testing.T, c requiredCase) {
+	t.Helper()
+	b := deferringBundle(t, c)
+	in := []Diagnostic{
+		{Code: c.code, Severity: SeverityError, Path: c.path},
+		{Code: "requirement.orphan", Severity: SeverityWarning, Path: "requirements[0]"},
+	}
+	out := ApplyTierPolicy(b, in)
+	if out[0].Severity != SeverityError || out[0].Deferred || out[0].PoamRef != "" {
+		t.Errorf("%s: %s was changed by the tier policy: %+v", c.name, c.code, out[0])
+	}
+	_, _, hasTier := EffectiveTier(b)
+	assertControlDefer(t, hasTier, out[1])
+	if got := codesOf(Bundle(b), "lifecycle.poam_defers_core"); len(got) != 1 {
+		t.Errorf("%s: a defer naming %s must be lifecycle.poam_defers_core, got %+v", c.name, c.code, got)
+	}
+}
+
+// assertControlDefer checks the control diagnostic: deferred by the item when
+// the model has a valid tier, untouched when it has none.
+// TRLC-LINKS: REQ-EMG-125, REQ-EMG-129
+func assertControlDefer(t *testing.T, hasTier bool, control Diagnostic) {
+	t.Helper()
+	honoured := control.Deferred && control.PoamRef == "POAM-X"
+	applied := control.Deferred || control.PoamRef != ""
+	if hasTier && !honoured {
+		t.Errorf("the control defer was not honoured, so the test proves nothing: %+v", control)
+	}
+	if !hasTier && applied {
+		t.Errorf("without a valid tier no defer may apply: %+v", control)
+	}
+}
+
+// A defer of lifecycle.missing is reported even though the model has no
+// lifecycle block (the POA&M loop runs before the nil lifecycle return).
+// Mutation: returning early on a nil lifecycle before the POA&M loop leaves
+// only lifecycle.missing.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-129
+func TestPoamDefersCoreIsReportedWithoutLifecycle(t *testing.T) {
+	b := completeBundle(t)
+	b.Manifest.Lifecycle = nil
+	b.Architecture.AuthoredArchitecture.POAMItems = []model.POAMItem{{ID: "POAM-X", Milestone: "tier:mvp", Status: "open", Defers: []model.POAMDefer{{Code: "lifecycle.missing"}}}}
+	diags := Bundle(b)
+	if got := codesOf(diags, "lifecycle.poam_defers_core"); len(got) != 1 || got[0].Severity != SeverityError {
+		t.Fatalf("poam_defers_core = %+v", got)
+	}
+	if got := codesOf(diags, "lifecycle.missing"); len(got) != 1 {
+		t.Fatalf("lifecycle.missing = %+v", got)
 	}
 }
 
@@ -235,32 +515,35 @@ func TestTierDecisionNeedsABundlesLine(t *testing.T) {
 }
 
 // The health block is required at product and operational and nowhere
-// below; an empty block satisfies it.
+// below; an empty block satisfies it. The expectation is a literal table.
 // TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
 func TestHealthBlockRequiredFromProduct(t *testing.T) {
-	for _, tier := range model.Tiers {
+	want := map[string]bool{"poc": false, "prototype": false, "mvp": false, "product": true, "operational": true}
+	for tier, required := range want {
 		b := completeBundleAt(tier)
 		b.Manifest.Health = nil
-		want := model.TierRank(tier) >= model.TierRank(model.TierProduct)
-		got := len(codesOf(Bundle(b), "health.block_missing")) == 1
-		if got != want {
-			t.Errorf("%s without health block: reported=%v, want %v", tier, got, want)
+		if got := len(codesOf(Bundle(b), "health.block_missing")) == 1; got != required {
+			t.Errorf("%s without health block: reported=%v, want %v", tier, got, required)
 		}
 		b.Manifest.Health = &model.ManifestHealth{}
 		if len(codesOf(Bundle(b), "health.block_missing")) != 0 {
 			t.Errorf("%s with an empty health block still reports health.block_missing", tier)
 		}
 	}
+	if len(want) != len(model.Tiers) {
+		t.Errorf("the table covers %d tiers, the model has %d", len(want), len(model.Tiers))
+	}
 }
 
-// lintRun.mode guided is allowed below mvp and an error from mvp; strict
-// is accepted everywhere and an unknown mode is lint.mode_invalid.
+// lintRun.mode guided is allowed at poc and prototype and an error at mvp,
+// product and operational; strict is accepted everywhere (any case, padded)
+// and an unknown mode is lint.mode_invalid. The expectation is a literal.
 // TRLC-LINKS: REQ-EMG-124, REQ-EMG-125
 func TestLintModeByTier(t *testing.T) {
-	for _, tier := range model.Tiers {
+	rejected := map[string]bool{"poc": false, "prototype": false, "mvp": true, "product": true, "operational": true}
+	for tier, want := range rejected {
 		b := completeBundleAt(tier)
 		b.Requirements.LintRun.Mode = "Guided"
-		want := model.TierRank(tier) >= model.TierRank(model.TierMVP)
 		if got := len(codesOf(Bundle(b), "lint.mode_guided_at_tier")) == 1; got != want {
 			t.Errorf("guided at %s: reported=%v, want %v", tier, got, want)
 		}
@@ -268,29 +551,63 @@ func TestLintModeByTier(t *testing.T) {
 		if got := Bundle(b); len(codesOf(got, "lint.mode_guided_at_tier"))+len(codesOf(got, "lint.mode_invalid"))+len(codesOf(got, "lint.mode_missing")) != 0 {
 			t.Errorf("strict at %s reported a lint mode error", tier)
 		}
+		b.Requirements.LintRun.Mode = "lenient"
+		if len(codesOf(Bundle(b), "lint.mode_invalid")) != 1 {
+			t.Errorf("unknown mode at %s is not lint.mode_invalid", tier)
+		}
+	}
+	if len(rejected) != len(model.Tiers) {
+		t.Errorf("the table covers %d tiers, the model has %d", len(rejected), len(model.Tiers))
 	}
 }
 
-// requirementLinks may be strict or guided at poc and prototype, must be
-// strict from mvp, and empty is model.requirement_links_missing at every
-// tier; the schema-version error carries the upgrade remedy in its text.
+// requirementLinks guided is rejected (lifecycle.requirement_links_conflict)
+// at mvp, product and operational and allowed at poc and prototype, in any
+// case and padding; an empty value is model.requirement_links_missing at
+// every tier. The schema-version error carries the manual fix and names no
+// command that does not exist. The expectations are literals.
 // TRLC-LINKS: REQ-EMG-124, REQ-EMG-127
 func TestRequirementLinksRequiredAtEveryTier(t *testing.T) {
-	for _, tier := range model.Tiers {
-		b := completeBundleAt(tier)
-		b.Manifest.RequirementLinks = ""
-		if len(codesOf(Bundle(b), "model.requirement_links_missing")) != 1 {
-			t.Errorf("%s: empty requirementLinks not reported", tier)
-		}
-		b.Manifest.RequirementLinks = "guided"
-		below := model.TierRank(tier) < model.TierRank(model.TierMVP)
-		if got := len(codesOf(Bundle(b), "lifecycle.requirement_links_conflict")) == 0; got != below {
-			t.Errorf("guided at %s: allowed=%v, want %v", tier, got, below)
+	conflict := map[string]bool{"poc": false, "prototype": false, "mvp": true, "product": true, "operational": true}
+	for tier, want := range conflict {
+		t.Run(tier, func(t *testing.T) { assertRequirementLinksAtTier(t, tier, want) })
+	}
+	if len(conflict) != len(model.Tiers) {
+		t.Errorf("the table covers %d tiers, the model has %d", len(conflict), len(model.Tiers))
+	}
+	assertSchemaVersionErrorCarriesTheFix(t)
+}
+
+// assertRequirementLinksAtTier checks the requirementLinks rules at a tier:
+// empty is missing, guided conflicts when want, strict never conflicts.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-127
+func assertRequirementLinksAtTier(t *testing.T, tier string, want bool) {
+	t.Helper()
+	b := completeBundleAt(tier)
+	b.Manifest.RequirementLinks = ""
+	if len(codesOf(Bundle(b), "model.requirement_links_missing")) != 1 {
+		t.Errorf("%s: empty requirementLinks not reported", tier)
+	}
+	for _, guided := range []string{"guided", " Guided "} {
+		b.Manifest.RequirementLinks = guided
+		if got := len(codesOf(Bundle(b), "lifecycle.requirement_links_conflict")) == 1; got != want {
+			t.Errorf("%q at %s: conflict=%v, want %v", guided, tier, got, want)
 		}
 	}
+	b.Manifest.RequirementLinks = "strict"
+	if len(codesOf(Bundle(b), "lifecycle.requirement_links_conflict")) != 0 {
+		t.Errorf("strict at %s reported a conflict", tier)
+	}
+}
+
+// assertSchemaVersionErrorCarriesTheFix checks that the schema-version error
+// carries the manual fix and names no command that does not exist.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-127
+func assertSchemaVersionErrorCarriesTheFix(t *testing.T) {
+	t.Helper()
 	_, err := model.EffectiveSchemaVersion(1)
 	var versionErr *model.SchemaVersionError
-	if !errors.As(err, &versionErr) || !strings.Contains(err.Error(), "fix: "+model.SchemaVersionRemedy) {
+	if !errors.As(err, &versionErr) || !strings.Contains(err.Error(), "fix: set schemaVersion: 2") || strings.Contains(err.Error(), "run engflow") {
 		t.Fatalf("schema version error = %v", err)
 	}
 }

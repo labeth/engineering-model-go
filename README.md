@@ -675,13 +675,13 @@ projection.
 Generate TRLC requirements package:
 
 ```bash
-go run ./cmd/engtrlc --requirements examples/payments-engineering-sample/model/requirements.yml --out-dir examples/payments-engineering-sample/generated/trlc --package PaymentsRequirements
+go run ./cmd/engtrlc --model examples/payments-engineering-sample/engmod.yml --requirements examples/payments-engineering-sample/model/requirements.yml --out-dir examples/payments-engineering-sample/generated/trlc --package PaymentsRequirements
 ```
 
 Generate LOBSTER activity trace from tests:
 
 ```bash
-go run ./cmd/englobster --tests-dir examples/payments-engineering-sample/tests --requirements-package PaymentsRequirements --activity-namespace tests --out examples/payments-engineering-sample/generated/lobster/activities.lobster
+go run ./cmd/englobster --model examples/payments-engineering-sample/engmod.yml --tests-dir examples/payments-engineering-sample/tests --requirements-package PaymentsRequirements --activity-namespace tests --out examples/payments-engineering-sample/generated/lobster/activities.lobster
 ```
 
 Regenerate all maintained examples with `scripts/generate-examples.sh`.
@@ -841,7 +841,7 @@ model and report it; `ValidateBundle` and every CLI error. `rules.required` of t
 | lintRun.mode (value) | `lint.mode_invalid` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
 | lintRun.mode guided at mvp or above | `lint.mode_guided_at_tier` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
 | engmod.yml health block (tier product and operational) | `health.block_missing` | run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write |
-| schemaVersion 2 in every document | `model.unsupported_schema_version` | run engflow upgrade (engineering-flow) or set schemaVersion: 2 |
+| schemaVersion 2 in every document | `model.unsupported_schema_version` | set schemaVersion: 2 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet) |
 | module.modelId | `model.id_missing` | set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM) |
 
 The tier decision named by `lifecycle.tierDecision` must be accepted and carry a `Tier:` line and a
@@ -849,7 +849,7 @@ The tier decision named by `lifecycle.tierDecision` must be accepted and carry a
 
 ## Life-cycle tier
 
-A module may declare its life-cycle tier in `engmod.yml` (v0.10.0, ADR-EMG-031). The tier is the
+A module declares its life-cycle tier in `engmod.yml` (required since v0.11.0, ADR-EMG-031, ADR-EMG-061). The tier is the
 bar for the default branch and every release; work below it happens only in experiments, which the
 engine does not model.
 

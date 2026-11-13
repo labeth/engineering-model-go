@@ -125,6 +125,7 @@ func TestEngdocCLI_EndToEnd(t *testing.T) {
 		"--requirements", requirementsPath,
 		"--design", designPath,
 	)
+	cmd.Env = os.Environ() // includes the test's ENGMOD_AS_OF
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("engdoc cli failed: %v\noutput:\n%s", err, string(out))
@@ -140,9 +141,9 @@ func TestEngdocCLI_EndToEnd(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestEngdocCLI_DecisionsOut(t *testing.T) {
-	modelPath := "engmod.yml"
-	requirementsPath := filepath.Join("model", "requirements.yml")
-	designPath := filepath.Join("model", "views.yml")
+	modelPath := testutil.AcceptedRepoModel(t)
+	requirementsPath := filepath.Join(filepath.Dir(modelPath), "model", "requirements.yml")
+	designPath := filepath.Join(filepath.Dir(modelPath), "model", "views.yml")
 	outDir := t.TempDir()
 	mainOut := filepath.Join(outDir, "ARCHITECTURE.adoc")
 	decisionsOut := filepath.Join(outDir, "DECISIONS.adoc")
@@ -154,6 +155,7 @@ func TestEngdocCLI_DecisionsOut(t *testing.T) {
 		"--out", mainOut,
 		"--decisions-out", decisionsOut,
 	)
+	cmd.Env = os.Environ() // includes the test's ENGMOD_AS_OF
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("engdoc cli failed: %v\noutput:\n%s", err, string(out))

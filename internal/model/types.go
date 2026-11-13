@@ -478,11 +478,14 @@ type POAMItem struct {
 }
 
 // POAMDefer is one diagnostic a POA&M item defers: its code and, when set,
-// the diagnostic path it is limited to.
+// the diagnostic path it is limited to (positional, so it goes stale when
+// requirements are inserted) or the ID of the requirement it is limited to
+// (Ref, resolved to the requirement's current path by the validator).
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type POAMDefer struct {
 	Code string `yaml:"code"`
 	Path string `yaml:"path,omitempty"`
+	Ref  string `yaml:"ref,omitempty"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
