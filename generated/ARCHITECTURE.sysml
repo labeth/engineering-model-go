@@ -470,6 +470,24 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-067';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-068";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-068';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-069";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-069';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-070";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-070';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -3188,7 +3206,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-035' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall normalize architecture model plus requirements document into canonical semantic model.";
-        attribute 'notes' : 'String' = "The canonical semantic model is SysML v2 and KerML aligned. Existing Engineering Model concepts map into that model once; legacy YAML remains an input adapter during migration and must not create a parallel set of parts, interfaces, flows, requirements, allocations, or views.";
+        attribute 'notes' : 'String' = "The canonical semantic model is SysML v2 and KerML aligned. Existing Engineering Model concepts map into that model once; the authored YAML is the single input and no legacy adapter exists (ADR-EMG-061); it must not create a parallel set of parts, interfaces, flows, requirements, allocations, or views.";
     }
 
     @EngineeringElement {
@@ -4196,7 +4214,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-153' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.";
-        attribute 'notes' : 'String' = "ADR-EMG-051. The health block is optional and opt-in. exclude uses the dialect of inferenceHints.exclude (path.Match per segment, only a trailing /**), not gitignore semantics. thresholds name known codes with warn and high values that are ordered; overrides apply thresholds by path; a waiver is {code, path, function, decision}. Unknown keys and malformed shapes are rejected by the CUE contract and the loader; unknown codes, unordered thresholds and exclude patterns outside the dialect are the errors model.invalid_health_exclude, model.invalid_health_threshold, model.invalid_health_override and model.invalid_health_waiver of validation, each naming the field.";
+        attribute 'notes' : 'String' = "ADR-EMG-051. The health block is optional below product and required at product and operational (REQ-EMG-165). exclude uses the dialect of inferenceHints.exclude (path.Match per segment, only a trailing /**), not gitignore semantics. thresholds name known codes with warn and high values that are ordered; overrides apply thresholds by path; a waiver is {code, path, function, decision}. Unknown keys and malformed shapes are rejected by the CUE contract and the loader; unknown codes, unordered thresholds and exclude patterns outside the dialect are the errors model.invalid_health_exclude, model.invalid_health_threshold, model.invalid_health_override and model.invalid_health_waiver of validation, each naming the field.";
     }
 
     @EngineeringElement {
@@ -4258,8 +4276,8 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-160' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block.";
-        attribute 'notes' : 'String' = "ADR-EMG-046 and ADR-EMG-052. Code health is opt-in through the manifest health block (ADR-EMG-061 makes the block required at product and operational for new releases). Without the block, validation reports no health.* diagnostic and every generated document is unchanged; the tier policy table and the authoring contract are the same for every model, so they gain the health rows and the health section (authoring contract v5) whether or not a block exists.";
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block at the tiers below product.";
+        attribute 'notes' : 'String' = "ADR-EMG-046 and ADR-EMG-052, narrowed by ADR-EMG-066. Code health is opt-in through the manifest health block below product; at product and operational the block is required (REQ-EMG-165) and its absence is the error health.block_missing. Below product and without the block, validation reports no health.* diagnostic and the generated documents carry no health section; the tier policy table and the authoring contract are the same for every model.";
     }
 
     @EngineeringElement {
@@ -4313,7 +4331,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-166' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.";
-        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. The loader error and the diagnostic both carry the remedy: run engflow upgrade or set schemaVersion 2. The CUE constant fills a missing field in, so a missing version is caught in Go on the decoded document.";
+        attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. The loader error and the diagnostic both carry the remedy: set schemaVersion 2 at the top of the file (an upgrade command is planned in engineering-flow and is not named until it exists). The loader checks schemaVersion in Go before the CUE contract for every document type, so a missing version and a version other than 2 get the remedy, not a CUE conflict message.";
     }
 
     @EngineeringElement {
