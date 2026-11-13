@@ -2081,3 +2081,25 @@ decisions:
   - The consistency effort starts with the cheap checks of ADR-EMG-069; state discovery is the last of them and its error level stays provisional.
   - The real finding of the spike, that reqlinks.State has six values against five model states, is recorded for the maintainers to model or to mark.
   - Implicit state (strings, flags, fingerprints) stays invisible to the pass; the formal machines and generated conformance tests cover behavior, the static checks cover shape only.
+- id: DEC-CODE-EXEMPT-MODEL-ONLY
+  title: Eight machine elements are model-only and have no code site, so they are exempt from element to code coverage
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    The element to code coverage checks of ADR-EMG-069 (code.state_unlinked, code.transition_unlinked) found eight machine
+    elements for which no code in this repository implements them. The implementing agent looked for a code site for each and
+    found none. The machines describe the lifecycle of an artifact, a link or a delta over time, and these elements are the
+    parts of that lifecycle that happen outside the code. Taken by the implementing agent under the owner's instruction to take
+    recommended decisions. OWNER items: whether these eight stay exempt or the machines are simplified.
+  decision: |-
+    The elements STATE-ARTIFACTS-REGENERATING (a transient state while a run is in progress; nothing holds it), STATE-LINK-ABSENT
+    (the absence of a link; nothing represents it), STATE-DELTA-NONE (the absence of a delta), TR-ARTIFACTS-GO-STALE (an author edits
+    the model; no code performs it), TR-LINK-REMOVE (the author deletes the link in the model file), TR-DELTA-SUPERSEDE and
+    TR-DELTA-RECEIVE-AFTER-APPLY (each run recomputes from the files, so no code distinguishes the source state) and
+    TR-DELTA-SETTLE (the model update is external and the process just ends) are listed in codeCoverage.exempt of engmod.yml with
+    this decision. Every other element of the five machines has a code site that carries its identifier. The exemption is by
+    element, not by machine, so a new state or transition of the same machines is still asked for code.
+  consequences:
+  - The coverage check stays at error level at operational for every other element of these machines.
+  - If a later change adds code that implements one of the eight, code.exemption_unused makes the exemption an error until it is removed.
+  - A reviewer reads one decision to see every element that is deliberately not implemented.

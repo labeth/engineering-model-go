@@ -13,3 +13,14 @@ func (a AuthoredArchitecture) MachineStates() []MachineState {
 	}
 	return out
 }
+
+// MachineTransitions returns the transitions of every machine in authored order.
+// TRLC-LINKS: REQ-EMG-174
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+func (a AuthoredArchitecture) MachineTransitions() []MachineTransition {
+	var out []MachineTransition
+	for _, m := range a.Machines {
+		out = append(out, m.Transitions...)
+	}
+	return out
+}

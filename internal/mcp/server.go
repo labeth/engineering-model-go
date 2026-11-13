@@ -28,6 +28,7 @@ type Tool struct {
 }
 
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// ENGMODEL-LINKS: STATE-MCP-MODEL-CURRENT, STATE-MCP-MODEL-OUTDATED
 type Server struct {
 	tools map[string]Tool
 
@@ -507,6 +508,7 @@ func (s *Server) loadContext(params any) error {
 // serving the previous model.
 // TRLC-LINKS: REQ-EMG-089
 // ENGMODEL-LINKS: FU-MCP-SERVER, EVT-MCP-TOOL-CALL-RECEIVED
+// ENGMODEL-LINKS: TR-MCP-CALL-RELOADS, TR-MCP-CALL-SERVED
 func (s *Server) refreshModel() error {
 	if s.modelPath == "" && s.requirementsPath == "" && s.designPath == "" {
 		return nil
@@ -529,6 +531,7 @@ func (s *Server) refreshModel() error {
 // input.
 // TRLC-LINKS: REQ-EMG-089
 // ENGMODEL-LINKS: FU-MCP-SERVER
+// ENGMODEL-LINKS: TR-MCP-MODEL-FILE-CHANGES
 func (s *Server) modelFileFingerprint() string {
 	paths := []string{s.modelPath, s.requirementsPath, s.designPath}
 	if s.bundle != nil {

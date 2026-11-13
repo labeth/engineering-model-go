@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -293,7 +294,8 @@ func scanFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error
 				continue
 			}
 			if v, ok := markerValue(trimmed, "ENGMODEL-LINKS:"); ok {
-				pending.modelLinks = splitCSV(v)
+				// Stacked ENGMODEL-LINKS lines above one declaration accumulate (REQ-EMG-174).
+				pending.modelLinks = appendUnique(pending.modelLinks, splitCSV(v))
 				if pending.firstLine == 0 {
 					pending.firstLine = lineNo
 				}
@@ -650,6 +652,18 @@ func splitCSV(v string) []string {
 		}
 	}
 	return out
+}
+
+// appendUnique appends the values of more that are not yet in values, keeping
+// the order written.
+// TRLC-LINKS: REQ-EMG-174
+func appendUnique(values, more []string) []string {
+	for _, v := range more {
+		if !slices.Contains(values, v) {
+			values = append(values, v)
+		}
+	}
+	return values
 }
 
 // TRLC-LINKS: REQ-EMG-010

@@ -38,6 +38,7 @@ type LinkAddOptions struct {
 // LNK-<REQ>-<ALIAS>, made unique.
 // TRLC-LINKS: REQ-EMG-119
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-ADD
 func AddLink(repo string, opts LinkAddOptions) (model.ReqLink, error) {
 	manifest := filepath.Join(repo, "engmod.yml")
 	bundle, err := model.LoadBundle(manifest)
@@ -165,6 +166,7 @@ func sameStrings(a, b []string) bool {
 
 // runLinkAdd adds one link and prints it.
 // TRLC-LINKS: REQ-EMG-119
+// ENGMODEL-LINKS: EVT-LINK-ADD-REQUESTED
 func runLinkAdd(repo string, opts LinkAddOptions, w io.Writer) (int, error) {
 	link, err := AddLink(repo, opts)
 	if err != nil {

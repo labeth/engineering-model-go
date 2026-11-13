@@ -14,6 +14,7 @@ import (
 // between versions.
 type State string
 
+// ENGMODEL-LINKS: STATE-LINK-SUSPECT, STATE-LINK-BROKEN
 const (
 	// StateUnchanged: the pin equals the dependency pin and the item is a
 	// published contract item there.
@@ -112,6 +113,7 @@ func (s LinkStatus) NeedsReview() bool {
 // unchanged.
 // TRLC-LINKS: REQ-EMG-097
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-BREAK
 func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 	pins := map[string]string{}
 	for _, d := range system.Manifest.Dependencies {

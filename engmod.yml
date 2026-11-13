@@ -317,6 +317,9 @@ publications:
   - REQ-EMG-171
   - REQ-EMG-172
   - REQ-EMG-173
+  - REQ-EMG-174
+  - REQ-EMG-175
+  - REQ-EMG-176
   views:
   - VIEW-ARCHITECTURE-INTENT
   - VIEW-TRACEABILITY
@@ -344,6 +347,32 @@ inferenceHints:
   - explicit_annotation
   - path_convention
   - unresolved_warning
+codeCoverage:
+  exempt:
+    - id: STATE-ARTIFACTS-REGENERATING
+      reason: A transient state while a generation run is in progress; no code holds it.
+      decision: DEC-CODE-EXEMPT-MODEL-ONLY
+    - id: STATE-LINK-ABSENT
+      reason: The absence of a requirement link; nothing in code represents it.
+      decision: DEC-CODE-EXEMPT-MODEL-ONLY
+    - id: STATE-DELTA-NONE
+      reason: The absence of a requirements delta; nothing in code represents it.
+      decision: DEC-CODE-EXEMPT-MODEL-ONLY
+    - id: TR-ARTIFACTS-GO-STALE
+      reason: An author edits the model; no code in this repository performs the edit.
+      decision: DEC-CODE-EXEMPT-MODEL-ONLY
+    - id: TR-LINK-REMOVE
+      reason: The author deletes the link in the model file; no code performs the deletion.
+      decision: DEC-CODE-EXEMPT-MODEL-ONLY
+    - id: TR-DELTA-SUPERSEDE
+      reason: Each run recomputes from the files, so no code distinguishes a superseded delta from a new one.
+      decision: DEC-CODE-EXEMPT-MODEL-ONLY
+    - id: TR-DELTA-RECEIVE-AFTER-APPLY
+      reason: Each run recomputes from the files, so no code distinguishes a delta received after an apply.
+      decision: DEC-CODE-EXEMPT-MODEL-ONLY
+    - id: TR-DELTA-SETTLE
+      reason: The model update after an apply is external and the process just ends.
+      decision: DEC-CODE-EXEMPT-MODEL-ONLY
 lifecycle:
   tier: operational
   bundles:

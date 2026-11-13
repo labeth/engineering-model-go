@@ -118,6 +118,7 @@ func releaseTags(repo string, args ...string) ([]string, error) {
 // without a previous release tag, the semver gate is skipped with a note.
 // TRLC-LINKS: REQ-EMG-103
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-RELEASE-CHECK
 func ReleaseCheck(repo, tag string) (ReleaseCheckResult, error) {
 	var result ReleaseCheckResult
 	bundle, err := model.LoadBundle(filepath.Join(repo, "engmod.yml"))
@@ -207,6 +208,7 @@ func ReleaseCheck(repo, tag string) (ReleaseCheckResult, error) {
 // runReleaseCheck prints the notes, the findings and, when the gate failed,
 // the contract diff. Exit 0 ok, 1 findings, 2 usage or IO error.
 // TRLC-LINKS: REQ-EMG-103
+// ENGMODEL-LINKS: EVT-RELEASE-CHECK-REQUESTED
 func runReleaseCheck(repo, tag string, w io.Writer) (int, error) {
 	result, err := ReleaseCheck(repo, tag)
 	if err != nil {

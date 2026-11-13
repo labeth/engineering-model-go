@@ -242,3 +242,17 @@ func AcceptedHealthWaivers(b model.Bundle, waivers []model.HealthWaiver) []model
 	}
 	return kept
 }
+
+// CodeExemptionDecisionProblem returns why the decision of a codeCoverage
+// exemption cannot justify it (it is empty, does not exist or is not
+// accepted), or "" when it can. It is the rule of a health waiver decision.
+//
+// TRLC-LINKS: REQ-EMG-176
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func CodeExemptionDecisionProblem(b model.Bundle, decision string) string {
+	decision = strings.TrimSpace(decision)
+	if decision == "" {
+		return "has no decision"
+	}
+	return waiverDecisionProblem(NewAcceptanceRefs(b), decision)
+}

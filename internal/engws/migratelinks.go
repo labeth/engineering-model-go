@@ -73,6 +73,7 @@ func (r MigrateResult) Changed() bool { return len(r.Files) > 0 }
 // nothing. A second run changes nothing.
 // TRLC-LINKS: REQ-EMG-104, REQ-EMG-118
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-MIGRATE
 func MigrateLinks(repo string, dryRun bool) (MigrateResult, error) {
 	var result MigrateResult
 	manifestPath := filepath.Join(repo, "engmod.yml")
@@ -568,6 +569,7 @@ func resolveDependencyItems(b model.Bundle) (map[string]resolvedDependency, map[
 // runMigrateLinks prints the migration and the requirements without an
 // upward trace.
 // TRLC-LINKS: REQ-EMG-104
+// ENGMODEL-LINKS: EVT-LINK-MIGRATION-REQUESTED
 func runMigrateLinks(repo string, dryRun bool, w io.Writer) (int, error) {
 	if abs, err := filepath.Abs(repo); err == nil {
 		repo = abs

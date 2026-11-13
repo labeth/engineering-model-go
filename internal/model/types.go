@@ -236,6 +236,31 @@ type HealthWaiver struct {
 	Decision string `yaml:"decision"`
 }
 
+// CodeCoverage is engmod.yml codeCoverage (ADR-EMG-069): the optional
+// configuration of the element to code coverage checks. Exempt lists the
+// model elements that are deliberately not implemented in this repository.
+// TRLC-LINKS: REQ-EMG-176
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+type CodeCoverage struct {
+	Exempt []CodeExemption `yaml:"exempt,omitempty"`
+}
+
+// CodeExemption exempts the model element ID from the element to code
+// coverage checks. Reason says why no code names it (at least
+// CodeExemptionMinReason characters) and Decision is the accepted decision
+// that justifies it, shaped like a HealthWaiver.
+// TRLC-LINKS: REQ-EMG-176
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+type CodeExemption struct {
+	ID       string `yaml:"id"`
+	Reason   string `yaml:"reason"`
+	Decision string `yaml:"decision"`
+}
+
+// CodeExemptionMinReason is the least length, in characters, of the reason of
+// a code exemption; manifest.cue states the same limit.
+const CodeExemptionMinReason = 20
+
 // ManifestDocument is the only schema-v2 model entry point.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-047, REQ-EMG-049, REQ-EMG-051
 type ManifestDocument struct {
@@ -249,6 +274,10 @@ type ManifestDocument struct {
 	// Validation requires it (model.requirement_links_missing); the library
 	// reads empty as guided. See RequirementLinkMode.
 	RequirementLinks string `yaml:"requirementLinks,omitempty"`
+	// CodeCoverage lists the model elements that are deliberately not
+	// implemented here (ADR-EMG-069); nil means no exemption. It sits before
+	// Lifecycle so that lifecycle and health stay the last two fields.
+	CodeCoverage *CodeCoverage `yaml:"codeCoverage,omitempty"`
 	// Lifecycle declares the life-cycle tier of the module. Validation
 	// requires it (lifecycle.missing); the library accepts nil so that tools
 	// can load and report a model without one. See ManifestLifecycle.

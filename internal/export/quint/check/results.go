@@ -119,6 +119,7 @@ func fileKind(mode fs.FileMode) string {
 // file name, the drift kind of a changed or missing module.
 //
 // TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
+// ENGMODEL-LINKS: STATE-ARTIFACTS-FRESH, STATE-ARTIFACTS-STALE
 func compareWithCommitted(dir string, files []quint.File) ([]Drift, map[string]string, error) {
 	var drifts []Drift
 	perModule := map[string]string{}

@@ -336,6 +336,17 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `mitigation.verification_control_mismatch` (error) | `…threatMitigations[i].verificationRefs[j]` | the referenced control verification's `controlRef` is another control than the mitigation's |
 | `code.owner_unresolved` | the source file | a source file whose `ENGMODEL-OWNER-UNIT` marker is missing or names an ID that is not a functional unit; test files, generated files (`Code generated … DO NOT EDIT`) and `alias::ID` owners are left out; reported once per file. Remedy: the `ef-code-linking` skill |
 | `code.model_link_kind_mismatch` | the code symbol | an `ENGMODEL-LINKS` target that exists but is a requirement ID or a catalog term, not a model element (a requirement belongs in `TRLC-LINKS`); a target that exists nowhere is `code.dangling_model_link`. Remedy: the `ef-code-linking` skill |
+| `code.unit_unlinked` | `authoredArchitecture.functionalUnits[i]` | a local functional unit that no scanned non-test source names in an `ENGMODEL-OWNER-UNIT` or `ENGMODEL-LINKS` marker; asked only when non-test source was scanned (a model without a code root is not asked); an element in `codeCoverage.exempt` is left out. Remedy: the `ef-code-linking` skill |
+| `code.machine_unlinked` | `authoredArchitecture.machines[i]` | a machine whose owner unit, own ID, state IDs and transition IDs no scanned non-test source names. Remedy: the `ef-code-linking` skill |
+| `code.interface_unlinked` | `authoredArchitecture.interfaces[i]` | a software interface owned by a local functional unit that no scanned non-test source names in `ENGMODEL-LINKS` (an interface owned by an imported `alias::ID` unit is not asked). Remedy: the `ef-code-linking` skill |
+| `code.state_unlinked` | `…machines[i].states[j]` | a state of a machine owned by a local unit that no scanned non-test source names in `ENGMODEL-LINKS`; exempting the machine exempts its states. Remedy: the `ef-code-linking` skill |
+| `code.transition_unlinked` | `…machines[i].transitions[j]` | a transition of a machine owned by a local unit that no scanned non-test source names in `ENGMODEL-LINKS`; exempting the machine exempts its transitions. Remedy: the `ef-code-linking` skill |
+| `code.event_unlinked` | `authoredArchitecture.events[i]` | an event that a transition of a machine owned by a local unit triggers on and that no scanned non-test source names in `ENGMODEL-LINKS`. Remedy: the `ef-code-linking` skill |
+| `code.flow_unlinked` | `authoredArchitecture.flows[i]` | a flow that touches (source, destination, or a step ref or interface) a software interface owned by a local unit and that no scanned non-test source names. Remedy: the `ef-code-linking` skill |
+| `code.data_unlinked` | `authoredArchitecture.dataObjects[i]` | a data object carried by a flow that touches such an interface and that no scanned non-test source names. Remedy: the `ef-code-linking` skill |
+| `code.exemption_unjustified` (error, untiered) | `codeCoverage.exempt[i].decision` | an exemption `{id, reason, decision}` whose decision does not exist or is not accepted; the exemption then exempts nothing. Remedy: the `ef-tier-up` skill |
+| `code.exemption_unused` | `codeCoverage.exempt[i]` | a valid exemption that matches no unlinked element, so it can be removed (only when non-test source was scanned). Remedy: the `ef-tier-up` skill |
+| `model.invalid_code_exemption` (error) | `codeCoverage.exempt[i].id`, `.reason` | an exemption whose `id` is no model element (a requirement or catalog term is none) or whose `reason` has fewer than 20 characters. Remedy: the `ef-tier-up` skill |
 | `verification.unlinked` | `…controlVerifications[i].verificationRefs` | a `method: test` verification with status `pass` or `partial` and no `verificationRefs`, so no test or requirement evidences it |
 | `risk.acceptance_unrecorded` (error) | `…risks[i].acceptedBy`, `…threatScenarios[i].acceptedBy` | an accepted risk or threat scenario without a complete `acceptedBy` record (the message lists the missing parts) |
 | `model.invalid_acceptance` (error) | `…acceptedBy.actor`, `.date`, `.decisionRef` | the actor is no actor, the date is not a YYYY-MM-DD calendar date, or the decisionRef is no decision or a decision whose status is not `accepted` |
@@ -932,12 +943,21 @@ with `requirementLinks: strict`):
 | `behavior.state_unreachable` | D | D | W | W | E |
 | `behavior.transition_no_trigger` | D | D | W | W | E |
 | `behavior.transition_nondeterministic` | D | D | W | W | E |
+| `code.data_unlinked` | D | D | D | W | E |
+| `code.event_unlinked` | D | D | W | W | E |
+| `code.exemption_unused` | W | W | W | W | E |
+| `code.flow_unlinked` | D | D | D | W | E |
+| `code.interface_unlinked` | D | D | W | E | E |
 | `code.invalid_trlc_link` | W | W | W | E | E |
+| `code.machine_unlinked` | D | D | W | E | E |
 | `code.missing_trlc_link` | W | W | W | E | E |
 | `code.model_link_kind_mismatch` | W | W | W | E | E |
 | `code.owner_unresolved` | W | W | W | E | E |
 | `code.scan_failed` | W | W | W | E | E |
+| `code.state_unlinked` | D | D | W | W | E |
 | `code.trace_unattached` | W | W | W | E | E |
+| `code.transition_unlinked` | D | D | W | W | E |
+| `code.unit_unlinked` | D | D | W | E | E |
 | `composition.dependency_below_tier` | D | D | W | E | E |
 | `composition.dependency_tier_unknown` | W | W | W | W | W |
 | `composition.dependency_tier_unknown` with safety | W | W | W | E | E |

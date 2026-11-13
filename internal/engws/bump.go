@@ -317,6 +317,7 @@ func Bump(root, repo, alias, version string, opts BumpOptions) (BumpResult, erro
 // else registry) and at version (deps, the composition at the new pin).
 // TRLC-LINKS: REQ-EMG-100
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-MISMATCH
 func compareBumpLinks(consumer model.Bundle, deps []reqlinks.Dependency, alias, version string) []BumpLink {
 	var after map[string]reqlinks.Item
 	for _, d := range deps {

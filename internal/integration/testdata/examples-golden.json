@@ -74,6 +74,22 @@
     "requiredFrom": "product"
    },
    {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-AEG-SENSOR-FUSION is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.interface_unlinked",
+    "severity": "warning",
+    "message": "software interface IF-AEG-TRACK is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-AEG-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -154,6 +170,22 @@
     "severity": "warning",
     "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
     "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel/engmod.lock.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-AEG-SENSOR-FUSION is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.interface_unlinked",
+    "severity": "warning",
+    "message": "software interface IF-AEG-TRACK is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
     "code": "requirement.orphan",
@@ -394,6 +426,22 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-ORI-LINK is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.interface_unlinked",
+    "severity": "warning",
+    "message": "software interface IF-ORI-MESSAGE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-ORI-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -474,6 +522,22 @@
     "severity": "warning",
     "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
     "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay/engmod.lock.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-ORI-LINK is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.interface_unlinked",
+    "severity": "warning",
+    "message": "software interface IF-ORI-MESSAGE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
     "code": "requirement.orphan",
@@ -1326,11 +1390,67 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-BEDROCK-REVIEW-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-BEDROCK-REVIEW-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
     "code": "behavior.flow_step_no_onerror",
     "severity": "warning",
     "message": "flow \"FLOW-BEDROCK-PR-REVIEW\" step \"publish-review\" crosses a trust boundary but has no onError step; model the failure path",
     "path": "authoredArchitecture.flows[0].steps[3].onError",
     "requiredFrom": "operational"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-PR-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-REVIEW-IN-PROGRESS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-REVIEW-PUBLISHED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-BEDROCK-REVIEW-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-BEDROCK-REVIEW-PUBLISH is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1436,6 +1556,62 @@
    }
   ],
   "trace": [
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-BEDROCK-REVIEW-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-BEDROCK-REVIEW-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-PR-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-REVIEW-IN-PROGRESS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-REVIEW-PUBLISHED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-BEDROCK-REVIEW-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-BEDROCK-REVIEW-PUBLISH is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
    {
     "code": "requirement.orphan",
     "severity": "warning",
@@ -1695,11 +1871,67 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-COFFEE-OTA-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-COFFEE-OTA-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
     "code": "behavior.flow_step_no_onerror",
     "severity": "warning",
     "message": "flow \"FLOW-COFFEE-TELEMETRY-INGEST\" step \"collect-and-send-telemetry\" crosses a trust boundary but has no onError step; model the failure path",
     "path": "authoredArchitecture.flows[1].steps[1].onError",
     "requiredFrom": "operational"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-SCHEDULED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-ROLLING-OUT is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-APPLIED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-COFFEE-OTA-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-COFFEE-OTA-APPLY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
     "code": "link.claimed_only",
@@ -1825,6 +2057,62 @@
     "severity": "warning",
     "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
     "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/engmod.lock.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-COFFEE-OTA-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-COFFEE-OTA-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-SCHEDULED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-ROLLING-OUT is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-APPLIED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-COFFEE-OTA-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-COFFEE-OTA-APPLY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    }
   ],
   "document": "316cdc5b09654c214c7288aa07a1cd23103ea483c0062acb6fde3534ba19ccef",
@@ -1876,6 +2164,14 @@
     "requiredFrom": "product"
    },
    {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-CLOUD-CAMPAIGN is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[1]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -1898,6 +2194,14 @@
     "severity": "warning",
     "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
     "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-CLOUD-CAMPAIGN is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[1]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    }
   ],
   "document": "5f87c76ac35cc13c1d3e62bacc5fd3bef5f309f69edeaca2103bec320cb79614",
@@ -2373,6 +2677,102 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-PAYMENTS-AUTH-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-PAYMENTS-AUTH-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-CLUSTER-PROVISIONING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[4]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-GITOPS-OPERATIONS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[5]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-CHECKOUT-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-AUTHORIZING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-AUTHORIZED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-DECLINED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[3]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-APPROVE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-RETRY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-DECLINE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[3]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-PAY-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -2465,6 +2865,102 @@
    }
   ],
   "trace": [
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-PAYMENTS-AUTH-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-PAYMENTS-AUTH-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-CLUSTER-PROVISIONING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[4]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-GITOPS-OPERATIONS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[5]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-CHECKOUT-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-AUTHORIZING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-AUTHORIZED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-DECLINED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[3]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-APPROVE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-RETRY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-DECLINE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[3]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
    {
     "code": "requirement.orphan",
     "severity": "warning",

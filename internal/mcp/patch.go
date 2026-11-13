@@ -183,6 +183,7 @@ func applyPatch(data []byte, id string, ops []patchOp) ([]byte, error) {
 // with write, writes a valid result atomically.
 // TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-REPO-LOCAL-WRITES, FU-VALIDATION-ENGINE
+// ENGMODEL-LINKS: TR-MCP-MODEL-FILE-CHANGES
 func (s *Server) modelPatch(args map[string]any) (map[string]any, error) {
 	document := strings.TrimSpace(toString(args["document"]))
 	id := strings.TrimSpace(toString(args["id"]))

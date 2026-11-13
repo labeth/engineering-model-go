@@ -14615,13 +14615,13 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "KnownModelIDs",
       "code": "health.complex_method",
-      "value": 28
+      "value": 26
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "KnownModelIDs",
       "code": "health.large_method",
-      "value": 89
+      "value": 84
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -14735,7 +14735,7 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "buildFromBundle",
       "code": "health.large_method",
-      "value": 53
+      "value": 52
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -16006,18 +16006,6 @@
     {
       "path": "internal/validate/tier_policy.go",
       "function": "poamDefers",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
-      "path": "internal/validate/tier_policy_test.go",
-      "function": "TestApplyTierPolicySeverityByTier",
-      "code": "health.complex_method",
-      "value": 9
-    },
-    {
-      "path": "internal/validate/tier_policy_test.go",
-      "function": "TestApplyTierPolicySeverityByTier",
       "code": "health.deep_nesting",
       "value": 3
     },

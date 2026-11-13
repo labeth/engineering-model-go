@@ -110,6 +110,9 @@ const (
 	remedyModelLinkKind = "run the ef-code-linking skill (engineering-flow) to move a requirement ID from ENGMODEL-LINKS to TRLC-LINKS, or to name the model element (unit, interface, machine, state, flow) the code realizes"
 	remedyUnmodeled     = "run the ef-behavior skill (engineering-flow) to model the requirement as a state, transition or event of a machine, or add an invariant that lists it in requirements, or name the element in the requirement's appliesTo"
 	remedyMachineVerify = "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
+	// remedyCodeCoverage is the remedy of every element to code coverage code.
+	remedyCodeCoverage = "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+	remedyExemption    = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
 )
 
 // consistencyRemedies maps the codes of the consistency checks to their
@@ -119,6 +122,17 @@ var consistencyRemedies = map[string]string{
 	"code.model_link_kind_mismatch":  remedyModelLinkKind,
 	"behavior.requirement_unmodeled": remedyUnmodeled,
 	"behavior.machine_unverified":    remedyMachineVerify,
+	"code.unit_unlinked":             remedyCodeCoverage,
+	"code.machine_unlinked":          remedyCodeCoverage,
+	"code.interface_unlinked":        remedyCodeCoverage,
+	"code.state_unlinked":            remedyCodeCoverage,
+	"code.transition_unlinked":       remedyCodeCoverage,
+	"code.event_unlinked":            remedyCodeCoverage,
+	"code.flow_unlinked":             remedyCodeCoverage,
+	"code.data_unlinked":             remedyCodeCoverage,
+	"code.exemption_unused":          remedyExemption,
+	"code.exemption_unjustified":     remedyExemption,
+	"model.invalid_code_exemption":   remedyExemption,
 }
 
 // ConsistencyRemedy returns the remedy of a consistency-check code

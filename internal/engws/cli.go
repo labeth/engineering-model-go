@@ -564,6 +564,7 @@ func runCheck(ctx context.Context, root string, registry Registry, all, summary 
 // after for each link left for review). It returns 1 when a link was left
 // for review, unless opts.AllowReview.
 // TRLC-LINKS: REQ-EMG-068, REQ-EMG-100, REQ-EMG-126
+// ENGMODEL-LINKS: EVT-DEPENDENCY-BUMP-REQUESTED
 func runBump(root, repo, alias, version string, opts BumpOptions, show bool, w io.Writer) (int, error) {
 	result, err := Bump(root, repo, alias, version, opts)
 	for _, d := range result.Diagnostics {

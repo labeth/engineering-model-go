@@ -20,6 +20,7 @@ import (
 //
 // TRLC-LINKS: REQ-EMG-125, REQ-EMG-168
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-VALIDATION-ENGINE
+// ENGMODEL-LINKS: TR-ARTIFACTS-GENERATION-BLOCKED, TR-ARTIFACTS-VALIDATED, EVT-VALIDATION-PASSED
 func ValidationGate(manifestPath string, w io.Writer) (bundle model.Bundle, ok bool, err error) {
 	bundle, err = codescan.LoadBundle(manifestPath)
 	if err != nil {

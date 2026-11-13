@@ -14,6 +14,7 @@ const (
 )
 
 // Requirement link statuses of a reqLinks entry.
+// ENGMODEL-LINKS: STATE-LINK-CLAIMED, STATE-LINK-ACCEPTED
 const (
 	// ReqLinkClaimed is a link nobody has reviewed yet (link.claimed_only).
 	ReqLinkClaimed = "claimed"

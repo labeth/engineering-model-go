@@ -4,6 +4,7 @@ package codemap
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -174,6 +175,31 @@ type Document struct {
 	}
 	if len(symbols[0].Implements) != 1 || symbols[0].Implements[0] != "REQ-SAMPLE-001" {
 		t.Fatalf("expected requirement link to remain attached, got %+v", symbols[0])
+	}
+}
+
+// Stacked ENGMODEL-LINKS lines above one declaration accumulate in the order
+// written and a repeated identifier is kept once.
+// Mutation: assigning instead of appending the identifiers of a line leaves only the last line.
+// TRLC-LINKS: REQ-EMG-174
+func TestScan_StackedEngmodelLinksAccumulate(t *testing.T) {
+	root := t.TempDir()
+	content := `package sample
+
+// ENGMODEL-LINKS: FU-ONE, FU-TWO
+// ENGMODEL-LINKS: FU-TWO, FU-THREE
+// TRLC-LINKS: REQ-SAMPLE-001
+type Document struct{}
+`
+	if err := os.WriteFile(filepath.Join(root, "schema.go"), []byte(content), 0o644); err != nil {
+		t.Fatalf("write fixture: %v", err)
+	}
+	symbols, _, err := Scan(root)
+	if err != nil || len(symbols) != 1 {
+		t.Fatalf("scan: %v %+v", err, symbols)
+	}
+	if got := strings.Join(symbols[0].ModelLinks, ","); got != "FU-ONE,FU-TWO,FU-THREE" {
+		t.Fatalf("stacked links = %s, want FU-ONE,FU-TWO,FU-THREE", got)
 	}
 }
 

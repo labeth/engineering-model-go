@@ -54,13 +54,14 @@ func knownModelKinds(bundle model.Bundle, requirements model.RequirementsDocumen
 // requirement rules: the tier verification diagnostics, the stale
 // verification status and the consistency checks. The bundle carries the
 // requirements.
-// TRLC-LINKS: REQ-EMG-073, REQ-EMG-128, REQ-EMG-146, REQ-EMG-170, REQ-EMG-171, REQ-EMG-173
+// TRLC-LINKS: REQ-EMG-073, REQ-EMG-128, REQ-EMG-146, REQ-EMG-170, REQ-EMG-171, REQ-EMG-173, REQ-EMG-175, REQ-EMG-176
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
 func integrityTail(bundle model.Bundle, scopedCode []codescan.CodeItem, verification []codescan.VerificationCheck) []validate.Diagnostic {
 	diags := tierVerificationDiagnostics(bundle, bundle.Requirements, verification)
 	diags = append(diags, staleVerificationStatus(bundle, scopedCode, verification)...)
 	diags = append(diags, ownerDiagnostics(bundle, scopedCode)...)
 	diags = append(diags, modelLinkKindDiagnostics(bundle, scopedCode)...)
+	diags = append(diags, coverageDiagnostics(bundle, scopedCode)...)
 	return append(diags, machineVerificationDiagnostics(bundle, verification)...)
 }
 

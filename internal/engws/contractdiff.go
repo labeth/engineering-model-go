@@ -289,6 +289,7 @@ func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 // ContractDiff diffs the contract of the model in repo between two refs.
 // TRLC-LINKS: REQ-EMG-102
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-CONTRACT-DIFF
 func ContractDiff(repo, fromRef, toRef string) (ContractDiffResult, error) {
 	from, err := LoadBundleAtRef(repo, fromRef)
 	if err != nil {
@@ -329,6 +330,7 @@ func printContractDiff(w io.Writer, d ContractDiffResult) {
 // runContractDiff prints the contract diff (text or JSON); IO and git
 // errors exit 2.
 // TRLC-LINKS: REQ-EMG-102
+// ENGMODEL-LINKS: EVT-CONTRACT-DIFF-REQUESTED
 func runContractDiff(repo, fromRef, toRef string, asJSON bool, w io.Writer) (int, error) {
 	d, err := ContractDiff(repo, fromRef, toRef)
 	if err != nil {

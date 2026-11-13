@@ -110,6 +110,20 @@ package model
 	policyDecision?: #NonEmpty
 }
 
+// #CodeExemption exempts one model element from the element to code coverage
+// checks (ADR-EMG-069): the reason is at least 20 characters and the decision
+// must be accepted (reported by internal/trace as code.exemption_unjustified).
+#CodeExemption: {
+	id:       #NonEmpty
+	reason:   #NonEmpty & =~"(?s)^.{20,}$"
+	decision: #NonEmpty
+}
+
+// #CodeCoverage configures the element to code coverage checks.
+#CodeCoverage: {
+	exempt?: [...#CodeExemption]
+}
+
 #ManifestDocument: {
 	schemaVersion: #SchemaVersion
 	module:        #ModuleIdentity
@@ -118,6 +132,7 @@ package model
 	publications?: [...#ManifestPublication]
 	inferenceHints?: #InferenceHints
 	requirementLinks?: "strict" | "guided"
+	codeCoverage?: #CodeCoverage
 	lifecycle?: #ManifestLifecycle
 	health?: #ManifestHealth
 }

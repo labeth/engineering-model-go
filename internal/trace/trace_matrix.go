@@ -217,6 +217,22 @@ func requirementIDSet(requirements model.RequirementsDocument) map[string]bool {
 	return ids
 }
 
+// addMachineIDs adds the IDs of the machines, their states and their
+// transitions.
+// TRLC-LINKS: REQ-EMG-028
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-MODEL-LOADER
+func addMachineIDs(a model.AuthoredArchitecture, add func(string)) {
+	for _, m := range a.Machines {
+		add(m.ID)
+	}
+	for _, x := range a.MachineStates() {
+		add(x.ID)
+	}
+	for _, x := range a.MachineTransitions() {
+		add(x.ID)
+	}
+}
+
 // KnownModelIDs is every id the model defines (catalog, authored architecture, and
 // requirements) — the oracle against which an ENGMODEL-LINKS target is resolved.
 // TRLC-LINKS: REQ-EMG-028
@@ -268,12 +284,7 @@ func KnownModelIDs(bundle model.Bundle, requirements model.RequirementsDocument)
 	for _, x := range a.TrustBoundaries {
 		add(x.ID)
 	}
-	for _, m := range a.Machines {
-		add(m.ID)
-	}
-	for _, x := range a.MachineStates() {
-		add(x.ID)
-	}
+	addMachineIDs(a, add)
 	for _, x := range a.Events {
 		add(x.ID)
 	}

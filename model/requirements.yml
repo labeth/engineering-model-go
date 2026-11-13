@@ -1505,3 +1505,31 @@ requirements:
     appliesTo:
       - FU-ALLOCATION-TRACE
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
+  - id: REQ-EMG-174
+    status: implemented
+    text: When model updated event is received, the engineering model go shall keep every model link marker stacked above one declaration.
+    notes: 'ADR-EMG-069. The scanner accumulated stacked trace link lines and overwrote stacked model link lines, so a second line hid the first and element to code coverage would have missed links. Both now accumulate, in the order written, without duplicates.'
+    verificationMethods: [test]
+    verificationCriteria: When two model link marker lines sit above one declaration, then the symbol carries the identifiers of both lines; a repeated identifier is kept once.
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-175
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a functional unit, machine or software interface that no source code names.
+    notes: 'ADR-EMG-069. code.unit_unlinked, code.machine_unlinked and code.interface_unlinked, row DDWEE. An element counts as named when an owner marker, a model link marker or a trace part marker in scanned non-test source carries its identifier. Actors, attack vectors, trust boundaries, threat scenarios, assumptions, out-of-scope entries, risks, POA&M items, deployment targets, decisions, catalog terms, views and imported alias elements are never asked. A model without a code root is not asked.'
+    verificationMethods: [test]
+    verificationCriteria: When a functional unit, a machine or a software interface has no source file or declaration that names it, then the matching code.*_unlinked code is reported once for the element with a remedy; an element named by an owner marker or a model link marker, an element listed in codeCoverage.exempt and an element of a kind that is never asked are not reported.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-176
+    status: implemented
+    text: When model updated event is received, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.
+    notes: 'ADR-EMG-069. codeCoverage.exempt in engmod.yml is a list of an element identifier, a reason and an accepted decision, shaped like a health waiver. A missing or unaccepted decision is the untiered error code.exemption_unjustified, and an exemption that matches no unlinked element is code.exemption_unused (a warning, an error at operational).'
+    verificationMethods: [test]
+    verificationCriteria: When an exemption names an unlinked element and an accepted decision, then that element is not reported and the exemption is used; an exemption whose decision is missing or not accepted is code.exemption_unjustified; an exemption that names no unlinked element is code.exemption_unused; an unknown key or a missing reason fails loading.
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FU-ALLOCATION-TRACE
+    realizes: [CAP-EMG-TRACEABILITY]
