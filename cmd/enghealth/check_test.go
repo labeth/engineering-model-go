@@ -521,6 +521,7 @@ func TestCheckSARIFHoldsOnlyRegressions(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-158, REQ-EMG-159
 func TestCheckPathsAndCache(t *testing.T) {
+	t.Setenv("CI", "") // the cache is off when CI is set; this test needs it on
 	r := newCheckRepo(t, "lifecycle:\n  tier: product\n", true)
 	r.write("pkg/svc.go", svcSource(20))
 	r.write("other/o.go", strings.Replace(svcSource(20), "func Svc", "func O", 1))
