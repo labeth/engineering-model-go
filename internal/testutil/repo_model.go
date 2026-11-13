@@ -38,8 +38,8 @@ func RepoRoot(t testing.TB) string {
 // generated) are left out.
 var repoModelTrees = []string{"model", "cmd", "internal", "scripts", ".github/workflows"}
 
-// acceptedRepoDecisions are the repository decisions the owner has not yet
-// accepted; AcceptedRepoModel rewrites their status in the test copy.
+// acceptedRepoDecisions are the repository decisions the test copy must carry
+// as accepted: AcceptedRepoModel rewrites a proposed status and keeps an accepted one.
 var acceptedRepoDecisions = []string{"DEC-TIER-OPERATIONAL", "DEC-HEALTH-BASELINE"}
 
 // asOfEnv is the environment variable the validator reads as the as-of date.
@@ -156,7 +156,9 @@ func acceptDecisions(t testing.TB, decisions string) {
 }
 
 // acceptDecision rewrites the first "status: proposed" line after the
-// "- id: <id>" line of a decisions document to "status: accepted".
+// "- id: <id>" line of a decisions document to "status: accepted". A decision
+// that is already accepted is left as it is; a decision that is missing, or
+// has another status, fails the test.
 // TRLC-LINKS: REQ-EMG-124
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func acceptDecision(t testing.TB, text, id string) string {
@@ -167,12 +169,14 @@ func acceptDecision(t testing.TB, text, id string) string {
 		switch {
 		case strings.HasPrefix(line, "- id: "):
 			inDecision = strings.TrimSpace(strings.TrimPrefix(line, "- id: ")) == id
+		case inDecision && strings.TrimSpace(line) == "status: accepted":
+			return text
 		case inDecision && strings.TrimSpace(line) == "status: proposed":
 			lines[i] = strings.Replace(line, "proposed", "accepted", 1)
 			return strings.Join(lines, "\n")
 		}
 	}
-	t.Fatalf("decision %s with status proposed not found", id)
+	t.Fatalf("decision %s with status proposed or accepted not found", id)
 	return text
 }
 
