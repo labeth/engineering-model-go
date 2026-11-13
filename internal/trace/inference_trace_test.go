@@ -126,7 +126,7 @@ func TestVerilogFileRootRespectsNestedModel(t *testing.T) {
 	if err := os.Mkdir(nested, 0700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(nested, "engmod.yml"), []byte("schemaVersion: 2\n"), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(nested, "engmod.yml"), []byte("schemaVersion: 3\n"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	file := filepath.Join(nested, "capture.v")

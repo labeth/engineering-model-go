@@ -371,7 +371,7 @@ func writeRequirementsDeltaFixture(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
 	writeFixtureFile(t, filepath.Join(root, "engmod.yml"), `
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: example.com/test-model@v0
   version: v0.1.0
@@ -393,7 +393,7 @@ publications: []
 inferenceHints: {}
 `+testutil.CompleteSwitches)
 	writeFixtureFile(t, filepath.Join(root, "model", "architecture.yml"), `
-schemaVersion: 2
+schemaVersion: 3
 architecture:
   functionalGroups:
     - id: FG-TEST
@@ -405,7 +405,7 @@ architecture:
       group: FG-TEST
 `)
 	writeFixtureFile(t, filepath.Join(root, "model", "behavior.yml"), `
-schemaVersion: 2
+schemaVersion: 3
 behavior:
   relationships:
     - type: contains
@@ -413,7 +413,7 @@ behavior:
       to: FU-STORE
 `)
 	writeFixtureFile(t, filepath.Join(root, "model", "catalog.yml"), `
-schemaVersion: 2
+schemaVersion: 3
 catalog:
   systems:
     - id: SYS-TEST
@@ -437,7 +437,7 @@ catalog:
       definition: Record retained for audit.
 `)
 	writeFixtureFile(t, filepath.Join(root, "model", "requirements.yml"), `
-schemaVersion: 2
+schemaVersion: 3
 lintRun:
   id: test-lint
   mode: guided
@@ -458,9 +458,9 @@ requirements:
 
 expected: []
 `)
-	writeFixtureFile(t, filepath.Join(root, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
-	writeFixtureFile(t, filepath.Join(root, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
-	writeFixtureFile(t, filepath.Join(root, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
+	writeFixtureFile(t, filepath.Join(root, "model", "assurance.yml"), "schemaVersion: 3\nassurance: {}\n")
+	writeFixtureFile(t, filepath.Join(root, "model", "compliance.yml"), "schemaVersion: 3\ncompliance: {}\n")
+	writeFixtureFile(t, filepath.Join(root, "model", "views.yml"), "schemaVersion: 3\nviews: []\n")
 	writeFixtureFile(t, filepath.Join(root, "model", "decisions.yml"), testutil.TierDecisionPoC)
 	return root
 }

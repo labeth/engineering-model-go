@@ -39,7 +39,7 @@ func formalFixtureModel(t *testing.T, entries []formalFixtureEntry, stale, withC
 		t.Fatal(err)
 	}
 	if withControl {
-		assurance := `schemaVersion: 2
+		assurance := `schemaVersion: 3
 assurance:
   controls:
   - id: CTRL-PAYMENTS-DEMO

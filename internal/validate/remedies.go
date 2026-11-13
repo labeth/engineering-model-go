@@ -2,6 +2,7 @@
 package validate
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -11,11 +12,7 @@ import (
 // to run or the command to execute. They are the only place that names them,
 // so a change of skill or command is one edit here.
 const (
-	remedyTier = "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}"
-	// remedyUpgrade is the schemaVersion remedy. It names only what exists:
-	// the manual edit. The upgrade command of engineering-flow is planned and
-	// not built, so the text says so instead of naming it as a command to run.
-	remedyUpgrade = model.SchemaVersionRemedy
+	remedyTier    = "run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision}"
 	remedyLinks   = "run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp)"
 	remedyLint    = "run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp)"
 	remedyHealth  = "run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write"
@@ -27,6 +24,12 @@ const (
 	remedyCheckTemplate = "run engflow upgrade --root <dir> to replace .github/engmod-check with the current template that takes --workspace-root"
 	remedyEnginePin     = "bump the pin: go get github.com/labeth/engineering-model-go@<version> in .github/engmod-check"
 )
+
+// remedyUpgrade is the schemaVersion remedy. It names only what exists: the
+// manual edit to the current version. The upgrade command of engineering-flow
+// is planned and not built, so the text says so instead of naming it as a
+// command to run.
+var remedyUpgrade = model.SchemaVersionRemedy
 
 // RequiredSwitch is one row of the required-switch table: the switch, the
 // code reported when it is absent or invalid, and the remedy. The table is
@@ -57,7 +60,7 @@ var requiredSwitches = []RequiredSwitch{
 	{"lintRun.mode (value)", "lint.mode_invalid", remedyLint},
 	{"lintRun.mode guided at mvp or above", "lint.mode_guided_at_tier", remedyLint},
 	{"engmod.yml health block (tier product and operational)", "health.block_missing", remedyHealth},
-	{"schemaVersion 2 in every document", "model.unsupported_schema_version", remedyUpgrade},
+	{fmt.Sprintf("schemaVersion %d in every document", model.CurrentSchemaVersion), "model.unsupported_schema_version", remedyUpgrade},
 	{"module.modelId", "model.id_missing", remedyModelID},
 	{"engmod.lock.yml schemaVersion (the version the engine writes)", "composition.lock_schema_outdated", remedyLockSchema},
 	{"repository .github/engmod-check that takes --workspace-root", "engine.check_template_stale", remedyCheckTemplate},
@@ -138,7 +141,10 @@ const (
 	// the field, as for model.code_sources_removed.
 	remedyPinnedFingerprint = "delete pinned.fingerprint; pin the dependency version only"
 	remedyProvidesRef       = "name the realizing requirement with realizes, not ref"
-	remedyExemption         = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
+	// remedySchemaVersionNotBumped is the remedy of release.schema_version_not_bumped
+	// (ADR-EMG-077), reported by engws release-check.
+	remedySchemaVersionNotBumped = "raise schemaVersion and model.CurrentSchemaVersion, then record the change in the CHANGELOG"
+	remedyExemption              = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
 )
 
 // consistencyRemedies maps the codes of the consistency checks to their
@@ -167,6 +173,8 @@ var consistencyRemedies = map[string]string{
 
 	"model.pinned_fingerprint_removed": remedyPinnedFingerprint,
 	"model.provides_ref_removed":       remedyProvidesRef,
+
+	"release.schema_version_not_bumped": remedySchemaVersionNotBumped,
 }
 
 // ConsistencyRemedy returns the remedy of a consistency-check code

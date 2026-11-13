@@ -226,15 +226,15 @@ module sm_requirements_delta {
   val inv_delta_applied_written = (state == StateDeltaApplied) implies v_written
   // INV-DELTA-DRY-RUN-NOT-WRITTEN protects REQ-EMG-032
   val inv_delta_dry_run_not_written = ((state == StateDeltaPlanning) or (state == StateDeltaPlanned)) implies not(v_written)
-  // INV-DELTA-WRITTEN-CANDIDATE-VALID protects REQ-EMG-032, REQ-EMG-033
+  // INV-DELTA-WRITTEN-CANDIDATE-VALID protects REQ-EMG-032, REQ-EMG-033, REQ-EMG-185
   val inv_delta_written_candidate_valid = v_written implies v_candidateValid
-  // INV-DELTA-WRITTEN-SOURCE-UNCHANGED protects REQ-EMG-033
+  // INV-DELTA-WRITTEN-SOURCE-UNCHANGED protects REQ-EMG-033, REQ-EMG-185
   val inv_delta_written_source_unchanged = v_written implies v_sourceUnchanged
-  // INV-DELTA-LOCK-EXCLUSIVE protects REQ-EMG-033
+  // INV-DELTA-LOCK-EXCLUSIVE protects REQ-EMG-033, REQ-EMG-185
   val inv_delta_lock_exclusive = v_locked implies not(v_otherHoldsLock)
-  // INV-DELTA-LOCK-RELEASED protects REQ-EMG-033
+  // INV-DELTA-LOCK-RELEASED protects REQ-EMG-033, REQ-EMG-185
   val inv_delta_lock_released = v_locked implies (state == StateDeltaLocked)
-  // INV-DELTA-REFUSED-NOT-WRITTEN protects REQ-EMG-033
+  // INV-DELTA-REFUSED-NOT-WRITTEN protects REQ-EMG-033, REQ-EMG-185
   val inv_delta_refused_not_written = ((state == StateDeltaLocked) or (state == StateDeltaRefused)) implies not(v_written)
   // Reachability witnesses, one per state
   val wit_state_delta_none = state == StateDeltaNone

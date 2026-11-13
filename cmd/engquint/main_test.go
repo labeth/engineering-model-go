@@ -247,7 +247,7 @@ func TestGenerateErrorExitsOneAndWritesNothing(t *testing.T) {
 func TestGenerateModelWithoutMachines(t *testing.T) {
 	manifest := copyFixture(t)
 	behavior := filepath.Join(filepath.Dir(manifest), "model", "behavior.yml")
-	if err := os.WriteFile(behavior, []byte("schemaVersion: 2\nbehavior:\n  machines: []\n"), 0o644); err != nil {
+	if err := os.WriteFile(behavior, []byte("schemaVersion: 3\nbehavior:\n  machines: []\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	out := filepath.Join(t.TempDir(), "q")

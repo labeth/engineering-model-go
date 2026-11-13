@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-const legacyBehaviorHead = "schemaVersion: 2\nbehavior:\n"
+const legacyBehaviorHead = "schemaVersion: 3\nbehavior:\n"
 
 const legacyMachinesBlock = `  machines:
     - id: SM-A
@@ -125,7 +125,7 @@ func TestLegacyStateVocabulary(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-139
 func TestStripLegacyStateVocabularyKeepsTheRestOfTheDocument(t *testing.T) {
-	source := []byte(`schemaVersion: 2
+	source := []byte(`schemaVersion: 3
 behavior:
   states:
   - id: STATE-A
@@ -166,7 +166,7 @@ behavior:
 
 // TRLC-LINKS: REQ-EMG-139
 func TestStripLegacyStateVocabularyLeavesMachineDocumentsUntouched(t *testing.T) {
-	source := []byte("schemaVersion: 2\nbehavior:\n  machines: []\n")
+	source := []byte("schemaVersion: 3\nbehavior:\n  machines: []\n")
 	out, err := StripLegacyStateVocabulary(source)
 	if err != nil || string(out) != string(source) {
 		t.Fatalf("got %q, %v", out, err)

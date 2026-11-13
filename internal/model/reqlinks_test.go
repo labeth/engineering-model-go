@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-const reqLinksFixture = `schemaVersion: 2
+const reqLinksFixture = `schemaVersion: 3
 reqLinks:
   - id: LNK-A
     parent: REQ-A

@@ -139,8 +139,12 @@ commands:
                              nearest release tag below it in the commit's
                              history (git tag --merged) is smaller than the
                              contract-diff between them requires (in v0.x a
-                             breaking change needs a minor bump); exit 1 on
-                             findings, 2 on a usage or git error
+                             breaking change needs a minor bump), and
+                             release.schema_version_not_bumped when the
+                             CHANGELOG entry of the tag says Breaking release
+                             and schemaVersion is not above that of the
+                             previous release; exit 1 on findings, 2 on a
+                             usage or git error
   migrate-links [--repo DIR] [--dry-run]
                              convert the deprecated trace of the model in DIR:
                              each composition.allocations entry becomes a

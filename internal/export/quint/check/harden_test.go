@@ -300,7 +300,7 @@ func TestCheckClearsEvidenceWhenNothingCanBeTrusted(t *testing.T) {
 	})
 	t.Run("drift with no module left to check", func(t *testing.T) {
 		e := passFirst(t)
-		writeFile(t, behavior(e), "schemaVersion: 2\nbehavior:\n  machines: []\n", 0o644)
+		writeFile(t, behavior(e), "schemaVersion: 3\nbehavior:\n  machines: []\n", 0o644)
 		report := mustCheck(t, e.opts())
 		if len(report.Drift) != 1 || report.Drift[0].Kind != "extra" || evidenceOnDisk(t, e) != 0 {
 			t.Fatalf("drift %+v\n%s", report.Drift, evidenceOf(t, e))
@@ -308,7 +308,7 @@ func TestCheckClearsEvidenceWhenNothingCanBeTrusted(t *testing.T) {
 	})
 	t.Run("model without machines", func(t *testing.T) {
 		e := passFirst(t)
-		writeFile(t, behavior(e), "schemaVersion: 2\nbehavior:\n  machines: []\n", 0o644)
+		writeFile(t, behavior(e), "schemaVersion: 3\nbehavior:\n  machines: []\n", 0o644)
 		if err := os.Remove(filepath.Join(e.outDir, "sm_payments_auth.qnt")); err != nil {
 			t.Fatal(err)
 		}
@@ -347,7 +347,7 @@ func TestCheckClearsEvidenceWhenNothingCanBeTrusted(t *testing.T) {
 	})
 	t.Run("NoEvidence leaves the file alone", func(t *testing.T) {
 		e := passFirst(t)
-		writeFile(t, behavior(e), "schemaVersion: 2\nbehavior:\n  machines: []\n", 0o644)
+		writeFile(t, behavior(e), "schemaVersion: 3\nbehavior:\n  machines: []\n", 0o644)
 		opts := e.opts()
 		opts.NoEvidence = true
 		mustCheck(t, opts)

@@ -10,6 +10,10 @@ semantic versioning.
 
 **Breaking release, no compatibility path** (owner instruction: "i dont want any backwards compatabillity in the model yet, it should always require a full upgrade"). A model, a lock, a check template or an engine pin that is not current is an error that names its remedy, never a mode that still works. The authoring contract is `engineering-model.authoring.v8`.
 
+### Model schema version 3 (ADR-EMG-077)
+
+- The model schema version is 3: every manifest and domain document carries `schemaVersion: 3`, and a document with another number is `model.unsupported_schema_version` with the remedy that names 3. `engws release-check` reports `release.schema_version_not_bumped` for a release whose CHANGELOG entry says Breaking release and whose manifest has the same version as the previous release tag. The composition lock keeps its own version.
+
 ### Required model switches (ADR-EMG-060, 061, 066, 072, 074, 076)
 
 - `lifecycle` (tier, bundles, tierDecision), `requirementLinks`, `lintRun.mode`, the `health` block from tier product, `schemaVersion` and the model id are required; each absence is an error with a `fix:` line (`lifecycle.missing`, `model.requirement_links_missing`, `lint.mode_missing`, `health.block_missing`, `model.unsupported_schema_version`, ...). The legacy state vocabulary is gone.

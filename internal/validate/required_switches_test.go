@@ -23,7 +23,7 @@ import (
 // completeBundleAt is a model with every required switch written, at the
 // tier: a lifecycle {tier, bundles [foundation], tierDecision} with an
 // accepted DEC-TIER-<TIER> decision whose Tier: and Bundles: lines agree,
-// requirementLinks strict, lintRun.mode strict, schemaVersion 2, a model
+// requirementLinks strict, lintRun.mode strict, schemaVersion 3, a model
 // id, a health block, and one derived requirement so that the strict link
 // rules are met. It has no error.
 func completeBundleAt(tier string) model.Bundle {
@@ -114,9 +114,9 @@ var requiredCases = []requiredCase{
 			*b = completeBundleAt(model.TierProduct)
 			b.Manifest.Health = nil
 		}},
-	{"schemaVersion 0", "model.unsupported_schema_version", "set schemaVersion: 2 at the top of the file", "requirements.schemaVersion",
+	{"schemaVersion 0", "model.unsupported_schema_version", "set schemaVersion: 3 at the top of the file", "requirements.schemaVersion",
 		func(b *model.Bundle) { b.Requirements.SchemaVersion = 0 }},
-	{"schemaVersion 1", "model.unsupported_schema_version", "schemaVersion: 2", "design.schemaVersion",
+	{"schemaVersion 1", "model.unsupported_schema_version", "schemaVersion: 3", "design.schemaVersion",
 		func(b *model.Bundle) { b.Design.SchemaVersion = 1 }},
 	{"no model id", "model.id_missing", "module.modelId", "model.id",
 		func(b *model.Bundle) { b.Architecture.Model.ID = "" }},
@@ -144,7 +144,7 @@ var literalRemedies = map[string]string{
 	"lint.mode_invalid":                    "run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp)",
 	"lint.mode_guided_at_tier":             "run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp)",
 	"health.block_missing":                 "run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write",
-	"model.unsupported_schema_version":     "set schemaVersion: 2 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)",
+	"model.unsupported_schema_version":     "set schemaVersion: 3 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)",
 	"model.id_missing":                     "set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM)",
 	"composition.lock_schema_outdated":     "regenerate the lock with the current engine: run engws bump <repo> <alias> <version> (it rewrites engmod.lock.yml with the current schemaVersion), then engws sync",
 	"engine.check_template_stale":          "run engflow upgrade --root <dir> to replace .github/engmod-check with the current template that takes --workspace-root",
@@ -640,7 +640,7 @@ func assertSchemaVersionErrorCarriesTheFix(t *testing.T) {
 	t.Helper()
 	_, err := model.EffectiveSchemaVersion(1)
 	var versionErr *model.SchemaVersionError
-	if !errors.As(err, &versionErr) || !strings.Contains(err.Error(), "fix: set schemaVersion: 2") || strings.Contains(err.Error(), "run engflow") {
+	if !errors.As(err, &versionErr) || !strings.Contains(err.Error(), "fix: set schemaVersion: 3") || strings.Contains(err.Error(), "run engflow") {
 		t.Fatalf("schema version error = %v", err)
 	}
 }

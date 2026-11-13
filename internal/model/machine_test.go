@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-const machineBehaviorYAML = `schemaVersion: 2
+const machineBehaviorYAML = `schemaVersion: 3
 behavior:
   events:
     - id: EVT-A

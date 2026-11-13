@@ -4,6 +4,7 @@ package validate
 import (
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -105,7 +106,7 @@ func setOf(values []string) map[string]bool {
 }
 
 var authoringFieldRules = []string{
-	"Required switches (ADR-EMG-061, no backwards compatibility): the required section lists each switch whose absence is an error, its code and its remedy. Every such error carries the remedy in its remedy field (the CLIs print it as a fix: line): lifecycle with bundles and an accepted tierDecision, requirementLinks, requirements lintRun.mode, the health block from tier product, schemaVersion 2 in every document and the model id. They are rank-0 core codes: no tier, lifecycle.raise or POA&M item changes them. The loader (LoadBundle) stays lenient so that tools can report; ValidateBundle and every CLI error.",
+	"Required switches (ADR-EMG-061, no backwards compatibility): the required section lists each switch whose absence is an error, its code and its remedy. Every such error carries the remedy in its remedy field (the CLIs print it as a fix: line): lifecycle with bundles and an accepted tierDecision, requirementLinks, requirements lintRun.mode, the health block from tier product, schemaVersion " + strconv.Itoa(model.CurrentSchemaVersion) + " in every document and the model id. They are rank-0 core codes: no tier, lifecycle.raise or POA&M item changes them. The loader (LoadBundle) stays lenient so that tools can report; ValidateBundle and every CLI error.",
 	"Enum keys name the field; risk.level applies to risk likelihood, impact and residualRisk and to threatScenario likelihood, impact and severity. view.includeKinds also governs excludeKinds and view.includeMappings also governs excludeMappings.",
 	"Status, level, response, method, effectiveness, direction, frequency, flowType and implementation values are trimmed and compared lowercase; relationship.type, view.kind, view entity kinds, view mapping types and flowStep.kind are compared exactly.",
 	"Owner fields must be actor (ACT-*) IDs: risk.owner, threatScenario.owner, threatAssumption.owner, threatOutOfScope.owner, threatMitigation.owner, controlVerification.owner, poamItem.responsibleRole and every complianceMapping.responsibleRoles entry. Functional units, systems and free-text team names are rejected.",

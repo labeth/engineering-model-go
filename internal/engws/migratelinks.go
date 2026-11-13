@@ -288,7 +288,7 @@ func appendLinks(b model.Bundle, manifestPath string, links []model.ReqLink, rea
 	}
 	switch {
 	case os.IsNotExist(err):
-		writes[linksPath] = []byte("schemaVersion: 2\nreqLinks:\n" + strings.Join(blocks, ""))
+		writes[linksPath] = []byte(model.SchemaVersionLine + "\nreqLinks:\n" + strings.Join(blocks, ""))
 	case err != nil:
 		return added, err
 	default:

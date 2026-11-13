@@ -5,13 +5,14 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
 
 // schemaVersion is required in the design and workspace documents as well
 // (ADR-EMG-061): the CUE schema declares it required, and because the schema
-// value is the constant 2 CUE fills it in, so the loaders reject a missing
+// value is the constant 3 CUE fills it in, so the loaders reject a missing
 // one on the decoded document, with the remedy in the error.
 // Mutation: dropping the EffectiveSchemaVersion call of LoadDesign or
 // LoadWorkspace accepts the document without schemaVersion.
@@ -28,14 +29,14 @@ func TestSchemaVersionIsRequiredInDesignAndWorkspaceDocuments(t *testing.T) {
 	if _, err := LoadDesign(write("design-without.yml", "design: {}\n")); err == nil || !strings.Contains(err.Error(), "unsupported schemaVersion 0") || !strings.Contains(err.Error(), SchemaVersionRemedy) {
 		t.Errorf("design without schemaVersion: got %v", err)
 	}
-	if _, err := LoadDesign(write("design-with.yml", "schemaVersion: 2\ndesign: {}\n")); err != nil {
-		t.Errorf("design with schemaVersion 2: %v", err)
+	if _, err := LoadDesign(write("design-with.yml", "schemaVersion: 3\ndesign: {}\n")); err != nil {
+		t.Errorf("design with schemaVersion 3: %v", err)
 	}
 	if _, err := LoadWorkspace(write("workspace-without.yml", "replacements: []\n")); err == nil || !strings.Contains(err.Error(), "unsupported schemaVersion 0") || !strings.Contains(err.Error(), SchemaVersionRemedy) {
 		t.Errorf("workspace without schemaVersion: got %v", err)
 	}
-	if _, err := LoadWorkspace(write("workspace-with.yml", "schemaVersion: 2\nreplacements: []\n")); err != nil {
-		t.Errorf("workspace with schemaVersion 2: %v", err)
+	if _, err := LoadWorkspace(write("workspace-with.yml", "schemaVersion: 3\nreplacements: []\n")); err != nil {
+		t.Errorf("workspace with schemaVersion 3: %v", err)
 	}
 }
 
@@ -43,13 +44,13 @@ func TestSchemaVersionIsRequiredInDesignAndWorkspaceDocuments(t *testing.T) {
 // text names the remedy, and the document loaders wrap it.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125
 func TestSchemaVersionErrorNamesTheRemedy(t *testing.T) {
-	for _, version := range []int{0, 1, 3} {
+	for _, version := range []int{0, 1, 2, 4} {
 		assertVersionErrorNamesTheRemedy(t, version)
 	}
 	if _, err := EffectiveSchemaVersion(CurrentSchemaVersion); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(SchemaVersionRemedy, "schemaVersion: 2") {
+	if !strings.Contains(SchemaVersionRemedy, "schemaVersion: 3") {
 		t.Fatalf("remedy = %q", SchemaVersionRemedy)
 	}
 	assertRemedyNamesNoMissingCommand(t)
@@ -65,7 +66,7 @@ func assertVersionErrorNamesTheRemedy(t *testing.T, version int) {
 	if !errors.As(err, &versionErr) || versionErr.Version != version {
 		t.Fatalf("version %d: got %v", version, err)
 	}
-	if !strings.Contains(err.Error(), "supported version is 2") || !strings.HasSuffix(err.Error(), "fix: "+SchemaVersionRemedy) || strings.Contains(versionErr.Problem(), "fix:") {
+	if !strings.Contains(err.Error(), "supported version is "+strconv.Itoa(CurrentSchemaVersion)) || !strings.HasSuffix(err.Error(), "fix: "+SchemaVersionRemedy) || strings.Contains(versionErr.Problem(), "fix:") {
 		t.Errorf("version %d: error %q, problem %q", version, err, versionErr.Problem())
 	}
 }
@@ -86,7 +87,7 @@ func assertRemedyNamesNoMissingCommand(t *testing.T) {
 // CUE schema is consulted (which would fill in a missing version and word a
 // wrong one as a unification failure).
 // Mutation: moving the checkSchemaVersion call of decodeYAMLFile after
-// validateCanonicalYAML, or dropping it, makes the absent and 1 and 3 rows
+// validateCanonicalYAML, or dropping it, makes the absent, 1, 2 and 4 rows
 // fail with a CUE error instead.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
 func TestEveryDocumentTypeRejectsABadSchemaVersionWithTheFix(t *testing.T) {
@@ -107,16 +108,16 @@ var schemaDocumentKinds = []schemaDocumentKind{
 	{"aviation", "model/aviation.yml"}, {"reqLinks", "model/req-links.yml"},
 }
 
-// badSchemaVersion is a replacement of the "schemaVersion: 2" line and the
+// badSchemaVersion is a replacement of the "schemaVersion: 3" line and the
 // version the loader must report.
 type badSchemaVersion struct {
 	name    string
-	line    string // replacement of the "schemaVersion: 2" line
+	line    string // replacement of the "schemaVersion: 3" line
 	version int
 }
 
 var badSchemaVersions = []badSchemaVersion{
-	{"absent", "", 0}, {"0", "schemaVersion: 0\n", 0}, {"1", "schemaVersion: 1\n", 1}, {"3", "schemaVersion: 3\n", 3},
+	{"absent", "", 0}, {"0", "schemaVersion: 0\n", 0}, {"1", "schemaVersion: 1\n", 1}, {"2", "schemaVersion: 2\n", 2}, {"4", "schemaVersion: 4\n", 4},
 }
 
 // schemaFixture writes a valid v2 fixture; the aviation and reqLinks
@@ -130,10 +131,10 @@ func schemaFixture(t *testing.T, kind schemaDocumentKind) string {
 	switch kind.name {
 	case "aviation":
 		manifest = strings.Replace(manifest, anchor, anchor+"  aviation: model/aviation.yml\n", 1)
-		extra = "schemaVersion: 2\naviation: {}\n"
+		extra = "schemaVersion: 3\naviation: {}\n"
 	case "reqLinks":
 		manifest = strings.Replace(manifest, anchor, anchor+"  reqLinks: model/req-links.yml\n", 1)
-		extra = "schemaVersion: 2\nreqLinks: []\n"
+		extra = "schemaVersion: 3\nreqLinks: []\n"
 	}
 	dir := writeV2Fixture(t, manifest)
 	if extra != "" {
@@ -150,8 +151,8 @@ func replaceSchemaVersionLine(t *testing.T, path, line string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	mutated := strings.Replace(string(content), "schemaVersion: 2\n", line, 1)
-	if mutated == string(content) && line != "schemaVersion: 2\n" {
+	mutated := strings.Replace(string(content), "schemaVersion: 3\n", line, 1)
+	if mutated == string(content) && line != "schemaVersion: 3\n" {
 		t.Fatalf("fixture %s has no schemaVersion line", path)
 	}
 	writeTestFile(t, path, mutated)
@@ -177,5 +178,40 @@ func assertBadSchemaVersionRejected(t *testing.T, kind schemaDocumentKind, v bad
 	}
 	if !strings.Contains(err.Error(), filepath.Base(kind.file)) {
 		t.Errorf("error does not name the file %s: %v", kind.file, err)
+	}
+}
+
+// The previous schema version 2 is no longer read: the loader rejects it with
+// a *SchemaVersionError whose message and remedy name the current version 3,
+// so a model written for an earlier release fails on its version and not on
+// whichever field broke first (ADR-EMG-077).
+// Mutation: leaving CurrentSchemaVersion at 2, or a remedy text that names
+// another number, fails this test.
+// TRLC-LINKS: REQ-EMG-186
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+func TestSchemaVersionTwoIsRejectedWithTheRemedyNamingTheCurrentVersion(t *testing.T) {
+	if CurrentSchemaVersion != 3 {
+		t.Fatalf("CurrentSchemaVersion = %d, want 3", CurrentSchemaVersion)
+	}
+	assertBadSchemaVersionRejected(t, schemaDocumentKinds[0], badSchemaVersion{"2", "schemaVersion: 2\n", 2})
+	_, err := EffectiveSchemaVersion(2)
+	if err == nil || !strings.Contains(err.Error(), "unsupported schemaVersion 2; supported version is 3") || !strings.Contains(err.Error(), "set schemaVersion: 3 at the top") {
+		t.Fatalf("got %v", err)
+	}
+}
+
+// The CUE constant #SchemaVersion equals CurrentSchemaVersion, so the schema
+// and the loader cannot disagree about the version a release reads.
+// Mutation: raising only one of the two fails this test.
+// TRLC-LINKS: REQ-EMG-186
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+func TestCUESchemaVersionEqualsTheGoConstant(t *testing.T) {
+	data, err := os.ReadFile(filepath.Join("schema", "common.cue"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "#SchemaVersion: " + strconv.Itoa(CurrentSchemaVersion) + "\n"
+	if !strings.Contains(string(data), want) {
+		t.Fatalf("schema/common.cue lacks %q", want)
 	}
 }

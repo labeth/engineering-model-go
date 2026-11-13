@@ -27,11 +27,11 @@ func project(t *testing.T, extra string) string {
       name: Unit A
       group: FG-A
 `)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-X\n    text: The unit shall decide.\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun: {}\nrequirements:\n  - id: REQ-X\n    text: The unit shall decide.\n")
 	// Decisions that the waivers, the baseline and the policy decision of the
 	// tests refer to: a waiver (ADR-EMG-051, ADR-EMG-052), a baseline or a policy
 	// decision whose decision is not accepted does nothing; ADR-DRAFT is proposed.
-	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions:\n"+
+	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 3\ndecisions:\n"+
 		"  - {id: ADR-W, title: Waive, status: accepted, date: 2026-11-12, context: c, decision: d, consequences: [c]}\n"+
 		"  - {id: ADR-SVC, title: Waive svc, status: accepted, date: 2026-11-12, context: c, decision: d, consequences: [c]}\n"+
 		"  - {id: ADR-DEBT, title: Carry debt, status: accepted, date: 2026-11-12, context: c, decision: d, consequences: [c]}\n"+

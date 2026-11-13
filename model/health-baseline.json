@@ -4642,12 +4642,6 @@
     {
       "path": "internal/engws/contractdiff.go",
       "function": "LoadBundleAtRef",
-      "code": "health.brain_method",
-      "value": 20
-    },
-    {
-      "path": "internal/engws/contractdiff.go",
-      "function": "LoadBundleAtRef",
       "code": "health.complex_conditional",
       "value": 3
     },
@@ -4655,19 +4649,13 @@
       "path": "internal/engws/contractdiff.go",
       "function": "LoadBundleAtRef",
       "code": "health.complex_method",
-      "value": 20
-    },
-    {
-      "path": "internal/engws/contractdiff.go",
-      "function": "LoadBundleAtRef",
-      "code": "health.deep_nesting",
-      "value": 3
+      "value": 19
     },
     {
       "path": "internal/engws/contractdiff.go",
       "function": "LoadBundleAtRef",
       "code": "health.large_method",
-      "value": 59
+      "value": 58
     },
     {
       "path": "internal/engws/contractdiff.go",
@@ -5045,19 +5033,19 @@
       "path": "internal/engws/releasecheck.go",
       "function": "ReleaseCheck",
       "code": "health.bumpy_road",
-      "value": 3
+      "value": 2
     },
     {
       "path": "internal/engws/releasecheck.go",
       "function": "ReleaseCheck",
       "code": "health.complex_method",
-      "value": 23
+      "value": 18
     },
     {
       "path": "internal/engws/releasecheck.go",
       "function": "ReleaseCheck",
       "code": "health.large_method",
-      "value": 81
+      "value": 68
     },
     {
       "path": "internal/engws/releasecheck.go",

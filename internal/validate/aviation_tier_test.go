@@ -23,7 +23,7 @@ func aviationTierBundle(tier, level, planState, metric string) model.Bundle {
 		}
 		data = append(data, model.LifecycleDataRecord{ID: "DATA-" + strings.ToUpper(family.CategoryCode[:6]) + "-" + string(rune('A'+i)), CategoryCode: family.CategoryCode, CategoryName: family.CategoryName, Owner: "Lead", State: state})
 	}
-	b.Aviation = &model.AviationDocument{SchemaVersion: 2, Aviation: model.AviationProfile{
+	b.Aviation = &model.AviationDocument{SchemaVersion: model.CurrentSchemaVersion, Aviation: model.AviationProfile{
 		Profile:       model.AirborneProfile{ID: "AV", SoftwareLevel: level},
 		LifecycleData: data,
 		Executions:    []model.VerificationExecution{{ID: "EXEC-1", Producer: "Engineer A", Verifier: "Reviewer B", Status: "executed"}},

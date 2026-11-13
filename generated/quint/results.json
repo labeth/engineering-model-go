@@ -230,7 +230,7 @@
       "machine": "SM-MCP-SESSION",
       "module": "sm_mcp_session",
       "qntFile": "generated/quint/sm_mcp_session.qnt",
-      "qntSha256": "a80062a7f1dd9f1f1e6a4865c90ef50c9a281ac4b76042264e4fe2e2fd075d58",
+      "qntSha256": "cab801365c3dac5a7e681607cda843d672d72f98d3959fabcc530a5069bccf3c",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -280,13 +280,50 @@
             "status": "pass",
             "exitCode": 0
           }
+        },
+        {
+          "name": "inv_mcp_failed_call_keeps_outdated",
+          "id": "INV-MCP-FAILED-CALL-KEEPS-OUTDATED",
+          "requirements": [
+            "REQ-EMG-007",
+            "REQ-EMG-089"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_mcp_unloadable_files_not_current",
+          "id": "INV-MCP-UNLOADABLE-FILES-NOT-CURRENT",
+          "requirements": [
+            "REQ-EMG-089"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
         }
       ],
       "witnesses": [
         {
           "name": "wit_state_mcp_model_current",
           "state": "STATE-MCP-MODEL-CURRENT",
-          "witnessed": 10000,
+          "witnessed": 9919,
           "total": 10000
         },
         {
@@ -302,7 +339,7 @@
       "machine": "SM-REQUIREMENTS-DELTA",
       "module": "sm_requirements_delta",
       "qntFile": "generated/quint/sm_requirements_delta.qnt",
-      "qntSha256": "74ee6fe006d6efbbd255449a38a2bd82054d6b8ff3d9c5d988f0e843dfbb8f31",
+      "qntSha256": "44282e470e5c692efc3551f301aeee0f944d04a6034a7166261a7e3483868cf2",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -376,7 +413,8 @@
           "id": "INV-DELTA-WRITTEN-CANDIDATE-VALID",
           "requirements": [
             "REQ-EMG-032",
-            "REQ-EMG-033"
+            "REQ-EMG-033",
+            "REQ-EMG-185"
           ],
           "status": "pass",
           "run": {
@@ -394,7 +432,8 @@
           "name": "inv_delta_written_source_unchanged",
           "id": "INV-DELTA-WRITTEN-SOURCE-UNCHANGED",
           "requirements": [
-            "REQ-EMG-033"
+            "REQ-EMG-033",
+            "REQ-EMG-185"
           ],
           "status": "pass",
           "run": {
@@ -412,7 +451,8 @@
           "name": "inv_delta_lock_exclusive",
           "id": "INV-DELTA-LOCK-EXCLUSIVE",
           "requirements": [
-            "REQ-EMG-033"
+            "REQ-EMG-033",
+            "REQ-EMG-185"
           ],
           "status": "pass",
           "run": {
@@ -430,7 +470,8 @@
           "name": "inv_delta_lock_released",
           "id": "INV-DELTA-LOCK-RELEASED",
           "requirements": [
-            "REQ-EMG-033"
+            "REQ-EMG-033",
+            "REQ-EMG-185"
           ],
           "status": "pass",
           "run": {
@@ -448,7 +489,8 @@
           "name": "inv_delta_refused_not_written",
           "id": "INV-DELTA-REFUSED-NOT-WRITTEN",
           "requirements": [
-            "REQ-EMG-033"
+            "REQ-EMG-033",
+            "REQ-EMG-185"
           ],
           "status": "pass",
           "run": {

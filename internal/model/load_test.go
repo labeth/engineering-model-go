@@ -12,7 +12,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const validManifest = `schemaVersion: 2
+const validManifest = `schemaVersion: 3
 module:
   path: example.com/test@v1
   version: v1.0.0
@@ -85,7 +85,7 @@ func TestLoadBundleRejectsArchitectureEntryPoint(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
 func TestSchemaV2RejectsMissingSchemaVersion(t *testing.T) {
-	dir := writeV2Fixture(t, strings.TrimPrefix(validManifest, "schemaVersion: 2\n"))
+	dir := writeV2Fixture(t, strings.TrimPrefix(validManifest, "schemaVersion: 3\n"))
 	_, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
 	if err == nil || !strings.Contains(err.Error(), "schemaVersion") {
 		t.Fatalf("expected required schemaVersion error, got %v", err)
@@ -209,7 +209,7 @@ func TestBuildAuthoringContractDescribesSchemaV2(t *testing.T) {
 	}
 
 	for _, document := range contract.Documents {
-		if !document.Required || document.SchemaVersion != 2 || document.Path == "" || document.SchemaPath == "" {
+		if !document.Required || document.SchemaVersion != CurrentSchemaVersion || document.Path == "" || document.SchemaPath == "" {
 			t.Fatalf("incomplete document contract: %+v", document)
 		}
 	}
@@ -244,14 +244,14 @@ func writeV2Fixture(t *testing.T, manifest string) string {
 	t.Cleanup(func() { _ = os.RemoveAll(dir) })
 	files := map[string]string{
 		"engmod.yml":             manifest,
-		"model/catalog.yml":      "schemaVersion: 2\ncatalog: {}\n",
-		"model/requirements.yml": "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-A\n    title: Qualified requirement\n    text: The system shall provide an outcome.\n    category: functional\n    rationale: The outcome is required.\n    sourceRefs: [REF-DOC]\n    verificationMethods: [test]\n    verificationCriteria: The observable outcome is produced.\n    priority: high\n    criticality: high\n    status: approved\n    derived: true\n    derivedRationale: The implementation allocation introduces this requirement.\n    tags: [baseline]\n    appliesTo: [FU-A]\n",
-		"model/architecture.yml": "schemaVersion: 2\narchitecture:\n  functionalUnits:\n    - id: FU-A\n      name: A\n  actors:\n    - id: ACT-A\n      name: Stakeholder A\n  referencedElements:\n    - id: REF-DOC\n      name: Source document\n      kind: document\n      layer: external\n      description: Source description\n      version: \"1.0\"\n      date: 2026-09-20\n      uri: https://example.com/source\n      publisher: Example publisher\n  dataObjects:\n    - id: DO-A\n      name: A\n",
-		"model/behavior.yml":     "schemaVersion: 2\nbehavior:\n  machines:\n    - id: SM-A\n      owner: FU-A\n      initial: STATE-A\n      states:\n        - {id: STATE-A, name: A}\n        - {id: STATE-B, name: B}\n      transitions:\n        - {id: TR-A, from: STATE-A, to: STATE-B}\n  relationships:\n    - type: writes\n      from: FU-A\n      to: DO-A\n",
-		"model/assurance.yml":    "schemaVersion: 2\nassurance:\n  controls:\n    - id: CTRL-A\n      name: A\n",
-		"model/compliance.yml":   "schemaVersion: 2\ncompliance:\n  profiles:\n    - id: PROFILE-A\n      href: profile.json\n",
-		"model/views.yml":        "schemaVersion: 2\nviews:\n  - id: VIEW-A\n    kind: architecture-intent\n    roots: [FU-A]\nnaf:\n  framework: NAF\n  version: \"4.1\"\n  architectureDescription: Test\n  stakeholders: []\n  concerns: []\n  products: []\ndesign:\n  id: DESIGN-A\n  title: Test\n  functionalUnits:\n    - id: FU-A\n      views:\n        intent:\n          narrative: Narrative\ndocuments:\n  - id: DOC-A\n    title: Formal document\n    kind: system-description\n    purpose: Describe the system.\n    audience: [engineering]\n    stakeholderRefs: [ACT-A]\n    referenceRefs: [REF-DOC]\n    contentRefs: [REQ-A, FU-A, VIEW-A]\n    sections:\n      - id: scope\n        title: Scope\n        narrative: Defines the document scope.\n        includeRefs: [FU-A]\n    control:\n      identifier: DOC-001\n      revision: \"1.0\"\n      status: draft\n      issuedBy: Example issuer\n      issueDate: 2026-09-20\n      language: en\n      documentType: specification\n      confidentiality: internal\n      securityClassification: unclassified\n      exportControlled: false\n      countryOfOrigin: Sweden\n      confidentialityStamp: false\n",
-		"model/decisions.yml":    "schemaVersion: 2\ndecisions: []\n",
+		"model/catalog.yml":      "schemaVersion: 3\ncatalog: {}\n",
+		"model/requirements.yml": "schemaVersion: 3\nlintRun: {}\nrequirements:\n  - id: REQ-A\n    title: Qualified requirement\n    text: The system shall provide an outcome.\n    category: functional\n    rationale: The outcome is required.\n    sourceRefs: [REF-DOC]\n    verificationMethods: [test]\n    verificationCriteria: The observable outcome is produced.\n    priority: high\n    criticality: high\n    status: approved\n    derived: true\n    derivedRationale: The implementation allocation introduces this requirement.\n    tags: [baseline]\n    appliesTo: [FU-A]\n",
+		"model/architecture.yml": "schemaVersion: 3\narchitecture:\n  functionalUnits:\n    - id: FU-A\n      name: A\n  actors:\n    - id: ACT-A\n      name: Stakeholder A\n  referencedElements:\n    - id: REF-DOC\n      name: Source document\n      kind: document\n      layer: external\n      description: Source description\n      version: \"1.0\"\n      date: 2026-09-20\n      uri: https://example.com/source\n      publisher: Example publisher\n  dataObjects:\n    - id: DO-A\n      name: A\n",
+		"model/behavior.yml":     "schemaVersion: 3\nbehavior:\n  machines:\n    - id: SM-A\n      owner: FU-A\n      initial: STATE-A\n      states:\n        - {id: STATE-A, name: A}\n        - {id: STATE-B, name: B}\n      transitions:\n        - {id: TR-A, from: STATE-A, to: STATE-B}\n  relationships:\n    - type: writes\n      from: FU-A\n      to: DO-A\n",
+		"model/assurance.yml":    "schemaVersion: 3\nassurance:\n  controls:\n    - id: CTRL-A\n      name: A\n",
+		"model/compliance.yml":   "schemaVersion: 3\ncompliance:\n  profiles:\n    - id: PROFILE-A\n      href: profile.json\n",
+		"model/views.yml":        "schemaVersion: 3\nviews:\n  - id: VIEW-A\n    kind: architecture-intent\n    roots: [FU-A]\nnaf:\n  framework: NAF\n  version: \"4.1\"\n  architectureDescription: Test\n  stakeholders: []\n  concerns: []\n  products: []\ndesign:\n  id: DESIGN-A\n  title: Test\n  functionalUnits:\n    - id: FU-A\n      views:\n        intent:\n          narrative: Narrative\ndocuments:\n  - id: DOC-A\n    title: Formal document\n    kind: system-description\n    purpose: Describe the system.\n    audience: [engineering]\n    stakeholderRefs: [ACT-A]\n    referenceRefs: [REF-DOC]\n    contentRefs: [REQ-A, FU-A, VIEW-A]\n    sections:\n      - id: scope\n        title: Scope\n        narrative: Defines the document scope.\n        includeRefs: [FU-A]\n    control:\n      identifier: DOC-001\n      revision: \"1.0\"\n      status: draft\n      issuedBy: Example issuer\n      issueDate: 2026-09-20\n      language: en\n      documentType: specification\n      confidentiality: internal\n      securityClassification: unclassified\n      exportControlled: false\n      countryOfOrigin: Sweden\n      confidentialityStamp: false\n",
+		"model/decisions.yml":    "schemaVersion: 3\ndecisions: []\n",
 	}
 	for name, content := range files {
 		writeTestFile(t, filepath.Join(dir, name), content)

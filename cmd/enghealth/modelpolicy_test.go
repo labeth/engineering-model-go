@@ -17,9 +17,9 @@ func modelPolicyRepo(t *testing.T) *checkRepo {
 	const extra = "requirementLinks: strict\nlifecycle:\n  tier: product\n  bundles: [foundation]\n  tierDecision: ADR-POLICY\n" +
 		"health:\n  baseline:\n    file: model/health-baseline.json\n    decision: ADR-DEBT\n"
 	r := newCheckRepo(t, extra, false)
-	r.write("model/requirements.yml", "schemaVersion: 2\nlintRun: {mode: strict}\nrequirements:\n  - id: REQ-X\n    text: The unit shall decide.\n")
+	r.write("model/requirements.yml", "schemaVersion: 3\nlintRun: {mode: strict}\nrequirements:\n  - id: REQ-X\n    text: The unit shall decide.\n")
 	r.write("model/health-baseline.json", baselineJSON(20, 90))
-	r.write("model/assurance.yml", "schemaVersion: 2\nassurance:\n  poamItems:\n  - id: POAM-1\n    milestone: tier:product\n    dueDate: 2026-12-31\n    status: planned\n    defers:\n    - {code: lifecycle.x}\n")
+	r.write("model/assurance.yml", "schemaVersion: 3\nassurance:\n  poamItems:\n  - id: POAM-1\n    milestone: tier:product\n    dueDate: 2026-12-31\n    status: planned\n    defers:\n    - {code: lifecycle.x}\n")
 	r.commit("base")
 	return r
 }

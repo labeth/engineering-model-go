@@ -198,7 +198,7 @@ func TestLoadBundleAtRefRejectsOptionRefs(t *testing.T) {
 func TestLoadBundleAtRefToleratesTheRetiredStateVocabulary(t *testing.T) {
 	dir := gitModel(t, "child-a", "v1.0.0")
 	behavior := filepath.Join(dir, "model", "behavior.yml")
-	legacy := "schemaVersion: 2\nbehavior:\n  states:\n  - id: STATE-OLD\n    name: Old\n  relationships:\n  - type: transitions_to\n    from: STATE-OLD\n    to: STATE-OLD\n"
+	legacy := "schemaVersion: 3\nbehavior:\n  states:\n  - id: STATE-OLD\n    name: Old\n  relationships:\n  - type: transitions_to\n    from: STATE-OLD\n    to: STATE-OLD\n"
 	if err := os.WriteFile(behavior, []byte(legacy), 0o644); err != nil {
 		t.Fatal(err)
 	}

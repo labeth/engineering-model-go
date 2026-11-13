@@ -14,7 +14,7 @@ func writeWorkspaceFixture(t *testing.T, path, module string) {
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	content := "schemaVersion: 2\nreplacements:\n  - module: " + module + "\n    path: ./x\n"
+	content := "schemaVersion: 3\nreplacements:\n  - module: " + module + "\n    path: ./x\n"
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}

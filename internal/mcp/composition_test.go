@@ -82,7 +82,7 @@ func writeMCPCompositionFixture(t *testing.T) string {
         to: SUB-CHILD
         target: child::CAP-CHILD
 `)
-	writeMCPFile(t, filepath.Join(root, "engmod.work.yml"), "schemaVersion: 2\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
+	writeMCPFile(t, filepath.Join(root, "engmod.work.yml"), "schemaVersion: 3\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
 	return parent
 }
 
@@ -90,7 +90,7 @@ func writeMCPCompositionFixture(t *testing.T) string {
 func writeMCPModule(t *testing.T, dir, modulePath, version, modelID, manifestExtra, architecture string) {
 	t.Helper()
 	writeMCPFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePath+"\"\nlanguage: version: \"v0.17.0\"\n")
-	writeMCPFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
+	writeMCPFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 3
 module:
   path: `+modulePath+`
   version: `+version+`
@@ -108,17 +108,17 @@ module:
   views: model/views.yml
   decisions: model/decisions.yml
 `)
-	writeMCPFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	requirements := "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-PARENT\n    text: Parent requirement.\n  - id: REQ-CHILD\n    text: Child requirement.\n"
+	writeMCPFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 3\ncatalog: {}\n")
+	requirements := "schemaVersion: 3\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-PARENT\n    text: Parent requirement.\n  - id: REQ-CHILD\n    text: Child requirement.\n"
 	if strings.Contains(architecture, "- id: CAP-CHILD\n") {
 		requirements += "    realizes: [CAP-CHILD]\n" // the child requirement realizes its capability (provides.ref was removed)
 	}
 	writeMCPFile(t, filepath.Join(dir, "model", "requirements.yml"), requirements)
-	writeMCPFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n"+architecture)
-	writeMCPFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 3\narchitecture:\n"+architecture)
+	writeMCPFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 3\nbehavior: {}\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 3\nassurance: {}\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 3\ncompliance: {}\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 3\nviews: []\n")
 	writeMCPFile(t, filepath.Join(dir, "model", "decisions.yml"), testutil.TierDecisionPoC)
 }
 

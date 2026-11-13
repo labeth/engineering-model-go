@@ -44,12 +44,12 @@ func fixture(t *testing.T, extra string) (dir, manifest string) {
 	t.Helper()
 	dir = t.TempDir()
 	testutil.WriteV2ModuleFiles(t, dir, "example.com/hs@v0", "v0.1.0", "hs", extra, architecture)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-X\n    text: The unit shall decide.\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun: {}\nrequirements:\n  - id: REQ-X\n    text: The unit shall decide.\n")
 	// Accepted decisions that the waivers, the baseline and the policy decision
 	// of the tests refer to: a waiver (ADR-EMG-051, ADR-EMG-052), a baseline or a
 	// policy decision whose decision is not accepted does nothing; ADR-DRAFT is
 	// proposed.
-	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions:\n"+
+	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 3\ndecisions:\n"+
 		"  - {id: ADR-W, title: Waive, status: accepted, date: 2026-11-12, context: c, decision: d, consequences: [c]}\n"+
 		"  - {id: ADR-SVC, title: Waive svc, status: accepted, date: 2026-11-12, context: c, decision: d, consequences: [c]}\n"+
 		"  - {id: ADR-DEBT, title: Carry debt, status: accepted, date: 2026-11-12, context: c, decision: d, consequences: [c]}\n"+
@@ -322,7 +322,7 @@ func TestScanIgnoresWaiverWithoutAcceptedDecision(t *testing.T) {
 	extra := "lifecycle:\n  tier: product\nhealth:\n  waivers:\n" +
 		"    - {code: health.complex_method, path: pkg/big.go, function: Big, decision: ADR-P}\n"
 	dir, manifest := fixture(t, extra)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions:\n"+
+	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 3\ndecisions:\n"+
 		"  - {id: ADR-P, title: Not yet, status: proposed, date: 2026-11-12, context: c, decision: d, consequences: [c]}\n")
 	r, err := Scan(Options{ManifestPath: manifest})
 	if err != nil {

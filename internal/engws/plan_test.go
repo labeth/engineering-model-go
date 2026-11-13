@@ -249,7 +249,7 @@ func TestFindRootStopsAtHome(t *testing.T) {
 	}
 	t.Setenv("HOME", home)
 	write(t, filepath.Join(home, ".engws.yml"), "pins: []\n")
-	write(t, filepath.Join(top, model.WorkspaceFileName), "schemaVersion: 2\nreplacements: []\n")
+	write(t, filepath.Join(top, model.WorkspaceFileName), "schemaVersion: 3\nreplacements: []\n")
 	if got, err := FindRoot(deep); err != nil || got != deep {
 		t.Fatalf("marker in $HOME and above it: got %s, %v; want %s", got, err, deep)
 	}

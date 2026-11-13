@@ -29,7 +29,7 @@ domain documents. An optional ninth `documents.aviation` document adds an
 airborne software evidence-readiness profile that models without it do not need:
 
 ```yaml
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/example-system@v0
   version: v0.1.0
@@ -65,7 +65,7 @@ error that names its remedy (see [Required model switches](#required-model-switc
 product it also needs a `health` block.
 
 `engmod.yml` is the only model entry point. Every manifest and domain document
-uses `schemaVersion: 2`; paths are explicit and no companion filename is
+uses `schemaVersion: 3`; paths are explicit and no companion filename is
 inferred. AI agents should call the no-argument MCP tool
 `model.authoringContract` first; it returns the resolved
 document set, schema files, top-level YAML fields, stable-ID conventions,
@@ -870,7 +870,7 @@ model and report it; `ValidateBundle` and every CLI error. `rules.required` of t
 | lintRun.mode (value) | `lint.mode_invalid` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
 | lintRun.mode guided at mvp or above | `lint.mode_guided_at_tier` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
 | engmod.yml health block (tier product and operational) | `health.block_missing` | run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write |
-| schemaVersion 2 in every document | `model.unsupported_schema_version` | set schemaVersion: 2 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet) |
+| schemaVersion 3 in every document | `model.unsupported_schema_version` | set schemaVersion: 3 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet) |
 | module.modelId | `model.id_missing` | set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM) |
 | engmod.lock.yml schemaVersion (the version the engine writes) | `composition.lock_schema_outdated` | regenerate the lock with the current engine: run engws bump <repo> <alias> <version> (it rewrites engmod.lock.yml with the current schemaVersion), then engws sync |
 | repository .github/engmod-check that takes --workspace-root | `engine.check_template_stale` | run engflow upgrade --root <dir> to replace .github/engmod-check with the current template that takes --workspace-root |
@@ -1386,7 +1386,7 @@ repositories. Published coordinates stay unchanged while dependencies resolve
 from explicit sibling paths:
 
 ```yaml
-schemaVersion: 2
+schemaVersion: 3
 replacements:
   - module: models.example.com/company/security@v0
     path: ./repos/security
@@ -1536,7 +1536,12 @@ project, run it in the pre-push hook for a tag push as well. It fails (exit 1) w
   `engmod.lock.yml` is a pre-release or a pseudo-version: a release pins release tags only;
 - `contract.semver_too_small` when the bump of the tag (default: the release tag at HEAD)
   over the previous release (the nearest release tag in the commit's history) is smaller
-  than `contract-diff` between them requires. In v0.x a breaking change needs a minor bump (`v0.1.0` to `v0.2.0`).
+  than `contract-diff` between them requires. In v0.x a breaking change needs a minor bump (`v0.1.0` to `v0.2.0`);
+- `release.schema_version_not_bumped` (untiered) when the `CHANGELOG.md` entry `## [X.Y.Z]` of the tag
+  contains the words *Breaking release* (any case) and the `schemaVersion` of `engmod.yml` is not above the
+  one at the previous release tag (read as written, not through the loader). Nothing is reported without a
+  previous release tag or without an entry for the tag. Remedy (ADR-EMG-077):
+  raise schemaVersion and model.CurrentSchemaVersion, then record the change in the CHANGELOG.
 
 Exit 2 is a usage, git or model error.
 

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-const linkedBehaviorYAML = `schemaVersion: 2
+const linkedBehaviorYAML = `schemaVersion: 3
 behavior:
   events:
     - {id: EVT-A, name: Requested, requirements: [REQ-A, REQ-B]}

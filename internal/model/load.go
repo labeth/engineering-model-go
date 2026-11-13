@@ -11,7 +11,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const CurrentSchemaVersion = 2
+// CurrentSchemaVersion is the model schema version this release reads and
+// writes: the one place Go names the number (the CUE constant #SchemaVersion in
+// schema/common.cue must equal it). A breaking release raises it and
+// engws release-check reports release.schema_version_not_bumped when it does
+// not (ADR-EMG-077, REQ-EMG-186).
+const CurrentSchemaVersion = 3
+
+// SchemaVersionLine is the top-level manifest or document line that declares
+// the current schema version, for code that writes a document.
+var SchemaVersionLine = fmt.Sprintf("schemaVersion: %d", CurrentSchemaVersion)
 
 // ResolveDocumentReferences validates the explicit schema-v2 document map.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-053
@@ -34,7 +43,7 @@ func ResolveDocumentReferences(meta ModelMeta) (DocumentReferences, error) {
 // missing or not the current one (ADR-EMG-061). It names only what exists
 // today: the manual edit. The upgrade command of engineering-flow is
 // planned and not built yet, so no text may tell a user to run it.
-const SchemaVersionRemedy = "set schemaVersion: 2 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)"
+var SchemaVersionRemedy = "set " + SchemaVersionLine + " at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)"
 
 // SchemaVersionError reports a schemaVersion that is missing (0) or not the
 // current one. Problem is the message without the remedy; Error appends it.

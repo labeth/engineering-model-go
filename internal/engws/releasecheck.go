@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
@@ -16,7 +17,8 @@ import (
 )
 
 // ReleaseCheckResult is the outcome of release-check: findings
-// (dependency.unreleased_pin, contract.semver_too_small), notes and the
+// (dependency.unreleased_pin, contract.semver_too_small,
+// release.schema_version_not_bumped), notes and the
 // contract diff the semver gate used (nil when it was skipped).
 // TRLC-LINKS: REQ-EMG-103
 type ReleaseCheckResult struct {
@@ -109,6 +111,36 @@ func releaseTags(repo string, args ...string) ([]string, error) {
 	return tags, nil
 }
 
+// previousRelease returns the previous release tag of tag and whether tag
+// exists. The previous release is the nearest release tag below the tag in the
+// history of the commit being released (the tag's commit, else HEAD): a
+// release on another branch is not this line's previous release. It is ""
+// for a first release.
+// TRLC-LINKS: REQ-EMG-103
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func previousRelease(repo, tag string) (string, bool, error) {
+	all, err := releaseTags(repo)
+	if err != nil {
+		return "", false, err
+	}
+	exists := slices.Contains(all, tag)
+	commit := "HEAD"
+	if exists {
+		commit = "refs/tags/" + tag
+	}
+	merged, err := releaseTags(repo, "--merged", commit)
+	if err != nil {
+		return "", false, err
+	}
+	previous := ""
+	for _, t := range merged {
+		if semver.Compare(t, tag) < 0 {
+			previous = t
+		}
+	}
+	return previous, exists, nil
+}
+
 // ReleaseCheck checks that the model in repo may be released under tag:
 // no dependency pin is a pre-release or pseudo-version, and the tag's bump
 // over the previous release tag (the highest release tag below it among the
@@ -116,7 +148,10 @@ func releaseTags(repo string, args ...string) ([]string, error) {
 // contract diff between them (to the tag if it exists, else HEAD).
 // An empty tag means the highest release tag at HEAD; without one, or
 // without a previous release tag, the semver gate is skipped with a note.
-// TRLC-LINKS: REQ-EMG-103
+// A CHANGELOG entry of the tag that says Breaking release also needs a
+// schemaVersion above the one of the previous release
+// (release.schema_version_not_bumped, ADR-EMG-077).
+// TRLC-LINKS: REQ-EMG-103, REQ-EMG-186
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
 // ENGMODEL-LINKS: TR-LINK-RELEASE-CHECK
 func ReleaseCheck(repo, tag string) (ReleaseCheckResult, error) {
@@ -152,35 +187,19 @@ func ReleaseCheck(repo, tag string) (ReleaseCheckResult, error) {
 		}
 		tag = atHead[len(atHead)-1]
 	}
-	all, err := releaseTags(repo)
+	previous, exists, err := previousRelease(repo, tag)
 	if err != nil {
 		return result, err
-	}
-	exists := false
-	for _, t := range all {
-		exists = exists || t == tag
-	}
-	// The previous release is the nearest release tag below the tag in the
-	// history of the commit being released (the tag's commit, else HEAD):
-	// a release on another branch is not this line's previous release.
-	commit := "HEAD"
-	if exists {
-		commit = "refs/tags/" + tag
-	}
-	merged, err := releaseTags(repo, "--merged", commit)
-	if err != nil {
-		return result, err
-	}
-	previous := ""
-	for _, t := range merged {
-		if semver.Compare(t, tag) < 0 {
-			previous = t
-		}
 	}
 	if previous == "" {
 		result.Notes = append(result.Notes, fmt.Sprintf("semver gate skipped: no release tag below %s (first release)", tag))
 		return result, nil
 	}
+	notBumped, err := schemaVersionFinding(repo, tag, previous)
+	if err != nil {
+		return result, err
+	}
+	result.Findings = append(result.Findings, notBumped...)
 	to := "HEAD"
 	if exists {
 		to = tag
@@ -205,6 +224,16 @@ func ReleaseCheck(repo, tag string) (ReleaseCheckResult, error) {
 	return result, nil
 }
 
+// printFinding prints one finding and, when it has a remedy, its fix line.
+// TRLC-LINKS: REQ-EMG-103, REQ-EMG-186
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func printFinding(w io.Writer, d validate.Diagnostic) {
+	fmt.Fprintf(w, "%s [%s] %s\n", d.Code, d.Severity, d.Message)
+	if fix := d.FixLine(); fix != "" {
+		fmt.Fprintln(w, fix)
+	}
+}
+
 // runReleaseCheck prints the notes, the findings and, when the gate failed,
 // the contract diff. Exit 0 ok, 1 findings, 2 usage or IO error.
 // TRLC-LINKS: REQ-EMG-103
@@ -219,7 +248,7 @@ func runReleaseCheck(repo, tag string, w io.Writer) (int, error) {
 	}
 	semverFailed := false
 	for _, d := range result.Findings {
-		fmt.Fprintf(w, "%s [%s] %s\n", d.Code, d.Severity, d.Message)
+		printFinding(w, d)
 		semverFailed = semverFailed || d.Code == "contract.semver_too_small"
 	}
 	if semverFailed && result.Diff != nil {

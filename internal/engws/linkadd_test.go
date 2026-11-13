@@ -75,7 +75,7 @@ func TestLinkAdd(t *testing.T) {
 	if code != 0 || !strings.Contains(out, "added LNK-SYS-003-BRIDGE evidence REQ-SYS-003 -> bridge::AOU-B-1 (v0.1.0, claimed)") {
 		t.Fatalf("link add without a link file: %d\n%s\n%s", code, out, errOut)
 	}
-	if got := read(t, links); got != "schemaVersion: 2\nreqLinks:\n- id: LNK-SYS-003-BRIDGE\n  child: bridge::AOU-B-1\n  evidence:\n  - REQ-SYS-003\n  pinned:\n    version: v0.1.0\n  status: claimed\n" {
+	if got := read(t, links); got != "schemaVersion: 3\nreqLinks:\n- id: LNK-SYS-003-BRIDGE\n  child: bridge::AOU-B-1\n  evidence:\n  - REQ-SYS-003\n  pinned:\n    version: v0.1.0\n  status: claimed\n" {
 		t.Fatalf("created link file:\n%s", got)
 	}
 	if !strings.Contains(read(t, filepath.Join(system, "engmod.yml")), "  reqLinks: model/req-links.yml\n") {

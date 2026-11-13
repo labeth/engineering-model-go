@@ -5,9 +5,18 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/internal/model"
 )
+
+// modelSchemaVersion is the current model schema version as the text that
+// follows "schemaVersion: " in every fixture document (ADR-EMG-077): the
+// fixtures take the number from model.CurrentSchemaVersion, so a release that
+// raises it does not edit them.
+var modelSchemaVersion = strconv.Itoa(model.CurrentSchemaVersion)
 
 // CompleteSwitches is the manifest text of the lifecycle of a complete model at tier poc, with every
 // switch the validator requires (ADR-EMG-061): lifecycle with bundles and an
@@ -21,7 +30,7 @@ lifecycle:
 
 // TierDecisionPoC is a decisions.yml with the accepted decision that records
 // CompleteSwitches.
-const TierDecisionPoC = `schemaVersion: 2
+var TierDecisionPoC = `schemaVersion: ` + modelSchemaVersion + `
 decisions:
   - id: DEC-TIER-POC
     title: Fixture runs at the poc tier with the foundation bundle
@@ -72,7 +81,7 @@ func WriteV2ModuleFiles(t testing.TB, dir, modulePath, version, modelID, manifes
 	}
 	WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePath+"\"\nlanguage: version: \"v0.17.0\"\n")
 	manifestExtra, addedLifecycle := withCompleteSwitches(manifestExtra)
-	WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
+	WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: `+modelSchemaVersion+`
 module:
   path: `+modulePath+`
   version: `+version+`
@@ -90,16 +99,16 @@ module:
   views: model/views.yml
   decisions: model/decisions.yml
 `)
-	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-CHILD\n    text: Child requirement.\n  - id: REQ-SHARED-001\n    text: Shared requirement.\n  - id: REQ-PARENT\n    text: Parent requirement.\n")
-	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n"+architecture)
-	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
+	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: "+modelSchemaVersion+"\ncatalog: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: "+modelSchemaVersion+"\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-CHILD\n    text: Child requirement.\n  - id: REQ-SHARED-001\n    text: Shared requirement.\n  - id: REQ-PARENT\n    text: Parent requirement.\n")
+	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: "+modelSchemaVersion+"\narchitecture:\n"+architecture)
+	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: "+modelSchemaVersion+"\nbehavior: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: "+modelSchemaVersion+"\nassurance: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: "+modelSchemaVersion+"\ncompliance: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: "+modelSchemaVersion+"\nviews: []\n")
 	// DEC-TIER-POC records only the lifecycle this helper added; a manifest with
 	// its own lifecycle names its own decision and gets no stray one.
-	decisions := "schemaVersion: 2\ndecisions: []\n"
+	decisions := "schemaVersion: " + modelSchemaVersion + "\ndecisions: []\n"
 	if addedLifecycle {
 		decisions = TierDecisionPoC
 	}
@@ -112,7 +121,7 @@ module:
 func WriteInterfaceModule(t testing.TB, dir string) {
 	t.Helper()
 	WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/iface@v0\"\nlanguage: version: \"v0.17.0\"\n")
-	WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
+	WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: `+modelSchemaVersion+`
 module:
   path: example.com/iface@v0
   version: v0.1.0
@@ -134,9 +143,9 @@ documents:
   views: model/views.yml
   decisions: model/decisions.yml
 `)
-	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    realizes: [CAP-SCHEMA]\n")
-	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), `schemaVersion: 2
+	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: "+modelSchemaVersion+"\ncatalog: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: "+modelSchemaVersion+"\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    realizes: [CAP-SCHEMA]\n")
+	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), `schemaVersion: `+modelSchemaVersion+`
 architecture:
   functionalGroups:
     - id: FG-NATS
@@ -162,8 +171,8 @@ architecture:
       - id: CAP-SCHEMA
         kind: capability
 `)
-	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), `schemaVersion: 2
+	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: "+modelSchemaVersion+"\nbehavior: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), `schemaVersion: `+modelSchemaVersion+`
 assurance:
   controls:
     - id: CTRL-SCHEMA
@@ -177,8 +186,8 @@ assurance:
       boundaryType: network
       members: [FU-NATS]
 `)
-	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
+	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: "+modelSchemaVersion+"\ncompliance: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: "+modelSchemaVersion+"\nviews: []\n")
 	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), TierDecisionPoC)
 }
 
@@ -234,7 +243,7 @@ var fixtureRequirementTexts = []struct{ id, text string }{
 func (r fixtureRealization) write(t testing.TB, dir string) {
 	t.Helper()
 	var b strings.Builder
-	b.WriteString("schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n")
+	b.WriteString("schemaVersion: " + modelSchemaVersion + "\nlintRun: {mode: guided}\nrequirements:\n")
 	found := false
 	for _, x := range fixtureRequirementTexts {
 		b.WriteString("  - id: " + x.id + "\n    text: " + x.text + "\n")

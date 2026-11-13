@@ -44,7 +44,7 @@ func policyOfFiles(t *testing.T, f policyFiles) ModelPolicy {
 }
 
 const (
-	policyManifestBase = `schemaVersion: 2
+	policyManifestBase = `schemaVersion: 3
 requirementLinks: strict
 lifecycle:
   tier: operational
@@ -57,8 +57,8 @@ documents:
   assurance: model/assurance.yml
   decisions: model/decisions.yml
 `
-	policyRequirementsBase = "schemaVersion: 2\nlintRun: {mode: strict}\nrequirements: []\n"
-	policyAssuranceBase    = `schemaVersion: 2
+	policyRequirementsBase = "schemaVersion: 3\nlintRun: {mode: strict}\nrequirements: []\n"
+	policyAssuranceBase    = `schemaVersion: 3
 assurance:
   poamItems:
   - id: POAM-1
@@ -72,7 +72,7 @@ assurance:
     dueDate: 2026-12-31
     status: completed
 `
-	policyDecisionsBase = `schemaVersion: 2
+	policyDecisionsBase = `schemaVersion: 3
 decisions:
 - {id: DEC-TIER-A, status: accepted}
 - {id: DEC-HEALTH-A, status: accepted}

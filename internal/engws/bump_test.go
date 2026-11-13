@@ -166,7 +166,7 @@ func TestBumpNeverLocksLocalReplacement(t *testing.T) {
 	root := filepath.Join(work, "ws")
 	ifA := filepath.Join(root, "if-a")
 	writeModel(t, ifA, "if-a", "v0.2.0")
-	write(t, filepath.Join(ifA, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n# local edit\n")
+	write(t, filepath.Join(ifA, "model", "decisions.yml"), "schemaVersion: 3\ndecisions: []\n# local edit\n")
 	svc := filepath.Join(root, "svc")
 	writeModel(t, svc, "svc", "v0.1.0", dep{"ia", "if-a", "v0.1.0"})
 	manifest, _ := os.ReadFile(filepath.Join(svc, "engmod.yml"))
@@ -180,7 +180,7 @@ func TestBumpNeverLocksLocalReplacement(t *testing.T) {
 	os.Remove(filepath.Join(svc, "engmod.lock.yml"))
 	os.RemoveAll(filepath.Join(root, ".engmod"))
 
-	write(t, filepath.Join(root, "engmod.work.yml"), "# "+generatedHeader+"\nschemaVersion: 2\nreplacements:\n  - module: "+modulePathOf("if-a")+"\n    path: ./if-a\n")
+	write(t, filepath.Join(root, "engmod.work.yml"), "# "+generatedHeader+"\nschemaVersion: 3\nreplacements:\n  - module: "+modulePathOf("if-a")+"\n    path: ./if-a\n")
 	code, out, errOut := runMain(t, NewCUERegistry(), "--root", root, "bump", "svc", "ia", "v0.2.0")
 	lock, lockErr := os.ReadFile(filepath.Join(svc, "engmod.lock.yml"))
 	switch code {

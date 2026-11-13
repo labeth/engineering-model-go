@@ -31,7 +31,7 @@ type serviceDocs struct {
 // TRLC-LINKS: REQ-EMG-065
 func defaultServiceDocs() serviceDocs {
 	return serviceDocs{
-		architecture: `schemaVersion: 2
+		architecture: `schemaVersion: 3
 architecture:
   functionalGroups:
     - id: FG-SVC
@@ -46,7 +46,7 @@ architecture:
         dependency: nats
         publication: public
 `,
-		behavior: `schemaVersion: 2
+		behavior: `schemaVersion: 3
 behavior:
   relationships:
     - {type: publishes, from: FU-SVC, to: nats::IF-WS}
@@ -64,9 +64,9 @@ behavior:
           interfaceRef: nats::IF-WS
           action: Publish
 `,
-		assurance:    "schemaVersion: 2\nassurance: {}\n",
-		views:        "schemaVersion: 2\nviews: []\n",
-		requirements: "schemaVersion: 2\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-SVC-001\n    text: The service shall publish the state.\n    appliesTo: [FU-SVC, nats::IF-WS]\n",
+		assurance:    "schemaVersion: 3\nassurance: {}\n",
+		views:        "schemaVersion: 3\nviews: []\n",
+		requirements: "schemaVersion: 3\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-SVC-001\n    text: The service shall publish the state.\n    appliesTo: [FU-SVC, nats::IF-WS]\n",
 		code: `package svc
 
 // TRLC-LINKS: REQ-SVC-001
@@ -84,10 +84,10 @@ func writeMultiRepoFixture(t *testing.T, docs serviceDocs) multiRepoFixture {
 	root := t.TempDir()
 	f := multiRepoFixture{root: root, iface: filepath.Join(root, "iface"), service: filepath.Join(root, "service")}
 	testutil.WriteInterfaceModule(t, f.iface)
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: example.com/iface@v0\n    path: ./iface\n")
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: example.com/iface@v0\n    path: ./iface\n")
 	dir := f.service
 	testutil.WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/service@v0\"\nlanguage: version: \"v0.17.0\"\n")
-	testutil.WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 3
 module:
   path: example.com/service@v0
   version: v0.1.0
@@ -110,12 +110,12 @@ documents:
   views: model/views.yml
   decisions: model/decisions.yml
 `)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog:\n  systems:\n    - id: SYS-SVC\n      name: service\n      definition: The service.\n      aliases: [the service]\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 3\ncatalog:\n  systems:\n    - id: SYS-SVC\n      name: service\n      definition: The service.\n      aliases: [the service]\n")
 	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), docs.requirements)
 	testutil.WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), docs.architecture)
 	testutil.WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), docs.behavior)
 	testutil.WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), docs.assurance)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 3\ncompliance: {}\n")
 	testutil.WriteFile(t, filepath.Join(dir, "model", "views.yml"), docs.views)
 	testutil.WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), testutil.TierDecisionPoC)
 	testutil.WriteFile(t, filepath.Join(dir, "src", "svc.go"), docs.code)
@@ -246,13 +246,13 @@ func TestQualifiedOwnershipAndViewRoots(t *testing.T) {
 			d.architecture = strings.Replace(d.architecture, "  composition:", "  interfaces:\n    - id: IF-ADMIN\n      name: Admin\n      protocol: http\n      endpoint: /admin\n      owner: nats::"+id+"\n  composition:", 1)
 		}},
 		{"trust boundary parent", func(d *serviceDocs, id string) {
-			d.assurance = "schemaVersion: 2\nassurance:\n  trustBoundaries:\n    - id: TB-SVC\n      name: Process\n      description: Process.\n      boundaryType: process\n      parentRef: nats::" + id + "\n      members: [FU-SVC]\n"
+			d.assurance = "schemaVersion: 3\nassurance:\n  trustBoundaries:\n    - id: TB-SVC\n      name: Process\n      description: Process.\n      boundaryType: process\n      parentRef: nats::" + id + "\n      members: [FU-SVC]\n"
 		}},
 		{"risk owner", func(d *serviceDocs, id string) {
-			d.assurance = "schemaVersion: 2\nassurance:\n  risks:\n    - id: RISK-SVC\n      title: Outage\n      statement: Bus unavailable.\n      status: open\n      likelihood: low\n      impact: low\n      response: mitigate\n      owner: nats::" + id + "\n"
+			d.assurance = "schemaVersion: 3\nassurance:\n  risks:\n    - id: RISK-SVC\n      title: Outage\n      statement: Bus unavailable.\n      status: open\n      likelihood: low\n      impact: low\n      response: mitigate\n      owner: nats::" + id + "\n"
 		}},
 		{"view root", func(d *serviceDocs, id string) {
-			d.views = "schemaVersion: 2\nviews:\n  - id: VIEW-SVC\n    kind: communication\n    roots: [FU-SVC, nats::" + id + "]\n"
+			d.views = "schemaVersion: 3\nviews:\n  - id: VIEW-SVC\n    kind: communication\n    roots: [FU-SVC, nats::" + id + "]\n"
 		}},
 	}
 	published := map[string]string{
@@ -286,7 +286,7 @@ func TestQualifiedOwnershipAndViewRoots(t *testing.T) {
 func TestLocalModelReportsQualifiedReferenceWithoutComposition(t *testing.T) {
 	docs := defaultServiceDocs()
 	docs.architecture = strings.Replace(docs.architecture, "  composition:\n    subsystems:\n      - id: SUB-IF\n        dependency: nats\n        publication: public\n", "", 1)
-	docs.behavior = "schemaVersion: 2\nbehavior: {}\n"
+	docs.behavior = "schemaVersion: 3\nbehavior: {}\n"
 	docs.code = "package svc\n\n// TRLC-LINKS: REQ-SVC-001\nfunc Publish() {}\n"
 	diags, err := generateService(t, writeMultiRepoFixture(t, docs))
 	errs := errorsOf(diags)
@@ -503,7 +503,7 @@ func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
       schemaRef: "schemas::v1.json"
       owner: FU-CORE
 `)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), `schemaVersion: 3
 lintRun: {mode: guided}
 requirements:
   - id: REQ-SOLO-001

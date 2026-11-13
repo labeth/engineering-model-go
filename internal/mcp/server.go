@@ -303,6 +303,7 @@ func (s *Server) Handle(raw []byte) (resp []byte, err error) {
 
 // TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY, CTRL-STRICT-MCP-INPUT-SCHEMA, EVT-MCP-TOOL-CALL-RECEIVED
+// ENGMODEL-LINKS: TR-MCP-RELOAD-FAILS
 func (s *Server) dispatch(method string, params any) (any, int, error) {
 	switch method {
 	case "initialize":
@@ -529,7 +530,7 @@ func (s *Server) refreshModel() error {
 // input.
 // TRLC-LINKS: REQ-EMG-089
 // ENGMODEL-LINKS: FU-MCP-SERVER
-// ENGMODEL-LINKS: TR-MCP-MODEL-FILE-CHANGES
+// ENGMODEL-LINKS: TR-MCP-MODEL-FILE-CHANGES, TR-MCP-FILES-LOADABILITY-CHANGES
 func (s *Server) modelFileFingerprint() string {
 	paths := []string{s.modelPath, s.requirementsPath, s.designPath}
 	if s.bundle != nil {

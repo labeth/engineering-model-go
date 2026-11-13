@@ -606,7 +606,7 @@ func TestGenerateAsciiDocResolvesCodeReferencesForLoadedBundle(t *testing.T) {
 	t.Setenv(composition.LockEnv, "")
 	dir := t.TempDir()
 	testutil.WriteInterfaceModule(t, dir)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    sourceRefs: [CODE-SRC-IFACE-GO, CODE-SRC-GONE-GO]\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    sourceRefs: [CODE-SRC-IFACE-GO, CODE-SRC-GONE-GO]\n")
 	testutil.WriteFile(t, filepath.Join(dir, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
 	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
 	if err != nil {

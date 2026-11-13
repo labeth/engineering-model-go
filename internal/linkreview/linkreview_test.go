@@ -9,7 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/reqlinks"
 )
 
-const acceptLinks = `schemaVersion: 2
+const acceptLinks = `schemaVersion: 3
 reqLinks:
 # reviewed links
 - id: LNK-A

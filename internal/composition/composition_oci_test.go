@@ -62,7 +62,7 @@ func TestCompositionUsesWorkspaceModuleReplacement(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(moduleDir, ".git"), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: models.atlas.example/shared-edge@v0
     path: ./repos/shared-edge
@@ -91,7 +91,7 @@ func TestCompositionRejectsModuleIdentityMismatch(t *testing.T) {
 	root := t.TempDir()
 	moduleDir := filepath.Join(root, "repos", "shared-edge")
 	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/different@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: models.atlas.example/shared-edge@v0
     path: ./repos/shared-edge
@@ -118,7 +118,7 @@ func TestCompositionRejectsWorkspaceReplacementEscape(t *testing.T) {
 	if err := os.MkdirAll(workspace, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	testutil.WriteFile(t, filepath.Join(workspace, model.WorkspaceFileName), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(workspace, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: models.atlas.example/shared-edge@v0
     path: ../outside

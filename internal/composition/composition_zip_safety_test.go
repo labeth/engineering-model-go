@@ -121,7 +121,7 @@ func serveRawModule(t *testing.T, entries []rawZipEntry, corrupt bool) {
 func validModuleEntries() []rawZipEntry {
 	return []rawZipEntry{
 		{name: "cue.mod/module.cue", content: "module: \"models.atlas.example/shared-edge@v0\"\nlanguage: version: \"v0.17.0\"\n"},
-		{name: "engmod.yml", content: "schemaVersion: 2\n"},
+		{name: "engmod.yml", content: "schemaVersion: 3\n"},
 	}
 }
 

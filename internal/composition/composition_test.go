@@ -18,7 +18,7 @@ func TestCompositionResolvesManifestPublicationAndWritesLock(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
 	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, []string{"REQ-CHILD"})
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: example.com/child@v1
     path: ./child
@@ -80,7 +80,7 @@ func TestCompositionRejectsUnpublishedQualifiedReference(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
 	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: example.com/child@v1
     path: ./child
@@ -113,7 +113,7 @@ func TestCompositionRejectsUnpublishedBehaviorReference(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
 	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
 	parent := filepath.Join(root, "parent")
 	testutil.WriteV2CompositionParent(t, parent, `dependencies:
   - alias: child
@@ -126,7 +126,7 @@ func TestCompositionRejectsUnpublishedBehaviorReference(t *testing.T) {
         dependency: child
         publication: public
 `)
-	testutil.WriteFile(t, filepath.Join(parent, "model", "behavior.yml"), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(parent, "model", "behavior.yml"), `schemaVersion: 3
 behavior:
   relationships:
     - type: depends_on
@@ -145,7 +145,7 @@ func TestCompositionValidatesDependencyPublicationAgreement(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
 	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: example.com/child@v1
     path: ./child
@@ -233,7 +233,7 @@ func TestCompositionRejectsPublicationIDOwnedByAnotherDomain(t *testing.T) {
 		t.Fatal(err)
 	}
 	testutil.WriteFile(t, manifestPath, strings.Replace(string(manifest), "architecture: [CAP-CHILD]", "architecture: [REQ-CHILD]", 1))
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 2
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: example.com/child@v1
     path: ./child

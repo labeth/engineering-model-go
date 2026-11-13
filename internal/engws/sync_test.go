@@ -40,7 +40,7 @@ func TestSyncWritesRootFilesOnlyForLocalCheckouts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasPrefix(string(work), "# "+generatedHeader+"\nschemaVersion: 2\n") ||
+	if !strings.HasPrefix(string(work), "# "+generatedHeader+"\nschemaVersion: 3\n") ||
 		!strings.Contains(string(work), "module: "+modulePathOf("svc-b")+"\n    path: ./svc-b") ||
 		strings.Contains(string(work), "if-a") {
 		t.Fatalf("work file:\n%s", work)
@@ -109,7 +109,7 @@ func TestSyncRefusesHandWrittenWorkFiles(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			root := t.TempDir()
 			checkout(t, root, "if-a")
-			hand := "# mine\nschemaVersion: 2\nreplacements: []\n"
+			hand := "# mine\nschemaVersion: 3\nreplacements: []\n"
 			write(t, filepath.Join(root, name), hand)
 			plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
 			if err != nil {

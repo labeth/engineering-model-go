@@ -2,7 +2,10 @@
 package validate
 
 import (
+	"os"
+	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -31,7 +34,7 @@ func TestBundleChecksTheSchemaVersionOfEveryDocument(t *testing.T) {
 		t.Fatalf("current versions reported: %+v", got)
 	}
 	for _, path := range sortedBreakerPaths() {
-		for _, version := range []int{0, 1, 3} {
+		for _, version := range []int{0, 1, 2, 4} {
 			assertBrokenVersionReported(t, path, version)
 		}
 	}
@@ -78,10 +81,35 @@ func assertBrokenVersionReported(t *testing.T, path string, version int) {
 		t.Errorf("%s = %d: got %+v", path, version, got)
 		return
 	}
-	if got[0].Path != path || got[0].Severity != SeverityError || !strings.Contains(got[0].Message, "supported version is 2") {
+	if got[0].Path != path || got[0].Severity != SeverityError || !strings.Contains(got[0].Message, "supported version is "+strconv.Itoa(model.CurrentSchemaVersion)) {
 		t.Errorf("%s = %d: got %+v", path, version, got)
 	}
-	if got[0].Remedy != "set schemaVersion: 2 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)" {
+	if got[0].Remedy != "set schemaVersion: 3 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)" {
 		t.Errorf("%s: remedy %q", path, got[0].Remedy)
+	}
+}
+
+// release.schema_version_not_bumped is an untiered non-core error code with
+// the remedy that names both numbers to raise, and the README lists the code
+// with it (ADR-EMG-077).
+// Mutation: dropping the code from consistencyRemedies, keying it to a tier,
+// listing it as a core code or editing the remedy fails this test.
+// TRLC-LINKS: REQ-EMG-186
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func TestSchemaVersionNotBumpedIsAnUntieredErrorWithItsRemedy(t *testing.T) {
+	const code = "release.schema_version_not_bumped"
+	const remedy = "raise schemaVersion and model.CurrentSchemaVersion, then record the change in the CHANGELOG"
+	if got := ConsistencyRemedy(code); got != remedy {
+		t.Errorf("remedy %q, want %q", got, remedy)
+	}
+	if TierKeyed(code) || IsCoreCode(code) {
+		t.Errorf("%s must be an untiered non-core code", code)
+	}
+	data, err := os.ReadFile(filepath.Join("..", "..", "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(data), "`"+code+"`") || !strings.Contains(string(data), remedy) {
+		t.Errorf("README.md does not list %s with its remedy", code)
 	}
 }

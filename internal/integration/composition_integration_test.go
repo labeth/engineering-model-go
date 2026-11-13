@@ -147,7 +147,7 @@ func TestRegistryDependencyPathsAreConfinedToTheModule(t *testing.T) {
 	t.Setenv(composition.ModuleCacheEnv, "")
 	root := t.TempDir()
 	// workspace/.engmod/modules/<entry>/../../../../secret.yml is root/secret.yml.
-	testutil.WriteFile(t, filepath.Join(root, "secret.yml"), "schemaVersion: 2\ncatalog:\n  "+confinementSecret+": leaked\n")
+	testutil.WriteFile(t, filepath.Join(root, "secret.yml"), "schemaVersion: 3\ncatalog:\n  "+confinementSecret+": leaked\n")
 	registryRoot := filepath.Join(root, "registry")
 	moduleDir := filepath.Join(registryRoot, "models.atlas.example_shared-edge_v0.1.0")
 	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")

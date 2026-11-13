@@ -142,7 +142,7 @@ func TestCompositionLockWorkspaceModeWritesLocalLock(t *testing.T) {
 	t.Setenv(LockEnv, "")
 	root := t.TempDir()
 	testutil.WriteOCIModuleFixture(t, filepath.Join(root, "repos", "shared-edge"), "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
 	product := filepath.Join(root, "repos", "product")
 	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
 	committed := "schemaVersion: 1\ndependencies: []\n# committed\n"
@@ -329,7 +329,7 @@ func TestLockCheckWithReplacementsWarnsSkipped(t *testing.T) {
 	t.Setenv(LockEnv, "")
 	root := t.TempDir()
 	testutil.WriteOCIModuleFixture(t, filepath.Join(root, "repos", "shared-edge"), "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
 	product := filepath.Join(root, "repos", "product")
 	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
 	res, err := GenerateCompositionFromFileWith(filepath.Join(product, "engmod.yml"), ResolutionOptions{Lock: LockModeCheck})

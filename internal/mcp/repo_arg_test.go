@@ -61,7 +61,7 @@ func TestRepoArgumentAnswersForFamilyMembers(t *testing.T) {
 	if got, sys := requirementCount(map[string]any{}), requirementCount(map[string]any{"repo": "repos/system"}); got != sys || got == float64(4) {
 		t.Fatalf("without repo the server answers for its own checkout: %v, repos/system %v", got, sys)
 	}
-	diag := callToolPayload(t, s, "model.diagnose", map[string]any{"repo": "repos/child-a", "document": "requirements", "content": "schemaVersion: 2\nrequirements: [\n"})
+	diag := callToolPayload(t, s, "model.diagnose", map[string]any{"repo": "repos/child-a", "document": "requirements", "content": "schemaVersion: 3\nrequirements: [\n"})
 	if diag["valid"] != false || diag["path"] != "model/requirements.yml" {
 		t.Fatalf("model.diagnose in child-a: %+v", diag)
 	}

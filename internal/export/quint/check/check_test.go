@@ -409,7 +409,7 @@ func TestCheckUnloadableModelIsASetupError(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-142
 func TestCheckModelWithoutMachinesWritesNothingAndNeedsNoTool(t *testing.T) {
 	e := newEnv(t)
-	writeFile(t, filepath.Join(filepath.Dir(e.manifest), "model", "behavior.yml"), "schemaVersion: 2\nbehavior:\n  machines: []\n", 0o644)
+	writeFile(t, filepath.Join(filepath.Dir(e.manifest), "model", "behavior.yml"), "schemaVersion: 3\nbehavior:\n  machines: []\n", 0o644)
 	out := filepath.Join(t.TempDir(), "q")
 	evidence := filepath.Join(t.TempDir(), "quint-formal.json")
 	report := mustCheck(t, CheckOptions{ModelPath: e.manifest, QuintPath: "/nonexistent/quint", OutDir: out, EvidencePath: evidence})
