@@ -61,7 +61,6 @@
   "summary": {
     "requirements": 3,
     "implemented": 3,
-    "verified": 0,
     "tested": 0,
     "testLinked": 0,
     "passed": 0,
@@ -73,7 +72,6 @@
     "gatedOnly": 0,
     "linksNeedReview": 0,
     "linksVersionMismatch": 0,
-    "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 0,
     "unparented": 0

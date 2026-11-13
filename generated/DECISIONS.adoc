@@ -2313,6 +2313,67 @@ remedies and are covered by the inventory test. Covers REQ-EMG-179 to REQ-EMG-18
 - A workspace that relied on the fallback now reports each stale repository, which is the point.
 - The remedy names engflow upgrade, which exists since the flow's feat/engflow-upgrade branch.
 
+[[ADR-EMG-073]]
+== ADR-EMG-073: Phase 3 removes the aliases and dead fields that no caller uses and keeps the two that are live features
+
+Status:: proposed
+Date:: 2026-11-13
+
+=== Context
+
+The audit of 2026-11-13 (removal plan phase 3) checked every alias, duplicate and dead field against both repositories. The
+owner instructed, verbatim: "i dont want any backwards compatabillity in the model yet, it should always require a full
+upgrade." Taken by the implementing agent under the owner's instruction to take recommended decisions. OWNER items: the
+name of links.suspect, and whether interface allocations keep a replacement before phase 4.
+
+=== Decision
+
+(1) Removed in this slice: every MCP argument alias, the duplicate tool entities.list, the engws flag --allow-suspect, the
+engoscal flag --out, the fields BaseCatalogRef and Compatibility, the trace summary counters Verified and LinksSuspect (engtrace
+prints the linked-and-tested count instead) and the eight inert CodeSources literals of tests. (2) Kept: the rejection
+model.code_sources_removed, because it carries the remedy that engineering-flow's model rules section keys on, and the tool
+links.suspect, because it is not a duplicate: it returns the before and after meaning that links.list lacks. Renaming it is an
+OWNER item and a later slice. (3) Phase 4 follows in its own order: the two Atlas requires ref lines, provides.ref, composition
+allocations and delegation (an allocation to an interface entry has no link replacement, an OWNER item), pinned.fingerprint as
+an error with a remedy, and engws migrate-links last. (4) Phase 5: composition.dependency_tier_unknown becomes a core error,
+the two aviation state codes move to row DDEEE, and catalog.term_unreferenced becomes a tier row (not an untiered error, which
+would stop the render) after the three unreferenced terms of this repository are referenced. Covers REQ-EMG-182.
+
+=== Consequences
+
+- A caller that used an alias fails with the canonical argument named, which is the intended full upgrade.
+- The generated trace matrices and the example goldens change by the removed counters and are regenerated.
+- engineering-flow's tool list drops entities.list in its own slice.
+
+[[ADR-EMG-074]]
+== ADR-EMG-074: Phase 5 turns three tolerated gaps into errors, each at the tier where it can be fixed
+
+Status:: proposed
+Date:: 2026-11-13
+
+=== Context
+
+The removal plan (phase 5, warnings to errors) lists composition.dependency_tier_unknown, the aviation state codes and
+catalog.term_unreferenced. The owner instructed, verbatim: "anything that is importatnt for the function of the system shall
+be filled in or give errors i a way taht you cannot proceed". The audit of 2026-11-13 found none of the three in the 18
+examples and this repository, so the change breaks nothing that is checked in. Taken by the implementing agent under the
+owner's instruction to take recommended decisions. OWNER items: whether catalog.term_unreferenced should be an error at every
+tier.
+
+=== Decision
+
+(1) composition.dependency_tier_unknown is a core error at every tier: a dependency that declares no tier cannot be compared,
+and a warning let a composition pass unchecked. (2) aviation.tool.incomplete_credit_assessment and
+aviation.derived.incomplete_safety_feedback are errors from mvp, deferred below, like aviation.lifecycle.missing_category.
+(3) catalog.term_unreferenced is a tier-keyed code: a warning below product and an error from product, not an untiered error,
+because an untiered error stops the AsciiDoc render. The three unreferenced terms of this repository were deleted rather than
+referenced from a requirement written to mention them. Covers REQ-EMG-183.
+
+=== Consequences
+
+- A composition with an undeclared dependency tier fails, which is the intended full upgrade for the dependency's owner.
+- A model that kept unused vocabulary fails from product; the remedy is to delete the term or reference it.
+
 [[DEC-CODE-EXEMPT-MODEL-ONLY]]
 == DEC-CODE-EXEMPT-MODEL-ONLY: Eight machine elements are model-only and have no code site, so they are exempt from element to code coverage
 

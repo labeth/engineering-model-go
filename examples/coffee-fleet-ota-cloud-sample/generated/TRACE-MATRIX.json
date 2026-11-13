@@ -554,7 +554,6 @@
   "summary": {
     "requirements": 20,
     "implemented": 12,
-    "verified": 6,
     "tested": 6,
     "testLinked": 6,
     "passed": 4,
@@ -566,7 +565,6 @@
     "gatedOnly": 0,
     "linksNeedReview": 3,
     "linksVersionMismatch": 0,
-    "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 3,
     "unparented": 0

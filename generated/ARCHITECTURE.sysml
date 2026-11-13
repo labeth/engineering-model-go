@@ -500,6 +500,18 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-072';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-073";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-073';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-074";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-074';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -1776,22 +1788,10 @@ package 'engineering-model-go' {
     attribute 'DATA-CANONICAL-SEMANTIC-MODEL';
 
     @EngineeringElement {
-        sourceId = "DATA-CATALOG-DOCUMENT";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'DATA-CATALOG-DOCUMENT';
-
-    @EngineeringElement {
         sourceId = "DATA-DECISIONS-DOCUMENT";
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-DECISIONS-DOCUMENT';
-
-    @EngineeringElement {
-        sourceId = "DATA-DESIGN-DOCUMENT";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'DATA-DESIGN-DOCUMENT';
 
     @EngineeringElement {
         sourceId = "DATA-LOBSTER-TRACE-REPORT";
@@ -1816,12 +1816,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-NAF-V4-ARCHITECTURE';
-
-    @EngineeringElement {
-        sourceId = "DATA-OSCAL-SSP";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'DATA-OSCAL-SSP';
 
     @EngineeringElement {
         sourceId = "DATA-REQUIREMENTS-DELTA";
@@ -4181,7 +4175,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-120' {
         attribute 'text' : 'String' = "While mcp server is enabled, when mcp tool call is received, the engineering model go shall answer a model-reading tool for the family member checkout its repo argument names.";
-        attribute 'notes' : 'String' = "Retro 1104 item 1 (decision D24). The model-reading tools (model.diagnose, model.patch, model.list, model.entity, model.complete, model.authoringContract, entities.list, trace.matrix, composition.resolve, links.*, requirements.*, threats.*, verification.*, flow.detail, flows.forRequirement, graph.*, generation.*, every gemara.*) list an optional repo string in their strict input schema. The engine resolves the workspace on every call with model.FindWorkspaceWith from the server's own model directory (the upward search refuses a world-writable engmod.work.yml or one owned by another user; ENGMOD_WORK names one explicitly), so a server started before engws sync wrote engmod.work.yml sees it as soon as it exists. repo is relative to the workspace root (the directory of that file, or the server's own model directory without one) or absolute, must hold engmod.yml and must resolve inside the root after symlinks; the tool then runs on a server initialized on that engmod.yml (cached per directory, reloading its model per call), its output scrubbed relative to that checkout. Without repo the server answers for its own checkout. The file and code tools stay on the server's own checkout. The MCP bridge of engineering-flow computes the family root once at startup and confines calls to it; it must re-run that per call to benefit.";
+        attribute 'notes' : 'String' = "Retro 1104 item 1 (decision D24). The model-reading tools (model.diagnose, model.patch, model.list, model.entity, model.complete, model.authoringContract, trace.matrix, composition.resolve, links.*, requirements.*, threats.*, verification.*, flow.detail, flows.forRequirement, graph.*, generation.*, every gemara.*) list an optional repo string in their strict input schema. The engine resolves the workspace on every call with model.FindWorkspaceWith from the server's own model directory (the upward search refuses a world-writable engmod.work.yml or one owned by another user; ENGMOD_WORK names one explicitly), so a server started before engws sync wrote engmod.work.yml sees it as soon as it exists. repo is relative to the workspace root (the directory of that file, or the server's own model directory without one) or absolute, must hold engmod.yml and must resolve inside the root after symlinks; the tool then runs on a server initialized on that engmod.yml (cached per directory, reloading its model per call), its output scrubbed relative to that checkout. Without repo the server answers for its own checkout. The file and code tools stay on the server's own checkout. The MCP bridge of engineering-flow computes the family root once at startup and confines calls to it; it must re-run that per call to benefit.";
     }
 
     @EngineeringElement {
@@ -4731,6 +4725,24 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-181' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.";
         attribute 'notes' : 'String' = "ADR-EMG-072, removal plan phase 1. engine.pin_outdated compares the engineering-model-go version in the go.mod of the repository check template with the engine version of the running binary and reports an older pin with the remedy to bump the pin. An unparsable version or a local replacement is not compared.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-182";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-182' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall provide one name for every argument of every tool and command.";
+        attribute 'notes' : 'String' = "ADR-EMG-073, removal plan phase 3. The aliases of the tool arguments (id for the typed identifier arguments, reqId, name, q, file, env, left, right, task, leftSchemaRef, rightSchemaRef, leftInterfaceId, rightInterfaceId, path for document), the duplicate tool entities.list, the deprecated flag --allow-suspect of engws and the flag --out of engoscal are removed. An old name is rejected by the strict argument check like any unknown argument. The model fields BaseCatalogRef and Compatibility, the trace summary counters Verified and LinksSuspect and the unused inert code source literals are removed.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-183";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-183' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a dependency without a declared tier as an error and report an incomplete aviation assessment and an unreferenced catalog term by tier.";
+        attribute 'notes' : 'String' = "ADR-EMG-074, removal plan phase 5. composition.dependency_tier_unknown is a core error at every tier (a dependency that declares no life-cycle tier cannot be compared with this system). The aviation codes incomplete_credit_assessment and incomplete_safety_feedback are errors from mvp, like the other aviation floors. catalog.term_unreferenced is a warning below product and an error from product, so a strict catalog is not left with unused vocabulary at the tiers that require clean models.";
     }
 
     @EngineeringElement {
