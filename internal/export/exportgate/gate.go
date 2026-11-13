@@ -4,11 +4,14 @@ package exportgate
 import (
 	"io"
 
+	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
-// ValidationGate loads the model named by its engmod.yml manifest, validates
+// ValidationGate loads the model named by its engmod.yml manifest with its CODE
+// identifier index (control verification refs name inferred test declarations,
+// so a bundle without the index would reject them), validates
 // it with the severities of its life-cycle tier, prints every diagnostic to w
 // (with the "fix:" line of a required-switch error) and reports whether the
 // model has no error. An exporter CLI that does not validate through its
@@ -18,7 +21,7 @@ import (
 // TRLC-LINKS: REQ-EMG-125, REQ-EMG-168
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-VALIDATION-ENGINE
 func ValidationGate(manifestPath string, w io.Writer) (bundle model.Bundle, ok bool, err error) {
-	bundle, err = model.LoadBundle(manifestPath)
+	bundle, err = codescan.LoadBundle(manifestPath)
 	if err != nil {
 		return model.Bundle{}, false, err
 	}

@@ -1925,15 +1925,15 @@ decisions:
   - The remedy text is part of the interface and is tested.
 - id: DEC-TIER-OPERATIONAL
   title: engineering-model-go runs at the operational tier with the foundation bundle
-  status: proposed
+  status: accepted
   date: 2026-11-12
   context: |-
     ADR-EMG-062 sets the tier of this repository. The owner instructed, verbatim: "same for model, i want it at the highest
     level", in the context of the tier of engineering-flow, whose recommended tier had been product; operational is the highest
     tier. The security bundle of ADR-EMG-062 is not declared here because this tier-up covers the foundation bundle only.
     The owner's words cover the tier. Foundation only, the POA&M deferral and its due dates are the implementing agent's
-    proposals. The status is proposed because the owner has not accepted this record; until the owner sets it to accepted the
-    gate of this repository reports lifecycle.tier_decision_mismatch (OWNER item).
+    proposals. The owner accepted this record on 2026-11-13, verbatim: "accept the decisions and update and tell me how to push so we
+    can just tag master after." The acceptance covers the whole record, including foundation only and the POA&M deferral.
   decision: |-
     Tier: operational
     Bundles: foundation
@@ -1944,14 +1944,14 @@ decisions:
   - Requirement status verified is set only from evidence (engws status-suggest); the rest is deferred by open POA&M items whose due dates the flow debt check enforces; this engine does not expire them (it has no clock) except through lifecycle.poam_overdue.
 - id: DEC-HEALTH-BASELINE
   title: The existing code health debt of engineering-model-go is recorded in model/health-baseline.json
-  status: proposed
+  status: accepted
   date: 2026-11-12
   context: |-
     The owner's instruction to run this repository at the highest tier (DEC-TIER-OPERATIONAL, "same for model, i want it at the
     highest level") requires the code health debt that existed before the tier-up to be recorded, because findings are errors at
-    operational. This record is proposed: it was drafted by the implementing agent from that instruction; the owner did not review
-    the individual findings. Until the owner sets it to accepted the baseline suppresses nothing and every listed finding is
-    an error (OWNER item). The strict limits (the defaults of the operational tier, ADR-EMG-059) are the implementer's proposal.
+    operational. This record was drafted by the implementing agent from that instruction; the owner did not review the individual
+    findings. The owner accepted it on 2026-11-13, verbatim: "accept the decisions and update and tell me how to push so
+    we can just tag master after." The acceptance is the owner's call on the list as a whole and can be reversed at any time. The strict limits (the defaults of the operational tier, ADR-EMG-059) are the implementer's proposal.
     The owner can reverse this decision at any time.
   decision: |-
     Accept the findings listed in model/health-baseline.json (health.baseline, written by enghealth baseline write at the
@@ -1970,17 +1970,17 @@ decisions:
     for model, i want it at the highest level". The tier-gap report of 2026-11-12 listed 310 blocking items for engineering-model-go
     and the engine now errors when lifecycle, bundles, tier decision, requirementLinks, lintRun mode or the health block is missing
     (ADR-EMG-066). The work was done in two parts on 2026-11-12 and 2026-11-13. Taken by the implementing agent under the owner's
-    instruction to take recommended decisions. OWNER items: the acceptance of DEC-TIER-OPERATIONAL and DEC-HEALTH-BASELINE (set to proposed after the independent
-    reviews of 2026-11-13: the agent must not accept its own gate), the status list and the due dates.
+    instruction to take recommended decisions. The independent reviews of 2026-11-13 set DEC-TIER-OPERATIONAL and DEC-HEALTH-BASELINE to proposed because an agent must
+    not accept its own gate; the owner then accepted both the same day. OWNER items still open: the status list and the due dates.
   decision: |-
     (1) The repository declares lifecycle {tier: operational, bundles: [foundation], tierDecision: DEC-TIER-OPERATIONAL} with
-    requirementLinks strict; the decision carries the owner's words and stays proposed until the owner accepts it; the security bundle of ADR-EMG-062 is not yet
+    requirementLinks strict; the decision carries the owner's words and was accepted by the owner on 2026-11-13; the security bundle of ADR-EMG-062 is not yet
     declared. (2) The 153 parentless requirements were given structure, not a ledger: 15 published capabilities (CAP-EMG-*) that
     156 requirements realize and 6 internal-mechanism requirements marked derived with a rationale; two machines (SM-MCP-SESSION,
     SM-REQUIREMENTS-DELTA) replace three unused events and pass Quint in both modes; REQ-EMG-027 (git subsystem cloning, code
     gone) is retired; the orphan rule exempts retired and rejected requirements. (3) The existing code health debt, 2,822
-    findings at the strict operational limits, is recorded in model/health-baseline.json under the proposed decision
-    DEC-HEALTH-BASELINE, which suppresses nothing until the owner accepts it; the baseline can only
+    findings at the strict operational limits, is recorded in model/health-baseline.json under the decision
+    DEC-HEALTH-BASELINE, which the owner accepted on 2026-11-13; the baseline can only
     shrink and a grown finding is not baselined. (4) Requirement status was set by running engws status-suggest and applying its
     output by script (159 requirements are implemented, none verified, because no RED check is recorded); the owner's approval of
     that list has not been given. (5) Because verification evidence cannot be produced now, the 160 unverified requirements are
@@ -1993,3 +1993,22 @@ decisions:
   - The gate passes at operational today only because the evidence debt and the code health debt are recorded; it fails the day a new finding, a grown finding or a missing parent appears.
   - The ledger and the baseline are the burn-down lists. A requirement leaves the ledger when its test is mutation-checked and recorded, and a baseline entry leaves when its function is cleaned.
   - Marking requirements verified is not done until RED checks exist for the tree.
+- id: ADR-EMG-068
+  title: The two POA&M items that were overdue are renewed to 2027-03-31 and stay open
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    The engine now expires a POA&M item by its dueDate (lifecycle.poam_overdue, REQ-EMG-129), and POAM-MCP-PATH-FUZZING (due
+    2026-09-30) and POAM-TRACE-COVERAGE-GATE (due 2026-08-31) were past due on 2026-11-13, which made the gate of this
+    repository red. The owner said, verbatim: "accept the decisions and update and tell me how to push so we can just tag
+    master after." The implementing agent read "update" as renewing the overdue items. Taken by the implementing agent under
+    the owner's instruction to take recommended decisions. OWNER items: the new date and whether either item should be closed.
+  decision: |-
+    Both items are renewed to 2027-03-31, their status stays planned and in-progress, and neither is closed, because no
+    evidence of completion exists: fuzz coverage for MCP path normalization has not been written, and the strict coverage
+    gate is partly in place (the scanner and the strict link and lint modes exist) but its CI enforcement is not complete.
+    The artifact description of each item says that it was renewed and that the work is not done. A renewal is a date change
+    in assurance.yml that this decision records; it is not a completion.
+  consequences:
+  - lifecycle.poam_overdue is no longer reported for the two items until 2027-03-31.
+  - The date check (ADR-EMG-066 and REQ-EMG-129) makes a third renewal a visible, recorded act, since the engine does not renew by itself.

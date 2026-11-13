@@ -155,21 +155,21 @@ assurance:
   - id: POAM-MCP-PATH-FUZZING
     riskRef: RISK-MCP-PATH-ESCAPE
     milestone: Add fuzz coverage for MCP path normalization
-    dueDate: 2026-09-30
+    dueDate: 2027-03-31
     status: planned
     responsibleRole: ACT-ARCHITECTURE-AUTHOR
     artifacts:
     - path: internal/mcp/server_test.go
-      description: Path-boundary test coverage to extend with fuzzing. Overdue since 2026-09-30; the owner re-dates or closes this item (lifecycle.poam_overdue reports it).
+      description: Path-boundary test coverage to extend with fuzzing. Renewed on 2026-11-13 from 2026-09-30 to 2027-03-31 by ADR-EMG-068; the work is not done.
   - id: POAM-TRACE-COVERAGE-GATE
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: Enforce strict trace coverage in the CI gate
-    dueDate: 2026-08-31
+    dueDate: 2027-03-31
     status: in-progress
     responsibleRole: ACT-COMPLIANCE-ENGINEER
     artifacts:
     - path: internal/codemap/scan.go
-      description: Strict code-linking scanner backing the coverage gate. Overdue since 2026-08-31; the owner re-dates or closes this item (lifecycle.poam_overdue reports it).
+      description: Strict code-linking scanner backing the coverage gate. Renewed on 2026-11-13 from 2026-08-31 to 2027-03-31 by ADR-EMG-068; the work is not done.
   - id: POAM-TIER-OPERATIONAL-01
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational

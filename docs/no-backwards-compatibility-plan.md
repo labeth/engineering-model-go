@@ -9,9 +9,8 @@ Status 2026-11-13: the engine part of phase 2 and the tier-up of `engineering-mo
 implemented and independently reviewed. `engmod.yml` declares lifecycle tier `operational` (`DEC-TIER-OPERATIONAL`, from
 the owner's instruction "same for model, i want it at the highest level"), its code health debt is in
 `model/health-baseline.json` (`DEC-HEALTH-BASELINE`), and the requirements that have no recorded RED check are deferred by
-the open POA&M items `POAM-TIER-OPERATIONAL-01` to `-16` (due 2027-06-30). **Both decisions are `proposed`, not accepted:
-the owner has not reviewed them, and an agent must not accept the decision that opens its own gate.** The gate of this
-repository therefore stays red until the owner accepts them. Flow phases 1 and 2, the tier-up of `engineering-flow` and
+the open POA&M items `POAM-TIER-OPERATIONAL-01` to `-16` (due 2027-06-30). **Both decisions were set to `proposed` by the independent reviews and accepted by the owner on 2026-11-13** (an agent
+must not accept the decision that opens its own gate). Flow phases 1 and 2, the tier-up of `engineering-flow` and
 phases 3 to 7 are open.
 
 ## Rule
