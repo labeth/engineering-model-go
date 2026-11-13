@@ -74,8 +74,9 @@ var tierSeverityCases = []tierSeverityCase{
 	{"code.flow_unlinked", [5]string{"D", "D", "D", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 	{"code.data_unlinked", [5]string{"D", "D", "D", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 	{"code.exemption_unused", [5]string{"W", "W", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
-	{"composition.dependency_tier_unknown", [5]string{"W", "W", "W", "W", "W"}, "", nil, SeverityWarning, SeverityWarning},
-	{"composition.dependency_tier_unknown", [5]string{"W", "W", "W", "E", "E"}, "product", []string{"safety"}, SeverityWarning, SeverityWarning},
+	{"aviation.tool.incomplete_credit_assessment", [5]string{"D", "D", "E", "E", "E"}, "mvp", nil, SeverityWarning, SeverityWarning},
+	{"aviation.derived.incomplete_safety_feedback", [5]string{"D", "D", "E", "E", "E"}, "mvp", nil, SeverityWarning, SeverityWarning},
+	{"catalog.term_unreferenced", [5]string{"W", "W", "W", "E", "E"}, "product", nil, SeverityWarning, SeverityWarning},
 	{"lifecycle.aviation_profile_missing", [5]string{"D", "D", "E", "E", "E"}, "mvp", []string{"safety"}, SeverityWarning, SeverityWarning},
 }
 
@@ -189,7 +190,7 @@ func TestTierPolicyMonotonic(t *testing.T) {
 }
 
 // codeLiteral finds diagnostic code literals in Go source.
-var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint|gemara)\.[a-z_.]+)"`)
+var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint|gemara|catalog)\.[a-z_.]+)"`)
 
 // emittedCodes returns every code literal in the module's non-test Go
 // source.
@@ -239,6 +240,7 @@ func TestCoreCodesAreClosedAndNeverTierKeyed(t *testing.T) {
 		"model.requirement_links_missing", "model.unsupported_schema_version", "model.id_missing",
 		"lint.mode_missing", "lint.mode_invalid", "lint.mode_guided_at_tier", "health.block_missing",
 		"aviation.ai_actor_as_credit", "aviation.authority_state_unevidenced",
+		"composition.dependency_tier_unknown",
 	}
 	got := CoreCodes()
 	if strings.Join(got, ",") != strings.Join(want, ",") {
@@ -268,6 +270,32 @@ func TestCoreCodesAreClosedAndNeverTierKeyed(t *testing.T) {
 		if got := severityAt(t, tierBundle(tier), "model.invalid_group", "p", SeverityError); got.Severity != SeverityError || got.Deferred {
 			t.Errorf("core code changed at %s: %+v", tier, got)
 		}
+	}
+}
+
+// composition.dependency_tier_unknown is a core error (ADR-EMG-073 item 4):
+// an error at every tier, with and without the safety bundle, never tier
+// keyed and never deferred by a POA&M item.
+// Mutation: moving it back to tierTable, or out of coreCodes, makes it a
+// warning at a low tier.
+// TRLC-LINKS: REQ-EMG-183
+func TestDependencyTierUnknownIsCore(t *testing.T) {
+	const code = "composition.dependency_tier_unknown"
+	if !IsCoreCode(code) || TierKeyed(code) {
+		t.Fatalf("%s: core=%v tierKeyed=%v, want core and untiered", code, IsCoreCode(code), TierKeyed(code))
+	}
+	for _, tier := range model.Tiers {
+		requireCoreError(t, code, tierBundle(tier))
+		requireCoreError(t, code, tierBundle(tier, model.BundleSafety))
+	}
+}
+
+// requireCoreError checks that a core code is a plain error in the model.
+// TRLC-LINKS: REQ-EMG-183
+func requireCoreError(t *testing.T, code string, b model.Bundle) {
+	t.Helper()
+	if got := severityAt(t, b, code, "p", SeverityError); got.Severity != SeverityError || got.Deferred {
+		t.Errorf("%s at %v: got %+v, want a plain error", code, b.Manifest.Lifecycle, got)
 	}
 }
 
@@ -388,25 +416,26 @@ func TestMachineAdvisoryCodesFollowTheHygieneRowEndToEnd(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-125
 func TestConsistencyRemedies(t *testing.T) {
 	cases := map[string]string{
-		"code.owner_unresolved":          "ef-code-linking",
-		"code.model_link_kind_mismatch":  "ef-code-linking",
-		"behavior.requirement_unmodeled": "ef-behavior",
-		"behavior.machine_unverified":    "ef-formal-behavior",
-		"behavior.state_unlinked":        "ef-behavior",
-		"behavior.transition_unlinked":   "ef-behavior",
-		"behavior.event_unlinked":        "ef-behavior",
-		"code.unit_unlinked":             "ef-code-linking",
-		"code.machine_unlinked":          "ef-code-linking",
-		"code.interface_unlinked":        "ef-code-linking",
-		"code.state_unlinked":            "ef-code-linking",
-		"code.transition_unlinked":       "ef-code-linking",
-		"code.event_unlinked":            "ef-code-linking",
-		"code.flow_unlinked":             "ef-code-linking",
-		"code.data_unlinked":             "ef-code-linking",
-		"code.exemption_unused":          "ef-tier-up",
-		"code.exemption_unjustified":     "ef-tier-up",
-		"model.invalid_code_exemption":   "ef-tier-up",
-		"requirement.orphan":             "",
+		"code.owner_unresolved":               "ef-code-linking",
+		"code.model_link_kind_mismatch":       "ef-code-linking",
+		"behavior.requirement_unmodeled":      "ef-behavior",
+		"behavior.machine_unverified":         "ef-formal-behavior",
+		"behavior.state_unlinked":             "ef-behavior",
+		"behavior.transition_unlinked":        "ef-behavior",
+		"behavior.event_unlinked":             "ef-behavior",
+		"code.unit_unlinked":                  "ef-code-linking",
+		"code.machine_unlinked":               "ef-code-linking",
+		"code.interface_unlinked":             "ef-code-linking",
+		"code.state_unlinked":                 "ef-code-linking",
+		"code.transition_unlinked":            "ef-code-linking",
+		"code.event_unlinked":                 "ef-code-linking",
+		"code.flow_unlinked":                  "ef-code-linking",
+		"code.data_unlinked":                  "ef-code-linking",
+		"composition.dependency_tier_unknown": "owner of the dependency",
+		"code.exemption_unused":               "ef-tier-up",
+		"code.exemption_unjustified":          "ef-tier-up",
+		"model.invalid_code_exemption":        "ef-tier-up",
+		"requirement.orphan":                  "",
 	}
 	for code, skill := range cases {
 		got := ConsistencyRemedy(code)

@@ -119,10 +119,10 @@ var tierTable = map[string]tierRow{
 	"lifecycle.software_level_missing":            {base: rowSafetyFromMVP, bundle: model.BundleSafety},
 	"aviation.state_below_tier":                   {base: rowSafetyFromMVP, note: "evidence state below the tier floor (none below mvp)"},
 	"aviation.lifecycle.missing_category":         {base: rowSafetyFromMVP, note: "load-fatal without lifecycle"},
-	"aviation.tool.incomplete_credit_assessment":  {base: rowDebtToProduct, note: "load-fatal without lifecycle"},
-	"aviation.derived.incomplete_safety_feedback": {base: rowDebtToProduct, note: "load-fatal without lifecycle"},
+	"aviation.tool.incomplete_credit_assessment":  {base: rowSafetyFromMVP, note: "load-fatal without lifecycle"},
+	"aviation.derived.incomplete_safety_feedback": {base: rowSafetyFromMVP, note: "load-fatal without lifecycle"},
+	"catalog.term_unreferenced":                   {base: rowStrictCoverage, note: "a catalog term referenced nowhere in the model (only with lintRun.mode: strict)"},
 	"composition.dependency_below_tier":           {base: rowDebtToProduct, note: "unless a risk with recorded acceptance names the dependency alias in dependencies (or the composing subsystem in appliesTo)"},
-	"composition.dependency_tier_unknown":         {base: "WWWWW", safety: "WWWEE"},
 	// Code health (ADR-EMG-052, ADR-EMG-057): debt is a warning up to mvp and an
 	// error at product and operational (from mvp with the safety bundle);
 	// lifecycle.raise: [health.*] makes it an error at any tier. A regression, a
@@ -164,6 +164,7 @@ var coreCodes = []string{
 	"model.requirement_links_missing", "model.unsupported_schema_version", "model.id_missing",
 	"lint.mode_missing", "lint.mode_invalid", "lint.mode_guided_at_tier", "health.block_missing",
 	"aviation.ai_actor_as_credit", "aviation.authority_state_unevidenced",
+	"composition.dependency_tier_unknown",
 }
 
 // CoreCodes returns the rank-0 code patterns (a trailing * matches a code

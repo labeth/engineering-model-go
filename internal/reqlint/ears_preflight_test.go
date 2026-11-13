@@ -103,6 +103,66 @@ func TestLintRequirementsEARS_UnreferencedCatalogTermsWarnInStrict(t *testing.T)
 	}
 }
 
+// catalog.term_unreferenced is a tier-keyed code (ADR-EMG-073): the lint emits a
+// warning and the tier policy keeps it a warning below product and makes it an
+// error from product; it is never an untiered error, which would stop the
+// AsciiDoc render.
+// Mutation: dropping its row from tierTable leaves it a warning at product;
+// forcing an error in the lint makes it an error at prototype.
+// TRLC-LINKS: REQ-EMG-183
+func TestLintRequirementsEARS_UnreferencedCatalogTermIsTierKeyed(t *testing.T) {
+	requirements := model.RequirementsDocument{
+		LintRun: model.LintRun{ID: "lint-tier", Mode: "strict", CommaAsAnd: true},
+		Requirements: []model.Requirement{
+			{ID: "REQ-TST-003", Text: "When telemetry ingested event is received, the coffee fleet system shall publish brew telemetry."},
+		},
+	}
+	catalog := model.CatalogDocument{Catalog: model.CatalogGroups{
+		Systems:   []model.CatalogEntry{{ID: "SYS-COFFEE-FLEET-SYSTEM", Name: "coffee fleet system"}},
+		Actors:    []model.CatalogEntry{{ID: "ACT-SECURITY-ANALYST", Name: "security analyst"}},
+		Events:    []model.CatalogEntry{{ID: "EVT-TELEMETRY-INGESTED", Name: "telemetry ingested event is received"}},
+		DataTerms: []model.CatalogEntry{{ID: "DATA-BREW-TELEMETRY", Name: "brew telemetry"}},
+	}}
+	diags := lintRequirementsEARS(requirements, catalog)
+	for _, c := range []struct {
+		tier string
+		want validate.Severity
+	}{
+		{"poc", validate.SeverityWarning}, {"prototype", validate.SeverityWarning}, {"mvp", validate.SeverityWarning},
+		{"product", validate.SeverityError}, {"operational", validate.SeverityError},
+	} {
+		if got := termSeveritiesAtTier(diags, c.tier); !allSeverity(got, c.want) {
+			t.Errorf("at %s: severities %v, want one or more %s", c.tier, got, c.want)
+		}
+	}
+}
+
+// allSeverity reports whether got is not empty and every severity is want.
+// TRLC-LINKS: REQ-EMG-183
+func allSeverity(got []validate.Severity, want validate.Severity) bool {
+	for _, sev := range got {
+		if sev != want {
+			return false
+		}
+	}
+	return len(got) > 0
+}
+
+// termSeveritiesAtTier returns the severity of each catalog.term_unreferenced
+// diagnostic after the tier policy of a model at the tier.
+// TRLC-LINKS: REQ-EMG-183
+func termSeveritiesAtTier(diags []validate.Diagnostic, tier string) []validate.Severity {
+	var b model.Bundle
+	b.Manifest.Lifecycle = &model.ManifestLifecycle{Tier: tier}
+	var out []validate.Severity
+	for _, d := range validate.ApplyTierPolicy(b, diags) {
+		if d.Code == "catalog.term_unreferenced" {
+			out = append(out, d.Severity)
+		}
+	}
+	return out
+}
+
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func TestLintRequirementsEARS_UnreferencedCatalogTermsNotEmittedInGuided(t *testing.T) {
 	requirements := model.RequirementsDocument{

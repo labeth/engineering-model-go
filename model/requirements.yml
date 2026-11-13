@@ -1588,3 +1588,13 @@ requirements:
       - FU-MCP-SERVER
       - FU-CLI-ORCHESTRATION
     realizes: [CAP-EMG-MCP-INTEGRATION]
+  - id: REQ-EMG-183
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a dependency without a declared tier as an error and report an incomplete aviation assessment and an unreferenced catalog term by tier.
+    notes: 'ADR-EMG-074, removal plan phase 5. composition.dependency_tier_unknown is a core error at every tier (a dependency that declares no life-cycle tier cannot be compared with this system). The aviation codes incomplete_credit_assessment and incomplete_safety_feedback are errors from mvp, like the other aviation floors. catalog.term_unreferenced is a warning below product and an error from product, so a strict catalog is not left with unused vocabulary at the tiers that require clean models.'
+    verificationMethods: [test]
+    verificationCriteria: When a composed model has a dependency that declares no lifecycle, then composition.dependency_tier_unknown is an error at every tier and no row or POA&M item changes it; the two aviation codes are deferred below mvp and errors from mvp; catalog.term_unreferenced is a warning at poc, prototype and mvp and an error at product and operational.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FU-SYSTEM-COMPOSITION
+    realizes: [CAP-EMG-LIFECYCLE-POLICY]

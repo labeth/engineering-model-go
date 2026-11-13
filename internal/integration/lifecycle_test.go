@@ -223,10 +223,11 @@ func composeSystem(t *testing.T, root string) []engmodel.Diagnostic {
 // A product-tier system composing a prototype-tier child reports
 // composition.dependency_below_tier (error) naming the alias and the system
 // requirements linked into it, and a child without lifecycle
-// composition.dependency_tier_unknown (warning); a risk with a recorded
+// composition.dependency_tier_unknown (a core error at every tier, ADR-EMG-073,
+// with a remedy that asks the dependency's owner); a risk with a recorded
 // acceptance whose appliesTo names the subsystem composing the alias
 // removes the below-tier finding; a system without lifecycle gets neither.
-// TRLC-LINKS: REQ-EMG-126
+// TRLC-LINKS: REQ-EMG-126, REQ-EMG-183
 func TestCompositionTierRules(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	system := filepath.Join(root, "repos", "system")
@@ -246,10 +247,7 @@ func TestCompositionTierRules(t *testing.T) {
 		!strings.Contains(below[0].Message, `"encoder"`) || !strings.Contains(below[0].Message, "prototype") || !strings.Contains(below[0].Message, "REQ-SYS-001, REQ-SYS-002") {
 		t.Fatalf("below tier: %+v", below)
 	}
-	unknown := withCode(diags, "composition.dependency_tier_unknown")
-	if len(unknown) != 1 || unknown[0].Severity != engmodel.SeverityWarning || !strings.Contains(unknown[0].Message, `"bridge"`) {
-		t.Fatalf("tier unknown: %+v", unknown)
-	}
+	requireTierUnknownIsCoreError(t, root, system)
 
 	assurance := "schemaVersion: 2\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: accepted\n    owner: ACT-SYSTEM-OWNER\n    appliesTo: [SUB-ENCODER]\n" +
 		"    acceptedBy: {actor: ACT-SYSTEM-OWNER, date: \"2026-11-05\", statement: I accept the prototype encoder until v1.}\n"
@@ -259,6 +257,33 @@ func TestCompositionTierRules(t *testing.T) {
 	if got := withCode(composeSystem(t, root), "composition.dependency_below_tier"); len(got) != 0 {
 		t.Fatalf("accepted risk on SUB-ENCODER: %+v", got)
 	}
+}
+
+// isPlainCoreError reports whether a composition diagnostic is an error that
+// no tier lowers or defers.
+func isPlainCoreError(d engmodel.Diagnostic) bool {
+	return d.Severity == engmodel.SeverityError && d.RequiredFrom == "" && !d.Deferred
+}
+
+// requireTierUnknownIsCoreError checks that composition.dependency_tier_unknown
+// is a core error with the owner remedy at the system's tier and at poc, and
+// leaves the system at product.
+// TRLC-LINKS: REQ-EMG-183
+func requireTierUnknownIsCoreError(t *testing.T, root, system string) {
+	t.Helper()
+	const code = "composition.dependency_tier_unknown"
+	unknown := withCode(composeSystem(t, root), code)
+	if len(unknown) != 1 || !isPlainCoreError(unknown[0]) || !strings.Contains(unknown[0].Message, `"bridge"`) {
+		t.Fatalf("tier unknown: %+v", unknown)
+	}
+	if !strings.Contains(unknown[0].Remedy, "owner of the dependency") {
+		t.Fatalf("tier unknown remedy: %q", unknown[0].Remedy)
+	}
+	setLifecycle(t, system, "poc")
+	if low := withCode(composeSystem(t, root), code); len(low) != 1 || !isPlainCoreError(low[0]) {
+		t.Fatalf("tier unknown at poc: %+v", low)
+	}
+	setLifecycle(t, system, "product")
 }
 
 // writeSystemRisk writes repos/system/model/assurance.yml with one risk on

@@ -309,7 +309,7 @@ func TestAuthoringRulesGiveFieldTypes(t *testing.T) {
 	text := strings.Join(rules.FieldRules, "\n")
 	for _, want := range []string{
 		"every flow step needs ref", "model.missing_flow_step_ref", "step IDs are unique across all flows",
-		"semantic.duplicate_identity", "stride is one string", "catalog.term_unreferenced",
+		"semantic.duplicate_identity", "stride is one string", "catalog.term_unreferenced", "a warning below product and an error from product",
 		"lintRun.mode: strict", "dir, dir/, dir/* or dir/**", "model.invalid_exclude_pattern", "fieldTypes",
 	} {
 		if !strings.Contains(text, want) {

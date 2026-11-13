@@ -303,7 +303,7 @@ Verification metadata is inferred from test artifacts:
 - requirement IDs in result artifacts are inferred by matching `REQ-*` tokens in result content
 - published verification chain is `Verification Check -> Test Code Element -> Requirement`
 - functional ownership in verification tables is shown as derived context from requirement ownership
-- strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
+- strict EARS lint also reports (a warning below product, an error from product) when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
 - `lint.multiple_responses` is not reported for one response verb whose conjunctions all sit in a trailing `with`, `including` or `of` field list (`shall publish one world state message with UTC time, latitude, longitude and altitude`); a conjunction before the list, a second `shall`, a `then` in the list, or a list item that reads as a verb with its object (`… with the timestamp and notify the operator`) is still reported
 - a risk with `status: accepted` or `response: accept`, and a threat scenario with `status: accepted`, carries the owner's acceptance record `acceptedBy: {actor: ACT-…, date: YYYY-MM-DD, statement: "<the owner's words>"}` (or `decisionRef: DEC-…` naming an accepted decision whose context quotes the owner; without `statement` that is the warning `risk.acceptance_by_decision_only`); without it `risk.acceptance_unrecorded` is an error at `acceptedBy`, and an actor, date or decisionRef that does not resolve is `model.invalid_acceptance`. The Gemara policy lists a risk under `risks.accepted` only with a complete, resolving record and status `accepted`, or response `accept` with a status other than `open`. The record is a claim in the model: the review of the change that adds it is what shows the owner gave it. Authored risk and threat scenario IDs must not contain `::`, which is reserved for imported `alias::ID` entities
 - a control verification names its tests in `verificationRefs`: inferred `CODE-<PATH>--<NAME>` IDs of test declarations or `REQ-*` IDs whose linked tests verify it. `verification.status_stale` warns at the `status` of a control verification that is unset or `not-run`, and of a threat mitigation that is unset or `planned`, while those tests exist in the code; the status stays authored
@@ -900,7 +900,7 @@ entry (`ValidateBundle`, `GenerateAsciiDoc`, the trace builders, `engws check`, 
 - rank-0 core codes (`CoreCodes()`: `model.duplicate_id`, `model.broken_reference`, `model.invalid_*`,
   `model.missing_*`, `code.dangling_*`, `composition.cycle`, `composition.lock_*`, the link integrity
   codes, `risk.acceptance_unrecorded`, the structural `lifecycle.*` codes, the required-switch codes
-  and the AI-credit and authority-evidence aviation codes) are errors at every tier and never deferred, and every code the
+  the AI-credit and authority-evidence aviation codes and `composition.dependency_tier_unknown`) are errors at every tier and never deferred, and every code the
   table does not key keeps its severity;
 - requirement links are strict from mvp whatever `requirementLinks` says; `requirementLinks: guided`
   at mvp or above is `lifecycle.requirement_links_conflict` (error);
@@ -914,7 +914,9 @@ New codes with `lifecycle`: `lifecycle.tier_decision_mismatch`, `lifecycle.requi
 (every linked test is environment gated), the safety bundle's `lifecycle.aviation_profile_missing`,
 `lifecycle.software_level_missing`, `aviation.state_below_tier`, `aviation.authority_state_unevidenced`
 and `aviation.ai_actor_as_credit` (ADR-EMG-035), and the composition rules
-`composition.dependency_below_tier` and `composition.dependency_tier_unknown` (ADR-EMG-034).
+`composition.dependency_below_tier` (ADR-EMG-034). `composition.dependency_tier_unknown` (a dependency
+without a lifecycle tier) is a core error at every tier (ADR-EMG-073): ask the dependency's owner to
+declare lifecycle and release it.
 To accept a dependency below the system's tier, record a risk with `status: accepted` (or
 `response: accept`) and a complete `acceptedBy`, and name the dependency alias from `engmod.yml`
 in its `dependencies` field (preferred); naming the composing subsystem in `appliesTo` still works.
@@ -938,10 +940,10 @@ with `requirementLinks: strict`):
 
 | Code | poc | prototype | mvp | product | operational |
 |---|---|---|---|---|---|
-| `aviation.derived.incomplete_safety_feedback` | D | D | W | E | E |
+| `aviation.derived.incomplete_safety_feedback` | D | D | E | E | E |
 | `aviation.lifecycle.missing_category` | D | D | E | E | E |
 | `aviation.state_below_tier` | D | D | E | E | E |
-| `aviation.tool.incomplete_credit_assessment` | D | D | W | E | E |
+| `aviation.tool.incomplete_credit_assessment` | D | D | E | E | E |
 | `behavior.event_unlinked` | D | D | W | W | E |
 | `behavior.event_unused` | D | D | W | W | E |
 | `behavior.flow_step_no_onerror` | D | D | W | W | E |
@@ -954,6 +956,7 @@ with `requirementLinks: strict`):
 | `behavior.transition_no_trigger` | D | D | W | W | E |
 | `behavior.transition_nondeterministic` | D | D | W | W | E |
 | `behavior.transition_unlinked` | D | D | W | W | E |
+| `catalog.term_unreferenced` | W | W | W | E | E |
 | `code.data_unlinked` | D | D | D | W | E |
 | `code.event_unlinked` | D | D | W | W | E |
 | `code.exemption_unused` | W | W | W | W | E |
@@ -970,8 +973,6 @@ with `requirementLinks: strict`):
 | `code.transition_unlinked` | D | D | W | W | E |
 | `code.unit_unlinked` | D | D | W | E | E |
 | `composition.dependency_below_tier` | D | D | W | E | E |
-| `composition.dependency_tier_unknown` | W | W | W | W | W |
-| `composition.dependency_tier_unknown` with safety | W | W | W | E | E |
 | `contract.unrealized` | D | D | W | W | E |
 | `gemara.control_needs_review` | D | D | D | W | E |
 | `health.baseline_stale` | W | W | W | W | E |

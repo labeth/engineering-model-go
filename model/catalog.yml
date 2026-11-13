@@ -550,16 +550,6 @@ catalog:
     aliases:
     - authoring manifest
     - input contract
-  - id: DATA-CATALOG-DOCUMENT
-    name: catalog document
-    definition: Canonical authored vocabulary YAML document used by strict requirement and model validation.
-    aliases:
-    - catalog yml
-  - id: DATA-DESIGN-DOCUMENT
-    name: design document
-    definition: Canonical authored design-view YAML document.
-    aliases:
-    - design yml
   - id: DATA-DECISIONS-DOCUMENT
     name: decisions document
     definition: Canonical authored architecture decision YAML document.
@@ -618,11 +608,6 @@ catalog:
     definition: Traceability report output generated from TRLC and test links.
     aliases:
     - lobster report
-  - id: DATA-OSCAL-SSP
-    name: oscal ssp artifact
-    definition: Generated OSCAL system security plan JSON output.
-    aliases:
-    - ssp json
   - id: DATA-ARCHITECTURE-DECISION-RECORDS
     name: architecture decision records document
     definition: Generated document containing authored architecture decision records.

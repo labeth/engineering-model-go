@@ -156,7 +156,7 @@ func TestAviationStateCodesAreTierKeyed(t *testing.T) {
 	b.Aviation.Aviation.Reviews[0].State = "authority-accepted"
 	diags := ApplyTierPolicy(b, Bundle(b))
 	tool := codesOf(diags, "aviation.tool.incomplete_credit_assessment")
-	if len(tool) != 1 || !tool[0].Deferred || tool[0].RequiredFrom != "product" {
+	if len(tool) != 1 || !tool[0].Deferred || tool[0].RequiredFrom != "mvp" {
 		t.Errorf("tool credit at prototype: %+v", tool)
 	}
 	auth := codesOf(diags, "aviation.authority_state_unevidenced")

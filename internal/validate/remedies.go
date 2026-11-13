@@ -131,7 +131,10 @@ const (
 	remedyMachineVerify = "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
 	// remedyCodeCoverage is the remedy of every element to code coverage code.
 	remedyCodeCoverage = "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
-	remedyExemption    = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
+	// remedyDependencyTier is the remedy of composition.dependency_tier_unknown
+	// (ADR-EMG-073): the dependency's owner declares and releases lifecycle.
+	remedyDependencyTier = "ask the owner of the dependency to declare lifecycle {tier, bundles, tierDecision} in its engmod.yml and release it, then run engws bump to pin the new release"
+	remedyExemption      = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
 )
 
 // consistencyRemedies maps the codes of the consistency checks to their
@@ -155,6 +158,8 @@ var consistencyRemedies = map[string]string{
 	"code.exemption_unused":          remedyExemption,
 	"code.exemption_unjustified":     remedyExemption,
 	"model.invalid_code_exemption":   remedyExemption,
+
+	"composition.dependency_tier_unknown": remedyDependencyTier,
 }
 
 // ConsistencyRemedy returns the remedy of a consistency-check code
