@@ -1637,3 +1637,12 @@ requirements:
       - FU-SYSTEM-COMPOSITION
       - FU-ALLOCATION-TRACE
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
+  - id: REQ-EMG-188
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a Go state-like type that no machine models and no comment explains.
+    notes: 'ADR-EMG-070. code.state_candidate_unlinked, row DDWWE with the error at operational only for the narrow rule. A candidate is a Go named type with three or more constants of that type, a struct field of that type and an assignment to that field in non-test code. Names ending in Kind, Severity, Format, Type, Reason, Mode and Option are never reported. A candidate is cleared by naming a machine or one of its states or transitions in a model link marker on or within three lines above the declaration, or by the comment ENGMODEL-NOT-A-STATE: followed by a reason of at least 20 characters that is not a placeholder. A suppression with no reason is the untiered error code.state_suppression_unreasoned and a suppression on a declaration that is not a candidate, or that is linked, is code.state_suppression_unused (row WWWWE). Go is the only language.'
+    verificationMethods: [test]
+    verificationCriteria: When a Go type named like a state with three constants, a field of that type and an assignment in non-test code has no machine link and no suppression, then code.state_candidate_unlinked is reported at the declaration with a remedy and is an error at operational; a type named Kind or Severity, a type with two constants, a type with no field assignment, a type with a machine link and a type with a valid suppression are not reported; a suppression with a reason shorter than 20 characters or a placeholder is code.state_suppression_unreasoned; a suppression on a declaration that is not a candidate is code.state_suppression_unused.
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+    realizes: [CAP-EMG-TRACEABILITY]

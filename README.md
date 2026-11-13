@@ -356,6 +356,9 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `code.event_unlinked` | `authoredArchitecture.events[i]` | an event that a transition of a machine owned by a local unit triggers on and that no scanned non-test source names in `ENGMODEL-LINKS`. Remedy: the `ef-code-linking` skill |
 | `code.flow_unlinked` | `authoredArchitecture.flows[i]` | a flow that touches (source, destination, or a step ref or interface) a software interface owned by a local unit and that no scanned non-test source names. Remedy: the `ef-code-linking` skill |
 | `code.data_unlinked` | `authoredArchitecture.dataObjects[i]` | a data object carried by a flow that touches such an interface and that no scanned non-test source names. Remedy: the `ef-code-linking` skill |
+| `code.state_candidate_unlinked` | the type declaration (`file:line`) | a Go named type in non-test, non-generated source that looks like a state (ADR-EMG-058, ADR-EMG-070): three or more constants of the type, a struct field of the type and an assignment `x.f = v` to a field of that name (a composite literal does not count) in the same package, with no `ENGMODEL-LINKS` marker on the declaration that names a machine, state or transition of the model (an `SM-*`, `STATE-*` or `TR-*` ID) and no `ENGMODEL-NOT-A-STATE` comment. Names ending in `Kind`, `Severity`, `Format`, `Type`, `Reason`, `Mode` or `Option` are never reported. Go only; an error only at operational, and provisional. Remedy: model it with the `ef-behavior` skill and link it, or write `// ENGMODEL-NOT-A-STATE: <reason>` on or within three lines above the declaration |
+| `code.state_suppression_unreasoned` (error, untiered) | the comment (`file:line`) | an `ENGMODEL-NOT-A-STATE` comment whose reason is missing, shorter than 20 characters or a placeholder (`todo`, `tbd`, `n/a`, `none`, `fixme`, `xxx`, `not a state`, `ignore`, `later`, `wip`, alone or repeated); it clears nothing |
+| `code.state_suppression_unused` | the comment (`file:line`) | an `ENGMODEL-NOT-A-STATE` comment with a valid reason on a declaration that is not a state-like candidate or that already links a machine, so it can be removed |
 | `code.exemption_unjustified` (error, untiered) | `codeCoverage.exempt[i].decision` | an exemption `{id, reason, decision}` whose decision does not exist or is not accepted; the exemption then exempts nothing. Remedy: the `ef-tier-up` skill |
 | `code.exemption_unused` | `codeCoverage.exempt[i]` | a valid exemption that matches no unlinked element, so it can be removed (only when non-test source was scanned). Remedy: the `ef-tier-up` skill |
 | `model.invalid_code_exemption` (error) | `codeCoverage.exempt[i].id`, `.reason` | an exemption whose `id` is no model element (a requirement or catalog term is none) or whose `reason` has fewer than 20 characters. Remedy: the `ef-tier-up` skill |
@@ -998,6 +1001,8 @@ with `requirementLinks: strict`):
 | `code.model_link_kind_mismatch` | W | W | W | E | E |
 | `code.owner_unresolved` | W | W | W | E | E |
 | `code.scan_failed` | W | W | W | E | E |
+| `code.state_candidate_unlinked` | D | D | W | W | E |
+| `code.state_suppression_unused` | W | W | W | W | E |
 | `code.state_unlinked` | D | D | W | W | E |
 | `code.trace_unattached` | W | W | W | E | E |
 | `code.transition_unlinked` | D | D | W | W | E |

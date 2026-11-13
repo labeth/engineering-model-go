@@ -114,6 +114,8 @@ var tierTable = map[string]tierRow{
 	"code.flow_unlinked":                          {base: rowDebtToOperational, note: "a flow that touches a software interface owned by a local functional unit and that no scanned non-test source names in ENGMODEL-LINKS"},
 	"code.data_unlinked":                          {base: rowDebtToOperational, note: "a data object that a flow touching a local software interface carries and that no scanned non-test source names in ENGMODEL-LINKS"},
 	"code.exemption_unused":                       {base: "WWWWE", note: "a codeCoverage.exempt entry that matches no unlinked element, so it can be removed (only with scanned source)"},
+	"code.state_candidate_unlinked":               {base: rowHygiene, note: "a Go named type with three or more constants, a struct field of that type and an assignment to a field of that name in non-test source, linked to no machine and not marked ENGMODEL-NOT-A-STATE (ADR-EMG-070); names ending in Kind, Severity, Format, Type, Reason, Mode or Option are not asked; the error at operational is provisional and the narrow name rule (State, Status, Phase, Stage, Lifecycle) is not tiered separately"},
+	"code.state_suppression_unused":               {base: "WWWWE", note: "an ENGMODEL-NOT-A-STATE comment on a declaration that is not a state-like candidate or that already links a machine, so it can be removed (only with scanned Go source)"},
 	"gemara.control_needs_review":                 {base: rowDebtToOperational, note: "the Gemara evaluation log marks the control Needs Review"},
 	"lifecycle.aviation_profile_missing":          {base: rowSafetyFromMVP, bundle: model.BundleSafety},
 	"lifecycle.software_level_missing":            {base: rowSafetyFromMVP, bundle: model.BundleSafety},

@@ -74,6 +74,8 @@ var tierSeverityCases = []tierSeverityCase{
 	{"code.flow_unlinked", [5]string{"D", "D", "D", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 	{"code.data_unlinked", [5]string{"D", "D", "D", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 	{"code.exemption_unused", [5]string{"W", "W", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+	{"code.state_candidate_unlinked", [5]string{"D", "D", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
+	{"code.state_suppression_unused", [5]string{"W", "W", "W", "W", "E"}, "operational", nil, SeverityWarning, SeverityWarning},
 	{"aviation.tool.incomplete_credit_assessment", [5]string{"D", "D", "E", "E", "E"}, "mvp", nil, SeverityWarning, SeverityWarning},
 	{"aviation.derived.incomplete_safety_feedback", [5]string{"D", "D", "E", "E", "E"}, "mvp", nil, SeverityWarning, SeverityWarning},
 	{"catalog.term_unreferenced", [5]string{"W", "W", "W", "E", "E"}, "product", nil, SeverityWarning, SeverityWarning},
@@ -433,6 +435,9 @@ func TestConsistencyRemedies(t *testing.T) {
 		"code.data_unlinked":                  "ef-code-linking",
 		"composition.dependency_tier_unknown": "owner of the dependency",
 		"code.exemption_unused":               "ef-tier-up",
+		"code.state_candidate_unlinked":       "ef-behavior",
+		"code.state_suppression_unreasoned":   "ENGMODEL-NOT-A-STATE",
+		"code.state_suppression_unused":       "ENGMODEL-NOT-A-STATE",
 		"code.exemption_unjustified":          "ef-tier-up",
 		"model.invalid_code_exemption":        "ef-tier-up",
 		"requirement.orphan":                  "",
@@ -486,6 +491,63 @@ func requireExemptionDecisionProblems(t *testing.T) {
 	for decision, want := range map[string]string{"DEC-OK": "", "DEC-NO": `has status "proposed", not accepted`, "DEC-GONE": "does not exist", " ": "has no decision"} {
 		if got := CodeExemptionDecisionProblem(b, decision); got != want {
 			t.Errorf("decision %q: problem %q, want %q", decision, got, want)
+		}
+	}
+}
+
+// The state-like code discovery (ADR-EMG-070): the candidate follows the
+// hygiene row (deferred below mvp, a warning at mvp and product, an error at
+// operational), the unused suppression the row WWWWE, and the unreasoned
+// suppression is an untiered error that no tier lowers.
+// Mutation: keying code.state_suppression_unreasoned in the tier table, or
+// moving the candidate to rowDebtToProduct, fails a tier.
+// TRLC-LINKS: REQ-EMG-188
+func TestStateDiscoveryCodesFollowTheirTierRows(t *testing.T) {
+	for code, want := range stateDiscoveryRows {
+		t.Run(code, func(t *testing.T) { assertTierRow(t, code, want) })
+	}
+	t.Run("unreasoned suppression is untiered", func(t *testing.T) { assertUnreasonedIsUntiered(t) })
+}
+
+// stateRow is the severity and deferral of a code at each of the five tiers.
+type stateRow struct {
+	severity [5]Severity
+	deferred [5]bool
+}
+
+var stateDiscoveryRows = map[string]stateRow{
+	"code.state_candidate_unlinked": {
+		[5]Severity{SeverityWarning, SeverityWarning, SeverityWarning, SeverityWarning, SeverityError},
+		[5]bool{true, true, false, false, false},
+	},
+	"code.state_suppression_unused": {
+		[5]Severity{SeverityWarning, SeverityWarning, SeverityWarning, SeverityWarning, SeverityError},
+		[5]bool{},
+	},
+}
+
+// assertTierRow checks one code at every tier against its expected row.
+// TRLC-LINKS: REQ-EMG-188
+func assertTierRow(t *testing.T, code string, want stateRow) {
+	t.Helper()
+	for i, tier := range model.Tiers {
+		got := severityAt(t, tierBundle(tier), code, "p", SeverityWarning)
+		if got.Severity != want.severity[i] || got.Deferred != want.deferred[i] {
+			t.Errorf("%s at %s: got %s deferred=%v", code, tier, got.Severity, got.Deferred)
+		}
+	}
+}
+
+// assertUnreasonedIsUntiered checks that no tier lowers or defers the unreasoned suppression.
+// TRLC-LINKS: REQ-EMG-188
+func assertUnreasonedIsUntiered(t *testing.T) {
+	t.Helper()
+	if TierKeyed("code.state_suppression_unreasoned") {
+		t.Fatal("code.state_suppression_unreasoned must be untiered")
+	}
+	for _, tier := range model.Tiers {
+		if got := severityAt(t, tierBundle(tier), "code.state_suppression_unreasoned", "p", SeverityError); got.Severity != SeverityError || got.Deferred {
+			t.Errorf("unreasoned suppression at %s: %+v", tier, got)
 		}
 	}
 }

@@ -12,6 +12,13 @@ import (
 // compared with the content of the item at check time (decision D23): the
 // pinned version is the review record, and engws bump compares meanings
 // between versions.
+//
+// The states of a link over its life are modeled by SM-LINK-LIFECYCLE; this type
+// is the evaluation of a link at check time and has more values (unchanged,
+// child_unpublished, unresolved, local) than the model has states, so the link
+// to the machine is partial: only broken and version_mismatch (suspect) map to
+// model states.
+// ENGMODEL-LINKS: SM-LINK-LIFECYCLE, STATE-LINK-SUSPECT, STATE-LINK-BROKEN
 type State string
 
 // ENGMODEL-LINKS: STATE-LINK-SUSPECT, STATE-LINK-BROKEN

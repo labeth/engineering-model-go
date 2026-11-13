@@ -20,6 +20,7 @@ import (
 )
 
 // Impact is a semantic version impact.
+// ENGMODEL-NOT-A-STATE: a computed result of one contract diff that is returned and never stored or moved between values
 type Impact string
 
 const (
@@ -43,6 +44,7 @@ func (i Impact) rank() int {
 }
 
 // Change is how a contract item changed between two versions.
+// ENGMODEL-NOT-A-STATE: a computed result of one contract diff that is returned and never stored or moved between values
 type Change string
 
 const (

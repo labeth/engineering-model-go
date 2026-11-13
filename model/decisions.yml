@@ -2076,7 +2076,7 @@ decisions:
     first and only language; Rust, TypeScript and Python are reported as warnings at most, or deferred, until there is own code
     to measure; TypeScript needs a package scope or type resolution because generic names produce phantom matches. (6) The pass
     is folded into the existing tree-sitter walk of the code health scan so it shares the parsed trees; its cost is measured
-    again when it is built. (7) The spike code is deleted after the measurement and is not kept in the repository.
+    again when it is built. (7) The spike code is deleted after the measurement and is not kept in the repository. (8) As built (REQ-EMG-188): the tier table keys severity by code, not by a name, so the narrow error rule of item 2 became one code at one row. A candidate is a Go type with three or more constants, a field of the type and an assignment to the field in non-test code, and the excluded suffixes of item 2 are never reported; it is a warning at mvp and product and an error at operational. The pass costs about 0.7 seconds over 248 Go files, which is 20 percent of the scan of this repository (3.6 seconds); the first run on this repository found three candidates: two computed results (contract diff Impact and Change), suppressed with their reasons, and one real state, reqlinks.State, linked to SM-LINK-LIFECYCLE with a comment that says the machine models only part of its values.
   consequences:
   - The consistency effort starts with the cheap checks of ADR-EMG-069; state discovery is the last of them and its error level stays provisional.
   - The real finding of the spike, that reqlinks.State has six values against five model states, is recorded for the maintainers to model or to mark.

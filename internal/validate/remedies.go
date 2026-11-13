@@ -146,30 +146,37 @@ const (
 	// remedySchemaVersionNotBumped is the remedy of release.schema_version_not_bumped
 	// (ADR-EMG-077), reported by engws release-check.
 	remedySchemaVersionNotBumped = "raise schemaVersion and model.CurrentSchemaVersion, then record the change in the CHANGELOG"
-	remedyExemption              = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
+	// The remedies of the state-like code discovery (ADR-EMG-058, ADR-EMG-070).
+	remedyStateCandidate  = "model the state with the ef-behavior skill (a machine whose states and transitions are in the model) and link the declaration with the ef-code-linking skill (an ENGMODEL-LINKS marker naming the SM-*, STATE-* or TR-* ID on or above the declaration); when the type is not a state, write a comment ENGMODEL-NOT-A-STATE: followed by a reason of at least 20 characters on or within three lines above the declaration"
+	remedyStateUnreasoned = "write after ENGMODEL-NOT-A-STATE: a reason of at least 20 characters that says why the type is not a state; a placeholder such as TODO, TBD or n/a is not a reason"
+	remedyStateUnused     = "remove the ENGMODEL-NOT-A-STATE comment: the declaration under it is not a state-like candidate, or it already links a machine"
+	remedyExemption       = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
 )
 
 // consistencyRemedies maps the codes of the consistency checks to their
 // remedy.
 var consistencyRemedies = map[string]string{
-	"code.owner_unresolved":          remedyOwnerUnit,
-	"code.model_link_kind_mismatch":  remedyModelLinkKind,
-	"behavior.requirement_unmodeled": remedyUnmodeled,
-	"behavior.machine_unverified":    remedyMachineVerify,
-	"behavior.state_unlinked":        remedyBehaviorLink,
-	"behavior.transition_unlinked":   remedyBehaviorLink,
-	"behavior.event_unlinked":        remedyBehaviorLink,
-	"code.unit_unlinked":             remedyCodeCoverage,
-	"code.machine_unlinked":          remedyCodeCoverage,
-	"code.interface_unlinked":        remedyCodeCoverage,
-	"code.state_unlinked":            remedyCodeCoverage,
-	"code.transition_unlinked":       remedyCodeCoverage,
-	"code.event_unlinked":            remedyCodeCoverage,
-	"code.flow_unlinked":             remedyCodeCoverage,
-	"code.data_unlinked":             remedyCodeCoverage,
-	"code.exemption_unused":          remedyExemption,
-	"code.exemption_unjustified":     remedyExemption,
-	"model.invalid_code_exemption":   remedyExemption,
+	"code.owner_unresolved":             remedyOwnerUnit,
+	"code.model_link_kind_mismatch":     remedyModelLinkKind,
+	"behavior.requirement_unmodeled":    remedyUnmodeled,
+	"behavior.machine_unverified":       remedyMachineVerify,
+	"behavior.state_unlinked":           remedyBehaviorLink,
+	"behavior.transition_unlinked":      remedyBehaviorLink,
+	"behavior.event_unlinked":           remedyBehaviorLink,
+	"code.unit_unlinked":                remedyCodeCoverage,
+	"code.machine_unlinked":             remedyCodeCoverage,
+	"code.interface_unlinked":           remedyCodeCoverage,
+	"code.state_unlinked":               remedyCodeCoverage,
+	"code.transition_unlinked":          remedyCodeCoverage,
+	"code.event_unlinked":               remedyCodeCoverage,
+	"code.flow_unlinked":                remedyCodeCoverage,
+	"code.data_unlinked":                remedyCodeCoverage,
+	"code.state_candidate_unlinked":     remedyStateCandidate,
+	"code.state_suppression_unreasoned": remedyStateUnreasoned,
+	"code.state_suppression_unused":     remedyStateUnused,
+	"code.exemption_unused":             remedyExemption,
+	"code.exemption_unjustified":        remedyExemption,
+	"model.invalid_code_exemption":      remedyExemption,
 
 	"composition.dependency_tier_unknown": remedyDependencyTier,
 
