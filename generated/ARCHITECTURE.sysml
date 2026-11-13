@@ -494,6 +494,12 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-071';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-072";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-072';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -2020,22 +2026,16 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-03758739C61FBDFA';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-039AFE93F999C5A3";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-039AFE93F999C5A3';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-139EC30ED19D5D0E";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-139EC30ED19D5D0E';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-17C6EF1A7DB19DC3";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-17C6EF1A7DB19DC3';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-1C5C91CFE3071C27";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-1C5C91CFE3071C27';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-1F759AEA9CF11C3A";
@@ -2044,10 +2044,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-1F759AEA9CF11C3A';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-247FD595AB3F2229";
+        sourceId = "EVIDENCE-23C045EBA1477F66";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-247FD595AB3F2229';
+    attribute 'EVIDENCE-23C045EBA1477F66';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-40EB3F8D004E3DF8";
@@ -2062,28 +2062,28 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-43B6184BF8DE5E9F';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-4D65C1F858E3498F";
+        sourceId = "EVIDENCE-4B3DDCC5B0B41D8E";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-4D65C1F858E3498F';
+    attribute 'EVIDENCE-4B3DDCC5B0B41D8E';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-5AD0ABA192E838BB";
+        sourceId = "EVIDENCE-4E4BFE79877C82EF";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-5AD0ABA192E838BB';
+    attribute 'EVIDENCE-4E4BFE79877C82EF';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-503DC005C15715B7";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-503DC005C15715B7';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-5EE38555C003B5C1";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-5EE38555C003B5C1';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-6847186E5CC923DB";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-6847186E5CC923DB';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-703C9B14599B7165";
@@ -2116,10 +2116,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-785435EA6C3FA885';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-7A4B55CD125B2278";
+        sourceId = "EVIDENCE-7B359CE0EBBAA845";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-7A4B55CD125B2278';
+    attribute 'EVIDENCE-7B359CE0EBBAA845';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-7BCB58B049112FF6";
@@ -2128,10 +2128,16 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-7BCB58B049112FF6';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-7E819123F3B686F2";
+        sourceId = "EVIDENCE-80E6FEC2A77A59C5";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-7E819123F3B686F2';
+    attribute 'EVIDENCE-80E6FEC2A77A59C5';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-818DFA02E6A5039F";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-818DFA02E6A5039F';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-86534EAF0B866FF8";
@@ -2140,10 +2146,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-86534EAF0B866FF8';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-8BC6A59A329C4B02";
+        sourceId = "EVIDENCE-88EA6811C334AD4E";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-8BC6A59A329C4B02';
+    attribute 'EVIDENCE-88EA6811C334AD4E';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-94C1E990F59187C8";
@@ -2158,22 +2164,16 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-95186CA263D4A74D';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-98FAD0125D12E38A";
+        sourceId = "EVIDENCE-9626B625C038ECBE";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-98FAD0125D12E38A';
+    attribute 'EVIDENCE-9626B625C038ECBE';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-A058B3374B208985";
+        sourceId = "EVIDENCE-9D67CC51D8C146A5";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-A058B3374B208985';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-A3621B641F8230F2";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-A3621B641F8230F2';
+    attribute 'EVIDENCE-9D67CC51D8C146A5';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-A755D795A790DDDB";
@@ -2182,10 +2182,22 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-A755D795A790DDDB';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-AA409C8F49AB186F";
+        sourceId = "EVIDENCE-A97EFA82CF771A58";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-AA409C8F49AB186F';
+    attribute 'EVIDENCE-A97EFA82CF771A58';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-AA3DC00FE963C522";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-AA3DC00FE963C522';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-AB740132F2975383";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-AB740132F2975383';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-BB4E54DC3575C2A8";
@@ -2206,6 +2218,12 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-D356ACB215A4C41E';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-DE7611E218EDC3FB";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-DE7611E218EDC3FB';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-DF786B86FD0C4795";
         conceptKind = "engineering_extension";
     }
@@ -2216,12 +2234,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-E4E9DF285AEBDD56';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-E5BC6B02C1A6B8E0";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-E5BC6B02C1A6B8E0';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-E7E572C202CD7329";
@@ -2236,6 +2248,12 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-EF5710F27BBD8EC7';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-F068977A71DAEE36";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-F068977A71DAEE36';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-FA3941B5C5E1E07C";
         conceptKind = "engineering_extension";
     }
@@ -2246,12 +2264,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-FB2594F142C7A666';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-FE94E22EA4EF2F8E";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-FE94E22EA4EF2F8E';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-FEACEF702B8F0028";
@@ -2896,6 +2908,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'POAM-CONSISTENCY-CONTROLS';
+
+    @EngineeringElement {
+        sourceId = "POAM-CONSISTENCY-MODEL-LINKS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-CONSISTENCY-MODEL-LINKS';
 
     @EngineeringElement {
         sourceId = "POAM-CONSISTENCY-MODEL-ONLY";
@@ -4668,6 +4686,51 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-176' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.";
         attribute 'notes' : 'String' = "ADR-EMG-069. codeCoverage.exempt in engmod.yml is a list of an element identifier, a reason and an accepted decision, shaped like a health waiver. A missing or unaccepted decision is the untiered error code.exemption_unjustified, and an exemption that matches no unlinked element is code.exemption_unused (a warning, an error at operational).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-177";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-177' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall accept a list of requirements on every machine state, transition and event.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. The optional requirements field on a machine state, a machine transition and an event names the requirements the element exists for, like the requirements field of an invariant. An unknown requirement identifier is the same dangling reference error an invariant gets, and an unknown key is still rejected.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-178";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-178' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a machine state, transition or event that lists no requirement.";
+        attribute 'notes' : 'String' = "ADR-EMG-069. behavior.state_unlinked, behavior.transition_unlinked and behavior.event_unlinked, row DDWWE. Only a model that declares at least one machine is asked, only events that a machine transition uses are asked, and an imported alias machine is skipped. The element is linked only by its own requirements list; an invariant of the machine does not link it. The remedy names the ef-behavior skill.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-179";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-179' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a composition lock whose schema version is not the current one.";
+        attribute 'notes' : 'String' = "ADR-EMG-072, removal plan phase 1. composition.lock_schema_outdated is a core error: the lock file schema version is read and compared with the version the engine writes, and an older or missing version is an error whose remedy names engws bump and engws sync instead of a mode that still works. Before this the version was never checked.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-180";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-180' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a repository check template that cannot take the workspace root instead of checking the repository with the library.";
+        attribute 'notes' : 'String' = "ADR-EMG-072, removal plan phase 1. engine.check_template_stale replaces the silent fallback of engws check to the in-process library: a repository whose .github/engmod-check lacks workspace root support is reported with the remedy to upgrade the check template with engflow upgrade, and it is not checked by another route. A repository with no .github/engmod-check at all is checked by the library only when the caller names the in-process option.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-181";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-181' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.";
+        attribute 'notes' : 'String' = "ADR-EMG-072, removal plan phase 1. engine.pin_outdated compares the engineering-model-go version in the go.mod of the repository check template with the engine version of the running binary and reports an older pin with the remedy to bump the pin. An unparsable version or a local replacement is not compared.";
     }
 
     @EngineeringElement {
