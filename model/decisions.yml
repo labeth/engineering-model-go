@@ -2103,3 +2103,22 @@ decisions:
   - The coverage check stays at error level at operational for every other element of these machines.
   - If a later change adds code that implements one of the eight, code.exemption_unused makes the exemption an error until it is removed.
   - A reviewer reads one decision to see every element that is deliberately not implemented.
+- id: ADR-EMG-071
+  title: Machine elements without a code site are open debt in the POA&M ledger until the owner adopts the exemption
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    Eight machine elements have no code site (DEC-CODE-EXEMPT-MODEL-ONLY). The exemption needs an accepted decision, and the
+    implementing agent had written that decision; the reviews of the earlier tier-up had established that an agent must not
+    accept the decision that opens its own gate. The gate of this repository was red until the owner acted. Taken by the
+    implementing agent under the owner's instruction to take recommended decisions. OWNER items: adopt the exemption or have
+    the machines simplified.
+  decision: |-
+    The eight elements are deferred by POAM-CONSISTENCY-MODEL-ONLY (milestone tier:operational, due 2027-06-30, planned) with
+    one defers entry per element, by path. The codeCoverage.exempt list is removed from engmod.yml. DEC-CODE-EXEMPT-MODEL-ONLY
+    stays proposed: when the owner accepts it, the elements are listed again in codeCoverage.exempt and the POA&M item is
+    closed. A POA&M deferral is a recorded debt that expires and is reported as deferred, so it claims less than an accepted
+    exemption does.
+  consequences:
+  - The gate of this repository is green without the agent accepting anything, and the debt is visible and dated.
+  - The defers paths are positions in model/behavior.yml; a change to those machines needs the item reviewed, and lifecycle.poam_defers_unused reports an entry that matches nothing.

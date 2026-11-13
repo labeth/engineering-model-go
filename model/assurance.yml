@@ -724,6 +724,32 @@ assurance:
       ref: REQ-EMG-175
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-176
+  - id: POAM-CONSISTENCY-MODEL-ONLY
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/behavior.yml
+      description: 'Eight machine elements have no code site in this repository: STATE-ARTIFACTS-REGENERATING, TR-ARTIFACTS-GO-STALE, STATE-LINK-ABSENT, TR-LINK-REMOVE, STATE-DELTA-NONE, TR-DELTA-SUPERSEDE, TR-DELTA-RECEIVE-AFTER-APPLY and TR-DELTA-SETTLE. They describe transient or absent states and edits by an author, so the code cannot name them. They are open debt here, not an accepted exemption: DEC-CODE-EXEMPT-MODEL-ONLY proposes the permanent exemption and the owner may adopt it (codeCoverage.exempt) or have the machines simplified. The paths are positions in the authored machines and must be reviewed if a machine changes.'
+    defers:
+    - code: code.state_unlinked
+      path: authoredArchitecture.machines[1].states[2]
+    - code: code.transition_unlinked
+      path: authoredArchitecture.machines[1].transitions[0]
+    - code: code.state_unlinked
+      path: authoredArchitecture.machines[2].states[0]
+    - code: code.transition_unlinked
+      path: authoredArchitecture.machines[2].transitions[6]
+    - code: code.state_unlinked
+      path: authoredArchitecture.machines[4].states[0]
+    - code: code.transition_unlinked
+      path: authoredArchitecture.machines[4].transitions[1]
+    - code: code.transition_unlinked
+      path: authoredArchitecture.machines[4].transitions[2]
+    - code: code.transition_unlinked
+      path: authoredArchitecture.machines[4].transitions[6]
   - id: POAM-CONSISTENCY-CONTROLS
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
