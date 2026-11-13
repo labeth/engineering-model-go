@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: github.com/labeth/engineering-model-go/model@v0
   version: v0.1.0
@@ -329,6 +329,7 @@ publications:
   - REQ-EMG-183
   - REQ-EMG-184
   - REQ-EMG-185
+  - REQ-EMG-186
   views:
   - VIEW-ARCHITECTURE-INTENT
   - VIEW-TRACEABILITY

@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 assurance:
   controls:
   - id: CTRL-INGEST-AUTH

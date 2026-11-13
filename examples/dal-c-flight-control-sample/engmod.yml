@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: example.com/dal-c-flight-control@v1
   version: v1.0.0

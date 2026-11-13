@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-SEC-001
   title: Centralize identity policy but federate enforcement

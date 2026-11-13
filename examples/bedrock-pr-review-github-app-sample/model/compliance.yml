@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 compliance:
   profiles:
   - id: PROF-NIST-800-53-MODERATE

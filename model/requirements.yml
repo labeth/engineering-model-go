@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 lintRun:
   id: engineering-model-go-lint
   mode: strict
@@ -1022,7 +1022,7 @@ requirements:
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-ALLOCATION-TRACE
-    realizes: [CAP-EMG-LIFECYCLE-POLICY]
+    realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-123
     status: implemented
     text: When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.
@@ -1617,3 +1617,13 @@ requirements:
     appliesTo:
       - FU-MODEL-CHANGE
     realizes: [CAP-EMG-MODEL-CHANGE]
+  - id: REQ-EMG-186
+    status: implemented
+    text: When release check is requested, the engineering model go shall reject a release whose changelog entry declares a breaking release and whose model schema version is not greater than the schema version at the previous release.
+    notes: 'ADR-EMG-077. engws release-check reads the CHANGELOG section of the tag, and when it contains the words Breaking release it loads the manifest at the previous tag and reports release.schema_version_not_bumped (error, untiered) unless the schemaVersion of the head manifest is greater. A model whose schemaVersion is older than the engine supports is model.unsupported_schema_version with the remedy, so a model written for an earlier release fails on its version first. Reading the previous tag is the only place an older schema version is accepted: the copy read for the contract diff is stamped with the current version in a temporary directory.'
+    verificationMethods: [test]
+    verificationCriteria: When the changelog entry of the tag says Breaking release and the manifest at the previous tag and at the head have the same schemaVersion, then release.schema_version_not_bumped is reported with a remedy; when the head version is greater, or the entry does not say Breaking release, nothing is reported; a manifest with schemaVersion 2 is rejected by the loader with model.unsupported_schema_version once the supported version is 3.
+    appliesTo:
+      - FU-CLI-ORCHESTRATION
+      - FU-MODEL-LOADER
+    realizes: [CAP-EMG-PUBLICATION]

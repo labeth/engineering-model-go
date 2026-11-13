@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: DEC-TIER-MVP
   title: ota agent runs at the mvp tier with the foundation bundle

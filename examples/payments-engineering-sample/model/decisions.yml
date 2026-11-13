@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-PAY-001
   title: Keep payment authorization separate from checkout handling

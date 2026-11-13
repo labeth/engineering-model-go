@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-COMP-001
   title: Model the company baseline as a reusable module

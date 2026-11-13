@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-AEG-001
   title: Keep sensor fusion product-specific

@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 reqLinks:
 - id: LNK-SYS-001-ENCODER
   parent: REQ-SYS-001

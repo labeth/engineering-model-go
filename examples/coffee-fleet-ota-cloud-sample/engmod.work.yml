@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 replacements:
 - module: models.example/coffee-fleet/telemetry@v0
   path: ./subsystems/telemetry

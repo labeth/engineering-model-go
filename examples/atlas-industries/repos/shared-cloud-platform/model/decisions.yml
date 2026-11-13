@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-CLOUD-001
   title: Use a shared event-driven cloud foundation

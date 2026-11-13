@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-EMG-001
   title: Generate architecture decision records separately from the main architecture document
@@ -2231,3 +2231,28 @@ decisions:
   consequences:
   - Every tool that pins the contract version changes in the same release, in engineering-flow's model rules section and tests.
   - The contract version test is the one place that states the current version.
+- id: ADR-EMG-077
+  title: A breaking release raises the model schema version, and release-check enforces it
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    This release removes fields, requires switches and renames arguments, so a model written for an earlier release is not a valid
+    model of this one, yet its schemaVersion was still 2 and the loader accepted the number. A model from before the release then
+    failed on whichever field broke first, not on its version. The owner instructed, verbatim: "make sure we update the schema
+    version also in model when we do breaking changes". Taken by the implementing agent under the owner's instruction to take
+    recommended decisions. OWNER items: whether a non-breaking release may also raise the version.
+  decision: |-
+    (1) The model schema version is 3 from this release: CurrentSchemaVersion, the CUE constant #SchemaVersion, every manifest and
+    domain document of this repository, the examples, the shared test fixtures and the templates of engineering-flow carry
+    schemaVersion 3, and a document with another number is model.unsupported_schema_version with the remedy that names the
+    current version. (2) The rule: a release whose CHANGELOG entry contains the words Breaking release raises the schema version;
+    engws release-check reports release.schema_version_not_bumped (untiered error, remedy: raise schemaVersion and
+    CurrentSchemaVersion and record the change in the CHANGELOG) when the manifest at the head carries the same schemaVersion as the
+    manifest at the previous release tag. (3) The model at the previous tag is read only for the contract diff, so that read
+    stamps the temporary copy with the current version instead of failing, in the same place that already strips the retired state
+    vocabulary; that read is the single place where an older model version is accepted and it leaves no mode that still works for a
+    user model. (4) The composition lock keeps its own version (ADR-EMG-072). Covers REQ-EMG-186.
+  consequences:
+  - Every model and fixture changes in one mechanical commit, and every previous model fails on its version with a remedy that says so.
+  - The next breaking release is stopped by release-check until the version is raised, so the rule does not depend on remembering.
+  - engineering-flow's seeded model files and fixtures move to schemaVersion 3 in the same slice as its pin bump.

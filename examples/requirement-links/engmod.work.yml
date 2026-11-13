@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 replacements:
 - module: models.example/reqlinks/child-a@v0
   path: ./repos/child-a

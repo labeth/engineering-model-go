@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-COFFEE-001
   title: Separate brew coordination from temperature regulation

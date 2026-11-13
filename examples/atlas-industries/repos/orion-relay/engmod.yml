@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.atlas.example/products/orion-relay@v0
   version: v0.1.0

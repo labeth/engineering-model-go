@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-COF-001
   title: Separate edge OTA execution from cloud campaign orchestration

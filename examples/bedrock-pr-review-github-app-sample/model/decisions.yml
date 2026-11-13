@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-PRR-001
   title: Separate webhook ingress from review orchestration

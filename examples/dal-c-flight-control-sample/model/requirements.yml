@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 lintRun:
   id: DAL-C-FLIGHT-CONTROL-REQUIREMENTS
   mode: strict

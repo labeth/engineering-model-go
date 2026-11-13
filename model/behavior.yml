@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 behavior:
   machines:
   - id: SM-MODEL-VALIDATION
@@ -216,6 +216,12 @@ behavior:
     - name: fingerprintMatches
       type: Boolean
       initial: true
+    - name: reloadFails
+      type: Boolean
+      initial: false
+    - name: lastCallFailed
+      type: Boolean
+      initial: false
     states:
     - id: STATE-MCP-MODEL-CURRENT
       name: MCP Model Current
@@ -237,8 +243,9 @@ behavior:
       from: STATE-MCP-MODEL-OUTDATED
       to: STATE-MCP-MODEL-CURRENT
       on: EVT-MCP-TOOL-CALL-RECEIVED
-      effect: fingerprintMatches := true
-      description: A tool call finds the fingerprint of the model files changed and reloads the model before it answers, so the result is built from the files at call time (REQ-EMG-089).
+      guard: not reloadFails
+      effect: fingerprintMatches := true; lastCallFailed := false
+      description: A tool call finds the fingerprint of the model files changed and the files load, so it reloads the model before it answers and the result is built from the files at call time (REQ-EMG-089).
       requirements: [REQ-EMG-089]
     - id: TR-MCP-CALL-SERVED
       from: STATE-MCP-MODEL-CURRENT
@@ -246,6 +253,21 @@ behavior:
       on: EVT-MCP-TOOL-CALL-RECEIVED
       description: A tool call finds the fingerprint unchanged and answers from the held model (REQ-EMG-007, REQ-EMG-089).
       requirements: [REQ-EMG-007, REQ-EMG-089]
+    - id: TR-MCP-RELOAD-FAILS
+      from: STATE-MCP-MODEL-OUTDATED
+      to: STATE-MCP-MODEL-OUTDATED
+      on: EVT-MCP-TOOL-CALL-RECEIVED
+      guard: reloadFails
+      effect: lastCallFailed := true
+      description: A tool call finds the fingerprint changed but the reload of the model files fails, so it returns the error -32001 instead of a result, keeps the old fingerprint and the loaded model, and the model stays outdated so the next call retries (REQ-EMG-089, REQ-EMG-007).
+      requirements: [REQ-EMG-007, REQ-EMG-089]
+    - id: TR-MCP-FILES-LOADABILITY-CHANGES
+      from: STATE-MCP-MODEL-OUTDATED
+      to: STATE-MCP-MODEL-OUTDATED
+      on: EVT-MODEL-UPDATED
+      effect: reloadFails := not reloadFails
+      description: A further edit of the model files while the held model is outdated breaks them so they no longer load, or repairs them so they load again; the held model stays outdated either way (REQ-EMG-089).
+      requirements: [REQ-EMG-089]
     invariants:
     - id: INV-MCP-CURRENT-FINGERPRINT-MATCHES
       requirements: [REQ-EMG-089]
@@ -255,6 +277,14 @@ behavior:
       requirements: [REQ-EMG-089]
       expr: in_state(STATE-MCP-MODEL-OUTDATED) implies not fingerprintMatches
       description: While the held model is outdated the recorded fingerprint differs from the files; a reload that fails keeps the old fingerprint and returns the error (-32001), so the next call retries instead of serving the previous model.
+    - id: INV-MCP-FAILED-CALL-KEEPS-OUTDATED
+      requirements: [REQ-EMG-007, REQ-EMG-089]
+      expr: lastCallFailed implies (in_state(STATE-MCP-MODEL-OUTDATED) and not fingerprintMatches)
+      description: A tool call whose reload failed returned the error and left the held model outdated with the old fingerprint; it never marks the model current or claims its fingerprint matches the files.
+    - id: INV-MCP-UNLOADABLE-FILES-NOT-CURRENT
+      requirements: [REQ-EMG-089]
+      expr: reloadFails implies in_state(STATE-MCP-MODEL-OUTDATED)
+      description: While the model files do not load, the held model is never current, so a reload that cannot succeed is not recorded as one.
   - id: SM-REQUIREMENTS-DELTA
     name: Requirements Delta
     description: One requirements delta from the moment it is received until it is rejected or atomically applied. The variable written records that the requirements document was replaced; validate and diff never write it.

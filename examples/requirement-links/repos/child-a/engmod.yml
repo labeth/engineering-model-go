@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/reqlinks/child-a@v0
   version: v0.1.0

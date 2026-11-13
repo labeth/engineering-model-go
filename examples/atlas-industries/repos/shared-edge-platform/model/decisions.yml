@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-EDGE-001
   title: Standardize the rugged edge compute boundary
