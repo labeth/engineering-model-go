@@ -2012,3 +2012,72 @@ decisions:
   consequences:
   - lifecycle.poam_overdue is no longer reported for the two items until 2027-03-31.
   - The date check (ADR-EMG-066 and REQ-EMG-129) makes a third renewal a visible, recorded act, since the engine does not renew by itself.
+- id: ADR-EMG-069
+  title: The consistency checks are added in measured order, cheap and tiered first, with an exemption list for elements that have no code
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    ADR-EMG-056 asked for every missing check in every direction. The fact check of 2026-11-13 (docs/consistency-fact-check.md)
+    confirmed that no check ties a state, transition, event, flow, interface, data object or unit to code or to a requirement,
+    that code naming a state is not compared with the machine, and that a behavior requirement need not have a state, a
+    transition or an invariant behind it. It also corrected ADR-EMG-056: only TRLC-LINKS is required on functions and only as a
+    warning until product, ENGMODEL-LINKS targets are checked for existence in a flat ID set that includes requirements, and
+    requirement.unsatisfied runs only for composing systems. Taken by the implementing agent under the owner's instruction to
+    take recommended decisions. OWNER items: the tier rows, the exemption shape and the order.
+  decision: |-
+    (1) The checks are added in this order, each as its own reviewed change. First the cheap ones whose data is already in the
+    semantic graph or the code index, with these proposed codes and rows: code.owner_unresolved (an OWNER-UNIT marker that is
+    missing or names no functional unit; row WWWEE), code.model_link_kind_mismatch (an ENGMODEL-LINKS target that is a
+    requirement or catalog term; row WWWEE), behavior.requirement_unmodeled (an event-driven or state-driven requirement that no
+    invariant lists and whose appliesTo names no machine, state, transition, event or flow; row DDWWE), behavior.machine_unverified
+    (a machine with no invariant, or an invariant with no current formal result; row DDWWE) and the move of untiered warnings
+    into rows (gemara.control_needs_review, code.trace_unattached). Second the element to code coverage (code.unit_unlinked,
+    code.machine_unlinked, code.interface_unlinked at DDWEE, then code.state_unlinked, code.transition_unlinked,
+    code.event_unlinked at DDWWE and code.flow_unlinked, code.data_unlinked at DDDWE), which needs the scanner to keep stacked
+    ENGMODEL-LINKS lines and to expose declarations. Third the requirement links from machine elements (behavior.state_unlinked,
+    behavior.transition_unlinked, behavior.event_unlinked), a schema change. Fourth the state-like code discovery of ADR-EMG-070.
+    (2) Element to code coverage applies only to units, machines, states, transitions, software interfaces, and the data objects
+    and flows that touch a local interface. Actors, attack vectors, trust boundaries, threat scenarios, assumptions, out-of-scope
+    entries, risks, POA&M items, deployment targets, decisions, catalog terms, views and imported alias::ID entities are never
+    expected to have code and are skipped without a waiver. (3) An element that is deliberately not implemented, such as an element
+    owned by an external system, is listed in a new codeCoverage.exempt list of {id, reason, decision}, shaped like a health waiver:
+    the decision must exist and be accepted (otherwise an untiered error), and an unused entry is a warning and an error at
+    operational. (4) Every code in this list is an error at operational and keeps its lower rows; a debt code is deferred at poc and
+    prototype, which is a flagged warning, not silence.
+  consequences:
+  - A model that was clean at the previous release may report new warnings at lower tiers and new errors at operational.
+  - Each check lands with a red check, an independent review and a README row; none is enabled by default before its tier row is accepted.
+  - The CI gate of the engineering-flow template runs the same codes, so a mismatch cannot pass a pull request whatever the agent did locally.
+  - Supersedes the claims of ADR-EMG-056 that the fact check found too strong; the rest of ADR-EMG-056 stands.
+- id: ADR-EMG-070
+  title: State-like code discovery warns on heuristics and errors only on a narrow rule, because the measured precision is low
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    ADR-EMG-058 required a spike over this repository and engineering-flow before the error levels are set. The spike
+    (docs/state-discovery-spike.md, 2026-11-13) found 20 Go candidates (an enum-like type with two or more constants) in the
+    own trees and none in Rust, TypeScript or Python, because neither repository has own code in those languages. Exactly one
+    Go candidate is a real state (reqlinks.State, with 6 code values against 5 model states in SM-LINK-LIFECYCLE); the rest are
+    enumerations. A sample of 60 third-party TypeScript candidates had one real state. Precision: declaration plus switch is
+    about 8 percent, declaration plus assignment to a typed field about 20 percent, and a type or field name ending in State,
+    Status, Phase, Stage or Lifecycle with a field and an assignment gave one true and one false hit per language. Recall is
+    low: the two machines the model has for string and implicit state (SM-MCP-SESSION, SM-REQUIREMENTS-DELTA) are invisible to
+    the pass. The unoptimized walk cost about 19 percent of a full scan. Taken by the implementing agent under the owner's
+    instruction to take recommended decisions. OWNER items: the error level and the name list.
+  decision: |-
+    (1) code.state_candidate_unlinked is a warning from mvp for a candidate that has a typed field of the enum type and an
+    assignment to that field in non-test code, and is deferred below mvp. A candidate found only by a switch is not reported,
+    because its precision is about 8 percent. (2) It is an error at operational only for the narrow rule: a type or field name
+    ending in State, Status, Phase, Stage or Lifecycle, plus a field of that type, plus an assignment in non-test code. Names
+    ending in Kind, Severity, Format, Type, Reason, Mode and Option are never reported. (3) The error level is provisional until
+    the rule is measured on a larger project, and the suppression comment ENGMODEL-NOT-A-STATE with a reason of at least 20
+    characters clears any finding as ADR-EMG-058 decided. (4) The check that a marker names a machine must test for an SM-* or
+    STATE-* identifier, not for any marker: 4 of 20 declarations carried a marker and only one named a STATE-* ID. (5) Go is the
+    first and only language; Rust, TypeScript and Python are reported as warnings at most, or deferred, until there is own code
+    to measure; TypeScript needs a package scope or type resolution because generic names produce phantom matches. (6) The pass
+    is folded into the existing tree-sitter walk of the code health scan so it shares the parsed trees; its cost is measured
+    again when it is built. (7) The spike code is deleted after the measurement and is not kept in the repository.
+  consequences:
+  - The consistency effort starts with the cheap checks of ADR-EMG-069; state discovery is the last of them and its error level stays provisional.
+  - The real finding of the spike, that reqlinks.State has six values against five model states, is recorded for the maintainers to model or to mark.
+  - Implicit state (strings, flags, fingerprints) stays invisible to the pass; the formal machines and generated conformance tests cover behavior, the static checks cover shape only.
