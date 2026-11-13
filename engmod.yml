@@ -328,6 +328,7 @@ publications:
   - REQ-EMG-182
   - REQ-EMG-183
   - REQ-EMG-184
+  - REQ-EMG-185
   views:
   - VIEW-ARCHITECTURE-INTENT
   - VIEW-TRACEABILITY

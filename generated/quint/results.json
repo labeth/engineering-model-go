@@ -302,7 +302,7 @@
       "machine": "SM-REQUIREMENTS-DELTA",
       "module": "sm_requirements_delta",
       "qntFile": "generated/quint/sm_requirements_delta.qnt",
-      "qntSha256": "a4636a6a09805ed3fb163bd43db5adb2f1eff04a91bb6f2bc4f83f72be9afda6",
+      "qntSha256": "74ee6fe006d6efbbd255449a38a2bd82054d6b8ff3d9c5d988f0e843dfbb8f31",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -370,13 +370,104 @@
             "status": "pass",
             "exitCode": 0
           }
+        },
+        {
+          "name": "inv_delta_written_candidate_valid",
+          "id": "INV-DELTA-WRITTEN-CANDIDATE-VALID",
+          "requirements": [
+            "REQ-EMG-032",
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_written_source_unchanged",
+          "id": "INV-DELTA-WRITTEN-SOURCE-UNCHANGED",
+          "requirements": [
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_lock_exclusive",
+          "id": "INV-DELTA-LOCK-EXCLUSIVE",
+          "requirements": [
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_lock_released",
+          "id": "INV-DELTA-LOCK-RELEASED",
+          "requirements": [
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_refused_not_written",
+          "id": "INV-DELTA-REFUSED-NOT-WRITTEN",
+          "requirements": [
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
         }
       ],
       "witnesses": [
         {
           "name": "wit_state_delta_none",
           "state": "STATE-DELTA-NONE",
-          "witnessed": 9997,
+          "witnessed": 9821,
           "total": 10000
         },
         {
@@ -388,13 +479,25 @@
         {
           "name": "wit_state_delta_planned",
           "state": "STATE-DELTA-PLANNED",
-          "witnessed": 9982,
+          "witnessed": 9988,
           "total": 10000
         },
         {
           "name": "wit_state_delta_applied",
           "state": "STATE-DELTA-APPLIED",
-          "witnessed": 9264,
+          "witnessed": 2882,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_locked",
+          "state": "STATE-DELTA-LOCKED",
+          "witnessed": 6867,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_refused",
+          "state": "STATE-DELTA-REFUSED",
+          "witnessed": 7830,
           "total": 10000
         }
       ],

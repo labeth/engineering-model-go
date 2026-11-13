@@ -264,6 +264,18 @@ behavior:
     - name: written
       type: Boolean
       initial: false
+    - name: locked
+      type: Boolean
+      initial: false
+    - name: otherHoldsLock
+      type: Boolean
+      initial: false
+    - name: candidateValid
+      type: Boolean
+      initial: false
+    - name: sourceUnchanged
+      type: Boolean
+      initial: true
     states:
     - id: STATE-DELTA-NONE
       name: Delta None
@@ -280,24 +292,34 @@ behavior:
       name: Delta Applied
       description: The valid candidate atomically replaced the requirements document (engchange apply); the model update that follows ends the delta.
       requirements: [REQ-EMG-033]
+    - id: STATE-DELTA-LOCKED
+      name: Delta Locked
+      description: An apply was requested and this run holds the exclusive requirements change lock; the delta is planned again under the lock and the candidate and the unchanged source are checked before anything is written.
+      requirements: [REQ-EMG-185]
+    - id: STATE-DELTA-REFUSED
+      name: Delta Refused
+      description: An apply was refused because the lock was held by another run, the candidate has blocking diagnostics or the requirements document changed while the delta was planned; the requirements document is untouched.
+      requirements: [REQ-EMG-185]
     transitions:
     - id: TR-DELTA-RECEIVE
       from: STATE-DELTA-NONE
       to: STATE-DELTA-PLANNING
       on: EVT-REQUIREMENTS-DELTA-RECEIVED
+      effect: candidateValid := false; sourceUnchanged := true
       description: A delta is received and the strict decode and the stable-ID operation uniqueness check begin (REQ-EMG-031).
       requirements: [REQ-EMG-031]
     - id: TR-DELTA-SUPERSEDE
       from: STATE-DELTA-PLANNED
       to: STATE-DELTA-PLANNING
       on: EVT-REQUIREMENTS-DELTA-RECEIVED
+      effect: candidateValid := false; sourceUnchanged := true
       description: A new delta replaces a planned one that was never applied (REQ-EMG-031).
       requirements: [REQ-EMG-031]
     - id: TR-DELTA-RECEIVE-AFTER-APPLY
       from: STATE-DELTA-APPLIED
       to: STATE-DELTA-PLANNING
       on: EVT-REQUIREMENTS-DELTA-RECEIVED
-      effect: written := false
+      effect: written := false; candidateValid := false; sourceUnchanged := true
       description: A new delta follows an applied one before the model update was seen (REQ-EMG-031).
       requirements: [REQ-EMG-031]
     - id: TR-DELTA-REJECT
@@ -310,14 +332,16 @@ behavior:
       from: STATE-DELTA-PLANNING
       to: STATE-DELTA-PLANNED
       on: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+      effect: candidateValid := true
       description: The candidate passes the complete-model validation and the deterministic change summary is produced without writing (REQ-EMG-032, REQ-EMG-034).
       requirements: [REQ-EMG-032, REQ-EMG-034]
     - id: TR-DELTA-APPLY
-      from: STATE-DELTA-PLANNED
+      from: STATE-DELTA-LOCKED
       to: STATE-DELTA-APPLIED
       on: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
-      effect: written := true
-      description: Apply is requested for a validated candidate, which atomically replaces the requirements document (REQ-EMG-033).
+      guard: locked and candidateValid and sourceUnchanged
+      effect: written := true; locked := false
+      description: With the lock held, a candidate without blocking diagnostics and a requirements document unchanged since it was planned, the candidate atomically replaces the requirements document and the lock is released (REQ-EMG-033).
       requirements: [REQ-EMG-033]
     - id: TR-DELTA-SETTLE
       from: STATE-DELTA-APPLIED
@@ -325,6 +349,76 @@ behavior:
       on: EVT-MODEL-UPDATED
       effect: written := false
       description: The replaced requirements document is seen as a model update, which ends the delta.
+    - id: TR-DELTA-LOCK
+      from: STATE-DELTA-PLANNED
+      to: STATE-DELTA-LOCKED
+      on: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+      guard: not otherHoldsLock
+      effect: locked := true
+      description: Apply is requested and no other run holds the requirements change lock, so this run takes it before it plans the delta again (REQ-EMG-033).
+      requirements: [REQ-EMG-185]
+    - id: TR-DELTA-LOCK-BUSY
+      from: STATE-DELTA-PLANNED
+      to: STATE-DELTA-REFUSED
+      on: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+      guard: otherHoldsLock
+      description: Apply is requested while another run holds the requirements change lock, so it fails with requirements change already in progress and writes nothing (REQ-EMG-033).
+      requirements: [REQ-EMG-185]
+    - id: TR-DELTA-OTHER-RUN-LOCKS
+      from: STATE-DELTA-PLANNED
+      to: STATE-DELTA-PLANNED
+      on: EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN
+      guard: not otherHoldsLock
+      effect: otherHoldsLock := true
+      description: Another engchange run takes the requirements change lock; it can only do so while this run does not hold it (REQ-EMG-033).
+      requirements: [REQ-EMG-185]
+    - id: TR-DELTA-OTHER-RUN-UNLOCKS
+      from: STATE-DELTA-PLANNED
+      to: STATE-DELTA-PLANNED
+      on: EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN
+      guard: otherHoldsLock
+      effect: otherHoldsLock := false
+      description: Another engchange run releases the requirements change lock (REQ-EMG-033).
+      requirements: [REQ-EMG-185]
+    - id: TR-DELTA-CANDIDATE-INVALIDATED
+      from: STATE-DELTA-LOCKED
+      to: STATE-DELTA-LOCKED
+      on: EVT-VALIDATION-FAILED
+      guard: candidateValid
+      effect: candidateValid := false
+      description: The delta planned again under the lock yields a candidate with blocking diagnostics, for example because the model changed since the earlier dry run (REQ-EMG-032, REQ-EMG-033).
+      requirements: [REQ-EMG-032, REQ-EMG-185]
+    - id: TR-DELTA-SOURCE-CHANGES
+      from: STATE-DELTA-LOCKED
+      to: STATE-DELTA-LOCKED
+      on: EVT-MODEL-UPDATED
+      guard: sourceUnchanged
+      effect: sourceUnchanged := false
+      description: The requirements document is edited by someone who does not use the lock after the plan read it; the re-read before the write finds it (REQ-EMG-033).
+      requirements: [REQ-EMG-185]
+    - id: TR-DELTA-REFUSE-INVALID
+      from: STATE-DELTA-LOCKED
+      to: STATE-DELTA-REFUSED
+      on: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+      guard: not candidateValid
+      effect: locked := false
+      description: The candidate has blocking diagnostics, so apply fails with requirements delta candidate is invalid, releases the lock and writes nothing (REQ-EMG-033).
+      requirements: [REQ-EMG-185]
+    - id: TR-DELTA-REFUSE-CHANGED
+      from: STATE-DELTA-LOCKED
+      to: STATE-DELTA-REFUSED
+      on: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
+      guard: candidateValid and not sourceUnchanged
+      effect: locked := false
+      description: The requirements document changed while the delta was being planned, so apply fails with requirements changed while delta was being planned, releases the lock and writes nothing (REQ-EMG-033).
+      requirements: [REQ-EMG-185]
+    - id: TR-DELTA-RECEIVE-AFTER-REFUSAL
+      from: STATE-DELTA-REFUSED
+      to: STATE-DELTA-PLANNING
+      on: EVT-REQUIREMENTS-DELTA-RECEIVED
+      effect: candidateValid := false; sourceUnchanged := true
+      description: A new delta follows a refused apply and is decoded strictly again (REQ-EMG-031).
+      requirements: [REQ-EMG-031]
     invariants:
     - id: INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED
       requirements: [REQ-EMG-033]
@@ -338,6 +432,26 @@ behavior:
       requirements: [REQ-EMG-032]
       expr: (in_state(STATE-DELTA-PLANNING) or in_state(STATE-DELTA-PLANNED)) implies not written
       description: While a delta is only planned or validated, the requirements document is not modified.
+    - id: INV-DELTA-WRITTEN-CANDIDATE-VALID
+      requirements: [REQ-EMG-032, REQ-EMG-033, REQ-EMG-185]
+      expr: written implies candidateValid
+      description: The requirements document is replaced only by a candidate without blocking diagnostics, also when the delta was planned again under the lock.
+    - id: INV-DELTA-WRITTEN-SOURCE-UNCHANGED
+      requirements: [REQ-EMG-033, REQ-EMG-185]
+      expr: written implies sourceUnchanged
+      description: The requirements document is replaced only when it still equals what the delta was planned from, so no concurrent edit is lost.
+    - id: INV-DELTA-LOCK-EXCLUSIVE
+      requirements: [REQ-EMG-033, REQ-EMG-185]
+      expr: locked implies not otherHoldsLock
+      description: Two runs never hold the requirements change lock at the same time.
+    - id: INV-DELTA-LOCK-RELEASED
+      requirements: [REQ-EMG-033, REQ-EMG-185]
+      expr: locked implies in_state(STATE-DELTA-LOCKED)
+      description: The lock is held only while checks and the write run; every outcome, applied or refused, releases it.
+    - id: INV-DELTA-REFUSED-NOT-WRITTEN
+      requirements: [REQ-EMG-033, REQ-EMG-185]
+      expr: (in_state(STATE-DELTA-LOCKED) or in_state(STATE-DELTA-REFUSED)) implies not written
+      description: A refused apply, and a run that still holds the lock and checks, has not modified the requirements document.
   events:
   - id: EVT-MODEL-UPDATED
     name: Model Updated
@@ -375,6 +489,10 @@ behavior:
     name: Requirements Candidate Validated
     description: The candidate requirements document built from a delta passed complete-model validation and has a deterministic change summary.
     requirements: [REQ-EMG-032, REQ-EMG-034]
+  - id: EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN
+    name: Requirements Lock Changed By Other Run
+    description: Another engchange run took or released the requirements change lock of the same model root.
+    requirements: [REQ-EMG-185]
   - id: EVT-DEPENDENCY-BUMP-REQUESTED
     name: Dependency Bump Requested
     description: A developer asked engws to move a dependency of a checkout to another version (engws bump).

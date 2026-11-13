@@ -1608,3 +1608,12 @@ requirements:
       - FU-MODEL-LOADER
       - FU-ALLOCATION-TRACE
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
+  - id: REQ-EMG-185
+    status: implemented
+    text: When requirements delta apply is requested, the engineering model go shall refuse to write when another apply holds the lock, when the candidate is invalid or when the requirements document changed while the delta was planned.
+    notes: 'The apply takes an exclusive lock on the requirements document before it plans, refuses a candidate with blocking diagnostics and re-reads the document immediately before the atomic write, so no change is lost and a refused run writes nothing. The re-read refusal (requirements changed while delta was being planned) has no test: the lock already excludes every other run of this tool, so only an editor changing the file between planning and the write can reach it, and a test needs a seam in the code that was not added. It is defence in depth that the machine models and the verification debt of this requirement records. SM-REQUIREMENTS-DELTA models these guards and its invariants (written implies a valid candidate and an unchanged source) fail when a guard is removed.'
+    verificationMethods: [test]
+    verificationCriteria: When a second apply starts while the first holds the lock, then it fails with requirements change already in progress and writes nothing; when the candidate has blocking diagnostics, then nothing is written.
+    appliesTo:
+      - FU-MODEL-CHANGE
+    realizes: [CAP-EMG-MODEL-CHANGE]

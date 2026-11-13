@@ -708,7 +708,7 @@ assurance:
     responsibleRole: ACT-COMPLIANCE-ENGINEER
     artifacts:
     - path: model/requirements.yml
-      description: 'Evidence debt of the consistency checks of ADR-EMG-069 batch 1 (CAP-EMG-TRACEABILITY, CAP-EMG-MODEL-VALIDATION, CAP-EMG-FORMAL-BEHAVIOR): Status verified needs a linked, ungated test and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 15 with linked test but no recorded RED check. The hand mutations of the implementation all failed a test, but they were not recorded as red checks. Requirements: REQ-EMG-170, REQ-EMG-171, REQ-EMG-172, REQ-EMG-173, REQ-EMG-174, REQ-EMG-175, REQ-EMG-176, REQ-EMG-177, REQ-EMG-178, REQ-EMG-179, REQ-EMG-180, REQ-EMG-181, REQ-EMG-182, REQ-EMG-183, REQ-EMG-184.'
+      description: 'Evidence debt of the consistency checks of ADR-EMG-069 batch 1 (CAP-EMG-TRACEABILITY, CAP-EMG-MODEL-VALIDATION, CAP-EMG-FORMAL-BEHAVIOR): Status verified needs a linked, ungated test and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 16 with linked test but no recorded RED check. The hand mutations of the implementation all failed a test, but they were not recorded as red checks. Requirements: REQ-EMG-170, REQ-EMG-171, REQ-EMG-172, REQ-EMG-173, REQ-EMG-174, REQ-EMG-175, REQ-EMG-176, REQ-EMG-177, REQ-EMG-178, REQ-EMG-179, REQ-EMG-180, REQ-EMG-181, REQ-EMG-182, REQ-EMG-183, REQ-EMG-184, REQ-EMG-185.'
     defers:
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-170
@@ -740,6 +740,8 @@ assurance:
       ref: REQ-EMG-183
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-184
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-185
   - id: POAM-CONSISTENCY-MODEL-ONLY
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational

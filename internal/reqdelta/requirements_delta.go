@@ -77,9 +77,10 @@ func PlanRequirementsDelta(root, deltaPath string) (RequirementsDeltaResult, err
 }
 
 // ApplyRequirementsDelta validates and atomically writes a requirements delta.
-// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033, REQ-EMG-185
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-MODEL-LOADER, FU-VALIDATION-ENGINE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT, DEP-LOCAL-WORKSPACE
 // ENGMODEL-LINKS: EVT-REQUIREMENTS-DELTA-RECEIVED, EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED, TR-DELTA-APPLY, TR-DELTA-REJECT, STATE-DELTA-APPLIED
+// ENGMODEL-LINKS: STATE-DELTA-REFUSED, TR-DELTA-CANDIDATE-INVALIDATED, TR-DELTA-SOURCE-CHANGES, TR-DELTA-REFUSE-INVALID, TR-DELTA-REFUSE-CHANGED
 func ApplyRequirementsDelta(root, deltaPath string) (result RequirementsDeltaResult, err error) {
 	targetPath, err := requirementsPath(root)
 	if err != nil {
@@ -118,6 +119,7 @@ func ApplyRequirementsDelta(root, deltaPath string) (result RequirementsDeltaRes
 // TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-MODEL-LOADER, FU-VALIDATION-ENGINE
 // ENGMODEL-LINKS: STATE-DELTA-PLANNING, TR-DELTA-RECEIVE, TR-DELTA-REJECT, TR-DELTA-VALIDATED, EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+// ENGMODEL-LINKS: TR-DELTA-RECEIVE-AFTER-REFUSAL
 func planRequirementsDelta(targetPath, deltaPath string) (requirementsDeltaPlan, error) {
 	rootPath := filepath.Dir(targetPath)
 	source, err := os.ReadFile(targetPath)
@@ -613,8 +615,10 @@ func requirementsPath(root string) (string, error) {
 	return targetPath, nil
 }
 
-// TRLC-LINKS: REQ-EMG-033
+// TRLC-LINKS: REQ-EMG-033, REQ-EMG-185
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, DEP-LOCAL-WORKSPACE
+// ENGMODEL-LINKS: STATE-DELTA-LOCKED, TR-DELTA-LOCK, TR-DELTA-LOCK-BUSY, TR-DELTA-OTHER-RUN-LOCKS, TR-DELTA-OTHER-RUN-UNLOCKS
+// ENGMODEL-LINKS: EVT-REQUIREMENTS-LOCK-CHANGED-BY-OTHER-RUN
 func acquireRequirementsLock(targetPath string) (func() error, error) {
 	targetDir, err := filepath.EvalSymlinks(filepath.Dir(targetPath))
 	if err != nil {

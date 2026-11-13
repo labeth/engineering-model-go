@@ -132,7 +132,7 @@ requirements:
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-033
+// TRLC-LINKS: REQ-EMG-033, REQ-EMG-185
 func TestApplyRequirementsDelta_RejectsConcurrentWriterLock(t *testing.T) {
 	root := writeRequirementsDeltaFixture(t)
 	release, err := acquireRequirementsLock(filepath.Join(root, "model", "requirements.yml"))
@@ -278,7 +278,7 @@ requirements:
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033, REQ-EMG-185
 func TestApplyRequirementsDelta_InvalidCandidateDoesNotWrite(t *testing.T) {
 	root := writeRequirementsDeltaFixture(t)
 	target := filepath.Join(root, "model", "requirements.yml")
