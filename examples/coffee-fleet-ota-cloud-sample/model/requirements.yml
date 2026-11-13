@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 lintRun:
   id: sample-coffee-fleet-lint
   mode: strict

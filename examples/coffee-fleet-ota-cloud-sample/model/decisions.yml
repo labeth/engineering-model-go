@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-COF-001
   title: Separate edge OTA execution from cloud campaign orchestration
@@ -18,3 +18,15 @@ decisions:
   - Device-local safety checks remain distinct from cloud rollout policy.
   - Fleet operators can reason about campaign behavior without owning edge update mechanics.
   - Security and traceability views can show identity, telemetry, and update boundaries separately.
+- id: DEC-TIER-MVP
+  title: coffee fleet ota cloud sample runs at the mvp tier with the foundation bundle
+  status: accepted
+  date: 2026-11-12
+  context: The example is a complete model at one stated tier so that the required lifecycle switches (ADR-EMG-061) are met and its generated artifacts show the diagnostics of that tier.
+  decision: |-
+    Tier: MVP
+    Bundles: foundation
+    The example declares lifecycle tier mvp with requirementLinks strict and lintRun mode strict.
+  consequences:
+  - The strict requirement link rules apply from the mvp tier.
+  - The tier rules of mvp key the severity of the example's findings.

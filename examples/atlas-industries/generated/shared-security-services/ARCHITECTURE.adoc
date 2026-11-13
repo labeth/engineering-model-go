@@ -227,6 +227,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Centralize identity policy but federate enforcement
 |accepted
 |2026-09-19
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|shared security services runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend
@@ -266,7 +270,7 @@ flowchart LR
   FU --> DEPT
   FU --> CTRL
   FU --> TB
-  ST -->|triggered_by| EVT
+  ST -->|on_event| EVT
   ST -->|guarded_by| CTRL
   FLOW --> FSTEP
   FSTEP -->|flow_ref| FU

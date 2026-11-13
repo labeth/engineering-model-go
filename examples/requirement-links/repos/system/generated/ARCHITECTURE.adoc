@@ -212,6 +212,19 @@ a[href^="#SEC_VIEW_"] {
 |Authored projection configuration that selects roots, entity kinds, mappings, audience, and abstraction.
 |===
 
+== Architecture Decision Records
+
+Architecture decision records are generated separately and linked here as a compact index.
+
+[cols="2,4,1,1",options="header"]
+|===
+|ID |Title |Status |Date
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|system runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
+|===
+
 === Diagram Color and Shape Legend
 
 This legend applies to all Mermaid diagrams in this document.
@@ -249,7 +262,7 @@ flowchart LR
   FU --> DEPT
   FU --> CTRL
   FU --> TB
-  ST -->|triggered_by| EVT
+  ST -->|on_event| EVT
   ST -->|guarded_by| CTRL
   FLOW --> FSTEP
   FSTEP -->|flow_ref| FU
@@ -454,7 +467,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == System Composition & Hardware
 
-This chapter shows the system architecture across hardware and software: hardware items and their interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
+This chapter shows the system architecture across hardware and software: hardware items and their interfaces and the subsystems this system composes. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
 
 === Subsystems
 
@@ -548,7 +561,7 @@ This chapter shows the system architecture across hardware and software: hardwar
 |`models.example/reqlinks/child-a@v0@v0.1.0`
 |===
 
-All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
+All subsystem required interfaces are satisfied.
 
 
 <<<

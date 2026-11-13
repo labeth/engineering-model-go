@@ -130,8 +130,13 @@ func TestProjectSemanticModelSeparatesTransfersSuccessionsAndTransitions(t *test
 			FunctionalGroups: []FunctionalGroup{{ID: "FG-A"}},
 			FunctionalUnits:  []FunctionalUnit{{ID: "FU-A", Group: "FG-A"}, {ID: "FU-B", Group: "FG-A"}},
 			DataObjects:      []DataObject{{ID: "DO-A"}},
-			States:           []State{{ID: "STATE-A"}, {ID: "STATE-B"}},
-			Events:           []Event{{ID: "EVT-A"}},
+			Controls:         []Control{{ID: "CTRL-A"}},
+			Machines: []Machine{{
+				ID: "SM-A", Owner: "FU-A", Initial: "STATE-A",
+				States:      []MachineState{{ID: "STATE-A"}, {ID: "STATE-B"}},
+				Transitions: []MachineTransition{{ID: "TR-A", From: "STATE-A", To: "STATE-B", On: "EVT-A"}},
+			}},
+			Events: []Event{{ID: "EVT-A"}},
 			Flows: []Flow{{
 				ID: "FLOW-A", SourceRef: "FU-A", DestinationRef: "FU-B", DataRefs: []string{"DO-A"},
 				Steps: []FlowStep{
@@ -141,8 +146,7 @@ func TestProjectSemanticModelSeparatesTransfersSuccessionsAndTransitions(t *test
 			}},
 			Mappings: []Mapping{
 				{Type: "contains", From: "FG-A", To: "FU-A"},
-				{Type: "transitions_to", From: "STATE-A", To: "STATE-B"},
-				{Type: "triggered_by", From: "STATE-A", To: "EVT-A"},
+				{Type: "guarded_by", From: "STATE-A", To: "CTRL-A"},
 			},
 		},
 	}}
@@ -154,8 +158,8 @@ func TestProjectSemanticModelSeparatesTransfersSuccessionsAndTransitions(t *test
 	if !hasRelationshipKind(semantic.Relationships, RelationshipSuccession) {
 		t.Fatalf("flow step ordering was not projected as succession: %+v", semantic.Relationships)
 	}
-	if !hasRelationshipKind(semantic.Relationships, RelationshipTransition) || !hasRelationshipKind(semantic.Relationships, RelationshipEventTrigger) {
-		t.Fatalf("lifecycle mappings were not preserved: %+v", semantic.Relationships)
+	if !hasRelationshipKind(semantic.Relationships, RelationshipTransition) || !hasRelationshipKind(semantic.Relationships, RelationshipGuard) {
+		t.Fatalf("machine transitions and guarded_by mappings were not projected: %+v", semantic.Relationships)
 	}
 	if hasRelationshipKind(semantic.Relationships, SemanticRelationshipKind("flow")) {
 		t.Fatalf("ambiguous flow relationship remains: %+v", semantic.Relationships)
@@ -169,8 +173,8 @@ func TestProjectSemanticModelSeparatesTransfersSuccessionsAndTransitions(t *test
 	if containmentCount != 1 {
 		t.Fatalf("legacy ownership aliases produced %d canonical containment relationships", containmentCount)
 	}
-	if !hasSemanticDiagnostic(diagnostics, "semantic.legacy_lifecycle_attachment") {
-		t.Fatalf("expected explicit legacy transition attachment diagnostic, got %+v", diagnostics)
+	if hasSemanticDiagnostic(diagnostics, "semantic.legacy_lifecycle_attachment") || hasSemanticDiagnostic(diagnostics, "semantic.unsupported_relationship") {
+		t.Fatalf("guarded_by from a machine state must project without legacy diagnostics, got %+v", diagnostics)
 	}
 	var flow, step *SemanticElement
 	for i := range semantic.Elements {

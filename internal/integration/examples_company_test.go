@@ -115,8 +115,8 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 	for _, product := range composed.Root.Children {
 		links = append(links, reqlinks.EvaluateLinks(product.Bundle, composition.LinkDependencies(product))...)
 	}
-	if got := len(links); got != 10 || len(composed.Allocations) != 0 {
-		t.Fatalf("expected ten requirement links and no allocations, got %d links and %d allocations", got, len(composed.Allocations))
+	if got := len(links); got != 10 {
+		t.Fatalf("expected ten requirement links, got %d", got)
 	}
 	for _, link := range links {
 		if link.State != reqlinks.StateUnchanged {

@@ -1,0 +1,7 @@
+{
+  "schema": "engmod-formal-evidence/1",
+  "tool": "quint",
+  "quintVersion": "0.33.1",
+  "backend": "typescript",
+  "results": []
+}

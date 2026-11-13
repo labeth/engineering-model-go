@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 architecture:
   functionalGroups:
   - id: FG-CLOUD
@@ -46,5 +46,4 @@ architecture:
     requires:
     - id: NEED-CLOUD-IDENTITY
       kind: capability
-      ref: REQ-CLOUD-002
       note: Workload identity must be supplied by the composing product.

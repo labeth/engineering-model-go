@@ -62,6 +62,7 @@ func ReviewLinks(repo string) ([]LinkReview, error) {
 // it still does not pass (the file stays written; the error says why).
 // TRLC-LINKS: REQ-EMG-101
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-ACCEPT, TR-LINK-REACCEPT
 func AcceptLink(repo, id, by, rationale string) (reqlinks.LinkStatus, error) {
 	manifest := filepath.Join(repo, "engmod.yml")
 	ctx, err := linkreview.EvaluateForAccept(manifest, reviewResolution())
@@ -185,6 +186,7 @@ func reviewSummary(r LinkReview) string {
 // runReviewLinks lists the links that need review (exit 1 when any) or,
 // with accept, records one review.
 // TRLC-LINKS: REQ-EMG-101
+// ENGMODEL-LINKS: EVT-LINK-REVIEW-REQUESTED
 func runReviewLinks(repo string, asJSON, show bool, accept, by, rationale string, w io.Writer) (int, error) {
 	if accept != "" {
 		s, err := AcceptLink(repo, accept, by, rationale)

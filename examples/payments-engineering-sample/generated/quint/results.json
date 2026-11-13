@@ -1,0 +1,109 @@
+{
+  "schema": "engmod-quint-results/1",
+  "modules": [
+    {
+      "machine": "SM-PAYMENTS-AUTH",
+      "module": "sm_payments_auth",
+      "qntFile": "generated/quint/sm_payments_auth.qnt",
+      "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_payments_auth_attempts_bounded",
+          "id": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED",
+          "requirements": [
+            "REQ-PAY-001",
+            "REQ-PAY-008"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 7
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_payments_auth_requested_before_approval",
+          "id": "INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL",
+          "requirements": [
+            "REQ-PAY-007"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 7
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_payments_auth_decline_after_retries",
+          "id": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES",
+          "requirements": [
+            "REQ-PAY-003",
+            "REQ-PAY-008"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 7
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_payments_checkout_received",
+          "state": "STATE-PAYMENTS-CHECKOUT-RECEIVED",
+          "witnessed": 4935,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_payments_authorizing",
+          "state": "STATE-PAYMENTS-AUTHORIZING",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_payments_authorized",
+          "state": "STATE-PAYMENTS-AUTHORIZED",
+          "witnessed": 8787,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_payments_declined",
+          "state": "STATE-PAYMENTS-DECLINED",
+          "witnessed": 1213,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    }
+  ]
+}

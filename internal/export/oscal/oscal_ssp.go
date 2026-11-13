@@ -461,7 +461,10 @@ func buildSSPLabelIndex(a model.AuthoredArchitecture) map[string]string {
 	for _, x := range a.TrustBoundaries {
 		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
-	for _, x := range a.States {
+	for _, x := range a.Machines {
+		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
+	}
+	for _, x := range a.MachineStates() {
 		out[x.ID] = textutil.NonEmpty(strings.TrimSpace(x.Name), x.ID)
 	}
 	for _, x := range a.Events {
@@ -504,7 +507,10 @@ func buildSSPKindIndex(a model.AuthoredArchitecture) map[string]string {
 	for _, x := range a.TrustBoundaries {
 		out[x.ID] = "trust_boundary"
 	}
-	for _, x := range a.States {
+	for _, x := range a.Machines {
+		out[x.ID] = "machine"
+	}
+	for _, x := range a.MachineStates() {
 		out[x.ID] = "state"
 	}
 	for _, x := range a.Events {

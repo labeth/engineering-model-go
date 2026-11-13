@@ -8,6 +8,13 @@
           },
           "title": "Control Catalog",
           "uuid": "0e64732a-d5f3-58c4-8ecd-31128d36de76"
+        },
+        {
+          "citation": {
+            "text": "*Requirements*. "
+          },
+          "title": "Requirements",
+          "uuid": "3f038c22-7071-5330-866b-1a1e4170bb7e"
         }
       ]
     },
@@ -96,6 +103,66 @@
               "start": "2026-09-19T00:00:00Z",
               "title": "CTRL-PAYMENTS-CALLBACK-NONCE / CV-PAYMENTS-CALLBACK-REPLAY-TEST",
               "uuid": "a3a9e20c-8ae0-5409-9bdb-d86f55de18e1"
+            },
+            {
+              "description": "Assessment of REQ-PAY-001 via analysis: Quint invariant INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of machine SM-PAYMENTS-AUTH.",
+              "logged-by": [
+                {
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "REQ-PAY-001 / INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED",
+              "uuid": "d49eb669-9681-5797-95cd-73469c839541"
+            },
+            {
+              "description": "Assessment of REQ-PAY-003 via analysis: Quint invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of machine SM-PAYMENTS-AUTH.",
+              "logged-by": [
+                {
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "REQ-PAY-003 / INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES",
+              "uuid": "032b69fb-d896-5af1-9ca6-e634f3b1ec2d"
+            },
+            {
+              "description": "Assessment of REQ-PAY-007 via analysis: Quint invariant INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL of machine SM-PAYMENTS-AUTH.",
+              "logged-by": [
+                {
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "REQ-PAY-007 / INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL",
+              "uuid": "a9c88457-8c59-567a-bea8-3081a31c52b8"
+            },
+            {
+              "description": "Assessment of REQ-PAY-008 via analysis: Quint invariant INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of machine SM-PAYMENTS-AUTH.",
+              "logged-by": [
+                {
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "REQ-PAY-008 / INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED",
+              "uuid": "3e3d2cbe-8c28-509f-94a7-37524bae79e0"
+            },
+            {
+              "description": "Assessment of REQ-PAY-008 via analysis: Quint invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of machine SM-PAYMENTS-AUTH.",
+              "logged-by": [
+                {
+                  "party-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "REQ-PAY-008 / INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES",
+              "uuid": "f741af98-83a2-5ba1-a0e1-35dae1d9041a"
             }
           ]
         },
@@ -189,6 +256,121 @@
             },
             "title": "Callback Nonce and Idempotency Guard",
             "uuid": "d0298e88-74ce-5e97-b777-af00c86214bb"
+          },
+          {
+            "description": "1 formal result(s) recorded for requirement REQ-PAY-001.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "42e6b5d3-2326-5268-9abb-243a10675ded"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "req-pay-001",
+              "type": "objective-id"
+            },
+            "title": "Formal verification of REQ-PAY-001",
+            "uuid": "7f7c60bc-2142-583c-b0dd-912f9e63fa1c"
+          },
+          {
+            "description": "1 formal result(s) recorded for requirement REQ-PAY-003.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "5b36d345-2aa8-5e91-b78c-46d769a52c17"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "req-pay-003",
+              "type": "objective-id"
+            },
+            "title": "Formal verification of REQ-PAY-003",
+            "uuid": "cb79f322-8e12-5db3-ad43-3b967a264698"
+          },
+          {
+            "description": "1 formal result(s) recorded for requirement REQ-PAY-007.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "3c5200ca-e9f0-5bdf-94c5-6f184621ad75"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "req-pay-007",
+              "type": "objective-id"
+            },
+            "title": "Formal verification of REQ-PAY-007",
+            "uuid": "18b97789-e8b4-5e1a-b9a7-98e3f28a8ee8"
+          },
+          {
+            "description": "2 formal result(s) recorded for requirement REQ-PAY-008.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "ff0031b5-c681-5b3c-82a6-3193612f3890"
+              },
+              {
+                "observation-uuid": "501a4eea-343f-5279-9944-897fa24ef3dc"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "req-pay-008",
+              "type": "objective-id"
+            },
+            "title": "Formal verification of REQ-PAY-008",
+            "uuid": "081989bf-8a23-5217-b12c-60280f2d3700"
           }
         ],
         "local-definitions": {
@@ -355,6 +537,186 @@
               }
             ],
             "uuid": "1c48faf4-6edf-5ae5-acd8-087f7304715b"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of REQ-PAY-001 via analysis: Quint invariant INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of machine SM-PAYMENTS-AUTH.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "REQ-PAY-001"
+              }
+            ],
+            "uuid": "42e6b5d3-2326-5268-9abb-243a10675ded"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of REQ-PAY-003 via analysis: Quint invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of machine SM-PAYMENTS-AUTH.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "REQ-PAY-003"
+              }
+            ],
+            "uuid": "5b36d345-2aa8-5e91-b78c-46d769a52c17"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of REQ-PAY-007 via analysis: Quint invariant INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL of machine SM-PAYMENTS-AUTH.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "REQ-PAY-007"
+              }
+            ],
+            "uuid": "3c5200ca-e9f0-5bdf-94c5-6f184621ad75"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of REQ-PAY-008 via analysis: Quint invariant INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of machine SM-PAYMENTS-AUTH.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "REQ-PAY-008"
+              }
+            ],
+            "uuid": "ff0031b5-c681-5b3c-82a6-3193612f3890"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of REQ-PAY-008 via analysis: Quint invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of machine SM-PAYMENTS-AUTH.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "0210d994-20ef-51cd-8c80-40d40ea7573b",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "REQ-PAY-008"
+              }
+            ],
+            "uuid": "501a4eea-343f-5279-9944-897fa24ef3dc"
           }
         ],
         "props": [
@@ -376,6 +738,18 @@
                 },
                 {
                   "control-id": "ctrl-payments-callback-nonce"
+                },
+                {
+                  "control-id": "req-pay-001"
+                },
+                {
+                  "control-id": "req-pay-003"
+                },
+                {
+                  "control-id": "req-pay-007"
+                },
+                {
+                  "control-id": "req-pay-008"
                 }
               ]
             }

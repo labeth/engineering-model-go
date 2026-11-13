@@ -8,13 +8,13 @@ export function persistTelemetryMetric(machineId: string): string {
 }
 
 // ENGMODEL-LINKS: FLOW-COFFEE-TELEMETRY-INGEST, DO-COFFEE-TELEMETRY-EVENT
-// TRLC-LINKS: REQ-COF-007
+// TRLC-LINKS: REQ-COF-007, REQ-COF-009
 export function persistAuditLog(recordId: string): string {
   return `audit:${recordId}`;
 }
 
 // ENGMODEL-LINKS: IF-COFFEE-TELEMETRY-INGEST, FLOW-COFFEE-TELEMETRY-INGEST, CTRL-COFFEE-DEVICE-IDENTITY
-// TRLC-LINKS: REQ-COF-008
+// TRLC-LINKS: REQ-COF-008, REQ-COF-012
 export function notifyReplayAbuse(machineId: string): string {
   return `abuse:${machineId}`;
 }

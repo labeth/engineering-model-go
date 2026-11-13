@@ -6,6 +6,151 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.11.0] — 2026-11-13: State machines, code health, required model switches and consistency checks
+
+**Breaking release, no compatibility path** (owner instruction: "i dont want any backwards compatabillity in the model yet, it should always require a full upgrade"). A model, a lock, a check template or an engine pin that is not current is an error that names its remedy, never a mode that still works. The authoring contract is `engineering-model.authoring.v8`.
+
+### Model schema version 3 (ADR-EMG-077)
+
+- The model schema version is 3: every manifest and domain document carries `schemaVersion: 3`, and a document with another number is `model.unsupported_schema_version` with the remedy that names 3. `engws release-check` reports `release.schema_version_not_bumped` for a release whose CHANGELOG entry says Breaking release and whose manifest has the same version as the previous release tag. The composition lock keeps its own version.
+
+### Required model switches (ADR-EMG-060, 061, 066, 072, 074, 076)
+
+- `lifecycle` (tier, bundles, tierDecision), `requirementLinks`, `lintRun.mode`, the `health` block from tier product, `schemaVersion` and the model id are required; each absence is an error with a `fix:` line (`lifecycle.missing`, `model.requirement_links_missing`, `lint.mode_missing`, `health.block_missing`, `model.unsupported_schema_version`, ...). The legacy state vocabulary is gone.
+- A composition lock whose schema version is not current (`composition.lock_schema_outdated`), a repository check template that cannot take the workspace root (`engine.check_template_stale`, `engws check` no longer falls back to the library unless `--in-process`) and an engine pin older than the running engine (`engine.pin_outdated`) are errors.
+- `composition.dependency_tier_unknown` is an error at every tier; `aviation.tool.incomplete_credit_assessment` and `aviation.derived.incomplete_safety_feedback` are errors from mvp; `catalog.term_unreferenced` is an error from product.
+- `engtrlc` and `englobster` now require `--model` and every exporter runs the validation gate and prints the `fix:` line.
+
+### Code health (ADR-EMG-046 to 059)
+
+- `enghealth` scans the code of a model with a tree-sitter engine (complexity, size, nesting, bumpy road, conditionals, arguments, assertions), scores files, writes `engmod-health/1` JSON and SARIF, keeps a baseline of accepted debt that can only shrink (`engmod-health-baseline/1`), compares with a base revision (`enghealth check`, including the model level policy: tier, bundles, lint mode, POA&M defers, accepted tier decisions) and reports `health.policy_weakened`. Debt is an error from product.
+
+### Consistency checks (ADR-EMG-056, 069)
+
+- `code.owner_unresolved`, `code.model_link_kind_mismatch`, `behavior.requirement_unmodeled`, `behavior.machine_unverified`, `code.unit_unlinked`, `code.machine_unlinked`, `code.interface_unlinked`, `code.state_unlinked`, `code.transition_unlinked`, `code.event_unlinked`, `code.flow_unlinked`, `code.data_unlinked` and the machine element requirement links (`requirements` on states, transitions and events with `behavior.state_unlinked`, `behavior.transition_unlinked`, `behavior.event_unlinked`); `codeCoverage.exempt` records an element deliberately not implemented. Stacked `ENGMODEL-LINKS` lines accumulate.
+
+### POA&M and gate hardening (ADR-EMG-064, 068)
+
+- A POA&M item expires by its `dueDate` (`lifecycle.poam_overdue`); a defers entry can name a requirement with `ref` and one that matches nothing is `lifecycle.poam_defers_unused`; the policy gate codes (`health.policy_weakened`, `health.regression`, `health.baseline_stale`, `health.waiver_unused`, `verification.failed`) can never be deferred. Model strings are escaped in diagnostic output.
+
+### Removed (ADR-EMG-073, 075)
+
+- Every MCP argument alias (a former name is rejected as an unknown argument that names the canonical one), the duplicate tool `entities.list`, `engws --allow-suspect`, `engoscal --out`, the fields `BaseCatalogRef` and `Compatibility` and the trace summary counters `verified` and `linksSuspect`.
+- **`pinned.fingerprint` and `contract.provides[].ref`** (REQ-EMG-184, ADR-EMG-075, removal plan phase 4).
+  A link that carries `pinned.fingerprint` is the untiered error `model.pinned_fingerprint_removed`
+  (remedy: delete it and pin the dependency version only); a `contract.provides` entry that carries `ref` is
+  the untiered error `model.provides_ref_removed` (remedy: name the realizing requirement with `realizes`).
+  They replace the warnings `link.fingerprint_deprecated` and `contract.ref_deprecated`. The fields still
+  decode so the error names them; nothing reads or writes them: `engws review-links` keeps a fingerprint,
+  `engws migrate-links` only reports either field, the facade function `ContractCapabilityRefs` is gone and
+  `RealizedContractItems` takes no refs. An allocation resolves to the one requirement of the subsystem that
+  realizes the target (it used to read the entry's `ref`). The two `requires` ref lines of the Atlas examples
+  are deleted; they were read by nothing.
+
+
+### State machines and Quint (earlier entries of this release)
+
+Quint behavior verification (ADR-EMG-037 to ADR-EMG-045, REQ-EMG-135 to
+REQ-EMG-149). **Breaking release, no compatibility path**: state behavior is modeled with
+`behavior.machines` only.
+
+### Added
+
+- **State machines** (REQ-EMG-135, REQ-EMG-137, ADR-EMG-037): `behavior.machines[]` with `id`
+  (`SM-*`), `owner` (a functional unit), `initial`, typed `variables` (`Integer`, `Boolean`,
+  `String`, each with an `initial` value), `states` (`STATE-*` IDs, optional `final: true`),
+  `transitions` (`TR-*`: `from`, `to`, optional `on` naming a `behavior.events` event, optional
+  `guard` and `effect` strings) and `invariants` (`INV-*`: `requirements`, a Boolean `expr`). Guards,
+  effects and invariants use the operators `and or not implies == != < <= > >= + - *`, `:=`, `;`
+  and `in_state(STATE-ID)`.
+- **Machine validation** (REQ-EMG-138, ADR-EMG-039, ADR-EMG-043). Errors at every tier:
+  `behavior.transition_unknown_event`, `behavior.expression_unknown_variable`,
+  `behavior.expression_type`, `behavior.in_state_foreign`, `behavior.final_state_has_transitions`;
+  projection keeps reporting a missing or unresolved `initial` (`semantic.invalid_machine`) and
+  expression syntax errors (`semantic.invalid_expression`). Machine, state, transition and invariant
+  IDs join `model.duplicate_id`.
+- **Advisory machine diagnostics, tier keyed** (REQ-EMG-140): `behavior.machine_deadlock`,
+  `behavior.transition_nondeterministic`, `behavior.transition_no_trigger` and
+  `behavior.invariant_unlinked` follow the hygiene row (deferred at poc and prototype, warning at mvp
+  and product, error at operational), like `behavior.state_unreachable`. `TierPolicy()`, the README
+  table and the authoring contract list them.
+- Authoring contract: field sets `machine`, `machineVariable`, `machineState`,
+  `machineTransition` and `machineInvariant`; `guarded_by` accepts a machine or a machine state as
+  its source. `model.AuthoredArchitecture.MachineStates()` lists all machine states.
+- The `state-lifecycle` view is driven by machines: a machine ID as root selects its states, each
+  transition is a `transition` edge (label `TR-ID on EVT [guard] / effect`) and the event a state
+  waits for an `on_event` edge; both are view-only `includeMappings` values. The Mermaid output
+  format is unchanged.
+
+### Formal verification with Quint
+
+- **`engquint generate`** (REQ-EMG-141, REQ-EMG-142, REQ-EMG-149, ADR-EMG-040): one deterministic
+  Quint module per machine in `generated/quint/` (state sum type, `v_`-prefixed variables, an
+  explicit assignment of every variable in every action, `lastTransition` carrying the `TR-*` ID,
+  one `val inv_*` per invariant and a reachability witness per state). The generated files are
+  committed and covered by the artifact freshness gate; stale generated files are removed.
+- **`engquint check`** (REQ-EMG-143 to REQ-EMG-145, ADR-EMG-041): `quint run --backend=typescript`
+  once per invariant (never the default Rust backend, which downloads at run time), a witnesses run
+  per machine, and `quint verify` against a pinned, pre-installed Apalache 0.62.4 with Java 21
+  (`--mode run|verify|both`). A zero-length trace is an error, a deadlock at the initial state a
+  warning, and a counterexample is reported as the ordered `TR-*` IDs. Exit 0 pass, 1 violation,
+  drift, stale or vacuous result, 2 setup error. Results go to `generated/quint/results.json` (with
+  the `.qnt` sha256, quint version, bounds and seed) and a sha-verified evidence file
+  `test-results/quint-formal.json`.
+- **Evidence** (REQ-EMG-146 to REQ-EMG-148, ADR-EMG-042): a passing, current formal result is
+  `analysis` evidence in the trace matrix (`evidenceMethods`, `formal` on a row); a failing one makes
+  the requirement failed, never unverified; a stale one (the `.qnt` no longer matches its recorded
+  sha256) counts as no evidence and warns `verification.formal_stale`. Requirement-keyed formal
+  entries in the Gemara evaluation log, `formalResults` and `formalGaps` in the MCP
+  `verification.status` and `verification.gaps`, and authoring contract
+  `engineering-model.authoring.v3` with a `machines` section.
+- **SysML export of machines** (REQ-EMG-137): a machine is exported as a state definition with
+  `entry`, `accept`/`if`/`do` transitions and `constraint` invariants, accepted by the official
+  parser. `in_state` has no SysML expression form: such a guard, effect or invariant is exported as
+  a comment with the warning `sysml.machine_construct_commented`.
+- **Toolchain** (ADR-EMG-044): `scripts/install-quint-toolchain.sh` installs the pinned quint 0.33.1
+  (npm lockfile, `--ignore-scripts`) and the sha256-checked Apalache tarball; CI installs them and
+  `scripts/validate-all.sh` runs generate and check for every model with machines
+  (`ENGMOD_QUINT_SKIP_EXTERNAL=1` skips the check locally).
+
+- `engws release-check` and `contract-diff` read an earlier tag's contract with the retired state
+  vocabulary stripped (ADR-EMG-045), so the first release after the removal can be tagged; a model
+  being worked on is still refused.
+
+### Removed (breaking)
+
+- `scripts/lifecycle-golden-self.sh` (ADR-EMG-045): v0.9.0 cannot load a model with machines.
+- `behavior.states`, the relationship types `transitions_to` and `triggered_by` (events handled in a
+  state), `model.AuthoredArchitecture.States`, `model.BehaviorModel.States`, the `engineering.state`
+  semantic projection of legacy states and the `semantic.legacy_lifecycle_attachment` warning.
+  `model.State` stays as a deprecated alias of `model.MachineState`. The `model.invalid_transition`
+  and `model.invalid_trigger` checks go with the relationship types.
+- A behavior document that still has them fails to load (and `transitions_to` / `triggered_by` in an
+  in-memory model are `model.unknown_mapping_type`) with
+  `behavior.states was removed in v0.11.0: model state behavior with behavior.machines (see ADR-EMG-038)`
+  or, for a relationship, `behavior.relationships[N].type (transitions_to) was removed in v0.11.0: ...`.
+  There is no adapter, no opt-in mode and no automatic migration.
+- `behavior.state_unreachable` no longer treats the first declared state as initial and no longer
+  needs a transition elsewhere in the model: it works on machines, from the machine's `initial`
+  state; its path is `authoredArchitecture.machines[i].states[j]`. `behavior.event_unused` counts
+  the `on` of a machine transition as a use.
+
+### Migration
+
+1. Group the states of one behavior into a machine: `machines: [{id: SM-X, owner: FU-OWNER,
+   initial: STATE-FIRST, states: [...]}]`; keep the `STATE-*` IDs, so requirements, flows and views
+   still resolve. Move each state's `id`, `name` and `description` into `states`.
+2. Replace each `transitions_to` relationship by a `transitions` entry (`id: TR-*`, `from`, `to`);
+   put the causing event of the state's `triggered_by` or of the transition description into `on`
+   (the event must stay in `behavior.events`), and write conditions and data updates as `guard`
+   and `effect` strings. Delete the `triggered_by` relationships.
+3. Mark terminal states `final: true` and keep `guarded_by` relationships: their source may now
+   be the machine or one of its states.
+4. In `model/views.yml`, replace `transitions_to` and `triggered_by` in `includeMappings` by
+   `transition` and `on_event`, and use the machine ID (or the state IDs) as `roots`.
+5. Run `engdoc`; fix `behavior.machine_deadlock`, `behavior.transition_no_trigger`,
+   `behavior.state_unreachable` and the other findings before raising the tier.
+
 ## [0.10.0] — 2026-11-05: Life-cycle tier, tier policy, POA&M defers, composition and DO-178C floors
 
 Planned as v0.10.0: life-cycle tier (tiered development guidance, Phase 2 engine side;

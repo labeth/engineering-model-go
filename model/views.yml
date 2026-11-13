@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 views:
 - id: VIEW-ARCHITECTURE-INTENT
   kind: architecture-intent
@@ -56,17 +56,21 @@ views:
 - id: VIEW-STATE-LIFECYCLE
   kind: state-lifecycle
   roots:
-  - STATE-MODEL-INVALID
+  - SM-MODEL-VALIDATION
+  - SM-ARTIFACT-FRESHNESS
+  - SM-LINK-LIFECYCLE
+  - SM-MCP-SESSION
+  - SM-REQUIREMENTS-DELTA
   includeKinds:
   - state
   - event
   - control
   includeMappings:
-  - transitions_to
-  - triggered_by
+  - transition
+  - on_event
   - guarded_by
   authoredStatus: draft
-  authoredStatusExplanation: Captures model validity and artifact freshness lifecycle behavior.
+  authoredStatusExplanation: Captures the model validity, artifact freshness and requirement link lifecycle machines.
 naf:
   framework: NAF
   version: '4.1'
@@ -118,7 +122,7 @@ naf:
     - NAF-CONCERN-LIFECYCLE
   - id: NAF-P5-RESOURCE-STATES
     viewpoint: P5
-    title: Model validation and artifact freshness states
+    title: Model validation, artifact freshness and link lifecycle states
     viewRef: VIEW-STATE-LIFECYCLE
     concernRefs:
     - NAF-CONCERN-LIFECYCLE
@@ -325,6 +329,29 @@ design:
         title: Codemap Inference Traceability
         narrative: Converts TRLC-LINKS (requirement) and ENGMODEL-LINKS (model element) markers into stable evidence relationships,
           existence-checked and scoped to the owning model.
+  - id: FU-CODE-HEALTH
+    group: FG-VALIDATION-ANALYSIS
+    views:
+      architecture_intent:
+        title: Code Health Intent
+        narrative: Makes maintainability debt visible per function, file, functional unit and requirement with our own explainable
+          score, reports findings with the severity of the tier (errors at product and operational), blocks regressions, and lets a committed baseline or a waiver with an accepted decision carry existing debt.
+      communication:
+        title: Code Health Communication
+        narrative: Reads the manifest health block, the model and the code map, reports through enghealth and the validation
+          diagnostics, and exchanges reports in the neutral engmod-health/1 format and as SARIF 2.1.0.
+      deployment:
+        title: Code Health Deployment
+        narrative: Runs through enghealth locally and in CI against a base revision of the same repository, with per-file results
+          cached by content hash under .engmod/cache/health.
+      security:
+        title: Code Health Security
+        narrative: Parses source as data without executing it, reads the base revision with git show and never a checkout, validates
+          imported reports against a published schema and writes no timestamps or absolute paths.
+      traceability:
+        title: Code Health Traceability
+        narrative: Joins functions to functional units by the owner marker and to requirements by the TRLC-LINKS of marker-linked
+          symbols, and explains each score by the deductions that produced it.
   - id: FU-VIEW-PROJECTION
     group: FG-ARTIFACT-GENERATION
     views:
@@ -417,6 +444,29 @@ design:
         title: SysML Exporter Traceability
         narrative: Preserves stable Engineering Model identifiers and emits executable coverage evidence for every mapped
           concept.
+  - id: FU-QUINT-EXPORTER
+    group: FG-ARTIFACT-GENERATION
+    views:
+      architecture_intent:
+        title: Quint Exporter Intent
+        narrative: Projects behavior machines into Quint specifications and records bounded model-checking results as formal
+          evidence.
+      communication:
+        title: Quint Exporter Communication
+        narrative: Emits one deterministic Quint module per machine and invokes the pinned Quint CLI once per invariant in
+          run mode or Apalache in verify mode.
+      deployment:
+        title: Quint Exporter Deployment
+        narrative: Runs through engquint locally and in CI; generated modules are committed and the Quint toolchain is provisioned
+          before the run, never downloaded at run time.
+      security:
+        title: Quint Exporter Security
+        narrative: Forces the TypeScript backend, runs offline against pre-provisioned pinned tools and treats a result whose
+          module hash no longer matches as no evidence.
+      traceability:
+        title: Quint Exporter Traceability
+        narrative: Keys each invariant to its requirements and each counterexample step to a transition ID, and writes sha256-bound
+          results that the trace matrix reads as analysis evidence.
   - id: FU-NAF-EXPORTER
     group: FG-ARTIFACT-GENERATION
     views:
@@ -553,7 +603,7 @@ design:
       architecture_intent:
         title: System Composition Intent
         narrative: Resolves a parent model's downward subsystem references into a federated system-of-systems from local paths,
-          external git repositories, or exact-version CUE modules in OCI registries.
+          workspace replacements, or exact-version CUE modules in OCI registries.
       communication:
         title: System Composition Communication
         narrative: Binds each subsystem's provides/requires contract to the parent's allocations and satisfactions without

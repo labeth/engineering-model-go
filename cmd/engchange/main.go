@@ -13,6 +13,7 @@ import (
 
 // TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-CLI-ORCHESTRATION, IF-CLI-ENGCHANGE, DO-REQUIREMENTS-DELTA, DEP-LOCAL-WORKSPACE
+// ENGMODEL-LINKS: EVT-REQUIREMENTS-DELTA-RECEIVED, EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED, TR-DELTA-REJECT
 func main() {
 	if len(os.Args) < 2 {
 		usage()
@@ -67,11 +68,7 @@ func main() {
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-VALIDATION-ENGINE, IF-CLI-ENGCHANGE
 func printDiagnostics(diagnostics []validate.Diagnostic) {
 	for _, diagnostic := range diagnostics {
-		fmt.Fprintf(os.Stderr, "%s [%s] %s", diagnostic.Code, diagnostic.Severity, diagnostic.Message)
-		if diagnostic.Path != "" {
-			fmt.Fprintf(os.Stderr, " (%s)", diagnostic.Path)
-		}
-		fmt.Fprintln(os.Stderr)
+		validate.WriteDiagnostic(os.Stderr, diagnostic)
 	}
 }
 

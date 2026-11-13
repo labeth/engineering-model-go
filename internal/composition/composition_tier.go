@@ -20,7 +20,7 @@ import (
 // the system requirements whose links point into it, unless a local risk
 // with a recorded acceptance names the dependency alias in dependencies (or,
 // the older form, the subsystem that composes the dependency in appliesTo);
-// and one composition.dependency_tier_unknown per
+// and one composition.dependency_tier_unknown (a core error, ADR-EMG-073) per
 // dependency without a (valid) lifecycle tier. A system without lifecycle
 // gets neither.
 // TRLC-LINKS: REQ-EMG-126
@@ -49,7 +49,7 @@ func TierDiagnostics(root *ComposedSystem) []validate.Diagnostic {
 		childTier, childRank, known := validate.EffectiveTier(child.Bundle)
 		if !known {
 			diags = append(diags, validate.Diagnostic{
-				Code: "composition.dependency_tier_unknown", Severity: validate.SeverityWarning, Path: path,
+				Code: "composition.dependency_tier_unknown", Severity: validate.SeverityError, Path: path, Remedy: validate.ConsistencyRemedy("composition.dependency_tier_unknown"),
 				Message: fmt.Sprintf("dependency %q (%s@%s, subsystem %s) declares no life-cycle tier; this system is at tier %s: ask its owner to declare lifecycle in its engmod.yml and release it", alias, child.ModulePath, child.Version, child.SubsystemID, tier),
 			})
 			continue

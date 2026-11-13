@@ -8,6 +8,9 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         fu_fu_naf_exporter = container "NAF Exporter" "Validates NAF 4.1 stakeholders, concerns, and viewpoint selections and renders architecture products from existing canonical views." "Functional Unit" {
           tags "FunctionalUnit"
         }
+        fu_fu_quint_exporter = container "Quint Exporter" "Generates Quint specifications from behavior machines and runs or verifies them as formal evidence." "Functional Unit" {
+          tags "FunctionalUnit"
+        }
         fu_fu_structurizr_exporter = container "Structurizr Exporter" "Emits Structurizr DSL and deployment-aware model views." "Functional Unit" {
           tags "FunctionalUnit"
         }
@@ -44,7 +47,7 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
         fu_fu_airborne_assurance_exporter = container "Airborne Assurance Exporter" "Validates aviation assurance evidence-readiness profiles and generates clearly marked draft lifecycle-data indexes, trace matrices, gap reports, and certification-support summaries without claiming compliance or authority acceptance." "Functional Unit" {
           tags "FunctionalUnit"
         }
-        fu_fu_allocation_trace = container "Allocation Trace" "Materializes parent-to-subsystem allocation and bidirectional traceability across composed systems, without modifying subsystem models." "Functional Unit" {
+        fu_fu_allocation_trace = container "Allocation Trace" "Traces requirements across composed systems without modifying subsystem models - each child requirement up to the contract items it realizes, each system requirement down through its requirement links (pinned, fingerprinted and reviewed) to the child items and their realizing requirements - and rolls a system requirement up from its reviewed, unchanged links; materializes the deprecated allocations for one release." "Functional Unit" {
           tags "FunctionalUnit"
         }
         fu_fu_gemara_exporter = container "Gemara Exporter" "Renders OpenSSF Gemara L1-L7 catalogs and logs (vector, principle, guidance, control, capability, threat, risk, evaluation, enforcement, audit) with an optional OSCAL catalog and assessment-results bridge, validated by the Gemara SDK." "Functional Unit" {
@@ -153,6 +156,12 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
     if_if_cli_engoscal = softwareSystem "engoscal CLI" "cli cmd/engoscal" {
       tags "Interface"
     }
+    if_if_cli_engquint = softwareSystem "engquint CLI" "cli cmd/engquint" {
+      tags "Interface"
+    }
+    if_if_cli_engspec = softwareSystem "engspec CLI" "cli cmd/engspec" {
+      tags "Interface"
+    }
     if_if_cli_engstruct = softwareSystem "engstruct CLI" "cli cmd/engstruct" {
       tags "Interface"
     }
@@ -168,34 +177,34 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
     if_if_cli_engview = softwareSystem "engview CLI" "cli cmd/engview" {
       tags "Interface"
     }
-    data_do_architecture_model = softwareSystem "Architecture Model" "model/schema/architecture.cue" {
+    data_do_architecture_model = softwareSystem "Architecture Model" "internal/model/schema/architecture.cue" {
       tags "DataObject,internal"
     }
-    data_do_canonical_semantic_model = softwareSystem "Canonical Semantic Model" "model/semantic.go" {
+    data_do_canonical_semantic_model = softwareSystem "Canonical Semantic Model" "internal/model/semantic.go" {
       tags "DataObject,internal"
     }
     data_do_mcp_tool_result = softwareSystem "MCP Tool Result" "mcp.tool-response.v1" {
       tags "DataObject,internal"
     }
-    data_do_model_authoring_contract = softwareSystem "Model Authoring Contract" "model/authoring.go" {
+    data_do_model_authoring_contract = softwareSystem "Model Authoring Contract" "internal/model/authoring.go" {
       tags "DataObject,internal"
     }
     data_do_naf_v4_architecture = softwareSystem "NAF v4.1 Architecture Document" "generated/ARCHITECTURE.naf.adoc" {
       tags "DataObject,internal"
     }
-    data_do_requirements_delta = softwareSystem "Requirements Delta" "requirements_delta.go" {
+    data_do_requirements_delta = softwareSystem "Requirements Delta" "internal/reqdelta/requirements_delta.go" {
       tags "DataObject,internal"
     }
-    data_do_requirements_diff = softwareSystem "Requirements Change Summary" "requirements_delta.go" {
+    data_do_requirements_diff = softwareSystem "Requirements Change Summary" "internal/reqdelta/requirements_delta.go" {
       tags "DataObject,internal"
     }
-    data_do_requirements_document = softwareSystem "Requirements Document" "model/schema/requirements.cue" {
+    data_do_requirements_document = softwareSystem "Requirements Document" "internal/model/schema/requirements.cue" {
       tags "DataObject,internal"
     }
     data_do_structurizr_dsl = softwareSystem "Structurizr DSL" "generated/STRUCTURIZR.dsl" {
       tags "DataObject,internal"
     }
-    data_do_sysml_v2_metamodel = softwareSystem "SysML v2 Metamodel" "tools/sysml/metamodel" {
+    data_do_sysml_v2_metamodel = softwareSystem "SysML v2 Metamodel" "internal/export/sysml/metamodel" {
       tags "DataObject,public"
     }
     data_do_sysml_v2_model = softwareSystem "SysML v2 Model" "generated/ARCHITECTURE.sysml" {
@@ -204,10 +213,34 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
     data_do_threat_dragon_json = softwareSystem "Threat Dragon JSON" "generated/threat-dragon-v2.json" {
       tags "DataObject,internal"
     }
+    ctrl_ctrl_acceptance_record_check = softwareSystem "Owner Acceptance Record Check" "Require a complete, resolving acceptedBy record (existing actor, calendar date, accepted decision) for every accepted risk and threat scenario, warn when the actor is not the risk owner, and list only such risks as accepted in the Gemara policy. Human review of the diff that adds the record remains the control that the owner gave it." {
+      tags "Control,assurance"
+    }
     ctrl_ctrl_artifact_freshness_gate = softwareSystem "Generated Artifact Freshness Gate" "Generate artifacts deterministically and fail continuous integration when regenerated documents differ from the committed artifacts." {
       tags "Control,assurance"
     }
+    ctrl_ctrl_artifact_scan_bounds = softwareSystem "Artifact Scan Bounds" "Read trace markers only from regular artifact files up to the size cap, split on bytes without a line limit, and only outside Markdown code blocks (CommonMark fence lengths, indented code)." {
+      tags "Control,input-validation"
+    }
+    ctrl_ctrl_child_user_nondisclosure = softwareSystem "Child User Non-Disclosure" "Render, export and MCP output of a child model names none of its users by default; the Used By section is an explicit render-time opt-in (engdoc --used-by) that reads only checkouts inside the active workspace, confined like dependencies, and must not be committed into the child." {
+      tags "Control,confidentiality"
+    }
+    ctrl_ctrl_fingerprint_coverage = softwareSystem "Contract Item Meaning Coverage" "A link records the published version it was reviewed at; engws bump moves the pin only when the item means the same at the new version (item kind, text and criteria; each realizer's text and criteria; realizers added or removed), and the check reports link.version_mismatch for every other link until it is reviewed again (D23)." {
+      tags "Control,integrity"
+    }
+    ctrl_ctrl_git_ref_validation = softwareSystem "Git Ref Validation" "A git ref given to contract-diff or release-check is refused when empty or starting with \"-\" and must verify as a commit before git show reads anything, so it cannot be read as a git option." {
+      tags "Control,input-validation"
+    }
+    ctrl_ctrl_go_work_input_validation = softwareSystem "Go Workspace Input Validation" "Write only Go module paths and versions that pass golang.org/x/mod/module checks into go.work; skip the checkout or require otherwise, with a warning." {
+      tags "Control,input-validation"
+    }
+    ctrl_ctrl_link_review_record = softwareSystem "Requirement Link Review Record" "An accepted requirement link carries a reviewer that is a model actor and a calendar review date (link.review_unrecorded otherwise); only engws review-links --accept writes one, from the published dependency at its pin, and only accepted unchanged links count toward the trace roll-up. Review of the diff remains the control that the reviewer gave it." {
+      tags "Control,assurance"
+    }
     ctrl_ctrl_mcp_path_boundary = softwareSystem "MCP Path Boundary Enforcement" "Enforce repo-root path constraints and reject traversal paths in MCP tools." {
+      tags "Control,input-validation"
+    }
+    ctrl_ctrl_repo_local_writes = softwareSystem "Repository-Local Model Writes" "The commands that write model files (review-links --accept, migrate-links, bump) write only the model's own files through an atomic replace that keeps their mode and restore every file on a failed write. In the MCP server only model.patch writes, with write true, a valid result, into a manifest document (not engmod.yml or the link file) that resolves inside the model root (ADR-EMG-029); links.review returns a patch." {
       tags "Control,input-validation"
     }
     ctrl_ctrl_strict_mcp_input_schema = softwareSystem "Strict MCP Input Schemas" "Enforce per-tool input schema and reject unknown arguments." {
@@ -218,6 +251,12 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
     }
     ctrl_ctrl_traceability_coverage = softwareSystem "Requirement Traceability Coverage" "Require requirement-linked verification evidence for modeled behavior." {
       tags "Control,assurance"
+    }
+    av_av_composed_model_content = softwareSystem "Composed Model Content" "Content of another model in the composition (a dependency's published contract, a sibling checkout's requirement links, a workspace file, git refs) that the tools read, compare, render or act on across the boundary between a child model and the systems that use it." {
+      tags "AttackVector"
+    }
+    av_av_false_acceptance_claim = softwareSystem "False Acceptance Claim" "A model edit (by a person or an AI agent) that records a risk or threat as accepted without the owner's acceptance, so exports present the risk as treated." {
+      tags "AttackVector"
     }
     av_av_malformed_model_input = softwareSystem "Malformed Model Input" "Invalid or ambiguous model content causing incorrect parsing or graph interpretation." {
       tags "AttackVector"
@@ -231,11 +270,41 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
     av_av_traceability_gap_drift = softwareSystem "Traceability Gap Drift" "Requirement and verification links diverge from implementation over time." {
       tags "AttackVector"
     }
+    av_av_untrusted_checkout_content = softwareSystem "Untrusted Checkout Content" "Crafted files in a scanned repository or sibling checkout (go.mod, Markdown, Dockerfiles, symlinks, FIFOs, oversized files) that the tools read and copy into generated files or the trace." {
+      tags "AttackVector"
+    }
+    tb_tb_child_using_system = softwareSystem "Child and Using System Boundary" "Boundary between a child model, published and reused without knowing its users, and each system that composes it and links its requirements to the child's contract items. Neither side writes into the other; each reads only what the other publishes." {
+      tags "TrustBoundary,repository"
+    }
     tb_tb_external_validation_tools = softwareSystem "External Validation Tools Boundary" "Boundary for external validators, schemas, and compliance toolchains." {
       tags "TrustBoundary,external-tooling"
     }
     tb_tb_repo_workspace = softwareSystem "Repository Workspace Boundary" "Boundary limiting file operations to repository-root owned paths." {
       tags "TrustBoundary,filesystem"
+    }
+    ts_ts_artifact_parse_abuse = softwareSystem "Crafted repository artifacts mislead or stall the code scan" "A Markdown or container file in a scanned repository claims implementation through markers inside code blocks, hides markers after an over-long line, or is a symlink, FIFO or very large file that the scan follows or reads without bound." {
+      tags "ThreatScenario,tampering,mitigating"
+    }
+    ts_ts_child_user_disclosure = softwareSystem "A child's outputs disclose its users" "A child's generated document, Gemara export or MCP answer names the systems that use it, their requirements or parent texts (for example a Used By section rendered in a workspace and committed into the child)." {
+      tags "ThreatScenario,information_disclosure,mitigating"
+    }
+    ts_ts_false_link_acceptance = softwareSystem "A requirement link recorded as reviewed without a review" "A model edit (by a person or an AI agent) sets a link to accepted without a resolving reviewer or date, or re-stamps it from a workspace checkout instead of the published dependency, so the trace counts an unreviewed link." {
+      tags "ThreatScenario,repudiation,mitigating"
+    }
+    ts_ts_false_risk_acceptance = softwareSystem "Risk recorded as accepted without the owner" "A model edit sets a risk or threat scenario to accepted with a missing, unresolvable or non-owner acceptance record, and the Gemara policy lists it under risks.accepted." {
+      tags "ThreatScenario,repudiation,mitigating"
+    }
+    ts_ts_git_ref_option_injection = softwareSystem "A git ref is read as a git option" "A ref given to contract-diff or release-check (for example from a CI variable) starts with \"-\", so git show or rev-parse runs with an option such as --output that writes a file." {
+      tags "ThreatScenario,tampering,mitigating"
+    }
+    ts_ts_go_work_injection = softwareSystem "Crafted go.mod injects go.work directives" "A sibling checkout's go.mod declares a quoted module or require path with a line break, so engws sync writes an extra use or replace directive into the generated go.work." {
+      tags "ThreatScenario,tampering,mitigating"
+    }
+    ts_ts_hidden_child_change = softwareSystem "A child change escapes the link review" "A child release changes what a linked capability or a realizing requirement obliges in a field the bump comparison does not cover, so the bump moves the link's pin and nobody reviews it." {
+      tags "ThreatScenario,tampering,mitigating"
+    }
+    ts_ts_link_write_outside_repo = softwareSystem "Link tooling writes outside the model" "A crafted workspace, sibling manifest or interrupted migration makes review-links, migrate-links or the MCP server write, read or leave half-written files outside the model's own repository." {
+      tags "ThreatScenario,tampering,mitigating"
     }
     ts_ts_mcp_path_traversal = softwareSystem "MCP path traversal accesses non-repo files" "Untrusted MCP input attempts to escape repo root for sensitive file reads." {
       tags "ThreatScenario,tampering,mitigating"
@@ -250,6 +319,9 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
       tags "Mapping,bounded_by"
     }
     fu_fu_mcp_server -> tb_tb_repo_workspace "bounded_by" "Model relationship: bounded_by" {
+      tags "Mapping,bounded_by"
+    }
+    fu_fu_quint_exporter -> tb_tb_external_validation_tools "bounded_by" "Model relationship: bounded_by" {
       tags "Mapping,bounded_by"
     }
     fu_fu_structurizr_exporter -> tb_tb_external_validation_tools "bounded_by" "Model relationship: bounded_by" {
@@ -268,6 +340,9 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
       tags "Mapping,contains"
     }
     group_fg_artifact_generation -> fu_fu_naf_exporter "contains" "Model relationship: contains" {
+      tags "Mapping,contains"
+    }
+    group_fg_artifact_generation -> fu_fu_quint_exporter "contains" "Model relationship: contains" {
       tags "Mapping,contains"
     }
     group_fg_artifact_generation -> fu_fu_structurizr_exporter "contains" "Model relationship: contains" {
@@ -336,10 +411,16 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
     fu_fu_model_change -> if_if_cli_engchange "contains" "Model relationship: contains" {
       tags "Mapping,contains"
     }
+    fu_fu_model_change -> if_if_cli_engspec "contains" "Model relationship: contains" {
+      tags "Mapping,contains"
+    }
     fu_fu_naf_exporter -> if_if_cli_engnaf "contains" "Model relationship: contains" {
       tags "Mapping,contains"
     }
     fu_fu_oscal_exporter -> if_if_cli_engoscal "contains" "Model relationship: contains" {
+      tags "Mapping,contains"
+    }
+    fu_fu_quint_exporter -> if_if_cli_engquint "contains" "Model relationship: contains" {
       tags "Mapping,contains"
     }
     fu_fu_structurizr_exporter -> if_if_cli_engstruct "contains" "Model relationship: contains" {
@@ -385,6 +466,12 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
       tags "Mapping,depends_on"
     }
     fu_fu_naf_exporter -> ref_ref_naf_v4_1_specification "depends_on" "Model relationship: depends_on" {
+      tags "Mapping,depends_on"
+    }
+    fu_fu_quint_exporter -> fu_fu_model_loader "depends_on" "Model relationship: depends_on" {
+      tags "Mapping,depends_on"
+    }
+    fu_fu_quint_exporter -> fu_fu_validation_engine "depends_on" "Model relationship: depends_on" {
       tags "Mapping,depends_on"
     }
     fu_fu_structurizr_exporter -> ref_ref_structurizr_validator "depends_on" "Model relationship: depends_on" {
@@ -486,6 +573,12 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
     person_act_implementation_engineer -> fu_fu_model_change "Requirements Delta to Canonical Requirements Flow" "cli / local-shell" {
       tags "Flow"
     }
+    person_act_implementation_engineer -> fu_fu_cli_orchestration "Dependency Bump with Requirement Link Evaluation" "cli / local-shell" {
+      tags "Flow"
+    }
+    person_act_architecture_author -> fu_fu_cli_orchestration "Requirement Link Review and Acceptance" "cli / local-shell" {
+      tags "Flow"
+    }
     person_act_implementation_engineer -> fu_fu_cli_orchestration "Model Change to Verified Artifacts Flow" "cli / local-shell" {
       tags "Flow"
     }
@@ -520,6 +613,14 @@ workspace "Engineering Model Go Repository Architecture" "This architecture mode
 
     container sys_engineering_model_go "containers" {
       include *
+      autolayout lr
+    }
+    dynamic sys_engineering_model_go "dynamic_flow_dependency_bump" "engws bump pins a dependency version, regenerates the lock against the registry and evaluates the requirement links on the bumped alias; any failure, or a suspect or broken link without --allow-suspect, restores every file (D8)." {
+      person_act_implementation_engineer -> fu_fu_cli_orchestration "Dependency Bump with Requirement Link Evaluation" "cli / local-shell"
+      autolayout lr
+    }
+    dynamic sys_engineering_model_go "dynamic_flow_link_review" "engws review-links shows each link that needs review with what changed in meaning between the pinned version and the dependency pin; --accept moves one link's pin to the published dependency at its pin and re-evaluates it, or refuses and writes nothing (D9, D23)." {
+      person_act_architecture_author -> fu_fu_cli_orchestration "Requirement Link Review and Acceptance" "cli / local-shell"
       autolayout lr
     }
     dynamic sys_engineering_model_go "dynamic_flow_model_change_to_verified_artifacts" "Primary engineering workflow from authored model update through validation and artifact generation." {

@@ -227,6 +227,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Keep adaptive radio scheduling product-specific
 |accepted
 |2026-09-19
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|orion relay runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend
@@ -266,7 +270,7 @@ flowchart LR
   FU --> DEPT
   FU --> CTRL
   FU --> TB
-  ST -->|triggered_by| EVT
+  ST -->|on_event| EVT
   ST -->|guarded_by| CTRL
   FLOW --> FSTEP
   FSTEP -->|flow_ref| FU
@@ -324,6 +328,11 @@ flowchart TB
   REQC_REQ_ORI_001["REQ-ORI-001"]:::requirement
   FU_FU_ORI_ROUTER["Message Router Software"]:::functional_unit
   REQC_REQ_ORI_001 -->|applies_to| FU_FU_ORI_ROUTER
+  RTC_FU_ORI_ROUTER_RUNTIME["Message Router Software runtime (inferred)"]:::runtime_element
+  FU_FU_ORI_ROUTER -->|runtime evidence| RTC_FU_ORI_ROUTER_RUNTIME
+  CODE_REQ_ORI_001_ROUTER_GO["router.go: 6"]:::code_element
+  RTC_FU_ORI_ROUTER_RUNTIME --->|implemented_by| CODE_REQ_ORI_001_ROUTER_GO
+  REQC_REQ_ORI_001 -->|code trace| CODE_REQ_ORI_001_ROUTER_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -583,7 +592,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == System Composition & Hardware
 
-This chapter shows the system architecture across hardware and software: hardware items and their interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
+This chapter shows the system architecture across hardware and software: hardware items and their interfaces and the subsystems this system composes. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
 
 === Hardware Items
 
@@ -1028,7 +1037,7 @@ flowchart LR
 |`models.atlas.example/shared/compliance-baseline@v0@v0.1.0`
 |===
 
-All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
+All subsystem required interfaces are satisfied.
 
 
 <<<
@@ -2138,5 +2147,33 @@ Authored projection configuration that selects roots, entity kinds, mappings, au
 === Inferred Runtime References
 
 === Inferred Code References
+[[REF_CODE_SOURCE_FILE_ROUTER_GO_SRC_ROUTER_GO]]
+[discrete]
+==== router.go
+
+delivers relay messages according to network controller priority
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code source_file
+|Owner |FU-ORI-ROUTER
+|Source |src/router.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_SYMBOL_ROUTER_GO_6_SRC_ROUTER_GO_6]]
+[discrete]
+==== router.go:6
+
+Inferred code symbol owned by FU-ORI-ROUTER from src/router.go:6.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-ORI-ROUTER
+|Source |src/router.go:6
+|Mentioned In |n/a
+|===
 
 === Verification References

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-047, REQ-EMG-050
@@ -35,11 +36,12 @@ func TestSysMLExportMaterializesPackagedSubsystemEndpoints(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-036
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
 func TestGenerateSysMLV2DeterministicAndPreservesStableIDs(t *testing.T) {
-	first, err := GenerateV2FromFile("engmod.yml")
+	manifest := testutil.AcceptedRepoModel(t)
+	first, err := GenerateV2FromFile(manifest)
 	if err != nil {
 		t.Fatalf("first export: %v (%+v)", err, first.Diagnostics)
 	}
-	second, err := GenerateV2FromFile("engmod.yml")
+	second, err := GenerateV2FromFile(manifest)
 	if err != nil {
 		t.Fatalf("second export: %v (%+v)", err, second.Diagnostics)
 	}

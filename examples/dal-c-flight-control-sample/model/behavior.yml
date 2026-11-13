@@ -1,8 +1,21 @@
-schemaVersion: 2
+schemaVersion: 3
 behavior:
-  states:
-    - id: STATE-OPERATIONAL
-      name: Operational
+  machines:
+    - id: SM-YAW-CONTROL
+      name: Yaw damping mode
+      description: The yaw damping software stays operational and processes each received yaw rate sample; it has no
+        other mode in this sample, so the state is not final.
+      owner: FU-YAW-CONTROL
+      initial: STATE-OPERATIONAL
+      states:
+        - id: STATE-OPERATIONAL
+          name: Operational
+      transitions:
+        - id: TR-YAW-SAMPLE
+          from: STATE-OPERATIONAL
+          to: STATE-OPERATIONAL
+          on: EVT-YAW-RATE-RECEIVED
+          description: Each received yaw rate sample is processed in the operational mode.
   events:
     - id: EVT-YAW-RATE-RECEIVED
       name: Yaw rate received

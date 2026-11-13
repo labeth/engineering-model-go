@@ -12,6 +12,7 @@ import (
 	engmodel "github.com/labeth/engineering-model-go"
 	"github.com/labeth/engineering-model-go/internal/mcp"
 	"github.com/labeth/engineering-model-go/internal/model"
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
@@ -26,7 +27,6 @@ func TestSchemaV2ProjectionContract(t *testing.T) {
 	architecture := filepath.Join(payments, "engmod.yml")
 	requirements := filepath.Join(payments, "model", "requirements.yml")
 	design := filepath.Join(payments, "model", "views.yml")
-
 	contracts := []struct {
 		name     string
 		generate func() (string, error)
@@ -60,7 +60,7 @@ func TestSchemaV2ProjectionContract(t *testing.T) {
 		{
 			name: "naf",
 			generate: func() (string, error) {
-				result, err := engmodel.GenerateNAFV41FromFile("engmod.yml")
+				result, err := engmodel.GenerateNAFV41FromFile(testutil.AcceptedRepoModel(t))
 				return result.Document, err
 			},
 			contains: []string{":naf-version: 4.1", "=== A2 - Architecture Products", "`VIEW-ARCHITECTURE-INTENT`"},
@@ -157,9 +157,9 @@ func TestSchemaV2ProjectionContract(t *testing.T) {
 				if result.Root == nil {
 					return "", fmt.Errorf("composition root is nil")
 				}
-				return fmt.Sprintf("root=%s children=%d allocations=%d links=%d", result.Root.Bundle.Architecture.Model.ID, len(result.Root.Children), len(result.Allocations), len(result.Root.Bundle.ReqLinks.ReqLinks)), nil
+				return fmt.Sprintf("root=%s children=%d links=%d", result.Root.Bundle.Architecture.Model.ID, len(result.Root.Children), len(result.Root.Bundle.ReqLinks.ReqLinks)), nil
 			},
-			contains: []string{"root=sample-coffee-fleet-ota-cloud-model", "children=3", "allocations=0", "links=3"},
+			contains: []string{"root=sample-coffee-fleet-ota-cloud-model", "children=3", "links=3"},
 		},
 		{
 			name: "mcp-model",

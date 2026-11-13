@@ -129,8 +129,10 @@ func collectXrefEntries(d *gemaraXrefDoc) {
 	}
 }
 
-// checkXrefDoc walks d's body and resolves each reference it makes.
-// TRLC-LINKS: REQ-EMG-015
+// checkXrefDoc walks d's body and resolves each reference it makes. The
+// declared ENGMOD-REQUIREMENTS reference of the formal evaluation entries is
+// external and is not resolved against the set.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-147
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func checkXrefDoc(d *gemaraXrefDoc, byID map[string]*gemaraXrefDoc) []CrossReferenceError {
 	var errs []CrossReferenceError
@@ -186,6 +188,11 @@ func checkXrefDoc(d *gemaraXrefDoc, byID map[string]*gemaraXrefDoc) []CrossRefer
 			_, hasEntry := t["entry-id"]
 			entries, hasEntries := t["entries"].([]any)
 			switch {
+			case ref == gemaraRefRequirements && d.declared[ref]:
+				// The requirement-keyed formal entries of the Evaluation Log
+				// name the model's requirements, which are not a rendered
+				// Gemara artifact (gemara_formal.go): a declared external
+				// reference, resolved by the model, not by the set.
 			case ref != "" && hasEntry:
 				entry(path, ref, xrefString(t["entry-id"]), target(path, ref))
 			case ref != "" && hasEntries:

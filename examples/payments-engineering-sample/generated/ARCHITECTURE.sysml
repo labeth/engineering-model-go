@@ -518,6 +518,12 @@ package 'sample-payments-layered-model' {
     attribute 'DATA-RISK-SCORE';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DEP-PAYMENTS-BANK-EDGE";
         conceptKind = "part_definition";
     }
@@ -1041,6 +1047,107 @@ package 'sample-payments-layered-model' {
     attribute 'RISK-PAYMENTS-SSO-MFA-GAP';
 
     @EngineeringElement {
+        sourceId = "SM-PAYMENTS-AUTH";
+        conceptKind = "state_definition";
+    }
+    state def 'SM-PAYMENTS-AUTH' {
+        doc /* Lifecycle of one checkout payment from the accepted request to the bank decision, with a bounded number of authorization attempts. Implemented by FU-PAYMENT-AUTHORIZATION. */
+        attribute attempts : Integer := 0;
+        entry;
+        then 'STATE-PAYMENTS-CHECKOUT-RECEIVED';
+        state 'STATE-PAYMENTS-AUTHORIZED';
+        @EngineeringElement about 'STATE-PAYMENTS-AUTHORIZED' {
+            sourceId = "STATE-PAYMENTS-AUTHORIZED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-PAYMENTS-AUTHORIZING';
+        @EngineeringElement about 'STATE-PAYMENTS-AUTHORIZING' {
+            sourceId = "STATE-PAYMENTS-AUTHORIZING";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-PAYMENTS-CHECKOUT-RECEIVED';
+        @EngineeringElement about 'STATE-PAYMENTS-CHECKOUT-RECEIVED' {
+            sourceId = "STATE-PAYMENTS-CHECKOUT-RECEIVED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-PAYMENTS-DECLINED';
+        @EngineeringElement about 'STATE-PAYMENTS-DECLINED' {
+            sourceId = "STATE-PAYMENTS-DECLINED";
+            conceptKind = "state_usage";
+        }
+        succession 'REL-99E665734A44262E' first 'STATE-PAYMENTS-AUTHORIZED' then done;
+        @EngineeringRelationship about 'REL-99E665734A44262E' {
+            sourceId = "REL-99E665734A44262E";
+            conceptKind = "succession";
+            relationshipKind = "machine_final";
+        }
+        succession 'REL-F70A8A363D469964' first 'STATE-PAYMENTS-DECLINED' then done;
+        @EngineeringRelationship about 'REL-F70A8A363D469964' {
+            sourceId = "REL-F70A8A363D469964";
+            conceptKind = "succession";
+            relationshipKind = "machine_final";
+        }
+        transition 'TR-PAYMENTS-AUTH-APPROVE'
+            first 'STATE-PAYMENTS-AUTHORIZING'
+            accept 'on-EVT-PAYMENTS-AUTH-COMPLETED' :> 'EVT-PAYMENTS-AUTH-COMPLETED'
+            then 'STATE-PAYMENTS-AUTHORIZED' {
+                doc /* The bank approved the authorization and the decision returned to checkout. */
+            }
+        @EngineeringRelationship about 'TR-PAYMENTS-AUTH-APPROVE' {
+            sourceId = "TR-PAYMENTS-AUTH-APPROVE";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-PAYMENTS-AUTH-DECLINE'
+            first 'STATE-PAYMENTS-AUTHORIZING'
+            if attempts >= 3
+            then 'STATE-PAYMENTS-DECLINED' {
+                doc /* A declined last attempt ends the payment as declined. */
+            }
+        @EngineeringRelationship about 'TR-PAYMENTS-AUTH-DECLINE' {
+            sourceId = "TR-PAYMENTS-AUTH-DECLINE";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-PAYMENTS-AUTH-RETRY'
+            first 'STATE-PAYMENTS-AUTHORIZING'
+            if attempts < 3
+            then 'STATE-PAYMENTS-CHECKOUT-RECEIVED' {
+                doc /* A declined attempt returns to checkout, which offers the customer a retry while attempts are left. */
+            }
+        @EngineeringRelationship about 'TR-PAYMENTS-AUTH-RETRY' {
+            sourceId = "TR-PAYMENTS-AUTH-RETRY";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-PAYMENTS-AUTH-START'
+            first 'STATE-PAYMENTS-CHECKOUT-RECEIVED'
+            accept 'on-EVT-PAYMENTS-AUTH-REQUESTED' :> 'EVT-PAYMENTS-AUTH-REQUESTED'
+            if attempts < 3
+            do assign attempts := attempts + 1
+            then 'STATE-PAYMENTS-AUTHORIZING' {
+                doc /* Request authorization from the bank while attempts are left and count the attempt. */
+            }
+        @EngineeringRelationship about 'TR-PAYMENTS-AUTH-START' {
+            sourceId = "TR-PAYMENTS-AUTH-START";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        constraint 'INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED' {
+            doc /* A payment session never counts more than three authorization attempts, so the retry option stays bounded. Protects REQ-PAY-001, REQ-PAY-008. */
+            attempts >= 0 and attempts <= 3
+        }
+        @EngineeringElement about 'INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED' {
+            sourceId = "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED";
+            conceptKind = "constraint_usage";
+        }
+        // invariant INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-PAYMENTS-DECLINED) implies attempts >= 3
+        // invariant INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-PAYMENTS-AUTHORIZED) implies attempts > 0
+    }
+
+    @EngineeringElement {
         sourceId = "STATE-BANK-LINK-UP";
         conceptKind = "engineering_extension";
     }
@@ -1051,18 +1158,6 @@ package 'sample-payments-layered-model' {
         conceptKind = "engineering_extension";
     }
     attribute 'STATE-CHECKOUT-ACTIVE';
-
-    @EngineeringElement {
-        sourceId = "STATE-PAYMENTS-AUTHORIZED";
-        conceptKind = "state_definition";
-    }
-    state def 'STATE-PAYMENTS-AUTHORIZED';
-
-    @EngineeringElement {
-        sourceId = "STATE-PAYMENTS-CHECKOUT-RECEIVED";
-        conceptKind = "state_definition";
-    }
-    state def 'STATE-PAYMENTS-CHECKOUT-RECEIVED';
 
     @EngineeringElement {
         sourceId = "STATE-REVIEW-PENDING";
@@ -1474,17 +1569,6 @@ package 'sample-payments-layered-model' {
     dependency 'REL-4265C0CD7F9F1271' from 'FU-CHECKOUT' to 'FU-PAYMENT-AUTHORIZATION';
 
     @EngineeringRelationship {
-        sourceId = "REL-4389964B492F242B";
-        conceptKind = "event_trigger";
-        relationshipKind = "triggered_by";
-    }
-    state 'REL-4389964B492F242B-context' : EngineeringState {
-        state 'STATE-PAYMENTS-CHECKOUT-RECEIVED' : EngineeringState;
-        action transitionEffect : EngineeringAction;
-        transition 'REL-4389964B492F242B' first 'STATE-PAYMENTS-CHECKOUT-RECEIVED' accept 'EVT-PAYMENTS-AUTH-REQUESTED' : EngineeringItem then transitionEffect;
-    }
-
-    @EngineeringRelationship {
         sourceId = "REL-529ABAB0C41FE7CE";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -1533,17 +1617,6 @@ package 'sample-payments-layered-model' {
         relationshipKind = "targets";
     }
     dependency 'REL-5E8441663CE65E78' from 'AV-REPLAYED-AUTH-CALLBACK' to 'FU-PAYMENT-AUTHORIZATION';
-
-    @EngineeringRelationship {
-        sourceId = "REL-5F992C07A2903118";
-        conceptKind = "event_trigger";
-        relationshipKind = "triggered_by";
-    }
-    state 'REL-5F992C07A2903118-context' : EngineeringState {
-        state 'STATE-PAYMENTS-AUTHORIZED' : EngineeringState;
-        action transitionEffect : EngineeringAction;
-        transition 'REL-5F992C07A2903118' first 'STATE-PAYMENTS-AUTHORIZED' accept 'EVT-PAYMENTS-AUTH-COMPLETED' : EngineeringItem then transitionEffect;
-    }
 
     @EngineeringRelationship {
         sourceId = "REL-6BAF73F5116F4130";
@@ -1646,17 +1719,6 @@ package 'sample-payments-layered-model' {
         relationshipKind = "flow_ref";
     }
     dependency 'REL-A3193AF968200977' from 'submit-payment' to 'ACT-CUSTOMER';
-
-    @EngineeringRelationship {
-        sourceId = "REL-A3E7C3F706D9F2ED";
-        conceptKind = "transition";
-        relationshipKind = "transitions_to";
-    }
-    state 'REL-A3E7C3F706D9F2ED-context' : EngineeringState {
-        action 'STATE-PAYMENTS-CHECKOUT-RECEIVED' : EngineeringAction;
-        action 'STATE-PAYMENTS-AUTHORIZED' : EngineeringAction;
-        transition 'REL-A3E7C3F706D9F2ED' first 'STATE-PAYMENTS-CHECKOUT-RECEIVED' then 'STATE-PAYMENTS-AUTHORIZED';
-    }
 
     @EngineeringRelationship {
         sourceId = "REL-AE158DC172B5EBB7";

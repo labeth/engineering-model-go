@@ -5,12 +5,17 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
 // TestCompositionAndTraceMatrixTools verifies the composition.resolve and trace.matrix
 // MCP tools return real system-of-systems and traceability data for a composed model.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-030
+// Mutation: putting the allocations key back into the composition.resolve
+// result fails this test.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-030, REQ-EMG-187
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
 func TestCompositionAndTraceMatrixTools(t *testing.T) {
 	s := NewServer()
@@ -36,8 +41,8 @@ func TestCompositionAndTraceMatrixTools(t *testing.T) {
 		t.Fatalf("composition.resolve expected 1 subsystem, got %d", len(subs))
 	}
 
-	if allocs, _ := comp["allocations"].([]any); len(allocs) == 0 {
-		t.Fatal("composition.resolve expected allocations")
+	if _, has := comp["allocations"]; has {
+		t.Fatal("composition.resolve must not report allocations (ADR-EMG-078)")
 	}
 
 	tm := callToolData(t, s, "trace.matrix")
@@ -59,11 +64,11 @@ func writeMCPCompositionFixture(t *testing.T) string {
 	writeMCPModule(t, child, "example.com/child@v1", "v1.0.0", "CHILD", `publications:
   - id: public
     architecture: [CAP-CHILD]
+    requirements: [REQ-CHILD]
 `, `  contract:
     provides:
       - id: CAP-CHILD
         kind: capability
-        ref: REQ-CHILD
 `)
 	writeMCPModule(t, parent, "example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
   - alias: child
@@ -75,12 +80,16 @@ func writeMCPCompositionFixture(t *testing.T) string {
       - id: SUB-CHILD
         dependency: child
         publication: public
-    allocations:
-      - requirement: REQ-PARENT
-        to: SUB-CHILD
-        target: child::CAP-CHILD
 `)
-	writeMCPFile(t, filepath.Join(root, "engmod.work.yml"), "schemaVersion: 2\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
+	// REQ-PARENT traces to the capability of the child with a requirement link.
+	manifest := filepath.Join(parent, "engmod.yml")
+	data, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeMCPFile(t, manifest, strings.Replace(string(data), "  decisions: model/decisions.yml\n", "  decisions: model/decisions.yml\n  reqLinks: model/req-links.yml\n", 1))
+	writeMCPFile(t, filepath.Join(parent, "model", "req-links.yml"), "schemaVersion: 3\nreqLinks:\n  - id: LNK-PARENT-CHILD\n    parent: REQ-PARENT\n    child: child::CAP-CHILD\n    pinned:\n      version: v1.0.0\n    status: claimed\n")
+	writeMCPFile(t, filepath.Join(root, "engmod.work.yml"), "schemaVersion: 3\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
 	return parent
 }
 
@@ -88,7 +97,7 @@ func writeMCPCompositionFixture(t *testing.T) string {
 func writeMCPModule(t *testing.T, dir, modulePath, version, modelID, manifestExtra, architecture string) {
 	t.Helper()
 	writeMCPFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePath+"\"\nlanguage: version: \"v0.17.0\"\n")
-	writeMCPFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
+	writeMCPFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 3
 module:
   path: `+modulePath+`
   version: `+version+`
@@ -96,7 +105,7 @@ module:
   title: `+modelID+`
   introduction: ""
   kind: system
-`+manifestExtra+`documents:
+`+manifestExtra+testutil.CompleteSwitches+`documents:
   catalog: model/catalog.yml
   requirements: model/requirements.yml
   architecture: model/architecture.yml
@@ -106,14 +115,18 @@ module:
   views: model/views.yml
   decisions: model/decisions.yml
 `)
-	writeMCPFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-PARENT\n    text: Parent requirement.\n  - id: REQ-CHILD\n    text: Child requirement.\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n"+architecture)
-	writeMCPFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
-	writeMCPFile(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 3\ncatalog: {}\n")
+	requirements := "schemaVersion: 3\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-PARENT\n    text: Parent requirement.\n  - id: REQ-CHILD\n    text: Child requirement.\n"
+	if strings.Contains(architecture, "- id: CAP-CHILD\n") {
+		requirements += "    realizes: [CAP-CHILD]\n" // the child requirement realizes its capability (provides.ref was removed)
+	}
+	writeMCPFile(t, filepath.Join(dir, "model", "requirements.yml"), requirements)
+	writeMCPFile(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 3\narchitecture:\n"+architecture)
+	writeMCPFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 3\nbehavior: {}\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 3\nassurance: {}\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 3\ncompliance: {}\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 3\nviews: []\n")
+	writeMCPFile(t, filepath.Join(dir, "model", "decisions.yml"), testutil.TierDecisionPoC)
 }
 
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
@@ -163,13 +176,13 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 	s := initializedPaymentsServer(t)
 	full := callToolPayload(t, s, "trace.matrix", map[string]any{})
 	summary, _ := full["summary"].(map[string]any)
-	for _, key := range []string{"requirements", "implemented", "tested", "testLinked", "passed", "verified", "delegated", "orphan", "dangling"} {
+	for _, key := range []string{"requirements", "implemented", "tested", "testLinked", "passed", "delegated", "orphan", "dangling"} {
 		if _, ok := summary[key]; !ok {
 			t.Fatalf("trace.matrix summary missing %q: %+v", key, summary)
 		}
 	}
-	if summary["testLinked"] != summary["tested"] || summary["verified"] != summary["tested"] {
-		t.Fatalf("testLinked/verified must equal tested: %+v", summary)
+	if summary["testLinked"] != summary["tested"] {
+		t.Fatalf("testLinked must equal tested: %+v", summary)
 	}
 	if rows, _ := full["requirements"].([]any); len(rows) == 0 {
 		t.Fatalf("full trace.matrix must list requirement rows")
@@ -195,5 +208,20 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 	props, _ := schema["properties"].(map[string]any)
 	if _, ok := props["summaryOnly"]; !ok {
 		t.Fatalf("trace.matrix inputSchema must declare summaryOnly: %+v", schema)
+	}
+}
+
+// The trace.matrix summary carries no verified and no linksSuspect counter
+// (ADR-EMG-073). Mutation: serializing either counter again fails this test.
+// TRLC-LINKS: REQ-EMG-182
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func TestTraceMatrixToolSummaryHasNoRemovedCounters(t *testing.T) {
+	s := initializedPaymentsServer(t)
+	summary, _ := callToolPayload(t, s, "trace.matrix", map[string]any{"summaryOnly": true})["summary"].(map[string]any)
+	if _, present := summary["verified"]; present {
+		t.Fatalf("summary carries the removed counter verified: %+v", summary)
+	}
+	if _, present := summary["linksSuspect"]; present {
+		t.Fatalf("summary carries the removed counter linksSuspect: %+v", summary)
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -19,6 +20,7 @@ import (
 )
 
 // Impact is a semantic version impact.
+// ENGMODEL-NOT-A-STATE: a computed result of one contract diff that is returned and never stored or moved between values
 type Impact string
 
 const (
@@ -42,6 +44,7 @@ func (i Impact) rank() int {
 }
 
 // Change is how a contract item changed between two versions.
+// ENGMODEL-NOT-A-STATE: a computed result of one contract diff that is returned and never stored or moved between values
 type Change string
 
 const (
@@ -216,7 +219,14 @@ func gitOutput(dir string, args ...string) ([]byte, error) {
 // a temporary directory (0700, files 0600, removed afterwards) and loads it
 // with the model loader. A ref starting with "-" is refused, so it is never
 // read as a git option.
-// TRLC-LINKS: REQ-EMG-102, REQ-EMG-103
+//
+// This is the single place where a model of an older schema version is
+// accepted (ADR-EMG-077): the model at a ref is read only for the contract
+// diff, so the temporary copy of the manifest and of every document is
+// stamped with the current schemaVersion (stampCurrentVersion) and the
+// retired state vocabulary is stripped. No mode of the loader, and no command
+// that reads the working tree, accepts an older version.
+// TRLC-LINKS: REQ-EMG-102, REQ-EMG-103, REQ-EMG-186
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-MODEL-LOADER
 func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 	if strings.HasPrefix(ref, "-") || strings.TrimSpace(ref) == "" {
@@ -238,6 +248,7 @@ func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 	if err := yaml.Unmarshal(manifest, &meta); err != nil {
 		return model.Bundle{}, fmt.Errorf("engmod.yml at %s: %w", ref, err)
 	}
+	manifest = stampCurrentVersion(manifest)
 	// The committed model may be private: only the current user reads the
 	// copy (MkdirTemp creates the directory 0700).
 	tmp, err := os.MkdirTemp("", "engws-contract-")
@@ -248,13 +259,22 @@ func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 	if err := os.WriteFile(filepath.Join(tmp, "engmod.yml"), manifest, 0o600); err != nil {
 		return model.Bundle{}, err
 	}
-	for key, rel := range meta.Documents {
+	keys := make([]string, 0, len(meta.Documents))
+	for key := range meta.Documents {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		rel := meta.Documents[key]
 		clean := path.Clean(filepath.ToSlash(strings.TrimSpace(rel)))
 		if clean == "." || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") {
 			return model.Bundle{}, fmt.Errorf("engmod.yml at %s: documents.%s %q leaves the model directory", ref, key, rel)
 		}
 		data, err := show(clean)
 		if err != nil {
+			return model.Bundle{}, fmt.Errorf("documents.%s at %s: %w", key, ref, err)
+		}
+		if data, err = historicDocument(key, data); err != nil {
 			return model.Bundle{}, fmt.Errorf("documents.%s at %s: %w", key, ref, err)
 		}
 		dest := filepath.Join(tmp, filepath.FromSlash(clean))
@@ -272,9 +292,48 @@ func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
 	return bundle, nil
 }
 
+// topLevelSchemaVersion matches the top-level schemaVersion line of a
+// document: the key at the start of a line, so a nested key is never matched.
+var topLevelSchemaVersion = regexp.MustCompile(`(?m)^schemaVersion:[ \t]*[0-9]+`)
+
+// historicDocument prepares one document read at an older ref for the loader.
+// A model committed before this release was written for an older schema
+// version, which the loader refuses (ADR-EMG-077), so the copy is stamped with
+// the current version, like the manifest. A model committed before v0.11.0
+// models state behavior with the retired behavior.states vocabulary, which
+// the loader also refuses; only the contract is read at a ref, and the
+// contract has no states, so the behavior document is stripped of it.
+// TRLC-LINKS: REQ-EMG-102, REQ-EMG-186
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-MODEL-LOADER
+func historicDocument(key string, data []byte) ([]byte, error) {
+	data = stampCurrentVersion(data)
+	if key != "behavior" {
+		return data, nil
+	}
+	return model.StripLegacyStateVocabulary(data)
+}
+
+// stampCurrentVersion replaces the value of the top-level schemaVersion line
+// of a document with model.CurrentSchemaVersion and leaves every other byte,
+// including comments and the order of keys, as it was (a YAML round trip
+// would not). A document without the line is returned unchanged. Only
+// LoadBundleAtRef calls it, on its temporary copy (ADR-EMG-077).
+// TRLC-LINKS: REQ-EMG-186
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func stampCurrentVersion(data []byte) []byte {
+	loc := topLevelSchemaVersion.FindIndex(data)
+	if loc == nil {
+		return data
+	}
+	stamped := append([]byte{}, data[:loc[0]]...)
+	stamped = append(stamped, model.SchemaVersionLine...)
+	return append(stamped, data[loc[1]:]...)
+}
+
 // ContractDiff diffs the contract of the model in repo between two refs.
 // TRLC-LINKS: REQ-EMG-102
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-CONTRACT-DIFF
 func ContractDiff(repo, fromRef, toRef string) (ContractDiffResult, error) {
 	from, err := LoadBundleAtRef(repo, fromRef)
 	if err != nil {
@@ -315,6 +374,7 @@ func printContractDiff(w io.Writer, d ContractDiffResult) {
 // runContractDiff prints the contract diff (text or JSON); IO and git
 // errors exit 2.
 // TRLC-LINKS: REQ-EMG-102
+// ENGMODEL-LINKS: EVT-CONTRACT-DIFF-REQUESTED
 func runContractDiff(repo, fromRef, toRef string, asJSON bool, w io.Writer) (int, error) {
 	d, err := ContractDiff(repo, fromRef, toRef)
 	if err != nil {

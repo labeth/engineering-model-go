@@ -18,3 +18,9 @@ pub fn publish_brew_telemetry(record: &TelemetryRecord) -> bool {
 pub fn queue_for_retry(record: &TelemetryRecord) -> String {
     format!("retry:{}:{}", record.machine_id, record.brew_temp_c)
 }
+
+// ENGMODEL-LINKS: IF-COFFEE-TELEMETRY-INGEST, FLOW-COFFEE-TELEMETRY-INGEST, DO-COFFEE-TELEMETRY-EVENT
+// TRLC-LINKS: REQ-COF-011
+pub fn flush_retry_queue(queued: &[TelemetryRecord]) -> usize {
+    queued.len()
+}

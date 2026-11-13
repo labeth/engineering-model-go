@@ -11,7 +11,16 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const CurrentSchemaVersion = 2
+// CurrentSchemaVersion is the model schema version this release reads and
+// writes: the one place Go names the number (the CUE constant #SchemaVersion in
+// schema/common.cue must equal it). A breaking release raises it and
+// engws release-check reports release.schema_version_not_bumped when it does
+// not (ADR-EMG-077, REQ-EMG-186).
+const CurrentSchemaVersion = 3
+
+// SchemaVersionLine is the top-level manifest or document line that declares
+// the current schema version, for code that writes a document.
+var SchemaVersionLine = fmt.Sprintf("schemaVersion: %d", CurrentSchemaVersion)
 
 // ResolveDocumentReferences validates the explicit schema-v2 document map.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-053
@@ -30,10 +39,38 @@ func ResolveDocumentReferences(meta ModelMeta) (DocumentReferences, error) {
 	return refs, nil
 }
 
-// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
+// SchemaVersionRemedy is the fix for a document whose schemaVersion is
+// missing or not the current one (ADR-EMG-061). It names only what exists
+// today: the manual edit. The upgrade command of engineering-flow is
+// planned and not built yet, so no text may tell a user to run it.
+var SchemaVersionRemedy = "set " + SchemaVersionLine + " at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet)"
+
+// SchemaVersionError reports a schemaVersion that is missing (0) or not the
+// current one. Problem is the message without the remedy; Error appends it.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+type SchemaVersionError struct {
+	Version int
+}
+
+// Problem returns what is wrong, without the remedy.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+func (e *SchemaVersionError) Problem() string {
+	return fmt.Sprintf("unsupported schemaVersion %d; supported version is %d", e.Version, CurrentSchemaVersion)
+}
+
+// Error returns the problem and the fix.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+func (e *SchemaVersionError) Error() string {
+	return e.Problem() + "; fix: " + SchemaVersionRemedy
+}
+
+// EffectiveSchemaVersion returns the version when it is the current schema
+// version and a *SchemaVersionError (naming its remedy) otherwise.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
 func EffectiveSchemaVersion(version int) (int, error) {
 	if version != CurrentSchemaVersion {
-		return 0, fmt.Errorf("unsupported schemaVersion %d; supported version is %d", version, CurrentSchemaVersion)
+		return 0, &SchemaVersionError{Version: version}
 	}
 	return version, nil
 }
@@ -116,9 +153,6 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		if err := decodeYAMLFile(aviationPath, &document); err != nil {
 			return Bundle{}, fmt.Errorf("decode aviation file: %w", err)
 		}
-		if _, err := EffectiveSchemaVersion(document.SchemaVersion); err != nil {
-			return Bundle{}, fmt.Errorf("aviation schema: %w", err)
-		}
 		diagnostics := ValidateAviation(document, requirements, architectureInput)
 		if manifest.Lifecycle != nil {
 			// With lifecycle the state and completeness codes are tier keyed
@@ -138,20 +172,6 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		if err := decodeYAMLFile(reqLinksPath, &reqLinks); err != nil {
 			return Bundle{}, fmt.Errorf("decode reqLinks file: %w", err)
 		}
-		if _, err := EffectiveSchemaVersion(reqLinks.SchemaVersion); err != nil {
-			return Bundle{}, fmt.Errorf("reqLinks schema: %w", err)
-		}
-	}
-
-	for kind, version := range map[string]int{
-		"catalog": catalog.SchemaVersion, "requirements": requirements.SchemaVersion,
-		"architecture": architectureInput.SchemaVersion, "behavior": behavior.SchemaVersion,
-		"assurance": assurance.SchemaVersion, "compliance": compliance.SchemaVersion,
-		"views": views.SchemaVersion, "decisions": decisions.SchemaVersion,
-	} {
-		if _, err := EffectiveSchemaVersion(version); err != nil {
-			return Bundle{}, fmt.Errorf("%s schema: %w", kind, err)
-		}
 	}
 
 	input := architectureInput.Architecture
@@ -161,8 +181,9 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		Interfaces: input.Interfaces, DataObjects: input.DataObjects,
 		DeploymentTargets: input.DeploymentTargets, HardwareItems: input.HardwareItems,
 		HardwareInterfaces: input.HardwareInterfaces,
-		States:             behavior.Behavior.States, Events: behavior.Behavior.Events,
-		Flows: behavior.Behavior.Flows, Mappings: behavior.Behavior.Relationships,
+		Events:             behavior.Behavior.Events,
+		Flows:              behavior.Behavior.Flows, Mappings: behavior.Behavior.Relationships,
+		Machines:      behavior.Behavior.Machines,
 		AttackVectors: assurance.Assurance.AttackVectors, Controls: assurance.Assurance.Controls,
 		Risks: assurance.Assurance.Risks, POAMItems: assurance.Assurance.POAMItems,
 		TrustBoundaries:      assurance.Assurance.TrustBoundaries,
@@ -262,11 +283,17 @@ func LoadDesign(path string) (DesignDocument, error) {
 	return DesignDocument{SchemaVersion: views.SchemaVersion, Design: views.Design}, nil
 }
 
-// TRLC-LINKS: REQ-EMG-001
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-139
 func decodeYAMLFile(path string, out any) error {
 	b, err := os.ReadFile(path)
 	if err != nil {
 		return fmt.Errorf("read %s: %w", path, err)
+	}
+	if err := checkSchemaVersion(path, b, out); err != nil {
+		return err
+	}
+	if err := rejectLegacyStateVocabulary(path, b, out); err != nil {
+		return err
 	}
 	if err := validateCanonicalYAML(path, b, out); err != nil {
 		return fmt.Errorf("validate %s: %w", path, err)
@@ -278,6 +305,31 @@ func decodeYAMLFile(path string, out any) error {
 	}
 	if err := ensureSingleYAMLDocument(dec); err != nil {
 		return fmt.Errorf("decode %s: %w", path, err)
+	}
+	return nil
+}
+
+// checkSchemaVersion rejects a document whose top-level schemaVersion is
+// absent, 0, 1, 3 or anything but the current version, with a
+// *SchemaVersionError that carries the fix. It runs before the CUE schema
+// check: the CUE schema value is the constant 2, so it would fill in a missing
+// version and word a wrong one as an unreadable unification failure. A
+// document that does not parse, or whose schemaVersion is not a number, is
+// left to the later checks, which report it.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+func checkSchemaVersion(path string, source []byte, out any) error {
+	if _, err := cueSchemaName(out); err != nil {
+		return nil
+	}
+	var head struct {
+		SchemaVersion int `yaml:"schemaVersion"`
+	}
+	if err := yaml.Unmarshal(source, &head); err != nil {
+		return nil
+	}
+	if _, err := EffectiveSchemaVersion(head.SchemaVersion); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
 	}
 	return nil
 }

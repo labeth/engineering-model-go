@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/coffee-fleet/system@v0
   version: v0.1.0
@@ -81,6 +81,7 @@ publications:
   - CAP-COFFEE-FLEET-AUDIT
   behavior:
   - STATE-COFFEE-OTA-SCHEDULED
+  - STATE-COFFEE-OTA-ROLLING-OUT
   - STATE-COFFEE-OTA-APPLIED
   - EVT-COFFEE-OTA-REQUESTED
   - EVT-COFFEE-OTA-COMPLETED
@@ -153,3 +154,9 @@ inferenceHints:
   - explicit_annotation
   - path_convention
   - unresolved_warning
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

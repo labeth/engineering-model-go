@@ -23,7 +23,7 @@ func aviationTierBundle(tier, level, planState, metric string) model.Bundle {
 		}
 		data = append(data, model.LifecycleDataRecord{ID: "DATA-" + strings.ToUpper(family.CategoryCode[:6]) + "-" + string(rune('A'+i)), CategoryCode: family.CategoryCode, CategoryName: family.CategoryName, Owner: "Lead", State: state})
 	}
-	b.Aviation = &model.AviationDocument{SchemaVersion: 2, Aviation: model.AviationProfile{
+	b.Aviation = &model.AviationDocument{SchemaVersion: model.CurrentSchemaVersion, Aviation: model.AviationProfile{
 		Profile:       model.AirborneProfile{ID: "AV", SoftwareLevel: level},
 		LifecycleData: data,
 		Executions:    []model.VerificationExecution{{ID: "EXEC-1", Producer: "Engineer A", Verifier: "Reviewer B", Status: "executed"}},
@@ -156,7 +156,7 @@ func TestAviationStateCodesAreTierKeyed(t *testing.T) {
 	b.Aviation.Aviation.Reviews[0].State = "authority-accepted"
 	diags := ApplyTierPolicy(b, Bundle(b))
 	tool := codesOf(diags, "aviation.tool.incomplete_credit_assessment")
-	if len(tool) != 1 || !tool[0].Deferred || tool[0].RequiredFrom != "product" {
+	if len(tool) != 1 || !tool[0].Deferred || tool[0].RequiredFrom != "mvp" {
 		t.Errorf("tool credit at prototype: %+v", tool)
 	}
 	auth := codesOf(diags, "aviation.authority_state_unevidenced")

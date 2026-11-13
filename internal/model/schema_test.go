@@ -14,7 +14,7 @@ import (
 // TRLC-LINKS: REQ-EMG-041, REQ-EMG-043
 func TestCanonicalCUESchemaRejectsUnsupportedNAFVersion(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "views.yml")
-	source := `schemaVersion: 2
+	source := `schemaVersion: 3
 views: []
 naf:
   framework: NAF
@@ -104,7 +104,7 @@ func TestCanonicalCUESchemaRejectsInvalidMultiplicityBounds(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-046, REQ-EMG-052
 func TestCanonicalCUESchemaRejectsUnknownSemanticField(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "architecture.yml")
-	source := `schemaVersion: 2
+	source := `schemaVersion: 3
 architecture:
   semantics:
     elements:

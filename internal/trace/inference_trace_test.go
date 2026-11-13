@@ -31,7 +31,7 @@ func TestJavaScriptTestOnlyLinksDoNotImplement(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{impl, test}}}}
+			bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 			code, diags := codescan.InferCodeItems(bundle, "")
 			if len(diags) != 0 || len(code) != 4 {
 				t.Fatalf("code inference: %+v %+v", code, diags)
@@ -41,8 +41,8 @@ func TestJavaScriptTestOnlyLinksDoNotImplement(t *testing.T) {
 			if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
 				t.Fatalf("checks: %+v %+v", checks, diags)
 			}
-			matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
-			if matrix.Summary.Implemented != 1 || matrix.Summary.Verified != 2 {
+			matrix := buildTraceMatrix(bundle, reqs, code, checks)
+			if matrix.Summary.Implemented != 1 {
 				t.Fatalf("test-only links counted as implementation: %+v", matrix)
 			}
 		})
@@ -60,7 +60,7 @@ func TestPythonTestOnlyLinksDoNotImplement(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"worker.py", "test_worker.py"}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, diags := codescan.InferCodeItems(bundle, "")
 	if len(diags) != 0 || len(code) != 4 {
 		t.Fatalf("code: %+v diagnostics: %+v", code, diags)
@@ -70,8 +70,8 @@ func TestPythonTestOnlyLinksDoNotImplement(t *testing.T) {
 	if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
 		t.Fatalf("checks: %+v %+v", checks, diags)
 	}
-	matrix := buildTraceMatrix(bundle, requirements, code, checks, nil)
-	if matrix.Summary.Implemented != 1 || matrix.Summary.Verified != 2 {
+	matrix := buildTraceMatrix(bundle, requirements, code, checks)
+	if matrix.Summary.Implemented != 1 {
 		t.Fatalf("test-only code credited: %+v", matrix)
 	}
 }
@@ -109,8 +109,8 @@ func TestVerilogExcludedSourcesAndVerification(t *testing.T) {
 	if len(diags) != 0 || len(checks) != 1 || len(checks[0].Verifies) != 2 || checks[0].Status != "not-run" {
 		t.Fatalf("bad verification inference: %+v %+v", checks, diags)
 	}
-	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
-	if matrix.Summary.Implemented != 1 || matrix.Summary.Verified != 2 {
+	matrix := buildTraceMatrix(bundle, reqs, code, checks)
+	if matrix.Summary.Implemented != 1 {
 		t.Fatalf("test-only links must not imply implementation: %+v", matrix)
 	}
 	roots := EffectiveCodeRoots(bundle, "")
@@ -126,7 +126,7 @@ func TestVerilogFileRootRespectsNestedModel(t *testing.T) {
 	if err := os.Mkdir(nested, 0700); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(nested, "engmod.yml"), []byte("schemaVersion: 2\n"), 0600); err != nil {
+	if err := os.WriteFile(filepath.Join(nested, "engmod.yml"), []byte("schemaVersion: 3\n"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	file := filepath.Join(nested, "capture.v")
@@ -158,7 +158,7 @@ func verificationFixture(t *testing.T, files map[string]string, reqIDs ...string
 	}
 	code, codeDiags := codescan.InferCodeItems(bundle, root)
 	checks, verDiags := codescan.InferVerificationChecks(bundle, reqs, code, root)
-	return buildTraceMatrix(bundle, reqs, code, checks, nil), checks, append(codeDiags, verDiags...)
+	return buildTraceMatrix(bundle, reqs, code, checks), checks, append(codeDiags, verDiags...)
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
@@ -214,7 +214,7 @@ func TestVerification_RustCfgTestHelpersDoNotVerifyOrImplement(t *testing.T) {
 	if got := helperLinkPaths(t, diags); !got["src/x.rs:10"] || len(got) != 1 {
 		t.Fatalf("expected one helper_link at src/x.rs:10, got %v (all %+v)", got, diags)
 	}
-	if m.Summary.Implemented != 1 || m.Summary.Tested != 1 || m.Summary.Verified != 1 || m.Summary.Passed != 0 {
+	if m.Summary.Implemented != 1 || m.Summary.Tested != 1 || m.Summary.Passed != 0 {
 		t.Fatalf("summary: %+v", m.Summary)
 	}
 	if r := rows["REQ-SIM-001"]; r.Result != "not-run" {
@@ -275,7 +275,7 @@ func TestVerification_ResultArtifactsDrivePassedAndRowResult(t *testing.T) {
 			t.Errorf("%s result = %q, want %q", id, rows[id].Result, want)
 		}
 	}
-	if m.Summary.Tested != 3 || m.Summary.Verified != 3 || m.Summary.Passed != 1 {
+	if m.Summary.Tested != 3 || m.Summary.Passed != 1 {
 		t.Fatalf("summary: %+v", m.Summary)
 	}
 }
@@ -353,7 +353,7 @@ func TestVerificationCodeUsesAbsoluteSourceContext(t *testing.T) {
 	if err := os.WriteFile(path, []byte("// ENGMODEL-OWNER-UNIT: FU-A\npackage fixture\n// TRLC-LINKS: REQ-TEST-001\nfunc helper() {}\n"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{path}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, diags := codescan.InferCodeItems(bundle, "")
 	if len(diags) != 0 || len(code) != 2 {
 		t.Fatalf("inference failed: %+v %+v", code, diags)
@@ -363,7 +363,7 @@ func TestVerificationCodeUsesAbsoluteSourceContext(t *testing.T) {
 			t.Fatalf("test file root context lost: %+v", item)
 		}
 	}
-	matrix := buildTraceMatrix(bundle, model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-TEST-001"}}}, code, nil, nil)
+	matrix := buildTraceMatrix(bundle, model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-TEST-001"}}}, code, nil)
 	if matrix.Summary.Implemented != 0 {
 		t.Fatalf("test-root helper credited as production: %+v", matrix)
 	}
@@ -455,11 +455,11 @@ func TestLong(t *testing.T) {
 	if err := os.WriteFile(filepath.Join(root, "other_test.go"), []byte(other), 0600); err != nil {
 		t.Fatal(err)
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"sim_test.go", "other_test.go"}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, _ := codescan.InferCodeItems(bundle, "")
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-G-001"}, {ID: "REQ-G-002"}, {ID: "REQ-G-003"}, {ID: "REQ-G-004"}}}
 	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
-	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
+	matrix := buildTraceMatrix(bundle, reqs, code, checks)
 	if matrix.Summary.TestLinked != 4 {
 		t.Fatalf("testLinked = %d, want 4 (gated tests stay test linked)", matrix.Summary.TestLinked)
 	}
@@ -520,7 +520,7 @@ func FuzzDecode(f *testing.F) {}
 			t.Fatal(err)
 		}
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"sim_test.go", "lib.rs", "other_test.go"}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, _ := codescan.InferCodeItems(bundle, "")
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{
 		{ID: "REQ-B-001", VerificationCriteria: "One sentence is encoded in under 50 microseconds."},
@@ -531,7 +531,7 @@ func FuzzDecode(f *testing.F) {}
 		{ID: "REQ-B-006", VerificationCriteria: "Parsing takes at most 2 ms."},
 	}}
 	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
-	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
+	matrix := buildTraceMatrix(bundle, reqs, code, checks)
 	rows := map[string]Row{}
 	for _, r := range matrix.Requirements {
 		rows[r.ID] = r
@@ -542,7 +542,7 @@ func FuzzDecode(f *testing.F) {}
 		}
 	}
 	var got []string
-	for _, d := range ValidateIntegrity(bundle, reqs, code, checks, nil) {
+	for _, d := range ValidateIntegrity(bundle, reqs, code, checks) {
 		if d.Code == "verification.benchmark_only" {
 			if d.Severity != validate.SeverityWarning || !strings.Contains(d.Message, "Test") {
 				t.Fatalf("diagnostic %+v", d)

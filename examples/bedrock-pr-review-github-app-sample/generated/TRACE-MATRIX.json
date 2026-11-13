@@ -113,9 +113,38 @@
       ],
       "verifications": [
         "VER-INF-E2E-PR_OPENED_REVIEW_FLOW-6BF0B5",
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
         "VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6"
       ],
       "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-PRR-005",
+          "machine": "SM-BEDROCK-PR-REVIEW",
+          "invariant": "INV-BEDROCK-NO-EARLY-PUBLICATION",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_bedrock_pr_review.qnt",
+          "qntSha256": "e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-BEDROCK-NO-EARLY-PUBLICATION of SM-BEDROCK-PR-REVIEW holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        },
+        {
+          "requirement": "REQ-PRR-005",
+          "machine": "SM-BEDROCK-PR-REVIEW",
+          "invariant": "INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_bedrock_pr_review.qnt",
+          "qntSha256": "e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED of SM-BEDROCK-PR-REVIEW holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
       "status": "implemented"
     },
     {
@@ -245,19 +274,15 @@
   "summary": {
     "requirements": 11,
     "implemented": 9,
-    "verified": 8,
     "tested": 8,
     "testLinked": 8,
     "passed": 7,
     "delegated": 0,
-    "delegatedImplemented": 0,
-    "delegatedTestLinked": 0,
     "orphan": 2,
     "danglingLinks": 0,
     "gatedOnly": 0,
     "linksNeedReview": 0,
     "linksVersionMismatch": 0,
-    "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 0,
     "unparented": 0

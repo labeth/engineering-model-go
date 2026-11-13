@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 catalog:
   systems:
   - id: SYS-ENGINEERING-MODEL-GO
@@ -75,6 +75,17 @@ catalog:
     definition: Generates SysML v2 model artifacts from the canonical semantic model and reports conformance coverage.
     aliases:
     - engsysml
+  - id: FU-CODE-HEALTH
+    name: code health
+    definition: Analyses source functions for maintainability smells, scores files with our own explainable model and checks
+      new or worsened findings against a base revision. It is not CodeScene Code Health.
+    aliases:
+    - enghealth
+  - id: FU-QUINT-EXPORTER
+    name: quint exporter
+    definition: Generates Quint specifications from behavior machines and runs or verifies them as formal evidence.
+    aliases:
+    - engquint
   - id: FU-NAF-EXPORTER
     name: naf exporter
     definition: Validates NATO Architecture Framework 4.1 profile metadata and generates NAF architecture products from canonical
@@ -105,7 +116,7 @@ catalog:
     - enggemara
   - id: FU-SYSTEM-COMPOSITION
     name: system composition
-    definition: Resolves downward subsystem references from local paths, external git repositories, or versioned CUE modules
+    definition: Resolves downward subsystem references from local paths, workspace replacements, or versioned CUE modules
       in OCI registries and composes a federated system-of-systems model.
     aliases:
     - composition
@@ -266,6 +277,11 @@ catalog:
     definition: Event indicating a validated requirements change should replace the canonical document.
     aliases:
     - requirements apply requested
+  - id: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+    name: requirements candidate is validated
+    definition: Event indicating the candidate requirements document built from a delta passed complete-model validation.
+    aliases:
+    - candidate validated
   - id: EVT-WORKSPACE-SYNC-REQUESTED
     name: workspace sync is requested
     definition: Event indicating a developer asked engws to rebuild the local multi-repository workspace or report its state.
@@ -306,11 +322,6 @@ catalog:
     definition: Event indicating a release gate asked engws whether a model may be released under a tag.
     aliases:
     - engws release-check requested
-  - id: EVT-LINK-MIGRATION-REQUESTED
-    name: link migration is requested
-    definition: Event indicating a developer asked engws to convert deprecated allocations and contract refs into requirement links.
-    aliases:
-    - engws migrate-links requested
   - id: EVT-LINK-ADD-REQUESTED
     name: link add is requested
     definition: Event indicating a developer asked engws to write a new claimed requirement link pinned to a dependency version.
@@ -337,6 +348,21 @@ catalog:
     definition: State where generated outputs reflect the latest authored model inputs.
     aliases:
     - up to date
+  - id: STATE-ARTIFACTS-STALE
+    name: generated artifacts are stale
+    definition: State where generated outputs no longer reflect the latest authored model inputs.
+    aliases:
+    - out of date
+  - id: STATE-ARTIFACTS-REGENERATING
+    name: generated artifacts are regenerating
+    definition: State where a generation run was requested and has not yet produced the artifacts.
+    aliases:
+    - regenerating
+  - id: STATE-LINK-ABSENT
+    name: requirement link is absent
+    definition: State where a requirement link is not recorded yet.
+    aliases:
+    - absent link
   - id: STATE-LINK-CLAIMED
     name: requirement link is claimed
     definition: State where a requirement link is recorded but not yet reviewed.
@@ -358,6 +384,36 @@ catalog:
     definition: State where the child item of a requirement link no longer exists.
     aliases:
     - broken link
+  - id: STATE-MCP-MODEL-CURRENT
+    name: mcp model is current
+    definition: State where the model held by a running MCP server equals the model files on disk.
+    aliases:
+    - current mcp model
+  - id: STATE-MCP-MODEL-OUTDATED
+    name: mcp model is outdated
+    definition: State where a model file changed after the MCP server loaded its model.
+    aliases:
+    - outdated mcp model
+  - id: STATE-DELTA-NONE
+    name: no requirements delta is pending
+    definition: State where no requirements delta is being processed and the requirements document is as authored.
+    aliases:
+    - no delta pending
+  - id: STATE-DELTA-PLANNING
+    name: requirements delta is being planned
+    definition: State where a received delta is being decoded, merged into a candidate and validated without writing.
+    aliases:
+    - delta planning
+  - id: STATE-DELTA-PLANNED
+    name: requirements delta is planned
+    definition: State where the candidate requirements document is valid and not yet written.
+    aliases:
+    - delta planned
+  - id: STATE-DELTA-APPLIED
+    name: requirements delta is applied
+    definition: State where a valid candidate atomically replaced the requirements document.
+    aliases:
+    - delta applied
   features:
   - id: FEAT-MCP-SERVER
     name: mcp server is enabled
@@ -402,7 +458,7 @@ catalog:
     - gemara generation
   - id: FEAT-SYSTEM-COMPOSITION
     name: system composition is enabled
-    definition: Feature enabling recursive composition of subsystem models from local paths, external git repositories, or
+    definition: Feature enabling recursive composition of subsystem models from local paths, workspace replacements, or
       CUE modules in OCI registries.
     aliases:
     - system of systems
@@ -489,16 +545,6 @@ catalog:
     aliases:
     - authoring manifest
     - input contract
-  - id: DATA-CATALOG-DOCUMENT
-    name: catalog document
-    definition: Canonical authored vocabulary YAML document used by strict requirement and model validation.
-    aliases:
-    - catalog yml
-  - id: DATA-DESIGN-DOCUMENT
-    name: design document
-    definition: Canonical authored design-view YAML document.
-    aliases:
-    - design yml
   - id: DATA-DECISIONS-DOCUMENT
     name: decisions document
     definition: Canonical authored architecture decision YAML document.
@@ -557,11 +603,6 @@ catalog:
     definition: Traceability report output generated from TRLC and test links.
     aliases:
     - lobster report
-  - id: DATA-OSCAL-SSP
-    name: oscal ssp artifact
-    definition: Generated OSCAL system security plan JSON output.
-    aliases:
-    - ssp json
   - id: DATA-ARCHITECTURE-DECISION-RECORDS
     name: architecture decision records document
     definition: Generated document containing authored architecture decision records.

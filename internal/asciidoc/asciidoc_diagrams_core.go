@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/codescan"
-	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/render/diagramstyle"
 	"github.com/labeth/engineering-model-go/internal/textutil"
@@ -21,7 +20,7 @@ func appendMermaidClassDefs(lines []string) []string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
-func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string, delegationsByReq map[string][]composition.MaterializedAllocation) string {
+func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[string]string) string {
 	lines := []string{"flowchart LR"}
 	for _, r := range reqs {
 		reqNode := "REQ_" + codescan.SanitizeNode(r.ID)
@@ -31,17 +30,6 @@ func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[strin
 			label := textutil.NonEmpty(labels[u], u)
 			lines = append(lines, "  "+target+"[\""+escapeMermaidLabel(label)+"\"]:::functional_unit")
 			lines = append(lines, "  "+reqNode+" --> "+target)
-		}
-		for _, d := range delegationsByReq[strings.TrimSpace(r.ID)] {
-			if d.TargetRef != "" {
-				node := "SUBREQ_" + codescan.SanitizeNode(d.Subsystem+"_"+d.TargetRef)
-				lines = append(lines, "  "+node+"[\""+escapeMermaidLabel(d.TargetRef+" — "+d.Subsystem)+"\"]:::referenced_element")
-				lines = append(lines, "  "+reqNode+" -->|delegates to| "+node)
-			} else if d.Target != "" {
-				node := "SUBCAP_" + codescan.SanitizeNode(d.Subsystem+"_"+d.Target)
-				lines = append(lines, "  "+node+"([\""+escapeMermaidLabel(d.Target+" — "+d.Subsystem)+"\"]):::referenced_element")
-				lines = append(lines, "  "+reqNode+" -->|delegates| "+node)
-			}
 		}
 	}
 	lines = appendMermaidClassDefs(lines)
@@ -595,7 +583,7 @@ func keysSortedStringSlices(m map[string][]string) []string {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
-func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []codescan.RuntimeItem, code []codescan.CodeItem, verification []codescan.VerificationCheck, labels map[string]string, delegationsByReq map[string][]composition.MaterializedAllocation) string {
+func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []codescan.RuntimeItem, code []codescan.CodeItem, verification []codescan.VerificationCheck, labels map[string]string) string {
 	// Stack the evidence chain to fit portrait publication pages.
 	lines := []string{`%%{init: {"flowchart": {"nodeSpacing": 70, "rankSpacing": 100}}}%%`, "flowchart TB"}
 	rtByOwner := map[string][]string{}
@@ -714,21 +702,6 @@ func buildRequirementCoverageMermaid(reqs []model.Requirement, runtime []codesca
 					lines = append(lines, "  "+fuNode+" -->|code evidence| "+cmNode)
 				}
 				lines = append(lines, "  "+reqNode+" -->|code trace| "+cmNode)
-			}
-		}
-		for _, d := range delegationsByReq[strings.TrimSpace(r.ID)] {
-			if d.TargetRef != "" {
-				node := "SUBREQ_" + codescan.SanitizeNode(d.Subsystem+"_"+d.TargetRef)
-				lines = append(lines, "  "+node+"[\""+escapeMermaidLabel(d.TargetRef+" — "+d.Subsystem)+"\"]:::referenced_element")
-				edge := "delegates to"
-				if !d.TargetRefResolved {
-					edge = "delegates to (unresolved)"
-				}
-				lines = append(lines, "  "+reqNode+" -->|"+edge+"| "+node)
-			} else if d.Target != "" {
-				node := "SUBCAP_" + codescan.SanitizeNode(d.Subsystem+"_"+d.Target)
-				lines = append(lines, "  "+node+"([\""+escapeMermaidLabel(d.Target+" — "+d.Subsystem)+"\"]):::referenced_element")
-				lines = append(lines, "  "+reqNode+" -->|delegates (no specific requirement)| "+node)
 			}
 		}
 		allVerificationCode := []string{}

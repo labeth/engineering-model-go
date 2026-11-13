@@ -318,7 +318,7 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 				bundle.Architecture.AuthoredArchitecture.HardwareInterfaces = append(bundle.Architecture.AuthoredArchitecture.HardwareInterfaces, value)
 			}
 		case model.ContractEntry:
-			value.ID, value.Ref = q, entity.qualify(value.Ref)
+			value.ID, value.Ref = q, ""
 			if projectionContractRequires(entity) {
 				bundle.Architecture.Contract.Requires = append(bundle.Architecture.Contract.Requires, value)
 			} else {
@@ -327,10 +327,9 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 		case model.ContractAssumption:
 			value.ID = q
 			bundle.Architecture.Contract.Assumptions = append(bundle.Architecture.Contract.Assumptions, value)
-		case model.State:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.States = append(bundle.Architecture.AuthoredArchitecture.States, value)
-			bundle.Behavior.Behavior.States = append(bundle.Behavior.Behavior.States, value)
+		case model.MachineState, model.Machine:
+			// A machine is not merged into the importing model: its states,
+			// transitions and expressions belong to the publishing model.
 		case model.Event:
 			value.ID = q
 			bundle.Architecture.AuthoredArchitecture.Events = append(bundle.Architecture.AuthoredArchitecture.Events, value)

@@ -2,8 +2,7 @@
 package asciidoc
 
 // Renders a "System Composition & Hardware" chapter: hardware items and interfaces,
-// referenced subsystems, the requirement allocation matrix materialized across the
-// composed system-of-systems, a hardware/software interface view, and findings.
+// referenced subsystems, a hardware/software interface view, and findings.
 
 import (
 	"fmt"
@@ -43,7 +42,7 @@ func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res composition.Co
 	var b strings.Builder
 	b.WriteString("\n<<<\n== System Composition & Hardware\n\n")
 	b.WriteString("This chapter shows the system architecture across hardware and software: hardware items and their ")
-	b.WriteString("interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. ")
+	b.WriteString("interfaces and the subsystems this system composes. ")
 	b.WriteString("Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.\n\n")
 
 	if len(a.HardwareItems) > 0 {
@@ -90,28 +89,6 @@ func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res composition.Co
 
 	renderPublishedProjectionTables(&b, composition.BuildCompositionProjection(res))
 
-	if len(res.Allocations) > 0 {
-		b.WriteString("=== Requirement Allocation Matrix\n\n[cols=\"2,2,2,1\",options=\"header\"]\n|===\n|Requirement |Subsystem |Target |Resolved\n")
-		for _, m := range res.Allocations {
-			mark := "yes"
-			if !m.Resolved {
-				mark = "NO — " + m.Note
-			}
-
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n",
-				escapeTableCell(m.Requirement), escapeTableCell(m.Subsystem), escapeTableCell(m.Target), escapeTableCell(mark)))
-		}
-		b.WriteString("|===\n\n")
-		if mmd := compositionDelegationMermaid(bundle, res); mmd != "" {
-			b.WriteString("==== Requirement Delegation View\n\n")
-			b.WriteString("Each delegated requirement of this system links downward to the subsystem contract it binds. ")
-			b.WriteString("Requirements not shown here carry no delegation link and are implemented in this system.\n\n")
-			b.WriteString("[source,mermaid]\n----\n")
-			b.WriteString(mmd)
-			b.WriteString("\n----\n\n")
-		}
-	}
-
 	var findings []validate.Diagnostic
 	for _, d := range res.Diagnostics {
 		if strings.HasPrefix(d.Code, "composition.") {
@@ -125,7 +102,7 @@ func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res composition.Co
 		}
 		b.WriteString("|===\n\n")
 	} else {
-		b.WriteString("All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.\n\n")
+		b.WriteString("All subsystem required interfaces are satisfied.\n\n")
 	}
 
 	return b.String()
@@ -211,93 +188,6 @@ func compositionHardwareMermaid(bundle model.Bundle) string {
 	}
 	for _, hi := range a.HardwareInterfaces {
 		b.WriteString(fmt.Sprintf("\n  %s -->|%s| %s", mermaidID(hi.From), mermaidLabel(textutil.Fallback(hi.BusType, "link")), mermaidID(hi.To)))
-	}
-	return b.String()
-}
-
-// compositionDelegationMermaid renders this system's delegated requirements on the
-// left and each subsystem's bound contract target on the right, with one edge per
-// allocation. It makes the downward delegation links visible as a graph, not only a
-// table; requirements with no edge are implemented in this system.
-// TRLC-LINKS: REQ-EMG-025, REQ-EMG-026
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, FU-VIEW-PROJECTION
-func compositionDelegationMermaid(bundle model.Bundle, res composition.CompositionResult) string {
-	if len(res.Allocations) == 0 {
-		return ""
-	}
-	subName := map[string]string{}
-	for _, sub := range bundle.Architecture.Composition.Subsystems {
-		subName[sub.ID] = textutil.Fallback(sub.Name, sub.ID)
-	}
-	// The delegation resolves to the specific subsystem requirement (contract ref)
-	// when one is declared, so the reader sees exactly what satisfies it; otherwise
-	// it falls back to the published contract target.
-	targetKey := func(m composition.MaterializedAllocation) string {
-		if m.TargetRef != "" {
-			return m.TargetRef
-		}
-		return m.Target
-	}
-	targetNode := func(m composition.MaterializedAllocation) string { return mermaidID(m.Subsystem + "__" + targetKey(m)) }
-	targetLabel := func(m composition.MaterializedAllocation) string {
-		if m.TargetRef != "" {
-			return m.TargetRef + " (" + m.Target + ")"
-		}
-		return m.Target
-	}
-
-	var b strings.Builder
-	b.WriteString("flowchart LR")
-
-	// This system's delegated requirements.
-	title := textutil.Fallback(bundle.Architecture.Model.Title, textutil.Fallback(bundle.Architecture.Model.ID, "This System"))
-	b.WriteString(fmt.Sprintf("\n  subgraph SYS[\"%s\"]", mermaidLabel(title)))
-	seenReq := map[string]bool{}
-	for _, m := range res.Allocations {
-		if !seenReq[m.Requirement] {
-			seenReq[m.Requirement] = true
-			b.WriteString(fmt.Sprintf("\n    %s[\"%s\"]", mermaidID(m.Requirement), mermaidLabel(m.Requirement)))
-		}
-	}
-	b.WriteString("\n  end")
-
-	// Each subsystem's bound contract targets.
-	var subOrder []string
-	subSeen := map[string]bool{}
-	for _, m := range res.Allocations {
-		if !subSeen[m.Subsystem] {
-			subSeen[m.Subsystem] = true
-			subOrder = append(subOrder, m.Subsystem)
-		}
-	}
-	targetSeen := map[string]bool{}
-	for _, sub := range subOrder {
-		b.WriteString(fmt.Sprintf("\n  subgraph %s[\"%s\"]", mermaidID(sub), mermaidLabel(textutil.Fallback(subName[sub], sub))))
-		for _, m := range res.Allocations {
-			if m.Subsystem != sub {
-				continue
-			}
-			node := targetNode(m)
-			if targetSeen[node] {
-				continue
-			}
-			targetSeen[node] = true
-			b.WriteString(fmt.Sprintf("\n    %s([\"%s\"])", node, mermaidLabel(targetLabel(m))))
-		}
-		b.WriteString("\n  end")
-	}
-
-	// Downward delegation edges to the specific requirement that satisfies each one.
-	for _, m := range res.Allocations {
-		label := "delegates to"
-		if !m.Resolved {
-			label = "unresolved"
-		} else if m.TargetRef == "" {
-			label = "delegates (no specific requirement)"
-		} else if !m.TargetRefResolved {
-			label = "delegates to (unresolved)"
-		}
-		b.WriteString(fmt.Sprintf("\n  %s -->|%s| %s", mermaidID(m.Requirement), mermaidLabel(label), targetNode(m)))
 	}
 	return b.String()
 }

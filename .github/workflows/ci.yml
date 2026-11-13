@@ -6,6 +6,9 @@ on:
     tags: ["v*"]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -79,13 +82,85 @@ jobs:
       - name: Install pinned SysML validator and Sysand
         run: scripts/install-sysml-toolchain.sh
 
+      - name: Cache pinned Quint toolchain
+        uses: actions/cache@v4
+        with:
+          path: .engmod/tooling/downloads
+          key: quint-tools-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('scripts/quint-toolchain.env', 'scripts/install-quint-toolchain.sh', 'scripts/quint-tool/package-lock.json') }}
+
+      - name: Install pinned Quint and Apalache
+        # quint comes from the lockfile with --ignore-scripts; Apalache is a
+        # sha256-checked tarball unpacked where Quint looks for it, so `quint
+        # verify` never downloads at run time (ADR-EMG-041).
+        run: scripts/install-quint-toolchain.sh
+
+      - name: Quint tests against the pinned tools
+        # The tests that run the real quint (run and verify mode) skip unless
+        # ENGMOD_QUINT and QUINT_HOME are set, so the test job alone would pass
+        # without exercising them.
+        env:
+          ENGMOD_QUINT: ${{ github.workspace }}/.engmod/tooling/quint/node_modules/.bin/quint
+          QUINT_HOME: ${{ github.workspace }}/.engmod/tooling/quint-home
+        run: go test -count=1 ./internal/export/quint/... ./cmd/engquint/...
+
       - name: Validation gauntlet
         # Enforces the generation gates (engdoc 0 errors = trace integrity, dangling
         # links, EARS, composition), zero-gap SysML coverage, official parser and
-        # native KPAR source round trip, artifact freshness, and schema validation.
+        # native KPAR source round trip, artifact freshness, formal behavior
+        # verification (engquint check: run and verify), and schema validation.
+        env:
+          ENGMOD_QUINT: ${{ github.workspace }}/.engmod/tooling/quint/node_modules/.bin/quint
+          QUINT_HOME: ${{ github.workspace }}/.engmod/tooling/quint-home
         run: |
           export PATH="$PATH:$(go env GOPATH)/bin"
           scripts/validate-all.sh
+
+  health:
+    # The code health gate of this repository's own model (ADR-EMG-051,
+    # ADR-EMG-059): the scan fails on any finding that is an error at the tier
+    # of engmod.yml, and the delta check fails on a regression or on a
+    # weakening of the policy (limits, excludes, tier, bundles, lint and
+    # requirement link strictness, POA&M defers, tier and health decisions,
+    # a growing baseline) against the base revision, unless an accepted
+    # policyDecision records it. The base policy is read from the merge-base,
+    # so the checkout needs the whole history.
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build enghealth
+        run: go build -o "${RUNNER_TEMP}/enghealth" ./cmd/enghealth
+
+      - name: Code health scan
+        run: |
+          "${RUNNER_TEMP}/enghealth" scan --model engmod.yml --fail-on-error
+
+      - name: Code health check against the target branch
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          "${RUNNER_TEMP}/enghealth" check --model engmod.yml --base "origin/${BASE_REF}"
+
+      - name: Code health check against the previous commit
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          if [ -n "${BEFORE_SHA//0/}" ] && git cat-file -e "${BEFORE_SHA}^{commit}" 2>/dev/null; then
+            "${RUNNER_TEMP}/enghealth" check --model engmod.yml --base "${BEFORE_SHA}" --head HEAD
+          else
+            echo "skip: no previous commit to compare with (new branch or history rewritten); the pull request run checked this change"
+          fi
 
   release-check:
     # A release tag is gated on the model's own release rules: no dependency

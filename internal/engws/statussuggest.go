@@ -65,6 +65,7 @@ type StatusSuggestion struct {
 // keep it at its status.
 // TRLC-LINKS: REQ-EMG-122
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-MODEL-STATUS-SUGGEST
 func SuggestStatus(repo, tree string) (StatusSuggestion, error) {
 	manifest := filepath.Join(repo, "engmod.yml")
 	bundle, err := model.LoadBundle(manifest)
@@ -246,6 +247,7 @@ func gitTextEnv(dir string, env []string, args ...string) (string, error) {
 
 // runStatusSuggest prints the suggestion as tables or JSON.
 // TRLC-LINKS: REQ-EMG-122
+// ENGMODEL-LINKS: EVT-STATUS-SUGGEST-REQUESTED
 func runStatusSuggest(repo, tree string, asJSON bool, w io.Writer) (int, error) {
 	s, err := SuggestStatus(repo, tree)
 	if err != nil {

@@ -131,7 +131,7 @@ func TestUsedByIncludesTheWorkspaceRootModel(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	system := filepath.Join(root, "repos", "system")
 	work := filepath.Join(system, model.WorkspaceFileName)
-	testutil.WriteFile(t, work, "schemaVersion: 2\nreplacements:\n- module: models.example/reqlinks/child-a@v0\n  path: ../child-a\n")
+	testutil.WriteFile(t, work, "schemaVersion: 3\nreplacements:\n- module: models.example/reqlinks/child-a@v0\n  path: ../child-a\n")
 	bundle, err := model.LoadBundle(filepath.Join(root, "repos", "child-a", "engmod.yml"))
 	if err != nil {
 		t.Fatal(err)

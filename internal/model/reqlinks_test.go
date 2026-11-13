@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-const reqLinksFixture = `schemaVersion: 2
+const reqLinksFixture = `schemaVersion: 3
 reqLinks:
   - id: LNK-A
     parent: REQ-A
@@ -43,8 +43,8 @@ func writeReqLinksFixture(t *testing.T, mode, links string) string {
 
 // The manifest's requirementLinks, documents.reqLinks, a requirement's
 // realizes and contract.assumptions load strictly; a pseudo-version pin is
-// accepted, and pinned.fingerprint is optional (deprecated, D23) and loads
-// when present.
+// accepted, and pinned.fingerprint (removed, ADR-EMG-075) still loads when
+// present, so validation can report model.pinned_fingerprint_removed.
 // TRLC-LINKS: REQ-EMG-090, REQ-EMG-091, REQ-EMG-094
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
@@ -77,7 +77,7 @@ func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
 
 // Without requirementLinks the mode is guided; an unknown value, an unknown
 // link field, an unknown link status and a pin without version are rejected
-// at load; a deprecated fingerprint of any form loads (it is ignored).
+// at load; a removed fingerprint of any form still loads (validation reports it).
 // TRLC-LINKS: REQ-EMG-090, REQ-EMG-094
 // ENGMODEL-LINKS: FU-MODEL-LOADER
 func TestRequirementLinkModelIsStrictlyDecoded(t *testing.T) {

@@ -1,0 +1,19 @@
+schemaVersion: 3
+catalog:
+  systems:
+  - id: SYS-PAYMENTS
+    name: payment service
+    definition: Service that authorizes card payments.
+    aliases:
+    - the payment service
+  events:
+  - id: EVT-PAYMENTS-AUTH-REQUESTED
+    name: authorization is requested
+    definition: Raised when a payment authorization is requested.
+    aliases:
+    - authorization request
+  - id: EVT-PAYMENTS-AUTH-GRANTED
+    name: authorization is granted
+    definition: Raised when the issuer grants the authorization.
+    aliases:
+    - authorization grant

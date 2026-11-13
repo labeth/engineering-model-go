@@ -35,6 +35,7 @@ func (v *viewFlags) Set(value string) error {
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-009, REQ-EMG-014, REQ-EMG-063, REQ-EMG-064
 // ENGMODEL-LINKS: IF-CLI-ENGDOC, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-CLI-ORCHESTRATION, FU-ASCIIDOC-GENERATOR, FU-VIEW-PROJECTION, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
+// ENGMODEL-LINKS: TR-ARTIFACTS-GENERATION-RUN, TR-ARTIFACTS-GENERATION-BLOCKED, TR-ARTIFACTS-VALIDATED, TR-ARTIFACTS-REGENERATED, EVT-VALIDATION-PASSED
 func main() {
 	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	reqPath := flag.String("requirements", "", "path to requirements YAML")
@@ -99,10 +100,6 @@ func main() {
 // ENGMODEL-LINKS: IF-CLI-ENGDOC, FU-CLI-ORCHESTRATION, FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 func printDiagnostics(diags []validate.Diagnostic) {
 	for _, d := range diags {
-		fmt.Fprintf(os.Stderr, "%s [%s] %s", d.Code, d.Severity, d.Message)
-		if strings.TrimSpace(d.Path) != "" {
-			fmt.Fprintf(os.Stderr, " (%s)", d.Path)
-		}
-		fmt.Fprintln(os.Stderr)
+		validate.WriteDiagnostic(os.Stderr, d)
 	}
 }

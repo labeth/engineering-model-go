@@ -8,6 +8,13 @@
           },
           "title": "Control Catalog",
           "uuid": "a20aa6a5-de9a-54cf-b96e-bee347f74d12"
+        },
+        {
+          "citation": {
+            "text": "*Requirements*. "
+          },
+          "title": "Requirements",
+          "uuid": "b77ee729-d807-5248-b702-4b29e23a4464"
         }
       ]
     },
@@ -133,6 +140,18 @@
               "start": "2026-09-19T00:00:00Z",
               "title": "telemetry::CTRL-TELEM-INTEGRITY / telemetry::VER-TELEM-INTEGRITY",
               "uuid": "52015fef-771d-5f40-889a-d2c2fa62e9dc"
+            },
+            {
+              "description": "Assessment of REQ-COF-003 via analysis: Quint invariant INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT of machine SM-COFFEE-OTA-ROLLOUT.",
+              "logged-by": [
+                {
+                  "party-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                  "role-id": "assessor"
+                }
+              ],
+              "start": "2026-09-19T00:00:00Z",
+              "title": "REQ-COF-003 / INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT",
+              "uuid": "795a1a36-c872-5bba-9b57-db672d53a8b9"
             }
           ]
         },
@@ -284,6 +303,34 @@
             },
             "title": "Telemetry Integrity",
             "uuid": "a23d9358-a0f9-5516-97ad-712d96348ade"
+          },
+          {
+            "description": "1 formal result(s) recorded for requirement REQ-COF-003.",
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "related-observations": [
+              {
+                "observation-uuid": "1079c971-e8ed-543f-8569-b525b7fb2c54"
+              }
+            ],
+            "target": {
+              "status": {
+                "state": "satisfied"
+              },
+              "target-id": "req-cof-003",
+              "type": "objective-id"
+            },
+            "title": "Formal verification of REQ-COF-003",
+            "uuid": "303dcc1a-9646-5e55-8dfd-25dce9b3297d"
           }
         ],
         "local-definitions": {
@@ -558,6 +605,42 @@
               }
             ],
             "uuid": "dfd74a97-a6d3-5f2a-8468-a57d1286d0e6"
+          },
+          {
+            "collected": "2026-09-19T00:00:00Z",
+            "description": "Assessment of REQ-COF-003 via analysis: Quint invariant INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT of machine SM-COFFEE-OTA-ROLLOUT.",
+            "methods": [
+              "EXAMINE"
+            ],
+            "origins": [
+              {
+                "actors": [
+                  {
+                    "actor-uuid": "7cc881c8-b0e5-57e2-b89a-3a81258853f9",
+                    "role-id": "assessor",
+                    "type": "tool"
+                  }
+                ]
+              }
+            ],
+            "props": [
+              {
+                "name": "result",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "Passed"
+              },
+              {
+                "name": "requirement-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT"
+              },
+              {
+                "name": "control-id",
+                "ns": "https://github.com/gemaraproj/go-gemara/ns/oscal",
+                "value": "REQ-COF-003"
+              }
+            ],
+            "uuid": "1079c971-e8ed-543f-8569-b525b7fb2c54"
           }
         ],
         "props": [
@@ -585,6 +668,9 @@
                 },
                 {
                   "control-id": "telemetry-ctrl-telem-integrity"
+                },
+                {
+                  "control-id": "req-cof-003"
                 }
               ]
             }

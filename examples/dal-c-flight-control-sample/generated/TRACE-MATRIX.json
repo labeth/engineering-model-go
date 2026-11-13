@@ -7,7 +7,10 @@
       "units": [
         "FU-YAW-CONTROL"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-YAW-DAMPING"
+      ]
     },
     {
       "id": "REQ-YD-LLR-001",
@@ -23,7 +26,10 @@
       "units": [
         "FU-YAW-CONTROL"
       ],
-      "status": "orphan"
+      "status": "orphan",
+      "parents": [
+        "CAP-YAW-DAMPING"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -35,19 +41,15 @@
   "summary": {
     "requirements": 3,
     "implemented": 0,
-    "verified": 0,
     "tested": 0,
     "testLinked": 0,
     "passed": 0,
     "delegated": 0,
-    "delegatedImplemented": 0,
-    "delegatedTestLinked": 0,
     "orphan": 3,
     "danglingLinks": 0,
     "gatedOnly": 0,
     "linksNeedReview": 0,
     "linksVersionMismatch": 0,
-    "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 0,
     "unparented": 0

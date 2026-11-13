@@ -141,7 +141,7 @@ func firstLine(text string) string {
 // TRLC-LINKS: REQ-EMG-068
 func renderWorkFile(local []Entry) string {
 	var b strings.Builder
-	b.WriteString("# " + generatedHeader + "\nschemaVersion: 2\n")
+	b.WriteString("# " + generatedHeader + "\n" + model.SchemaVersionLine + "\n")
 	if len(local) == 0 {
 		b.WriteString("replacements: []\n")
 		return b.String()

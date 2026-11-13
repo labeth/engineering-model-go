@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 reqLinks:
 - id: LNK-COF-001-TELEMETRY
   parent: REQ-COF-001

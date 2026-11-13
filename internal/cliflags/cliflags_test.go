@@ -61,7 +61,7 @@ func TestWorkspaceOffSetsEnvironment(t *testing.T) {
 func TestWorkspacePathIsExportedAbsolute(t *testing.T) {
 	dir := t.TempDir()
 	work := filepath.Join(dir, "engmod.work.yml")
-	if err := os.WriteFile(work, []byte("schemaVersion: 2\nreplacements: []\n"), 0o644); err != nil {
+	if err := os.WriteFile(work, []byte("schemaVersion: 3\nreplacements: []\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	t.Chdir(dir)

@@ -1,0 +1,20 @@
+{
+  "schema": "engmod-formal-evidence/1",
+  "tool": "quint",
+  "quintVersion": "0.33.1",
+  "backend": "typescript",
+  "results": [
+    {
+      "requirement": "REQ-COF-003",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-COFFEE-OTA-ROLLOUT",
+      "invariant": "INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_coffee_ota_rollout.qnt",
+      "qntSha256": "bb7d701984d0d2b19f86dbda99eb09ca665e466030a8bd0d21a7238eefccf333",
+      "notes": "INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT of SM-COFFEE-OTA-ROLLOUT holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    }
+  ]
+}

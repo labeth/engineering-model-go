@@ -43,9 +43,22 @@ var layerRules = map[string][]string{
 	"internal/generate":            {"internal/codescan", "internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view", "internal/render/*"},
 	"internal/export/*": {"internal/export/*", "internal/codescan", "internal/composition", "internal/codemap", "internal/model",
 		"internal/validate", "internal/textutil", "internal/view", "internal/sysmlmetamodel"},
+	// The Quint check runner builds on the Quint generator and the shared tool
+	// lookup only; it reads no trace or scan package (the evidence file is the
+	// contract with internal/codescan, which must not import internal/export).
+	"internal/export/quint/check": {"internal/export/quint", "internal/export/exportutil", "internal/model"},
 	"internal/asciidoc": {"internal/export/*", "internal/generate", "internal/reqlint", "internal/trace", "internal/reqlinks", "internal/codescan",
 		"internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil", "internal/view",
 		"internal/render/*"},
+	// The code health data model and the engines behind it: the engines read
+	// source through codemap and fill the types of internal/health; internal/health
+	// itself never imports an engine.
+	"internal/health":                   {"internal/codescan", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
+	"internal/health/engine/treesitter": {"internal/health", "internal/codescan", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
+	// The scan pipeline picks and constructs the engine, so it sits above both:
+	// it is the one package that imports the tree-sitter engine and the code
+	// scope of the other tools.
+	"internal/health/scan": {"internal/health", "internal/health/engine/treesitter", "internal/codescan", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
 	// Test-only package for cross-package end-to-end tests; its tests may
 	// also drive the public facade and the MCP server.
 	"internal/integration": {},

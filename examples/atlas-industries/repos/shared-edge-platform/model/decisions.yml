@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 decisions:
 - id: ADR-EDGE-001
   title: Standardize the rugged edge compute boundary
@@ -8,3 +8,15 @@ decisions:
   decision: Publish the hardware and signed runtime as one reusable model module.
   consequences:
   - Products inherit a consistent edge trust boundary.
+- id: DEC-TIER-MVP
+  title: shared edge platform runs at the mvp tier with the foundation bundle
+  status: accepted
+  date: 2026-11-12
+  context: The example is a complete model at one stated tier so that the required lifecycle switches (ADR-EMG-061) are met and its generated artifacts show the diagnostics of that tier.
+  decision: |-
+    Tier: MVP
+    Bundles: foundation
+    The example declares lifecycle tier mvp with requirementLinks strict and lintRun mode strict.
+  consequences:
+  - The strict requirement link rules apply from the mvp tier.
+  - The tier rules of mvp key the severity of the example's findings.

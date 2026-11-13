@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/codescan"
-	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/testutil"
 	"github.com/labeth/engineering-model-go/internal/validate"
@@ -29,7 +28,7 @@ func TestTraceIntegrityFlagsDanglingLinks(t *testing.T) {
 		{Element: "bad", Source: "b.go:2", Implements: []string{"REQ-X-999"}, ModelLinks: []string{"FU-GHOST"}},
 	}
 	gotReq, gotModel := false, false
-	for _, d := range ValidateIntegrity(bundle, reqs, code, nil, nil) {
+	for _, d := range ValidateIntegrity(bundle, reqs, code, nil) {
 		if d.Code == "code.dangling_requirement_link" && d.Severity == validate.SeverityError {
 			gotReq = true
 		}
@@ -50,7 +49,7 @@ func TestTraceIntegrityFlagsOrphan(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}}}
 	code := []codescan.CodeItem{{Element: "c", Source: "a.go:1", Implements: []string{"REQ-X-001"}}}
 	orphan := map[string]bool{}
-	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, code, nil, nil) {
+	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, code, nil) {
 		if d.Code == "requirement.orphan" {
 			for _, r := range []string{"REQ-X-001", "REQ-X-002"} {
 				if strings.Contains(d.Message, r) {
@@ -67,45 +66,32 @@ func TestTraceIntegrityFlagsOrphan(t *testing.T) {
 	}
 }
 
-// TestTraceIntegrityDelegationCoversOrphan verifies a delegated requirement is not orphan
-// even with no local code or verification.
-// TRLC-LINKS: REQ-EMG-029
+// TestBuildTraceMatrixStatus verifies row status in the matrix: code gives
+// implemented, nothing gives orphan, and no row is delegated by an allocation
+// (ADR-EMG-078: requirement links are the only trace to another model).
+// Mutation: giving the unlinked requirement the status delegated, or counting
+// it in Summary.Delegated, fails this test.
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-187
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func TestTraceIntegrityDelegationCoversOrphan(t *testing.T) {
-	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}}}
-	deleg := map[string][]composition.MaterializedAllocation{"REQ-X-001": {{Requirement: "REQ-X-001", Subsystem: "SUB", Target: "CAP"}}}
-	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, nil, nil, deleg) {
-		if d.Code == "requirement.orphan" {
-			t.Fatalf("delegated requirement must not be orphan: %s", d.Message)
-		}
-	}
-}
-
-// TestBuildTraceMatrixStatusAndDelegation verifies row status and the delegation link in
-// the matrix.
-// TRLC-LINKS: REQ-EMG-030
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func TestBuildTraceMatrixStatusAndDelegation(t *testing.T) {
+func TestBuildTraceMatrixStatus(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{
 		{ID: "REQ-X-001", AppliesTo: []string{"FU-A"}},
 		{ID: "REQ-X-002"},
 	}}
 	code := []codescan.CodeItem{{Element: "impl", Source: "a.go:5", Implements: []string{"REQ-X-001"}}}
-	deleg := map[string][]composition.MaterializedAllocation{"REQ-X-002": {{Requirement: "REQ-X-002", Subsystem: "SUB-T", Target: "CAP-T", TargetRef: "REQ-T-001"}}}
-	m := buildTraceMatrix(model.Bundle{}, reqs, code, nil, deleg)
-	if m.Summary.Requirements != 2 || m.Summary.Implemented != 1 || m.Summary.Delegated != 1 {
+	m := buildTraceMatrix(model.Bundle{}, reqs, code, nil)
+	if got := [4]int{m.Summary.Requirements, m.Summary.Implemented, m.Summary.Orphan, m.Summary.Delegated}; got != [4]int{2, 1, 1, 0} {
 		t.Fatalf("unexpected summary: %+v", m.Summary)
 	}
-	byID := map[string]Row{}
+	statuses := map[string]string{}
 	for _, r := range m.Requirements {
-		byID[r.ID] = r
+		statuses[r.ID] = r.Status
 	}
-	if byID["REQ-X-001"].Status != "implemented" || len(byID["REQ-X-001"].Code) != 1 {
-		t.Fatalf("REQ-X-001 should be implemented with code: %+v", byID["REQ-X-001"])
+	if statuses["REQ-X-001"] != "implemented" || len(m.Requirements[0].Code) != 1 {
+		t.Fatalf("REQ-X-001 should be implemented with code: %+v", m.Requirements[0])
 	}
-	d := byID["REQ-X-002"]
-	if d.Status != "delegated" || d.DelegatedTo == nil || d.DelegatedTo.TargetRequirement != "REQ-T-001" {
-		t.Fatalf("REQ-X-002 should be delegated to REQ-T-001: %+v", d)
+	if statuses["REQ-X-002"] != "orphan" {
+		t.Fatalf("REQ-X-002 has no trace and should be orphan: %+v", m.Requirements[1])
 	}
 }
 
@@ -133,13 +119,14 @@ func TestScopeCodeExcludesNestedModel(t *testing.T) {
 }
 
 // TestTraceSummaryJSONReportsTestLinked verifies the summary serializes
-// testLinked (equal to tested) and keeps verified as a deprecated alias.
-// TRLC-LINKS: REQ-EMG-030, REQ-EMG-061
+// testLinked (equal to tested) and carries no verified or linksSuspect key
+// (ADR-EMG-073).
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-061, REQ-EMG-182
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}}}
 	checks := []codescan.VerificationCheck{{ID: "VC-X", Name: "TestX", Verifies: []string{"REQ-X-001"}}}
-	m := buildTraceMatrix(model.Bundle{}, reqs, nil, checks, nil)
+	m := buildTraceMatrix(model.Bundle{}, reqs, nil, checks)
 	raw, err := json.Marshal(m.Summary)
 	if err != nil {
 		t.Fatal(err)
@@ -148,10 +135,16 @@ func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
 	if err := json.Unmarshal(raw, &got); err != nil {
 		t.Fatal(err)
 	}
-	for _, key := range []string{"testLinked", "tested", "verified"} {
+	for _, key := range []string{"testLinked", "tested"} {
 		if got[key] != float64(1) {
 			t.Fatalf("summary %s = %v, want 1 (%s)", key, got[key], raw)
 		}
+	}
+	if _, present := got["verified"]; present {
+		t.Fatalf("summary must not carry the removed counter verified: %s", raw)
+	}
+	if _, present := got["linksSuspect"]; present {
+		t.Fatalf("summary must not carry the removed counter linksSuspect: %s", raw)
 	}
 }
 
@@ -171,7 +164,7 @@ func TestTraceTierVerificationRules(t *testing.T) {
 	}
 	with := model.Bundle{Manifest: model.ManifestDocument{Lifecycle: &model.ManifestLifecycle{Tier: "product"}}}
 	got := map[string]string{}
-	for _, d := range ValidateIntegrity(with, reqs, nil, verification, nil) {
+	for _, d := range ValidateIntegrity(with, reqs, nil, verification) {
 		if d.Code == "verification.failed" || d.Code == "verification.gated_only" {
 			got[d.Code] += d.Path + ";"
 		}
@@ -179,7 +172,7 @@ func TestTraceTierVerificationRules(t *testing.T) {
 	if got["verification.failed"] != "requirements[0];" || got["verification.gated_only"] != "requirements[1];" {
 		t.Fatalf("got %v", got)
 	}
-	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, nil, verification, nil) {
+	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, nil, verification) {
 		if d.Code == "verification.failed" || d.Code == "verification.gated_only" {
 			t.Fatalf("without lifecycle: %+v", d)
 		}

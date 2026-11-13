@@ -29,9 +29,9 @@ func TestModelDiagnoseChecksSubmittedQualifiedReferences(t *testing.T) {
 		t.Fatal(err)
 	}
 	writeMCPFile(t, childManifest, strings.Replace(string(data), "[FU-CHILD-UNIT, CAP-CHILD]", "[FG-CHILD, FU-CHILD-UNIT, CAP-CHILD]", 1))
-	writeMCPFile(t, filepath.Join(parent, "model", "catalog.yml"), "schemaVersion: 2\ncatalog:\n  systems:\n    - id: SYS-PARENT\n      name: parent system\n      definition: Test system.\n")
+	writeMCPFile(t, filepath.Join(parent, "model", "catalog.yml"), "schemaVersion: 3\ncatalog:\n  systems:\n    - id: SYS-PARENT\n      name: parent system\n      definition: Test system.\n")
 	requirementsPath := filepath.Join(parent, "model", "requirements.yml")
-	good := "schemaVersion: 2\nlintRun: {mode: strict, catalogRef: ./catalog.yml}\nrequirements:\n  - id: REQ-PARENT\n    text: 'The parent system shall publish one message.'\n    appliesTo: [child::FU-CHILD-UNIT]\n"
+	good := "schemaVersion: 3\nlintRun: {mode: strict, catalogRef: ./catalog.yml}\nrequirements:\n  - id: REQ-PARENT\n    text: 'The parent system shall publish one message.'\n    appliesTo: [child::FU-CHILD-UNIT]\n"
 	bad := strings.Replace(good, "child::FU-CHILD-UNIT", "child::FU-NOPE", 1)
 	writeMCPFile(t, requirementsPath, good)
 	s := initializedServerAt(t, parent)

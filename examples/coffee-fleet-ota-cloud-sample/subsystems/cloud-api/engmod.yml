@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/coffee-fleet/cloud-api@v0
   version: v0.1.0
@@ -37,3 +37,9 @@ publications:
   - REQ-CLOUD-001
   - REQ-CLOUD-002
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

@@ -3,16 +3,17 @@ package main
 
 import (
 	"bytes"
-	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
 // TRLC-LINKS: REQ-EMG-042, REQ-EMG-043
 // ENGMODEL-LINKS: FU-NAF-EXPORTER, IF-CLI-ENGNAF, DO-NAF-V4-ARCHITECTURE
 func TestRunGeneratesNAFDocument(t *testing.T) {
 	var stdout, stderr bytes.Buffer
-	modelPath := filepath.Join("..", "..", "engmod.yml")
+	modelPath := testutil.AcceptedRepoModel(t)
 	if code := run([]string{"--model", modelPath}, &stdout, &stderr); code != 0 {
 		t.Fatalf("run returned %d: %s", code, stderr.String())
 	}

@@ -1,0 +1,194 @@
+package fixture
+
+type Box struct{ a, b, c, d bool }
+
+type Worker struct{}
+
+func f() {}
+
+// CycPos has nine ifs: cyclomatic 1 + 9 = 10.
+func CycPos(x *Box) {
+	if x.a { f() }
+	if x.b { f() }
+	if x.c { f() }
+	if x.d { f() }
+	if x.a { f() }
+	if x.b { f() }
+	if x.c { f() }
+	if x.d { f() }
+	if x.a { f() }
+}
+
+// CycNeg has eight ifs: cyclomatic 9.
+func CycNeg(x *Box) {
+	if x.a { f() }
+	if x.b { f() }
+	if x.c { f() }
+	if x.d { f() }
+	if x.a { f() }
+	if x.b { f() }
+	if x.c { f() }
+	if x.d { f() }
+}
+
+// NestPos nests four ifs: depth 4, one bump, cyclomatic 5.
+func NestPos(x *Box) {
+	if x.a {
+		if x.b {
+			if x.c {
+				if x.d {
+					f()
+				}
+			}
+		}
+	}
+}
+
+// NestNeg nests three ifs: depth 3, one bump, cyclomatic 4.
+func NestNeg(x *Box) {
+	if x.a {
+		if x.b {
+			if x.c {
+				f()
+			}
+		}
+	}
+}
+
+// BumpsPos has two separate top-level blocks that reach depth 2.
+func BumpsPos(x *Box) {
+	if x.a {
+		if x.b {
+			f()
+		}
+	}
+	f()
+	if x.c {
+		if x.d {
+			f()
+		}
+	}
+}
+
+// BumpsNeg has one nested block and one flat if.
+func BumpsNeg(x *Box) {
+	if x.a {
+		if x.b {
+			f()
+		}
+	}
+	if x.c {
+		f()
+	}
+}
+
+// BoolPos has three boolean operators in one condition.
+func BoolPos(x *Box) {
+	if x.a && x.b && x.c || x.d {
+		f()
+	}
+}
+
+// BoolNeg has two boolean operators in one condition.
+func BoolNeg(x *Box) {
+	if x.a && x.b || x.c {
+		f()
+	}
+}
+
+// BoolSplit has two conditions with two operators each: the maximum is 2, and
+// the parentheses of the second one do not split it.
+func BoolSplit(x *Box) {
+	if x.a && x.b || x.c {
+		f()
+	}
+	if (x.a || x.b) && x.c {
+		f()
+	}
+}
+
+// ArgsPos has five parameters (a, b, c, d, e share one declaration).
+func ArgsPos(a, b, c, d, e *Box) {}
+
+// ArgsNeg has four parameters.
+func ArgsNeg(a, b, c, d *Box) {}
+
+// PrimPos has four parameters, three of them primitive (75%).
+func PrimPos(a string, b int, c bool, d *Box) {}
+
+// PrimNeg has four parameters, two of them primitive (50%).
+func PrimNeg(a string, b int, c *Box, d *Box) {}
+
+// PrimFew has three primitive parameters: too few for the smell.
+func PrimFew(a string, b int, c bool) {}
+
+// Variadic counts the variadic parameter once.
+func Variadic(a *Box, rest ...string) {}
+
+// Constructs uses every Go decision point once; default is not one.
+func Constructs(a int, v any, ch chan int, xs []int) int {
+	if a > 0 && a < 10 || a == 20 {
+		a++
+	} else if a < 0 {
+		a--
+	}
+	for i := 0; i < a; i++ {
+	}
+	for range xs {
+	}
+	switch a {
+	case 1, 2:
+	case 3:
+	default:
+	}
+	switch v.(type) {
+	case int:
+	case string:
+	default:
+	}
+	select {
+	case <-ch:
+	default:
+	}
+	return a
+}
+
+// ElseIf is a chain on one level.
+func ElseIf(x *Box) {
+	if x.a {
+		f()
+	} else if x.b {
+		f()
+	} else if x.c {
+		f()
+	} else {
+		f()
+	}
+}
+
+func (w *Worker) Method(x *Box) {
+	if x.a {
+		f()
+	}
+}
+
+// Closures: the go func and defer func are anonymous and count toward the
+// function; run is a named closure and a unit of its own.
+func Closures(x *Box) {
+	run := func() {
+		if x.a {
+			f()
+		}
+	}
+	go func() {
+		if x.b {
+			f()
+		}
+	}()
+	defer func() {
+		for x.c {
+			f()
+		}
+	}()
+	run()
+}

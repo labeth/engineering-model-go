@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/bedrock-pr-review@v0
   version: v0.1.0
@@ -53,6 +53,7 @@ publications:
   - DEP-BEDROCK-GITHUB-BOUNDARY
   behavior:
   - STATE-BEDROCK-PR-RECEIVED
+  - STATE-BEDROCK-REVIEW-IN-PROGRESS
   - STATE-BEDROCK-REVIEW-PUBLISHED
   - EVT-BEDROCK-REVIEW-REQUESTED
   - EVT-BEDROCK-REVIEW-COMPLETED
@@ -116,3 +117,9 @@ inferenceHints:
   - explicit_annotation
   - path_convention
   - unresolved_warning
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

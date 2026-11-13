@@ -125,6 +125,7 @@ func TestEngdocCLI_EndToEnd(t *testing.T) {
 		"--requirements", requirementsPath,
 		"--design", designPath,
 	)
+	cmd.Env = os.Environ() // includes the test's ENGMOD_AS_OF
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("engdoc cli failed: %v\noutput:\n%s", err, string(out))
@@ -140,9 +141,9 @@ func TestEngdocCLI_EndToEnd(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestEngdocCLI_DecisionsOut(t *testing.T) {
-	modelPath := "engmod.yml"
-	requirementsPath := filepath.Join("model", "requirements.yml")
-	designPath := filepath.Join("model", "views.yml")
+	modelPath := testutil.AcceptedRepoModel(t)
+	requirementsPath := filepath.Join(filepath.Dir(modelPath), "model", "requirements.yml")
+	designPath := filepath.Join(filepath.Dir(modelPath), "model", "views.yml")
 	outDir := t.TempDir()
 	mainOut := filepath.Join(outDir, "ARCHITECTURE.adoc")
 	decisionsOut := filepath.Join(outDir, "DECISIONS.adoc")
@@ -154,6 +155,7 @@ func TestEngdocCLI_DecisionsOut(t *testing.T) {
 		"--out", mainOut,
 		"--decisions-out", decisionsOut,
 	)
+	cmd.Env = os.Environ() // includes the test's ENGMOD_AS_OF
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("engdoc cli failed: %v\noutput:\n%s", err, string(out))
@@ -435,10 +437,14 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 					TrustBoundaryRef: "TB-MEDIACHESTV-DEVICE",
 				}},
 			}},
-			States: []model.State{
-				{ID: "STATE-MEDIACHESTV-IDLE", Name: "Idle"},
-				{ID: "STATE-MEDIACHESTV-APPLYING", Name: "Applying"},
-			},
+			Machines: []model.Machine{{
+				ID: "SM-MEDIACHESTV-DEPLOY", Owner: "FU-MEDIACHESTV-CORE", Initial: "STATE-MEDIACHESTV-IDLE",
+				States: []model.MachineState{
+					{ID: "STATE-MEDIACHESTV-IDLE", Name: "Idle"},
+					{ID: "STATE-MEDIACHESTV-APPLYING", Name: "Applying"},
+				},
+				Transitions: []model.MachineTransition{{ID: "TR-MEDIACHESTV-APPLY", From: "STATE-MEDIACHESTV-IDLE", To: "STATE-MEDIACHESTV-APPLYING", On: "EVT-MEDIACHESTV-DEPLOY-REQUESTED"}},
+			}},
 			Events: []model.Event{{ID: "EVT-MEDIACHESTV-DEPLOY-REQUESTED", Name: "Deploy Requested"}},
 			Mappings: []model.Mapping{
 				{Type: "contains", From: "FG-MEDIACHESTV-CORE", To: "FU-MEDIACHESTV-CORE"},
@@ -450,8 +456,6 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 				{Type: "targets", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "FU-MEDIACHESTV-CORE"},
 				{Type: "mitigated_by", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
 				{Type: "bounded_by", From: "FU-MEDIACHESTV-CORE", To: "TB-MEDIACHESTV-DEVICE"},
-				{Type: "transitions_to", From: "STATE-MEDIACHESTV-IDLE", To: "STATE-MEDIACHESTV-APPLYING"},
-				{Type: "triggered_by", From: "STATE-MEDIACHESTV-IDLE", To: "EVT-MEDIACHESTV-DEPLOY-REQUESTED"},
 				{Type: "guarded_by", From: "STATE-MEDIACHESTV-APPLYING", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
 				{Type: "guarded_by", From: "STATE-MEDIACHESTV-IDLE", To: "TB-MEDIACHESTV-DEVICE"},
 			},
@@ -462,7 +466,7 @@ func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *t
 			{ID: "VIEW-DEPLOYMENT", Kind: "deployment", Roots: []string{"FU-MEDIACHESTV-CORE"}, IncludeMappings: []string{"deployed_to", "bounded_by"}},
 			{ID: "VIEW-SECURITY", Kind: "security", Roots: []string{"AV-MEDIACHESTV-INPUT-SPOOF"}},
 			{ID: "VIEW-TRACEABILITY", Kind: "traceability", Roots: []string{"FU-MEDIACHESTV-CORE"}},
-			{ID: "VIEW-STATE-LIFECYCLE", Kind: "state-lifecycle", Roots: []string{"STATE-MEDIACHESTV-IDLE"}, IncludeKinds: []string{"state", "event", "control", "trust_boundary"}, IncludeMappings: []string{"transitions_to", "triggered_by", "guarded_by"}},
+			{ID: "VIEW-STATE-LIFECYCLE", Kind: "state-lifecycle", Roots: []string{"STATE-MEDIACHESTV-IDLE"}, IncludeKinds: []string{"state", "event", "control", "trust_boundary"}, IncludeMappings: []string{"transition", "on_event", "guarded_by"}},
 		},
 	}, Catalog: model.CatalogDocument{}}
 
@@ -602,7 +606,7 @@ func TestGenerateAsciiDocResolvesCodeReferencesForLoadedBundle(t *testing.T) {
 	t.Setenv(composition.LockEnv, "")
 	dir := t.TempDir()
 	testutil.WriteInterfaceModule(t, dir)
-	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    sourceRefs: [CODE-SRC-IFACE-GO, CODE-SRC-GONE-GO]\n")
+	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun: {}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    sourceRefs: [CODE-SRC-IFACE-GO, CODE-SRC-GONE-GO]\n")
 	testutil.WriteFile(t, filepath.Join(dir, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
 	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
 	if err != nil {

@@ -117,22 +117,8 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 		requirements[strings.TrimSpace(r.ID)] = true
 	}
 
-	// Contract: deprecated refs, unrealized published capabilities.
+	// Contract: unrealized published capabilities.
 	realized := map[string]bool{}
-	refRealizers := map[string]string{}
-	for i, entry := range b.Architecture.Contract.Provides {
-		if strings.Contains(entry.ID, "::") {
-			continue
-		}
-		if ref := strings.TrimSpace(entry.Ref); ref != "" {
-			add("contract.ref_deprecated", SeverityWarning, fmt.Sprintf("contract.provides[%d].ref", i),
-				"contract entry %s names requirement %s in ref; ref is deprecated: add realizes: [%s] to %s instead", entry.ID, ref, entry.ID, ref)
-			if items[strings.TrimSpace(entry.ID)] != "" {
-				refRealizers[ref] = strings.TrimSpace(entry.ID)
-				realized[strings.TrimSpace(entry.ID)] = true
-			}
-		}
-	}
 	for i, a := range b.Architecture.Contract.Assumptions {
 		if strings.Contains(a.ID, "::") {
 			continue
@@ -153,10 +139,7 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 			// publications) traces within its own model, checked there.
 			continue
 		}
-		targets := append([]string(nil), r.Realizes...)
-		if item := refRealizers[id]; item != "" {
-			targets = append(targets, item)
-		}
+		targets := r.Realizes
 		for j, raw := range r.Realizes {
 			target := strings.TrimSpace(raw)
 			if items[target] == "" {
@@ -193,13 +176,8 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 		}
 	}
 
-	// Composition: allocations are deprecated in favour of reqLinks.
-	for i, a := range b.Architecture.Composition.Allocations {
-		add("composition.allocation_deprecated", SeverityWarning, fmt.Sprintf("composition.allocations[%d]", i),
-			"allocation of %s to %s is deprecated: record it as a reqLinks entry (parent %s, child %s) in the requirement link file", a.Requirement, a.Target, a.Requirement, a.Target)
-	}
-
 	diags = append(diags, reqLinkFileDiagnostics(b, requirements, validID)...)
+	diags = append(diags, RemovedFieldDiagnostics(b)...)
 	return diags
 }
 
@@ -259,9 +237,6 @@ func reqLinkFileDiagnostics(b model.Bundle, requirements map[string]bool, validI
 			add("link.child_unpublished", SeverityError, path+".child", "link %s child %q: dependency %q is selected by no composition.subsystems entry, so its contract is not resolved", id, link.Child, alias)
 		case strings.TrimSpace(link.Pinned.Version) != pin:
 			add("link.version_mismatch", SeverityError, path+".pinned.version", "link %s is pinned to %s %s but engmod.yml pins %s; review the link at the new version (engws review-links)", id, alias, link.Pinned.Version, pin)
-		}
-		if link.Pinned.Fingerprint != "" {
-			add("link.fingerprint_deprecated", SeverityWarning, path+".pinned.fingerprint", "link %s records pinned.fingerprint, which is deprecated and ignored: the pinned version is the review record; remove it with engws migrate-links", id)
 		}
 		switch strings.TrimSpace(link.Status) {
 		case model.ReqLinkClaimed:

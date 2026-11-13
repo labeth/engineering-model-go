@@ -33,7 +33,7 @@ func publishEncoderReleases(t *testing.T) *linksRegistry {
 }
 
 // pinOf returns the pinned version of a link in the file and whether the
-// link still records a (deprecated) fingerprint.
+// link still records a (removed) fingerprint.
 func pinOf(t *testing.T, path, id string) (string, bool) {
 	t.Helper()
 	var doc model.ReqLinksDocument
@@ -154,10 +154,8 @@ func TestBumpWarnsOfManifestKeysTheEngineRejects(t *testing.T) {
 	registry := newLinksRegistry(t)
 	registry.publish("child-b", "v0.1.0", nil)
 	registry.publish("child-a", "v0.1.0", nil)
-	registry.publish("child-a", "v0.2.0", func(dir string) {
-		manifest := filepath.Join(dir, "engmod.yml")
-		write(t, manifest, read(t, manifest)+"lifecycle:\n  tier: mvp\n")
-	})
+	// The example child-a declares lifecycle (every model must, ADR-EMG-061).
+	registry.publish("child-a", "v0.2.0", nil)
 	registry.serve()
 	for engine, want := range map[string]bool{"v0.9.0": true, "v0.10.0": false} {
 		root, system := systemWorkspace(t)
@@ -170,5 +168,15 @@ func TestBumpWarnsOfManifestKeysTheEngineRejects(t *testing.T) {
 		if got != want {
 			t.Fatalf("engine %s: warning %v, want %v:\n%s", engine, got, want, out)
 		}
+	}
+}
+
+// The deprecated flag --allow-suspect is gone: bump rejects it as an unknown
+// flag (ADR-EMG-073). Mutation: registering the flag again fails this test.
+// TRLC-LINKS: REQ-EMG-182
+func TestBumpRejectsTheRemovedAllowSuspectFlag(t *testing.T) {
+	code, _, errOut := runMain(t, NewCUERegistry(), "bump", "system", "encoder", "v0.3.0", "--allow-suspect")
+	if code == 0 || !strings.Contains(errOut, "allow-suspect") {
+		t.Fatalf("bump --allow-suspect must be rejected as an unknown flag: %d\n%s", code, errOut)
 	}
 }

@@ -15,26 +15,13 @@ import (
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
-// publishedCapabilityRefs is reqlinks.CapabilityRefs of the resolved dependency alias.
-// TRLC-LINKS: REQ-EMG-105
-func publishedCapabilityRefs(composed composition.CompositionResult, alias string) map[string]string {
-	if composed.Root != nil {
-		for _, child := range composed.Root.Children {
-			if child.Dependency == alias {
-				return reqlinks.CapabilityRefs(child.Bundle)
-			}
-		}
-	}
-	return nil
-}
-
 // requirementParents is the upward trace of a requirement: the contract
 // items it realizes (D22: stakeholder sourceRefs are no upward trace, and a
 // requirement that is the parent of links has them as children).
 // TRLC-LINKS: REQ-EMG-105
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func requirementParents(r model.Requirement, refs map[string]string) []string {
-	return reqlinks.RealizedItems(r, refs)
+func requirementParents(r model.Requirement) []string {
+	return reqlinks.RealizedItems(r)
 }
 
 // countUnparented counts the requirements that fail the upward-trace rule
@@ -45,11 +32,10 @@ func countUnparented(bundle model.Bundle, requirements model.RequirementsDocumen
 	if _, applies := validate.RequirementLinkRules(bundle); !applies {
 		return 0
 	}
-	refs := reqlinks.CapabilityRefs(bundle)
 	linkParents := validate.CapabilityLinkParents(bundle)
 	n := 0
 	for _, r := range requirements.Requirements {
-		if !validate.TracesUpward(r, reqlinks.RealizedItems(r, refs), linkParents) {
+		if !validate.TracesUpward(r, reqlinks.RealizedItems(r), linkParents) {
 			n++
 		}
 	}
@@ -91,7 +77,6 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 		switch s.State {
 		case reqlinks.StateVersionMismatch:
 			matrix.Summary.LinksVersionMismatch++
-			matrix.Summary.LinksSuspect++
 		case reqlinks.StateBroken:
 			matrix.Summary.LinksBroken++
 		}
@@ -154,7 +139,6 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 		if roll.testLinked {
 			matrix.Summary.Tested++
 			matrix.Summary.TestLinked++
-			matrix.Summary.Verified++
 		}
 		satisfied[id] = true
 	}

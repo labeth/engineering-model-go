@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.atlas.example/products/aegis-sentinel@v0
   version: v0.1.0
@@ -65,3 +65,9 @@ publications:
   - REQ-AEG-004
   - REQ-AEG-005
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

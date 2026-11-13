@@ -1,0 +1,3753 @@
+{
+ "examples/atlas-industries/repos/aegis-sentinel/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-AEG-TRACK-CONFIDENCE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-AEG-TRACK-CONFIDENCE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-AEG-SENSOR-FUSION is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.interface_unlinked",
+    "severity": "warning",
+    "message": "software interface IF-AEG-TRACK is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-AEG-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-002 is traced by no code or verification",
+    "path": "requirements[REQ-AEG-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-003 is traced by no code or verification",
+    "path": "requirements[REQ-AEG-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-004 is traced by no code or verification",
+    "path": "requirements[REQ-AEG-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-005 is traced by no code or verification",
+    "path": "requirements[REQ-AEG-005]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/aegis-sentinel/engmod.lock.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-AEG-SENSOR-FUSION is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.interface_unlinked",
+    "severity": "warning",
+    "message": "software interface IF-AEG-TRACK is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-002 is traced by no code or verification",
+    "path": "requirements[REQ-AEG-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-003 is traced by no code or verification",
+    "path": "requirements[REQ-AEG-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-004 is traced by no code or verification",
+    "path": "requirements[REQ-AEG-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-AEG-005 is traced by no code or verification",
+    "path": "requirements[REQ-AEG-005]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "f963ccecc9b7a15ae16ea5906fe4851c318c05f39e6be4007b879b46114655f6",
+  "decisions": "8e1616aa411fede7399cc61fd531ccf6a46a6694f3f189c6282f2dc21b698887",
+  "matrix": "fe2d730fff76fd03b27e89e98a3c6da4c8917fb0d4c457c8d5fdf5a14a9ea3c7"
+ },
+ "examples/atlas-industries/repos/company-portfolio/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PORT-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PORT-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PORT-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio/engmod.lock.yml"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PORT-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PORT-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PORT-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-002 is traced by no code or verification",
+    "path": "requirements[REQ-PORT-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-003 is traced by no code or verification",
+    "path": "requirements[REQ-PORT-003]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/company-portfolio/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-002 is traced by no code or verification",
+    "path": "requirements[REQ-PORT-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PORT-003 is traced by no code or verification",
+    "path": "requirements[REQ-PORT-003]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "3989e14276d3272c373f55def24ae01171875b89ab1a4f9058824ffe03901f53",
+  "decisions": "41adaefb246e0121500994e9217879b4f1ca2e138875ef3b6011b5ce360734dc",
+  "matrix": "a6d34d26e7c9b449a14cfd67ad4fad8eb2130f29469767b43dbba387e9b91614"
+ },
+ "examples/atlas-industries/repos/orion-relay/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-ORI-ADMISSION is a test with status partial but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-ORI-ADMISSION is Needs Review in the Gemara evaluation log: its verifications need review: CV-ORI-ADMISSION (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-ORI-ADMISSION is a test with status partial but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-ORI-ADMISSION is Needs Review in the Gemara evaluation log: its verifications need review: CV-ORI-ADMISSION (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-ORI-LINK is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.interface_unlinked",
+    "severity": "warning",
+    "message": "software interface IF-ORI-MESSAGE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-ORI-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-002 is traced by no code or verification",
+    "path": "requirements[REQ-ORI-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-003 is traced by no code or verification",
+    "path": "requirements[REQ-ORI-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-004 is traced by no code or verification",
+    "path": "requirements[REQ-ORI-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-005 is traced by no code or verification",
+    "path": "requirements[REQ-ORI-005]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/orion-relay/engmod.lock.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-ORI-LINK is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.interface_unlinked",
+    "severity": "warning",
+    "message": "software interface IF-ORI-MESSAGE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-002 is traced by no code or verification",
+    "path": "requirements[REQ-ORI-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-003 is traced by no code or verification",
+    "path": "requirements[REQ-ORI-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-004 is traced by no code or verification",
+    "path": "requirements[REQ-ORI-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-ORI-005 is traced by no code or verification",
+    "path": "requirements[REQ-ORI-005]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "3edae2479254982fad9e825b0903823c4c3e057c34bb9d3599f97086cca83b5c",
+  "decisions": "422188d05d246aa72d8b11bca54ba45c2885d4d4a0338423b72ecfa526031b44",
+  "matrix": "5d3919e6b4c9fe1e80bef5dd709462578a865cb98d714eac91e55fdead39b12f"
+ },
+ "examples/atlas-industries/repos/shared-cloud-platform/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-CLOUD-BACKUP is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-CLOUD-BACKUP",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-CLOUD-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-cloud-platform"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-CLOUD-BACKUP is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-CLOUD-BACKUP",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-CLOUD-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 is traced by no code or verification",
+    "path": "requirements[REQ-CLOUD-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 is traced by no code or verification",
+    "path": "requirements[REQ-CLOUD-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-cloud-platform"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-001 is traced by no code or verification",
+    "path": "requirements[REQ-CLOUD-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-CLOUD-002 is traced by no code or verification",
+    "path": "requirements[REQ-CLOUD-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "320bf6490192bd4bebc24ae0b91bc71ca67e98b9514415cf739abac63b7e4038",
+  "decisions": "d6f7a7581451253a87728b5b8bcdc3e21c29ac2f24abbe74b1198bd785811f48",
+  "matrix": "22f6c1ab3048cf5d83c89b6d0957a1362d3cba0dbf42e858bc88fdae6d839295"
+ },
+ "examples/atlas-industries/repos/shared-compliance-baseline/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-ACCESS-REVIEW is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-ACCESS-REVIEW (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-EVIDENCE-RETENTION is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-EVIDENCE-RETENTION",
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-POLICY-ACKNOWLEDGMENT is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-POLICY-ACKNOWLEDGMENT",
+    "path": "authoredArchitecture.controls[3]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-SECURITY-AWARENESS is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-AWARENESS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[4]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-compliance-baseline"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-ACCESS-REVIEW is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-ACCESS-REVIEW (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-EVIDENCE-RETENTION is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-EVIDENCE-RETENTION",
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-POLICY-ACKNOWLEDGMENT is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-COMP-POLICY-ACKNOWLEDGMENT",
+    "path": "authoredArchitecture.controls[3]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COMP-SECURITY-AWARENESS is Needs Review in the Gemara evaluation log: its verifications need review: CV-COMP-AWARENESS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[4]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COMP-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-001 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-002 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-003 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-004 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-005 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-005]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-006 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-006]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-007 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-007]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-008 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-008]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-compliance-baseline"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-001 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-002 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-003 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-004 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-004]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-005 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-005]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-006 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-006]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-007 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-007]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COMP-008 is traced by no code or verification",
+    "path": "requirements[REQ-COMP-008]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "81332bc42fca47968fb1c14b5c613a0bd318f4f10b787a8b21efe88af64173b4",
+  "decisions": "d52c4a74e59edc9882846bdd75a9536af110cf133e639a7f1f96119ab14fc7e5",
+  "matrix": "27f23705156e77195d5663fa1025f64369b843695efc7029b132b195b570718a"
+ },
+ "examples/atlas-industries/repos/shared-edge-platform/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-EDGE-SIGNED-WORKLOAD is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-EDGE-SIGNED-WORKLOAD",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-EDGE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-EDGE-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-edge-platform"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-EDGE-SIGNED-WORKLOAD is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-EDGE-SIGNED-WORKLOAD",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-EDGE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-EDGE-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-001 is traced by no code or verification",
+    "path": "requirements[REQ-EDGE-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-002 is traced by no code or verification",
+    "path": "requirements[REQ-EDGE-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-edge-platform"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-001 is traced by no code or verification",
+    "path": "requirements[REQ-EDGE-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-EDGE-002 is traced by no code or verification",
+    "path": "requirements[REQ-EDGE-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "12395bea5891937a5c64af45c8c2ecc134cb2ab868aa6ee911e9204a333fcdf9",
+  "decisions": "2a8202e720a17793fae880a2df8f7e74bc7936171cff2e3dbb6d354d610ca59b",
+  "matrix": "8bd43fe2026afcf39fd84b3f8d0a3bf5ea9e92a3666830d1ff37f1a1dd6fc317"
+ },
+ "examples/atlas-industries/repos/shared-security-services/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-SEC-TOKEN-REPLAY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-SEC-AUDIT-INTEGRITY is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-SEC-AUDIT-INTEGRITY",
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.event_unused",
+    "severity": "warning",
+    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no machine transition (on), semantic transition trigger or flow; name it in the on of the machine transition it causes or remove the event",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SEC-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SEC-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-security-services"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-SEC-TOKEN-REPLAY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-SEC-AUDIT-INTEGRITY is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-SEC-AUDIT-INTEGRITY",
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.event_unused",
+    "severity": "warning",
+    "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no machine transition (on), semantic transition trigger or flow; name it in the on of the machine transition it causes or remove the event",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SEC-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SEC-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-001 is traced by no code or verification",
+    "path": "requirements[REQ-SEC-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-002 is traced by no code or verification",
+    "path": "requirements[REQ-SEC-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/atlas-industries/repos/shared-security-services"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-001 is traced by no code or verification",
+    "path": "requirements[REQ-SEC-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SEC-002 is traced by no code or verification",
+    "path": "requirements[REQ-SEC-002]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "4583d1164863acb0cacc29ac762e119a142541d33b6c46cbef72419d5b4dbe25",
+  "decisions": "80460111061e1288e3610fea87984751e1f77ca2335d05478153f683f9f24d43",
+  "matrix": "2e34f41f7fa96e2fd87d38bf4d1edd5515bb522a4d0dae434ccd79aff521c88c"
+ },
+ "examples/bedrock-pr-review-github-app-sample/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-BEDROCK-WEBHOOK-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-WEBHOOK-SIGNATURE is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-SECRETS-ROTATION is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-REDACTION-CHECK (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-BEDROCK-REVIEW-REQUESTED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-BEDROCK-REVIEW-COMPLETED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-BEDROCK-PR-REVIEW\" step \"publish-review\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[0].steps[3].onError",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-PR-RECEIVED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-REVIEW-IN-PROGRESS\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-REVIEW-PUBLISHED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-BEDROCK-REVIEW-START\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-BEDROCK-REVIEW-PUBLISH\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-011\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[10].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-010\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[9].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-BEDROCK-WEBHOOK-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-WEBHOOK-SIGNATURE is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-PROMPT-INJECTION-RESILIENCE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-BEDROCK-SECRETS-ROTATION is Needs Review in the Gemara evaluation log: its verifications need review: CV-BEDROCK-REDACTION-CHECK (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-BEDROCK-REVIEW-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-BEDROCK-REVIEW-REQUESTED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-BEDROCK-REVIEW-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-BEDROCK-REVIEW-COMPLETED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-BEDROCK-PR-REVIEW\" step \"publish-review\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[0].steps[3].onError",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-PR-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-PR-RECEIVED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-REVIEW-IN-PROGRESS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-REVIEW-IN-PROGRESS\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-REVIEW-PUBLISHED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-REVIEW-PUBLISHED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-BEDROCK-REVIEW-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-BEDROCK-REVIEW-START\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-BEDROCK-REVIEW-PUBLISH is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-BEDROCK-REVIEW-PUBLISH\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-011\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[10].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PRR-010\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[9].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-009 is traced by no code or verification",
+    "path": "requirements[REQ-PRR-009]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-010 is traced by no code or verification",
+    "path": "requirements[REQ-PRR-010]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-BEDROCK-REVIEW-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-BEDROCK-REVIEW-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-PR-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-REVIEW-IN-PROGRESS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-BEDROCK-REVIEW-PUBLISHED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-BEDROCK-REVIEW-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-BEDROCK-REVIEW-PUBLISH is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-009 is traced by no code or verification",
+    "path": "requirements[REQ-PRR-009]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PRR-010 is traced by no code or verification",
+    "path": "requirements[REQ-PRR-010]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "7f05cf84ae017fdac5bba33473945f4b123ee6742440ea71d34c03fd6e4629ac",
+  "decisions": "bd471a4df845ea61e03a028defecb6f0db0f23055142d9d37f81ae385c87376e",
+  "matrix": "394c7edb6feb30cdbb581f8fd5d9f12345d9d35e8cd179fb7e1c44d82e6de267"
+ },
+ "examples/coffee-appliance-six-view/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COFFEE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-appliance-six-view"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COFFEE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COFFEE-001 is traced by no code or verification",
+    "path": "requirements[REQ-COFFEE-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-appliance-six-view"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-COFFEE-001 is traced by no code or verification",
+    "path": "requirements[REQ-COFFEE-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "296d051bf1b298ea44ff236cc2fa3aa8028a15a1485be479935bce77d5ed38d5",
+  "decisions": "cf02f6663c34b99e227a2c05252c55be2b128fc43dd3e535cf20dad006525696",
+  "matrix": "a777234e6a4fb33bb7c563c02c8bead8ad020bedd35d64265584948ee72e86b5"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-FW-SIGNATURE-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-DEVICE-IDENTITY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COFFEE-DEVICE-IDENTITY is Needs Review in the Gemara evaluation log: its verifications need review: CV-COFFEE-TELEMETRY-REPLAY (partial), CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-COFFEE-OTA-REQUESTED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-COFFEE-OTA-COMPLETED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-COFFEE-TELEMETRY-INGEST\" step \"collect-and-send-telemetry\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[1].steps[1].onError",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-SCHEDULED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-ROLLING-OUT\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-APPLIED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-COFFEE-OTA-START\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-COFFEE-OTA-APPLY\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-001-TELEMETRY is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[0].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-003-OTA-AGENT is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[1].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-002-CLOUD-API is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[2].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-011\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[10].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-012\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[11].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-010\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[9].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/engmod.lock.yml"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-FW-SIGNATURE-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-COFFEE-DEVICE-IDENTITY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-COFFEE-DEVICE-IDENTITY is Needs Review in the Gemara evaluation log: its verifications need review: CV-COFFEE-TELEMETRY-REPLAY (partial), CV-COFFEE-AUDIT-INTEGRITY-ANALYSIS (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-COFFEE-OTA-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-COFFEE-OTA-REQUESTED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-COFFEE-OTA-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-COFFEE-OTA-COMPLETED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.flow_step_no_onerror",
+    "severity": "warning",
+    "message": "flow \"FLOW-COFFEE-TELEMETRY-INGEST\" step \"collect-and-send-telemetry\" crosses a trust boundary but has no onError step; model the failure path",
+    "path": "authoredArchitecture.flows[1].steps[1].onError",
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-SCHEDULED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-SCHEDULED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-ROLLING-OUT is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-ROLLING-OUT\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-APPLIED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-APPLIED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-COFFEE-OTA-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-COFFEE-OTA-START\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-COFFEE-OTA-APPLY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-COFFEE-OTA-APPLY\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-001-TELEMETRY is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[0].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-003-OTA-AGENT is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[1].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "link.claimed_only",
+    "severity": "warning",
+    "message": "link LNK-COF-002-CLOUD-API is claimed, not yet reviewed; review it and set status accepted",
+    "path": "reqLinks[2].status",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-011\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[10].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-012\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[11].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-COF-010\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[9].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "trace": [
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/engmod.lock.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-COFFEE-OTA-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-COFFEE-OTA-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-SCHEDULED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-ROLLING-OUT is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-COFFEE-OTA-APPLIED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-COFFEE-OTA-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-COFFEE-OTA-APPLY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   }
+  ],
+  "document": "f42942c79b25a7f0bac8e10eecea9fb09c72ab68bbe11a8785dca8af44d2b708",
+  "decisions": "d14e8c4ba67465efff45954b0caa3da9875360f69c25cb44b0439ef169449b3c",
+  "matrix": "26270c27d1d750631b3e9580dbaef8b6989f890a92c8cec36336cc63e09efa3a"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-INGEST-AUTH is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-CLOUD-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-INGEST-AUTH is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-CLOUD-CAMPAIGN is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[1]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-CLOUD-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-CLOUD-CAMPAIGN is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[1]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   }
+  ],
+  "document": "5f87c76ac35cc13c1d3e62bacc5fd3bef5f309f69edeaca2103bec320cb79614",
+  "decisions": "d50e04d7eefcc62407f32c0a6d1b571d64a534af1fefcbcab03ad30f9e60fb9f",
+  "matrix": "f97975a1220824281039ab697b60099596d9c1ac43cabafc68b34accdf47b9a0"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-FIRMWARE-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-OTA-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-OTA-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-OTA-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-FIRMWARE-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-OTA-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-OTA-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-OTA-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent"
+   }
+  ],
+  "document": "329449fb33e7ec9aef63d5e882eccf1296e23b0effc8e5968446e587ca316556",
+  "decisions": "f6258b9d3aa93d00ca541bca3612bb2582fb06e1701c8f348841214c1d92fad1",
+  "matrix": "784c07142af818edac3d88303cb337bb3ba73536832b77097626a5e673ce02cb"
+ },
+ "examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-TELEM-INTEGRITY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-TELEM-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-TELEM-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-TELEM-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification VER-TELEM-INTEGRITY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-TELEM-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-TELEM-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-TELEM-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry"
+   }
+  ],
+  "document": "8f2965566e9740b16e4d471e5201afe7620e1770c7b016368a66367dd5e7f1eb",
+  "decisions": "540e5e9b9c96f9e156ea51f6d1e56de18059da3a7dbeaef760226ba30b5e8ec9",
+  "matrix": "58bfd1a89a5ad8aa494d34c14588754e925571993c3e6ceec43bbb5d427f066d"
+ },
+ "examples/dal-c-flight-control-sample/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation",
+   "safety"
+  ],
+  "validate": [
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-YAW-RATE-RECEIVED\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-OPERATIONAL\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-YAW-SAMPLE\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-YD-SYS-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-YD-HLR-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-YD-LLR-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-YAW-RATE-RECEIVED\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.machine_unverified",
+    "severity": "warning",
+    "message": "machine SM-YAW-CONTROL has no invariant, so no formal check states what it must always satisfy; add an invariant that lists the requirement it protects",
+    "path": "authoredArchitecture.machines[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-OPERATIONAL\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-YAW-SAMPLE\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-YD-SYS-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-YD-HLR-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-YD-LLR-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.requirement_unmodeled",
+    "severity": "warning",
+    "message": "event-driven requirement REQ-YD-HLR-001 is modeled by no machine: no invariant lists it and its appliesTo names no machine, state, transition, event or flow",
+    "path": "requirements[REQ-YD-HLR-001]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to model the requirement as a state, transition or event of a machine, or add an invariant that lists it in requirements, or name the element in the requirement's appliesTo"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-HLR-001 is traced by no code or verification",
+    "path": "requirements[REQ-YD-HLR-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-LLR-001 is traced by no code or verification",
+    "path": "requirements[REQ-YD-LLR-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "behavior.requirement_unmodeled",
+    "severity": "warning",
+    "message": "event-driven requirement REQ-YD-SYS-001 is modeled by no machine: no invariant lists it and its appliesTo names no machine, state, transition, event or flow",
+    "path": "requirements[REQ-YD-SYS-001]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to model the requirement as a state, transition or event of a machine, or add an invariant that lists it in requirements, or name the element in the requirement's appliesTo"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-SYS-001 is traced by no code or verification",
+    "path": "requirements[REQ-YD-SYS-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
+   },
+   {
+    "code": "behavior.machine_unverified",
+    "severity": "warning",
+    "message": "machine SM-YAW-CONTROL has no invariant, so no formal check states what it must always satisfy; add an invariant that lists the requirement it protects",
+    "path": "authoredArchitecture.machines[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-HLR-001 is traced by no code or verification",
+    "path": "requirements[REQ-YD-HLR-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-LLR-001 is traced by no code or verification",
+    "path": "requirements[REQ-YD-LLR-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-YD-SYS-001 is traced by no code or verification",
+    "path": "requirements[REQ-YD-SYS-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "176da3c71f328767a5535b6de86bafebdd7291459e3d293a03cfc2b18269787e",
+  "decisions": "3b27a44616fb45658a74eaf90c65d3fba3628504c35c45002d1406d4b3a45ae9",
+  "matrix": "99fc347dd764c846aae018cc7a3a1d33ac08a4856849be4de1441196e5ddc16f"
+ },
+ "examples/payments-engineering-sample/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CHECKOUT-SCHEMA-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CALLBACK-REPLAY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-SSO-MFA is Needs Review in the Gemara evaluation log: its verifications need review: CV-PAYMENTS-MANUAL-REVIEW-TRACE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-IMAGE-DIGEST is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-PAYMENTS-IMAGE-DIGEST",
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-PAYMENTS-AUTH-REQUESTED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-PAYMENTS-AUTH-COMPLETED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-CHECKOUT-RECEIVED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-AUTHORIZING\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-AUTHORIZED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-DECLINED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[3].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-START\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-APPROVE\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-RETRY\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-DECLINE\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[3].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CHECKOUT-SCHEMA-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.unlinked",
+    "severity": "warning",
+    "message": "control verification CV-PAYMENTS-CALLBACK-REPLAY-TEST is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
+    "path": "authoredArchitecture.controlVerifications[1].verificationRefs",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-SSO-MFA is Needs Review in the Gemara evaluation log: its verifications need review: CV-PAYMENTS-MANUAL-REVIEW-TRACE (partial); record the verification result once it is known (pass or fail)",
+    "path": "authoredArchitecture.controls[0]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "gemara.control_needs_review",
+    "severity": "warning",
+    "message": "control CTRL-PAYMENTS-IMAGE-DIGEST is Needs Review in the Gemara evaluation log: no control verification names it in controlRef; add a control verification with controlRef CTRL-PAYMENTS-IMAGE-DIGEST",
+    "path": "authoredArchitecture.controls[1]",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-PAYMENTS-AUTH-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-PAYMENTS-AUTH-REQUESTED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-PAYMENTS-AUTH-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-PAYMENTS-AUTH-COMPLETED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-CLUSTER-PROVISIONING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[4]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-GITOPS-OPERATIONS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[5]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-CHECKOUT-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-CHECKOUT-RECEIVED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-AUTHORIZING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-AUTHORIZING\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-AUTHORIZED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-AUTHORIZED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-DECLINED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[3]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-DECLINED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[3].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-START\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-APPROVE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-APPROVE\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-RETRY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-RETRY\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-DECLINE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[3]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-DECLINE\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[3].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-005\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[4].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-006\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[5].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-007\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[6].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-008\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[7].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-PAY-009\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[8].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-009 is traced by no code or verification",
+    "path": "requirements[REQ-PAY-009]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:15"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:7"
+   }
+  ],
+  "trace": [
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-PAYMENTS-AUTH-REQUESTED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.event_unlinked",
+    "severity": "warning",
+    "message": "event EVT-PAYMENTS-AUTH-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.events[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-CLUSTER-PROVISIONING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[4]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.unit_unlinked",
+    "severity": "warning",
+    "message": "functional unit FU-GITOPS-OPERATIONS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.functionalUnits[5]",
+    "requiredFrom": "product",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-CHECKOUT-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-AUTHORIZING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-AUTHORIZED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.state_unlinked",
+    "severity": "warning",
+    "message": "machine state STATE-PAYMENTS-DECLINED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].states[3]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[0]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-APPROVE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[1]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-RETRY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[2]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "code.transition_unlinked",
+    "severity": "warning",
+    "message": "machine transition TR-PAYMENTS-AUTH-DECLINE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
+    "path": "authoredArchitecture.machines[0].transitions[3]",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-PAY-009 is traced by no code or verification",
+    "path": "requirements[REQ-PAY-009]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:15"
+   },
+   {
+    "code": "verification.helper_link",
+    "severity": "warning",
+    "message": "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+    "path": "tests/unit/checkout_decline_reason_test.go:7"
+   }
+  ],
+  "document": "0416edb310853f3e56dc455bb8e2f1b8c82f516b5cec5e010b5f532088f64d69",
+  "decisions": "a77197093328b7dc407178bd2f8c6ce910f8235095861194ff476d829afb8773",
+  "matrix": "dcc2d613d2ed4856bc232eb6587adabb674ddd8a7294efa1c7bd7587aa608f29"
+ },
+ "examples/requirement-links/repos/child-a/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-A-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-A-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-A-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-A-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-a"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-A-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-A-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-A-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-A-004\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[3].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-001 is traced by no code or verification",
+    "path": "requirements[REQ-A-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-002 is traced by no code or verification",
+    "path": "requirements[REQ-A-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-003 is traced by no code or verification",
+    "path": "requirements[REQ-A-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-004 is traced by no code or verification",
+    "path": "requirements[REQ-A-004]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-a"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-001 is traced by no code or verification",
+    "path": "requirements[REQ-A-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-002 is traced by no code or verification",
+    "path": "requirements[REQ-A-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-003 is traced by no code or verification",
+    "path": "requirements[REQ-A-003]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-A-004 is traced by no code or verification",
+    "path": "requirements[REQ-A-004]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "784c78d480a19d9f2ef4dc0ec5968bc9df810f7eb005e5ccffe9cd74dad2c1d7",
+  "decisions": "e9fd530f4a70dd65b4e5a7c37ce639522fcbe4a02dcafda696d64ee2a750cf15",
+  "matrix": "eab4d3df0b57cd6ee5e8b84740054b1c64d722de754d11f791838955b9335a3d"
+ },
+ "examples/requirement-links/repos/child-b/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-B-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-b"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-B-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-B-001 is traced by no code or verification",
+    "path": "requirements[REQ-B-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/child-b"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-B-001 is traced by no code or verification",
+    "path": "requirements[REQ-B-001]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "5cdd295420842224e7174de048fe66c8c30df5e1172d934eb25d607a9f47d979",
+  "decisions": "2b967f6d611294d3a7a4ebe412ea02235c46813483a93648d9ca7f4c073bcc84",
+  "matrix": "4959d80e9d9fdac794dd440aae7025b3b2d88d06f2457a9ec80a09ccc3a11993"
+ },
+ "examples/requirement-links/repos/system/engmod.yml": {
+  "tier": "mvp",
+  "bundles": [
+   "foundation"
+  ],
+  "validate": [
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SYS-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SYS-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SYS-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   }
+  ],
+  "generate": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system/engmod.lock.yml"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SYS-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[0].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SYS-002\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[1].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "lifecycle.requirement_unverified",
+    "severity": "warning",
+    "message": "requirement \"REQ-SYS-003\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
+    "path": "requirements[2].status",
+    "deferred": true,
+    "requiredFrom": "operational"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-001 is traced by no code or verification",
+    "path": "requirements[REQ-SYS-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-002 is traced by no code or verification",
+    "path": "requirements[REQ-SYS-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-003 is traced by no code or verification",
+    "path": "requirements[REQ-SYS-003]",
+    "requiredFrom": "product"
+   }
+  ],
+  "trace": [
+   {
+    "code": "verification.no_artifacts_found",
+    "severity": "warning",
+    "message": "no verification artifacts found under inferred tests/ or test-results/ directories",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system"
+   },
+   {
+    "code": "composition.lock_check_skipped",
+    "severity": "warning",
+    "message": "workspace replacements active; the committed engmod.lock.yml is checked only with ENGMOD_WORK=off",
+    "path": "\u003croot\u003e/examples/requirement-links/repos/system/engmod.lock.yml"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-001 is traced by no code or verification",
+    "path": "requirements[REQ-SYS-001]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-002 is traced by no code or verification",
+    "path": "requirements[REQ-SYS-002]",
+    "requiredFrom": "product"
+   },
+   {
+    "code": "requirement.orphan",
+    "severity": "warning",
+    "message": "requirement REQ-SYS-003 is traced by no code or verification",
+    "path": "requirements[REQ-SYS-003]",
+    "requiredFrom": "product"
+   }
+  ],
+  "document": "86c1717863ea1bb55ce8725eaa404ef32b2a5b8ec9be44ceb53962a58f179df3",
+  "decisions": "e8bfcc2a6183ffb33a19d4eb77b19477b493576cc2fcb9cf1f2e5476ea42c72f",
+  "matrix": "91b0745fe8482493b712e20cda33c2ab1765584efd750f6c839c786547281776"
+ }
+}

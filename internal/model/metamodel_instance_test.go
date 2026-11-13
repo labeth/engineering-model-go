@@ -51,7 +51,7 @@ func TestGeneratedCUEAcceptsEveryOfficialMetaclassAndProperty(t *testing.T) {
 				properties[name] = fixturePropertyValue(property)
 			}
 			source, err := yaml.Marshal(map[string]any{
-				"model": map[string]any{"id": "MODEL-A", "baseCatalogRef": "catalog.yml"},
+				"model": map[string]any{"id": "MODEL-A"},
 				"semantics": map[string]any{"elements": []SemanticElement{{
 					ID:         "FIXTURE-" + strings.NewReplacer("::", "-", ".", "-").Replace(metaclass),
 					Kind:       SemanticElementKind("official_fixture"),
@@ -127,7 +127,6 @@ func TestGeneratedCUEChecksOfficialPropertyNamesReadOnlyMultiplicityAndShapes(t 
 			}
 			source := []byte(fmt.Sprintf(`model:
   id: MODEL-A
-  baseCatalogRef: catalog.yml
 semantics:
   elements:
     - id: FIXTURE
@@ -283,4 +282,17 @@ func fixturePropertyValue(property OfficialSysMLProperty) MetamodelPropertyValue
 		}
 	}
 	return MetamodelPropertyValue{Values: values, Derived: property.Derived}
+}
+
+// The removed model key baseCatalogRef is rejected by the schema
+// (ADR-EMG-073). Mutation: putting the key back in architecture.cue fails
+// this test.
+// TRLC-LINKS: REQ-EMG-182
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+func TestRemovedBaseCatalogRefKeyIsRejected(t *testing.T) {
+	var document ArchitectureDocument
+	err := validateCanonicalYAML("fixture.yml", []byte("model:\n  id: MODEL-A\n  baseCatalogRef: catalog.yml\n"), &document)
+	if err == nil {
+		t.Fatal("baseCatalogRef must be rejected as an unknown model key")
+	}
 }

@@ -564,6 +564,12 @@ package 'sample-bedrock-pr-review-model' {
     attribute 'DATA-WEBHOOK-SIGNATURE';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DEP-BEDROCK-GITHUB-BOUNDARY";
         conceptKind = "part_definition";
     }
@@ -1105,16 +1111,63 @@ package 'sample-bedrock-pr-review-model' {
     attribute 'RISK-BEDROCK-WEBHOOK-SPOOFING';
 
     @EngineeringElement {
-        sourceId = "STATE-BEDROCK-PR-RECEIVED";
+        sourceId = "SM-BEDROCK-PR-REVIEW";
         conceptKind = "state_definition";
     }
-    state def 'STATE-BEDROCK-PR-RECEIVED';
-
-    @EngineeringElement {
-        sourceId = "STATE-BEDROCK-REVIEW-PUBLISHED";
-        conceptKind = "state_definition";
+    state def 'SM-BEDROCK-PR-REVIEW' {
+        doc /* Lifecycle of one pull request review from the accepted webhook to the published check run. Implemented by FU-REVIEW-ORCHESTRATION. */
+        attribute findingsPublished : Boolean := false;
+        entry;
+        then 'STATE-BEDROCK-PR-RECEIVED';
+        state 'STATE-BEDROCK-PR-RECEIVED';
+        @EngineeringElement about 'STATE-BEDROCK-PR-RECEIVED' {
+            sourceId = "STATE-BEDROCK-PR-RECEIVED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-BEDROCK-REVIEW-IN-PROGRESS';
+        @EngineeringElement about 'STATE-BEDROCK-REVIEW-IN-PROGRESS' {
+            sourceId = "STATE-BEDROCK-REVIEW-IN-PROGRESS";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-BEDROCK-REVIEW-PUBLISHED';
+        @EngineeringElement about 'STATE-BEDROCK-REVIEW-PUBLISHED' {
+            sourceId = "STATE-BEDROCK-REVIEW-PUBLISHED";
+            conceptKind = "state_usage";
+        }
+        succession 'REL-2D9727463A34E8FB' first 'STATE-BEDROCK-REVIEW-PUBLISHED' then done;
+        @EngineeringRelationship about 'REL-2D9727463A34E8FB' {
+            sourceId = "REL-2D9727463A34E8FB";
+            conceptKind = "succession";
+            relationshipKind = "machine_final";
+        }
+        transition 'TR-BEDROCK-REVIEW-PUBLISH'
+            first 'STATE-BEDROCK-REVIEW-IN-PROGRESS'
+            accept 'on-EVT-BEDROCK-REVIEW-COMPLETED' :> 'EVT-BEDROCK-REVIEW-COMPLETED'
+            do assign findingsPublished := true
+            then 'STATE-BEDROCK-REVIEW-PUBLISHED' {
+                doc /* The finished review is published as check run output. */
+            }
+        @EngineeringRelationship about 'TR-BEDROCK-REVIEW-PUBLISH' {
+            sourceId = "TR-BEDROCK-REVIEW-PUBLISH";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-BEDROCK-REVIEW-START'
+            first 'STATE-BEDROCK-PR-RECEIVED'
+            accept 'on-EVT-BEDROCK-REVIEW-REQUESTED' :> 'EVT-BEDROCK-REVIEW-REQUESTED'
+            then 'STATE-BEDROCK-REVIEW-IN-PROGRESS' {
+                doc /* A verified webhook starts the analysis orchestration. */
+            }
+        @EngineeringRelationship about 'TR-BEDROCK-REVIEW-START' {
+            sourceId = "TR-BEDROCK-REVIEW-START";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        // invariant INV-BEDROCK-NO-EARLY-PUBLICATION is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: findingsPublished implies in_state(STATE-BEDROCK-REVIEW-PUBLISHED)
+        // invariant INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-BEDROCK-REVIEW-PUBLISHED) implies findingsPublished
     }
-    state def 'STATE-BEDROCK-REVIEW-PUBLISHED';
 
     @EngineeringElement {
         sourceId = "STATE-PR-REVIEW-ACTIVE";
@@ -1286,17 +1339,6 @@ package 'sample-bedrock-pr-review-model' {
     succession 'REL-020E3C5C0A59AB2B' first 'receive-webhook' then 'assemble-context';
 
     @EngineeringRelationship {
-        sourceId = "REL-03E153B16C852140";
-        conceptKind = "transition";
-        relationshipKind = "transitions_to";
-    }
-    state 'REL-03E153B16C852140-context' : EngineeringState {
-        action 'STATE-BEDROCK-PR-RECEIVED' : EngineeringAction;
-        action 'STATE-BEDROCK-REVIEW-PUBLISHED' : EngineeringAction;
-        transition 'REL-03E153B16C852140' first 'STATE-BEDROCK-PR-RECEIVED' then 'STATE-BEDROCK-REVIEW-PUBLISHED';
-    }
-
-    @EngineeringRelationship {
         sourceId = "REL-06DE46BF6F2B6384";
         conceptKind = "transfer";
         relationshipKind = "reads";
@@ -1305,17 +1347,6 @@ package 'sample-bedrock-pr-review-model' {
         part 'FU-REVIEW-PUBLICATION' : EngineeringPart { port pOut : EngineeringPort; }
         part 'DO-BEDROCK-REVIEW-FINDINGS' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-06DE46BF6F2B6384' from 'FU-REVIEW-PUBLICATION'.pOut to 'DO-BEDROCK-REVIEW-FINDINGS'.pIn;
-    }
-
-    @EngineeringRelationship {
-        sourceId = "REL-0A5CF9D4AE03CEB1";
-        conceptKind = "event_trigger";
-        relationshipKind = "triggered_by";
-    }
-    state 'REL-0A5CF9D4AE03CEB1-context' : EngineeringState {
-        state 'STATE-BEDROCK-PR-RECEIVED' : EngineeringState;
-        action transitionEffect : EngineeringAction;
-        transition 'REL-0A5CF9D4AE03CEB1' first 'STATE-BEDROCK-PR-RECEIVED' accept 'EVT-BEDROCK-REVIEW-REQUESTED' : EngineeringItem then transitionEffect;
     }
 
     @EngineeringRelationship {
@@ -1345,17 +1376,6 @@ package 'sample-bedrock-pr-review-model' {
         relationshipKind = "flow_error";
     }
     succession 'REL-1CD5F15979BF0C17' first 'orchestrate-review' then 'publish-review';
-
-    @EngineeringRelationship {
-        sourceId = "REL-211FBCEE412DEEC3";
-        conceptKind = "event_trigger";
-        relationshipKind = "triggered_by";
-    }
-    state 'REL-211FBCEE412DEEC3-context' : EngineeringState {
-        state 'STATE-BEDROCK-REVIEW-PUBLISHED' : EngineeringState;
-        action transitionEffect : EngineeringAction;
-        transition 'REL-211FBCEE412DEEC3' first 'STATE-BEDROCK-REVIEW-PUBLISHED' accept 'EVT-BEDROCK-REVIEW-COMPLETED' : EngineeringItem then transitionEffect;
-    }
 
     @EngineeringRelationship {
         sourceId = "REL-291F50EFB4DCCFA2";

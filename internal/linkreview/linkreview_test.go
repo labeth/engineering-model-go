@@ -9,7 +9,7 @@ import (
 	"github.com/labeth/engineering-model-go/internal/reqlinks"
 )
 
-const acceptLinks = `schemaVersion: 2
+const acceptLinks = `schemaVersion: 3
 reqLinks:
 # reviewed links
 - id: LNK-A
@@ -38,16 +38,16 @@ func acceptContext(statuses ...reqlinks.LinkStatus) Context {
 	return Context{Manifest: "/m/engmod.yml", Bundle: b, Statuses: statuses}
 }
 
-// Accept moves pinned.version to the dependency pin, removes a deprecated
-// fingerprint and writes status accepted, the rationale, reviewedBy and
-// reviewedOn into exactly the lines of the link (adding the missing keys
+// Accept moves pinned.version to the dependency pin, leaves a pinned.fingerprint
+// as it is (it is removed, ADR-EMG-075, and validation reports it) and writes
+// status accepted, the rationale, reviewedBy and reviewedOn into exactly the lines of the link (adding the missing keys
 // after its last key), keeping every other byte; it refuses an unknown
 // actor, an unknown link, a broken link, one whose item is not resolved and
 // a model without a link file, each without a result.
-// Mutation: writing the old pin, keeping the fingerprint, skipping the
+// Mutation: writing the old pin, removing the fingerprint again, skipping the
 // actor check, accepting a broken link or rewriting other lines fails this
 // test.
-// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106, REQ-EMG-184
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestAccept(t *testing.T) {
 	item := &reqlinks.Item{ID: "CAP-A", Kind: reqlinks.KindCapability}
@@ -58,6 +58,7 @@ func TestAccept(t *testing.T) {
     fingerprint: sha256:v1:aaaa
   status: claimed
 `, `    version: v0.2.0
+    fingerprint: sha256:v1:aaaa
   status: accepted
   rationale: Still fine.
   reviewedBy: ACT-OWNER
@@ -66,7 +67,7 @@ func TestAccept(t *testing.T) {
 	if err != nil || string(got.After) != want || string(got.Before) != acceptLinks || got.Path != "/m/model/req-links.yml" {
 		t.Fatalf("Accept: %v\n%s\nwant\n%s", err, got.After, want)
 	}
-	if patch := got.Patch("model/req-links.yml"); patch != "--- a/model/req-links.yml\n+++ b/model/req-links.yml\n-    version: v0.1.0\n-    fingerprint: sha256:v1:aaaa\n-  status: claimed\n+    version: v0.2.0\n+  status: accepted\n+  rationale: Still fine.\n+  reviewedBy: ACT-OWNER\n+  reviewedOn: \"2026-11-03\"\n" {
+	if patch := got.Patch("model/req-links.yml"); patch != "--- a/model/req-links.yml\n+++ b/model/req-links.yml\n-    version: v0.1.0\n+    version: v0.2.0\n-  status: claimed\n+  status: accepted\n+  rationale: Still fine.\n+  reviewedBy: ACT-OWNER\n+  reviewedOn: \"2026-11-03\"\n" {
 		t.Fatalf("Patch:\n%s", patch)
 	}
 	// An accepted link at a stale pin: only the pin moves.

@@ -3,9 +3,8 @@ package mcp
 
 // MCP tools that expose system-of-systems composition and the traceability matrix to
 // an agent. composition.resolve surfaces subsystems, their provides/requires contract,
-// the materialized parent->subsystem allocations (with the specific delegated subsystem
-// requirement), and composition diagnostics. trace.matrix surfaces, per requirement, the
-// implementation / verification / delegation status, plus orphan requirements and
+// and composition diagnostics. trace.matrix surfaces, per requirement, the
+// implementation / verification status, plus orphan requirements and
 // dangling code trace links — the same data the engtrace gate uses, so an agent can see
 // exactly what is unimplemented or mis-linked before editing.
 
@@ -54,7 +53,7 @@ func ApplyReadOnlyResolutionDefaults() {
 }
 
 // compositionResolve resolves the system-of-systems rooted at the loaded model and
-// returns its subsystems, materialized requirement allocations, and diagnostics.
+// returns its subsystems, provenance, lock and diagnostics.
 // TRLC-LINKS: REQ-EMG-016, REQ-EMG-020
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
 func (s *Server) compositionResolve() (map[string]any, error) {
@@ -92,17 +91,6 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 			})
 		}
 	}
-	allocations := []map[string]any{}
-	for _, a := range res.Allocations {
-		allocations = append(allocations, map[string]any{
-			"requirement":       a.Requirement,
-			"subsystem":         a.Subsystem,
-			"target":            a.Target,
-			"targetRequirement": a.TargetRef,
-			"resolved":          a.Resolved,
-			"note":              a.Note,
-		})
-	}
 	provenance := make([]engmodel.ImportedEntityProvenance, len(res.Provenance))
 	for i, p := range res.Provenance {
 		p.ResolvedDir = res.DisplayDir(p.ResolvedDir)
@@ -116,7 +104,6 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 		"hasComposition": true,
 		"root":           rootID,
 		"subsystems":     subsystems,
-		"allocations":    allocations,
 		"provenance":     provenance,
 		"lock":           res.Lock,
 		"diagnostics":    diagRows(engmodel.ApplyTierPolicy(*s.bundle, res.Diagnostics)),
@@ -124,10 +111,12 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 }
 
 // traceMatrix builds the traceability matrix for the loaded model: per-requirement
-// implementation, verification, and delegation status, with orphans and dangling links.
-// Delegated rows carry the target requirement's own trace status
-// (delegatedStatus). With summaryOnly it returns only the summary and diagnostics.
-// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105
+// implementation and verification status, with orphans and dangling links.
+// Imported rows reached through a requirement link carry the linked
+// requirement's own trace status (delegatedStatus). With summaryOnly it returns only the summary and diagnostics.
+// A requirement with formal (Quint) evidence also carries formal (each
+// result with machine, invariant, mode and sha256) and evidenceMethods.
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105, REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
@@ -142,23 +131,17 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			"tested":       matrix.Summary.Tested,
 			"testLinked":   matrix.Summary.TestLinked,
 			"passed":       matrix.Summary.Passed,
-			"verified":     matrix.Summary.Verified, // deprecated alias of testLinked
 			"delegated":    matrix.Summary.Delegated,
-			// Delegated rows whose target requirement is implemented or
-			// test linked in the target repository.
-			"delegatedImplemented": matrix.Summary.DelegatedImplemented,
-			"delegatedTestLinked":  matrix.Summary.DelegatedTestLinked,
-			"orphan":               matrix.Summary.Orphan,
-			"dangling":             matrix.Summary.DanglingLinks,
+			"orphan":       matrix.Summary.Orphan,
+			"dangling":     matrix.Summary.DanglingLinks,
 			// Test-linked requirements whose every linked test is
 			// environment gated (skips unless a variable is set).
 			"gatedOnly":             matrix.Summary.GatedOnly,
 			"gatedOnlyRequirements": nonNilStrings(matrix.Summary.GatedOnlyRequirements),
 			// Requirement links: the links that need review (version
 			// mismatch, broken, claimed) and local requirements without an
-			// upward trace; linksSuspect is a deprecated alias.
+			// upward trace.
 			"linksNeedReview": matrix.Summary.LinksNeedReview, "linksVersionMismatch": matrix.Summary.LinksVersionMismatch,
-			"linksSuspect": matrix.Summary.LinksSuspect,
 			"linksBroken":  matrix.Summary.LinksBroken,
 			"linksClaimed": matrix.Summary.LinksClaimed,
 			"unparented":   matrix.Summary.Unparented,
@@ -185,13 +168,6 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 			"code":          code,
 			"verifications": r.Verifications,
 		}
-		if r.DelegatedTo != nil {
-			row["delegatedTo"] = map[string]any{
-				"subsystem":         r.DelegatedTo.Subsystem,
-				"target":            r.DelegatedTo.Target,
-				"targetRequirement": r.DelegatedTo.TargetRequirement,
-			}
-		}
 		if r.DelegatedStatus != nil {
 			row["delegatedStatus"] = r.DelegatedStatus
 		}
@@ -203,6 +179,12 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 		row["children"] = nonNilStrings(r.Children)
 		if len(r.Links) > 0 {
 			row["links"] = r.Links
+		}
+		if len(r.Formal) > 0 {
+			row["formal"] = r.Formal
+		}
+		if len(r.EvidenceMethods) > 0 {
+			row["evidenceMethods"] = r.EvidenceMethods
 		}
 		if r.SatisfiedBy != "" {
 			row["satisfiedBy"] = r.SatisfiedBy
@@ -222,7 +204,7 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 }
 
 // diagRows renders diagnostics as compact maps for MCP tool responses.
-// TRLC-LINKS: REQ-EMG-016
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-168
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func diagRows(diags []validate.Diagnostic) []map[string]any {
 	out := make([]map[string]any, 0, len(diags))
@@ -243,6 +225,10 @@ func diagRows(diags []validate.Diagnostic) []map[string]any {
 		}
 		if d.PoamRef != "" {
 			row["poamRef"] = d.PoamRef
+		}
+		// The remedy of a required switch: the skill or command that fixes it.
+		if d.Remedy != "" {
+			row["remedy"] = d.Remedy
 		}
 		out = append(out, row)
 	}

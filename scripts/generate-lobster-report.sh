@@ -43,7 +43,7 @@ TRLC_OUT_DIR="${EXAMPLE_DIR}/generated/trlc"
 
 mkdir -p "$OUT_DIR"
 
-go run ./cmd/engtrlc --requirements "$REQ_FILE" --out-dir "${EXAMPLE_DIR}/generated/trlc" --package "$TRLC_PACKAGE"
+go run ./cmd/engtrlc --model "$EXAMPLE_DIR/engmod.yml" --requirements "$REQ_FILE" --out-dir "${EXAMPLE_DIR}/generated/trlc" --package "$TRLC_PACKAGE"
 
 TRLC_CONFIG="${OUT_DIR}/lobster-trlc-config.yml"
 cat > "$TRLC_CONFIG" <<EOF
@@ -66,7 +66,7 @@ HTML_FILE="${OUT_DIR}/report.html"
 
 lobster-trlc --config "$TRLC_CONFIG" --out "$REQ_LOBSTER"
 
-go run ./cmd/englobster --tests-dir "$TESTS_DIR" --requirements-package "$TRLC_PACKAGE" --activity-namespace tests --out "$ACT_LOBSTER"
+go run ./cmd/englobster --model "$EXAMPLE_DIR/engmod.yml" --tests-dir "$TESTS_DIR" --requirements-package "$TRLC_PACKAGE" --activity-namespace tests --out "$ACT_LOBSTER"
 
 cat > "$CONF_FILE" <<EOF
 requirements "Requirements" {

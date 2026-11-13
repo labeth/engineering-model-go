@@ -407,6 +407,29 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 			Metadata:   []SemanticMetadata{semanticMetadata("engineering.relationship."+sourceType, id, value)},
 		})
 	}
+	addTransition := func(path string, relationship SemanticRelationship, value any) {
+		id := strings.TrimSpace(relationship.ID)
+		if previous, exists := relationshipIDs[id]; exists {
+			diagnostics = append(diagnostics, SemanticDiagnostic{
+				Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
+				Message: fmt.Sprintf("duplicate semantic relationship %q (already projected from %s)", id, previous),
+				Path:    path,
+			})
+			return
+		}
+		if previous, exists := elementIndex[id]; exists {
+			diagnostics = append(diagnostics, SemanticDiagnostic{
+				Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
+				Message: fmt.Sprintf("duplicate semantic identity %q (already projected at elements[%d])", id, previous),
+				Path:    path,
+			})
+			return
+		}
+		relationshipIDs[id] = path
+		relationship.Metaclass = officialMetaclassForRelationship(relationship.Kind, relationship.SourceType)
+		relationship.Metadata = []SemanticMetadata{semanticMetadata("engineering.relationship."+relationship.SourceType, id, value)}
+		out.Relationships = append(out.Relationships, relationship)
+	}
 	setExtensionTargets := func(id string, targets []string) {
 		if index, ok := elementIndex[strings.TrimSpace(id)]; ok {
 			out.Elements[index].Targets = compactStrings(targets)
@@ -583,9 +606,6 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 			addRelationship(path+".members", RelationshipContainment, "boundary_contains", x.ID, member, x.ID, x)
 		}
 	}
-	for i, x := range a.States {
-		addElement(indexPath("authoredArchitecture.states", i), ElementStateDefinition, "engineering.state", x.ID, x.Name, "", "", x)
-	}
 	for i, x := range a.Events {
 		addElement(indexPath("authoredArchitecture.events", i), ElementEventDefinition, "engineering.event", x.ID, x.Name, "", "", x)
 	}
@@ -625,6 +645,26 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 				addRelationship(stepPath+".onError", RelationshipSuccession, "flow_error", step.ID, next, x.ID, step)
 			}
 		}
+	}
+	machines := machineSink{
+		addElement: func(path string, kind SemanticElementKind, extension, id, name, owner, typeRef string, source any, features ...SemanticFeature) bool {
+			before := len(out.Elements)
+			addElement(path, kind, extension, id, name, owner, typeRef, source, features...)
+			return len(out.Elements) > before
+		},
+		addSuccession: func(path, sourceType, source, target, owner string, value any) {
+			addRelationship(path, RelationshipSuccession, sourceType, source, target, owner, value)
+		},
+		addTransition: addTransition,
+		setReferences: func(id string, references []string) {
+			if index, ok := elementIndex[strings.TrimSpace(id)]; ok {
+				out.Elements[index].References = compactStrings(append(out.Elements[index].References, references...))
+			}
+		},
+		report: func(diagnostic SemanticDiagnostic) { diagnostics = append(diagnostics, diagnostic) },
+	}
+	for i, x := range a.Machines {
+		projectMachine(machines, indexPath("authoredArchitecture.machines", i), x)
 	}
 	for i, x := range a.ThreatScenarios {
 		path := indexPath("authoredArchitecture.threatScenarios", i)
@@ -679,13 +719,6 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 				Path:    indexPath("authoredArchitecture.mappings", i),
 			})
 		}
-		if kind == RelationshipEventTrigger || kind == RelationshipGuard {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.legacy_lifecycle_attachment", Severity: SemanticSeverityWarning,
-				Message: fmt.Sprintf("legacy %q mapping is attached to state %q and preserved with its original mapping type", x.Type, x.From),
-				Path:    indexPath("authoredArchitecture.mappings", i),
-			})
-		}
 		addRelationship(indexPath("authoredArchitecture.mappings", i), kind, strings.TrimSpace(x.Type), x.From, x.To, "", x)
 	}
 
@@ -712,13 +745,6 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 	}
 	for i, x := range bundle.Architecture.Composition.Subsystems {
 		addElement(indexPath("composition.subsystems", i), ElementPartUsage, "engineering.subsystem", x.ID, x.Name, out.ID, "", x)
-	}
-	for i, x := range bundle.Architecture.Composition.Allocations {
-		target := x.To
-		if strings.TrimSpace(x.Target) != "" {
-			target += "/" + strings.TrimSpace(x.Target)
-		}
-		addRelationship(indexPath("composition.allocations", i), RelationshipAllocation, "allocation", x.Requirement, target, out.ID, x)
 	}
 	for i, x := range bundle.Architecture.Composition.Satisfactions {
 		addRelationship(indexPath("composition.satisfactions", i), RelationshipSatisfaction, "satisfaction", x.By, x.Need, out.ID, x)
@@ -1366,7 +1392,7 @@ func isQualifiedSemanticReference(ref string) bool {
 // TRLC-LINKS: REQ-EMG-035
 func semanticRelationshipAllowsExternalEndpoints(relationship SemanticRelationship) bool {
 	switch strings.TrimSpace(relationship.SourceType) {
-	case "allocation", "satisfaction":
+	case "satisfaction":
 		return true
 	default:
 		return false
@@ -1531,15 +1557,13 @@ func semanticRelationshipAliasKey(kind SemanticRelationshipKind, source, target 
 	return string(kind) + "\x00" + strings.TrimSpace(source) + "\x00" + strings.TrimSpace(target)
 }
 
-// TRLC-LINKS: REQ-EMG-035
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-139
 func semanticMappingKind(kind string) (SemanticRelationshipKind, bool) {
 	switch strings.TrimSpace(kind) {
 	case "contains":
 		return RelationshipContainment, true
 	case "calls", "publishes", "subscribes", "reads", "writes", "streams":
 		return RelationshipTransfer, true
-	case "transitions_to":
-		return RelationshipTransition, true
 	case "allocated_to", "deployed_to":
 		return RelationshipAllocation, true
 	case "satisfies":
@@ -1548,8 +1572,6 @@ func semanticMappingKind(kind string) (SemanticRelationshipKind, bool) {
 		return RelationshipVerification, true
 	case "depends_on", "interacts_with", "targets", "implements":
 		return RelationshipDependency, true
-	case "triggered_by":
-		return RelationshipEventTrigger, true
 	case "guarded_by":
 		return RelationshipGuard, true
 	case "mitigated_by", "bounded_by":

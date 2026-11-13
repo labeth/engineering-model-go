@@ -22,17 +22,18 @@ func tierDecisionBundle(tier string, bundles []string, dec model.Decision) model
 }
 
 // tierDecision must name an accepted decision whose Tier: and Bundles: lines
-// agree with lifecycle (read case-insensitively; a missing Bundles: line is
-// Foundation); anything else is lifecycle.tier_decision_mismatch (error).
+// agree with lifecycle (read case-insensitively; the Bundles: line is required,
+// there is no default); anything else is lifecycle.tier_decision_mismatch
+// (error).
 // TRLC-LINKS: REQ-EMG-124
 func TestLifecycleTierDecisionMustAgree(t *testing.T) {
 	ok := tierDecision("DEC-TIER-MVP", "accepted", "Tier: MVP\nPrevious tier: none\nBundles: Foundation, Safety\nDecider: @owner")
 	if got := codesOf(Bundle(tierDecisionBundle("mvp", []string{"foundation", "safety"}, ok)), "lifecycle.tier_decision_mismatch"); len(got) != 0 {
 		t.Fatalf("agreeing decision reported: %+v", got)
 	}
-	noBundles := tierDecision("DEC-TIER-POC", "accepted", "Tier: PoC")
-	if got := codesOf(Bundle(tierDecisionBundle("poc", nil, noBundles)), "lifecycle.tier_decision_mismatch"); len(got) != 0 {
-		t.Fatalf("decision without Bundles line (foundation) reported: %+v", got)
+	foundation := tierDecision("DEC-TIER-POC", "accepted", "Tier: PoC\nBundles: foundation")
+	if got := codesOf(Bundle(tierDecisionBundle("poc", []string{"foundation"}, foundation)), "lifecycle.tier_decision_mismatch"); len(got) != 0 {
+		t.Fatalf("agreeing foundation decision reported: %+v", got)
 	}
 	cases := []struct {
 		name    string
@@ -42,9 +43,11 @@ func TestLifecycleTierDecisionMustAgree(t *testing.T) {
 		ref     string
 		want    string
 	}{
-		{"tier differs", "product", []string{"foundation", "safety"}, ok, "", "Tier: MVP"},
+		{"tier differs", "product", []string{"foundation", "safety"}, ok, "", `Tier: "MVP"`},
 		{"bundles differ", "mvp", nil, ok, "", "Bundles"},
 		{"proposed", "mvp", []string{"safety"}, tierDecision("DEC-TIER-MVP", "proposed", "Tier: MVP\nBundles: Foundation, Safety"), "", "accepted"},
+		{"no bundles line", "poc", []string{"foundation"}, tierDecision("DEC-TIER-POC", "accepted", "Tier: PoC"), "", "Bundles:"},
+		{"empty bundles line", "poc", []string{"foundation"}, tierDecision("DEC-TIER-POC", "accepted", "Tier: PoC\nBundles:"), "", "Bundles:"},
 		{"no tier line", "mvp", nil, tierDecision("DEC-TIER-MVP", "accepted", "We go to MVP."), "", "Tier:"},
 		{"unknown decision", "mvp", nil, ok, "DEC-TIER-NONE", "DEC-TIER-NONE"},
 	}
@@ -152,7 +155,7 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		{ID: "POAM-TIER-PRODUCT-01", Milestone: "tier:product", Status: "in-progress", Defers: []model.POAMDefer{{Code: "requirement.orphan", Path: "requirements[REQ-1]"}}},
 		{ID: "POAM-TIER-PRODUCT-02", Milestone: "tier:product", Status: "completed", Defers: []model.POAMDefer{{Code: "verification.unlinked"}}},
 		{ID: "POAM-TIER-MVP-01", Milestone: "tier:mvp", Status: "planned", Defers: []model.POAMDefer{{Code: "link.claimed_only"}}},
-		{ID: "POAM-TIER-PRODUCT-03", Milestone: "tier:product", Status: "planned", Defers: []model.POAMDefer{{Code: "model.duplicate_id"}, {Code: "lint.*"}, {Code: "composition.lock_check_skipped"}}},
+		{ID: "POAM-TIER-PRODUCT-03", Milestone: "tier:product", Status: "planned", Defers: []model.POAMDefer{{Code: "model.duplicate_id"}, {Code: "lint.multiple_*"}, {Code: "composition.lock_check_skipped"}}},
 	}
 	in := []Diagnostic{
 		{Code: "requirement.orphan", Severity: SeverityWarning, Path: "requirements[REQ-1]"},

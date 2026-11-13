@@ -358,6 +358,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Separate edge OTA execution from cloud campaign orchestration
 |accepted
 |2026-04-29
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|coffee fleet ota cloud sample runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend
@@ -397,7 +401,7 @@ flowchart LR
   FU --> DEPT
   FU --> CTRL
   FU --> TB
-  ST -->|triggered_by| EVT
+  ST -->|on_event| EVT
   ST -->|guarded_by| CTRL
   FLOW --> FSTEP
   FSTEP -->|flow_ref| FU
@@ -490,6 +494,7 @@ N_REF_FIRMWARE_SIGNER_SERVICE["Firmware Signer Service"]:::referenced_element
 N_REF_IOT_INGEST_ENDPOINT["IoT Ingest Endpoint"]:::referenced_element
 N_REF_MQTT_DEVICE_SDK["MQTT Device SDK"]:::referenced_element
 N_STATE_COFFEE_OTA_APPLIED(["OTA Applied"]):::state
+N_STATE_COFFEE_OTA_ROLLING_OUT(["OTA Rolling Out"]):::state
 N_STATE_COFFEE_OTA_SCHEDULED(["OTA Scheduled"]):::state
 N_TB_COFFEE_CLOUD_CONTROL[/"Cloud Control Boundary"\]:::trust_boundary
 N_TB_COFFEE_EDGE_DEVICE[/"Edge Device Boundary"\]:::trust_boundary
@@ -536,10 +541,11 @@ N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|calls| N_IF_COFFEE_OTA_COMMAND
 N_FU_UPDATE_CAMPAIGN_ORCHESTRATION -->|contains| N_IF_COFFEE_OTA_COMMAND
 N_FU_UPDATE_CAMPAIGN_ORCHESTRATION --> N_REF_FIRMWARE_SIGNER_SERVICE
 N_STATE_COFFEE_OTA_APPLIED --> N_CTRL_COFFEE_FIRMWARE_SIGNATURE
-N_STATE_COFFEE_OTA_APPLIED --> N_EVT_COFFEE_OTA_COMPLETED
 N_STATE_COFFEE_OTA_APPLIED --> N_TB_COFFEE_EDGE_DEVICE
+N_STATE_COFFEE_OTA_ROLLING_OUT --> N_EVT_COFFEE_OTA_COMPLETED
+N_STATE_COFFEE_OTA_ROLLING_OUT --> N_STATE_COFFEE_OTA_APPLIED
 N_STATE_COFFEE_OTA_SCHEDULED --> N_EVT_COFFEE_OTA_REQUESTED
-N_STATE_COFFEE_OTA_SCHEDULED --> N_STATE_COFFEE_OTA_APPLIED
+N_STATE_COFFEE_OTA_SCHEDULED --> N_STATE_COFFEE_OTA_ROLLING_OUT
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -902,7 +908,7 @@ Central cloud ingestion, campaign <<REF_IDX-ENGMODEL_TERM_CONTROL,control>>, and
 
 
 
-<<REF_IDX-CATALOG_FG_CLOUD_CONTROL,Cloud Control>> owns central APIs and coordination logic for fleet <<REF_IDX-CATALOG_TELEMETRY,telemetry>> and <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollouts>>.
+<<REF_IDX-CATALOG_FG_CLOUD_CONTROL,Cloud Control>> owns central APIs and coordination logic for fleet <<REF_IDX-CATALOG_TELEMETRY,telemetry>> and <<REF_IDX-MACHINE_SM_COFFEE_OTA_ROLLOUT,OTA rollouts>>.
 It provides global fleet visibility and deterministic rollout decisions.
 
 
@@ -3029,13 +3035,15 @@ N_CTRL_COFFEE_FIRMWARE_SIGNATURE[["Firmware Signature Enforcement"]]:::control
 N_EVT_COFFEE_OTA_COMPLETED(("OTA Completed")):::event
 N_EVT_COFFEE_OTA_REQUESTED(("OTA Requested")):::event
 N_STATE_COFFEE_OTA_APPLIED(["OTA Applied"]):::state
+N_STATE_COFFEE_OTA_ROLLING_OUT(["OTA Rolling Out"]):::state
 N_STATE_COFFEE_OTA_SCHEDULED(["OTA Scheduled"]):::state
 N_TB_COFFEE_EDGE_DEVICE[/"Edge Device Boundary"\]:::trust_boundary
 N_STATE_COFFEE_OTA_APPLIED --> N_CTRL_COFFEE_FIRMWARE_SIGNATURE
-N_STATE_COFFEE_OTA_APPLIED --> N_EVT_COFFEE_OTA_COMPLETED
 N_STATE_COFFEE_OTA_APPLIED --> N_TB_COFFEE_EDGE_DEVICE
+N_STATE_COFFEE_OTA_ROLLING_OUT --> N_EVT_COFFEE_OTA_COMPLETED
+N_STATE_COFFEE_OTA_ROLLING_OUT --> N_STATE_COFFEE_OTA_APPLIED
 N_STATE_COFFEE_OTA_SCHEDULED --> N_EVT_COFFEE_OTA_REQUESTED
-N_STATE_COFFEE_OTA_SCHEDULED --> N_STATE_COFFEE_OTA_APPLIED
+N_STATE_COFFEE_OTA_SCHEDULED --> N_STATE_COFFEE_OTA_ROLLING_OUT
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3409,6 +3417,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
+|pass
+|test-results/quint-formal.json; INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT of <<REF_IDX-MACHINE_SM_COFFEE_OTA_ROLLOUT,SM-COFFEE-OTA-ROLLOUT>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
+
 |<<REF_IDX-VER_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8>>
 |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
 |pass
@@ -3559,7 +3572,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 Where <<REF_IDX-CATALOG_FEAT_OTA_CAMPAIGN,ota campaign is enabled>>, when <<REF_IDX-CATALOG_EVT_OTA_CAMPAIGN_SCHEDULED,ota campaign scheduled event is received>>, <<REF_IDX-CATALOG_THE_COFFEE_FLEET_SYSTEM,the coffee fleet system>> shall distribute <<REF_IDX-CATALOG_DATA_FIRMWARE_BUNDLE,signed firmware bundle>> to targeted machine cohort using <<REF_IDX-CATALOG_DATA_OTA_CAMPAIGN_POLICY,ota campaign policy>>.
 
 
-NOTE: <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollout>> behavior from central <<REF_IDX-CATALOG_FG_CLOUD_CONTROL,cloud control>>; delegated to the ota-agent subsystem.
+NOTE: <<REF_IDX-MACHINE_SM_COFFEE_OTA_ROLLOUT,OTA rollout>> behavior from central <<REF_IDX-CATALOG_FG_CLOUD_CONTROL,cloud control>>; delegated to the ota-agent subsystem.
 
 
 
@@ -3590,6 +3603,8 @@ flowchart TB
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC -->|verifies| REQC_REQ_COF_003
   VERCODE_REQ_COF_003_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML["ota_rollout_flow.yaml"]:::code_element
   VERC_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC --->|implemented_by| VERCODE_REQ_COF_003_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC_OTA_ROLLOUT_FLOW_YAML
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_COF_003
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8["VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8 (pass)"]:::verification
   VERC_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8 -->|verifies| REQC_REQ_COF_003
   VERCODE_REQ_COF_003_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8_OTA_CAMPAIGN_TEST_GO["ota_campaign_test.go: 8"]:::code_element
@@ -3944,6 +3959,9 @@ flowchart TB
   REQC_REQ_COF_009 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CODE_REQ_COF_009_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 12"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING --->|implemented_by| CODE_REQ_COF_009_FLEET_OBSERVABILITY_REPORTING_TS
+  REQC_REQ_COF_009 -->|code trace| CODE_REQ_COF_009_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -3991,6 +4009,11 @@ flowchart TB
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
   FU_FU_OTA_UPDATE_AGENT["OTA Update Agent"]:::functional_unit
   REQC_REQ_COF_010 -->|applies_to| FU_FU_OTA_UPDATE_AGENT
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME["OTA Update Agent runtime (inferred)"]:::runtime_element
+  FU_FU_OTA_UPDATE_AGENT -->|runtime evidence| RTC_FU_OTA_UPDATE_AGENT_RUNTIME
+  CODE_REQ_COF_010_OTA_UPDATE_AGENT_RS["ota_update_agent.rs: 16"]:::code_element
+  RTC_FU_OTA_UPDATE_AGENT_RUNTIME --->|implemented_by| CODE_REQ_COF_010_OTA_UPDATE_AGENT_RS
+  REQC_REQ_COF_010 -->|code trace| CODE_REQ_COF_010_OTA_UPDATE_AGENT_RS
   FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION["Update Campaign Orchestration"]:::functional_unit
   REQC_REQ_COF_010 -->|applies_to| FU_FU_UPDATE_CAMPAIGN_ORCHESTRATION
   RTC_FU_UPDATE_CAMPAIGN_ORCHESTRATION_UPDATE_CAMPAIGN_ORCHESTRATION["update_campaign_orchestration"]:::runtime_element
@@ -4042,6 +4065,11 @@ flowchart TB
   FU_FU_FLEET_INGESTION_API -->|runtime evidence| RTC_FU_FLEET_INGESTION_API_FLEET_INGESTION_API
   FU_FU_MACHINE_TELEMETRY_COLLECTION["Machine Telemetry Collection"]:::functional_unit
   REQC_REQ_COF_011 -->|applies_to| FU_FU_MACHINE_TELEMETRY_COLLECTION
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME["Machine Telemetry Collection runtime (inferred)"]:::runtime_element
+  FU_FU_MACHINE_TELEMETRY_COLLECTION -->|runtime evidence| RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME
+  CODE_REQ_COF_011_MACHINE_TELEMETRY_RS["machine_telemetry.rs: 24"]:::code_element
+  RTC_FU_MACHINE_TELEMETRY_COLLECTION_RUNTIME --->|implemented_by| CODE_REQ_COF_011_MACHINE_TELEMETRY_RS
+  REQC_REQ_COF_011 -->|code trace| CODE_REQ_COF_011_MACHINE_TELEMETRY_RS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -4101,6 +4129,9 @@ flowchart TB
   REQC_REQ_COF_012 -->|applies_to| FU_FU_FLEET_OBSERVABILITY_REPORTING
   RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING["fleet_observability_reporting"]:::runtime_element
   FU_FU_FLEET_OBSERVABILITY_REPORTING -->|runtime evidence| RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING
+  CODE_REQ_COF_012_FLEET_OBSERVABILITY_REPORTING_TS["fleet_observability_reporting.ts: 18"]:::code_element
+  RTC_FU_FLEET_OBSERVABILITY_REPORTING_FLEET_OBSERVABILITY_REPORTING --->|implemented_by| CODE_REQ_COF_012_FLEET_OBSERVABILITY_REPORTING_TS
+  REQC_REQ_COF_012 -->|code trace| CODE_REQ_COF_012_FLEET_OBSERVABILITY_REPORTING_TS
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -4144,7 +4175,27 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Result Summary |not-run:2
 |Evidence |tests/e2e/ota_rollout_flow.yaml
 
-|Notes |runs fleet <<REF_IDX-CATALOG_OTA_ROLLOUT,OTA rollout>> scenario including scheduling, deployment, and <<REF_IDX-CATALOG_TELEMETRY,telemetry>> confirmation
+|Notes |runs fleet <<REF_IDX-MACHINE_SM_COFFEE_OTA_ROLLOUT,OTA rollout>> scenario including scheduling, deployment, and <<REF_IDX-CATALOG_TELEMETRY,telemetry>> confirmation
+
+|===
+
+
+[[REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F]]
+==== Quint Formal
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|Kind |formal
+|Status |pass
+|Verifies Requirements |<<REF_IDX-REQ_REQ_COF_003,REQ-COF-003>>
+|Test Code Elements |none
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_OTA_UPDATE_AGENT,FU-OTA-UPDATE-AGENT>>, <<REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION,FU-UPDATE-CAMPAIGN-ORCHESTRATION>>
+|Result Summary |pass:1
+|Evidence |test-results/quint-formal.json
+
+|Notes |Formal verification of machine invariants with Quint (analysis); a result counts only while the sha256 of its module matches.
 
 |===
 
@@ -4313,7 +4364,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == System Composition & Hardware
 
-This chapter shows the system architecture across hardware and software: hardware items and their interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
+This chapter shows the system architecture across hardware and software: hardware items and their interfaces and the subsystems this system composes. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
 
 === Hardware Items
 
@@ -4583,7 +4634,7 @@ flowchart LR
 |`models.example/coffee-fleet/telemetry@v0@v0.1.0`
 |===
 
-All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
+All subsystem required interfaces are satisfied.
 
 
 <<<
@@ -4924,6 +4975,19 @@ protocol=mqtt; endpoint=mqtt://ingest/topics/telemetry; schemaRef=schemas/teleme
 |Name |Telemetry Ingestion Interface
 |Mentioned In |n/a
 |===
+[[REF_IDX-MACHINE_SM_COFFEE_OTA_ROLLOUT]]
+[discrete]
+==== SM-COFFEE-OTA-ROLLOUT
+
+owner=FU-UPDATE-CAMPAIGN-ORCHESTRATION; initial=STATE-COFFEE-OTA-SCHEDULED; states=3; transitions=2
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Machine
+|Name |OTA rollout
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>
+|===
 [[REF_IDX-REQ_REQ_COF_001]]
 [discrete]
 ==== REQ-COF-001
@@ -4961,7 +5025,7 @@ Where ota campaign is enabled, when ota campaign scheduled event is received, th
 |Key |Value
 |Kind |Requirement
 |Name |REQ-COF-003
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-REQ_REQ_COF_004]]
 [discrete]
@@ -5091,6 +5155,19 @@ Firmware update successfully applied to target cohort.
 |Key |Value
 |Kind |State
 |Name |OTA Applied
+|Mentioned In |n/a
+|===
+[[REF_IDX-STATE_STATE_COFFEE_OTA_ROLLING_OUT]]
+[discrete]
+==== STATE-COFFEE-OTA-ROLLING-OUT
+
+Signed firmware bundle is being delivered to and installed on the target cohort.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |State
+|Name |OTA Rolling Out
 |Mentioned In |n/a
 |===
 [[REF_IDX-STATE_STATE_COFFEE_OTA_SCHEDULED]]
@@ -5834,7 +5911,7 @@ Feature flag enabling centralized OTA rollout behavior.
 |Key |Value
 |Kind |Catalog Alias
 |Name |ota rollout
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<REF_REQ_REQ_COF_003,REQ-COF-003>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>
+|Mentioned In |n/a
 |===
 [[REF_IDX-CATALOG_OTA_ROLLOUT_COMMANDS]]
 [discrete]
@@ -6575,7 +6652,7 @@ Downloads, validates, and applies signed firmware updates on machines.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |ota update agent
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-COMMUNICATION,Communication View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-CATALOG_FU_UPDATE_CAMPAIGN_ORCHESTRATION]]
 [discrete]
@@ -6588,7 +6665,7 @@ Selects target machine groups and coordinates OTA rollout phases.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |update campaign orchestration
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_UNIT_OTA_CAMPAIGN_TEST_5CC0D8,Ota Campaign Test>>
 |===
 [[REF_IDX-CATALOG_MODE_NORMAL]]
 [discrete]
@@ -7990,6 +8067,20 @@ Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from src/machine_t
 |Source |src/machine_telemetry.rs:18
 |Mentioned In |n/a
 |===
+[[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_24_SRC_MACHINE_TELEMETRY_RS_24]]
+[discrete]
+==== machine_telemetry.rs:24
+
+Inferred code symbol owned by FU-MACHINE-TELEMETRY-COLLECTION from src/machine_telemetry.rs:24.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code symbol
+|Owner |FU-MACHINE-TELEMETRY-COLLECTION
+|Source |src/machine_telemetry.rs:24
+|Mentioned In |n/a
+|===
 [[REF_CODE_SYMBOL_MACHINE_TELEMETRY_RS_5_SRC_MACHINE_TELEMETRY_RS_5]]
 [discrete]
 ==== machine_telemetry.rs:5
@@ -8104,6 +8195,21 @@ runs fleet OTA rollout scenario including scheduling, deployment, and telemetry 
 |Source |tests/e2e/ota_rollout_flow.yaml
 |Name |Ota Rollout Flow
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_OTA_ROLLOUT_FLOW_8CBDAC,Ota Rollout Flow>>
+|===
+[[REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F]]
+[discrete]
+==== VER-INF-FORMAL-QUINT_FORMAL-5B471F
+
+Formal verification of machine invariants with Quint (analysis); a result counts only while the sha256 of its module matches.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |formal
+|Status |pass
+|Source |test-results/quint-formal.json
+|Name |Quint Formal
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>
 |===
 [[REF_IDX-VER_VER_INF_INTEGRATION_LOGGING_PIPELINE_TEST_B39BBF]]
 [discrete]

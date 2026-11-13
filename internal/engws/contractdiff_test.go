@@ -185,3 +185,52 @@ func TestLoadBundleAtRefRejectsOptionRefs(t *testing.T) {
 		t.Fatalf("a tag ref: %v", err)
 	}
 }
+
+// A model committed before v0.11.0 uses the retired behavior.states
+// vocabulary, which the loader now refuses. release-check and contract-diff
+// read only the contract at a ref, so a tag with the old vocabulary must
+// still load, while the working tree keeps being refused.
+// Mutation: dropping StripLegacyStateVocabulary from LoadBundleAtRef fails
+// this test with the "was removed in v0.11.0" error, which is what the
+// release-check of the first tag after the removal would hit.
+// TRLC-LINKS: REQ-EMG-102, REQ-EMG-139
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-MODEL-LOADER
+func TestLoadBundleAtRefToleratesTheRetiredStateVocabulary(t *testing.T) {
+	dir := gitModel(t, "child-a", "v1.0.0")
+	behavior := filepath.Join(dir, "model", "behavior.yml")
+	legacy := "schemaVersion: 3\nbehavior:\n  states:\n  - id: STATE-OLD\n    name: Old\n  relationships:\n  - type: transitions_to\n    from: STATE-OLD\n    to: STATE-OLD\n"
+	if err := os.WriteFile(behavior, []byte(legacy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	runGit(t, dir, "add", "-A")
+	runGit(t, dir, "commit", "-q", "-m", "old state vocabulary")
+	runGit(t, dir, "tag", "v1.0.1")
+
+	if _, err := LoadBundleAtRef(dir, "v1.0.1"); err != nil {
+		t.Fatalf("a tag with the retired vocabulary must load for the contract: %v", err)
+	}
+	if _, err := model.LoadBundle(filepath.Join(dir, "engmod.yml")); err == nil || !strings.Contains(err.Error(), "was removed in v0.11.0") {
+		t.Fatalf("the working tree must still be refused, got %v", err)
+	}
+}
+
+// The documents of a manifest are read in sorted key order, so a model with
+// several unreadable documents always reports the same one first.
+// Mutation: ranging over the documents map directly reports a random one and
+// fails this test on some runs.
+// TRLC-LINKS: REQ-EMG-102
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func TestLoadBundleAtRefReportsTheFirstMissingDocumentInKeyOrder(t *testing.T) {
+	dir := gitModel(t, "child-a", "v1.0.0")
+	for _, doc := range []string{"views", "assurance", "decisions"} {
+		runGit(t, dir, "rm", "-q", filepath.Join("model", doc+".yml"))
+	}
+	runGit(t, dir, "commit", "-q", "-m", "drop documents")
+	runGit(t, dir, "tag", "v1.0.1")
+	for i := 0; i < 20; i++ {
+		_, err := LoadBundleAtRef(dir, "v1.0.1")
+		if err == nil || !strings.Contains(err.Error(), "documents.assurance at v1.0.1") {
+			t.Fatalf("run %d: want the alphabetically first missing document, got %v", i, err)
+		}
+	}
+}

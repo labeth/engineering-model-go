@@ -112,6 +112,12 @@ package 'atlas-aegis-sentinel' {
     attribute 'DATA-AEG-TRACK';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DO-AEG-TRACK";
         conceptKind = "item_definition";
     }

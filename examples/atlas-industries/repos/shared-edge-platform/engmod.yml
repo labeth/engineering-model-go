@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.atlas.example/shared/edge-platform@v0
   version: v0.1.0
@@ -33,3 +33,9 @@ publications:
   - REQ-EDGE-001
   - REQ-EDGE-002
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

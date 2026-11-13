@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-const assuranceFile = `schemaVersion: 2
+const assuranceFile = `schemaVersion: 3
 assurance:
   # risks owned by the security lead
   risks:

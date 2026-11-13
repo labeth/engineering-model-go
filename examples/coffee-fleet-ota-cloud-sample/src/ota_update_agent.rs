@@ -12,7 +12,7 @@ pub fn validate_and_apply(signature_valid: bool) -> &'static str {
 }
 
 // ENGMODEL-LINKS: IF-COFFEE-OTA-COMMAND, FLOW-COFFEE-OTA-ROLLOUT, DO-COFFEE-OTA-PLAN
-// TRLC-LINKS: REQ-COF-005
+// TRLC-LINKS: REQ-COF-005, REQ-COF-010
 pub fn rollback_and_report() -> &'static str {
     "rollback_reported"
 }

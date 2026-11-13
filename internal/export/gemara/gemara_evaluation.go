@@ -65,11 +65,18 @@ func gemaraInferredStep(payload interface{}) (gemaraproj.Result, string, gemarap
 }
 
 // GenerateEvaluationLog builds an L5 Evaluation Log from the model bundle.
-// requirements and codeRoot are reserved for inferred-verification augmentation.
-// TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
+// requirements is reserved for inferred-verification augmentation; codeRoot
+// locates the test-results directory beside the code for formal evidence. A
+// requirement with a formal (Quint) result adds a requirement-keyed entry
+// (gemara_formal.go); a model without formal evidence adds none.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036, REQ-EMG-147
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func GenerateEvaluationLog(bundle model.Bundle, requirements model.RequirementsDocument, codeRoot string, options Options) (EvaluationResult, error) {
 	bundle.Requirements = requirements
+	modelRoot := ""
+	if bundle.ManifestPath != "" || bundle.ArchitecturePath != "" {
+		modelRoot = codescan.ModelRootDir(bundle)
+	}
 	canonical, err := model.NewCanonicalBundle(bundle)
 	if err != nil {
 		return EvaluationResult{}, err
@@ -175,6 +182,8 @@ func GenerateEvaluationLog(bundle model.Bundle, requirements model.RequirementsD
 		aggregate = gemaraproj.UpdateAggregateResult(aggregate, ceResult)
 	}
 
+	// Requirement-keyed formal (Quint) entries; none without formal evidence.
+	aggregate = appendFormalEvaluations(&log, aggregate, modelRoot, codeRoot, start)
 	log.Result = aggregate
 
 	if len(log.Evaluations) == 0 {

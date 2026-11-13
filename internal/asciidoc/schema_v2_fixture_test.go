@@ -13,6 +13,9 @@ func schemaV2TestBundle(bundle model.Bundle) model.Bundle {
 // TRLC-LINKS: REQ-EMG-046
 func schemaV2TestRequirements(requirements model.RequirementsDocument) model.RequirementsDocument {
 	requirements.SchemaVersion = model.CurrentSchemaVersion
+	if requirements.LintRun.Mode == "" {
+		requirements.LintRun.Mode = "guided"
+	}
 	return requirements
 }
 

@@ -99,9 +99,27 @@
       ],
       "verifications": [
         "VER-INF-E2E-OTA_ROLLOUT_FLOW-8CBDAC",
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
         "VER-INF-UNIT-OTA_CAMPAIGN_TEST-5CC0D8"
       ],
       "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-COF-003",
+          "machine": "SM-COFFEE-OTA-ROLLOUT",
+          "invariant": "INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_coffee_ota_rollout.qnt",
+          "qntSha256": "bb7d701984d0d2b19f86dbda99eb09ca665e466030a8bd0d21a7238eefccf333",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT of SM-COFFEE-OTA-ROLLOUT holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
       "status": "implemented",
       "children": [
         "ota-agent::CAP-OTA-APPLY",
@@ -259,7 +277,14 @@
         "FU-FLEET-INGESTION-API",
         "FU-FLEET-OBSERVABILITY-REPORTING"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-FLEET-OBSERVABILITY-REPORTING-TS--PERSISTAUDITLOG",
+          "path": "src/fleet_observability_reporting.ts",
+          "line": 12
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-COFFEE-FLEET-AUDIT"
       ]
@@ -272,7 +297,14 @@
         "FU-OTA-UPDATE-AGENT",
         "FU-UPDATE-CAMPAIGN-ORCHESTRATION"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-OTA-UPDATE-AGENT-RS--ROLLBACKANDREPORT",
+          "path": "src/ota_update_agent.rs",
+          "line": 16
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-COFFEE-FLEET-OTA"
       ]
@@ -284,7 +316,14 @@
         "FU-FLEET-INGESTION-API",
         "FU-MACHINE-TELEMETRY-COLLECTION"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-MACHINE-TELEMETRY-RS--FLUSHRETRYQUEUE",
+          "path": "src/machine_telemetry.rs",
+          "line": 24
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-COFFEE-FLEET-TELEMETRY"
       ]
@@ -297,7 +336,14 @@
         "FU-FLEET-INGESTION-API",
         "FU-FLEET-OBSERVABILITY-REPORTING"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-FLEET-OBSERVABILITY-REPORTING-TS--NOTIFYREPLAYABUSE",
+          "path": "src/fleet_observability_reporting.ts",
+          "line": 18
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-COFFEE-FLEET-AUDIT"
       ]
@@ -504,28 +550,19 @@
     }
   ],
   "danglingLinks": null,
-  "orphanRequirements": [
-    "REQ-COF-009",
-    "REQ-COF-010",
-    "REQ-COF-011",
-    "REQ-COF-012"
-  ],
+  "orphanRequirements": null,
   "summary": {
     "requirements": 20,
-    "implemented": 8,
-    "verified": 6,
+    "implemented": 12,
     "tested": 6,
     "testLinked": 6,
     "passed": 4,
     "delegated": 0,
-    "delegatedImplemented": 0,
-    "delegatedTestLinked": 0,
-    "orphan": 4,
+    "orphan": 0,
     "danglingLinks": 0,
     "gatedOnly": 0,
     "linksNeedReview": 3,
     "linksVersionMismatch": 0,
-    "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 3,
     "unparented": 0

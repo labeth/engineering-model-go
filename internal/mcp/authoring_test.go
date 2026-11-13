@@ -176,7 +176,6 @@ func writeAuthoringCompositionFixture(t *testing.T, withWorkspace bool) string {
     provides:
       - id: CAP-CHILD
         kind: capability
-        ref: REQ-CHILD
 `)
 	writeMCPModule(t, parent, "example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
   - alias: child
@@ -197,7 +196,7 @@ func writeAuthoringCompositionFixture(t *testing.T, withWorkspace bool) string {
         publication: public
 `)
 	if withWorkspace {
-		writeMCPFile(t, filepath.Join(root, "engmod.work.yml"), "schemaVersion: 2\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
+		writeMCPFile(t, filepath.Join(root, "engmod.work.yml"), "schemaVersion: 3\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
 	}
 	return parent
 }
@@ -418,7 +417,7 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 		t.Fatalf("dangling relationship must be an error attributed to behavior: %+v", behaviorResult)
 	}
 
-	syntax := "schemaVersion: 2\nrequirements:\n  - id: [unclosed\n"
+	syntax := "schemaVersion: 3\nrequirements:\n  - id: [unclosed\n"
 	parse := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": syntax})
 	parseErrors, _ := parse["parseErrors"].([]any)
 	if len(parseErrors) == 0 || parse["valid"] != false {

@@ -1,0 +1,32 @@
+{
+  "schema": "engmod-formal-evidence/1",
+  "tool": "quint",
+  "quintVersion": "0.33.1",
+  "backend": "typescript",
+  "results": [
+    {
+      "requirement": "REQ-PRR-005",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-BEDROCK-PR-REVIEW",
+      "invariant": "INV-BEDROCK-NO-EARLY-PUBLICATION",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_bedrock_pr_review.qnt",
+      "qntSha256": "e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105",
+      "notes": "INV-BEDROCK-NO-EARLY-PUBLICATION of SM-BEDROCK-PR-REVIEW holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-PRR-005",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-BEDROCK-PR-REVIEW",
+      "invariant": "INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_bedrock_pr_review.qnt",
+      "qntSha256": "e3d02cb3932377282d41aa32d76e8651c38dd6bb4f881fe165d52ed4f89c2105",
+      "notes": "INV-BEDROCK-REVIEW-PUBLISHED-ONCE-FINISHED of SM-BEDROCK-PR-REVIEW holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    }
+  ]
+}

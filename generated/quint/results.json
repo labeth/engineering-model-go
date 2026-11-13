@@ -1,0 +1,548 @@
+{
+  "schema": "engmod-quint-results/1",
+  "modules": [
+    {
+      "machine": "SM-MODEL-VALIDATION",
+      "module": "sm_model_validation",
+      "qntFile": "generated/quint/sm_model_validation.qnt",
+      "qntSha256": "34dff5bf42189471b7a95cf6f25f915313cf9f3f449fddc3e1272dceba51037f",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_model_generation_only_when_valid",
+          "id": "INV-MODEL-GENERATION-ONLY-WHEN-VALID",
+          "requirements": [
+            "REQ-EMG-046"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_model_valid",
+          "state": "STATE-MODEL-VALID",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_model_invalid",
+          "state": "STATE-MODEL-INVALID",
+          "witnessed": 10000,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "machine": "SM-ARTIFACT-FRESHNESS",
+      "module": "sm_artifact_freshness",
+      "qntFile": "generated/quint/sm_artifact_freshness.qnt",
+      "qntSha256": "711cdcfc7ed2db0bf81db1ee9e791b85f4a3b3a7fae980af4e46286a7d4d95e4",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_artifacts_fresh_validated",
+          "id": "INV-ARTIFACTS-FRESH-VALIDATED",
+          "requirements": [
+            "REQ-EMG-009"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_artifacts_stale_not_validated",
+          "id": "INV-ARTIFACTS-STALE-NOT-VALIDATED",
+          "requirements": [
+            "REQ-EMG-009"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_artifacts_fresh",
+          "state": "STATE-ARTIFACTS-FRESH",
+          "witnessed": 8592,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_artifacts_stale",
+          "state": "STATE-ARTIFACTS-STALE",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_artifacts_regenerating",
+          "state": "STATE-ARTIFACTS-REGENERATING",
+          "witnessed": 10000,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "machine": "SM-LINK-LIFECYCLE",
+      "module": "sm_link_lifecycle",
+      "qntFile": "generated/quint/sm_link_lifecycle.qnt",
+      "qntSha256": "5d48da5a1eaef0417fdacbf91ad7af02a12f0a09f60c350180708a24bb7744bd",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_link_accepted_reviewed",
+          "id": "INV-LINK-ACCEPTED-REVIEWED",
+          "requirements": [
+            "REQ-EMG-101"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_link_unreviewed_not_accepted",
+          "id": "INV-LINK-UNREVIEWED-NOT-ACCEPTED",
+          "requirements": [
+            "REQ-EMG-094",
+            "REQ-EMG-101",
+            "REQ-EMG-119"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_link_absent",
+          "state": "STATE-LINK-ABSENT",
+          "witnessed": 9750,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_link_claimed",
+          "state": "STATE-LINK-CLAIMED",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_link_accepted",
+          "state": "STATE-LINK-ACCEPTED",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_link_suspect",
+          "state": "STATE-LINK-SUSPECT",
+          "witnessed": 9190,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_link_broken",
+          "state": "STATE-LINK-BROKEN",
+          "witnessed": 9791,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "machine": "SM-MCP-SESSION",
+      "module": "sm_mcp_session",
+      "qntFile": "generated/quint/sm_mcp_session.qnt",
+      "qntSha256": "cab801365c3dac5a7e681607cda843d672d72f98d3959fabcc530a5069bccf3c",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_mcp_current_fingerprint_matches",
+          "id": "INV-MCP-CURRENT-FINGERPRINT-MATCHES",
+          "requirements": [
+            "REQ-EMG-089"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_mcp_outdated_fingerprint_differs",
+          "id": "INV-MCP-OUTDATED-FINGERPRINT-DIFFERS",
+          "requirements": [
+            "REQ-EMG-089"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_mcp_failed_call_keeps_outdated",
+          "id": "INV-MCP-FAILED-CALL-KEEPS-OUTDATED",
+          "requirements": [
+            "REQ-EMG-007",
+            "REQ-EMG-089"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_mcp_unloadable_files_not_current",
+          "id": "INV-MCP-UNLOADABLE-FILES-NOT-CURRENT",
+          "requirements": [
+            "REQ-EMG-089"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_mcp_model_current",
+          "state": "STATE-MCP-MODEL-CURRENT",
+          "witnessed": 9919,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_mcp_model_outdated",
+          "state": "STATE-MCP-MODEL-OUTDATED",
+          "witnessed": 10000,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    },
+    {
+      "machine": "SM-REQUIREMENTS-DELTA",
+      "module": "sm_requirements_delta",
+      "qntFile": "generated/quint/sm_requirements_delta.qnt",
+      "qntSha256": "44282e470e5c692efc3551f301aeee0f944d04a6034a7166261a7e3483868cf2",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_delta_written_only_when_applied",
+          "id": "INV-DELTA-WRITTEN-ONLY-WHEN-APPLIED",
+          "requirements": [
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_applied_written",
+          "id": "INV-DELTA-APPLIED-WRITTEN",
+          "requirements": [
+            "REQ-EMG-033"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_dry_run_not_written",
+          "id": "INV-DELTA-DRY-RUN-NOT-WRITTEN",
+          "requirements": [
+            "REQ-EMG-032"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_written_candidate_valid",
+          "id": "INV-DELTA-WRITTEN-CANDIDATE-VALID",
+          "requirements": [
+            "REQ-EMG-032",
+            "REQ-EMG-033",
+            "REQ-EMG-185"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_written_source_unchanged",
+          "id": "INV-DELTA-WRITTEN-SOURCE-UNCHANGED",
+          "requirements": [
+            "REQ-EMG-033",
+            "REQ-EMG-185"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_lock_exclusive",
+          "id": "INV-DELTA-LOCK-EXCLUSIVE",
+          "requirements": [
+            "REQ-EMG-033",
+            "REQ-EMG-185"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_lock_released",
+          "id": "INV-DELTA-LOCK-RELEASED",
+          "requirements": [
+            "REQ-EMG-033",
+            "REQ-EMG-185"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_delta_refused_not_written",
+          "id": "INV-DELTA-REFUSED-NOT-WRITTEN",
+          "requirements": [
+            "REQ-EMG-033",
+            "REQ-EMG-185"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 21,
+            "traceMax": 21
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_delta_none",
+          "state": "STATE-DELTA-NONE",
+          "witnessed": 9821,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_planning",
+          "state": "STATE-DELTA-PLANNING",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_planned",
+          "state": "STATE-DELTA-PLANNED",
+          "witnessed": 9988,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_applied",
+          "state": "STATE-DELTA-APPLIED",
+          "witnessed": 2882,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_locked",
+          "state": "STATE-DELTA-LOCKED",
+          "witnessed": 6867,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_delta_refused",
+          "state": "STATE-DELTA-REFUSED",
+          "witnessed": 7830,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    }
+  ]
+}

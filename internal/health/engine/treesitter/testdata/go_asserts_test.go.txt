@@ -1,0 +1,86 @@
+package fixture
+
+import "testing"
+
+// TestAssertPos has a run of six assertions: t.Errorf, t.Errorf, an if that
+// only calls t.Fatal, assert.Equal, require.NoError, t.Error. t.Log breaks
+// nothing because it comes after the run.
+func TestAssertPos(t *testing.T) {
+	got := compute()
+	t.Errorf("a")
+	// comments inside a run do not break it
+	t.Errorf("b")
+	if got != 1 {
+		t.Fatal("c")
+	}
+	assert.Equal(t, 1, 1)
+	require.NoError(t, nil)
+	t.Error("f")
+	t.Log("not an assertion")
+}
+
+// TestAssertNeg has two runs of five: the longest is 5.
+func TestAssertNeg(t *testing.T) {
+	t.Errorf("a")
+	t.Errorf("b")
+	t.Errorf("c")
+	t.Errorf("d")
+	t.Errorf("e")
+	t.Log("break")
+	t.Errorf("a")
+	t.Errorf("b")
+	t.Errorf("c")
+	t.Errorf("d")
+	t.Errorf("e")
+}
+
+// assertHelper is not a test: its assertions are not measured.
+func assertHelper(t *testing.T) {
+	t.Errorf("a")
+}
+
+// TestDupA and TestDupB share four identical assertions.
+func TestDupA(t *testing.T) {
+	setupA()
+	assert.Equal(t, 1, got.A)
+	assert.Equal(t, 2, got.B)
+	assert.Equal(t, 3, got.C)
+	assert.Equal(t, 4, got.D)
+}
+
+func TestDupB(t *testing.T) {
+	setupB()
+	assert.Equal(t, 1, got.A)
+	assert.Equal(t, 2, got.B)
+	assert.Equal(t, 3, got.C)
+	assert.Equal(t, 4, got.D)
+	check()
+}
+
+// TestNearA and TestNearB share only three identical assertions.
+func TestNearA(t *testing.T) {
+	assert.Equal(t, 1, want.A)
+	assert.Equal(t, 2, want.B)
+	assert.Equal(t, 3, want.C)
+	assert.Equal(t, 4, want.D)
+}
+
+func TestNearB(t *testing.T) {
+	assert.Equal(t, 1, want.A)
+	assert.Equal(t, 2, want.B)
+	assert.Equal(t, 3, want.C)
+	assert.Equal(t, 5, want.E)
+}
+
+// TestSubtests: the t.Run closure is anonymous and counts toward the test.
+func TestSubtests(t *testing.T) {
+	t.Run("one", func(t *testing.T) {
+		t.Errorf("a")
+		t.Errorf("b")
+		t.Errorf("c")
+	})
+}
+
+func BenchmarkSomething(b *testing.B) {}
+
+func TestMain(m *testing.M) {}

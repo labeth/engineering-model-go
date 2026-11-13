@@ -1,6 +1,5 @@
-schemaVersion: 2
+schemaVersion: 3
 behavior:
-  states: []
   events: []
   flows: []
   relationships: []

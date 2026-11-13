@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 reqLinks:
 - id: LNK-PORT-002-AEGIS
   parent: REQ-PORT-002

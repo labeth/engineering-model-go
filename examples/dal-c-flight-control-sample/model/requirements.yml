@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 lintRun:
   id: DAL-C-FLIGHT-CONTROL-REQUIREMENTS
   mode: strict
@@ -20,6 +20,7 @@ requirements:
     derived: false
     tags: [flight-control, yaw-damping]
     appliesTo: [FU-YAW-CONTROL]
+    realizes: [CAP-YAW-DAMPING]
   - id: REQ-YD-HLR-001
     title: Filter yaw rate input
     text: When yaw rate input is received, the yaw damping software shall filter the yaw rate input.
@@ -35,6 +36,7 @@ requirements:
     derived: false
     tags: [software, filtering]
     appliesTo: [FU-YAW-CONTROL]
+    realizes: [CAP-YAW-DAMPING]
   - id: REQ-YD-LLR-001
     title: Limit rudder command
     text: When yaw rate input is received, the yaw damping software shall limit the bounded rudder command.

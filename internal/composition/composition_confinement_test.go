@@ -46,7 +46,7 @@ func TestWorkspaceReplacementSymlinkedDocumentIsConfined(t *testing.T) {
 	t.Setenv(LockEnv, "")
 	root := t.TempDir()
 	outside := filepath.Join(t.TempDir(), "secret.yml")
-	testutil.WriteFile(t, outside, "schemaVersion: 2\ncatalog:\n  "+confinementSecret+": leaked\n")
+	testutil.WriteFile(t, outside, "schemaVersion: 3\ncatalog:\n  "+confinementSecret+": leaked\n")
 	moduleDir := filepath.Join(root, "repos", "shared-edge")
 	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
 	catalog := filepath.Join(moduleDir, "model", "catalog.yml")
@@ -56,7 +56,7 @@ func TestWorkspaceReplacementSymlinkedDocumentIsConfined(t *testing.T) {
 	if err := os.Symlink(outside, catalog); err != nil {
 		t.Fatal(err)
 	}
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
 	product := filepath.Join(root, "repos", "product")
 	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
 
@@ -82,7 +82,7 @@ func TestRootModelPathsAreNotDependencyConfined(t *testing.T) {
 	t.Setenv(LockEnv, "")
 	root := t.TempDir()
 	testutil.WriteOCIModuleFixture(t, filepath.Join(root, "repos", "shared-edge"), "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
-	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 2\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
+	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
 	product := filepath.Join(root, "repos", "product")
 	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
 	manifest := filepath.Join(product, "engmod.yml")

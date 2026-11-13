@@ -359,6 +359,10 @@ Architecture decision records are generated separately and linked here as a comp
 |Separate webhook ingress from review orchestration
 |accepted
 |2026-04-29
+|xref:DECISIONS.adoc#DEC-TIER-MVP[DEC-TIER-MVP]
+|bedrock pr review github app sample runs at the mvp tier with the foundation bundle
+|accepted
+|2026-11-12
 |===
 
 === Diagram Color and Shape Legend
@@ -398,7 +402,7 @@ flowchart LR
   FU --> DEPT
   FU --> CTRL
   FU --> TB
-  ST -->|triggered_by| EVT
+  ST -->|on_event| EVT
   ST -->|guarded_by| CTRL
   FLOW --> FSTEP
   FSTEP -->|flow_ref| FU
@@ -491,6 +495,7 @@ N_REF_GITHUB_APP_API["GitHub App API"]:::referenced_element
 N_REF_GITHUB_REST_SDK["GitHub REST SDK"]:::referenced_element
 N_REF_POLICY_RULESET["Review Policy Ruleset"]:::referenced_element
 N_STATE_BEDROCK_PR_RECEIVED(["PR Received"]):::state
+N_STATE_BEDROCK_REVIEW_IN_PROGRESS(["Review In Progress"]):::state
 N_STATE_BEDROCK_REVIEW_PUBLISHED(["Review Published"]):::state
 N_TB_BEDROCK_AWS_CONTROL[/"AWS Control Boundary"\]:::trust_boundary
 N_TB_BEDROCK_GITHUB_EXTERNAL[/"GitHub External Boundary"\]:::trust_boundary
@@ -536,9 +541,10 @@ N_FU_REVIEW_PUBLICATION --> N_REF_GITHUB_APP_API
 N_FU_SECRETS_CONFIGURATION --> N_REF_AWS_SDK_GO
 N_IF_BEDROCK_REVIEW_PUBLISH_API --> N_DEP_BEDROCK_GITHUB_BOUNDARY
 N_STATE_BEDROCK_PR_RECEIVED --> N_EVT_BEDROCK_REVIEW_REQUESTED
-N_STATE_BEDROCK_PR_RECEIVED --> N_STATE_BEDROCK_REVIEW_PUBLISHED
+N_STATE_BEDROCK_PR_RECEIVED --> N_STATE_BEDROCK_REVIEW_IN_PROGRESS
+N_STATE_BEDROCK_REVIEW_IN_PROGRESS --> N_EVT_BEDROCK_REVIEW_COMPLETED
+N_STATE_BEDROCK_REVIEW_IN_PROGRESS --> N_STATE_BEDROCK_REVIEW_PUBLISHED
 N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_CTRL_BEDROCK_WEBHOOK_SIGNATURE
-N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_EVT_BEDROCK_REVIEW_COMPLETED
 N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_TB_BEDROCK_GITHUB_EXTERNAL
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -2890,12 +2896,14 @@ N_CTRL_BEDROCK_WEBHOOK_SIGNATURE[["Webhook Signature Verification"]]:::control
 N_EVT_BEDROCK_REVIEW_COMPLETED(("Review Completed")):::event
 N_EVT_BEDROCK_REVIEW_REQUESTED(("Review Requested")):::event
 N_STATE_BEDROCK_PR_RECEIVED(["PR Received"]):::state
+N_STATE_BEDROCK_REVIEW_IN_PROGRESS(["Review In Progress"]):::state
 N_STATE_BEDROCK_REVIEW_PUBLISHED(["Review Published"]):::state
 N_TB_BEDROCK_GITHUB_EXTERNAL[/"GitHub External Boundary"\]:::trust_boundary
 N_STATE_BEDROCK_PR_RECEIVED --> N_EVT_BEDROCK_REVIEW_REQUESTED
-N_STATE_BEDROCK_PR_RECEIVED --> N_STATE_BEDROCK_REVIEW_PUBLISHED
+N_STATE_BEDROCK_PR_RECEIVED --> N_STATE_BEDROCK_REVIEW_IN_PROGRESS
+N_STATE_BEDROCK_REVIEW_IN_PROGRESS --> N_EVT_BEDROCK_REVIEW_COMPLETED
+N_STATE_BEDROCK_REVIEW_IN_PROGRESS --> N_STATE_BEDROCK_REVIEW_PUBLISHED
 N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_CTRL_BEDROCK_WEBHOOK_SIGNATURE
-N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_EVT_BEDROCK_REVIEW_COMPLETED
 N_STATE_BEDROCK_REVIEW_PUBLISHED --> N_TB_BEDROCK_GITHUB_EXTERNAL
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -3257,6 +3265,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |pass
 |test-results/contract-checkrun.json; check run payload includes summary and neutral conclusion
 
+|<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
+|pass
+|test-results/quint-formal.json; INV-BEDROCK-NO-EARLY-PUBLICATION of <<REF_IDX-MACHINE_SM_BEDROCK_PR_REVIEW,SM-BEDROCK-PR-REVIEW>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
+
 |<<REF_IDX-VER_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6>>
 |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
 |not-run
@@ -3528,6 +3541,8 @@ flowchart TB
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 -->|verifies| REQC_REQ_PRR_005
   VERCODE_REQ_PRR_005_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML["pr_opened_review_flow.yaml"]:::code_element
   VERC_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5 --->|implemented_by| VERCODE_REQ_PRR_005_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5_PR_OPENED_REVIEW_FLOW_YAML
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
+  VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_PRR_005
   VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6["VER-INF-TEST-GITHUB_CHECK_RUN_CONTRACT_TEST-17DBA6 (not-run)"]:::verification
   VERC_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6 -->|verifies| REQC_REQ_PRR_005
   VERCODE_REQ_PRR_005_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6_GITHUB_CHECK_RUN_CONTRACT_TEST_GO["github_check_run_contract_test.go: 8"]:::code_element
@@ -3900,6 +3915,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
+[[REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F]]
+==== Quint Formal
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
+|Kind |formal
+|Status |pass
+|Verifies Requirements |<<REF_IDX-REQ_REQ_PRR_005,REQ-PRR-005>>
+|Test Code Elements |none
+|Derived Functional Owners |<<REF_IDX-CATALOG_FU_REVIEW_PUBLICATION,FU-REVIEW-PUBLICATION>>
+|Result Summary |pass:1
+|Evidence |test-results/quint-formal.json
+
+|Notes |Formal verification of machine invariants with Quint (analysis); a result counts only while the sha256 of its module matches.
+
+|===
+
+
 [[REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1]]
 ==== Audit Redaction Test
 
@@ -3975,7 +4010,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Result Summary |pass:1
 |Evidence |test-results/unit-rate-limit.xml, tests/unit/<<REF_CODE_SOURCE_FILE_RATE_LIMIT_DEFERRAL_TEST_GO_TESTS_UNIT_RATE_LIMIT_DEFERRAL_TEST_GO,rate_limit_deferral_test.go>>
 
-|Notes |verifies rate-limit deferral behavior for pull request review processing
+|Notes |verifies rate-limit deferral behavior for <<REF_IDX-MACHINE_SM_BEDROCK_PR_REVIEW,pull request review>> processing
 
 |===
 
@@ -4338,6 +4373,19 @@ protocol=https; endpoint=/webhook/github; schemaRef=schemas/webhook-event.json; 
 |Name |Webhook Intake API
 |Mentioned In |<<SEC_VIEW_VIEW-SECURITY,Security View>>
 |===
+[[REF_IDX-MACHINE_SM_BEDROCK_PR_REVIEW]]
+[discrete]
+==== SM-BEDROCK-PR-REVIEW
+
+owner=FU-REVIEW-ORCHESTRATION; initial=STATE-BEDROCK-PR-RECEIVED; states=3; transitions=2
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Machine
+|Name |Pull request review
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
+|===
 [[REF_IDX-REQ_REQ_PRR_001]]
 [discrete]
 ==== REQ-PRR-001
@@ -4401,7 +4449,7 @@ While pull request review is active, when review findings are generated, the pr 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-PRR-005
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>, <<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>
 |===
 [[REF_IDX-REQ_REQ_PRR_006]]
 [discrete]
@@ -4492,6 +4540,19 @@ PR webhook accepted and queued for analysis.
 |Key |Value
 |Kind |State
 |Name |PR Received
+|Mentioned In |n/a
+|===
+[[REF_IDX-STATE_STATE_BEDROCK_REVIEW_IN_PROGRESS]]
+[discrete]
+==== STATE-BEDROCK-REVIEW-IN-PROGRESS
+
+Context assembly, policy checks and analysis are running for the queued PR.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |State
+|Name |Review In Progress
 |Mentioned In |n/a
 |===
 [[REF_IDX-STATE_STATE_BEDROCK_REVIEW_PUBLISHED]]
@@ -5638,7 +5699,7 @@ Publishes review findings to GitHub checks and comments.
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |review publication
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>, <<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>, <<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-DEPLOYMENT,Deployment View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1,Audit Redaction Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_POLICY_ONLY_FALLBACK_TEST_76E20A,Policy Only Fallback Test>>, <<REF_VERIFY_VER_INF_TEST_GITHUB_CHECK_RUN_CONTRACT_TEST_17DBA6,Github Check Run Contract Test>>, <<REF_VERIFY_VER_INF_UNIT_RATE_LIMIT_DEFERRAL_TEST_DC9EB2,Rate Limit Deferral Test>>
 |===
 [[REF_IDX-CATALOG_FU_SECRETS_CONFIGURATION]]
 [discrete]
@@ -7321,6 +7382,21 @@ exercises end-to-end pull request opened flow from webhook ingest to published r
 |Source |test-results/contract-checkrun.json (+2)
 |Name |Pr Opened Review Flow
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_E2E_PR_OPENED_REVIEW_FLOW_6BF0B5,Pr Opened Review Flow>>
+|===
+[[REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F]]
+[discrete]
+==== VER-INF-FORMAL-QUINT_FORMAL-5B471F
+
+Formal verification of machine invariants with Quint (analysis); a result counts only while the sha256 of its module matches.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |formal
+|Status |pass
+|Source |test-results/quint-formal.json
+|Name |Quint Formal
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>
 |===
 [[REF_IDX-VER_VER_INF_INTEGRATION_AUDIT_REDACTION_TEST_B108A1]]
 [discrete]

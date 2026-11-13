@@ -191,26 +191,10 @@ func SortedRealizers(in []Realizer) []Realizer {
 	return out
 }
 
-// CapabilityRefs maps each requirement a capability names in its deprecated
-// contract ref to that capability, as RealizedItems expects. Imported
-// alias::ID entries are skipped.
-// TRLC-LINKS: REQ-EMG-091, REQ-EMG-105
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func CapabilityRefs(bundle model.Bundle) map[string]string {
-	refs := map[string]string{}
-	for _, entry := range bundle.Architecture.Contract.Provides {
-		id := strings.TrimSpace(entry.ID)
-		if ref := strings.TrimSpace(entry.Ref); ref != "" && id != "" && !strings.Contains(id, "::") && strings.EqualFold(strings.TrimSpace(entry.Kind), string(KindCapability)) {
-			refs[ref] = id
-		}
-	}
-	return refs
-}
-
 // ItemsFromBundle returns every contract item of a model by local ID: each
 // contract.provides capability and each assumption of use, with the
 // requirements that realize it in requirement order. Interface entries are
-// not contract items. A capability's deprecated ref counts as a realizer.
+// not contract items.
 // TRLC-LINKS: REQ-EMG-091, REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func ItemsFromBundle(bundle model.Bundle) map[string]Item {
@@ -227,13 +211,12 @@ func ItemsFromBundle(bundle model.Bundle) map[string]Item {
 			items[id] = Item{ID: id, Kind: KindAssumption, Text: a.Text, VerificationCriteria: a.VerificationCriteria}
 		}
 	}
-	refs := CapabilityRefs(bundle)
 	for _, r := range bundle.Requirements.Requirements {
 		realizer := Realizer{
 			ID: strings.TrimSpace(r.ID), Text: r.Text, Notes: r.Notes, VerificationCriteria: r.VerificationCriteria,
 			VerificationMethods: r.VerificationMethods, Criticality: r.Criticality, Status: r.Status,
 		}
-		for _, target := range RealizedItems(r, refs) {
+		for _, target := range RealizedItems(r) {
 			if item, ok := items[target]; ok {
 				item.Realizers = append(item.Realizers, realizer)
 				items[target] = item
@@ -244,11 +227,10 @@ func ItemsFromBundle(bundle model.Bundle) map[string]Item {
 }
 
 // RealizedItems returns the contract item IDs a requirement realizes: its
-// realizes entries plus the capability whose deprecated ref names it
-// (refs maps a requirement ID to that capability), without duplicates.
+// realizes entries, without duplicates.
 // TRLC-LINKS: REQ-EMG-090, REQ-EMG-091
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func RealizedItems(r model.Requirement, refs map[string]string) []string {
+func RealizedItems(r model.Requirement) []string {
 	var out []string
 	seen := map[string]bool{}
 	add := func(id string) {
@@ -260,7 +242,6 @@ func RealizedItems(r model.Requirement, refs map[string]string) []string {
 	for _, target := range r.Realizes {
 		add(target)
 	}
-	add(refs[strings.TrimSpace(r.ID)])
 	return out
 }
 

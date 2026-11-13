@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 reqLinks:
 - id: LNK-AEG-002-EDGE
   parent: REQ-AEG-002

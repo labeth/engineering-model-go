@@ -87,20 +87,20 @@ func TestCheckRunsLibraryCheckAndFailsOnErrors(t *testing.T) {
 	good := checkout(t, root, "if-a")
 	bad := checkout(t, root, "if-b")
 	reg := allPublished("if-a", "if-b")
-	code, out, errOut := runMain(t, reg, "--root", root, "check")
+	code, out, errOut := runMain(t, reg, "--root", root, "check", "--in-process")
 	if code != 0 || !strings.Contains(out, "ok   if-a (0 errors") || !strings.Contains(out, "ok   if-b") {
 		t.Fatalf("clean check: %d\n%s\n%s", code, out, errOut)
 	}
 	// A dangling trace link in if-b makes it local (dirty) and failing.
 	write(t, filepath.Join(bad, "src", "x.go"), "// ENGMODEL-OWNER-UNIT: FU-X\npackage x\n\n// TRLC-LINKS: REQ-NOPE-404\nfunc X() {}\n")
-	code, out, _ = runMain(t, reg, "--root", root, "check")
+	code, out, _ = runMain(t, reg, "--root", root, "check", "--in-process")
 	if code != 1 || !strings.Contains(out, "FAIL if-b (") || !strings.Contains(out, "[error]") {
 		t.Fatalf("broken check: %d\n%s", code, out)
 	}
 	if !strings.Contains(out, "ok   if-a (0 errors, 2 warnings) [library; top system]") {
 		t.Fatalf("if-a is a top system and must still pass:\n%s", out)
 	}
-	code, out, _ = runMain(t, reg, "--root", root, "check", "--summary")
+	code, out, _ = runMain(t, reg, "--root", root, "check", "--in-process", "--summary")
 	if code != 1 || strings.Contains(out, "[error]") {
 		t.Fatalf("--summary prints only lines: %d\n%s", code, out)
 	}
@@ -182,7 +182,7 @@ func TestCheckWritesNothingInsideCheckouts(t *testing.T) {
 			t.Fatal(errOut)
 		}
 	}
-	code, out, errOut := runMain(t, reg, "--root", root, "check")
+	code, out, errOut := runMain(t, reg, "--root", root, "check", "--in-process")
 	if code != 0 || !strings.Contains(out, "ok   svc-b") || !strings.Contains(out, "ok   sys-c") {
 		t.Fatalf("check: %d\n%s\n%s", code, out, errOut)
 	}

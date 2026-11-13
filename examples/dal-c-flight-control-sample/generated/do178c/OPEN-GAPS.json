@@ -95,7 +95,7 @@
     {
       "id": "DATA-SCMP",
       "area": "lifecycle-data",
-      "state": "declared",
+      "state": "planned",
       "summary": "Missing source for Software Configuration Management Plan",
       "blocking": true
     },
@@ -109,7 +109,7 @@
     {
       "id": "DATA-SDP",
       "area": "lifecycle-data",
-      "state": "declared",
+      "state": "planned",
       "summary": "Missing source for Software Development Plan",
       "blocking": true
     },
@@ -130,7 +130,7 @@
     {
       "id": "DATA-SQAP",
       "area": "lifecycle-data",
-      "state": "declared",
+      "state": "planned",
       "summary": "Missing source for Software Quality Assurance Plan",
       "blocking": true
     },
@@ -151,7 +151,7 @@
     {
       "id": "DATA-SVP",
       "area": "lifecycle-data",
-      "state": "declared",
+      "state": "planned",
       "summary": "Missing source for Software Verification Plan",
       "blocking": true
     },

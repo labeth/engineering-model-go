@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/payments-engineering@v0
   version: v0.1.0
@@ -52,7 +52,9 @@ publications:
   - DEP-PAYMENTS-BANK-EDGE
   behavior:
   - STATE-PAYMENTS-CHECKOUT-RECEIVED
+  - STATE-PAYMENTS-AUTHORIZING
   - STATE-PAYMENTS-AUTHORIZED
+  - STATE-PAYMENTS-DECLINED
   - EVT-PAYMENTS-AUTH-REQUESTED
   - EVT-PAYMENTS-AUTH-COMPLETED
   - FLOW-CUSTOMER-CHECKOUT
@@ -119,3 +121,9 @@ inferenceHints:
   - explicit_annotation
   - path_convention
   - unresolved_warning
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

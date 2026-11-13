@@ -2,6 +2,7 @@
 package validate
 
 import (
+	"errors"
 	"fmt"
 	"regexp"
 	"sort"
@@ -119,8 +120,6 @@ var allowedMappingTypes = map[string]bool{
 	"satisfies":      true,
 	"allocated_to":   true,
 	"verified_by":    true,
-	"transitions_to": true,
-	"triggered_by":   true,
 	"guarded_by":     true,
 	"deployed_to":    true,
 	"mitigated_by":   true,
@@ -142,12 +141,12 @@ var allowedViewMappingTypes = map[string]bool{
 	"satisfies":      true,
 	"allocated_to":   true,
 	"verified_by":    true,
-	"transitions_to": true,
-	"triggered_by":   true,
 	"guarded_by":     true,
 	"deployed_to":    true,
 	"mitigated_by":   true,
 	"bounded_by":     true,
+	"transition":     true,
+	"on_event":       true,
 	"flow_next":      true,
 	"flow_error":     true,
 	"flow_async":     true,
@@ -167,6 +166,7 @@ var allowedViewEntityKinds = map[string]bool{
 	"deployment_target":    true,
 	"control":              true,
 	"trust_boundary":       true,
+	"machine":              true,
 	"state":                true,
 	"event":                true,
 	"flow":                 true,
@@ -282,25 +282,71 @@ var allowedFlowFrequency = map[string]bool{
 	"on-demand": true,
 }
 
+// documentVersion is the schemaVersion of one document the bundle holds.
+type documentVersion struct {
+	path    string
+	version int
+}
+
+// schemaVersions lists the schemaVersion of every document the bundle holds:
+// the five that are always present, and the manifest, behavior, assurance,
+// compliance, views, aviation and reqLinks documents of a bundle that was
+// loaded from files (their path is set) or that carries them. A bundle built
+// in code without those documents is not judged on documents it does not hold.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func schemaVersions(b model.Bundle) []documentVersion {
+	out := []documentVersion{
+		{"schemaVersion", b.Architecture.SchemaVersion},
+		{"catalog.schemaVersion", b.Catalog.SchemaVersion},
+		{"requirements.schemaVersion", b.Requirements.SchemaVersion},
+		{"design.schemaVersion", b.Design.SchemaVersion},
+		{"decisions.schemaVersion", b.Decisions.SchemaVersion},
+	}
+	optional := []struct {
+		held bool
+		documentVersion
+	}{
+		{b.ManifestPath != "", documentVersion{"manifest.schemaVersion", b.Manifest.SchemaVersion}},
+		{b.BehaviorPath != "", documentVersion{"behavior.schemaVersion", b.Behavior.SchemaVersion}},
+		{b.AssurancePath != "", documentVersion{"assurance.schemaVersion", b.Assurance.SchemaVersion}},
+		{b.CompliancePath != "", documentVersion{"compliance.schemaVersion", b.Compliance.SchemaVersion}},
+		{b.ViewsPath != "", documentVersion{"views.schemaVersion", b.Views.SchemaVersion}},
+		{b.Aviation != nil, documentVersion{"aviation.schemaVersion", aviationSchemaVersion(b)}},
+		{b.ReqLinksPath != "", documentVersion{"reqLinks.schemaVersion", b.ReqLinks.SchemaVersion}},
+	}
+	for _, o := range optional {
+		if o.held {
+			out = append(out, o.documentVersion)
+		}
+	}
+	return out
+}
+
+// aviationSchemaVersion is the schemaVersion of the aviation document, 0
+// without one.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-125, REQ-EMG-166
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func aviationSchemaVersion(b model.Bundle) int {
+	if b.Aviation == nil {
+		return 0
+	}
+	return b.Aviation.SchemaVersion
+}
+
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-126, REQ-EMG-128, REQ-EMG-132, REQ-EMG-133
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-126, REQ-EMG-128, REQ-EMG-132, REQ-EMG-133, REQ-EMG-138, REQ-EMG-139
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
 	idOwner := map[string]string{}
-	for path, version := range map[string]int{
-		"schemaVersion":              b.Architecture.SchemaVersion,
-		"catalog.schemaVersion":      b.Catalog.SchemaVersion,
-		"requirements.schemaVersion": b.Requirements.SchemaVersion,
-		"design.schemaVersion":       b.Design.SchemaVersion,
-		"decisions.schemaVersion":    b.Decisions.SchemaVersion,
-	} {
-		if _, err := model.EffectiveSchemaVersion(version); err != nil {
-			diags = append(diags, Diagnostic{Code: "model.unsupported_schema_version", Severity: SeverityError, Message: err.Error(), Path: path})
-		}
-	}
-	if explicit, legacy := strings.TrimSpace(b.Architecture.Model.Documents.Catalog), strings.TrimSpace(b.Architecture.Model.BaseCatalogRef); explicit != "" && legacy != "" {
-		if _, err := model.ResolveDocumentReferences(b.Architecture.Model); err != nil {
-			diags = append(diags, Diagnostic{Code: "model.conflicting_document_reference", Severity: SeverityError, Message: err.Error(), Path: "model.documents.catalog"})
+	for _, v := range schemaVersions(b) {
+		if _, err := model.EffectiveSchemaVersion(v.version); err != nil {
+			message := err.Error()
+			var versionErr *model.SchemaVersionError
+			if errors.As(err, &versionErr) {
+				message = versionErr.Problem()
+			}
+			diags = append(diags, Diagnostic{Code: "model.unsupported_schema_version", Severity: SeverityError, Message: message, Path: v.path})
 		}
 	}
 	for i, subsystem := range b.Architecture.Composition.Subsystems {
@@ -335,7 +381,6 @@ func Bundle(b model.Bundle) []Diagnostic {
 	deploymentTargets := map[string]bool{}
 	controls := map[string]bool{}
 	trustBoundaries := map[string]bool{}
-	states := map[string]bool{}
 	events := map[string]bool{}
 	risks := map[string]bool{}
 	threatScenarios := map[string]bool{}
@@ -436,10 +481,22 @@ func Bundle(b model.Bundle) []Diagnostic {
 			diags = append(diags, Diagnostic{Code: "model.invalid_trust_boundary_parent", Severity: SeverityError, Message: fmt.Sprintf("trust boundary %q cannot parent itself", x.ID), Path: path})
 		}
 	}
-	for i, x := range b.Architecture.AuthoredArchitecture.States {
-		addID(x.ID, fmt.Sprintf("authoredArchitecture.states[%d]", i))
-		states[x.ID] = true
-		kindByID[x.ID] = "state"
+	for i, m := range b.Architecture.AuthoredArchitecture.Machines {
+		path := fmt.Sprintf("authoredArchitecture.machines[%d]", i)
+		addID(m.ID, path)
+		kindByID[m.ID] = "machine"
+		for j, x := range m.States {
+			addID(x.ID, fmt.Sprintf("%s.states[%d]", path, j))
+			kindByID[x.ID] = "state"
+		}
+		for j, x := range m.Transitions {
+			addID(x.ID, fmt.Sprintf("%s.transitions[%d]", path, j))
+			kindByID[x.ID] = "transition"
+		}
+		for j, x := range m.Invariants {
+			addID(x.ID, fmt.Sprintf("%s.invariants[%d]", path, j))
+			kindByID[x.ID] = "invariant"
+		}
 	}
 	for i, x := range b.Architecture.AuthoredArchitecture.Events {
 		addID(x.ID, fmt.Sprintf("authoredArchitecture.events[%d]", i))
@@ -650,8 +707,13 @@ func Bundle(b model.Bundle) []Diagnostic {
 
 	for i, m := range b.Architecture.AuthoredArchitecture.Mappings {
 		path := fmt.Sprintf("authoredArchitecture.mappings[%d]", i)
+		removedStateMapping := m.Type == "transitions_to" || m.Type == "triggered_by"
 		if !allowedMappingTypes[m.Type] {
-			diags = append(diags, Diagnostic{Code: "model.unknown_mapping_type", Severity: SeverityError, Message: fmt.Sprintf("unknown mapping type %q", m.Type), Path: path})
+			message := fmt.Sprintf("unknown mapping type %q", m.Type)
+			if removedStateMapping {
+				message = fmt.Sprintf("mapping type %q %s", m.Type, model.LegacyStateRemovedMessage)
+			}
+			diags = append(diags, Diagnostic{Code: "model.unknown_mapping_type", Severity: SeverityError, Message: message, Path: path})
 		}
 		if !validID(m.From) {
 			diags = append(diags, Diagnostic{Code: "model.broken_reference", Severity: SeverityError, Message: fmt.Sprintf("mapping from %q does not exist", m.From), Path: path})
@@ -668,16 +730,10 @@ func Bundle(b model.Bundle) []Diagnostic {
 		if m.Type == "targets" && !vectors[m.From] {
 			diags = append(diags, Diagnostic{Code: "model.invalid_target", Severity: SeverityError, Message: "targets must originate from an attack vector", Path: path})
 		}
-		if m.Type == "triggered_by" && !events[m.To] {
-			diags = append(diags, Diagnostic{Code: "model.invalid_trigger", Severity: SeverityError, Message: "triggered_by must target an event", Path: path})
-		}
 		if m.Type == "guarded_by" && !(controls[m.To] || trustBoundaries[m.To] || references[m.To]) {
 			diags = append(diags, Diagnostic{Code: "model.invalid_guard", Severity: SeverityError, Message: "guarded_by must target a control, trust boundary, or referenced element", Path: path})
 		}
-		if m.Type == "transitions_to" && !(states[m.From] && states[m.To]) {
-			diags = append(diags, Diagnostic{Code: "model.invalid_transition", Severity: SeverityError, Message: "transitions_to must be state -> state", Path: path})
-		}
-		if fromKind, toKind := kindByID[m.From], kindByID[m.To]; fromKind != "" && toKind != "" && !mappingPairAllowed(m.Type, fromKind, toKind) {
+		if fromKind, toKind := kindByID[m.From], kindByID[m.To]; fromKind != "" && toKind != "" && !removedStateMapping && !mappingPairAllowed(m.Type, fromKind, toKind) {
 			diags = append(diags, Diagnostic{Code: "model.invalid_mapping_pair", Severity: SeverityError, Message: fmt.Sprintf("mapping type %q is not valid for %s -> %s", m.Type, fromKind, toKind), Path: path})
 		}
 	}
@@ -1273,13 +1329,20 @@ func Bundle(b model.Bundle) []Diagnostic {
 		}
 	}
 	diags = append(diags, validateNAFProfile(b.Architecture, actors)...)
-	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics)...)
+	requirementIDs := map[string]bool{}
+	for _, requirement := range b.Requirements.Requirements {
+		requirementIDs[strings.TrimSpace(requirement.ID)] = true
+	}
+	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics, requirementIDs)...)
 	diags = append(diags, catalogNameDiagnostics(b.Catalog.Catalog)...)
 	diags = append(diags, assuranceLinkDiagnostics(b.Architecture.AuthoredArchitecture)...)
 	diags = append(diags, assuranceConsistencyDiagnostics(b.Architecture.AuthoredArchitecture)...)
 	diags = append(diags, acceptanceDiagnostics(b)...)
 	diags = append(diags, requirementLinkDiagnostics(b, validID)...)
-	diags = append(diags, lifecycleDiagnostics(b)...)
+	asOf := AsOf()
+	diags = append(diags, lifecycleDiagnostics(b, asOf)...)
+	diags = append(diags, requiredSwitchDiagnostics(b)...)
+	diags = append(diags, healthDiagnostics(b)...)
 	diags = append(diags, aviationTierDiagnostics(b)...)
 
 	semantic, projectionDiagnostics := model.ProjectSemanticModel(b)
@@ -1302,7 +1365,13 @@ func Bundle(b model.Bundle) []Diagnostic {
 		diags = append(diags, Diagnostic{Code: "model.ambiguous_code_reference", Severity: SeverityError, Message: fmt.Sprintf("CODE id %q is produced by more than one file or declaration; rename one or exclude it from the code scope", id), Path: id})
 	}
 
-	return SortDiagnostics(diags)
+	// Only the lifecycle.* entries are judged here: those diagnostics are
+	// emitted by Bundle alone. Entries for codes the scanners emit later
+	// (health, code, verification, composition) are judged by UnusedDefers on
+	// the merged list.
+	diags = append(diags, unusedDefers(b, diags, deferScope{asOf: asOf, inScope: func(pattern string) bool { return strings.HasPrefix(pattern, "lifecycle.") }})...)
+
+	return SortDiagnostics(withRemedies(diags))
 }
 
 // TRLC-LINKS: REQ-EMG-041, REQ-EMG-043
@@ -1470,16 +1539,13 @@ var mappingPairs = map[string]map[string]bool{
 		"functional_unit:referenced_element": true,
 		"control:referenced_element":         true,
 	},
-	"transitions_to": {
-		"state:state": true,
-	},
-	"triggered_by": {
-		"state:event": true,
-	},
 	"guarded_by": {
-		"state:control":            true,
-		"state:trust_boundary":     true,
-		"state:referenced_element": true,
+		"state:control":              true,
+		"state:trust_boundary":       true,
+		"state:referenced_element":   true,
+		"machine:control":            true,
+		"machine:trust_boundary":     true,
+		"machine:referenced_element": true,
 	},
 	"deployed_to": {
 		"functional_unit:deployment_target": true,

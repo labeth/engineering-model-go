@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/reqlinks/child-b@v0
   version: v0.1.0
@@ -27,3 +27,8 @@ publications:
   requirements:
   - REQ-B-001
 inferenceHints: {}
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

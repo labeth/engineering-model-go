@@ -87,14 +87,15 @@ func TestGenerateOSCALPOAM_IncludesPublishedDependencyItems(t *testing.T) {
 }
 
 // Without an explicit last-modified the documents carry the latest authored
-// decision or verification date, so regeneration needs no wall clock.
+// decision or verification date, so regeneration needs no wall clock. For the
+// payments example that is its DEC-TIER-MVP decision (2026-11-12).
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013
 func TestGenerateOSCALPOAMDefaultsToAuthoredTimestamp(t *testing.T) {
 	res, err := GeneratePOAMFromFile(filepath.Join("examples", "payments-engineering-sample", "engmod.yml"), POAMOptions{})
 	if err != nil {
 		t.Fatalf("generate poam failed: %v", err)
 	}
-	if !strings.Contains(res.JSON, "\"last-modified\": \"2026-04-29T00:00:00Z\"") {
+	if !strings.Contains(res.JSON, "\"last-modified\": \"2026-11-12T00:00:00Z\"") {
 		t.Fatalf("expected the latest authored date as last-modified:\n%.600s", res.JSON)
 	}
 }

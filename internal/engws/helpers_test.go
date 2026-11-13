@@ -11,6 +11,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/labeth/engineering-model-go/internal/testutil"
 	"golang.org/x/mod/module"
 	modzip "golang.org/x/mod/zip"
 )
@@ -60,7 +61,7 @@ func writeModel(t *testing.T, dir, name, version string, deps ...dep) {
 		}
 	}
 	tag := strings.ToUpper(strings.ReplaceAll(name, "-", ""))
-	write(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 2
+	write(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 3
 module:
   path: `+modulePathOf(name)+`
   version: `+version+`
@@ -77,15 +78,15 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
-`+d.String()+`publications:
+`+d.String()+testutil.CompleteSwitches+`publications:
   - id: public
     architecture: [CAP-`+tag+`]
     requirements: [REQ-`+tag+`-001]
 `)
 	write(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePathOf(name)+"\"\nlanguage: version: \"v0.17.0\"\nsource: kind: \"self\"\n")
 	system := strings.ToLower(tag) + " system"
-	write(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 2\ncatalog:\n  systems:\n    - id: SYS-"+tag+"\n      name: "+system+"\n      definition: Test system.\n")
-	write(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 2\nlintRun:\n  id: lint\n  mode: strict\n  catalogRef: ./catalog.yml\nrequirements:\n  - id: REQ-"+tag+"-001\n    text: 'The "+system+" shall publish one message.'\n    realizes: [CAP-"+tag+"]\n")
+	write(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 3\ncatalog:\n  systems:\n    - id: SYS-"+tag+"\n      name: "+system+"\n      definition: Test system.\n")
+	write(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun:\n  id: lint\n  mode: strict\n  catalogRef: ./catalog.yml\nrequirements:\n  - id: REQ-"+tag+"-001\n    text: 'The "+system+" shall publish one message.'\n    realizes: [CAP-"+tag+"]\n    status: verified\n")
 	var composition strings.Builder
 	if len(deps) > 0 {
 		composition.WriteString("  composition:\n    subsystems:\n")
@@ -93,12 +94,12 @@ documents:
 			composition.WriteString("      - id: SUB-" + strings.ToUpper(x.alias) + "\n        dependency: " + x.alias + "\n        publication: public\n")
 		}
 	}
-	write(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 2\narchitecture:\n  contract:\n    provides:\n      - id: CAP-"+tag+"\n        kind: capability\n"+composition.String())
-	write(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 2\nbehavior: {}\n")
-	write(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 2\nassurance: {}\n")
-	write(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 2\ncompliance: {}\n")
-	write(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 2\nviews: []\n")
-	write(t, filepath.Join(dir, "model", "decisions.yml"), "schemaVersion: 2\ndecisions: []\n")
+	write(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 3\narchitecture:\n  contract:\n    provides:\n      - id: CAP-"+tag+"\n        kind: capability\n"+composition.String())
+	write(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 3\nbehavior: {}\n")
+	write(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 3\nassurance: {}\n")
+	write(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 3\ncompliance: {}\n")
+	write(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 3\nviews: []\n")
+	write(t, filepath.Join(dir, "model", "decisions.yml"), testutil.TierDecisionPoC)
 }
 
 func write(t *testing.T, path, content string) {

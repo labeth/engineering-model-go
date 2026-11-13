@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-const linkFile = `schemaVersion: 2
+const linkFile = `schemaVersion: 3
 reqLinks:
 # reviewed links
 - id: LNK-A

@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/coffee-fleet/ota-agent@v0
   version: v0.1.0
@@ -41,3 +41,9 @@ publications:
   - REQ-OTA-002
   - REQ-OTA-003
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

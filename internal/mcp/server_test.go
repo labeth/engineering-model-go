@@ -3,6 +3,7 @@ package mcp
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -103,7 +104,7 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-182
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	s := initializedPaymentsServer(t)
@@ -112,15 +113,27 @@ func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	if !ok {
 		t.Fatalf("missing authoring contract: %+v", payload)
 	}
-	if contract["contractVersion"] != model.AuthoringContractVersion {
+	if contract["contractVersion"] != "engineering-model.authoring.v8" {
 		t.Fatalf("unexpected contract version: %v", contract["contractVersion"])
+	}
+	health, _ := contract["health"].(map[string]any)
+	if codes, _ := health["codes"].([]any); len(codes) != 16 {
+		t.Fatalf("the v7 contract must carry the health guide with 16 codes: %+v", health)
+	}
+	if rules, _ := health["rules"].([]any); len(rules) == 0 || !strings.Contains(fmt.Sprint(rules...), "health.waiver_unjustified") {
+		t.Fatalf("the health guide must state the waiver rule: %+v", health)
+	}
+	rules, _ := payload["rules"].(map[string]any)
+	required, _ := rules["required"].([]any)
+	if len(required) == 0 || !strings.Contains(fmt.Sprint(required...), "lifecycle.missing") || !strings.Contains(fmt.Sprint(required...), "ef-tier-up") {
+		t.Fatalf("the v7 rules must list the required switches with their remedies: %+v", rules["required"])
 	}
 	documents, _ := contract["documents"].([]any)
 	if len(documents) != 9 {
 		t.Fatalf("expected manifest plus eight domain documents, got %d", len(documents))
 	}
-	if compatibility, ok := contract["compatibility"].([]any); !ok || len(compatibility) != 0 {
-		t.Fatalf("schema-v2 contract must not advertise compatibility modes: %+v", contract)
+	if _, present := contract["compatibility"]; present {
+		t.Fatalf("the authoring contract must carry no compatibility field (ADR-EMG-073): %+v", contract)
 	}
 	dependencies, ok := contract["dependencies"].(map[string]any)
 	if !ok || dependencies["registryEnvironment"] != "CUE_REGISTRY" || dependencies["workspaceFile"] != model.WorkspaceFileName {
@@ -301,7 +314,7 @@ func argsForTool(name string) map[string]any {
 		return map[string]any{"query": "payments"}
 	case "graph.explainEdge":
 		return map[string]any{"from": "FG-PAYMENTS", "to": "FU-CHECKOUT"}
-	case "model.list", "entities.list":
+	case "model.list":
 		return map[string]any{"query": "checkout"}
 	case "model.entity":
 		return map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"}

@@ -35,8 +35,7 @@ eight `model/*.yml` domain documents, `cue.mod/module.cue`, and `src/`), and eac
 
 Requirements trace upward across the boundary. Each subsystem requirement realizes the subsystem's
 published capability (`realizes: [CAP-TELEM-REPORT]` and so on), and the parent links its
-requirements to those capabilities in `model/req-links.yml` (`engws migrate-links` converted the
-former `composition.allocations` and contract `ref`s):
+requirements to those capabilities in `model/req-links.yml`:
 
 - `LNK-COF-001-TELEMETRY`: `REQ-COF-001` to `telemetry::CAP-TELEM-REPORT`.
 - `LNK-COF-002-CLOUD-API`: `REQ-COF-002` to `cloud-api::CAP-CLOUD-INGEST`.

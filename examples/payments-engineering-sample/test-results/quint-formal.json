@@ -1,0 +1,68 @@
+{
+  "schema": "engmod-formal-evidence/1",
+  "tool": "quint",
+  "quintVersion": "0.33.1",
+  "backend": "typescript",
+  "results": [
+    {
+      "requirement": "REQ-PAY-001",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-PAYMENTS-AUTH",
+      "invariant": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_payments_auth.qnt",
+      "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+      "notes": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-PAY-003",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-PAYMENTS-AUTH",
+      "invariant": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_payments_auth.qnt",
+      "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+      "notes": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-PAY-007",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-PAYMENTS-AUTH",
+      "invariant": "INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_payments_auth.qnt",
+      "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+      "notes": "INV-PAYMENTS-AUTH-REQUESTED-BEFORE-APPROVAL of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-PAY-008",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-PAYMENTS-AUTH",
+      "invariant": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_payments_auth.qnt",
+      "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+      "notes": "INV-PAYMENTS-AUTH-ATTEMPTS-BOUNDED of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-PAY-008",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-PAYMENTS-AUTH",
+      "invariant": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_payments_auth.qnt",
+      "qntSha256": "18104a83549c0acb454670664677521226bf385d2de476e277afc254fe51eb1c",
+      "notes": "INV-PAYMENTS-AUTH-DECLINE-AFTER-RETRIES of SM-PAYMENTS-AUTH holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    }
+  ]
+}

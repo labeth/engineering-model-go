@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/labeth/engineering-model-go/docs/health-report.schema.json",
+  "title": "engmod-health/1",
+  "description": "The code health report of engineering-model-go (ADR-EMG-050). Scores, bands and weights are this project's own and are not CodeScene scores. A report holds no timestamp and no absolute path, and its lists are sorted by path.",
+  "type": "object",
+  "required": ["schema", "engine", "files", "rollups"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "engmod-health/1"},
+    "engine": {"$ref": "#/$defs/engine"},
+    "tier": {
+      "description": "The project life-cycle tier the report was made for; absent for a project without one.",
+      "enum": ["poc", "prototype", "mvp", "product", "operational"]
+    },
+    "bundles": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "levels": {
+      "description": "The level of each code at the tier, from the tier policy of the model. A code that is missing is a warning.",
+      "type": "object",
+      "propertyNames": {"pattern": "^health\\."},
+      "additionalProperties": {"enum": ["error", "warning"]}
+    },
+    "files": {"type": "array", "items": {"$ref": "#/$defs/file"}},
+    "waived": {"type": "array", "items": {"$ref": "#/$defs/waived"}},
+    "baselined": {
+      "description": "Findings the committed baseline of the manifest accepts (ADR-EMG-059). Each also stays in its function, so the score counts it; none is an error of the gate. Absent when there is no baseline or nothing matches.",
+      "type": "array",
+      "items": {"$ref": "#/$defs/baselined"}
+    },
+    "diagnostics": {"type": "array", "items": {"$ref": "#/$defs/diagnostic"}},
+    "rollups": {"$ref": "#/$defs/rollups"},
+    "summary": {"$ref": "#/$defs/summary"}
+  },
+  "$defs": {
+    "code": {
+      "enum": [
+        "health.complex_method", "health.large_method", "health.deep_nesting", "health.bumpy_road",
+        "health.complex_conditional", "health.excess_arguments", "health.primitive_obsession",
+        "health.brain_method", "health.large_assertion_block", "health.duplicated_assertion_block"
+      ]
+    },
+    "band": {"enum": ["green", "yellow", "red"]},
+    "score": {"type": "number", "minimum": 1.0, "maximum": 10.0},
+    "relativePath": {
+      "description": "Repository-relative path with forward slashes: never absolute.",
+      "type": "string",
+      "pattern": "^[^/\\\\][^\\\\]*$"
+    },
+    "count": {"type": "integer", "minimum": 0},
+    "engine": {
+      "type": "object",
+      "required": ["name", "version", "scoringVersion"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "version": {"type": "string", "minLength": 1},
+        "scoringVersion": {"type": "integer", "enum": [1, 2]},
+        "weights": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}}
+      }
+    },
+    "file": {
+      "type": "object",
+      "required": ["path", "language", "loc", "score", "band", "functions"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "language": {"type": "string", "minLength": 1},
+        "loc": {"$ref": "#/$defs/count"},
+        "isTest": {"type": "boolean"},
+        "score": {"$ref": "#/$defs/score"},
+        "band": {"$ref": "#/$defs/band"},
+        "deductions": {"type": "array", "items": {"$ref": "#/$defs/deduction"}},
+        "functions": {"type": "array", "items": {"$ref": "#/$defs/function"}},
+        "unsupported": {"type": "array", "items": {"type": "string"}},
+        "syntaxErrors": {"$ref": "#/$defs/count"}
+      }
+    },
+    "deduction": {
+      "type": "object",
+      "required": ["code", "function", "severity", "points", "counted"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {"$ref": "#/$defs/code"},
+        "function": {"type": "string"},
+        "severity": {"enum": ["warn", "high"]},
+        "points": {"type": "number", "minimum": 0},
+        "counted": {"type": "number", "minimum": 0}
+      }
+    },
+    "function": {
+      "type": "object",
+      "required": ["name", "kind", "startLine", "endLine", "loc", "parameters", "cyclomatic", "maxNesting", "bumps", "maxBooleanOperators"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "kind": {"type": "string", "minLength": 1},
+        "startLine": {"type": "integer", "minimum": 1},
+        "endLine": {"type": "integer", "minimum": 1},
+        "loc": {"$ref": "#/$defs/count"},
+        "parameters": {"$ref": "#/$defs/count"},
+        "cyclomatic": {"$ref": "#/$defs/count"},
+        "maxNesting": {"$ref": "#/$defs/count"},
+        "bumps": {"$ref": "#/$defs/count"},
+        "maxBooleanOperators": {"$ref": "#/$defs/count"},
+        "assertions": {"$ref": "#/$defs/count"},
+        "isTest": {"type": "boolean"},
+        "findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}}
+      }
+    },
+    "finding": {"$ref": "#/$defs/findingFields", "unevaluatedProperties": false},
+    "findingFields": {
+      "type": "object",
+      "required": ["code", "severity", "startLine", "endLine", "metric", "value", "message"],
+      "properties": {
+        "code": {"$ref": "#/$defs/code"},
+        "severity": {"enum": ["warn", "high"]},
+        "startLine": {"type": "integer", "minimum": 1},
+        "endLine": {"type": "integer", "minimum": 1},
+        "metric": {"type": "string", "minLength": 1},
+        "value": {"$ref": "#/$defs/count"},
+        "message": {"type": "string"}
+      }
+    },
+    "waived": {
+      "description": "A finding that a waiver of the manifest moved out of its function, with the accepted decision that justifies it.",
+      "allOf": [{"$ref": "#/$defs/findingFields"}],
+      "type": "object",
+      "required": ["path", "function", "decision"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "function": {"type": "string", "minLength": 1},
+        "decision": {"type": "string", "minLength": 1}
+      }
+    },
+    "baselined": {
+      "description": "A finding that the baseline accepts, marked by its path, qualified function name and code.",
+      "allOf": [{"$ref": "#/$defs/findingFields"}],
+      "type": "object",
+      "required": ["path", "function"],
+      "unevaluatedProperties": false,
+      "properties": {
+        "path": {"$ref": "#/$defs/relativePath"},
+        "function": {"type": "string", "minLength": 1}
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "required": ["code", "level", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {"type": "string", "pattern": "^health\\."},
+        "level": {"enum": ["error", "warning"]},
+        "message": {"type": "string"},
+        "path": {"type": "string"},
+        "function": {"type": "string"}
+      }
+    },
+    "aggregate": {
+      "description": "The roll-up of a set of files: the LOC-weighted mean score, the worst file and the number of files per band. A set without files has score 10.0, band green and files 0.",
+      "type": "object",
+      "required": ["files", "loc", "score", "band", "bands"],
+      "properties": {
+        "files": {"$ref": "#/$defs/count"},
+        "loc": {"$ref": "#/$defs/count"},
+        "score": {"$ref": "#/$defs/score"},
+        "band": {"$ref": "#/$defs/band"},
+        "worst": {
+          "type": "object",
+          "required": ["path", "score"],
+          "additionalProperties": false,
+          "properties": {"path": {"$ref": "#/$defs/relativePath"}, "score": {"$ref": "#/$defs/score"}}
+        },
+        "bands": {
+          "type": "object",
+          "required": ["green", "yellow", "red"],
+          "additionalProperties": false,
+          "properties": {"green": {"$ref": "#/$defs/count"}, "yellow": {"$ref": "#/$defs/count"}, "red": {"$ref": "#/$defs/count"}}
+        }
+      }
+    },
+    "rollups": {
+      "type": "object",
+      "required": ["project"],
+      "additionalProperties": false,
+      "properties": {
+        "project": {"$ref": "#/$defs/aggregate", "unevaluatedProperties": false},
+        "units": {
+          "type": "array",
+          "items": {
+            "allOf": [{"$ref": "#/$defs/aggregate"}],
+            "type": "object",
+            "required": ["unit"],
+            "unevaluatedProperties": false,
+            "properties": {"unit": {"type": "string", "minLength": 1}}
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["requirement", "functions", "findings", "score", "band", "worstFile"],
+            "additionalProperties": false,
+            "properties": {
+              "requirement": {"type": "string", "minLength": 1},
+              "functions": {"$ref": "#/$defs/count"},
+              "findings": {"$ref": "#/$defs/count"},
+              "score": {"$ref": "#/$defs/score"},
+              "band": {"$ref": "#/$defs/band"},
+              "worstFile": {"$ref": "#/$defs/relativePath"}
+            }
+          }
+        },
+        "tests": {"$ref": "#/$defs/aggregate", "unevaluatedProperties": false}
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["files", "findings", "waived", "errors", "warnings"],
+      "additionalProperties": false,
+      "properties": {
+        "files": {"$ref": "#/$defs/count"},
+        "findings": {"$ref": "#/$defs/count"},
+        "waived": {"$ref": "#/$defs/count"},
+        "baselined": {"$ref": "#/$defs/count"},
+        "errors": {"$ref": "#/$defs/count"},
+        "warnings": {"$ref": "#/$defs/count"}
+      }
+    }
+  }
+}

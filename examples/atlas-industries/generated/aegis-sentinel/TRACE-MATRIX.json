@@ -7,7 +7,14 @@
       "units": [
         "FU-AEG-MISSION"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-MISSION-GO--PRESENTTRACK",
+          "path": "src/mission.go",
+          "line": 6
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-AEGIS-MISSION"
       ]
@@ -438,7 +445,6 @@
   ],
   "danglingLinks": null,
   "orphanRequirements": [
-    "REQ-AEG-001",
     "REQ-AEG-002",
     "REQ-AEG-003",
     "REQ-AEG-004",
@@ -446,20 +452,16 @@
   ],
   "summary": {
     "requirements": 19,
-    "implemented": 0,
-    "verified": 0,
+    "implemented": 1,
     "tested": 0,
     "testLinked": 0,
     "passed": 0,
     "delegated": 0,
-    "delegatedImplemented": 0,
-    "delegatedTestLinked": 0,
-    "orphan": 5,
+    "orphan": 4,
     "danglingLinks": 0,
     "gatedOnly": 0,
     "linksNeedReview": 0,
     "linksVersionMismatch": 0,
-    "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 0,
     "unparented": 0

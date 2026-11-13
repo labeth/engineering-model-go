@@ -1,10 +1,9 @@
 package model
 
 #ModelMeta: {
-	id:             string & !=""
-	title?:         string
-	introduction?:  string
-	baseCatalogRef?: string & !=""
+	id:            string & !=""
+	title?:        string
+	introduction?: string
 }
 
 #FunctionalGroup: {
@@ -192,6 +191,9 @@ package model
 #POAMDefer: {
 	code:  #NonEmpty
 	path?: string
+	// ref limits the defer to one requirement by ID; the validator resolves
+	// it to the requirement's current path, so it survives reordering.
+	ref?: #NonEmpty
 }
 
 #TrustBoundary: {
@@ -203,8 +205,10 @@ package model
 	members?:      #StringList
 }
 
-#State: #Actor
-#Event: #Actor
+#Event: {
+	#Actor
+	requirements?: #StringList
+}
 
 #FlowStep: {
 	id?:                  string
@@ -349,7 +353,6 @@ package model
 	risks?: [...#Risk]
 	poamItems?: [...#POAMItem]
 	trustBoundaries?: [...#TrustBoundary]
-	states?: [...#State]
 	events?: [...#Event]
 	flows?: [...#Flow]
 	threatScenarios?: [...#ThreatScenario]
@@ -422,6 +425,8 @@ package model
 #ContractEntry: {
 	id?:   string
 	kind?: string
+	// On a provides entry ref is removed (ADR-EMG-075): decoded only so
+	// validation reports model.provides_ref_removed with its remedy.
 	ref?:  string
 	note?: string
 }
@@ -473,6 +478,8 @@ package model
 	directory?: string
 }
 
+// #Allocation is removed (ADR-EMG-078): it decodes only so validation reports
+// model.allocations_removed with its remedy.
 #Allocation: {
 	requirement?: string
 	to?:          string
@@ -492,7 +499,7 @@ package model
 }
 
 #ArchitectureDocument: {
-	schemaVersion?:        #SchemaVersion
+	schemaVersion:         #SchemaVersion
 	model:                 #ModelMeta
 	semantics?:            #SemanticContent
 	authoredArchitecture?: #AuthoredArchitecture

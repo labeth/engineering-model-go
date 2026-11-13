@@ -4,8 +4,8 @@ package model
 	// The dependency version the link was reviewed at; equal to the
 	// dependency pin in engmod.yml once reviewed (decision D23).
 	version: #ExactVersion
-	// Deprecated (D23): accepted for one release, ignored, and reported as
-	// link.fingerprint_deprecated; engws migrate-links removes it.
+	// Removed (ADR-EMG-075): decoded only so validation reports the error
+	// model.pinned_fingerprint_removed with its remedy.
 	fingerprint?: string
 }
 

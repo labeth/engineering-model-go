@@ -257,7 +257,7 @@ func TestBuildRequirementCoverageMermaid_GroupsCodeNodesByFile(t *testing.T) {
 		CodeElements: []string{"tests/unit/payment_engine_test.go:30", "tests/unit/payment_engine_test.go:12"},
 	}}
 
-	out := buildRequirementCoverageMermaid(reqs, nil, code, verification, map[string]string{"FU-A": "Unit A"}, nil)
+	out := buildRequirementCoverageMermaid(reqs, nil, code, verification, map[string]string{"FU-A": "Unit A"})
 
 	if got := strings.Count(out, `["payment_engine.rs: 11, 25"]:::code_element`); got != 1 {
 		t.Fatalf("expected one implementation code box with comma-separated lines, got %d:\n%s", got, out)
@@ -362,7 +362,7 @@ func TestCodeEvidenceAcrossIndependentSourceRoots(t *testing.T) {
 		{Kind: "symbol", Owner: "FU-BROKER", Source: "server.go:16", AbsPath: "/workspace/ota/server.go", Implements: []string{"REQ-BROKER"}},
 	}
 
-	diagram := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-BROKER", AppliesTo: []string{"FU-BROKER"}}}, nil, code, nil, nil, nil)
+	diagram := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-BROKER", AppliesTo: []string{"FU-BROKER"}}}, nil, code, nil, nil)
 	if !strings.Contains(diagram, "ota/server.go: 16") || strings.Contains(diagram, "412") {
 		t.Fatalf("independent source roots merged in requirement graph: %s", diagram)
 	}
@@ -375,7 +375,7 @@ func TestRequirementEvidenceExcludesOtherRequirementLines(t *testing.T) {
 		{Kind: "symbol", Owner: "FU-AGENT", Source: "rpc.go:95", AbsPath: "/workspace/agent/rpc.go", Implements: []string{"REQ-TAKEOVER"}},
 		{Kind: "symbol", Owner: "FU-OTHER", Source: "rpc.go:12", AbsPath: "/workspace/other/rpc.go", Implements: []string{"REQ-OTHER"}},
 	}
-	diagram := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-RPC", AppliesTo: []string{"FU-AGENT"}}}, nil, code, nil, nil, nil)
+	diagram := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-RPC", AppliesTo: []string{"FU-AGENT"}}}, nil, code, nil, nil)
 	if !strings.Contains(diagram, "agent/rpc.go: 39") || strings.Contains(diagram, "95") || strings.Contains(diagram, "rpc.go: 12") {
 		t.Fatalf("requirement evidence contains unrelated lines: %s", diagram)
 	}
@@ -388,7 +388,7 @@ func TestRequirementAndVerificationSourceNodesDoNotOverwrite(t *testing.T) {
 		{Kind: "symbol", Owner: "FU-A", Source: "rpc.go:95", Implements: []string{"REQ-B"}},
 	}
 	checks := []codescan.VerificationCheck{{ID: "VER-A", Verifies: []string{"REQ-A"}, CodeElements: []string{"rpc_test.go:39", "rpc_test.go:95"}}}
-	got := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-A", AppliesTo: []string{"FU-A"}}, {ID: "REQ-B", AppliesTo: []string{"FU-A"}}}, nil, code, checks, nil, nil)
+	got := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-A", AppliesTo: []string{"FU-A"}}, {ID: "REQ-B", AppliesTo: []string{"FU-A"}}}, nil, code, checks, nil)
 	for _, want := range []string{`CODE_REQ_A_RPC_GO["rpc.go: 39"]`, `CODE_REQ_B_RPC_GO["rpc.go: 95"]`, `VERCODE_REQ_A_VER_A_RPC_TEST_GO["rpc_test.go: 39, 95"]`} {
 		if !strings.Contains(got, want) {
 			t.Fatalf("missing separate evidence node %s: %s", want, got)

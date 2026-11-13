@@ -52,13 +52,76 @@ package model
 
 // #ManifestLifecycle declares the project tier: the bar for the default
 // branch and every release. Validation keys the severity of the tier rules
-// on it (internal/validate.TierPolicy); without it every severity is that
-// of engineering-model-go v0.9.0.
+// on it (internal/validate.TierPolicy). The schema leaves lifecycle, bundles
+// and tierDecision optional so that tools can load and report an incomplete
+// model; internal/validate reports each absent one as an error with its
+// remedy (lifecycle.missing, lifecycle.bundles_missing,
+// lifecycle.tier_decision_missing).
 #ManifestLifecycle: {
 	tier:          #Tier
-	bundles?:      [...#Bundle]    // default [foundation]
-	tierDecision?: #StableID       // an accepted DEC-TIER-* whose Tier:/Bundles: lines agree
+	bundles?:      [...#Bundle]    // required by validation; foundation always applies
+	tierDecision?: #StableID       // required by validation: an accepted DEC-TIER-* whose Tier:/Bundles: lines agree
 	raise?:        [...#NonEmpty]  // codes raised to error regardless of tier; never lowers
+}
+
+// #HealthThreshold is the warn and high limit of one code health smell.
+// Value rules (warn >= 1, high >= warn, known codes) are reported by
+// internal/validate with a path, not by the schema.
+#HealthThreshold: {
+	warn: int
+	high: int
+}
+
+// #HealthOverride replaces thresholds for the paths it names (the exclude
+// pattern dialect of inferenceHints.exclude).
+#HealthOverride: {
+	path:        #NonEmpty
+	thresholds?: [string]: #HealthThreshold
+}
+
+// #HealthWaiver waives one finding (code, path, function) on the strength
+// of an accepted decision.
+#HealthWaiver: {
+	code:     #NonEmpty
+	path:     #NonEmpty
+	function: #NonEmpty
+	decision: #NonEmpty
+}
+
+// #HealthBaseline names the committed baseline of accepted existing findings
+// (ADR-EMG-059): a path relative to the manifest directory and the decision
+// that justifies it. The path rules and the acceptance of the decision are
+// reported by internal/validate.
+#HealthBaseline: {
+	file:     #NonEmpty
+	decision: #NonEmpty
+}
+
+// #ManifestHealth configures the optional code health report (ADR-EMG-051):
+// without it nothing health related is computed or reported.
+#ManifestHealth: {
+	exclude?:    [...string]
+	thresholds?: [string]: #HealthThreshold
+	overrides?:  [...#HealthOverride]
+	waivers?:    [...#HealthWaiver]
+	baseline?:   #HealthBaseline
+	// policyDecision is the accepted decision that records a weakening of
+	// this block against the base revision (ADR-EMG-051, amended by the review).
+	policyDecision?: #NonEmpty
+}
+
+// #CodeExemption exempts one model element from the element to code coverage
+// checks (ADR-EMG-069): the reason is at least 20 characters and the decision
+// must be accepted (reported by internal/trace as code.exemption_unjustified).
+#CodeExemption: {
+	id:       #NonEmpty
+	reason:   #NonEmpty & =~"(?s)^.{20,}$"
+	decision: #NonEmpty
+}
+
+// #CodeCoverage configures the element to code coverage checks.
+#CodeCoverage: {
+	exempt?: [...#CodeExemption]
 }
 
 #ManifestDocument: {
@@ -69,5 +132,7 @@ package model
 	publications?: [...#ManifestPublication]
 	inferenceHints?: #InferenceHints
 	requirementLinks?: "strict" | "guided"
+	codeCoverage?: #CodeCoverage
 	lifecycle?: #ManifestLifecycle
+	health?: #ManifestHealth
 }

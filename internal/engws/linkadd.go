@@ -4,7 +4,6 @@ package engws
 import (
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -38,6 +37,7 @@ type LinkAddOptions struct {
 // LNK-<REQ>-<ALIAS>, made unique.
 // TRLC-LINKS: REQ-EMG-119
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-ADD
 func AddLink(repo string, opts LinkAddOptions) (model.ReqLink, error) {
 	manifest := filepath.Join(repo, "engmod.yml")
 	bundle, err := model.LoadBundle(manifest)
@@ -125,22 +125,16 @@ func AddLink(repo string, opts LinkAddOptions) (model.ReqLink, error) {
 		}
 	}
 
-	writes := map[string][]byte{}
-	read := func(path string) ([]byte, error) {
-		if data, ok := writes[path]; ok {
-			return data, nil
-		}
-		return os.ReadFile(path)
-	}
-	if _, err := appendLinks(bundle, manifest, []model.ReqLink{link}, read, writes); err != nil {
+	files := newLinkFiles(manifest)
+	if err := files.appendLinks(bundle, []model.ReqLink{link}); err != nil {
 		return model.ReqLink{}, err
 	}
-	paths := make([]string, 0, len(writes))
-	for path := range writes {
+	paths := make([]string, 0, len(files.writes))
+	for path := range files.writes {
 		paths = append(paths, path)
 	}
 	sort.Strings(paths)
-	if err := writeAllOrNothing(paths, writes); err != nil {
+	if err := writeAllOrNothing(paths, files.writes); err != nil {
 		return model.ReqLink{}, err
 	}
 	if _, err := model.LoadBundle(manifest); err != nil {
@@ -165,6 +159,7 @@ func sameStrings(a, b []string) bool {
 
 // runLinkAdd adds one link and prints it.
 // TRLC-LINKS: REQ-EMG-119
+// ENGMODEL-LINKS: EVT-LINK-ADD-REQUESTED
 func runLinkAdd(repo string, opts LinkAddOptions, w io.Writer) (int, error) {
 	link, err := AddLink(repo, opts)
 	if err != nil {

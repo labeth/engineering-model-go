@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	engmodel "github.com/labeth/engineering-model-go"
+	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
 // TRLC-LINKS: REQ-EMG-042, REQ-EMG-043
@@ -32,11 +33,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 	result, err := engmodel.GenerateNAFV41FromFile(*modelPath)
 	for _, diagnostic := range result.Diagnostics {
-		fmt.Fprintf(stderr, "%s [%s] %s", diagnostic.Code, diagnostic.Severity, diagnostic.Message)
-		if diagnostic.Path != "" {
-			fmt.Fprintf(stderr, " (%s)", diagnostic.Path)
-		}
-		fmt.Fprintln(stderr)
+		validate.WriteDiagnostic(stderr, diagnostic)
 	}
 	if err != nil {
 		fmt.Fprintln(stderr, "error:", err)

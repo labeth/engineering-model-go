@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 replacements:
 - module: models.atlas.example/shared/edge-platform@v0
   path: ./repos/shared-edge-platform

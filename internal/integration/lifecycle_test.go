@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -48,15 +49,72 @@ func copyExample(t *testing.T, name string) string {
 	return root
 }
 
-// appendLifecycle appends a lifecycle block to dir/engmod.yml.
-func appendLifecycle(t *testing.T, dir, block string) string {
+// tierDecisionLine matches the Tier: and Bundles: lines of a tier decision.
+var tierDecisionLine = regexp.MustCompile(`(?m)^(\s*)(Tier|Bundles): .*$`)
+
+// setLifecycle gives the example copy in dir the lifecycle tier with the
+// bundles (foundation when none are given), the matching accepted
+// DEC-TIER-<TIER> decision (the examples carry DEC-TIER-MVP; its id, Tier:
+// and Bundles: lines are rewritten) and, from product, the health block that
+// tier requires. It returns the manifest path.
+func setLifecycle(t *testing.T, dir, tier string, bundles ...string) string {
+	t.Helper()
+	if len(bundles) == 0 {
+		bundles = []string{"foundation"}
+	}
+	manifest := filepath.Join(dir, "engmod.yml")
+	data, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if i := strings.Index(string(data), "lifecycle:"); i >= 0 {
+		data = data[:i]
+	}
+	id := "DEC-TIER-" + strings.ToUpper(tier)
+	block := "lifecycle:\n  tier: " + tier + "\n  bundles: [" + strings.Join(bundles, ", ") + "]\n  tierDecision: " + id + "\n"
+	if model.TierRank(tier) >= model.TierRank(model.TierProduct) {
+		block += "health: {}\n"
+	}
+	if err := os.WriteFile(manifest, append(data, []byte(block)...), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	decisions := filepath.Join(dir, "model", "decisions.yml")
+	text, err := os.ReadFile(decisions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := regexp.MustCompile(`id: DEC-TIER-[A-Z]+`).ReplaceAllString(string(text), "id: "+id)
+	out = tierDecisionLine.ReplaceAllStringFunc(out, func(line string) string {
+		m := tierDecisionLine.FindStringSubmatch(line)
+		if m[2] == "Tier" {
+			return m[1] + "Tier: " + tier
+		}
+		return m[1] + "Bundles: " + strings.Join(bundles, ", ")
+	})
+	if err := os.WriteFile(decisions, []byte(out), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	return manifest
+}
+
+// removeLifecycle cuts the lifecycle block (the last key the examples write,
+// with a health block after it) from dir/engmod.yml: the model without a tier
+// that the kept library behaviour (composition tier rules, the tier gap of a
+// dependency) is tested against. The validator reports such a model as
+// lifecycle.missing. It returns the manifest path.
+func removeLifecycle(t *testing.T, dir string) string {
 	t.Helper()
 	manifest := filepath.Join(dir, "engmod.yml")
 	data, err := os.ReadFile(manifest)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(manifest, append(data, []byte("lifecycle:\n"+block)...), 0o644); err != nil {
+	text := string(data)
+	i := strings.Index(text, "lifecycle:")
+	if i < 0 {
+		t.Fatalf("%s declares no lifecycle", manifest)
+	}
+	if err := os.WriteFile(manifest, []byte(text[:i]), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	return manifest
@@ -81,7 +139,7 @@ func diagnosticsOf(diags []engmodel.Diagnostic, code string) []engmodel.Diagnost
 // TRLC-LINKS: REQ-EMG-125, REQ-EMG-130
 func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 	dir := copyExample(t, "payments-engineering-sample")
-	manifest := appendLifecycle(t, dir, "  tier: poc\n")
+	manifest := setLifecycle(t, dir, "poc")
 	bundle, err := engmodel.LoadBundle(manifest)
 	if err != nil {
 		t.Fatal(err)
@@ -105,15 +163,12 @@ func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 			}
 		}
 	}
-	unapproved := diagnosticsOf(engmodel.ValidateBundle(bundle), "lifecycle.requirement_unverified")
-	if len(unapproved) == 0 || !unapproved[0].Deferred {
-		t.Fatalf("ValidateBundle at poc: lifecycle.requirement_unverified %+v, want deferred", unapproved)
+	unverified := diagnosticsOf(engmodel.ValidateBundle(bundle), "lifecycle.requirement_unverified")
+	if len(unverified) == 0 || !unverified[0].Deferred {
+		t.Fatalf("ValidateBundle at poc: lifecycle.requirement_unverified %+v, want deferred", unverified)
 	}
 
-	data, _ := os.ReadFile(manifest)
-	if err := os.WriteFile(manifest, []byte(strings.Replace(string(data), "tier: poc", "tier: product", 1)), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	manifest = setLifecycle(t, dir, "product")
 	bundle, err = engmodel.LoadBundle(manifest)
 	if err != nil {
 		t.Fatal(err)
@@ -168,30 +223,33 @@ func composeSystem(t *testing.T, root string) []engmodel.Diagnostic {
 // A product-tier system composing a prototype-tier child reports
 // composition.dependency_below_tier (error) naming the alias and the system
 // requirements linked into it, and a child without lifecycle
-// composition.dependency_tier_unknown (warning); a risk with a recorded
+// composition.dependency_tier_unknown (a core error at every tier, ADR-EMG-073,
+// with a remedy that asks the dependency's owner); a risk with a recorded
 // acceptance whose appliesTo names the subsystem composing the alias
 // removes the below-tier finding; a system without lifecycle gets neither.
-// TRLC-LINKS: REQ-EMG-126
+// TRLC-LINKS: REQ-EMG-126, REQ-EMG-183
 func TestCompositionTierRules(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	system := filepath.Join(root, "repos", "system")
+	// The examples declare a tier; the library behaviour without one is kept,
+	// so the case strips it from all three repositories first.
+	for _, name := range []string{"system", "child-a", "child-b"} {
+		removeLifecycle(t, filepath.Join(root, "repos", name))
+	}
 	if got := append(withCode(composeSystem(t, root), "composition.dependency_below_tier"), withCode(composeSystem(t, root), "composition.dependency_tier_unknown")...); len(got) != 0 {
 		t.Fatalf("system without lifecycle: %+v", got)
 	}
-	appendLifecycle(t, filepath.Join(root, "repos", "child-a"), "  tier: prototype\n")
-	appendLifecycle(t, system, "  tier: product\n")
+	setLifecycle(t, filepath.Join(root, "repos", "child-a"), "prototype")
+	setLifecycle(t, system, "product")
 	diags := composeSystem(t, root)
 	below := withCode(diags, "composition.dependency_below_tier")
 	if len(below) != 1 || below[0].Severity != engmodel.SeverityError || below[0].RequiredFrom != "product" ||
 		!strings.Contains(below[0].Message, `"encoder"`) || !strings.Contains(below[0].Message, "prototype") || !strings.Contains(below[0].Message, "REQ-SYS-001, REQ-SYS-002") {
 		t.Fatalf("below tier: %+v", below)
 	}
-	unknown := withCode(diags, "composition.dependency_tier_unknown")
-	if len(unknown) != 1 || unknown[0].Severity != engmodel.SeverityWarning || !strings.Contains(unknown[0].Message, `"bridge"`) {
-		t.Fatalf("tier unknown: %+v", unknown)
-	}
+	requireTierUnknownIsCoreError(t, root, system)
 
-	assurance := "schemaVersion: 2\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: accepted\n    owner: ACT-SYSTEM-OWNER\n    appliesTo: [SUB-ENCODER]\n" +
+	assurance := "schemaVersion: 3\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: accepted\n    owner: ACT-SYSTEM-OWNER\n    appliesTo: [SUB-ENCODER]\n" +
 		"    acceptedBy: {actor: ACT-SYSTEM-OWNER, date: \"2026-11-05\", statement: I accept the prototype encoder until v1.}\n"
 	if err := os.WriteFile(filepath.Join(system, "model", "assurance.yml"), []byte(assurance), 0o644); err != nil {
 		t.Fatal(err)
@@ -201,12 +259,39 @@ func TestCompositionTierRules(t *testing.T) {
 	}
 }
 
+// isPlainCoreError reports whether a composition diagnostic is an error that
+// no tier lowers or defers.
+func isPlainCoreError(d engmodel.Diagnostic) bool {
+	return d.Severity == engmodel.SeverityError && d.RequiredFrom == "" && !d.Deferred
+}
+
+// requireTierUnknownIsCoreError checks that composition.dependency_tier_unknown
+// is a core error with the owner remedy at the system's tier and at poc, and
+// leaves the system at product.
+// TRLC-LINKS: REQ-EMG-183
+func requireTierUnknownIsCoreError(t *testing.T, root, system string) {
+	t.Helper()
+	const code = "composition.dependency_tier_unknown"
+	unknown := withCode(composeSystem(t, root), code)
+	if len(unknown) != 1 || !isPlainCoreError(unknown[0]) || !strings.Contains(unknown[0].Message, `"bridge"`) {
+		t.Fatalf("tier unknown: %+v", unknown)
+	}
+	if !strings.Contains(unknown[0].Remedy, "owner of the dependency") {
+		t.Fatalf("tier unknown remedy: %q", unknown[0].Remedy)
+	}
+	setLifecycle(t, system, "poc")
+	if low := withCode(composeSystem(t, root), code); len(low) != 1 || !isPlainCoreError(low[0]) {
+		t.Fatalf("tier unknown at poc: %+v", low)
+	}
+	setLifecycle(t, system, "product")
+}
+
 // writeSystemRisk writes repos/system/model/assurance.yml with one risk on
 // the encoder dependency: status, and the field (dependencies or appliesTo)
 // with its list.
 func writeSystemRisk(t *testing.T, system, status, field, list string) {
 	t.Helper()
-	assurance := "schemaVersion: 2\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: " + status + "\n    owner: ACT-SYSTEM-OWNER\n    " + field + ": " + list + "\n" +
+	assurance := "schemaVersion: 3\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: " + status + "\n    owner: ACT-SYSTEM-OWNER\n    " + field + ": " + list + "\n" +
 		"    acceptedBy: {actor: ACT-SYSTEM-OWNER, date: \"2026-11-05\", statement: I accept the prototype encoder until v1.}\n"
 	if err := os.WriteFile(filepath.Join(system, "model", "assurance.yml"), []byte(assurance), 0o644); err != nil {
 		t.Fatal(err)
@@ -222,8 +307,9 @@ func writeSystemRisk(t *testing.T, system, status, field, list string) {
 func TestCompositionBelowTierWaivedByRiskDependency(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	system := filepath.Join(root, "repos", "system")
-	appendLifecycle(t, filepath.Join(root, "repos", "child-a"), "  tier: prototype\n")
-	appendLifecycle(t, system, "  tier: product\n")
+	setLifecycle(t, filepath.Join(root, "repos", "child-a"), "prototype")
+	setLifecycle(t, filepath.Join(root, "repos", "child-b"), "product")
+	setLifecycle(t, system, "product")
 
 	writeSystemRisk(t, system, "open", "dependencies", "[encoder]")
 	below := withCode(composeSystem(t, root), "composition.dependency_below_tier")

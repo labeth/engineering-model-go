@@ -1,0 +1,26 @@
+{
+  "data": [
+    {
+      "tag": "act tests.src_governance_go",
+      "location": {
+        "kind": "file",
+        "file": "src/governance.go",
+        "line": 5,
+        "column": 4
+      },
+      "name": "governance.go",
+      "refs": [
+        "req Requirements.REQ_PORT_001"
+      ],
+      "just_up": [],
+      "just_down": [],
+      "just_global": [],
+      "framework": "Tests",
+      "kind": "test",
+      "status": "ok"
+    }
+  ],
+  "generator": "engmodel",
+  "schema": "lobster-act-trace",
+  "version": 3
+}

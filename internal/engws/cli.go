@@ -59,9 +59,13 @@ commands:
                              see Trust) is used when it supports
                              --workspace-root, run with GOWORK set to its
                              .github/engmod-check/go.work if present, else
-                             off; otherwise the built-in library (--in-process
-                             forces it: the safe choice for untrusted
-                             checkouts); --refresh re-fetches every registry
+                             off; a repo without one that takes the flag is
+                             the error engine.check_template_stale (run
+                             engflow upgrade --root <repo>), not checked by the
+                             library, and a pin older than this engine is
+                             engine.pin_outdated; --in-process uses the
+                             built-in library for every repo (the safe choice
+                             for untrusted checkouts); --refresh re-fetches every registry
                              dependency (ENGMOD_MODULE_CACHE=refresh); exit 1
                              on failure
   bump <repo> <alias> <version> [--allow-review] [--show]
@@ -83,8 +87,7 @@ commands:
                              review-links accepts it; one line per link, IDs
                              only (--show adds the text before and after);
                              exit 1 when a link needs review unless
-                             --allow-review (--allow-suspect is a deprecated
-                             alias); any failure restores all files
+                             --allow-review; any failure restores all files
   review-links [--repo DIR] [--json] [--show]
                              list the requirement links of the model in DIR
                              (default .) that need review: pinned to another
@@ -101,8 +104,8 @@ commands:
                              record the review in the requirement link file:
                              pinned.version set to the dependency pin,
                              reviewedBy, reviewedOn (today), rationale and
-                             status accepted, a deprecated fingerprint
-                             removed; only those lines change; refuse an
+                             status accepted; only those lines change (a
+                             pinned.fingerprint is left in place); refuse an
                              actor the model does not define, a broken link
                              and a dependency that does not resolve with the
                              workspace off; then evaluate the link again and
@@ -136,23 +139,12 @@ commands:
                              nearest release tag below it in the commit's
                              history (git tag --merged) is smaller than the
                              contract-diff between them requires (in v0.x a
-                             breaking change needs a minor bump); exit 1 on
-                             findings, 2 on a usage or git error
-  migrate-links [--repo DIR] [--dry-run]
-                             convert the deprecated trace of the model in DIR:
-                             each composition.allocations entry becomes a
-                             claimed link in model/req-links.yml (id
-                             LNK-<REQ>-<ALIAS>, the dependency pin; parent for
-                             a capability, evidence for an assumption of
-                             use), every deprecated pinned.fingerprint is
-                             removed (count printed), documents.reqLinks is added, the
-                             allocations are removed, and each capability
-                             contract.provides[].ref becomes realizes on its
-                             requirement; other lines are kept; print the
-                             requirements left with requirement.no_parent;
-                             a second run changes nothing; a failed write
-                             restores every file; migrate the dependencies
-                             first
+                             breaking change needs a minor bump), and
+                             release.schema_version_not_bumped when the
+                             CHANGELOG entry of the tag says Breaking release
+                             and schemaVersion is not above that of the
+                             previous release; exit 1 on findings, 2 on a
+                             usage or git error
   status-suggest [--repo DIR] [--tree HASH] [--json]
                              print the status each requirement and control
                              verification of the model in DIR earns from this
@@ -239,7 +231,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	serve := sub.Bool("serve", false, "")
 	addr := sub.String("addr", "127.0.0.1:0", "")
 	allowReview := sub.Bool("allow-review", false, "")
-	sub.BoolVar(allowReview, "allow-suspect", false, "") // deprecated name of --allow-review
 	show := sub.Bool("show", false, "")
 	repoFlag := sub.String("repo", ".", "")
 	asJSON := sub.Bool("json", false, "")
@@ -248,7 +239,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	rationale := sub.String("rationale", "", "")
 	tag := sub.String("tag", "", "")
 	treeFlag := sub.String("tree", "", "")
-	dryRun := sub.Bool("dry-run", false, "")
 	parent := sub.String("parent", "", "")
 	evidence := sub.String("evidence", "", "")
 	sub.StringVar(rootFlag, "root", *rootFlag, "")
@@ -258,7 +248,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 2
 	}
 	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
-		"review-links": 0, "contract-diff": 2, "release-check": 0, "migrate-links": 0, "link": 2, "status-suggest": 0}
+		"review-links": 0, "contract-diff": 2, "release-check": 0, "link": 2, "status-suggest": 0}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
@@ -305,13 +295,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	}
 	if command == "status-suggest" {
 		code, err := runStatusSuggest(*repoFlag, strings.TrimSpace(*treeFlag), *asJSON, stdout)
-		if err != nil {
-			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
-		}
-		return code
-	}
-	if command == "migrate-links" {
-		code, err := runMigrateLinks(*repoFlag, *dryRun, stdout)
 		if err != nil {
 			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 		}
@@ -564,11 +547,15 @@ func runCheck(ctx context.Context, root string, registry Registry, all, summary 
 // after for each link left for review). It returns 1 when a link was left
 // for review, unless opts.AllowReview.
 // TRLC-LINKS: REQ-EMG-068, REQ-EMG-100, REQ-EMG-126
+// ENGMODEL-LINKS: EVT-DEPENDENCY-BUMP-REQUESTED
 func runBump(root, repo, alias, version string, opts BumpOptions, show bool, w io.Writer) (int, error) {
 	result, err := Bump(root, repo, alias, version, opts)
 	for _, d := range result.Diagnostics {
 		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") {
 			fmt.Fprintf(w, "    %s [error] %s (%s)\n", d.Code, d.Message, d.Path)
+			if fix := d.FixLine(); fix != "" {
+				fmt.Fprintf(w, "    %s\n", strings.TrimSpace(fix))
+			}
 		}
 	}
 	if err != nil {

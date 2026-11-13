@@ -146,22 +146,53 @@ func TestAuthoringFieldRuleOutOfScopeRejectsSystemAndNonActorOwner(t *testing.T)
 	}
 }
 
-// The authoring contract gives triggered_by one meaning (an event handled
-// within the state), says that entering a state is a transitions_to, where
-// the causing event goes, and lists the assurance link diagnostics.
-// Mutation: deleting the triggered_by field rule fails this test.
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-087
+// The authoring contract says that state behavior is modeled with machines,
+// names the removed vocabulary and the machine fields, expression operators
+// and diagnostics, and lists the assurance link diagnostics; the machine
+// entity kinds are field sets.
+// Mutation: deleting the machines field rule or a machine field set fails this test.
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-087, REQ-EMG-138, REQ-EMG-139, REQ-EMG-140
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
-func TestAuthoringRulesDefineTriggeredByAndAssuranceLinks(t *testing.T) {
+func TestAuthoringRulesDefineMachinesAndAssuranceLinks(t *testing.T) {
 	text := strings.Join(AuthoringRules().FieldRules, "\n")
 	for _, want := range []string{
-		"triggered_by (state -> event) means the event is handled within the state",
-		"Entering a state is a transitions_to",
-		"semantics.relationships transition with triggers",
+		"State behavior is modeled with behavior.machines only",
+		"behavior.states, transitions_to and the state triggered_by were removed in v0.11.0",
+		"guarded_by (protected by a control, trust boundary or referenced element) keeps its meaning",
+		"behavior.transition_unknown_event", "behavior.expression_unknown_variable", "behavior.expression_type",
+		"behavior.in_state_foreign", "behavior.final_state_has_transitions",
+		"behavior.machine_deadlock", "behavior.transition_nondeterministic", "behavior.transition_no_trigger", "behavior.invariant_unlinked",
+		"behavior.event_unused counts as a use of an event: the on of a machine transition",
 		"threat.verification_missing", "mitigation.verification_control_mismatch", "verification.unlinked", "gemara.control_needs_review",
 	} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("authoring field rules must contain %q:\n%s", want, text)
+		}
+	}
+	for _, removed := range []string{"Entering a state is a transitions_to", "first declared, initial one"} {
+		if strings.Contains(text, removed) {
+			t.Fatalf("authoring field rules still describe removed state vocabulary %q", removed)
+		}
+	}
+	sets := AuthoringRules().FieldSets
+	if _, ok := sets["state"]; ok {
+		t.Fatal("the legacy state field set was removed with behavior.states")
+	}
+	want := map[string]string{
+		"machine":           "id,name,description,owner,initial,variables,states,transitions,invariants",
+		"machineState":      "id,name,description,final,requirements",
+		"machineTransition": "id,from,to,on,guard,effect,description,requirements",
+		"machineInvariant":  "id,requirements,expr,description",
+		"machineVariable":   "name,type,initial",
+	}
+	for kind, fields := range want {
+		if got := strings.Join(sets[kind], ","); got != fields {
+			t.Fatalf("fieldSets[%s] = %s, want %s", kind, got, fields)
+		}
+	}
+	for _, pair := range AuthoringRules().RelationshipPairs {
+		if pair.Type == "transitions_to" || pair.Type == "triggered_by" {
+			t.Fatalf("removed relationship pair %+v is still allowed", pair)
 		}
 	}
 }
@@ -188,17 +219,22 @@ func TestPublicationSectionsAreManifestPublicationFields(t *testing.T) {
 // version-pinned review, and requirementLinks strictness, and lists the
 // fields of an assumption and a link; it no longer tells an agent to keep
 // an engine-written fingerprint.
-// TRLC-LINKS: REQ-EMG-099, REQ-EMG-119
+// TRLC-LINKS: REQ-EMG-099, REQ-EMG-119, REQ-EMG-184
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func TestAuthoringRulesDescribeRequirementLinks(t *testing.T) {
 	rules := AuthoringRules()
 	text := strings.Join(rules.FieldRules, "\n")
 	for _, want := range []string{
 		"realizes", "requirement.no_parent", "parent of a reqLinks entry to a dependency's capability", "A system publishes its own capabilities so a system above can link to them", "contract.assumptions", "contract.realizer_unpublished",
-		"documents.reqLinks", "engws link add", "link.version_mismatch", "link.fingerprint_deprecated", "not status or notes", "link.aou_unverified", "requirementLinks in engmod.yml is strict or guided", "pseudo-version",
+		"documents.reqLinks", "engws link add", "link.version_mismatch", "model.pinned_fingerprint_removed", "model.provides_ref_removed", "model.allocations_removed", "not status or notes", "link.aou_unverified", "requirementLinks in engmod.yml is required and is strict or guided", "model.requirement_links_missing", "pseudo-version",
 	} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("authoring field rules must contain %q", want)
+		}
+	}
+	for _, stale := range []string{"default guided", "default [foundation]", "is optional; without it", "absent means Foundation"} {
+		if strings.Contains(text, stale) {
+			t.Fatalf("authoring field rules still describe the removed default %q", stale)
 		}
 	}
 	if strings.Contains(text, "topLevel") {
@@ -273,7 +309,7 @@ func TestAuthoringRulesGiveFieldTypes(t *testing.T) {
 	text := strings.Join(rules.FieldRules, "\n")
 	for _, want := range []string{
 		"every flow step needs ref", "model.missing_flow_step_ref", "step IDs are unique across all flows",
-		"semantic.duplicate_identity", "stride is one string", "catalog.term_unreferenced",
+		"semantic.duplicate_identity", "stride is one string", "catalog.term_unreferenced", "a warning below product and an error from product",
 		"lintRun.mode: strict", "dir, dir/, dir/* or dir/**", "model.invalid_exclude_pattern", "fieldTypes",
 	} {
 		if !strings.Contains(text, want) {
@@ -297,7 +333,7 @@ func TestAuthoringRulesDescribeLifecycle(t *testing.T) {
 	if got := strings.Join(rules.FieldSets["lifecycle"], ","); got != "tier,bundles,tierDecision,raise" {
 		t.Errorf("lifecycle fields = %s", got)
 	}
-	if got := strings.Join(rules.FieldSets["poamDefer"], ","); got != "code,path" {
+	if got := strings.Join(rules.FieldSets["poamDefer"], ","); got != "code,path,ref" {
 		t.Errorf("poamDefer fields = %s", got)
 	}
 	if !containsTrimmed(rules.FieldSets["poamItem"], "defers") {

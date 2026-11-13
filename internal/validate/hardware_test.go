@@ -18,7 +18,7 @@ func TestHardwareViewsAndEndpointValidation(t *testing.T) {
 			}, Views: []model.View{{ID: "VIEW-HW", Kind: "deployment", Roots: []string{"HW-BOARD"}, IncludeKinds: []string{"hardware_item", "hardware_interface"}}},
 		}})
 	}
-	if d := Bundle(base()); HasErrors(d) {
+	if d := Bundle(base()); hasErrors(d) {
 		t.Fatalf("hardware graph rejected: %+v", d)
 	}
 	for _, tc := range []struct {

@@ -22,7 +22,7 @@ func TestMCPScanHonoursGitignoreAndExclude(t *testing.T) {
 	}
 	root := t.TempDir()
 	writeMCPModule(t, root, "example.com/scope@v1", "v1.0.0", "SCOPE", "inferenceHints:\n  exclude:\n    - vendor-copy/*\n", "  functionalUnits: []\n")
-	writeMCPFile(t, filepath.Join(root, "model", "requirements.yml"), "schemaVersion: 2\nlintRun: {}\nrequirements:\n  - id: REQ-SCOPE-001\n    text: Scope requirement.\n")
+	writeMCPFile(t, filepath.Join(root, "model", "requirements.yml"), "schemaVersion: 3\nlintRun: {}\nrequirements:\n  - id: REQ-SCOPE-001\n    text: Scope requirement.\n")
 	writeMCPFile(t, filepath.Join(root, ".gitignore"), "viewer/dist/\n")
 	writeMCPFile(t, filepath.Join(root, "viewer", "dist", "assets", "app.js"), "// REQ-SCOPE-001 bundled\nfunction bundled() { return 1; }\n")
 	writeMCPFile(t, filepath.Join(root, "vendor-copy", "lib", "x.js"), "// REQ-SCOPE-001 copied\nfunction copied() { return 1; }\n")

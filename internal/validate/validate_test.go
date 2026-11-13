@@ -132,14 +132,14 @@ func TestViewIDIsFreeButKindIsStrict(t *testing.T) {
 	b.Architecture.Views[0].ID = "run"
 	b.Architecture.Views[0].Kind = "communication"
 	diags := Bundle(schemaV2TestBundle(b))
-	if HasErrors(diags) {
+	if hasErrors(diags) {
 		t.Fatalf("expected no errors for free-form view id with valid kind, got: %+v", diags)
 	}
 
 	// Unsupported kind should fail validation regardless of ID.
 	b.Architecture.Views[0].Kind = "run"
 	diags = Bundle(schemaV2TestBundle(b))
-	if !HasErrors(diags) {
+	if !hasErrors(diags) {
 		t.Fatalf("expected errors for unsupported view kind")
 	}
 	found := false
@@ -173,7 +173,7 @@ func TestBundleValidation_Decisions(t *testing.T) {
 		Views: []model.View{{ID: "V", Kind: "architecture-intent", Roots: []string{"FG-A"}}},
 	}}
 
-	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
 		t.Fatalf("expected valid decision to pass, got: %+v", diags)
 	}
 
@@ -181,7 +181,7 @@ func TestBundleValidation_Decisions(t *testing.T) {
 	b.Architecture.Decisions[0].Status = "done"
 	b.Architecture.Decisions[0].Consequences = nil
 	diags := Bundle(schemaV2TestBundle(b))
-	if !HasErrors(diags) {
+	if !hasErrors(diags) {
 		t.Fatalf("expected invalid decision to fail")
 	}
 	want := map[string]bool{
@@ -204,16 +204,20 @@ func TestBundleValidation_Decisions(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
-		FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
-		FunctionalUnits:    []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
-		Actors:             []model.Actor{{ID: "ACT-A", Name: "Actor A"}},
-		AttackVectors:      []model.AttackVector{{ID: "AV-A", Name: "Attack"}},
-		Interfaces:         []model.Interface{{ID: "IF-A", Name: "API", Owner: "FU-A"}},
-		DataObjects:        []model.DataObject{{ID: "DATA-A", Name: "Payload"}},
-		DeploymentTargets:  []model.DeploymentTarget{{ID: "DEP-A", Name: "Prod"}},
-		Controls:           []model.Control{{ID: "CTRL-A", Name: "Digest Pinning"}},
-		TrustBoundaries:    []model.TrustBoundary{{ID: "TB-A", Name: "Boundary"}},
-		States:             []model.State{{ID: "STATE-A", Name: "Ready"}, {ID: "STATE-B", Name: "Applied"}},
+		FunctionalGroups:  []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
+		FunctionalUnits:   []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
+		Actors:            []model.Actor{{ID: "ACT-A", Name: "Actor A"}},
+		AttackVectors:     []model.AttackVector{{ID: "AV-A", Name: "Attack"}},
+		Interfaces:        []model.Interface{{ID: "IF-A", Name: "API", Owner: "FU-A"}},
+		DataObjects:       []model.DataObject{{ID: "DATA-A", Name: "Payload"}},
+		DeploymentTargets: []model.DeploymentTarget{{ID: "DEP-A", Name: "Prod"}},
+		Controls:          []model.Control{{ID: "CTRL-A", Name: "Digest Pinning"}},
+		TrustBoundaries:   []model.TrustBoundary{{ID: "TB-A", Name: "Boundary"}},
+		Machines: []model.Machine{{
+			ID: "SM-A", Owner: "FU-A", Initial: "STATE-A",
+			States:      []model.MachineState{{ID: "STATE-A", Name: "Ready"}, {ID: "STATE-B", Name: "Applied"}},
+			Transitions: []model.MachineTransition{{ID: "TR-A", From: "STATE-A", To: "STATE-B", On: "EVT-A"}},
+		}},
 		Events:             []model.Event{{ID: "EVT-A", Name: "Deploy Requested"}},
 		ReferencedElements: []model.ReferencedElement{{ID: "REF-A", Name: "Reference", Kind: "ext", Layer: "external"}},
 		Mappings: []model.Mapping{
@@ -222,19 +226,18 @@ func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 			{Type: "deployed_to", From: "FU-A", To: "DEP-A"},
 			{Type: "mitigated_by", From: "AV-A", To: "CTRL-A"},
 			{Type: "bounded_by", From: "FU-A", To: "TB-A"},
-			{Type: "triggered_by", From: "STATE-A", To: "EVT-A"},
-			{Type: "transitions_to", From: "STATE-A", To: "STATE-B"},
 			{Type: "guarded_by", From: "STATE-B", To: "CTRL-A"},
+			{Type: "guarded_by", From: "SM-A", To: "CTRL-A"},
 		},
 	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
 
-	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
 		t.Fatalf("expected expanded mapping set to validate, got: %+v", diags)
 	}
 
 	b.Architecture.AuthoredArchitecture.Mappings = append(b.Architecture.AuthoredArchitecture.Mappings, model.Mapping{Type: "writes", From: "ACT-A", To: "DATA-A"})
 	diags := Bundle(schemaV2TestBundle(b))
-	if !HasErrors(diags) {
+	if !hasErrors(diags) {
 		t.Fatalf("expected invalid mapping pair to fail")
 	}
 	found := false
@@ -265,14 +268,14 @@ func TestBundleValidation_ViewSpecFields(t *testing.T) {
 		MaxDepth:        2,
 	}}}}
 
-	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
 		t.Fatalf("expected valid view spec fields, got: %+v", diags)
 	}
 
 	b.Architecture.Views[0].IncludeKinds = []string{"invalid-kind"}
 	b.Architecture.Views[0].MaxDepth = -1
 	diags := Bundle(schemaV2TestBundle(b))
-	if !HasErrors(diags) {
+	if !hasErrors(diags) {
 		t.Fatalf("expected invalid view spec to fail")
 	}
 	hasKindErr := false
@@ -322,7 +325,7 @@ func TestBundleValidation_FormalDocumentInputs(t *testing.T) {
 		}}},
 	}
 
-	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
 		t.Fatalf("expected complete document inputs to validate, got: %+v", diags)
 	}
 
@@ -370,7 +373,7 @@ func TestBundleValidation_InteractionFlowValid(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-INPUT-SELECTION"}, IncludeMappings: []string{"flow_next", "flow_ref"}}}}}
 
-	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
 		t.Fatalf("expected valid interaction flow model, got: %+v", diags)
 	}
 }
@@ -392,7 +395,7 @@ func TestBundleValidation_InteractionFlowInvalid(t *testing.T) {
 	}, Views: []model.View{{ID: "V-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-BROKEN"}}}}}
 
 	diags := Bundle(schemaV2TestBundle(b))
-	if !HasErrors(diags) {
+	if !hasErrors(diags) {
 		t.Fatalf("expected invalid flow model to fail")
 	}
 	checks := map[string]bool{}
@@ -429,7 +432,7 @@ func TestBundleValidation_ComplianceMappings(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
 
-	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
 		t.Fatalf("expected valid compliance mapping, got: %+v", diags)
 	}
 
@@ -437,7 +440,7 @@ func TestBundleValidation_ComplianceMappings(t *testing.T) {
 	b.Architecture.Compliance.Mappings[0].ResponsibleRoles = []string{"MISSING"}
 	b.Architecture.Compliance.Mappings[0].ModelControlRef = "CTRL-MISSING"
 	diags := Bundle(schemaV2TestBundle(b))
-	if !HasErrors(diags) {
+	if !hasErrors(diags) {
 		t.Fatalf("expected invalid compliance mapping diagnostics")
 	}
 	seen := map[string]bool{}
@@ -485,14 +488,14 @@ func TestBundleValidation_RisksAndPOAM(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}}
 
-	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
 		t.Fatalf("expected valid risk/poam model, got: %+v", diags)
 	}
 
 	b.Architecture.AuthoredArchitecture.Risks[0].Owner = "MISSING"
 	b.Architecture.AuthoredArchitecture.POAMItems[0].RiskRef = "RISK-MISSING"
 	diags := Bundle(schemaV2TestBundle(b))
-	if !HasErrors(diags) {
+	if !hasErrors(diags) {
 		t.Fatalf("expected invalid risk/poam diagnostics")
 	}
 	seen := map[string]bool{}
@@ -605,7 +608,7 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataValid(t *testing.T) {
 		}},
 	}, Views: []model.View{{ID: "V", Kind: "security", Roots: []string{"FU-A"}}}}}
 
-	if diags := Bundle(schemaV2TestBundle(b)); HasErrors(diags) {
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
 		t.Fatalf("expected valid threat scenario and flow metadata model, got: %+v", diags)
 	}
 }
@@ -710,7 +713,7 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
 	}, Views: []model.View{{ID: "V", Kind: "security", Roots: []string{"FU-A"}}}}}
 
 	diags := Bundle(schemaV2TestBundle(b))
-	if !HasErrors(diags) {
+	if !hasErrors(diags) {
 		t.Fatalf("expected invalid threat scenario and flow metadata diagnostics")
 	}
 	seen := map[string]bool{}
@@ -810,7 +813,32 @@ func schemaV2TestBundle(bundle model.Bundle) model.Bundle {
 	if bundle.Views.SchemaVersion == 0 {
 		bundle.Views.SchemaVersion = model.CurrentSchemaVersion
 	}
+	// The required switches that do not change what a rule reports: a model
+	// id, an EARS lint mode and guided requirement links (the library
+	// default). lifecycle.missing stays: hasErrors ignores it, and the
+	// required-switch tests build completeBundle.
+	if bundle.Architecture.Model.ID == "" {
+		bundle.Architecture.Model.ID = "MODEL-TEST"
+	}
+	if bundle.Requirements.LintRun.Mode == "" {
+		bundle.Requirements.LintRun.Mode = "strict"
+	}
+	if bundle.Manifest.RequirementLinks == "" {
+		bundle.Manifest.RequirementLinks = model.RequirementLinksGuided
+	}
 	return bundle
+}
+
+// hasErrors is HasErrors without lifecycle.missing: the tests that use it
+// check other rules on a bundle without a lifecycle block, which the
+// required-switch tests cover.
+func hasErrors(diags []Diagnostic) bool {
+	for _, d := range diags {
+		if d.Severity == SeverityError && d.Code != "lifecycle.missing" {
+			return true
+		}
+	}
+	return false
 }
 
 // A requirement appliesTo naming an unknown local ID is an error at its field

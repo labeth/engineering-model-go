@@ -35,7 +35,7 @@ func TestFormatLive(t *testing.T) {
 	}
 }
 `)
-	write(t, filepath.Join(dir, "model", "assurance.yml"), `schemaVersion: 2
+	write(t, filepath.Join(dir, "model", "assurance.yml"), `schemaVersion: 3
 assurance:
   controls:
   - id: CTRL-ENC-INTEGRITY

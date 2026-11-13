@@ -80,6 +80,12 @@ package 'coffee-appliance-six-view' {
     attribute 'DATA-BREW-SELECTION';
 
     @EngineeringElement {
+        sourceId = "DEC-TIER-MVP";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DEC-TIER-MVP';
+
+    @EngineeringElement {
         sourceId = "DEP-COUNTERTOP-DEVICE";
         conceptKind = "part_definition";
     }

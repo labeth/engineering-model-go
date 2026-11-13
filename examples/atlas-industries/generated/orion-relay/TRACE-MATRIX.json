@@ -7,7 +7,14 @@
       "units": [
         "FU-ORI-ROUTER"
       ],
-      "status": "orphan",
+      "code": [
+        {
+          "symbol": "CODE-SRC-ROUTER-GO--DELIVERBYPRIORITY",
+          "path": "src/router.go",
+          "line": 6
+        }
+      ],
+      "status": "implemented",
       "parents": [
         "CAP-ORION-MISSION"
       ]
@@ -438,7 +445,6 @@
   ],
   "danglingLinks": null,
   "orphanRequirements": [
-    "REQ-ORI-001",
     "REQ-ORI-002",
     "REQ-ORI-003",
     "REQ-ORI-004",
@@ -446,20 +452,16 @@
   ],
   "summary": {
     "requirements": 19,
-    "implemented": 0,
-    "verified": 0,
+    "implemented": 1,
     "tested": 0,
     "testLinked": 0,
     "passed": 0,
     "delegated": 0,
-    "delegatedImplemented": 0,
-    "delegatedTestLinked": 0,
-    "orphan": 5,
+    "orphan": 4,
     "danglingLinks": 0,
     "gatedOnly": 0,
     "linksNeedReview": 0,
     "linksVersionMismatch": 0,
-    "linksSuspect": 0,
     "linksBroken": 0,
     "linksClaimed": 0,
     "unparented": 0

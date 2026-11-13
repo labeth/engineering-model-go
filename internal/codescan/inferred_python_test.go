@@ -26,7 +26,7 @@ func TestPythonOwnershipAndTestOnlyInference(t *testing.T) {
 	if metadata["worker.py"].Owner != "FU-PY" {
 		t.Fatalf("false ownership: %+v", metadata)
 	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{CodeSources: []string{"worker.py", "test_worker.py"}}}}
+	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	code, diags := InferCodeItems(bundle, "")
 	if len(diags) != 0 || len(code) != 4 {
 		t.Fatalf("code: %+v diagnostics: %+v", code, diags)

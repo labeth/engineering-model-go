@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 architecture:
   functionalGroups:
   - id: FG-EDGE
@@ -48,5 +48,4 @@ architecture:
     requires:
     - id: NEED-EDGE-IDENTITY
       kind: capability
-      ref: REQ-EDGE-002
       note: Device identity must be supplied by the composing product.

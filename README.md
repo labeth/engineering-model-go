@@ -26,10 +26,10 @@ model. See
 
 Each model directory has one schema-v2 manifest entry point and eight required
 domain documents. An optional ninth `documents.aviation` document adds an
-airborne software evidence-readiness profile without changing models that omit it:
+airborne software evidence-readiness profile that models without it do not need:
 
 ```yaml
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/example-system@v0
   version: v0.1.0
@@ -53,10 +53,19 @@ publications:
     architecture: [FU-EXAMPLE]
     requirements: [REQ-EXAMPLE-001]
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp                      # poc < prototype < mvp < product < operational
+  bundles: [foundation]          # required, no default
+  tierDecision: DEC-TIER-MVP     # an accepted decision with "Tier: MVP" and "Bundles: foundation" lines
 ```
 
+A manifest without `lifecycle`, `requirementLinks` and a `lintRun.mode` in `requirements.yml` is an
+error that names its remedy (see [Required model switches](#required-model-switches)); from tier
+product it also needs a `health` block.
+
 `engmod.yml` is the only model entry point. Every manifest and domain document
-uses `schemaVersion: 2`; paths are explicit and no companion filename is
+uses `schemaVersion: 3`; paths are explicit and no companion filename is
 inferred. AI agents should call the no-argument MCP tool
 `model.authoringContract` first; it returns the resolved
 document set, schema files, top-level YAML fields, stable-ID conventions,
@@ -95,8 +104,8 @@ It is not a runtime observability or incident/compliance runtime system.
 - AsciiDoc architecture generation with chapter scope diagrams
 - view-level filtering controls (`includeKinds`, `excludeKinds`, `includeMappings`, `excludeMappings`, `maxDepth`)
 - EARS preflight linting via `github.com/labeth/ears-lint-go`
-  - `lintRun.mode: strict` is the default and recommended project mode
-  - `guided` is optional for drafting workflows and non-blocking author guidance
+  - `lintRun.mode` is required (`lint.mode_missing`): `strict` is the project mode from tier mvp
+  - `guided` is allowed only below mvp, for drafting (`lint.mode_guided_at_tier` from mvp)
 - Tree-sitter based code symbol extraction and trace mapping for:
   - Go
   - TypeScript/TSX
@@ -257,11 +266,11 @@ Structural composition entities in `model/architecture.yml`:
 
 - `contract` (the system's `provides`/`requires` public interface contract)
 - `composition.subsystems` (downward references to child system models)
-- `composition.allocations` (parent-requirement allocation onto a subsystem or hardware item)
 - `composition.satisfactions` (records of how a subsystem's required interface is satisfied by a provider)
 
-`engdoc` renders HW/SW interface allocation views from `hardwareItems`, `hardwareInterfaces`, and
-`composition.allocations`. See System-of-Systems Composition for the composition gates.
+`engdoc` renders HW/SW interface views from `hardwareItems` and `hardwareInterfaces`. A requirement is
+traced to a requirement of another model with requirement links (`reqLinks`), not with allocations.
+See System-of-Systems Composition for the composition gates.
 
 Flow step fields (`model/behavior.yml` `behavior.flows[].steps[]`) support:
 
@@ -286,8 +295,9 @@ Expanded mapping relation vocabulary includes:
 - Base: `contains`, `depends_on`, `interacts_with`, `targets`
 - Communication/data: `calls`, `publishes`, `subscribes`, `reads`, `writes`, `streams`
 - Traceability/deployment: `implements`, `satisfies`, `allocated_to`, `verified_by`, `deployed_to`
-- Security/lifecycle: `mitigated_by`, `bounded_by`, `transitions_to`, `triggered_by`, `guarded_by`
+- Security/guards: `mitigated_by`, `bounded_by`, `guarded_by` (a machine or machine state is protected by a control, trust boundary or referenced element)
 - Flow projection (view-only): `flow_next`, `flow_error`, `flow_async`, `flow_ref`
+- State lifecycle projection (view-only): `transition` (state to state, label `TR-ID on EVT [guard] / effect`), `on_event` (state to the event a transition from it waits for)
 
 `bounded_by` links a functional unit, deployment target, interface, actor, hardware item or data object to a trust boundary. Default security views retain these member kinds. Membership describes the modeled boundary; it does not establish authentication or enforcement. Author an explicit relationship when it should appear in the projected view.
 
@@ -302,7 +312,7 @@ Verification metadata is inferred from test artifacts:
 - requirement IDs in result artifacts are inferred by matching `REQ-*` tokens in result content
 - published verification chain is `Verification Check -> Test Code Element -> Requirement`
 - functional ownership in verification tables is shown as derived context from requirement ownership
-- strict EARS lint also warns when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
+- strict EARS lint also reports (a warning below product, an error from product) when catalog terms (systems, actors, events, states, features, modes, conditions, data terms) are referenced nowhere in the model (`catalog.term_unreferenced`): a term counts as referenced when its id is used by a model document or its name or an alias appears in requirement text, notes, verification criteria or rationale, another catalog entry's name or definition, or any architecture, behavior, assurance, compliance, views or decisions text
 - `lint.multiple_responses` is not reported for one response verb whose conjunctions all sit in a trailing `with`, `including` or `of` field list (`shall publish one world state message with UTC time, latitude, longitude and altitude`); a conjunction before the list, a second `shall`, a `then` in the list, or a list item that reads as a verb with its object (`… with the timestamp and notify the operator`) is still reported
 - a risk with `status: accepted` or `response: accept`, and a threat scenario with `status: accepted`, carries the owner's acceptance record `acceptedBy: {actor: ACT-…, date: YYYY-MM-DD, statement: "<the owner's words>"}` (or `decisionRef: DEC-…` naming an accepted decision whose context quotes the owner; without `statement` that is the warning `risk.acceptance_by_decision_only`); without it `risk.acceptance_unrecorded` is an error at `acceptedBy`, and an actor, date or decisionRef that does not resolve is `model.invalid_acceptance`. The Gemara policy lists a risk under `risks.accepted` only with a complete, resolving record and status `accepted`, or response `accept` with a status other than `open`. The record is a claim in the model: the review of the change that adds it is what shows the owner gave it. Authored risk and threat scenario IDs must not contain `::`, which is reserved for imported `alias::ID` entities
 - a control verification names its tests in `verificationRefs`: inferred `CODE-<PATH>--<NAME>` IDs of test declarations or `REQ-*` IDs whose linked tests verify it. `verification.status_stale` warns at the `status` of a control verification that is unset or `not-run`, and of a threat mitigation that is unset or `planned`, while those tests exist in the code; the status stays authored
@@ -314,14 +324,44 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 
 | Code | Reported at | Rule |
 | --- | --- | --- |
-| `behavior.event_unused` | `authoredArchitecture.events[i]` | a behavior event no `triggered_by` relationship targets, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references |
-| `behavior.state_unreachable` | `authoredArchitecture.states[i]` | with at least one transition in the model, a state other than the first declared one (the initial state; the schema has no initial marker) that no `transitions_to` or semantic transition enters |
+| `behavior.event_unused` | `authoredArchitecture.events[i]` | a behavior event no machine transition names in `on`, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references |
+| `behavior.state_unreachable` | `authoredArchitecture.machines[i].states[j]` | a machine state that no path of transitions leads to from the machine's `initial` state |
+| `behavior.machine_deadlock` | `authoredArchitecture.machines[i].states[j]` | a state that is not `final: true` and has no outgoing transition |
+| `behavior.transition_nondeterministic` | `authoredArchitecture.machines[i].transitions[j]` | the transition leaves a state on the same `on` event (or both have none) as an earlier transition and neither has a guard or both have the same guard |
+| `behavior.transition_no_trigger` | `authoredArchitecture.machines[i].transitions[j]` | a transition with neither `on` nor `guard` |
+| `behavior.invariant_unlinked` | `authoredArchitecture.machines[i].invariants[j].requirements` | an invariant that lists no existing `REQ-*` |
+| `behavior.machine_unverified` | `authoredArchitecture.machines[i]`, `…machines[i].invariants[j]` | a machine with no invariant; when a formal evidence file (`test-results/quint-formal.json`) exists, also an invariant with no current formal result (a stale or missing result is none). Remedy: the `ef-formal-behavior` skill |
+| `behavior.requirement_unmodeled` | `requirements[REQ-ID]` | an event-driven or state-driven EARS requirement that no machine invariant lists in `requirements` and whose `appliesTo` names no machine, state, transition, event or flow; asked only of a model that declares a machine, and retired, rejected and derived requirements are exempt. Remedy: the `ef-behavior` skill |
+| `behavior.state_unlinked` | `…machines[i].states[j].requirements` | a state of a machine that lists no `REQ-*` in its own `requirements` (an optional list on states, transitions and events); the machine's invariants do not count; asked only of a model that declares a machine, imported `alias::ID` machines are skipped. An unknown requirement ID is `semantic.dangling_reference`, an error. Remedy: the `ef-behavior` skill |
+| `behavior.transition_unlinked` | `…machines[i].transitions[j].requirements` | a transition that lists no `REQ-*` in its own `requirements`; same rules as `behavior.state_unlinked`. Remedy: the `ef-behavior` skill |
+| `behavior.event_unlinked` | `authoredArchitecture.events[i].requirements` | an event that a machine transition names in `on` and that lists no `REQ-*` in its own `requirements`; an event no transition uses is not asked. Remedy: the `ef-behavior` skill |
+| `behavior.transition_unknown_event` (error) | `…machines[i].transitions[j].on` | `on` names no `behavior.events` entry |
+| `behavior.expression_unknown_variable` (error) | `…transitions[j].guard`, `.effect`, `…invariants[k].expr` | the expression reads or assigns a variable the machine does not declare |
+| `behavior.expression_type` (error) | `…transitions[j].guard`, `.effect`, `…invariants[k].expr` | an operand or result type the operator table rejects: a guard or invariant that is not Boolean, `<`, `<=`, `>`, `>=`, `+`, `-`, `*` on a non-Integer, `==` or `!=` on different types, `and`, `or`, `not`, `implies` on a non-Boolean, or `:=` of a value whose type is not the variable's |
+| `behavior.in_state_foreign` (error) | `…transitions[j].guard`, `…invariants[k].expr` | `in_state(STATE-…)` names a state of another machine or no state |
+| `behavior.final_state_has_transitions` (error) | `…machines[i].transitions[j].from` | a transition leaves a `final: true` state |
 | `behavior.flow_step_no_onerror` | `authoredArchitecture.flows[i].steps[j].onError` | a step with `boundaryCrossing: true` and no `onError` |
 | `catalog.name_has_operator` | `catalog.<group>[i].name` or `.aliases[j]` | an actor, event, state, feature, mode, condition or data term name or alias with a standalone `and`, `or`, `not`, a comma or a parenthesis, which the EARS clause parser reads as operators |
 | `verification.status_stale` | `…controlVerifications[i].status`, `…threatMitigations[i].status` | the referenced tests exist but the status still says they have not run (see above); reported by `engdoc` and `engtrace` |
 | `verification.benchmark_only` | `requirements[i]` | the requirement's `verificationCriteria` contain a number and every test linking it is a benchmark (Go `Benchmark*`, Rust `#[bench]`): a benchmark asserts nothing, add a `Test*` that checks the value; the trace row has `benchmarkOnly` |
 | `threat.verification_missing` | `…threatScenarios[i].verificationRefs` | the threat does not list a control verification that one of its mitigations references or that names the threat in `threatScenarioRefs` |
 | `mitigation.verification_control_mismatch` (error) | `…threatMitigations[i].verificationRefs[j]` | the referenced control verification's `controlRef` is another control than the mitigation's |
+| `code.owner_unresolved` | the source file | a source file whose `ENGMODEL-OWNER-UNIT` marker is missing or names an ID that is not a functional unit; test files, generated files (`Code generated … DO NOT EDIT`) and `alias::ID` owners are left out; reported once per file. Remedy: the `ef-code-linking` skill |
+| `code.model_link_kind_mismatch` | the code symbol | an `ENGMODEL-LINKS` target that exists but is a requirement ID or a catalog term, not a model element (a requirement belongs in `TRLC-LINKS`); a target that exists nowhere is `code.dangling_model_link`. Remedy: the `ef-code-linking` skill |
+| `code.unit_unlinked` | `authoredArchitecture.functionalUnits[i]` | a local functional unit that no scanned non-test source names in an `ENGMODEL-OWNER-UNIT` or `ENGMODEL-LINKS` marker; asked only when non-test source was scanned (a model without a code root is not asked); an element in `codeCoverage.exempt` is left out. Remedy: the `ef-code-linking` skill |
+| `code.machine_unlinked` | `authoredArchitecture.machines[i]` | a machine whose owner unit, own ID, state IDs and transition IDs no scanned non-test source names. Remedy: the `ef-code-linking` skill |
+| `code.interface_unlinked` | `authoredArchitecture.interfaces[i]` | a software interface owned by a local functional unit that no scanned non-test source names in `ENGMODEL-LINKS` (an interface owned by an imported `alias::ID` unit is not asked). Remedy: the `ef-code-linking` skill |
+| `code.state_unlinked` | `…machines[i].states[j]` | a state of a machine owned by a local unit that no scanned non-test source names in `ENGMODEL-LINKS`; exempting the machine exempts its states. Remedy: the `ef-code-linking` skill |
+| `code.transition_unlinked` | `…machines[i].transitions[j]` | a transition of a machine owned by a local unit that no scanned non-test source names in `ENGMODEL-LINKS`; exempting the machine exempts its transitions. Remedy: the `ef-code-linking` skill |
+| `code.event_unlinked` | `authoredArchitecture.events[i]` | an event that a transition of a machine owned by a local unit triggers on and that no scanned non-test source names in `ENGMODEL-LINKS`. Remedy: the `ef-code-linking` skill |
+| `code.flow_unlinked` | `authoredArchitecture.flows[i]` | a flow that touches (source, destination, or a step ref or interface) a software interface owned by a local unit and that no scanned non-test source names. Remedy: the `ef-code-linking` skill |
+| `code.data_unlinked` | `authoredArchitecture.dataObjects[i]` | a data object carried by a flow that touches such an interface and that no scanned non-test source names. Remedy: the `ef-code-linking` skill |
+| `code.state_candidate_unlinked` | the type declaration (`file:line`) | a Go named type in non-test, non-generated source that looks like a state (ADR-EMG-058, ADR-EMG-070): three or more constants of the type, a struct field of the type and an assignment `x.f = v` to a field of that name (a composite literal does not count) in the same package, with no `ENGMODEL-LINKS` marker on the declaration that names a machine, state or transition of the model (an `SM-*`, `STATE-*` or `TR-*` ID) and no `ENGMODEL-NOT-A-STATE` comment. Names ending in `Kind`, `Severity`, `Format`, `Type`, `Reason`, `Mode` or `Option` are never reported. Go only; an error only at operational, and provisional. Remedy: model it with the `ef-behavior` skill and link it, or write `// ENGMODEL-NOT-A-STATE: <reason>` on or within three lines above the declaration |
+| `code.state_suppression_unreasoned` (error, untiered) | the comment (`file:line`) | an `ENGMODEL-NOT-A-STATE` comment whose reason is missing, shorter than 20 characters or a placeholder (`todo`, `tbd`, `n/a`, `none`, `fixme`, `xxx`, `not a state`, `ignore`, `later`, `wip`, alone or repeated); it clears nothing |
+| `code.state_suppression_unused` | the comment (`file:line`) | an `ENGMODEL-NOT-A-STATE` comment with a valid reason on a declaration that is not a state-like candidate or that already links a machine, so it can be removed |
+| `code.exemption_unjustified` (error, untiered) | `codeCoverage.exempt[i].decision` | an exemption `{id, reason, decision}` whose decision does not exist or is not accepted; the exemption then exempts nothing. Remedy: the `ef-tier-up` skill |
+| `code.exemption_unused` | `codeCoverage.exempt[i]` | a valid exemption that matches no unlinked element, so it can be removed (only when non-test source was scanned). Remedy: the `ef-tier-up` skill |
+| `model.invalid_code_exemption` (error) | `codeCoverage.exempt[i].id`, `.reason` | an exemption whose `id` is no model element (a requirement or catalog term is none) or whose `reason` has fewer than 20 characters. Remedy: the `ef-tier-up` skill |
 | `verification.unlinked` | `…controlVerifications[i].verificationRefs` | a `method: test` verification with status `pass` or `partial` and no `verificationRefs`, so no test or requirement evidences it |
 | `risk.acceptance_unrecorded` (error) | `…risks[i].acceptedBy`, `…threatScenarios[i].acceptedBy` | an accepted risk or threat scenario without a complete `acceptedBy` record (the message lists the missing parts) |
 | `model.invalid_acceptance` (error) | `…acceptedBy.actor`, `.date`, `.decisionRef` | the actor is no actor, the date is not a YYYY-MM-DD calendar date, or the decisionRef is no decision or a decision whose status is not `accepted` |
@@ -333,9 +373,41 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `threat.attack_vector_missing` | `…threatScenarios[i].attackVectorRef` | the scenario names no attack vector while other threat scenarios of the model name theirs |
 | `gemara.control_needs_review` | `…controls[i]` | the Gemara evaluation log marks the control Needs Review: no control verification names it (the message names another control's verification when that is its only evidence), or its verifications need review (for example `partial`) and none failed |
 
-`triggered_by` (state → event) means the event is handled within the state. The event that
-enters a state belongs to a `transitions_to`, in its description or structurally as an
-`architecture.semantics.relationships` entry with `kind: transition` and `triggers: [EVT-…]`.
+State behavior is modeled with `behavior.machines` only (v0.11.0, ADR-EMG-037, ADR-EMG-038).
+Every state belongs to one machine and keeps its `STATE-*` ID. The four advisory machine rows
+above (`machine_deadlock`, `transition_nondeterministic`, `transition_no_trigger`,
+`invariant_unlinked`) and `state_unreachable` follow the hygiene row of the tier table; the
+structural errors marked (error) are errors at every tier. A missing or unresolved
+initial state (initial is a single field) and expression syntax errors are reported by projection as
+`semantic.invalid_machine` and `semantic.invalid_expression`. A `behavior.states` list and the
+relationship types `transitions_to` and `triggered_by` are rejected when the model loads (see the
+changelog for the rewrite):
+
+```yaml
+behavior:
+  events:
+    - {id: EVT-PAY-REQUESTED, name: Payment requested}
+  machines:
+    - id: SM-PAYMENT
+      owner: FU-PAYMENTS
+      initial: STATE-PAY-IDLE
+      variables:
+        - {name: attempts, type: Integer, initial: 0}
+      states:
+        - {id: STATE-PAY-IDLE, name: Idle}
+        - {id: STATE-PAY-AUTH, name: Authorizing}
+        - {id: STATE-PAY-DONE, name: Done, final: true}
+      transitions:
+        - {id: TR-PAY-START, from: STATE-PAY-IDLE, to: STATE-PAY-AUTH, on: EVT-PAY-REQUESTED, guard: "attempts < 3", effect: "attempts := attempts + 1"}
+        - {id: TR-PAY-FINISH, from: STATE-PAY-AUTH, to: STATE-PAY-DONE, on: EVT-PAY-REQUESTED, guard: "attempts >= 3"}
+      invariants:
+        - {id: INV-PAY-BOUND, requirements: [REQ-PAY-001], expr: "attempts <= 3"}
+  relationships:
+    - {type: guarded_by, from: STATE-PAY-AUTH, to: CTRL-PAY-GATE}
+```
+
+A `state-lifecycle` view is driven by machines: a machine ID as root selects all of its states,
+its transitions are `transition` edges and the events they wait for `on_event` edges.
 
 ### Code trace markers
 
@@ -363,7 +435,7 @@ calls `os.Getenv`, `os.LookupEnv` or `testing.Short()` and whose body calls `t.S
 or `t.SkipNow`. A gate in a later statement or in a helper the test calls is not detected, so
 such a test counts as ungated.
 Code is scoped to its nearest enclosing model root, so links resolve against the closest model
-rather than the whole tree. Requirements with no implementing or delegating code surface a
+rather than the whole tree. Requirements with no implementing code or test surface a
 `requirement.orphan` warning, and a requirement linked from code that does not exist raises
 `requirement.internal_link`.
 
@@ -466,8 +538,8 @@ go run ./cmd/engtrace \
 ```
 
 Use `--format csv` for a spreadsheet-friendly matrix instead. The emitted matrix rolls up
-per-requirement status (`implemented`/`verified`/`delegated`/`orphan`) together with code
-references and delegations. `engtrace` exits non-zero when it finds dangling code trace links
+per-requirement status (`implemented`/`verified`/`orphan`) together with code
+references and the requirement links. `engtrace` exits non-zero when it finds dangling code trace links
 (`code.dangling_requirement_link` / `code.dangling_model_link`), so it doubles as a CI gate.
 
 Generate Threat Dragon/Open Threat Model exports:
@@ -633,13 +705,13 @@ projection.
 Generate TRLC requirements package:
 
 ```bash
-go run ./cmd/engtrlc --requirements examples/payments-engineering-sample/model/requirements.yml --out-dir examples/payments-engineering-sample/generated/trlc --package PaymentsRequirements
+go run ./cmd/engtrlc --model examples/payments-engineering-sample/engmod.yml --requirements examples/payments-engineering-sample/model/requirements.yml --out-dir examples/payments-engineering-sample/generated/trlc --package PaymentsRequirements
 ```
 
 Generate LOBSTER activity trace from tests:
 
 ```bash
-go run ./cmd/englobster --tests-dir examples/payments-engineering-sample/tests --requirements-package PaymentsRequirements --activity-namespace tests --out examples/payments-engineering-sample/generated/lobster/activities.lobster
+go run ./cmd/englobster --model examples/payments-engineering-sample/engmod.yml --tests-dir examples/payments-engineering-sample/tests --requirements-package PaymentsRequirements --activity-namespace tests --out examples/payments-engineering-sample/generated/lobster/activities.lobster
 ```
 
 Regenerate all maintained examples with `scripts/generate-examples.sh`.
@@ -708,8 +780,8 @@ It exposes 60+ tools grouped into families, including:
 - `model.*`: model entity lookup, listings, implementations, the authoring contract, `model.complete`, `model.diagnose` (validate one document's edited content in memory) and `model.patch` (below)
 - `model.patch` (REQ-EMG-113, ADR-EMG-029), the one MCP tool that writes: `{document, id, set?: {field: value}, unset?: [field], append?: {listField: item or [items]}, remove?: {listField: value or [values]}, write?: bool}`. It finds the one list item with that `id` in the document (nested flow steps included), applies the operations with line-preserving edits (dotted paths such as `acceptedBy.statement`; a missing field or mapping is added; comments and untouched lines are kept; an object item is removed by its `id`), validates the whole model like `model.diagnose` and returns `valid`, `diagnostics`, `patch` (unified diff) and `written`. It writes only with `write: true`, only a valid result, only a manifest document (never `engmod.yml` or the requirement link file) that resolves inside the model root, atomically and keeping the file mode. Example: `{"document": "assurance", "id": "RISK-X", "set": {"acceptedBy.statement": "I accept this risk until 2027-01."}, "write": true}`.
 - `interfaces.*`: software and HW/SW interface resolution and code matching
-- `composition.resolve`: the system-of-systems — subsystems, contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics
-- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`, `gatedOnly` and `gatedOnlyRequirements`: test-linked requirements whose every linked Go test skips depending on an environment variable or `testing.Short` (see Code trace markers), with rows `gated` and `gates`; `verified` is a deprecated alias of `testLinked`; `linksSuspect`, `linksBroken`, `linksClaimed` and `unparented` for requirement links), per-requirement status, `parents` (the contract items a requirement realizes, or its stakeholder `sourceRefs`), `children` (for a system requirement: each linked `alias::CAP-…` and its realizing `alias::REQ-…`), `links` with their state, `satisfiedBy: links` (a system requirement implemented or test linked through its linked child items), code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
+- `composition.resolve`: the system-of-systems — subsystems, contracts, provenance, the lock and composition diagnostics
+- `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`, `gatedOnly` and `gatedOnlyRequirements`: test-linked requirements whose every linked Go test skips depending on an environment variable or `testing.Short` (see Code trace markers), with rows `gated` and `gates`; `linksNeedReview`, `linksVersionMismatch`, `linksBroken`, `linksClaimed` and `unparented` for requirement links), per-requirement status, `parents` (the contract items a requirement realizes, or its stakeholder `sourceRefs`), `children` (for a system requirement: each linked `alias::CAP-…` and its realizing `alias::REQ-…`), `links` with their state, `satisfiedBy: links` (a system requirement implemented or test linked through its linked child items), code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
 - `gemara.*`: one tool per OpenSSF Gemara artifact type plus `gemara.validate`
 
 Additional export/validation docs:
@@ -721,22 +793,133 @@ Additional export/validation docs:
 - TRLC requirements export and validation: `docs/trlc-export-testing.md`
 - TRLC + LOBSTER traceability report pipeline: `docs/lobster-traceability.md`
 
+## Formal behavior verification (engquint)
+
+`engquint` projects each behavior machine (`behavior.machines`) to a deterministic Quint
+module and checks its invariants (ADR-EMG-040, ADR-EMG-041, ADR-EMG-042). A model without
+machines produces nothing and `engquint check` prints "no machines" and exits 0.
+
+```bash
+go run ./cmd/engquint generate --model engmod.yml          # writes generated/quint/<machine>.qnt
+go run ./cmd/engquint check    --model engmod.yml          # quint run, once per invariant
+go run ./cmd/engquint check    --model engmod.yml --mode both   # also quint verify (Apalache)
+```
+
+`check` flags: `--mode run|verify|both` (default `run`), `--quint path`, `--quint-home dir`,
+`--max-steps N` (20, at most 1000), `--max-samples M` (10000, at most 1000000), `--seed S` (`1`),
+`--verify-steps N` (10, at most 100), `--timeout D` (30m overall; each quint call is limited to 10m and
+is killed with its whole process group), `--pass-env a,b` (extra environment names for the quint
+processes; they get an allow-listed environment only),
+`--out dir` (committed modules, default `generated/quint`), `--results path`,
+`--evidence path` and `--no-evidence`. Exit codes: 0 everything passed (warnings allowed);
+1 a violated invariant, a stale (drifted) module, a vacuous or erroring run or a type error;
+2 a setup error (missing quint, missing Apalache or Java 21 in verify mode, model that does
+not load). The report names the violated invariant with its requirements and the
+counterexample as the ordered transitions, for example
+`INV-PAYMENTS-001 violated: TR-PAYMENTS-001 -> TR-PAYMENTS-003 -> TR-PAYMENTS-001`.
+
+- Tools: `ENGMOD_QUINT` names the quint executable (else `quint` on `PATH`); `QUINT_HOME`
+  names the directory with the pinned Apalache for verify mode. `engquint` never downloads a
+  tool. `scripts/install-quint-toolchain.sh` installs the pinned Quint (npm 0.33.1) under
+  `.engmod/tooling/quint` and Apalache 0.62.4 (sha256-checked) under
+  `.engmod/tooling/quint-home/apalache-dist-0.62.4`; verify mode also needs Java 21 or later
+  on `PATH`. Run mode needs neither.
+- `quint run` always uses `--backend=typescript`: the default Rust backend downloads its
+  binary at run time. Verify mode switches Apalache's deadlock check off (a machine with a
+  final state has no enabled transition there); a machine that deadlocks in its initial state
+  is a `deadlock` warning in run mode, and a trace of length zero is an error because it
+  checks nothing. A state no trace reaches is an `unreachable state` warning.
+- Drift is stale: `check` compares a fresh in-memory generation with the committed modules;
+  any changed, missing or extra generated module fails the check, nothing runs for it and no
+  evidence is written for it. Regenerate with `engquint generate` and commit.
+- `generated/quint/results.json` records, per module, the sha256 of the `.qnt`, the Quint
+  version, backend, mode, bounds and seed, and per invariant the run and verify verdicts,
+  trace statistics and the counterexample. It holds no timings or timestamps, so identical
+  inputs give identical bytes.
+- `test-results/quint-formal.json` is the evidence the trace reads: one entry per
+  requirement of an invariant (`pass`, or `fail` for a violated invariant) with
+  `method: analysis`, `kind: formal` and the `qntFile` and `qntSha256` it was produced from.
+  Modules with drift or an error contribute no entry. When the code scan reads it, a
+  result whose module no longer hashes to `qntSha256` is stale: it counts as no evidence and
+  yields the warning `verification.formal_stale`.
+- `scripts/generate-examples.sh` runs `engquint generate` and `scripts/validate-all.sh`
+  runs `generate` and `check --mode both` for every model that has machines (set
+  `ENGMOD_QUINT_SKIP_EXTERNAL=1` to skip the check locally; CI installs the pinned tools).
+
+## Required model switches
+
+Everything the system needs in order to function is an error when it is absent, and the error says how to
+fix it (ADR-EMG-061: there is no backwards compatibility and there are no silent defaults). Each
+diagnostic below carries a `remedy` (JSON field; the CLIs print it on a `fix:` line, MCP rows have a
+`remedy` key). The codes are rank-0 core codes (the last two rows, `engine.check_template_stale` and
+`engine.pin_outdated`, are emitted by `engws check` and are untiered errors): no tier, `lifecycle.raise` or POA&M item changes or
+defers them. In the last three rows `<dir>`, `<version>` and `<repo> <alias> <version>` stand for the repository, the running
+engine version and the arguments of `engws bump`; the emitters fill the first two in (ADR-EMG-072). `LoadBundle` stays lenient so that tools which embed the engine can load an incomplete
+model and report it; `ValidateBundle` and every CLI error. `rules.required` of the authoring contract
+(v7) lists the same table, and `TestRequiredSwitchesHaveRemedies` keeps the table and its inventory equal.
+
+| Switch | Error code | Remedy |
+|---|---|---|
+| engmod.yml lifecycle | `lifecycle.missing` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.tier | `lifecycle.invalid_tier` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.bundles | `lifecycle.bundles_missing` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.bundles (value) | `lifecycle.invalid_bundle` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.tierDecision | `lifecycle.tier_decision_missing` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| lifecycle.tierDecision (accepted decision with Tier: and Bundles: lines) | `lifecycle.tier_decision_mismatch` | run the ef-tier-up skill (engineering-flow) to choose and record the tier, then write engmod.yml lifecycle {tier, bundles, tierDecision} |
+| engmod.yml requirementLinks | `model.requirement_links_missing` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp) |
+| engmod.yml requirementLinks (value) | `model.invalid_requirement_links` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp) |
+| requirementLinks guided at mvp or above | `lifecycle.requirement_links_conflict` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set requirementLinks: strict in engmod.yml (guided is allowed only below mvp) |
+| requirements.yml lintRun.mode | `lint.mode_missing` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
+| lintRun.mode (value) | `lint.mode_invalid` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
+| lintRun.mode guided at mvp or above | `lint.mode_guided_at_tier` | run the ef-tier-up skill (engineering-flow) to choose the tier, then set lintRun.mode: strict in requirements.yml (guided is allowed only below mvp) |
+| engmod.yml health block (tier product and operational) | `health.block_missing` | run the ef-tier-up skill (engineering-flow) to write the health block with its debt list, then record the baseline with enghealth baseline write |
+| schemaVersion 3 in every document | `model.unsupported_schema_version` | set schemaVersion: 3 at the top of the file (edit the file; an upgrade command is planned in engineering-flow and does not exist yet) |
+| module.modelId | `model.id_missing` | set module.modelId in engmod.yml to the stable identifier of the model (for example MY-SYSTEM) |
+| engmod.lock.yml schemaVersion (the version the engine writes) | `composition.lock_schema_outdated` | regenerate the lock with the current engine: run engws bump <repo> <alias> <version> (it rewrites engmod.lock.yml with the current schemaVersion), then engws sync |
+| repository .github/engmod-check that takes --workspace-root | `engine.check_template_stale` | run engflow upgrade --root <dir> to replace .github/engmod-check with the current template that takes --workspace-root |
+| engineering-model-go pin of .github/engmod-check (not older than the running engine) | `engine.pin_outdated` | bump the pin: go get github.com/labeth/engineering-model-go@<version> in .github/engmod-check |
+
+The tier decision named by `lifecycle.tierDecision` must be accepted and carry a `Tier:` line and a
+`Bundles:` line; a decision without a `Bundles:` line no longer means Foundation.
+
+### Removed fields
+
+Three fields that were deprecated are removed (ADR-EMG-075, ADR-EMG-078). They still decode, so that the
+error names the field; each is an untiered error (no tier or POA&M item changes it) at the field, with its
+remedy. Nothing in the engine reads or writes them: `engws review-links` leaves a fingerprint in place.
+
+| Error code | Remedy |
+|---|---|
+| `model.pinned_fingerprint_removed` | delete pinned.fingerprint; pin the dependency version only |
+| `model.provides_ref_removed` | name the realizing requirement with realizes, not ref |
+| `model.allocations_removed` | write requirement links (reqLinks) instead of composition.allocations |
+
+`model.pinned_fingerprint_removed` replaces the warning `link.fingerprint_deprecated` and applies to a
+requirement link that carries `pinned.fingerprint`. `model.provides_ref_removed` replaces the warning
+`contract.ref_deprecated` and applies to a `contract.provides` entry that carries `ref`; the `ref` of a
+`contract.requires` entry is read by nothing and was deleted from the examples.
+`model.allocations_removed` replaces the warning `composition.allocation_deprecated`: it applies to a manifest
+that carries `composition.allocations` and is reported once, at `composition.allocations`. A requirement is
+traced to a requirement of another model only with requirement links; `engws migrate-links` is removed and
+is rejected as an unknown command.
+
 ## Life-cycle tier
 
-A module may declare its life-cycle tier in `engmod.yml` (v0.10.0, ADR-EMG-031). The tier is the
+A module declares its life-cycle tier in `engmod.yml` (required since v0.11.0, ADR-EMG-031, ADR-EMG-061). The tier is the
 bar for the default branch and every release; work below it happens only in experiments, which the
 engine does not model.
 
 ```yaml
 lifecycle:
   tier: product                      # poc < prototype < mvp < product < operational
-  bundles: [foundation, security]    # default [foundation]; safety adds the DO-178C rules
+  bundles: [foundation, security]    # required, no default; safety adds the DO-178C rules
   tierDecision: DEC-TIER-PRODUCT     # accepted decision with "Tier: Product" and "Bundles: ..." lines
   raise: [behavior.*]                # codes raised to error regardless of tier; never lowers
 ```
 
-Without `lifecycle` every diagnostic, document and trace matrix is byte-identical to v0.9.0
-(`TestNoLifecycleGoldenOverExamples`, `scripts/lifecycle-golden-self.sh`). With it, every public
+A model without `lifecycle` is the error `lifecycle.missing` (see [Required model switches](#required-model-switches)). The
+library still loads such a model and applies no tier rule to it, so that tools can report; the validator
+and every CLI treat it as an error. Every public
 entry (`ValidateBundle`, `GenerateAsciiDoc`, the trace builders, `engws check`, MCP) applies
 `ApplyTierPolicy` once to its merged diagnostics:
 
@@ -749,8 +932,8 @@ entry (`ValidateBundle`, `GenerateAsciiDoc`, the trace builders, `engws check`, 
 - `lifecycle.raise` makes the named codes (or `family.*`) errors;
 - rank-0 core codes (`CoreCodes()`: `model.duplicate_id`, `model.broken_reference`, `model.invalid_*`,
   `model.missing_*`, `code.dangling_*`, `composition.cycle`, `composition.lock_*`, the link integrity
-  codes, `risk.acceptance_unrecorded`, the structural `lifecycle.*` codes and the AI-credit and
-  authority-evidence aviation codes) are errors at every tier and never deferred, and every code the
+  codes, `risk.acceptance_unrecorded`, the structural `lifecycle.*` codes, the required-switch codes
+  the AI-credit and authority-evidence aviation codes and `composition.dependency_tier_unknown`) are errors at every tier and never deferred, and every code the
   table does not key keeps its severity;
 - requirement links are strict from mvp whatever `requirementLinks` says; `requirementLinks: guided`
   at mvp or above is `lifecycle.requirement_links_conflict` (error);
@@ -764,7 +947,9 @@ New codes with `lifecycle`: `lifecycle.tier_decision_mismatch`, `lifecycle.requi
 (every linked test is environment gated), the safety bundle's `lifecycle.aviation_profile_missing`,
 `lifecycle.software_level_missing`, `aviation.state_below_tier`, `aviation.authority_state_unevidenced`
 and `aviation.ai_actor_as_credit` (ADR-EMG-035), and the composition rules
-`composition.dependency_below_tier` and `composition.dependency_tier_unknown` (ADR-EMG-034).
+`composition.dependency_below_tier` (ADR-EMG-034). `composition.dependency_tier_unknown` (a dependency
+without a lifecycle tier) is a core error at every tier (ADR-EMG-073): ask the dependency's owner to
+declare lifecycle and release it.
 To accept a dependency below the system's tier, record a risk with `status: accepted` (or
 `response: accept`) and a complete `acceptedBy`, and name the dependency alias from `engmod.yml`
 in its `dependencies` field (preferred); naming the composing subsystem in `appliesTo` still works.
@@ -788,20 +973,70 @@ with `requirementLinks: strict`):
 
 | Code | poc | prototype | mvp | product | operational |
 |---|---|---|---|---|---|
-| `aviation.derived.incomplete_safety_feedback` | D | D | W | E | E |
+| `aviation.derived.incomplete_safety_feedback` | D | D | E | E | E |
 | `aviation.lifecycle.missing_category` | D | D | E | E | E |
 | `aviation.state_below_tier` | D | D | E | E | E |
-| `aviation.tool.incomplete_credit_assessment` | D | D | W | E | E |
+| `aviation.tool.incomplete_credit_assessment` | D | D | E | E | E |
+| `behavior.event_unlinked` | D | D | W | W | E |
 | `behavior.event_unused` | D | D | W | W | E |
 | `behavior.flow_step_no_onerror` | D | D | W | W | E |
+| `behavior.invariant_unlinked` | D | D | W | W | E |
+| `behavior.machine_deadlock` | D | D | W | W | E |
+| `behavior.machine_unverified` | D | D | W | W | E |
+| `behavior.requirement_unmodeled` | D | D | W | W | E |
+| `behavior.state_unlinked` | D | D | W | W | E |
 | `behavior.state_unreachable` | D | D | W | W | E |
+| `behavior.transition_no_trigger` | D | D | W | W | E |
+| `behavior.transition_nondeterministic` | D | D | W | W | E |
+| `behavior.transition_unlinked` | D | D | W | W | E |
+| `catalog.term_unreferenced` | W | W | W | E | E |
+| `code.data_unlinked` | D | D | D | W | E |
+| `code.event_unlinked` | D | D | W | W | E |
+| `code.exemption_unused` | W | W | W | W | E |
+| `code.flow_unlinked` | D | D | D | W | E |
+| `code.interface_unlinked` | D | D | W | E | E |
 | `code.invalid_trlc_link` | W | W | W | E | E |
+| `code.machine_unlinked` | D | D | W | E | E |
 | `code.missing_trlc_link` | W | W | W | E | E |
+| `code.model_link_kind_mismatch` | W | W | W | E | E |
+| `code.owner_unresolved` | W | W | W | E | E |
 | `code.scan_failed` | W | W | W | E | E |
+| `code.state_candidate_unlinked` | D | D | W | W | E |
+| `code.state_suppression_unused` | W | W | W | W | E |
+| `code.state_unlinked` | D | D | W | W | E |
+| `code.trace_unattached` | W | W | W | E | E |
+| `code.transition_unlinked` | D | D | W | W | E |
+| `code.unit_unlinked` | D | D | W | E | E |
 | `composition.dependency_below_tier` | D | D | W | E | E |
-| `composition.dependency_tier_unknown` | W | W | W | W | W |
-| `composition.dependency_tier_unknown` with safety | W | W | W | E | E |
 | `contract.unrealized` | D | D | W | W | E |
+| `gemara.control_needs_review` | D | D | D | W | E |
+| `health.baseline_stale` | W | W | W | W | E |
+| `health.brain_method` | W | W | W | E | E |
+| `health.brain_method` with safety | W | W | E | E | E |
+| `health.bumpy_road` | W | W | W | E | E |
+| `health.bumpy_road` with safety | W | W | E | E | E |
+| `health.complex_conditional` | W | W | W | E | E |
+| `health.complex_conditional` with safety | W | W | E | E | E |
+| `health.complex_method` | W | W | W | E | E |
+| `health.complex_method` with safety | W | W | E | E | E |
+| `health.deep_nesting` | W | W | W | E | E |
+| `health.deep_nesting` with safety | W | W | E | E | E |
+| `health.duplicated_assertion_block` | W | W | W | E | E |
+| `health.duplicated_assertion_block` with safety | W | W | E | E | E |
+| `health.excess_arguments` | W | W | W | E | E |
+| `health.excess_arguments` with safety | W | W | E | E | E |
+| `health.large_assertion_block` | W | W | W | E | E |
+| `health.large_assertion_block` with safety | W | W | E | E | E |
+| `health.large_method` | W | W | W | E | E |
+| `health.large_method` with safety | W | W | E | E | E |
+| `health.policy_weakened` | W | W | W | E | E |
+| `health.policy_weakened` with safety | W | W | E | E | E |
+| `health.primitive_obsession` | W | W | W | E | E |
+| `health.primitive_obsession` with safety | W | W | E | E | E |
+| `health.regression` | W | W | W | E | E |
+| `health.regression` with safety | W | W | E | E | E |
+| `health.waiver_unused` | W | W | W | E | E |
+| `health.waiver_unused` with safety | W | W | E | E | E |
 | `lifecycle.aviation_profile_missing` (safety bundle) | D | D | E | E | E |
 | `lifecycle.requirement_unapproved` | D | D | W | E | E |
 | `lifecycle.requirement_unverified` | D | D | D | W | E |
@@ -816,6 +1051,292 @@ with `requirementLinks: strict`):
 | `verification.gated_only` | D | D | D | W | E |
 | `verification.status_stale` | D | D | W | W | E |
 | `verification.unlinked` | D | D | W | E | E |
+
+### Code health configuration
+
+The `health:` block (ADR-EMG-051, ADR-EMG-052) is required from tier product (`health.block_missing`,
+see Required model switches; an empty block `health: {}` is complete when the project has no debt).
+Below product a manifest without one reports nothing about health. The block configures the report and
+is checked on load and by `ValidateBundle`:
+
+```yaml
+health:
+  exclude: [vendor/**, "*.gen.go"]            # the inferenceHints.exclude pattern dialect
+  thresholds:                                  # per smell code with numeric limits
+    health.complex_method: {warn: 10, high: 15}
+  overrides:                                   # different limits for some paths
+  - path: internal/legacy/**
+    thresholds:
+      health.large_method: {warn: 120, high: 240}
+  waivers:                                     # accept one finding on an accepted decision
+  - {code: health.complex_method, path: internal/legacy/parse.go, function: parseAll, decision: ADR-LEGACY-PARSER}
+  baseline:                                    # accept all existing debt on an accepted decision
+    {file: model/health-baseline.json, decision: ADR-DEBT-BASELINE}
+  policyDecision: ADR-RAISE-LIMITS             # records a weakening of this very block (see below)
+```
+
+Every key is optional. `thresholds` and `overrides[].thresholds` accept only the smell codes with
+numeric limits (`health.complex_method`, `health.large_method`, `health.deep_nesting`,
+`health.bumpy_road`, `health.complex_conditional`, `health.excess_arguments` and
+`health.large_assertion_block`); `warn` is at least 1 and `high` at least `warn`. The structural smells
+`health.primitive_obsession`, `health.brain_method` and `health.duplicated_assertion_block` take no limits.
+`exclude` and `overrides[].path` use the same dialect as `inferenceHints.exclude`: relative to the module
+root, `*` `?` `[...]` within one path segment, `**` only as a trailing `/**`, no negation.
+
+A configuration error is `model.invalid_health_exclude`, `model.invalid_health_threshold`,
+`model.invalid_health_override` or `model.invalid_health_waiver` (errors at every tier, never deferred).
+A waiver names a smell code, a file, a function and a decision. If the decision does not exist or is not
+accepted, the waiver is `health.waiver_unjustified` (an untiered error: no tier or POA&M item changes or
+defers it) and it waives nothing. The path of a waiver is a file path or a pattern of the exclude dialect.
+`health.waiver_unused` (a waiver that matches no finding) is reported by the health report.
+
+Severity follows the table above. The bar for code quality is highest and the same at product and
+operational, the two highest tiers, because AI-assisted work needs cleaner code than human-only work to
+stay free of bugs (ADR-EMG-057): every smell code and `health.waiver_unused` is a warning up to mvp and
+an error at product and operational (from mvp with the safety bundle), and the scan applies the stricter
+threshold set at both. `health.regression`,
+a new or worsened high finding against the base revision, is a warning at poc, prototype and mvp and an
+error from product (from mvp with the safety bundle). `lifecycle.raise: [health.*]` is the escape hatch
+that makes the debt codes errors at a lower tier.
+
+**Baseline.** A project that already has debt cannot raise its tier to product, where every finding is an
+error, unless it can accept that debt as a whole (ADR-EMG-059). `health.baseline` names a JSON file,
+relative to the manifest directory (no absolute path, no `..`), and an accepted decision that justifies
+it. The file, `{"schema": "engmod-health-baseline/1", "entries": [{"path", "function", "code", "value"}]}`,
+lists the accepted findings by path, qualified function name and smell code with the metric value each
+had when the file was written (at least 1), sorted, without timestamps;
+`enghealth baseline write --model engmod.yml [--tier t] [--out file] [paths...]` creates it from a scan
+that ignores any existing baseline (every finding, or with `--tier` only those that are errors at that
+tier; it refuses to write outside the manifest directory and is idempotent), and `--check` exits 0 when the
+file is exactly what `write` would produce, 1 when it differs (it prints the stale and the missing
+entries, each with its value, so a function whose metric changed is both stale and missing) and 2 on a
+setup error. A finding in the baseline is *baselined* while its current value is at most the recorded
+one: the report lists it under `baselined`, it still counts toward the score (the score stays honest about
+the code), and it is neither an error nor a warning of the summary, so `enghealth scan --fail-on-error`
+ignores it. A finding whose value grew past the recorded one is not baselined: it counts at the level of
+its code (an error from product) and its message says what the baseline accepted, so small increases
+cannot ratchet in silently; a finding that shrank stays baselined and `--check` asks for a rewrite. A
+baseline whose decision is missing or not accepted suppresses nothing: the scan does not read the file
+and reports `health.waiver_unjustified` (an error at every tier, naming the baseline), which counts for
+`--fail-on-error`. An entry that
+matches no finding is `health.baseline_stale`, a warning at poc to product and an error at operational
+(row `WWWWE`), so the baseline can only shrink; a scan restricted to some paths does not report entries of
+files outside them. A regression is never baselined: the delta check compares the working tree with a base
+revision and does not read the baseline. The validation errors are `health.waiver_unjustified` (the
+decision of a baseline is missing or not accepted; untiered, as for a waiver), `health.baseline_unreadable`
+(the file is missing, not valid JSON, not `engmod-health-baseline/1` or holds an invalid entry; untiered,
+read by validation through the format of `internal/model`) and `model.invalid_health_baseline` (an empty or
+unclean file path, or no decision). A missing or malformed file is a setup error (exit 2) for `enghealth`.
+
+**The policy is defined by the pull request.** A change can raise a threshold, widen `health.exclude` or an
+override, or lower the tier, and the weakened configuration then applies to both sides of a delta. So
+`enghealth check` also reads the manifest of the *base* revision (`git cat-file`; one that is not there has
+the default limits of the tier) and reports `health.policy_weakened` when the head has a limit (warn or
+high) above the effective limit of the base for any code (the default of the tier for a code the manifest
+does not set), a new exclude pattern, an override that raises a limit, or a lower tier. The code has the row
+`WWWEE` (`WWEEE` with the safety bundle) and is evaluated at the stricter of the base and the head tier, so
+lowering the tier does not lower the level of its own weakening: it makes `check` exit 1 from product. The
+weakening is recorded, and then does not fail the check, when the head's `health.policyDecision` names an
+accepted decision that the base manifest did not already name; `decisions.yml` is code-owned, so the
+weakening is reviewable. A `policyDecision` that does not exist or is not accepted is
+`health.waiver_unjustified` and records nothing. `--tier` applies to both sides.
+
+The scores come from this project's own heuristics over the scanned source (cyclomatic complexity, lines,
+nesting depth and similar); they are not CodeScene's Code Health and make no claim to match it. The
+authoring contract (`engineering-model.authoring.v8`) documents the block in its `health` section and the
+field sets `health` (with `policyDecision`), `healthThreshold`, `healthOverride`, `healthWaiver` and
+`healthBaseline`.
+
+
+## Code health (enghealth)
+
+`enghealth scan` measures the maintainability of the source of a model and writes a report. It
+reads Go, Rust, TypeScript and TSX, JavaScript and Python with the tree-sitter grammars of the code
+scan. It needs no `health:` block (the block only configures it, see above) and it is separate from
+`engdoc`: nothing in validation or generation changes.
+
+**What it measures.** For each function, method and named closure (anonymous closures count toward
+the function around them; a named closure or nested function is a unit of its own and its rows
+are not counted again in the function around it): cyclomatic complexity, logical lines, nesting depth, bumps (top-level control
+structures that contain another control structure, "bumpy road"), boolean operators in one condition, parameters and, in tests, the
+longest run of consecutive assertions. Ten smells follow, `health.complex_method`, `health.large_method`,
+`health.deep_nesting`, `health.bumpy_road`, `health.complex_conditional`, `health.excess_arguments`,
+`health.primitive_obsession`, `health.brain_method`, `health.large_assertion_block` and
+`health.duplicated_assertion_block`, each with a `warn` and a `high` limit (ADR-EMG-047). A smell that
+cannot be computed for a language (primitive obsession needs known types, so never for JavaScript) is
+listed as unsupported in the report and is never a silent zero.
+
+**Whose scores these are.** The definitions, limits, weights and bands are this project's own, built
+from public ideas (McCabe complexity, the brain method of Lanza and Marinescu, the bumpy road of
+Tornhill's public writing). They are not CodeScene's Code Health and make no claim to match it; no
+CodeScene code or weights are used.
+
+**Score.** A file starts at 10.0. Each finding deducts the weight of its code times a severity factor
+(warn 1, high 2). The deductions of one function add up; across the functions of the file the worst
+function counts fully, the next times 0.5 and every other function times 0.25, but what the functions
+beyond the second count adds up to at most 2.0 points in total (scoring version 2, ADR-EMG-059; if it
+would be more, those deductions are scaled down together, so the number of mediocre functions in a file
+cannot decide its band alone). The result is clamped to 1.0..10.0 and rounded to one decimal. Bands:
+green from 8.0, yellow from 4.0, red below. Weights (`scoringVersion` 2; version 1 had the same weights
+and no cap): complex_method 1.0, large_method 0.8, deep_nesting 1.0, bumpy_road 1.0,
+complex_conditional 0.6, excess_arguments 0.5, primitive_obsession 0.3, brain_method 1.5,
+large_assertion_block 0.3, duplicated_assertion_block 0.3. Every score carries the deductions that
+produced it. Example: function A with a high complex_method (2.0) and a warn deep_nesting (1.0), function
+B with a warn large_method (0.8) and function C with a warn excess_arguments (0.5) count
+2.0 + 1.0 + 0.8 x 0.5 + 0.5 x 0.25 = 3.525, so the file scores 6.475, rounded to 6.5, yellow. With the
+cap: a file whose worst function deducts 3.0, whose second deducts 2.0 and whose other eight functions
+deduct 2.0 each counts 3.0 + 2.0 x 0.5 + min(8 x 2.0 x 0.25 = 4.0, 2.0) = 6.0 and scores 4.0, yellow
+(version 1 counted 8.0 and scored 2.0, red); each of the eight is shown with `counted` 0.25 x 2.0 x 0.5
+= 0.25 in the deductions, so the counted amounts still add up to what was deducted. The report carries
+`scoringVersion`; scores of different versions are not comparable. Test files are scored apart and are
+left out of the production roll-ups.
+
+**Roll-ups.** File, functional unit (the LOC-weighted mean of its production files and the worst file,
+attributed by the file-level `ENGMODEL-OWNER-UNIT` marker), requirement (the functions that
+marker-linked symbols with `TRLC-LINKS` lie in, joined by path and line range; the findings and the
+worst file score), and project (LOC-weighted mean, worst file, files per band). A `tests` block reports
+the test files.
+
+```bash
+go run ./cmd/enghealth scan --model engmod.yml                         # text summary
+go run ./cmd/enghealth scan --model engmod.yml --format json --out health.json
+go run ./cmd/enghealth scan --model engmod.yml --format sarif --out health.sarif
+go run ./cmd/enghealth scan --model engmod.yml --tier operational --fail-on-error internal/health
+go run ./cmd/enghealth scan --import other-engine.json --format sarif  # re-render a conforming report
+```
+
+Flags: `--model` (engmod.yml), `--format text|json|sarif` (default text), `--out file`, `--tier` (scan at
+this life-cycle tier instead of the declared one), `--fail-on-error`, `--import report.json`, `--cache`,
+`--no-cache` and paths
+(files or directories inside the project root; they must come after the flags). The scan covers the code
+scope the other tools use: the module root minus git-ignored files, nested modules, dot directories,
+`node_modules`, `vendor`, `inferenceHints.exclude`, `health.exclude` and the default excludes
+`generated/**`, `vendor/**`, `node_modules/**`, `.engmod/**` and `.git/**`. A source file above 4 MiB, one
+that is not a regular file or cannot be read, one whose path holds a control character, and one the engine
+cannot analyse (including syntax nested more than 10,000 levels deep or an analysis that exceeds its 15
+second budget) is listed as a `health.file_skipped` or `health.file_failed` diagnostic; so is a directory
+the walk cannot read (`health.file_skipped`, with the directory as its path). A file the parser could only
+partly read (ERROR or MISSING syntax nodes, counted in `syntaxErrors` of the file, at most 1000) is
+analysed as far as the parser recovered it and gets a `health.syntax_error` diagnostic, since the functions
+it lost are not measured. When the code scan of the model fails, the unit and requirement roll-ups are
+empty and a `health.rollup_unavailable` diagnostic says so (for example one line longer than the scanner
+accepts). A file that was not analysed is not a clean file: these diagnostics have the level of
+`health.regression` at the tier (computed by the same tier policy: a warning up to mvp, an error from
+product and from mvp with the safety bundle), so from product they count in the errors of the summary and
+fail `--fail-on-error`. The parse has a 10 second timeout.
+
+**Result cache.** `scan` and `check` cache the result of each file under `.engmod/cache/health` (keyed by
+the content, the limits, the scoring version and the engine version), which is what makes a repeated run
+fast. The cache is not trusted by default, because its key can be computed from public inputs and a
+committed entry could turn a finding into a pass. It is therefore off where the environment variable `CI`
+is non-empty unless `--cache` is given, and it is refused for a run (a note on stderr; the run goes on
+without it) while `git ls-files .engmod` lists any tracked file. Each entry also carries a structural
+digest (sha256 over the key and the canonical JSON of the result), so an entry that was edited or
+truncated is a miss. The digest is not a signature and does not stop a forged entry made with the public
+key rule, which is why the two rules above exist. `--no-cache` turns the cache off.
+
+**Formats.** `json` is the report `engmod-health/1` (`docs/health-report.schema.json`, JSON Schema draft
+2020-12): engine and scoring version, the tier, the level (error or warning) of each code at that tier,
+files with scores, deductions and functions, waived findings, roll-ups and a summary. It has no timestamp
+and no absolute path, every list is sorted and the encoding is canonical, so two runs on one tree are
+byte-identical. `sarif` is SARIF 2.1.0 (one run, driver `enghealth`, one rule per code, one result per
+finding, stable `partialFingerprints`; a waived finding is a suppressed result). `--import` loads a report
+that another engine wrote, validates it against the schema (another schema string, a missing required
+field, an unknown field, a `scoringVersion` other than 1 or 2, a score outside 1.0..10.0, a band that does
+not match its score or a path outside the repository is a setup error) and renders it in any format;
+with `--tier` or `--model` the levels are recomputed for that tier. The scores of an imported report are
+taken as they are and not recomputed; the scoring version that was read is printed on stderr. The levels
+of an imported report are not trusted either: `--fail-on-error` with `--import` needs `--model` or
+`--tier` (otherwise exit 2). Text output escapes every control character of a path or message
+(`\x0a`, `\x1b`), so a file name cannot start a workflow command in a CI log or move a terminal cursor;
+`--out` writes through a temporary file and a rename and refuses an existing target that is not a regular
+file (a symbolic link, for instance).
+
+**Exit codes.** 0 ok; 1 findings or diagnostics (a skipped or failed file included) that are errors at the
+tier, only with `--fail-on-error`; 2 a setup or
+usage error (the model does not load, a bad flag, tier or path, an unreadable output file, a report that
+does not conform), which is never a pass. `enghealth check` has its own rules (below).
+
+**Tiers.** Severity follows the tier policy of `engdoc` (`ValidateBundle` uses the same table): every
+smell code is a warning up to mvp and an error at product and operational (from mvp with the safety
+bundle), `lifecycle.raise: [health.*]` makes them errors at any tier, and a project without a tier gets
+warnings. At product and operational the scan also applies stricter default limits (complex_method 8 and
+15, large_method 50 and 100, deep_nesting 3 and 4, bumpy_road 2 and 3, complex_conditional 3 and 5,
+excess_arguments 4 and 6, large_assertion_block 5 and 8; ADR-EMG-059); below product the defaults apply
+(10 and 20, 70 and 120, 4 and 5, 2 and 3, 3 and 5, 5 and 7, 6 and 10). A `health.thresholds` entry or an
+override still replaces the limits of its code. The strict limits are calibrated by the dogfood report
+(`docs/code-health-dogfood.md`); the project owner confirms or moves them.
+
+**Waiving.** To keep a finding at product or operational, add a decision with status `accepted` that
+explains why, and a waiver for the code, file and qualified function name (`Type.Method`) in the
+`health` block. The finding then appears under `waived` with its decision instead of in the function and
+no longer lowers the score. A waiver that matches no finding is reported as `health.waiver_unused`
+(an error where the debt is an error), so a stale waiver does not hide debt. A decision that is missing or
+not accepted is `health.waiver_unjustified`.
+
+### Gate on regressions: enghealth check
+
+`enghealth check` compares the source files that changed against a base revision and fails only on a
+regression, so a project with existing debt can hold new code to the bar at once (ADR-EMG-053,
+ADR-EMG-059). A finding is keyed by file, qualified function name and code. It is **new** when it is
+absent at base, **worsened** when it is present at base and at head either of a higher severity or with a
+metric that grew by at least 20 percent, and **existing** otherwise. A **regression** (`health.regression`)
+is a new or worsened finding of severity high. A function that was renamed or moved with the same body is
+not new, a deleted file or function produces nothing, and a finding that a waiver covers is left out of
+both sides, so it is existing and never a regression (it is counted as waived). The base file is read with
+`git show` as raw bytes; nothing is checked out.
+
+```bash
+go run ./cmd/enghealth check --model engmod.yml                        # uncommitted work against HEAD
+go run ./cmd/enghealth check --model engmod.yml --base origin/main      # the work tree against a branch
+go run ./cmd/enghealth check --model engmod.yml --base origin/main...HEAD --format sarif --out regressions.sarif
+go run ./cmd/enghealth check --model engmod.yml --base v1.2.0 --head HEAD~1 --tier product internal/health
+```
+
+Flags: `--model` (required), `--base REV` (default `HEAD`; the comparison is always with the merge base of
+`REV` and the head, as `git diff base...head` does, so a branch that is behind `REV` does not see the later
+work of `REV` as its own regressions; `Base` of the report is that merge base and a note says when it differs
+from the tip of `REV`; without a common ancestor the tip of `REV` is used, with a note; `base...head` names
+both revisions), `--head REV` (default: the working tree, untracked files included),
+`--tier`, `--format text|json|sarif`, `--out file`, `--cache`, `--no-cache` and paths (files or
+directories inside the project root, after the flags). The limits, excludes, thresholds, overrides and
+waivers are those of `scan`, and so is the result cache (see above: `.engmod/cache/health`, off in CI
+unless `--cache`, refused while `.engmod` is tracked, off with `--no-cache`). The check
+reads only the model, git and the changed files; it does not build the roll-ups, so it takes about 0.3 s
+on a one-file change with a warm cache.
+
+**Level and exit codes.** Whether a regression fails the gate follows the tier policy like any other code:
+`health.regression` is a warning below product and an error from product (from mvp with the safety bundle;
+`lifecycle.raise` is honoured). Exit 0: no regression, or only regressions that are warnings at the
+tier. Exit 1: at least one regression that is an error at the tier; each is printed as
+`file:line function: code (new|worsened) metric before -> metric after` with its message. Exit 1 also when
+a *changed* source file was skipped (above 4 MiB, the same cap for the work tree and for `--head REV`, or
+not a regular file) or has syntax errors the change brought in (the parser lost functions) at a tier where a regression is an error, since its findings are unknown, and when the
+policy is weakened against the base revision without a recorded `policyDecision` where
+`health.policy_weakened` is an error (see above). Exit 2: a setup
+error, never a pass: the model does not load, an unknown tier, a path outside the project or a bad
+flag or format, the project is not in a git work tree, an invalid revision, or a base revision that is not
+available (an unknown name, or a shallow clone that lacks it; the message says to fetch more history, for
+example `fetch-depth: 0` in CI) or a manifest at the base that is not YAML. In a repository without a
+commit there is no base: every finding is new, and a note says so. The git child gets an allow-listed
+environment with the user and system configuration switched off (`GIT_CONFIG_GLOBAL=/dev/null`,
+`GIT_CONFIG_NOSYSTEM=1`, so a `safe.directory` setting does not apply), the hooks, the filesystem monitor,
+external diff and textconv drivers disabled, and at most 64 KiB of its stderr kept; a file name with a
+control character is refused (exit 2).
+
+**Formats.** `text` is a short summary (the changed files with score and band before and after, the
+regressions, the counts of new, worsened, existing and waived findings, the verdict). `json` is the delta
+report `engmod-health-delta/1` (base and head commits, notes, files, all entries, the blocking entries and
+the skipped files) plus `levels`, `regressionLevel`, `counts`, `waived`, `policyWeakened`, `policyLevel`,
+`policyDecision` and `failed`; it is sorted, canonical and without
+timestamps or absolute paths, so two runs are byte-identical. `sarif` is SARIF 2.1.0 with the regressions
+as its results (rule `health.regression`, the level it has at the tier, the smell code in the
+`properties` of the result; the artifact `uri` is the repository-relative path with each segment
+percent-encoded, for example `app/%5Bid%5D.tsx`; plus `health.file_skipped` for each skipped changed file and
+`health.policy_weakened` for each unrecorded weakening, their rules present only when there are results). With `--out` the failure is still printed on stderr.
+
+The same engine is available in Go as `ScanHealth`, `CheckHealth`, `ImportHealthReport`,
+`EncodeHealthReport`, `EncodeHealthCheck`, `HealthSARIF` and `HealthCheckSARIF`.
 
 
 ## System-of-Systems Composition
@@ -874,7 +1395,7 @@ repositories. Published coordinates stay unchanged while dependencies resolve
 from explicit sibling paths:
 
 ```yaml
-schemaVersion: 2
+schemaVersion: 3
 replacements:
   - module: models.example.com/company/security@v0
     path: ./repos/security
@@ -986,8 +1507,10 @@ when it still does not pass. An accepted link without a model actor in `reviewed
 calendar date in `reviewedOn` is `link.review_unrecorded`; only accepted links at the
 dependency pin count toward the trace roll-up of the system requirement.
 
-`pinned.fingerprint` (v0.8.0) is deprecated: still accepted for one release, ignored, and
-reported as `link.fingerprint_deprecated` (warning). `engws migrate-links` removes it.
+`pinned.fingerprint` is removed: a link that carries it is the error
+`model.pinned_fingerprint_removed` at that field (untiered; remedy: delete
+`pinned.fingerprint` and pin the dependency version only). Nothing reads or writes it;
+`engws review-links` leaves it in place.
 
 **`engws status-suggest [--repo DIR] [--tree HASH] [--json]`** prints the status each
 requirement and control verification earns from this tree's evidence, and writes nothing:
@@ -1022,35 +1545,14 @@ project, run it in the pre-push hook for a tag push as well. It fails (exit 1) w
   `engmod.lock.yml` is a pre-release or a pseudo-version: a release pins release tags only;
 - `contract.semver_too_small` when the bump of the tag (default: the release tag at HEAD)
   over the previous release (the nearest release tag in the commit's history) is smaller
-  than `contract-diff` between them requires. In v0.x a breaking change needs a minor bump (`v0.1.0` to `v0.2.0`).
+  than `contract-diff` between them requires. In v0.x a breaking change needs a minor bump (`v0.1.0` to `v0.2.0`);
+- `release.schema_version_not_bumped` (untiered) when the `CHANGELOG.md` entry `## [X.Y.Z]` of the tag
+  contains the words *Breaking release* (any case) and the `schemaVersion` of `engmod.yml` is not above the
+  one at the previous release tag (read as written, not through the loader). Nothing is reported without a
+  previous release tag or without an entry for the tag. Remedy (ADR-EMG-077):
+  raise schemaVersion and model.CurrentSchemaVersion, then record the change in the CHANGELOG.
 
 Exit 2 is a usage, git or model error.
-
-**`engws migrate-links [--repo DIR] [--dry-run]`** converts a model from the deprecated
-`composition.allocations` and `contract.provides[].ref` (run it in the dependencies
-first, then in the system):
-
-```text
-  ref CAP-TELEM-REPORT -> REQ-TELEM-001 realizes [CAP-TELEM-REPORT]
-  link LNK-COF-001-TELEMETRY REQ-COF-001 -> telemetry::CAP-TELEM-REPORT (v0.1.0, claimed)
-  added documents.reqLinks: model/req-links.yml
-engws: wrote engmod.yml, model/architecture.yml, model/req-links.yml
-engws: 9 requirement(s) without an upward trace (requirement.no_parent):
-  requirement.no_parent: REQ-COF-004 [warning]
-  ...
-```
-
-Each allocation becomes a `status: claimed` link pinned to the dependency version (a
-`parent` link to a capability, an `evidence` link to an assumption of use; a note when the
-dependency cannot be resolved); each capability `ref` becomes `realizes` on the requirement
-it names; every deprecated `pinned.fingerprint` is removed and counted. An allocation to an
-interface entry is not a link target and stays in place (`kept allocation REQ-… →
-alias::IF-…: interface entries are not link targets; publish a capability that realizes it
-and link that`), still reported as `composition.allocation_deprecated`. Only the touched lines of
-each file change, and a second run reports `nothing to migrate`. Then review the claimed
-links and give each listed requirement a `realizes` on a capability the model publishes, a
-link to a dependency capability, or mark it `derived` (the link parents written by the migration
-are already traced).
 
 The architecture document shows the links in both directions. A system with `reqLinks`
 gets a **Requirement Links** chapter: each requirement, its links with their state
@@ -1070,14 +1572,6 @@ See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud
 modules through OCI coordinates.
-
-### Requirement delegation (no tiers, deprecated)
-
-`composition.allocations` (a parent requirement bound `to` a subsystem with a `target` contract
-id) is deprecated in favour of requirement links (`composition.allocation_deprecated`); it is
-still read for one release. A delegation without a resolvable target raises
-`composition.untraceable_delegation`, and a delegated requirement is not an orphan. Convert
-allocations with `engws migrate-links`; both maintained composition examples are migrated.
 
 ## OSCAL chain generation
 
@@ -1208,7 +1702,7 @@ Core files:
 ├── layering_test.go            the package import direction below holds
 ├── cmd/                        command-line tools (engdoc, engview, engtrace, engchange, engspec,
 │                               enggemara, engoscal, engsysml, engstruct, engdragon, engnaf,
-│                               engtrlc, englobster, engair, engmcp, engws, sysmlmetamodel)
+│                               engtrlc, englobster, engair, engquint, enghealth, engmcp, engws, sysmlmetamodel)
 ├── internal/
 │   ├── model/                  model types, loader, canonical bundle, embedded CUE schema (schema/)
 │   ├── validate/               diagnostics and bundle validation rules
@@ -1217,6 +1711,9 @@ Core files:
 │   ├── render/                 diagramstyle, mermaid and svg renderers of a projected view
 │   ├── composition/            system-of-systems composition (CUE modules, workspace, lock)
 │   ├── codescan/               code, runtime and verification evidence inference
+│   ├── health/                 code health: report, scoring, roll-ups, delta check, baseline, cache, git
+│   │   ├── engine/treesitter/  the tree-sitter engine (functions, metrics, smells)
+│   │   └── scan/               scan and check pipelines (the one package that builds the engine)
 │   ├── trace/                  traceability matrix
 │   ├── reqlint/                EARS preflight, catalog description and requirement link lint
 │   ├── reqdelta/               requirements delta planning and atomic application, spec delta rendering
@@ -1241,9 +1738,12 @@ Core files:
 Package layering: imports point down only. `textutil` and `model` import nothing in the
 module; `validate` builds on `model`; `codemap` and `view` on those; `render/*` on `view`;
 `composition` on `model`, `validate` and `textutil`; `codescan` on `composition` and
-`codemap`; `trace` on `codescan`; `reqlint` on `model` and `validate`; `reqdelta` on
+`codemap`; `health` on `validate`, `codescan` and `codemap` (it never imports an engine);
+`health/engine/treesitter` on `health` and `codemap`; `health/scan` on `health`, the engine and
+`codescan`; `trace` on `codescan`; `reqlint` on `model` and `validate`; `reqdelta` on
 `reqlint` and `trace`; `generate` on `view`, `render/*` and `codescan`; `export/*` on the
-layers below `trace`; `asciidoc` on all of these, never on `mcp` or `engws`. Only `cmd/*`,
+layers below `trace`; `asciidoc` on all of these, never on `mcp` or `engws`; `cmd/enghealth` uses the
+root facade (and `internal/health` for the baseline helpers). Only `cmd/*`,
 `internal/mcp` and `internal/engws` import the root facade (among tests, only
 `internal/integration`), and `mcp` and `engws` do not import each other. `layering_test.go` enforces the rules with `go list`.
 

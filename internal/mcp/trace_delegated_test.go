@@ -6,47 +6,84 @@ import (
 	"testing"
 )
 
-// trace.matrix reports each delegated row's delegatedStatus and the summary's
-// delegatedImplemented and delegatedTestLinked counts, also with summaryOnly.
-// Mutation: dropping delegatedStatus from the row map, or the two summary
-// counters from the summary map, fails this test.
-// TRLC-LINKS: REQ-EMG-067, REQ-EMG-061
-// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
-func TestTraceMatrixToolReportsDelegatedStatus(t *testing.T) {
-	base := writeMCPCompositionFixture(t)
+// initializeMCPAt starts the MCP server on the model in base.
+// TRLC-LINKS: REQ-EMG-067
+func initializeMCPAt(t *testing.T, base string) *Server {
+	t.Helper()
 	s := NewServer()
-	if resp := rpcCall(t, s, map[string]any{
+	resp := rpcCall(t, s, map[string]any{
 		"jsonrpc": "2.0", "id": 1, "method": "initialize",
 		"params": map[string]any{"initializationOptions": map[string]any{
 			"modelPath":        filepath.Join(base, "engmod.yml"),
 			"requirementsPath": filepath.Join(base, "model", "requirements.yml"),
 			"repoRoot":         base,
 		}},
-	}); resp["error"] != nil {
+	})
+	if resp["error"] != nil {
 		t.Fatalf("initialize: %+v", resp["error"])
 	}
-	full := callToolPayload(t, s, "trace.matrix", map[string]any{})
-	var delegated map[string]any
-	for _, item := range full["requirements"].([]any) {
+	return s
+}
+
+// traceRowsByID returns the requirement rows of a trace.matrix payload by id.
+// TRLC-LINKS: REQ-EMG-067
+func traceRowsByID(payload map[string]any) map[string]map[string]any {
+	rows := map[string]map[string]any{}
+	for _, item := range payload["requirements"].([]any) {
 		row := item.(map[string]any)
-		if row["id"] == "REQ-PARENT" {
-			delegated = row
+		rows[row["id"].(string)] = row
+	}
+	return rows
+}
+
+// assertNoAllocationDelegation fails when a row still carries delegatedTo.
+// TRLC-LINKS: REQ-EMG-187
+func assertNoAllocationDelegation(t *testing.T, rows map[string]map[string]any) {
+	t.Helper()
+	for _, row := range rows {
+		if _, has := row["delegatedTo"]; has {
+			t.Fatalf("no row is delegated by an allocation: %+v", row)
 		}
 	}
-	if delegated == nil || delegated["delegatedTo"] == nil {
-		t.Fatalf("REQ-PARENT must be delegated: %+v", full["requirements"])
+}
+
+// assertLinkSummary checks the link counter of one trace.matrix summary and
+// that the allocation counters are gone.
+// TRLC-LINKS: REQ-EMG-067, REQ-EMG-187
+func assertLinkSummary(t *testing.T, summary map[string]any) {
+	t.Helper()
+	if summary["linksClaimed"] != float64(1) {
+		t.Fatalf("want linksClaimed 1, got %+v", summary)
 	}
-	status, ok := delegated["delegatedStatus"].(map[string]any)
-	if !ok || status["requirement"] != "REQ-CHILD" || status["status"] == nil {
-		t.Fatalf("delegated row must carry delegatedStatus for REQ-CHILD: %+v", delegated)
+	for _, key := range []string{"delegatedImplemented", "delegatedTestLinked"} {
+		if _, has := summary[key]; has {
+			t.Fatalf("summary still reports %q: %+v", key, summary)
+		}
 	}
+}
+
+// trace.matrix reports the delegatedStatus of the requirement a requirement
+// link reaches (the imported row of the realizing requirement) and the link
+// counters of the summary, also with summaryOnly; the allocation counters and
+// the delegatedTo field are gone (ADR-EMG-078).
+// Mutation: dropping delegatedStatus from the row map, linksClaimed from the
+// summary map, or putting delegatedTo or delegatedImplemented back fails this
+// test.
+// TRLC-LINKS: REQ-EMG-067, REQ-EMG-061, REQ-EMG-187
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func TestTraceMatrixToolReportsDelegatedStatus(t *testing.T) {
+	s := initializeMCPAt(t, writeMCPCompositionFixture(t))
+	rows := traceRowsByID(callToolPayload(t, s, "trace.matrix", map[string]any{}))
+	status, _ := rows["child::REQ-CHILD"]["delegatedStatus"].(map[string]any)
+	if status["requirement"] != "REQ-CHILD" || status["status"] == nil {
+		t.Fatalf("the linked row must carry delegatedStatus for REQ-CHILD: %+v", rows)
+	}
+	if links, _ := rows["REQ-PARENT"]["links"].([]any); len(links) != 1 {
+		t.Fatalf("REQ-PARENT must carry its link: %+v", rows["REQ-PARENT"])
+	}
+	assertNoAllocationDelegation(t, rows)
 	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
-		summary := callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any)
-		for _, key := range []string{"delegatedImplemented", "delegatedTestLinked"} {
-			if _, ok := summary[key]; !ok {
-				t.Fatalf("summary %v missing %q: %+v", args, key, summary)
-			}
-		}
+		assertLinkSummary(t, callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any))
 	}
 }
 

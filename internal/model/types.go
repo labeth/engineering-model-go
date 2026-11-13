@@ -175,6 +175,92 @@ type ManifestPublication struct {
 	Views        []string `yaml:"views"`
 }
 
+// ManifestHealth is engmod.yml health: the optional code health
+// configuration (ADR-EMG-051). Exclude lists paths left out of the report
+// (the inferenceHints.exclude dialect), Thresholds overrides the default
+// warn and high limit per smell code, Overrides does so for the paths it
+// names, Waivers waives single findings on an accepted decision, Baseline
+// accepts a whole file of existing findings on one and PolicyDecision records
+// a weakening of this very block. Value
+// rules are checked by internal/validate; a manifest without health leaves
+// every output unchanged.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+type ManifestHealth struct {
+	Exclude    []string                   `yaml:"exclude,omitempty"`
+	Thresholds map[string]HealthThreshold `yaml:"thresholds,omitempty"`
+	Overrides  []HealthOverride           `yaml:"overrides,omitempty"`
+	Waivers    []HealthWaiver             `yaml:"waivers,omitempty"`
+	// Baseline names the committed file of accepted existing findings
+	// (ADR-EMG-059); nil means no baseline.
+	Baseline *HealthBaseline `yaml:"baseline,omitempty"`
+	// PolicyDecision is an accepted decision that records a weakening of the
+	// health policy (a higher limit, a wider exclude, a lower tier) that a
+	// change makes against its base revision (ADR-EMG-051, amended by the review). It is validated
+	// like a waiver decision; without it enghealth check reports the weakening
+	// as health.policy_weakened.
+	PolicyDecision string `yaml:"policyDecision,omitempty"`
+}
+
+// HealthBaseline is health.baseline: File is a path relative to the manifest
+// directory of a JSON file in the format engmod-health-baseline/1 (see
+// health_baseline.go) and Decision the accepted decision that justifies
+// carrying that debt.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154
+type HealthBaseline struct {
+	File     string `yaml:"file"`
+	Decision string `yaml:"decision"`
+}
+
+// HealthThreshold is the limit pair of one smell code: a value at or above
+// Warn is a warning finding, at or above High a high finding.
+// TRLC-LINKS: REQ-EMG-153
+type HealthThreshold struct {
+	Warn int `yaml:"warn"`
+	High int `yaml:"high"`
+}
+
+// HealthOverride replaces thresholds for the paths matching Path.
+// TRLC-LINKS: REQ-EMG-153
+type HealthOverride struct {
+	Path       string                     `yaml:"path"`
+	Thresholds map[string]HealthThreshold `yaml:"thresholds,omitempty"`
+}
+
+// HealthWaiver waives the finding of Code in Function of the file Path; the
+// Decision must be an accepted decision.
+// TRLC-LINKS: REQ-EMG-154
+type HealthWaiver struct {
+	Code     string `yaml:"code"`
+	Path     string `yaml:"path"`
+	Function string `yaml:"function"`
+	Decision string `yaml:"decision"`
+}
+
+// CodeCoverage is engmod.yml codeCoverage (ADR-EMG-069): the optional
+// configuration of the element to code coverage checks. Exempt lists the
+// model elements that are deliberately not implemented in this repository.
+// TRLC-LINKS: REQ-EMG-176
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+type CodeCoverage struct {
+	Exempt []CodeExemption `yaml:"exempt,omitempty"`
+}
+
+// CodeExemption exempts the model element ID from the element to code
+// coverage checks. Reason says why no code names it (at least
+// CodeExemptionMinReason characters) and Decision is the accepted decision
+// that justifies it, shaped like a HealthWaiver.
+// TRLC-LINKS: REQ-EMG-176
+// ENGMODEL-LINKS: FU-MODEL-LOADER
+type CodeExemption struct {
+	ID       string `yaml:"id"`
+	Reason   string `yaml:"reason"`
+	Decision string `yaml:"decision"`
+}
+
+// CodeExemptionMinReason is the least length, in characters, of the reason of
+// a code exemption; manifest.cue states the same limit.
+const CodeExemptionMinReason = 20
+
 // ManifestDocument is the only schema-v2 model entry point.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046, REQ-EMG-047, REQ-EMG-049, REQ-EMG-051
 type ManifestDocument struct {
@@ -184,21 +270,30 @@ type ManifestDocument struct {
 	Dependencies   []ManifestDependency  `yaml:"dependencies"`
 	Publications   []ManifestPublication `yaml:"publications"`
 	InferenceHints InferenceHints        `yaml:"inferenceHints"`
-	// RequirementLinks is the requirement link strictness: strict or guided
-	// (the default when empty). See RequirementLinkMode.
+	// RequirementLinks is the requirement link strictness: strict or guided.
+	// Validation requires it (model.requirement_links_missing); the library
+	// reads empty as guided. See RequirementLinkMode.
 	RequirementLinks string `yaml:"requirementLinks,omitempty"`
-	// Lifecycle declares the life-cycle tier of the module; nil keeps every
-	// severity of engineering-model-go v0.9.0. See ManifestLifecycle.
+	// CodeCoverage lists the model elements that are deliberately not
+	// implemented here (ADR-EMG-069); nil means no exemption. It sits before
+	// Lifecycle so that lifecycle and health stay the last two fields.
+	CodeCoverage *CodeCoverage `yaml:"codeCoverage,omitempty"`
+	// Lifecycle declares the life-cycle tier of the module. Validation
+	// requires it (lifecycle.missing); the library accepts nil so that tools
+	// can load and report a model without one. See ManifestLifecycle.
 	Lifecycle *ManifestLifecycle `yaml:"lifecycle,omitempty"`
+	// Health configures the code health report; validation requires it from
+	// tier product (health.block_missing); the library reads nil as no
+	// health block (nothing is validated or reported). See ManifestHealth.
+	Health *ManifestHealth `yaml:"health,omitempty"`
 }
 
 // ModelMeta is the aggregate model identity retained for downstream consumers.
 type ModelMeta struct {
-	ID             string             `yaml:"id"`
-	Title          string             `yaml:"title"`
-	Introduction   string             `yaml:"introduction"`
-	Documents      DocumentReferences `yaml:"-"`
-	BaseCatalogRef string             `yaml:"-"`
+	ID           string             `yaml:"id"`
+	Title        string             `yaml:"title"`
+	Introduction string             `yaml:"introduction"`
+	Documents    DocumentReferences `yaml:"-"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -411,11 +506,14 @@ type POAMItem struct {
 }
 
 // POAMDefer is one diagnostic a POA&M item defers: its code and, when set,
-// the diagnostic path it is limited to.
+// the diagnostic path it is limited to (positional, so it goes stale when
+// requirements are inserted) or the ID of the requirement it is limited to
+// (Ref, resolved to the requirement's current path by the validator).
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type POAMDefer struct {
 	Code string `yaml:"code"`
 	Path string `yaml:"path,omitempty"`
+	Ref  string `yaml:"ref,omitempty"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
@@ -428,18 +526,22 @@ type TrustBoundary struct {
 	Members      []string `yaml:"members"`
 }
 
-// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, STATE-MODEL-VALID, STATE-MODEL-INVALID, STATE-ARTIFACTS-FRESH
-type State struct {
-	ID          string `yaml:"id"`
-	Name        string `yaml:"name"`
-	Description string `yaml:"description"`
-}
+// State is the former name of MachineState. behavior.states was removed in
+// v0.11.0 (ADR-EMG-038): every state belongs to exactly one machine.
+//
+// Deprecated: use MachineState; the alias only keeps older callers compiling.
+// TRLC-LINKS: REQ-EMG-139
+type State = MachineState
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, EVT-MODEL-UPDATED, EVT-GENERATION-RUN-REQUESTED, EVT-VALIDATION-FAILED, EVT-ARTIFACT-GENERATED
 type Event struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
+	// Requirements are the REQ-* IDs the event realizes; behavior.event_unlinked
+	// asks for them on each event a machine transition uses (REQ-EMG-177). The
+	// json omitempty keeps the event's semantic metadata unchanged when unset.
+	Requirements []string `yaml:"requirements" json:",omitempty"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -627,9 +729,9 @@ type AuthoredArchitecture struct {
 	Risks                []Risk                `yaml:"risks"`
 	POAMItems            []POAMItem            `yaml:"poamItems"`
 	TrustBoundaries      []TrustBoundary       `yaml:"trustBoundaries"`
-	States               []State               `yaml:"states"`
 	Events               []Event               `yaml:"events"`
 	Flows                []Flow                `yaml:"flows"`
+	Machines             []Machine             `yaml:"machines"`
 	ThreatScenarios      []ThreatScenario      `yaml:"threatScenarios"`
 	ThreatAssumptions    []ThreatAssumption    `yaml:"threatAssumptions"`
 	ThreatOutOfScope     []ThreatOutOfScope    `yaml:"threatOutOfScope"`
@@ -657,7 +759,7 @@ type ArchitectureInput struct {
 // InputComposition references manifest dependencies and their selected publications.
 type InputComposition struct {
 	Subsystems    []InputSubsystem `yaml:"subsystems"`
-	Allocations   []Allocation     `yaml:"allocations"`
+	Allocations   []Allocation     `yaml:"allocations"` // removed (model.allocations_removed): decoded only to report it
 	Satisfactions []Satisfaction   `yaml:"satisfactions"`
 }
 
@@ -679,10 +781,72 @@ type ArchitectureInputDocument struct {
 
 // BehaviorModel owns authored behavior and typed relationships.
 type BehaviorModel struct {
-	States        []State   `yaml:"states"`
 	Events        []Event   `yaml:"events"`
 	Flows         []Flow    `yaml:"flows"`
 	Relationships []Mapping `yaml:"relationships"`
+	Machines      []Machine `yaml:"machines"`
+}
+
+// Machine is a first-class state machine authored in behavior.machines. It
+// has exactly one initial state, typed variables, guarded transitions and
+// invariants. Guards, effects and invariant expressions stay source strings in
+// the authored model and are parsed during semantic projection.
+//
+// TRLC-LINKS: REQ-EMG-135
+type Machine struct {
+	ID          string              `yaml:"id"`
+	Name        string              `yaml:"name"`
+	Description string              `yaml:"description"`
+	Owner       string              `yaml:"owner"`   // implementing functional unit
+	Initial     string              `yaml:"initial"` // id of the initial machine state
+	Variables   []MachineVariable   `yaml:"variables"`
+	States      []MachineState      `yaml:"states"`
+	Transitions []MachineTransition `yaml:"transitions"`
+	Invariants  []MachineInvariant  `yaml:"invariants"`
+}
+
+// MachineVariable is one typed machine variable with its initial literal.
+// TRLC-LINKS: REQ-EMG-135
+type MachineVariable struct {
+	Name    string `yaml:"name"`
+	Type    string `yaml:"type"`    // Integer|Boolean|String
+	Initial any    `yaml:"initial"` // int, bool or string literal matching Type
+}
+
+// MachineState is one state of a machine; final states end the machine.
+// TRLC-LINKS: REQ-EMG-135
+type MachineState struct {
+	ID          string `yaml:"id"`
+	Name        string `yaml:"name"`
+	Description string `yaml:"description"`
+	Final       bool   `yaml:"final"`
+	// Requirements are the REQ-* IDs the state realizes (REQ-EMG-177).
+	Requirements []string `yaml:"requirements"`
+}
+
+// MachineTransition moves a machine between two of its states, optionally
+// triggered by an event and constrained by a guard and an effect.
+// TRLC-LINKS: REQ-EMG-135
+type MachineTransition struct {
+	ID          string `yaml:"id"`
+	From        string `yaml:"from"`
+	To          string `yaml:"to"`
+	On          string `yaml:"on"`
+	Guard       string `yaml:"guard"`
+	Effect      string `yaml:"effect"`
+	Description string `yaml:"description"`
+	// Requirements are the REQ-* IDs the transition realizes (REQ-EMG-177).
+	Requirements []string `yaml:"requirements"`
+}
+
+// MachineInvariant is a boolean expression over machine variables that must
+// hold in every reachable state, tied to the requirements it protects.
+// TRLC-LINKS: REQ-EMG-135
+type MachineInvariant struct {
+	ID           string   `yaml:"id"`
+	Requirements []string `yaml:"requirements"`
+	Expr         string   `yaml:"expr"`
+	Description  string   `yaml:"description"`
 }
 
 // BehaviorDocument is the schema-v2 behavioral document.
@@ -910,12 +1074,13 @@ type ContractAssumption struct {
 type ContractEntry struct {
 	ID   string `yaml:"id"`
 	Kind string `yaml:"kind"` // interface|capability|assumption
-	Ref  string `yaml:"ref"`  // optional local id this contract entry exposes
+	Ref  string `yaml:"ref"`  // removed on provides (model.provides_ref_removed): decoded only to report it
 	Note string `yaml:"note"`
 }
 
-// CompositionModel holds parent-only composition data: referenced subsystems and the allocation of
-// this system's requirements onto them. Absent in a leaf system.
+// CompositionModel holds parent-only composition data: referenced subsystems and satisfactions.
+// Absent in a leaf system. Allocations is decoded only so that validation can report
+// model.allocations_removed; nothing reads it (ADR-EMG-078).
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type CompositionModel struct {
 	Subsystems    []Subsystem    `yaml:"subsystems"`
@@ -950,9 +1115,10 @@ type WorkspaceReplacement struct {
 	Path   string `yaml:"path"`
 }
 
-// Allocation binds a parent requirement onto an alias-qualified identifier
-// visible through the subsystem's selected publication.
-// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+// Allocation is the removed binding of a parent requirement onto an alias-qualified
+// identifier of a subsystem. It still decodes so that the error
+// model.allocations_removed can carry its remedy (ADR-EMG-078).
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051, REQ-EMG-187
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type Allocation struct {
 	Requirement string `yaml:"requirement"` // this system's requirement id

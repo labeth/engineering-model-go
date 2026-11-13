@@ -18,7 +18,7 @@ import (
 // TRLC-LINKS: REQ-EMG-134
 func TestTierGapListsWhatTheTargetRequires(t *testing.T) {
 	dir := copyExample(t, "payments-engineering-sample")
-	manifest := appendLifecycle(t, dir, "  tier: mvp\n")
+	manifest := setLifecycle(t, dir, "mvp")
 	gap, err := engmodel.TierGapFromFiles(manifest, filepath.Join(dir, "model", "requirements.yml"), dir, engmodel.TierProduct)
 	if err != nil {
 		t.Fatal(err)
@@ -65,9 +65,10 @@ func TestTierGapListsWhatTheTargetRequires(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-134
 func TestTierGapDependenciesAndAviation(t *testing.T) {
 	root := copyRequirementLinksExample(t)
-	appendLifecycle(t, filepath.Join(root, "repos", "child-a"), "  tier: mvp\n")
+	setLifecycle(t, filepath.Join(root, "repos", "child-a"), "mvp")
+	removeLifecycle(t, filepath.Join(root, "repos", "child-b")) // a dependency without a tier
 	system := filepath.Join(root, "repos", "system")
-	manifest := appendLifecycle(t, system, "  tier: mvp\n")
+	manifest := setLifecycle(t, system, "mvp")
 	gap, err := engmodel.TierGapFromFiles(manifest, filepath.Join(system, "model", "requirements.yml"), "", engmodel.TierProduct)
 	if err != nil {
 		t.Fatal(err)
@@ -81,7 +82,7 @@ func TestTierGapDependenciesAndAviation(t *testing.T) {
 	}
 
 	dal := copyExample(t, "dal-c-flight-control-sample")
-	dalManifest := appendLifecycle(t, dal, "  tier: mvp\n  bundles: [safety]\n")
+	dalManifest := setLifecycle(t, dal, "mvp", "foundation", "safety")
 	gap, err = engmodel.TierGapFromFiles(dalManifest, filepath.Join(dal, "model", "requirements.yml"), dal, engmodel.TierProduct)
 	if err != nil {
 		t.Fatal(err)
@@ -90,7 +91,7 @@ func TestTierGapDependenciesAndAviation(t *testing.T) {
 	for _, a := range gap.AviationBelowFloor {
 		below[a.ID] = a.State + "<" + a.Floor
 	}
-	if below["DATA-PSAC"] != "planned<reviewed" || below["DATA-SDP"] != "declared<reviewed" {
+	if below["DATA-PSAC"] != "planned<reviewed" || below["DATA-SDP"] != "planned<reviewed" {
 		t.Fatalf("aviation below floor: %+v", gap.AviationBelowFloor)
 	}
 }

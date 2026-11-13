@@ -20,3 +20,24 @@ Centralize credential policy and require local enforcement at product boundaries
 === Consequences
 
 - Products consume one identity contract and retain local authorization.
+
+[[DEC-TIER-MVP]]
+== DEC-TIER-MVP: shared security services runs at the mvp tier with the foundation bundle
+
+Status:: accepted
+Date:: 2026-11-12
+
+=== Context
+
+The example is a complete model at one stated tier so that the required lifecycle switches (ADR-EMG-061) are met and its generated artifacts show the diagnostics of that tier.
+
+=== Decision
+
+Tier: MVP
+Bundles: foundation
+The example declares lifecycle tier mvp with requirementLinks strict and lintRun mode strict.
+
+=== Consequences
+
+- The strict requirement link rules apply from the mvp tier.
+- The tier rules of mvp key the severity of the example's findings.

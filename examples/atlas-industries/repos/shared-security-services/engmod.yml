@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.atlas.example/shared/security-services@v0
   version: v0.1.0
@@ -42,3 +42,9 @@ publications:
   - REQ-SEC-001
   - REQ-SEC-002
 inferenceHints: {}
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

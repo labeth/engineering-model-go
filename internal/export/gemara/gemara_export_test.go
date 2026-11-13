@@ -159,7 +159,7 @@ func TestGemaraEvaluationLogLoadsThroughSDK(t *testing.T) {
 			if err != nil {
 				t.Fatalf("load bundle: %v", err)
 			}
-			res, err := GenerateEvaluationLog(bundle, model.RequirementsDocument{}, "", opts)
+			res, err := GenerateEvaluationLog(bundle, bundle.Requirements, "", opts)
 			if err != nil {
 				t.Fatalf("generate evaluation log: %v", err)
 			}

@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 module:
   path: models.example/coffee-appliance-six-view@v0
   version: v0.1.0
@@ -17,3 +17,9 @@ documents:
   decisions: model/decisions.yml
 dependencies: []
 publications: []
+requirementLinks: strict
+lifecycle:
+  tier: mvp
+  bundles:
+  - foundation
+  tierDecision: DEC-TIER-MVP

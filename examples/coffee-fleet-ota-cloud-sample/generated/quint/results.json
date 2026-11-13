@@ -1,0 +1,65 @@
+{
+  "schema": "engmod-quint-results/1",
+  "modules": [
+    {
+      "machine": "SM-COFFEE-OTA-ROLLOUT",
+      "module": "sm_coffee_ota_rollout",
+      "qntFile": "generated/quint/sm_coffee_ota_rollout.qnt",
+      "qntSha256": "bb7d701984d0d2b19f86dbda99eb09ca665e466030a8bd0d21a7238eefccf333",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_coffee_ota_applied_after_rollout",
+          "id": "INV-COFFEE-OTA-APPLIED-AFTER-ROLLOUT",
+          "requirements": [
+            "REQ-COF-003"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 3
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_coffee_ota_scheduled",
+          "state": "STATE-COFFEE-OTA-SCHEDULED",
+          "witnessed": 0,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_coffee_ota_rolling_out",
+          "state": "STATE-COFFEE-OTA-ROLLING-OUT",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_coffee_ota_applied",
+          "state": "STATE-COFFEE-OTA-APPLIED",
+          "witnessed": 10000,
+          "total": 10000
+        }
+      ],
+      "warnings": []
+    }
+  ]
+}

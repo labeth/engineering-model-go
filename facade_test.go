@@ -73,8 +73,8 @@ func TestFacadeReexportsEngine(t *testing.T) {
 		}},
 		{dir: filepath.Join("internal", "composition"), internalOnly: []string{
 			// used by internal/asciidoc and internal/trace.
-			"ComposeForGeneration", "DelegationsByRequirement", "EnrichBundleFromComposition",
-			"MaterializeAllocations", "PathWithin", "ResolutionCount",
+			"ComposeForGeneration", "EnrichBundleFromComposition",
+			"PathWithin", "ResolutionCount",
 		}, rootName: map[string]string{"LinkDiagnostics": "RequirementLinkDiagnostics", "TierDiagnostics": "CompositionTierDiagnostics"}},
 		{dir: filepath.Join("internal", "reqlinks"), rootName: map[string]string{
 			"Kind": "ContractItemKind", "KindCapability": "ContractItemCapability", "KindAssumption": "ContractItemAssumption",
@@ -86,7 +86,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"ItemsFromBundle": "ContractItemsFromBundle", "RealizedItems": "RealizedContractItems",
 			"PublishedItems": "PublishedContractItems", "EvaluateLinks": "EvaluateRequirementLinks",
 			"SortedRealizers": "SortedContractItemRealizers",
-			"CapabilityRefs":  "ContractCapabilityRefs", "Reason": "LinkReason", "ReasonNone": "LinkReasonNone",
+			"Reason":          "LinkReason", "ReasonNone": "LinkReasonNone",
 			"ReasonUndeclaredAlias": "LinkReasonUndeclaredAlias", "ReasonUnresolved": "LinkReasonUnresolved",
 			"ReasonNotInPublication": "LinkReasonNotInPublication", "ReasonNotContractItem": "LinkReasonNotContractItem",
 			"ReasonMissing": "LinkReasonMissing", "NonItemReason": "ContractNonItemReason",
@@ -96,7 +96,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			// and internal/asciidoc; none of it is public API.
 			"CodeItem", "EvidenceFileKey", "EvidenceLabel", "EvidenceLabelLookup",
 			"GroupedEvidenceLabels", "GroupedFileLabels", "InferCodeItems",
-			"InferRuntimeItems", "InferVerificationChecks", "IsVerificationCodeItem",
+			"InferRuntimeItems", "InferVerificationChecks", "IsGeneratedSource", "IsVerificationCodeItem",
 			"ItemDisplayName", "ItemEvidenceElement", "ItemPath", "JoinLineNumbers",
 			"LanguageFromPath", "ModelRootDir", "NormalizeResultStatus",
 			"ParseLineNumberList", "RuntimeItem", "SanitizeNode", "SanitizeSourcePath",
@@ -105,6 +105,11 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"WithCodeIndex", "WithDefaultCodeRoot",
 			// the code scope the MCP tools share with the check (REQ-EMG-114).
 			"CodeScopeSkip", "ScanCodeScope",
+			// the one reader of formal (Quint) evidence, shared by internal/trace,
+			// internal/export/gemara and internal/mcp (REQ-EMG-145..148).
+			"FormalEntry", "FormalEvidenceFile", "FormalEvidenceFiles", "FormalFailed",
+			"FormalGeneratedHeader", "FormalNotRun", "FormalPass", "FormalStale",
+			"FormalStaleReason", "ReadFormalEvidence", "VerificationResultRoots",
 			// codescan.LoadBundle attaches the code index; the root LoadBundle is
 			// model.LoadBundle, a different function.
 			"LoadBundle",
@@ -112,7 +117,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 		{dir: filepath.Join("internal", "trace"), rootName: map[string]string{
 			"Matrix": "TraceMatrix", "Row": "TraceRow", "Provenance": "TraceProvenance",
 			"DelegatedStatus": "TraceDelegatedStatus", "CodeRef": "TraceCodeRef",
-			"Delegation": "TraceDelegation", "Summary": "TraceSummary", "Options": "TraceOptions",
+			"Summary": "TraceSummary", "Options": "TraceOptions",
 			"LinkRef":        "TraceLinkRef",
 			"BuildFromFiles": "BuildTraceMatrixFromFiles", "BuildFromFilesWith": "BuildTraceMatrixFromFilesWith",
 			"TierGapFromFiles": "TierGapFromFilesWith",
@@ -206,9 +211,24 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"Result":           "AirborneAssuranceResult",
 			"GenerateFromFile": "GenerateAirborneAssuranceFromFile",
 		}},
+		{dir: filepath.Join("internal", "export", "quint"), rootName: map[string]string{
+			"Result": "QuintExportResult", "File": "QuintFile", "Invariant": "QuintInvariant",
+			"Generate": "GenerateQuint", "GenerateFromFile": "GenerateQuintFromFile",
+			"GeneratedHeader": "QuintGeneratedHeader",
+		}},
+		{dir: filepath.Join("internal", "health", "scan"), rootName: map[string]string{
+			"Options": "HealthScanOptions", "Scan": "ScanHealth", "ErrSetup": "ErrHealthSetup",
+			"CheckOptions": "HealthCheckOptions", "Check": "CheckHealth",
+		}, internalOnly: []string{
+			// pipeline constants: the diagnostic codes of a file that was not
+			// analysed and the size limit, read from the report.
+			"CodeFileSkipped", "CodeFileFailed", "MaxFileBytes",
+		}},
 		{dir: filepath.Join("internal", "export", "exportutil"), internalOnly: []string{
 			// generation timestamps shared by the Gemara and OSCAL exporters.
 			"NormalizeGeneratedTimestamp", "ResolveGeneratedTimestamp",
+			// external tool lookup shared by the exporters.
+			"ResolveExternalTool",
 		}},
 	}
 	root := exportedNames(t, ".")

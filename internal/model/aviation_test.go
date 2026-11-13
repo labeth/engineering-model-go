@@ -16,7 +16,7 @@ func TestAviationSchemaRejectsUnknownFields(t *testing.T) {
 	}
 	t.Cleanup(func() { _ = os.RemoveAll(dir) })
 	path := filepath.Join(dir, "aviation.yml")
-	source := "schemaVersion: 2\naviation:\n  profile:\n    id: AVIATION-TEST\n    standard: DO-178C\n    edition: \"2011\"\n    softwareLevel: C\n    softwareItem: Test\n    applicant: Applicant\n    authority: Authority\n    certificationBasis: REF\n    safetyAllocationReference: SAFETY\n    claimsDisclaimer: DRAFT\n    unexpected: true\n"
+	source := "schemaVersion: 3\naviation:\n  profile:\n    id: AVIATION-TEST\n    standard: DO-178C\n    edition: \"2011\"\n    softwareLevel: C\n    softwareItem: Test\n    applicant: Applicant\n    authority: Authority\n    certificationBasis: REF\n    safetyAllocationReference: SAFETY\n    claimsDisclaimer: DRAFT\n    unexpected: true\n"
 	if err := os.WriteFile(path, []byte(source), 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestValidateAviationBlockingRules(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-054
 func validAviationFixture() (AviationDocument, RequirementsDocument) {
-	document := AviationDocument{SchemaVersion: 2, Aviation: AviationProfile{
+	document := AviationDocument{SchemaVersion: CurrentSchemaVersion, Aviation: AviationProfile{
 		Profile:              AirborneProfile{ID: "AVIATION-TEST", Standard: "DO-178C", Edition: "2011", SoftwareLevel: "C", SoftwareItem: "Test", Applicant: "Applicant", Authority: "Authority", CertificationBasis: "REF", SafetyAllocationReference: "SAFETY", ClaimsDisclaimer: "DRAFT"},
 		Objectives:           []ObjectiveReference{{ID: "OBJ-1", SourceReference: "CUSTOMER-1", Applicability: "applicable", Rationale: "Customer supplied", EvidenceRefs: []string{"EXEC-1"}, State: "reviewed"}},
 		RequirementAssurance: []RequirementAssurance{{RequirementID: "REQ-1", Level: "LLR", VerificationCriteria: "Expected", Baseline: "BASELINE-1", State: "reviewed"}},
@@ -114,7 +114,8 @@ func TestAviationLoadSplitWithLifecycle(t *testing.T) {
 			}
 			text := string(data)
 			if rel == "engmod.yml" {
-				text += lifecycle
+				// The sample's own lifecycle block is the last key; the case replaces it.
+				text = text[:strings.Index(text, "lifecycle:")] + lifecycle
 			}
 			if rel == "model/aviation.yml" && edit != "" {
 				old, new, _ := strings.Cut(edit, "=>")

@@ -17,7 +17,7 @@ import (
 )
 
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-063, REQ-EMG-064
-// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-GEMARA-EXPORTER
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-GEMARA-EXPORTER, IF-CLI-ENGGEMARA
 func main() {
 	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	requirementsPath := flag.String("requirements", "", "path to requirements YAML (for the evaluation log)")

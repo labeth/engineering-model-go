@@ -3,8 +3,8 @@ package composition
 
 // System-of-systems composition. A system model may reference subsystem models in
 // local subdirectories; this resolves the parent->child DAG, enforces the
-// workspace boundary and acyclicity, materializes parent->subsystem allocation
-// traceability (without modifying any subsystem), and validates the bindings.
+// workspace boundary and acyclicity, and validates the bindings (without
+// modifying any subsystem).
 // References are downward-only: a subsystem never knows its parents.
 
 import (
@@ -66,6 +66,11 @@ type ImportedEntityProvenance struct {
 
 const CompositionLockFileName = "engmod.lock.yml"
 
+// CompositionLockSchemaVersion is the schemaVersion the engine writes into
+// engmod.lock.yml and requires when it reads one (ADR-EMG-072): a lock with
+// another version, or none, is composition.lock_schema_outdated.
+const CompositionLockSchemaVersion = 1
+
 // CompositionLockDocument is deterministic generated dependency state.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
 type CompositionLockDocument struct {
@@ -81,24 +86,10 @@ type CompositionLockDependency struct {
 	Digest       string   `yaml:"digest"`
 }
 
-// MaterializedAllocation is a parent->subsystem allocation with its composed-view resolution status.
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
-type MaterializedAllocation struct {
-	System            string // owning (parent) system id
-	Requirement       string
-	Subsystem         string
-	Target            string // public id within the subsystem
-	TargetRef         string // the subsystem requirement that realizes the target (its contract ref)
-	Resolved          bool   // target is published in the subsystem contract
-	TargetRefResolved bool   // TargetRef names a requirement that exists in the subsystem
-	Note              string
-}
-
-// CompositionResult is the resolved tree plus materialized allocation trace and diagnostics.
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+// CompositionResult is the resolved tree plus provenance, lock and diagnostics.
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
 type CompositionResult struct {
 	Root        *ComposedSystem
-	Allocations []MaterializedAllocation
 	Provenance  []ImportedEntityProvenance
 	Lock        CompositionLockDocument
 	Diagnostics []validate.Diagnostic
@@ -306,12 +297,11 @@ func generateComposition(manifestPath string, rootBundle *model.Bundle, options 
 	root, provenance, locks, diags := resolver.resolveSystem("", "", "", absTop, ancestry, true)
 	res := CompositionResult{
 		Root: root, Provenance: provenance,
-		Lock:        CompositionLockDocument{SchemaVersion: 1, Dependencies: locks},
+		Lock:        CompositionLockDocument{SchemaVersion: CompositionLockSchemaVersion, Dependencies: locks},
 		Diagnostics: diags,
 		Workspace:   workspace, cacheNames: resolver.cacheNames,
 	}
 	if root != nil {
-		res.Allocations = MaterializeAllocations(root)
 		res.Diagnostics = append(res.Diagnostics, validateComposition(root, true)...)
 		res.Diagnostics = append(res.Diagnostics, TierDiagnostics(root)...)
 	}
@@ -364,6 +354,9 @@ func checkCompositionLock(path string, resolved CompositionLockDocument) []valid
 	if err := yaml.Unmarshal(data, &committed); err != nil {
 		return []validate.Diagnostic{errDiag("composition.lock_invalid", fmt.Sprintf("%s cannot be read: %v", filepath.Base(path), err), path)}
 	}
+	if outdated := lockSchemaDiagnostics(path, committed.SchemaVersion); outdated != nil {
+		return outdated
+	}
 	byAlias := map[string]CompositionLockDependency{}
 	for _, dependency := range committed.Dependencies {
 		byAlias[dependency.Alias] = dependency
@@ -381,12 +374,36 @@ func checkCompositionLock(path string, resolved CompositionLockDocument) []valid
 			diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("dependency %q %s: content digest %s differs from the locked %s (tag moved or content changed)", got.Alias, moduleAt(got.Path, got.Version), got.Digest, want.Digest), path))
 		}
 	}
-	extra := make([]string, 0, len(byAlias))
-	for alias := range byAlias {
-		extra = append(extra, alias)
+	return append(diags, extraLockDiagnostics(byAlias, path)...)
+}
+
+// lockSchemaDiagnostics reports a committed lock whose schemaVersion is not
+// the one the engine writes (ADR-EMG-072, REQ-EMG-179): a missing key reads
+// as 0. It returns nil for a lock at the current version.
+// TRLC-LINKS: REQ-EMG-179
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func lockSchemaDiagnostics(path string, version int) []validate.Diagnostic {
+	if version == CompositionLockSchemaVersion {
+		return nil
 	}
-	sort.Strings(extra)
-	for _, alias := range extra {
+	msg := fmt.Sprintf("%s has schemaVersion %d but the engine writes %d (0 means the key is missing)", filepath.Base(path), version, CompositionLockSchemaVersion)
+	d := errDiag("composition.lock_schema_outdated", msg, path)
+	d.Remedy = validate.RequiredRemedy(d.Code)
+	return []validate.Diagnostic{d}
+}
+
+// extraLockDiagnostics reports the committed dependencies the manifest no
+// longer resolves, in alias order.
+// TRLC-LINKS: REQ-EMG-064
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
+func extraLockDiagnostics(extra map[string]CompositionLockDependency, path string) []validate.Diagnostic {
+	aliases := make([]string, 0, len(extra))
+	for alias := range extra {
+		aliases = append(aliases, alias)
+	}
+	sort.Strings(aliases)
+	diags := make([]validate.Diagnostic, 0, len(aliases))
+	for _, alias := range aliases {
 		diags = append(diags, errDiag("composition.lock_mismatch", fmt.Sprintf("committed lock lists dependency %q that the manifest no longer resolves", alias), path))
 	}
 	return diags
@@ -1015,54 +1032,9 @@ func hasCompositionErrors(diags []validate.Diagnostic) bool {
 	return false
 }
 
-// MaterializeAllocations walks the tree and produces the parent->subsystem allocation
-// trace, resolving each target against the referenced subsystem's published contract.
-// The subsystem models are never modified.
-// TRLC-LINKS: REQ-EMG-020, REQ-EMG-025
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
-func MaterializeAllocations(sys *ComposedSystem) []MaterializedAllocation {
-	var out []MaterializedAllocation
-	childByID := map[string]*ComposedSystem{}
-	for _, c := range sys.Children {
-		childByID[c.SubsystemID] = c
-	}
-	systemID := strings.TrimSpace(sys.Bundle.Architecture.Model.ID)
-	for _, a := range sys.Bundle.Architecture.Composition.Allocations {
-		ma := MaterializedAllocation{System: systemID, Requirement: a.Requirement, Subsystem: a.To, Target: a.Target}
-		if child, ok := childByID[a.To]; ok {
-			alias, targetID, err := model.ParseQualifiedReference(a.Target)
-			if err != nil || alias != child.Dependency {
-				ma.Note = "target must use the subsystem dependency alias as alias::ID"
-			} else if !child.PublishedIDs[targetID] {
-				ma.Note = "target is not visible through the selected publication"
-			} else {
-				ma.Resolved = true
-				if entry, provided := contractProvidedEntry(child.Bundle, targetID); provided {
-					ma.TargetRef = strings.TrimSpace(entry.Ref)
-					if ma.TargetRef != "" {
-						ma.TargetRefResolved = requirementExists(child.Requirements, ma.TargetRef)
-					} else {
-						ma.Note = "no contract ref: delegation does not resolve to a specific requirement"
-					}
-				}
-			}
-		} else if hardwareItem(sys.Bundle, a.To) {
-			ma.Resolved = true
-			ma.Note = "allocated to hardware item"
-		} else {
-			ma.Note = "unknown allocation target"
-		}
-		out = append(out, ma)
-	}
-	for _, c := range sys.Children {
-		out = append(out, MaterializeAllocations(c)...)
-	}
-	return out
-}
-
-// validateComposition checks bindings across the composed tree: allocation targets must
-// be public, every subsystem required interface must be satisfied, and allocations must
-// reference real requirements and subsystems. top marks the root of the
+// validateComposition checks bindings across the composed tree: every subsystem
+// required interface must be satisfied and satisfactions must name published
+// identifiers. top marks the root of the
 // composition run: an unsatisfied required interface is an error there when
 // the root's module kind is "system" (the composing system answers for its
 // subsystems' needs) and a warning below it, where a parent may still bind it.
@@ -1076,46 +1048,6 @@ func validateComposition(sys *ComposedSystem, top bool) []validate.Diagnostic {
 	}
 	owner := strings.TrimSpace(sys.Bundle.Architecture.Model.ID)
 	loc := func() string { return owner }
-
-	// Allocations may only target identifiers visible through the subsystem's
-	// selected publication, using the dependency alias as qualifier.
-	for _, a := range sys.Bundle.Architecture.Composition.Allocations {
-		child, ok := childByID[a.To]
-		if !ok {
-			if !hardwareItem(sys.Bundle, a.To) {
-				diags = append(diags, errDiag("composition.unknown_subsystem", fmt.Sprintf("allocation in %s targets unknown subsystem %q", owner, a.To), loc()))
-			}
-			continue
-		}
-		alias, targetID, err := model.ParseQualifiedReference(a.Target)
-		if err != nil || alias != child.Dependency {
-			diags = append(diags, errDiag("composition.invalid_qualified_reference", fmt.Sprintf("allocation in %s must target %s::ID for subsystem %q", owner, child.Dependency, a.To), loc()))
-			continue
-		}
-		if !child.PublishedIDs[targetID] {
-			diags = append(diags, errDiag("composition.allocation_to_internal", fmt.Sprintf("allocation in %s targets %q which is not visible through dependency %q publication %q", owner, a.Target, child.Dependency, child.Publication), loc()))
-			continue
-		}
-		entry, provided := contractProvidedEntry(child.Bundle, targetID)
-		if !provided {
-			diags = append(diags, validate.Diagnostic{
-				Code: "composition.allocation_target_not_contract", Severity: validate.SeverityWarning,
-				Message: fmt.Sprintf("allocation of %s in %s targets %q, which is not a contract provides entry of subsystem %q; the delegation names no subsystem requirement", a.Requirement, owner, a.Target, a.To),
-				Path:    loc(),
-			})
-			continue
-		}
-		ref := strings.TrimSpace(entry.Ref)
-		if ref == "" {
-			diags = append(diags, validate.Diagnostic{
-				Code: "composition.untraceable_delegation", Severity: validate.SeverityWarning,
-				Message: fmt.Sprintf("allocation in %s to %s/%s does not resolve to a specific requirement; declare a contract ref on %s naming the subsystem requirement that satisfies it", owner, a.To, a.Target, a.Target),
-				Path:    loc(),
-			})
-		} else if !requirementExists(child.Requirements, ref) {
-			diags = append(diags, errDiag("composition.unknown_target_requirement", fmt.Sprintf("allocation in %s to %s/%s names requirement %q, which subsystem %q does not define", owner, a.To, a.Target, ref, a.To), loc()))
-		}
-	}
 
 	// Satisfactions use the same publication-qualified visibility boundary.
 	satisfied := map[string]bool{}
@@ -1175,7 +1107,7 @@ func publishedByAlias(children []*ComposedSystem, alias, id string) bool {
 }
 
 // validateQualifiedReferences applies publication visibility to every typed
-// reference field in the parent bundle, not only composition allocations.
+// reference field in the parent bundle.
 // TRLC-LINKS: REQ-EMG-049, REQ-EMG-051, REQ-EMG-065
 func validateQualifiedReferences(bundle model.Bundle, children []*ComposedSystem, path string) []validate.Diagnostic {
 	var diags []validate.Diagnostic
@@ -1300,40 +1232,6 @@ func isReferenceField(tag string) bool {
 		lower == "datain" || lower == "dataout" || lower == "next" || lower == "onerror"
 }
 
-// contractProvidedEntry returns the bundle's provided contract entry with the given id.
-// TRLC-LINKS: REQ-EMG-022
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func contractProvidedEntry(bundle model.Bundle, id string) (model.ContractEntry, bool) {
-	id = strings.TrimSpace(id)
-	for _, p := range bundle.Architecture.Contract.Provides {
-		if strings.TrimSpace(p.ID) == id {
-			return p, true
-		}
-	}
-	return model.ContractEntry{}, false
-}
-
-// contractProvides reports whether a bundle's contract publishes the given id.
-// TRLC-LINKS: REQ-EMG-022
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func contractProvides(bundle model.Bundle, id string) bool {
-	_, ok := contractProvidedEntry(bundle, id)
-	return ok
-}
-
-// requirementExists reports whether a requirements document defines the given id.
-// TRLC-LINKS: REQ-EMG-022, REQ-EMG-026
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
-func requirementExists(reqs model.RequirementsDocument, id string) bool {
-	id = strings.TrimSpace(id)
-	for _, r := range reqs.Requirements {
-		if strings.TrimSpace(r.ID) == id {
-			return true
-		}
-	}
-	return false
-}
-
 // hardwareItem reports whether the bundle declares a hardware item with the given id.
 // TRLC-LINKS: REQ-EMG-024
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
@@ -1367,16 +1265,4 @@ func ComposeForGeneration(bundle model.Bundle, given *CompositionResult, options
 		return *given, nil
 	}
 	return GenerateCompositionForBundle(bundle, options)
-}
-
-// DelegationsByRequirement indexes the composition's allocations by requirement.
-// TRLC-LINKS: REQ-EMG-020, REQ-EMG-066
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func DelegationsByRequirement(composed CompositionResult) map[string][]MaterializedAllocation {
-	out := map[string][]MaterializedAllocation{}
-	for _, m := range composed.Allocations {
-		rid := strings.TrimSpace(m.Requirement)
-		out[rid] = append(out[rid], m)
-	}
-	return out
 }

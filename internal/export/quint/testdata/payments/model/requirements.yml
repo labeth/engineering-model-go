@@ -1,0 +1,19 @@
+schemaVersion: 3
+lintRun:
+  id: quint-payments-fixture-lint
+  mode: strict
+  commaAsAnd: true
+  catalogRef: ./catalog.yml
+requirements:
+- id: REQ-PAYMENTS-001
+  text: When authorization is requested, the payment service shall limit authorization attempts to three.
+  appliesTo:
+  - FU-PAYMENTS-AUTH
+  derived: true
+  derivedRationale: Top-level need of the fixture; no system model above it records a parent.
+- id: REQ-PAYMENTS-002
+  text: When authorization is granted, the payment service shall finish the authorization.
+  appliesTo:
+  - FU-PAYMENTS-AUTH
+  derived: true
+  derivedRationale: Top-level need of the fixture; no system model above it records a parent.

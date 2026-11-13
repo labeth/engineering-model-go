@@ -1,4 +1,4 @@
-schemaVersion: 2
+schemaVersion: 3
 views:
 - id: VIEW-ARCHITECTURE-INTENT
   kind: architecture-intent
@@ -82,15 +82,15 @@ views:
 - id: VIEW-STATE-LIFECYCLE
   kind: state-lifecycle
   roots:
-  - STATE-PAYMENTS-CHECKOUT-RECEIVED
+  - SM-PAYMENTS-AUTH
   includeKinds:
   - state
   - event
   - control
   - trust_boundary
   includeMappings:
-  - transitions_to
-  - triggered_by
+  - transition
+  - on_event
   - guarded_by
   authoredStatus: in-review
   authoredStatusExplanation: Lifecycle transitions and controls are explicitly modeled for payment decision progression.

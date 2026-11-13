@@ -14,6 +14,7 @@ const (
 )
 
 // Requirement link statuses of a reqLinks entry.
+// ENGMODEL-LINKS: STATE-LINK-CLAIMED, STATE-LINK-ACCEPTED
 const (
 	// ReqLinkClaimed is a link nobody has reviewed yet (link.claimed_only).
 	ReqLinkClaimed = "claimed"
@@ -50,9 +51,10 @@ type ReqLink struct {
 }
 
 // ReqLinkPin is what a link relies on: the dependency version it was
-// reviewed at. Fingerprint is deprecated (D23): still read for one release,
-// ignored, and reported as link.fingerprint_deprecated.
-// TRLC-LINKS: REQ-EMG-094, REQ-EMG-118
+// reviewed at. Fingerprint is removed (ADR-EMG-075): it still decodes only so
+// that validation reports model.pinned_fingerprint_removed with its remedy;
+// no other code reads or writes it.
+// TRLC-LINKS: REQ-EMG-094, REQ-EMG-118, REQ-EMG-184
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type ReqLinkPin struct {
 	Version     string `yaml:"version"`

@@ -30,7 +30,6 @@ func countingRegistry(t *testing.T) *atomic.Int64 {
     provides:
       - id: CAP-CHILD
         kind: capability
-        ref: REQ-CHILD
 `)
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {
@@ -78,10 +77,6 @@ func TestMCPCompositionToolsNeverWriteLockAndWorkOffline(t *testing.T) {
       - id: SUB-CHILD
         dependency: child
         publication: public
-    allocations:
-      - requirement: REQ-PARENT
-        to: SUB-CHILD
-        target: child::CAP-CHILD
 `)
 	manifest := filepath.Join(parent, "engmod.yml")
 	lockPath := filepath.Join(parent, engmodel.CompositionLockFileName)
@@ -282,7 +277,7 @@ func TestToolErrorsCarryNoAbsolutePaths(t *testing.T) {
 	}
 	resp := rpcCall(t, s, map[string]any{
 		"jsonrpc": "2.0", "id": 7, "method": "tools/call",
-		"params": map[string]any{"name": "model.diagnose", "arguments": map[string]any{"document": "requirements", "content": "schemaVersion: 2\nrequirements: []\n"}},
+		"params": map[string]any{"name": "model.diagnose", "arguments": map[string]any{"document": "requirements", "content": "schemaVersion: 3\nrequirements: []\n"}},
 	})
 	text := mustJSON(t, resp)
 	if !strings.Contains(text, "views.yml") {
@@ -302,7 +297,7 @@ func TestToolErrorsCarryNoAbsolutePaths(t *testing.T) {
 func TestRPCErrorsCarryNoAbsolutePaths(t *testing.T) {
 	t.Setenv("CUE_REGISTRY", "none")
 	parent := writeMCPCompositionFixture(t)
-	if err := os.WriteFile(filepath.Join(parent, "model", "catalog.yml"), []byte("schemaVersion: 2\ncatalog: [\n"), 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(parent, "model", "catalog.yml"), []byte("schemaVersion: 3\ncatalog: [\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	s := NewServer()
