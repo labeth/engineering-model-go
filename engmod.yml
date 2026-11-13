@@ -320,6 +320,8 @@ publications:
   - REQ-EMG-174
   - REQ-EMG-175
   - REQ-EMG-176
+  - REQ-EMG-177
+  - REQ-EMG-178
   views:
   - VIEW-ARCHITECTURE-INTENT
   - VIEW-TRACEABILITY

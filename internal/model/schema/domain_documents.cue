@@ -76,20 +76,22 @@ package model
 }
 
 #MachineState: {
-	id:           #StableID
-	name?:        string
-	description?: string
-	final?:       bool
+	id:            #StableID
+	name?:         string
+	description?:  string
+	final?:        bool
+	requirements?: #StringList
 }
 
 #MachineTransition: {
-	id:           #StableID
-	from:         #NonEmpty
-	to:           #NonEmpty
-	on?:          #NonEmpty
-	guard?:       #NonEmpty
-	effect?:      #NonEmpty
-	description?: string
+	id:            #StableID
+	from:          #NonEmpty
+	to:            #NonEmpty
+	on?:           #NonEmpty
+	guard?:        #NonEmpty
+	effect?:       #NonEmpty
+	description?:  string
+	requirements?: #StringList
 }
 
 #MachineInvariant: {

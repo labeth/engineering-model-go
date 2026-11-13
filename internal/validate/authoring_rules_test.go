@@ -180,8 +180,8 @@ func TestAuthoringRulesDefineMachinesAndAssuranceLinks(t *testing.T) {
 	}
 	want := map[string]string{
 		"machine":           "id,name,description,owner,initial,variables,states,transitions,invariants",
-		"machineState":      "id,name,description,final",
-		"machineTransition": "id,from,to,on,guard,effect,description",
+		"machineState":      "id,name,description,final,requirements",
+		"machineTransition": "id,from,to,on,guard,effect,description,requirements",
 		"machineInvariant":  "id,requirements,expr,description",
 		"machineVariable":   "name,type,initial",
 	}

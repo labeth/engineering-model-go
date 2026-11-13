@@ -225,7 +225,7 @@ func machineGuide() MachineGuide {
 		Types:     []string{string(MachineTypeInteger), string(MachineTypeBoolean), string(MachineTypeString)},
 		Operators: operators,
 		Workflow: []string{
-			"Author the machine in behavior.machines (see rules.fieldSets: machine, machineVariable, machineState, machineTransition, machineInvariant) and link each invariant to the requirements it protects.",
+			"Author the machine in behavior.machines (see rules.fieldSets: machine, machineVariable, machineState, machineTransition, machineInvariant), link each invariant to the requirements it protects, and list in requirements the REQ-* each state, transition and event realizes (ef-behavior skill).",
 			"engquint generate --model engmod.yml [--out dir] writes one deterministic Quint module per machine to generated/quint/ (sm_<id>.qnt); regenerate after every machine change, the artifact freshness gate fails on drift.",
 			"engquint check --model engmod.yml [--mode run|verify|both] regenerates and compares the committed modules (drift is reported as stale and runs nothing), runs quint run on each invariant (mode run; verify or both adds quint verify with Apalache) and writes generated/quint/results.json and test-results/quint-formal.json.",
 			"Quint is called with --backend=typescript; engquint never downloads a tool. Set ENGMOD_QUINT (and QUINT_HOME for verify) or put quint on PATH.",

@@ -14,9 +14,11 @@ behavior:
     - id: STATE-MODEL-VALID
       name: Model Valid
       description: Model passes architecture and relationship validation checks.
+      requirements: [REQ-EMG-001, REQ-EMG-046]
     - id: STATE-MODEL-INVALID
       name: Model Invalid
       description: Model has validation diagnostics that block generation or trusted use.
+      requirements: [REQ-EMG-046, REQ-EMG-001]
     transitions:
     - id: TR-MODEL-VALIDATION-FAILS
       from: STATE-MODEL-VALID
@@ -24,17 +26,20 @@ behavior:
       on: EVT-VALIDATION-FAILED
       effect: generationPermitted := false
       description: Validation or schema checks report errors, so generation and trusted use are blocked.
+      requirements: [REQ-EMG-046]
     - id: TR-MODEL-VALIDATION-RECOVERS
       from: STATE-MODEL-INVALID
       to: STATE-MODEL-VALID
       on: EVT-MODEL-UPDATED
       effect: generationPermitted := true
       description: Model becomes valid after an update resolves the diagnostics.
+      requirements: [REQ-EMG-001]
     - id: TR-MODEL-STATUS-SUGGEST
       from: STATE-MODEL-VALID
       to: STATE-MODEL-VALID
       on: EVT-STATUS-SUGGEST-REQUESTED
       description: engws status-suggest reads a valid model and its tree's evidence and writes nothing, so the model stays valid (REQ-EMG-122).
+      requirements: [REQ-EMG-122]
     invariants:
     - id: INV-MODEL-GENERATION-ONLY-WHEN-VALID
       requirements: [REQ-EMG-046]
@@ -53,12 +58,15 @@ behavior:
     - id: STATE-ARTIFACTS-FRESH
       name: Artifacts Fresh
       description: Generated artifacts are aligned with current authored model and code evidence.
+      requirements: [REQ-EMG-009]
     - id: STATE-ARTIFACTS-STALE
       name: Artifacts Stale
       description: The authored model changed after the generated artifacts were produced, so they no longer reflect it.
+      requirements: [REQ-EMG-009]
     - id: STATE-ARTIFACTS-REGENERATING
       name: Artifacts Regenerating
       description: A generation run was requested and has not yet produced the artifacts; it stops when validation fails.
+      requirements: [REQ-EMG-009]
     transitions:
     - id: TR-ARTIFACTS-GO-STALE
       from: STATE-ARTIFACTS-FRESH
@@ -71,24 +79,28 @@ behavior:
       to: STATE-ARTIFACTS-REGENERATING
       on: EVT-GENERATION-RUN-REQUESTED
       description: A generation run is requested for the stale artifacts.
+      requirements: [REQ-EMG-009]
     - id: TR-ARTIFACTS-GENERATION-BLOCKED
       from: STATE-ARTIFACTS-REGENERATING
       to: STATE-ARTIFACTS-STALE
       on: EVT-VALIDATION-FAILED
       effect: validated := false
       description: A failed validation stops the generation run, so the artifacts stay stale.
+      requirements: [REQ-EMG-009, REQ-EMG-046]
     - id: TR-ARTIFACTS-VALIDATED
       from: STATE-ARTIFACTS-REGENERATING
       to: STATE-ARTIFACTS-REGENERATING
       on: EVT-VALIDATION-PASSED
       effect: validated := true
       description: The validation and tests of the generation run pass, so artifact generation may proceed (REQ-EMG-009).
+      requirements: [REQ-EMG-009]
     - id: TR-ARTIFACTS-REGENERATED
       from: STATE-ARTIFACTS-REGENERATING
       to: STATE-ARTIFACTS-FRESH
       on: EVT-ARTIFACT-GENERATED
       guard: validated
       description: Fresh state is reached after a successful generation cycle, only once validation passed (REQ-EMG-009).
+      requirements: [REQ-EMG-009]
     invariants:
     - id: INV-ARTIFACTS-FRESH-VALIDATED
       requirements: [REQ-EMG-009]
@@ -111,67 +123,81 @@ behavior:
     - id: STATE-LINK-ABSENT
       name: Link Absent
       description: The requirement link is not recorded yet.
+      requirements: [REQ-EMG-119, REQ-EMG-104]
     - id: STATE-LINK-CLAIMED
       name: Link Claimed
       description: A requirement link is recorded (status claimed) but nobody has reviewed it; it does not count toward the trace roll-up.
+      requirements: [REQ-EMG-119, REQ-EMG-104, REQ-EMG-094]
     - id: STATE-LINK-ACCEPTED
       name: Link Accepted
       description: A requirement link is reviewed (status accepted, reviewer and date recorded) at the version its dependency is pinned to.
+      requirements: [REQ-EMG-101, REQ-EMG-111]
     - id: STATE-LINK-SUSPECT
       name: Link Suspect
       description: The dependency is pinned to another version than the link was reviewed at (link.version_mismatch), because a bump found the item's meaning changed or could not resolve the reviewed version; the check fails until the link is reviewed again (D23).
+      requirements: [REQ-EMG-094, REQ-EMG-100, REQ-EMG-101]
     - id: STATE-LINK-BROKEN
       name: Link Broken
       description: The linked child item no longer exists as a published contract item at the resolved version; the link must be removed or relinked.
+      requirements: [REQ-EMG-097, REQ-EMG-101]
     transitions:
     - id: TR-LINK-ADD
       from: STATE-LINK-ABSENT
       to: STATE-LINK-CLAIMED
       on: EVT-LINK-ADD-REQUESTED
       description: engws link add writes a claimed link pinned to the dependency version (REQ-EMG-119).
+      requirements: [REQ-EMG-119]
     - id: TR-LINK-MIGRATE
       from: STATE-LINK-ABSENT
       to: STATE-LINK-CLAIMED
       on: EVT-LINK-MIGRATION-REQUESTED
       description: engws migrate-links records each converted allocation as a claimed link (REQ-EMG-104).
+      requirements: [REQ-EMG-104]
     - id: TR-LINK-ACCEPT
       from: STATE-LINK-CLAIMED
       to: STATE-LINK-ACCEPTED
       on: EVT-LINK-REVIEW-REQUESTED
       effect: reviewed := true
       description: On link review requested (engws review-links --accept by a model actor) a claimed link is accepted and its reviewer and date are recorded (REQ-EMG-101).
+      requirements: [REQ-EMG-101, REQ-EMG-111]
     - id: TR-LINK-MISMATCH
       from: STATE-LINK-ACCEPTED
       to: STATE-LINK-SUSPECT
       on: EVT-DEPENDENCY-BUMP-REQUESTED
       description: On dependency bump requested, a changed meaning of the child item or a realizer, or a reviewed version that cannot be resolved, leaves an accepted link at its old pin, version-mismatched (REQ-EMG-100, REQ-EMG-094).
+      requirements: [REQ-EMG-100, REQ-EMG-094]
     - id: TR-LINK-BREAK
       from: STATE-LINK-ACCEPTED
       to: STATE-LINK-BROKEN
       on: EVT-MODEL-UPDATED
       description: On model updated, a child item missing at the published dependency pin breaks an accepted link (REQ-EMG-097, REQ-EMG-094).
+      requirements: [REQ-EMG-097, REQ-EMG-094]
     - id: TR-LINK-REACCEPT
       from: STATE-LINK-SUSPECT
       to: STATE-LINK-ACCEPTED
       on: EVT-LINK-REVIEW-REQUESTED
       effect: reviewed := true
       description: On link review requested (engws review-links --accept) a version-mismatched link is pinned to the dependency version and accepted again (REQ-EMG-101).
+      requirements: [REQ-EMG-101]
     - id: TR-LINK-REMOVE
       from: STATE-LINK-BROKEN
       to: STATE-LINK-ABSENT
       on: EVT-MODEL-UPDATED
       effect: reviewed := false
       description: A broken link is removed from the model (or relinked, which records a new claimed link), so no link is recorded any more and its review is gone (REQ-EMG-097).
+      requirements: [REQ-EMG-097]
     - id: TR-LINK-CONTRACT-DIFF
       from: STATE-LINK-ACCEPTED
       to: STATE-LINK-ACCEPTED
       on: EVT-CONTRACT-DIFF-REQUESTED
       description: A child's contract diff states the semver impact of the changes its users' links will see and leaves the link as it is (REQ-EMG-102).
+      requirements: [REQ-EMG-102]
     - id: TR-LINK-RELEASE-CHECK
       from: STATE-LINK-ACCEPTED
       to: STATE-LINK-ACCEPTED
       on: EVT-RELEASE-CHECK-REQUESTED
       description: A release is refused while it pins unreleased dependencies or under-states a contract change; the link itself stays accepted (REQ-EMG-103).
+      requirements: [REQ-EMG-103]
     invariants:
     - id: INV-LINK-ACCEPTED-REVIEWED
       requirements: [REQ-EMG-101]
@@ -194,9 +220,11 @@ behavior:
     - id: STATE-MCP-MODEL-CURRENT
       name: MCP Model Current
       description: The model the server holds was loaded from the model files as they are on disk.
+      requirements: [REQ-EMG-089, REQ-EMG-007]
     - id: STATE-MCP-MODEL-OUTDATED
       name: MCP Model Outdated
       description: A model file changed after the server loaded it, so the held model is no longer what is on disk.
+      requirements: [REQ-EMG-089]
     transitions:
     - id: TR-MCP-MODEL-FILE-CHANGES
       from: STATE-MCP-MODEL-CURRENT
@@ -204,17 +232,20 @@ behavior:
       on: EVT-MODEL-UPDATED
       effect: fingerprintMatches := false
       description: A model file is edited, by an author or by the server's own model.patch, while the server runs.
+      requirements: [REQ-EMG-089]
     - id: TR-MCP-CALL-RELOADS
       from: STATE-MCP-MODEL-OUTDATED
       to: STATE-MCP-MODEL-CURRENT
       on: EVT-MCP-TOOL-CALL-RECEIVED
       effect: fingerprintMatches := true
       description: A tool call finds the fingerprint of the model files changed and reloads the model before it answers, so the result is built from the files at call time (REQ-EMG-089).
+      requirements: [REQ-EMG-089]
     - id: TR-MCP-CALL-SERVED
       from: STATE-MCP-MODEL-CURRENT
       to: STATE-MCP-MODEL-CURRENT
       on: EVT-MCP-TOOL-CALL-RECEIVED
       description: A tool call finds the fingerprint unchanged and answers from the held model (REQ-EMG-007, REQ-EMG-089).
+      requirements: [REQ-EMG-007, REQ-EMG-089]
     invariants:
     - id: INV-MCP-CURRENT-FINGERPRINT-MATCHES
       requirements: [REQ-EMG-089]
@@ -240,45 +271,54 @@ behavior:
     - id: STATE-DELTA-PLANNING
       name: Delta Planning
       description: A delta was received and is being strictly decoded, merged into a candidate and validated; the requirements document is untouched.
+      requirements: [REQ-EMG-031, REQ-EMG-032]
     - id: STATE-DELTA-PLANNED
       name: Delta Planned
       description: The candidate requirements document is valid and its change summary is available; the requirements document is untouched until an apply is requested (engchange validate and diff stop here).
+      requirements: [REQ-EMG-032, REQ-EMG-034]
     - id: STATE-DELTA-APPLIED
       name: Delta Applied
       description: The valid candidate atomically replaced the requirements document (engchange apply); the model update that follows ends the delta.
+      requirements: [REQ-EMG-033]
     transitions:
     - id: TR-DELTA-RECEIVE
       from: STATE-DELTA-NONE
       to: STATE-DELTA-PLANNING
       on: EVT-REQUIREMENTS-DELTA-RECEIVED
       description: A delta is received and the strict decode and the stable-ID operation uniqueness check begin (REQ-EMG-031).
+      requirements: [REQ-EMG-031]
     - id: TR-DELTA-SUPERSEDE
       from: STATE-DELTA-PLANNED
       to: STATE-DELTA-PLANNING
       on: EVT-REQUIREMENTS-DELTA-RECEIVED
       description: A new delta replaces a planned one that was never applied (REQ-EMG-031).
+      requirements: [REQ-EMG-031]
     - id: TR-DELTA-RECEIVE-AFTER-APPLY
       from: STATE-DELTA-APPLIED
       to: STATE-DELTA-PLANNING
       on: EVT-REQUIREMENTS-DELTA-RECEIVED
       effect: written := false
       description: A new delta follows an applied one before the model update was seen (REQ-EMG-031).
+      requirements: [REQ-EMG-031]
     - id: TR-DELTA-REJECT
       from: STATE-DELTA-PLANNING
       to: STATE-DELTA-NONE
       on: EVT-VALIDATION-FAILED
       description: The strict decode or the candidate validation fails, so the diagnostics are returned and the requirements document is not modified (REQ-EMG-032).
+      requirements: [REQ-EMG-031, REQ-EMG-032]
     - id: TR-DELTA-VALIDATED
       from: STATE-DELTA-PLANNING
       to: STATE-DELTA-PLANNED
       on: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
       description: The candidate passes the complete-model validation and the deterministic change summary is produced without writing (REQ-EMG-032, REQ-EMG-034).
+      requirements: [REQ-EMG-032, REQ-EMG-034]
     - id: TR-DELTA-APPLY
       from: STATE-DELTA-PLANNED
       to: STATE-DELTA-APPLIED
       on: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
       effect: written := true
       description: Apply is requested for a validated candidate, which atomically replaces the requirements document (REQ-EMG-033).
+      requirements: [REQ-EMG-033]
     - id: TR-DELTA-SETTLE
       from: STATE-DELTA-APPLIED
       to: STATE-DELTA-NONE
@@ -302,51 +342,67 @@ behavior:
   - id: EVT-MODEL-UPDATED
     name: Model Updated
     description: Model file changed and requires re-validation and potential regeneration.
+    requirements: [REQ-EMG-001, REQ-EMG-044]
   - id: EVT-GENERATION-RUN-REQUESTED
     name: Generation Run Requested
     description: Request to generate documentation or exchange artifacts from the model.
+    requirements: [REQ-EMG-009, REQ-EMG-012]
   - id: EVT-VALIDATION-FAILED
     name: Validation Failed
     description: Validation or schema checks failed for model or generated output.
+    requirements: [REQ-EMG-046, REQ-EMG-032]
   - id: EVT-VALIDATION-PASSED
     name: Validation Passed
     description: Validation and tests of a generation run passed for the current model.
+    requirements: [REQ-EMG-009]
   - id: EVT-ARTIFACT-GENERATED
     name: Artifact Generated
     description: One or more generated artifacts were produced successfully.
+    requirements: [REQ-EMG-009, REQ-EMG-046]
   - id: EVT-MCP-TOOL-CALL-RECEIVED
     name: MCP Tool Call Received
     description: MCP server receives a structured tool invocation request.
+    requirements: [REQ-EMG-007, REQ-EMG-089]
   - id: EVT-REQUIREMENTS-DELTA-RECEIVED
     name: Requirements Delta Received
     description: A typed requirements delta is ready for strict parsing and candidate validation.
+    requirements: [REQ-EMG-031, REQ-EMG-032, REQ-EMG-034]
   - id: EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED
     name: Requirements Delta Apply Requested
     description: A validated requirements candidate is ready for atomic replacement.
+    requirements: [REQ-EMG-033]
   - id: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
     name: Requirements Candidate Validated
     description: The candidate requirements document built from a delta passed complete-model validation and has a deterministic change summary.
+    requirements: [REQ-EMG-032, REQ-EMG-034]
   - id: EVT-DEPENDENCY-BUMP-REQUESTED
     name: Dependency Bump Requested
     description: A developer asked engws to move a dependency of a checkout to another version (engws bump).
+    requirements: [REQ-EMG-100]
   - id: EVT-LINK-REVIEW-REQUESTED
     name: Link Review Requested
     description: A developer asked engws to show or accept requirement links that need review (engws review-links).
+    requirements: [REQ-EMG-101]
   - id: EVT-CONTRACT-DIFF-REQUESTED
     name: Contract Diff Requested
     description: A developer asked engws to compare the contract items of a model between two git refs (engws contract-diff).
+    requirements: [REQ-EMG-102]
   - id: EVT-RELEASE-CHECK-REQUESTED
     name: Release Check Requested
     description: A release gate asked engws whether a model may be released under a tag (engws release-check).
+    requirements: [REQ-EMG-103]
   - id: EVT-LINK-MIGRATION-REQUESTED
     name: Link Migration Requested
     description: A developer asked engws to convert deprecated allocations and contract refs into requirement links (engws migrate-links).
+    requirements: [REQ-EMG-104]
   - id: EVT-LINK-ADD-REQUESTED
     name: Link Add Requested
     description: A developer asked engws to write a new claimed requirement link pinned to the dependency version (engws link add).
+    requirements: [REQ-EMG-119]
   - id: EVT-STATUS-SUGGEST-REQUESTED
     name: Status Suggest Requested
     description: A developer asked engws which status each requirement and control verification earns from the tree's evidence (engws status-suggest).
+    requirements: [REQ-EMG-122]
   flows:
   - id: FLOW-REQUIREMENTS-DELTA-TO-CANONICAL
     title: Requirements Delta to Canonical Requirements Flow

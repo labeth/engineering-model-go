@@ -11,7 +11,7 @@ import (
 
 // baseTestMachine is a well-formed machine: Idle -> Running on EVT-START and
 // Running -> Stopped (final) on EVT-TERM, with an Integer, a Boolean and a
-// String variable and no invariant.
+// String variable and no invariant; every state and transition lists REQ-A.
 func baseTestMachine() model.Machine {
 	return model.Machine{
 		ID: "SM-RUN", Name: "Run", Owner: "FU-A", Initial: "STATE-IDLE",
@@ -21,11 +21,12 @@ func baseTestMachine() model.Machine {
 			{Name: "label", Type: "String", Initial: "x"},
 		},
 		States: []model.MachineState{
-			{ID: "STATE-IDLE", Name: "Idle"}, {ID: "STATE-RUN", Name: "Running"}, {ID: "STATE-STOP", Name: "Stopped", Final: true},
+			{ID: "STATE-IDLE", Name: "Idle", Requirements: []string{"REQ-A"}}, {ID: "STATE-RUN", Name: "Running", Requirements: []string{"REQ-A"}},
+			{ID: "STATE-STOP", Name: "Stopped", Final: true, Requirements: []string{"REQ-A"}},
 		},
 		Transitions: []model.MachineTransition{
-			{ID: "TR-START", From: "STATE-IDLE", To: "STATE-RUN", On: "EVT-START"},
-			{ID: "TR-TERM", From: "STATE-RUN", To: "STATE-STOP", On: "EVT-TERM"},
+			{ID: "TR-START", From: "STATE-IDLE", To: "STATE-RUN", On: "EVT-START", Requirements: []string{"REQ-A"}},
+			{ID: "TR-TERM", From: "STATE-RUN", To: "STATE-STOP", On: "EVT-TERM", Requirements: []string{"REQ-A"}},
 		},
 	}
 }
@@ -38,9 +39,10 @@ func behaviorTestBundle(mappings []model.Mapping, flows []model.Flow) model.Bund
 		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit"}},
 		TrustBoundaries:  []model.TrustBoundary{{ID: "TB-A", Name: "Boundary"}},
 		Machines:         []model.Machine{baseTestMachine()},
-		Events:           []model.Event{{ID: "EVT-START", Name: "Start"}, {ID: "EVT-TERM", Name: "Termination signal"}},
-		Flows:            flows,
-		Mappings:         mappings,
+		Events: []model.Event{{ID: "EVT-START", Name: "Start", Requirements: []string{"REQ-A"}},
+			{ID: "EVT-TERM", Name: "Termination signal", Requirements: []string{"REQ-A"}}},
+		Flows:    flows,
+		Mappings: mappings,
 	}}})
 	b.Requirements.Requirements = []model.Requirement{{ID: "REQ-A", Text: "x"}}
 	return b

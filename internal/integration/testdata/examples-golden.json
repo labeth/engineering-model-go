@@ -1270,11 +1270,67 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-BEDROCK-REVIEW-REQUESTED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-BEDROCK-REVIEW-COMPLETED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "behavior.flow_step_no_onerror",
     "severity": "warning",
     "message": "flow \"FLOW-BEDROCK-PR-REVIEW\" step \"publish-review\" crosses a trust boundary but has no onError step; model the failure path",
     "path": "authoredArchitecture.flows[0].steps[3].onError",
     "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-PR-RECEIVED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-REVIEW-IN-PROGRESS\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-REVIEW-PUBLISHED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-BEDROCK-REVIEW-START\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-BEDROCK-REVIEW-PUBLISH\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1398,12 +1454,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-BEDROCK-REVIEW-REQUESTED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.event_unlinked",
     "severity": "warning",
     "message": "event EVT-BEDROCK-REVIEW-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.events[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-BEDROCK-REVIEW-COMPLETED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "behavior.flow_step_no_onerror",
@@ -1421,12 +1493,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-PR-RECEIVED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.state_unlinked",
     "severity": "warning",
     "message": "machine state STATE-BEDROCK-REVIEW-IN-PROGRESS is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.machines[0].states[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-REVIEW-IN-PROGRESS\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "code.state_unlinked",
@@ -1437,6 +1525,14 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-BEDROCK-REVIEW-PUBLISHED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.transition_unlinked",
     "severity": "warning",
     "message": "machine transition TR-BEDROCK-REVIEW-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
@@ -1445,12 +1541,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-BEDROCK-REVIEW-START\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.transition_unlinked",
     "severity": "warning",
     "message": "machine transition TR-BEDROCK-REVIEW-PUBLISH is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.machines[0].transitions[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-BEDROCK-REVIEW-PUBLISH\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1717,11 +1829,67 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-COFFEE-OTA-REQUESTED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-COFFEE-OTA-COMPLETED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "behavior.flow_step_no_onerror",
     "severity": "warning",
     "message": "flow \"FLOW-COFFEE-TELEMETRY-INGEST\" step \"collect-and-send-telemetry\" crosses a trust boundary but has no onError step; model the failure path",
     "path": "authoredArchitecture.flows[1].steps[1].onError",
     "requiredFrom": "operational"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-SCHEDULED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-ROLLING-OUT\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-APPLIED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-COFFEE-OTA-START\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-COFFEE-OTA-APPLY\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "link.claimed_only",
@@ -1879,12 +2047,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-COFFEE-OTA-REQUESTED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.event_unlinked",
     "severity": "warning",
     "message": "event EVT-COFFEE-OTA-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.events[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-COFFEE-OTA-COMPLETED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "behavior.flow_step_no_onerror",
@@ -1902,12 +2086,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-SCHEDULED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.state_unlinked",
     "severity": "warning",
     "message": "machine state STATE-COFFEE-OTA-ROLLING-OUT is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.machines[0].states[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-ROLLING-OUT\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "code.state_unlinked",
@@ -1918,6 +2118,14 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-COFFEE-OTA-APPLIED\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.transition_unlinked",
     "severity": "warning",
     "message": "machine transition TR-COFFEE-OTA-START is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
@@ -1926,12 +2134,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-COFFEE-OTA-START\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.transition_unlinked",
     "severity": "warning",
     "message": "machine transition TR-COFFEE-OTA-APPLY is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.machines[0].transitions[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-COFFEE-OTA-APPLY\" of machine \"SM-COFFEE-OTA-ROLLOUT\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "link.claimed_only",
@@ -2394,6 +2618,30 @@
   ],
   "validate": [
    {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-YAW-RATE-RECEIVED\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-OPERATIONAL\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-YAW-SAMPLE\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-YD-SYS-001\" has status \"approved\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -2426,12 +2674,36 @@
     "path": "\u003croot\u003e/examples/dal-c-flight-control-sample"
    },
    {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-YAW-RATE-RECEIVED\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "behavior.machine_unverified",
     "severity": "warning",
     "message": "machine SM-YAW-CONTROL has no invariant, so no formal check states what it must always satisfy; add an invariant that lists the requirement it protects",
     "path": "authoredArchitecture.machines[0]",
     "requiredFrom": "operational",
     "remedy": "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-OPERATIONAL\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-YAW-SAMPLE\" of machine \"SM-YAW-CONTROL\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -2573,6 +2845,86 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-PAYMENTS-AUTH-REQUESTED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-PAYMENTS-AUTH-COMPLETED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-CHECKOUT-RECEIVED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-AUTHORIZING\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-AUTHORIZED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-DECLINED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[3].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-START\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-APPROVE\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-RETRY\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-DECLINE\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[3].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-PAY-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -2685,12 +3037,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-PAYMENTS-AUTH-REQUESTED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.event_unlinked",
     "severity": "warning",
     "message": "event EVT-PAYMENTS-AUTH-COMPLETED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.events[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.event_unlinked",
+    "severity": "warning",
+    "message": "event \"EVT-PAYMENTS-AUTH-COMPLETED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.events[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "code.unit_unlinked",
@@ -2717,12 +3085,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-CHECKOUT-RECEIVED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.state_unlinked",
     "severity": "warning",
     "message": "machine state STATE-PAYMENTS-AUTHORIZING is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.machines[0].states[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-AUTHORIZING\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "code.state_unlinked",
@@ -2733,12 +3117,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-AUTHORIZED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.state_unlinked",
     "severity": "warning",
     "message": "machine state STATE-PAYMENTS-DECLINED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.machines[0].states[3]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.state_unlinked",
+    "severity": "warning",
+    "message": "state \"STATE-PAYMENTS-DECLINED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].states[3].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "code.transition_unlinked",
@@ -2749,12 +3149,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-START\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[0].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.transition_unlinked",
     "severity": "warning",
     "message": "machine transition TR-PAYMENTS-AUTH-APPROVE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.machines[0].transitions[1]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-APPROVE\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[1].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "code.transition_unlinked",
@@ -2765,12 +3181,28 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-RETRY\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[2].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
     "code": "code.transition_unlinked",
     "severity": "warning",
     "message": "machine transition TR-PAYMENTS-AUTH-DECLINE is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
     "path": "authoredArchitecture.machines[0].transitions[3]",
     "requiredFrom": "operational",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "behavior.transition_unlinked",
+    "severity": "warning",
+    "message": "transition \"TR-PAYMENTS-AUTH-DECLINE\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
+    "path": "authoredArchitecture.machines[0].transitions[3].requirements",
+    "requiredFrom": "operational",
+    "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
     "code": "lifecycle.requirement_unverified",

@@ -539,6 +539,10 @@ type Event struct {
 	ID          string `yaml:"id"`
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
+	// Requirements are the REQ-* IDs the event realizes; behavior.event_unlinked
+	// asks for them on each event a machine transition uses (REQ-EMG-177). The
+	// json omitempty keeps the event's semantic metadata unchanged when unset.
+	Requirements []string `yaml:"requirements" json:",omitempty"`
 }
 
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
@@ -817,6 +821,8 @@ type MachineState struct {
 	Name        string `yaml:"name"`
 	Description string `yaml:"description"`
 	Final       bool   `yaml:"final"`
+	// Requirements are the REQ-* IDs the state realizes (REQ-EMG-177).
+	Requirements []string `yaml:"requirements"`
 }
 
 // MachineTransition moves a machine between two of its states, optionally
@@ -830,6 +836,8 @@ type MachineTransition struct {
 	Guard       string `yaml:"guard"`
 	Effect      string `yaml:"effect"`
 	Description string `yaml:"description"`
+	// Requirements are the REQ-* IDs the transition realizes (REQ-EMG-177).
+	Requirements []string `yaml:"requirements"`
 }
 
 // MachineInvariant is a boolean expression over machine variables that must

@@ -1533,3 +1533,21 @@ requirements:
       - FU-MODEL-LOADER
       - FU-ALLOCATION-TRACE
     realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-177
+    status: implemented
+    text: When model updated event is received, the engineering model go shall accept a list of requirements on every machine state, transition and event.
+    notes: 'ADR-EMG-069. The optional requirements field on a machine state, a machine transition and an event names the requirements the element exists for, like the requirements field of an invariant. An unknown requirement identifier is the same dangling reference error an invariant gets, and an unknown key is still rejected.'
+    verificationMethods: [test]
+    verificationCriteria: When a state, a transition or an event lists an existing requirement, then the model loads and the list is part of the authored element; an unknown requirement identifier is reported as a dangling reference naming the element; an unknown key or a list of the wrong type fails loading.
+    appliesTo:
+      - FU-MODEL-LOADER
+    realizes: [CAP-EMG-MODEL-AUTHORING]
+  - id: REQ-EMG-178
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report a machine state, transition or event that lists no requirement.
+    notes: 'ADR-EMG-069. behavior.state_unlinked, behavior.transition_unlinked and behavior.event_unlinked, row DDWWE. Only a model that declares at least one machine is asked, only events that a machine transition uses are asked, and an imported alias machine is skipped. The element is linked only by its own requirements list; an invariant of the machine does not link it. The remedy names the ef-behavior skill.'
+    verificationMethods: [test]
+    verificationCriteria: When a machine state, a machine transition or an event that a transition uses lists no requirement, then the matching behavior.*_unlinked code is reported once for the element with a remedy; an element with a non-empty list, a model without machines, an event that no transition uses and an imported alias machine are not reported.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+    realizes: [CAP-EMG-MODEL-VALIDATION]

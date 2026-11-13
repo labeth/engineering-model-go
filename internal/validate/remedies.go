@@ -109,6 +109,7 @@ const (
 	remedyOwnerUnit     = "run the ef-code-linking skill (engineering-flow) to add the ENGMODEL-OWNER-UNIT: FU-* marker, naming a functional unit of the model, to the file header"
 	remedyModelLinkKind = "run the ef-code-linking skill (engineering-flow) to move a requirement ID from ENGMODEL-LINKS to TRLC-LINKS, or to name the model element (unit, interface, machine, state, flow) the code realizes"
 	remedyUnmodeled     = "run the ef-behavior skill (engineering-flow) to model the requirement as a state, transition or event of a machine, or add an invariant that lists it in requirements, or name the element in the requirement's appliesTo"
+	remedyBehaviorLink  = "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
 	remedyMachineVerify = "run the ef-formal-behavior skill (engineering-flow) to add a machine invariant and run engquint check, so each invariant has a current formal result"
 	// remedyCodeCoverage is the remedy of every element to code coverage code.
 	remedyCodeCoverage = "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
@@ -122,6 +123,9 @@ var consistencyRemedies = map[string]string{
 	"code.model_link_kind_mismatch":  remedyModelLinkKind,
 	"behavior.requirement_unmodeled": remedyUnmodeled,
 	"behavior.machine_unverified":    remedyMachineVerify,
+	"behavior.state_unlinked":        remedyBehaviorLink,
+	"behavior.transition_unlinked":   remedyBehaviorLink,
+	"behavior.event_unlinked":        remedyBehaviorLink,
 	"code.unit_unlinked":             remedyCodeCoverage,
 	"code.machine_unlinked":          remedyCodeCoverage,
 	"code.interface_unlinked":        remedyCodeCoverage,

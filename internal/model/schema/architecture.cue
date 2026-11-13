@@ -206,7 +206,10 @@ package model
 	members?:      #StringList
 }
 
-#Event: #Actor
+#Event: {
+	#Actor
+	requirements?: #StringList
+}
 
 #FlowStep: {
 	id?:                  string

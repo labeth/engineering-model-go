@@ -60,7 +60,7 @@ func machineDiagnostics(a model.AuthoredArchitecture, requirements map[string]bo
 		diags = append(diags, machineStructureDiagnostics(m, path, events, owners)...)
 		diags = append(diags, machineAdvisoryDiagnostics(m, path, requirements)...)
 	}
-	return diags
+	return append(diags, behaviorLinkDiagnostics(a, requirements)...)
 }
 
 // machineStateOwners maps each state ID to the ID of the machine that

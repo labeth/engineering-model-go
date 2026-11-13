@@ -323,6 +323,9 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 | `behavior.invariant_unlinked` | `authoredArchitecture.machines[i].invariants[j].requirements` | an invariant that lists no existing `REQ-*` |
 | `behavior.machine_unverified` | `authoredArchitecture.machines[i]`, `…machines[i].invariants[j]` | a machine with no invariant; when a formal evidence file (`test-results/quint-formal.json`) exists, also an invariant with no current formal result (a stale or missing result is none). Remedy: the `ef-formal-behavior` skill |
 | `behavior.requirement_unmodeled` | `requirements[REQ-ID]` | an event-driven or state-driven EARS requirement that no machine invariant lists in `requirements` and whose `appliesTo` names no machine, state, transition, event or flow; asked only of a model that declares a machine, and retired, rejected and derived requirements are exempt. Remedy: the `ef-behavior` skill |
+| `behavior.state_unlinked` | `…machines[i].states[j].requirements` | a state of a machine that lists no `REQ-*` in its own `requirements` (an optional list on states, transitions and events); the machine's invariants do not count; asked only of a model that declares a machine, imported `alias::ID` machines are skipped. An unknown requirement ID is `semantic.dangling_reference`, an error. Remedy: the `ef-behavior` skill |
+| `behavior.transition_unlinked` | `…machines[i].transitions[j].requirements` | a transition that lists no `REQ-*` in its own `requirements`; same rules as `behavior.state_unlinked`. Remedy: the `ef-behavior` skill |
+| `behavior.event_unlinked` | `authoredArchitecture.events[i].requirements` | an event that a machine transition names in `on` and that lists no `REQ-*` in its own `requirements`; an event no transition uses is not asked. Remedy: the `ef-behavior` skill |
 | `behavior.transition_unknown_event` (error) | `…machines[i].transitions[j].on` | `on` names no `behavior.events` entry |
 | `behavior.expression_unknown_variable` (error) | `…transitions[j].guard`, `.effect`, `…invariants[k].expr` | the expression reads or assigns a variable the machine does not declare |
 | `behavior.expression_type` (error) | `…transitions[j].guard`, `.effect`, `…invariants[k].expr` | an operand or result type the operator table rejects: a guard or invariant that is not Boolean, `<`, `<=`, `>`, `>=`, `+`, `-`, `*` on a non-Integer, `==` or `!=` on different types, `and`, `or`, `not`, `implies` on a non-Boolean, or `:=` of a value whose type is not the variable's |
@@ -934,15 +937,18 @@ with `requirementLinks: strict`):
 | `aviation.lifecycle.missing_category` | D | D | E | E | E |
 | `aviation.state_below_tier` | D | D | E | E | E |
 | `aviation.tool.incomplete_credit_assessment` | D | D | W | E | E |
+| `behavior.event_unlinked` | D | D | W | W | E |
 | `behavior.event_unused` | D | D | W | W | E |
 | `behavior.flow_step_no_onerror` | D | D | W | W | E |
 | `behavior.invariant_unlinked` | D | D | W | W | E |
 | `behavior.machine_deadlock` | D | D | W | W | E |
 | `behavior.machine_unverified` | D | D | W | W | E |
 | `behavior.requirement_unmodeled` | D | D | W | W | E |
+| `behavior.state_unlinked` | D | D | W | W | E |
 | `behavior.state_unreachable` | D | D | W | W | E |
 | `behavior.transition_no_trigger` | D | D | W | W | E |
 | `behavior.transition_nondeterministic` | D | D | W | W | E |
+| `behavior.transition_unlinked` | D | D | W | W | E |
 | `code.data_unlinked` | D | D | D | W | E |
 | `code.event_unlinked` | D | D | W | W | E |
 | `code.exemption_unused` | W | W | W | W | E |
