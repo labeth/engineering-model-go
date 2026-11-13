@@ -4806,6 +4806,15 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-188";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-188' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a Go state-like type that no machine models and no comment explains.";
+        attribute 'notes' : 'String' = "ADR-EMG-070. code.state_candidate_unlinked, row DDWWE with the error at operational only for the narrow rule. A candidate is a Go named type with three or more constants of that type, a struct field of that type and an assignment to that field in non-test code. Names ending in Kind, Severity, Format, Type, Reason, Mode and Option are never reported. A candidate is cleared by naming a machine or one of its states or transitions in a model link marker on or within three lines above the declaration, or by the comment ENGMODEL-NOT-A-STATE: followed by a reason of at least 20 characters that is not a placeholder. A suppression with no reason is the untiered error code.state_suppression_unreasoned and a suppression on a declaration that is not a candidate, or that is linked, is code.state_suppression_unused (row WWWWE). Go is the only language.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
