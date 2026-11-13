@@ -2256,3 +2256,29 @@ decisions:
   - Every model and fixture changes in one mechanical commit, and every previous model fails on its version with a remedy that says so.
   - The next breaking release is stopped by release-check until the version is raised, so the rule does not depend on remembering.
   - engineering-flow's seeded model files and fixtures move to schemaVersion 3 in the same slice as its pin bump.
+- id: ADR-EMG-078
+  title: Composition allocations, delegation and migrate-links are removed; requirement links are the only trace between models
+  status: proposed
+  date: 2026-11-13
+  context: |-
+    ADR-EMG-075 kept composition.allocations, delegation and engws migrate-links until the owner decided what replaces an allocation
+    to an interface entry. The audit found that none of the 18 examples nor this repository uses allocations, that requirement links
+    (reqLinks) trace a requirement to a requirement of another model with a recorded review, and that migrate-links exists only to
+    move allocations and refs to links. The owner instructed, verbatim: "i dont want any backwards compatabillity in the model yet,
+    it should always require a full upgrade." Taken by the implementing agent under the owner's instruction to take recommended
+    decisions, which closes the OWNER item of ADR-EMG-075. OWNER items: reverse this if an allocation to an interface entry is
+    needed; that case then gets its own link kind instead of the old allocation.
+  decision: |-
+    (1) composition.allocations is removed from the manifest contract and from every reader; a model that carries it is the untiered
+    error model.allocations_removed with the remedy to write requirement links instead (the field still decodes so the error can
+    carry the remedy). (2) The delegation code that read allocations is removed together with everything only allocations produced: the
+    delegatedTo row field, the delegated and allocated statuses, the delegated counters of the trace summary and the delegated
+    columns of its CSV and MCP output. Requirement links keep DelegatedStatus and the link counters; Summary.Delegated stays as a
+    field that is now always zero until a later change removes it. The first draft of this decision said links produce
+    Summary.Delegated; the implementation check found that only allocations did. Hardware allocation relationships of the semantic model are a different
+    concept and stay. (3) engws migrate-links is removed with its tests; an unknown command is rejected like any other. (4) The
+    health baseline entries of the removed code leave the baseline. Covers REQ-EMG-187.
+  consequences:
+  - A model that still allocates fails with the field named and the replacement stated, which is the intended full upgrade.
+  - The engineering-flow wrapper and skill text that mention migrate-links change in the flow's own slice.
+  - Phase 4 of the removal plan is complete in the engine.

@@ -141,6 +141,8 @@ const (
 	// the field, as for model.code_sources_removed.
 	remedyPinnedFingerprint = "delete pinned.fingerprint; pin the dependency version only"
 	remedyProvidesRef       = "name the realizing requirement with realizes, not ref"
+	// remedyAllocations is the remedy of model.allocations_removed (ADR-EMG-078).
+	remedyAllocations = "write requirement links (reqLinks) instead of composition.allocations"
 	// remedySchemaVersionNotBumped is the remedy of release.schema_version_not_bumped
 	// (ADR-EMG-077), reported by engws release-check.
 	remedySchemaVersionNotBumped = "raise schemaVersion and model.CurrentSchemaVersion, then record the change in the CHANGELOG"
@@ -173,12 +175,13 @@ var consistencyRemedies = map[string]string{
 
 	"model.pinned_fingerprint_removed": remedyPinnedFingerprint,
 	"model.provides_ref_removed":       remedyProvidesRef,
+	"model.allocations_removed":        remedyAllocations,
 
 	"release.schema_version_not_bumped": remedySchemaVersionNotBumped,
 }
 
 // ConsistencyRemedy returns the remedy of a consistency-check code
-// (ADR-EMG-069) or of a removed-field code (ADR-EMG-075), or "" for any other
+// (ADR-EMG-069) or of a removed-field code (ADR-EMG-075, ADR-EMG-078), or "" for any other
 // code. The emitting packages set it on their diagnostics, because the trace
 // and the requirement lint do not pass through Bundle.
 // TRLC-LINKS: REQ-EMG-125, REQ-EMG-184

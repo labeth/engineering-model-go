@@ -34,10 +34,6 @@ replacements:
       - id: SUB-CHILD
         dependency: child
         publication: public
-    allocations:
-      - requirement: REQ-PARENT
-        to: SUB-CHILD
-        target: child::CAP-CHILD
 `)
 
 	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
@@ -47,9 +43,6 @@ replacements:
 	assertNoCompositionErrors(t, result.Diagnostics)
 	if result.Root == nil || len(result.Root.Children) != 1 {
 		t.Fatalf("expected one child, got %#v", result.Root)
-	}
-	if len(result.Allocations) != 1 || !result.Allocations[0].Resolved || result.Allocations[0].TargetRef != "REQ-CHILD" {
-		t.Fatalf("allocation did not resolve through publication: %+v", result.Allocations)
 	}
 	if len(result.Provenance) != 2 || result.Provenance[0].Alias != "child" || result.Provenance[0].ResolvedDir != child {
 		t.Fatalf("unexpected provenance: %+v", result.Provenance)
@@ -96,16 +89,15 @@ replacements:
       - id: SUB-CHILD
         dependency: child
         publication: public
-    allocations:
-      - requirement: REQ-PARENT
-        to: SUB-CHILD
-        target: child::REQ-CHILD
+    satisfactions:
+      - need: child::CAP-CHILD
+        by: child::REQ-CHILD
 `)
 	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertCompositionDiagnostic(t, result.Diagnostics, "composition.allocation_to_internal")
+	assertCompositionDiagnostic(t, result.Diagnostics, "composition.unpublished_reference")
 }
 
 // TRLC-LINKS: REQ-EMG-049, REQ-EMG-051

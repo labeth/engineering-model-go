@@ -123,11 +123,11 @@ behavior:
     - id: STATE-LINK-ABSENT
       name: Link Absent
       description: The requirement link is not recorded yet.
-      requirements: [REQ-EMG-119, REQ-EMG-104]
+      requirements: [REQ-EMG-119]
     - id: STATE-LINK-CLAIMED
       name: Link Claimed
       description: A requirement link is recorded (status claimed) but nobody has reviewed it; it does not count toward the trace roll-up.
-      requirements: [REQ-EMG-119, REQ-EMG-104, REQ-EMG-094]
+      requirements: [REQ-EMG-119, REQ-EMG-094]
     - id: STATE-LINK-ACCEPTED
       name: Link Accepted
       description: A requirement link is reviewed (status accepted, reviewer and date recorded) at the version its dependency is pinned to.
@@ -147,12 +147,6 @@ behavior:
       on: EVT-LINK-ADD-REQUESTED
       description: engws link add writes a claimed link pinned to the dependency version (REQ-EMG-119).
       requirements: [REQ-EMG-119]
-    - id: TR-LINK-MIGRATE
-      from: STATE-LINK-ABSENT
-      to: STATE-LINK-CLAIMED
-      on: EVT-LINK-MIGRATION-REQUESTED
-      description: engws migrate-links records each converted allocation as a claimed link (REQ-EMG-104).
-      requirements: [REQ-EMG-104]
     - id: TR-LINK-ACCEPT
       from: STATE-LINK-CLAIMED
       to: STATE-LINK-ACCEPTED
@@ -204,9 +198,9 @@ behavior:
       expr: in_state(STATE-LINK-ACCEPTED) implies reviewed
       description: An accepted link always has a recorded review.
     - id: INV-LINK-UNREVIEWED-NOT-ACCEPTED
-      requirements: [REQ-EMG-094, REQ-EMG-101, REQ-EMG-104, REQ-EMG-119]
+      requirements: [REQ-EMG-094, REQ-EMG-101, REQ-EMG-119]
       expr: (in_state(STATE-LINK-ABSENT) or in_state(STATE-LINK-CLAIMED)) implies not reviewed
-      description: A link that is not recorded or only claimed has no recorded review, so only a review request moves it toward accepted; link add and migrate-links write claimed links and never a reviewed one.
+      description: A link that is not recorded or only claimed has no recorded review, so only a review request moves it toward accepted; link add writes a claimed link and never a reviewed one.
   - id: SM-MCP-SESSION
     name: MCP Session Model Currency
     description: Whether the model a running MCP server holds equals the model files on disk. The server compares a content fingerprint of the model files on every tool call and reloads when it changed, so a result always reflects the files at call time.
@@ -539,10 +533,6 @@ behavior:
     name: Release Check Requested
     description: A release gate asked engws whether a model may be released under a tag (engws release-check).
     requirements: [REQ-EMG-103]
-  - id: EVT-LINK-MIGRATION-REQUESTED
-    name: Link Migration Requested
-    description: A developer asked engws to convert deprecated allocations and contract refs into requirement links (engws migrate-links).
-    requirements: [REQ-EMG-104]
   - id: EVT-LINK-ADD-REQUESTED
     name: Link Add Requested
     description: A developer asked engws to write a new claimed requirement link pinned to the dependency version (engws link add).

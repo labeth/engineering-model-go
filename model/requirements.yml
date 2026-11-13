@@ -164,9 +164,9 @@ requirements:
       - FU-ALLOCATION-TRACE
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-020
-    status: implemented
+    status: retired
     text: Where system composition is enabled, when generation run is requested, the engineering model go shall materialize parent-to-subsystem allocation traceability in the composed output without modifying any subsystem model.
-    notes: A subsystem is parent-agnostic; parent allocation is materialized only in composed artifacts, never written back to the child (ADR-EMG-009, ADR-EMG-011).
+    notes: 'Retired by ADR-EMG-078: composition.allocations and the materialized allocations are removed; a requirement link (reqLinks) is the only trace between models.'
     appliesTo:
       - FU-ALLOCATION-TRACE
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
@@ -179,9 +179,9 @@ requirements:
       - FU-VALIDATION-ENGINE
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-022
-    status: implemented
+    status: retired
     text: Where system composition is enabled, when generation run is requested, the engineering model go shall reject an allocation that targets a subsystem identifier not published in the subsystem contract.
-    notes: Parents may bind only to a subsystem's public contract surface, not its internal identifiers.
+    notes: 'Retired by ADR-EMG-078: composition.allocations is removed, so there is no allocation to reject; a manifest that carries it is model.allocations_removed (REQ-EMG-187).'
     appliesTo:
       - FU-ALLOCATION-TRACE
       - FU-VALIDATION-ENGINE
@@ -203,9 +203,9 @@ requirements:
       - FU-VIEW-PROJECTION
     realizes: [CAP-EMG-PUBLICATION]
   - id: REQ-EMG-025
-    status: implemented
+    status: retired
     text: Where system composition is enabled, when generation run is requested, the engineering model go shall produce a system requirement allocation matrix aggregated across the composed subsystems.
-    notes: Aggregate roll-up generation mode for the integrating system.
+    notes: 'Retired by ADR-EMG-078: the system requirement allocation matrix came from composition.allocations, which is removed; requirement links trace across models.'
     appliesTo:
       - FU-ALLOCATION-TRACE
       - FU-ASCIIDOC-GENERATOR
@@ -838,9 +838,9 @@ requirements:
       - FU-ALLOCATION-TRACE
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-104
-    status: implemented
-    text: When link migration is requested, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.
-    notes: 'engws migrate-links [--repo DIR] [--dry-run] writes one reqLinks entry per composition.allocations entry (id LNK-<requirement without REQ->-<ALIAS> upper case, made unique with -2, -3 ...; the target as child; parent the requirement for a capability, evidence [the requirement] for an assumption of use, so the next check does not report link.aou_unverified; pinned.version the dependency pin; status claimed; rationale from the allocation; a target whose dependency cannot be resolved is still written, with a note that its kind was not checked), creates or extends the requirement link file, adds documents.reqLinks: model/req-links.yml to engmod.yml when missing, removes the converted allocations (D13: an allocation whose resolvable target is an interface or other contract entry that is not a published capability or assumption of use is kept in place, keeps reporting composition.allocation_deprecated and is printed as kept allocation REQ → alias::ID with the reason), appends each capability contract.provides[].ref to realizes of the referenced requirement (deduplicated) and drops the ref; a ref on a non-capability entry or naming an unknown requirement is kept and reported; and removes every deprecated pinned.fingerprint of the existing link file, printing the count (REQ-EMG-118). Every edit keeps the other lines of the files; every file to write is snapshot first and, when one write fails, the files already written are restored and the ones it created removed. It prints the requirements that then report requirement.no_parent (a requirement that became the parent of a capability link is traced, D22). A second run changes nothing; --dry-run writes nothing.'
+    status: retired
+    text: When model updated event is received, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.
+    notes: 'Retired by ADR-EMG-078: engws migrate-links is removed with the allocations and contract refs it converted; engws link add writes a link (REQ-EMG-119).'
     verificationMethods: [test]
     verificationCriteria: 'When a system with three allocations and children with capability refs are migrated, then the system has three claimed parent links pinned to the dependency version with no fingerprint and no allocations, each child requirement realizes its capability and no ref remains, the remaining unparented requirements are listed, and a second run reports no change; an allocation to an assumption of use becomes an evidence link that passes link.aou_unverified, and two recorded fingerprints are removed with the count printed.'
     appliesTo:
@@ -975,11 +975,11 @@ requirements:
       - FU-VALIDATION-ENGINE
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-118
-    status: implemented
+    status: retired
     text: When model updated event is received, the engineering model go shall warn at each requirement link that records a deprecated fingerprint.
-    notes: 'Decision D23 (ADR-EMG-030): the pinned version is the review record. pinned.fingerprint still decodes (any string, optional) so that its error can carry the remedy, and every evaluation ignores it; validation reports model.pinned_fingerprint_removed (error, REQ-EMG-184) at reqLinks[i].pinned.fingerprint; engws migrate-links reports each one and leaves the file alone.'
+    notes: 'Retired by ADR-EMG-075: pinned.fingerprint is the error model.pinned_fingerprint_removed (REQ-EMG-184), not a warning.'
     verificationMethods: [test]
-    verificationCriteria: When one link records a fingerprint and another does not, then validation reports model.pinned_fingerprint_removed only at the first link's pinned.fingerprint; a fingerprint of any form still decodes; migrate-links reports two recorded fingerprints with their remedy and writes none.
+    verificationCriteria: When one link records a fingerprint and another does not, then validation reports model.pinned_fingerprint_removed only at the first link's pinned.fingerprint; a fingerprint of any form still decodes.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-CLI-ORCHESTRATION
@@ -1627,3 +1627,13 @@ requirements:
       - FU-CLI-ORCHESTRATION
       - FU-MODEL-LOADER
     realizes: [CAP-EMG-PUBLICATION]
+  - id: REQ-EMG-187
+    status: implemented
+    text: When model updated event is received, the engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.
+    notes: 'ADR-EMG-078, removal plan phase 4. composition.allocations and the delegation built on them, and engws migrate-links, are removed. A model that carries composition.allocations is the untiered error model.allocations_removed with the remedy to write requirement links (reqLinks) instead. The trace summary keeps the delegated count that links produce; hardware allocation relationships of the semantic model are not touched.'
+    verificationMethods: [test]
+    verificationCriteria: When a manifest carries composition.allocations, then model.allocations_removed is reported with a remedy naming reqLinks; engws has no migrate-links command and rejects it as an unknown command; a model that traces a requirement through reqLinks is traced and reported delegated as before; no example carries allocations.
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FU-ALLOCATION-TRACE
+    realizes: [CAP-EMG-REQUIREMENT-LINKS]

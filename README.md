@@ -266,11 +266,11 @@ Structural composition entities in `model/architecture.yml`:
 
 - `contract` (the system's `provides`/`requires` public interface contract)
 - `composition.subsystems` (downward references to child system models)
-- `composition.allocations` (parent-requirement allocation onto a subsystem or hardware item)
 - `composition.satisfactions` (records of how a subsystem's required interface is satisfied by a provider)
 
-`engdoc` renders HW/SW interface allocation views from `hardwareItems`, `hardwareInterfaces`, and
-`composition.allocations`. See System-of-Systems Composition for the composition gates.
+`engdoc` renders HW/SW interface views from `hardwareItems` and `hardwareInterfaces`. A requirement is
+traced to a requirement of another model with requirement links (`reqLinks`), not with allocations.
+See System-of-Systems Composition for the composition gates.
 
 Flow step fields (`model/behavior.yml` `behavior.flows[].steps[]`) support:
 
@@ -432,7 +432,7 @@ calls `os.Getenv`, `os.LookupEnv` or `testing.Short()` and whose body calls `t.S
 or `t.SkipNow`. A gate in a later statement or in a helper the test calls is not detected, so
 such a test counts as ungated.
 Code is scoped to its nearest enclosing model root, so links resolve against the closest model
-rather than the whole tree. Requirements with no implementing or delegating code surface a
+rather than the whole tree. Requirements with no implementing code or test surface a
 `requirement.orphan` warning, and a requirement linked from code that does not exist raises
 `requirement.internal_link`.
 
@@ -535,8 +535,8 @@ go run ./cmd/engtrace \
 ```
 
 Use `--format csv` for a spreadsheet-friendly matrix instead. The emitted matrix rolls up
-per-requirement status (`implemented`/`verified`/`delegated`/`orphan`) together with code
-references and delegations. `engtrace` exits non-zero when it finds dangling code trace links
+per-requirement status (`implemented`/`verified`/`orphan`) together with code
+references and the requirement links. `engtrace` exits non-zero when it finds dangling code trace links
 (`code.dangling_requirement_link` / `code.dangling_model_link`), so it doubles as a CI gate.
 
 Generate Threat Dragon/Open Threat Model exports:
@@ -777,7 +777,7 @@ It exposes 60+ tools grouped into families, including:
 - `model.*`: model entity lookup, listings, implementations, the authoring contract, `model.complete`, `model.diagnose` (validate one document's edited content in memory) and `model.patch` (below)
 - `model.patch` (REQ-EMG-113, ADR-EMG-029), the one MCP tool that writes: `{document, id, set?: {field: value}, unset?: [field], append?: {listField: item or [items]}, remove?: {listField: value or [values]}, write?: bool}`. It finds the one list item with that `id` in the document (nested flow steps included), applies the operations with line-preserving edits (dotted paths such as `acceptedBy.statement`; a missing field or mapping is added; comments and untouched lines are kept; an object item is removed by its `id`), validates the whole model like `model.diagnose` and returns `valid`, `diagnostics`, `patch` (unified diff) and `written`. It writes only with `write: true`, only a valid result, only a manifest document (never `engmod.yml` or the requirement link file) that resolves inside the model root, atomically and keeping the file mode. Example: `{"document": "assurance", "id": "RISK-X", "set": {"acceptedBy.statement": "I accept this risk until 2027-01."}, "write": true}`.
 - `interfaces.*`: software and HW/SW interface resolution and code matching
-- `composition.resolve`: the system-of-systems — subsystems, contracts, requirement allocations with the delegated subsystem requirement, and composition diagnostics
+- `composition.resolve`: the system-of-systems — subsystems, contracts, provenance, the lock and composition diagnostics
 - `trace.matrix`: summary (`requirements`, `implemented`, `tested`/`testLinked`, `passed`, `delegated`, `orphan`, `dangling`, `gatedOnly` and `gatedOnlyRequirements`: test-linked requirements whose every linked Go test skips depending on an environment variable or `testing.Short` (see Code trace markers), with rows `gated` and `gates`; `linksNeedReview`, `linksVersionMismatch`, `linksBroken`, `linksClaimed` and `unparented` for requirement links), per-requirement status, `parents` (the contract items a requirement realizes, or its stakeholder `sourceRefs`), `children` (for a system requirement: each linked `alias::CAP-…` and its realizing `alias::REQ-…`), `links` with their state, `satisfiedBy: links` (a system requirement implemented or test linked through its linked child items), code references, and dangling code trace links; `summaryOnly: true` returns only the summary and diagnostics
 - `gemara.*`: one tool per OpenSSF Gemara artifact type plus `gemara.validate`
 
@@ -881,20 +881,24 @@ The tier decision named by `lifecycle.tierDecision` must be accepted and carry a
 
 ### Removed fields
 
-Two fields that were deprecated are removed (ADR-EMG-075). They still decode, so that the error names
-the field; each is an untiered error (no tier or POA&M item changes it) at the field, with its remedy.
-Nothing in the engine reads or writes them: `engws review-links` leaves a fingerprint in place and
-`engws migrate-links` only reports either field.
+Three fields that were deprecated are removed (ADR-EMG-075, ADR-EMG-078). They still decode, so that the
+error names the field; each is an untiered error (no tier or POA&M item changes it) at the field, with its
+remedy. Nothing in the engine reads or writes them: `engws review-links` leaves a fingerprint in place.
 
 | Error code | Remedy |
 |---|---|
 | `model.pinned_fingerprint_removed` | delete pinned.fingerprint; pin the dependency version only |
 | `model.provides_ref_removed` | name the realizing requirement with realizes, not ref |
+| `model.allocations_removed` | write requirement links (reqLinks) instead of composition.allocations |
 
 `model.pinned_fingerprint_removed` replaces the warning `link.fingerprint_deprecated` and applies to a
 requirement link that carries `pinned.fingerprint`. `model.provides_ref_removed` replaces the warning
 `contract.ref_deprecated` and applies to a `contract.provides` entry that carries `ref`; the `ref` of a
 `contract.requires` entry is read by nothing and was deleted from the examples.
+`model.allocations_removed` replaces the warning `composition.allocation_deprecated`: it applies to a manifest
+that carries `composition.allocations` and is reported once, at `composition.allocations`. A requirement is
+traced to a requirement of another model only with requirement links; `engws migrate-links` is removed and
+is rejected as an unknown command.
 
 ## Life-cycle tier
 
@@ -1501,7 +1505,7 @@ dependency pin count toward the trace roll-up of the system requirement.
 `pinned.fingerprint` is removed: a link that carries it is the error
 `model.pinned_fingerprint_removed` at that field (untiered; remedy: delete
 `pinned.fingerprint` and pin the dependency version only). Nothing reads or writes it;
-`engws review-links` and `engws migrate-links` leave it in place.
+`engws review-links` leaves it in place.
 
 **`engws status-suggest [--repo DIR] [--tree HASH] [--json]`** prints the status each
 requirement and control verification earns from this tree's evidence, and writes nothing:
@@ -1545,32 +1549,6 @@ project, run it in the pre-push hook for a tag push as well. It fails (exit 1) w
 
 Exit 2 is a usage, git or model error.
 
-**`engws migrate-links [--repo DIR] [--dry-run]`** converts a model from the deprecated
-`composition.allocations` (run it in the dependencies first, then in the system). It does
-not edit `contract.provides[].ref` or `pinned.fingerprint`: both are errors
-(`model.provides_ref_removed`, `model.pinned_fingerprint_removed`) that it only reports
-with their remedy:
-
-```text
-  link LNK-COF-001-TELEMETRY REQ-COF-001 -> telemetry::CAP-TELEM-REPORT (v0.1.0, claimed)
-  added documents.reqLinks: model/req-links.yml
-engws: wrote engmod.yml, model/architecture.yml, model/req-links.yml
-engws: 9 requirement(s) without an upward trace (requirement.no_parent):
-  requirement.no_parent: REQ-COF-004 [warning]
-  ...
-```
-
-Each allocation becomes a `status: claimed` link pinned to the dependency version (a
-`parent` link to a capability, an `evidence` link to an assumption of use; a note when the
-dependency cannot be resolved). An allocation to an
-interface entry is not a link target and stays in place (`kept allocation REQ-… →
-alias::IF-…: interface entries are not link targets; publish a capability that realizes it
-and link that`), still reported as `composition.allocation_deprecated`. Only the touched lines of
-each file change, and a second run reports `nothing to migrate`. Then review the claimed
-links and give each listed requirement a `realizes` on a capability the model publishes, a
-link to a dependency capability, or mark it `derived` (the link parents written by the migration
-are already traced).
-
 The architecture document shows the links in both directions. A system with `reqLinks`
 gets a **Requirement Links** chapter: each requirement, its links with their state
 (version-mismatched, broken and claimed links are marked), the linked child items and the
@@ -1589,15 +1567,6 @@ See `examples/coffee-fleet-ota-cloud-sample` for local composition and
 `examples/atlas-industries` for a seven-repository company portfolio with two
 products reusing shared hardware/software, security, compliance, and cloud
 modules through OCI coordinates.
-
-### Requirement delegation (no tiers, deprecated)
-
-`composition.allocations` (a parent requirement bound `to` a subsystem with a `target` contract
-id) is deprecated in favour of requirement links (`composition.allocation_deprecated`); it is
-still read for one release. A delegation to a contract entry names no subsystem requirement
-(the entry's `ref` was removed) and always raises
-`composition.untraceable_delegation`, and a delegated requirement is not an orphan. Convert
-allocations with `engws migrate-links`; both maintained composition examples are migrated.
 
 ## OSCAL chain generation
 

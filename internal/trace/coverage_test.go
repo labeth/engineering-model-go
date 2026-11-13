@@ -292,7 +292,7 @@ func TestCoverageExemptionProblemSeverity(t *testing.T) {
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestValidateIntegrityReportsCoverage(t *testing.T) {
 	bundle := withExemptions(coverageBundle(), model.CodeExemption{ID: "FU-B", Reason: goodReason, Decision: "DEC-OK"})
-	diags := ValidateIntegrity(bundle, model.RequirementsDocument{}, []codescan.CodeItem{ownerFile("a.go", "FU-A")}, nil, nil)
+	diags := ValidateIntegrity(bundle, model.RequirementsDocument{}, []codescan.CodeItem{ownerFile("a.go", "FU-A")}, nil)
 	got := pathsOf(diags, "code.unit_unlinked")
 	if want := []string{"authoredArchitecture.functionalUnits[2]"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("code.unit_unlinked at %v, want %v", got, want)

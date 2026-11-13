@@ -176,12 +176,6 @@ func requirementLinkDiagnostics(b model.Bundle, validID func(string) bool) []Dia
 		}
 	}
 
-	// Composition: allocations are deprecated in favour of reqLinks.
-	for i, a := range b.Architecture.Composition.Allocations {
-		add("composition.allocation_deprecated", SeverityWarning, fmt.Sprintf("composition.allocations[%d]", i),
-			"allocation of %s to %s is deprecated: record it as a reqLinks entry (parent %s, child %s) in the requirement link file", a.Requirement, a.Target, a.Requirement, a.Target)
-	}
-
 	diags = append(diags, reqLinkFileDiagnostics(b, requirements, validID)...)
 	diags = append(diags, RemovedFieldDiagnostics(b)...)
 	return diags

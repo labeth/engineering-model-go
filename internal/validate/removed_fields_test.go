@@ -57,6 +57,15 @@ var removedFieldCases = []removedFieldCase{
 	{"a requires entry with a ref", func(b *model.Bundle) {
 		b.Architecture.Contract.Requires = []model.ContractEntry{{ID: "NEED-X", Kind: "capability", Ref: "REQ-S"}}
 	}, codeProvidesRefRemoved, nil},
+	{"a manifest with allocations", func(b *model.Bundle) {
+		b.Architecture.Composition.Allocations = []model.Allocation{
+			{Requirement: "REQ-A", To: "SUB-DEP", Target: "dep::CAP-X"},
+			{Requirement: "REQ-B", To: "SUB-DEP", Target: "dep::CAP-Y"},
+		}
+	}, codeAllocationsRemoved, []string{"composition.allocations"}},
+	{"a manifest without allocations", func(b *model.Bundle) {
+		b.Architecture.Composition.Allocations = nil
+	}, codeAllocationsRemoved, nil},
 }
 
 // A link that carries pinned.fingerprint is model.pinned_fingerprint_removed
@@ -64,10 +73,14 @@ var removedFieldCases = []removedFieldCase{
 // model.provides_ref_removed: each an undeferred error at the field with its
 // remedy, also with a lifecycle tier and an open POA&M item for the code. A
 // link without a fingerprint, a provides entry without a ref, an imported
-// entry and a requires entry with a ref are not reported (REQ-EMG-184).
-// Mutation: dropping either emitter, reporting it as a warning, reading the
-// requires list or the imported entries, or an empty remedy fails a row.
-// TRLC-LINKS: REQ-EMG-184
+// entry and a requires entry with a ref are not reported (REQ-EMG-184). A
+// manifest that carries composition.allocations is model.allocations_removed,
+// once, at composition.allocations; one without them is not (REQ-EMG-187).
+// Mutation: dropping any emitter, reporting it as a warning, reading the
+// requires list or the imported entries, or an empty remedy fails a row;
+// deleting the append of allocationsRemovedDiagnostics in
+// RemovedFieldDiagnostics fails the allocations row.
+// TRLC-LINKS: REQ-EMG-184, REQ-EMG-187
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestRemovedFieldDiagnostics(t *testing.T) {
 	for _, c := range removedFieldCases {
@@ -123,17 +136,19 @@ func assertUntieredError(t *testing.T, d Diagnostic) {
 	}
 }
 
-// The remedies of the two codes are the words authors act on, pinned
+// The remedies of the removed-field codes are the words authors act on, pinned
 // literally; the codes are not tier keyed and not core, so no tier changes
 // them (an untiered error) and no other code has these remedies.
-// Mutation: changing a remedy text, keying a code to a tier or listing it as
-// a core code fails this test.
-// TRLC-LINKS: REQ-EMG-184
+// Mutation: changing a remedy text (for example the allocations remedy to
+// "write links"), keying a code to a tier or listing it as a core code fails
+// this test.
+// TRLC-LINKS: REQ-EMG-184, REQ-EMG-187
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestRemovedFieldRemedies(t *testing.T) {
 	want := map[string]string{
 		codePinnedFingerprintRemoved: "delete pinned.fingerprint; pin the dependency version only",
 		codeProvidesRefRemoved:       "name the realizing requirement with realizes, not ref",
+		codeAllocationsRemoved:       "write requirement links (reqLinks) instead of composition.allocations",
 	}
 	for code, remedy := range want {
 		if got := ConsistencyRemedy(code); got != remedy {
@@ -148,17 +163,17 @@ func TestRemovedFieldRemedies(t *testing.T) {
 	}
 }
 
-// The authoring rules name the two removed-field codes and not the retired
+// The authoring rules name the removed-field codes and not the retired
 // deprecation warnings they replace.
-// Mutation: putting a retired warning back into the rules or dropping a code
-// fails this test.
-// TRLC-LINKS: REQ-EMG-184
+// Mutation: putting a retired warning (composition.allocation_deprecated) back
+// into the rules or dropping a code fails this test.
+// TRLC-LINKS: REQ-EMG-184, REQ-EMG-187
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func TestAuthoringRulesNameTheRemovedFieldCodes(t *testing.T) {
 	text := strings.Join(AuthoringRules().FieldRules, "\n")
 	for code, named := range map[string]bool{
-		codePinnedFingerprintRemoved: true, codeProvidesRefRemoved: true,
-		"link.fingerprint_deprecated": false, "contract.ref_deprecated": false,
+		codePinnedFingerprintRemoved: true, codeProvidesRefRemoved: true, codeAllocationsRemoved: true,
+		"link.fingerprint_deprecated": false, "contract.ref_deprecated": false, "composition.allocation_deprecated": false,
 	} {
 		if strings.Contains(text, code) != named {
 			t.Errorf("authoring rules name %s: want %v", code, named)
@@ -166,16 +181,16 @@ func TestAuthoringRulesNameTheRemovedFieldCodes(t *testing.T) {
 	}
 }
 
-// The README names both codes with their remedy.
+// The README names every removed-field code with its remedy.
 // Mutation: removing a row from the README fails this test.
-// TRLC-LINKS: REQ-EMG-184
+// TRLC-LINKS: REQ-EMG-184, REQ-EMG-187
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestRemovedFieldCodesAreInTheReadme(t *testing.T) {
 	data, err := os.ReadFile(filepath.Join("..", "..", "README.md"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, code := range []string{codePinnedFingerprintRemoved, codeProvidesRefRemoved} {
+	for _, code := range []string{codePinnedFingerprintRemoved, codeProvidesRefRemoved, codeAllocationsRemoved} {
 		row := "| `" + code + "` | " + ConsistencyRemedy(code) + " |"
 		if !strings.Contains(string(data), row) {
 			t.Errorf("README.md has no row %q", row)
@@ -216,11 +231,11 @@ func walkManifests(root string) ([]string, error) {
 }
 
 // No example carries a removed field: no link with pinned.fingerprint, no ref
-// on a provides entry and no ref on a requires entry, which nothing reads
-// (the two Atlas examples had one, ADR-EMG-075).
+// on a provides entry, no ref on a requires entry, which nothing reads (the
+// two Atlas examples had one, ADR-EMG-075), and no composition.allocations.
 // Mutation: putting a ref line back on an Atlas requires entry, or a
-// fingerprint or provides ref into any example, fails this test.
-// TRLC-LINKS: REQ-EMG-184
+// fingerprint, provides ref or allocation into any example, fails this test.
+// TRLC-LINKS: REQ-EMG-184, REQ-EMG-187
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestExamplesCarryNoRemovedFields(t *testing.T) {
 	for _, manifest := range exampleManifests(t) {

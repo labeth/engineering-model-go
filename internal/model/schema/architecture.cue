@@ -478,6 +478,8 @@ package model
 	directory?: string
 }
 
+// #Allocation is removed (ADR-EMG-078): it decodes only so validation reports
+// model.allocations_removed with its remedy.
 #Allocation: {
 	requirement?: string
 	to?:          string

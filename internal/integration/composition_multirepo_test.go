@@ -296,18 +296,18 @@ func TestLocalModelReportsQualifiedReferenceWithoutComposition(t *testing.T) {
 }
 
 // TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce verifies
-// that composition findings (an unsatisfied need and a hand-down to an
-// unpublished target) are returned in AsciiDocResult.Diagnostics, fail the
+// that composition findings (an unsatisfied need and a satisfaction by an
+// unpublished provider) are returned in AsciiDocResult.Diagnostics, fail the
 // call, and that the call resolves the composition exactly once.
 // TRLC-LINKS: REQ-EMG-066
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-SYSTEM-COMPOSITION
 func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing.T) {
 	f := writeMultiRepoFixture(t, defaultServiceDocs())
-	// The interface now requires a need, and the service hands down to an
-	// unpublished target.
+	// The interface now requires a need, and the service names an
+	// unpublished provider in a satisfaction.
 	testutil.WriteFile(t, filepath.Join(f.iface, "model", "architecture.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "model", "architecture.yml")), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
 	testutil.WriteFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
-	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-INTERNAL\n")
+	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    satisfactions:\n      - need: nats::CAP-SCHEMA\n        by: nats::CAP-INTERNAL\n")
 
 	before := composition.ResolutionCount()
 	diags, err := generateService(t, f)
@@ -321,8 +321,8 @@ func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing
 	for _, d := range diags {
 		found[d.Code] = d.Severity
 	}
-	if found["composition.allocation_to_internal"] != validate.SeverityError {
-		t.Fatalf("hand-down to unpublished target missing: %+v", diags)
+	if found["composition.unpublished_reference"] != validate.SeverityError {
+		t.Fatalf("satisfaction by an unpublished provider missing: %+v", diags)
 	}
 	if found["composition.unsatisfied_require"] != validate.SeverityError {
 		t.Fatalf("unsatisfied need of the composing system root must be an error: %+v", diags)
@@ -341,14 +341,13 @@ func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing
 
 // TestCompositionSeverityRules verifies that an unsatisfied need is an error
 // only at the composing root of kind system (a warning below it or for other
-// kinds), and that an allocation to a non-contract target is a warning.
+// kinds).
 // TRLC-LINKS: REQ-EMG-066
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
 func TestCompositionSeverityRules(t *testing.T) {
 	f := writeMultiRepoFixture(t, defaultServiceDocs())
 	testutil.WriteFile(t, filepath.Join(f.iface, "model", "architecture.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "model", "architecture.yml")), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
 	testutil.WriteFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
-	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::FU-NATS\n")
 	manifest := filepath.Join(f.service, "engmod.yml")
 
 	severity := func(res composition.CompositionResult, code string) validate.Severity {
@@ -366,9 +365,6 @@ func TestCompositionSeverityRules(t *testing.T) {
 	if got := severity(res, "composition.unsatisfied_require"); got != validate.SeverityError {
 		t.Fatalf("system root: unsatisfied_require severity %q", got)
 	}
-	if got := severity(res, "composition.allocation_target_not_contract"); got != validate.SeverityWarning {
-		t.Fatalf("non-contract allocation target severity %q", got)
-	}
 
 	testutil.WriteFile(t, manifest, strings.Replace(mustRead(t, manifest), "kind: system", "kind: software", 1))
 	if res, err = composition.GenerateCompositionFromFile(manifest); err != nil {
@@ -379,87 +375,151 @@ func TestCompositionSeverityRules(t *testing.T) {
 	}
 }
 
-// TestDelegatedRowShowsTargetRepositoryStatus verifies that a delegated
-// requirement row reports the target requirement's own status in the
-// dependency, and that removing the dependency's test link changes it.
-// TRLC-LINKS: REQ-EMG-067
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
-func TestDelegatedRowShowsTargetRepositoryStatus(t *testing.T) {
-	f := writeMultiRepoFixture(t, defaultServiceDocs())
-	// The interface has code and a test for its requirement in its module directory.
-	testutil.WriteFile(t, filepath.Join(f.iface, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
-	testFile := filepath.Join(f.iface, "src", "iface_test.go")
-	testutil.WriteFile(t, testFile, "package iface\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-IF-001\nfunc TestEncode(t *testing.T) { Encode() }\n")
-	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-SCHEMA\n")
+// linkServiceToIface makes the service trace REQ-SVC-001 to the capability
+// CAP-SCHEMA of the interface module with an accepted requirement link (the
+// only trace to a requirement of another model, ADR-EMG-078): the interface
+// publication lists its realizing requirement REQ-IF-001, the service names
+// the reviewer actor and the link file.
+// TRLC-LINKS: REQ-EMG-067, REQ-EMG-187
+func linkServiceToIface(t *testing.T, f multiRepoFixture) {
+	t.Helper()
+	ifaceManifest := filepath.Join(f.iface, "engmod.yml")
+	testutil.WriteFile(t, ifaceManifest, strings.Replace(mustRead(t, ifaceManifest), "    assurance: [TB-BUS, CTRL-SCHEMA]\n", "    assurance: [TB-BUS, CTRL-SCHEMA]\n    requirements: [REQ-IF-001]\n", 1))
 	manifest := filepath.Join(f.service, "engmod.yml")
-	requirements := filepath.Join(f.service, "model", "requirements.yml")
-
-	row := func() trace.Row {
-		t.Helper()
-		matrix, _, err := trace.BuildFromFiles(manifest, requirements, "")
-		if err != nil {
-			t.Fatal(err)
-		}
-		for _, r := range matrix.Requirements {
-			if r.ID == "REQ-SVC-001" {
-				return r
-			}
-		}
-		t.Fatal("row REQ-SVC-001 missing")
-		return trace.Row{}
-	}
-	got := row()
-	if got.DelegatedStatus == nil || got.DelegatedStatus.Requirement != "REQ-IF-001" || !got.DelegatedStatus.Implemented || !got.DelegatedStatus.TestLinked || got.DelegatedStatus.Status != "implemented" {
-		t.Fatalf("delegated status: %+v", got.DelegatedStatus)
-	}
-
-	if err := os.Remove(testFile); err != nil {
-		t.Fatal(err)
-	}
-	if got = row(); got.DelegatedStatus == nil || got.DelegatedStatus.TestLinked || !got.DelegatedStatus.Implemented {
-		t.Fatalf("removing the dependency's test link did not show: %+v", got.DelegatedStatus)
-	}
-
-	// A dependency whose module directory holds no code reports not-available.
-	if err := os.RemoveAll(filepath.Join(f.iface, "src")); err != nil {
-		t.Fatal(err)
-	}
-	if got = row(); got.DelegatedStatus == nil || got.DelegatedStatus.Status != "not-available" {
-		t.Fatalf("no code: %+v", got.DelegatedStatus)
-	}
+	testutil.WriteFile(t, manifest, strings.Replace(mustRead(t, manifest), "  decisions: model/decisions.yml\n", "  decisions: model/decisions.yml\n  reqLinks: model/req-links.yml\n", 1))
+	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), strings.Replace(defaultServiceDocs().architecture, "architecture:\n", "architecture:\n  actors:\n    - id: ACT-SVC-OWNER\n      name: Owner\n", 1))
+	testutil.WriteFile(t, filepath.Join(f.service, "model", "req-links.yml"), "schemaVersion: 3\nreqLinks:\n  - id: LNK-SVC-001-NATS\n    parent: REQ-SVC-001\n    child: nats::CAP-SCHEMA\n    pinned:\n      version: v0.1.0\n    status: accepted\n    reviewedBy: ACT-SVC-OWNER\n    reviewedOn: \"2026-11-02\"\n")
 }
 
-// TestDelegatedStatusScansOnlyTheDependencyModule verifies that a dependency's
-// trace is computed from its own module directory: with the workspace inside
-// one git repository, code elsewhere in that repository that links the
-// dependency's requirement does not count for the dependency.
-// Mutation: not setting the dependency bundle's CodeScopeRoot in
-// resolveSystem fails this test.
-// TRLC-LINKS: REQ-EMG-067, REQ-EMG-057
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION, FU-CODEMAP-INFERENCE
-func TestDelegatedStatusScansOnlyTheDependencyModule(t *testing.T) {
-	if _, err := exec.LookPath("git"); err != nil {
-		t.Skip("git not available")
-	}
-	f := writeMultiRepoFixture(t, defaultServiceDocs())
-	if out, err := exec.Command("git", "-C", f.root, "init", "-q").CombinedOutput(); err != nil {
-		t.Fatalf("git init: %v %s", err, out)
-	}
-	testutil.WriteFile(t, filepath.Join(f.root, "other", "elsewhere.go"), "package other\n\n// TRLC-LINKS: REQ-IF-001\nfunc Elsewhere() {}\n")
-	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    allocations:\n      - requirement: REQ-SVC-001\n        to: SUB-IF\n        target: nats::CAP-SCHEMA\n")
+// unlinkedCodeDocs are the service documents with no code of its own for
+// REQ-SVC-001, so that only its requirement link can satisfy it.
+// TRLC-LINKS: REQ-EMG-067
+func unlinkedCodeDocs() serviceDocs {
+	docs := defaultServiceDocs()
+	docs.code = "package svc\n\nfunc Publish() {}\n"
+	return docs
+}
+
+// rowOf returns the trace row id of the service.
+// TRLC-LINKS: REQ-EMG-067
+func rowOf(t *testing.T, f multiRepoFixture, id string) trace.Row {
+	t.Helper()
 	matrix, _, err := trace.BuildFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, r := range matrix.Requirements {
-		if r.ID == "REQ-SVC-001" {
-			if r.DelegatedStatus == nil || r.DelegatedStatus.Status != "not-available" || r.DelegatedStatus.Implemented {
-				t.Fatalf("code outside the dependency module counted for it: %+v", r.DelegatedStatus)
-			}
-			return
+		if r.ID == id {
+			return r
 		}
 	}
-	t.Fatal("row REQ-SVC-001 missing")
+	t.Fatalf("row %s missing", id)
+	return trace.Row{}
+}
+
+// importedStatus returns the delegatedStatus of the imported row of the
+// interface requirement REQ-IF-001, which the service links to.
+// TRLC-LINKS: REQ-EMG-067
+func importedStatus(t *testing.T, f multiRepoFixture) trace.DelegatedStatus {
+	t.Helper()
+	got := rowOf(t, f, "nats::REQ-IF-001").DelegatedStatus
+	if got == nil || got.Requirement != "REQ-IF-001" {
+		t.Fatalf("the linked requirement row has no delegatedStatus for REQ-IF-001: %+v", got)
+	}
+	return *got
+}
+
+// assertLinkedStatus checks the status, implemented and test linked flags of
+// a linked requirement in its own repository against want (its other fields
+// are not compared).
+// TRLC-LINKS: REQ-EMG-067
+func assertLinkedStatus(t *testing.T, got, want trace.DelegatedStatus) {
+	t.Helper()
+	if got.Status != want.Status || got.Implemented != want.Implemented || got.TestLinked != want.TestLinked {
+		t.Fatalf("linked status %+v, want %+v", got, want)
+	}
+}
+
+// assertSatisfiedThroughLink checks that the row of the service requirement
+// is implemented and test linked through its accepted link.
+// TRLC-LINKS: REQ-EMG-067, REQ-EMG-187
+func assertSatisfiedThroughLink(t *testing.T, row trace.Row) {
+	t.Helper()
+	if row.SatisfiedBy != "links" || len(row.Links) != 1 {
+		t.Fatalf("the linked row is not satisfied through its link: %+v", row)
+	}
+	if !row.LinksImplemented || !row.LinksTestLinked {
+		t.Fatalf("the link roll-up lost the dependency status: %+v", row)
+	}
+}
+
+// mustRemoveAll removes path and everything below it.
+// TRLC-LINKS: REQ-EMG-067
+func mustRemoveAll(t *testing.T, path string) {
+	t.Helper()
+	if err := os.RemoveAll(path); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// TestLinkedRowShowsTargetRepositoryStatus verifies that the row of a
+// requirement the service links to a dependency capability reports the
+// realizing requirement's own status in the dependency (delegatedStatus of
+// the imported row, the roll-up on the linked row), and that removing the
+// dependency's test link changes it.
+// Mutation: not computing the dependency trace (traces.status in
+// applyRequirementLinks returning nil) fails this test.
+// TRLC-LINKS: REQ-EMG-067, REQ-EMG-187
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
+func TestLinkedRowShowsTargetRepositoryStatus(t *testing.T) {
+	f := writeMultiRepoFixture(t, unlinkedCodeDocs())
+	linkServiceToIface(t, f)
+	// The interface has code and a test for its requirement in its module directory.
+	testutil.WriteFile(t, filepath.Join(f.iface, "src", "iface.go"), "package iface\n\n// TRLC-LINKS: REQ-IF-001\nfunc Encode() {}\n")
+	testFile := filepath.Join(f.iface, "src", "iface_test.go")
+	testutil.WriteFile(t, testFile, "package iface\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-IF-001\nfunc TestEncode(t *testing.T) { Encode() }\n")
+
+	assertLinkedStatus(t, importedStatus(t, f), trace.DelegatedStatus{Status: "implemented", Implemented: true, TestLinked: true})
+	assertSatisfiedThroughLink(t, rowOf(t, f, "REQ-SVC-001"))
+
+	mustRemoveAll(t, testFile)
+	assertLinkedStatus(t, importedStatus(t, f), trace.DelegatedStatus{Status: "implemented", Implemented: true})
+
+	// A dependency whose module directory holds no code reports not-available.
+	mustRemoveAll(t, filepath.Join(f.iface, "src"))
+	assertLinkedStatus(t, importedStatus(t, f), trace.DelegatedStatus{Status: "not-available"})
+}
+
+// gitInit makes dir a git repository, or skips the test without git.
+// TRLC-LINKS: REQ-EMG-057
+func gitInit(t *testing.T, dir string) {
+	t.Helper()
+	if _, err := exec.LookPath("git"); err != nil {
+		t.Skip("git not available")
+	}
+	if out, err := exec.Command("git", "-C", dir, "init", "-q").CombinedOutput(); err != nil {
+		t.Fatalf("git init: %v %s", err, out)
+	}
+}
+
+// TestLinkedStatusScansOnlyTheDependencyModule verifies that a dependency's
+// trace is computed from its own module directory: with the workspace inside
+// one git repository, code elsewhere in that repository that links the
+// dependency's requirement does not count for the dependency, so the linked
+// requirement is not satisfied through its link.
+// Mutation: not setting the dependency bundle's CodeScopeRoot in
+// resolveSystem fails this test.
+// TRLC-LINKS: REQ-EMG-067, REQ-EMG-057, REQ-EMG-187
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION, FU-CODEMAP-INFERENCE
+func TestLinkedStatusScansOnlyTheDependencyModule(t *testing.T) {
+	f := writeMultiRepoFixture(t, unlinkedCodeDocs())
+	gitInit(t, f.root)
+	testutil.WriteFile(t, filepath.Join(f.root, "other", "elsewhere.go"), "package other\n\n// TRLC-LINKS: REQ-IF-001\nfunc Elsewhere() {}\n")
+	linkServiceToIface(t, f)
+	assertLinkedStatus(t, importedStatus(t, f), trace.DelegatedStatus{Status: "not-available"})
+	if parent := rowOf(t, f, "REQ-SVC-001"); parent.SatisfiedBy != "" || parent.LinksImplemented {
+		t.Fatalf("the linked row is satisfied by code outside the dependency module: %+v", parent)
+	}
 }
 
 // TRLC-LINKS: REQ-EMG-066, REQ-EMG-067

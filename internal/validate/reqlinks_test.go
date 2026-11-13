@@ -172,15 +172,15 @@ func TestContractItemRules(t *testing.T) {
 // undeclared or uncomposed dependency is link.child_unpublished, a pin other
 // than the manifest's is link.version_mismatch (errors), and a claimed link
 // is link.claimed_only (warning). A requirementLinks value other than strict
-// or guided is model.invalid_requirement_links; an allocation warns
-// composition.allocation_deprecated.
+// or guided is model.invalid_requirement_links; an allocation is no longer
+// a deprecation warning (it is model.allocations_removed,
+// TestRemovedFieldDiagnostics).
 // TRLC-LINKS: REQ-EMG-090, REQ-EMG-094, REQ-EMG-099
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestRequirementLinkFileRules(t *testing.T) {
 	b := linkTestBundle("strict")
 	b.Manifest.Dependencies = []model.ManifestDependency{{Alias: "dep", Version: "v0.2.0"}, {Alias: "loose", Version: "v1.0.0"}}
 	b.Architecture.Composition.Subsystems = []model.Subsystem{{ID: "SUB-DEP", Dependency: "dep", Publication: "public"}}
-	b.Architecture.Composition.Allocations = []model.Allocation{{Requirement: "REQ-A", To: "SUB-DEP", Target: "dep::CAP-X"}}
 	pin := model.ReqLinkPin{Version: "v0.2.0"}
 	b.ReqLinks.ReqLinks = []model.ReqLink{
 		{ID: "LNK-OK", Parent: "REQ-A", Child: "dep::CAP-X", Pinned: pin, Status: "accepted"},
@@ -200,12 +200,11 @@ func TestRequirementLinkFileRules(t *testing.T) {
 		return strings.Join(p, ",")
 	}
 	for code, want := range map[string]string{
-		"link.parent_unknown":               "error reqLinks[1].parent,error reqLinks[2],error reqLinks[3].evidence[1]",
-		"link.child_unpublished":            "error reqLinks[4].child,error reqLinks[5].child",
-		"link.version_mismatch":             "error reqLinks[6].pinned.version",
-		"link.claimed_only":                 "warning reqLinks[6].status",
-		"composition.allocation_deprecated": "warning composition.allocations[0]",
-		"model.invalid_requirement_links":   "",
+		"link.parent_unknown":             "error reqLinks[1].parent,error reqLinks[2],error reqLinks[3].evidence[1]",
+		"link.child_unpublished":          "error reqLinks[4].child,error reqLinks[5].child",
+		"link.version_mismatch":           "error reqLinks[6].pinned.version",
+		"link.claimed_only":               "warning reqLinks[6].status",
+		"model.invalid_requirement_links": "",
 	} {
 		if got := paths(code); got != want {
 			t.Errorf("%s = %q, want %q", code, got, want)

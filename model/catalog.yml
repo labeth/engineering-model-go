@@ -322,11 +322,6 @@ catalog:
     definition: Event indicating a release gate asked engws whether a model may be released under a tag.
     aliases:
     - engws release-check requested
-  - id: EVT-LINK-MIGRATION-REQUESTED
-    name: link migration is requested
-    definition: Event indicating a developer asked engws to convert deprecated allocations and contract refs into requirement links.
-    aliases:
-    - engws migrate-links requested
   - id: EVT-LINK-ADD-REQUESTED
     name: link add is requested
     definition: Event indicating a developer asked engws to write a new claimed requirement link pinned to a dependency version.

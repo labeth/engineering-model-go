@@ -28,7 +28,7 @@ func TestRequirementUnsatisfied(t *testing.T) {
 	tests := []codescan.VerificationCheck{{ID: "t", Verifies: []string{"REQ-TEST"}}}
 	unsatisfied := func(b model.Bundle) []validate.Diagnostic {
 		var out []validate.Diagnostic
-		for _, d := range ValidateIntegrity(b, reqs, code, tests, nil) {
+		for _, d := range ValidateIntegrity(b, reqs, code, tests) {
 			if d.Code == "requirement.unsatisfied" {
 				out = append(out, d)
 			}
@@ -72,7 +72,7 @@ func TestUnparentedFollowsUpwardTraceRule(t *testing.T) {
 		{ID: "REQ-REALIZES", Realizes: []string{"CAP-A"}}, {ID: "REQ-LINKED"}, {ID: "REQ-DERIVED", Derived: true, DerivedRationale: "Ops."},
 		{ID: "REQ-SOURCE", SourceRefs: []string{"REF-STAKE"}}, {ID: "REQ-NONE"},
 	}}
-	m := buildTraceMatrix(bundle, reqs, nil, nil, nil)
+	m := buildTraceMatrix(bundle, reqs, nil, nil)
 	if m.Summary.Unparented != 2 {
 		t.Fatalf("want REQ-SOURCE and REQ-NONE unparented, got %d", m.Summary.Unparented)
 	}

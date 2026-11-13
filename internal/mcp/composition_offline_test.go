@@ -77,10 +77,6 @@ func TestMCPCompositionToolsNeverWriteLockAndWorkOffline(t *testing.T) {
       - id: SUB-CHILD
         dependency: child
         publication: public
-    allocations:
-      - requirement: REQ-PARENT
-        to: SUB-CHILD
-        target: child::CAP-CHILD
 `)
 	manifest := filepath.Join(parent, "engmod.yml")
 	lockPath := filepath.Join(parent, engmodel.CompositionLockFileName)

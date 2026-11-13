@@ -746,13 +746,6 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 	for i, x := range bundle.Architecture.Composition.Subsystems {
 		addElement(indexPath("composition.subsystems", i), ElementPartUsage, "engineering.subsystem", x.ID, x.Name, out.ID, "", x)
 	}
-	for i, x := range bundle.Architecture.Composition.Allocations {
-		target := x.To
-		if strings.TrimSpace(x.Target) != "" {
-			target += "/" + strings.TrimSpace(x.Target)
-		}
-		addRelationship(indexPath("composition.allocations", i), RelationshipAllocation, "allocation", x.Requirement, target, out.ID, x)
-	}
 	for i, x := range bundle.Architecture.Composition.Satisfactions {
 		addRelationship(indexPath("composition.satisfactions", i), RelationshipSatisfaction, "satisfaction", x.By, x.Need, out.ID, x)
 	}
@@ -1399,7 +1392,7 @@ func isQualifiedSemanticReference(ref string) bool {
 // TRLC-LINKS: REQ-EMG-035
 func semanticRelationshipAllowsExternalEndpoints(relationship SemanticRelationship) bool {
 	switch strings.TrimSpace(relationship.SourceType) {
-	case "allocation", "satisfaction":
+	case "satisfaction":
 		return true
 	default:
 		return false

@@ -145,20 +145,6 @@ commands:
                              and schemaVersion is not above that of the
                              previous release; exit 1 on findings, 2 on a
                              usage or git error
-  migrate-links [--repo DIR] [--dry-run]
-                             convert the deprecated trace of the model in DIR:
-                             each composition.allocations entry becomes a
-                             claimed link in model/req-links.yml (id
-                             LNK-<REQ>-<ALIAS>, the dependency pin; parent for
-                             a capability, evidence for an assumption of
-                             use), documents.reqLinks is added and the
-                             allocations are removed; other lines are kept; a
-                             pinned.fingerprint or contract.provides[].ref is
-                             not edited and is printed with its remedy; print the
-                             requirements left with requirement.no_parent;
-                             a second run changes nothing; a failed write
-                             restores every file; migrate the dependencies
-                             first
   status-suggest [--repo DIR] [--tree HASH] [--json]
                              print the status each requirement and control
                              verification of the model in DIR earns from this
@@ -253,7 +239,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	rationale := sub.String("rationale", "", "")
 	tag := sub.String("tag", "", "")
 	treeFlag := sub.String("tree", "", "")
-	dryRun := sub.Bool("dry-run", false, "")
 	parent := sub.String("parent", "", "")
 	evidence := sub.String("evidence", "", "")
 	sub.StringVar(rootFlag, "root", *rootFlag, "")
@@ -263,7 +248,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 2
 	}
 	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
-		"review-links": 0, "contract-diff": 2, "release-check": 0, "migrate-links": 0, "link": 2, "status-suggest": 0}
+		"review-links": 0, "contract-diff": 2, "release-check": 0, "link": 2, "status-suggest": 0}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
@@ -310,13 +295,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	}
 	if command == "status-suggest" {
 		code, err := runStatusSuggest(*repoFlag, strings.TrimSpace(*treeFlag), *asJSON, stdout)
-		if err != nil {
-			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
-		}
-		return code
-	}
-	if command == "migrate-links" {
-		code, err := runMigrateLinks(*repoFlag, *dryRun, stdout)
 		if err != nil {
 			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 		}

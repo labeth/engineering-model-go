@@ -275,8 +275,7 @@ func WriteOCIModuleFixture(t testing.TB, dir, modulePath, modelID, capabilityID,
 }
 
 // WriteParentWithOCIModule writes a parent depending on modulePath@version as
-// alias "shared", composing it as SUB-SHARED and delegating REQ-PARENT to
-// shared::CAP-SHARED-EDGE.
+// alias "shared", composing it as SUB-SHARED.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048
 func WriteParentWithOCIModule(t testing.TB, dir, modulePath, version string) {
 	t.Helper()
@@ -290,10 +289,6 @@ func WriteParentWithOCIModule(t testing.TB, dir, modulePath, version string) {
       - id: SUB-SHARED
         dependency: shared
         publication: public
-    allocations:
-      - requirement: REQ-PARENT
-        to: SUB-SHARED
-        target: shared::CAP-SHARED-EDGE
 `)
 }
 

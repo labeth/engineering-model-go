@@ -4,7 +4,6 @@ package engws
 import (
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -126,22 +125,16 @@ func AddLink(repo string, opts LinkAddOptions) (model.ReqLink, error) {
 		}
 	}
 
-	writes := map[string][]byte{}
-	read := func(path string) ([]byte, error) {
-		if data, ok := writes[path]; ok {
-			return data, nil
-		}
-		return os.ReadFile(path)
-	}
-	if _, err := appendLinks(bundle, manifest, []model.ReqLink{link}, read, writes); err != nil {
+	files := newLinkFiles(manifest)
+	if err := files.appendLinks(bundle, []model.ReqLink{link}); err != nil {
 		return model.ReqLink{}, err
 	}
-	paths := make([]string, 0, len(writes))
-	for path := range writes {
+	paths := make([]string, 0, len(files.writes))
+	for path := range files.writes {
 		paths = append(paths, path)
 	}
 	sort.Strings(paths)
-	if err := writeAllOrNothing(paths, writes); err != nil {
+	if err := writeAllOrNothing(paths, files.writes); err != nil {
 		return model.ReqLink{}, err
 	}
 	if _, err := model.LoadBundle(manifest); err != nil {

@@ -226,7 +226,7 @@ func TestAuthoringRulesDescribeRequirementLinks(t *testing.T) {
 	text := strings.Join(rules.FieldRules, "\n")
 	for _, want := range []string{
 		"realizes", "requirement.no_parent", "parent of a reqLinks entry to a dependency's capability", "A system publishes its own capabilities so a system above can link to them", "contract.assumptions", "contract.realizer_unpublished",
-		"documents.reqLinks", "engws link add", "link.version_mismatch", "model.pinned_fingerprint_removed", "model.provides_ref_removed", "not status or notes", "link.aou_unverified", "requirementLinks in engmod.yml is required and is strict or guided", "model.requirement_links_missing", "pseudo-version",
+		"documents.reqLinks", "engws link add", "link.version_mismatch", "model.pinned_fingerprint_removed", "model.provides_ref_removed", "model.allocations_removed", "not status or notes", "link.aou_unverified", "requirementLinks in engmod.yml is required and is strict or guided", "model.requirement_links_missing", "pseudo-version",
 	} {
 		if !strings.Contains(text, want) {
 			t.Fatalf("authoring field rules must contain %q", want)

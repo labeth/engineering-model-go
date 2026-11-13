@@ -132,28 +132,28 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-AEG-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-AEG-002 is traced by no code or verification",
     "path": "requirements[REQ-AEG-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-AEG-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-AEG-003 is traced by no code or verification",
     "path": "requirements[REQ-AEG-003]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-AEG-004 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-AEG-004 is traced by no code or verification",
     "path": "requirements[REQ-AEG-004]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-AEG-005 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-AEG-005 is traced by no code or verification",
     "path": "requirements[REQ-AEG-005]",
     "requiredFrom": "product"
    }
@@ -190,35 +190,35 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-AEG-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-AEG-002 is traced by no code or verification",
     "path": "requirements[REQ-AEG-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-AEG-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-AEG-003 is traced by no code or verification",
     "path": "requirements[REQ-AEG-003]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-AEG-004 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-AEG-004 is traced by no code or verification",
     "path": "requirements[REQ-AEG-004]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-AEG-005 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-AEG-005 is traced by no code or verification",
     "path": "requirements[REQ-AEG-005]",
     "requiredFrom": "product"
    }
   ],
-  "document": "ea4f0a9c302729f5439e6fd91c6c8fffae7f415c504aab4b298e5575c478556b",
+  "document": "f963ccecc9b7a15ae16ea5906fe4851c318c05f39e6be4007b879b46114655f6",
   "decisions": "8e1616aa411fede7399cc61fd531ccf6a46a6694f3f189c6282f2dc21b698887",
-  "matrix": "c01addf522c25ad8428a3528bf3e34116f8c9056d25e04755663d02ba8abf972"
+  "matrix": "fe2d730fff76fd03b27e89e98a3c6da4c8917fb0d4c457c8d5fdf5a14a9ea3c7"
  },
  "examples/atlas-industries/repos/company-portfolio/engmod.yml": {
   "tier": "mvp",
@@ -291,14 +291,14 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PORT-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PORT-002 is traced by no code or verification",
     "path": "requirements[REQ-PORT-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PORT-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PORT-003 is traced by no code or verification",
     "path": "requirements[REQ-PORT-003]",
     "requiredFrom": "product"
    }
@@ -319,21 +319,21 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PORT-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PORT-002 is traced by no code or verification",
     "path": "requirements[REQ-PORT-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PORT-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PORT-003 is traced by no code or verification",
     "path": "requirements[REQ-PORT-003]",
     "requiredFrom": "product"
    }
   ],
-  "document": "3582cf801704a399ce0c249b317645d7e7a8dbdb4d07ad583213f4c3a8179d22",
+  "document": "3989e14276d3272c373f55def24ae01171875b89ab1a4f9058824ffe03901f53",
   "decisions": "41adaefb246e0121500994e9217879b4f1ca2e138875ef3b6011b5ce360734dc",
-  "matrix": "e0081d0269961126a2795c81f7079d708c6f3a63dc5289e1e5ad93b75f88b300"
+  "matrix": "a6d34d26e7c9b449a14cfd67ad4fad8eb2130f29469767b43dbba387e9b91614"
  },
  "examples/atlas-industries/repos/orion-relay/engmod.yml": {
   "tier": "mvp",
@@ -484,28 +484,28 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-ORI-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-ORI-002 is traced by no code or verification",
     "path": "requirements[REQ-ORI-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-ORI-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-ORI-003 is traced by no code or verification",
     "path": "requirements[REQ-ORI-003]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-ORI-004 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-ORI-004 is traced by no code or verification",
     "path": "requirements[REQ-ORI-004]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-ORI-005 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-ORI-005 is traced by no code or verification",
     "path": "requirements[REQ-ORI-005]",
     "requiredFrom": "product"
    }
@@ -542,35 +542,35 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-ORI-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-ORI-002 is traced by no code or verification",
     "path": "requirements[REQ-ORI-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-ORI-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-ORI-003 is traced by no code or verification",
     "path": "requirements[REQ-ORI-003]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-ORI-004 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-ORI-004 is traced by no code or verification",
     "path": "requirements[REQ-ORI-004]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-ORI-005 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-ORI-005 is traced by no code or verification",
     "path": "requirements[REQ-ORI-005]",
     "requiredFrom": "product"
    }
   ],
-  "document": "74b02ea768d9bd3802f31c5919cddcf9bc57af5ac866e7c739026cacc42e1ab8",
+  "document": "3edae2479254982fad9e825b0903823c4c3e057c34bb9d3599f97086cca83b5c",
   "decisions": "422188d05d246aa72d8b11bca54ba45c2885d4d4a0338423b72ecfa526031b44",
-  "matrix": "d11c4f63ad171a6f8d620afd85e79b169e2b54679b00c3cc536c72fa49ca669f"
+  "matrix": "5d3919e6b4c9fe1e80bef5dd709462578a865cb98d714eac91e55fdead39b12f"
  },
  "examples/atlas-industries/repos/shared-cloud-platform/engmod.yml": {
   "tier": "mvp",
@@ -637,14 +637,14 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-CLOUD-001 is traced by no code or verification",
     "path": "requirements[REQ-CLOUD-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-CLOUD-002 is traced by no code or verification",
     "path": "requirements[REQ-CLOUD-002]",
     "requiredFrom": "product"
    }
@@ -659,21 +659,21 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-CLOUD-001 is traced by no code or verification",
     "path": "requirements[REQ-CLOUD-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-CLOUD-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-CLOUD-002 is traced by no code or verification",
     "path": "requirements[REQ-CLOUD-002]",
     "requiredFrom": "product"
    }
   ],
-  "document": "116b0ca70e20b628398c3f77de161299cc44ca371ab6a8444ec974af41c722c3",
+  "document": "320bf6490192bd4bebc24ae0b91bc71ca67e98b9514415cf739abac63b7e4038",
   "decisions": "d6f7a7581451253a87728b5b8bcdc3e21c29ac2f24abbe74b1198bd785811f48",
-  "matrix": "2324d7d5cdafc9f93f89f9ceb9c368519649c51d38e49b843badb3f0572a279c"
+  "matrix": "22f6c1ab3048cf5d83c89b6d0957a1362d3cba0dbf42e858bc88fdae6d839295"
  },
  "examples/atlas-industries/repos/shared-compliance-baseline/engmod.yml": {
   "tier": "mvp",
@@ -884,56 +884,56 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-001 is traced by no code or verification",
     "path": "requirements[REQ-COMP-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-002 is traced by no code or verification",
     "path": "requirements[REQ-COMP-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-003 is traced by no code or verification",
     "path": "requirements[REQ-COMP-003]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-004 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-004 is traced by no code or verification",
     "path": "requirements[REQ-COMP-004]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-005 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-005 is traced by no code or verification",
     "path": "requirements[REQ-COMP-005]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-006 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-006 is traced by no code or verification",
     "path": "requirements[REQ-COMP-006]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-007 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-007 is traced by no code or verification",
     "path": "requirements[REQ-COMP-007]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-008 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-008 is traced by no code or verification",
     "path": "requirements[REQ-COMP-008]",
     "requiredFrom": "product"
    }
@@ -948,63 +948,63 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-001 is traced by no code or verification",
     "path": "requirements[REQ-COMP-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-002 is traced by no code or verification",
     "path": "requirements[REQ-COMP-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-003 is traced by no code or verification",
     "path": "requirements[REQ-COMP-003]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-004 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-004 is traced by no code or verification",
     "path": "requirements[REQ-COMP-004]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-005 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-005 is traced by no code or verification",
     "path": "requirements[REQ-COMP-005]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-006 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-006 is traced by no code or verification",
     "path": "requirements[REQ-COMP-006]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-007 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-007 is traced by no code or verification",
     "path": "requirements[REQ-COMP-007]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COMP-008 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COMP-008 is traced by no code or verification",
     "path": "requirements[REQ-COMP-008]",
     "requiredFrom": "product"
    }
   ],
   "document": "81332bc42fca47968fb1c14b5c613a0bd318f4f10b787a8b21efe88af64173b4",
   "decisions": "d52c4a74e59edc9882846bdd75a9536af110cf133e639a7f1f96119ab14fc7e5",
-  "matrix": "2d468ef147c9d15463f13bceee0b946e60826053b72353bd257cbc29d27a5369"
+  "matrix": "27f23705156e77195d5663fa1025f64369b843695efc7029b132b195b570718a"
  },
  "examples/atlas-industries/repos/shared-edge-platform/engmod.yml": {
   "tier": "mvp",
@@ -1071,14 +1071,14 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-EDGE-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-EDGE-001 is traced by no code or verification",
     "path": "requirements[REQ-EDGE-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-EDGE-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-EDGE-002 is traced by no code or verification",
     "path": "requirements[REQ-EDGE-002]",
     "requiredFrom": "product"
    }
@@ -1093,21 +1093,21 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-EDGE-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-EDGE-001 is traced by no code or verification",
     "path": "requirements[REQ-EDGE-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-EDGE-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-EDGE-002 is traced by no code or verification",
     "path": "requirements[REQ-EDGE-002]",
     "requiredFrom": "product"
    }
   ],
-  "document": "27242934afb8913db617285c684c776e484f2b168f716028cc5d525d2df6f49b",
+  "document": "12395bea5891937a5c64af45c8c2ecc134cb2ab868aa6ee911e9204a333fcdf9",
   "decisions": "2a8202e720a17793fae880a2df8f7e74bc7936171cff2e3dbb6d354d610ca59b",
-  "matrix": "7ac08576ef554c7d28e8509d9d988319e08b071c5e9843a629a32050bd578d59"
+  "matrix": "8bd43fe2026afcf39fd84b3f8d0a3bf5ea9e92a3666830d1ff37f1a1dd6fc317"
  },
  "examples/atlas-industries/repos/shared-security-services/engmod.yml": {
   "tier": "mvp",
@@ -1202,14 +1202,14 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SEC-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SEC-001 is traced by no code or verification",
     "path": "requirements[REQ-SEC-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SEC-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SEC-002 is traced by no code or verification",
     "path": "requirements[REQ-SEC-002]",
     "requiredFrom": "product"
    }
@@ -1224,21 +1224,21 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SEC-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SEC-001 is traced by no code or verification",
     "path": "requirements[REQ-SEC-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SEC-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SEC-002 is traced by no code or verification",
     "path": "requirements[REQ-SEC-002]",
     "requiredFrom": "product"
    }
   ],
   "document": "4583d1164863acb0cacc29ac762e119a142541d33b6c46cbef72419d5b4dbe25",
   "decisions": "80460111061e1288e3610fea87984751e1f77ca2335d05478153f683f9f24d43",
-  "matrix": "5d38d726220f18a9028eb9b171332b0ad92bda96acd545ff6eae36a3b12b93d8"
+  "matrix": "2e34f41f7fa96e2fd87d38bf4d1edd5515bb522a4d0dae434ccd79aff521c88c"
  },
  "examples/bedrock-pr-review-github-app-sample/engmod.yml": {
   "tier": "mvp",
@@ -1655,14 +1655,14 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PRR-009 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PRR-009 is traced by no code or verification",
     "path": "requirements[REQ-PRR-009]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PRR-010 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PRR-010 is traced by no code or verification",
     "path": "requirements[REQ-PRR-010]",
     "requiredFrom": "product"
    }
@@ -1727,21 +1727,21 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PRR-009 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PRR-009 is traced by no code or verification",
     "path": "requirements[REQ-PRR-009]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PRR-010 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PRR-010 is traced by no code or verification",
     "path": "requirements[REQ-PRR-010]",
     "requiredFrom": "product"
    }
   ],
   "document": "7f05cf84ae017fdac5bba33473945f4b123ee6742440ea71d34c03fd6e4629ac",
   "decisions": "bd471a4df845ea61e03a028defecb6f0db0f23055142d9d37f81ae385c87376e",
-  "matrix": "2e179dbb16ce55e9ce247a8ea2bdbf31e022897d35f76b555c26fc6f885c7bb2"
+  "matrix": "394c7edb6feb30cdbb581f8fd5d9f12345d9d35e8cd179fb7e1c44d82e6de267"
  },
  "examples/coffee-appliance-six-view/engmod.yml": {
   "tier": "mvp",
@@ -1776,7 +1776,7 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COFFEE-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COFFEE-001 is traced by no code or verification",
     "path": "requirements[REQ-COFFEE-001]",
     "requiredFrom": "product"
    }
@@ -1791,14 +1791,14 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-COFFEE-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-COFFEE-001 is traced by no code or verification",
     "path": "requirements[REQ-COFFEE-001]",
     "requiredFrom": "product"
    }
   ],
   "document": "296d051bf1b298ea44ff236cc2fa3aa8028a15a1485be479935bce77d5ed38d5",
   "decisions": "cf02f6663c34b99e227a2c05252c55be2b128fc43dd3e535cf20dad006525696",
-  "matrix": "f208f3ee766d4eff90d2dc3afb19776a2445d2032e2eec04ddabc172865785ab"
+  "matrix": "a777234e6a4fb33bb7c563c02c8bead8ad020bedd35d64265584948ee72e86b5"
  },
  "examples/coffee-fleet-ota-cloud-sample/engmod.yml": {
   "tier": "mvp",
@@ -2339,9 +2339,9 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    }
   ],
-  "document": "316cdc5b09654c214c7288aa07a1cd23103ea483c0062acb6fde3534ba19ccef",
+  "document": "f42942c79b25a7f0bac8e10eecea9fb09c72ab68bbe11a8785dca8af44d2b708",
   "decisions": "d14e8c4ba67465efff45954b0caa3da9875360f69c25cb44b0439ef169449b3c",
-  "matrix": "b74e30d47308876092dc819ff8efb76232a10bd07b736ea1d9489d97c2f8f110"
+  "matrix": "26270c27d1d750631b3e9580dbaef8b6989f890a92c8cec36336cc63e09efa3a"
  },
  "examples/coffee-fleet-ota-cloud-sample/subsystems/cloud-api/engmod.yml": {
   "tier": "mvp",
@@ -2430,7 +2430,7 @@
   ],
   "document": "5f87c76ac35cc13c1d3e62bacc5fd3bef5f309f69edeaca2103bec320cb79614",
   "decisions": "d50e04d7eefcc62407f32c0a6d1b571d64a534af1fefcbcab03ad30f9e60fb9f",
-  "matrix": "a2a412f0906b12786e41d8b8b96f157a4dfcdce6e47710853bdf53629e046608"
+  "matrix": "f97975a1220824281039ab697b60099596d9c1ac43cabafc68b34accdf47b9a0"
  },
  "examples/coffee-fleet-ota-cloud-sample/subsystems/ota-agent/engmod.yml": {
   "tier": "mvp",
@@ -2519,7 +2519,7 @@
   ],
   "document": "329449fb33e7ec9aef63d5e882eccf1296e23b0effc8e5968446e587ca316556",
   "decisions": "f6258b9d3aa93d00ca541bca3612bb2582fb06e1701c8f348841214c1d92fad1",
-  "matrix": "012fbe653c81fc171dcf7fdad215609508aa7563b3a546319fa4acbf13d84d86"
+  "matrix": "784c07142af818edac3d88303cb337bb3ba73536832b77097626a5e673ce02cb"
  },
  "examples/coffee-fleet-ota-cloud-sample/subsystems/telemetry/engmod.yml": {
   "tier": "mvp",
@@ -2608,7 +2608,7 @@
   ],
   "document": "8f2965566e9740b16e4d471e5201afe7620e1770c7b016368a66367dd5e7f1eb",
   "decisions": "540e5e9b9c96f9e156ea51f6d1e56de18059da3a7dbeaef760226ba30b5e8ec9",
-  "matrix": "61d3edc48b8eba1cfe1a64d00683d83d08dd969a768410b31ab9dc9f12ff7f2d"
+  "matrix": "58bfd1a89a5ad8aa494d34c14588754e925571993c3e6ceec43bbb5d427f066d"
  },
  "examples/dal-c-flight-control-sample/engmod.yml": {
   "tier": "mvp",
@@ -2740,14 +2740,14 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-YD-HLR-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-YD-HLR-001 is traced by no code or verification",
     "path": "requirements[REQ-YD-HLR-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-YD-LLR-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-YD-LLR-001 is traced by no code or verification",
     "path": "requirements[REQ-YD-LLR-001]",
     "requiredFrom": "product"
    },
@@ -2762,7 +2762,7 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-YD-SYS-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-YD-SYS-001 is traced by no code or verification",
     "path": "requirements[REQ-YD-SYS-001]",
     "requiredFrom": "product"
    }
@@ -2785,28 +2785,28 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-YD-HLR-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-YD-HLR-001 is traced by no code or verification",
     "path": "requirements[REQ-YD-HLR-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-YD-LLR-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-YD-LLR-001 is traced by no code or verification",
     "path": "requirements[REQ-YD-LLR-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-YD-SYS-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-YD-SYS-001 is traced by no code or verification",
     "path": "requirements[REQ-YD-SYS-001]",
     "requiredFrom": "product"
    }
   ],
-  "document": "f66fd53ac1b247af256f30091c4e111ccd46f1c4e04b9fb168ea954de29acb50",
+  "document": "176da3c71f328767a5535b6de86bafebdd7291459e3d293a03cfc2b18269787e",
   "decisions": "3b27a44616fb45658a74eaf90c65d3fba3628504c35c45002d1406d4b3a45ae9",
-  "matrix": "7679baef458c7b0fc63db6e1030c9fdd84779013d14aca117d6016d66144e153"
+  "matrix": "99fc347dd764c846aae018cc7a3a1d33ac08a4856849be4de1441196e5ddc16f"
  },
  "examples/payments-engineering-sample/engmod.yml": {
   "tier": "mvp",
@@ -3279,7 +3279,7 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PAY-009 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PAY-009 is traced by no code or verification",
     "path": "requirements[REQ-PAY-009]",
     "requiredFrom": "product"
    },
@@ -3396,7 +3396,7 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-PAY-009 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-PAY-009 is traced by no code or verification",
     "path": "requirements[REQ-PAY-009]",
     "requiredFrom": "product"
    },
@@ -3415,7 +3415,7 @@
   ],
   "document": "0416edb310853f3e56dc455bb8e2f1b8c82f516b5cec5e010b5f532088f64d69",
   "decisions": "a77197093328b7dc407178bd2f8c6ce910f8235095861194ff476d829afb8773",
-  "matrix": "aed88a9d722f77e198d7d8de9040f52f94dce72721d32895ccb7b093ed50106c"
+  "matrix": "dcc2d613d2ed4856bc232eb6587adabb674ddd8a7294efa1c7bd7587aa608f29"
  },
  "examples/requirement-links/repos/child-a/engmod.yml": {
   "tier": "mvp",
@@ -3498,28 +3498,28 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-A-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-A-001 is traced by no code or verification",
     "path": "requirements[REQ-A-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-A-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-A-002 is traced by no code or verification",
     "path": "requirements[REQ-A-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-A-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-A-003 is traced by no code or verification",
     "path": "requirements[REQ-A-003]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-A-004 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-A-004 is traced by no code or verification",
     "path": "requirements[REQ-A-004]",
     "requiredFrom": "product"
    }
@@ -3534,35 +3534,35 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-A-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-A-001 is traced by no code or verification",
     "path": "requirements[REQ-A-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-A-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-A-002 is traced by no code or verification",
     "path": "requirements[REQ-A-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-A-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-A-003 is traced by no code or verification",
     "path": "requirements[REQ-A-003]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-A-004 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-A-004 is traced by no code or verification",
     "path": "requirements[REQ-A-004]",
     "requiredFrom": "product"
    }
   ],
   "document": "784c78d480a19d9f2ef4dc0ec5968bc9df810f7eb005e5ccffe9cd74dad2c1d7",
   "decisions": "e9fd530f4a70dd65b4e5a7c37ce639522fcbe4a02dcafda696d64ee2a750cf15",
-  "matrix": "a0f4a9e77cf1bd8d9504079445e4fc19be7c8f82943d3e12b698ea9f64a17953"
+  "matrix": "eab4d3df0b57cd6ee5e8b84740054b1c64d722de754d11f791838955b9335a3d"
  },
  "examples/requirement-links/repos/child-b/engmod.yml": {
   "tier": "mvp",
@@ -3597,7 +3597,7 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-B-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-B-001 is traced by no code or verification",
     "path": "requirements[REQ-B-001]",
     "requiredFrom": "product"
    }
@@ -3612,14 +3612,14 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-B-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-B-001 is traced by no code or verification",
     "path": "requirements[REQ-B-001]",
     "requiredFrom": "product"
    }
   ],
   "document": "5cdd295420842224e7174de048fe66c8c30df5e1172d934eb25d607a9f47d979",
   "decisions": "2b967f6d611294d3a7a4ebe412ea02235c46813483a93648d9ca7f4c073bcc84",
-  "matrix": "0972c06748e160dcc8849c04142919b28702cc2bc4725284fbba686bbdb43a38"
+  "matrix": "4959d80e9d9fdac794dd440aae7025b3b2d88d06f2457a9ec80a09ccc3a11993"
  },
  "examples/requirement-links/repos/system/engmod.yml": {
   "tier": "mvp",
@@ -3692,21 +3692,21 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SYS-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SYS-001 is traced by no code or verification",
     "path": "requirements[REQ-SYS-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SYS-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SYS-002 is traced by no code or verification",
     "path": "requirements[REQ-SYS-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SYS-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SYS-003 is traced by no code or verification",
     "path": "requirements[REQ-SYS-003]",
     "requiredFrom": "product"
    }
@@ -3727,27 +3727,27 @@
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SYS-001 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SYS-001 is traced by no code or verification",
     "path": "requirements[REQ-SYS-001]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SYS-002 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SYS-002 is traced by no code or verification",
     "path": "requirements[REQ-SYS-002]",
     "requiredFrom": "product"
    },
    {
     "code": "requirement.orphan",
     "severity": "warning",
-    "message": "requirement REQ-SYS-003 is traced by no code, verification, or delegation",
+    "message": "requirement REQ-SYS-003 is traced by no code or verification",
     "path": "requirements[REQ-SYS-003]",
     "requiredFrom": "product"
    }
   ],
-  "document": "00595d12549a5ce14eeebe830d8e4f85c91c1d113bc7546a1ec941c040740065",
+  "document": "86c1717863ea1bb55ce8725eaa404ef32b2a5b8ec9be44ceb53962a58f179df3",
   "decisions": "e8bfcc2a6183ffb33a19d4eb77b19477b493576cc2fcb9cf1f2e5476ea42c72f",
-  "matrix": "a6d6f36a2f649fc4bff1ce1d03e6f83885bccc3baf46578112880b1305d2c644"
+  "matrix": "91b0745fe8482493b712e20cda33c2ab1765584efd750f6c839c786547281776"
  }
 }

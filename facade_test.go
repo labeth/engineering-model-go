@@ -73,8 +73,8 @@ func TestFacadeReexportsEngine(t *testing.T) {
 		}},
 		{dir: filepath.Join("internal", "composition"), internalOnly: []string{
 			// used by internal/asciidoc and internal/trace.
-			"ComposeForGeneration", "DelegationsByRequirement", "EnrichBundleFromComposition",
-			"MaterializeAllocations", "PathWithin", "ResolutionCount",
+			"ComposeForGeneration", "EnrichBundleFromComposition",
+			"PathWithin", "ResolutionCount",
 		}, rootName: map[string]string{"LinkDiagnostics": "RequirementLinkDiagnostics", "TierDiagnostics": "CompositionTierDiagnostics"}},
 		{dir: filepath.Join("internal", "reqlinks"), rootName: map[string]string{
 			"Kind": "ContractItemKind", "KindCapability": "ContractItemCapability", "KindAssumption": "ContractItemAssumption",
@@ -117,7 +117,7 @@ func TestFacadeReexportsEngine(t *testing.T) {
 		{dir: filepath.Join("internal", "trace"), rootName: map[string]string{
 			"Matrix": "TraceMatrix", "Row": "TraceRow", "Provenance": "TraceProvenance",
 			"DelegatedStatus": "TraceDelegatedStatus", "CodeRef": "TraceCodeRef",
-			"Delegation": "TraceDelegation", "Summary": "TraceSummary", "Options": "TraceOptions",
+			"Summary": "TraceSummary", "Options": "TraceOptions",
 			"LinkRef":        "TraceLinkRef",
 			"BuildFromFiles": "BuildTraceMatrixFromFiles", "BuildFromFilesWith": "BuildTraceMatrixFromFilesWith",
 			"TierGapFromFiles": "TierGapFromFilesWith",

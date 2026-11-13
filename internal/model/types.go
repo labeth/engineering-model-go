@@ -759,7 +759,7 @@ type ArchitectureInput struct {
 // InputComposition references manifest dependencies and their selected publications.
 type InputComposition struct {
 	Subsystems    []InputSubsystem `yaml:"subsystems"`
-	Allocations   []Allocation     `yaml:"allocations"`
+	Allocations   []Allocation     `yaml:"allocations"` // removed (model.allocations_removed): decoded only to report it
 	Satisfactions []Satisfaction   `yaml:"satisfactions"`
 }
 
@@ -1078,8 +1078,9 @@ type ContractEntry struct {
 	Note string `yaml:"note"`
 }
 
-// CompositionModel holds parent-only composition data: referenced subsystems and the allocation of
-// this system's requirements onto them. Absent in a leaf system.
+// CompositionModel holds parent-only composition data: referenced subsystems and satisfactions.
+// Absent in a leaf system. Allocations is decoded only so that validation can report
+// model.allocations_removed; nothing reads it (ADR-EMG-078).
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type CompositionModel struct {
 	Subsystems    []Subsystem    `yaml:"subsystems"`
@@ -1114,9 +1115,10 @@ type WorkspaceReplacement struct {
 	Path   string `yaml:"path"`
 }
 
-// Allocation binds a parent requirement onto an alias-qualified identifier
-// visible through the subsystem's selected publication.
-// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+// Allocation is the removed binding of a parent requirement onto an alias-qualified
+// identifier of a subsystem. It still decodes so that the error
+// model.allocations_removed can carry its remedy (ADR-EMG-078).
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051, REQ-EMG-187
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 type Allocation struct {
 	Requirement string `yaml:"requirement"` // this system's requirement id

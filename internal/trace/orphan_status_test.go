@@ -19,7 +19,7 @@ func TestOrphanIgnoresRetiredAndRejectedRequirements(t *testing.T) {
 		{ID: "REQ-C", Status: "rejected"},
 		{ID: "REQ-D"},
 	}}
-	diags := validateIntegrityWithIDs(map[string]bool{}, doc, nil, nil, nil)
+	diags := validateIntegrityWithIDs(map[string]bool{}, doc, nil, nil)
 	got := map[string]bool{}
 	for _, d := range diags {
 		if d.Code == "requirement.orphan" {

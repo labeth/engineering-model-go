@@ -21,12 +21,8 @@ type CompositionLockDocument = composition.CompositionLockDocument
 
 type CompositionLockDependency = composition.CompositionLockDependency
 
-// MaterializedAllocation is a parent->subsystem allocation with its composed-view resolution status.
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
-type MaterializedAllocation = composition.MaterializedAllocation
-
-// CompositionResult is the resolved tree plus materialized allocation trace and diagnostics.
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+// CompositionResult is the resolved tree plus provenance, lock and diagnostics.
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
 type CompositionResult = composition.CompositionResult
 
 // ResolutionOptions overrides the ENGMOD_WORK and ENGMOD_LOCK environment for

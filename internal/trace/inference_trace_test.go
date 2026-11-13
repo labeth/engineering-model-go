@@ -41,7 +41,7 @@ func TestJavaScriptTestOnlyLinksDoNotImplement(t *testing.T) {
 			if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
 				t.Fatalf("checks: %+v %+v", checks, diags)
 			}
-			matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
+			matrix := buildTraceMatrix(bundle, reqs, code, checks)
 			if matrix.Summary.Implemented != 1 {
 				t.Fatalf("test-only links counted as implementation: %+v", matrix)
 			}
@@ -70,7 +70,7 @@ func TestPythonTestOnlyLinksDoNotImplement(t *testing.T) {
 	if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
 		t.Fatalf("checks: %+v %+v", checks, diags)
 	}
-	matrix := buildTraceMatrix(bundle, requirements, code, checks, nil)
+	matrix := buildTraceMatrix(bundle, requirements, code, checks)
 	if matrix.Summary.Implemented != 1 {
 		t.Fatalf("test-only code credited: %+v", matrix)
 	}
@@ -109,7 +109,7 @@ func TestVerilogExcludedSourcesAndVerification(t *testing.T) {
 	if len(diags) != 0 || len(checks) != 1 || len(checks[0].Verifies) != 2 || checks[0].Status != "not-run" {
 		t.Fatalf("bad verification inference: %+v %+v", checks, diags)
 	}
-	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
+	matrix := buildTraceMatrix(bundle, reqs, code, checks)
 	if matrix.Summary.Implemented != 1 {
 		t.Fatalf("test-only links must not imply implementation: %+v", matrix)
 	}
@@ -158,7 +158,7 @@ func verificationFixture(t *testing.T, files map[string]string, reqIDs ...string
 	}
 	code, codeDiags := codescan.InferCodeItems(bundle, root)
 	checks, verDiags := codescan.InferVerificationChecks(bundle, reqs, code, root)
-	return buildTraceMatrix(bundle, reqs, code, checks, nil), checks, append(codeDiags, verDiags...)
+	return buildTraceMatrix(bundle, reqs, code, checks), checks, append(codeDiags, verDiags...)
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
@@ -363,7 +363,7 @@ func TestVerificationCodeUsesAbsoluteSourceContext(t *testing.T) {
 			t.Fatalf("test file root context lost: %+v", item)
 		}
 	}
-	matrix := buildTraceMatrix(bundle, model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-TEST-001"}}}, code, nil, nil)
+	matrix := buildTraceMatrix(bundle, model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-TEST-001"}}}, code, nil)
 	if matrix.Summary.Implemented != 0 {
 		t.Fatalf("test-root helper credited as production: %+v", matrix)
 	}
@@ -459,7 +459,7 @@ func TestLong(t *testing.T) {
 	code, _ := codescan.InferCodeItems(bundle, "")
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-G-001"}, {ID: "REQ-G-002"}, {ID: "REQ-G-003"}, {ID: "REQ-G-004"}}}
 	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
-	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
+	matrix := buildTraceMatrix(bundle, reqs, code, checks)
 	if matrix.Summary.TestLinked != 4 {
 		t.Fatalf("testLinked = %d, want 4 (gated tests stay test linked)", matrix.Summary.TestLinked)
 	}
@@ -531,7 +531,7 @@ func FuzzDecode(f *testing.F) {}
 		{ID: "REQ-B-006", VerificationCriteria: "Parsing takes at most 2 ms."},
 	}}
 	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
-	matrix := buildTraceMatrix(bundle, reqs, code, checks, nil)
+	matrix := buildTraceMatrix(bundle, reqs, code, checks)
 	rows := map[string]Row{}
 	for _, r := range matrix.Requirements {
 		rows[r.ID] = r
@@ -542,7 +542,7 @@ func FuzzDecode(f *testing.F) {}
 		}
 	}
 	var got []string
-	for _, d := range ValidateIntegrity(bundle, reqs, code, checks, nil) {
+	for _, d := range ValidateIntegrity(bundle, reqs, code, checks) {
 		if d.Code == "verification.benchmark_only" {
 			if d.Severity != validate.SeverityWarning || !strings.Contains(d.Message, "Test") {
 				t.Fatalf("diagnostic %+v", d)

@@ -241,7 +241,7 @@ func TestValidateIntegrityReportsConsistencyChecks(t *testing.T) {
 		{Kind: "source_file", Owner: "unresolved", Source: "a.go", Element: "a.go"},
 		{Kind: "symbol", Source: "a.go:3", Element: "CODE-A", ModelLinks: []string{"REQ-A"}},
 	}
-	diags := ValidateIntegrity(bundle, reqs, items, nil, nil)
+	diags := ValidateIntegrity(bundle, reqs, items, nil)
 	for _, code := range []string{"code.owner_unresolved", "code.model_link_kind_mismatch", "behavior.machine_unverified"} {
 		if got := pathsOf(diags, code); len(got) != 1 {
 			t.Errorf("%s reported at %v, want once", code, got)

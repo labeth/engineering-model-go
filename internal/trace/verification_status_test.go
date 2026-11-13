@@ -44,7 +44,7 @@ func TestStaleVerificationStatusWarnsWhenTestsExist(t *testing.T) {
 	checks := []codescan.VerificationCheck{{ID: "VER-STATE", Verifies: []string{"REQ-A", "REQ-B"}}}
 
 	got := map[string]validate.Diagnostic{}
-	for _, d := range ValidateIntegrity(bundle, reqs, code, checks, nil) {
+	for _, d := range ValidateIntegrity(bundle, reqs, code, checks) {
 		if d.Code == "verification.status_stale" {
 			got[d.Path] = d
 		}

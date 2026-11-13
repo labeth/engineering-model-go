@@ -13,7 +13,9 @@ import (
 
 // TestCompositionAndTraceMatrixTools verifies the composition.resolve and trace.matrix
 // MCP tools return real system-of-systems and traceability data for a composed model.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-030
+// Mutation: putting the allocations key back into the composition.resolve
+// result fails this test.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-030, REQ-EMG-187
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
 func TestCompositionAndTraceMatrixTools(t *testing.T) {
 	s := NewServer()
@@ -39,8 +41,8 @@ func TestCompositionAndTraceMatrixTools(t *testing.T) {
 		t.Fatalf("composition.resolve expected 1 subsystem, got %d", len(subs))
 	}
 
-	if allocs, _ := comp["allocations"].([]any); len(allocs) == 0 {
-		t.Fatal("composition.resolve expected allocations")
+	if _, has := comp["allocations"]; has {
+		t.Fatal("composition.resolve must not report allocations (ADR-EMG-078)")
 	}
 
 	tm := callToolData(t, s, "trace.matrix")
@@ -62,6 +64,7 @@ func writeMCPCompositionFixture(t *testing.T) string {
 	writeMCPModule(t, child, "example.com/child@v1", "v1.0.0", "CHILD", `publications:
   - id: public
     architecture: [CAP-CHILD]
+    requirements: [REQ-CHILD]
 `, `  contract:
     provides:
       - id: CAP-CHILD
@@ -77,11 +80,15 @@ func writeMCPCompositionFixture(t *testing.T) string {
       - id: SUB-CHILD
         dependency: child
         publication: public
-    allocations:
-      - requirement: REQ-PARENT
-        to: SUB-CHILD
-        target: child::CAP-CHILD
 `)
+	// REQ-PARENT traces to the capability of the child with a requirement link.
+	manifest := filepath.Join(parent, "engmod.yml")
+	data, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	writeMCPFile(t, manifest, strings.Replace(string(data), "  decisions: model/decisions.yml\n", "  decisions: model/decisions.yml\n  reqLinks: model/req-links.yml\n", 1))
+	writeMCPFile(t, filepath.Join(parent, "model", "req-links.yml"), "schemaVersion: 3\nreqLinks:\n  - id: LNK-PARENT-CHILD\n    parent: REQ-PARENT\n    child: child::CAP-CHILD\n    pinned:\n      version: v1.0.0\n    status: claimed\n")
 	writeMCPFile(t, filepath.Join(root, "engmod.work.yml"), "schemaVersion: 3\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
 	return parent
 }

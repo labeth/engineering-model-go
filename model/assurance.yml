@@ -87,7 +87,7 @@ assurance:
   - id: CTRL-REPO-LOCAL-WRITES
     name: Repository-Local Model Writes
     category: input-validation
-    description: The commands that write model files (review-links --accept, migrate-links, bump) write only the model's own
+    description: The commands that write model files (review-links --accept, link add, bump) write only the model's own
       files through an atomic replace that keeps their mode and restore every file on a failed write. In the MCP server
       only model.patch writes, with write true, a valid result, into a manifest document (not engmod.yml or the link file)
       that resolves inside the model root (ADR-EMG-029); links.review returns a patch.
@@ -536,17 +536,15 @@ assurance:
     artifacts:
     - path: model/requirements.yml
       description: 'Evidence debt of capability group CAP-EMG-REQUIREMENT-LINKS: Status verified needs a linked, ungated test
-        and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 19 with
-        linked test but no recorded RED check. Requirements: REQ-EMG-111, REQ-EMG-112, REQ-EMG-118, REQ-EMG-119, REQ-EMG-090,
+        and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 17 with
+        linked test but no recorded RED check. Requirements: REQ-EMG-111, REQ-EMG-112, REQ-EMG-119, REQ-EMG-090,
         REQ-EMG-091, REQ-EMG-092, REQ-EMG-093, REQ-EMG-094, REQ-EMG-095, REQ-EMG-097, REQ-EMG-098, REQ-EMG-100, REQ-EMG-101,
-        REQ-EMG-102, REQ-EMG-103, REQ-EMG-104, REQ-EMG-105, REQ-EMG-107.'
+        REQ-EMG-102, REQ-EMG-103, REQ-EMG-105, REQ-EMG-107.'
     defers:
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-111
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-112
-    - code: lifecycle.requirement_unverified
-      ref: REQ-EMG-118
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-119
     - code: lifecycle.requirement_unverified
@@ -574,8 +572,6 @@ assurance:
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-103
     - code: lifecycle.requirement_unverified
-      ref: REQ-EMG-104
-    - code: lifecycle.requirement_unverified
       ref: REQ-EMG-105
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-107
@@ -588,9 +584,9 @@ assurance:
     artifacts:
     - path: model/requirements.yml
       description: 'Evidence debt of capability group CAP-EMG-SYSTEM-COMPOSITION: Status verified needs a linked, ungated test
-        and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 18 with
+        and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 15 with
         linked test but no recorded RED check; 6 with no linked test. Requirements: REQ-EMG-108, REQ-EMG-016, REQ-EMG-017, REQ-EMG-018,
-        REQ-EMG-019, REQ-EMG-020, REQ-EMG-021, REQ-EMG-022, REQ-EMG-025, REQ-EMG-026, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049,
+        REQ-EMG-019, REQ-EMG-021, REQ-EMG-026, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049,
         REQ-EMG-050, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067, REQ-EMG-068, REQ-EMG-080,
         REQ-EMG-086, REQ-EMG-096.'
     defers:
@@ -605,13 +601,7 @@ assurance:
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-019
     - code: lifecycle.requirement_unverified
-      ref: REQ-EMG-020
-    - code: lifecycle.requirement_unverified
       ref: REQ-EMG-021
-    - code: lifecycle.requirement_unverified
-      ref: REQ-EMG-022
-    - code: lifecycle.requirement_unverified
-      ref: REQ-EMG-025
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-026
     - code: lifecycle.requirement_unverified
@@ -708,7 +698,7 @@ assurance:
     responsibleRole: ACT-COMPLIANCE-ENGINEER
     artifacts:
     - path: model/requirements.yml
-      description: 'Evidence debt of the consistency checks of ADR-EMG-069 batch 1 (CAP-EMG-TRACEABILITY, CAP-EMG-MODEL-VALIDATION, CAP-EMG-FORMAL-BEHAVIOR): Status verified needs a linked, ungated test and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 17 with linked test but no recorded RED check. The hand mutations of the implementation all failed a test, but they were not recorded as red checks. Requirements: REQ-EMG-170, REQ-EMG-171, REQ-EMG-172, REQ-EMG-173, REQ-EMG-174, REQ-EMG-175, REQ-EMG-176, REQ-EMG-177, REQ-EMG-178, REQ-EMG-179, REQ-EMG-180, REQ-EMG-181, REQ-EMG-182, REQ-EMG-183, REQ-EMG-184, REQ-EMG-185, REQ-EMG-186.'
+      description: 'Evidence debt of the consistency checks of ADR-EMG-069 batch 1 (CAP-EMG-TRACEABILITY, CAP-EMG-MODEL-VALIDATION, CAP-EMG-FORMAL-BEHAVIOR): Status verified needs a linked, ungated test and a RED check recorded for the tree (engws status-suggest, .engflow/red-checks.jsonl), none is recorded yet. 18 with linked test but no recorded RED check. The hand mutations of the implementation all failed a test, but they were not recorded as red checks. Requirements: REQ-EMG-170, REQ-EMG-171, REQ-EMG-172, REQ-EMG-173, REQ-EMG-174, REQ-EMG-175, REQ-EMG-176, REQ-EMG-177, REQ-EMG-178, REQ-EMG-179, REQ-EMG-180, REQ-EMG-181, REQ-EMG-182, REQ-EMG-183, REQ-EMG-184, REQ-EMG-185, REQ-EMG-186, REQ-EMG-187.'
     defers:
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-170
@@ -744,6 +734,8 @@ assurance:
       ref: REQ-EMG-185
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-186
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-187
   - id: POAM-CONSISTENCY-MODEL-ONLY
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -761,7 +753,7 @@ assurance:
     - code: code.state_unlinked
       path: authoredArchitecture.machines[2].states[0]
     - code: code.transition_unlinked
-      path: authoredArchitecture.machines[2].transitions[6]
+      path: authoredArchitecture.machines[2].transitions[5]
     - code: code.state_unlinked
       path: authoredArchitecture.machines[4].states[0]
     - code: code.transition_unlinked
@@ -1062,7 +1054,7 @@ assurance:
     responsibleRole: ACT-COMPLIANCE-ENGINEER
     artifacts:
     - path: model/behavior.yml
-      description: 'Modeling debt of capability group CAP-EMG-REQUIREMENT-LINKS: the event-driven requirements below (12) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-090, REQ-EMG-091, REQ-EMG-092, REQ-EMG-093, REQ-EMG-100, REQ-EMG-102, REQ-EMG-103, REQ-EMG-107, REQ-EMG-111, REQ-EMG-112, REQ-EMG-118.'
+      description: 'Modeling debt of capability group CAP-EMG-REQUIREMENT-LINKS: the event-driven requirements below (13) are modeled by no machine; no invariant lists them and their appliesTo names no machine, state, transition, event or flow (behavior.requirement_unmodeled). Each needs a machine with a checked invariant that it protects, or an appliesTo that names the machine element that realizes it. Requirements: REQ-EMG-090, REQ-EMG-091, REQ-EMG-092, REQ-EMG-093, REQ-EMG-100, REQ-EMG-102, REQ-EMG-103, REQ-EMG-107, REQ-EMG-111, REQ-EMG-112, REQ-EMG-118.'
     defers:
     - code: behavior.requirement_unmodeled
       ref: REQ-EMG-090
@@ -1088,6 +1080,8 @@ assurance:
       ref: REQ-EMG-118
     - code: behavior.requirement_unmodeled
       ref: REQ-EMG-184
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-187
   - id: POAM-CONSISTENCY-MODELING-13
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -1579,11 +1573,11 @@ assurance:
     owner: ACT-ARCHITECTURE-AUTHOR
     verificationRefs:
     - CODE-INTERNAL-MCP-REQLINKS-TEST-GO--TESTLINKSREVIEWTOOLRETURNSCOMMANDANDPATCH
-    - CODE-INTERNAL-ENGWS-MIGRATELINKS-TEST-GO--TESTMIGRATELINKSRESTORESEVERYFILEONWRITEFAILURE
+    - CODE-INTERNAL-ENGWS-LINKWRITE-TEST-GO--TESTWRITEALLORNOTHINGREMOVESCREATEDFILES
     - CODE-INTERNAL-ENGWS-WRITEFILE-TEST-GO--TESTWRITEFILEATOMICKEEPSMODE
     - CODE-INTERNAL-MCP-PATCH-TEST-GO--TESTMODELPATCHEDITSVALIDATESANDWRITESONLYVALIDRESULTS
     findings:
-    - links.review leaves the link file unchanged; a failed migrate-links write restores every file; a rewritten file
+    - links.review leaves the link file unchanged; a failed link write restores every file; a rewritten file
       keeps its mode; model.patch writes only a valid result into a model document inside the model root and refuses the
       link file.
   - id: VER-GIT-REF-VALIDATION

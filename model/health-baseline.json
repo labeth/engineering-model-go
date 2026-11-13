@@ -887,7 +887,7 @@
       "path": "internal/asciidoc/asciidoc.go",
       "function": "Generate",
       "code": "health.large_method",
-      "value": 567
+      "value": 566
     },
     {
       "path": "internal/asciidoc/asciidoc.go",
@@ -963,36 +963,6 @@
     },
     {
       "path": "internal/asciidoc/asciidoc_composition.go",
-      "function": "compositionDelegationMermaid",
-      "code": "health.brain_method",
-      "value": 15
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_composition.go",
-      "function": "compositionDelegationMermaid",
-      "code": "health.bumpy_road",
-      "value": 4
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_composition.go",
-      "function": "compositionDelegationMermaid",
-      "code": "health.complex_method",
-      "value": 15
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_composition.go",
-      "function": "compositionDelegationMermaid",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_composition.go",
-      "function": "compositionDelegationMermaid",
-      "code": "health.large_method",
-      "value": 57
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_composition.go",
       "function": "mermaidID",
       "code": "health.complex_conditional",
       "value": 6
@@ -1018,32 +988,20 @@
     {
       "path": "internal/asciidoc/asciidoc_composition.go",
       "function": "renderCompositionAsciiDocChapterFor",
-      "code": "health.brain_method",
-      "value": 20
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_composition.go",
-      "function": "renderCompositionAsciiDocChapterFor",
       "code": "health.bumpy_road",
-      "value": 5
+      "value": 4
     },
     {
       "path": "internal/asciidoc/asciidoc_composition.go",
       "function": "renderCompositionAsciiDocChapterFor",
       "code": "health.complex_method",
-      "value": 20
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_composition.go",
-      "function": "renderCompositionAsciiDocChapterFor",
-      "code": "health.deep_nesting",
-      "value": 3
+      "value": 16
     },
     {
       "path": "internal/asciidoc/asciidoc_composition.go",
       "function": "renderCompositionAsciiDocChapterFor",
       "code": "health.large_method",
-      "value": 87
+      "value": 67
     },
     {
       "path": "internal/asciidoc/asciidoc_decisions.go",
@@ -1353,15 +1311,9 @@
     },
     {
       "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-      "function": "buildRequirementAlignmentMermaid",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
-      "path": "internal/asciidoc/asciidoc_diagrams_core.go",
       "function": "buildRequirementCoverageMermaid",
       "code": "health.brain_method",
-      "value": 40
+      "value": 36
     },
     {
       "path": "internal/asciidoc/asciidoc_diagrams_core.go",
@@ -1373,7 +1325,7 @@
       "path": "internal/asciidoc/asciidoc_diagrams_core.go",
       "function": "buildRequirementCoverageMermaid",
       "code": "health.complex_method",
-      "value": 40
+      "value": 36
     },
     {
       "path": "internal/asciidoc/asciidoc_diagrams_core.go",
@@ -1385,13 +1337,13 @@
       "path": "internal/asciidoc/asciidoc_diagrams_core.go",
       "function": "buildRequirementCoverageMermaid",
       "code": "health.excess_arguments",
-      "value": 6
+      "value": 5
     },
     {
       "path": "internal/asciidoc/asciidoc_diagrams_core.go",
       "function": "buildRequirementCoverageMermaid",
       "code": "health.large_method",
-      "value": 155
+      "value": 140
     },
     {
       "path": "internal/asciidoc/asciidoc_diagrams_core.go",
@@ -3723,18 +3675,6 @@
     },
     {
       "path": "internal/composition/composition.go",
-      "function": "MaterializeAllocations",
-      "code": "health.complex_method",
-      "value": 9
-    },
-    {
-      "path": "internal/composition/composition.go",
-      "function": "MaterializeAllocations",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
-      "path": "internal/composition/composition.go",
       "function": "checkCompositionLock",
       "code": "health.complex_method",
       "value": 10
@@ -3857,7 +3797,7 @@
       "path": "internal/composition/composition.go",
       "function": "generateComposition",
       "code": "health.large_method",
-      "value": 71
+      "value": 70
     },
     {
       "path": "internal/composition/composition.go",
@@ -3881,19 +3821,19 @@
       "path": "internal/composition/composition.go",
       "function": "validateComposition",
       "code": "health.brain_method",
-      "value": 26
+      "value": 18
     },
     {
       "path": "internal/composition/composition.go",
       "function": "validateComposition",
       "code": "health.bumpy_road",
-      "value": 3
+      "value": 2
     },
     {
       "path": "internal/composition/composition.go",
       "function": "validateComposition",
       "code": "health.complex_method",
-      "value": 26
+      "value": 18
     },
     {
       "path": "internal/composition/composition.go",
@@ -3905,7 +3845,7 @@
       "path": "internal/composition/composition.go",
       "function": "validateComposition",
       "code": "health.large_method",
-      "value": 84
+      "value": 51
     },
     {
       "path": "internal/composition/composition.go",
@@ -4157,13 +4097,13 @@
       "path": "internal/composition/composition_test.go",
       "function": "TestCompositionResolvesManifestPublicationAndWritesLock",
       "code": "health.complex_method",
-      "value": 16
+      "value": 13
     },
     {
       "path": "internal/composition/composition_test.go",
       "function": "TestCompositionResolvesManifestPublicationAndWritesLock",
       "code": "health.large_method",
-      "value": 58
+      "value": 51
     },
     {
       "path": "internal/composition/composition_tier.go",
@@ -4511,13 +4451,13 @@
       "path": "internal/engws/cli.go",
       "function": "Main",
       "code": "health.bumpy_road",
-      "value": 8
+      "value": 7
     },
     {
       "path": "internal/engws/cli.go",
       "function": "Main",
       "code": "health.complex_method",
-      "value": 43
+      "value": 41
     },
     {
       "path": "internal/engws/cli.go",
@@ -4529,7 +4469,7 @@
       "path": "internal/engws/cli.go",
       "function": "Main",
       "code": "health.large_method",
-      "value": 159
+      "value": 151
     },
     {
       "path": "internal/engws/cli.go",
@@ -4764,198 +4704,6 @@
       "function": "TestLinkAdd",
       "code": "health.large_method",
       "value": 56
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "MigrateLinks",
-      "code": "health.bumpy_road",
-      "value": 4
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "MigrateLinks",
-      "code": "health.complex_method",
-      "value": 16
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "appendLinks",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "appendLinks",
-      "code": "health.complex_method",
-      "value": 8
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "appendLinks",
-      "code": "health.excess_arguments",
-      "value": 5
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "linkID.clean",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "migrateAllocations",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "migrateAllocations",
-      "code": "health.complex_method",
-      "value": 18
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "migrateAllocations",
-      "code": "health.excess_arguments",
-      "value": 5
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "migrateAllocations",
-      "code": "health.large_method",
-      "value": 66
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "notLinkTarget",
-      "code": "health.deep_nesting",
-      "value": 4
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "resolveDependencyItems",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "resolveDependencyItems",
-      "code": "health.complex_method",
-      "value": 12
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "resolveDependencyItems",
-      "code": "health.deep_nesting",
-      "value": 4
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "runMigrateLinks",
-      "code": "health.brain_method",
-      "value": 16
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "runMigrateLinks",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "runMigrateLinks",
-      "code": "health.complex_method",
-      "value": 16
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "runMigrateLinks",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "runMigrateLinks",
-      "code": "health.large_method",
-      "value": 56
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "writeAllOrNothing",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "writeAllOrNothing",
-      "code": "health.complex_method",
-      "value": 12
-    },
-    {
-      "path": "internal/engws/migratelinks.go",
-      "function": "writeAllOrNothing",
-      "code": "health.deep_nesting",
-      "value": 4
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksCoffeeFleet",
-      "code": "health.bumpy_road",
-      "value": 6
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksCoffeeFleet",
-      "code": "health.complex_conditional",
-      "value": 4
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksCoffeeFleet",
-      "code": "health.complex_method",
-      "value": 31
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksCoffeeFleet",
-      "code": "health.large_method",
-      "value": 72
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksKeepsInterfaceAllocation",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksKeepsInterfaceAllocation",
-      "code": "health.complex_method",
-      "value": 18
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksKeepsInterfaceAllocation",
-      "code": "health.large_method",
-      "value": 50
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksRestoresEveryFileOnWriteFailure",
-      "code": "health.complex_method",
-      "value": 9
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksUnresolvedAndUnique",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/engws/migratelinks_test.go",
-      "function": "TestMigrateLinksUnresolvedAndUnique",
-      "code": "health.complex_method",
-      "value": 10
     },
     {
       "path": "internal/engws/plan.go",
@@ -10401,36 +10149,6 @@
     },
     {
       "path": "internal/integration/composition_multirepo_test.go",
-      "function": "TestDelegatedRowShowsTargetRepositoryStatus",
-      "code": "health.complex_conditional",
-      "value": 4
-    },
-    {
-      "path": "internal/integration/composition_multirepo_test.go",
-      "function": "TestDelegatedRowShowsTargetRepositoryStatus",
-      "code": "health.complex_method",
-      "value": 13
-    },
-    {
-      "path": "internal/integration/composition_multirepo_test.go",
-      "function": "TestDelegatedRowShowsTargetRepositoryStatus",
-      "code": "health.large_assertion_block",
-      "value": 5
-    },
-    {
-      "path": "internal/integration/composition_multirepo_test.go",
-      "function": "TestDelegatedStatusScansOnlyTheDependencyModule",
-      "code": "health.complex_method",
-      "value": 9
-    },
-    {
-      "path": "internal/integration/composition_multirepo_test.go",
-      "function": "TestDelegatedStatusScansOnlyTheDependencyModule",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
-      "path": "internal/integration/composition_multirepo_test.go",
       "function": "TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce",
       "code": "health.complex_method",
       "value": 8
@@ -10457,7 +10175,7 @@
       "path": "internal/integration/examples_company_test.go",
       "function": "TestAtlasIndustriesCompanyExample",
       "code": "health.brain_method",
-      "value": 39
+      "value": 38
     },
     {
       "path": "internal/integration/examples_company_test.go",
@@ -10469,7 +10187,7 @@
       "path": "internal/integration/examples_company_test.go",
       "function": "TestAtlasIndustriesCompanyExample",
       "code": "health.complex_method",
-      "value": 39
+      "value": 38
     },
     {
       "path": "internal/integration/examples_company_test.go",
@@ -11147,13 +10865,13 @@
       "path": "internal/mcp/composition.go",
       "function": "Server.compositionResolve",
       "code": "health.brain_method",
-      "value": 10
+      "value": 9
     },
     {
       "path": "internal/mcp/composition.go",
       "function": "Server.compositionResolve",
       "code": "health.complex_method",
-      "value": 10
+      "value": 9
     },
     {
       "path": "internal/mcp/composition.go",
@@ -11165,19 +10883,19 @@
       "path": "internal/mcp/composition.go",
       "function": "Server.compositionResolve",
       "code": "health.large_method",
-      "value": 65
+      "value": 53
     },
     {
       "path": "internal/mcp/composition.go",
       "function": "Server.traceMatrix",
       "code": "health.brain_method",
-      "value": 14
+      "value": 13
     },
     {
       "path": "internal/mcp/composition.go",
       "function": "Server.traceMatrix",
       "code": "health.complex_method",
-      "value": 14
+      "value": 13
     },
     {
       "path": "internal/mcp/composition.go",
@@ -11189,7 +10907,7 @@
       "path": "internal/mcp/composition.go",
       "function": "Server.traceMatrix",
       "code": "health.large_method",
-      "value": 88
+      "value": 79
     },
     {
       "path": "internal/mcp/composition_offline_test.go",
@@ -11201,7 +10919,7 @@
       "path": "internal/mcp/composition_offline_test.go",
       "function": "TestMCPCompositionToolsNeverWriteLockAndWorkOffline",
       "code": "health.large_method",
-      "value": 73
+      "value": 69
     },
     {
       "path": "internal/mcp/composition_offline_test.go",
@@ -12183,24 +11901,6 @@
     },
     {
       "path": "internal/mcp/trace_delegated_test.go",
-      "function": "TestTraceMatrixToolReportsDelegatedStatus",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/mcp/trace_delegated_test.go",
-      "function": "TestTraceMatrixToolReportsDelegatedStatus",
-      "code": "health.complex_method",
-      "value": 12
-    },
-    {
-      "path": "internal/mcp/trace_delegated_test.go",
-      "function": "TestTraceMatrixToolReportsDelegatedStatus",
-      "code": "health.deep_nesting",
-      "value": 3
-    },
-    {
-      "path": "internal/mcp/trace_delegated_test.go",
       "function": "TestTraceMatrixToolReportsGatedOnly",
       "code": "health.bumpy_road",
       "value": 2
@@ -13025,19 +12725,19 @@
       "path": "internal/model/semantic.go",
       "function": "ProjectSemanticModel",
       "code": "health.brain_method",
-      "value": 103
+      "value": 101
     },
     {
       "path": "internal/model/semantic.go",
       "function": "ProjectSemanticModel",
       "code": "health.bumpy_road",
-      "value": 21
+      "value": 20
     },
     {
       "path": "internal/model/semantic.go",
       "function": "ProjectSemanticModel",
       "code": "health.complex_method",
-      "value": 103
+      "value": 101
     },
     {
       "path": "internal/model/semantic.go",
@@ -13049,7 +12749,7 @@
       "path": "internal/model/semantic.go",
       "function": "ProjectSemanticModel",
       "code": "health.large_method",
-      "value": 420
+      "value": 413
     },
     {
       "path": "internal/model/semantic.go",
@@ -14549,37 +14249,19 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "ValidateIntegrity",
       "code": "health.excess_arguments",
-      "value": 5
-    },
-    {
-      "path": "internal/trace/trace_matrix.go",
-      "function": "appendPublishedRequirementTraceRows",
-      "code": "health.brain_method",
-      "value": 16
+      "value": 4
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "appendPublishedRequirementTraceRows",
       "code": "health.complex_method",
-      "value": 16
+      "value": 10
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "appendPublishedRequirementTraceRows",
       "code": "health.deep_nesting",
       "value": 3
-    },
-    {
-      "path": "internal/trace/trace_matrix.go",
-      "function": "appendPublishedRequirementTraceRows",
-      "code": "health.large_method",
-      "value": 59
-    },
-    {
-      "path": "internal/trace/trace_matrix.go",
-      "function": "applyDelegatedStatus",
-      "code": "health.complex_method",
-      "value": 10
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -14615,19 +14297,19 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "buildFromBundle",
       "code": "health.large_method",
-      "value": 52
+      "value": 50
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "buildTraceMatrix",
       "code": "health.excess_arguments",
-      "value": 5
+      "value": 4
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "buildTraceMatrixWithIDs",
       "code": "health.brain_method",
-      "value": 32
+      "value": 29
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -14639,7 +14321,7 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "buildTraceMatrixWithIDs",
       "code": "health.complex_method",
-      "value": 32
+      "value": 29
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -14651,13 +14333,13 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "buildTraceMatrixWithIDs",
       "code": "health.excess_arguments",
-      "value": 6
+      "value": 5
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "buildTraceMatrixWithIDs",
       "code": "health.large_method",
-      "value": 123
+      "value": 115
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -14711,19 +14393,19 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "unsatisfiedRequirements",
       "code": "health.complex_method",
-      "value": 12
+      "value": 11
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "unsatisfiedRequirements",
       "code": "health.excess_arguments",
-      "value": 5
+      "value": 4
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "validateIntegrityWithIDs",
       "code": "health.brain_method",
-      "value": 16
+      "value": 15
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -14735,7 +14417,7 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "validateIntegrityWithIDs",
       "code": "health.complex_method",
-      "value": 16
+      "value": 15
     },
     {
       "path": "internal/trace/trace_matrix.go",
@@ -14747,19 +14429,13 @@
       "path": "internal/trace/trace_matrix.go",
       "function": "validateIntegrityWithIDs",
       "code": "health.excess_arguments",
-      "value": 5
+      "value": 4
     },
     {
       "path": "internal/trace/trace_matrix.go",
       "function": "validateIntegrityWithIDs",
       "code": "health.large_method",
       "value": 54
-    },
-    {
-      "path": "internal/trace/trace_matrix_test.go",
-      "function": "TestBuildTraceMatrixStatusAndDelegation",
-      "code": "health.complex_method",
-      "value": 10
     },
     {
       "path": "internal/trace/trace_matrix_test.go",
@@ -15767,7 +15443,7 @@
       "path": "internal/validate/reqlinks.go",
       "function": "requirementLinkDiagnostics",
       "code": "health.brain_method",
-      "value": 24
+      "value": 23
     },
     {
       "path": "internal/validate/reqlinks.go",
@@ -15779,7 +15455,7 @@
       "path": "internal/validate/reqlinks.go",
       "function": "requirementLinkDiagnostics",
       "code": "health.complex_method",
-      "value": 24
+      "value": 23
     },
     {
       "path": "internal/validate/reqlinks.go",
@@ -15791,7 +15467,7 @@
       "path": "internal/validate/reqlinks.go",
       "function": "requirementLinkDiagnostics",
       "code": "health.large_method",
-      "value": 72
+      "value": 68
     },
     {
       "path": "internal/validate/reqlinks.go",

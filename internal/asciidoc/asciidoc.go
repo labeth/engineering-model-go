@@ -168,9 +168,8 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 	diags = append(diags, verificationDiags...)
 	evidenceByOwner := buildOwnerEvidence(inferredRuntime, inferredCode)
 
-	delegationsByReq := composition.DelegationsByRequirement(composed)
 	scopedCode := trace.ScopeCodeToModel(inferredCode, trace.EffectiveCodeRoots(bundle, options.CodeRoot), codescan.ModelRootDir(bundle))
-	diags = append(diags, trace.ValidateIntegrity(validated, requirements, scopedCode, inferredVerification, delegationsByReq)...)
+	diags = append(diags, trace.ValidateIntegrity(validated, requirements, scopedCode, inferredVerification)...)
 	diags = validate.ApplyTierPolicy(bundle, diags)
 
 	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))
@@ -339,8 +338,8 @@ func Generate(bundle model.Bundle, requirements model.RequirementsDocument, desi
 
 	reqSections := make([]asciidocRequirementSection, 0, len(requirements.Requirements))
 	for _, r := range requirements.Requirements {
-		alignmentMermaid := buildRequirementAlignmentMermaid([]model.Requirement{r}, labelByID, delegationsByReq)
-		coverageMermaid := buildRequirementCoverageMermaid([]model.Requirement{r}, inferredRuntime, inferredCode, inferredVerification, labelByID, delegationsByReq)
+		alignmentMermaid := buildRequirementAlignmentMermaid([]model.Requirement{r}, labelByID)
+		coverageMermaid := buildRequirementCoverageMermaid([]model.Requirement{r}, inferredRuntime, inferredCode, inferredVerification, labelByID)
 		reqSections = append(reqSections, asciidocRequirementSection{
 			Anchor:               referenceAnchor("req", r.ID),
 			ID:                   r.ID,

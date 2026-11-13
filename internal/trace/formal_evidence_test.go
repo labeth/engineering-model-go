@@ -173,7 +173,7 @@ func TestFormalFailureReportsVerificationFailed(t *testing.T) {
 	checks, _ := codescan.InferVerificationChecks(bundle, reqs, nil, root)
 
 	failed := map[string]string{}
-	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks, nil) {
+	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks) {
 		if d.Code == "verification.failed" {
 			failed[d.Path] = d.Message
 		}
@@ -183,7 +183,7 @@ func TestFormalFailureReportsVerificationFailed(t *testing.T) {
 	}
 	// The model without lifecycle reports nothing, as for tests.
 	bundle.Manifest.Lifecycle = nil
-	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks, nil) {
+	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks) {
 		if d.Code == "verification.failed" {
 			t.Fatalf("without lifecycle: %+v", d)
 		}
@@ -198,7 +198,7 @@ func TestFormalFailureReportsVerificationFailed(t *testing.T) {
 	bundle = model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Manifest: model.ManifestDocument{Lifecycle: &model.ManifestLifecycle{Tier: "product"}}}
 	checks, _ = codescan.InferVerificationChecks(bundle, reqs, nil, root)
 	orphans := 0
-	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks, nil) {
+	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks) {
 		if d.Code == "verification.failed" {
 			t.Fatalf("a stale failure is no evidence: %+v", d)
 		}
