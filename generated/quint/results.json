@@ -137,7 +137,7 @@
       "machine": "SM-LINK-LIFECYCLE",
       "module": "sm_link_lifecycle",
       "qntFile": "generated/quint/sm_link_lifecycle.qnt",
-      "qntSha256": "78213f5818182b9259627cb6b704853f990e3320965a301564ae138c1b9d0db4",
+      "qntSha256": "5d48da5a1eaef0417fdacbf91ad7af02a12f0a09f60c350180708a24bb7744bd",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -176,7 +176,6 @@
           "requirements": [
             "REQ-EMG-094",
             "REQ-EMG-101",
-            "REQ-EMG-104",
             "REQ-EMG-119"
           ],
           "status": "pass",
@@ -196,7 +195,7 @@
         {
           "name": "wit_state_link_absent",
           "state": "STATE-LINK-ABSENT",
-          "witnessed": 9740,
+          "witnessed": 9750,
           "total": 10000
         },
         {
@@ -214,7 +213,7 @@
         {
           "name": "wit_state_link_suspect",
           "state": "STATE-LINK-SUSPECT",
-          "witnessed": 9222,
+          "witnessed": 9190,
           "total": 10000
         },
         {

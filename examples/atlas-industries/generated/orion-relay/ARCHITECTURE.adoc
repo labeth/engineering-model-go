@@ -592,7 +592,7 @@ This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) do
 <<<
 == System Composition & Hardware
 
-This chapter shows the system architecture across hardware and software: hardware items and their interfaces, the subsystems this system composes, and the allocation of this system's requirements onto them. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
+This chapter shows the system architecture across hardware and software: hardware items and their interfaces and the subsystems this system composes. Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.
 
 === Hardware Items
 
@@ -1037,7 +1037,7 @@ flowchart LR
 |`models.atlas.example/shared/compliance-baseline@v0@v0.1.0`
 |===
 
-All subsystem required interfaces are satisfied and all allocations resolve to published contract identifiers.
+All subsystem required interfaces are satisfied.
 
 
 <<<

@@ -45,8 +45,6 @@
     "testLinked": 0,
     "passed": 0,
     "delegated": 0,
-    "delegatedImplemented": 0,
-    "delegatedTestLinked": 0,
     "orphan": 3,
     "danglingLinks": 0,
     "gatedOnly": 0,

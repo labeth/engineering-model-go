@@ -530,6 +530,12 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-077';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-078";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-078';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -2320,12 +2326,6 @@ package 'engineering-model-go' {
     event occurrence 'EVT-LINK-ADD-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
-        sourceId = "EVT-LINK-MIGRATION-REQUESTED";
-        conceptKind = "event_definition";
-    }
-    event occurrence 'EVT-LINK-MIGRATION-REQUESTED' : EngineeringEvent;
-
-    @EngineeringElement {
         sourceId = "EVT-LINK-REVIEW-REQUESTED";
         conceptKind = "event_definition";
     }
@@ -3353,7 +3353,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-020' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall materialize parent-to-subsystem allocation traceability in the composed output without modifying any subsystem model.";
-        attribute 'notes' : 'String' = "A subsystem is parent-agnostic; parent allocation is materialized only in composed artifacts, never written back to the child (ADR-EMG-009, ADR-EMG-011).";
+        attribute 'notes' : 'String' = "Retired by ADR-EMG-078: composition.allocations and the materialized allocations are removed; a requirement link (reqLinks) is the only trace between models.";
     }
 
     @EngineeringElement {
@@ -3371,7 +3371,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-022' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall reject an allocation that targets a subsystem identifier not published in the subsystem contract.";
-        attribute 'notes' : 'String' = "Parents may bind only to a subsystem's public contract surface, not its internal identifiers.";
+        attribute 'notes' : 'String' = "Retired by ADR-EMG-078: composition.allocations is removed, so there is no allocation to reject; a manifest that carries it is model.allocations_removed (REQ-EMG-187).";
     }
 
     @EngineeringElement {
@@ -3398,7 +3398,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-025' {
         attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall produce a system requirement allocation matrix aggregated across the composed subsystems.";
-        attribute 'notes' : 'String' = "Aggregate roll-up generation mode for the integrating system.";
+        attribute 'notes' : 'String' = "Retired by ADR-EMG-078: the system requirement allocation matrix came from composition.allocations, which is removed; requirement links trace across models.";
     }
 
     @EngineeringElement {
@@ -4054,8 +4054,8 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-104' {
-        attribute 'text' : 'String' = "When link migration is requested, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.";
-        attribute 'notes' : 'String' = "engws migrate-links [--repo DIR] [--dry-run] writes one reqLinks entry per composition.allocations entry (id LNK-<requirement without REQ->-<ALIAS> upper case, made unique with -2, -3 ...; the target as child; parent the requirement for a capability, evidence [the requirement] for an assumption of use, so the next check does not report link.aou_unverified; pinned.version the dependency pin; status claimed; rationale from the allocation; a target whose dependency cannot be resolved is still written, with a note that its kind was not checked), creates or extends the requirement link file, adds documents.reqLinks: model/req-links.yml to engmod.yml when missing, removes the converted allocations (D13: an allocation whose resolvable target is an interface or other contract entry that is not a published capability or assumption of use is kept in place, keeps reporting composition.allocation_deprecated and is printed as kept allocation REQ → alias::ID with the reason), appends each capability contract.provides[].ref to realizes of the referenced requirement (deduplicated) and drops the ref; a ref on a non-capability entry or naming an unknown requirement is kept and reported; and removes every deprecated pinned.fingerprint of the existing link file, printing the count (REQ-EMG-118). Every edit keeps the other lines of the files; every file to write is snapshot first and, when one write fails, the files already written are restored and the ones it created removed. It prints the requirements that then report requirement.no_parent (a requirement that became the parent of a capability link is traced, D22). A second run changes nothing; --dry-run writes nothing.";
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.";
+        attribute 'notes' : 'String' = "Retired by ADR-EMG-078: engws migrate-links is removed with the allocations and contract refs it converted; engws link add writes a link (REQ-EMG-119).";
     }
 
     @EngineeringElement {
@@ -4181,7 +4181,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-118' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each requirement link that records a deprecated fingerprint.";
-        attribute 'notes' : 'String' = "Decision D23 (ADR-EMG-030): the pinned version is the review record. pinned.fingerprint still decodes (any string, optional) so that its error can carry the remedy, and every evaluation ignores it; validation reports model.pinned_fingerprint_removed (error, REQ-EMG-184) at reqLinks[i].pinned.fingerprint; engws migrate-links reports each one and leaves the file alone.";
+        attribute 'notes' : 'String' = "Retired by ADR-EMG-075: pinned.fingerprint is the error model.pinned_fingerprint_removed (REQ-EMG-184), not a warning.";
     }
 
     @EngineeringElement {
@@ -4797,6 +4797,15 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-187";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-187' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.";
+        attribute 'notes' : 'String' = "ADR-EMG-078, removal plan phase 4. composition.allocations and the delegation built on them, and engws migrate-links, are removed. A model that carries composition.allocations is the untiered error model.allocations_removed with the remedy to write requirement links (reqLinks) instead. The trace summary keeps the delegated count that links produce; hardware allocation relationships of the semantic model are not touched.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
@@ -4979,17 +4988,6 @@ package 'engineering-model-go' {
             }
         @EngineeringRelationship about 'TR-LINK-CONTRACT-DIFF' {
             sourceId = "TR-LINK-CONTRACT-DIFF";
-            conceptKind = "transition";
-            relationshipKind = "machine_transition";
-        }
-        transition 'TR-LINK-MIGRATE'
-            first 'STATE-LINK-ABSENT'
-            accept 'on-EVT-LINK-MIGRATION-REQUESTED' :> 'EVT-LINK-MIGRATION-REQUESTED'
-            then 'STATE-LINK-CLAIMED' {
-                doc /* engws migrate-links records each converted allocation as a claimed link (REQ-EMG-104). */
-            }
-        @EngineeringRelationship about 'TR-LINK-MIGRATE' {
-            sourceId = "TR-LINK-MIGRATE";
             conceptKind = "transition";
             relationshipKind = "machine_transition";
         }

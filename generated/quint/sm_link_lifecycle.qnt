@@ -16,13 +16,6 @@ module sm_link_lifecycle {
     v_reviewed' = v_reviewed,
     lastTransition' = "TR-LINK-ADD",
   }
-  // TR-LINK-MIGRATE (EVT-LINK-MIGRATION-REQUESTED): Link Absent -> Link Claimed
-  action tr_link_migrate = all {
-    state == StateLinkAbsent,
-    state' = StateLinkClaimed,
-    v_reviewed' = v_reviewed,
-    lastTransition' = "TR-LINK-MIGRATE",
-  }
   // TR-LINK-ACCEPT (EVT-LINK-REVIEW-REQUESTED): Link Claimed -> Link Accepted
   action tr_link_accept = all {
     state == StateLinkClaimed,
@@ -74,7 +67,6 @@ module sm_link_lifecycle {
   }
   action step = any {
     tr_link_add,
-    tr_link_migrate,
     tr_link_accept,
     tr_link_mismatch,
     tr_link_break,
@@ -85,7 +77,7 @@ module sm_link_lifecycle {
   }
   // INV-LINK-ACCEPTED-REVIEWED protects REQ-EMG-101
   val inv_link_accepted_reviewed = (state == StateLinkAccepted) implies v_reviewed
-  // INV-LINK-UNREVIEWED-NOT-ACCEPTED protects REQ-EMG-094, REQ-EMG-101, REQ-EMG-104, REQ-EMG-119
+  // INV-LINK-UNREVIEWED-NOT-ACCEPTED protects REQ-EMG-094, REQ-EMG-101, REQ-EMG-119
   val inv_link_unreviewed_not_accepted = ((state == StateLinkAbsent) or (state == StateLinkClaimed)) implies not(v_reviewed)
   // Reachability witnesses, one per state
   val wit_state_link_absent = state == StateLinkAbsent

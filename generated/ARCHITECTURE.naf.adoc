@@ -318,7 +318,6 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`EVT-DEPENDENCY-BUMP-REQUESTED` |event |Dependency Bump Requested
 |`EVT-GENERATION-RUN-REQUESTED` |event |Generation Run Requested
 |`EVT-LINK-ADD-REQUESTED` |event |Link Add Requested
-|`EVT-LINK-MIGRATION-REQUESTED` |event |Link Migration Requested
 |`EVT-LINK-REVIEW-REQUESTED` |event |Link Review Requested
 |`EVT-MCP-TOOL-CALL-RECEIVED` |event |MCP Tool Call Received
 |`EVT-MODEL-UPDATED` |event |Model Updated
@@ -394,9 +393,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`STATE-DELTA-REFUSED` |on_event |`EVT-REQUIREMENTS-DELTA-RECEIVED` |on_event
 |`STATE-DELTA-REFUSED` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-RECEIVE-AFTER-REFUSAL on EVT-REQUIREMENTS-DELTA-RECEIVED / candidateValid := false; sourceUnchanged := true
 |`STATE-LINK-ABSENT` |on_event |`EVT-LINK-ADD-REQUESTED` |on_event
-|`STATE-LINK-ABSENT` |on_event |`EVT-LINK-MIGRATION-REQUESTED` |on_event
 |`STATE-LINK-ABSENT` |transition |`STATE-LINK-CLAIMED` |transition: TR-LINK-ADD on EVT-LINK-ADD-REQUESTED
-|`STATE-LINK-ABSENT` |transition |`STATE-LINK-CLAIMED` |transition: TR-LINK-MIGRATE on EVT-LINK-MIGRATION-REQUESTED
 |`STATE-LINK-ACCEPTED` |on_event |`EVT-CONTRACT-DIFF-REQUESTED` |on_event
 |`STATE-LINK-ACCEPTED` |on_event |`EVT-DEPENDENCY-BUMP-REQUESTED` |on_event
 |`STATE-LINK-ACCEPTED` |on_event |`EVT-MODEL-UPDATED` |on_event

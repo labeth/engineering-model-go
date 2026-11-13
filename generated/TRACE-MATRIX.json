@@ -556,107 +556,107 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--APPENDMERMAIDCLASSDEFS",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 18
+          "line": 17
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDCODEOWNERSHIPMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 860
+          "line": 833
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDCODEOWNERSHIPROWS",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 768
+          "line": 741
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALCOLLABORATIONMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 328
+          "line": 316
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALCONTEXTMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 133
+          "line": 121
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALDECOMPOSITIONMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 244
+          "line": 232
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALGROUPDEPENDENCYMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 398
+          "line": 386
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDFUNCTIONALMANHATTANTABLE",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 266
+          "line": 254
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTCOMPACTTABLE",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 53
+          "line": 41
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 24
+          "line": 23
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTCOVERAGEMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 598
+          "line": 586
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--ESCAPEMERMAIDLABEL",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 760
+          "line": 733
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--ESCAPETABLECELL",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 125
+          "line": 113
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--FUNCTIONALCONTEXTINTERNALNODEID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 234
+          "line": 222
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSFROMSET",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 116
+          "line": 104
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSSORTED",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 577
+          "line": 565
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--KEYSSORTEDSTRINGSLICES",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 587
+          "line": 575
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--MODULEFROMPATH",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 941
+          "line": 914
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--SETTOSORTEDSLICE",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 956
+          "line": 929
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--SHORTLIBRARYLABEL",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 918
+          "line": 891
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--UNIQUEPRESERVE",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 968
+          "line": 941
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-RUNTIME-GO--BUILDDEPLOYMENTMERMAID",
@@ -4298,52 +4298,52 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "api_composition.go",
-          "line": 95
+          "line": 91
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "api_composition.go",
-          "line": 108
+          "line": 104
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--HASCOMPOSITION",
           "path": "api_composition.go",
-          "line": 87
+          "line": 83
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "internal/composition/composition.go",
-          "line": 252
+          "line": 237
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "internal/composition/composition.go",
-          "line": 265
+          "line": 250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--HASCOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 142
+          "line": 127
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--COMPOSITIONRESOLVE",
           "path": "internal/mcp/composition.go",
-          "line": 60
+          "line": 59
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--DIAGROWS",
           "path": "internal/mcp/composition.go",
-          "line": 233
+          "line": 209
         }
       ],
       "verifications": [
@@ -4376,7 +4376,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PATHWITHIN",
           "path": "internal/composition/composition.go",
-          "line": 790
+          "line": 774
         }
       ],
       "verifications": [
@@ -4400,7 +4400,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         }
       ],
       "status": "implemented",
@@ -4419,12 +4419,12 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--ERRDIAG",
           "path": "internal/composition/composition.go",
-          "line": 1396
+          "line": 1250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 1097
+          "line": 1043
         }
       ],
       "status": "implemented",
@@ -4440,25 +4440,11 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DELEGATIONSBYREQUIREMENT",
-          "path": "internal/composition/composition.go",
-          "line": 1419
-        },
-        {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--MATERIALIZEALLOCATIONS",
-          "path": "internal/composition/composition.go",
-          "line": 1056
-        },
-        {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--COMPOSITIONRESOLVE",
           "path": "internal/mcp/composition.go",
-          "line": 60
+          "line": 59
         }
       ],
-      "verifications": [
-        "VER-INF-TEST-COMPOSITION_GENERATION_TEST-F36487"
-      ],
-      "result": "not-run",
       "status": "implemented",
       "parents": [
         "CAP-EMG-SYSTEM-COMPOSITION"
@@ -4475,7 +4461,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 1097
+          "line": 1043
         }
       ],
       "status": "implemented",
@@ -4492,29 +4478,9 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--CONTRACTPROVIDEDENTRY",
-          "path": "internal/composition/composition.go",
-          "line": 1363
-        },
-        {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--CONTRACTPROVIDES",
-          "path": "internal/composition/composition.go",
-          "line": 1376
-        },
-        {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DELEGATIONTARGET",
-          "path": "internal/composition/composition.go",
-          "line": 1346
-        },
-        {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVEDELEGATION",
-          "path": "internal/composition/composition.go",
-          "line": 1331
-        },
-        {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 1097
+          "line": 1043
         }
       ],
       "status": "implemented",
@@ -4552,32 +4518,32 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--COMPOSITIONHARDWAREMERMAID",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 197
+          "line": 174
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--MERMAIDID",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 308
+          "line": 198
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--MERMAIDLABEL",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 327
+          "line": 217
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 23
+          "line": 22
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 35
+          "line": 34
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--HARDWAREITEM",
           "path": "internal/composition/composition.go",
-          "line": 1384
+          "line": 1238
         }
       ],
       "verifications": [
@@ -4598,24 +4564,14 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--COMPOSITIONDELEGATIONMERMAID",
-          "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 224
-        },
-        {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 23
+          "line": 22
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 35
-        },
-        {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--MATERIALIZEALLOCATIONS",
-          "path": "internal/composition/composition.go",
-          "line": 1056
+          "line": 34
         }
       ],
       "status": "implemented",
@@ -4633,24 +4589,19 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--COMPOSITIONDELEGATIONMERMAID",
-          "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 224
-        },
-        {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTALIGNMENTMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 24
+          "line": 23
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-DIAGRAMS-CORE-GO--BUILDREQUIREMENTCOVERAGEMERMAID",
           "path": "internal/asciidoc/asciidoc_diagrams_core.go",
-          "line": 598
+          "line": 586
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
           "path": "internal/mcp/composition.go",
-          "line": 134
+          "line": 121
         }
       ],
       "status": "implemented",
@@ -4682,12 +4633,12 @@
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILES",
           "path": "api_trace.go",
-          "line": 61
+          "line": 57
         },
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILESWITH",
           "path": "api_trace.go",
-          "line": 72
+          "line": 68
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-CONSISTENCY-GO--KNOWNMODELKINDS",
@@ -4702,42 +4653,42 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--ADDMACHINEIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 216
+          "line": 205
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 830
+          "line": 811
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--KNOWNMODELIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 232
+          "line": 221
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--REQUIREMENTIDSET",
           "path": "internal/trace/trace_matrix.go",
-          "line": 204
+          "line": 193
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 415
+          "line": 404
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 581
+          "line": 570
         }
       ],
       "verifications": [
@@ -4762,12 +4713,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 415
+          "line": 404
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 581
+          "line": 570
         }
       ],
       "verifications": [
@@ -4791,12 +4742,12 @@
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILES",
           "path": "api_trace.go",
-          "line": 61
+          "line": 57
         },
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILESWITH",
           "path": "api_trace.go",
-          "line": 72
+          "line": 68
         },
         {
           "symbol": "CODE-CMD-ENGTRACE-MAIN-GO--EMITMATRIX",
@@ -4846,7 +4797,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
           "path": "internal/mcp/composition.go",
-          "line": 134
+          "line": 121
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-REQLINKS-TRACE-GO--ORPHANPATH",
@@ -4856,47 +4807,47 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 830
+          "line": 811
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIX",
           "path": "internal/trace/trace_matrix.go",
-          "line": 644
+          "line": 633
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 659
+          "line": 648
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--CSV",
           "path": "internal/trace/trace_matrix.go",
-          "line": 1082
+          "line": 1006
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--EFFECTIVECODEROOTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 327
+          "line": 316
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--REQUIREMENTRESULTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 788
+          "line": 769
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--SCOPECODETOMODEL",
           "path": "internal/trace/trace_matrix.go",
-          "line": 340
+          "line": 329
         }
       ],
       "verifications": [
@@ -5364,7 +5315,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GENERATEEVALUATIONLOG",
@@ -5539,37 +5490,37 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--ATTRIBUTEFEATURE",
           "path": "internal/model/semantic.go",
-          "line": 1592
+          "line": 1585
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--COMPACTFEATURES",
           "path": "internal/model/semantic.go",
-          "line": 1618
+          "line": 1611
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--COMPACTSTRINGS",
           "path": "internal/model/semantic.go",
-          "line": 1629
+          "line": 1622
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--DERIVEDSEMANTICID",
           "path": "internal/model/semantic.go",
-          "line": 1506
+          "line": 1499
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--INDEXPATH",
           "path": "internal/model/semantic.go",
-          "line": 1735
+          "line": 1728
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--ISOCCURRENCEKIND",
           "path": "internal/model/semantic.go",
-          "line": 1378
+          "line": 1371
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--NORMALIZEMETADATA",
           "path": "internal/model/semantic.go",
-          "line": 1483
+          "line": 1476
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--PROJECTSEMANTICMODEL",
@@ -5579,87 +5530,87 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--REFERENCEFEATURE",
           "path": "internal/model/semantic.go",
-          "line": 1606
+          "line": 1599
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICMAPPINGKIND",
           "path": "internal/model/semantic.go",
-          "line": 1568
+          "line": 1561
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICMETADATA",
           "path": "internal/model/semantic.go",
-          "line": 1410
+          "line": 1403
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICREFERENCES",
           "path": "internal/model/semantic.go",
-          "line": 1512
+          "line": 1505
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICRELATIONSHIPALIASKEY",
           "path": "internal/model/semantic.go",
-          "line": 1563
+          "line": 1556
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICRELATIONSHIPALLOWSEXTERNALENDPOINTS",
           "path": "internal/model/semantic.go",
-          "line": 1400
+          "line": 1393
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICRELATIONSHIPID",
           "path": "internal/model/semantic.go",
-          "line": 1557
+          "line": 1550
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICTYPENAMESPACE",
           "path": "internal/model/semantic.go",
-          "line": 1497
+          "line": 1490
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATEEXPRESSION",
           "path": "internal/model/semantic.go",
-          "line": 1299
+          "line": 1292
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATEMETADATA",
           "path": "internal/model/semantic.go",
-          "line": 1279
+          "line": 1272
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATESEMANTICMODEL",
           "path": "internal/model/semantic.go",
-          "line": 893
+          "line": 886
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATESEMANTICVALUE",
           "path": "internal/model/semantic.go",
-          "line": 1332
+          "line": 1325
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDCONTROLKIND",
           "path": "internal/model/semantic.go",
-          "line": 1725
+          "line": 1718
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDPARAMETERDIRECTION",
           "path": "internal/model/semantic.go",
-          "line": 1715
+          "line": 1708
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDSEMANTICELEMENTKIND",
           "path": "internal/model/semantic.go",
-          "line": 1645
+          "line": 1638
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDSEMANTICFEATUREKIND",
           "path": "internal/model/semantic.go",
-          "line": 1705
+          "line": 1698
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDSEMANTICRELATIONSHIPKIND",
           "path": "internal/model/semantic.go",
-          "line": 1677
+          "line": 1670
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -5859,7 +5810,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-GEMARA-GEMARA-EVALUATION-GO--GENERATEEVALUATIONLOG",
@@ -6169,82 +6120,82 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--COMPACTSTRINGS",
           "path": "internal/model/semantic.go",
-          "line": 1629
+          "line": 1622
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--DERIVEDSEMANTICID",
           "path": "internal/model/semantic.go",
-          "line": 1506
+          "line": 1499
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--ISOCCURRENCEKIND",
           "path": "internal/model/semantic.go",
-          "line": 1378
+          "line": 1371
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--NORMALIZEMETADATA",
           "path": "internal/model/semantic.go",
-          "line": 1483
+          "line": 1476
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--REFERENCEFEATURE",
           "path": "internal/model/semantic.go",
-          "line": 1606
+          "line": 1599
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICRELATIONSHIPALIASKEY",
           "path": "internal/model/semantic.go",
-          "line": 1563
+          "line": 1556
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICTYPENAMESPACE",
           "path": "internal/model/semantic.go",
-          "line": 1497
+          "line": 1490
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATEEXPRESSION",
           "path": "internal/model/semantic.go",
-          "line": 1299
+          "line": 1292
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATEMETADATA",
           "path": "internal/model/semantic.go",
-          "line": 1279
+          "line": 1272
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATESEMANTICMODEL",
           "path": "internal/model/semantic.go",
-          "line": 893
+          "line": 886
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATESEMANTICVALUE",
           "path": "internal/model/semantic.go",
-          "line": 1332
+          "line": 1325
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDCONTROLKIND",
           "path": "internal/model/semantic.go",
-          "line": 1725
+          "line": 1718
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDPARAMETERDIRECTION",
           "path": "internal/model/semantic.go",
-          "line": 1715
+          "line": 1708
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDSEMANTICELEMENTKIND",
           "path": "internal/model/semantic.go",
-          "line": 1645
+          "line": 1638
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDSEMANTICFEATUREKIND",
           "path": "internal/model/semantic.go",
-          "line": 1705
+          "line": 1698
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDSEMANTICRELATIONSHIPKIND",
           "path": "internal/model/semantic.go",
-          "line": 1677
+          "line": 1670
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -6427,7 +6378,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--VALIDATESEMANTICMODEL",
           "path": "internal/model/semantic.go",
-          "line": 893
+          "line": 886
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -6545,12 +6496,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--CLONEMETAMODELPROPERTIES",
           "path": "internal/model/semantic.go",
-          "line": 1470
+          "line": 1463
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--KNOWNSYSMLSEMANTICALIAS",
           "path": "internal/model/semantic.go",
-          "line": 1696
+          "line": 1689
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--METAMODELPROPERTYVALUE",
@@ -6565,7 +6516,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--TYPEDOBJECT",
           "path": "internal/model/semantic.go",
-          "line": 1421
+          "line": 1414
         },
         {
           "symbol": "CODE-INTERNAL-SYSMLMETAMODEL-METAMODEL-GO--BOOLVALUE",
@@ -6940,12 +6891,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--CLONEMETAMODELPROPERTIES",
           "path": "internal/model/semantic.go",
-          "line": 1470
+          "line": 1463
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--KNOWNSYSMLSEMANTICALIAS",
           "path": "internal/model/semantic.go",
-          "line": 1696
+          "line": 1689
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--METAMODELPROPERTYVALUE",
@@ -6960,7 +6911,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--TYPEDOBJECT",
           "path": "internal/model/semantic.go",
-          "line": 1421
+          "line": 1414
         },
         {
           "symbol": "CODE-INTERNAL-SYSMLMETAMODEL-METAMODEL-GO--BOOLVALUE",
@@ -7213,12 +7164,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--TYPEDMETAMODELVALUE",
           "path": "internal/model/semantic.go",
-          "line": 1438
+          "line": 1431
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--TYPEDOBJECT",
           "path": "internal/model/semantic.go",
-          "line": 1421
+          "line": 1414
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--UNMARSHALYAML",
@@ -7909,12 +7860,12 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "api_composition.go",
-          "line": 95
+          "line": 91
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "api_composition.go",
-          "line": 108
+          "line": 104
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--IMPORTEDENTITYPROVENANCE",
@@ -7924,7 +7875,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
           "path": "api_composition.go",
-          "line": 127
+          "line": 123
         },
         {
           "symbol": "CODE-API-SYSML-GO--GENERATESYSMLV2FROMFILE",
@@ -7939,72 +7890,72 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COMPOSITIONLOCKDOCUMENT",
           "path": "internal/composition/composition.go",
-          "line": 77
+          "line": 76
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DIGESTMODULEDIRECTORY",
           "path": "internal/composition/composition.go",
-          "line": 973
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--FETCHMODULE",
           "path": "internal/composition/composition.go",
-          "line": 668
+          "line": 652
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "internal/composition/composition.go",
-          "line": 252
+          "line": 237
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "internal/composition/composition.go",
-          "line": 265
+          "line": 250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--IMPORTEDENTITYPROVENANCE",
           "path": "internal/composition/composition.go",
-          "line": 56
+          "line": 55
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--MODULECACHEDIRNAME",
           "path": "internal/composition/composition.go",
-          "line": 782
+          "line": 766
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PUBLICATIONPROVENANCE",
           "path": "internal/composition/composition.go",
-          "line": 958
+          "line": 942
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVEDEPENDENCY",
           "path": "internal/composition/composition.go",
-          "line": 617
+          "line": 601
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--SANITIZEDIRNAME",
           "path": "internal/composition/composition.go",
-          "line": 804
+          "line": 788
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATEDEPENDENCIES",
           "path": "internal/composition/composition.go",
-          "line": 821
+          "line": 805
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
           "path": "internal/composition/composition.go",
-          "line": 441
+          "line": 425
         },
         {
           "symbol": "CODE-INTERNAL-EXPORT-SYSML-SYSML-EXPORT-GO--COMPOSITIONEXTERNALENDPOINTS",
@@ -8059,7 +8010,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1094
+          "line": 1095
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
@@ -8084,7 +8035,7 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEPARENTWITHOCIMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 281
+          "line": 280
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONMODULE",
@@ -8136,57 +8087,57 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "api_composition.go",
-          "line": 95
+          "line": 91
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "api_composition.go",
-          "line": 108
+          "line": 104
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
           "path": "api_composition.go",
-          "line": 127
+          "line": 123
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COMPOSITIONLOCKDOCUMENT",
           "path": "internal/composition/composition.go",
-          "line": 77
+          "line": 76
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DIGESTMODULEDIRECTORY",
           "path": "internal/composition/composition.go",
-          "line": 973
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "internal/composition/composition.go",
-          "line": 252
+          "line": 237
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "internal/composition/composition.go",
-          "line": 265
+          "line": 250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVEDEPENDENCY",
           "path": "internal/composition/composition.go",
-          "line": 617
+          "line": 601
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
           "path": "internal/composition/composition.go",
-          "line": 441
+          "line": 425
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
@@ -8231,7 +8182,7 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEPARENTWITHOCIMODULE",
           "path": "internal/testutil/fixtures.go",
-          "line": 281
+          "line": 280
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEV2COMPOSITIONMODULE",
@@ -8297,12 +8248,12 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "api_composition.go",
-          "line": 95
+          "line": 91
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "api_composition.go",
-          "line": 108
+          "line": 104
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--IMPORTEDENTITYPROVENANCE",
@@ -8312,7 +8263,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
           "path": "api_composition.go",
-          "line": 127
+          "line": 123
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-CONFINEMENT-GO--CHECKMODULEZIPENTRIES",
@@ -8332,112 +8283,112 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COLLECTOWNEDIDS",
           "path": "internal/composition/composition.go",
-          "line": 926
+          "line": 910
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COMPOSITIONLOCKDOCUMENT",
           "path": "internal/composition/composition.go",
-          "line": 77
+          "line": 76
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--CONTAINS",
           "path": "internal/composition/composition.go",
-          "line": 1012
+          "line": 996
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DIGESTMODULEDIRECTORY",
           "path": "internal/composition/composition.go",
-          "line": 973
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DOMAINOWNEDIDS",
           "path": "internal/composition/composition.go",
-          "line": 897
+          "line": 881
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "internal/composition/composition.go",
-          "line": 252
+          "line": 237
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "internal/composition/composition.go",
-          "line": 265
+          "line": 250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--HASCOMPOSITIONERRORS",
           "path": "internal/composition/composition.go",
-          "line": 1042
+          "line": 1026
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--IMPORTEDENTITYPROVENANCE",
           "path": "internal/composition/composition.go",
-          "line": 56
+          "line": 55
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--ISREFERENCEFIELD",
           "path": "internal/composition/composition.go",
-          "line": 1309
+          "line": 1219
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--MODULECACHEDIRNAME",
           "path": "internal/composition/composition.go",
-          "line": 782
+          "line": 766
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PATHWITHIN",
           "path": "internal/composition/composition.go",
-          "line": 790
+          "line": 774
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PUBLICATIONBYID",
           "path": "internal/composition/composition.go",
-          "line": 856
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PUBLICATIONPROVENANCE",
           "path": "internal/composition/composition.go",
-          "line": 958
+          "line": 942
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PUBLISHEDBYALIAS",
           "path": "internal/composition/composition.go",
-          "line": 1190
+          "line": 1100
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVEDEPENDENCY",
           "path": "internal/composition/composition.go",
-          "line": 617
+          "line": 601
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATEDEPENDENCIES",
           "path": "internal/composition/composition.go",
-          "line": 821
+          "line": 805
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATEPUBLICATION",
           "path": "internal/composition/composition.go",
-          "line": 866
+          "line": 850
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATEQUALIFIEDREFERENCES",
           "path": "internal/composition/composition.go",
-          "line": 1202
+          "line": 1112
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
           "path": "internal/composition/composition.go",
-          "line": 441
+          "line": 425
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-AUTHORING-GO--BUILDAUTHORINGCONTRACT",
@@ -8472,7 +8423,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1121
+          "line": 1123
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -8492,12 +8443,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 1132
+          "line": 1134
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1094
+          "line": 1095
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--LOADWORKSPACE",
@@ -8593,32 +8544,32 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--BUILDCOMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 145
+          "line": 141
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--COMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 50
+          "line": 46
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--PUBLISHEDPROJECTION",
           "path": "api_composition.go",
-          "line": 45
+          "line": 41
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--PUBLISHEDPROJECTIONENTITY",
           "path": "api_composition.go",
-          "line": 41
+          "line": 37
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 151
+          "line": 147
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
           "path": "api_composition.go",
-          "line": 158
+          "line": 154
         },
         {
           "symbol": "CODE-API-SYSML-GO--GENERATESYSMLV2FROMFILE",
@@ -8628,12 +8579,12 @@
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILES",
           "path": "api_trace.go",
-          "line": 61
+          "line": 57
         },
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILESWITH",
           "path": "api_trace.go",
-          "line": 72
+          "line": 68
         },
         {
           "symbol": "CODE-API-TRACE-GO--TRACEPROVENANCE",
@@ -8643,22 +8594,22 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--PROJECTIONENTITYLABEL",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 178
+          "line": 155
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 23
+          "line": 22
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 35
+          "line": 34
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERPUBLISHEDPROJECTIONTABLES",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 135
+          "line": 112
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--BUILDCOMPOSITIONPROJECTION",
@@ -8783,22 +8734,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 1019
+          "line": 958
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 830
+          "line": 811
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 113
+          "line": 112
         }
       ],
       "verifications": [
@@ -8834,7 +8785,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--BUILDCOMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 145
+          "line": 141
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--COMPOSITIONLOCKDOCUMENT",
@@ -8844,17 +8795,17 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--COMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 50
+          "line": 46
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "api_composition.go",
-          "line": 95
+          "line": 91
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "api_composition.go",
-          "line": 108
+          "line": 104
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--IMPORTEDENTITYPROVENANCE",
@@ -8864,37 +8815,37 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--PUBLISHEDPROJECTION",
           "path": "api_composition.go",
-          "line": 45
+          "line": 41
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--PUBLISHEDPROJECTIONENTITY",
           "path": "api_composition.go",
-          "line": 41
+          "line": 37
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 151
+          "line": 147
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
           "path": "api_composition.go",
-          "line": 158
+          "line": 154
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
           "path": "api_composition.go",
-          "line": 127
+          "line": 123
         },
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILES",
           "path": "api_trace.go",
-          "line": 61
+          "line": 57
         },
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILESWITH",
           "path": "api_trace.go",
-          "line": 72
+          "line": 68
         },
         {
           "symbol": "CODE-API-TRACE-GO--TRACEPROVENANCE",
@@ -8904,107 +8855,107 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--PROJECTIONENTITYLABEL",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 178
+          "line": 155
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTER",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 23
+          "line": 22
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 35
+          "line": 34
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERPUBLISHEDPROJECTIONTABLES",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 135
+          "line": 112
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COLLECTOWNEDIDS",
           "path": "internal/composition/composition.go",
-          "line": 926
+          "line": 910
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COMPOSITIONLOCKDOCUMENT",
           "path": "internal/composition/composition.go",
-          "line": 77
+          "line": 76
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--CONTAINS",
           "path": "internal/composition/composition.go",
-          "line": 1012
+          "line": 996
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DOMAINOWNEDIDS",
           "path": "internal/composition/composition.go",
-          "line": 897
+          "line": 881
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "internal/composition/composition.go",
-          "line": 252
+          "line": 237
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "internal/composition/composition.go",
-          "line": 265
+          "line": 250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--IMPORTEDENTITYPROVENANCE",
           "path": "internal/composition/composition.go",
-          "line": 56
+          "line": 55
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--ISREFERENCEFIELD",
           "path": "internal/composition/composition.go",
-          "line": 1309
+          "line": 1219
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PUBLICATIONBYID",
           "path": "internal/composition/composition.go",
-          "line": 856
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PUBLICATIONPROVENANCE",
           "path": "internal/composition/composition.go",
-          "line": 958
+          "line": 942
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--PUBLISHEDBYALIAS",
           "path": "internal/composition/composition.go",
-          "line": 1190
+          "line": 1100
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATEDEPENDENCIES",
           "path": "internal/composition/composition.go",
-          "line": 821
+          "line": 805
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATEPUBLICATION",
           "path": "internal/composition/composition.go",
-          "line": 866
+          "line": 850
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATEQUALIFIEDREFERENCES",
           "path": "internal/composition/composition.go",
-          "line": 1202
+          "line": 1112
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
           "path": "internal/composition/composition.go",
-          "line": 441
+          "line": 425
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--BUILDCOMPOSITIONPROJECTION",
@@ -9129,7 +9080,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1121
+          "line": 1123
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -9149,12 +9100,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 1132
+          "line": 1134
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1094
+          "line": 1095
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -9179,22 +9130,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 1019
+          "line": 958
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILES",
           "path": "internal/trace/trace_matrix.go",
-          "line": 830
+          "line": 811
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--PROVENANCE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 113
+          "line": 112
         },
         {
           "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
@@ -9794,7 +9745,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--ISCODEID",
           "path": "internal/model/semantic.go",
-          "line": 1742
+          "line": 1735
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-DIAGNOSTICS-GO--ASSERTDIAG",
@@ -9905,7 +9856,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
           "path": "internal/mcp/composition.go",
-          "line": 134
+          "line": 121
         }
       ],
       "verifications": [
@@ -9997,27 +9948,27 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "api_composition.go",
-          "line": 95
+          "line": 91
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "api_composition.go",
-          "line": 108
+          "line": 104
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLUTIONOPTIONS",
           "path": "api_composition.go",
-          "line": 36
+          "line": 32
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
           "path": "api_composition.go",
-          "line": 158
+          "line": 154
         },
         {
           "symbol": "CODE-API-TRACE-GO--TRACEOPTIONS",
           "path": "api_trace.go",
-          "line": 55
+          "line": 51
         },
         {
           "symbol": "CODE-CMD-ENGDOC-MAIN-GO--MAIN",
@@ -10097,22 +10048,22 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "internal/composition/composition.go",
-          "line": 252
+          "line": 237
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "internal/composition/composition.go",
-          "line": 265
+          "line": 250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLUTIONOPTIONS",
           "path": "internal/composition/composition.go",
-          "line": 165
+          "line": 150
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
@@ -10127,7 +10078,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 816
+          "line": 797
         },
         {
           "symbol": "CODE-MODEL-API-GO--FINDWORKSPACEWITH",
@@ -10155,27 +10106,27 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "api_composition.go",
-          "line": 95
+          "line": 91
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "api_composition.go",
-          "line": 108
+          "line": 104
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLUTIONOPTIONS",
           "path": "api_composition.go",
-          "line": 36
+          "line": 32
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
           "path": "api_composition.go",
-          "line": 158
+          "line": 154
         },
         {
           "symbol": "CODE-API-TRACE-GO--TRACEOPTIONS",
           "path": "api_trace.go",
-          "line": 55
+          "line": 51
         },
         {
           "symbol": "CODE-CMD-ENGDOC-MAIN-GO--MAIN",
@@ -10255,57 +10206,57 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--CACHEMODE",
           "path": "internal/composition/composition.go",
-          "line": 199
+          "line": 184
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--CHECKCOMPOSITIONLOCK",
           "path": "internal/composition/composition.go",
-          "line": 364
+          "line": 348
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DIGESTMODULEDIRECTORY",
           "path": "internal/composition/composition.go",
-          "line": 973
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--EXTRALOCKDIAGNOSTICS",
           "path": "internal/composition/composition.go",
-          "line": 415
+          "line": 399
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--FETCHMODULE",
           "path": "internal/composition/composition.go",
-          "line": 668
+          "line": 652
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILE",
           "path": "internal/composition/composition.go",
-          "line": 252
+          "line": 237
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "internal/composition/composition.go",
-          "line": 265
+          "line": 250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--LOCKMODE",
           "path": "internal/composition/composition.go",
-          "line": 225
+          "line": 210
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--MODULEAT",
           "path": "internal/composition/composition.go",
-          "line": 431
+          "line": 415
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLUTIONOPTIONS",
           "path": "internal/composition/composition.go",
-          "line": 165
+          "line": 150
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
@@ -10315,17 +10266,17 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--APPLYREADONLYRESOLUTIONDEFAULTS",
           "path": "internal/mcp/composition.go",
-          "line": 48
+          "line": 47
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--RESOLUTION",
           "path": "internal/mcp/composition.go",
-          "line": 30
+          "line": 29
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 816
+          "line": 797
         }
       ],
       "verifications": [
@@ -10358,27 +10309,27 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFORBUNDLE",
           "path": "api_composition.go",
-          "line": 121
+          "line": 117
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--QUALIFIEDREFERENCEDIAGNOSTICS",
           "path": "api_composition.go",
-          "line": 138
+          "line": 134
         },
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILESWITH",
           "path": "api_trace.go",
-          "line": 72
+          "line": 68
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--EXCLUDEUNPUBLISHEDREFERENCEECHOES",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 756
+          "line": 755
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--FIRSTQUOTED",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 789
+          "line": 788
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
@@ -10388,27 +10339,27 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--VALIDATIONBUNDLE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 734
+          "line": 733
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFORBUNDLE",
           "path": "internal/composition/composition.go",
-          "line": 278
+          "line": 263
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--ISREFERENCEFIELD",
           "path": "internal/composition/composition.go",
-          "line": 1309
+          "line": 1219
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--QUALIFIEDREFERENCEDIAGNOSTICS",
           "path": "internal/composition/composition.go",
-          "line": 1300
+          "line": 1210
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATEQUALIFIEDREFERENCES",
           "path": "internal/composition/composition.go",
-          "line": 1202
+          "line": 1112
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-PROJECTION-GO--ENRICHBUNDLE",
@@ -10418,7 +10369,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--ISQUALIFIEDSEMANTICREFERENCE",
           "path": "internal/model/semantic.go",
-          "line": 1394
+          "line": 1387
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WRITEINTERFACEMODULE",
@@ -10428,22 +10379,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 659
+          "line": 648
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITYWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 581
+          "line": 570
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -10483,27 +10434,27 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFORBUNDLE",
           "path": "api_composition.go",
-          "line": 121
+          "line": 117
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "api_composition.go",
-          "line": 108
+          "line": 104
         },
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILESWITH",
           "path": "api_trace.go",
-          "line": 72
+          "line": 68
         },
         {
           "symbol": "CODE-API-TRACE-GO--TRACEOPTIONS",
           "path": "api_trace.go",
-          "line": 55
+          "line": 51
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-COMPOSITION-GO--RENDERCOMPOSITIONASCIIDOCCHAPTERFOR",
           "path": "internal/asciidoc/asciidoc_composition.go",
-          "line": 35
+          "line": 34
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
@@ -10513,67 +10464,62 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--VALIDATIONBUNDLE",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 734
+          "line": 733
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--COMPOSEFORGENERATION",
           "path": "internal/composition/composition.go",
-          "line": 1406
-        },
-        {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DELEGATIONSBYREQUIREMENT",
-          "path": "internal/composition/composition.go",
-          "line": 1419
+          "line": 1260
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DISPLAYDIR",
           "path": "internal/composition/composition.go",
-          "line": 123
+          "line": 108
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFORBUNDLE",
           "path": "internal/composition/composition.go",
-          "line": 278
+          "line": 263
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
           "path": "internal/composition/composition.go",
-          "line": 265
+          "line": 250
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--NAMECACHEPATHS",
           "path": "internal/composition/composition.go",
-          "line": 579
+          "line": 563
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLUTIONCOUNT",
           "path": "internal/composition/composition.go",
-          "line": 244
+          "line": 229
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--VALIDATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 1097
+          "line": 1043
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--OPTIONS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 816
+          "line": 797
         }
       ],
       "verifications": [
@@ -10598,7 +10544,7 @@
         {
           "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILESWITH",
           "path": "api_trace.go",
-          "line": 72
+          "line": 68
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--GITVISIBLEFILES",
@@ -10613,37 +10559,32 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVESYSTEM",
           "path": "internal/composition/composition.go",
-          "line": 461
+          "line": 445
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
           "path": "internal/mcp/composition.go",
-          "line": 134
-        },
-        {
-          "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPLYDELEGATEDSTATUS",
-          "path": "internal/trace/trace_matrix.go",
-          "line": 989
+          "line": 121
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--DEPENDENCYTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 923
+          "line": 902
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 957
+          "line": 930
         }
       ],
       "verifications": [
@@ -10792,52 +10733,52 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--MAIN",
           "path": "internal/engws/cli.go",
-          "line": 218
+          "line": 204
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
           "path": "internal/engws/cli.go",
-          "line": 390
+          "line": 368
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTSKEWS",
           "path": "internal/engws/cli.go",
-          "line": 452
+          "line": 430
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTTABLE",
           "path": "internal/engws/cli.go",
-          "line": 422
+          "line": 400
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 573
+          "line": 551
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNCHECK",
           "path": "internal/engws/cli.go",
-          "line": 530
+          "line": 508
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNPIN",
           "path": "internal/engws/cli.go",
-          "line": 493
+          "line": 471
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSKEW",
           "path": "internal/engws/cli.go",
-          "line": 517
+          "line": 495
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTATUS",
           "path": "internal/engws/cli.go",
-          "line": 407
+          "line": 385
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 462
+          "line": 440
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-ENGINECHECK-GO--PINNEDEXEC",
@@ -11030,22 +10971,22 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFORBUNDLE",
           "path": "api_composition.go",
-          "line": 121
+          "line": 117
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--CACHEMODE",
           "path": "internal/composition/composition.go",
-          "line": 199
+          "line": 184
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DISPLAYDIR",
           "path": "internal/composition/composition.go",
-          "line": 123
+          "line": 108
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITIONFORBUNDLE",
           "path": "internal/composition/composition.go",
-          "line": 278
+          "line": 263
         },
         {
           "symbol": "CODE-INTERNAL-MCP-AUTHORING-GO--ADDDOCUMENT",
@@ -11210,12 +11151,12 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--APPLYREADONLYRESOLUTIONDEFAULTS",
           "path": "internal/mcp/composition.go",
-          "line": 48
+          "line": 47
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--RESOLUTION",
           "path": "internal/mcp/composition.go",
-          "line": 30
+          "line": 29
         },
         {
           "symbol": "CODE-INTERNAL-MCP-OUTPUT-PATHS-GO--EVALORSAME",
@@ -11372,12 +11313,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 415
+          "line": 404
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-VERIFICATION-STATUS-GO--STALEVERIFICATIONSTATUS",
@@ -11412,7 +11353,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
           "path": "internal/engws/cli.go",
-          "line": 637
+          "line": 615
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
@@ -11908,7 +11849,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 462
+          "line": 440
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOREPLACES",
@@ -12011,17 +11952,17 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--NONNILSTRINGS",
           "path": "internal/mcp/composition.go",
-          "line": 264
+          "line": 240
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
           "path": "internal/mcp/composition.go",
-          "line": 134
+          "line": 121
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 659
+          "line": 648
         }
       ],
       "verifications": [
@@ -12263,7 +12204,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CONTAINSTRIMMED",
           "path": "internal/validate/reqlinks.go",
-          "line": 271
+          "line": 265
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--PUBLISHEDCONTRACTITEMS",
@@ -12343,7 +12284,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 197
+          "line": 191
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKDIAGNOSTICS",
@@ -12377,7 +12318,7 @@
           "mode": "run+verify",
           "result": "pass",
           "qntFile": "generated/quint/sm_link_lifecycle.qnt",
-          "qntSha256": "78213f5818182b9259627cb6b704853f990e3320965a301564ae138c1b9d0db4",
+          "qntSha256": "5d48da5a1eaef0417fdacbf91ad7af02a12f0a09f60c350180708a24bb7744bd",
           "evidence": "test-results/quint-formal.json",
           "notes": "INV-LINK-UNREVIEWED-NOT-ACCEPTED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
         }
@@ -12554,17 +12495,17 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--GENERATECOMPOSITION",
           "path": "internal/composition/composition.go",
-          "line": 286
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--LINKDEPENDENCIES",
           "path": "internal/composition/composition.go",
-          "line": 1026
+          "line": 1010
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--REPLACED",
           "path": "internal/composition/composition.go",
-          "line": 605
+          "line": 589
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-REQLINKS-GO--LINKDIAGNOSTICS",
@@ -12635,22 +12576,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--UNSATISFIEDREQUIREMENTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 544
+          "line": 533
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 415
+          "line": 404
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQUIREMENTLINKRULES",
@@ -12744,17 +12685,17 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
           "path": "internal/engws/cli.go",
-          "line": 390
+          "line": 368
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTBUMPLINK",
           "path": "internal/engws/cli.go",
-          "line": 613
+          "line": 591
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 573
+          "line": 551
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ITEM",
@@ -13078,7 +13019,7 @@
           "mode": "run+verify",
           "result": "pass",
           "qntFile": "generated/quint/sm_link_lifecycle.qnt",
-          "qntSha256": "78213f5818182b9259627cb6b704853f990e3320965a301564ae138c1b9d0db4",
+          "qntSha256": "5d48da5a1eaef0417fdacbf91ad7af02a12f0a09f60c350180708a24bb7744bd",
           "evidence": "test-results/quint-formal.json",
           "notes": "INV-LINK-ACCEPTED-REVIEWED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
         },
@@ -13089,7 +13030,7 @@
           "mode": "run+verify",
           "result": "pass",
           "qntFile": "generated/quint/sm_link_lifecycle.qnt",
-          "qntSha256": "78213f5818182b9259627cb6b704853f990e3320965a301564ae138c1b9d0db4",
+          "qntSha256": "5d48da5a1eaef0417fdacbf91ad7af02a12f0a09f60c350180708a24bb7744bd",
           "evidence": "test-results/quint-formal.json",
           "notes": "INV-LINK-UNREVIEWED-NOT-ACCEPTED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
         }
@@ -13253,87 +13194,12 @@
     },
     {
       "id": "REQ-EMG-104",
-      "text": "When link migration is requested, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.",
+      "text": "When model updated event is received, the engineering model go shall convert each deprecated allocation or contract ref into the requirement link model.",
       "units": [
         "FU-ALLOCATION-TRACE",
         "FU-CLI-ORCHESTRATION"
       ],
       "code": [
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--APPENDLINKS",
-          "path": "internal/engws/migratelinks.go",
-          "line": 268
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--APPLYINMEMORY",
-          "path": "internal/engws/migratelinks.go",
-          "line": 177
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--CHANGED",
-          "path": "internal/engws/migratelinks.go",
-          "line": 56
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--KEPTALLOCATION",
-          "path": "internal/engws/migratelinks.go",
-          "line": 32
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--LINKBLOCK",
-          "path": "internal/engws/migratelinks.go",
-          "line": 356
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--LINKID",
-          "path": "internal/engws/migratelinks.go",
-          "line": 327
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEALLOCATIONS",
-          "path": "internal/engws/migratelinks.go",
-          "line": 194
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATEDLINK",
-          "path": "internal/engws/migratelinks.go",
-          "line": 24
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATELINKS",
-          "path": "internal/engws/migratelinks.go",
-          "line": 70
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATERESULT",
-          "path": "internal/engws/migratelinks.go",
-          "line": 41
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--NOTLINKTARGET",
-          "path": "internal/engws/migratelinks.go",
-          "line": 307
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--RESOLVEDEPENDENCYITEMS",
-          "path": "internal/engws/migratelinks.go",
-          "line": 390
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--RUNMIGRATELINKS",
-          "path": "internal/engws/migratelinks.go",
-          "line": 426
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--UNIQUELINKID",
-          "path": "internal/engws/migratelinks.go",
-          "line": 345
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--WRITEALLORNOTHING",
-          "path": "internal/engws/migratelinks.go",
-          "line": 133
-        },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-EVALUATE-GO--NONITEMREASON",
           "path": "internal/reqlinks/evaluate.go",
@@ -13406,28 +13272,9 @@
         }
       ],
       "verifications": [
-        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
-        "VER-INF-TEST-MIGRATELINKS_TEST-36D479",
         "VER-INF-TEST-YAMLEDIT_TEST-8FA671"
       ],
-      "result": "passed",
-      "evidenceMethods": [
-        "analysis",
-        "test"
-      ],
-      "formal": [
-        {
-          "requirement": "REQ-EMG-104",
-          "machine": "SM-LINK-LIFECYCLE",
-          "invariant": "INV-LINK-UNREVIEWED-NOT-ACCEPTED",
-          "mode": "run+verify",
-          "result": "pass",
-          "qntFile": "generated/quint/sm_link_lifecycle.qnt",
-          "qntSha256": "78213f5818182b9259627cb6b704853f990e3320965a301564ae138c1b9d0db4",
-          "evidence": "test-results/quint-formal.json",
-          "notes": "INV-LINK-UNREVIEWED-NOT-ACCEPTED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
-        }
-      ],
+      "result": "not-run",
       "status": "implemented",
       "parents": [
         "CAP-EMG-REQUIREMENT-LINKS"
@@ -13444,17 +13291,17 @@
         {
           "symbol": "CODE-API-TRACE-GO--TRACELINKREF",
           "path": "api_trace.go",
-          "line": 47
+          "line": 43
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--NONNILSTRINGS",
           "path": "internal/mcp/composition.go",
-          "line": 264
+          "line": 240
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
           "path": "internal/mcp/composition.go",
-          "line": 134
+          "line": 121
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--SORTEDREALIZERS",
@@ -13504,32 +13351,32 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--APPENDPUBLISHEDREQUIREMENTTRACEROWS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 1019
+          "line": 958
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 659
+          "line": 648
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--LINKREF",
           "path": "internal/trace/trace_matrix.go",
-          "line": 103
+          "line": 102
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--STATUS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 957
+          "line": 930
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--CAPABILITYLINKPARENTS",
@@ -13724,12 +13571,12 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--LINKUSE",
           "path": "api_composition.go",
-          "line": 165
+          "line": 161
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--WORKSPACELINKUSERS",
           "path": "api_composition.go",
-          "line": 172
+          "line": 168
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
@@ -13739,7 +13586,7 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--HASBLOCKINGERRORS",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 718
+          "line": 717
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-REQLINKS-GO--LINKSTATELABEL",
@@ -13900,7 +13747,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 197
+          "line": 191
         }
       ],
       "verifications": [
@@ -13922,7 +13769,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 197
+          "line": 191
         }
       ],
       "verifications": [
@@ -14206,11 +14053,6 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATELINKS",
-          "path": "internal/engws/migratelinks.go",
-          "line": 70
-        },
-        {
           "symbol": "CODE-INTERNAL-MODEL-REQLINKS-GO--REQLINKPIN",
           "path": "internal/model/reqlinks.go",
           "line": 59
@@ -14218,13 +14060,9 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REQLINKS-GO--REQLINKFILEDIAGNOSTICS",
           "path": "internal/validate/reqlinks.go",
-          "line": 197
+          "line": 191
         }
       ],
-      "verifications": [
-        "VER-INF-TEST-MIGRATELINKS_TEST-36D479"
-      ],
-      "result": "not-run",
       "status": "implemented",
       "parents": [
         "CAP-EMG-REQUIREMENT-LINKS"
@@ -14241,27 +14079,92 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-LINKADD-GO--ADDLINK",
           "path": "internal/engws/linkadd.go",
-          "line": 42
+          "line": 41
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-LINKADD-GO--LINKADDOPTIONS",
           "path": "internal/engws/linkadd.go",
-          "line": 21
+          "line": 20
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-LINKADD-GO--RUNLINKADD",
           "path": "internal/engws/linkadd.go",
-          "line": 170
+          "line": 163
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-LINKADD-GO--SAMESTRINGS",
           "path": "internal/engws/linkadd.go",
-          "line": 155
+          "line": 148
         },
         {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--APPENDLINKS",
-          "path": "internal/engws/migratelinks.go",
-          "line": 268
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--APPENDBLOCKS",
+          "path": "internal/engws/linkwrite.go",
+          "line": 82
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--APPENDLINKS",
+          "path": "internal/engws/linkwrite.go",
+          "line": 46
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--CLEANLINKPART",
+          "path": "internal/engws/linkwrite.go",
+          "line": 180
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--ISDIGITASCII",
+          "path": "internal/engws/linkwrite.go",
+          "line": 200
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--ISUPPERASCII",
+          "path": "internal/engws/linkwrite.go",
+          "line": 195
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--LINKBLOCK",
+          "path": "internal/engws/linkwrite.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--LINKID",
+          "path": "internal/engws/linkwrite.go",
+          "line": 205
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--LINKSDOCUMENT",
+          "path": "internal/engws/linkwrite.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--NEWLINKFILES",
+          "path": "internal/engws/linkwrite.go",
+          "line": 30
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--RESTOREFILE",
+          "path": "internal/engws/linkwrite.go",
+          "line": 128
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--RESTOREFILES",
+          "path": "internal/engws/linkwrite.go",
+          "line": 142
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--SNAPSHOTFILES",
+          "path": "internal/engws/linkwrite.go",
+          "line": 108
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--UNIQUELINKID",
+          "path": "internal/engws/linkwrite.go",
+          "line": 213
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-LINKWRITE-GO--WRITEALLORNOTHING",
+          "path": "internal/engws/linkwrite.go",
+          "line": 158
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--EVALUATEBUNDLE",
@@ -14272,7 +14175,8 @@
       "verifications": [
         "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
         "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F",
-        "VER-INF-TEST-LINKADD_TEST-F6472F"
+        "VER-INF-TEST-LINKADD_TEST-F6472F",
+        "VER-INF-TEST-LINKWRITE_TEST-DBC0CA"
       ],
       "result": "passed",
       "evidenceMethods": [
@@ -14287,7 +14191,7 @@
           "mode": "run+verify",
           "result": "pass",
           "qntFile": "generated/quint/sm_link_lifecycle.qnt",
-          "qntSha256": "78213f5818182b9259627cb6b704853f990e3320965a301564ae138c1b9d0db4",
+          "qntSha256": "5d48da5a1eaef0417fdacbf91ad7af02a12f0a09f60c350180708a24bb7744bd",
           "evidence": "test-results/quint-formal.json",
           "notes": "INV-LINK-UNREVIEWED-NOT-ACCEPTED of SM-LINK-LIFECYCLE holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
         }
@@ -14355,22 +14259,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BENCHMARKONLYDIAGNOSTICS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 521
+          "line": 510
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BENCHMARKONLYREQUIREMENTS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 494
+          "line": 483
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 659
+          "line": 648
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 415
+          "line": 404
         }
       ],
       "verifications": [
@@ -14674,12 +14578,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMFILESWITH",
           "path": "internal/trace/trace_matrix.go",
-          "line": 841
+          "line": 822
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AUTHORING-RULES-GO--AUTHORINGRULES",
@@ -14729,7 +14633,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--CONSISTENCYREMEDY",
           "path": "internal/validate/remedies.go",
-          "line": 186
+          "line": 189
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REMEDYFOR",
@@ -14908,7 +14812,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--COMPOSITIONTIERDIAGNOSTICS",
           "path": "api_composition.go",
-          "line": 183
+          "line": 179
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-TIER-GO--CONTAINSSTRING",
@@ -14938,7 +14842,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 573
+          "line": 551
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--ACCEPTEDRISKDEPENDENCIES",
@@ -15072,12 +14976,12 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--TIERVERIFICATIONDIAGNOSTICS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 434
+          "line": 423
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 415
+          "line": 404
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--LIFECYCLEDIAGNOSTICS",
@@ -15295,7 +15199,7 @@
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--HASBLOCKINGERRORS",
           "path": "internal/asciidoc/asciidoc.go",
-          "line": 718
+          "line": 717
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--RENDERSDESPITE",
@@ -15468,12 +15372,12 @@
         {
           "symbol": "CODE-API-TRACE-GO--TIERGAPFROMFILES",
           "path": "api_trace.go",
-          "line": 98
+          "line": 94
         },
         {
           "symbol": "CODE-API-TRACE-GO--TIERGAPFROMFILESWITH",
           "path": "api_trace.go",
-          "line": 105
+          "line": 101
         },
         {
           "symbol": "CODE-CMD-ENGTRACE-MAIN-GO--EMITMATRIX",
@@ -15513,12 +15417,12 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DIGESTMODULEDIRECTORY",
           "path": "internal/composition/composition.go",
-          "line": 973
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TIERGAP",
           "path": "internal/mcp/composition.go",
-          "line": 276
+          "line": 252
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TIER-GAP-GO--TIERGAPFROMFILES",
@@ -15528,7 +15432,7 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-AVIATION-TIER-GO--AVIATIONFLOORGAPS",
@@ -16155,7 +16059,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-SEMANTIC-GO--SEMANTICMAPPINGKIND",
           "path": "internal/model/semantic.go",
-          "line": 1568
+          "line": 1561
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--STATE",
@@ -17221,22 +17125,22 @@
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDFROMBUNDLE",
           "path": "internal/trace/trace_matrix.go",
-          "line": 859
+          "line": 840
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--BUILDTRACEMATRIXWITHIDS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 659
+          "line": 648
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--TIERVERIFICATIONDIAGNOSTICS",
           "path": "internal/trace/trace_matrix.go",
-          "line": 434
+          "line": 423
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-TRACE-MATRIX-GO--VALIDATEINTEGRITY",
           "path": "internal/trace/trace_matrix.go",
-          "line": 415
+          "line": 404
         }
       ],
       "verifications": [
@@ -17329,7 +17233,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--TRACEMATRIX",
           "path": "internal/mcp/composition.go",
-          "line": 134
+          "line": 121
         },
         {
           "symbol": "CODE-INTERNAL-MCP-FORMAL-GO--FORMALGAPS",
@@ -20466,7 +20370,7 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHOUTSWITCHES",
           "path": "internal/testutil/fixtures.go",
-          "line": 305
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--COMPLETESWITCHES",
@@ -20513,7 +20417,7 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHOUTSWITCHES",
           "path": "internal/testutil/fixtures.go",
-          "line": 305
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--COMPLETESWITCHES",
@@ -20560,7 +20464,7 @@
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FIXTURES-GO--WITHOUTSWITCHES",
           "path": "internal/testutil/fixtures.go",
-          "line": 305
+          "line": 300
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--COMPLETESWITCHES",
@@ -20874,7 +20778,7 @@
         {
           "symbol": "CODE-INTERNAL-MCP-COMPOSITION-GO--DIAGROWS",
           "path": "internal/mcp/composition.go",
-          "line": 233
+          "line": 209
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-CLI-GO--ASSERTREFUSESWITHFIX",
@@ -21524,7 +21428,7 @@
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--LOCKSCHEMADIAGNOSTICS",
           "path": "internal/composition/composition.go",
-          "line": 401
+          "line": 385
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REQUIREDREMEDY",
@@ -21706,21 +21610,6 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--DELEGATIONTARGET",
-          "path": "internal/composition/composition.go",
-          "line": 1346
-        },
-        {
-          "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-GO--RESOLVEDELEGATION",
-          "path": "internal/composition/composition.go",
-          "line": 1331
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-MIGRATELINKS-GO--MIGRATELINKS",
-          "path": "internal/engws/migratelinks.go",
-          "line": 70
-        },
-        {
           "symbol": "CODE-INTERNAL-MODEL-REQLINKS-GO--REQLINKPIN",
           "path": "internal/model/reqlinks.go",
           "line": 59
@@ -21733,29 +21622,27 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--CONSISTENCYREMEDY",
           "path": "internal/validate/remedies.go",
-          "line": 186
+          "line": 189
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMOVED-FIELDS-GO--FINGERPRINTREMOVEDDIAGNOSTICS",
           "path": "internal/validate/removed_fields.go",
-          "line": 33
+          "line": 37
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMOVED-FIELDS-GO--PROVIDESREFREMOVEDDIAGNOSTICS",
           "path": "internal/validate/removed_fields.go",
-          "line": 54
+          "line": 58
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMOVED-FIELDS-GO--REMOVEDFIELDDIAGNOSTICS",
           "path": "internal/validate/removed_fields.go",
-          "line": 25
+          "line": 28
         }
       ],
       "verifications": [
         "VER-INF-TEST-AUTHORING_RULES_TEST-1EA88F",
-        "VER-INF-TEST-COMPOSITION_GENERATION_TEST-F36487",
         "VER-INF-TEST-LINKREVIEW_TEST-4DF152",
-        "VER-INF-TEST-MIGRATELINKS_TEST-36D479",
         "VER-INF-TEST-REMOVED_FIELDS_TEST-F1B8F4",
         "VER-INF-TEST-REQLINKS_TEST-76AA55"
       ],
@@ -21923,6 +21810,44 @@
       "parents": [
         "CAP-EMG-PUBLICATION"
       ]
+    },
+    {
+      "id": "REQ-EMG-187",
+      "text": "When model updated event is received, the engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-SYSTEM-COMPOSITION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
+          "path": "internal/model/types.go",
+          "line": 1123
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMOVED-FIELDS-GO--ALLOCATIONSREMOVEDDIAGNOSTICS",
+          "path": "internal/validate/removed_fields.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-REMOVED-FIELDS-GO--REMOVEDFIELDDIAGNOSTICS",
+          "path": "internal/validate/removed_fields.go",
+          "line": 28
+        }
+      ],
+      "verifications": [
+        "VER-INF-INTEGRATION-COMPOSITION_MULTIREPO_TEST-B91E21",
+        "VER-INF-TEST-COMPOSITION_TEST-312837",
+        "VER-INF-TEST-LINKWRITE_TEST-DBC0CA",
+        "VER-INF-TEST-REMOVED_FIELDS_TEST-F1B8F4",
+        "VER-INF-TEST-TRACE_DELEGATED_TEST-5F315E",
+        "VER-INF-TEST-TRACE_MATRIX_TEST-315E77"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-REQUIREMENT-LINKS"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -21931,14 +21856,12 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 179,
-    "implemented": 175,
-    "tested": 166,
-    "testLinked": 166,
-    "passed": 11,
+    "requirements": 180,
+    "implemented": 176,
+    "tested": 165,
+    "testLinked": 165,
+    "passed": 10,
     "delegated": 0,
-    "delegatedImplemented": 0,
-    "delegatedTestLinked": 0,
     "orphan": 2,
     "danglingLinks": 0,
     "gatedOnly": 0,
