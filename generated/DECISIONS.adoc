@@ -2593,7 +2593,7 @@ go-library and channel in-process and leave authentication, encryption and integ
 CAP-EMG-GO-API is the published capability that REQ-EMG-194 to REQ-EMG-206 realize, so a consumer can link a requirement of its own
 to it. (5) A consumer composes this model with dependencies and composition.subsystems and references alias::IF-GO-..., alias::DO-...
 and alias::FU-...; it then drops the free-text referencedElement for the engine. (6) Every requirement is implemented, because the
-facade functions carry the trace markers, and the verification of each is recorded as evidence debt in POAM-GO-API: four have a test
+facade functions carry the trace markers, and the verification of each is recorded as evidence debt in POAM-CONSISTENCY-BATCH1: four have a test
 that calls the function through the root package, nine have none and need a facade test first. OWNER items: the facade is a public
 API and the model now says so, so a change of a published signature is a contract change for every consumer; whether the nine
 untested functions get a facade test now or at the next tier; whether the version of the engine a consumer pins is the version of

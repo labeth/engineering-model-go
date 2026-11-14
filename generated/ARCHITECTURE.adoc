@@ -27547,7 +27547,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-DO_DO_ENTITY_INDEX,entity index>> of a bundle with the kind, document, parent and fields of each entity and each reference between entities.
 
 
-NOTE: ADR-EMG-081. BuildEntityIndex is the Go API of the behavior <<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>> <<REF_IDX-ENGMODEL_TERM_STATE,states>>; it reads the bundle only and writes nothing. No test calls the function through the root package: the tests of <<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>> call the internal function it delegates to, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. BuildEntityIndex is the Go API of the behavior <<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>> <<REF_IDX-ENGMODEL_TERM_STATE,states>>; it reads the bundle only and writes nothing. No test calls the function through the root package: the tests of <<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>> call the internal function it delegates to, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 
@@ -27599,7 +27599,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the difference of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> between two revisions with the entities added, removed and changed.
 
 
-NOTE: ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is <<REF_IDX-REQ_REQ_EMG_190,REQ-EMG-190>> and <<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>; no test calls these functions through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is <<REF_IDX-REQ_REQ_EMG_190,REQ-EMG-190>> and <<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>; no test calls these functions through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 
@@ -27651,7 +27651,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-DO_DO_TRACE_MATRIX,trace matrix>> of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> with the code, tests and verifications of each <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.
 
 
-NOTE: ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> path and the code root, scans the code and returns the matrix with the findings of the scan. <<REF_IDX-VER_VER_INF_TEST_INTEGRATION_TEST_5AE068,Integration tests>> call it through the root package but carry no <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> path and the code root, scans the code and returns the matrix with the findings of the scan. <<REF_IDX-VER_VER_INF_TEST_INTEGRATION_TEST_5AE068,Integration tests>> call it through the root package but carry no <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 
@@ -27809,7 +27809,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return every <<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> term of a bundle with the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> that name it and the entities that reference it.
 
 
-NOTE: ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is <<REF_IDX-REQ_REQ_EMG_193,REQ-EMG-193>>; no test calls the function through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is <<REF_IDX-REQ_REQ_EMG_193,REQ-EMG-193>>; no test calls the function through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 
@@ -27854,7 +27854,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-CATALOG_COMPOSED_SYSTEM,composed system>> of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> with its resolved dependencies and the diagnostics of the <<REF_IDX-CATALOG_COMPOSITION,composition>>.
 
 
-NOTE: ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The tests of <<REF_IDX-CATALOG_COMPOSITION,composition>> call the internal function, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The tests of <<REF_IDX-CATALOG_COMPOSITION,composition>> call the internal function, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 
@@ -27904,7 +27904,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-DO_DO_CONTRACT_ITEMS,contract items>> of a bundle with the realizing <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> of each item.
 
 
-NOTE: ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. No test calls them through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. No test calls them through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 
@@ -27954,7 +27954,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the status of each <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link of a bundle against the <<REF_IDX-DO_DO_CONTRACT_ITEMS,contract items>> of its dependencies.
 
 
-NOTE: ADR-EMG-081. LinkDependencies turns a <<REF_IDX-CATALOG_COMPOSED_SYSTEM,composed system>> into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> links of <<REF_IDX-REQ_REQ_EMG_097,REQ-EMG-097>>; the <<REF_IDX-VER_VER_INF_TEST_INTEGRATION_TEST_5AE068,integration tests>> call the internal evaluation, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. LinkDependencies turns a <<REF_IDX-CATALOG_COMPOSED_SYSTEM,composed system>> into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> links of <<REF_IDX-REQ_REQ_EMG_097,REQ-EMG-097>>; the <<REF_IDX-VER_VER_INF_TEST_INTEGRATION_TEST_5AE068,integration tests>> call the internal evaluation, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 
@@ -28004,7 +28004,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> links that the other checkouts of a workspace hold on the <<REF_IDX-DO_DO_CONTRACT_ITEMS,contract items>> of a bundle.
 
 
-NOTE: ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is <<REF_IDX-REQ_REQ_EMG_107,REQ-EMG-107>>; no test calls it through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is <<REF_IDX-REQ_REQ_EMG_107,REQ-EMG-107>>; no test calls it through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 
@@ -28054,7 +28054,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_BUNDLE_LOAD_FAILED,go bundle load failed event is raised>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the error of the load and an empty bundle.
 
 
-NOTE: ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> (<<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>>). The tests of the loader check the errors through the internal function, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-GO-API).
+NOTE: ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> (<<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>>). The tests of the loader check the errors through the internal function, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
 
 
 

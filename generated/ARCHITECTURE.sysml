@@ -2259,10 +2259,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-03758739C61FBDFA';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-06FF15E9249B59AA";
+        sourceId = "EVIDENCE-039AFE93F999C5A3";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-06FF15E9249B59AA';
+    attribute 'EVIDENCE-039AFE93F999C5A3';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-139EC30ED19D5D0E";
@@ -2277,16 +2277,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-1F759AEA9CF11C3A';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-29FE12AF014B340B";
+        sourceId = "EVIDENCE-23C045EBA1477F66";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-29FE12AF014B340B';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-3D5AE210CE92FB8B";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-3D5AE210CE92FB8B';
+    attribute 'EVIDENCE-23C045EBA1477F66';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-40EB3F8D004E3DF8";
@@ -2295,34 +2289,34 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-40EB3F8D004E3DF8';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-5D8FC0D996867254";
+        sourceId = "EVIDENCE-43B6184BF8DE5E9F";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-5D8FC0D996867254';
+    attribute 'EVIDENCE-43B6184BF8DE5E9F';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-4B3DDCC5B0B41D8E";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-4B3DDCC5B0B41D8E';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-4E4BFE79877C82EF";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-4E4BFE79877C82EF';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-503DC005C15715B7";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-503DC005C15715B7';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-5EE38555C003B5C1";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-5EE38555C003B5C1';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-5F4BF94F2E504E45";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-5F4BF94F2E504E45';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-66D743C3A74EA0AA";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-66D743C3A74EA0AA';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-6846732CDD15D3E1";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-6846732CDD15D3E1';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-703C9B14599B7165";
@@ -2343,18 +2337,6 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-73A27A3950E0B1C9';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-756138D8350962C7";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-756138D8350962C7';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-756FA7B2CDB43226";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-756FA7B2CDB43226';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-780029A25582C103";
         conceptKind = "engineering_extension";
     }
@@ -2367,10 +2349,28 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-785435EA6C3FA885';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-7B359CE0EBBAA845";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-7B359CE0EBBAA845';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-7BCB58B049112FF6";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-7BCB58B049112FF6';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-80E6FEC2A77A59C5";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-80E6FEC2A77A59C5';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-818DFA02E6A5039F";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-818DFA02E6A5039F';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-86534EAF0B866FF8";
@@ -2379,10 +2379,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-86534EAF0B866FF8';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-8B5DD76A47E0680A";
+        sourceId = "EVIDENCE-88EA6811C334AD4E";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-8B5DD76A47E0680A';
+    attribute 'EVIDENCE-88EA6811C334AD4E';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-94C1E990F59187C8";
@@ -2397,40 +2397,46 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-95186CA263D4A74D';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-9626B625C038ECBE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-9626B625C038ECBE';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-9D67CC51D8C146A5";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-9D67CC51D8C146A5';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-A755D795A790DDDB";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-A755D795A790DDDB';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-ACF9D947125B8D32";
+        sourceId = "EVIDENCE-A97EFA82CF771A58";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-ACF9D947125B8D32';
+    attribute 'EVIDENCE-A97EFA82CF771A58';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-AA3DC00FE963C522";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-AA3DC00FE963C522';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-AB740132F2975383";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-AB740132F2975383';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-BB4E54DC3575C2A8";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-BB4E54DC3575C2A8';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-C8E26FE55B3B144A";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-C8E26FE55B3B144A';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-C9172A00F4D0DEEF";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-C9172A00F4D0DEEF';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-CEE3609051379F78";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-CEE3609051379F78';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-D1A0C0EF613B1206";
@@ -2445,28 +2451,22 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-D356ACB215A4C41E';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-DE7611E218EDC3FB";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-DE7611E218EDC3FB';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-DF786B86FD0C4795";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-DF786B86FD0C4795';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-E2F961B135E612E2";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-E2F961B135E612E2';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-E4E9DF285AEBDD56";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-E4E9DF285AEBDD56';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-E76947EB67B4FA08";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-E76947EB67B4FA08';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-E7E572C202CD7329";
@@ -2481,10 +2481,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-EF5710F27BBD8EC7';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-FA038225301A3BD4";
+        sourceId = "EVIDENCE-F068977A71DAEE36";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-FA038225301A3BD4';
+    attribute 'EVIDENCE-F068977A71DAEE36';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-FA3941B5C5E1E07C";
@@ -2497,12 +2497,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-FB2594F142C7A666';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-FD92B925F95CA03A";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-FD92B925F95CA03A';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-FEACEF702B8F0028";
@@ -3388,12 +3382,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'POAM-CONSISTENCY-MODELING-14';
-
-    @EngineeringElement {
-        sourceId = "POAM-GO-API";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-GO-API';
 
     @EngineeringElement {
         sourceId = "POAM-MCP-PATH-FUZZING";
@@ -5255,7 +5243,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-196' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the entity index of a bundle with the kind, document, parent and fields of each entity and each reference between entities.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. BuildEntityIndex is the Go API of the behavior REQ-EMG-189 states; it reads the bundle only and writes nothing. No test calls the function through the root package: the tests of REQ-EMG-189 call the internal function it delegates to, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. BuildEntityIndex is the Go API of the behavior REQ-EMG-189 states; it reads the bundle only and writes nothing. No test calls the function through the root package: the tests of REQ-EMG-189 call the internal function it delegates to, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
@@ -5264,7 +5252,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-197' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the difference of a model between two revisions with the entities added, removed and changed.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is REQ-EMG-190 and REQ-EMG-191; no test calls these functions through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is REQ-EMG-190 and REQ-EMG-191; no test calls these functions through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
@@ -5273,7 +5261,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-198' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the trace matrix of a model with the code, tests and verifications of each requirement.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the requirements path and the code root, scans the code and returns the matrix with the findings of the scan. Integration tests call it through the root package but carry no requirement link, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the requirements path and the code root, scans the code and returns the matrix with the findings of the scan. Integration tests call it through the root package but carry no requirement link, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
@@ -5300,7 +5288,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-201' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return every catalog term of a bundle with the requirements that name it and the entities that reference it.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is REQ-EMG-193; no test calls the function through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is REQ-EMG-193; no test calls the function through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
@@ -5309,7 +5297,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-202' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the composed system of a model with its resolved dependencies and the diagnostics of the composition.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The tests of composition call the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The tests of composition call the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
@@ -5318,7 +5306,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-203' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the contract items of a bundle with the realizing requirements of each item.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. No test calls them through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. No test calls them through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
@@ -5327,7 +5315,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-204' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the status of each requirement link of a bundle against the contract items of its dependencies.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. LinkDependencies turns a composed system into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the requirement links of REQ-EMG-097; the integration tests call the internal evaluation, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LinkDependencies turns a composed system into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the requirement links of REQ-EMG-097; the integration tests call the internal evaluation, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
@@ -5336,7 +5324,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-205' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the requirement links that the other checkouts of a workspace hold on the contract items of a bundle.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is REQ-EMG-107; no test calls it through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is REQ-EMG-107; no test calls it through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
@@ -5345,7 +5333,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-206' {
         attribute 'text' : 'String' = "When go bundle load failed event is raised, the engineering model go shall return the error of the load and an empty bundle.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a model (SM-GO-BUNDLE-SESSION). The tests of the loader check the errors through the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a model (SM-GO-BUNDLE-SESSION). The tests of the loader check the errors through the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
     }
 
     @EngineeringElement {
