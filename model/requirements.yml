@@ -1693,3 +1693,138 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
     realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-194
+    status: implemented
+    text: When go api call is received, the engineering model go shall return one bundle with the manifest and every model document that a manifest path or a git revision names.
+    notes: 'ADR-EMG-081. LoadBundle reads engmod.yml and each document it names; LoadBundleAtRef reads the committed documents of a revision of a repository with the loader that tolerates earlier schemas. The bundle is a snapshot: the engine never refreshes it (SM-GO-BUNDLE-SESSION). The manifest file must be named engmod.yml.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a manifest path of a model is given, LoadBundle returns its bundle with the requirements, catalog, architecture and behavior documents; a path whose file is not named engmod.yml is an error; LoadBundleAtRef returns the bundle of the model as committed at a revision and an error for an unknown revision.'
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FLOW-GO-READ-MODEL
+      - FLOW-GO-COMPARE-REVISIONS
+      - SM-GO-BUNDLE-SESSION
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-195
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the diagnostics of a bundle with a stable code, a severity, a message and a model path for each finding.
+    notes: 'ADR-EMG-081. ValidateBundle does not fail: a model with errors still returns its diagnostics and the consumer reads the severity. A bundle of a model with dependencies is validated after the published entities of the dependencies are merged into it (FLOW-GO-COMPOSE-AND-LINK); without them every alias::ID reference is reported.'
+    verificationMethods: [test]
+    verificationCriteria: 'When ValidateBundle is called with the bundle of a valid model, then no diagnostic is an error; when a requirement applies to an unknown ID, then a diagnostic with the code requirement.invalid_applies_to and the severity error is returned.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FLOW-GO-READ-MODEL
+      - SM-GO-BUNDLE-SESSION
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-196
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the entity index of a bundle with the kind, document, parent and fields of each entity and each reference between entities.
+    notes: 'ADR-EMG-081. BuildEntityIndex is the Go API of the behavior REQ-EMG-189 states; it reads the bundle only and writes nothing. No test calls the function through the root package: the tests of REQ-EMG-189 call the internal function it delegates to, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When BuildEntityIndex is called through the root package with the bundle of this repository, then the index lists the entities with their kinds and references, and two calls with the same bundle return equal indexes.'
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FLOW-GO-READ-MODEL
+      - FLOW-GO-COMPARE-REVISIONS
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-197
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the difference of a model between two revisions with the entities added, removed and changed.
+    notes: 'ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is REQ-EMG-190 and REQ-EMG-191; no test calls these functions through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When DiffModels is called with two revisions of a repository, then the added, removed and changed entities are returned and the working tree is compared when the second revision is empty; with the trace flag the change of traceability is returned or the reason it could not be built.'
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FU-ALLOCATION-TRACE
+      - FLOW-GO-COMPARE-REVISIONS
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-198
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the trace matrix of a model with the code, tests and verifications of each requirement.
+    notes: 'ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the requirements path and the code root, scans the code and returns the matrix with the findings of the scan. Integration tests call it through the root package but carry no requirement link, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When BuildTraceMatrixFromFiles is called with the manifest, the requirements document and the code root of a model, then each requirement row lists the code and the verifications that link it, the orphan requirements are listed and the findings of the scan are returned.'
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FLOW-GO-READ-MODEL
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-199
+    status: implemented
+    text: When go api call is received, the engineering model go shall return every named declaration of the code scope of a bundle with its kind, language, path and lines.
+    notes: 'ADR-EMG-081. ListCodeDeclarations applies the code scope of the model under a root directory; CodeDeclarationsOf reads one source text. The behavior is REQ-EMG-192.'
+    verificationMethods: [test]
+    verificationCriteria: 'When ListCodeDeclarations is called with the bundle and the root of this repository, then declarations of Go files are returned with their kind and line; CodeDeclarationsOf returns the declarations of one source text.'
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+      - FLOW-GO-LOOK-UP-CODE
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-200
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the candidate declarations of a name used in a file ranked by closeness to that file.
+    notes: 'ADR-EMG-081. FindCodeDefinitions reads a declaration list and resolves no scope, import or overload, so a result is a candidate. The behavior is REQ-EMG-192.'
+    verificationMethods: [test]
+    verificationCriteria: 'When FindCodeDefinitions is called with a list, a file and a name, then a declaration in the same file ranks before one in the same directory before one elsewhere, production code ranks before test code, and an unknown name returns no declaration.'
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+      - FLOW-GO-LOOK-UP-CODE
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-201
+    status: implemented
+    text: When go api call is received, the engineering model go shall return every catalog term of a bundle with the requirements that name it and the entities that reference it.
+    notes: 'ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is REQ-EMG-193; no test calls the function through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When CatalogUsage is called through the root package with the bundle of this repository, then each catalog term is listed once with its requirements and referencing entities.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FLOW-GO-READ-MODEL
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-202
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the composed system of a model with its resolved dependencies and the diagnostics of the composition.
+    notes: 'ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The tests of composition call the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When GenerateCompositionFromFileWith is called with a manifest whose dependencies a workspace file replaces and the lock mode check, then the composed system lists each dependency and no file is written; a dependency that cannot be resolved is an error.'
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FLOW-GO-COMPOSE-AND-LINK
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-203
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the contract items of a bundle with the realizing requirements of each item.
+    notes: 'ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. No test calls them through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When ContractItemsFromBundle is called with the bundle of this repository, then CAP-EMG-GO-API is listed as a capability with its realizing requirements, and the realizers of an item are returned in the same order on every call.'
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FLOW-GO-COMPOSE-AND-LINK
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-204
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the status of each requirement link of a bundle against the contract items of its dependencies.
+    notes: 'ADR-EMG-081. LinkDependencies turns a composed system into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the requirement links of REQ-EMG-097; the integration tests call the internal evaluation, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When EvaluateRequirementLinks is called with a bundle and the dependencies of its composed system, then each link has one status that is unchanged, broken, version mismatch, child unpublished, unresolved or local, with the reason where one applies.'
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FLOW-GO-COMPOSE-AND-LINK
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-205
+    status: implemented
+    text: When go api call is received, the engineering model go shall return the requirement links that the other checkouts of a workspace hold on the contract items of a bundle.
+    notes: 'ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is REQ-EMG-107; no test calls it through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When WorkspaceLinkUsers is called with a bundle in a workspace whose sibling holds a link on one of its capabilities, then that link is returned with the model that holds it, its link ID, its parent requirement, the item and its status; without an active workspace nothing is returned.'
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FLOW-GO-COMPOSE-AND-LINK
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-206
+    status: implemented
+    text: When go bundle load failed event is raised, the engineering model go shall return the error of the load and an empty bundle.
+    notes: 'ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a model (SM-GO-BUNDLE-SESSION). The tests of the loader check the errors through the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).'
+    verificationMethods: [test]
+    verificationCriteria: 'When a manifest names a document that does not exist or that breaks the schema, then LoadBundle returns an error and a bundle with no requirements.'
+    appliesTo:
+      - FU-MODEL-LOADER
+      - SM-GO-BUNDLE-SESSION
+    realizes: [CAP-EMG-GO-API]

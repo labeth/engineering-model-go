@@ -52,8 +52,8 @@ type TraceOptions = trace.Options
 
 // BuildTraceMatrixFromFiles loads a model, scans its code root, scopes the code to the
 // model, validates trace integrity, and returns the matrix together with diagnostics.
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-198
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE, IF-GO-TRACE, DO-TRACE-MATRIX, DO-MODEL-DIAGNOSTICS, FLOW-GO-READ-MODEL
 func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (TraceMatrix, []Diagnostic, error) {
 	return trace.BuildFromFiles(modelPath, requirementsPath, codeRoot)
 }

@@ -220,6 +220,11 @@ catalog:
     definition: Runs automated validation and export checks for pull requests.
     aliases:
     - ci
+  - id: ACT-GO-CONSUMER
+    name: go consumer
+    definition: A program outside this repository, such as a tool that reads models, that imports the root Go package and calls its functions.
+    aliases:
+    - go caller
   attackVectors:
   - id: AV-MALFORMED-MODEL-INPUT
     name: malformed model input
@@ -332,6 +337,21 @@ catalog:
     definition: Event indicating a developer asked engws which status each requirement and control verification earns from the tree's evidence.
     aliases:
     - engws status-suggest requested
+  - id: EVT-GO-API-CALL-RECEIVED
+    name: go api call is received
+    definition: Event indicating a Go consumer called a function of the root Go package.
+    aliases:
+    - go call
+  - id: EVT-GO-BUNDLE-LOADED
+    name: go bundle loaded event is raised
+    definition: Event indicating the root Go package loaded the model documents of a manifest into a bundle.
+    aliases:
+    - bundle loaded
+  - id: EVT-GO-BUNDLE-LOAD-FAILED
+    name: go bundle load failed event is raised
+    definition: Event indicating the root Go package could not load the model documents of a manifest.
+    aliases:
+    - bundle load failed
   states:
   - id: STATE-MODEL-VALID
     name: model is valid
@@ -414,6 +434,26 @@ catalog:
     definition: State where a valid candidate atomically replaced the requirements document.
     aliases:
     - delta applied
+  - id: STATE-GO-BUNDLE-ABSENT
+    name: go bundle is absent
+    definition: State where a Go consumer holds no loaded bundle, so no function that reads a bundle can be called.
+    aliases:
+    - no bundle
+  - id: STATE-GO-BUNDLE-LOADED
+    name: go bundle is loaded
+    definition: State where a Go consumer holds a bundle that has not been validated yet.
+    aliases:
+    - bundle loaded unvalidated
+  - id: STATE-GO-BUNDLE-VALID
+    name: go bundle is valid
+    definition: State where the diagnostics of the held bundle hold no error.
+    aliases:
+    - bundle valid
+  - id: STATE-GO-BUNDLE-REJECTED
+    name: go bundle is rejected
+    definition: State where the diagnostics of the held bundle hold one or more errors.
+    aliases:
+    - bundle rejected
   features:
   - id: FEAT-MCP-SERVER
     name: mcp server is enabled
@@ -609,3 +649,58 @@ catalog:
     aliases:
     - adr document
     - decisions document
+  - id: DATA-MODEL-BUNDLE
+    name: model bundle
+    definition: The manifest and every model document it names, loaded and decoded by the root Go package, as one value that the other functions read.
+    aliases:
+    - loaded bundle
+  - id: DATA-MODEL-DIAGNOSTICS
+    name: model diagnostics
+    definition: The findings of validating a bundle, each with a stable code, a severity, a message and a model path.
+    aliases:
+    - validation findings
+  - id: DATA-ENTITY-INDEX
+    name: entity index
+    definition: Every authored entity of a bundle with its kind, document, parent and fields and every reference between entities.
+    aliases:
+    - entity list
+  - id: DATA-MODEL-DIFF
+    name: model diff
+    definition: The entities added, removed and changed between two revisions of a model, with an optional change of requirement traceability.
+    aliases:
+    - revision diff
+  - id: DATA-TRACE-MATRIX
+    name: trace matrix
+    definition: The requirements of a model with the code, tests and verifications that trace to each, the orphan requirements and the dangling links.
+    aliases:
+    - traceability matrix
+  - id: DATA-CODE-DECLARATIONS
+    name: code declarations
+    definition: Every named declaration of the code scope of a model with its kind, language, path and lines.
+    aliases:
+    - declaration list
+  - id: DATA-CATALOG-USAGE
+    name: catalog usage
+    definition: Every catalog term with the requirements that name it and the entities that reference it.
+    aliases:
+    - term usage
+  - id: DATA-COMPOSITION-RESULT
+    name: composition result
+    definition: The composed system of a model with its resolved dependencies, the lock state and the composition diagnostics.
+    aliases:
+    - composed system
+  - id: DATA-CONTRACT-ITEMS
+    name: contract items
+    definition: The capabilities and assumptions of use a model publishes, each with the requirements that realize it.
+    aliases:
+    - published contract
+  - id: DATA-REQUIREMENT-LINK-STATUS
+    name: requirement link status
+    definition: The state of each requirement link of a model against the published contract items of its dependencies.
+    aliases:
+    - link evaluation
+  - id: DATA-LINK-USE
+    name: link use
+    definition: A requirement link that a checkout of the workspace holds on the contract items of a model.
+    aliases:
+    - link users

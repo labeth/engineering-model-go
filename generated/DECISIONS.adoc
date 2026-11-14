@@ -2563,6 +2563,137 @@ Python, Rust and Verilog the tool needs.
 - Name-only matching can offer wrong candidates for common names; the ranking and the candidate wording keep that visible.
 - The catalog usage is derived from text, so a term named only by a paraphrase is shown as unused, as the lint also treats it.
 
+[[ADR-EMG-081]]
+== ADR-EMG-081: The Go facade is a modelled, published interface that a consumer composes
+
+Status:: proposed
+Date:: 2026-11-14
+
+=== Context
+
+The engineering tool imports github.com/labeth/engineering-model-go and calls the root package. Its model records that only as a
+free-text referencedElement (REF-ENGINEERING-MODEL-GO, version v0.11.0), which the model checks nothing about: it names no interface,
+no data and no behavior, and a call that the engine removes is not found by the model. A consumer can reference only what this model
+publishes, so the dependency can be composed (dependencies and composition.subsystems) only when this model publishes the interface,
+the data that crosses it and the behavior of the calls. The owner asked for the dependency to be modelled properly and for a language
+gap to be recorded, not worked around. Taken by the implementing agent under that instruction.
+
+=== Decision
+
+(1) The calls a consumer really makes are modelled as seven interfaces with protocol go-library and endpoint
+github.com/labeth/engineering-model-go, each owned by the unit whose file defines it: IF-GO-MODEL-LOADING, IF-GO-MODEL-VALIDATION,
+IF-GO-ENTITY-INDEX-DIFF, IF-GO-TRACE, IF-GO-CODE-LOOKUP, IF-GO-COMPOSITION and IF-GO-REQUIREMENT-LINKS; schemaRef names the facade
+file. (2) The data that crosses them is DO-MODEL-BUNDLE, DO-MODEL-DIAGNOSTICS, DO-ENTITY-INDEX, DO-MODEL-DIFF, DO-TRACE-MATRIX,
+DO-CODE-DECLARATIONS, DO-CATALOG-USAGE, DO-COMPOSITION-RESULT, DO-CONTRACT-ITEMS, DO-REQUIREMENT-LINK-STATUS and DO-LINK-USE. The
+bundle is a new data object, not DO-ARCHITECTURE-MODEL: it holds every document of the model, and DO-ARCHITECTURE-MODEL is the
+architecture document only. (3) The shared behavior is four flows with the consumer as ACT-GO-CONSUMER (FLOW-GO-READ-MODEL,
+FLOW-GO-COMPARE-REVISIONS, FLOW-GO-LOOK-UP-CODE, FLOW-GO-COMPOSE-AND-LINK) and one machine, SM-GO-BUNDLE-SESSION, for the one order
+that matters: a bundle is loaded before it is validated or read, and a failed load leaves no bundle. The flows say protocol
+go-library and channel in-process and leave authentication, encryption and integrity out: a library call has none. (4)
+CAP-EMG-GO-API is the published capability that REQ-EMG-194 to REQ-EMG-206 realize, so a consumer can link a requirement of its own
+to it. (5) A consumer composes this model with dependencies and composition.subsystems and references alias::IF-GO-..., alias::DO-...
+and alias::FU-...; it then drops the free-text referencedElement for the engine. (6) Every requirement is implemented, because the
+facade functions carry the trace markers, and the verification of each is recorded as evidence debt in POAM-GO-API: four have a test
+that calls the function through the root package, nine have none and need a facade test first. OWNER items: the facade is a public
+API and the model now says so, so a change of a published signature is a contract change for every consumer; whether the nine
+untested functions get a facade test now or at the next tier; whether the version of the engine a consumer pins is the version of
+this model (the module and the model share the tag).
+
+=== Consequences
+
+- A consumer sees from its own model which interface it uses, what crosses it and in what order, and the check reports a reference to something this model does not publish (composition.unpublished_reference).
+- The model checks the shape of the dependency; it cannot check that the Go module the lockfile resolves is the model it composes (G2, ADR-EMG-083).
+- Changing the text of CAP-EMG-GO-API or of a realizing requirement is a contract change that every consumer reviews at its next bump.
+- Seven interfaces and eleven data objects are more entities to keep in step with the facade; the trace markers on the facade functions and the layering test keep them from drifting unseen.
+
+[[ADR-EMG-082]]
+== ADR-EMG-082: G1: the model has no internal or external scope on an interface
+
+Status:: proposed
+Date:: 2026-11-14
+
+=== Context
+
+An interface entity has id, name, protocol, endpoint, schemaRef and owner. Nothing says whether it is internal to the system (a
+library call between its own units) or external (offered to other systems or users). The Go API of ADR-EMG-081 is external to this
+repository and internal to a consumer's process; the CLI interfaces are external to a person. A reader cannot tell from the model
+which interfaces the system offers to others.
+
+=== Decision
+
+Not implemented; for the owner to decide. Proposal: an optional field scope on an interface with the allowed values internal and
+external, validated like the other enumerations (model.invalid_interface_scope), and a rule that an interface published in a
+publication that a dependency can consume is external. Alternative: keep deriving it. Today the engineering tool derives the scope
+from the users that reach the interface (an actor outside the system makes it external), from the trust boundary a flow step
+crosses and from the protocol; an interface with none of these has an unknown scope, and the tool says so instead of guessing.
+
+=== Consequences
+
+- Until the owner decides, the scope of an interface is read from flows and trust boundaries, which is correct only where a flow records it.
+- An authored field is one more thing to keep true; a derived value cannot disagree with the flows but cannot say what no flow says.
+
+[[ADR-EMG-083]]
+== ADR-EMG-083: G2: a referenced library is not tied to the module that the lockfile resolves
+
+Status:: proposed
+Date:: 2026-11-14
+
+=== Context
+
+A referencedElement has id, kind, layer, name, description, version, date, uri and publisher. When the element is a library, the
+version is a claim: nothing compares it with the module and version that go.mod and go.sum resolve, and the check does not know
+that a referenced library has a model of its own. The engineering tool records engineering-model-go as REF-ENGINEERING-MODEL-GO
+version v0.11.0 while go.mod pins that module; the two can drift without any finding.
+
+=== Decision
+
+Not implemented; for the owner to decide. Proposal (a): an optional module field on a referencedElement (a Go module path), checked
+against the require lines of go.mod and the sums of go.sum, with a finding when the version differs or the module is absent.
+Proposal (b): a referencedElement whose module has a model that the system can compose is a modelling error
+(model.referenced_library_has_model) and must be a dependency instead. Today the engineering tool composes the library as a
+dependency (ADR-EMG-081) and keeps the version in engmod.yml and in go.mod, where engws bump moves both, which is the only tie.
+
+=== Consequences
+
+- Until the owner decides, the version in a referencedElement is a claim and the proposal text of a change has to say so.
+- Proposal (a) covers libraries that have no model; proposal (b) covers the ones that do; the two can both be adopted.
+
+[[ADR-EMG-084]]
+== ADR-EMG-084: G3: what the model language could not say while the Go API was modelled
+
+Status:: proposed
+Date:: 2026-11-14
+
+=== Context
+
+Writing the interfaces, data objects and flows of ADR-EMG-081 met these limits. None was worked around and no schema or validation
+code was changed.
+
+=== Decision
+
+Not implemented; for the owner to decide. (1) A call is synchronous or asynchronous: a flow step has an async flag but an
+interface has no way to say that its calls are synchronous and in-process, and the protocol of an interface and of a flow step is a
+free string with no vocabulary, so go-library, cli and stdio-jsonrpc are only habits. Proposal: a documented protocol vocabulary
+with a warning for an unknown value. Today the tool shows the protocol as written. (2) The order of calls: a flow can say that
+LoadBundle comes before ValidateBundle only as steps, and a machine is needed for a rule the compiler already enforces by type (a
+function takes a Bundle); the model cannot say that an order is a convention of the library. Proposal: none needed, but the flow
+and machine authoring text should say when a machine is worth writing. (3) Error and result shape: a step has onError targets but
+cannot say that a call returns a result and an error, or that an error leaves no result. This is written in the action text and in
+REQ-EMG-206. Proposal: an optional returns field on a step. (4) A function is not an authored ID: a step names the interface and
+the unit, and the function name (LoadBundle) is only in the action text, so the model cannot check that the function exists or
+that it still has that name. The trace markers name the interface and the flow on the function, which checks it from the code side
+only. Proposal: allow an optional operation name on an interface step that the code scan matches against declarations. (5) A data
+object cannot say that it is in memory: retention is a free string, and ephemeral is used here. (6) A requirement text must start
+from an event or a state, so a requirement about a function that is called reads When go api call is received, which names no
+function; the function names are in the notes and criteria. (7) The model cannot mark the consumer of a published interface: the
+actor ACT-GO-CONSUMER stands for every program that imports the package, which is not a person or a unit. Proposal: allow an
+external actor kind that is not counted as a user of the system.
+
+=== Consequences
+
+- The seven points are recorded; each can be adopted on its own.
+- The flows and the machine are written within the present language, so they stay valid whichever proposal is adopted.
+
 [[DEC-CODE-EXEMPT-MODEL-ONLY]]
 == DEC-CODE-EXEMPT-MODEL-ONLY: Eight machine elements are model-only and have no code site, so they are exempt from element to code coverage
 

@@ -315,6 +315,54 @@
       "qntFile": "generated/quint/sm_requirements_delta.qnt",
       "qntSha256": "44282e470e5c692efc3551f301aeee0f944d04a6034a7166261a7e3483868cf2",
       "notes": "INV-DELTA-WRITTEN-SOURCE-UNCHANGED of SM-REQUIREMENTS-DELTA holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-EMG-194",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-GO-BUNDLE-SESSION",
+      "invariant": "INV-GO-HELD-BUNDLE-WAS-LOADED",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+      "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+      "notes": "INV-GO-HELD-BUNDLE-WAS-LOADED of SM-GO-BUNDLE-SESSION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-EMG-195",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-GO-BUNDLE-SESSION",
+      "invariant": "INV-GO-REJECTED-HAS-ERROR",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+      "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+      "notes": "INV-GO-REJECTED-HAS-ERROR of SM-GO-BUNDLE-SESSION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-EMG-195",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-GO-BUNDLE-SESSION",
+      "invariant": "INV-GO-VALID-HAS-NO-ERROR",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+      "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+      "notes": "INV-GO-VALID-HAS-NO-ERROR of SM-GO-BUNDLE-SESSION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+    },
+    {
+      "requirement": "REQ-EMG-206",
+      "status": "pass",
+      "method": "analysis",
+      "kind": "formal",
+      "machine": "SM-GO-BUNDLE-SESSION",
+      "invariant": "INV-GO-ABSENT-HOLDS-NO-BUNDLE",
+      "mode": "run+verify",
+      "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+      "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+      "notes": "INV-GO-ABSENT-HOLDS-NO-BUNDLE of SM-GO-BUNDLE-SESSION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
     }
   ]
 }

@@ -15,7 +15,7 @@ import (
 
 // The facade is the only public API: an external caller loads and validates a
 // model with engmodel.* alone, without importing any internal package.
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-194, REQ-EMG-195
 func TestFacadeLoadsAndValidatesWithoutInternalImports(t *testing.T) {
 	bundle, err := engmodel.LoadBundle(filepath.Join("examples", "payments-engineering-sample", "engmod.yml"))
 	if err != nil {

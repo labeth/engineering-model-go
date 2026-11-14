@@ -476,6 +476,82 @@ behavior:
       requirements: [REQ-EMG-033, REQ-EMG-185]
       expr: (in_state(STATE-DELTA-LOCKED) or in_state(STATE-DELTA-REFUSED)) implies not written
       description: A refused apply, and a run that still holds the lock and checks, has not modified the requirements document.
+  - id: SM-GO-BUNDLE-SESSION
+    name: Go Bundle Session
+    description: What a Go consumer of the root package holds while it works with one model - nothing, a loaded bundle, a bundle whose diagnostics hold no error or a bundle whose diagnostics hold an error. A bundle is a snapshot that the engine never refreshes; when a model file changes the consumer loads again, which starts a new session, so the machine ends in valid or rejected.
+    owner: FU-MODEL-LOADER
+    initial: STATE-GO-BUNDLE-ABSENT
+    variables:
+    - name: bundleHeld
+      type: Boolean
+      initial: false
+    - name: errorsFound
+      type: Boolean
+      initial: false
+    states:
+    - id: STATE-GO-BUNDLE-ABSENT
+      name: Go Bundle Absent
+      description: The consumer holds no bundle; a failed load returns an error and no bundle, so nothing that reads a bundle can be called.
+      requirements: [REQ-EMG-194, REQ-EMG-206]
+    - id: STATE-GO-BUNDLE-LOADED
+      name: Go Bundle Loaded
+      description: The consumer holds a bundle that was loaded from the model documents and that nothing validated yet.
+      requirements: [REQ-EMG-194]
+    - id: STATE-GO-BUNDLE-VALID
+      name: Go Bundle Valid
+      final: true
+      description: The consumer validated the held bundle and its diagnostics hold no error.
+      requirements: [REQ-EMG-195]
+    - id: STATE-GO-BUNDLE-REJECTED
+      name: Go Bundle Rejected
+      final: true
+      description: The consumer validated the held bundle and its diagnostics hold one or more errors; the bundle can still be read, and what is read from it is not trusted.
+      requirements: [REQ-EMG-195]
+    transitions:
+    - id: TR-GO-BUNDLE-LOADS
+      from: STATE-GO-BUNDLE-ABSENT
+      to: STATE-GO-BUNDLE-LOADED
+      on: EVT-GO-BUNDLE-LOADED
+      effect: bundleHeld := true
+      description: LoadBundle or LoadBundleAtRef read every document of the model and return the bundle.
+      requirements: [REQ-EMG-194]
+    - id: TR-GO-BUNDLE-LOAD-FAILS
+      from: STATE-GO-BUNDLE-ABSENT
+      to: STATE-GO-BUNDLE-ABSENT
+      on: EVT-GO-BUNDLE-LOAD-FAILED
+      description: A document does not load, so the call returns the error and the empty bundle and the consumer still holds none.
+      requirements: [REQ-EMG-206]
+    - id: TR-GO-BUNDLE-VALIDATES
+      from: STATE-GO-BUNDLE-LOADED
+      to: STATE-GO-BUNDLE-VALID
+      on: EVT-VALIDATION-PASSED
+      effect: errorsFound := false
+      description: ValidateBundle returns diagnostics that hold no error.
+      requirements: [REQ-EMG-195]
+    - id: TR-GO-BUNDLE-REJECTED
+      from: STATE-GO-BUNDLE-LOADED
+      to: STATE-GO-BUNDLE-REJECTED
+      on: EVT-VALIDATION-FAILED
+      effect: errorsFound := true
+      description: ValidateBundle returns diagnostics that hold one or more errors.
+      requirements: [REQ-EMG-195]
+    invariants:
+    - id: INV-GO-ABSENT-HOLDS-NO-BUNDLE
+      requirements: [REQ-EMG-206]
+      expr: in_state(STATE-GO-BUNDLE-ABSENT) implies not bundleHeld
+      description: A consumer that holds no bundle after a failed load or a model update has none to read; a failed load never leaves a partly loaded bundle.
+    - id: INV-GO-HELD-BUNDLE-WAS-LOADED
+      requirements: [REQ-EMG-194]
+      expr: bundleHeld or in_state(STATE-GO-BUNDLE-ABSENT)
+      description: Every state other than absent follows a successful load, so a bundle is validated or read only after it was loaded.
+    - id: INV-GO-VALID-HAS-NO-ERROR
+      requirements: [REQ-EMG-195]
+      expr: in_state(STATE-GO-BUNDLE-VALID) implies not errorsFound
+      description: A bundle is valid only while its diagnostics hold no error.
+    - id: INV-GO-REJECTED-HAS-ERROR
+      requirements: [REQ-EMG-195]
+      expr: in_state(STATE-GO-BUNDLE-REJECTED) implies errorsFound
+      description: A bundle is rejected only while its diagnostics hold an error, so the consumer can tell which of the two results it has.
   events:
   - id: EVT-MODEL-UPDATED
     name: Model Updated
@@ -541,6 +617,14 @@ behavior:
     name: Status Suggest Requested
     description: A developer asked engws which status each requirement and control verification earns from the tree's evidence (engws status-suggest).
     requirements: [REQ-EMG-122]
+  - id: EVT-GO-BUNDLE-LOADED
+    name: Go Bundle Loaded
+    description: LoadBundle or LoadBundleAtRef returned a bundle of the model documents to a Go consumer.
+    requirements: [REQ-EMG-194]
+  - id: EVT-GO-BUNDLE-LOAD-FAILED
+    name: Go Bundle Load Failed
+    description: LoadBundle or LoadBundleAtRef returned an error to a Go consumer because a document or a revision could not be read.
+    requirements: [REQ-EMG-206]
   flows:
   - id: FLOW-REQUIREMENTS-DELTA-TO-CANONICAL
     title: Requirements Delta to Canonical Requirements Flow
@@ -759,6 +843,289 @@ behavior:
       kind: system_action
       ref: FU-ASCIIDOC-GENERATOR
       action: Persist generated outputs for downstream use
+  - id: FLOW-GO-READ-MODEL
+    title: Go Consumer Reads a Model
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-GO-CONSUMER
+    destinationRef: FU-MODEL-LOADER
+    protocol: go-library
+    channel: in-process
+    dataRefs:
+    - DO-MODEL-BUNDLE
+    - DO-MODEL-DIAGNOSTICS
+    - DO-ENTITY-INDEX
+    - DO-TRACE-MATRIX
+    - DO-CATALOG-USAGE
+    description: 'A Go consumer loads the model of a checkout, validates the bundle, lists its entities and, when it needs them, builds the trace matrix and lists the catalog usage. A model with dependencies is composed first (FLOW-GO-COMPOSE-AND-LINK) and the consumer validates the bundle enriched with the entities the dependencies publish. The calls run in the consumer process; the library authenticates and encrypts nothing.'
+    entry:
+    - load-bundle
+    exits:
+    - build-entity-index
+    - build-trace-matrix
+    - read-catalog-usage
+    steps:
+    - id: load-bundle
+      kind: integration_call
+      ref: FU-MODEL-LOADER
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-MODEL-LOADER
+      interfaceRef: IF-GO-MODEL-LOADING
+      action: 'LoadBundle reads the engmod.yml manifest and every document it names and returns the bundle, or an error and the empty bundle.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      next:
+      - validate-bundle
+      onError:
+      - report-read-error
+    - id: validate-bundle
+      kind: integration_call
+      ref: FU-VALIDATION-ENGINE
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-VALIDATION-ENGINE
+      interfaceRef: IF-GO-MODEL-VALIDATION
+      action: 'ValidateBundle returns the diagnostics of the bundle, each with a code, a severity, a message and a path; the consumer decides from the severity whether to trust what it reads next.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-MODEL-DIAGNOSTICS
+      next:
+      - build-entity-index
+    - id: build-entity-index
+      kind: integration_call
+      ref: FU-MODEL-LOADER
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-MODEL-LOADER
+      interfaceRef: IF-GO-ENTITY-INDEX-DIFF
+      action: 'BuildEntityIndex lists every authored entity of the bundle with the references between them; it reads the bundle only.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-ENTITY-INDEX
+      next:
+      - build-trace-matrix
+      onError:
+      - report-read-error
+    - id: build-trace-matrix
+      kind: integration_call
+      ref: FU-ALLOCATION-TRACE
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-ALLOCATION-TRACE
+      interfaceRef: IF-GO-TRACE
+      action: 'BuildTraceMatrixFromFiles scans the code of the checkout and returns the trace matrix with the findings of the scan; it takes paths, not a bundle.'
+      dataRefs:
+      - DO-TRACE-MATRIX
+      - DO-MODEL-DIAGNOSTICS
+      next:
+      - read-catalog-usage
+      onError:
+      - report-read-error
+      optional: true
+    - id: read-catalog-usage
+      kind: integration_call
+      ref: FU-VALIDATION-ENGINE
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-VALIDATION-ENGINE
+      interfaceRef: IF-GO-CODE-LOOKUP
+      action: 'CatalogUsage lists every catalog term with the requirements that name it and the entities that reference it.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-CATALOG-USAGE
+      onError:
+      - report-read-error
+      optional: true
+    - id: report-read-error
+      kind: notification
+      ref: ACT-GO-CONSUMER
+      action: 'The consumer receives the error of the call and no result of that call; it keeps what it read before and reports the part that could not be read.'
+  - id: FLOW-GO-COMPARE-REVISIONS
+    title: Go Consumer Compares Revisions of a Model
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-GO-CONSUMER
+    destinationRef: FU-MODEL-LOADER
+    protocol: go-library
+    channel: in-process
+    dataRefs:
+    - DO-MODEL-BUNDLE
+    - DO-ENTITY-INDEX
+    - DO-MODEL-DIFF
+    description: 'A Go consumer reads the model of a git revision, or compares the model at one revision with another revision or with the working tree and, when asked, the change of requirement traceability. The engine reads git objects and writes nothing to the repository.'
+    entry:
+    - load-revision-bundle
+    - diff-models
+    exits:
+    - build-revision-index
+    - diff-models
+    steps:
+    - id: load-revision-bundle
+      kind: integration_call
+      ref: FU-MODEL-LOADER
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-MODEL-LOADER
+      interfaceRef: IF-GO-MODEL-LOADING
+      action: 'LoadBundleAtRef reads the model documents as committed at a git revision of a repository and returns the bundle, or an error for an unknown revision.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      next:
+      - build-revision-index
+      onError:
+      - report-compare-error
+    - id: build-revision-index
+      kind: integration_call
+      ref: FU-MODEL-LOADER
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-MODEL-LOADER
+      interfaceRef: IF-GO-ENTITY-INDEX-DIFF
+      action: 'BuildEntityIndex lists the entities of the bundle of that revision.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-ENTITY-INDEX
+      onError:
+      - report-compare-error
+    - id: diff-models
+      kind: integration_call
+      ref: FU-MODEL-LOADER
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-MODEL-LOADER
+      interfaceRef: IF-GO-ENTITY-INDEX-DIFF
+      action: 'DiffModels takes a ModelDiffRequest (repository, from revision, to revision or the working tree, trace flag) and returns the entities added, removed and changed and, with the trace flag, the change of traceability; a trace that cannot be built is reported inside the result, not as an error.'
+      dataRefs:
+      - DO-ENTITY-INDEX
+      - DO-MODEL-DIFF
+      onError:
+      - report-compare-error
+    - id: report-compare-error
+      kind: notification
+      ref: ACT-GO-CONSUMER
+      action: 'The consumer receives the error of the call and no result of that call.'
+  - id: FLOW-GO-LOOK-UP-CODE
+    title: Go Consumer Looks Up Code
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-GO-CONSUMER
+    destinationRef: FU-CODEMAP-INFERENCE
+    protocol: go-library
+    channel: in-process
+    dataRefs:
+    - DO-MODEL-BUNDLE
+    - DO-CODE-DECLARATIONS
+    description: 'A Go consumer lists the declarations of the code scope of a model and asks for the candidate definitions of a name used in a file. A result is a candidate: scopes, imports and overloads are not resolved.'
+    entry:
+    - list-code-declarations
+    exits:
+    - find-code-definitions
+    steps:
+    - id: list-code-declarations
+      kind: integration_call
+      ref: FU-CODEMAP-INFERENCE
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-CODEMAP-INFERENCE
+      interfaceRef: IF-GO-CODE-LOOKUP
+      action: 'ListCodeDeclarations reads the files of the code scope of the bundle under a root directory and returns every named declaration with its kind, language, path and lines.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-CODE-DECLARATIONS
+      next:
+      - find-code-definitions
+      onError:
+      - report-lookup-error
+    - id: find-code-definitions
+      kind: integration_call
+      ref: FU-CODEMAP-INFERENCE
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-CODEMAP-INFERENCE
+      interfaceRef: IF-GO-CODE-LOOKUP
+      action: 'FindCodeDefinitions ranks the declarations a name used in a file may refer to by closeness to the file and returns them; it reads the list only and returns an empty list for an unknown name.'
+      dataRefs:
+      - DO-CODE-DECLARATIONS
+    - id: report-lookup-error
+      kind: notification
+      ref: ACT-GO-CONSUMER
+      action: 'The consumer receives the error of the call and no declarations.'
+  - id: FLOW-GO-COMPOSE-AND-LINK
+    title: Go Consumer Composes a Model and Reads its Requirement Links
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-GO-CONSUMER
+    destinationRef: FU-SYSTEM-COMPOSITION
+    protocol: go-library
+    channel: in-process
+    dataRefs:
+    - DO-MODEL-BUNDLE
+    - DO-COMPOSITION-RESULT
+    - DO-CONTRACT-ITEMS
+    - DO-REQUIREMENT-LINK-STATUS
+    - DO-LINK-USE
+    description: 'A Go consumer resolves the dependencies of a model from the checkouts a workspace file names, projects the published entities of the dependencies into the bundle so that alias::ID references validate, reads the contract items the model publishes and evaluates the requirement links of the model against its dependencies. The consumer chooses the lock mode and the module cache mode; nothing here writes the lock when it asks for check.'
+    entry:
+    - resolve-composition
+    exits:
+    - evaluate-links
+    - read-link-users
+    steps:
+    - id: resolve-composition
+      kind: integration_call
+      ref: FU-SYSTEM-COMPOSITION
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-SYSTEM-COMPOSITION
+      interfaceRef: IF-GO-COMPOSITION
+      action: 'GenerateCompositionFromFileWith takes the manifest path and ResolutionOptions (lock mode, module cache mode, workspace mode) and returns the composed system with its diagnostics, or an error when a dependency cannot be resolved.'
+      dataRefs:
+      - DO-COMPOSITION-RESULT
+      next:
+      - project-composition
+      onError:
+      - report-compose-error
+    - id: project-composition
+      kind: integration_call
+      ref: FU-SYSTEM-COMPOSITION
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-SYSTEM-COMPOSITION
+      interfaceRef: IF-GO-COMPOSITION
+      action: 'BuildCompositionProjection returns the published entities of the composition; its EnrichBundle method merges them into the bundle, which the consumer then validates (FLOW-GO-READ-MODEL).'
+      dataRefs:
+      - DO-COMPOSITION-RESULT
+      - DO-MODEL-BUNDLE
+      next:
+      - read-contract-items
+    - id: read-contract-items
+      kind: integration_call
+      ref: FU-ALLOCATION-TRACE
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-ALLOCATION-TRACE
+      interfaceRef: IF-GO-REQUIREMENT-LINKS
+      action: 'ContractItemsFromBundle returns the capabilities and assumptions of use of the bundle by ID, each with its realizing requirements; SortedContractItemRealizers puts the realizers in a stable order.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-CONTRACT-ITEMS
+      next:
+      - evaluate-links
+    - id: evaluate-links
+      kind: integration_call
+      ref: FU-ALLOCATION-TRACE
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-ALLOCATION-TRACE
+      interfaceRef: IF-GO-REQUIREMENT-LINKS
+      action: 'LinkDependencies turns the composed system into the dependencies to compare with and EvaluateRequirementLinks returns the status of each requirement link of the bundle against them.'
+      dataRefs:
+      - DO-COMPOSITION-RESULT
+      - DO-REQUIREMENT-LINK-STATUS
+      next:
+      - read-link-users
+    - id: read-link-users
+      kind: integration_call
+      ref: FU-SYSTEM-COMPOSITION
+      sourceRef: ACT-GO-CONSUMER
+      destinationRef: FU-SYSTEM-COMPOSITION
+      interfaceRef: IF-GO-COMPOSITION
+      action: 'WorkspaceLinkUsers returns the requirement links that other checkouts of the workspace hold on the contract items of the bundle.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-LINK-USE
+      optional: true
+    - id: report-compose-error
+      kind: notification
+      ref: ACT-GO-CONSUMER
+      action: 'The consumer receives the error of the call and no composed system; it reports that the references to other repositories cannot be checked.'
   relationships:
   - type: contains
     from: FG-MODEL-AUTHORING
@@ -1050,3 +1417,61 @@ behavior:
     from: STATE-MODEL-VALID
     to: CTRL-STRICT-MCP-INPUT-SCHEMA
     description: Model-aware tool usage requires strict MCP input semantics.
+  - type: interacts_with
+    from: ACT-GO-CONSUMER
+    to: FU-MODEL-LOADER
+    description: Imports the root Go package, loads models and reads them through the Go API.
+  - type: contains
+    from: FU-MODEL-LOADER
+    to: IF-GO-MODEL-LOADING
+  - type: contains
+    from: FU-VALIDATION-ENGINE
+    to: IF-GO-MODEL-VALIDATION
+  - type: contains
+    from: FU-MODEL-LOADER
+    to: IF-GO-ENTITY-INDEX-DIFF
+  - type: contains
+    from: FU-ALLOCATION-TRACE
+    to: IF-GO-TRACE
+  - type: contains
+    from: FU-CODEMAP-INFERENCE
+    to: IF-GO-CODE-LOOKUP
+  - type: contains
+    from: FU-SYSTEM-COMPOSITION
+    to: IF-GO-COMPOSITION
+  - type: contains
+    from: FU-ALLOCATION-TRACE
+    to: IF-GO-REQUIREMENT-LINKS
+  - type: writes
+    from: FU-MODEL-LOADER
+    to: DO-MODEL-BUNDLE
+  - type: writes
+    from: FU-VALIDATION-ENGINE
+    to: DO-MODEL-DIAGNOSTICS
+  - type: writes
+    from: FU-MODEL-LOADER
+    to: DO-ENTITY-INDEX
+  - type: writes
+    from: FU-MODEL-LOADER
+    to: DO-MODEL-DIFF
+  - type: writes
+    from: FU-ALLOCATION-TRACE
+    to: DO-TRACE-MATRIX
+  - type: writes
+    from: FU-CODEMAP-INFERENCE
+    to: DO-CODE-DECLARATIONS
+  - type: writes
+    from: FU-VALIDATION-ENGINE
+    to: DO-CATALOG-USAGE
+  - type: writes
+    from: FU-SYSTEM-COMPOSITION
+    to: DO-COMPOSITION-RESULT
+  - type: writes
+    from: FU-ALLOCATION-TRACE
+    to: DO-CONTRACT-ITEMS
+  - type: writes
+    from: FU-ALLOCATION-TRACE
+    to: DO-REQUIREMENT-LINK-STATUS
+  - type: writes
+    from: FU-SYSTEM-COMPOSITION
+    to: DO-LINK-USE

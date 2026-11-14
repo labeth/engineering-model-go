@@ -59,7 +59,7 @@ const (
 func ContractNonItemReason(dep Bundle, id string) LinkReason { return reqlinks.NonItemReason(dep, id) }
 
 // SortedContractItemRealizers returns a copy of realizers sorted by ID.
-// TRLC-LINKS: REQ-EMG-097
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-203
 func SortedContractItemRealizers(in []ContractItemRealizer) []ContractItemRealizer {
 	return reqlinks.SortedRealizers(in)
 }
@@ -92,8 +92,8 @@ func ContractItemMeaningChanges(before, after ContractItem) []string {
 }
 
 // ContractItemsFromBundle returns every contract item of a model with its realizers.
-// TRLC-LINKS: REQ-EMG-095
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-203
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, IF-GO-REQUIREMENT-LINKS, DO-CONTRACT-ITEMS, DO-MODEL-BUNDLE, FLOW-GO-COMPOSE-AND-LINK
 func ContractItemsFromBundle(bundle Bundle) map[string]ContractItem {
 	return reqlinks.ItemsFromBundle(bundle)
 }
@@ -114,8 +114,8 @@ func PublishedContractItems(bundle Bundle, publications ...ManifestPublication) 
 
 // EvaluateRequirementLinks evaluates every requirement link of a system
 // against its resolved dependencies.
-// TRLC-LINKS: REQ-EMG-097
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-204
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, IF-GO-REQUIREMENT-LINKS, DO-REQUIREMENT-LINK-STATUS, FLOW-GO-COMPOSE-AND-LINK
 func EvaluateRequirementLinks(system Bundle, deps []LinkDependency) []LinkStatus {
 	return reqlinks.EvaluateLinks(system, deps)
 }
@@ -128,6 +128,6 @@ func RequirementLinkDiagnostics(system Bundle, deps []LinkDependency) []Diagnost
 }
 
 // LinkDependencies returns the resolved direct dependencies of a composed system.
-// TRLC-LINKS: REQ-EMG-097
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-204
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE, IF-GO-REQUIREMENT-LINKS, DO-COMPOSITION-RESULT, FLOW-GO-COMPOSE-AND-LINK
 func LinkDependencies(sys *ComposedSystem) []LinkDependency { return composition.LinkDependencies(sys) }

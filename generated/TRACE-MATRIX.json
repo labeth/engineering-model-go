@@ -8574,7 +8574,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--BUILDCOMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 141
+          "line": 142
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--COMPOSITIONPROJECTION",
@@ -8594,12 +8594,12 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 147
+          "line": 148
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
           "path": "api_composition.go",
-          "line": 154
+          "line": 155
         },
         {
           "symbol": "CODE-API-SYSML-GO--GENERATESYSMLV2FROMFILE",
@@ -8815,7 +8815,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--BUILDCOMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 141
+          "line": 142
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--COMPOSITIONLOCKDOCUMENT",
@@ -8855,12 +8855,12 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTION",
           "path": "api_composition.go",
-          "line": 147
+          "line": 148
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
           "path": "api_composition.go",
-          "line": 154
+          "line": 155
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--WRITECOMPOSITIONLOCK",
@@ -9993,7 +9993,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
           "path": "api_composition.go",
-          "line": 154
+          "line": 155
         },
         {
           "symbol": "CODE-API-TRACE-GO--TRACEOPTIONS",
@@ -10151,7 +10151,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--RESOLVECOMPOSITIONPROJECTIONWITH",
           "path": "api_composition.go",
-          "line": 154
+          "line": 155
         },
         {
           "symbol": "CODE-API-TRACE-GO--TRACEOPTIONS",
@@ -13652,12 +13652,12 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--LINKUSE",
           "path": "api_composition.go",
-          "line": 161
+          "line": 162
         },
         {
           "symbol": "CODE-API-COMPOSITION-GO--WORKSPACELINKUSERS",
           "path": "api_composition.go",
-          "line": 168
+          "line": 169
         },
         {
           "symbol": "CODE-INTERNAL-ASCIIDOC-ASCIIDOC-GO--GENERATE",
@@ -14893,7 +14893,7 @@
         {
           "symbol": "CODE-API-COMPOSITION-GO--COMPOSITIONTIERDIAGNOSTICS",
           "path": "api_composition.go",
-          "line": 179
+          "line": 180
         },
         {
           "symbol": "CODE-INTERNAL-COMPOSITION-COMPOSITION-TIER-GO--CONTAINSSTRING",
@@ -22809,6 +22809,381 @@
       "parents": [
         "CAP-EMG-TRACEABILITY"
       ]
+    },
+    {
+      "id": "REQ-EMG-194",
+      "text": "When go api call is received, the engineering model go shall return one bundle with the manifest and every model document that a manifest path or a git revision names.",
+      "units": [
+        "FLOW-GO-COMPARE-REVISIONS",
+        "FLOW-GO-READ-MODEL",
+        "FU-MODEL-LOADER",
+        "SM-GO-BUNDLE-SESSION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-DIFF-GO--LOADBUNDLEATREF",
+          "path": "api_diff.go",
+          "line": 70
+        },
+        {
+          "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
+          "path": "model_api.go",
+          "line": 203
+        }
+      ],
+      "verifications": [
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
+        "VER-INF-TEST-FACADE_TEST-E17700"
+      ],
+      "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-EMG-194",
+          "machine": "SM-GO-BUNDLE-SESSION",
+          "invariant": "INV-GO-HELD-BUNDLE-WAS-LOADED",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+          "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-GO-HELD-BUNDLE-WAS-LOADED of SM-GO-BUNDLE-SESSION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-195",
+      "text": "When go api call is received, the engineering model go shall return the diagnostics of a bundle with a stable code, a severity, a message and a model path for each finding.",
+      "units": [
+        "FLOW-GO-READ-MODEL",
+        "FU-VALIDATION-ENGINE",
+        "SM-GO-BUNDLE-SESSION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
+          "path": "validate_api.go",
+          "line": 35
+        }
+      ],
+      "verifications": [
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F",
+        "VER-INF-TEST-FACADE_TEST-E17700"
+      ],
+      "result": "passed",
+      "evidenceMethods": [
+        "analysis",
+        "test"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-EMG-195",
+          "machine": "SM-GO-BUNDLE-SESSION",
+          "invariant": "INV-GO-REJECTED-HAS-ERROR",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+          "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-GO-REJECTED-HAS-ERROR of SM-GO-BUNDLE-SESSION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        },
+        {
+          "requirement": "REQ-EMG-195",
+          "machine": "SM-GO-BUNDLE-SESSION",
+          "invariant": "INV-GO-VALID-HAS-NO-ERROR",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+          "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-GO-VALID-HAS-NO-ERROR of SM-GO-BUNDLE-SESSION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-196",
+      "text": "When go api call is received, the engineering model go shall return the entity index of a bundle with the kind, document, parent and fields of each entity and each reference between entities.",
+      "units": [
+        "FLOW-GO-COMPARE-REVISIONS",
+        "FLOW-GO-READ-MODEL",
+        "FU-MODEL-LOADER"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-DIFF-GO--BUILDENTITYINDEX",
+          "path": "api_diff.go",
+          "line": 53
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-197",
+      "text": "When go api call is received, the engineering model go shall return the difference of a model between two revisions with the entities added, removed and changed.",
+      "units": [
+        "FLOW-GO-COMPARE-REVISIONS",
+        "FU-ALLOCATION-TRACE",
+        "FU-MODEL-LOADER"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-DIFF-GO--DIFFENTITYINDEXES",
+          "path": "api_diff.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--DIFFMODELS",
+          "path": "api_diff.go",
+          "line": 102
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-198",
+      "text": "When go api call is received, the engineering model go shall return the trace matrix of a model with the code, tests and verifications of each requirement.",
+      "units": [
+        "FLOW-GO-READ-MODEL",
+        "FU-ALLOCATION-TRACE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-TRACE-GO--BUILDTRACEMATRIXFROMFILES",
+          "path": "api_trace.go",
+          "line": 57
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-199",
+      "text": "When go api call is received, the engineering model go shall return every named declaration of the code scope of a bundle with its kind, language, path and lines.",
+      "units": [
+        "FLOW-GO-LOOK-UP-CODE",
+        "FU-CODEMAP-INFERENCE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-CODE-GO--CODEDECLARATIONSOF",
+          "path": "api_code.go",
+          "line": 42
+        },
+        {
+          "symbol": "CODE-API-CODE-GO--LISTCODEDECLARATIONS",
+          "path": "api_code.go",
+          "line": 35
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-API_CODE_TEST-F84229"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-200",
+      "text": "When go api call is received, the engineering model go shall return the candidate declarations of a name used in a file ranked by closeness to that file.",
+      "units": [
+        "FLOW-GO-LOOK-UP-CODE",
+        "FU-CODEMAP-INFERENCE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-CODE-GO--FINDCODEDEFINITIONS",
+          "path": "api_code.go",
+          "line": 52
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-API_CODE_TEST-F84229"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-201",
+      "text": "When go api call is received, the engineering model go shall return every catalog term of a bundle with the requirements that name it and the entities that reference it.",
+      "units": [
+        "FLOW-GO-READ-MODEL",
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-CODE-GO--CATALOGUSAGE",
+          "path": "api_code.go",
+          "line": 23
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-202",
+      "text": "When go api call is received, the engineering model go shall return the composed system of a model with its resolved dependencies and the diagnostics of the composition.",
+      "units": [
+        "FLOW-GO-COMPOSE-AND-LINK",
+        "FU-SYSTEM-COMPOSITION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-COMPOSITION-GO--BUILDCOMPOSITIONPROJECTION",
+          "path": "api_composition.go",
+          "line": 142
+        },
+        {
+          "symbol": "CODE-API-COMPOSITION-GO--GENERATECOMPOSITIONFROMFILEWITH",
+          "path": "api_composition.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-API-COMPOSITION-GO--HASCOMPOSITION",
+          "path": "api_composition.go",
+          "line": 83
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-203",
+      "text": "When go api call is received, the engineering model go shall return the contract items of a bundle with the realizing requirements of each item.",
+      "units": [
+        "FLOW-GO-COMPOSE-AND-LINK",
+        "FU-ALLOCATION-TRACE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-REQLINKS-GO--CONTRACTITEMSFROMBUNDLE",
+          "path": "api_reqlinks.go",
+          "line": 97
+        },
+        {
+          "symbol": "CODE-API-REQLINKS-GO--SORTEDCONTRACTITEMREALIZERS",
+          "path": "api_reqlinks.go",
+          "line": 63
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-204",
+      "text": "When go api call is received, the engineering model go shall return the status of each requirement link of a bundle against the contract items of its dependencies.",
+      "units": [
+        "FLOW-GO-COMPOSE-AND-LINK",
+        "FU-ALLOCATION-TRACE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-REQLINKS-GO--EVALUATEREQUIREMENTLINKS",
+          "path": "api_reqlinks.go",
+          "line": 119
+        },
+        {
+          "symbol": "CODE-API-REQLINKS-GO--LINKDEPENDENCIES",
+          "path": "api_reqlinks.go",
+          "line": 133
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-205",
+      "text": "When go api call is received, the engineering model go shall return the requirement links that the other checkouts of a workspace hold on the contract items of a bundle.",
+      "units": [
+        "FLOW-GO-COMPOSE-AND-LINK",
+        "FU-SYSTEM-COMPOSITION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-COMPOSITION-GO--WORKSPACELINKUSERS",
+          "path": "api_composition.go",
+          "line": 169
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
+    },
+    {
+      "id": "REQ-EMG-206",
+      "text": "When go bundle load failed event is raised, the engineering model go shall return the error of the load and an empty bundle.",
+      "units": [
+        "FU-MODEL-LOADER",
+        "SM-GO-BUNDLE-SESSION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-DIFF-GO--LOADBUNDLEATREF",
+          "path": "api_diff.go",
+          "line": 70
+        },
+        {
+          "symbol": "CODE-MODEL-API-GO--LOADBUNDLE",
+          "path": "model_api.go",
+          "line": 203
+        }
+      ],
+      "verifications": [
+        "VER-INF-FORMAL-QUINT_FORMAL-5B471F"
+      ],
+      "result": "passed",
+      "evidenceMethods": [
+        "analysis"
+      ],
+      "formal": [
+        {
+          "requirement": "REQ-EMG-206",
+          "machine": "SM-GO-BUNDLE-SESSION",
+          "invariant": "INV-GO-ABSENT-HOLDS-NO-BUNDLE",
+          "mode": "run+verify",
+          "result": "pass",
+          "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+          "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+          "evidence": "test-results/quint-formal.json",
+          "notes": "INV-GO-ABSENT-HOLDS-NO-BUNDLE of SM-GO-BUNDLE-SESSION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
+        }
+      ],
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-GO-API"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -22817,11 +23192,11 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 186,
-    "implemented": 182,
-    "tested": 171,
-    "testLinked": 171,
-    "passed": 10,
+    "requirements": 199,
+    "implemented": 195,
+    "tested": 176,
+    "testLinked": 176,
+    "passed": 13,
     "delegated": 0,
     "orphan": 2,
     "danglingLinks": 0,

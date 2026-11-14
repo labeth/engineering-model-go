@@ -543,6 +543,126 @@
         }
       ],
       "warnings": []
+    },
+    {
+      "machine": "SM-GO-BUNDLE-SESSION",
+      "module": "sm_go_bundle_session",
+      "qntFile": "generated/quint/sm_go_bundle_session.qnt",
+      "qntSha256": "dffe198a83cc89a246663a0de9db5966f7be41ba8d7324f1943248865953c5c7",
+      "quintVersion": "0.33.1",
+      "backend": "typescript",
+      "modes": [
+        "run",
+        "verify"
+      ],
+      "bounds": {
+        "maxSteps": 20,
+        "maxSamples": 10000,
+        "seed": "1",
+        "verifySteps": 10
+      },
+      "status": "pass",
+      "invariants": [
+        {
+          "name": "inv_go_absent_holds_no_bundle",
+          "id": "INV-GO-ABSENT-HOLDS-NO-BUNDLE",
+          "requirements": [
+            "REQ-EMG-206"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 16
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_go_held_bundle_was_loaded",
+          "id": "INV-GO-HELD-BUNDLE-WAS-LOADED",
+          "requirements": [
+            "REQ-EMG-194"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 16
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_go_valid_has_no_error",
+          "id": "INV-GO-VALID-HAS-NO-ERROR",
+          "requirements": [
+            "REQ-EMG-195"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 16
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        },
+        {
+          "name": "inv_go_rejected_has_error",
+          "id": "INV-GO-REJECTED-HAS-ERROR",
+          "requirements": [
+            "REQ-EMG-195"
+          ],
+          "status": "pass",
+          "run": {
+            "status": "pass",
+            "exitCode": 0,
+            "traceMin": 3,
+            "traceMax": 16
+          },
+          "verify": {
+            "status": "pass",
+            "exitCode": 0
+          }
+        }
+      ],
+      "witnesses": [
+        {
+          "name": "wit_state_go_bundle_absent",
+          "state": "STATE-GO-BUNDLE-ABSENT",
+          "witnessed": 5085,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_go_bundle_loaded",
+          "state": "STATE-GO-BUNDLE-LOADED",
+          "witnessed": 10000,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_go_bundle_valid",
+          "state": "STATE-GO-BUNDLE-VALID",
+          "witnessed": 5017,
+          "total": 10000
+        },
+        {
+          "name": "wit_state_go_bundle_rejected",
+          "state": "STATE-GO-BUNDLE-REJECTED",
+          "witnessed": 4983,
+          "total": 10000
+        }
+      ],
+      "warnings": []
     }
   ]
 }

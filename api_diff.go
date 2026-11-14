@@ -48,13 +48,13 @@ const (
 )
 
 // BuildEntityIndex reads every authored document of the bundle into entities and the references between them.
-// TRLC-LINKS: REQ-EMG-189
-// ENGMODEL-LINKS: FU-MODEL-LOADER
+// TRLC-LINKS: REQ-EMG-189, REQ-EMG-196
+// ENGMODEL-LINKS: FU-MODEL-LOADER, IF-GO-ENTITY-INDEX-DIFF, DO-ENTITY-INDEX, FLOW-GO-READ-MODEL, FLOW-GO-COMPARE-REVISIONS
 func BuildEntityIndex(bundle Bundle) (EntityIndex, error) { return model.BuildEntityIndex(bundle) }
 
 // DiffEntityIndexes compares two entity indexes of one model by stable ID.
-// TRLC-LINKS: REQ-EMG-190
-// ENGMODEL-LINKS: FU-MODEL-LOADER
+// TRLC-LINKS: REQ-EMG-190, REQ-EMG-197
+// ENGMODEL-LINKS: FU-MODEL-LOADER, IF-GO-ENTITY-INDEX-DIFF, DO-ENTITY-INDEX, DO-MODEL-DIFF
 func DiffEntityIndexes(from, to EntityIndex) EntityDiff { return model.DiffEntityIndexes(from, to) }
 
 // DiffTraceMatrices compares two trace matrices of one model by requirement ID.
@@ -65,8 +65,8 @@ func DiffTraceMatrices(from, to TraceMatrix) TraceDelta { return trace.DeltaOf(f
 // LoadBundleAtRef loads the model in repo as committed at a git ref. It is the one place that accepts a model of
 // an older schema version (it stamps a private copy), and it is meant for reading history, never for validating a
 // user's model.
-// TRLC-LINKS: REQ-EMG-190
-// ENGMODEL-LINKS: FU-MODEL-LOADER
+// TRLC-LINKS: REQ-EMG-190, REQ-EMG-194, REQ-EMG-206
+// ENGMODEL-LINKS: FU-MODEL-LOADER, IF-GO-MODEL-LOADING, DO-MODEL-BUNDLE, SM-GO-BUNDLE-SESSION, FLOW-GO-COMPARE-REVISIONS
 func LoadBundleAtRef(repo, ref string) (Bundle, error) { return gitmodel.LoadBundleAtRef(repo, ref) }
 
 // ModelDiffRequest says which two states of the model in a repository DiffModels compares.
@@ -97,8 +97,8 @@ type ModelDiff struct {
 // requirement that gained or lost code or tests shows. A trace that cannot be built is recorded in TraceError and
 // does not fail the entity diff.
 //
-// TRLC-LINKS: REQ-EMG-190, REQ-EMG-191
-// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-ALLOCATION-TRACE
+// TRLC-LINKS: REQ-EMG-190, REQ-EMG-191, REQ-EMG-197
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-ALLOCATION-TRACE, IF-GO-ENTITY-INDEX-DIFF, DO-MODEL-DIFF, DO-ENTITY-INDEX, FLOW-GO-COMPARE-REVISIONS
 func DiffModels(req ModelDiffRequest) (ModelDiff, error) {
 	out := ModelDiff{Repo: req.Repo, From: req.From, To: req.To}
 	before, err := entityIndexAt(req.Repo, req.From)

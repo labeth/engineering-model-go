@@ -18,8 +18,8 @@ type CatalogTermUsage = reqlint.TermUsage
 
 // CatalogUsage lists every catalog term with the requirements that name it (by name or alias, on word boundaries)
 // and the entities that reference it, for tools that show a term in context.
-// TRLC-LINKS: REQ-EMG-193
-// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+// TRLC-LINKS: REQ-EMG-193, REQ-EMG-201
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, IF-GO-CODE-LOOKUP, DO-CATALOG-USAGE, DO-MODEL-BUNDLE, FLOW-GO-READ-MODEL
 func CatalogUsage(bundle Bundle) ([]CatalogTermUsage, error) { return reqlint.CatalogUsage(bundle) }
 
 // CodeDeclaration is one named declaration of a source file (function, method, type, var, const, class, ...),
@@ -30,14 +30,14 @@ type CodeDeclaration = codemap.Declaration
 // ListCodeDeclarations lists every named declaration of the model's code scope under root, in path and line order,
 // for tools that jump from a use to its definition. It reads files only. The code scope is the one the check and
 // the trace use: git-ignored files, inferenceHints.exclude paths and nested modules are left out.
-// TRLC-LINKS: REQ-EMG-192
-// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+// TRLC-LINKS: REQ-EMG-192, REQ-EMG-199
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, IF-GO-CODE-LOOKUP, DO-CODE-DECLARATIONS, DO-MODEL-BUNDLE, FLOW-GO-LOOK-UP-CODE
 func ListCodeDeclarations(bundle Bundle, root string) ([]CodeDeclaration, error) {
 	return codescan.ListDeclarations(bundle, root)
 }
 
 // CodeDeclarationsOf lists the declarations of one source file given its root-relative path and content.
-// TRLC-LINKS: REQ-EMG-192
+// TRLC-LINKS: REQ-EMG-192, REQ-EMG-199
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
 func CodeDeclarationsOf(relPath string, src []byte) ([]CodeDeclaration, error) {
 	return codemap.DeclarationsOf(relPath, src)
@@ -47,8 +47,8 @@ func CodeDeclarationsOf(relPath string, src []byte) ([]CodeDeclaration, error) {
 // same file, then the same directory (the package), then the same language elsewhere. Declarations of test-only
 // code rank after production code unless the use is itself in test-only code. It matches the name exactly and
 // does not resolve scopes, imports or overloads, so a result is a candidate, not a proof.
-// TRLC-LINKS: REQ-EMG-192
-// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+// TRLC-LINKS: REQ-EMG-192, REQ-EMG-200
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, IF-GO-CODE-LOOKUP, DO-CODE-DECLARATIONS, FLOW-GO-LOOK-UP-CODE
 func FindCodeDefinitions(declarations []CodeDeclaration, fromPath, name string) []CodeDeclaration {
 	use := codeUse{path: fromPath, dir: path.Dir(fromPath), inTest: inTestOnlyCode(declarations, fromPath)}
 	use.language, _ = codemap.LanguageForPath(fromPath)

@@ -5,7 +5,7 @@ import "testing"
 
 // Candidates are ranked by closeness to the use and test-only code ranks after production code.
 // Mutation: sorting by path only, or ignoring the test-only flag, fails this test.
-// TRLC-LINKS: REQ-EMG-192
+// TRLC-LINKS: REQ-EMG-192, REQ-EMG-200
 func TestFindCodeDefinitionsRanksByCloseness(t *testing.T) {
 	decls := []CodeDeclaration{
 		{Name: "Load", Kind: "function", Language: "go", Path: "a/other.go", Line: 3},
@@ -36,7 +36,7 @@ func TestFindCodeDefinitionsRanksByCloseness(t *testing.T) {
 }
 
 // The engine lists the declarations of its own code scope, marked or not.
-// TRLC-LINKS: REQ-EMG-192
+// TRLC-LINKS: REQ-EMG-192, REQ-EMG-199
 func TestListCodeDeclarationsOfThisRepository(t *testing.T) {
 	bundle, err := LoadBundle("engmod.yml")
 	if err != nil {

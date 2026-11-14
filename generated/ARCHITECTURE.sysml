@@ -62,6 +62,12 @@ package 'engineering-model-go' {
     item def 'ACT-COMPLIANCE-ENGINEER';
 
     @EngineeringElement {
+        sourceId = "ACT-GO-CONSUMER";
+        conceptKind = "stakeholder_definition";
+    }
+    item def 'ACT-GO-CONSUMER';
+
+    @EngineeringElement {
         sourceId = "ACT-IMPLEMENTATION-ENGINEER";
         conceptKind = "stakeholder_definition";
     }
@@ -548,6 +554,30 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-080';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-081";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-081';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-082";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-082';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-083";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-083';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-084";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-084';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -634,6 +664,14 @@ package 'engineering-model-go' {
         conceptKind = "port_usage";
     }
     port 'CAP-EMG-GENERATION-PIPELINE' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-GO-API";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-GO-API' : 'EngineeringPort' {
         out port 'provided_EngineeringPort' : 'EngineeringPort';
     }
 
@@ -1824,10 +1862,46 @@ package 'engineering-model-go' {
     attribute 'DATA-CANONICAL-SEMANTIC-MODEL';
 
     @EngineeringElement {
+        sourceId = "DATA-CATALOG-USAGE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-CATALOG-USAGE';
+
+    @EngineeringElement {
+        sourceId = "DATA-CODE-DECLARATIONS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-CODE-DECLARATIONS';
+
+    @EngineeringElement {
+        sourceId = "DATA-COMPOSITION-RESULT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-COMPOSITION-RESULT';
+
+    @EngineeringElement {
+        sourceId = "DATA-CONTRACT-ITEMS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-CONTRACT-ITEMS';
+
+    @EngineeringElement {
         sourceId = "DATA-DECISIONS-DOCUMENT";
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-DECISIONS-DOCUMENT';
+
+    @EngineeringElement {
+        sourceId = "DATA-ENTITY-INDEX";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-ENTITY-INDEX';
+
+    @EngineeringElement {
+        sourceId = "DATA-LINK-USE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-LINK-USE';
 
     @EngineeringElement {
         sourceId = "DATA-LOBSTER-TRACE-REPORT";
@@ -1848,10 +1922,34 @@ package 'engineering-model-go' {
     attribute 'DATA-MODEL-AUTHORING-CONTRACT';
 
     @EngineeringElement {
+        sourceId = "DATA-MODEL-BUNDLE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-MODEL-BUNDLE';
+
+    @EngineeringElement {
+        sourceId = "DATA-MODEL-DIAGNOSTICS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-MODEL-DIAGNOSTICS';
+
+    @EngineeringElement {
+        sourceId = "DATA-MODEL-DIFF";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-MODEL-DIFF';
+
+    @EngineeringElement {
         sourceId = "DATA-NAF-V4-ARCHITECTURE";
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-NAF-V4-ARCHITECTURE';
+
+    @EngineeringElement {
+        sourceId = "DATA-REQUIREMENT-LINK-STATUS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-REQUIREMENT-LINK-STATUS';
 
     @EngineeringElement {
         sourceId = "DATA-REQUIREMENTS-DELTA";
@@ -1894,6 +1992,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-THREAT-DRAGON-JSON';
+
+    @EngineeringElement {
+        sourceId = "DATA-TRACE-MATRIX";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-TRACE-MATRIX';
 
     @EngineeringElement {
         sourceId = "DATA-TRLC-PACKAGE";
@@ -1960,6 +2064,60 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "DO-CATALOG-USAGE";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-CATALOG-USAGE' {
+        attribute 'schemaRef' : 'String' = "internal/reqlint/catalog_usage.go";
+        attribute 'classification' : 'String' = "design-index";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-CODE-DECLARATIONS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-CODE-DECLARATIONS' {
+        attribute 'schemaRef' : 'String' = "internal/codemap/declarations.go";
+        attribute 'classification' : 'String' = "code-index";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-COMPOSITION-RESULT";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-COMPOSITION-RESULT' {
+        attribute 'schemaRef' : 'String' = "internal/composition/composition.go";
+        attribute 'classification' : 'String' = "design-source";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-CONTRACT-ITEMS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-CONTRACT-ITEMS' {
+        attribute 'schemaRef' : 'String' = "internal/reqlinks/reqlinks.go";
+        attribute 'classification' : 'String' = "published-contract";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-ENTITY-INDEX";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-ENTITY-INDEX' {
+        attribute 'schemaRef' : 'String' = "internal/model/entities.go";
+        attribute 'classification' : 'String' = "design-index";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-LINK-USE";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-LINK-USE' {
+        attribute 'schemaRef' : 'String' = "internal/composition/workspace_users.go";
+        attribute 'classification' : 'String' = "traceability-evidence";
+    }
+
+    @EngineeringElement {
         sourceId = "DO-MCP-TOOL-RESULT";
         conceptKind = "item_definition";
     }
@@ -1978,12 +2136,48 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "DO-MODEL-BUNDLE";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-MODEL-BUNDLE' {
+        attribute 'schemaRef' : 'String' = "internal/model/types.go";
+        attribute 'classification' : 'String' = "design-source";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-MODEL-DIAGNOSTICS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-MODEL-DIAGNOSTICS' {
+        attribute 'schemaRef' : 'String' = "internal/validate/diagnostic.go";
+        attribute 'classification' : 'String' = "validation-result";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-MODEL-DIFF";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-MODEL-DIFF' {
+        attribute 'schemaRef' : 'String' = "api_diff.go";
+        attribute 'classification' : 'String' = "model-change-preview";
+    }
+
+    @EngineeringElement {
         sourceId = "DO-NAF-V4-ARCHITECTURE";
         conceptKind = "item_definition";
     }
     item def 'DO-NAF-V4-ARCHITECTURE' {
         attribute 'schemaRef' : 'String' = "generated/ARCHITECTURE.naf.adoc";
         attribute 'classification' : 'String' = "architecture-product";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-REQUIREMENT-LINK-STATUS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-REQUIREMENT-LINK-STATUS' {
+        attribute 'schemaRef' : 'String' = "internal/reqlinks/evaluate.go";
+        attribute 'classification' : 'String' = "traceability-evidence";
     }
 
     @EngineeringElement {
@@ -2050,16 +2244,25 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "DO-TRACE-MATRIX";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-TRACE-MATRIX' {
+        attribute 'schemaRef' : 'String' = "internal/trace/trace_matrix.go";
+        attribute 'classification' : 'String' = "traceability-evidence";
+    }
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-03758739C61FBDFA";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-03758739C61FBDFA';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-039AFE93F999C5A3";
+        sourceId = "EVIDENCE-06FF15E9249B59AA";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-039AFE93F999C5A3';
+    attribute 'EVIDENCE-06FF15E9249B59AA';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-139EC30ED19D5D0E";
@@ -2074,10 +2277,16 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-1F759AEA9CF11C3A';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-23C045EBA1477F66";
+        sourceId = "EVIDENCE-29FE12AF014B340B";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-23C045EBA1477F66';
+    attribute 'EVIDENCE-29FE12AF014B340B';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-3D5AE210CE92FB8B";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-3D5AE210CE92FB8B';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-40EB3F8D004E3DF8";
@@ -2086,34 +2295,34 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-40EB3F8D004E3DF8';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-43B6184BF8DE5E9F";
+        sourceId = "EVIDENCE-5D8FC0D996867254";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-43B6184BF8DE5E9F';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-4B3DDCC5B0B41D8E";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-4B3DDCC5B0B41D8E';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-4E4BFE79877C82EF";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-4E4BFE79877C82EF';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-503DC005C15715B7";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-503DC005C15715B7';
+    attribute 'EVIDENCE-5D8FC0D996867254';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-5EE38555C003B5C1";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-5EE38555C003B5C1';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-5F4BF94F2E504E45";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-5F4BF94F2E504E45';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-66D743C3A74EA0AA";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-66D743C3A74EA0AA';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-6846732CDD15D3E1";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-6846732CDD15D3E1';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-703C9B14599B7165";
@@ -2134,6 +2343,18 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-73A27A3950E0B1C9';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-756138D8350962C7";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-756138D8350962C7';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-756FA7B2CDB43226";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-756FA7B2CDB43226';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-780029A25582C103";
         conceptKind = "engineering_extension";
     }
@@ -2146,28 +2367,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-785435EA6C3FA885';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-7B359CE0EBBAA845";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-7B359CE0EBBAA845';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-7BCB58B049112FF6";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-7BCB58B049112FF6';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-80E6FEC2A77A59C5";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-80E6FEC2A77A59C5';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-818DFA02E6A5039F";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-818DFA02E6A5039F';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-86534EAF0B866FF8";
@@ -2176,10 +2379,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-86534EAF0B866FF8';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-88EA6811C334AD4E";
+        sourceId = "EVIDENCE-8B5DD76A47E0680A";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-88EA6811C334AD4E';
+    attribute 'EVIDENCE-8B5DD76A47E0680A';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-94C1E990F59187C8";
@@ -2194,46 +2397,40 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-95186CA263D4A74D';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-9626B625C038ECBE";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-9626B625C038ECBE';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-9D67CC51D8C146A5";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-9D67CC51D8C146A5';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-A755D795A790DDDB";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-A755D795A790DDDB';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-A97EFA82CF771A58";
+        sourceId = "EVIDENCE-ACF9D947125B8D32";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-A97EFA82CF771A58';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-AA3DC00FE963C522";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-AA3DC00FE963C522';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-AB740132F2975383";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-AB740132F2975383';
+    attribute 'EVIDENCE-ACF9D947125B8D32';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-BB4E54DC3575C2A8";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-BB4E54DC3575C2A8';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-C8E26FE55B3B144A";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-C8E26FE55B3B144A';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-C9172A00F4D0DEEF";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-C9172A00F4D0DEEF';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-CEE3609051379F78";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-CEE3609051379F78';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-D1A0C0EF613B1206";
@@ -2248,22 +2445,28 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-D356ACB215A4C41E';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-DE7611E218EDC3FB";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-DE7611E218EDC3FB';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-DF786B86FD0C4795";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-DF786B86FD0C4795';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-E2F961B135E612E2";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-E2F961B135E612E2';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-E4E9DF285AEBDD56";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-E4E9DF285AEBDD56';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-E76947EB67B4FA08";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-E76947EB67B4FA08';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-E7E572C202CD7329";
@@ -2278,10 +2481,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-EF5710F27BBD8EC7';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-F068977A71DAEE36";
+        sourceId = "EVIDENCE-FA038225301A3BD4";
         conceptKind = "engineering_extension";
     }
-    attribute 'EVIDENCE-F068977A71DAEE36';
+    attribute 'EVIDENCE-FA038225301A3BD4';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-FA3941B5C5E1E07C";
@@ -2294,6 +2497,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-FB2594F142C7A666';
+
+    @EngineeringElement {
+        sourceId = "EVIDENCE-FD92B925F95CA03A";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-FD92B925F95CA03A';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-FEACEF702B8F0028";
@@ -2330,6 +2539,24 @@ package 'engineering-model-go' {
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-GENERATION-RUN-REQUESTED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-GO-API-CALL-RECEIVED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-GO-API-CALL-RECEIVED';
+
+    @EngineeringElement {
+        sourceId = "EVT-GO-BUNDLE-LOAD-FAILED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-GO-BUNDLE-LOAD-FAILED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-GO-BUNDLE-LOADED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-GO-BUNDLE-LOADED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-LINK-ADD-REQUESTED";
@@ -2547,6 +2774,49 @@ package 'engineering-model-go' {
     }
     action def 'FLOW-DEPENDENCY-BUMP' {
         inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-GO-COMPARE-REVISIONS";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-GO-COMPARE-REVISIONS' {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+        inout item 'item_DO_MODEL_DIFF' : 'DO-MODEL-DIFF';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-GO-COMPOSE-AND-LINK";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-GO-COMPOSE-AND-LINK' {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_COMPOSITION_RESULT' : 'DO-COMPOSITION-RESULT';
+        inout item 'item_DO_CONTRACT_ITEMS' : 'DO-CONTRACT-ITEMS';
+        inout item 'item_DO_REQUIREMENT_LINK_STATUS' : 'DO-REQUIREMENT-LINK-STATUS';
+        inout item 'item_DO_LINK_USE' : 'DO-LINK-USE';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-GO-LOOK-UP-CODE";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-GO-LOOK-UP-CODE' {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CODE_DECLARATIONS' : 'DO-CODE-DECLARATIONS';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-GO-READ-MODEL";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-GO-READ-MODEL' {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+        inout item 'item_DO_TRACE_MATRIX' : 'DO-TRACE-MATRIX';
+        inout item 'item_DO_CATALOG_USAGE' : 'DO-CATALOG-USAGE';
     }
 
     @EngineeringElement {
@@ -2910,6 +3180,90 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "IF-GO-CODE-LOOKUP";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-CODE-LOOKUP' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_code.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-COMPOSITION";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-COMPOSITION' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_composition.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-ENTITY-INDEX-DIFF";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-ENTITY-INDEX-DIFF' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_diff.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-MODEL-LOADING";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-MODEL-LOADING' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "model_api.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-MODEL-VALIDATION";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-MODEL-VALIDATION' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "validate_api.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-REQUIREMENT-LINKS";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-REQUIREMENT-LINKS' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_reqlinks.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-TRACE";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-TRACE' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_trace.go";
+    }
+
+    @EngineeringElement {
         sourceId = "MODE-CI-VALIDATION";
         conceptKind = "engineering_extension";
     }
@@ -3034,6 +3388,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'POAM-CONSISTENCY-MODELING-14';
+
+    @EngineeringElement {
+        sourceId = "POAM-GO-API";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-GO-API';
 
     @EngineeringElement {
         sourceId = "POAM-MCP-PATH-FUZZING";
@@ -4872,6 +5232,123 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-194";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-194' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return one bundle with the manifest and every model document that a manifest path or a git revision names.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LoadBundle reads engmod.yml and each document it names; LoadBundleAtRef reads the committed documents of a revision of a repository with the loader that tolerates earlier schemas. The bundle is a snapshot: the engine never refreshes it (SM-GO-BUNDLE-SESSION). The manifest file must be named engmod.yml.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-195";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-195' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the diagnostics of a bundle with a stable code, a severity, a message and a model path for each finding.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. ValidateBundle does not fail: a model with errors still returns its diagnostics and the consumer reads the severity. A bundle of a model with dependencies is validated after the published entities of the dependencies are merged into it (FLOW-GO-COMPOSE-AND-LINK); without them every alias::ID reference is reported.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-196";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-196' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the entity index of a bundle with the kind, document, parent and fields of each entity and each reference between entities.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. BuildEntityIndex is the Go API of the behavior REQ-EMG-189 states; it reads the bundle only and writes nothing. No test calls the function through the root package: the tests of REQ-EMG-189 call the internal function it delegates to, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-197";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-197' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the difference of a model between two revisions with the entities added, removed and changed.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is REQ-EMG-190 and REQ-EMG-191; no test calls these functions through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-198";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-198' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the trace matrix of a model with the code, tests and verifications of each requirement.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the requirements path and the code root, scans the code and returns the matrix with the findings of the scan. Integration tests call it through the root package but carry no requirement link, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-199";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-199' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return every named declaration of the code scope of a bundle with its kind, language, path and lines.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. ListCodeDeclarations applies the code scope of the model under a root directory; CodeDeclarationsOf reads one source text. The behavior is REQ-EMG-192.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-200";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-200' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the candidate declarations of a name used in a file ranked by closeness to that file.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. FindCodeDefinitions reads a declaration list and resolves no scope, import or overload, so a result is a candidate. The behavior is REQ-EMG-192.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-201";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-201' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return every catalog term of a bundle with the requirements that name it and the entities that reference it.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is REQ-EMG-193; no test calls the function through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-202";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-202' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the composed system of a model with its resolved dependencies and the diagnostics of the composition.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The tests of composition call the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-203";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-203' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the contract items of a bundle with the realizing requirements of each item.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. No test calls them through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-204";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-204' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the status of each requirement link of a bundle against the contract items of its dependencies.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LinkDependencies turns a composed system into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the requirement links of REQ-EMG-097; the integration tests call the internal evaluation, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-205";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-205' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the requirement links that the other checkouts of a workspace hold on the contract items of a bundle.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is REQ-EMG-107; no test calls it through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-206";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-206' {
+        attribute 'text' : 'String' = "When go bundle load failed event is raised, the engineering model go shall return the error of the load and an empty bundle.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a model (SM-GO-BUNDLE-SESSION). The tests of the loader check the errors through the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-GO-API).";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
@@ -4976,6 +5453,105 @@ package 'engineering-model-go' {
         //     authored: in_state(STATE-ARTIFACTS-FRESH) implies validated
         // invariant INV-ARTIFACTS-STALE-NOT-VALIDATED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
         //     authored: in_state(STATE-ARTIFACTS-STALE) implies not validated
+    }
+
+    @EngineeringElement {
+        sourceId = "SM-GO-BUNDLE-SESSION";
+        conceptKind = "state_definition";
+    }
+    state def 'SM-GO-BUNDLE-SESSION' {
+        doc /* What a Go consumer of the root package holds while it works with one model - nothing, a loaded bundle, a bundle whose diagnostics hold no error or a bundle whose diagnostics hold an error. A bundle is a snapshot that the engine never refreshes; when a model file changes the consumer loads again, which starts a new session, so the machine ends in valid or rejected. Implemented by FU-MODEL-LOADER. */
+        attribute bundleHeld : Boolean := false;
+        attribute errorsFound : Boolean := false;
+        entry;
+        then 'STATE-GO-BUNDLE-ABSENT';
+        state 'STATE-GO-BUNDLE-ABSENT';
+        @EngineeringElement about 'STATE-GO-BUNDLE-ABSENT' {
+            sourceId = "STATE-GO-BUNDLE-ABSENT";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-GO-BUNDLE-LOADED';
+        @EngineeringElement about 'STATE-GO-BUNDLE-LOADED' {
+            sourceId = "STATE-GO-BUNDLE-LOADED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-GO-BUNDLE-REJECTED';
+        @EngineeringElement about 'STATE-GO-BUNDLE-REJECTED' {
+            sourceId = "STATE-GO-BUNDLE-REJECTED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-GO-BUNDLE-VALID';
+        @EngineeringElement about 'STATE-GO-BUNDLE-VALID' {
+            sourceId = "STATE-GO-BUNDLE-VALID";
+            conceptKind = "state_usage";
+        }
+        succession 'REL-1EFE19CA04451480' first 'STATE-GO-BUNDLE-REJECTED' then done;
+        @EngineeringRelationship about 'REL-1EFE19CA04451480' {
+            sourceId = "REL-1EFE19CA04451480";
+            conceptKind = "succession";
+            relationshipKind = "machine_final";
+        }
+        succession 'REL-232A93C77C2A83C4' first 'STATE-GO-BUNDLE-VALID' then done;
+        @EngineeringRelationship about 'REL-232A93C77C2A83C4' {
+            sourceId = "REL-232A93C77C2A83C4";
+            conceptKind = "succession";
+            relationshipKind = "machine_final";
+        }
+        transition 'TR-GO-BUNDLE-LOAD-FAILS'
+            first 'STATE-GO-BUNDLE-ABSENT'
+            accept 'on-EVT-GO-BUNDLE-LOAD-FAILED' :> 'EVT-GO-BUNDLE-LOAD-FAILED'
+            then 'STATE-GO-BUNDLE-ABSENT' {
+                doc /* A document does not load, so the call returns the error and the empty bundle and the consumer still holds none. */
+            }
+        @EngineeringRelationship about 'TR-GO-BUNDLE-LOAD-FAILS' {
+            sourceId = "TR-GO-BUNDLE-LOAD-FAILS";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-GO-BUNDLE-LOADS'
+            first 'STATE-GO-BUNDLE-ABSENT'
+            accept 'on-EVT-GO-BUNDLE-LOADED' :> 'EVT-GO-BUNDLE-LOADED'
+            do assign bundleHeld := true
+            then 'STATE-GO-BUNDLE-LOADED' {
+                doc /* LoadBundle or LoadBundleAtRef read every document of the model and return the bundle. */
+            }
+        @EngineeringRelationship about 'TR-GO-BUNDLE-LOADS' {
+            sourceId = "TR-GO-BUNDLE-LOADS";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-GO-BUNDLE-REJECTED'
+            first 'STATE-GO-BUNDLE-LOADED'
+            accept 'on-EVT-VALIDATION-FAILED' :> 'EVT-VALIDATION-FAILED'
+            do assign errorsFound := true
+            then 'STATE-GO-BUNDLE-REJECTED' {
+                doc /* ValidateBundle returns diagnostics that hold one or more errors. */
+            }
+        @EngineeringRelationship about 'TR-GO-BUNDLE-REJECTED' {
+            sourceId = "TR-GO-BUNDLE-REJECTED";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-GO-BUNDLE-VALIDATES'
+            first 'STATE-GO-BUNDLE-LOADED'
+            accept 'on-EVT-VALIDATION-PASSED' :> 'EVT-VALIDATION-PASSED'
+            do assign errorsFound := false
+            then 'STATE-GO-BUNDLE-VALID' {
+                doc /* ValidateBundle returns diagnostics that hold no error. */
+            }
+        @EngineeringRelationship about 'TR-GO-BUNDLE-VALIDATES' {
+            sourceId = "TR-GO-BUNDLE-VALIDATES";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        // invariant INV-GO-ABSENT-HOLDS-NO-BUNDLE is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-GO-BUNDLE-ABSENT) implies not bundleHeld
+        // invariant INV-GO-HELD-BUNDLE-WAS-LOADED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: bundleHeld or in_state(STATE-GO-BUNDLE-ABSENT)
+        // invariant INV-GO-REJECTED-HAS-ERROR is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-GO-BUNDLE-REJECTED) implies errorsFound
+        // invariant INV-GO-VALID-HAS-NO-ERROR is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-GO-BUNDLE-VALID) implies not errorsFound
     }
 
     @EngineeringElement {
@@ -5815,10 +6391,46 @@ package 'engineering-model-go' {
     view 'VIEW-TRACEABILITY' : EngineeringView;
 
     @EngineeringElement {
+        sourceId = "build-entity-index";
+        conceptKind = "action_usage";
+    }
+    action 'build-entity-index' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+    }
+
+    @EngineeringElement {
+        sourceId = "build-revision-index";
+        conceptKind = "action_usage";
+    }
+    action 'build-revision-index' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+    }
+
+    @EngineeringElement {
+        sourceId = "build-trace-matrix";
+        conceptKind = "action_usage";
+    }
+    action 'build-trace-matrix' : EngineeringAction {
+        inout item 'item_DO_TRACE_MATRIX' : 'DO-TRACE-MATRIX';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
+
+    @EngineeringElement {
         sourceId = "check-acceptance";
         conceptKind = "action_usage";
     }
     action 'check-acceptance' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "diff-models";
+        conceptKind = "action_usage";
+    }
+    action 'diff-models' : EngineeringAction {
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+        inout item 'item_DO_MODEL_DIFF' : 'DO-MODEL-DIFF';
+    }
 
     @EngineeringElement {
         sourceId = "edit-model";
@@ -5835,10 +6447,27 @@ package 'engineering-model-go' {
     action 'evaluate-bumped-links' : EngineeringAction;
 
     @EngineeringElement {
+        sourceId = "evaluate-links";
+        conceptKind = "action_usage";
+    }
+    action 'evaluate-links' : EngineeringAction {
+        inout item 'item_DO_COMPOSITION_RESULT' : 'DO-COMPOSITION-RESULT';
+        inout item 'item_DO_REQUIREMENT_LINK_STATUS' : 'DO-REQUIREMENT-LINK-STATUS';
+    }
+
+    @EngineeringElement {
         sourceId = "fail-validation";
         conceptKind = "action_usage";
     }
     action 'fail-validation' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "find-code-definitions";
+        conceptKind = "action_usage";
+    }
+    action 'find-code-definitions' : EngineeringAction {
+        inout item 'item_DO_CODE_DECLARATIONS' : 'DO-CODE-DECLARATIONS';
+    }
 
     @EngineeringElement {
         sourceId = "generate-artifacts";
@@ -5849,11 +6478,36 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "list-code-declarations";
+        conceptKind = "action_usage";
+    }
+    action 'list-code-declarations' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CODE_DECLARATIONS' : 'DO-CODE-DECLARATIONS';
+    }
+
+    @EngineeringElement {
+        sourceId = "load-bundle";
+        conceptKind = "action_usage";
+    }
+    action 'load-bundle' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+    }
+
+    @EngineeringElement {
         sourceId = "load-requirements-delta";
         conceptKind = "action_usage";
     }
     action 'load-requirements-delta' : EngineeringAction {
         in item 'input_DO_REQUIREMENTS_DELTA' : 'DO-REQUIREMENTS-DELTA';
+    }
+
+    @EngineeringElement {
+        sourceId = "load-revision-bundle";
+        conceptKind = "action_usage";
+    }
+    action 'load-revision-bundle' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
     }
 
     @EngineeringElement {
@@ -5873,10 +6527,46 @@ package 'engineering-model-go' {
     action 'pin-version' : EngineeringAction;
 
     @EngineeringElement {
+        sourceId = "project-composition";
+        conceptKind = "action_usage";
+    }
+    action 'project-composition' : EngineeringAction {
+        inout item 'item_DO_COMPOSITION_RESULT' : 'DO-COMPOSITION-RESULT';
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+    }
+
+    @EngineeringElement {
         sourceId = "publish-artifacts";
         conceptKind = "action_usage";
     }
     action 'publish-artifacts' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "read-catalog-usage";
+        conceptKind = "action_usage";
+    }
+    action 'read-catalog-usage' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CATALOG_USAGE' : 'DO-CATALOG-USAGE';
+    }
+
+    @EngineeringElement {
+        sourceId = "read-contract-items";
+        conceptKind = "action_usage";
+    }
+    action 'read-contract-items' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CONTRACT_ITEMS' : 'DO-CONTRACT-ITEMS';
+    }
+
+    @EngineeringElement {
+        sourceId = "read-link-users";
+        conceptKind = "action_usage";
+    }
+    action 'read-link-users' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_LINK_USE' : 'DO-LINK-USE';
+    }
 
     @EngineeringElement {
         sourceId = "record-acceptance";
@@ -5919,6 +6609,38 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "report-compare-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-compare-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "report-compose-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-compose-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "report-lookup-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-lookup-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "report-read-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-read-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "resolve-composition";
+        conceptKind = "action_usage";
+    }
+    action 'resolve-composition' : EngineeringAction {
+        inout item 'item_DO_COMPOSITION_RESULT' : 'DO-COMPOSITION-RESULT';
+    }
+
+    @EngineeringElement {
         sourceId = "restore-bump-files";
         conceptKind = "action_usage";
     }
@@ -5929,6 +6651,15 @@ package 'engineering-model-go' {
         conceptKind = "action_usage";
     }
     action 'show-links' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "validate-bundle";
+        conceptKind = "action_usage";
+    }
+    action 'validate-bundle' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
 
     @EngineeringElement {
         sourceId = "validate-model";
@@ -5965,11 +6696,43 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-045CC32FBF47B199";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-045CC32FBF47B199' first 'list-code-declarations' then 'report-lookup-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-04AC4DD563B4B4FC";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-04AC4DD563B4B4FC-context' {
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-MODEL-DIFF' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-04AC4DD563B4B4FC' from 'FU-MODEL-LOADER'.pOut to 'DO-MODEL-DIFF'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-04DA474F700F1375";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-04DA474F700F1375' from 'find-code-definitions' to 'FU-CODEMAP-INFERENCE';
+
+    @EngineeringRelationship {
         sourceId = "REL-04F4A20F9A87A948";
         conceptKind = "engineering_extension";
         relationshipKind = "mitigated_by";
     }
     dependency 'REL-04F4A20F9A87A948' from 'AV-PATH-TRAVERSAL-IN-MCP' to 'CTRL-STRICT-MCP-INPUT-SCHEMA';
+
+    @EngineeringRelationship {
+        sourceId = "REL-062767D070A73B8B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-062767D070A73B8B' from 'build-trace-matrix' to 'FU-ALLOCATION-TRACE';
 
     @EngineeringRelationship {
         sourceId = "REL-080A42488B0FD5AB";
@@ -6032,6 +6795,13 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-16497D7DAC509EA9";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-16497D7DAC509EA9' first 'read-contract-items' then 'evaluate-links';
+
+    @EngineeringRelationship {
         sourceId = "REL-19523EB810526624";
         conceptKind = "transfer";
         relationshipKind = "flow_transfer";
@@ -6040,6 +6810,17 @@ package 'engineering-model-go' {
         part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
         part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-19523EB810526624' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CLI-ORCHESTRATION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-1A5AEBDD1C324C91";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-1A5AEBDD1C324C91-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-1A5AEBDD1C324C91' from 'ACT-GO-CONSUMER'.pOut to 'FU-SYSTEM-COMPOSITION'.pIn;
     }
 
     @EngineeringRelationship {
@@ -6065,6 +6846,28 @@ package 'engineering-model-go' {
         relationshipKind = "flow_ref";
     }
     dependency 'REL-1B448352F7DFCECA' from 'refuse-acceptance' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-1BDAB82D529565DF";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-1BDAB82D529565DF-context' {
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-LINK-USE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-1BDAB82D529565DF' from 'FU-SYSTEM-COMPOSITION'.pOut to 'DO-LINK-USE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-1BFFB46403BCFBF9";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-1BFFB46403BCFBF9-context' {
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-TRACE-MATRIX' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-1BFFB46403BCFBF9' from 'FU-ALLOCATION-TRACE'.pOut to 'DO-TRACE-MATRIX'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-1D6B10631D0F5925";
@@ -6099,6 +6902,17 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-235F37D6BCA7B768";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-235F37D6BCA7B768-context' {
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-ENTITY-INDEX' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-235F37D6BCA7B768' from 'FU-MODEL-LOADER'.pOut to 'DO-ENTITY-INDEX'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-258C0AF7BCCCE854";
         conceptKind = "engineering_extension";
         relationshipKind = "bounded_by";
@@ -6111,6 +6925,31 @@ package 'engineering-model-go' {
         relationshipKind = "flow_next";
     }
     succession 'REL-25F0590AC1010192' first 'edit-model' then 'validate-model';
+
+    @EngineeringRelationship {
+        sourceId = "REL-283401A597880F01";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-283401A597880F01' first 'list-code-declarations' then 'find-code-definitions';
+
+    @EngineeringRelationship {
+        sourceId = "REL-29ABE04028602533";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-29ABE04028602533' from 'diff-models' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-29AF460CA9DCB353";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-29AF460CA9DCB353-context' {
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-CONTRACT-ITEMS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-29AF460CA9DCB353' from 'FU-ALLOCATION-TRACE'.pOut to 'DO-CONTRACT-ITEMS'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-2A230B0018684311";
@@ -6141,6 +6980,17 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-2C1233E92CA89E3D";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-2C1233E92CA89E3D-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-2C1233E92CA89E3D' from 'ACT-GO-CONSUMER'.pOut to 'FU-SYSTEM-COMPOSITION'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-2EAD296790C31C25";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -6160,6 +7010,17 @@ package 'engineering-model-go' {
         relationshipKind = "depends_on";
     }
     dependency 'REL-2FBD45E16902772F' from 'FU-MODEL-CHANGE' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-2FFB98E425EDD389";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-2FFB98E425EDD389-context' {
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-CODE-DECLARATIONS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-2FFB98E425EDD389' from 'FU-CODEMAP-INFERENCE'.pOut to 'DO-CODE-DECLARATIONS'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-30E5FCA45681E4F3";
@@ -6201,11 +7062,43 @@ package 'engineering-model-go' {
     dependency 'REL-368CF829865A81D5' from 'FU-SYSTEM-COMPOSITION' to 'REF-CUE-OCI-MODULE-REGISTRY';
 
     @EngineeringRelationship {
+        sourceId = "REL-37841F779720279A";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-37841F779720279A-context' {
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-CATALOG-USAGE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-37841F779720279A' from 'FU-VALIDATION-ENGINE'.pOut to 'DO-CATALOG-USAGE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-384F26F2610A28FA";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-384F26F2610A28FA' first 'build-revision-index' then 'report-compare-error';
+
+    @EngineeringRelationship {
         sourceId = "REL-38D2B6208B0DBBA9";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
     }
     dependency 'REL-38D2B6208B0DBBA9' from 'pin-version' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-398D64E02C0AAA33";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-398D64E02C0AAA33' first 'validate-bundle' then 'build-entity-index';
+
+    @EngineeringRelationship {
+        sourceId = "REL-39998605A12C2B2A";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-39998605A12C2B2A' from 'read-catalog-usage' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
         sourceId = "REL-3A30D7C94E6939CE";
@@ -6225,11 +7118,47 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-3ABE07789F9FF7EB";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-3ABE07789F9FF7EB' from 'report-read-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-3BF7E97CEC16B15C";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-3BF7E97CEC16B15C-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-3BF7E97CEC16B15C' from 'ACT-GO-CONSUMER'.pOut to 'FU-SYSTEM-COMPOSITION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-3C616E2F830F96D0";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-3C616E2F830F96D0-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-3C616E2F830F96D0' from 'ACT-GO-CONSUMER'.pOut to 'FU-ALLOCATION-TRACE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-3E33EA7E80D13835";
         conceptKind = "succession";
         relationshipKind = "flow_next";
     }
     succession 'REL-3E33EA7E80D13835' first 'validate-requirements-candidate' then 'replace-requirements';
+
+    @EngineeringRelationship {
+        sourceId = "REL-3E61C48482B21FDD";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-3E61C48482B21FDD' first 'load-bundle' then 'report-read-error';
 
     @EngineeringRelationship {
         sourceId = "REL-41611DCF8363B2A8";
@@ -6283,6 +7212,13 @@ package 'engineering-model-go' {
         relationshipKind = "flow_next";
     }
     succession 'REL-4672CF188E6130EB' first 'generate-artifacts' then 'publish-artifacts';
+
+    @EngineeringRelationship {
+        sourceId = "REL-46D9FA69B5CC6293";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-46D9FA69B5CC6293' from 'load-bundle' to 'FU-MODEL-LOADER';
 
     @EngineeringRelationship {
         sourceId = "REL-48089B20C8B08D3E";
@@ -6342,6 +7278,13 @@ package 'engineering-model-go' {
     dependency 'REL-4FF77277CA72D599' from 'FU-CODEMAP-INFERENCE' to 'TB-REPO-WORKSPACE';
 
     @EngineeringRelationship {
+        sourceId = "REL-50717B80A3DC822B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-50717B80A3DC822B' from 'evaluate-links' to 'FU-ALLOCATION-TRACE';
+
+    @EngineeringRelationship {
         sourceId = "REL-51B543A60F0122B0";
         conceptKind = "transfer";
         relationshipKind = "flow_transfer";
@@ -6374,6 +7317,17 @@ package 'engineering-model-go' {
     dependency 'REL-53DF7944D31ADC40' from 'FU-NAF-EXPORTER' to 'REF-NAF-V4-1-SPECIFICATION';
 
     @EngineeringRelationship {
+        sourceId = "REL-55A11120E221CC32";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-55A11120E221CC32-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-55A11120E221CC32' from 'ACT-GO-CONSUMER'.pOut to 'FU-ALLOCATION-TRACE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-55FCE3068F28156D";
         conceptKind = "verification";
         relationshipKind = "verifies";
@@ -6401,6 +7355,17 @@ package 'engineering-model-go' {
     dependency 'REL-582D7DDAB1367C4D' from 'FU-SYSML-EXPORTER' to 'REF-SYSML-V2-TOOLCHAIN';
 
     @EngineeringRelationship {
+        sourceId = "REL-5AA1BFBF2B743DFF";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-5AA1BFBF2B743DFF-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-5AA1BFBF2B743DFF' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-5AB925CA4BCA07AA";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -6413,6 +7378,13 @@ package 'engineering-model-go' {
         relationshipKind = "mitigated_by";
     }
     dependency 'REL-5C9C6EE212E4FD1D' from 'AV-TRACEABILITY-GAP-DRIFT' to 'CTRL-TRACEABILITY-COVERAGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-5FACB84907792A6D";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-5FACB84907792A6D' first 'resolve-composition' then 'report-compose-error';
 
     @EngineeringRelationship {
         sourceId = "REL-6088122D54F9887C";
@@ -6429,11 +7401,33 @@ package 'engineering-model-go' {
     dependency 'REL-615C9FA64AC3816A' from 'ACT-IMPLEMENTATION-ENGINEER' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
+        sourceId = "REL-6266E1D7DEA7407C";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-6266E1D7DEA7407C-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-6266E1D7DEA7407C' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-66C2DF83054D88C8";
         conceptKind = "dependency";
         relationshipKind = "interacts_with";
     }
     dependency 'REL-66C2DF83054D88C8' from 'ACT-COMPLIANCE-ENGINEER' to 'FU-OSCAL-EXPORTER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-6767D40D828449DC";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-6767D40D828449DC-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-6767D40D828449DC' from 'ACT-GO-CONSUMER'.pOut to 'FU-VALIDATION-ENGINE'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-67DABE324CA82BF6";
@@ -6454,6 +7448,17 @@ package 'engineering-model-go' {
     dependency 'REL-68040CE5FF37711F' from 'generate-artifacts' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
+        sourceId = "REL-6A98364424CCC18B";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-6A98364424CCC18B-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-6A98364424CCC18B' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-6B0FD95359778099";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -6461,11 +7466,36 @@ package 'engineering-model-go' {
     dependency 'REL-6B0FD95359778099' from 'FU-CLI-ORCHESTRATION' to 'FU-ASCIIDOC-GENERATOR';
 
     @EngineeringRelationship {
+        sourceId = "REL-6DC3124981EB6EC3";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-6DC3124981EB6EC3' from 'read-link-users' to 'FU-SYSTEM-COMPOSITION';
+
+    @EngineeringRelationship {
         sourceId = "REL-6E736D47074A3CEA";
         conceptKind = "engineering_extension";
         relationshipKind = "bounded_by";
     }
     dependency 'REL-6E736D47074A3CEA' from 'FU-TRLC-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
+
+    @EngineeringRelationship {
+        sourceId = "REL-713E0CF28CD1FFDE";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-713E0CF28CD1FFDE-context' {
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-MODEL-DIAGNOSTICS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-713E0CF28CD1FFDE' from 'FU-VALIDATION-ENGINE'.pOut to 'DO-MODEL-DIAGNOSTICS'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-738E6C1177C2768B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-738E6C1177C2768B' from 'list-code-declarations' to 'FU-CODEMAP-INFERENCE';
 
     @EngineeringRelationship {
         sourceId = "REL-7AA33DA291EB7A90";
@@ -6500,11 +7530,29 @@ package 'engineering-model-go' {
     dependency 'REL-7E42BC15F9A9B753' from 'validate-requirements-candidate' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
+        sourceId = "REL-7E90D37FDE60B6B3";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-7E90D37FDE60B6B3-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-7E90D37FDE60B6B3' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-7F0E9B510AB315EA";
         conceptKind = "dependency";
         relationshipKind = "interacts_with";
     }
     dependency 'REL-7F0E9B510AB315EA' from 'ACT-AI-AGENT' to 'FU-MCP-SERVER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-7FC6ACA34A1D4B0B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-7FC6ACA34A1D4B0B' from 'load-revision-bundle' to 'FU-MODEL-LOADER';
 
     @EngineeringRelationship {
         sourceId = "REL-804292F70AB37E87";
@@ -6515,6 +7563,17 @@ package 'engineering-model-go' {
         part 'FU-STRUCTURIZR-EXPORTER' : EngineeringPart { port pOut : EngineeringPort; }
         part 'DO-STRUCTURIZR-DSL' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-804292F70AB37E87' from 'FU-STRUCTURIZR-EXPORTER'.pOut to 'DO-STRUCTURIZR-DSL'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-820C914F7AC0A052";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-820C914F7AC0A052-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-820C914F7AC0A052' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
     }
 
     @EngineeringRelationship {
@@ -6534,6 +7593,13 @@ package 'engineering-model-go' {
         relationshipKind = "depends_on";
     }
     dependency 'REL-8359402B3B322449' from 'FU-CLI-ORCHESTRATION' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-856D81FC0978FCFE";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-856D81FC0978FCFE' from 'resolve-composition' to 'FU-SYSTEM-COMPOSITION';
 
     @EngineeringRelationship {
         sourceId = "REL-85CEE36056EB8CFE";
@@ -6560,6 +7626,20 @@ package 'engineering-model-go' {
     succession 'REL-8AAA646D9D1CF563' first 'repin-unchanged-links' then 'restore-bump-files';
 
     @EngineeringRelationship {
+        sourceId = "REL-8AB7D2169599E20D";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-8AB7D2169599E20D' from 'report-lookup-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-8BB29CF5893C4459";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-8BB29CF5893C4459' from 'read-contract-items' to 'FU-ALLOCATION-TRACE';
+
+    @EngineeringRelationship {
         sourceId = "REL-8DBF533D769DA3FA";
         conceptKind = "verification";
         relationshipKind = "verifies";
@@ -6568,6 +7648,27 @@ package 'engineering-model-go' {
         subject 'VER-TRACE-LINK-INTEGRITY' : EngineeringItem;
         objective 'CTRL-TRACE-LINK-INTEGRITY' : EngineeringRequirement;
     }
+
+    @EngineeringRelationship {
+        sourceId = "REL-8F3FA3AC53ADA030";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-8F3FA3AC53ADA030' from 'build-entity-index' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-8F5B9168F505B35E";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-8F5B9168F505B35E' first 'load-bundle' then 'validate-bundle';
+
+    @EngineeringRelationship {
+        sourceId = "REL-90BB8B99F802EF26";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-90BB8B99F802EF26' first 'build-trace-matrix' then 'read-catalog-usage';
 
     @EngineeringRelationship {
         sourceId = "REL-91335AEB5E1C9FD0";
@@ -6587,11 +7688,43 @@ package 'engineering-model-go' {
     dependency 'REL-9193754A0A36B23E' from 'FU-CODE-HEALTH' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
+        sourceId = "REL-922DA5C0DAAED471";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-922DA5C0DAAED471' from 'build-revision-index' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-963A91E39B44808C";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-963A91E39B44808C-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-963A91E39B44808C' from 'ACT-GO-CONSUMER'.pOut to 'FU-VALIDATION-ENGINE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-99640AD91A774667";
         conceptKind = "dependency";
         relationshipKind = "targets";
     }
     dependency 'REL-99640AD91A774667' from 'AV-SCHEMA-SUPPLY-CHAIN-TAMPER' to 'REF-OPEN-OTM-SCHEMA';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9C5C86A2F8E38C86";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-9C5C86A2F8E38C86' first 'load-revision-bundle' then 'build-revision-index';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9CD349998835F2C0";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-9CD349998835F2C0' first 'build-entity-index' then 'report-read-error';
 
     @EngineeringRelationship {
         sourceId = "REL-9F9D0BFE4684AB66";
@@ -6606,6 +7739,13 @@ package 'engineering-model-go' {
         relationshipKind = "depends_on";
     }
     dependency 'REL-A02740CF7074A233' from 'FU-THREAT-EXPORTER' to 'REF-THREAT-DRAGON-SCHEMAS';
+
+    @EngineeringRelationship {
+        sourceId = "REL-A1D6C65D0413236F";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-A1D6C65D0413236F' first 'project-composition' then 'read-contract-items';
 
     @EngineeringRelationship {
         sourceId = "REL-A37383B5AD1D4C19";
@@ -6653,6 +7793,17 @@ package 'engineering-model-go' {
     dependency 'REL-A9A6ADD0BC7DA4E2' from 'FU-MCP-SERVER' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
+        sourceId = "REL-AA8248FE3ADE9920";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-AA8248FE3ADE9920-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-AA8248FE3ADE9920' from 'ACT-GO-CONSUMER'.pOut to 'FU-CODEMAP-INFERENCE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-B1CEFDE3267D1A07";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
@@ -6688,6 +7839,46 @@ package 'engineering-model-go' {
     dependency 'REL-BDFCE1037DF5E841' from 'AV-PATH-TRAVERSAL-IN-MCP' to 'CTRL-MCP-PATH-BOUNDARY';
 
     @EngineeringRelationship {
+        sourceId = "REL-BE85E2DD5CCC7ACC";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-BE85E2DD5CCC7ACC-context' {
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-MODEL-BUNDLE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-BE85E2DD5CCC7ACC' from 'FU-MODEL-LOADER'.pOut to 'DO-MODEL-BUNDLE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-BEFDBFFB53DAE33C";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-BEFDBFFB53DAE33C-context' {
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-COMPOSITION-RESULT' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-BEFDBFFB53DAE33C' from 'FU-SYSTEM-COMPOSITION'.pOut to 'DO-COMPOSITION-RESULT'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-C03B4C6D659C65D8";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-C03B4C6D659C65D8-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-C03B4C6D659C65D8' from 'ACT-GO-CONSUMER'.pOut to 'FU-SYSTEM-COMPOSITION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-C0CF33F1533EABD9";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C0CF33F1533EABD9' from 'validate-bundle' to 'FU-VALIDATION-ENGINE';
+
+    @EngineeringRelationship {
         sourceId = "REL-C139691071B5EBB7";
         conceptKind = "verification";
         relationshipKind = "verifies";
@@ -6712,11 +7903,43 @@ package 'engineering-model-go' {
     dependency 'REL-C5462A84B5B762E0' from 'restore-bump-files' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
+        sourceId = "REL-C62A85D540883BE3";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C62A85D540883BE3' from 'project-composition' to 'FU-SYSTEM-COMPOSITION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-C65835E800D67BB5";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-C65835E800D67BB5' first 'diff-models' then 'report-compare-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-C6ED2BB9761294BD";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-C6ED2BB9761294BD-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-C6ED2BB9761294BD' from 'ACT-GO-CONSUMER'.pOut to 'FU-CODEMAP-INFERENCE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-C9FD7D7F73C1C297";
         conceptKind = "dependency";
         relationshipKind = "interacts_with";
     }
     dependency 'REL-C9FD7D7F73C1C297' from 'ACT-ARCHITECTURE-AUTHOR' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-CB739B9BADAE33C9";
+        conceptKind = "dependency";
+        relationshipKind = "interacts_with";
+    }
+    dependency 'REL-CB739B9BADAE33C9' from 'ACT-GO-CONSUMER' to 'FU-MODEL-LOADER';
 
     @EngineeringRelationship {
         sourceId = "REL-CBB97983472F3FF7";
@@ -6735,6 +7958,24 @@ package 'engineering-model-go' {
         relationshipKind = "bounded_by";
     }
     dependency 'REL-CC26ADB229638ACA' from 'FU-STRUCTURIZR-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
+
+    @EngineeringRelationship {
+        sourceId = "REL-CD3ACF2E912142F1";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-CD3ACF2E912142F1-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-CD3ACF2E912142F1' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-CDECA2ECF33FC75F";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-CDECA2ECF33FC75F' first 'evaluate-links' then 'read-link-users';
 
     @EngineeringRelationship {
         sourceId = "REL-CDF33573A9ECBCE7";
@@ -6766,6 +8007,31 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-D4C17022C0A374CC";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-D4C17022C0A374CC-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-D4C17022C0A374CC' from 'ACT-GO-CONSUMER'.pOut to 'FU-ALLOCATION-TRACE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-D6630064D6DB8AB4";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-D6630064D6DB8AB4' first 'load-revision-bundle' then 'report-compare-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-D7BE133C49C26EBF";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-D7BE133C49C26EBF' from 'report-compose-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
         sourceId = "REL-DA53286A42297199";
         conceptKind = "transfer";
         relationshipKind = "writes";
@@ -6774,6 +8040,24 @@ package 'engineering-model-go' {
         part 'FU-MODEL-CHANGE' : EngineeringPart { port pOut : EngineeringPort; }
         part 'DO-REQUIREMENTS-DOCUMENT' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-DA53286A42297199' from 'FU-MODEL-CHANGE'.pOut to 'DO-REQUIREMENTS-DOCUMENT'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-DC6460FC5BE9218B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-DC6460FC5BE9218B' from 'report-compare-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-E2206AEE7E2B4601";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-E2206AEE7E2B4601-context' {
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-REQUIREMENT-LINK-STATUS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-E2206AEE7E2B4601' from 'FU-ALLOCATION-TRACE'.pOut to 'DO-REQUIREMENT-LINK-STATUS'.pIn;
     }
 
     @EngineeringRelationship {
@@ -6812,11 +8096,47 @@ package 'engineering-model-go' {
     dependency 'REL-EC535616F6927588' from 'reject-requirements-delta' to 'FU-MODEL-CHANGE';
 
     @EngineeringRelationship {
+        sourceId = "REL-ED50DCDD2CDDA4CC";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-ED50DCDD2CDDA4CC' first 'resolve-composition' then 'project-composition';
+
+    @EngineeringRelationship {
+        sourceId = "REL-F0949ABAE71087CA";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-F0949ABAE71087CA-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-F0949ABAE71087CA' from 'ACT-GO-CONSUMER'.pOut to 'FU-CODEMAP-INFERENCE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-F0B53FC843714C96";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
     }
     dependency 'REL-F0B53FC843714C96' from 'replace-requirements' to 'FU-MODEL-CHANGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-F2CDDDE95F7FA7A4";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-F2CDDDE95F7FA7A4' first 'read-catalog-usage' then 'report-read-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-F6755F20C9C373AD";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-F6755F20C9C373AD-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-F6755F20C9C373AD' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-F808BADA7946F75D";
@@ -6845,6 +8165,20 @@ package 'engineering-model-go' {
         relationshipKind = "flow_ref";
     }
     dependency 'REL-FE0645A36FB72976' from 'merge-requirements-candidate' to 'FU-MODEL-CHANGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-FEA11A0D9DA02EC2";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-FEA11A0D9DA02EC2' first 'build-entity-index' then 'build-trace-matrix';
+
+    @EngineeringRelationship {
+        sourceId = "REL-FF1F7D29C3448C73";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-FF1F7D29C3448C73' first 'build-trace-matrix' then 'report-read-error';
 
     @EngineeringRelationship {
         sourceId = "REL-FFE6760421FF8D31";

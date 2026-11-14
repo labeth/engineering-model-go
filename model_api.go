@@ -198,8 +198,8 @@ func RequirementLinkMode(manifest ManifestDocument) string {
 
 // LoadBundle reads the engmod.yml manifest at manifestPath and every domain
 // document it names, validated against the canonical CUE schema.
-// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, IF-GO-MODEL-LOADING, DO-MODEL-BUNDLE, SM-GO-BUNDLE-SESSION, STATE-GO-BUNDLE-ABSENT, STATE-GO-BUNDLE-LOADED, TR-GO-BUNDLE-LOADS, TR-GO-BUNDLE-LOAD-FAILS, EVT-GO-BUNDLE-LOADED, EVT-GO-BUNDLE-LOAD-FAILED, FLOW-GO-READ-MODEL
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054, REQ-EMG-194, REQ-EMG-206
 func LoadBundle(manifestPath string) (Bundle, error) {
 	return model.LoadBundle(manifestPath)
 }

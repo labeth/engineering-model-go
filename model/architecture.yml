@@ -132,6 +132,9 @@ architecture:
   - id: ACT-CI-PIPELINE
     name: CI Pipeline
     description: Executes regression tests, validation checks, and artifact generation.
+  - id: ACT-GO-CONSUMER
+    name: Go Consumer
+    description: A program outside this repository, such as the engineering tool, that imports the root Go package and calls its functions.
   referencedElements:
   - id: REF-GO-TOOLCHAIN
     kind: platform_service
@@ -272,6 +275,48 @@ architecture:
     endpoint: cmd/engspec
     schemaRef: internal/reqdelta/spec_delta.go
     owner: FU-MODEL-CHANGE
+  - id: IF-GO-MODEL-LOADING
+    name: Go API model loading
+    protocol: go-library
+    endpoint: github.com/labeth/engineering-model-go
+    schemaRef: model_api.go
+    owner: FU-MODEL-LOADER
+  - id: IF-GO-MODEL-VALIDATION
+    name: Go API model validation
+    protocol: go-library
+    endpoint: github.com/labeth/engineering-model-go
+    schemaRef: validate_api.go
+    owner: FU-VALIDATION-ENGINE
+  - id: IF-GO-ENTITY-INDEX-DIFF
+    name: Go API entity index and model diff
+    protocol: go-library
+    endpoint: github.com/labeth/engineering-model-go
+    schemaRef: api_diff.go
+    owner: FU-MODEL-LOADER
+  - id: IF-GO-TRACE
+    name: Go API trace matrix
+    protocol: go-library
+    endpoint: github.com/labeth/engineering-model-go
+    schemaRef: api_trace.go
+    owner: FU-ALLOCATION-TRACE
+  - id: IF-GO-CODE-LOOKUP
+    name: Go API code declarations and catalog usage
+    protocol: go-library
+    endpoint: github.com/labeth/engineering-model-go
+    schemaRef: api_code.go
+    owner: FU-CODEMAP-INFERENCE
+  - id: IF-GO-COMPOSITION
+    name: Go API composition
+    protocol: go-library
+    endpoint: github.com/labeth/engineering-model-go
+    schemaRef: api_composition.go
+    owner: FU-SYSTEM-COMPOSITION
+  - id: IF-GO-REQUIREMENT-LINKS
+    name: Go API contract items and requirement links
+    protocol: go-library
+    endpoint: github.com/labeth/engineering-model-go
+    schemaRef: api_reqlinks.go
+    owner: FU-ALLOCATION-TRACE
   dataObjects:
   - id: DO-ARCHITECTURE-MODEL
     name: Architecture Model
@@ -393,6 +438,116 @@ architecture:
     confidentiality: medium
     integrity: high
     availability: high
+  - id: DO-MODEL-BUNDLE
+    name: Model Bundle
+    termRef: DATA-MODEL-BUNDLE
+    schemaRef: internal/model/types.go
+    sensitivity: internal
+    classification: design-source
+    retention: ephemeral
+    confidentiality: medium
+    integrity: high
+    availability: high
+  - id: DO-MODEL-DIAGNOSTICS
+    name: Model Diagnostics
+    termRef: DATA-MODEL-DIAGNOSTICS
+    schemaRef: internal/validate/diagnostic.go
+    sensitivity: internal
+    classification: validation-result
+    retention: ephemeral
+    confidentiality: low
+    integrity: high
+    availability: medium
+  - id: DO-ENTITY-INDEX
+    name: Entity Index
+    termRef: DATA-ENTITY-INDEX
+    schemaRef: internal/model/entities.go
+    sensitivity: internal
+    classification: design-index
+    retention: ephemeral
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-MODEL-DIFF
+    name: Model Diff
+    termRef: DATA-MODEL-DIFF
+    schemaRef: api_diff.go
+    sensitivity: internal
+    classification: model-change-preview
+    retention: ephemeral
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-TRACE-MATRIX
+    name: Trace Matrix
+    termRef: DATA-TRACE-MATRIX
+    schemaRef: internal/trace/trace_matrix.go
+    sensitivity: internal
+    classification: traceability-evidence
+    retention: ephemeral
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-CODE-DECLARATIONS
+    name: Code Declarations
+    termRef: DATA-CODE-DECLARATIONS
+    schemaRef: internal/codemap/declarations.go
+    sensitivity: internal
+    classification: code-index
+    retention: ephemeral
+    confidentiality: medium
+    integrity: medium
+    availability: medium
+  - id: DO-CATALOG-USAGE
+    name: Catalog Usage
+    termRef: DATA-CATALOG-USAGE
+    schemaRef: internal/reqlint/catalog_usage.go
+    sensitivity: internal
+    classification: design-index
+    retention: ephemeral
+    confidentiality: low
+    integrity: medium
+    availability: low
+  - id: DO-COMPOSITION-RESULT
+    name: Composition Result
+    termRef: DATA-COMPOSITION-RESULT
+    schemaRef: internal/composition/composition.go
+    sensitivity: internal
+    classification: design-source
+    retention: ephemeral
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-CONTRACT-ITEMS
+    name: Contract Items
+    termRef: DATA-CONTRACT-ITEMS
+    schemaRef: internal/reqlinks/reqlinks.go
+    sensitivity: internal
+    classification: published-contract
+    retention: ephemeral
+    confidentiality: low
+    integrity: high
+    availability: medium
+  - id: DO-REQUIREMENT-LINK-STATUS
+    name: Requirement Link Status
+    termRef: DATA-REQUIREMENT-LINK-STATUS
+    schemaRef: internal/reqlinks/evaluate.go
+    sensitivity: internal
+    classification: traceability-evidence
+    retention: ephemeral
+    confidentiality: low
+    integrity: high
+    availability: medium
+  - id: DO-LINK-USE
+    name: Link Use
+    termRef: DATA-LINK-USE
+    schemaRef: internal/composition/workspace_users.go
+    sensitivity: internal
+    classification: traceability-evidence
+    retention: ephemeral
+    confidentiality: low
+    integrity: medium
+    availability: low
   deploymentTargets:
   - id: DEP-LOCAL-WORKSPACE
     name: Local Workspace
@@ -457,3 +612,6 @@ architecture:
     - id: CAP-EMG-CODE-HEALTH
       kind: capability
       note: Score source files and functions for maintainability with an explainable model, roll the scores up to functional units and requirements, and check new or worsened findings against a base revision under a tier-keyed policy. Owner FU-CODE-HEALTH.
+    - id: CAP-EMG-GO-API
+      kind: capability
+      note: Let a Go program outside this repository load a model and read it through the root package alone - validate it and read its diagnostics, list its entities and compare two revisions, build its trace matrix, list the declarations of its code and the catalog usage, compose its dependencies and evaluate its requirement links - without importing an internal package. Owner FU-MODEL-LOADER.

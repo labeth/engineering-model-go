@@ -44,12 +44,23 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`ACT-ARCHITECTURE-AUTHOR` |actor |Architecture Author
 |`ACT-CI-PIPELINE` |actor |CI Pipeline
 |`ACT-COMPLIANCE-ENGINEER` |actor |Compliance Engineer
+|`ACT-GO-CONSUMER` |actor |Go Consumer
 |`ACT-IMPLEMENTATION-ENGINEER` |actor |Implementation Engineer
 |`DO-ARCHITECTURE-MODEL` |data_object |Architecture Model
 |`DO-CANONICAL-SEMANTIC-MODEL` |data_object |Canonical Semantic Model
+|`DO-CATALOG-USAGE` |data_object |Catalog Usage
+|`DO-CODE-DECLARATIONS` |data_object |Code Declarations
+|`DO-COMPOSITION-RESULT` |data_object |Composition Result
+|`DO-CONTRACT-ITEMS` |data_object |Contract Items
+|`DO-ENTITY-INDEX` |data_object |Entity Index
+|`DO-LINK-USE` |data_object |Link Use
 |`DO-MCP-TOOL-RESULT` |data_object |MCP Tool Result
 |`DO-MODEL-AUTHORING-CONTRACT` |data_object |Model Authoring Contract
+|`DO-MODEL-BUNDLE` |data_object |Model Bundle
+|`DO-MODEL-DIAGNOSTICS` |data_object |Model Diagnostics
+|`DO-MODEL-DIFF` |data_object |Model Diff
 |`DO-NAF-V4-ARCHITECTURE` |data_object |NAF v4.1 Architecture Document
+|`DO-REQUIREMENT-LINK-STATUS` |data_object |Requirement Link Status
 |`DO-REQUIREMENTS-DELTA` |data_object |Requirements Delta
 |`DO-REQUIREMENTS-DIFF` |data_object |Requirements Change Summary
 |`DO-REQUIREMENTS-DOCUMENT` |data_object |Requirements Document
@@ -57,6 +68,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`DO-SYSML-V2-METAMODEL` |data_object |SysML v2 Metamodel
 |`DO-SYSML-V2-MODEL` |data_object |SysML v2 Model
 |`DO-THREAT-DRAGON-JSON` |data_object |Threat Dragon JSON
+|`DO-TRACE-MATRIX` |data_object |Trace Matrix
 |`DEP-CI-PIPELINE` |deployment_target |CI Pipeline Runner
 |`DEP-LOCAL-WORKSPACE` |deployment_target |Local Workspace
 |`FG-ARTIFACT-GENERATION` |functional_group |Artifact Generation
@@ -100,6 +112,13 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`IF-CLI-ENGTRACE` |interface |engtrace CLI
 |`IF-CLI-ENGTRLC` |interface |engtrlc CLI
 |`IF-CLI-ENGVIEW` |interface |engview CLI
+|`IF-GO-CODE-LOOKUP` |interface |Go API code declarations and catalog usage
+|`IF-GO-COMPOSITION` |interface |Go API composition
+|`IF-GO-ENTITY-INDEX-DIFF` |interface |Go API entity index and model diff
+|`IF-GO-MODEL-LOADING` |interface |Go API model loading
+|`IF-GO-MODEL-VALIDATION` |interface |Go API model validation
+|`IF-GO-REQUIREMENT-LINKS` |interface |Go API contract items and requirement links
+|`IF-GO-TRACE` |interface |Go API trace matrix
 |`REF-CUE-OCI-MODULE-REGISTRY` |referenced_element |CUE OCI Module Registry
 |`REF-GO-TOOLCHAIN` |referenced_element |Go Toolchain
 |`REF-LOBSTER-TOOLCHAIN` |referenced_element |LOBSTER Toolchain
@@ -122,6 +141,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`ACT-ARCHITECTURE-AUTHOR` |interacts_with |`FU-CLI-ORCHESTRATION` |interacts_with: Maintains model and design artifacts through CLI generation workflows.
 |`ACT-CI-PIPELINE` |interacts_with |`FU-CLI-ORCHESTRATION` |interacts_with: Executes validation and generation commands in automated checks.
 |`ACT-COMPLIANCE-ENGINEER` |interacts_with |`FU-OSCAL-EXPORTER` |interacts_with: Uses OSCAL and traceability outputs for assurance workflows.
+|`ACT-GO-CONSUMER` |interacts_with |`FU-MODEL-LOADER` |interacts_with: Imports the root Go package, loads models and reads them through the Go API.
 |`ACT-IMPLEMENTATION-ENGINEER` |interacts_with |`FU-CLI-ORCHESTRATION` |interacts_with: Runs validation, generation, and export commands during implementation work.
 |`FG-ARTIFACT-GENERATION` |contains |`FU-ASCIIDOC-GENERATOR` |contains
 |`FG-ARTIFACT-GENERATION` |contains |`FU-NAF-EXPORTER` |contains
@@ -143,7 +163,12 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FG-VALIDATION-ANALYSIS` |contains |`FU-CODE-HEALTH` |contains
 |`FG-VALIDATION-ANALYSIS` |contains |`FU-CODEMAP-INFERENCE` |contains
 |`FG-VALIDATION-ANALYSIS` |contains |`FU-VALIDATION-ENGINE` |contains
+|`FU-ALLOCATION-TRACE` |writes |`DO-CONTRACT-ITEMS` |writes
+|`FU-ALLOCATION-TRACE` |writes |`DO-REQUIREMENT-LINK-STATUS` |writes
+|`FU-ALLOCATION-TRACE` |writes |`DO-TRACE-MATRIX` |writes
 |`FU-ALLOCATION-TRACE` |contains |`IF-CLI-ENGTRACE` |contains
+|`FU-ALLOCATION-TRACE` |contains |`IF-GO-REQUIREMENT-LINKS` |contains
+|`FU-ALLOCATION-TRACE` |contains |`IF-GO-TRACE` |contains
 |`FU-ASCIIDOC-GENERATOR` |contains |`IF-CLI-ENGDOC` |contains
 |`FU-CLI-ORCHESTRATION` |deployed_to |`DEP-CI-PIPELINE` |deployed_to
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-ASCIIDOC-GENERATOR` |depends_on
@@ -153,6 +178,8 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-CODE-HEALTH` |depends_on |`FU-MODEL-LOADER` |depends_on
 |`FU-CODE-HEALTH` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
 |`FU-CODE-HEALTH` |contains |`IF-CLI-ENGHEALTH` |contains
+|`FU-CODEMAP-INFERENCE` |writes |`DO-CODE-DECLARATIONS` |writes
+|`FU-CODEMAP-INFERENCE` |contains |`IF-GO-CODE-LOOKUP` |contains
 |`FU-CODEMAP-INFERENCE` |bounded_by |`TB-REPO-WORKSPACE` |bounded_by
 |`FU-GEMARA-EXPORTER` |contains |`IF-CLI-ENGGEMARA` |contains
 |`FU-LOBSTER-EXPORTER` |contains |`IF-CLI-ENGLOBSTER` |contains
@@ -174,6 +201,11 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-MODEL-CHANGE` |contains |`IF-CLI-ENGSPEC` |contains
 |`FU-MODEL-LOADER` |reads |`DO-ARCHITECTURE-MODEL` |reads
 |`FU-MODEL-LOADER` |writes |`DO-CANONICAL-SEMANTIC-MODEL` |writes
+|`FU-MODEL-LOADER` |writes |`DO-ENTITY-INDEX` |writes
+|`FU-MODEL-LOADER` |writes |`DO-MODEL-BUNDLE` |writes
+|`FU-MODEL-LOADER` |writes |`DO-MODEL-DIFF` |writes
+|`FU-MODEL-LOADER` |contains |`IF-GO-ENTITY-INDEX-DIFF` |contains
+|`FU-MODEL-LOADER` |contains |`IF-GO-MODEL-LOADING` |contains
 |`FU-NAF-EXPORTER` |writes |`DO-NAF-V4-ARCHITECTURE` |writes
 |`FU-NAF-EXPORTER` |depends_on |`FU-VIEW-PROJECTION` |depends_on
 |`FU-NAF-EXPORTER` |contains |`IF-CLI-ENGNAF` |contains
@@ -192,6 +224,9 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-SYSML-EXPORTER` |contains |`IF-CLI-ENGSYSML` |contains
 |`FU-SYSML-EXPORTER` |depends_on |`REF-SYSML-V2-TOOLCHAIN` |depends_on
 |`FU-SYSML-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
+|`FU-SYSTEM-COMPOSITION` |writes |`DO-COMPOSITION-RESULT` |writes
+|`FU-SYSTEM-COMPOSITION` |writes |`DO-LINK-USE` |writes
+|`FU-SYSTEM-COMPOSITION` |contains |`IF-GO-COMPOSITION` |contains
 |`FU-SYSTEM-COMPOSITION` |depends_on |`REF-CUE-OCI-MODULE-REGISTRY` |depends_on: Fetches exact-version reusable model modules using CUE registry configuration and credentials.
 |`FU-THREAT-EXPORTER` |writes |`DO-THREAT-DRAGON-JSON` |writes
 |`FU-THREAT-EXPORTER` |contains |`IF-CLI-ENGDRAGON` |contains
@@ -201,6 +236,9 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-TRLC-EXPORTER` |contains |`IF-CLI-ENGTRLC` |contains
 |`FU-TRLC-EXPORTER` |depends_on |`REF-TRLC-TOOLCHAIN` |depends_on
 |`FU-TRLC-EXPORTER` |bounded_by |`TB-EXTERNAL-VALIDATION-TOOLS` |bounded_by
+|`FU-VALIDATION-ENGINE` |writes |`DO-CATALOG-USAGE` |writes
+|`FU-VALIDATION-ENGINE` |writes |`DO-MODEL-DIAGNOSTICS` |writes
+|`FU-VALIDATION-ENGINE` |contains |`IF-GO-MODEL-VALIDATION` |contains
 |`FU-VALIDATION-ENGINE` |depends_on |`REF-GO-TOOLCHAIN` |depends_on: Runs Go tests and static checks as part of repository validation.
 |`FU-VIEW-PROJECTION` |contains |`IF-CLI-ENGVIEW` |contains
 |===
@@ -272,6 +310,8 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |===
 |Canonical ID |Kind |Label
 |`ACT-IMPLEMENTATION-ENGINEER` |actor |Implementation Engineer
+|`DO-CATALOG-USAGE` |data_object |Catalog Usage
+|`DO-MODEL-DIAGNOSTICS` |data_object |Model Diagnostics
 |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS` |flow |Model Change to Verified Artifacts Flow
 |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::edit-model` |flow_step |Update model and requirements artifacts
 |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::fail-validation` |flow_step |Emit validation diagnostics and block publication
@@ -298,6 +338,8 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::validate-model` |flow_error |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::fail-validation` |flow_error
 |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::validate-model` |flow_next |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::generate-artifacts` |flow_next
 |`FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS::validate-model` |flow_ref |`FU-VALIDATION-ENGINE` |flow_ref
+|`FU-VALIDATION-ENGINE` |writes |`DO-CATALOG-USAGE` |writes
+|`FU-VALIDATION-ENGINE` |writes |`DO-MODEL-DIAGNOSTICS` |writes
 |===
 
 === P5 - Resource States
@@ -317,6 +359,8 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`EVT-CONTRACT-DIFF-REQUESTED` |event |Contract Diff Requested
 |`EVT-DEPENDENCY-BUMP-REQUESTED` |event |Dependency Bump Requested
 |`EVT-GENERATION-RUN-REQUESTED` |event |Generation Run Requested
+|`EVT-GO-BUNDLE-LOAD-FAILED` |event |Go Bundle Load Failed
+|`EVT-GO-BUNDLE-LOADED` |event |Go Bundle Loaded
 |`EVT-LINK-ADD-REQUESTED` |event |Link Add Requested
 |`EVT-LINK-REVIEW-REQUESTED` |event |Link Review Requested
 |`EVT-MCP-TOOL-CALL-RECEIVED` |event |MCP Tool Call Received
@@ -338,6 +382,10 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`STATE-DELTA-PLANNED` |state |Delta Planned
 |`STATE-DELTA-PLANNING` |state |Delta Planning
 |`STATE-DELTA-REFUSED` |state |Delta Refused
+|`STATE-GO-BUNDLE-ABSENT` |state |Go Bundle Absent
+|`STATE-GO-BUNDLE-LOADED` |state |Go Bundle Loaded
+|`STATE-GO-BUNDLE-REJECTED` |state |Go Bundle Rejected
+|`STATE-GO-BUNDLE-VALID` |state |Go Bundle Valid
 |`STATE-LINK-ABSENT` |state |Link Absent
 |`STATE-LINK-ACCEPTED` |state |Link Accepted
 |`STATE-LINK-BROKEN` |state |Link Broken
@@ -392,6 +440,14 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`STATE-DELTA-PLANNING` |transition |`STATE-DELTA-PLANNED` |transition: TR-DELTA-VALIDATED on EVT-REQUIREMENTS-CANDIDATE-VALIDATED / candidateValid := true
 |`STATE-DELTA-REFUSED` |on_event |`EVT-REQUIREMENTS-DELTA-RECEIVED` |on_event
 |`STATE-DELTA-REFUSED` |transition |`STATE-DELTA-PLANNING` |transition: TR-DELTA-RECEIVE-AFTER-REFUSAL on EVT-REQUIREMENTS-DELTA-RECEIVED / candidateValid := false; sourceUnchanged := true
+|`STATE-GO-BUNDLE-ABSENT` |on_event |`EVT-GO-BUNDLE-LOAD-FAILED` |on_event
+|`STATE-GO-BUNDLE-ABSENT` |on_event |`EVT-GO-BUNDLE-LOADED` |on_event
+|`STATE-GO-BUNDLE-ABSENT` |transition |`STATE-GO-BUNDLE-ABSENT` |transition: TR-GO-BUNDLE-LOAD-FAILS on EVT-GO-BUNDLE-LOAD-FAILED
+|`STATE-GO-BUNDLE-ABSENT` |transition |`STATE-GO-BUNDLE-LOADED` |transition: TR-GO-BUNDLE-LOADS on EVT-GO-BUNDLE-LOADED / bundleHeld := true
+|`STATE-GO-BUNDLE-LOADED` |on_event |`EVT-VALIDATION-FAILED` |on_event
+|`STATE-GO-BUNDLE-LOADED` |on_event |`EVT-VALIDATION-PASSED` |on_event
+|`STATE-GO-BUNDLE-LOADED` |transition |`STATE-GO-BUNDLE-REJECTED` |transition: TR-GO-BUNDLE-REJECTED on EVT-VALIDATION-FAILED / errorsFound := true
+|`STATE-GO-BUNDLE-LOADED` |transition |`STATE-GO-BUNDLE-VALID` |transition: TR-GO-BUNDLE-VALIDATES on EVT-VALIDATION-PASSED / errorsFound := false
 |`STATE-LINK-ABSENT` |on_event |`EVT-LINK-ADD-REQUESTED` |on_event
 |`STATE-LINK-ABSENT` |transition |`STATE-LINK-CLAIMED` |transition: TR-LINK-ADD on EVT-LINK-ADD-REQUESTED
 |`STATE-LINK-ACCEPTED` |on_event |`EVT-CONTRACT-DIFF-REQUESTED` |on_event
