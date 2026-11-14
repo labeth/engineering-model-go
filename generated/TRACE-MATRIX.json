@@ -2492,6 +2492,36 @@
       ],
       "code": [
         {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--GOFACTS",
+          "path": "internal/codemap/declarations.go",
+          "line": 315
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--ISCOMMENT",
+          "path": "internal/codemap/declarations.go",
+          "line": 252
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--NAMED",
+          "path": "internal/codemap/declarations.go",
+          "line": 290
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--NOTECOMMENT",
+          "path": "internal/codemap/declarations.go",
+          "line": 241
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--PYTHON",
+          "path": "internal/codemap/declarations.go",
+          "line": 279
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--READ",
+          "path": "internal/codemap/declarations.go",
+          "line": 261
+        },
+        {
           "symbol": "CODE-INTERNAL-CODEMAP-JAVASCRIPT-GO--ISJAVASCRIPT",
           "path": "internal/codemap/javascript.go",
           "line": 13
@@ -2529,87 +2559,87 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--AUTOTRACEID",
           "path": "internal/codemap/scan.go",
-          "line": 700
+          "line": 666
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--DECLARATIONNAME",
           "path": "internal/codemap/scan.go",
-          "line": 572
+          "line": 538
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--EXTRACTDECLARATIONS",
           "path": "internal/codemap/scan.go",
-          "line": 397
+          "line": 408
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--FIRSTLINE",
           "path": "internal/codemap/scan.go",
-          "line": 624
+          "line": 590
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--ISATTRIBUTELIKE",
           "path": "internal/codemap/scan.go",
-          "line": 694
+          "line": 660
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--ISCOMMENTLIKE",
           "path": "internal/codemap/scan.go",
-          "line": 685
+          "line": 651
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--JOINLINENUMBERS",
           "path": "internal/codemap/scan.go",
-          "line": 670
+          "line": 636
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--MARKERVALUE",
           "path": "internal/codemap/scan.go",
-          "line": 636
+          "line": 602
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--READSCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 190
+          "line": 201
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCAN",
           "path": "internal/codemap/scan.go",
-          "line": 105
+          "line": 116
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 223
+          "line": 234
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
           "path": "internal/codemap/scan.go",
-          "line": 111
+          "line": 122
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SLUGUPPER",
           "path": "internal/codemap/scan.go",
-          "line": 720
+          "line": 686
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SPLITCSV",
           "path": "internal/codemap/scan.go",
-          "line": 645
+          "line": 611
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SYMBOLFORDECLARATION",
           "path": "internal/codemap/scan.go",
-          "line": 371
+          "line": 382
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--TREESITTERSPEC",
           "path": "internal/codemap/scan.go",
-          "line": 505
+          "line": 471
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--VALIDREQUIREMENTID",
           "path": "internal/codemap/scan.go",
-          "line": 680
+          "line": 646
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-TESTFUNC-GO--GOTESTFUNCTION",
@@ -9632,7 +9662,7 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
           "path": "internal/codemap/scan.go",
-          "line": 111
+          "line": 122
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--CODESCANSKIPPER",
@@ -9647,7 +9677,7 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--GITVISIBLEFILES",
           "path": "internal/codescan/code_scope.go",
-          "line": 194
+          "line": 202
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--GITWORKTREEROOT",
@@ -9657,7 +9687,7 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--ISREGULARFILE",
           "path": "internal/codescan/code_scope.go",
-          "line": 273
+          "line": 281
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--MODULECODEROOT",
@@ -9692,22 +9722,22 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--AUTOTRACEID",
           "path": "internal/codemap/scan.go",
-          "line": 700
+          "line": 666
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--FILEID",
           "path": "internal/codemap/scan.go",
-          "line": 712
+          "line": 678
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
           "path": "internal/codemap/scan.go",
-          "line": 111
+          "line": 122
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--BUILDCODEINDEX",
           "path": "internal/codescan/code_scope.go",
-          "line": 219
+          "line": 227
         }
       ],
       "verifications": [
@@ -9730,7 +9760,7 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--BUILDCODEINDEX",
           "path": "internal/codescan/code_scope.go",
-          "line": 219
+          "line": 227
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--LOADBUNDLE",
@@ -10549,7 +10579,7 @@
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--GITVISIBLEFILES",
           "path": "internal/codescan/code_scope.go",
-          "line": 194
+          "line": 202
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--MODULECODEROOT",
@@ -10733,52 +10763,57 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--MAIN",
           "path": "internal/engws/cli.go",
-          "line": 204
+          "line": 240
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEGLOBALFLAGS",
+          "path": "internal/engws/cli.go",
+          "line": 217
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
           "path": "internal/engws/cli.go",
-          "line": 368
+          "line": 395
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTSKEWS",
           "path": "internal/engws/cli.go",
-          "line": 430
+          "line": 457
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTTABLE",
           "path": "internal/engws/cli.go",
-          "line": 400
+          "line": 427
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 551
+          "line": 578
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNCHECK",
           "path": "internal/engws/cli.go",
-          "line": 508
+          "line": 535
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNPIN",
           "path": "internal/engws/cli.go",
-          "line": 471
+          "line": 498
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSKEW",
           "path": "internal/engws/cli.go",
-          "line": 495
+          "line": 522
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTATUS",
           "path": "internal/engws/cli.go",
-          "line": 385
+          "line": 412
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 440
+          "line": 467
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-ENGINECHECK-GO--PINNEDEXEC",
@@ -11353,7 +11388,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSTAGE",
           "path": "internal/engws/cli.go",
-          "line": 615
+          "line": 642
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-STAGE-GO--DEPENDENCYORDER",
@@ -11710,22 +11745,22 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--READSCANFILE",
           "path": "internal/codemap/scan.go",
-          "line": 190
+          "line": 201
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANARTIFACTFILE",
           "path": "internal/codemap/scan.go",
-          "line": 212
+          "line": 223
         },
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--SCANWITHOPTIONS",
           "path": "internal/codemap/scan.go",
-          "line": 111
+          "line": 122
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--BUILDCODEINDEX",
           "path": "internal/codescan/code_scope.go",
-          "line": 219
+          "line": 227
         },
         {
           "symbol": "CODE-INTERNAL-CODESCAN-INFERRED-CODE-GO--ISVERIFICATIONCODEITEM",
@@ -11849,7 +11884,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNSYNC",
           "path": "internal/engws/cli.go",
-          "line": 440
+          "line": 467
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-SYNC-GO--GOREPLACES",
@@ -12685,17 +12720,17 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PARSEINTERSPERSED",
           "path": "internal/engws/cli.go",
-          "line": 368
+          "line": 395
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--PRINTBUMPLINK",
           "path": "internal/engws/cli.go",
-          "line": 591
+          "line": 618
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 551
+          "line": 578
         },
         {
           "symbol": "CODE-INTERNAL-LINKREVIEW-LINKREVIEW-GO--ITEM",
@@ -13051,66 +13086,92 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--CONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 337
+          "line": 217
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--CONTRACTDIFFRESULT",
           "path": "internal/engws/contractdiff.go",
-          "line": 74
+          "line": 68
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--DIFFCONTRACTS",
           "path": "internal/engws/contractdiff.go",
-          "line": 88
+          "line": 82
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--DIFFITEM",
           "path": "internal/engws/contractdiff.go",
-          "line": 133
+          "line": 127
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--DIFFREALIZERS",
           "path": "internal/engws/contractdiff.go",
-          "line": 167
+          "line": 161
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--GITOUTPUT",
           "path": "internal/engws/contractdiff.go",
-          "line": 206
-        },
-        {
-          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--HISTORICDOCUMENT",
-          "path": "internal/engws/contractdiff.go",
-          "line": 308
+          "line": 200
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--ITEMCHANGE",
           "path": "internal/engws/contractdiff.go",
-          "line": 61
+          "line": 55
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--LOADBUNDLEATREF",
           "path": "internal/engws/contractdiff.go",
-          "line": 231
+          "line": 205
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--PRINTCONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 353
+          "line": 233
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--RANK",
           "path": "internal/engws/contractdiff.go",
-          "line": 34
+          "line": 28
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--RUNCONTRACTDIFF",
           "path": "internal/engws/contractdiff.go",
-          "line": 378
+          "line": 258
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--CHECKREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--HISTORICDOCUMENT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 271
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--LOADBUNDLEATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--OUTPUT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEDOCUMENT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEMODELATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 52
         }
       ],
       "verifications": [
         "VER-INF-TEST-CONTRACTDIFF_TEST-1D9C3E",
+        "VER-INF-TEST-GITMODEL_TEST-E396FE",
         "VER-INF-TEST-RELEASECHECK_TEST-A300F7"
       ],
       "result": "not-run",
@@ -13130,12 +13191,12 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--GITOUTPUT",
           "path": "internal/engws/contractdiff.go",
-          "line": 206
+          "line": 200
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--LOADBUNDLEATREF",
           "path": "internal/engws/contractdiff.go",
-          "line": 231
+          "line": 205
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--BUMPOF",
@@ -13181,6 +13242,26 @@
           "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--UNRELEASEDPINS",
           "path": "internal/engws/releasecheck.go",
           "line": 65
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--LOADBUNDLEATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--OUTPUT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEDOCUMENT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEMODELATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 52
         }
       ],
       "verifications": [
@@ -14842,7 +14923,7 @@
         {
           "symbol": "CODE-INTERNAL-ENGWS-CLI-GO--RUNBUMP",
           "path": "internal/engws/cli.go",
-          "line": 551
+          "line": 578
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-LIFECYCLE-GO--ACCEPTEDRISKDEPENDENCIES",
@@ -21068,7 +21149,7 @@
         {
           "symbol": "CODE-INTERNAL-CODEMAP-SCAN-GO--APPENDUNIQUE",
           "path": "internal/codemap/scan.go",
-          "line": 660
+          "line": 626
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-MACHINE-QUERY-GO--MACHINETRANSITIONS",
@@ -21750,19 +21831,14 @@
       ],
       "code": [
         {
-          "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--HISTORICDOCUMENT",
-          "path": "internal/engws/contractdiff.go",
-          "line": 308
-        },
-        {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--LOADBUNDLEATREF",
           "path": "internal/engws/contractdiff.go",
-          "line": 231
+          "line": 205
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-CONTRACTDIFF-GO--STAMPCURRENTVERSION",
           "path": "internal/engws/contractdiff.go",
-          "line": 323
+          "line": 211
         },
         {
           "symbol": "CODE-INTERNAL-ENGWS-RELEASECHECK-GO--PRINTFINDING",
@@ -21798,6 +21874,31 @@
           "symbol": "CODE-INTERNAL-ENGWS-SCHEMAVERSION-GO--SCHEMAVERSIONFINDING",
           "path": "internal/engws/schemaversion.go",
           "line": 79
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--HISTORICDOCUMENT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 271
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--LOADBUNDLEATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--STAMPCURRENTVERSION",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 284
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEDOCUMENT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEMODELATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 52
         }
       ],
       "verifications": [
@@ -22052,6 +22153,662 @@
       "parents": [
         "CAP-EMG-TRACEABILITY"
       ]
+    },
+    {
+      "id": "REQ-EMG-189",
+      "text": "When model updated event is received, the engineering model go shall list every authored entity of the model with its kind, document, parent and fields and every reference between entities.",
+      "units": [
+        "FU-MODEL-LOADER"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-DIFF-GO--BUILDENTITYINDEX",
+          "path": "api_diff.go",
+          "line": 53
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--ADD",
+          "path": "internal/model/entities.go",
+          "line": 232
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--BUILDENTITYINDEX",
+          "path": "internal/model/entities.go",
+          "line": 104
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--ENTITYITEMS",
+          "path": "internal/model/entities.go",
+          "line": 183
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--FIND",
+          "path": "internal/model/entities.go",
+          "line": 67
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--HASID",
+          "path": "internal/model/entities.go",
+          "line": 199
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--ISENTITYLIST",
+          "path": "internal/model/entities.go",
+          "line": 206
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--JOIN",
+          "path": "internal/model/entities.go",
+          "line": 253
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--KEEPRELATIONSHIPS",
+          "path": "internal/model/entities.go",
+          "line": 314
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--KINDFOR",
+          "path": "internal/model/entities.go",
+          "line": 392
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--KNOWN",
+          "path": "internal/model/entities.go",
+          "line": 323
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--LINK",
+          "path": "internal/model/entities.go",
+          "line": 356
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--REFERENCELESS",
+          "path": "internal/model/entities.go",
+          "line": 339
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--REFERENCES",
+          "path": "internal/model/entities.go",
+          "line": 295
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--RELATIONSHIPOF",
+          "path": "internal/model/entities.go",
+          "line": 280
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--RELATIONSHIPS",
+          "path": "internal/model/entities.go",
+          "line": 269
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--SCAN",
+          "path": "internal/model/entities.go",
+          "line": 363
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--SCANFIELDS",
+          "path": "internal/model/entities.go",
+          "line": 305
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--SCANSTRING",
+          "path": "internal/model/entities.go",
+          "line": 381
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--SINGULAR",
+          "path": "internal/model/entities.go",
+          "line": 430
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--SNAKE",
+          "path": "internal/model/entities.go",
+          "line": 417
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--SORTEDKEYS",
+          "path": "internal/model/entities.go",
+          "line": 441
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--SORTEDREFERENCES",
+          "path": "internal/model/entities.go",
+          "line": 329
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--SPLITENTITYFIELDS",
+          "path": "internal/model/entities.go",
+          "line": 217
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--TITLEOF",
+          "path": "internal/model/entities.go",
+          "line": 406
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--WALK",
+          "path": "internal/model/entities.go",
+          "line": 146
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--WALKLIST",
+          "path": "internal/model/entities.go",
+          "line": 168
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITIES-GO--WALKMAP",
+          "path": "internal/model/entities.go",
+          "line": 156
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-ENTITIES_TEST-A339C3"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-190",
+      "text": "When model updated event is received, the engineering model go shall report the entities added, removed and changed between two git revisions of a model or between a revision and the working tree.",
+      "units": [
+        "FU-CLI-ORCHESTRATION",
+        "FU-MODEL-LOADER"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-DIFF-GO--DIFFENTITYINDEXES",
+          "path": "api_diff.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--DIFFMODELS",
+          "path": "api_diff.go",
+          "line": 102
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--ENTITYINDEXAT",
+          "path": "api_diff.go",
+          "line": 121
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--LABELOF",
+          "path": "api_diff.go",
+          "line": 160
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--LOADBUNDLEATREF",
+          "path": "api_diff.go",
+          "line": 70
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--TRACEATREF",
+          "path": "api_diff.go",
+          "line": 168
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--TRACEOFDIR",
+          "path": "api_diff.go",
+          "line": 180
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MODELDIFF-GO--PRINTENTITYDIFF",
+          "path": "internal/engws/modeldiff.go",
+          "line": 32
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MODELDIFF-GO--PRINTMODELDIFF",
+          "path": "internal/engws/modeldiff.go",
+          "line": 16
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MODELDIFF-GO--RUNMODELDIFF",
+          "path": "internal/engws/modeldiff.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MODELDIFF-GO--RUNMODELDIFFCOMMAND",
+          "path": "internal/engws/modeldiff.go",
+          "line": 76
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--ARCHIVEINTO",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 183
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--CHECKOUTATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--CHECKREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--COPYENTRY",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 248
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--EXTRACTENTRY",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 232
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--EXTRACTTAR",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 207
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--INSIDETREE",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 100
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--LOADBUNDLEATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--OUTPUT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--SORTEDKEYS",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 117
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEDOCUMENT",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 83
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEMODELATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 52
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--WRITEPRIVATE",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 109
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--ADDEDANDCHANGED",
+          "path": "internal/model/entity_diff.go",
+          "line": 72
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--BOTHEXIST",
+          "path": "internal/model/entity_diff.go",
+          "line": 123
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--CHANGEOF",
+          "path": "internal/model/entity_diff.go",
+          "line": 130
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--COMPAREENTITIES",
+          "path": "internal/model/entity_diff.go",
+          "line": 66
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--COMPAREREFERENCES",
+          "path": "internal/model/entity_diff.go",
+          "line": 96
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--DIFFENTITYINDEXES",
+          "path": "internal/model/entity_diff.go",
+          "line": 36
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--DIFFERINGFIELDS",
+          "path": "internal/model/entity_diff.go",
+          "line": 139
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--ENTITIESBYID",
+          "path": "internal/model/entity_diff.go",
+          "line": 47
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--ENTITYSET",
+          "path": "internal/model/entity_diff.go",
+          "line": 56
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--REFERENCESET",
+          "path": "internal/model/entity_diff.go",
+          "line": 114
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--REFERENCESNOTIN",
+          "path": "internal/model/entity_diff.go",
+          "line": 103
+        },
+        {
+          "symbol": "CODE-INTERNAL-MODEL-ENTITY-DIFF-GO--REMOVED",
+          "path": "internal/model/entity_diff.go",
+          "line": 85
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-ENTITY_DIFF_TEST-72BDA0",
+        "VER-INF-TEST-GITMODEL_TEST-E396FE",
+        "VER-INF-TEST-MODELDIFF_TEST-F84E56"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-191",
+      "text": "When model updated event is received, the engineering model go shall report which requirements gained code, gained a test, became orphans or stopped being orphans between two revisions.",
+      "units": [
+        "FU-ALLOCATION-TRACE",
+        "FU-CLI-ORCHESTRATION"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-DIFF-GO--DIFFMODELS",
+          "path": "api_diff.go",
+          "line": 102
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--DIFFTRACEMATRICES",
+          "path": "api_diff.go",
+          "line": 63
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--TRACEAT",
+          "path": "api_diff.go",
+          "line": 152
+        },
+        {
+          "symbol": "CODE-API-DIFF-GO--TRACEDELTA",
+          "path": "api_diff.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MODELDIFF-GO--PRINTTRACEDELTA",
+          "path": "internal/engws/modeldiff.go",
+          "line": 47
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MODELDIFF-GO--RUNMODELDIFF",
+          "path": "internal/engws/modeldiff.go",
+          "line": 58
+        },
+        {
+          "symbol": "CODE-INTERNAL-ENGWS-MODELDIFF-GO--RUNMODELDIFFCOMMAND",
+          "path": "internal/engws/modeldiff.go",
+          "line": 76
+        },
+        {
+          "symbol": "CODE-INTERNAL-GITMODEL-GITMODEL-GO--CHECKOUTATREF",
+          "path": "internal/gitmodel/gitmodel.go",
+          "line": 161
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--DELTAOF",
+          "path": "internal/trace/delta.go",
+          "line": 68
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--ORPHANED",
+          "path": "internal/trace/delta.go",
+          "line": 47
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--RECORDORPHANS",
+          "path": "internal/trace/delta.go",
+          "line": 107
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--RECORDSTATUS",
+          "path": "internal/trace/delta.go",
+          "line": 99
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--RECORDTRACE",
+          "path": "internal/trace/delta.go",
+          "line": 84
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--SIDESOF",
+          "path": "internal/trace/delta.go",
+          "line": 50
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--TESTED",
+          "path": "internal/trace/delta.go",
+          "line": 44
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--TRACED",
+          "path": "internal/trace/delta.go",
+          "line": 31
+        },
+        {
+          "symbol": "CODE-INTERNAL-TRACE-DELTA-GO--TRACED",
+          "path": "internal/trace/delta.go",
+          "line": 41
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-DELTA_TEST-111675",
+        "VER-INF-TEST-MODELDIFF_TEST-F84E56"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-192",
+      "text": "When model updated event is received, the engineering model go shall list every named declaration of the code scope with its kind, language, path and lines.",
+      "units": [
+        "FU-CODEMAP-INFERENCE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-CODE-GO--BEFORE",
+          "path": "api_code.go",
+          "line": 120
+        },
+        {
+          "symbol": "CODE-API-CODE-GO--CANDIDATES",
+          "path": "api_code.go",
+          "line": 77
+        },
+        {
+          "symbol": "CODE-API-CODE-GO--CODEDECLARATIONSOF",
+          "path": "api_code.go",
+          "line": 42
+        },
+        {
+          "symbol": "CODE-API-CODE-GO--FINDCODEDEFINITIONS",
+          "path": "api_code.go",
+          "line": 52
+        },
+        {
+          "symbol": "CODE-API-CODE-GO--INTESTONLYCODE",
+          "path": "api_code.go",
+          "line": 66
+        },
+        {
+          "symbol": "CODE-API-CODE-GO--LISTCODEDECLARATIONS",
+          "path": "api_code.go",
+          "line": 35
+        },
+        {
+          "symbol": "CODE-API-CODE-GO--RANK",
+          "path": "api_code.go",
+          "line": 96
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--DECLARATIONSOF",
+          "path": "internal/codemap/declarations.go",
+          "line": 112
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--DECLARATIONSOFFILE",
+          "path": "internal/codemap/declarations.go",
+          "line": 96
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--DESCENDANTSOFKIND",
+          "path": "internal/codemap/declarations.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--FRIENDLYKIND",
+          "path": "internal/codemap/declarations.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--GOFACTS",
+          "path": "internal/codemap/declarations.go",
+          "line": 315
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--GOFURTHERNAMES",
+          "path": "internal/codemap/declarations.go",
+          "line": 165
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--LISTDECLARATIONS",
+          "path": "internal/codemap/declarations.go",
+          "line": 38
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--PUBLICDECLARATIONS",
+          "path": "internal/codemap/declarations.go",
+          "line": 133
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--READ",
+          "path": "internal/codemap/declarations.go",
+          "line": 261
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--READS",
+          "path": "internal/codemap/declarations.go",
+          "line": 87
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--SKIPDIRECTORY",
+          "path": "internal/codemap/declarations.go",
+          "line": 149
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--SKIPSDIRECTORY",
+          "path": "internal/codemap/declarations.go",
+          "line": 78
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--SPECFURTHERNAMES",
+          "path": "internal/codemap/declarations.go",
+          "line": 175
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--SPECNAMES",
+          "path": "internal/codemap/declarations.go",
+          "line": 203
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODEMAP-DECLARATIONS-GO--VISIT",
+          "path": "internal/codemap/declarations.go",
+          "line": 61
+        },
+        {
+          "symbol": "CODE-INTERNAL-CODESCAN-CODE-SCOPE-GO--LISTDECLARATIONS",
+          "path": "internal/codescan/code_scope.go",
+          "line": 192
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-API_CODE_TEST-F84229",
+        "VER-INF-TEST-DECLARATIONS_TEST-900E84"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
+    },
+    {
+      "id": "REQ-EMG-193",
+      "text": "When model updated event is received, the engineering model go shall list every catalog term with the requirements that name it and the entities that reference it.",
+      "units": [
+        "FU-VALIDATION-ENGINE"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-API-CODE-GO--CATALOGUSAGE",
+          "path": "api_code.go",
+          "line": 23
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-USAGE-GO--CATALOGGROUPS",
+          "path": "internal/reqlint/catalog_usage.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-USAGE-GO--CATALOGUSAGE",
+          "path": "internal/reqlint/catalog_usage.go",
+          "line": 32
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-USAGE-GO--LOWERCASEDREQUIREMENTS",
+          "path": "internal/reqlint/catalog_usage.go",
+          "line": 96
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-USAGE-GO--NAMING",
+          "path": "internal/reqlint/catalog_usage.go",
+          "line": 108
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-USAGE-GO--REFERENCESOURCES",
+          "path": "internal/reqlint/catalog_usage.go",
+          "line": 65
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-USAGE-GO--REFERENCINGENTITIES",
+          "path": "internal/reqlint/catalog_usage.go",
+          "line": 55
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-USAGE-GO--SORTEDSET",
+          "path": "internal/reqlint/catalog_usage.go",
+          "line": 80
+        },
+        {
+          "symbol": "CODE-INTERNAL-REQLINT-CATALOG-USAGE-GO--TERMPHRASES",
+          "path": "internal/reqlint/catalog_usage.go",
+          "line": 121
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-CATALOG_USAGE_TEST-C82EFE"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-TRACEABILITY"
+      ]
     }
   ],
   "danglingLinks": null,
@@ -22060,10 +22817,10 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 181,
-    "implemented": 177,
-    "tested": 166,
-    "testLinked": 166,
+    "requirements": 186,
+    "implemented": 182,
+    "tested": 171,
+    "testLinked": 171,
     "passed": 10,
     "delegated": 0,
     "orphan": 2,

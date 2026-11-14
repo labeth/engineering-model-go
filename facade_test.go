@@ -47,21 +47,31 @@ func TestFacadeLoadsAndValidatesWithoutInternalImports(t *testing.T) {
 	}
 }
 
-// Every exported top-level name of the implementation packages is
-// re-exported at the root, so splitting the implementation kept the public API
-// whole. A package's rootName maps a de-stuttered package name to its public
-// root name (trace.Matrix is engmodel.TraceMatrix); other names keep their
-// name. internalOnly lists the names a package exports only for its sibling
-// internal packages; they are not public API.
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044
-func TestFacadeReexportsEngine(t *testing.T) {
-	type implPackage struct {
-		dir          string
-		rootName     map[string]string
-		internalOnly []string
+// implPackage is an internal package whose exported names the root facade re-exports.
+type implPackage struct {
+	dir          string
+	rootName     map[string]string
+	internalOnly []string
+}
+
+// facadePackages lists the internal packages the root facade covers and, for each, the names it renames or keeps internal.
+func facadePackages() []implPackage {
+	var all []implPackage
+	for _, part := range [][]implPackage{
+		facadePackages1(),
+		facadePackages2(),
+		facadePackages3(),
+		facadePackages4(),
+		facadePackages5(),
+	} {
+		all = append(all, part...)
 	}
-	packages := []implPackage{
-		{dir: filepath.Join("internal", "reqlint"), internalOnly: []string{
+	return all
+}
+
+func facadePackages1() []implPackage {
+	return []implPackage{
+		{dir: filepath.Join("internal", "reqlint"), rootName: map[string]string{"TermUsage": "CatalogTermUsage"}, internalOnly: []string{
 			// requirement lint passes run by internal/asciidoc and internal/reqdelta.
 			"LintModelRequirementsEARS", "LintRequirementInternalLinks", "ValidateCatalogDescriptions",
 		}},
@@ -91,7 +101,12 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"ReasonNotInPublication": "LinkReasonNotInPublication", "ReasonNotContractItem": "LinkReasonNotContractItem",
 			"ReasonMissing": "LinkReasonMissing", "NonItemReason": "ContractNonItemReason",
 		}},
-		{dir: filepath.Join("internal", "codescan"), internalOnly: []string{
+	}
+}
+
+func facadePackages2() []implPackage {
+	return []implPackage{
+		{dir: filepath.Join("internal", "codescan"), rootName: map[string]string{"ListDeclarations": "ListCodeDeclarations"}, internalOnly: []string{
 			// code, runtime and verification inference, used by internal/trace
 			// and internal/asciidoc; none of it is public API.
 			"CodeItem", "EvidenceFileKey", "EvidenceLabel", "EvidenceLabelLookup",
@@ -128,6 +143,11 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			// used by internal/asciidoc for the requirement link tree.
 			"DependencyRequirementStatus",
 		}},
+	}
+}
+
+func facadePackages3() []implPackage {
+	return []implPackage{
 		{dir: filepath.Join("internal", "export", "gemara"), rootName: map[string]string{
 			"Version": "GemaraVersion", "Options": "GemaraExportOptions",
 			"Result": "GemaraExportResult", "EvaluationResult": "GemaraEvaluationResult",
@@ -161,6 +181,11 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"GenerateProfileFromFile":           "GenerateOSCALProfileFromFile",
 			"ErrNoCompliance":                   "ErrNoOSCALCompliance", "ErrNoProfiles": "ErrNoOSCALProfiles",
 		}},
+	}
+}
+
+func facadePackages4() []implPackage {
+	return []implPackage{
 		{dir: filepath.Join("internal", "export", "sysml"), rootName: map[string]string{
 			"ExportResult": "SysMLExportResult", "RendererCoverage": "SysMLRendererCoverage",
 			"RendererEvidence": "SysMLRendererEvidence", "RoundTripResult": "SysMLRoundTripResult",
@@ -194,6 +219,11 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"Result": "NAFExportResult", "GenerateV41": "GenerateNAFV41",
 			"GenerateV41FromFile": "GenerateNAFV41FromFile",
 		}},
+	}
+}
+
+func facadePackages5() []implPackage {
+	return []implPackage{
 		{dir: filepath.Join("internal", "export", "trlc"), rootName: map[string]string{
 			"Options": "TRLCExportOptions", "Result": "TRLCExportResult",
 			"GenerateRequirements":         "GenerateTRLCRequirements",
@@ -232,6 +262,17 @@ func TestFacadeReexportsEngine(t *testing.T) {
 			"ResolveExternalTool",
 		}},
 	}
+}
+
+// Every exported top-level name of the implementation packages is
+// re-exported at the root, so splitting the implementation kept the public API
+// whole. A package's rootName maps a de-stuttered package name to its public
+// root name (trace.Matrix is engmodel.TraceMatrix); other names keep their
+// name. internalOnly lists the names a package exports only for its sibling
+// internal packages; they are not public API.
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044
+func TestFacadeReexportsEngine(t *testing.T) {
+	packages := facadePackages()
 	root := exportedNames(t, ".")
 	for _, pkg := range packages {
 		impl := exportedNames(t, pkg.dir)

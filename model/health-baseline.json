@@ -820,12 +820,6 @@
     {
       "path": "facade_test.go",
       "function": "TestFacadeReexportsEngine",
-      "code": "health.brain_method",
-      "value": 11
-    },
-    {
-      "path": "facade_test.go",
-      "function": "TestFacadeReexportsEngine",
       "code": "health.complex_method",
       "value": 11
     },
@@ -834,12 +828,6 @@
       "function": "TestFacadeReexportsEngine",
       "code": "health.deep_nesting",
       "value": 3
-    },
-    {
-      "path": "facade_test.go",
-      "function": "TestFacadeReexportsEngine",
-      "code": "health.large_method",
-      "value": 191
     },
     {
       "path": "facade_test.go",
@@ -2566,14 +2554,8 @@
     {
       "path": "internal/codemap/scan.go",
       "function": "ScanWithOptions",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/codemap/scan.go",
-      "function": "ScanWithOptions",
       "code": "health.complex_method",
-      "value": 25
+      "value": 22
     },
     {
       "path": "internal/codemap/scan.go",
@@ -2622,42 +2604,6 @@
       "function": "extractDeclarations",
       "code": "health.complex_method",
       "value": 9
-    },
-    {
-      "path": "internal/codemap/scan.go",
-      "function": "extractDeclarations.visit",
-      "code": "health.brain_method",
-      "value": 22
-    },
-    {
-      "path": "internal/codemap/scan.go",
-      "function": "extractDeclarations.visit",
-      "code": "health.bumpy_road",
-      "value": 2
-    },
-    {
-      "path": "internal/codemap/scan.go",
-      "function": "extractDeclarations.visit",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/codemap/scan.go",
-      "function": "extractDeclarations.visit",
-      "code": "health.complex_method",
-      "value": 22
-    },
-    {
-      "path": "internal/codemap/scan.go",
-      "function": "extractDeclarations.visit",
-      "code": "health.deep_nesting",
-      "value": 5
-    },
-    {
-      "path": "internal/codemap/scan.go",
-      "function": "extractDeclarations.visit",
-      "code": "health.large_method",
-      "value": 59
     },
     {
       "path": "internal/codemap/scan.go",
@@ -4451,13 +4397,13 @@
       "path": "internal/engws/cli.go",
       "function": "Main",
       "code": "health.bumpy_road",
-      "value": 7
+      "value": 6
     },
     {
       "path": "internal/engws/cli.go",
       "function": "Main",
       "code": "health.complex_method",
-      "value": 41
+      "value": 38
     },
     {
       "path": "internal/engws/cli.go",
@@ -4469,7 +4415,7 @@
       "path": "internal/engws/cli.go",
       "function": "Main",
       "code": "health.large_method",
-      "value": 151
+      "value": 142
     },
     {
       "path": "internal/engws/cli.go",
@@ -4578,24 +4524,6 @@
       "function": "DiffContracts",
       "code": "health.deep_nesting",
       "value": 3
-    },
-    {
-      "path": "internal/engws/contractdiff.go",
-      "function": "LoadBundleAtRef",
-      "code": "health.complex_conditional",
-      "value": 3
-    },
-    {
-      "path": "internal/engws/contractdiff.go",
-      "function": "LoadBundleAtRef",
-      "code": "health.complex_method",
-      "value": 19
-    },
-    {
-      "path": "internal/engws/contractdiff.go",
-      "function": "LoadBundleAtRef",
-      "code": "health.large_method",
-      "value": 58
     },
     {
       "path": "internal/engws/contractdiff.go",

@@ -12,6 +12,11 @@ semantic versioning.
 - `DiffModels`, `DiffEntityIndexes` and `DiffTraceMatrices` report what changed between two git revisions of a model, or a revision and the working tree: entities added, removed and changed by field, and the requirements that gained code or a test or became or stopped being orphans.
 - `engws model-diff <from-ref> [<to-ref>] [--repo DIR] [--json] [--no-trace]` exposes it. The loader that reads a model at a git revision moved from `internal/engws` to `internal/gitmodel`; `engws` keeps thin wrappers.
 
+### Declaration index and catalog usage (ADR-EMG-080, REQ-EMG-192, 193)
+
+- `ListCodeDeclarations`, `CodeDeclarationsOf` and `FindCodeDefinitions` list every named declaration of the code scope (including each name of a grouped Go block) and rank the candidates a use may refer to.
+- `CatalogUsage` lists each catalog term with the requirements that name it and the entities that reference it.
+
 ## [0.11.0] — 2026-11-13: State machines, code health, required model switches and consistency checks
 
 **Breaking release, no compatibility path** (owner instruction: "i dont want any backwards compatabillity in the model yet, it should always require a full upgrade"). A model, a lock, a check template or an engine pin that is not current is an error that names its remedy, never a mode that still works. The authoring contract is `engineering-model.authoring.v8`.

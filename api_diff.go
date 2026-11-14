@@ -69,8 +69,12 @@ func DiffTraceMatrices(from, to TraceMatrix) TraceDelta { return trace.DeltaOf(f
 // ENGMODEL-LINKS: FU-MODEL-LOADER
 func LoadBundleAtRef(repo, ref string) (Bundle, error) { return gitmodel.LoadBundleAtRef(repo, ref) }
 
-// ModelDiffOptions selects what DiffModels computes.
-type ModelDiffOptions struct {
+// ModelDiffRequest says which two states of the model in a repository DiffModels compares.
+type ModelDiffRequest struct {
+	Repo string
+	From string
+	// To is the ref compared against; empty means the working tree.
+	To string
 	// Trace also builds the trace matrix of both states (it scans the code of each) and reports how traceability moved.
 	Trace bool
 }
@@ -87,58 +91,69 @@ type ModelDiff struct {
 	TraceError string      `json:"traceError,omitempty"`
 }
 
-// DiffModels compares the model of repo as committed at fromRef with its state at toRef, or with the working tree
-// when toRef is empty. With opts.Trace it also reports how the traceability of the requirements moved: it extracts
-// each committed tree into a private temporary directory, scans its code and builds the trace matrix, so a
-// requirement that gained or lost code or tests shows.
+// DiffModels compares the model of req.Repo as committed at req.From with its state at req.To, or with the working
+// tree when req.To is empty. With req.Trace it also reports how the traceability of the requirements moved: it
+// extracts each committed tree into a private temporary directory, scans its code and builds the trace matrix, so a
+// requirement that gained or lost code or tests shows. A trace that cannot be built is recorded in TraceError and
+// does not fail the entity diff.
 //
 // TRLC-LINKS: REQ-EMG-190, REQ-EMG-191
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-ALLOCATION-TRACE
-func DiffModels(repo, fromRef, toRef string, opts ModelDiffOptions) (ModelDiff, error) {
-	out := ModelDiff{Repo: repo, From: fromRef, To: toRef}
-	from, err := LoadBundleAtRef(repo, fromRef)
+func DiffModels(req ModelDiffRequest) (ModelDiff, error) {
+	out := ModelDiff{Repo: req.Repo, From: req.From, To: req.To}
+	before, err := entityIndexAt(req.Repo, req.From)
 	if err != nil {
 		return out, err
 	}
-	var to Bundle
-	if toRef == "" {
-		to, err = model.LoadBundle(filepath.Join(repo, "engmod.yml"))
+	after, err := entityIndexAt(req.Repo, req.To)
+	if err != nil {
+		return out, err
+	}
+	out.Entities = DiffEntityIndexes(before, after)
+	if req.Trace {
+		out.Trace, out.TraceError = traceDelta(req)
+	}
+	return out, nil
+}
+
+// entityIndexAt indexes the model as committed at ref, or the working tree when ref is empty.
+// TRLC-LINKS: REQ-EMG-190
+func entityIndexAt(repo, ref string) (EntityIndex, error) {
+	var b Bundle
+	var err error
+	if ref == "" {
+		b, err = model.LoadBundle(filepath.Join(repo, "engmod.yml"))
 	} else {
-		to, err = LoadBundleAtRef(repo, toRef)
+		b, err = LoadBundleAtRef(repo, ref)
 	}
 	if err != nil {
-		return out, err
+		return EntityIndex{}, err
 	}
-	a, err := BuildEntityIndex(from)
+	return BuildEntityIndex(b)
+}
+
+// traceDelta compares the trace of the two states; on failure it returns no delta and the reason.
+// TRLC-LINKS: REQ-EMG-191
+func traceDelta(req ModelDiffRequest) (*TraceDelta, string) {
+	before, err := traceAt(req.Repo, req.From)
 	if err != nil {
-		return out, err
+		return nil, fmt.Sprintf("trace at %s: %v", labelOf(req.From), err)
 	}
-	b, err := BuildEntityIndex(to)
+	after, err := traceAt(req.Repo, req.To)
 	if err != nil {
-		return out, err
-	}
-	out.Entities = DiffEntityIndexes(a, b)
-	if !opts.Trace {
-		return out, nil
-	}
-	before, err := traceAtRef(repo, fromRef)
-	if err != nil {
-		out.TraceError = fmt.Sprintf("trace at %s: %v", fromRef, err)
-		return out, nil
-	}
-	var after TraceMatrix
-	if toRef == "" {
-		after, err = traceOfDir(repo)
-	} else {
-		after, err = traceAtRef(repo, toRef)
-	}
-	if err != nil {
-		out.TraceError = fmt.Sprintf("trace at %s: %v", labelOf(toRef), err)
-		return out, nil
+		return nil, fmt.Sprintf("trace at %s: %v", labelOf(req.To), err)
 	}
 	delta := DiffTraceMatrices(before, after)
-	out.Trace = &delta
-	return out, nil
+	return &delta, ""
+}
+
+// traceAt is the trace matrix of the committed tree at ref, or of the working tree when ref is empty.
+// TRLC-LINKS: REQ-EMG-191
+func traceAt(repo, ref string) (TraceMatrix, error) {
+	if ref == "" {
+		return traceOfDir(repo)
+	}
+	return traceAtRef(repo, ref)
 }
 
 // TRLC-LINKS: REQ-EMG-190

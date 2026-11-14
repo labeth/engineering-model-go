@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"unicode"
 
 	"gopkg.in/yaml.v3"
 )
@@ -145,24 +146,35 @@ type entityWalker struct {
 func (w *entityWalker) walk(v any, key, parent string) {
 	switch x := v.(type) {
 	case map[string]any:
-		keys := sortedKeys(x)
-		for _, k := range keys {
-			if k == "relationships" {
-				w.relationships(x[k])
-				continue
-			}
-			w.walk(x[k], k, parent)
-		}
+		w.walkMap(x, parent)
 	case []any:
-		if items, ok := entityItems(x); ok {
-			for _, it := range items {
-				w.add(it, key, parent)
-			}
-			return
+		w.walkList(x, key, parent)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func (w *entityWalker) walkMap(m map[string]any, parent string) {
+	for _, k := range sortedKeys(m) {
+		if k == "relationships" {
+			w.relationships(m[k])
+			continue
 		}
-		for _, e := range x {
+		w.walk(m[k], k, parent)
+	}
+}
+
+// walkList reads a list of entities, or looks inside each element of any other list.
+// TRLC-LINKS: REQ-EMG-189
+func (w *entityWalker) walkList(list []any, key, parent string) {
+	items, ok := entityItems(list)
+	if !ok {
+		for _, e := range list {
 			w.walk(e, key, parent)
 		}
+		return
+	}
+	for _, it := range items {
+		w.add(it, key, parent)
 	}
 }
 
@@ -175,10 +187,7 @@ func entityItems(list []any) ([]map[string]any, bool) {
 	out := make([]map[string]any, 0, len(list))
 	for _, e := range list {
 		m, ok := e.(map[string]any)
-		if !ok {
-			return nil, false
-		}
-		if id, ok := m["id"].(string); !ok || strings.TrimSpace(id) == "" {
+		if !ok || !hasID(m) {
 			return nil, false
 		}
 		out = append(out, m)
@@ -187,38 +196,46 @@ func entityItems(list []any) ([]map[string]any, bool) {
 }
 
 // TRLC-LINKS: REQ-EMG-189
+func hasID(m map[string]any) bool {
+	id, ok := m["id"].(string)
+	return ok && strings.TrimSpace(id) != ""
+}
+
+// isEntityList reports whether v is a list of entities (so it holds children, not a field).
+// TRLC-LINKS: REQ-EMG-189
+func isEntityList(v any) bool {
+	list, ok := v.([]any)
+	if !ok {
+		return false
+	}
+	_, nested := entityItems(list)
+	return nested
+}
+
+// splitEntityFields separates the fields of an entity mapping from the keys that hold entities nested inside it.
+// TRLC-LINKS: REQ-EMG-189
+func splitEntityFields(m map[string]any) (fields map[string]any, children []string) {
+	fields = map[string]any{}
+	for _, k := range sortedKeys(m) {
+		switch {
+		case k == "id":
+		case isEntityList(m[k]):
+			children = append(children, k)
+		default:
+			fields[k] = m[k]
+		}
+	}
+	return fields, children
+}
+
+// TRLC-LINKS: REQ-EMG-189
 func (w *entityWalker) add(m map[string]any, key, parent string) {
 	id := m["id"].(string)
-	kind := kindFor(key, m)
-	fields := map[string]any{}
-	var children []string
-	for _, k := range sortedKeys(m) {
-		if k == "id" {
-			continue
-		}
-		if list, ok := m[k].([]any); ok {
-			if _, nested := entityItems(list); nested {
-				children = append(children, k)
-				continue
-			}
-		}
-		fields[k] = m[k]
-	}
+	fields, children := splitEntityFields(m)
 	if e, ok := w.byID[id]; ok {
-		if !containsString(e.Documents, w.document) {
-			e.Documents = append(e.Documents, w.document)
-		}
-		for k, v := range fields { // a later document adds what the first did not say, never overrides it
-			if _, has := e.Fields[k]; !has {
-				e.Fields[k] = v
-			}
-		}
-		if e.Parent == "" {
-			e.Parent = parent
-		}
-		e.Title = titleOf(id, e.Fields)
+		w.join(e, fields, parent)
 	} else {
-		e := &Entity{ID: id, Kind: kind, Documents: []string{w.document}, Parent: parent, Fields: fields}
+		e := &Entity{ID: id, Kind: kindFor(key, m), Documents: []string{w.document}, Parent: parent, Fields: fields}
 		e.Title = titleOf(id, fields)
 		w.byID[id] = e
 	}
@@ -230,86 +247,144 @@ func (w *entityWalker) add(m map[string]any, key, parent string) {
 	}
 }
 
+// join adds what a later document says about an entity that an earlier one defined: it adds the document and the
+// fields the first did not say, and never overrides.
+// TRLC-LINKS: REQ-EMG-189
+func (w *entityWalker) join(e *Entity, fields map[string]any, parent string) {
+	if !containsString(e.Documents, w.document) {
+		e.Documents = append(e.Documents, w.document)
+	}
+	for k, v := range fields {
+		if _, has := e.Fields[k]; !has {
+			e.Fields[k] = v
+		}
+	}
+	if e.Parent == "" {
+		e.Parent = parent
+	}
+	e.Title = titleOf(e.ID, e.Fields)
+}
+
 // TRLC-LINKS: REQ-EMG-189
 func (w *entityWalker) relationships(v any) {
 	list, _ := v.([]any)
 	for _, e := range list {
-		m, ok := e.(map[string]any)
-		if !ok {
-			continue
+		if r, ok := relationshipOf(e); ok {
+			w.rels = append(w.rels, r)
 		}
-		from, _ := m["from"].(string)
-		to, _ := m["to"].(string)
-		typ, _ := m["type"].(string)
-		if from == "" || to == "" {
-			continue
-		}
-		desc, _ := m["description"].(string)
-		w.rels = append(w.rels, EntityReference{From: from, To: to, Via: typ, Type: EdgeRelationship, Description: desc})
 	}
 }
 
-// references derives the links: what each entity's fields hold, what its prose mentions, what encloses
-// what, and the typed relationships. Only links between entities of the index are kept.
+// relationshipOf reads one behavior.relationships item; an item without both ends is not a relationship.
+// TRLC-LINKS: REQ-EMG-189
+func relationshipOf(v any) (EntityReference, bool) {
+	m, ok := v.(map[string]any)
+	if !ok {
+		return EntityReference{}, false
+	}
+	from, _ := m["from"].(string)
+	to, _ := m["to"].(string)
+	typ, _ := m["type"].(string)
+	desc, _ := m["description"].(string)
+	return EntityReference{From: from, To: to, Via: typ, Type: EdgeRelationship, Description: desc}, from != "" && to != ""
+}
+
+// references derives the links: what each entity's fields hold, what its prose mentions, what encloses what, and
+// the typed relationships. Only links between entities of the index are kept.
 // TRLC-LINKS: REQ-EMG-189
 func (w *entityWalker) references(idx *EntityIndex) {
-	known := w.byID
-	set := w.edges
 	for _, e := range idx.Entities {
-		for _, k := range sortedKeys(e.Fields) {
-			w.scan(e.ID, k, e.Fields[k], known, set)
-		}
+		w.scanFields(e)
 	}
+	w.keepRelationships()
+	idx.References = sortedReferences(w.edges)
+}
+
+// scanFields adds the references an entity's field values make.
+// TRLC-LINKS: REQ-EMG-189
+func (w *entityWalker) scanFields(e Entity) {
+	s := fieldScanner{from: e.ID, known: w.byID, set: w.edges}
+	for _, k := range sortedKeys(e.Fields) {
+		s.scan(k, e.Fields[k])
+	}
+}
+
+// keepRelationships adds the typed relationships whose two ends are entities of the index.
+// TRLC-LINKS: REQ-EMG-189
+func (w *entityWalker) keepRelationships() {
 	for _, r := range w.rels {
-		if _, ok := known[r.From]; !ok {
-			continue
+		if w.known(r.From) && w.known(r.To) {
+			w.edges[r] = struct{}{}
 		}
-		if _, ok := known[r.To]; !ok {
-			continue
-		}
-		set[r] = struct{}{}
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func (w *entityWalker) known(id string) bool {
+	_, ok := w.byID[id]
+	return ok
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func sortedReferences(set map[EntityReference]struct{}) []EntityReference {
 	out := make([]EntityReference, 0, len(set))
 	for r := range set {
 		out = append(out, r)
 	}
-	sort.Slice(out, func(i, j int) bool {
-		a, b := out[i], out[j]
-		if a.From != b.From {
-			return a.From < b.From
-		}
-		if a.To != b.To {
-			return a.To < b.To
-		}
-		if a.Via != b.Via {
-			return a.Via < b.Via
-		}
-		return a.Type < b.Type
-	})
-	idx.References = out
+	sort.Slice(out, func(i, j int) bool { return referenceLess(out[i], out[j]) })
+	return out
 }
 
 // TRLC-LINKS: REQ-EMG-189
-func (w *entityWalker) scan(from, via string, v any, known map[string]*Entity, set map[EntityReference]struct{}) {
+func referenceLess(a, b EntityReference) bool {
+	for _, p := range [][2]string{{a.From, b.From}, {a.To, b.To}, {a.Via, b.Via}} {
+		if p[0] != p[1] {
+			return p[0] < p[1]
+		}
+	}
+	return a.Type < b.Type
+}
+
+// fieldScanner finds the references one entity's field values make.
+type fieldScanner struct {
+	from  string
+	known map[string]*Entity
+	set   map[EntityReference]struct{}
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func (s fieldScanner) link(via, to, typ string) {
+	if _, ok := s.known[to]; ok && to != s.from {
+		s.set[EntityReference{From: s.from, To: to, Via: via, Type: typ}] = struct{}{}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func (s fieldScanner) scan(via string, v any) {
 	switch x := v.(type) {
 	case string:
-		if _, ok := known[x]; ok && x != from {
-			set[EntityReference{From: from, To: x, Via: via, Type: EdgeField}] = struct{}{}
-			return
-		}
-		for _, t := range idToken.FindAllString(x, -1) {
-			if _, ok := known[t]; ok && t != from {
-				set[EntityReference{From: from, To: t, Via: via, Type: EdgeMention}] = struct{}{}
-			}
-		}
+		s.scanString(via, x)
 	case []any:
 		for _, e := range x {
-			w.scan(from, via, e, known, set)
+			s.scan(via, e)
 		}
 	case map[string]any:
 		for _, k := range sortedKeys(x) {
-			w.scan(from, via, x[k], known, set)
+			s.scan(via, x[k])
 		}
+	}
+}
+
+// scanString reads a string that is exactly another entity's ID as a field reference, any other string for IDs
+// inside its prose.
+// TRLC-LINKS: REQ-EMG-189
+func (s fieldScanner) scanString(via, x string) {
+	if _, ok := s.known[x]; ok && x != s.from {
+		s.link(via, x, EdgeField)
+		return
+	}
+	for _, t := range idToken.FindAllString(x, -1) {
+		s.link(via, t, EdgeMention)
 	}
 }
 
@@ -324,7 +399,7 @@ func kindFor(key string, m map[string]any) string {
 	if k, ok := listKinds[key]; ok {
 		return k
 	}
-	return snakeSingular(key)
+	return singular(snake(key))
 }
 
 // TRLC-LINKS: REQ-EMG-189
@@ -337,20 +412,22 @@ func titleOf(id string, fields map[string]any) string {
 	return id
 }
 
+// snake turns a camelCase key into snake_case.
 // TRLC-LINKS: REQ-EMG-189
-func snakeSingular(key string) string {
+func snake(key string) string {
 	var b strings.Builder
 	for i, r := range key {
-		if r >= 'A' && r <= 'Z' {
-			if i > 0 {
-				b.WriteByte('_')
-			}
-			b.WriteRune(r + ('a' - 'A'))
-		} else {
-			b.WriteRune(r)
+		if unicode.IsUpper(r) && i > 0 {
+			b.WriteByte('_')
 		}
+		b.WriteRune(unicode.ToLower(r))
 	}
-	s := b.String()
+	return b.String()
+}
+
+// singular drops a plural ending: ies becomes y, a single s goes, ss stays.
+// TRLC-LINKS: REQ-EMG-189
+func singular(s string) string {
 	switch {
 	case strings.HasSuffix(s, "ies"):
 		return s[:len(s)-3] + "y"

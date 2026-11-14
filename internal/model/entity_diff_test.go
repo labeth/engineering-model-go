@@ -6,89 +6,98 @@ import (
 	"testing"
 )
 
-func ent(id, kind, parent string, fields map[string]any) Entity {
-	return Entity{ID: id, Kind: kind, Documents: []string{"requirements"}, Parent: parent, Title: id, Fields: fields}
+type entitySpec struct {
+	id, kind, parent string
+	fields           map[string]any
+}
+
+func entities(specs ...entitySpec) []Entity {
+	out := []Entity{}
+	for _, s := range specs {
+		out = append(out, Entity{ID: s.id, Kind: s.kind, Documents: []string{"requirements"}, Parent: s.parent, Title: s.id, Fields: s.fields})
+	}
+	return out
+}
+
+func req(id string, fields map[string]any) entitySpec {
+	return entitySpec{id: id, kind: "requirement", fields: fields}
+}
+
+func applies(from string) EntityReference {
+	return EntityReference{From: from, To: "FU-A", Via: "appliesTo", Type: EdgeField}
+}
+
+func changeIDs(l []EntityChange) []string {
+	out := []string{}
+	for _, c := range l {
+		out = append(out, c.ID)
+	}
+	return out
+}
+
+func sampleDiff() EntityDiff {
+	unit := entitySpec{id: "FU-A", kind: "functional_unit"}
+	from := EntityIndex{
+		Entities:   entities(req("REQ-1", map[string]any{"text": "a", "status": "proposed"}), req("REQ-2", map[string]any{"text": "b"}), req("REQ-3", map[string]any{"text": "c"}), unit),
+		References: []EntityReference{applies("REQ-1"), applies("REQ-3")},
+	}
+	to := EntityIndex{
+		Entities:   entities(req("REQ-1", map[string]any{"text": "a", "status": "approved", "priority": "high"}), req("REQ-2", map[string]any{"text": "b"}), req("REQ-4", map[string]any{"text": "d"}), unit),
+		References: []EntityReference{applies("REQ-1"), applies("REQ-4")},
+	}
+	return DiffEntityIndexes(from, to)
 }
 
 // TRLC-LINKS: REQ-EMG-190
-func TestDiffEntityIndexesAddedRemovedChangedAndReferences(t *testing.T) {
-	from := EntityIndex{
-		Entities: []Entity{
-			ent("REQ-1", "requirement", "", map[string]any{"text": "a", "status": "proposed"}),
-			ent("REQ-2", "requirement", "", map[string]any{"text": "b"}),
-			ent("REQ-3", "requirement", "", map[string]any{"text": "c"}),
-			ent("FU-A", "functional_unit", "", nil),
-		},
-		References: []EntityReference{
-			{From: "REQ-1", To: "FU-A", Via: "appliesTo", Type: EdgeField},
-			{From: "REQ-3", To: "FU-A", Via: "appliesTo", Type: EdgeField},
-		},
-	}
-	to := EntityIndex{
-		Entities: []Entity{
-			ent("REQ-1", "requirement", "", map[string]any{"text": "a", "status": "approved", "priority": "high"}),
-			ent("REQ-2", "requirement", "", map[string]any{"text": "b"}),
-			ent("REQ-4", "requirement", "", map[string]any{"text": "d"}),
-			ent("FU-A", "functional_unit", "", nil),
-		},
-		References: []EntityReference{
-			{From: "REQ-1", To: "FU-A", Via: "appliesTo", Type: EdgeField},
-			{From: "REQ-4", To: "FU-A", Via: "appliesTo", Type: EdgeField},
-		},
-	}
-	d := DiffEntityIndexes(from, to)
-	ids := func(l []EntityChange) []string {
-		out := []string{}
-		for _, c := range l {
-			out = append(out, c.ID)
-		}
-		return out
-	}
-	if got := ids(d.Added); !reflect.DeepEqual(got, []string{"REQ-4"}) {
-		t.Errorf("added %v", got)
-	}
-	if got := ids(d.Removed); !reflect.DeepEqual(got, []string{"REQ-3"}) {
-		t.Errorf("removed %v", got)
-	}
-	if len(d.Changed) != 1 || d.Changed[0].ID != "REQ-1" || !reflect.DeepEqual(d.Changed[0].Fields, []string{"priority", "status"}) {
-		t.Errorf("changed %+v: a field that is added and one that is edited both count, sorted", d.Changed)
-	}
-	if len(d.ReferencesAdded) != 1 || d.ReferencesAdded[0].From != "REQ-4" {
-		t.Errorf("references added %+v", d.ReferencesAdded)
-	}
-	// REQ-3 -> FU-A went with REQ-3: a removed entity takes its links with it, they are not reported again.
-	if len(d.ReferencesRemoved) != 0 {
-		t.Errorf("references removed %+v, want none", d.ReferencesRemoved)
-	}
+func TestDiffEntityIndexesAddedAndRemoved(t *testing.T) {
+	d := sampleDiff()
+	expect(t, reflect.DeepEqual(changeIDs(d.Added), []string{"REQ-4"}), "added %v", changeIDs(d.Added))
+	expect(t, reflect.DeepEqual(changeIDs(d.Removed), []string{"REQ-3"}), "removed %v", changeIDs(d.Removed))
+}
+
+// A field that is added and one that is edited both count, sorted; an untouched entity is not listed.
+// TRLC-LINKS: REQ-EMG-190
+func TestDiffEntityIndexesChangedFieldsAreSorted(t *testing.T) {
+	d := sampleDiff()
+	expect(t, reflect.DeepEqual(changeIDs(d.Changed), []string{"REQ-1"}), "changed %v", changeIDs(d.Changed))
+	expect(t, reflect.DeepEqual(d.Changed[0].Fields, []string{"priority", "status"}), "fields %v", d.Changed[0].Fields)
+}
+
+// REQ-3 -> FU-A went with REQ-3: a removed entity takes its links with it, they are not reported again.
+// TRLC-LINKS: REQ-EMG-190
+func TestDiffEntityIndexesReferences(t *testing.T) {
+	d := sampleDiff()
+	expect(t, reflect.DeepEqual(d.ReferencesAdded, []EntityReference{applies("REQ-4")}), "references added %+v", d.ReferencesAdded)
+	expect(t, len(d.ReferencesRemoved) == 0, "references removed %+v, want none", d.ReferencesRemoved)
 }
 
 // TRLC-LINKS: REQ-EMG-190
 func TestDiffEntityIndexesReportsAMoveAndALostLinkBetweenSurvivors(t *testing.T) {
+	machines := []entitySpec{{id: "SM-A", kind: "machine"}, {id: "SM-B", kind: "machine"}}
 	from := EntityIndex{
-		Entities:   []Entity{ent("S-1", "state", "SM-A", nil), ent("SM-A", "machine", "", nil), ent("SM-B", "machine", "", nil)},
+		Entities:   entities(append(machines, entitySpec{id: "S-1", kind: "state", parent: "SM-A"})...),
 		References: []EntityReference{{From: "SM-A", To: "SM-B", Via: "depends_on", Type: EdgeRelationship}},
 	}
-	to := EntityIndex{Entities: []Entity{ent("S-1", "transition", "SM-B", nil), ent("SM-A", "machine", "", nil), ent("SM-B", "machine", "", nil)}}
+	to := EntityIndex{Entities: entities(append(machines, entitySpec{id: "S-1", kind: "transition", parent: "SM-B"})...)}
 	d := DiffEntityIndexes(from, to)
-	if len(d.Changed) != 1 || !reflect.DeepEqual(d.Changed[0].Fields, []string{"(kind)", "(parent)"}) {
-		t.Errorf("a changed kind and parent are reported as (kind) and (parent): %+v", d.Changed)
-	}
-	if len(d.ReferencesRemoved) != 1 {
-		t.Errorf("a link between two surviving entities that is gone must be reported: %+v", d.ReferencesRemoved)
-	}
+	expect(t, reflect.DeepEqual(changeIDs(d.Changed), []string{"S-1"}), "changed %+v", d.Changed)
+	expect(t, reflect.DeepEqual(d.Changed[0].Fields, []string{"(kind)", "(parent)"}), "a changed kind and parent are reported as (kind) and (parent): %+v", d.Changed)
+	expect(t, len(d.ReferencesRemoved) == 1, "a link between two surviving entities that is gone must be reported: %+v", d.ReferencesRemoved)
 }
 
 // TRLC-LINKS: REQ-EMG-190
-func TestDiffOfAnIndexWithItselfIsEmptyAndNeverNil(t *testing.T) {
-	idx, err := BuildEntityIndex(loadSelf(t))
-	if err != nil {
-		t.Fatal(err)
-	}
+func TestDiffOfAnIndexWithItselfIsEmpty(t *testing.T) {
+	idx := selfIndex(t)
 	d := DiffEntityIndexes(idx, idx)
-	if len(d.Added)+len(d.Removed)+len(d.Changed)+len(d.ReferencesAdded)+len(d.ReferencesRemoved) != 0 {
-		t.Fatalf("an index differs from itself: %+v", d)
-	}
-	if d.Added == nil || d.Removed == nil || d.Changed == nil || d.ReferencesAdded == nil || d.ReferencesRemoved == nil {
-		t.Fatal("empty lists encode as [], never null")
+	total := len(d.Added) + len(d.Removed) + len(d.Changed) + len(d.ReferencesAdded) + len(d.ReferencesRemoved)
+	expect(t, total == 0, "an index differs from itself: %+v", d)
+}
+
+// Empty lists encode as [], never null.
+// TRLC-LINKS: REQ-EMG-190
+func TestDiffListsAreNeverNil(t *testing.T) {
+	d := DiffEntityIndexes(EntityIndex{}, EntityIndex{})
+	for name, nonNil := range map[string]bool{"added": d.Added != nil, "removed": d.Removed != nil, "changed": d.Changed != nil, "referencesAdded": d.ReferencesAdded != nil, "referencesRemoved": d.ReferencesRemoved != nil} {
+		expect(t, nonNil, "%s is nil", name)
 	}
 }

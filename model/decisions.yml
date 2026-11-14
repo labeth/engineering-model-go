@@ -2308,3 +2308,26 @@ decisions:
   - The tool and any other consumer get one stable list of entities and links instead of re-parsing YAML.
   - A kind that the table does not know is named by its key, which is readable but not a published contract until the owner decides.
   - The entity index is an additive public API of the root package; it changes nothing that exists.
+- id: ADR-EMG-080
+  title: A declaration index with definition lookup and a catalog usage list are engine features for tools that read code and the model
+  status: proposed
+  date: 2026-11-14
+  context: |-
+    The engineering tool shows source files with trace markers and lets a reader jump from a use of a function to its declaration. The
+    scan the engine has lists only declarations that carry a trace marker, because the trace needs only those. A reader needs all of
+    them. The tool also shows a catalog term with the requirements that use it; the engine decides that internally for
+    catalog.term_unreferenced but offers no list. Taken by the implementing agent under the owner's instruction that the tool may
+    upstream what it needs.
+  decision: |-
+    (1) internal/codemap lists every named declaration with the readers of the trace scan (tree-sitter), including every name of a
+    grouped Go type, var or const block and the last line of each declaration; ListCodeDeclarations applies the code scope of the
+    model. (2) FindCodeDefinitions ranks candidates for a name by closeness to the use (file, directory, nearby tree, elsewhere) and
+    puts test-only code after production code unless the use is in test code. It does not resolve scopes, imports or overloads: a
+    result is a candidate, and the tool says so. (3) CatalogUsage lists, for every catalog term, the requirements that name it by name
+    or alias on word boundaries (the EARS lint rule) and the entities that reference its ID. Covers REQ-EMG-192, REQ-EMG-193. OWNER
+    items: whether a language server should replace the candidate lookup later, and which languages beyond Go, TypeScript, JavaScript,
+    Python, Rust and Verilog the tool needs.
+  consequences:
+  - Go-to-definition works for the languages the scan reads, without a language server and without running project code.
+  - Name-only matching can offer wrong candidates for common names; the ranking and the candidate wording keep that visible.
+  - The catalog usage is derived from text, so a term named only by a paraphrase is shown as unused, as the lint also treats it.

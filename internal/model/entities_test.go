@@ -15,91 +15,124 @@ func loadSelf(t *testing.T) Bundle {
 	return b
 }
 
-// TRLC-LINKS: REQ-EMG-189
-func TestEntityIndexKindsDocumentsAndParents(t *testing.T) {
+func selfIndex(t *testing.T) EntityIndex {
+	t.Helper()
 	idx, err := BuildEntityIndex(loadSelf(t))
 	if err != nil {
 		t.Fatal(err)
 	}
-	cases := []struct{ id, kind string }{
-		{"REQ-EMG-001", "requirement"},
-		{"FU-MODEL-LOADER", "functional_unit"},
-		{"FG-MODEL-AUTHORING", "functional_group"},
-		{"CAP-EMG-MODEL-AUTHORING", "capability"},
-		{"SM-MODEL-VALIDATION", "machine"},
-		{"STATE-MODEL-VALID", "state"},
-		{"ADR-EMG-001", "decision"},
+	return idx
+}
+
+// expect fails the test when ok is false. what is a format string and its arguments.
+func expect(t *testing.T, ok bool, what ...any) {
+	t.Helper()
+	if !ok {
+		t.Errorf(what[0].(string), what[1:]...)
 	}
-	for _, c := range cases {
-		e, ok := idx.Find(c.id)
-		if !ok {
-			t.Fatalf("%s is not in the index", c.id)
+}
+
+func requireEntity(t *testing.T, idx EntityIndex, id string) Entity {
+	t.Helper()
+	e, ok := idx.Find(id)
+	if !ok {
+		t.Fatalf("%s is not in the index", id)
+	}
+	return e
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func TestEntityIndexKindsAndTitles(t *testing.T) {
+	idx := selfIndex(t)
+	cases := map[string]string{
+		"REQ-EMG-001":             "requirement",
+		"FU-MODEL-LOADER":         "functional_unit",
+		"FG-MODEL-AUTHORING":      "functional_group",
+		"CAP-EMG-MODEL-AUTHORING": "capability",
+		"SM-MODEL-VALIDATION":     "machine",
+		"STATE-MODEL-VALID":       "state",
+		"ADR-EMG-001":             "decision",
+	}
+	for id, kind := range cases {
+		e := requireEntity(t, idx, id)
+		expect(t, e.Kind == kind, "%s: kind %q, want %q", id, e.Kind, kind)
+		expect(t, e.Title != "", "%s has no title", id)
+	}
+}
+
+// A unit that the architecture defines and the catalog names is one entity in two documents; a state belongs to its
+// machine and nested entities are not fields of their parent.
+// TRLC-LINKS: REQ-EMG-189
+func TestEntityIndexDocumentsAndParents(t *testing.T) {
+	idx := selfIndex(t)
+	unit := requireEntity(t, idx, "FU-MODEL-LOADER")
+	expect(t, reflect.DeepEqual([]string{unit.Documents[0], unit.Documents[len(unit.Documents)-1]}, []string{"architecture", "catalog"}), "documents %v", unit.Documents)
+	expect(t, requireEntity(t, idx, "STATE-MODEL-VALID").Parent == "SM-MODEL-VALIDATION", "a state's parent is its machine")
+	machine := requireEntity(t, idx, "SM-MODEL-VALIDATION")
+	_, nested := machine.Fields["states"]
+	expect(t, !nested, "nested entities are entities of their own, not fields")
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func TestEntityIndexEntitiesAreUniqueAndNumerous(t *testing.T) {
+	idx := selfIndex(t)
+	expect(t, len(idx.Entities) >= 400, "the engine's own model has far more than %d entities", len(idx.Entities))
+	seen := map[string]bool{}
+	for _, e := range idx.Entities {
+		expect(t, !seen[e.ID], "duplicate entity %s", e.ID)
+		seen[e.ID] = true
+	}
+}
+
+func hasReference(idx EntityIndex, want EntityReference) bool {
+	for _, r := range idx.References {
+		r.Description = want.Description
+		if r == want {
+			return true
 		}
-		if e.Kind != c.kind {
-			t.Errorf("%s: kind %q, want %q", c.id, e.Kind, c.kind)
-		}
-		if e.Title == "" {
-			t.Errorf("%s has no title", c.id)
-		}
 	}
-	unit, _ := idx.Find("FU-MODEL-LOADER")
-	if len(unit.Documents) < 2 || unit.Documents[0] != "architecture" || unit.Documents[len(unit.Documents)-1] != "catalog" {
-		t.Errorf("a unit the architecture defines and the catalog names is one entity in both documents, got %v", unit.Documents)
-	}
-	state, _ := idx.Find("STATE-MODEL-VALID")
-	if state.Parent != "SM-MODEL-VALIDATION" {
-		t.Errorf("a state's parent is its machine, got %q", state.Parent)
-	}
-	if _, nested := unit.Fields["states"]; nested {
-		t.Error("nested entities are entities of their own, not fields")
+	return false
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func TestEntityIndexReferencesAreBetweenKnownEntities(t *testing.T) {
+	idx := selfIndex(t)
+	for _, r := range idx.References {
+		_, from := idx.Find(r.From)
+		_, to := idx.Find(r.To)
+		expect(t, from && to && r.From != r.To, "reference %+v has an unknown end or points at itself", r)
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-189
-func TestEntityIndexReferencesAreBetweenKnownEntitiesAndTyped(t *testing.T) {
-	idx, err := BuildEntityIndex(loadSelf(t))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(idx.Entities) < 400 {
-		t.Fatalf("the engine's own model has far more than %d entities", len(idx.Entities))
-	}
-	seen := map[string]bool{}
-	for _, e := range idx.Entities {
-		if seen[e.ID] {
-			t.Fatalf("duplicate entity %s", e.ID)
-		}
-		seen[e.ID] = true
-	}
+func TestEntityIndexHasAllFourEdgeTypes(t *testing.T) {
+	idx := selfIndex(t)
 	types := map[string]int{}
 	for _, r := range idx.References {
-		if !seen[r.From] || !seen[r.To] {
-			t.Fatalf("reference %+v has an unknown end", r)
-		}
-		if r.From == r.To {
-			t.Fatalf("self reference %+v", r)
-		}
 		types[r.Type]++
 	}
 	for _, want := range []string{EdgeField, EdgeMention, EdgeContains, EdgeRelationship} {
-		if types[want] == 0 {
-			t.Errorf("no %s edge in the engine's own model: %v", want, types)
+		expect(t, types[want] > 0, "no %s edge in the engine's own model: %v", want, types)
+	}
+	expect(t, types[EdgeRelationship] > 0 && hasVia(idx, "depends_on"), "the model states depends_on relationships")
+}
+
+func hasVia(idx EntityIndex, via string) bool {
+	for _, r := range idx.References {
+		if r.Type == EdgeRelationship && r.Via == via {
+			return true
 		}
 	}
-	has := func(from, to, via, typ string) bool {
-		for _, r := range idx.References {
-			if r.From == from && r.To == to && r.Via == via && r.Type == typ {
-				return true
-			}
-		}
-		return false
-	}
-	if !has("REQ-EMG-001", "FU-MODEL-LOADER", "appliesTo", EdgeField) {
-		t.Error("a requirement refers to its unit through appliesTo")
-	}
-	if !has("SM-MODEL-VALIDATION", "STATE-MODEL-VALID", EdgeContains, EdgeContains) {
-		t.Error("a machine contains its states")
-	}
+	return false
+}
+
+// TRLC-LINKS: REQ-EMG-189
+func TestEntityIndexKnownReferences(t *testing.T) {
+	idx := selfIndex(t)
+	field := EntityReference{From: "REQ-EMG-001", To: "FU-MODEL-LOADER", Via: "appliesTo", Type: EdgeField}
+	contains := EntityReference{From: "SM-MODEL-VALIDATION", To: "STATE-MODEL-VALID", Via: EdgeContains, Type: EdgeContains}
+	expect(t, hasReference(idx, field), "a requirement refers to its unit through appliesTo")
+	expect(t, hasReference(idx, contains), "a machine contains its states")
 }
 
 // TRLC-LINKS: REQ-EMG-189
@@ -111,25 +144,6 @@ func TestEntityIndexIsDeterministic(t *testing.T) {
 	}
 	for i := 0; i < 3; i++ {
 		c, _ := BuildEntityIndex(b)
-		if !reflect.DeepEqual(a, c) {
-			t.Fatalf("run %d produced a different index", i)
-		}
-	}
-}
-
-// TRLC-LINKS: REQ-EMG-189
-func TestEntityIndexTypedRelationshipsKeepTheirDescription(t *testing.T) {
-	idx, err := BuildEntityIndex(loadSelf(t))
-	if err != nil {
-		t.Fatal(err)
-	}
-	n := 0
-	for _, r := range idx.References {
-		if r.Type == EdgeRelationship && r.Via == "depends_on" {
-			n++
-		}
-	}
-	if n == 0 {
-		t.Fatal("the engine's own model states depends_on relationships")
+		expect(t, reflect.DeepEqual(a, c), "run %d produced a different index", i)
 	}
 }

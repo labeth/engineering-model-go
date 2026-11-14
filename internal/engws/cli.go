@@ -210,10 +210,11 @@ usage (and,
 for contract-diff and release-check, a git, IO or model error)
 `
 
-// Main runs engws with args (without the program name) and returns the exit code.
+// parseGlobalFlags reads the flags before the command and splits off the command. It reports done with the exit
+// code when the arguments are help, an error or have no command.
 // TRLC-LINKS: REQ-EMG-068
-// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
-func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry Registry) int {
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func parseGlobalFlags(args []string, stdout, stderr io.Writer) (command string, rest []string, root string, done bool, code int) {
 	global := flag.NewFlagSet("engws", flag.ContinueOnError)
 	global.SetOutput(io.Discard)
 	rootFlag := global.String("root", "", "workspace root")
@@ -222,15 +223,29 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	if err := global.Parse(args); err != nil || *help || global.NArg() == 0 {
 		if *help {
 			fmt.Fprint(stdout, Usage)
-			return 0
+			return "", nil, "", true, 0
 		}
 		if err != nil {
 			fmt.Fprintln(stderr, "engws:", err)
 		}
 		fmt.Fprint(stderr, Usage)
-		return 2
+		return "", nil, "", true, 2
 	}
-	command, rest := global.Arg(0), global.Args()[1:]
+	return global.Arg(0), global.Args()[1:], *rootFlag, false, 0
+}
+
+// Main runs engws with args (without the program name) and returns the exit code.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry Registry) int {
+	command, rest, rootArg, done, exit := parseGlobalFlags(args, stdout, stderr)
+	if done {
+		return exit
+	}
+	rootFlag := &rootArg
+	if command == "model-diff" {
+		return runModelDiffCommand(rest, stdout, stderr)
+	}
 
 	sub := flag.NewFlagSet("engws "+command, flag.ContinueOnError)
 	sub.SetOutput(io.Discard)
@@ -246,7 +261,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	show := sub.Bool("show", false, "")
 	repoFlag := sub.String("repo", ".", "")
 	asJSON := sub.Bool("json", false, "")
-	noTrace := sub.Bool("no-trace", false, "")
 	accept := sub.String("accept", "", "")
 	by := sub.String("by", "", "")
 	rationale := sub.String("rationale", "", "")
@@ -261,14 +275,11 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 2
 	}
 	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
-		"review-links": 0, "contract-diff": 2, "model-diff": 1, "release-check": 0, "link": 2, "status-suggest": 0}
+		"review-links": 0, "contract-diff": 2, "release-check": 0, "link": 2, "status-suggest": 0}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
 		return 2
-	}
-	if command == "model-diff" && len(positional) == 2 {
-		n = 2
 	}
 	if len(positional) != n {
 		fmt.Fprintf(stderr, "engws %s: expected %d argument(s), got %d\n%s", command, n, len(positional), Usage)
@@ -318,17 +329,6 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	}
 	if command == "release-check" {
 		code, err := runReleaseCheck(*repoFlag, strings.TrimSpace(*tag), stdout)
-		if err != nil {
-			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
-		}
-		return code
-	}
-	if command == "model-diff" {
-		toRef := ""
-		if len(positional) == 2 {
-			toRef = positional[1]
-		}
-		code, err := runModelDiff(*repoFlag, positional[0], toRef, *asJSON, *noTrace, stdout)
 		if err != nil {
 			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 		}

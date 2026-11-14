@@ -536,6 +536,18 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-078';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-079";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-079';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-080";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-080';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -4812,6 +4824,51 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-188' {
         attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a Go state-like type that no machine models and no comment explains.";
         attribute 'notes' : 'String' = "ADR-EMG-070. code.state_candidate_unlinked, row DDWWE with the error at operational only for the narrow rule. A candidate is a Go named type with three or more constants of that type, a struct field of that type and an assignment to that field in non-test code. Names ending in Kind, Severity, Format, Type, Reason, Mode and Option are never reported. A candidate is cleared by naming a machine or one of its states or transitions in a model link marker on or within three lines above the declaration, or by the comment ENGMODEL-NOT-A-STATE: followed by a reason of at least 20 characters that is not a placeholder. A suppression with no reason is the untiered error code.state_suppression_unreasoned and a suppression on a declaration that is not a candidate, or that is linked, is code.state_suppression_unused (row WWWWE). Go is the only language.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-189";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-189' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall list every authored entity of the model with its kind, document, parent and fields and every reference between entities.";
+        attribute 'notes' : 'String' = "ADR-EMG-079. BuildEntityIndex reads the bundle documents generically, so a kind that a later schema adds is listed without a code change. A reference is a field that holds exactly another entity ID, an ID inside prose, containment (a machine contains its states) or a typed behavior relationship. The order is deterministic.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-190";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-190' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report the entities added, removed and changed between two git revisions of a model or between a revision and the working tree.";
+        attribute 'notes' : 'String' = "ADR-EMG-079. engws model-diff FROM [TO] reads each side with the loader that tolerates earlier schemas, compares fields by stable ID, and never writes to the repository. A ref that git could read as an option and an unknown ref are usage errors (exit 2).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-191";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-191' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report which requirements gained code, gained a test, became orphans or stopped being orphans between two revisions.";
+        attribute 'notes' : 'String' = "ADR-EMG-079. A requirement is traced when code or a verification links it. A requirement removed in the later revision is not reported. A trace that cannot be computed on one side is recorded as the trace error of the diff and does not fail the entity diff; engws model-diff --no-trace skips the code scan.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-192";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-192' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall list every named declaration of the code scope with its kind, language, path and lines.";
+        attribute 'notes' : 'String' = "ADR-EMG-080. ListCodeDeclarations reads the files of the model code scope (git-ignored files, inferenceHints.exclude and nested modules left out) with the tree-sitter readers of the trace scan, whether or not a trace marker is attached, and FindCodeDefinitions ranks the candidates a use may refer to by closeness. Names are matched exactly; scopes, imports and overloads are not resolved, so a result is a candidate.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-193";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-193' {
+        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall list every catalog term with the requirements that name it and the entities that reference it.";
+        attribute 'notes' : 'String' = "ADR-EMG-080. A requirement names a term when the term name or an alias occurs in its text on word boundaries, the rule of the EARS lint; an entity references a term when a field holds its ID or its prose mentions the ID.";
     }
 
     @EngineeringElement {

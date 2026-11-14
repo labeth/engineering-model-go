@@ -1675,3 +1675,21 @@ requirements:
       - FU-ALLOCATION-TRACE
       - FU-CLI-ORCHESTRATION
     realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-192
+    status: implemented
+    text: When model updated event is received, the engineering model go shall list every named declaration of the code scope with its kind, language, path and lines.
+    notes: 'ADR-EMG-080. ListCodeDeclarations reads the files of the model code scope (git-ignored files, inferenceHints.exclude and nested modules left out) with the tree-sitter readers of the trace scan, whether or not a trace marker is attached, and FindCodeDefinitions ranks the candidates a use may refer to by closeness. Names are matched exactly; scopes, imports and overloads are not resolved, so a result is a candidate.'
+    verificationMethods: [test]
+    verificationCriteria: A Go file with a type block, a const block, a var with two names, a method, a marked and an unmarked function lists each name once with its kind and its line, the last line of a function is reported, a test file marks its declarations test-only, TypeScript and Python declarations are read, dependency caches and dot-directories are skipped, and a use ranks a declaration of the same file before the same directory before elsewhere and production code before test code.
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-193
+    status: implemented
+    text: When model updated event is received, the engineering model go shall list every catalog term with the requirements that name it and the entities that reference it.
+    notes: 'ADR-EMG-080. A requirement names a term when the term name or an alias occurs in its text on word boundaries, the rule of the EARS lint; an entity references a term when a field holds its ID or its prose mentions the ID.'
+    verificationMethods: [test]
+    verificationCriteria: A requirement that names a term by its name or an alias is listed for that term, a longer word that contains the name is not, an entity that holds the term ID is listed as a reference, a term nothing uses has empty lists, and every term of this repository is listed once.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+    realizes: [CAP-EMG-TRACEABILITY]

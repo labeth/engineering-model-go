@@ -35,54 +35,95 @@ type EntityDiff struct {
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
 func DiffEntityIndexes(from, to EntityIndex) EntityDiff {
 	d := EntityDiff{Added: []EntityChange{}, Removed: []EntityChange{}, Changed: []EntityChange{}, ReferencesAdded: []EntityReference{}, ReferencesRemoved: []EntityReference{}}
-	before := make(map[string]Entity, len(from.Entities))
-	for _, e := range from.Entities {
-		before[e.ID] = e
-	}
-	after := make(map[string]Entity, len(to.Entities))
-	for _, e := range to.Entities {
-		after[e.ID] = e
-		old, existed := before[e.ID]
-		if !existed {
-			d.Added = append(d.Added, changeOf(e, nil))
-			continue
-		}
-		if fields := differingFields(old, e); len(fields) > 0 {
-			d.Changed = append(d.Changed, changeOf(e, fields))
-		}
-	}
-	for _, e := range from.Entities {
-		if _, kept := after[e.ID]; !kept {
-			d.Removed = append(d.Removed, changeOf(e, nil))
-		}
-	}
-	oldRefs := make(map[EntityReference]struct{}, len(from.References))
-	for _, r := range from.References {
-		oldRefs[r] = struct{}{}
-	}
-	newRefs := make(map[EntityReference]struct{}, len(to.References))
-	for _, r := range to.References {
-		newRefs[r] = struct{}{}
-		if _, had := oldRefs[r]; !had {
-			d.ReferencesAdded = append(d.ReferencesAdded, r)
-		}
-	}
-	for _, r := range from.References {
-		if _, has := newRefs[r]; has {
-			continue
-		}
-		if _, ok := after[r.From]; !ok {
-			continue
-		}
-		if _, ok := after[r.To]; !ok {
-			continue
-		}
-		d.ReferencesRemoved = append(d.ReferencesRemoved, r)
-	}
+	d.compareEntities(from.Entities, to.Entities)
+	d.compareReferences(from.References, to.References, entitySet(to.Entities))
 	for _, list := range [][]EntityChange{d.Added, d.Removed, d.Changed} {
 		sort.Slice(list, func(i, j int) bool { return list[i].ID < list[j].ID })
 	}
 	return d
+}
+
+// TRLC-LINKS: REQ-EMG-190
+func entitiesByID(list []Entity) map[string]Entity {
+	out := make(map[string]Entity, len(list))
+	for _, e := range list {
+		out[e.ID] = e
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-190
+func entitySet(list []Entity) map[string]struct{} {
+	out := make(map[string]struct{}, len(list))
+	for _, e := range list {
+		out[e.ID] = struct{}{}
+	}
+	return out
+}
+
+// compareEntities fills Added, Removed and Changed.
+// TRLC-LINKS: REQ-EMG-190
+func (d *EntityDiff) compareEntities(from, to []Entity) {
+	d.addedAndChanged(entitiesByID(from), to)
+	d.removed(from, entitySet(to))
+}
+
+// TRLC-LINKS: REQ-EMG-190
+func (d *EntityDiff) addedAndChanged(before map[string]Entity, to []Entity) {
+	for _, e := range to {
+		old, existed := before[e.ID]
+		switch fields := differingFields(old, e); {
+		case !existed:
+			d.Added = append(d.Added, changeOf(e, nil))
+		case len(fields) > 0:
+			d.Changed = append(d.Changed, changeOf(e, fields))
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-190
+func (d *EntityDiff) removed(from []Entity, after map[string]struct{}) {
+	for _, e := range from {
+		if _, kept := after[e.ID]; !kept {
+			d.Removed = append(d.Removed, changeOf(e, nil))
+		}
+	}
+}
+
+// compareReferences fills the reference lists. A link of a removed entity goes with the entity, so a removed link is
+// reported only when both of its ends exist in the later state.
+// TRLC-LINKS: REQ-EMG-190
+func (d *EntityDiff) compareReferences(from, to []EntityReference, existing map[string]struct{}) {
+	d.ReferencesAdded = append(d.ReferencesAdded, referencesNotIn(to, referenceSet(from), nil)...)
+	d.ReferencesRemoved = append(d.ReferencesRemoved, referencesNotIn(from, referenceSet(to), existing)...)
+}
+
+// referencesNotIn lists the references of list that are not in the set, and, when existing is given, whose two ends exist.
+// TRLC-LINKS: REQ-EMG-190
+func referencesNotIn(list []EntityReference, set map[EntityReference]struct{}, existing map[string]struct{}) []EntityReference {
+	var out []EntityReference
+	for _, r := range list {
+		if _, in := set[r]; !in && (existing == nil || bothExist(existing, r)) {
+			out = append(out, r)
+		}
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-190
+func referenceSet(list []EntityReference) map[EntityReference]struct{} {
+	out := make(map[EntityReference]struct{}, len(list))
+	for _, r := range list {
+		out[r] = struct{}{}
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-190
+func bothExist(existing map[string]struct{}, r EntityReference) bool {
+	_, from := existing[r.From]
+	_, to := existing[r.To]
+	return from && to
 }
 
 // TRLC-LINKS: REQ-EMG-190

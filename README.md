@@ -1552,10 +1552,15 @@ model v1.0.0..v1.1.0
 trace: gained code REQ-A-001; gained tests REQ-A-001; new orphans REQ-A-005; resolved orphans REQ-A-001
 ```
 
-The root package offers the same as `DiffModels(repo, fromRef, toRef, ModelDiffOptions{Trace: true})`,
+The root package offers the same as `DiffModels(ModelDiffRequest{Repo: repo, From: fromRef, To: toRef, Trace: true})`,
 and `BuildEntityIndex(bundle)` lists every entity with its kind, documents, parent and fields and
 every reference between entities (a field holding another ID, an ID in prose, containment, a typed
 relationship), in a deterministic order, for tools that show or compare a model (ADR-EMG-079).
+
+For tools that read code and the model, the root package also offers `ListCodeDeclarations` (every named declaration of the
+code scope, marked or not, with kind, language, path and lines), `FindCodeDefinitions` (the candidates a use of a name may refer
+to, best first; names are matched exactly, scopes and imports are not resolved) and `CatalogUsage` (each catalog term with the
+requirements that name it and the entities that reference it) (ADR-EMG-080).
 
 **`engws release-check [--repo DIR] [--tag vX.Y.Z]`** is the release gate. This repository's
 CI runs it on every `v*` tag (`release-check` job of `.github/workflows/ci.yml`); in a

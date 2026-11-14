@@ -50,8 +50,7 @@ func CheckRef(repo, ref string) error {
 // TRLC-LINKS: REQ-EMG-102, REQ-EMG-103, REQ-EMG-186, REQ-EMG-190
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-MODEL-LOADER
 func WriteModelAtRef(repo, ref, dest string) error {
-	show := func(rel string) ([]byte, error) { return Output(repo, "show", ref+":./"+rel) }
-	manifest, err := show("engmod.yml")
+	manifest, err := Output(repo, "show", ref+":./engmod.yml")
 	if err != nil {
 		return fmt.Errorf("%s has no engmod.yml at %s: %w", repo, ref, err)
 	}
@@ -61,39 +60,67 @@ func WriteModelAtRef(repo, ref, dest string) error {
 	if err := yaml.Unmarshal(manifest, &meta); err != nil {
 		return fmt.Errorf("engmod.yml at %s: %w", ref, err)
 	}
-	if err := os.MkdirAll(dest, 0o700); err != nil {
+	if err := writePrivate(filepath.Join(dest, "engmod.yml"), StampCurrentVersion(manifest)); err != nil {
 		return err
 	}
-	if err := os.WriteFile(filepath.Join(dest, "engmod.yml"), StampCurrentVersion(manifest), 0o600); err != nil {
-		return err
-	}
-	keys := make([]string, 0, len(meta.Documents))
-	for key := range meta.Documents {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	for _, key := range keys {
-		rel := meta.Documents[key]
-		clean := path.Clean(filepath.ToSlash(strings.TrimSpace(rel)))
-		if clean == "." || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") {
-			return fmt.Errorf("engmod.yml at %s: documents.%s %q leaves the model directory", ref, key, rel)
-		}
-		data, err := show(clean)
-		if err != nil {
-			return fmt.Errorf("documents.%s at %s: %w", key, ref, err)
-		}
-		if data, err = historicDocument(key, data); err != nil {
-			return fmt.Errorf("documents.%s at %s: %w", key, ref, err)
-		}
-		out := filepath.Join(dest, filepath.FromSlash(clean))
-		if err := os.MkdirAll(filepath.Dir(out), 0o700); err != nil {
-			return err
-		}
-		if err := os.WriteFile(out, data, 0o600); err != nil {
+	rev := revision{repo: repo, ref: ref}
+	for _, key := range sortedKeys(meta.Documents) {
+		if err := rev.writeDocument(dest, manifestDocument{key: key, rel: meta.Documents[key]}); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+// revision is a repository at a ref.
+type revision struct{ repo, ref string }
+
+// manifestDocument is one entry of the manifest's documents map.
+type manifestDocument struct{ key, rel string }
+
+// writeDocument copies the document the manifest names, refusing a path that leaves the model directory.
+// TRLC-LINKS: REQ-EMG-102, REQ-EMG-103, REQ-EMG-186, REQ-EMG-190
+func (v revision) writeDocument(dest string, doc manifestDocument) error {
+	clean := path.Clean(filepath.ToSlash(strings.TrimSpace(doc.rel)))
+	if !insideTree(clean) {
+		return fmt.Errorf("engmod.yml at %s: documents.%s %q leaves the model directory", v.ref, doc.key, doc.rel)
+	}
+	data, err := Output(v.repo, "show", v.ref+":./"+clean)
+	if err != nil {
+		return fmt.Errorf("documents.%s at %s: %w", doc.key, v.ref, err)
+	}
+	if data, err = historicDocument(doc.key, data); err != nil {
+		return fmt.Errorf("documents.%s at %s: %w", doc.key, v.ref, err)
+	}
+	return writePrivate(filepath.Join(dest, filepath.FromSlash(clean)), data)
+}
+
+// insideTree reports whether a cleaned slash path names something below the directory it is relative to.
+// TRLC-LINKS: REQ-EMG-190
+func insideTree(clean string) bool {
+	if clean == "." || clean == ".." || path.IsAbs(clean) {
+		return false
+	}
+	return !strings.HasPrefix(clean, "../")
+}
+
+// writePrivate writes a file with its directories, readable by the owner only.
+// TRLC-LINKS: REQ-EMG-190
+func writePrivate(name string, data []byte) error {
+	if err := os.MkdirAll(filepath.Dir(name), 0o700); err != nil {
+		return err
+	}
+	return os.WriteFile(name, data, 0o600)
+}
+
+// TRLC-LINKS: REQ-EMG-190
+func sortedKeys(m map[string]string) []string {
+	keys := make([]string, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 // LoadBundleAtRef loads the model in repo as committed at a git ref, from a private temporary copy that is
@@ -140,27 +167,9 @@ func CheckoutAtRef(repo, ref string) (dir string, cleanup func(), err error) {
 		return "", nil, err
 	}
 	cleanup = func() { os.RemoveAll(tmp) }
-	cmd := exec.Command("git", "-C", repo, "archive", "--format=tar", ref)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	pipe, err := cmd.StdoutPipe()
-	if err != nil {
+	if err := archiveInto(repo, ref, tmp); err != nil {
 		cleanup()
 		return "", nil, err
-	}
-	if err := cmd.Start(); err != nil {
-		cleanup()
-		return "", nil, err
-	}
-	if err := extractTar(pipe, tmp); err != nil {
-		_ = cmd.Process.Kill()
-		_ = cmd.Wait()
-		cleanup()
-		return "", nil, fmt.Errorf("git archive %s: %w", ref, err)
-	}
-	if err := cmd.Wait(); err != nil {
-		cleanup()
-		return "", nil, fmt.Errorf("git archive %s: %v: %s", ref, err, strings.TrimSpace(stderr.String()))
 	}
 	if err := WriteModelAtRef(repo, ref, tmp); err != nil {
 		cleanup()
@@ -169,12 +178,36 @@ func CheckoutAtRef(repo, ref string) (dir string, cleanup func(), err error) {
 	return tmp, cleanup, nil
 }
 
+// archiveInto streams git archive of ref into dest.
+// TRLC-LINKS: REQ-EMG-190
+func archiveInto(repo, ref, dest string) error {
+	cmd := exec.Command("git", "-C", repo, "archive", "--format=tar", ref)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	pipe, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	if err := extractTar(pipe, dest); err != nil {
+		_ = cmd.Process.Kill()
+		_ = cmd.Wait()
+		return fmt.Errorf("git archive %s: %w", ref, err)
+	}
+	if err := cmd.Wait(); err != nil {
+		return fmt.Errorf("git archive %s: %v: %s", ref, err, strings.TrimSpace(stderr.String()))
+	}
+	return nil
+}
+
+// extractTar writes the directories and regular files of a tar stream below dest, within the limits of a checkout.
 // TRLC-LINKS: REQ-EMG-190
 func extractTar(r io.Reader, dest string) error {
 	tr := tar.NewReader(r)
 	var total int64
-	entries := 0
-	for {
+	for entries := 1; ; entries++ {
 		h, err := tr.Next()
 		if err == io.EOF {
 			return nil
@@ -182,39 +215,49 @@ func extractTar(r io.Reader, dest string) error {
 		if err != nil {
 			return err
 		}
-		if entries++; entries > maxCheckoutEntries {
+		if entries > maxCheckoutEntries {
 			return fmt.Errorf("more than %d entries", maxCheckoutEntries)
 		}
-		name := path.Clean(h.Name)
-		if name == "." || path.IsAbs(name) || name == ".." || strings.HasPrefix(name, "../") {
-			continue
+		if total += h.Size; total > maxCheckoutBytes {
+			return fmt.Errorf("more than %d bytes", int64(maxCheckoutBytes))
 		}
-		target := filepath.Join(dest, filepath.FromSlash(name))
-		switch h.Typeflag {
-		case tar.TypeDir:
-			if err := os.MkdirAll(target, 0o700); err != nil {
-				return err
-			}
-		case tar.TypeReg:
-			if total += h.Size; total > maxCheckoutBytes {
-				return fmt.Errorf("more than %d bytes", int64(maxCheckoutBytes))
-			}
-			if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
-				return err
-			}
-			f, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
-			if err != nil {
-				return err
-			}
-			if _, err := io.Copy(f, io.LimitReader(tr, h.Size)); err != nil {
-				f.Close()
-				return err
-			}
-			if err := f.Close(); err != nil {
-				return err
-			}
+		if err := extractEntry(tr, h, dest); err != nil {
+			return err
 		}
 	}
+}
+
+// extractEntry writes one tar entry if it is a directory or a regular file whose name stays below dest.
+// TRLC-LINKS: REQ-EMG-190
+func extractEntry(tr *tar.Reader, h *tar.Header, dest string) error {
+	name := path.Clean(h.Name)
+	if !insideTree(name) {
+		return nil
+	}
+	target := filepath.Join(dest, filepath.FromSlash(name))
+	switch h.Typeflag {
+	case tar.TypeDir:
+		return os.MkdirAll(target, 0o700)
+	case tar.TypeReg:
+		return copyEntry(tr, h.Size, target)
+	}
+	return nil
+}
+
+// TRLC-LINKS: REQ-EMG-190
+func copyEntry(r io.Reader, size int64, target string) error {
+	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
+		return err
+	}
+	f, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(f, io.LimitReader(r, size)); err != nil {
+		f.Close()
+		return err
+	}
+	return f.Close()
 }
 
 // topLevelSchemaVersion matches the top-level schemaVersion line of a document: the key at the start of a

@@ -744,6 +744,10 @@ assurance:
       ref: REQ-EMG-190
     - code: lifecycle.requirement_unverified
       ref: REQ-EMG-191
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-192
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-193
   - id: POAM-CONSISTENCY-MODEL-ONLY
     riskRef: RISK-TRACEABILITY-DRIFT
     milestone: tier:operational
@@ -1164,6 +1168,10 @@ assurance:
       ref: REQ-EMG-190
     - code: behavior.requirement_unmodeled
       ref: REQ-EMG-191
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-192
+    - code: behavior.requirement_unmodeled
+      ref: REQ-EMG-193
   trustBoundaries:
   - id: TB-REPO-WORKSPACE
     name: Repository Workspace Boundary

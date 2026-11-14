@@ -70,6 +70,17 @@ type declaration struct {
 	TestOnly     bool
 	Gates        []string
 	Benchmark    bool
+	// EndLine is the last line of the declaration (0 when the language reader does not know it).
+	EndLine int
+	// Further holds the other names a grouped Go declaration (type, var or const block) declares, each at its own line.
+	Further []declaredName
+}
+
+// declaredName is one more name that a grouped declaration declares.
+type declaredName struct {
+	Name    string
+	Line    int
+	EndLine int
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -136,7 +147,7 @@ func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagno
 			name := d.Name()
 			// Skip dependency caches and dot-directories (tool caches, .engmod) so the
 			// scan reflects only committed source and is reproducible across environments.
-			if name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.') {
+			if skipDirectory(name) {
 				return filepath.SkipDir
 			}
 			if path != absRoot && opts.Skip != nil && opts.Skip(path, true) {
@@ -423,64 +434,19 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 
 	out := []declaration{}
 	commentLines := map[int]bool{}
+	reader := declarationReader{ext: ext, path: path, src: src, spec: spec}
 	var visit func(n *sitter.Node)
 	visit = func(n *sitter.Node) {
 		if n == nil {
 			return
 		}
-		if n.IsNamed() && strings.Contains(n.Kind(), "comment") && (ext != ".py" || pythonStandaloneComment(n, src)) {
-			start := int(n.StartPosition().Row) + 1
-			end := int(n.EndPosition().Row) + 1
-			for line := start; line <= end; line++ {
-				commentLines[line] = true
-			}
-		}
-		if isJavaScript(ext) {
-			if decl, ok := javascriptDeclaration(n, src); ok {
-				out = append(out, decl)
-			}
-		} else if ext == ".py" {
-			if decl, ok := pythonDeclaration(n, src); ok {
-				if isPythonTestFile(path) {
-					decl.TestOnly = true
-					decl.IsTest = pythonTestFunction(n, src)
-				}
-				out = append(out, decl)
-			}
-		} else if n.IsNamed() && spec.DeclarationKind[n.Kind()] {
-			name := declarationName(n, src)
-			line := int(n.StartPosition().Row) + 1
-			signature := firstLine(strings.TrimSpace(n.Utf8Text(src)))
-			if name != "" {
-				d := declaration{
-					Name:         name,
-					Kind:         n.Kind(),
-					Line:         line,
-					Signature:    signature,
-					RequiresTRLC: spec.TraceRequiredKind[n.Kind()],
-				}
-				switch ext {
-				case ".go":
-					if isGoTestFile(path) {
-						d.TestOnly = true
-						d.IsTest = goTestFunction(n, name)
-						if d.IsTest {
-							d.Gates = goTestGates(n, src)
-							d.Benchmark = strings.HasPrefix(name, "Benchmark")
-						}
-					}
-				case ".rs":
-					d.IsTest = rustTestFunction(n, src)
-					d.Benchmark = d.IsTest && rustBenchFunction(n, src)
-					d.TestOnly = d.IsTest || rustInTestScope(n, src)
-				}
-				out = append(out, d)
-			}
+		reader.noteComment(n, commentLines)
+		if d, ok := reader.read(n); ok {
+			out = append(out, d)
 		}
 		count := n.NamedChildCount()
 		for i := uint(0); i < count; i++ {
-			child := n.NamedChild(i)
-			visit(child)
+			visit(n.NamedChild(i))
 		}
 	}
 	visit(root)

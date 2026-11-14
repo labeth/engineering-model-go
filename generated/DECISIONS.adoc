@@ -2498,6 +2498,71 @@ health baseline entries of the removed code leave the baseline. Covers REQ-EMG-1
 - The engineering-flow wrapper and skill text that mention migrate-links change in the flow's own slice.
 - Phase 4 of the removal plan is complete in the engine.
 
+[[ADR-EMG-079]]
+== ADR-EMG-079: A generic entity index and a model diff between revisions are engine features for tools that read the model
+
+Status:: proposed
+Date:: 2026-11-14
+
+=== Context
+
+The engineering tool (a local web GUI for people who direct an AI agent) must show what a model contains and what changed since a
+baseline (a tag, main, or the working tree). The engine had the trace matrix and composition but no list of all authored entities
+with their links, and no diff of a model between revisions; the throwaway mockup computed both in Python from regexes, which the
+real tool must not do. The semantic model of the SysML export is a different shape (it renders, it does not list authored IDs).
+The owner instructed that whatever the tool needs may be upstreamed into the engine and that decisions taken here are recorded as
+proposed for review. Taken by the implementing agent under that instruction.
+
+=== Decision
+
+(1) BuildEntityIndex walks the loaded bundle documents generically: every list of mappings that carry an id is a list of entities,
+kinds come from a table of list keys that matches the MCP kinds with snake_case singular as the fallback, so an added list is
+visible without a code change. (2) References are field, mention, contains and relationship edges; only edges between known
+entities are kept. (3) The loader that reads a model at a git revision, tolerant of earlier schemas, moves from internal/engws to
+internal/gitmodel so the root package can use it without importing the CLI; engws keeps thin wrappers. (4) DiffModels compares the
+entity indexes of two revisions field by field and, optionally, the trace matrices (a delta of gained code, gained tests and
+orphans); a trace failure is recorded, not fatal. (5) engws model-diff exposes it with --json and --no-trace. Nothing reads or
+writes outside the repository and the extraction of a revision skips links and names that leave the destination. Covers REQ-EMG-189,
+REQ-EMG-190, REQ-EMG-191. OWNER items: whether the index kinds should be a published contract with a schema version, and whether
+model-diff belongs in the MCP server too.
+
+=== Consequences
+
+- The tool and any other consumer get one stable list of entities and links instead of re-parsing YAML.
+- A kind that the table does not know is named by its key, which is readable but not a published contract until the owner decides.
+- The entity index is an additive public API of the root package; it changes nothing that exists.
+
+[[ADR-EMG-080]]
+== ADR-EMG-080: A declaration index with definition lookup and a catalog usage list are engine features for tools that read code and the model
+
+Status:: proposed
+Date:: 2026-11-14
+
+=== Context
+
+The engineering tool shows source files with trace markers and lets a reader jump from a use of a function to its declaration. The
+scan the engine has lists only declarations that carry a trace marker, because the trace needs only those. A reader needs all of
+them. The tool also shows a catalog term with the requirements that use it; the engine decides that internally for
+catalog.term_unreferenced but offers no list. Taken by the implementing agent under the owner's instruction that the tool may
+upstream what it needs.
+
+=== Decision
+
+(1) internal/codemap lists every named declaration with the readers of the trace scan (tree-sitter), including every name of a
+grouped Go type, var or const block and the last line of each declaration; ListCodeDeclarations applies the code scope of the
+model. (2) FindCodeDefinitions ranks candidates for a name by closeness to the use (file, directory, nearby tree, elsewhere) and
+puts test-only code after production code unless the use is in test code. It does not resolve scopes, imports or overloads: a
+result is a candidate, and the tool says so. (3) CatalogUsage lists, for every catalog term, the requirements that name it by name
+or alias on word boundaries (the EARS lint rule) and the entities that reference its ID. Covers REQ-EMG-192, REQ-EMG-193. OWNER
+items: whether a language server should replace the candidate lookup later, and which languages beyond Go, TypeScript, JavaScript,
+Python, Rust and Verilog the tool needs.
+
+=== Consequences
+
+- Go-to-definition works for the languages the scan reads, without a language server and without running project code.
+- Name-only matching can offer wrong candidates for common names; the ranking and the candidate wording keep that visible.
+- The catalog usage is derived from text, so a term named only by a paraphrase is shown as unused, as the lint also treats it.
+
 [[DEC-CODE-EXEMPT-MODEL-ONLY]]
 == DEC-CODE-EXEMPT-MODEL-ONLY: Eight machine elements are model-only and have no code site, so they are exempt from element to code coverage
 

@@ -185,6 +185,14 @@ func ScanCodeScope(bundle model.Bundle, root string) ([]codemap.Symbol, []valida
 	return codemap.ScanWithOptions(root, codemap.ScanOptions{IDBase: moduleCodeRoot(bundle), Skip: codeScanSkipper(bundle)})
 }
 
+// ListDeclarations lists every named declaration under root with the model's code scope (see ScanCodeScope), marked
+// or not, for tools that jump from a use to its definition.
+// TRLC-LINKS: REQ-EMG-192
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+func ListDeclarations(bundle model.Bundle, root string) ([]codemap.Declaration, error) {
+	return codemap.ListDeclarations(root, codemap.ScanOptions{IDBase: moduleCodeRoot(bundle), Skip: codeScanSkipper(bundle)})
+}
+
 // gitVisibleFiles lists files git tracks or would track (not ignored) under root, relative to
 // root. It returns nil when root is not in a git repository, git is unavailable, or root
 // itself is ignored (a dependency in a consumer's git-ignored module cache), which disables

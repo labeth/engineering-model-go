@@ -30,48 +30,85 @@ type Delta struct {
 // TRLC-LINKS: REQ-EMG-191
 func traced(r Row) bool { return len(r.Code) > 0 || len(r.Verifications) > 0 }
 
+// side is how one requirement stood in one matrix; a requirement that is not in the matrix is not present.
+type side struct {
+	row     Row
+	present bool
+	orphan  bool
+}
+
+// TRLC-LINKS: REQ-EMG-191
+func (s side) traced() bool { return s.present && traced(s.row) }
+
+// TRLC-LINKS: REQ-EMG-191
+func (s side) tested() bool { return s.present && len(s.row.Verifications) > 0 }
+
+// TRLC-LINKS: REQ-EMG-191
+func (s side) orphaned() bool { return s.present && s.orphan }
+
+// TRLC-LINKS: REQ-EMG-191
+func sidesOf(m Matrix) map[string]side {
+	out := make(map[string]side, len(m.Requirements))
+	for _, r := range m.Requirements {
+		out[r.ID] = side{row: r, present: true}
+	}
+	for _, id := range m.Orphans {
+		if s, ok := out[id]; ok {
+			s.orphan = true
+			out[id] = s
+		}
+	}
+	return out
+}
+
 // DeltaOf compares two matrices of one model by requirement ID. Every list is sorted.
 //
 // TRLC-LINKS: REQ-EMG-191
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func DeltaOf(from, to Matrix) Delta {
 	d := Delta{Gained: []string{}, TestsGained: []string{}, Lost: []string{}, NewOrphans: []string{}, ResolvedOrphans: []string{}, StatusChanged: []StatusChange{}}
-	before := make(map[string]Row, len(from.Requirements))
-	for _, r := range from.Requirements {
-		before[r.ID] = r
-	}
-	orphanBefore := make(map[string]bool, len(from.Orphans))
-	for _, id := range from.Orphans {
-		orphanBefore[id] = true
-	}
-	orphanAfter := make(map[string]bool, len(to.Orphans))
-	for _, id := range to.Orphans {
-		orphanAfter[id] = true
-	}
+	before, after := sidesOf(from), sidesOf(to)
 	for _, r := range to.Requirements {
-		old, existed := before[r.ID]
-		switch {
-		case traced(r) && !(existed && traced(old)):
-			d.Gained = append(d.Gained, r.ID)
-		case existed && traced(old) && !traced(r):
-			d.Lost = append(d.Lost, r.ID)
-		}
-		if len(r.Verifications) > 0 && !(existed && len(old.Verifications) > 0) {
-			d.TestsGained = append(d.TestsGained, r.ID)
-		}
-		if existed && old.Status != r.Status {
-			d.StatusChanged = append(d.StatusChanged, StatusChange{ID: r.ID, From: old.Status, To: r.Status})
-		}
-		if orphanAfter[r.ID] && !(existed && orphanBefore[r.ID]) {
-			d.NewOrphans = append(d.NewOrphans, r.ID)
-		}
-		if existed && orphanBefore[r.ID] && !orphanAfter[r.ID] {
-			d.ResolvedOrphans = append(d.ResolvedOrphans, r.ID)
-		}
+		d.recordTrace(before[r.ID], after[r.ID])
+		d.recordOrphans(before[r.ID], after[r.ID])
 	}
 	for _, list := range [][]string{d.Gained, d.TestsGained, d.Lost, d.NewOrphans, d.ResolvedOrphans} {
 		sort.Strings(list)
 	}
 	sort.Slice(d.StatusChanged, func(i, j int) bool { return d.StatusChanged[i].ID < d.StatusChanged[j].ID })
 	return d
+}
+
+// recordTrace notes a requirement that gained or lost code or a verification, gained a test, or changed status.
+// TRLC-LINKS: REQ-EMG-191
+func (d *Delta) recordTrace(old, now side) {
+	id := now.row.ID
+	switch {
+	case now.traced() && !old.traced():
+		d.Gained = append(d.Gained, id)
+	case old.traced() && !now.traced():
+		d.Lost = append(d.Lost, id)
+	}
+	if now.tested() && !old.tested() {
+		d.TestsGained = append(d.TestsGained, id)
+	}
+	d.recordStatus(old, now)
+}
+
+// TRLC-LINKS: REQ-EMG-191
+func (d *Delta) recordStatus(old, now side) {
+	if old.present && old.row.Status != now.row.Status {
+		d.StatusChanged = append(d.StatusChanged, StatusChange{ID: now.row.ID, From: old.row.Status, To: now.row.Status})
+	}
+}
+
+// recordOrphans notes a requirement that became an orphan or stopped being one.
+// TRLC-LINKS: REQ-EMG-191
+func (d *Delta) recordOrphans(old, now side) {
+	if now.orphaned() && !old.orphaned() {
+		d.NewOrphans = append(d.NewOrphans, now.row.ID)
+	}
+	if old.orphaned() && !now.orphaned() {
+		d.ResolvedOrphans = append(d.ResolvedOrphans, now.row.ID)
+	}
 }
