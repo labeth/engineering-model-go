@@ -1646,3 +1646,32 @@ requirements:
     appliesTo:
       - FU-CODEMAP-INFERENCE
     realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-189
+    status: implemented
+    text: When model updated event is received, the engineering model go shall list every authored entity of the model with its kind, document, parent and fields and every reference between entities.
+    notes: 'ADR-EMG-079. BuildEntityIndex reads the bundle documents generically, so a kind that a later schema adds is listed without a code change. A reference is a field that holds exactly another entity ID, an ID inside prose, containment (a machine contains its states) or a typed behavior relationship. The order is deterministic.'
+    verificationMethods: [test]
+    verificationCriteria: The index of this repository lists at least 400 entities of the kinds requirement, functional_unit, threat_scenario, control_verification, poam_item and catalog_term, gives each state the machine as parent, reports field, mention, contains and relationship references with both ends known, reports REQ-EMG-001 applying to FU-MODEL-LOADER, and two builds of the same bundle are equal.
+    appliesTo:
+      - FU-MODEL-LOADER
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-190
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report the entities added, removed and changed between two git revisions of a model or between a revision and the working tree.
+    notes: 'ADR-EMG-079. engws model-diff FROM [TO] reads each side with the loader that tolerates earlier schemas, compares fields by stable ID, and never writes to the repository. A ref that git could read as an option and an unknown ref are usage errors (exit 2).'
+    verificationMethods: [test]
+    verificationCriteria: Between two tags of a git repository, an added requirement is listed as added, a removed one as removed, a requirement whose verification criteria changed as changed with that field named, and an untouched requirement is not listed; without a second ref an uncommitted edit shows; an unknown ref and an option-like ref exit with 2 and write nothing; the JSON form and the text form both carry the result.
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FU-CLI-ORCHESTRATION
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-191
+    status: implemented
+    text: When model updated event is received, the engineering model go shall report which requirements gained code, gained a test, became orphans or stopped being orphans between two revisions.
+    notes: 'ADR-EMG-079. A requirement is traced when code or a verification links it. A requirement removed in the later revision is not reported. A trace that cannot be computed on one side is recorded as the trace error of the diff and does not fail the entity diff; engws model-diff --no-trace skips the code scan.'
+    verificationMethods: [test]
+    verificationCriteria: Between two tags where a source file and a test file begin to link REQ-A-001 and a new requirement has no link, REQ-A-001 is reported as gained code, as gained a test and as a resolved orphan, and the new requirement as a new orphan; with --no-trace the result carries no trace delta.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-CLI-ORCHESTRATION
+    realizes: [CAP-EMG-TRACEABILITY]

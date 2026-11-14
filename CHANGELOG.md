@@ -6,6 +6,12 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Entity index and model diff (ADR-EMG-079, REQ-EMG-189 to 191)
+
+- `BuildEntityIndex` lists every authored entity of a model (kind, documents, parent, fields) and the references between entities (field, mention, contains, relationship) in a deterministic order.
+- `DiffModels`, `DiffEntityIndexes` and `DiffTraceMatrices` report what changed between two git revisions of a model, or a revision and the working tree: entities added, removed and changed by field, and the requirements that gained code or a test or became or stopped being orphans.
+- `engws model-diff <from-ref> [<to-ref>] [--repo DIR] [--json] [--no-trace]` exposes it. The loader that reads a model at a git revision moved from `internal/engws` to `internal/gitmodel`; `engws` keeps thin wrappers.
+
 ## [0.11.0] — 2026-11-13: State machines, code health, required model switches and consistency checks
 
 **Breaking release, no compatibility path** (owner instruction: "i dont want any backwards compatabillity in the model yet, it should always require a full upgrade"). A model, a lock, a check template or an engine pin that is not current is an error that names its remedy, never a mode that still works. The authoring contract is `engineering-model.authoring.v8`.

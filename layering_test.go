@@ -34,6 +34,7 @@ var layerRules = map[string][]string{
 	"internal/render/*":            {"internal/view", "internal/render/diagramstyle"},
 	"internal/reqlinks":            {"internal/model", "internal/textutil"},
 	"internal/yamledit":            {},
+	"internal/gitmodel":            {"internal/model"},
 	"internal/composition":         {"internal/model", "internal/validate", "internal/textutil", "internal/reqlinks"},
 	"internal/codescan":            {"internal/composition", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},
 	"internal/trace":               {"internal/codescan", "internal/composition", "internal/reqlinks", "internal/codemap", "internal/model", "internal/validate", "internal/textutil"},

@@ -119,6 +119,18 @@ commands:
                              parent to it; appended with every other line
                              kept, model/req-links.yml and documents.reqLinks
                              created when missing; id LNK-<REQ>-<ALIAS>
+  model-diff <from-ref> [<to-ref>] [--repo DIR] [--json] [--no-trace]
+                             compare the whole authored model of the model in
+                             DIR as committed at <from-ref> with <to-ref>, or
+                             with the working tree when it is left out: the
+                             entities (requirements, units, threats, decisions,
+                             states, flow steps, ...) added, removed and changed
+                             with the fields that differ, and the references
+                             that appeared and disappeared; unless --no-trace,
+                             also how traceability moved (requirements that
+                             gained or lost code or tests, new and resolved
+                             orphans), which scans the code of each state; exit
+                             2 on a git, IO or model error
   contract-diff <from-ref> <to-ref> [--repo DIR] [--json]
                              compare the published contract items (capabilities
                              and assumptions of use, with their realizing
@@ -234,6 +246,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	show := sub.Bool("show", false, "")
 	repoFlag := sub.String("repo", ".", "")
 	asJSON := sub.Bool("json", false, "")
+	noTrace := sub.Bool("no-trace", false, "")
 	accept := sub.String("accept", "", "")
 	by := sub.String("by", "", "")
 	rationale := sub.String("rationale", "", "")
@@ -248,11 +261,14 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 		return 2
 	}
 	wantArgs := map[string]int{"status": 0, "sync": 0, "skew": 0, "check": 0, "pin": 1, "unpin": 1, "bump": 3, "stage": 0,
-		"review-links": 0, "contract-diff": 2, "release-check": 0, "link": 2, "status-suggest": 0}
+		"review-links": 0, "contract-diff": 2, "model-diff": 1, "release-check": 0, "link": 2, "status-suggest": 0}
 	n, known := wantArgs[command]
 	if !known {
 		fmt.Fprintf(stderr, "engws: unknown command %q\n%s", command, Usage)
 		return 2
+	}
+	if command == "model-diff" && len(positional) == 2 {
+		n = 2
 	}
 	if len(positional) != n {
 		fmt.Fprintf(stderr, "engws %s: expected %d argument(s), got %d\n%s", command, n, len(positional), Usage)
@@ -302,6 +318,17 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 	}
 	if command == "release-check" {
 		code, err := runReleaseCheck(*repoFlag, strings.TrimSpace(*tag), stdout)
+		if err != nil {
+			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
+		}
+		return code
+	}
+	if command == "model-diff" {
+		toRef := ""
+		if len(positional) == 2 {
+			toRef = positional[1]
+		}
+		code, err := runModelDiff(*repoFlag, positional[0], toRef, *asJSON, *noTrace, stdout)
 		if err != nil {
 			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 		}

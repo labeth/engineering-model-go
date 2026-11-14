@@ -1537,6 +1537,26 @@ impact: major
 | assumption removed, capability added, only realizing requirements changed | minor |
 | anything else | patch |
 
+**`engws model-diff <from-ref> [<to-ref>] [--repo DIR] [--json] [--no-trace]`** compares the whole
+authored model (every entity with a stable ID, not only the published contract) as committed at
+`from-ref` with `to-ref`, or with the working tree when `to-ref` is left out. It also reports how
+the trace moved: requirements that gained code, gained a test, became orphans or stopped being
+orphans (`--no-trace` skips the code scan). It writes nothing; a revision that cannot be read is a
+usage error (exit 2).
+
+```text
+model v1.0.0..v1.1.0
+  added    requirement REQ-A-005
+  removed  requirement REQ-A-004
+  changed  requirement REQ-A-002 (verificationCriteria)
+trace: gained code REQ-A-001; gained tests REQ-A-001; new orphans REQ-A-005; resolved orphans REQ-A-001
+```
+
+The root package offers the same as `DiffModels(repo, fromRef, toRef, ModelDiffOptions{Trace: true})`,
+and `BuildEntityIndex(bundle)` lists every entity with its kind, documents, parent and fields and
+every reference between entities (a field holding another ID, an ID in prose, containment, a typed
+relationship), in a deterministic order, for tools that show or compare a model (ADR-EMG-079).
+
 **`engws release-check [--repo DIR] [--tag vX.Y.Z]`** is the release gate. This repository's
 CI runs it on every `v*` tag (`release-check` job of `.github/workflows/ci.yml`); in a
 project, run it in the pre-push hook for a tag push as well. It fails (exit 1) with:

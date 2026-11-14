@@ -2282,3 +2282,29 @@ decisions:
   - A model that still allocates fails with the field named and the replacement stated, which is the intended full upgrade.
   - The engineering-flow wrapper and skill text that mention migrate-links change in the flow's own slice.
   - Phase 4 of the removal plan is complete in the engine.
+- id: ADR-EMG-079
+  title: A generic entity index and a model diff between revisions are engine features for tools that read the model
+  status: proposed
+  date: 2026-11-14
+  context: |-
+    The engineering tool (a local web GUI for people who direct an AI agent) must show what a model contains and what changed since a
+    baseline (a tag, main, or the working tree). The engine had the trace matrix and composition but no list of all authored entities
+    with their links, and no diff of a model between revisions; the throwaway mockup computed both in Python from regexes, which the
+    real tool must not do. The semantic model of the SysML export is a different shape (it renders, it does not list authored IDs).
+    The owner instructed that whatever the tool needs may be upstreamed into the engine and that decisions taken here are recorded as
+    proposed for review. Taken by the implementing agent under that instruction.
+  decision: |-
+    (1) BuildEntityIndex walks the loaded bundle documents generically: every list of mappings that carry an id is a list of entities,
+    kinds come from a table of list keys that matches the MCP kinds with snake_case singular as the fallback, so an added list is
+    visible without a code change. (2) References are field, mention, contains and relationship edges; only edges between known
+    entities are kept. (3) The loader that reads a model at a git revision, tolerant of earlier schemas, moves from internal/engws to
+    internal/gitmodel so the root package can use it without importing the CLI; engws keeps thin wrappers. (4) DiffModels compares the
+    entity indexes of two revisions field by field and, optionally, the trace matrices (a delta of gained code, gained tests and
+    orphans); a trace failure is recorded, not fatal. (5) engws model-diff exposes it with --json and --no-trace. Nothing reads or
+    writes outside the repository and the extraction of a revision skips links and names that leave the destination. Covers REQ-EMG-189,
+    REQ-EMG-190, REQ-EMG-191. OWNER items: whether the index kinds should be a published contract with a schema version, and whether
+    model-diff belongs in the MCP server too.
+  consequences:
+  - The tool and any other consumer get one stable list of entities and links instead of re-parsing YAML.
+  - A kind that the table does not know is named by its key, which is readable but not a published contract until the owner decides.
+  - The entity index is an additive public API of the root package; it changes nothing that exists.
