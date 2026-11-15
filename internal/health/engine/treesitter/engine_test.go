@@ -992,6 +992,12 @@ func TestDeeplyNestedSourcesDoNotCrashOrStall(t *testing.T) {
 		}
 	})
 	t.Run("a 4 MiB file of opening brackets", func(t *testing.T) {
+		// The parse of 4 MiB takes about 8 s on an idle machine, near the 10 s of ParseTimeout, so under load the
+		// parse was cancelled before the depth check could refuse the file and the test failed on the wrong error.
+		// A generous parse timeout keeps the refusal under test independent of the load.
+		oldTimeout := codemap.ParseTimeout
+		codemap.ParseTimeout = 3 * time.Minute
+		t.Cleanup(func() { codemap.ParseTimeout = oldTimeout })
 		const depth = 2000000
 		c := source{"huge.go", "package p\nfunc f() int { return " + strings.Repeat("(", depth) + "1" + strings.Repeat(")", depth) + " }\n"}
 		if _, err := analyze(t, c); err == nil || !strings.Contains(err.Error(), "levels deep") {
