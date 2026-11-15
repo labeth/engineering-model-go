@@ -203,6 +203,10 @@ func facadePackages4() []implPackage {
 			"VerifyV2RoundTrip":  "VerifySysMLV2RoundTrip",
 			"ImportV2Project":    "ImportSysMLV2Project",
 			"CompareV2RoundTrip": "CompareSysMLV2RoundTrip",
+		}, internalOnly: []string{
+			// the parameter group of the export, reopen and verify functions;
+			// the root functions keep their positional parameters.
+			"InterchangePaths",
 		}},
 		{dir: filepath.Join("internal", "export", "structurizr"), rootName: map[string]string{
 			"Result": "StructurizrExportResult", "GenerateDSL": "GenerateStructurizrDSL",

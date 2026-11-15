@@ -4,6 +4,7 @@ package sysml
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -139,27 +140,29 @@ func TestGenerateSysMLV2ProjectionRendersMachineGolden(t *testing.T) {
 	if len(diagnostics) != 0 {
 		t.Fatalf("a fully expressible machine must not report anything: %+v", diagnostics)
 	}
-	for _, expected := range []string{
+	requireContainsAll(t, text, []string{
 		"state def 'SM-PAY' {", "attribute attempts : Integer := 0;", `attribute reason : String := "none";`,
 		"entry;\n        then 'STATE-PAY-IDLE';", "state 'STATE-PAY-AUTH';",
 		"succession 'REL-805FEC22BFCBFF50' first 'STATE-PAY-DONE' then done;",
 		"accept 'on-EVT-A' :> 'EVT-A'", "if attempts < 3", "do assign attempts := attempts + 1",
 		"constraint 'INV-PAY-001' {", "attempts <= 3",
-	} {
-		if !strings.Contains(text, expected) {
-			t.Fatalf("missing %q in machine output:\n%s", expected, text)
-		}
-	}
-	for _, forbidden := range []string{`"attempts"`, "'attempts'", " : EngineeringState", "-context'"} {
-		if strings.Contains(text, forbidden) {
-			t.Fatalf("machine output must not contain %q:\n%s", forbidden, text)
-		}
-	}
+	})
+	requireContainsNone(t, text, []string{`"attempts"`, "'attempts'", " : EngineeringState", "-context'"})
 	// The states, transitions and invariant are members of the machine, not
 	// top-level siblings.
-	machine := text[strings.Index(text, "state def 'SM-PAY'"):]
-	for _, member := range []string{"state 'STATE-PAY-IDLE'", "transition 'TR-PAY-001'", "constraint 'INV-PAY-001'"} {
-		if strings.Count(text, member) != 1 || !strings.Contains(machine, member) {
+	requireWrittenOnceInsidePayMachine(t, text,
+		[]string{"state 'STATE-PAY-IDLE'", "transition 'TR-PAY-001'", "constraint 'INV-PAY-001'"})
+}
+
+// requireWrittenOnceInsidePayMachine fails the test for each member that the
+// text does not write exactly once, inside the definition of the payment machine.
+//
+// TRLC-LINKS: REQ-EMG-137
+func requireWrittenOnceInsidePayMachine(t *testing.T, text string, members []string) {
+	t.Helper()
+	inside := text[strings.Index(text, "state def 'SM-PAY'"):]
+	for _, member := range members {
+		if strings.Count(text, member) != 1 || !strings.Contains(inside, member) {
 			t.Fatalf("%q must be written once inside the machine:\n%s", member, text)
 		}
 	}
@@ -195,23 +198,66 @@ func TestGenerateSysMLV2ProjectionRendersRichMachineGolden(t *testing.T) {
 func TestGenerateSysMLV2ProjectionCommentsUnexpressibleMachineConstructs(t *testing.T) {
 	text, diagnostics := renderMachines(t, richMachine())
 	lost := machineDiagnostics(diagnostics)
-	want := map[string]string{
+	requireCommentedMachineWarnings(t, lost)
+	requireWarningMentions(t, lost, map[string]string{
 		"relationships.TR-R-004": "in_state",
 		"elements.INV-R-002":     "in_state(STATE-R-C) implies flag",
+	})
+	// in_state may appear only inside comments; the transition itself and its
+	// trigger structure survive.
+	for number, line := range strings.Split(text, "\n") {
+		if strings.Contains(line, "in_state") && !strings.HasPrefix(strings.TrimSpace(line), "//") {
+			t.Fatalf("line %d writes in_state outside a comment: %q", number+1, line)
+		}
 	}
+	requireContainsAll(t, text, []string{
+		"// guard of transition TR-R-004 is not expressible in SysML v2:",
+		"//     authored: in_state(STATE-R-A)",
+		"// effect of transition TR-R-004 is not expressible in SysML v2:",
+		"//     authored: flag := in_state(STATE-R-B)",
+		"// invariant INV-R-002 is not expressible in SysML v2:",
+		"//     authored: in_state(STATE-R-C) implies flag",
+		"transition 'TR-R-004'",
+		"then 'STATE-R-D' {",
+	})
+	requireContainsNone(t, text, []string{"constraint 'INV-R-002'"})
+}
+
+// requireCommentedMachineWarnings checks that the lost constructs of the rich
+// machine are warnings that name the machine and carry the authored text.
+//
+// TRLC-LINKS: REQ-EMG-137
+func requireCommentedMachineWarnings(t *testing.T, lost []model.SemanticDiagnostic) {
+	t.Helper()
 	paths := map[string]int{}
 	for _, diagnostic := range lost {
-		if diagnostic.Severity != model.SemanticSeverityWarning {
-			t.Fatalf("a commented construct is a warning: %+v", diagnostic)
-		}
+		requireWarningNamesMachine(t, diagnostic)
 		paths[diagnostic.Path]++
-		if !strings.Contains(diagnostic.Message, "machine SM-RICH") || !strings.Contains(diagnostic.Message, "authored:") {
-			t.Fatalf("the warning must name the machine and carry the authored text: %+v", diagnostic)
-		}
 	}
 	if paths["relationships.TR-R-004"] != 2 || paths["elements.INV-R-002"] != 1 || len(lost) != 3 {
 		t.Fatalf("expected the guard and effect of TR-R-004 and INV-R-002, got %+v", lost)
 	}
+}
+
+// requireWarningNamesMachine checks that a diagnostic is a warning that names
+// the rich machine and carries the authored text.
+//
+// TRLC-LINKS: REQ-EMG-137
+func requireWarningNamesMachine(t *testing.T, diagnostic model.SemanticDiagnostic) {
+	t.Helper()
+	if diagnostic.Severity != model.SemanticSeverityWarning {
+		t.Fatalf("a commented construct is a warning: %+v", diagnostic)
+	}
+	if !strings.Contains(diagnostic.Message, "machine SM-RICH") || !strings.Contains(diagnostic.Message, "authored:") {
+		t.Fatalf("the warning must name the machine and carry the authored text: %+v", diagnostic)
+	}
+}
+
+// requireWarningMentions checks that a warning at each path mentions its source text.
+//
+// TRLC-LINKS: REQ-EMG-137
+func requireWarningMentions(t *testing.T, lost []model.SemanticDiagnostic, want map[string]string) {
+	t.Helper()
 	for path, source := range want {
 		found := false
 		for _, diagnostic := range lost {
@@ -221,52 +267,46 @@ func TestGenerateSysMLV2ProjectionCommentsUnexpressibleMachineConstructs(t *test
 			t.Fatalf("no warning at %s mentions %q: %+v", path, source, lost)
 		}
 	}
-	// in_state may appear only inside comments; the transition itself and its
-	// trigger structure survive.
-	for number, line := range strings.Split(text, "\n") {
-		if strings.Contains(line, "in_state") && !strings.HasPrefix(strings.TrimSpace(line), "//") {
-			t.Fatalf("line %d writes in_state outside a comment: %q", number+1, line)
+}
+
+// breakMachineParts makes four parts of the payment machine unrenderable: a
+// variable type, an invariant result, a transition target and a trigger count.
+//
+// TRLC-LINKS: REQ-EMG-137
+func breakMachineParts(semantic *model.SemanticModel) {
+	breakMachineElements(semantic.Elements)
+	breakMachineRelationships(semantic.Relationships)
+}
+
+// TRLC-LINKS: REQ-EMG-137
+func breakMachineElements(elements []model.SemanticElement) {
+	for i := range elements {
+		switch elements[i].ID {
+		case "INV-PAY-001":
+			elements[i].Features = nil
+		case "SM-PAY":
+			elements[i].Features[2].Type = "Real"
 		}
 	}
-	for _, expected := range []string{
-		"// guard of transition TR-R-004 is not expressible in SysML v2:",
-		"//     authored: in_state(STATE-R-A)",
-		"// effect of transition TR-R-004 is not expressible in SysML v2:",
-		"//     authored: flag := in_state(STATE-R-B)",
-		"// invariant INV-R-002 is not expressible in SysML v2:",
-		"//     authored: in_state(STATE-R-C) implies flag",
-		"transition 'TR-R-004'",
-		"then 'STATE-R-D' {",
-	} {
-		if !strings.Contains(text, expected) {
-			t.Fatalf("missing %q in:\n%s", expected, text)
+}
+
+// TRLC-LINKS: REQ-EMG-137
+func breakMachineRelationships(relationships []model.SemanticRelationship) {
+	for i := range relationships {
+		switch relationships[i].ID {
+		case "TR-PAY-002":
+			relationships[i].Target = "STATE-ELSEWHERE"
+		case "TR-PAY-001":
+			relationships[i].Triggers = []string{"EVT-A", "EVT-B"}
+			relationships[i].Guard = &model.SemanticExpression{Kind: "future"}
 		}
-	}
-	if strings.Contains(text, "constraint 'INV-R-002'") {
-		t.Fatalf("a lossy invariant must not be written as a constraint:\n%s", text)
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-137
 func TestGenerateSysMLV2ProjectionCommentsMachinePartsWithoutAValidRendering(t *testing.T) {
 	semantic, _ := model.ProjectSemanticModel(machineFixtureBundle(paymentMachine()))
-	for i := range semantic.Elements {
-		switch semantic.Elements[i].ID {
-		case "INV-PAY-001":
-			semantic.Elements[i].Features = nil
-		case "SM-PAY":
-			semantic.Elements[i].Features[2].Type = "Real"
-		}
-	}
-	for i := range semantic.Relationships {
-		if semantic.Relationships[i].ID == "TR-PAY-002" {
-			semantic.Relationships[i].Target = "STATE-ELSEWHERE"
-		}
-		if semantic.Relationships[i].ID == "TR-PAY-001" {
-			semantic.Relationships[i].Triggers = []string{"EVT-A", "EVT-B"}
-			semantic.Relationships[i].Guard = &model.SemanticExpression{Kind: "future"}
-		}
-	}
+	breakMachineParts(&semantic)
 	text, diagnostics := GenerateV2Projection(semantic)
 	lost := machineDiagnostics(diagnostics)
 	paths := map[string]bool{}
@@ -280,19 +320,13 @@ func TestGenerateSysMLV2ProjectionCommentsMachinePartsWithoutAValidRendering(t *
 			t.Fatalf("expected a warning at %s, got %+v", path, lost)
 		}
 	}
-	for _, expected := range []string{
+	requireContainsAll(t, text, []string{
 		"// variable reason is not expressible in SysML v2",
 		"// additional trigger EVT-B of transition TR-PAY-001 is not expressible in SysML v2",
 		"// transition TR-PAY-002 is not expressible in SysML v2",
 		"// invariant INV-PAY-001 is not expressible in SysML v2",
-	} {
-		if !strings.Contains(text, expected) {
-			t.Fatalf("missing %q in:\n%s", expected, text)
-		}
-	}
-	if strings.Contains(text, "transition 'TR-PAY-002'") || strings.Contains(text, "constraint 'INV-PAY-001'") {
-		t.Fatalf("an unrenderable part must not be written as SysML:\n%s", text)
-	}
+	})
+	requireContainsNone(t, text, []string{"transition 'TR-PAY-002'", "constraint 'INV-PAY-001'"})
 }
 
 // TRLC-LINKS: REQ-EMG-137
@@ -347,19 +381,46 @@ func TestMachineExpressionTranslationTable(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-137
 func TestMachineExpressionTranslationCoversTheOperatorTable(t *testing.T) {
+	requireOperatorTableTranslated(t)
+	requireUntranslatableExpressionsRefused(t)
+	requireEffectTranslation(t)
+}
+
+// requireOperatorTableTranslated checks that every operator of the shared
+// table has a SysML token, except those that are no expression tokens.
+//
+// TRLC-LINKS: REQ-EMG-137
+func requireOperatorTableTranslated(t *testing.T) {
+	t.Helper()
 	for _, operator := range model.MachineOperators() {
-		_, translated := machineSysMLOperators[operator.Name]
-		switch operator.Name {
-		case "in_state", ":=", "all":
-			if translated {
-				t.Fatalf("operator %q must not be an expression token", operator.Name)
-			}
-		default:
-			if !translated {
-				t.Fatalf("operator %q of the shared table has no SysML translation; add it or comment it out deliberately", operator.Name)
-			}
+		if problem := operatorTranslationProblem(operator.Name); problem != "" {
+			t.Fatal(problem)
 		}
 	}
+}
+
+// operatorTranslationProblem describes how an operator breaks the rule that
+// the table operators are SysML tokens, except in_state, := and all.
+//
+// TRLC-LINKS: REQ-EMG-137
+func operatorTranslationProblem(name string) string {
+	_, translated := machineSysMLOperators[name]
+	switch name {
+	case "in_state", ":=", "all":
+		if translated {
+			return fmt.Sprintf("operator %q must not be an expression token", name)
+		}
+	default:
+		if !translated {
+			return fmt.Sprintf("operator %q of the shared table has no SysML translation; add it or comment it out deliberately", name)
+		}
+	}
+	return ""
+}
+
+// TRLC-LINKS: REQ-EMG-137
+func requireUntranslatableExpressionsRefused(t *testing.T) {
+	t.Helper()
 	state, problems := model.ParseMachineExpr("in_state(STATE-X) and a", model.MachineExprBoolean)
 	if len(problems) != 0 {
 		t.Fatal(problems)
@@ -373,6 +434,11 @@ func TestMachineExpressionTranslationCoversTheOperatorTable(t *testing.T) {
 	if _, err := translateMachineExpression(model.SemanticExpression{Kind: "operator", Operator: "and", Operands: []model.SemanticExpression{{}}}); err == nil {
 		t.Fatal("a wrong operand count must not translate")
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-137
+func requireEffectTranslation(t *testing.T) {
+	t.Helper()
 	effect, problems := model.ParseMachineExpr("a := b + 1; c := true", model.MachineExprEffect)
 	if len(problems) != 0 {
 		t.Fatal(problems)
@@ -408,7 +474,15 @@ func TestMachineIdentifier(t *testing.T) {
 			t.Errorf("machineIdentifier(%q) = %q, %v; want %q, %v", c.name, got, renamed, c.want, c.renamed)
 		}
 	}
-	// Every reserved word is quoted, so a variable can never break the syntax.
+	requireReservedWordsQuoted(t)
+}
+
+// requireReservedWordsQuoted checks that every reserved word is quoted, so a
+// variable can never break the syntax.
+//
+// TRLC-LINKS: REQ-EMG-137
+func requireReservedWordsQuoted(t *testing.T) {
+	t.Helper()
 	for word := range sysmlReservedWords {
 		if got, _ := machineIdentifier(word); !strings.HasPrefix(got, "'") && !machineInheritedNames[word] {
 			t.Errorf("reserved word %q was written bare as %q", word, got)

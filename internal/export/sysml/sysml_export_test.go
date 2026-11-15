@@ -18,17 +18,33 @@ func TestSysMLExportMaterializesPackagedSubsystemEndpoints(t *testing.T) {
 	}
 	// The product's requirement trace onto the shared modules is in
 	// model/req-links.yml (not projected); the satisfactions remain.
-	for _, expected := range []string{"SUB-AEG-EDGE", "edge::NEED-EDGE-IDENTITY"} {
-		if !strings.Contains(result.Text, sysmlName(expected)) {
-			t.Fatalf("expected packaged endpoint %q in SysML output", expected)
+	requireContainsAll(t, result.Text, []string{sysmlName("SUB-AEG-EDGE"), sysmlName("edge::NEED-EDGE-IDENTITY")})
+	requireContainsAll(t, result.Text, []string{"satisfy requirement targetRequirement : EngineeringRequirement by satisfyingPart;"})
+	if hasSysMLDiagnostic(result.Diagnostics, "sysml.external_relationship_endpoint") {
+		t.Fatalf("unexpected external endpoint diagnostic: %+v", result.Diagnostics)
+	}
+}
+
+// requireContainsAll fails the test for each expected text that the output lacks.
+//
+// TRLC-LINKS: REQ-EMG-036
+func requireContainsAll(t *testing.T, text string, expected []string) {
+	t.Helper()
+	for _, want := range expected {
+		if !strings.Contains(text, want) {
+			t.Fatalf("missing %q in:\n%s", want, text)
 		}
 	}
-	if !strings.Contains(result.Text, "satisfy requirement targetRequirement : EngineeringRequirement by satisfyingPart;") {
-		t.Fatalf("expected provider to satisfy the packaged subsystem need:\n%s", result.Text)
-	}
-	for _, diagnostic := range result.Diagnostics {
-		if diagnostic.Code == "sysml.external_relationship_endpoint" {
-			t.Fatalf("unexpected external endpoint diagnostic: %+v", diagnostic)
+}
+
+// requireContainsNone fails the test for each forbidden text that the output has.
+//
+// TRLC-LINKS: REQ-EMG-036
+func requireContainsNone(t *testing.T, text string, forbidden []string) {
+	t.Helper()
+	for _, bad := range forbidden {
+		if strings.Contains(text, bad) {
+			t.Fatalf("output must not contain %q:\n%s", bad, text)
 		}
 	}
 }
@@ -75,11 +91,13 @@ func TestGenerateSysMLV2ProjectionRejectsMissingNativeRule(t *testing.T) {
 	}
 }
 
+// structuralBehavioralSemanticModel is a model with one of each structural
+// and behavioral construct the projection renders natively.
+//
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-// ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
-func TestGenerateSysMLV2ProjectionEmitsStructuralAndBehavioralSemantics(t *testing.T) {
+func structuralBehavioralSemanticModel() model.SemanticModel {
 	lower, upper, unique := 1, 2, false
-	semantic := model.SemanticModel{
+	return model.SemanticModel{
 		ID:      "MODEL-A",
 		Imports: []model.SemanticImport{{Namespace: "MODEL-A", Imported: "Domain", Visibility: "private", Recursive: true}},
 		Elements: []model.SemanticElement{
@@ -109,7 +127,12 @@ func TestGenerateSysMLV2ProjectionEmitsStructuralAndBehavioralSemantics(t *testi
 			{ID: "ALLOCATE-A", Kind: model.RelationshipAllocation, Source: "PART-A", Target: "ITEM-A"},
 		},
 	}
+}
 
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+// ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
+func TestGenerateSysMLV2ProjectionEmitsStructuralAndBehavioralSemantics(t *testing.T) {
+	semantic := structuralBehavioralSemanticModel()
 	text, diagnostics := GenerateV2Projection(semantic)
 	for _, expected := range []string{
 		"private import 'Domain'::*;", "package 'PKG-A' {", "part def 'PART-DEF';",

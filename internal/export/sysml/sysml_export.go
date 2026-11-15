@@ -112,34 +112,45 @@ func enrichSysMLWithPublications(text string, projection composition.Composition
 	}
 	var out strings.Builder
 	for _, publication := range projection.Publications {
-		var declarations []string
-		for _, entity := range publication.Entities {
-			keyword := publishedSysMLKeyword(entity)
-			if keyword == "" || strings.Contains(text, sysmlName(entity.QualifiedID)) {
-				continue
-			}
-			declarations = append(declarations, fmt.Sprintf("        %s %s;", keyword, sysmlName(entity.SourceID)))
-		}
+		declarations := publicationDeclarations(text, publication)
 		if len(declarations) == 0 {
 			continue
 		}
-		fmt.Fprintf(&out, "\n    // Publication %s from %s@%s (%s).\n",
-			publication.Publication, publication.ModulePath, publication.Version, publication.SourceModel)
-		fmt.Fprintf(&out, "    package %s {\n", sysmlName(publication.Alias))
-		for _, declaration := range declarations {
-			out.WriteString(declaration)
-			out.WriteByte('\n')
-		}
-		fmt.Fprintln(&out, "    }")
-	}
-	if out.Len() == 0 {
-		return text
+		writePublicationPackage(&out, publication, declarations)
 	}
 	index := strings.LastIndex(text, "}")
-	if index < 0 {
+	if out.Len() == 0 || index < 0 {
 		return text
 	}
 	return text[:index] + out.String() + text[index:]
+}
+
+// publicationDeclarations lists the native declarations of the publication
+// entities that the text does not declare yet.
+//
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func publicationDeclarations(text string, publication composition.PublishedProjection) []string {
+	var declarations []string
+	for _, entity := range publication.Entities {
+		keyword := publishedSysMLKeyword(entity)
+		if keyword == "" || strings.Contains(text, sysmlName(entity.QualifiedID)) {
+			continue
+		}
+		declarations = append(declarations, fmt.Sprintf("        %s %s;", keyword, sysmlName(entity.SourceID)))
+	}
+	return declarations
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func writePublicationPackage(out *strings.Builder, publication composition.PublishedProjection, declarations []string) {
+	fmt.Fprintf(out, "\n    // Publication %s from %s@%s (%s).\n",
+		publication.Publication, publication.ModulePath, publication.Version, publication.SourceModel)
+	fmt.Fprintf(out, "    package %s {\n", sysmlName(publication.Alias))
+	for _, declaration := range declarations {
+		out.WriteString(declaration)
+		out.WriteByte('\n')
+	}
+	fmt.Fprintln(out, "    }")
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
@@ -148,20 +159,32 @@ func publishedSysMLKeyword(entity composition.PublishedProjectionEntity) string 
 	case "requirements":
 		return "requirement def"
 	case "behavior":
-		switch entity.Value.(type) {
-		case model.State:
-			return "state def"
-		case model.Event, model.Flow:
-			return "action def"
-		}
+		return behaviorSysMLKeyword(entity.Value)
 	case "architecture":
-		switch entity.Value.(type) {
-		case model.FunctionalGroup, model.FunctionalUnit, model.Actor, model.ReferencedElement,
-			model.DataObject, model.DeploymentTarget, model.HardwareItem, model.ContractEntry:
-			return "part def"
-		case model.Interface, model.HardwareInterface:
-			return "port def"
-		}
+		return architectureSysMLKeyword(entity.Value)
+	}
+	return ""
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func behaviorSysMLKeyword(value any) string {
+	switch value.(type) {
+	case model.State:
+		return "state def"
+	case model.Event, model.Flow:
+		return "action def"
+	}
+	return ""
+}
+
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func architectureSysMLKeyword(value any) string {
+	switch value.(type) {
+	case model.FunctionalGroup, model.FunctionalUnit, model.Actor, model.ReferencedElement,
+		model.DataObject, model.DeploymentTarget, model.HardwareItem, model.ContractEntry:
+		return "part def"
+	case model.Interface, model.HardwareInterface:
+		return "port def"
 	}
 	return ""
 }
@@ -212,39 +235,63 @@ func GenerateV2Projection(semantic model.SemanticModel) (string, []model.Semanti
 		elementIDs[element.ID] = true
 	}
 
-	fmt.Fprintln(&out, "// Generated deterministic SysML v2 project source.")
-	fmt.Fprintln(&out, "// Syntax is validated against SysML 2.0 / KerML 1.0 with the pinned 2026-04 Pilot Implementation.")
-	fmt.Fprintf(&out, "package %s {\n", sysmlName(textutil.NonEmpty(strings.TrimSpace(semantic.ID), "EngineeringModel")))
-	fmt.Fprintln(&out, "    private import ScalarValues::*;")
+	writeProjectionHeader(&out, semantic)
+	machines := indexMachines(semantic)
+	externalEndpoints := compositionExternalEndpoints(semantic.Relationships, elementIDs)
+	w := &sysmlWriter{
+		out: &out, children: groupNamespaceChildren(semantic, machines), imports: semantic.Imports,
+		elementIDs: elementIDs, machines: machines, diagnostics: &diagnostics,
+	}
+	w.namespaceElements(semantic.ID, "    ")
+	writeCompositionExternalEndpoints(&out, externalEndpoints, elementIDs)
+	for _, relationship := range semantic.Relationships {
+		w.relationship(relationship)
+	}
+	fmt.Fprintln(&out, "}")
+
+	return out.String(), sortSemanticDiagnostics(diagnostics)
+}
+
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-137
+func writeProjectionHeader(out *bytes.Buffer, semantic model.SemanticModel) {
+	fmt.Fprintln(out, "// Generated deterministic SysML v2 project source.")
+	fmt.Fprintln(out, "// Syntax is validated against SysML 2.0 / KerML 1.0 with the pinned 2026-04 Pilot Implementation.")
+	fmt.Fprintf(out, "package %s {\n", sysmlName(textutil.NonEmpty(strings.TrimSpace(semantic.ID), "EngineeringModel")))
+	fmt.Fprintln(out, "    private import ScalarValues::*;")
 	for _, imported := range semantic.Imports {
 		if strings.TrimSpace(imported.Namespace) != "" && imported.Namespace != semantic.ID {
 			continue
 		}
-		writeImport(&out, imported, "    ")
+		writeImport(out, imported, "    ")
 	}
-	fmt.Fprintln(&out)
-	fmt.Fprintln(&out, "    private metadata def EngineeringElement {")
-	fmt.Fprintln(&out, "        attribute sourceId : String;")
-	fmt.Fprintln(&out, "        attribute conceptKind : String;")
-	fmt.Fprintln(&out, "    }")
-	fmt.Fprintln(&out)
-	fmt.Fprintln(&out, "    private metadata def EngineeringRelationship :> EngineeringElement {")
-	fmt.Fprintln(&out, "        attribute relationshipKind : String;")
-	fmt.Fprintln(&out, "    }")
-	fmt.Fprintln(&out)
-	fmt.Fprintln(&out, "    private metadata def EngineeringProject :> EngineeringElement;")
-	fmt.Fprintln(&out)
-	writeNativeSupportTypes(&out)
-	fmt.Fprintln(&out, "    @EngineeringProject {")
-	fmt.Fprintf(&out, "        sourceId = %s;\n", sysmlString(semantic.ID))
-	fmt.Fprintln(&out, "        conceptKind = \"engineering_model\";")
-	fmt.Fprintln(&out, "    }")
-	fmt.Fprintln(&out, "    attribute 'engineeringModelInterchange';")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "    private metadata def EngineeringElement {")
+	fmt.Fprintln(out, "        attribute sourceId : String;")
+	fmt.Fprintln(out, "        attribute conceptKind : String;")
+	fmt.Fprintln(out, "    }")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "    private metadata def EngineeringRelationship :> EngineeringElement {")
+	fmt.Fprintln(out, "        attribute relationshipKind : String;")
+	fmt.Fprintln(out, "    }")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "    private metadata def EngineeringProject :> EngineeringElement;")
+	fmt.Fprintln(out)
+	writeNativeSupportTypes(out)
+	fmt.Fprintln(out, "    @EngineeringProject {")
+	fmt.Fprintf(out, "        sourceId = %s;\n", sysmlString(semantic.ID))
+	fmt.Fprintln(out, "        conceptKind = \"engineering_model\";")
+	fmt.Fprintln(out, "    }")
+	fmt.Fprintln(out, "    attribute 'engineeringModelInterchange';")
+}
 
-	elements := append([]model.SemanticElement(nil), semantic.Elements...)
-	machines := indexMachines(semantic)
+// groupNamespaceChildren groups the elements the generic writer renders by
+// their namespace; the model package itself and the parts a machine owns are
+// left out.
+//
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-137
+func groupNamespaceChildren(semantic model.SemanticModel, machines *machineIndex) map[string][]model.SemanticElement {
 	children := map[string][]model.SemanticElement{}
-	for _, element := range elements {
+	for _, element := range semantic.Elements {
 		if element.Kind == model.ElementPackageDefinition && element.ID == semantic.ID {
 			continue
 		}
@@ -257,36 +304,46 @@ func GenerateV2Projection(semantic model.SemanticModel) (string, []model.Semanti
 		}
 		children[namespace] = append(children[namespace], element)
 	}
-	externalEndpoints := compositionExternalEndpoints(semantic.Relationships, elementIDs)
-	writeNamespaceElements(&out, semantic.ID, "    ", children, semantic.Imports, elementIDs, machines, &diagnostics)
-	writeCompositionExternalEndpoints(&out, externalEndpoints, elementIDs)
+	return children
+}
 
-	relationships := append([]model.SemanticRelationship(nil), semantic.Relationships...)
-	for _, relationship := range relationships {
-		if relationship.Kind == model.RelationshipContainment || machines.ownsRelationship(relationship.ID) {
-			continue
-		}
-		fmt.Fprintln(&out)
-		if !elementIDs[relationship.Source] || !elementIDs[relationship.Target] {
-			diagnostics = append(diagnostics, model.SemanticDiagnostic{
-				Code: "sysml.external_relationship_endpoint", Severity: model.SemanticSeverityError,
-				Message: fmt.Sprintf("relationship %q references an endpoint outside the loaded bundle", relationship.ID),
-				Path:    "relationships." + relationship.ID,
-			})
-			continue
-		}
-		writeRelationshipAnnotation(&out, relationship)
-		if !writeNativeRelationship(&out, relationship, "    ") {
-			diagnostics = append(diagnostics, model.SemanticDiagnostic{
-				Code: "sysml.missing_relationship_rule", Severity: model.SemanticSeverityError,
-				Message: fmt.Sprintf("relationship %q has no native rendering rule for %q (%s)", relationship.ID, relationship.Kind, relationship.Metaclass),
-				Path:    "relationships." + relationship.ID,
-			})
-		}
+// sysmlWriter renders the namespace tree of one semantic model into out and
+// collects the diagnostics of the constructs it cannot render.
+type sysmlWriter struct {
+	out         *bytes.Buffer
+	children    map[string][]model.SemanticElement
+	imports     []model.SemanticImport
+	elementIDs  map[string]bool
+	machines    *machineIndex
+	diagnostics *[]model.SemanticDiagnostic
+}
+
+func (w *sysmlWriter) diagnoseError(code, message, path string) {
+	*w.diagnostics = append(*w.diagnostics, model.SemanticDiagnostic{
+		Code: code, Severity: model.SemanticSeverityError, Message: message, Path: path,
+	})
+}
+
+// relationship writes one top-level relationship unless it is a containment
+// or a machine owns it.
+//
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-039, REQ-EMG-137
+func (w *sysmlWriter) relationship(relationship model.SemanticRelationship) {
+	if relationship.Kind == model.RelationshipContainment || w.machines.ownsRelationship(relationship.ID) {
+		return
 	}
-	fmt.Fprintln(&out, "}")
-
-	return out.String(), sortSemanticDiagnostics(diagnostics)
+	fmt.Fprintln(w.out)
+	path := "relationships." + relationship.ID
+	if !w.elementIDs[relationship.Source] || !w.elementIDs[relationship.Target] {
+		w.diagnoseError("sysml.external_relationship_endpoint",
+			fmt.Sprintf("relationship %q references an endpoint outside the loaded bundle", relationship.ID), path)
+		return
+	}
+	writeRelationshipAnnotation(w.out, relationship)
+	if !writeNativeRelationship(w.out, relationship, "    ") {
+		w.diagnoseError("sysml.missing_relationship_rule",
+			fmt.Sprintf("relationship %q has no native rendering rule for %q (%s)", relationship.ID, relationship.Kind, relationship.Metaclass), path)
+	}
 }
 
 type compositionExternalEndpoint struct {
@@ -301,22 +358,7 @@ type compositionExternalEndpoint struct {
 func compositionExternalEndpoints(relationships []model.SemanticRelationship, elementIDs map[string]bool) []compositionExternalEndpoint {
 	byID := map[string]compositionExternalEndpoint{}
 	for _, relationship := range relationships {
-		switch relationship.Kind {
-		case model.RelationshipAllocation:
-			if !elementIDs[relationship.Source] {
-				byID[relationship.Source] = compositionExternalEndpoint{ID: relationship.Source}
-			}
-			if !elementIDs[relationship.Target] {
-				byID[relationship.Target] = compositionExternalEndpoint{ID: relationship.Target}
-			}
-		case model.RelationshipSatisfaction:
-			if !elementIDs[relationship.Source] {
-				byID[relationship.Source] = compositionExternalEndpoint{ID: relationship.Source}
-			}
-			if !elementIDs[relationship.Target] {
-				byID[relationship.Target] = compositionExternalEndpoint{ID: relationship.Target, Requirement: true}
-			}
-		}
+		addExternalEndpoints(byID, relationship, elementIDs)
 	}
 	out := make([]compositionExternalEndpoint, 0, len(byID))
 	for _, endpoint := range byID {
@@ -324,6 +366,28 @@ func compositionExternalEndpoints(relationships []model.SemanticRelationship, el
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 	return out
+}
+
+// addExternalEndpoints records the endpoints of an allocation or satisfaction
+// that the loaded bundle does not define; a satisfaction target is a requirement.
+//
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-047, REQ-EMG-050
+// ENGMODEL-LINKS: FU-SYSML-EXPORTER, FU-SYSTEM-COMPOSITION
+func addExternalEndpoints(byID map[string]compositionExternalEndpoint, relationship model.SemanticRelationship, elementIDs map[string]bool) {
+	targetIsRequirement := false
+	switch relationship.Kind {
+	case model.RelationshipAllocation:
+	case model.RelationshipSatisfaction:
+		targetIsRequirement = true
+	default:
+		return
+	}
+	if !elementIDs[relationship.Source] {
+		byID[relationship.Source] = compositionExternalEndpoint{ID: relationship.Source}
+	}
+	if !elementIDs[relationship.Target] {
+		byID[relationship.Target] = compositionExternalEndpoint{ID: relationship.Target, Requirement: targetIsRequirement}
+	}
 }
 
 // writeCompositionExternalEndpoints emits typed placeholders for contract
@@ -351,63 +415,78 @@ func writeElementAnnotation(out *bytes.Buffer, element model.SemanticElement) {
 }
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-137
-func writeNamespaceElements(out *bytes.Buffer, namespace, indent string, children map[string][]model.SemanticElement, imports []model.SemanticImport, elementIDs map[string]bool, machines *machineIndex, diagnostics *[]model.SemanticDiagnostic) {
-	for _, element := range children[namespace] {
-		fmt.Fprintln(out)
-		writeElement(out, element, indent, children, imports, elementIDs, machines, diagnostics)
+func (w *sysmlWriter) namespaceElements(namespace, indent string) {
+	for _, element := range w.children[namespace] {
+		fmt.Fprintln(w.out)
+		w.element(element, indent)
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-137
-func writeElement(out *bytes.Buffer, element model.SemanticElement, indent string, children map[string][]model.SemanticElement, imports []model.SemanticImport, elementIDs map[string]bool, machines *machineIndex, diagnostics *[]model.SemanticDiagnostic) {
-	writeElementAnnotationAt(out, element, indent)
+func (w *sysmlWriter) element(element model.SemanticElement, indent string) {
+	writeElementAnnotationAt(w.out, element, indent)
 	keyword, ok := nativeElementKeyword(element)
 	if !ok {
-		*diagnostics = append(*diagnostics, model.SemanticDiagnostic{
-			Code: "sysml.missing_element_rule", Severity: model.SemanticSeverityError,
-			Message: fmt.Sprintf("element %q has no native rendering rule for %q (%s)", element.ID, element.Kind, element.Metaclass),
-			Path:    "elements." + element.ID,
-		})
+		w.diagnoseError("sysml.missing_element_rule",
+			fmt.Sprintf("element %q has no native rendering rule for %q (%s)", element.ID, element.Kind, element.Metaclass),
+			"elements."+element.ID)
 		return
 	}
-	if element.Kind == model.ElementPackageDefinition {
-		fmt.Fprintf(out, "%spackage %s {\n", indent, sysmlName(element.ID))
-		for _, imported := range imports {
-			if imported.Namespace == element.ID {
-				writeImport(out, imported, indent+"    ")
-			}
+	switch {
+	case element.Kind == model.ElementPackageDefinition:
+		w.packageElement(element, indent)
+	case w.machines.isMachine(element.ID):
+		w.machine(element, indent)
+	default:
+		w.declaration(element, keyword, indent)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func (w *sysmlWriter) packageElement(element model.SemanticElement, indent string) {
+	fmt.Fprintf(w.out, "%spackage %s {\n", indent, sysmlName(element.ID))
+	for _, imported := range w.imports {
+		if imported.Namespace == element.ID {
+			writeImport(w.out, imported, indent+"    ")
 		}
-		writeNamespaceElements(out, element.ID, indent+"    ", children, imports, elementIDs, machines, diagnostics)
-		fmt.Fprintf(out, "%s}\n", indent)
+	}
+	w.namespaceElements(element.ID, indent+"    ")
+	fmt.Fprintf(w.out, "%s}\n", indent)
+}
+
+// declaration writes an element as a declaration with its typing, implied
+// relationship ends, features and nested elements.
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-039
+func (w *sysmlWriter) declaration(element model.SemanticElement, keyword, indent string) {
+	fmt.Fprintf(w.out, "%s%s ", indent, keyword)
+	fmt.Fprint(w.out, sysmlName(element.ID))
+	writeElementTyping(w.out, element)
+	impliedEnds := needsImpliedRelationshipEnds(element.Metaclass)
+	if len(element.Features) == 0 && len(w.children[element.ID]) == 0 && !impliedEnds {
+		fmt.Fprintln(w.out, ";")
 		return
 	}
-	if machines.isMachine(element.ID) {
-		writeMachine(out, element, indent, children, imports, elementIDs, machines, diagnostics)
-		return
-	}
-	fmt.Fprintf(out, "%s%s ", indent, keyword)
-	fmt.Fprint(out, sysmlName(element.ID))
-	writeElementTyping(out, element)
-	hasChildren := len(children[element.ID]) > 0
-	hasBody := len(element.Features) > 0 || hasChildren || needsImpliedRelationshipEnds(element.Metaclass)
-	if !hasBody {
-		fmt.Fprintln(out, ";")
-		return
-	}
-	fmt.Fprintln(out, " {")
-	if needsImpliedRelationshipEnds(element.Metaclass) {
-		endKeyword := "item"
-		if element.Metaclass == "SysML::InterfaceDefinition" {
-			endKeyword = "port"
-		}
-		fmt.Fprintf(out, "%s    end %s 'source' : Engineering%s;\n", indent, endKeyword, strings.ToUpper(endKeyword[:1])+endKeyword[1:])
-		fmt.Fprintf(out, "%s    end %s 'target' : Engineering%s;\n", indent, endKeyword, strings.ToUpper(endKeyword[:1])+endKeyword[1:])
+	fmt.Fprintln(w.out, " {")
+	if impliedEnds {
+		writeImpliedRelationshipEnds(w.out, element.Metaclass, indent)
 	}
 	for _, feature := range element.Features {
-		writeFeature(out, feature, indent+"    ")
+		writeFeature(w.out, feature, indent+"    ")
 	}
-	writeNamespaceElements(out, element.ID, indent+"    ", children, imports, elementIDs, machines, diagnostics)
-	fmt.Fprintf(out, "%s}\n", indent)
+	w.namespaceElements(element.ID, indent+"    ")
+	fmt.Fprintf(w.out, "%s}\n", indent)
+}
+
+// TRLC-LINKS: REQ-EMG-039
+func writeImpliedRelationshipEnds(out *bytes.Buffer, metaclass, indent string) {
+	endKeyword := "item"
+	if metaclass == "SysML::InterfaceDefinition" {
+		endKeyword = "port"
+	}
+	typeName := "Engineering" + strings.ToUpper(endKeyword[:1]) + endKeyword[1:]
+	fmt.Fprintf(out, "%s    end %s 'source' : %s;\n", indent, endKeyword, typeName)
+	fmt.Fprintf(out, "%s    end %s 'target' : %s;\n", indent, endKeyword, typeName)
 }
 
 // TRLC-LINKS: REQ-EMG-036
@@ -431,75 +510,107 @@ func writeImport(out *bytes.Buffer, imported model.SemanticImport, indent string
 	fmt.Fprintf(out, "%s%s import %s%s;\n", indent, visibility, sysmlName(imported.Imported), suffix)
 }
 
+// featureKeywords maps a feature kind to its declaration keyword; every other
+// kind is an attribute.
+var featureKeywords = map[model.SemanticFeatureKind]string{
+	model.FeatureParameter: "item ",
+	model.FeaturePort:      "port ",
+}
+
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
 func writeFeature(out *bytes.Buffer, feature model.SemanticFeature, indent string) {
-	direction := strings.TrimSpace(feature.Direction)
-	if direction != "" {
-		fmt.Fprintf(out, "%s%s ", indent, direction)
-	} else {
-		fmt.Fprint(out, indent)
+	fmt.Fprint(out, indent)
+	if direction := strings.TrimSpace(feature.Direction); direction != "" {
+		fmt.Fprintf(out, "%s ", direction)
 	}
-	switch feature.Kind {
-	case model.FeatureParameter:
-		fmt.Fprint(out, "item ")
-	case model.FeaturePort:
-		fmt.Fprint(out, "port ")
-	default:
-		fmt.Fprint(out, "attribute ")
+	keyword, ok := featureKeywords[feature.Kind]
+	if !ok {
+		keyword = "attribute "
 	}
+	fmt.Fprint(out, keyword)
 	fmt.Fprint(out, sysmlName(feature.Name))
-	if strings.TrimSpace(feature.Type) != "" && isNativeTypeReference(feature.Type) {
-		fmt.Fprint(out, " : ")
-		if feature.Conjugated && feature.Kind == model.FeaturePort {
-			fmt.Fprint(out, "~")
-		}
-		fmt.Fprint(out, sysmlName(feature.Type))
-	} else if feature.Kind == model.FeatureParameter || feature.Kind == model.FeaturePort {
-		fmt.Fprint(out, " : ")
-		if feature.Conjugated && feature.Kind == model.FeaturePort {
-			fmt.Fprint(out, "~")
-		}
-		fmt.Fprint(out, defaultFeatureType(feature.Kind))
+	if typeName, ok := featureTypeName(feature); ok {
+		writeTypingClause(out, typeName, feature.Conjugated && feature.Kind == model.FeaturePort)
 	}
-	writeMultiplicity(out, feature.Multiplicity, feature.Ordered, feature.Unique)
-	for _, specialized := range feature.Specializes {
-		fmt.Fprintf(out, " :> %s", sysmlName(specialized))
-	}
-	for _, subsetted := range feature.Subsets {
-		fmt.Fprintf(out, " :> %s", sysmlName(subsetted))
-	}
-	for _, redefined := range feature.Redefines {
-		fmt.Fprintf(out, " :>> %s", sysmlName(redefined))
-	}
+	writeMultiplicity(out, multiplicitySpec{feature.Multiplicity, feature.Ordered, feature.Unique})
+	writeNameList(out, " :> ", feature.Specializes)
+	writeNameList(out, " :> ", feature.Subsets)
+	writeNameList(out, " :>> ", feature.Redefines)
 	if feature.Value != nil {
 		fmt.Fprintf(out, " = %s", sysmlExpression(*feature.Value))
 	}
 	fmt.Fprintln(out, ";")
 }
 
+// featureTypeName returns the rendered type of a feature: its own type when
+// that is a native type reference, else the default type of a parameter or port.
+//
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func writeMultiplicity(out *bytes.Buffer, multiplicity *model.Multiplicity, ordered bool, unique *bool) {
-	if multiplicity != nil {
-		lower := "0"
-		upper := "*"
-		if multiplicity.Lower != nil {
-			lower = fmt.Sprintf("%d", *multiplicity.Lower)
-		}
-		if multiplicity.Upper != nil && *multiplicity.Upper >= 0 {
-			upper = fmt.Sprintf("%d", *multiplicity.Upper)
-		}
-		if lower == upper {
-			fmt.Fprintf(out, " [%s]", lower)
-		} else {
-			fmt.Fprintf(out, " [%s..%s]", lower, upper)
-		}
+func featureTypeName(feature model.SemanticFeature) (string, bool) {
+	if strings.TrimSpace(feature.Type) != "" && isNativeTypeReference(feature.Type) {
+		return sysmlName(feature.Type), true
 	}
-	if ordered {
+	if feature.Kind == model.FeatureParameter || feature.Kind == model.FeaturePort {
+		return defaultFeatureType(feature.Kind), true
+	}
+	return "", false
+}
+
+// writeTypingClause writes " : Type", conjugated as " : ~Type".
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func writeTypingClause(out *bytes.Buffer, typeName string, conjugated bool) {
+	fmt.Fprint(out, " : ")
+	if conjugated {
+		fmt.Fprint(out, "~")
+	}
+	fmt.Fprint(out, typeName)
+}
+
+// writeNameList writes each name after the operator, for example " :> 'A'".
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func writeNameList(out *bytes.Buffer, operator string, names []string) {
+	for _, name := range names {
+		fmt.Fprintf(out, "%s%s", operator, sysmlName(name))
+	}
+}
+
+// multiplicitySpec groups the multiplicity, ordering and uniqueness of a
+// feature or element.
+type multiplicitySpec struct {
+	Multiplicity *model.Multiplicity
+	Ordered      bool
+	Unique       *bool
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func writeMultiplicity(out *bytes.Buffer, spec multiplicitySpec) {
+	if spec.Multiplicity != nil {
+		fmt.Fprint(out, multiplicityRange(*spec.Multiplicity))
+	}
+	if spec.Ordered {
 		fmt.Fprint(out, " ordered")
 	}
-	if unique != nil && !*unique {
+	if spec.Unique != nil && !*spec.Unique {
 		fmt.Fprint(out, " nonunique")
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func multiplicityRange(multiplicity model.Multiplicity) string {
+	lower := "0"
+	upper := "*"
+	if multiplicity.Lower != nil {
+		lower = fmt.Sprintf("%d", *multiplicity.Lower)
+	}
+	if multiplicity.Upper != nil && *multiplicity.Upper >= 0 {
+		upper = fmt.Sprintf("%d", *multiplicity.Upper)
+	}
+	if lower == upper {
+		return fmt.Sprintf(" [%s]", lower)
+	}
+	return fmt.Sprintf(" [%s..%s]", lower, upper)
 }
 
 // TRLC-LINKS: REQ-EMG-036
@@ -550,9 +661,7 @@ func writeRelationshipAnnotation(out *bytes.Buffer, relationship model.SemanticR
 }
 
 var nativeRelationshipWriters = map[model.SemanticRelationshipKind]func(*bytes.Buffer, model.SemanticRelationship, string){
-	model.RelationshipDependency: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
-		fmt.Fprintf(out, "%sdependency %s from %s to %s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
-	},
+	model.RelationshipDependency: writeDependency,
 	model.RelationshipConnection: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
 		fmt.Fprintf(out, "%spart def %s {\n", indent, sysmlName(relationship.ID+"-context"))
 		fmt.Fprintf(out, "%s    part source : %s;\n", indent, sysmlName(relationship.Source))
@@ -607,20 +716,26 @@ var nativeRelationshipWriters = map[model.SemanticRelationshipKind]func(*bytes.B
 		fmt.Fprintf(out, "%s}\n", indent)
 	},
 	model.RelationshipTransition: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
-		writeTransitionRelationship(out, relationship, indent, "", "")
+		transitionClauses{}.write(out, relationship, indent)
 	},
-	model.RelationshipEventTrigger: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
-		writeTransitionRelationship(out, relationship, indent, "accept trigger ", "")
-	},
+	model.RelationshipEventTrigger: writeAcceptTransition,
 	model.RelationshipGuard: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
-		writeTransitionRelationship(out, relationship, indent, "if "+relationshipExpression(relationship.Guard)+" ", "")
+		transitionClauses{middle: "if " + relationshipExpression(relationship.Guard) + " "}.write(out, relationship, indent)
 	},
 	model.RelationshipEffect: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
-		writeTransitionRelationship(out, relationship, indent, "", " do "+relationshipExpression(relationship.Effect))
+		transitionClauses{effect: " do " + relationshipExpression(relationship.Effect)}.write(out, relationship, indent)
 	},
-	model.RelationshipExtension: func(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
-		fmt.Fprintf(out, "%sdependency %s from %s to %s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
-	},
+	model.RelationshipExtension: writeDependency,
+}
+
+// dependencyRelationshipKinds are the relationship kinds SysML renders as a
+// dependency between their source and target.
+var dependencyRelationshipKinds = map[model.SemanticRelationshipKind]bool{
+	model.RelationshipTyping:         true,
+	model.RelationshipSpecialization: true,
+	model.RelationshipSubsetting:     true,
+	model.RelationshipRedefinition:   true,
+	model.RelationshipVariant:        true,
 }
 
 // TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
@@ -629,12 +744,8 @@ func writeNativeRelationship(out *bytes.Buffer, relationship model.SemanticRelat
 		fmt.Fprintf(out, "%sref item %s subsets %s = %s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Target), sysmlName(relationship.Source))
 		return true
 	}
-	if relationship.Kind == model.RelationshipTyping ||
-		relationship.Kind == model.RelationshipSpecialization ||
-		relationship.Kind == model.RelationshipSubsetting ||
-		relationship.Kind == model.RelationshipRedefinition ||
-		relationship.Kind == model.RelationshipVariant {
-		fmt.Fprintf(out, "%sdependency %s from %s to %s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
+	if dependencyRelationshipKinds[relationship.Kind] {
+		writeDependency(out, relationship, indent)
 		return true
 	}
 	writer, ok := nativeRelationshipWriters[relationship.Kind]
@@ -646,19 +757,37 @@ func writeNativeRelationship(out *bytes.Buffer, relationship model.SemanticRelat
 }
 
 // TRLC-LINKS: REQ-EMG-039
-func writeTransitionRelationship(out *bytes.Buffer, relationship model.SemanticRelationship, indent, middle, effect string) {
+func writeDependency(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
+	fmt.Fprintf(out, "%sdependency %s from %s to %s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
+}
+
+// transitionClauses are the parts of a transition declaration between its
+// source and its target (middle) and after its target (effect).
+type transitionClauses struct {
+	middle string
+	effect string
+}
+
+// write renders a transition between two actions.
+//
+// TRLC-LINKS: REQ-EMG-039
+func (c transitionClauses) write(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
 	fmt.Fprintf(out, "%sstate %s : EngineeringState {\n", indent, sysmlName(relationship.ID+"-context"))
-	if strings.HasPrefix(middle, "accept") {
-		fmt.Fprintf(out, "%s    state %s : EngineeringState;\n", indent, sysmlName(relationship.Source))
-		fmt.Fprintf(out, "%s    action transitionEffect : EngineeringAction;\n", indent)
-		fmt.Fprintf(out, "%s    transition %s first %s accept %s : EngineeringItem then transitionEffect;\n",
-			indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
-		fmt.Fprintf(out, "%s}\n", indent)
-		return
-	}
 	fmt.Fprintf(out, "%s    action %s : EngineeringAction;\n", indent, sysmlName(relationship.Source))
 	fmt.Fprintf(out, "%s    action %s : EngineeringAction;\n", indent, sysmlName(relationship.Target))
-	fmt.Fprintf(out, "%s    transition %s first %s %sthen %s%s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), middle, sysmlName(relationship.Target), effect)
+	fmt.Fprintf(out, "%s    transition %s first %s %sthen %s%s;\n", indent, sysmlName(relationship.ID), sysmlName(relationship.Source), c.middle, sysmlName(relationship.Target), c.effect)
+	fmt.Fprintf(out, "%s}\n", indent)
+}
+
+// writeAcceptTransition renders a transition between two states that accepts a trigger.
+//
+// TRLC-LINKS: REQ-EMG-039
+func writeAcceptTransition(out *bytes.Buffer, relationship model.SemanticRelationship, indent string) {
+	fmt.Fprintf(out, "%sstate %s : EngineeringState {\n", indent, sysmlName(relationship.ID+"-context"))
+	fmt.Fprintf(out, "%s    state %s : EngineeringState;\n", indent, sysmlName(relationship.Source))
+	fmt.Fprintf(out, "%s    action transitionEffect : EngineeringAction;\n", indent)
+	fmt.Fprintf(out, "%s    transition %s first %s accept %s : EngineeringItem then transitionEffect;\n",
+		indent, sysmlName(relationship.ID), sysmlName(relationship.Source), sysmlName(relationship.Target))
 	fmt.Fprintf(out, "%s}\n", indent)
 }
 
@@ -674,28 +803,16 @@ func relationshipExpression(expression *model.SemanticExpression) string {
 func sysMLRendererCoverage() RendererCoverage {
 	coverage := RendererCoverage{OfficialMetaclasses: len(model.OfficialSysMLMetaclasses)}
 	for id, metaclass := range model.OfficialSysMLMetaclasses {
-		if syntax, ok := officialNativeMetaclassKeywords[id]; ok {
+		entry := rendererEvidenceFor(id, metaclass)
+		switch entry.Status {
+		case "native":
 			coverage.NativeRules++
-			coverage.Entries = append(coverage.Entries, RendererEvidence{
-				Metaclass: id, Status: "native", Syntax: syntax,
-				Explanation: "Rendered by the table-driven canonical SysML textual dispatcher.",
-			})
-		} else if metaclass.Abstract || isSemanticOnlyMetaclass(id, metaclass) {
+		case "non-instantiable":
 			coverage.NonInstantiable++
-			reason := "No standalone concrete textual production; produced implicitly by native ownership, typing, membership, expression, or relationship syntax."
-			if metaclass.Abstract {
-				reason = "Abstract metaclass; represented only through a concrete native subtype."
-			}
-			coverage.Entries = append(coverage.Entries, RendererEvidence{
-				Metaclass: id, Status: "non-instantiable", Explanation: reason,
-			})
-		} else {
+		default:
 			coverage.MissingRules++
-			coverage.Entries = append(coverage.Entries, RendererEvidence{
-				Metaclass: id, Status: "missing",
-				Explanation: "Concrete canonical instance has no native textual rendering rule.",
-			})
 		}
+		coverage.Entries = append(coverage.Entries, entry)
 		if metaclass.Relationship {
 			coverage.Relationships++
 		}
@@ -704,6 +821,35 @@ func sysMLRendererCoverage() RendererCoverage {
 		return coverage.Entries[i].Metaclass < coverage.Entries[j].Metaclass
 	})
 	return coverage
+}
+
+// rendererEvidenceFor classifies one official metaclass as native,
+// non-instantiable or missing a rendering rule.
+//
+// TRLC-LINKS: REQ-EMG-039
+func rendererEvidenceFor(id string, metaclass model.OfficialSysMLMetaclass) RendererEvidence {
+	if syntax, ok := officialNativeMetaclassKeywords[id]; ok {
+		return RendererEvidence{
+			Metaclass: id, Status: "native", Syntax: syntax,
+			Explanation: "Rendered by the table-driven canonical SysML textual dispatcher.",
+		}
+	}
+	if metaclass.Abstract {
+		return RendererEvidence{
+			Metaclass: id, Status: "non-instantiable",
+			Explanation: "Abstract metaclass; represented only through a concrete native subtype.",
+		}
+	}
+	if isSemanticOnlyMetaclass(id, metaclass) {
+		return RendererEvidence{
+			Metaclass: id, Status: "non-instantiable",
+			Explanation: "No standalone concrete textual production; produced implicitly by native ownership, typing, membership, expression, or relationship syntax.",
+		}
+	}
+	return RendererEvidence{
+		Metaclass: id, Status: "missing",
+		Explanation: "Concrete canonical instance has no native textual rendering rule.",
+	}
 }
 
 var officialNativeMetaclassKeywords = func() map[string]string {
@@ -821,29 +967,27 @@ func nativeElementKeyword(element model.SemanticElement) (string, bool) {
 
 // TRLC-LINKS: REQ-EMG-039
 func writeElementTyping(out *bytes.Buffer, element model.SemanticElement) {
+	if typeName, ok := elementTypeName(element); ok {
+		writeTypingClause(out, typeName, element.Conjugated && element.Kind == model.ElementPortUsage)
+	}
+	writeMultiplicity(out, multiplicitySpec{element.Multiplicity, element.Ordered, element.Unique})
+	writeNameList(out, " :> ", element.Specializes)
+	writeNameList(out, " :> ", element.Subsets)
+	writeNameList(out, " :>> ", element.Redefines)
+}
+
+// elementTypeName returns the rendered type of an element: its type reference,
+// except for actions, else the default type of its kind.
+//
+// TRLC-LINKS: REQ-EMG-039
+func elementTypeName(element model.SemanticElement) (string, bool) {
 	if element.TypeRef != "" && element.Kind != model.ElementActionUsage && element.Kind != model.ElementControlNode {
-		fmt.Fprint(out, " : ")
-		if element.Conjugated && element.Kind == model.ElementPortUsage {
-			fmt.Fprint(out, "~")
-		}
-		fmt.Fprint(out, sysmlName(element.TypeRef))
-	} else if defaultType := defaultElementType(element.Kind); defaultType != "" {
-		fmt.Fprint(out, " : ")
-		if element.Conjugated && element.Kind == model.ElementPortUsage {
-			fmt.Fprint(out, "~")
-		}
-		fmt.Fprint(out, defaultType)
+		return sysmlName(element.TypeRef), true
 	}
-	writeMultiplicity(out, element.Multiplicity, element.Ordered, element.Unique)
-	for _, specialized := range element.Specializes {
-		fmt.Fprintf(out, " :> %s", sysmlName(specialized))
+	if defaultType := defaultElementType(element.Kind); defaultType != "" {
+		return defaultType, true
 	}
-	for _, subsetted := range element.Subsets {
-		fmt.Fprintf(out, " :> %s", sysmlName(subsetted))
-	}
-	for _, redefined := range element.Redefines {
-		fmt.Fprintf(out, " :>> %s", sysmlName(redefined))
-	}
+	return "", false
 }
 
 // TRLC-LINKS: REQ-EMG-039
@@ -913,10 +1057,13 @@ func defaultFeatureType(kind model.SemanticFeatureKind) string {
 	return "EngineeringItem"
 }
 
+// nativeScalarTypes are the SysML scalar types a feature type may name.
+var nativeScalarTypes = map[string]bool{"String": true, "Boolean": true, "Integer": true, "Real": true}
+
 // TRLC-LINKS: REQ-EMG-039
 func isNativeTypeReference(value string) bool {
 	value = strings.TrimSpace(value)
-	if value == "String" || value == "Boolean" || value == "Integer" || value == "Real" {
+	if nativeScalarTypes[value] {
 		return true
 	}
 	return value != "" && value[0] >= 'A' && value[0] <= 'Z'
