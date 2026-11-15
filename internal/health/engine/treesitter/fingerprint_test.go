@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"hash"
 	"os"
 	"path/filepath"
 	"sort"
@@ -30,6 +31,17 @@ func fixtureFingerprint(t *testing.T) string {
 		t.Fatalf("no fixtures: %v", err)
 	}
 	sort.Strings(files)
+	sum := sha256.New()
+	for _, file := range files {
+		hashFixture(t, sum, file)
+	}
+	return hex.EncodeToString(sum.Sum(nil))
+}
+
+// hashFixture adds the canonical JSON of the result of a fixture to the hash,
+// at the default thresholds and at those of the product tier.
+func hashFixture(t *testing.T, sum hash.Hash, file string) {
+	t.Helper()
 	configs := []struct {
 		name string
 		cfg  health.Config
@@ -37,25 +49,20 @@ func fixtureFingerprint(t *testing.T) string {
 		{"default", health.Config{}},
 		{"product", health.Config{Thresholds: health.DefaultThresholdsForTier("product")}},
 	}
-	sum := sha256.New()
-	for _, file := range files {
-		src, err := os.ReadFile(file)
+	src, err := os.ReadFile(file)
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := strings.TrimSuffix(filepath.Base(file), ".txt")
+	for _, c := range configs {
+		data, err := json.Marshal(analyzeSource(t, health.FileInput{Path: path, Source: src}, c.cfg))
 		if err != nil {
 			t.Fatal(err)
 		}
-		path := strings.TrimSuffix(filepath.Base(file), ".txt")
-		for _, c := range configs {
-			res := analyzeSource(t, path, src, c.cfg)
-			data, err := json.Marshal(res)
-			if err != nil {
-				t.Fatal(err)
-			}
-			sum.Write([]byte(path + "\x00" + c.name + "\x00"))
-			sum.Write(data)
-			sum.Write([]byte{'\n'})
-		}
+		sum.Write([]byte(path + "\x00" + c.name + "\x00"))
+		sum.Write(data)
+		sum.Write([]byte{'\n'})
 	}
-	return hex.EncodeToString(sum.Sum(nil))
 }
 
 // A metric that changes without a new EngineVersion would let the cache serve
