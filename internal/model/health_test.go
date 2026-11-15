@@ -98,16 +98,36 @@ func TestAuthoringContractV7ListsHealth(t *testing.T) {
 		t.Fatal(err)
 	}
 	contract := BuildAuthoringContract(bundle)
-	var manifestFields []string
-	for _, d := range contract.Documents {
-		if d.Kind == "manifest" {
-			manifestFields = d.TopLevelFields
-		}
-	}
+	manifestFields := manifestTopLevelFields(contract)
 	if !reflect.DeepEqual(manifestFields[len(manifestFields)-2:], []string{"lifecycle", "health"}) {
 		t.Fatalf("manifest fields = %v", manifestFields)
 	}
 	guide := contract.Health
+	thresholds := countDocumentedThresholds(t, guide)
+	if len(guide.Config) == 0 || len(guide.Codes) != 16 || thresholds != 7 || len(guide.Rules) == 0 {
+		t.Fatalf("incomplete health guide: %+v", guide)
+	}
+	if !strings.Contains(strings.Join(guide.Rules, "\n"), "health.waiver_unjustified") {
+		t.Fatalf("the health guide must describe the waiver rule: %v", guide.Rules)
+	}
+}
+
+// manifestTopLevelFields returns the top-level fields the contract lists for
+// the manifest document.
+func manifestTopLevelFields(contract AuthoringContract) []string {
+	var fields []string
+	for _, d := range contract.Documents {
+		if d.Kind == "manifest" {
+			fields = d.TopLevelFields
+		}
+	}
+	return fields
+}
+
+// countDocumentedThresholds counts the codes the guide documents with limits,
+// failing for a code without meaning or one that is no threshold code.
+func countDocumentedThresholds(t *testing.T, guide HealthGuide) int {
+	t.Helper()
 	thresholds := 0
 	for _, c := range guide.Codes {
 		if c.Threshold {
@@ -120,12 +140,7 @@ func TestAuthoringContractV7ListsHealth(t *testing.T) {
 			t.Errorf("%s has no meaning", c.Code)
 		}
 	}
-	if len(guide.Config) == 0 || len(guide.Codes) != 16 || thresholds != 7 || len(guide.Rules) == 0 {
-		t.Fatalf("incomplete health guide: %+v", guide)
-	}
-	if !strings.Contains(strings.Join(guide.Rules, "\n"), "health.waiver_unjustified") {
-		t.Fatalf("the health guide must describe the waiver rule: %v", guide.Rules)
-	}
+	return thresholds
 }
 
 // health.policyDecision loads into the typed block, is optional, and the guide
@@ -135,8 +150,11 @@ func TestAuthoringContractV7ListsHealth(t *testing.T) {
 func TestManifestHealthPolicyDecisionLoads(t *testing.T) {
 	dir := writeV2Fixture(t, validManifest+"health:\n  policyDecision: ADR-POLICY\n")
 	bundle, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
-	if err != nil || bundle.Manifest.Health == nil || bundle.Manifest.Health.PolicyDecision != "ADR-POLICY" {
-		t.Fatalf("policyDecision: %v %+v", err, bundle.Manifest.Health)
+	if err != nil {
+		t.Fatalf("policyDecision: %v", err)
+	}
+	if bundle.Manifest.Health == nil || bundle.Manifest.Health.PolicyDecision != "ADR-POLICY" {
+		t.Fatalf("policyDecision: %+v", bundle.Manifest.Health)
 	}
 	plain := writeV2Fixture(t, validManifest+healthBlock)
 	bundle, err = LoadBundle(filepath.Join(plain, "engmod.yml"))
@@ -147,13 +165,20 @@ func TestManifestHealthPolicyDecisionLoads(t *testing.T) {
 	if _, err := LoadBundle(filepath.Join(empty, "engmod.yml")); err == nil || !strings.Contains(err.Error(), "policyDecision") {
 		t.Fatalf("an empty policyDecision must be rejected naming the field: %v", err)
 	}
-	found := false
-	for _, c := range BuildAuthoringContract(bundle).Health.Codes {
-		found = found || c.Code == HealthPolicyWeakenedCode
-	}
-	if !found || !strings.Contains(strings.Join(BuildAuthoringContract(bundle).Health.Config, "\n"), "policyDecision") {
+	guide := BuildAuthoringContract(bundle).Health
+	if !guideDocumentsCode(guide, HealthPolicyWeakenedCode) || !strings.Contains(strings.Join(guide.Config, "\n"), "policyDecision") {
 		t.Error("the health guide must document health.policy_weakened and policyDecision")
 	}
+}
+
+// guideDocumentsCode reports whether the health guide lists the code.
+func guideDocumentsCode(guide HealthGuide, code string) bool {
+	for _, c := range guide.Codes {
+		if c.Code == code {
+			return true
+		}
+	}
+	return false
 }
 
 // ParseHealthPolicy reads the lifecycle and health blocks of a manifest of
@@ -163,9 +188,14 @@ func TestManifestHealthPolicyDecisionLoads(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-155
 func TestParseHealthPolicyIsLenient(t *testing.T) {
 	policy, err := ParseHealthPolicy([]byte("schemaVersion: 1\nsomethingNew: [1, 2]\nlifecycle:\n  tier: product\n  futureKey: x\nhealth:\n  policyDecision: ADR-A\n  exclude: [gen/**]\n  thresholds:\n    health.complex_method: {warn: 9, high: 16}\n"))
-	if err != nil || policy.Lifecycle == nil || policy.Lifecycle.Tier != "product" || policy.Health == nil ||
-		policy.Health.PolicyDecision != "ADR-A" || policy.Health.Thresholds["health.complex_method"].High != 16 {
+	if err != nil || policy.Lifecycle == nil || policy.Health == nil {
 		t.Fatalf("policy = %+v, %v", policy, err)
+	}
+	if policy.Lifecycle.Tier != "product" || policy.Health.PolicyDecision != "ADR-A" {
+		t.Fatalf("policy = %+v", policy)
+	}
+	if policy.Health.Thresholds["health.complex_method"].High != 16 {
+		t.Fatalf("policy = %+v", policy)
 	}
 	if policy, err = ParseHealthPolicy(nil); err != nil || policy.Lifecycle != nil || policy.Health != nil {
 		t.Errorf("an empty document: %+v, %v", policy, err)

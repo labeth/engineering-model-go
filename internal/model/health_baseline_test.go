@@ -69,23 +69,9 @@ func TestManifestHealthBaselineRejectsMalformedShapes(t *testing.T) {
 	}
 }
 
-// The encoded baseline is canonical: sorted by path, function and code, without
-// duplicates, with the schema string, a trailing newline and no timestamp, and
-// parsing it gives the same entries back, so writing is idempotent.
-// TRLC-LINKS: REQ-EMG-153
-func TestHealthBaselineEncodeIsCanonicalAndRoundTrips(t *testing.T) {
-	entries := []HealthBaselineEntry{
-		{Path: "b.go", Function: "f", Code: "health.large_method", Value: 70},
-		{Path: "a.go", Function: "g", Code: "health.complex_method", Value: 12},
-		{Path: "a.go", Function: "f", Code: "health.large_method", Value: 55},
-		{Path: "a.go", Function: "f", Code: "health.complex_method", Value: 9},
-		{Path: "a.go", Function: "f", Code: "health.complex_method", Value: 14},
-	}
-	data, err := EncodeHealthBaseline(entries)
-	if err != nil {
-		t.Fatal(err)
-	}
-	want := `{
+// canonicalBaselineJSON is the canonical encoding of the entries of
+// TestHealthBaselineEncodeIsCanonicalAndRoundTrips.
+const canonicalBaselineJSON = `{
   "schema": "engmod-health-baseline/1",
   "entries": [
     {
@@ -115,15 +101,32 @@ func TestHealthBaselineEncodeIsCanonicalAndRoundTrips(t *testing.T) {
   ]
 }
 `
-	if string(data) != want {
-		t.Fatalf("encoding =\n%s\nwant\n%s", data, want)
+
+// The encoded baseline is canonical: sorted by path, function and code, without
+// duplicates, with the schema string, a trailing newline and no timestamp, and
+// parsing it gives the same entries back, so writing is idempotent.
+// TRLC-LINKS: REQ-EMG-153
+func TestHealthBaselineEncodeIsCanonicalAndRoundTrips(t *testing.T) {
+	entries := []HealthBaselineEntry{
+		{Path: "b.go", Function: "f", Code: "health.large_method", Value: 70},
+		{Path: "a.go", Function: "g", Code: "health.complex_method", Value: 12},
+		{Path: "a.go", Function: "f", Code: "health.large_method", Value: 55},
+		{Path: "a.go", Function: "f", Code: "health.complex_method", Value: 9},
+		{Path: "a.go", Function: "f", Code: "health.complex_method", Value: 14},
+	}
+	data, err := EncodeHealthBaseline(entries)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(data) != canonicalBaselineJSON {
+		t.Fatalf("encoding =\n%s\nwant\n%s", data, canonicalBaselineJSON)
 	}
 	parsed, err := ParseHealthBaseline(data)
 	if err != nil {
 		t.Fatal(err)
 	}
 	again, err := EncodeHealthBaseline(parsed.Entries)
-	if err != nil || string(again) != want {
+	if err != nil || string(again) != canonicalBaselineJSON {
 		t.Fatalf("re-encoding differs: %v\n%s", err, again)
 	}
 	empty, err := EncodeHealthBaseline(nil)
@@ -200,27 +203,35 @@ func TestLoadHealthBaselineResolvesAgainstTheManifest(t *testing.T) {
 
 	dir := t.TempDir()
 	manifest := filepath.Join(dir, "engmod.yml")
-	if _, err := LoadHealthBaseline(manifest, "model/b.json"); !errors.Is(err, ErrHealthBaseline) || !strings.Contains(err.Error(), "model/b.json") {
-		t.Fatalf("a missing file: %v", err)
-	}
-	if _, err := LoadHealthBaseline(manifest, "../b.json"); !errors.Is(err, ErrHealthBaseline) {
-		t.Fatalf("a path outside the manifest directory: %v", err)
-	}
+	requireBaselineRefused(t, manifest, "model/b.json", "model/b.json")
+	requireBaselineRefused(t, manifest, "../b.json", "")
 	data, _ := EncodeHealthBaseline([]HealthBaselineEntry{{Path: "a.go", Function: "f", Code: "health.large_method", Value: 5}})
-	if err := os.MkdirAll(filepath.Join(dir, "model"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, "model", "b.json"), data, 0o644); err != nil {
-		t.Fatal(err)
-	}
+	writeBaselineFile(t, filepath.Join(dir, "model", "b.json"), data)
 	got, err := LoadHealthBaseline(manifest, "model/b.json")
 	if err != nil || len(got.Entries) != 1 {
 		t.Fatalf("load: %v %+v", err, got)
 	}
-	if err := os.WriteFile(filepath.Join(dir, "model", "bad.json"), []byte("{"), 0o644); err != nil {
+	writeBaselineFile(t, filepath.Join(dir, "model", "bad.json"), []byte("{"))
+	requireBaselineRefused(t, manifest, "model/bad.json", "model/bad.json")
+}
+
+// requireBaselineRefused fails unless loading file is an ErrHealthBaseline
+// error that names the fragment (any error when the fragment is empty).
+func requireBaselineRefused(t *testing.T, manifest, file, fragment string) {
+	t.Helper()
+	_, err := LoadHealthBaseline(manifest, file)
+	if !errors.Is(err, ErrHealthBaseline) || !strings.Contains(err.Error(), fragment) {
+		t.Fatalf("baseline %s: %v", file, err)
+	}
+}
+
+// writeBaselineFile writes data to path, creating its directory.
+func writeBaselineFile(t *testing.T, path string, data []byte) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := LoadHealthBaseline(manifest, "model/bad.json"); !errors.Is(err, ErrHealthBaseline) || !strings.Contains(err.Error(), "model/bad.json") {
-		t.Fatalf("a malformed file: %v", err)
+	if err := os.WriteFile(path, data, 0o644); err != nil {
+		t.Fatal(err)
 	}
 }
