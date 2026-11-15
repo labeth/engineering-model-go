@@ -17,9 +17,15 @@
 #   8. Code health gate of this repository's own model: enghealth scan fails on
 #      any finding that is an error at the tier of engmod.yml, and enghealth
 #      check fails on a regression or a weakening of the policy against the base
-#      revision (ENGMOD_HEALTH_BASE, else GITHUB_BASE_REF, else origin/main or
-#      main). The check is skipped, with a message, when there is no base
+#      revision (ENGMOD_HEALTH_BASE, else GITHUB_BASE_REF, else origin/main, main, origin/master or
+#      master). The check is skipped, with a message, when there is no base
 #      revision or the clone is shallow.
+#
+# Every long step (example generation, Quint check, SysML validation, format
+# validation) runs under `timeout` (ENGMOD_STEP_TIMEOUT seconds, default 3600) so
+# a stalled external tool fails the gate with a message instead of hanging it. A
+# full run takes about 13 minutes on an idle machine, 5 of them in the Quint
+# check of the repository's own model.
 #
 # External validation may only be skipped locally by explicitly setting the
 # relevant ENGMOD_*_SKIP_EXTERNAL flag (ENGMOD_QUINT_SKIP_EXTERNAL=1 for the
@@ -32,6 +38,14 @@ cd "$repo_root"
 source "$repo_root/scripts/quint-models.sh"
 
 fail=0
+step_timeout="${ENGMOD_STEP_TIMEOUT:-3600}"
+# bounded runs a command under the step timeout and says so when it is hit.
+bounded() {
+  timeout "$step_timeout" "$@"
+  local rc=$?
+  if [ "$rc" -eq 124 ]; then echo "  TIMEOUT after ${step_timeout}s: $* (raise ENGMOD_STEP_TIMEOUT if the machine is slow)" >&2; fi
+  return "$rc"
+}
 section() { printf '\n========== %s ==========\n' "$*"; }
 log_dir="$repo_root/.engmod/validation/logs"
 mkdir -p "$log_dir"
@@ -68,7 +82,7 @@ else
   health_base="${ENGMOD_HEALTH_BASE:-}"
   if [ -z "$health_base" ] && [ -n "${GITHUB_BASE_REF:-}" ]; then health_base="origin/${GITHUB_BASE_REF}"; fi
   if [ -z "$health_base" ]; then
-    for candidate in origin/main main; do
+    for candidate in origin/main main origin/master master; do
       if git rev-parse --verify --quiet "${candidate}^{commit}" >/dev/null 2>&1; then health_base="$candidate"; break; fi
     done
   fi
@@ -90,7 +104,7 @@ else
   echo "  FAIL Atlas Industries multi-repository composition"
   fail=1
 fi
-if scripts/generate-examples.sh >"$log_dir/example-generation.log" 2>&1; then
+if bounded scripts/generate-examples.sh >"$log_dir/example-generation.log" 2>&1; then
   echo "  ok   all maintained example projections"
 else
   echo "  FAIL maintained example projections"
@@ -160,7 +174,7 @@ else
     echo "  FAIL engquint check --mode both needs QUINT_HOME (pinned Apalache) and Java 21 on PATH (scripts/install-quint-toolchain.sh)"; fail=1
   else
     for manifest in "${quint_manifests[@]}"; do
-      if go run ./cmd/engquint check --model "$manifest" --mode both >"$log_dir/quint-check.log" 2>&1; then
+      if bounded go run ./cmd/engquint check --model "$manifest" --mode both >"$log_dir/quint-check.log" 2>&1; then
         echo "  ok   engquint check $manifest"
       else
         echo "  FAIL engquint check $manifest"; tail -25 "$log_dir/quint-check.log" | sed 's/^/         /'; fail=1
@@ -170,7 +184,7 @@ else
 fi
 
 section "SysML v2 official parser and KPAR round trip"
-if bash scripts/validate-sysml.sh; then
+if bounded bash scripts/validate-sysml.sh; then
   echo "  ok   SysML v2 conformance gates"
 else
   echo "  FAIL SysML v2 conformance gates"
@@ -191,7 +205,7 @@ fi
 section "Generated format conformance"
 if [ "${ENGMOD_FORMAT_SKIP_EXTERNAL:-0}" = "1" ]; then
   echo "  skip external generated-format validation explicitly disabled"
-elif scripts/validate-generated-formats.sh >"$log_dir/generated-formats.log" 2>&1; then
+elif bounded scripts/validate-generated-formats.sh >"$log_dir/generated-formats.log" 2>&1; then
   echo "  ok   all generated formats"
 else
   echo "  FAIL generated format conformance"

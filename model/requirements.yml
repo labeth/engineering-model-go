@@ -2138,7 +2138,7 @@ requirements:
       - SM-GO-BUNDLE-SESSION
     realizes: [CAP-EMG-GO-API]
   - id: REQ-EMG-207
-    status: implemented
+    status: verified
     text: When model check is requested, the engineering model go shall report each architectural dependency that names no interface.
     notes: 'ADR-EMG-085, architecture.dependency_without_interface, one diagnostic at authoredArchitecture.mappings[i] naming the type, both ends and the fix. A dependency is a relationship of type depends_on, calls, publishes, subscribes, reads, writes, streams, implements or interacts_with between functional units, functional groups, actors, referenced elements, hardware items or alias::ID elements of a composed dependency; it names an interface when an end is an interface that has an owner or is a published alias::IF-*, or when a hardware interface connects two hardware items. Containment, self dependencies, other relationship types and data object or deployment target ends are not asked. The tier policy row is WWWEE: a warning at poc, prototype and mvp, an error at product and operational, and the warning without a tier decision.'
     verificationMethods: [test]
@@ -2149,7 +2149,7 @@ requirements:
       - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-208
-    status: implemented
+    status: verified
     text: When model check is requested, the engineering model go shall report each interface that no data object is sent over.
     notes: 'ADR-EMG-086, architecture.interface_without_data, one diagnostic at authoredArchitecture.interfaces[i] naming the interface and the fix. A local software interface has data when a flow step names it in interfaceRef and lists a data object in its dataRefs, dataIn or dataOut; the flow dataRefs, relationships, schemaRef and names do not count, an unused interface is asked, and a composed alias::IF-* interface is checked in its own model. The tier policy row is WWWEE, as for REQ-EMG-207.'
     verificationMethods: [test]

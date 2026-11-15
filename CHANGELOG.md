@@ -6,6 +6,63 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-11-15: Tool-support APIs, requirement structure and architecture interface rules
+
+A minor release below v1 (a minor bump allows a contract change). The model schema stays at version 3 and the authoring contract
+at `engineering-model.authoring.v8`; the schema only relaxes (two pairs that were errors are now valid). What a model, a
+dependent or a check template must do:
+
+- **New errors at the two highest tiers.** `architecture.dependency_without_interface` and `architecture.interface_without_data`
+  are errors at product and operational (warnings at poc, prototype and mvp and without `lifecycle`). A model of tier product or
+  operational that was clean at v0.11.0 fails with them until each dependency goes through an interface and each local interface
+  carries data in a flow. A POA&M item can defer them (they are tier keyed, not a policy gate code).
+- **Engine pin.** `engine.pin_outdated` is an error when the `.github/engmod-check/go.mod` of a repository pins an engine older
+  than the running one: every repository that runs `engws check` with v0.12.0 must move its pin to `v0.12.0`
+  (`go get github.com/labeth/engineering-model-go@v0.12.0`).
+- **Published requirement text changed.** The text of the published requirements `REQ-EMG-*` of the engine's model changed (61
+  check requirements, see below) and `CAP-EMG-GO-API` is a new published capability. A dependent that links to a contract item of
+  this model (`engws review-links`) sees `version_mismatch` at its next check: run `engws review-links`, then `engws bump`, and
+  review each changed item before accepting.
+- **Moved internals.** The loader that reads a model at a git ref moved from `internal/engws` to `internal/gitmodel`; nothing
+  under `internal/` is public, the root package is.
+
+### Release tooling and evidence
+
+- `scripts/validate-all.sh` runs example generation, the Quint check, the SysML validation and the format validation under `timeout`
+  (`ENGMOD_STEP_TIMEOUT` seconds, default 3600), so a stalled external tool fails the gate with a message; the code health check
+  also looks for `origin/master` and `master` as its default base revision (it skipped silently on a repository whose trunk is `master`).
+- `TestDeeplyNestedSourcesDoNotCrashOrStall` no longer fails on a loaded machine: the 4 MiB case sets a parse timeout of three
+  minutes, so it tests the depth refusal and not the speed of the machine.
+- `REQ-EMG-207` and `REQ-EMG-208` have status `verified`: 27 mutations of the two rules, their tier rows, the schema relaxations and
+  the remedy registration were run with `red-check.mjs` and every one failed an assertion. The other requirements from `REQ-EMG-189` to
+  `REQ-EMG-206` stay `implemented` and are deferred by `POAM-CONSISTENCY-BATCH1` (see `docs/release-v0.12.0.md`).
+
+### Public Go API added for tools (root package `github.com/labeth/engineering-model-go`)
+
+Used by the engineering tool; all are thin facades over `internal/` packages and carry trace markers (ADR-EMG-079, 080, 081).
+
+- Entity index and model diff: `BuildEntityIndex(Bundle) (EntityIndex, error)`, `DiffEntityIndexes(from, to EntityIndex) EntityDiff`,
+  `DiffTraceMatrices(from, to TraceMatrix) TraceDelta`, `DiffModels(ModelDiffRequest) (ModelDiff, error)`,
+  `LoadBundleAtRef(repo, ref string) (Bundle, error)`; types `Entity`, `EntityReference`, `EntityIndex`, `EntityChange`,
+  `EntityDiff`, `TraceDelta`, `TraceStatusChange`, `ModelDiffRequest` (`Repo`, `From`, `To`, `Trace`), `ModelDiff`; constants
+  `EntityEdgeField`, `EntityEdgeMention`, `EntityEdgeContains`, `EntityEdgeRelationship`.
+- Code lookup: `ListCodeDeclarations(Bundle, root string) ([]CodeDeclaration, error)`, `CodeDeclarationsOf(relPath string,
+  src []byte) ([]CodeDeclaration, error)`, `FindCodeDefinitions(declarations, fromPath, name) []CodeDeclaration`; type
+  `CodeDeclaration`.
+- Catalog: `CatalogUsage(Bundle) ([]CatalogTermUsage, error)`; type `CatalogTermUsage`.
+- No schema field was added and no existing exported function changed its signature.
+- `cue.mod/module.cue` is added so the engine's model module (`github.com/labeth/engineering-model-go/model@v0`) can be composed
+  from a workspace checkout (without it a consumer reported `composition.module_identity`).
+
+### The Go facade is a modelled, published interface (ADR-EMG-081 to 084, REQ-EMG-194 to 206)
+
+- Seven `go-library` interfaces `IF-GO-*` (model loading, validation, entity index and diff, trace, code lookup, composition,
+  requirement links), eleven data objects, four consumer flows with `ACT-GO-CONSUMER`, the machine `SM-GO-BUNDLE-SESSION` (checked
+  with Quint), the published capability `CAP-EMG-GO-API` and the requirements that realize it. A consumer composes the model and
+  references `alias::IF-GO-...` instead of a free-text referenced element. ADR-EMG-082 to 084 (the Go interface scope and three
+  language gaps) are recorded as proposed for the owner; none is implemented. The verification debt of the facade is deferred in
+  `POAM-CONSISTENCY-BATCH1`.
+
 ### A dependency names its interface and an interface carries data (ADR-EMG-085 and 086, REQ-EMG-207 and 208)
 
 - New `architecture.dependency_without_interface`: a relationship of type `depends_on`, `calls`, `publishes`, `subscribes`, `reads`, `writes`, `streams`, `implements` or `interacts_with` between two architectural elements (functional unit, functional group, actor, referenced element, hardware item, `alias::ID` element of a composed dependency) of which neither end is an interface. A local interface counts when it has an owner (`interface.owner`, else the unit that `contains` it), a composed `alias::IF-*` is a published one, and two hardware items count as joined by a `hardwareInterfaces` entry. Containment, other relationship types, a relationship from an element to itself and data object or deployment target ends are not asked. The message names the type, both ends, the relationship path and the fix. Write the dependency as a relationship to the interface (`calls FU-A -> IF-B`); an interface end stands for its owner, as in the engineering tool.
