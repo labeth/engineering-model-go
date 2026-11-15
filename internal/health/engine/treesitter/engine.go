@@ -75,21 +75,34 @@ func syntaxDepth(root *sitter.Node, limit int) int {
 	defer cursor.Close()
 	depth, deepest := 1, 1
 	for {
-		if cursor.GotoFirstChild() {
-			if depth++; depth > deepest {
-				if deepest = depth; deepest > limit {
-					return deepest
-				}
-			}
-			continue
+		delta, ok := advance(cursor, true)
+		if !ok {
+			return deepest
 		}
-		for !cursor.GotoNextSibling() {
-			if !cursor.GotoParent() {
-				return deepest
-			}
-			depth--
+		depth += delta
+		if deepest = max(deepest, depth); deepest > limit {
+			return deepest
 		}
 	}
+}
+
+// advance moves the cursor to the next node of the walk: the first child when
+// descend is set and there is one, else the next sibling of the node or of the
+// nearest ancestor that has one. It returns the change of the depth; false when
+// the walk is over.
+// TRLC-LINKS: REQ-EMG-150
+func advance(cursor *sitter.TreeCursor, descend bool) (int, bool) {
+	if descend && cursor.GotoFirstChild() {
+		return 1, true
+	}
+	up := 0
+	for !cursor.GotoNextSibling() {
+		if !cursor.GotoParent() {
+			return 0, false
+		}
+		up++
+	}
+	return -up, true
 }
 
 // syntaxErrors counts the ERROR and MISSING nodes under root, up to limit. It
@@ -104,22 +117,23 @@ func syntaxErrors(root *sitter.Node, limit int) int {
 	defer cursor.Close()
 	count := 0
 	for {
-		if n := cursor.Node(); n.HasError() {
-			if n.IsError() || n.IsMissing() {
-				if count++; count >= limit {
-					return limit
-				}
-			}
-			if cursor.GotoFirstChild() {
-				continue
-			}
+		n := cursor.Node()
+		if isErrorNode(n) {
+			count++
 		}
-		for !cursor.GotoNextSibling() {
-			if !cursor.GotoParent() {
-				return count
-			}
+		if count >= limit {
+			return limit
+		}
+		if _, ok := advance(cursor, n.HasError()); !ok {
+			return count
 		}
 	}
+}
+
+// isErrorNode reports an ERROR or MISSING node.
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-155
+func isErrorNode(n *sitter.Node) bool {
+	return n.HasError() && (n.IsError() || n.IsMissing())
 }
 
 // TRLC-LINKS: REQ-EMG-150
@@ -138,7 +152,7 @@ func analyzeFile(in health.FileInput, thresholds map[string]health.Threshold) (h
 			return fmt.Errorf("the syntax is nested more than %d levels deep", MaxSyntaxDepth)
 		}
 		var ctx *fileCtx
-		res, ctx = analyzeTree(l, in, root, thresholds)
+		res, ctx = fileAnalysis{l: l, in: in, thresholds: thresholds}.tree(root)
 		if ctx.over {
 			return fmt.Errorf("the analysis exceeded its budget of %s (deeply nested source?)", AnalysisBudget)
 		}
@@ -168,25 +182,26 @@ type collector struct {
 	comments []byteRange
 }
 
+// fileAnalysis is the input of the analysis of one parsed file.
+type fileAnalysis struct {
+	l          *language
+	in         health.FileInput
+	thresholds map[string]health.Threshold
+}
+
+// tree measures the functions of a parsed file and finds their smells.
 // TRLC-LINKS: REQ-EMG-150
-func analyzeTree(l *language, in health.FileInput, root *sitter.Node, thresholds map[string]health.Threshold) (health.FileResult, *fileCtx) {
-	c := &fileCtx{src: in.Source, path: in.Path, deadline: time.Now().Add(AnalysisBudget)}
-	c.isTest = l.fileIsTest(c, root)
-	col := &collector{l: l, c: c}
+func (a fileAnalysis) tree(root *sitter.Node) (health.FileResult, *fileCtx) {
+	c := &fileCtx{src: a.in.Source, path: a.in.Path, deadline: time.Now().Add(AnalysisBudget)}
+	c.isTest = a.l.fileIsTest(c, root)
+	col := &collector{l: a.l, c: c}
 	col.collect(root, "")
-	lines := newLineIndex(in.Source, col.comments)
+	lines := newLineIndex(a.in.Source, col.comments)
 
-	annotated := false
-	runs := make([][]assertRun, len(col.units))
-	for i, u := range col.units {
-		annotated = annotated || u.params.annotated
-		runs[i] = u.runs
-	}
-	supported := l.primitives == primitiveSupported || (l.primitives == primitiveIfAnnotated && annotated)
-	duplicates := duplicateFindings(runs)
-
+	supported := a.l.primitivesComputable(col.units)
+	duplicates := duplicateFindings(unitRuns(col.units))
 	res := health.FileResult{
-		Path: in.Path, Language: l.name, LOC: lines.total(), IsTest: c.isTest,
+		Path: a.in.Path, Language: a.l.name, LOC: lines.total(), IsTest: c.isTest,
 		Functions: make([]health.Function, 0, len(col.units)),
 	}
 	if !supported {
@@ -194,10 +209,32 @@ func analyzeTree(l *language, in health.FileInput, root *sitter.Node, thresholds
 	}
 	for i, u := range col.units {
 		u.fn.LOC = ownLOC(lines, col.units, i)
-		u.fn.Findings = functionFindings(u, supported, duplicates[i], thresholds)
+		u.fn.Findings = functionFindings(u, findingContext{primitiveOK: supported, duplicates: duplicates[i], thresholds: a.thresholds})
 		res.Functions = append(res.Functions, u.fn)
 	}
 	return res, c
+}
+
+// unitRuns lists the assertion runs of each unit.
+// TRLC-LINKS: REQ-EMG-150
+func unitRuns(units []*unitRecord) [][]assertRun {
+	runs := make([][]assertRun, len(units))
+	for i, u := range units {
+		runs[i] = u.runs
+	}
+	return runs
+}
+
+// primitivesComputable reports whether primitive obsession can be computed for
+// a file: the language writes its parameter types, or it does and the file
+// annotates them.
+// TRLC-LINKS: REQ-EMG-150
+func (l *language) primitivesComputable(units []*unitRecord) bool {
+	annotated := false
+	for _, u := range units {
+		annotated = annotated || u.params.annotated
+	}
+	return l.primitives == primitiveSupported || (l.primitives == primitiveIfAnnotated && annotated)
 }
 
 // ownLOC is the logical lines of unit i without the rows of the named units
@@ -243,22 +280,45 @@ func (col *collector) visit(n *sitter.Node, scope string) {
 		return
 	}
 	kind := n.Kind()
-	if isCommentKind(kind) || (kind == "expression_statement" && col.l.name == "python" && pythonDocstring(n)) {
+	if isCommentKind(kind) || col.isDocstring(n, kind) {
 		col.comments = append(col.comments, byteRange{n.StartByte(), n.EndByte()})
 		return
 	}
-	inner := scope
-	if col.l.unitKinds[kind] {
-		if info, ok := col.l.unit(col.c, n); ok {
-			inner = col.measureUnit(n, info, scope).fn.Name
-		}
-	}
+	inner := col.unitScope(n, kind, scope)
 	if inner == scope && col.l.scopeKinds[kind] {
-		if name := col.l.scope(col.c, n); name != "" {
-			inner = qualify(scope, name)
-		}
+		inner = col.namedScope(n, scope)
 	}
 	col.collect(n, inner)
+}
+
+// isDocstring reports a Python docstring, which counts as a comment.
+// TRLC-LINKS: REQ-EMG-150
+func (col *collector) isDocstring(n *sitter.Node, kind string) bool {
+	return kind == "expression_statement" && col.l.name == "python" && pythonDocstring(n)
+}
+
+// unitScope measures the node when it is a function unit and returns the name
+// of the scope below it; the scope itself for any other node.
+// TRLC-LINKS: REQ-EMG-150
+func (col *collector) unitScope(n *sitter.Node, kind, scope string) string {
+	if !col.l.unitKinds[kind] {
+		return scope
+	}
+	info, ok := col.l.unit(col.c, n)
+	if !ok {
+		return scope
+	}
+	return col.measureUnit(n, info, scope).fn.Name
+}
+
+// namedScope is the scope below a node that names one (a class, a module), or
+// the scope itself when it has no name.
+// TRLC-LINKS: REQ-EMG-150
+func (col *collector) namedScope(n *sitter.Node, scope string) string {
+	if name := col.l.scope(col.c, n); name != "" {
+		return qualify(scope, name)
+	}
+	return scope
 }
 
 // TRLC-LINKS: REQ-EMG-150

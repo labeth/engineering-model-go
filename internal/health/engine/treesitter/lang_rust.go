@@ -52,22 +52,37 @@ func rustUnit(c *fileCtx, n *sitter.Node) (unitInfo, bool) {
 		return unitInfo{}, false
 	}
 	if n.Kind() == "closure_expression" {
-		var pattern *sitter.Node
-		if decl := n.Parent(); decl != nil && decl.Kind() == "let_declaration" && isFieldOf(n, "value") {
-			pattern = decl.ChildByFieldName("pattern")
-		}
-		if pattern == nil || pattern.Kind() != "identifier" {
-			return unitInfo{}, false
-		}
-		return unitInfo{name: text(pattern, c.src), kind: "function", body: body}, true
+		return rustClosureUnit(c, n, body)
 	}
-	kind := "function"
-	if list := n.Parent(); list != nil && list.Kind() == "declaration_list" && list.Parent() != nil {
-		if owner := list.Parent().Kind(); owner == "impl_item" || owner == "trait_item" {
-			kind = "method"
-		}
+	return unitInfo{name: text(n.ChildByFieldName("name"), c.src), kind: rustFunctionKind(n), body: body, test: codemap.IsRustTestFunction(n, c.src)}, true
+}
+
+// rustClosureUnit names a closure that is bound by a let declaration; any
+// other closure counts toward its enclosing function.
+// TRLC-LINKS: REQ-EMG-150
+func rustClosureUnit(c *fileCtx, n, body *sitter.Node) (unitInfo, bool) {
+	var pattern *sitter.Node
+	if decl := n.Parent(); decl != nil && decl.Kind() == "let_declaration" && isFieldOf(n, "value") {
+		pattern = decl.ChildByFieldName("pattern")
 	}
-	return unitInfo{name: text(n.ChildByFieldName("name"), c.src), kind: kind, body: body, test: codemap.IsRustTestFunction(n, c.src)}, true
+	if pattern == nil || pattern.Kind() != "identifier" {
+		return unitInfo{}, false
+	}
+	return unitInfo{name: text(pattern, c.src), kind: "function", body: body}, true
+}
+
+// rustFunctionKind is "method" for a function declared in an impl or a trait
+// and "function" for any other.
+// TRLC-LINKS: REQ-EMG-150
+func rustFunctionKind(n *sitter.Node) string {
+	list := n.Parent()
+	if list == nil || list.Kind() != "declaration_list" || list.Parent() == nil {
+		return "function"
+	}
+	if owner := list.Parent().Kind(); owner == "impl_item" || owner == "trait_item" {
+		return "method"
+	}
+	return "function"
 }
 
 // rustScope names the type an impl block or trait adds to its functions.
@@ -119,26 +134,39 @@ func rustParams(c *fileCtx, n *sitter.Node, _ bool) paramStats {
 	}
 	closure := n.Kind() == "closure_expression"
 	for _, param := range namedChildren(list) {
-		switch param.Kind() {
-		case "self_parameter", "attribute_item":
-			continue
-		case "parameter":
-			ps.count++
-			if t := param.ChildByFieldName("type"); t != nil {
-				ps.annotated = true
-				if rustPrimitive(c, t) {
-					ps.primitive++
-				}
-			}
-		case "variadic_parameter":
-			ps.count++
-		default:
-			if closure {
-				ps.count++
-			}
-		}
+		ps.addRustParam(c, param, closure)
 	}
 	return ps
+}
+
+// addRustParam counts one parameter of a function or closure.
+// TRLC-LINKS: REQ-EMG-150
+func (ps *paramStats) addRustParam(c *fileCtx, param *sitter.Node, closure bool) {
+	switch param.Kind() {
+	case "self_parameter", "attribute_item":
+	case "parameter":
+		ps.count++
+		ps.addRustType(c, param)
+	case "variadic_parameter":
+		ps.count++
+	default:
+		if closure {
+			ps.count++
+		}
+	}
+}
+
+// addRustType notes the annotation of a parameter.
+// TRLC-LINKS: REQ-EMG-150
+func (ps *paramStats) addRustType(c *fileCtx, param *sitter.Node) {
+	t := param.ChildByFieldName("type")
+	if t == nil {
+		return
+	}
+	ps.annotated = true
+	if rustPrimitive(c, t) {
+		ps.primitive++
+	}
 }
 
 // rustPrimitive: a primitive_type (bool, char, numbers, str), String, or a

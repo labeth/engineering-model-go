@@ -100,32 +100,27 @@ func goAssignedName(c *fileCtx, n *sitter.Node) string {
 	if list == nil || list.Kind() != "expression_list" || list.Parent() == nil {
 		return ""
 	}
-	index := -1
-	for i, child := range namedChildren(list) {
-		if sameNode(child, n) {
-			index = i
-		}
-	}
-	decl := list.Parent()
-	var names []*sitter.Node
-	switch decl.Kind() {
-	case "short_var_declaration", "assignment_statement":
-		if left := decl.ChildByFieldName("left"); left != nil {
-			names = namedChildren(left)
-		}
-	case "var_spec":
-		for i := uint(0); i < decl.ChildCount(); i++ {
-			if decl.FieldNameForChild(uint32(i)) == "name" {
-				names = append(names, decl.Child(i))
-			}
-		}
-	default:
-		return ""
-	}
+	index := lastIndexOf(namedChildren(list), n)
+	names := goDeclaredNames(list.Parent())
 	if index < 0 || index >= len(names) || names[index].Kind() != "identifier" {
 		return ""
 	}
 	return text(names[index], c.src)
+}
+
+// goDeclaredNames lists the names a declaration or assignment binds; nil for
+// any other node.
+// TRLC-LINKS: REQ-EMG-150
+func goDeclaredNames(decl *sitter.Node) []*sitter.Node {
+	switch decl.Kind() {
+	case "short_var_declaration", "assignment_statement":
+		if left := decl.ChildByFieldName("left"); left != nil {
+			return namedChildren(left)
+		}
+	case "var_spec":
+		return childrenByField(decl, "name")
+	}
+	return nil
 }
 
 var goPrimitiveTypes = map[string]bool{
@@ -145,26 +140,33 @@ func goParams(c *fileCtx, n *sitter.Node, _ bool) paramStats {
 		return ps
 	}
 	for _, decl := range namedChildren(list) {
-		switch decl.Kind() {
-		case "parameter_declaration":
-			names := 0
-			for i := uint(0); i < decl.ChildCount(); i++ {
-				if decl.FieldNameForChild(uint32(i)) == "name" {
-					names++
-				}
-			}
-			names = max(names, 1)
-			ps.count += names
-			if t := decl.ChildByFieldName("type"); t != nil && t.Kind() == "type_identifier" && goPrimitiveTypes[text(t, c.src)] {
-				ps.primitive += names
-			}
-			ps.annotated = true
-		case "variadic_parameter_declaration":
-			ps.count++
-			ps.annotated = true
-		}
+		ps.addGoDeclaration(c, decl)
 	}
 	return ps
+}
+
+// addGoDeclaration counts one parameter declaration.
+// TRLC-LINKS: REQ-EMG-150
+func (ps *paramStats) addGoDeclaration(c *fileCtx, decl *sitter.Node) {
+	switch decl.Kind() {
+	case "parameter_declaration":
+		names := max(countFieldName(decl, "name"), 1)
+		ps.count += names
+		if goPrimitiveParam(c, decl) {
+			ps.primitive += names
+		}
+		ps.annotated = true
+	case "variadic_parameter_declaration":
+		ps.count++
+		ps.annotated = true
+	}
+}
+
+// goPrimitiveParam reports a parameter declaration whose type is a primitive.
+// TRLC-LINKS: REQ-EMG-150
+func goPrimitiveParam(c *fileCtx, decl *sitter.Node) bool {
+	t := decl.ChildByFieldName("type")
+	return t != nil && t.Kind() == "type_identifier" && goPrimitiveTypes[text(t, c.src)]
 }
 
 // goAssertion: t.Error*/t.Fatal* calls, assert.*/require.* calls, and an if
@@ -182,19 +184,33 @@ func goAssertion(c *fileCtx, n *sitter.Node) bool {
 
 // TRLC-LINKS: REQ-EMG-150
 func goAssertionCall(c *fileCtx, stmt *sitter.Node) bool {
+	operand, field, ok := goCallSelector(c, stmt)
+	return ok && isGoAssertionSelector(operand, field)
+}
+
+// goCallSelector returns the operand and the field of a statement that is a
+// call of operand.field(...).
+// TRLC-LINKS: REQ-EMG-150
+func goCallSelector(c *fileCtx, stmt *sitter.Node) (operand, field string, ok bool) {
 	if stmt.NamedChildCount() != 1 || stmt.NamedChild(0).Kind() != "call_expression" {
-		return false
+		return "", "", false
 	}
 	fn := stmt.NamedChild(0).ChildByFieldName("function")
 	if fn == nil || fn.Kind() != "selector_expression" {
-		return false
+		return "", "", false
 	}
-	operand := fn.ChildByFieldName("operand")
-	if operand == nil || operand.Kind() != "identifier" {
-		return false
+	op := fn.ChildByFieldName("operand")
+	if op == nil || op.Kind() != "identifier" {
+		return "", "", false
 	}
-	field := text(fn.ChildByFieldName("field"), c.src)
-	switch text(operand, c.src) {
+	return text(op, c.src), text(fn.ChildByFieldName("field"), c.src), true
+}
+
+// isGoAssertionSelector reports assert.* and require.* and the Error and Fatal
+// methods of t, tb and b.
+// TRLC-LINKS: REQ-EMG-150
+func isGoAssertionSelector(operand, field string) bool {
+	switch operand {
 	case "assert", "require":
 		return true
 	case "t", "tb", "b":
@@ -216,11 +232,12 @@ func goAssertionIf(c *fileCtx, n *sitter.Node) bool {
 
 // TRLC-LINKS: REQ-EMG-150
 func goAssertionBlock(c *fileCtx, block *sitter.Node) bool {
-	if block == nil || block.Kind() != "block" || block.NamedChildCount() != 1 || block.NamedChild(0).Kind() != "statement_list" {
+	stmts, ok := goBlockStatements(block)
+	if !ok {
 		return false
 	}
 	asserts := 0
-	for _, stmt := range namedChildren(block.NamedChild(0)) {
+	for _, stmt := range stmts {
 		switch {
 		case stmt.Kind() == "return_statement":
 		case stmt.Kind() == "expression_statement" && goAssertionCall(c, stmt):
@@ -230,4 +247,18 @@ func goAssertionBlock(c *fileCtx, block *sitter.Node) bool {
 		}
 	}
 	return asserts > 0
+}
+
+// goBlockStatements returns the statements of a block that holds one
+// statement list.
+// TRLC-LINKS: REQ-EMG-150
+func goBlockStatements(block *sitter.Node) ([]*sitter.Node, bool) {
+	if block == nil || block.Kind() != "block" || block.NamedChildCount() != 1 {
+		return nil, false
+	}
+	list := block.NamedChild(0)
+	if list.Kind() != "statement_list" {
+		return nil, false
+	}
+	return namedChildren(list), true
 }

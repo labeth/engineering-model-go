@@ -73,18 +73,22 @@ func pythonDocstring(n *sitter.Node) bool {
 		return false
 	}
 	parent := n.Parent()
-	if parent == nil {
-		return false
-	}
-	switch parent.Kind() {
-	case "module":
-	case "block":
-		if owner := parent.Parent(); owner == nil || (owner.Kind() != "function_definition" && owner.Kind() != "class_definition") {
-			return false
-		}
-	default:
+	if parent == nil || !docstringContainer(parent) {
 		return false
 	}
 	siblings := namedChildren(parent)
 	return len(siblings) > 0 && sameNode(siblings[0], n)
+}
+
+// docstringContainer reports a module body or the body of a function or class.
+// TRLC-LINKS: REQ-EMG-150
+func docstringContainer(parent *sitter.Node) bool {
+	switch parent.Kind() {
+	case "module":
+		return true
+	case "block":
+		owner := parent.Parent()
+		return owner != nil && (owner.Kind() == "function_definition" || owner.Kind() == "class_definition")
+	}
+	return false
 }
