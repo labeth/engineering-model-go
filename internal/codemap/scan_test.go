@@ -2,53 +2,26 @@
 package codemap
 
 import (
-	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
 // TRLC-LINKS: REQ-EMG-010
 func TestScan(t *testing.T) {
-	root := filepath.Join("..", "..", "examples", "payments-engineering-sample", "src")
-	symbols, diags, err := Scan(root)
-	if err != nil {
-		t.Fatalf("scan failed: %v", err)
-	}
-	if len(diags) != 0 {
-		t.Fatalf("expected no diagnostics, got: %+v", diags)
-	}
-	if len(symbols) < 2 {
-		t.Fatalf("expected at least 2 symbols, got %d", len(symbols))
-	}
-
-	foundCheckout := false
-	foundPaymentEngine := false
-	foundTS := false
-	foundRustReview := false
-	for _, s := range symbols {
-		if s.TraceID == "CODE-CHECKOUT-API-GO--STARTSESSION" {
-			foundCheckout = true
-		}
-		if s.TraceID == "CODE-PAYMENT-ENGINE-RS--AUTHORIZEPAYMENT" {
-			foundPaymentEngine = true
-		}
-		if s.TraceID == "CODE-RISK-SCORER-TS--CALCULATERISKSCORE" {
-			foundTS = true
-		}
-		if s.TraceID == "CODE-PAYMENT-ENGINE-RS--NOTIFYSUPPORT" {
-			foundRustReview = true
-		}
-	}
-	if !foundCheckout || !foundPaymentEngine || !foundTS || !foundRustReview {
-		t.Fatalf("missing expected symbols in scan result: %+v", symbols)
+	symbols, diags := scanRoot(t, filepath.Join("..", "..", "examples", "payments-engineering-sample", "src"))
+	requireNoDiags(t, diags)
+	for _, id := range []string{
+		"CODE-CHECKOUT-API-GO--STARTSESSION",
+		"CODE-PAYMENT-ENGINE-RS--AUTHORIZEPAYMENT",
+		"CODE-RISK-SCORER-TS--CALCULATERISKSCORE",
+		"CODE-PAYMENT-ENGINE-RS--NOTIFYSUPPORT",
+	} {
+		requireSymbol(t, symbols, id)
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-010
 func TestScan_IgnoresMarkerTextInsideStringLiterals(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "sample_test.go")
 	content := `package sample
 
 // TRLC-LINKS: REQ-SAMPLE-001
@@ -57,23 +30,12 @@ func TestFixture(t interface{}) {
 	_ = marker
 }
 `
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	_, diags, err := Scan(root)
-	if err != nil {
-		t.Fatalf("scan failed: %v", err)
-	}
-	if len(diags) != 0 {
-		t.Fatalf("expected no diagnostics, got: %+v", diags)
-	}
+	_, diags := scanSource(t, "sample_test.go", content)
+	requireNoDiags(t, diags)
 }
 
 // TRLC-LINKS: REQ-EMG-010
 func TestScan_RequiresTraceMarkersOnDeclarationLevel(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "sample_test.go")
 	content := `package sample
 
 // TRLC-LINKS: REQ-SAMPLE-002
@@ -82,36 +44,14 @@ func TestFixture(t interface{}) {
 
 // TRLC-LINKS: REQ-SAMPLE-001
 `
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	symbols, diags, err := Scan(root)
-	if err != nil {
-		t.Fatalf("scan failed: %v", err)
-	}
-	if len(symbols) != 1 {
-		t.Fatalf("expected one symbol for attached function marker, got %+v", symbols)
-	}
-	if len(symbols[0].Implements) != 1 || symbols[0].Implements[0] != "REQ-SAMPLE-002" {
-		t.Fatalf("expected attached function marker to be used, got %+v", symbols[0])
-	}
-	found := false
-	for _, d := range diags {
-		if d.Code == "code.trace_unattached" {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Fatalf("expected code.trace_unattached diagnostic, got %+v", diags)
-	}
+	symbols, diags := scanSource(t, "sample_test.go", content)
+	requireEqual(t, len(symbols), 1)
+	requireEqual(t, symbols[0].Implements, []string{"REQ-SAMPLE-002"})
+	requireDiag(t, diags, "code.trace_unattached")
 }
 
 // TRLC-LINKS: REQ-EMG-010
 func TestScan_AttachesTRLCLinksToGoTypeDeclarations(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "schema.go")
 	content := `package sample
 
 // TRLC-LINKS: REQ-SAMPLE-001
@@ -122,32 +62,15 @@ type Document struct {
 // TRLC-LINKS: REQ-SAMPLE-002
 type Alias = string
 `
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	symbols, diags, err := Scan(root)
-	if err != nil {
-		t.Fatalf("scan failed: %v", err)
-	}
-	if len(diags) != 0 {
-		t.Fatalf("expected no diagnostics, got %+v", diags)
-	}
-	if len(symbols) != 2 {
-		t.Fatalf("expected two type symbols, got %+v", symbols)
-	}
-	if symbols[0].TraceID != "CODE-SCHEMA-GO--DOCUMENT" || symbols[0].Implements[0] != "REQ-SAMPLE-001" {
-		t.Fatalf("unexpected first type symbol: %+v", symbols[0])
-	}
-	if symbols[1].TraceID != "CODE-SCHEMA-GO--ALIAS" || symbols[1].Implements[0] != "REQ-SAMPLE-002" {
-		t.Fatalf("unexpected second type symbol: %+v", symbols[1])
-	}
+	symbols, diags := scanSource(t, "schema.go", content)
+	requireNoDiags(t, diags)
+	requireEqual(t, len(symbols), 2)
+	requireEqual(t, linksOf(symbols[0]), symbolLinks{TraceID: "CODE-SCHEMA-GO--DOCUMENT", Implements: []string{"REQ-SAMPLE-001"}})
+	requireEqual(t, linksOf(symbols[1]), symbolLinks{TraceID: "CODE-SCHEMA-GO--ALIAS", Implements: []string{"REQ-SAMPLE-002"}})
 }
 
 // TRLC-LINKS: REQ-EMG-010
 func TestScan_AttachesEngmodelLinksToDeclarations(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "schema.go")
 	content := `package sample
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -156,26 +79,14 @@ type Document struct {
 	ID string
 }
 `
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	symbols, diags, err := Scan(root)
-	if err != nil {
-		t.Fatalf("scan failed: %v", err)
-	}
-	if len(diags) != 0 {
-		t.Fatalf("expected no diagnostics, got %+v", diags)
-	}
-	if len(symbols) != 1 {
-		t.Fatalf("expected one type symbol, got %+v", symbols)
-	}
-	if len(symbols[0].ModelLinks) != 3 || symbols[0].ModelLinks[0] != "FU-CODEMAP-INFERENCE" || symbols[0].ModelLinks[1] != "CTRL-TRACEABILITY-COVERAGE" || symbols[0].ModelLinks[2] != "DEP-LOCAL-WORKSPACE" {
-		t.Fatalf("expected engmodel links to be attached, got %+v", symbols[0])
-	}
-	if len(symbols[0].Implements) != 1 || symbols[0].Implements[0] != "REQ-SAMPLE-001" {
-		t.Fatalf("expected requirement link to remain attached, got %+v", symbols[0])
-	}
+	symbols, diags := scanSource(t, "schema.go", content)
+	requireNoDiags(t, diags)
+	requireEqual(t, len(symbols), 1)
+	requireEqual(t, linksOf(symbols[0]), symbolLinks{
+		TraceID:    "CODE-SCHEMA-GO--DOCUMENT",
+		Implements: []string{"REQ-SAMPLE-001"},
+		ModelLinks: []string{"FU-CODEMAP-INFERENCE", "CTRL-TRACEABILITY-COVERAGE", "DEP-LOCAL-WORKSPACE"},
+	})
 }
 
 // Stacked ENGMODEL-LINKS lines above one declaration accumulate in the order
@@ -183,7 +94,6 @@ type Document struct {
 // Mutation: assigning instead of appending the identifiers of a line leaves only the last line.
 // TRLC-LINKS: REQ-EMG-174
 func TestScan_StackedEngmodelLinksAccumulate(t *testing.T) {
-	root := t.TempDir()
 	content := `package sample
 
 // ENGMODEL-LINKS: FU-ONE, FU-TWO
@@ -191,22 +101,13 @@ func TestScan_StackedEngmodelLinksAccumulate(t *testing.T) {
 // TRLC-LINKS: REQ-SAMPLE-001
 type Document struct{}
 `
-	if err := os.WriteFile(filepath.Join(root, "schema.go"), []byte(content), 0o644); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-	symbols, _, err := Scan(root)
-	if err != nil || len(symbols) != 1 {
-		t.Fatalf("scan: %v %+v", err, symbols)
-	}
-	if got := strings.Join(symbols[0].ModelLinks, ","); got != "FU-ONE,FU-TWO,FU-THREE" {
-		t.Fatalf("stacked links = %s, want FU-ONE,FU-TWO,FU-THREE", got)
-	}
+	symbols, _ := scanSource(t, "schema.go", content)
+	requireEqual(t, len(symbols), 1)
+	requireEqual(t, symbols[0].ModelLinks, []string{"FU-ONE", "FU-TWO", "FU-THREE"})
 }
 
 // TRLC-LINKS: REQ-EMG-010
 func TestScan_RequiresTRLCLinksOnEveryFunction(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "sample.go")
 	content := `package sample
 
 type Fixture struct{}
@@ -218,67 +119,19 @@ func linked() {}
 
 func missingTwo() {}
 `
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	_, diags, err := Scan(root)
-	if err != nil {
-		t.Fatalf("scan failed: %v", err)
-	}
-	var missing *validateDiagnostic
-	for i := range diags {
-		if diags[i].Code == "code.missing_trlc_link" {
-			missing = &validateDiagnostic{
-				Severity: string(diags[i].Severity),
-				Message:  diags[i].Message,
-				Path:     diags[i].Path,
-			}
-			break
-		}
-	}
-	if missing == nil {
-		t.Fatalf("expected code.missing_trlc_link diagnostic, got %+v", diags)
-	}
-	if missing.Severity != "error" {
-		t.Fatalf("expected error severity, got %+v", missing)
-	}
-	if missing.Path != "sample.go:5,10" {
-		t.Fatalf("expected file path with comma-listed lines, got %+v", missing)
-	}
+	_, diags := scanSource(t, "sample.go", content)
+	missing := requireDiag(t, diags, "code.missing_trlc_link")
+	requireEqual(t, string(missing.Severity), "error")
+	requireEqual(t, missing.Path, "sample.go:5,10")
 }
 
 // TRLC-LINKS: REQ-EMG-010
 func TestScan_RejectsMalformedTRLCLinks(t *testing.T) {
-	root := t.TempDir()
-	path := filepath.Join(root, "sample.go")
 	content := `package sample
 
 // TRLC-` + `LINKS: "); ok {
 func broken() {}
 `
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	_, diags, err := Scan(root)
-	if err != nil {
-		t.Fatalf("scan failed: %v", err)
-	}
-	foundInvalid := false
-	for _, d := range diags {
-		if d.Code == "code.invalid_trlc_link" && d.Severity == "error" {
-			foundInvalid = true
-			break
-		}
-	}
-	if !foundInvalid {
-		t.Fatalf("expected code.invalid_trlc_link diagnostic, got %+v", diags)
-	}
-}
-
-type validateDiagnostic struct {
-	Severity string
-	Message  string
-	Path     string
+	_, diags := scanSource(t, "sample.go", content)
+	requireEqual(t, string(requireDiag(t, diags, "code.invalid_trlc_link").Severity), "error")
 }

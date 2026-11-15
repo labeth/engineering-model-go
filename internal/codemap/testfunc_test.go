@@ -2,8 +2,7 @@
 package codemap
 
 import (
-	"os"
-	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -12,17 +11,7 @@ import (
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
 func scanFixture(t *testing.T, name, content string) map[string]Symbol {
 	t.Helper()
-	root := t.TempDir()
-	if err := os.MkdirAll(filepath.Dir(filepath.Join(root, name)), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(root, name), []byte(content), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	symbols, diags, err := Scan(root)
-	if err != nil {
-		t.Fatalf("scan: %v", err)
-	}
+	symbols, diags := scanSource(t, name, content)
 	for _, d := range diags {
 		if d.Severity == "error" {
 			t.Fatalf("unexpected error diagnostic: %+v", d)
@@ -37,9 +26,8 @@ func scanFixture(t *testing.T, name, content string) map[string]Symbol {
 	return out
 }
 
-// TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
-func TestScan_MarksRustTestFunctionsAndCfgTestScope(t *testing.T) {
-	src := `// TRLC-LINKS: REQ-SIM-001
+// rustTestScopeSource is a Rust file with functions in and out of cfg(test).
+const rustTestScopeSource = `// TRLC-LINKS: REQ-SIM-001
 pub fn now_ms() -> u64 { 0 }
 
 #[cfg(test)]
@@ -75,8 +63,11 @@ mod prod {
     fn real() {}
 }
 `
-	got := scanFixture(t, "src/clock.rs", src)
-	want := map[string][2]bool{ // name -> {IsTest, TestOnly}
+
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
+func TestScan_MarksRustTestFunctionsAndCfgTestScope(t *testing.T) {
+	got := scanFixture(t, "src/clock.rs", rustTestScopeSource)
+	requireTestFlags(t, got, map[string][2]bool{ // name -> {IsTest, TestOnly}
 		"CODE-NOWMS":      {false, false},
 		"CODE-FAKECLOCK":  {false, true},
 		"CODE-NOW":        {false, true},
@@ -85,16 +76,22 @@ mod prod {
 		"CODE-PARAMCASE":  {true, true},
 		"CODE-CASEONE":    {true, true},
 		"CODE-REAL":       {false, false},
-	}
-	for name, w := range want {
+	})
+}
+
+// requireTestFlags fails the test unless each named symbol has the wanted
+// {IsTest, TestOnly} flags.
+func requireTestFlags(t *testing.T, got map[string]Symbol, want map[string][2]bool) {
+	t.Helper()
+	flags := map[string][2]bool{}
+	for name := range want {
 		s, ok := got[name]
 		if !ok {
 			t.Fatalf("missing symbol %s in %+v", name, got)
 		}
-		if s.IsTest != w[0] || s.TestOnly != w[1] {
-			t.Errorf("%s: IsTest=%v TestOnly=%v, want IsTest=%v TestOnly=%v", name, s.IsTest, s.TestOnly, w[0], w[1])
-		}
+		flags[name] = [2]bool{s.IsTest, s.TestOnly}
 	}
+	requireEqual(t, flags, want)
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
@@ -201,46 +198,20 @@ class TestClock:
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
 func TestScan_TestHelpersDoNotRequireTRLCLinks(t *testing.T) {
-	root := t.TempDir()
-	files := map[string]string{
+	root := writeTree(t, map[string]string{
 		"helper_test.go":         "package sample\n\nimport \"testing\"\n\nfunc fakeClock() int { return 1 }\n\nfunc TestUnlinked(t *testing.T) {}\n",
 		"src/clock.rs":           "#[cfg(test)]\nmod tests {\n    fn fake() {}\n    #[test]\n    fn unlinked() {}\n}\n\nfn prod() {}\n",
 		"tests/integration/a.rs": "fn support() {}\n\n// TRLC-LINKS: REQ-SIM-001\n#[test]\nfn case() {}\n",
 		"test_mod.py":            "def helper():\n    pass\n\ndef test_unlinked():\n    pass\n",
-	}
-	for name, content := range files {
-		p := filepath.Join(root, filepath.FromSlash(name))
-		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(p, []byte(content), 0o644); err != nil {
-			t.Fatal(err)
-		}
-	}
-	symbols, diags, err := Scan(root)
-	if err != nil {
-		t.Fatal(err)
-	}
+	})
+	symbols, diags := scanRoot(t, root)
 	missing := map[string]bool{}
 	for _, d := range diags {
-		if d.Code == "code.missing_trlc_link" {
-			missing[d.Path] = true
-		}
+		missing[d.Path] = missing[d.Path] || d.Code == "code.missing_trlc_link"
 	}
-	want := map[string]bool{"helper_test.go:7": true, "src/clock.rs:5,8": true, "test_mod.py:4": true}
-	if len(missing) != len(want) {
-		t.Fatalf("missing_trlc_link paths = %v, want %v", missing, want)
-	}
-	for p := range want {
-		if !missing[p] {
-			t.Fatalf("missing_trlc_link paths = %v, want %v", missing, want)
-		}
-	}
-	for _, s := range symbols {
-		if s.Path == "tests/integration/a.rs" && (!s.TestOnly || !s.IsTest) {
-			t.Fatalf("cargo integration test not marked: %+v", s)
-		}
-	}
+	requireEqual(t, missing, map[string]bool{"helper_test.go:7": true, "src/clock.rs:5,8": true, "test_mod.py:4": true})
+	cargo := symbols[slices.IndexFunc(symbols, func(s Symbol) bool { return s.Path == "tests/integration/a.rs" })]
+	requireEqual(t, []bool{cargo.TestOnly, cargo.IsTest}, []bool{true, true})
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
@@ -263,7 +234,20 @@ func TestScan_AccumulatesStackedTRLCLinksLines(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-088
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
 func TestGoTestGatesNeedEnvironmentReadAndSkip(t *testing.T) {
-	src := `package sample
+	got := scanFixture(t, "gate_test.go", goGateSource)
+	gates := map[string]string{}
+	for name := range map[string]bool{"CODE-TESTLOOKUP": true, "CODE-TESTREADSONLY": true, "CODE-TESTSKIPSONOTHER": true, "CODE-TESTLATEGATE": true, "CODE-TESTVIAHELPER": true} {
+		s, ok := got[name]
+		if !ok {
+			t.Fatalf("missing %s in %v", name, got)
+		}
+		gates[name] = strings.Join(s.Gates, ",")
+	}
+	requireEqual(t, gates, map[string]string{"CODE-TESTLOOKUP": "LOOKUP_GATE", "CODE-TESTREADSONLY": "", "CODE-TESTSKIPSONOTHER": "", "CODE-TESTLATEGATE": "", "CODE-TESTVIAHELPER": ""})
+}
+
+// goGateSource is a Go test file with gated and ungated tests.
+const goGateSource = `package sample
 
 import (
 	"os"
@@ -312,15 +296,3 @@ func TestViaHelper(t *testing.T) {
 	requireEnv(t)
 }
 `
-	got := scanFixture(t, "gate_test.go", src)
-	want := map[string]string{"CODE-TESTLOOKUP": "LOOKUP_GATE", "CODE-TESTREADSONLY": "", "CODE-TESTSKIPSONOTHER": "", "CODE-TESTLATEGATE": "", "CODE-TESTVIAHELPER": ""}
-	for name, gates := range want {
-		s, ok := got[name]
-		if !ok {
-			t.Fatalf("missing %s in %v", name, got)
-		}
-		if strings.Join(s.Gates, ",") != gates {
-			t.Fatalf("%s gates = %v, want %q", name, s.Gates, gates)
-		}
-	}
-}
