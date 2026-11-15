@@ -143,33 +143,8 @@ func buildPolicy(bundle model.Bundle, cfg gemaraConfig, date string) (gemaraproj
 		start = gemaraDefaultTimestamp
 	}
 	contact, contactsSet := policyContacts(bundle)
-	notSet := gemaraNotSet
 
-	pol := gemaraproj.Policy{
-		Title:    cfg.modelTitle + " - Security Policy",
-		Metadata: cfg.newMetadata(cfg.policyID(), "Security policy for "+cfg.modelTitle, gemaraproj.PolicyArtifact),
-		Contacts: gemaraproj.RACI{Responsible: contact, Accountable: contact},
-		Scope: gemaraproj.Scope{In: gemaraproj.Dimensions{
-			Technologies: policyTechnologies(a),
-			Sensitivity:  policySensitivities(a),
-			Users:        policyUsers(a),
-		}},
-		Imports: gemaraproj.Imports{
-			Catalogs: []gemaraproj.CatalogImport{{ReferenceId: gemaraRefControlCatalog}},
-			Guidance: []gemaraproj.GuidanceImport{{ReferenceId: gemaraRefGuidanceCatalog}},
-		},
-		// The model records no evaluation cadence or change gate, so the
-		// timelines say so instead of claiming continuous evaluation.
-		ImplementationPlan: gemaraproj.ImplementationPlan{
-			EvaluationTimeline:  gemaraproj.ImplementationDetails{Start: gemaraproj.Datetime(start), Notes: notSet},
-			EnforcementTimeline: gemaraproj.ImplementationDetails{Start: gemaraproj.Datetime(start), Notes: notSet},
-		},
-		Adherence: gemaraproj.Adherence{
-			EvaluationMethods:  policyEvaluationMethods(a),
-			EnforcementMethods: policyEnforcementMethods(a),
-			AssessmentPlans:    policyAssessmentPlans(a),
-		},
-	}
+	pol := newPolicyBase(a, cfg, policyHeader{start: start, contacts: contact})
 	if len(a.POAMItems) > 0 {
 		pol.Adherence.NonCompliance = "Non-compliant findings are tracked as POA&M items in the model."
 	}
@@ -199,6 +174,46 @@ func buildPolicy(bundle model.Bundle, cfg gemaraConfig, date string) (gemaraproj
 		{Id: gemaraRefRiskCatalog, Title: "Risk Catalog", Version: Version},
 	}
 	return pol, true
+}
+
+// policyHeader is the start timestamp and the contacts of a policy.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type policyHeader struct {
+	start    string
+	contacts []gemaraproj.Contact
+}
+
+// newPolicyBase is the policy without risks, mapping references and the
+// diagnostics-dependent parts.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func newPolicyBase(a model.AuthoredArchitecture, cfg gemaraConfig, header policyHeader) gemaraproj.Policy {
+	start, contact := header.start, header.contacts
+	return gemaraproj.Policy{
+		Title:    cfg.modelTitle + " - Security Policy",
+		Metadata: cfg.newMetadata(cfg.policyID(), "Security policy for "+cfg.modelTitle, gemaraproj.PolicyArtifact),
+		Contacts: gemaraproj.RACI{Responsible: contact, Accountable: contact},
+		Scope: gemaraproj.Scope{In: gemaraproj.Dimensions{
+			Technologies: policyTechnologies(a),
+			Sensitivity:  policySensitivities(a),
+			Users:        policyUsers(a),
+		}},
+		Imports: gemaraproj.Imports{
+			Catalogs: []gemaraproj.CatalogImport{{ReferenceId: gemaraRefControlCatalog}},
+			Guidance: []gemaraproj.GuidanceImport{{ReferenceId: gemaraRefGuidanceCatalog}},
+		},
+		// The model records no evaluation cadence or change gate, so the
+		// timelines say so instead of claiming continuous evaluation.
+		ImplementationPlan: gemaraproj.ImplementationPlan{
+			EvaluationTimeline:  gemaraproj.ImplementationDetails{Start: gemaraproj.Datetime(start), Notes: gemaraNotSet},
+			EnforcementTimeline: gemaraproj.ImplementationDetails{Start: gemaraproj.Datetime(start), Notes: gemaraNotSet},
+		},
+		Adherence: gemaraproj.Adherence{
+			EvaluationMethods:  policyEvaluationMethods(a),
+			EnforcementMethods: policyEnforcementMethods(a),
+			AssessmentPlans:    policyAssessmentPlans(a),
+		},
+	}
 }
 
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
@@ -330,14 +345,10 @@ func policyContacts(bundle model.Bundle) ([]gemaraproj.Contact, bool) {
 	a := bundle.Architecture.AuthoredArchitecture
 	names := map[string]string{}
 	for _, e := range bundle.Catalog.Catalog.Actors {
-		if id := strings.TrimSpace(e.ID); id != "" && strings.TrimSpace(e.Name) != "" {
-			names[id] = strings.TrimSpace(e.Name)
-		}
+		addActorName(names, e.ID, e.Name)
 	}
 	for _, ac := range a.Actors {
-		if id := strings.TrimSpace(ac.ID); id != "" && strings.TrimSpace(ac.Name) != "" {
-			names[id] = strings.TrimSpace(ac.Name)
-		}
+		addActorName(names, ac.ID, ac.Name)
 	}
 	var owners []string
 	for _, r := range a.Risks {
@@ -346,23 +357,38 @@ func policyContacts(bundle model.Bundle) ([]gemaraproj.Contact, bool) {
 	for _, cv := range a.ControlVerifications {
 		owners = textutil.AppendUnique(owners, strings.TrimSpace(cv.Owner))
 	}
+	out := ownerContacts(owners, names)
+	if len(out) == 0 {
+		return []gemaraproj.Contact{{Name: "not set"}}, false
+	}
+	return out, true
+}
+
+// addActorName records the trimmed name of an actor that has an id and a name.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func addActorName(names map[string]string, id, name string) {
+	id, name = strings.TrimSpace(id), strings.TrimSpace(name)
+	if id != "" && name != "" {
+		names[id] = name
+	}
+}
+
+// ownerContacts maps owners to distinct contacts, named by actor name when known.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func ownerContacts(owners []string, names map[string]string) []gemaraproj.Contact {
 	var out []gemaraproj.Contact
 	seen := map[string]bool{}
 	for _, o := range owners {
-		if o == "" {
-			continue
-		}
 		name := textutil.Fallback(names[o], o)
-		if seen[name] {
+		if o == "" || seen[name] {
 			continue
 		}
 		seen[name] = true
 		out = append(out, gemaraproj.Contact{Name: name})
 	}
-	if len(out) == 0 {
-		return []gemaraproj.Contact{{Name: "not set"}}, false
-	}
-	return out, true
+	return out
 }
 
 // isAutomatedVerificationMethod reports whether an authored verification

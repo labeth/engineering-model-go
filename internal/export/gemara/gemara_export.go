@@ -132,79 +132,87 @@ func Generate(bundle model.Bundle, options Options) (Result, error) {
 		ThreatCatalog:     buildThreatCatalog(bundle, cfg),
 		RiskCatalog:       buildRiskCatalog(bundle, cfg),
 	}
-
-	res.YAML = map[string]string{}
-	docs := []struct {
-		name string
-		doc  any
-	}{
+	docs := []gemaraDoc{
 		{"vector-catalog", res.VectorCatalog},
 		{"capability-catalog", res.CapabilityCatalog},
 		{"control-catalog", res.ControlCatalog},
 		{"threat-catalog", res.ThreatCatalog},
 		{"risk-catalog", res.RiskCatalog},
 	}
+	docs = append(docs, res.addPolicyLayer(bundle, cfg, options.Date)...)
+	docs = append(docs, res.addDataDerived(bundle, cfg, options.Date)...)
 
-	// L1 Principle + Guidance and L3 Policy.
-	res.PrincipleCatalog = buildPrincipleCatalog(bundle, cfg)
-	docs = append(docs, struct {
-		name string
-		doc  any
-	}{"principle-catalog", res.PrincipleCatalog})
-	if gc, ok := buildGuidanceCatalog(bundle, cfg); ok {
-		res.GuidanceCatalog, res.HasGuidance = gc, true
-		docs = append(docs, struct {
-			name string
-			doc  any
-		}{"guidance-catalog", gc})
-	}
-	if pol, ok := buildPolicy(bundle, cfg, options.Date); ok {
-		res.Policy, res.HasPolicy = pol, true
-		docs = append(docs, struct {
-			name string
-			doc  any
-		}{"policy", pol})
-	}
-
-	// Extended, data-derived artifacts.
-	if lex, ok := buildLexicon(bundle, cfg); ok {
-		res.Lexicon = lex
-		docs = append(docs, struct {
-			name string
-			doc  any
-		}{"lexicon", lex})
-	}
-	if md, ok := buildControlThreatMapping(bundle, cfg); ok {
-		res.ControlThreatMapping, res.HasMapping = md, true
-		docs = append(docs, struct {
-			name string
-			doc  any
-		}{"control-threat-mapping", md})
-	}
-	if al, ok := buildAuditLog(bundle, cfg, options.Date); ok {
-		res.AuditLog, res.HasAudit = al, true
-		docs = append(docs, struct {
-			name string
-			doc  any
-		}{"audit-log", al})
-	}
-	if el, ok := buildEnforcementLog(bundle, cfg, options.Date); ok {
-		res.EnforcementLog, res.HasEnforcement = el, true
-		docs = append(docs, struct {
-			name string
-			doc  any
-		}{"enforcement-log", el})
-	}
-
-	for _, d := range docs {
-		out, err := marshalGemara(d.doc)
-		if err != nil {
-			return Result{}, fmt.Errorf("marshal gemara %s: %w", d.name, err)
-		}
-		res.YAML[d.name] = out
+	res.YAML, err = marshalGemaraDocs(docs)
+	if err != nil {
+		return Result{}, err
 	}
 	res.Diagnostics = validate.SortDiagnostics(diags)
 	return res, nil
+}
+
+// gemaraDoc is one rendered artifact: its short name and its document.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type gemaraDoc struct {
+	name string
+	doc  any
+}
+
+// addPolicyLayer fills the L1 Principle and Guidance catalogs and the L3
+// Policy and returns their documents.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (r *Result) addPolicyLayer(bundle model.Bundle, cfg gemaraConfig, date string) []gemaraDoc {
+	r.PrincipleCatalog = buildPrincipleCatalog(bundle, cfg)
+	docs := []gemaraDoc{{"principle-catalog", r.PrincipleCatalog}}
+	if gc, ok := buildGuidanceCatalog(bundle, cfg); ok {
+		r.GuidanceCatalog, r.HasGuidance = gc, true
+		docs = append(docs, gemaraDoc{"guidance-catalog", gc})
+	}
+	if pol, ok := buildPolicy(bundle, cfg, date); ok {
+		r.Policy, r.HasPolicy = pol, true
+		docs = append(docs, gemaraDoc{"policy", pol})
+	}
+	return docs
+}
+
+// addDataDerived fills the extended artifacts that exist only when the model
+// has supporting data and returns their documents.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (r *Result) addDataDerived(bundle model.Bundle, cfg gemaraConfig, date string) []gemaraDoc {
+	var docs []gemaraDoc
+	if lex, ok := buildLexicon(bundle, cfg); ok {
+		r.Lexicon = lex
+		docs = append(docs, gemaraDoc{"lexicon", lex})
+	}
+	if md, ok := buildControlThreatMapping(bundle, cfg); ok {
+		r.ControlThreatMapping, r.HasMapping = md, true
+		docs = append(docs, gemaraDoc{"control-threat-mapping", md})
+	}
+	if al, ok := buildAuditLog(bundle, cfg, date); ok {
+		r.AuditLog, r.HasAudit = al, true
+		docs = append(docs, gemaraDoc{"audit-log", al})
+	}
+	if el, ok := buildEnforcementLog(bundle, cfg, date); ok {
+		r.EnforcementLog, r.HasEnforcement = el, true
+		docs = append(docs, gemaraDoc{"enforcement-log", el})
+	}
+	return docs
+}
+
+// marshalGemaraDocs serializes every document under its short name.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func marshalGemaraDocs(docs []gemaraDoc) (map[string]string, error) {
+	out := make(map[string]string, len(docs))
+	for _, d := range docs {
+		text, err := marshalGemara(d.doc)
+		if err != nil {
+			return nil, fmt.Errorf("marshal gemara %s: %w", d.name, err)
+		}
+		out[d.name] = text
+	}
+	return out, nil
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-015
@@ -437,66 +445,81 @@ func buildThreatCatalog(bundle model.Bundle, cfg gemaraConfig) gemaraproj.Threat
 	}
 
 	// Valid capability ids (for capability references) and vector ids (for vector references).
-	capIDs := map[string]bool{systemCapabilityID: true}
+	idx := threatIndex{capIDs: map[string]bool{systemCapabilityID: true}, vecIDs: map[string]bool{}}
 	for _, fu := range a.FunctionalUnits {
-		capIDs[fu.ID] = true
+		idx.capIDs[fu.ID] = true
 	}
-	vecIDs := map[string]bool{}
 	for _, av := range a.AttackVectors {
-		vecIDs[av.ID] = true
+		idx.vecIDs[av.ID] = true
 	}
 
 	groups := newGroupSet()
-	usedCapRef, usedVecRef := false, false
-
+	usedVecRef := false
 	for _, ts := range a.ThreatScenarios {
 		gid := threatGroupID(ts)
 		groups.add(gid, threatGroupTitle(ts), "Threat classification: "+threatGroupTitle(ts)+".")
-
-		threat := gemaraproj.Threat{
-			Id:          ts.ID,
-			Title:       textutil.Fallback(ts.Title, ts.ID),
-			Description: textutil.Fallback(ts.Summary, textutil.Fallback(ts.Title, ts.ID)),
-			Group:       gid,
-		}
-
-		// capabilities (required, non-empty): map appliesTo functional units, else the system capability.
-		var capEntries []gemaraproj.ArtifactMapping
-		for _, at := range ts.AppliesTo {
-			if capIDs[at] {
-				capEntries = append(capEntries, gemaraproj.ArtifactMapping{ReferenceId: at})
-			}
-		}
-		if len(capEntries) == 0 {
-			capEntries = []gemaraproj.ArtifactMapping{{ReferenceId: systemCapabilityID}}
-		}
-		threat.Capabilities = []gemaraproj.MultiEntryMapping{{ReferenceId: gemaraRefCapabilityCatalog, Entries: capEntries}}
-		usedCapRef = true
-
-		// vectors (optional): map the attack-vector reference when it resolves.
-		if ts.AttackVectorRef != "" && vecIDs[ts.AttackVectorRef] {
-			threat.Vectors = []gemaraproj.MultiEntryMapping{{
-				ReferenceId: gemaraRefVectorCatalog,
-				Entries:     []gemaraproj.ArtifactMapping{{ReferenceId: ts.AttackVectorRef}},
-			}}
-			usedVecRef = true
-		}
-
-		// actors (optional): the relevant threat actors for this scenario.
-		threat.Actors = threatActorsFor(ts)
-
+		threat, usedVec := idx.buildThreat(ts, gid)
+		usedVecRef = usedVecRef || usedVec
 		cat.Threats = append(cat.Threats, threat)
 	}
 
 	cat.Groups = groups.list()
 	cat.Metadata.MappingReferences = mappingRefs(
-		mappingRef(usedCapRef, gemaraRefCapabilityCatalog, "Capability Catalog"),
+		mappingRef(true, gemaraRefCapabilityCatalog, "Capability Catalog"),
 		mappingRef(usedVecRef, gemaraRefVectorCatalog, "Vector Catalog"),
 	)
 	return cat
 }
 
+// threatIndex holds the ids a threat can reference.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type threatIndex struct {
+	capIDs map[string]bool
+	vecIDs map[string]bool
+}
+
+// buildThreat renders one threat scenario and reports whether it references the
+// vector catalog.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (idx threatIndex) buildThreat(ts model.ThreatScenario, gid string) (gemaraproj.Threat, bool) {
+	threat := gemaraproj.Threat{
+		Id:          ts.ID,
+		Title:       textutil.Fallback(ts.Title, ts.ID),
+		Description: textutil.Fallback(ts.Summary, textutil.Fallback(ts.Title, ts.ID)),
+		Group:       gid,
+	}
+
+	// capabilities (required, non-empty): map appliesTo functional units, else the system capability.
+	var capEntries []gemaraproj.ArtifactMapping
+	for _, at := range ts.AppliesTo {
+		if idx.capIDs[at] {
+			capEntries = append(capEntries, gemaraproj.ArtifactMapping{ReferenceId: at})
+		}
+	}
+	if len(capEntries) == 0 {
+		capEntries = []gemaraproj.ArtifactMapping{{ReferenceId: systemCapabilityID}}
+	}
+	threat.Capabilities = []gemaraproj.MultiEntryMapping{{ReferenceId: gemaraRefCapabilityCatalog, Entries: capEntries}}
+
+	// actors (optional): the relevant threat actors for this scenario.
+	threat.Actors = threatActorsFor(ts)
+
+	// vectors (optional): map the attack-vector reference when it resolves.
+	if ts.AttackVectorRef == "" || !idx.vecIDs[ts.AttackVectorRef] {
+		return threat, false
+	}
+	threat.Vectors = []gemaraproj.MultiEntryMapping{{
+		ReferenceId: gemaraRefVectorCatalog,
+		Entries:     []gemaraproj.ArtifactMapping{{ReferenceId: ts.AttackVectorRef}},
+	}}
+	return threat, true
+}
+
 // -------------------- L2: Control Catalog --------------------
+
+// allSystemsApplicability is the catch-all applicability group of control artifacts.
+const allSystemsApplicability = "all-systems"
 
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
@@ -510,87 +533,16 @@ func buildControlCatalog(bundle model.Bundle, cfg gemaraConfig) gemaraproj.Contr
 		return cat
 	}
 
-	// Index control verifications by control id (source of assessment-requirements).
-	verifsByControl := map[string][]model.ControlVerification{}
-	for _, cv := range a.ControlVerifications {
-		verifsByControl[cv.ControlRef] = append(verifsByControl[cv.ControlRef], cv)
-	}
-	// Index threat mitigations by control id (source of threat links).
-	threatsByControl := map[string][]string{}
-	for _, tm := range a.ThreatMitigations {
-		if tm.ControlRef != "" && tm.ThreatScenarioRef != "" {
-			threatsByControl[tm.ControlRef] = textutil.AppendUnique(threatsByControl[tm.ControlRef], tm.ThreatScenarioRef)
-		}
-	}
-	for _, ts := range a.ThreatScenarios {
-		for _, ctrl := range ts.RelatedControls {
-			threatsByControl[ctrl] = textutil.AppendUnique(threatsByControl[ctrl], ts.ID)
-		}
-	}
-	// Index control -> appliesTo functional units via compliance mappings.
-	appliesByControl := map[string][]string{}
-	for _, m := range bundle.Architecture.Compliance.Mappings {
-		appliesByControl[m.ModelControlRef] = textutil.AppendUniqueSlice(appliesByControl[m.ModelControlRef], m.AppliesTo)
-	}
-
-	// Applicability groups: functional units plus an all-systems catch-all.
-	appGroups := newGroupSet()
-	for _, fu := range a.FunctionalUnits {
-		appGroups.add(fu.ID, textutil.Fallback(fu.Name, fu.ID), textutil.Fallback(fu.Prose, textutil.Fallback(fu.Name, fu.ID)))
-	}
-	const allApplicability = "all-systems"
-	appGroups.add(allApplicability, "All Systems", "Applies across the whole system.")
-	cat.Metadata.ApplicabilityGroups = appGroups.list()
+	idx := newControlIndex(bundle)
+	cat.Metadata.ApplicabilityGroups = idx.appGroups.list()
 
 	groups := newGroupSet()
 	usedThreatRef := false
-	threatIDs := map[string]bool{}
-	for _, ts := range a.ThreatScenarios {
-		threatIDs[ts.ID] = true
-	}
-
 	for _, ctrl := range a.Controls {
 		gid := controlGroupID(ctrl)
 		groups.add(gid, controlGroupTitle(ctrl), "Control category: "+controlGroupTitle(ctrl)+".")
-
-		// Resolve this control's applicability ids (valid applicability-group ids only).
-		var applicability []string
-		for _, at := range appliesByControl[ctrl.ID] {
-			if appGroups.has(at) {
-				applicability = textutil.AppendUnique(applicability, at)
-			}
-		}
-		if len(applicability) == 0 {
-			applicability = []string{allApplicability}
-		}
-
-		c := gemaraproj.Control{
-			Id:        ctrl.ID,
-			Title:     textutil.Fallback(ctrl.Name, ctrl.ID),
-			Objective: textutil.Fallback(ctrl.Description, textutil.Fallback(ctrl.Name, ctrl.ID)),
-			Group:     gid,
-			State:     gemaraproj.LifecycleActive,
-		}
-		c.AssessmentRequirements = buildAssessmentRequirements(ctrl, verifsByControl[ctrl.ID], applicability)
-
-		// guidelines (optional): link the control to its L1 guidance family.
-		c.Guidelines = []gemaraproj.MultiEntryMapping{{
-			ReferenceId: gemaraRefGuidanceCatalog,
-			Entries:     []gemaraproj.ArtifactMapping{{ReferenceId: guidelineIDForCategory(ctrl.Category)}},
-		}}
-
-		// threats (optional): link mitigated threats to the threat catalog.
-		var threatEntries []gemaraproj.ArtifactMapping
-		for _, tID := range threatsByControl[ctrl.ID] {
-			if threatIDs[tID] {
-				threatEntries = append(threatEntries, gemaraproj.ArtifactMapping{ReferenceId: tID})
-			}
-		}
-		if len(threatEntries) > 0 {
-			c.Threats = []gemaraproj.MultiEntryMapping{{ReferenceId: gemaraRefThreatCatalog, Entries: threatEntries}}
-			usedThreatRef = true
-		}
-
+		c, usedThreat := idx.buildControl(ctrl, gid)
+		usedThreatRef = usedThreatRef || usedThreat
 		cat.Controls = append(cat.Controls, c)
 	}
 
@@ -600,6 +552,150 @@ func buildControlCatalog(bundle model.Bundle, cfg gemaraConfig) gemaraproj.Contr
 		mappingRef(true, gemaraRefGuidanceCatalog, "Guidance Catalog"),
 	)
 	return cat
+}
+
+// controlIndex holds the lookups the controls of a catalog are built from.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type controlIndex struct {
+	verifs    map[string][]model.ControlVerification
+	threats   map[string][]string
+	applies   map[string][]string
+	appGroups *groupSet
+	threatIDs map[string]bool
+}
+
+// newControlIndex indexes control verifications (source of
+// assessment-requirements), threat mitigations (source of threat links) and
+// compliance mappings (source of applicability) by control id.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func newControlIndex(bundle model.Bundle) controlIndex {
+	a := bundle.Architecture.AuthoredArchitecture
+	applies := map[string][]string{}
+	for _, m := range bundle.Architecture.Compliance.Mappings {
+		applies[m.ModelControlRef] = textutil.AppendUniqueSlice(applies[m.ModelControlRef], m.AppliesTo)
+	}
+	return controlIndex{
+		verifs:    groupVerificationsByControl(a.ControlVerifications),
+		threats:   threatsByControl(a),
+		applies:   applies,
+		appGroups: controlApplicabilityGroups(a),
+		threatIDs: threatIDSet(a.ThreatScenarios),
+	}
+}
+
+// threatsByControl lists the threat scenarios each control mitigates.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func threatsByControl(a model.AuthoredArchitecture) map[string][]string {
+	byControl := map[string][]string{}
+	for _, tm := range a.ThreatMitigations {
+		addThreatMitigation(byControl, tm)
+	}
+	for _, ts := range a.ThreatScenarios {
+		addRelatedControls(byControl, ts)
+	}
+	return byControl
+}
+
+// addRelatedControls lists the scenario under every control it names as related.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func addRelatedControls(byControl map[string][]string, ts model.ThreatScenario) {
+	for _, ctrl := range ts.RelatedControls {
+		byControl[ctrl] = textutil.AppendUnique(byControl[ctrl], ts.ID)
+	}
+}
+
+// addThreatMitigation records the threat of a mitigation that names both ends.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func addThreatMitigation(byControl map[string][]string, tm model.ThreatMitigation) {
+	if tm.ControlRef == "" || tm.ThreatScenarioRef == "" {
+		return
+	}
+	byControl[tm.ControlRef] = textutil.AppendUnique(byControl[tm.ControlRef], tm.ThreatScenarioRef)
+}
+
+// controlApplicabilityGroups are the functional units plus an all-systems catch-all.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func controlApplicabilityGroups(a model.AuthoredArchitecture) *groupSet {
+	appGroups := newGroupSet()
+	for _, fu := range a.FunctionalUnits {
+		appGroups.add(fu.ID, textutil.Fallback(fu.Name, fu.ID), textutil.Fallback(fu.Prose, textutil.Fallback(fu.Name, fu.ID)))
+	}
+	appGroups.add(allSystemsApplicability, "All Systems", "Applies across the whole system.")
+	return appGroups
+}
+
+// threatIDSet is the set of threat scenario ids.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func threatIDSet(scenarios []model.ThreatScenario) map[string]bool {
+	ids := map[string]bool{}
+	for _, ts := range scenarios {
+		ids[ts.ID] = true
+	}
+	return ids
+}
+
+// threatEntries maps the referenced ids that exist to artifact mappings.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func threatEntries(refs []string, known map[string]bool) []gemaraproj.ArtifactMapping {
+	var entries []gemaraproj.ArtifactMapping
+	for _, id := range refs {
+		if known[id] {
+			entries = append(entries, gemaraproj.ArtifactMapping{ReferenceId: id})
+		}
+	}
+	return entries
+}
+
+// applicability resolves a control's applicability ids (valid applicability-group
+// ids only), the all-systems catch-all when none resolves.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (idx controlIndex) applicability(controlID string) []string {
+	var applicability []string
+	for _, at := range idx.applies[controlID] {
+		if idx.appGroups.has(at) {
+			applicability = textutil.AppendUnique(applicability, at)
+		}
+	}
+	if len(applicability) == 0 {
+		return []string{allSystemsApplicability}
+	}
+	return applicability
+}
+
+// buildControl renders one control and reports whether it links the threat catalog.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (idx controlIndex) buildControl(ctrl model.Control, gid string) (gemaraproj.Control, bool) {
+	c := gemaraproj.Control{
+		Id:        ctrl.ID,
+		Title:     textutil.Fallback(ctrl.Name, ctrl.ID),
+		Objective: textutil.Fallback(ctrl.Description, textutil.Fallback(ctrl.Name, ctrl.ID)),
+		Group:     gid,
+		State:     gemaraproj.LifecycleActive,
+	}
+	c.AssessmentRequirements = buildAssessmentRequirements(ctrl, idx.verifs[ctrl.ID], idx.applicability(ctrl.ID))
+
+	// guidelines (optional): link the control to its L1 guidance family.
+	c.Guidelines = []gemaraproj.MultiEntryMapping{{
+		ReferenceId: gemaraRefGuidanceCatalog,
+		Entries:     []gemaraproj.ArtifactMapping{{ReferenceId: guidelineIDForCategory(ctrl.Category)}},
+	}}
+
+	// threats (optional): link mitigated threats to the threat catalog.
+	entries := threatEntries(idx.threats[ctrl.ID], idx.threatIDs)
+	if len(entries) == 0 {
+		return c, false
+	}
+	c.Threats = []gemaraproj.MultiEntryMapping{{ReferenceId: gemaraRefThreatCatalog, Entries: entries}}
+	return c, true
 }
 
 // buildAssessmentRequirements synthesizes verifiable requirements for a control.
@@ -651,9 +747,8 @@ func buildRiskCatalog(bundle model.Bundle, cfg gemaraConfig) gemaraproj.RiskCata
 		return cat
 	}
 
-	const defaultCategory = "operational-risk"
 	cat.Groups = []gemaraproj.RiskCategory{{
-		Id:          defaultCategory,
+		Id:          defaultRiskCategory,
 		Title:       "Operational Risk",
 		Description: "Risks to the operation, security, and compliance of the system. Risk appetite not set in the model; default applied.",
 		// appetite is required by the schema; the model has no appetite field,
@@ -662,37 +757,12 @@ func buildRiskCatalog(bundle model.Bundle, cfg gemaraConfig) gemaraproj.RiskCata
 		Appetite: gemaraproj.RiskAppetiteLow,
 	}}
 
-	threatIDs := map[string]bool{}
-	for _, ts := range a.ThreatScenarios {
-		threatIDs[ts.ID] = true
-	}
+	threatIDs := threatIDSet(a.ThreatScenarios)
 	usedThreatRef := false
 	rankByID := riskRankMap(a.Risks)
-
 	for _, r := range a.Risks {
-		risk := gemaraproj.Risk{
-			Id:          r.ID,
-			Title:       textutil.Fallback(r.Title, r.ID),
-			Description: textutil.Fallback(r.Statement, textutil.Fallback(r.Title, r.ID)),
-			Group:       defaultCategory,
-			Severity:    deriveSeverity(r.Likelihood, r.Impact),
-			Rank:        int64(rankByID[r.ID]),
-			Impact:      strings.TrimSpace(r.Rationale),
-		}
-		if owner := strings.TrimSpace(r.Owner); owner != "" {
-			contact := []gemaraproj.Contact{{Name: owner}}
-			risk.Owner = gemaraproj.RACI{Responsible: contact, Accountable: contact, Informed: contact}
-		}
-		var threatEntries []gemaraproj.ArtifactMapping
-		for _, tID := range r.ThreatScenarios {
-			if threatIDs[tID] {
-				threatEntries = append(threatEntries, gemaraproj.ArtifactMapping{ReferenceId: tID})
-			}
-		}
-		if len(threatEntries) > 0 {
-			risk.Threats = []gemaraproj.MultiEntryMapping{{ReferenceId: gemaraRefThreatCatalog, Entries: threatEntries}}
-			usedThreatRef = true
-		}
+		risk, usedThreat := buildRisk(r, rankByID[r.ID], threatIDs)
+		usedThreatRef = usedThreatRef || usedThreat
 		cat.Risks = append(cat.Risks, risk)
 	}
 
@@ -700,6 +770,34 @@ func buildRiskCatalog(bundle model.Bundle, cfg gemaraConfig) gemaraproj.RiskCata
 		mappingRef(usedThreatRef, gemaraRefThreatCatalog, "Threat Catalog"),
 	)
 	return cat
+}
+
+// defaultRiskCategory is the one risk group of the catalog.
+const defaultRiskCategory = "operational-risk"
+
+// buildRisk renders one risk and reports whether it links the threat catalog.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func buildRisk(r model.Risk, rank int, threatIDs map[string]bool) (gemaraproj.Risk, bool) {
+	risk := gemaraproj.Risk{
+		Id:          r.ID,
+		Title:       textutil.Fallback(r.Title, r.ID),
+		Description: textutil.Fallback(r.Statement, textutil.Fallback(r.Title, r.ID)),
+		Group:       defaultRiskCategory,
+		Severity:    deriveSeverity(r.Likelihood, r.Impact),
+		Rank:        int64(rank),
+		Impact:      strings.TrimSpace(r.Rationale),
+	}
+	if owner := strings.TrimSpace(r.Owner); owner != "" {
+		contact := []gemaraproj.Contact{{Name: owner}}
+		risk.Owner = gemaraproj.RACI{Responsible: contact, Accountable: contact, Informed: contact}
+	}
+	entries := threatEntries(r.ThreatScenarios, threatIDs)
+	if len(entries) == 0 {
+		return risk, false
+	}
+	risk.Threats = []gemaraproj.MultiEntryMapping{{ReferenceId: gemaraRefThreatCatalog, Entries: entries}}
+	return risk, true
 }
 
 // deriveSeverity collapses qualitative likelihood x impact into a Gemara severity.
@@ -829,6 +927,25 @@ func threatGroupTitle(ts model.ThreatScenario) string {
 	return "Threat"
 }
 
+// threatActorRule adds an actor to a scenario whose classification text
+// contains one of the keywords.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type threatActorRule struct {
+	keywords []string
+	actor    gemaraproj.Actor
+}
+
+var threatActorRules = []threatActorRule{
+	{
+		keywords: []string{"eleva", "tamper", "repudiat", "insider"},
+		actor:    gemaraproj.Actor{Id: "malicious-insider", Name: "Malicious Insider", Type: gemaraproj.Human, Description: "An authorized party abusing legitimate access."},
+	},
+	{
+		keywords: []string{"supply", "depend", "image", "package"},
+		actor:    gemaraproj.Actor{Id: "compromised-dependency", Name: "Compromised Dependency", Type: gemaraproj.Software, Description: "A malicious or compromised third-party component."},
+	},
+}
+
 // threatActorsFor returns the relevant threat actors for a scenario, derived from
 // its STRIDE/category classification.
 // TRLC-LINKS: REQ-EMG-015
@@ -838,13 +955,22 @@ func threatActorsFor(ts model.ThreatScenario) []gemaraproj.Actor {
 		{Id: "external-attacker", Name: "External Attacker", Type: gemaraproj.Human, Description: "An unauthenticated adversary outside the trust boundary."},
 	}
 	tag := strings.ToLower(ts.Stride + " " + ts.Category + " " + ts.Title)
-	if strings.Contains(tag, "eleva") || strings.Contains(tag, "tamper") || strings.Contains(tag, "repudiat") || strings.Contains(tag, "insider") {
-		actors = append(actors, gemaraproj.Actor{Id: "malicious-insider", Name: "Malicious Insider", Type: gemaraproj.Human, Description: "An authorized party abusing legitimate access."})
-	}
-	if strings.Contains(tag, "supply") || strings.Contains(tag, "depend") || strings.Contains(tag, "image") || strings.Contains(tag, "package") {
-		actors = append(actors, gemaraproj.Actor{Id: "compromised-dependency", Name: "Compromised Dependency", Type: gemaraproj.Software, Description: "A malicious or compromised third-party component."})
+	for _, rule := range threatActorRules {
+		if containsAny(tag, rule.keywords) {
+			actors = append(actors, rule.actor)
+		}
 	}
 	return actors
+}
+
+// containsAny reports whether text contains one of the substrings.
+func containsAny(text string, substrings []string) bool {
+	for _, sub := range substrings {
+		if strings.Contains(text, sub) {
+			return true
+		}
+	}
+	return false
 }
 
 // TRLC-LINKS: REQ-EMG-015
@@ -895,15 +1021,19 @@ func slug(s string) string {
 	prevDash := false
 	for _, r := range s {
 		switch {
-		case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
+		case isASCIILower(r) || isASCIIDigit(r):
 			b.WriteRune(r)
 			prevDash = false
-		case r == '-' || r == '_' || r == ' ' || r == '.' || r == '/':
-			if !prevDash && b.Len() > 0 {
-				b.WriteRune('-')
-				prevDash = true
-			}
+		case strings.ContainsRune("-_ ./", r) && !prevDash && b.Len() > 0:
+			b.WriteRune('-')
+			prevDash = true
 		}
 	}
 	return strings.Trim(b.String(), "-")
 }
+
+// isASCIILower reports whether r is in a-z.
+func isASCIILower(r rune) bool { return r >= 'a' && r <= 'z' }
+
+// isASCIIDigit reports whether r is in 0-9.
+func isASCIIDigit(r rune) bool { return r >= '0' && r <= '9' }

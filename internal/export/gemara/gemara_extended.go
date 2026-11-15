@@ -80,43 +80,13 @@ func buildLexicon(bundle model.Bundle, cfg gemaraConfig) (gemaraproj.Lexicon, bo
 // TRLC-LINKS: REQ-EMG-015
 func buildControlThreatMapping(bundle model.Bundle, cfg gemaraConfig) (gemaraproj.MappingDocument, bool) {
 	a := bundle.Architecture.AuthoredArchitecture
-	threatIDs := map[string]bool{}
-	for _, ts := range a.ThreatScenarios {
-		threatIDs[ts.ID] = true
-	}
-	// Collect threats per control from mitigations and related-controls.
-	threatsByControl := map[string][]string{}
-	for _, tm := range a.ThreatMitigations {
-		if tm.ControlRef != "" && threatIDs[tm.ThreatScenarioRef] {
-			threatsByControl[tm.ControlRef] = textutil.AppendUnique(threatsByControl[tm.ControlRef], tm.ThreatScenarioRef)
-		}
-	}
-	for _, ts := range a.ThreatScenarios {
-		for _, ctrl := range ts.RelatedControls {
-			threatsByControl[ctrl] = textutil.AppendUnique(threatsByControl[ctrl], ts.ID)
-		}
-	}
+	byControl := mitigatedThreatsByControl(a)
 
 	var mappings []gemaraproj.Mapping
 	for _, ctrl := range a.Controls {
-		threats := threatsByControl[ctrl.ID]
-		if len(threats) == 0 {
-			continue
+		if threats := byControl[ctrl.ID]; len(threats) > 0 {
+			mappings = append(mappings, controlThreatMapping(ctrl, threats))
 		}
-		var targets []gemaraproj.MappingTarget
-		for _, tID := range threats {
-			targets = append(targets, gemaraproj.MappingTarget{
-				EntryId:   tID,
-				Strength:  7,
-				Rationale: fmt.Sprintf("Control %s mitigates threat %s.", ctrl.ID, tID),
-			})
-		}
-		mappings = append(mappings, gemaraproj.Mapping{
-			Id:           "MAP-" + ctrl.ID,
-			Source:       ctrl.ID,
-			Targets:      targets,
-			Relationship: gemaraproj.RelRelatesTo,
-		})
 	}
 	if len(mappings) == 0 {
 		return gemaraproj.MappingDocument{}, false
@@ -134,6 +104,53 @@ func buildControlThreatMapping(bundle model.Bundle, cfg gemaraConfig) (gemarapro
 		{Id: gemaraRefThreatCatalog, Title: "Threat Catalog", Version: Version},
 	}
 	return doc, true
+}
+
+// mitigatedThreatsByControl collects the existing threats per control from
+// mitigations and related-controls.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func mitigatedThreatsByControl(a model.AuthoredArchitecture) map[string][]string {
+	threatIDs := threatIDSet(a.ThreatScenarios)
+	byControl := map[string][]string{}
+	for _, tm := range a.ThreatMitigations {
+		addKnownMitigation(byControl, tm, threatIDs)
+	}
+	for _, ts := range a.ThreatScenarios {
+		addRelatedControls(byControl, ts)
+	}
+	return byControl
+}
+
+// addKnownMitigation records a mitigation whose control is named and whose
+// threat exists.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func addKnownMitigation(byControl map[string][]string, tm model.ThreatMitigation, threatIDs map[string]bool) {
+	if tm.ControlRef == "" || !threatIDs[tm.ThreatScenarioRef] {
+		return
+	}
+	byControl[tm.ControlRef] = textutil.AppendUnique(byControl[tm.ControlRef], tm.ThreatScenarioRef)
+}
+
+// controlThreatMapping maps one control to the threats it mitigates.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func controlThreatMapping(ctrl model.Control, threats []string) gemaraproj.Mapping {
+	var targets []gemaraproj.MappingTarget
+	for _, tID := range threats {
+		targets = append(targets, gemaraproj.MappingTarget{
+			EntryId:   tID,
+			Strength:  7,
+			Rationale: fmt.Sprintf("Control %s mitigates threat %s.", ctrl.ID, tID),
+		})
+	}
+	return gemaraproj.Mapping{
+		Id:           "MAP-" + ctrl.ID,
+		Source:       ctrl.ID,
+		Targets:      targets,
+		Relationship: gemaraproj.RelRelatesTo,
+	}
 }
 
 // -------------------- L7 Audit Log --------------------
@@ -164,62 +181,10 @@ func buildAuditLog(bundle model.Bundle, cfg gemaraConfig, date string) (gemarapr
 
 	var results []*gemaraproj.AuditResult
 	for _, cv := range a.ControlVerifications {
-		rt := gemaraproj.ResultObservation
-		switch mapVerificationResult(cv.Status) {
-		case gemaraproj.Passed:
-			rt = gemaraproj.ResultStrength
-		case gemaraproj.Failed:
-			rt = gemaraproj.ResultFinding
-		case gemaraproj.NeedsReview, gemaraproj.Unknown:
-			rt = gemaraproj.ResultObservation
-		}
-		ar := &gemaraproj.AuditResult{
-			Id:          "AUD-" + cv.ID,
-			Title:       fmt.Sprintf("Verification of %s", textutil.Fallback(cv.ControlRef, cv.ID)),
-			Type:        rt,
-			Description: fmt.Sprintf("Control %s assessed via %s with status %s.", textutil.Fallback(cv.ControlRef, cv.ID), textutil.Fallback(cv.Method, "verification"), textutil.Fallback(cv.Status, "unknown")),
-			CriteriaReference: gemaraproj.MultiEntryMapping{
-				ReferenceId: gemaraRefControlCatalog,
-				Entries:     []gemaraproj.ArtifactMapping{{ReferenceId: textutil.Fallback(cv.ControlRef, cv.ID)}},
-			},
-		}
-		for i, ev := range cv.Evidence {
-			ar.Evidence = append(ar.Evidence, controlVerificationEvidence(
-				fmt.Sprintf("%s-EV-%d", ar.Id, i+1),
-				collected,
-				ev,
-			))
-		}
-		for _, f := range cv.Findings {
-			ar.Recommendations = append(ar.Recommendations, gemaraproj.Recommendation{Text: f, Required: rt == gemaraproj.ResultFinding})
-		}
-		results = append(results, ar)
+		results = append(results, verificationAuditResult(cv, collected))
 	}
-	// Residual-risk observations. The criterion is the first related control
-	// that exists in the control catalog, otherwise the risk itself.
-	controlIDs := map[string]bool{}
-	for _, c := range a.Controls {
-		controlIDs[c.ID] = true
-	}
-	usedRiskRef := false
-	for _, r := range a.Risks {
-		if strings.TrimSpace(r.ResidualRisk) == "" {
-			continue
-		}
-		criteria := gemaraproj.MultiEntryMapping{ReferenceId: gemaraRefRiskCatalog, Entries: []gemaraproj.ArtifactMapping{{ReferenceId: r.ID}}}
-		if ctrl := firstKnown(r.RelatedControls, controlIDs); ctrl != "" {
-			criteria = gemaraproj.MultiEntryMapping{ReferenceId: gemaraRefControlCatalog, Entries: []gemaraproj.ArtifactMapping{{ReferenceId: ctrl}}}
-		} else {
-			usedRiskRef = true
-		}
-		results = append(results, &gemaraproj.AuditResult{
-			Id:                "AUD-" + r.ID,
-			Title:             "Residual risk: " + textutil.Fallback(r.Title, r.ID),
-			Type:              gemaraproj.ResultObservation,
-			Description:       fmt.Sprintf("Residual risk after mitigation: %s", r.ResidualRisk),
-			CriteriaReference: criteria,
-		})
-	}
+	riskResults, usedRiskRef := residualRiskResults(a)
+	results = append(results, riskResults...)
 	if len(results) == 0 {
 		return gemaraproj.AuditLog{}, false
 	}
@@ -236,6 +201,96 @@ func buildAuditLog(bundle model.Bundle, cfg gemaraConfig, date string) (gemarapr
 		mappingRef(usedRiskRef, gemaraRefRiskCatalog, "Risk Catalog"),
 	)
 	return log, true
+}
+
+// auditResultType is the audit result type of a verification status: a pass is
+// a strength, a failure a finding, anything else an observation.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func auditResultType(status string) gemaraproj.ResultType {
+	switch mapVerificationResult(status) {
+	case gemaraproj.Passed:
+		return gemaraproj.ResultStrength
+	case gemaraproj.Failed:
+		return gemaraproj.ResultFinding
+	default:
+		return gemaraproj.ResultObservation
+	}
+}
+
+// verificationAuditResult is the audit result of one control verification.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func verificationAuditResult(cv model.ControlVerification, collected string) *gemaraproj.AuditResult {
+	rt := auditResultType(cv.Status)
+	ar := &gemaraproj.AuditResult{
+		Id:          "AUD-" + cv.ID,
+		Title:       fmt.Sprintf("Verification of %s", textutil.Fallback(cv.ControlRef, cv.ID)),
+		Type:        rt,
+		Description: fmt.Sprintf("Control %s assessed via %s with status %s.", textutil.Fallback(cv.ControlRef, cv.ID), textutil.Fallback(cv.Method, "verification"), textutil.Fallback(cv.Status, "unknown")),
+		CriteriaReference: gemaraproj.MultiEntryMapping{
+			ReferenceId: gemaraRefControlCatalog,
+			Entries:     []gemaraproj.ArtifactMapping{{ReferenceId: textutil.Fallback(cv.ControlRef, cv.ID)}},
+		},
+	}
+	for i, ev := range cv.Evidence {
+		ar.Evidence = append(ar.Evidence, controlVerificationEvidence(fmt.Sprintf("%s-EV-%d", ar.Id, i+1), collected, ev))
+	}
+	for _, f := range cv.Findings {
+		ar.Recommendations = append(ar.Recommendations, gemaraproj.Recommendation{Text: f, Required: rt == gemaraproj.ResultFinding})
+	}
+	return ar
+}
+
+// residualRiskResults are the residual-risk observations, one per risk that
+// states a residual risk, and whether any cites the risk catalog. The criterion
+// is the first related control that exists in the control catalog, otherwise
+// the risk itself.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func residualRiskResults(a model.AuthoredArchitecture) ([]*gemaraproj.AuditResult, bool) {
+	controlIDs := controlIDSet(a)
+	usedRiskRef := false
+	var results []*gemaraproj.AuditResult
+	for _, r := range a.Risks {
+		if strings.TrimSpace(r.ResidualRisk) == "" {
+			continue
+		}
+		result, citesRisk := residualRiskResult(r, controlIDs)
+		usedRiskRef = usedRiskRef || citesRisk
+		results = append(results, result)
+	}
+	return results, usedRiskRef
+}
+
+// residualRiskResult is the observation of one risk and whether it cites the
+// risk catalog rather than a control.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func residualRiskResult(r model.Risk, controlIDs map[string]bool) (*gemaraproj.AuditResult, bool) {
+	criteria := gemaraproj.MultiEntryMapping{ReferenceId: gemaraRefRiskCatalog, Entries: []gemaraproj.ArtifactMapping{{ReferenceId: r.ID}}}
+	ctrl := firstKnown(r.RelatedControls, controlIDs)
+	if ctrl != "" {
+		criteria = gemaraproj.MultiEntryMapping{ReferenceId: gemaraRefControlCatalog, Entries: []gemaraproj.ArtifactMapping{{ReferenceId: ctrl}}}
+	}
+	return &gemaraproj.AuditResult{
+		Id:                "AUD-" + r.ID,
+		Title:             "Residual risk: " + textutil.Fallback(r.Title, r.ID),
+		Type:              gemaraproj.ResultObservation,
+		Description:       fmt.Sprintf("Residual risk after mitigation: %s", r.ResidualRisk),
+		CriteriaReference: criteria,
+	}, ctrl == ""
+}
+
+// controlIDSet is the set of control ids.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func controlIDSet(a model.AuthoredArchitecture) map[string]bool {
+	ids := map[string]bool{}
+	for _, c := range a.Controls {
+		ids[c.ID] = true
+	}
+	return ids
 }
 
 // -------------------- L6 Enforcement Log --------------------
@@ -256,47 +311,19 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 		start = gemaraDefaultTimestamp
 	}
 	findings := evaluationFindingsByRisk(a)
+	builder := enforcementBuilder{cfg: cfg, findings: findings, start: start}
 
 	usedEvalRef := false
 	var actions []*gemaraproj.ActionResult
 	dispositions := make([]gemaraproj.Disposition, 0, len(a.POAMItems))
 	for _, p := range justifiedPOAMItems(a, findings) {
-		disp := poamDisposition(p.Status)
-		dispositions = append(dispositions, disp)
-		msg := fmt.Sprintf("Remediation for %s (milestone: %s, due: %s, status: %s).",
-			textutil.Fallback(p.RiskRef, p.ID), textutil.Fallback(p.Milestone, "not set"), textutil.Fallback(p.DueDate, "not set"), textutil.Fallback(p.Status, "not set"))
-		steps := []gemaraproj.EnforcementStep{gemaraproj.EnforcementStep(textutil.Fallback(p.ResponsibleRole, "responsible role "+gemaraNotSet))}
-		for _, art := range p.Artifacts {
-			steps = append(steps, gemaraproj.EnforcementStep(textutil.Fallback(art.Path, art.Description)))
-		}
-		var assessments []gemaraproj.AssessmentFinding
-		for _, f := range findings[strings.TrimSpace(p.RiskRef)] {
-			assessments = append(assessments, gemaraproj.AssessmentFinding{
-				Result: f.result,
-				Log:    gemaraproj.EntryMapping{ReferenceId: cfg.evaluationLogID(), EntryId: f.entryID},
-			})
-			usedEvalRef = true
-		}
-		actions = append(actions, &gemaraproj.ActionResult{
-			Disposition:   disp,
-			Method:        gemaraproj.EntryMapping{ReferenceId: cfg.policyID(), EntryId: policyRemediationMethodID},
-			Message:       strPtr(msg),
-			Start:         gemaraproj.Datetime(start),
-			Steps:         steps,
-			Justification: gemaraproj.Justification{Assessments: assessments},
-		})
+		action, citesEvaluation := builder.action(p)
+		dispositions = append(dispositions, action.Disposition)
+		usedEvalRef = usedEvalRef || citesEvaluation
+		actions = append(actions, action)
 	}
 
-	for _, p := range a.POAMItems {
-		if len(findings[strings.TrimSpace(p.RiskRef)]) == 0 {
-			cfg.addDiagnostic(validate.Diagnostic{
-				Code:     "gemara.enforcement_unjustified",
-				Severity: validate.SeverityWarning,
-				Message:  fmt.Sprintf("POA&M item %s has no control verification of risk %q in the evaluation log; Gemara requires an assessment for every enforcement action, so the item is left out of the enforcement log", p.ID, p.RiskRef),
-				Path:     "poamItems[" + p.ID + "]",
-			})
-		}
-	}
+	reportUnjustifiedPOAM(cfg, a, findings)
 	if len(actions) == 0 {
 		// Gemara requires at least one action; with none justified there is no log.
 		return gemaraproj.EnforcementLog{}, false
@@ -312,6 +339,58 @@ func buildEnforcementLog(bundle model.Bundle, cfg gemaraConfig, date string) (ge
 		mappingRef(true, cfg.policyID(), "Policy"),
 	)
 	return log, true
+}
+
+// enforcementBuilder renders the enforcement actions of POA&M items.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type enforcementBuilder struct {
+	cfg      gemaraConfig
+	findings map[string][]evaluationFinding
+	start    string
+}
+
+// action renders one POA&M item and reports whether it cites an evaluation-log entry.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func (b enforcementBuilder) action(p model.POAMItem) (*gemaraproj.ActionResult, bool) {
+	msg := fmt.Sprintf("Remediation for %s (milestone: %s, due: %s, status: %s).",
+		textutil.Fallback(p.RiskRef, p.ID), textutil.Fallback(p.Milestone, "not set"), textutil.Fallback(p.DueDate, "not set"), textutil.Fallback(p.Status, "not set"))
+	steps := []gemaraproj.EnforcementStep{gemaraproj.EnforcementStep(textutil.Fallback(p.ResponsibleRole, "responsible role "+gemaraNotSet))}
+	for _, art := range p.Artifacts {
+		steps = append(steps, gemaraproj.EnforcementStep(textutil.Fallback(art.Path, art.Description)))
+	}
+	var assessments []gemaraproj.AssessmentFinding
+	for _, f := range b.findings[strings.TrimSpace(p.RiskRef)] {
+		assessments = append(assessments, gemaraproj.AssessmentFinding{
+			Result: f.result,
+			Log:    gemaraproj.EntryMapping{ReferenceId: b.cfg.evaluationLogID(), EntryId: f.entryID},
+		})
+	}
+	return &gemaraproj.ActionResult{
+		Disposition:   poamDisposition(p.Status),
+		Method:        gemaraproj.EntryMapping{ReferenceId: b.cfg.policyID(), EntryId: policyRemediationMethodID},
+		Message:       strPtr(msg),
+		Start:         gemaraproj.Datetime(b.start),
+		Steps:         steps,
+		Justification: gemaraproj.Justification{Assessments: assessments},
+	}, len(assessments) > 0
+}
+
+// reportUnjustifiedPOAM reports every POA&M item left out of the enforcement log.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func reportUnjustifiedPOAM(cfg gemaraConfig, a model.AuthoredArchitecture, findings map[string][]evaluationFinding) {
+	for _, p := range a.POAMItems {
+		if len(findings[strings.TrimSpace(p.RiskRef)]) > 0 {
+			continue
+		}
+		cfg.addDiagnostic(validate.Diagnostic{
+			Code:     "gemara.enforcement_unjustified",
+			Severity: validate.SeverityWarning,
+			Message:  fmt.Sprintf("POA&M item %s has no control verification of risk %q in the evaluation log; Gemara requires an assessment for every enforcement action, so the item is left out of the enforcement log", p.ID, p.RiskRef),
+			Path:     "poamItems[" + p.ID + "]",
+		})
+	}
 }
 
 // justifiedPOAMItems returns the POA&M items whose risk has at least one
@@ -342,20 +421,27 @@ type evaluationFinding struct {
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-015
 func evaluationFindingsByRisk(a model.AuthoredArchitecture) map[string][]evaluationFinding {
-	controlIDs := map[string]bool{}
-	for _, c := range a.Controls {
-		controlIDs[c.ID] = true
-	}
+	controlIDs := controlIDSet(a)
 	out := map[string][]evaluationFinding{}
 	for _, cv := range a.ControlVerifications {
 		if !controlIDs[cv.ControlRef] {
 			continue
 		}
-		for _, r := range cv.RiskRefs {
-			r = strings.TrimSpace(r)
-			if r != "" {
-				out[r] = append(out[r], evaluationFinding{entryID: cv.ID, result: mapVerificationResult(cv.Status)})
-			}
+		for _, r := range nonEmptyTrimmed(cv.RiskRefs) {
+			out[r] = append(out[r], evaluationFinding{entryID: cv.ID, result: mapVerificationResult(cv.Status)})
+		}
+	}
+	return out
+}
+
+// nonEmptyTrimmed returns the trimmed, non-empty values.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-015
+func nonEmptyTrimmed(values []string) []string {
+	var out []string
+	for _, v := range values {
+		if v = strings.TrimSpace(v); v != "" {
+			out = append(out, v)
 		}
 	}
 	return out
