@@ -346,7 +346,7 @@ func compareBumpLinks(consumer model.Bundle, deps []reqlinks.Dependency, alias, 
 			l.Outcome, l.Note = BumpLinkBroken, fmt.Sprintf("%s does not exist at %s", l.Child, version)
 		default:
 			var note string
-			l.Before, note = cache.Item(consumer, alias, id, l.From, options)
+			l.Before, note = cache.Item(consumer, linkreview.ItemRef{Alias: alias, ID: id, Version: l.From}, options)
 			switch {
 			case l.Before == nil:
 				l.Outcome, l.Note = BumpLinkReview, fmt.Sprintf("%s: %s", l.Child, strings.TrimPrefix(strings.TrimPrefix(note, "before: "), "version "))

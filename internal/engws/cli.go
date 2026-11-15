@@ -298,7 +298,7 @@ func Main(ctx context.Context, args []string, stdout, stderr io.Writer, registry
 			fmt.Fprintf(stderr, "engws review-links: --accept needs --by ACT-ID and --rationale TEXT\n%s", Usage)
 			return 2
 		}
-		code, err := runReviewLinks(*repoFlag, *asJSON, *show, *accept, strings.TrimSpace(*by), *rationale, stdout)
+		code, err := runReviewLinks(reviewLinksOptions{Repo: *repoFlag, JSON: *asJSON, Show: *show, Accept: linkreview.AcceptRequest{ID: *accept, By: strings.TrimSpace(*by), Rationale: *rationale}}, stdout)
 		if err != nil {
 			fmt.Fprintf(stderr, "engws %s: %v\n", command, err)
 			return 1

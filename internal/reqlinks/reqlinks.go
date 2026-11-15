@@ -133,6 +133,13 @@ func SameMeaning(before, after Item) bool {
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func MeaningChanges(before, after Item) []string {
 	b, a := meaningOf(before), meaningOf(after)
+	return append(itemMeaningChanges(b, a), realizerMeaningChanges(b, a)...)
+}
+
+// itemMeaningChanges names the differences of the item fields of two meanings.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func itemMeaningChanges(b, a meaningDocument) []string {
 	var out []string
 	if b.Item.Kind != a.Item.Kind {
 		out = append(out, "item kind")
@@ -143,42 +150,58 @@ func MeaningChanges(before, after Item) []string {
 	if b.Item.VerificationCriteria != a.Item.VerificationCriteria {
 		out = append(out, "item verificationCriteria")
 	}
-	old := map[string]meaningRealizer{}
-	for _, r := range b.Realizers {
-		old[r.ID] = r
+	return out
+}
+
+// realizerMeaningChanges names, by sorted realizer ID, the realizers added,
+// removed or changed between two meanings.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func realizerMeaningChanges(b, a meaningDocument) []string {
+	old, now := realizerIndex(b.Realizers), realizerIndex(a.Realizers)
+	ids := make([]string, 0, len(old)+len(now))
+	for id := range old {
+		ids = append(ids, id)
 	}
-	ids := map[string]bool{}
-	for _, r := range a.Realizers {
-		ids[r.ID] = true
-	}
-	for _, r := range b.Realizers {
-		ids[r.ID] = true
-	}
-	sorted := make([]string, 0, len(ids))
-	for id := range ids {
-		sorted = append(sorted, id)
-	}
-	sort.Strings(sorted)
-	now := map[string]meaningRealizer{}
-	for _, r := range a.Realizers {
-		now[r.ID] = r
-	}
-	for _, id := range sorted {
-		was, had := old[id]
-		is, has := now[id]
-		switch {
-		case !had:
-			out = append(out, id+" added")
-		case !has:
-			out = append(out, id+" removed")
-		default:
-			if was.Text != is.Text {
-				out = append(out, id+" text")
-			}
-			if was.VerificationCriteria != is.VerificationCriteria {
-				out = append(out, id+" verificationCriteria")
-			}
+	for id := range now {
+		if _, dup := old[id]; !dup {
+			ids = append(ids, id)
 		}
+	}
+	sort.Strings(ids)
+	var out []string
+	for _, id := range ids {
+		out = append(out, realizerDiff(id, old[id], now[id])...)
+	}
+	return out
+}
+
+// realizerIndex maps realizer ID to the realizer; a later duplicate wins.
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
+func realizerIndex(list []meaningRealizer) map[string]*meaningRealizer {
+	index := make(map[string]*meaningRealizer, len(list))
+	for i := range list {
+		index[list[i].ID] = &list[i]
+	}
+	return index
+}
+
+// realizerDiff names the change of realizer id between was and is (nil when
+// absent from that version).
+// TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
+func realizerDiff(id string, was, is *meaningRealizer) []string {
+	switch {
+	case was == nil:
+		return []string{id + " added"}
+	case is == nil:
+		return []string{id + " removed"}
+	}
+	var out []string
+	if was.Text != is.Text {
+		out = append(out, id+" text")
+	}
+	if was.VerificationCriteria != is.VerificationCriteria {
+		out = append(out, id+" verificationCriteria")
 	}
 	return out
 }
@@ -198,6 +221,18 @@ func SortedRealizers(in []Realizer) []Realizer {
 // TRLC-LINKS: REQ-EMG-091, REQ-EMG-095
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func ItemsFromBundle(bundle model.Bundle) map[string]Item {
+	items := declaredItems(bundle)
+	for _, r := range bundle.Requirements.Requirements {
+		attachRealizer(items, r)
+	}
+	return items
+}
+
+// declaredItems returns the capabilities and assumptions of use of a model
+// by ID, without realizers.
+// TRLC-LINKS: REQ-EMG-091, REQ-EMG-095
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func declaredItems(bundle model.Bundle) map[string]Item {
 	items := map[string]Item{}
 	for _, entry := range bundle.Architecture.Contract.Provides {
 		id := strings.TrimSpace(entry.ID)
@@ -211,19 +246,23 @@ func ItemsFromBundle(bundle model.Bundle) map[string]Item {
 			items[id] = Item{ID: id, Kind: KindAssumption, Text: a.Text, VerificationCriteria: a.VerificationCriteria}
 		}
 	}
-	for _, r := range bundle.Requirements.Requirements {
-		realizer := Realizer{
-			ID: strings.TrimSpace(r.ID), Text: r.Text, Notes: r.Notes, VerificationCriteria: r.VerificationCriteria,
-			VerificationMethods: r.VerificationMethods, Criticality: r.Criticality, Status: r.Status,
-		}
-		for _, target := range RealizedItems(r) {
-			if item, ok := items[target]; ok {
-				item.Realizers = append(item.Realizers, realizer)
-				items[target] = item
-			}
+	return items
+}
+
+// attachRealizer adds requirement r to each item it realizes.
+// TRLC-LINKS: REQ-EMG-091, REQ-EMG-095
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func attachRealizer(items map[string]Item, r model.Requirement) {
+	realizer := Realizer{
+		ID: strings.TrimSpace(r.ID), Text: r.Text, Notes: r.Notes, VerificationCriteria: r.VerificationCriteria,
+		VerificationMethods: r.VerificationMethods, Criticality: r.Criticality, Status: r.Status,
+	}
+	for _, target := range RealizedItems(r) {
+		if item, ok := items[target]; ok {
+			item.Realizers = append(item.Realizers, realizer)
+			items[target] = item
 		}
 	}
-	return items
 }
 
 // RealizedItems returns the contract item IDs a requirement realizes: its
@@ -255,26 +294,36 @@ func RealizedItems(r model.Requirement) []string {
 func PublishedItems(bundle model.Bundle, publications ...model.ManifestPublication) map[string]Item {
 	architecture, requirements := map[string]bool{}, map[string]bool{}
 	for _, p := range publications {
-		for _, id := range p.Architecture {
-			architecture[strings.TrimSpace(id)] = true
-		}
-		for _, id := range p.Requirements {
-			requirements[strings.TrimSpace(id)] = true
-		}
+		addTrimmed(architecture, p.Architecture)
+		addTrimmed(requirements, p.Requirements)
 	}
 	out := map[string]Item{}
 	for id, item := range ItemsFromBundle(bundle) {
 		if !architecture[id] {
 			continue
 		}
-		realizers := item.Realizers[:0:0]
-		for _, r := range item.Realizers {
-			if requirements[r.ID] {
-				realizers = append(realizers, r)
-			}
-		}
-		item.Realizers = realizers
+		item.Realizers = selectRealizers(item.Realizers, requirements)
 		out[id] = item
 	}
 	return out
+}
+
+// addTrimmed sets each trimmed id in set.
+// TRLC-LINKS: REQ-EMG-092, REQ-EMG-095
+func addTrimmed(set map[string]bool, ids []string) {
+	for _, id := range ids {
+		set[strings.TrimSpace(id)] = true
+	}
+}
+
+// selectRealizers keeps the realizers whose ID is in keep.
+// TRLC-LINKS: REQ-EMG-092, REQ-EMG-095
+func selectRealizers(in []Realizer, keep map[string]bool) []Realizer {
+	realizers := in[:0:0]
+	for _, r := range in {
+		if keep[r.ID] {
+			realizers = append(realizers, r)
+		}
+	}
+	return realizers
 }
