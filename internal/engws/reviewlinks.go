@@ -51,7 +51,7 @@ func ReviewLinks(repo string) ([]LinkReview, error) {
 	return linkreview.Reviews(ctx, reviewResolution()), nil
 }
 
-// AcceptLink records the review of link id in the model in repo:
+// AcceptLink records the review of link req.ID in the model in repo:
 // pinned.version set to the dependency pin (the published dependency,
 // composed with the workspace off, decision D9), reviewedBy, reviewedOn
 // (today), the rationale and status accepted, a deprecated fingerprint
@@ -60,10 +60,11 @@ func ReviewLinks(repo string) ([]LinkReview, error) {
 // link, one whose item cannot be resolved and a model that does not compose
 // with the workspace off. It then evaluates the link again and fails when
 // it still does not pass (the file stays written; the error says why).
+// The request's Date is set to today.
 // TRLC-LINKS: REQ-EMG-101
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
 // ENGMODEL-LINKS: TR-LINK-ACCEPT, TR-LINK-REACCEPT
-func AcceptLink(repo, id, by, rationale string) (reqlinks.LinkStatus, error) {
+func AcceptLink(repo string, req linkreview.AcceptRequest) (reqlinks.LinkStatus, error) {
 	manifest := filepath.Join(repo, "engmod.yml")
 	ctx, err := linkreview.EvaluateForAccept(manifest, reviewResolution())
 	if err != nil {
@@ -75,14 +76,15 @@ func AcceptLink(repo, id, by, rationale string) (reqlinks.LinkStatus, error) {
 			return reqlinks.LinkStatus{}, err
 		}
 	}
-	a, err := linkreview.Accept(ctx, data, id, by, rationale, now().Format("2006-01-02"))
+	req.Date = now().Format("2006-01-02")
+	a, err := linkreview.AcceptReview(ctx, data, req)
 	if err != nil {
 		return a.Status, err
 	}
 	if err := writeFileAtomic(a.Path, a.After); err != nil {
 		return a.Status, err
 	}
-	return a.Status, verifyAccepted(manifest, id)
+	return a.Status, verifyAccepted(manifest, req.ID)
 }
 
 // verifyAccepted evaluates link id of manifest again (workspace off) and
@@ -95,6 +97,15 @@ func verifyAccepted(manifest, id string) error {
 	if err != nil {
 		return fmt.Errorf("accepted %s, but the model no longer evaluates: %w", id, err)
 	}
+	if err := verifyAcceptedStatus(ctx, id); err != nil {
+		return err
+	}
+	return verifyAcceptedValidation(ctx, id)
+}
+
+// verifyAcceptedStatus fails when link id is not unchanged and accepted.
+// TRLC-LINKS: REQ-EMG-101
+func verifyAcceptedStatus(ctx linkreview.Context, id string) error {
 	for _, s := range ctx.Statuses {
 		if s.ID != id {
 			continue
@@ -103,18 +114,32 @@ func verifyAccepted(manifest, id string) error {
 			return fmt.Errorf("accepted %s, but it still does not pass: %s, status %s (pinned %s, dependency %s)", id, s.State, s.Status, s.Pinned, s.Version)
 		}
 	}
+	return nil
+}
+
+// verifyAcceptedValidation fails on a link.* validation error at link id.
+// TRLC-LINKS: REQ-EMG-101
+func verifyAcceptedValidation(ctx linkreview.Context, id string) error {
 	for i, l := range ctx.Bundle.ReqLinks.ReqLinks {
 		if l.ID != id {
 			continue
 		}
-		prefix := fmt.Sprintf("reqLinks[%d]", i)
-		for _, d := range validate.Bundle(ctx.Bundle) {
-			if d.Severity == validate.SeverityError && strings.HasPrefix(d.Code, "link.") && (d.Path == prefix || strings.HasPrefix(d.Path, prefix+".")) {
-				return fmt.Errorf("accepted %s, but it still does not pass: %s %s", id, d.Code, d.Message)
-			}
+		if d, ok := linkValidationError(ctx, fmt.Sprintf("reqLinks[%d]", i)); ok {
+			return fmt.Errorf("accepted %s, but it still does not pass: %s %s", id, d.Code, d.Message)
 		}
 	}
 	return nil
+}
+
+// linkValidationError returns the first link.* validation error at prefix.
+// TRLC-LINKS: REQ-EMG-101
+func linkValidationError(ctx linkreview.Context, prefix string) (validate.Diagnostic, bool) {
+	for _, d := range validate.Bundle(ctx.Bundle) {
+		if d.Severity == validate.SeverityError && strings.HasPrefix(d.Code, "link.") && (d.Path == prefix || strings.HasPrefix(d.Path, prefix+".")) {
+			return d, true
+		}
+	}
+	return validate.Diagnostic{}, false
 }
 
 // printReviews prints one line per link that needs review: ID, child,
@@ -129,34 +154,51 @@ func printReviews(w io.Writer, reviews []LinkReview, show bool) {
 	}
 	for _, r := range reviews {
 		fmt.Fprintf(w, "%s %s: %s\n", r.ID, r.Child, reviewSummary(r))
-		if !show {
-			continue
-		}
-		if r.Parent != "" {
-			fmt.Fprintf(w, "  parent %s: %s\n", r.Parent, r.ParentText)
-		}
-		var before, after []string
-		if r.Before != nil {
-			fmt.Fprintf(w, "  before (%s)\n", r.Pinned)
-			before = r.Before.Lines()
-		} else {
-			fmt.Fprintf(w, "  %s\n", r.BeforeNote)
-		}
-		if r.After != nil {
-			fmt.Fprintf(w, "  after (%s)\n", r.Version)
-			after = r.After.Lines()
-		} else {
-			detail := r.Detail
-			if detail == "" {
-				detail = "the item does not exist"
-			}
-			fmt.Fprintf(w, "  after (%s): %s\n", r.Version, detail)
-		}
-		for _, line := range linkreview.DiffLines(before, after, r.Before != nil) {
-			fmt.Fprintln(w, "  "+line)
+		if show {
+			printReviewDetail(w, r)
 		}
 	}
 	fmt.Fprintln(w, "engws: review each link (--show prints the text), then engws review-links --accept LNK-... --by ACT-... --rationale TEXT")
+}
+
+// printReviewDetail prints the parent, the item before and after and their
+// line diff of one review.
+// TRLC-LINKS: REQ-EMG-101
+func printReviewDetail(w io.Writer, r LinkReview) {
+	if r.Parent != "" {
+		fmt.Fprintf(w, "  parent %s: %s\n", r.Parent, r.ParentText)
+	}
+	before := printReviewBefore(w, r)
+	after := printReviewAfter(w, r)
+	for _, line := range linkreview.DiffLines(before, after, r.Before != nil) {
+		fmt.Fprintln(w, "  "+line)
+	}
+}
+
+// printReviewBefore prints the before heading and returns its lines.
+// TRLC-LINKS: REQ-EMG-101
+func printReviewBefore(w io.Writer, r LinkReview) []string {
+	if r.Before == nil {
+		fmt.Fprintf(w, "  %s\n", r.BeforeNote)
+		return nil
+	}
+	fmt.Fprintf(w, "  before (%s)\n", r.Pinned)
+	return r.Before.Lines()
+}
+
+// printReviewAfter prints the after heading and returns its lines.
+// TRLC-LINKS: REQ-EMG-101
+func printReviewAfter(w io.Writer, r LinkReview) []string {
+	if r.After != nil {
+		fmt.Fprintf(w, "  after (%s)\n", r.Version)
+		return r.After.Lines()
+	}
+	detail := r.Detail
+	if detail == "" {
+		detail = "the item does not exist"
+	}
+	fmt.Fprintf(w, "  after (%s): %s\n", r.Version, detail)
+	return nil
 }
 
 // reviewSummary is the one-line state of a review: state, status, versions
@@ -168,49 +210,86 @@ func reviewSummary(r LinkReview) string {
 		parts = append(parts, "claimed")
 	}
 	line := strings.Join(parts, ", ") + fmt.Sprintf(" (pinned %s, dependency %s)", r.Pinned, r.Version)
-	switch {
-	case r.State == string(reqlinks.StateBroken):
-		line += ": the item does not exist at " + r.Version
-	case r.After == nil && r.Detail != "":
-		line += ": " + r.Detail
-	case r.Before == nil && r.After != nil:
-		line += ": " + strings.TrimPrefix(r.BeforeNote, "before: ")
-	case r.Before != nil && r.After != nil && len(r.Changes) == 0 && r.Pinned != r.Version:
-		line += ": same meaning"
-	case len(r.Changes) > 0:
-		line += ": changed " + strings.Join(r.Changes, ", ")
+	return line + reviewSuffix(r)
+}
+
+// reviewSuffixRules are tried in order; the first that applies gives the
+// text after the versions.
+var reviewSuffixRules = []func(LinkReview) (string, bool){
+	func(r LinkReview) (string, bool) {
+		return ": the item does not exist at " + r.Version, r.State == string(reqlinks.StateBroken)
+	},
+	func(r LinkReview) (string, bool) { return ": " + r.Detail, r.After == nil && r.Detail != "" },
+	func(r LinkReview) (string, bool) {
+		return ": " + strings.TrimPrefix(r.BeforeNote, "before: "), r.Before == nil && r.After != nil
+	},
+	func(r LinkReview) (string, bool) { return ": same meaning", reviewSameMeaning(r) },
+	func(r LinkReview) (string, bool) {
+		return ": changed " + strings.Join(r.Changes, ", "), len(r.Changes) > 0
+	},
+}
+
+// reviewSameMeaning reports a changed pin whose item meaning is the same.
+// TRLC-LINKS: REQ-EMG-101
+func reviewSameMeaning(r LinkReview) bool {
+	known := r.Before != nil && r.After != nil
+	return known && len(r.Changes) == 0 && r.Pinned != r.Version
+}
+
+// reviewSuffix returns the text of the first applicable rule, or "".
+// TRLC-LINKS: REQ-EMG-101
+func reviewSuffix(r LinkReview) string {
+	for _, rule := range reviewSuffixRules {
+		if text, ok := rule(r); ok {
+			return text
+		}
 	}
-	return line
+	return ""
+}
+
+// reviewLinksOptions are the flags of engws review-links: the repository,
+// the output form and, when Accept.ID is set, the review to record.
+type reviewLinksOptions struct {
+	Repo   string
+	JSON   bool
+	Show   bool
+	Accept linkreview.AcceptRequest
 }
 
 // runReviewLinks lists the links that need review (exit 1 when any) or,
-// with accept, records one review.
+// with an accept ID, records one review.
 // TRLC-LINKS: REQ-EMG-101
 // ENGMODEL-LINKS: EVT-LINK-REVIEW-REQUESTED
-func runReviewLinks(repo string, asJSON, show bool, accept, by, rationale string, w io.Writer) (int, error) {
-	if accept != "" {
-		s, err := AcceptLink(repo, accept, by, rationale)
+func runReviewLinks(opts reviewLinksOptions, w io.Writer) (int, error) {
+	if opts.Accept.ID != "" {
+		s, err := AcceptLink(opts.Repo, opts.Accept)
 		if err != nil {
 			return 1, err
 		}
-		fmt.Fprintf(w, "engws: accepted %s %s at %s by %s on %s\n", s.ID, s.Child, s.Version, by, now().Format("2006-01-02"))
+		fmt.Fprintf(w, "engws: accepted %s %s at %s by %s on %s\n", s.ID, s.Child, s.Version, opts.Accept.By, now().Format("2006-01-02"))
 		return 0, nil
 	}
-	reviews, err := ReviewLinks(repo)
+	reviews, err := ReviewLinks(opts.Repo)
 	if err != nil {
 		return 1, err
 	}
-	if asJSON {
-		enc := json.NewEncoder(w)
-		enc.SetIndent("", "  ")
-		if err := enc.Encode(reviews); err != nil {
-			return 1, err
-		}
-	} else {
-		printReviews(w, reviews, show)
+	if err := printReviewList(w, reviews, opts); err != nil {
+		return 1, err
 	}
 	if len(reviews) > 0 {
 		return 1, nil
 	}
 	return 0, nil
+}
+
+// printReviewList prints reviews as JSON or text.
+// TRLC-LINKS: REQ-EMG-101
+func printReviewList(w io.Writer, reviews []LinkReview, opts reviewLinksOptions) error {
+	if !opts.JSON {
+		printReviews(w, reviews, opts.Show)
+		return nil
+	}
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	return enc.Encode(reviews)
 }

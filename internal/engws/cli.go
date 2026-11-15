@@ -376,7 +376,7 @@ func (c *cliCall) reviewLinks() int {
 		fmt.Fprintf(c.stderr, "engws review-links: --accept needs --by ACT-ID and --rationale TEXT\n%s", Usage)
 		return 2
 	}
-	code, err := runReviewLinks(f.repo, f.asJSON, f.show, f.accept, strings.TrimSpace(f.by), f.rationale, c.stdout)
+	code, err := runReviewLinks(reviewLinksOptions{Repo: f.repo, JSON: f.asJSON, Show: f.show, Accept: linkreview.AcceptRequest{ID: f.accept, By: strings.TrimSpace(f.by), Rationale: f.rationale}}, c.stdout)
 	if err != nil {
 		return c.failed(c.name, err, 1)
 	}
