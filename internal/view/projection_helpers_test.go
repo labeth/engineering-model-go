@@ -48,10 +48,10 @@ func hasEdgeType(v ProjectedView, typ string) bool {
 	return false
 }
 
-// hasEdge reports whether the view has the edge.
-func hasEdge(v ProjectedView, typ, from, to string) bool {
+// hasEdge reports whether the view has an edge with the type, source and target of the want.
+func hasEdge(v ProjectedView, want Edge) bool {
 	for _, e := range v.Edges {
-		if e.Type == typ && e.From == from && e.To == to {
+		if e.Type == want.Type && e.From == want.From && e.To == want.To {
 			return true
 		}
 	}

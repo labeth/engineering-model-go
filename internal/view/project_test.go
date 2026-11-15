@@ -180,7 +180,7 @@ func TestBuild_InteractionFlowIncludesActivityEdgesWhenConfigured(t *testing.T) 
 	}}
 
 	v := mustBuild(t, b, "V-FLOW")
-	if !hasEdge(v, "calls", "FU-A", "IF-A") || !hasEdge(v, "writes", "FU-A", "DO-A") {
+	if !hasEdge(v, Edge{Type: "calls", From: "FU-A", To: "IF-A"}) || !hasEdge(v, Edge{Type: "writes", From: "FU-A", To: "DO-A"}) {
 		t.Fatalf("expected interaction-flow activity edges, got %+v", v.Edges)
 	}
 }

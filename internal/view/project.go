@@ -43,7 +43,8 @@ func Build(b model.Bundle, viewID string) (ProjectedView, []validate.Diagnostic)
 	if strings.TrimSpace(v.Kind) == "interaction-flow" {
 		return buildInteractionFlowView(flowViewInput{view: v, idx: idx, mappings: b.Architecture.AuthoredArchitecture.Mappings, filter: filter, maxDepth: effectiveMaxDepth(v)}), nil
 	}
-	return projectGraph(v, idx, viewMappings(b.Architecture.AuthoredArchitecture), filter), nil
+	walk := &viewWalk{idx: idx, filter: filter, mappings: viewMappings(b.Architecture.AuthoredArchitecture), included: map[string]bool{}, depth: map[string]int{}}
+	return projectGraph(v, walk), nil
 }
 
 // canonicalDiagnostics are the diagnostics of a canonical bundle that failed,
@@ -93,8 +94,7 @@ type viewWalk struct {
 // the mappings between them.
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
-func projectGraph(v model.View, idx index, mappings []model.Mapping, filter viewFilter) ProjectedView {
-	w := &viewWalk{idx: idx, filter: filter, mappings: mappings, included: map[string]bool{}, depth: map[string]int{}}
+func projectGraph(v model.View, w *viewWalk) ProjectedView {
 	w.seedRoots(v.Roots)
 	w.run(effectiveMaxDepth(v))
 	return sortView(w.project(ProjectedView{ID: v.ID, Kind: v.Kind, Title: v.ID}))
@@ -121,10 +121,17 @@ func (w *viewWalk) seedRoots(roots []string) {
 			continue
 		}
 		w.seed(root)
-		for _, state := range w.idx.machines[root].States {
-			if id := strings.TrimSpace(state.ID); id != "" {
-				w.seed(id)
-			}
+		w.seedMachineStates(root)
+	}
+}
+
+// seedMachineStates includes the states of the machine with the ID.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (w *viewWalk) seedMachineStates(machineID string) {
+	for _, state := range w.idx.machines[machineID].States {
+		if id := strings.TrimSpace(state.ID); id != "" {
+			w.seed(id)
 		}
 	}
 }
@@ -195,17 +202,35 @@ func (w *viewWalk) nodeVisible(id string) bool {
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func (w *viewWalk) project(pv ProjectedView) ProjectedView {
+	pv.Nodes = w.visibleNodes()
+	pv.Edges = w.visibleEdges()
+	return pv
+}
+
+// visibleNodes are the included nodes of an allowed kind.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (w *viewWalk) visibleNodes() []Node {
+	var nodes []Node
 	for id := range w.included {
 		if w.filter.kindAllowed(kindForID(id, w.idx)) {
-			pv.Nodes = append(pv.Nodes, toNode(id, w.idx))
+			nodes = append(nodes, toNode(id, w.idx))
 		}
 	}
+	return nodes
+}
+
+// visibleEdges are the allowed mappings between visible nodes.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (w *viewWalk) visibleEdges() []Edge {
+	var edges []Edge
 	for _, m := range w.mappings {
 		if w.filter.mappingAllowed(strings.TrimSpace(m.Type)) && w.nodeVisible(m.From) && w.nodeVisible(m.To) {
-			pv.Edges = append(pv.Edges, Edge{From: m.From, To: m.To, Type: m.Type, Label: mappingLabel(m)})
+			edges = append(edges, Edge{From: m.From, To: m.To, Type: m.Type, Label: mappingLabel(m)})
 		}
 	}
-	return pv
+	return edges
 }
 
 // mappingLabel is the type of a mapping, with its description.
@@ -545,10 +570,8 @@ func (b *flowViewBuilder) addNode(n Node) {
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func (b *flowViewBuilder) addEdge(e Edge) {
-	_, fromOK := b.nodesByID[e.From]
-	_, toOK := b.nodesByID[e.To]
 	edgeKey := e.From + "|" + e.To + "|" + e.Type
-	if !b.in.filter.mappingAllowed(e.Type) || !fromOK || !toOK || b.edgeSeen[edgeKey] {
+	if !b.edgeWanted(e) || b.edgeSeen[edgeKey] {
 		return
 	}
 	b.edgeSeen[edgeKey] = true
@@ -556,23 +579,55 @@ func (b *flowViewBuilder) addEdge(e Edge) {
 	b.adj[e.From] = append(b.adj[e.From], e.To)
 }
 
+// edgeWanted reports whether the edge has an allowed mapping and both its nodes exist.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (b *flowViewBuilder) edgeWanted(e Edge) bool {
+	return b.in.filter.mappingAllowed(e.Type) && b.hasNode(e.From) && b.hasNode(e.To)
+}
+
+// hasNode reports whether the ID is a node.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (b *flowViewBuilder) hasNode(id string) bool {
+	_, ok := b.nodesByID[id]
+	return ok
+}
+
 // selectedFlowIDs are the flows named by the roots, or all flows when no root
 // names one, sorted.
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func (b *flowViewBuilder) selectedFlowIDs() []string {
+	ids := b.flowRoots()
+	if len(ids) == 0 {
+		ids = sortedFlowIDs(b.in.idx.flows)
+	}
+	sort.Strings(ids)
+	return ids
+}
+
+// flowRoots are the roots of the view that are flows.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (b *flowViewBuilder) flowRoots() []string {
 	ids := []string{}
 	for _, r := range b.in.view.Roots {
 		if id := strings.TrimSpace(r); id != "" && b.isFlow(id) {
 			ids = append(ids, id)
 		}
 	}
-	if len(ids) == 0 {
-		for id := range b.in.idx.flows {
-			ids = append(ids, id)
-		}
+	return ids
+}
+
+// sortedFlowIDs are the IDs of the flows.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func sortedFlowIDs(flows map[string]model.Flow) []string {
+	ids := make([]string, 0, len(flows))
+	for id := range flows {
+		ids = append(ids, id)
 	}
-	sort.Strings(ids)
 	return ids
 }
 
@@ -674,21 +729,27 @@ var interactionActivityTypes = map[string]bool{
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func (b *flowViewBuilder) addActivityEdges(participants map[string]bool) {
 	for _, m := range b.in.mappings {
-		t := strings.TrimSpace(m.Type)
-		from := strings.TrimSpace(m.From)
-		to := strings.TrimSpace(m.To)
-		if !interactionActivityTypes[t] || from == "" || to == "" || !participants[from] {
-			continue
+		if fromNode, toEnd, ok := b.activityEnds(m, participants); ok {
+			t := strings.TrimSpace(m.Type)
+			b.addNode(fromNode)
+			b.addNode(toEnd)
+			b.addEdge(Edge{From: fromNode.ID, To: toEnd.ID, Type: t, Label: t})
 		}
-		fromNode := toNode(from, b.in.idx)
-		toEnd := toNode(to, b.in.idx)
-		if fromNode.Kind == "unknown" || toEnd.Kind == "unknown" {
-			continue
-		}
-		b.addNode(fromNode)
-		b.addNode(toEnd)
-		b.addEdge(Edge{From: fromNode.ID, To: toEnd.ID, Type: t, Label: t})
 	}
+}
+
+// activityEnds are the known nodes at the ends of a mapping of an activity
+// type that starts at an element the flow refers to.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (b *flowViewBuilder) activityEnds(m model.Mapping, participants map[string]bool) (from, to Node, ok bool) {
+	fromID := strings.TrimSpace(m.From)
+	toID := strings.TrimSpace(m.To)
+	if !interactionActivityTypes[strings.TrimSpace(m.Type)] || !participants[fromID] || toID == "" {
+		return Node{}, Node{}, false
+	}
+	from, to = toNode(fromID, b.in.idx), toNode(toID, b.in.idx)
+	return from, to, from.Kind != "unknown" && to.Kind != "unknown"
 }
 
 // roots are the roots of the view that are nodes, or the selected flows that are.
@@ -708,10 +769,8 @@ func (b *flowViewBuilder) roots(flowIDs []string) []string {
 func (b *flowViewBuilder) existing(ids []string) []string {
 	var out []string
 	for _, id := range ids {
-		if id = strings.TrimSpace(id); id != "" {
-			if _, ok := b.nodesByID[id]; ok {
-				out = append(out, id)
-			}
+		if id = strings.TrimSpace(id); b.hasNode(id) {
+			out = append(out, id)
 		}
 	}
 	return out
@@ -725,23 +784,30 @@ func (b *flowViewBuilder) reachable(roots []string) map[string]bool {
 	depth := map[string]int{}
 	queue := []string{}
 	for _, r := range roots {
-		if !included[r] {
-			included[r] = true
-			queue = append(queue, r)
-		}
+		queue = visitNode(included, queue, r)
 	}
 	for len(queue) > 0 {
 		cur := queue[0]
 		queue = queue[1:]
 		for _, nxt := range b.in.nextWithin(b.adj[cur], depth[cur]) {
 			if !included[nxt] {
-				included[nxt] = true
 				depth[nxt] = depth[cur] + 1
-				queue = append(queue, nxt)
+				queue = visitNode(included, queue, nxt)
 			}
 		}
 	}
 	return included
+}
+
+// visitNode includes the node and queues it, unless it is included.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func visitNode(included map[string]bool, queue []string, id string) []string {
+	if included[id] {
+		return queue
+	}
+	included[id] = true
+	return append(queue, id)
 }
 
 // nextWithin are the nodes one more step away, when the depth has not reached the limit.
@@ -759,17 +825,35 @@ func (in flowViewInput) nextWithin(next []string, depth int) []string {
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func (b *flowViewBuilder) project(included map[string]bool) ProjectedView {
 	pv := ProjectedView{ID: b.in.view.ID, Kind: b.in.view.Kind, Title: b.in.view.ID}
+	pv.Nodes = b.includedNodes(included)
+	pv.Edges = b.includedEdges(included)
+	return pv
+}
+
+// includedNodes are the nodes in the set.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (b *flowViewBuilder) includedNodes(included map[string]bool) []Node {
+	var nodes []Node
 	for id, n := range b.nodesByID {
 		if included[id] {
-			pv.Nodes = append(pv.Nodes, n)
+			nodes = append(nodes, n)
 		}
 	}
+	return nodes
+}
+
+// includedEdges are the edges between nodes in the set.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (b *flowViewBuilder) includedEdges(included map[string]bool) []Edge {
+	var edges []Edge
 	for _, e := range b.edges {
 		if included[e.From] && included[e.To] {
-			pv.Edges = append(pv.Edges, e)
+			edges = append(edges, e)
 		}
 	}
-	return pv
+	return edges
 }
 
 // TRLC-LINKS: REQ-EMG-003

@@ -89,9 +89,14 @@ func (p *semanticProjection) seedRoots() {
 			p.queue = append(p.queue, root)
 		}
 	}
-	if len(p.queue) > 0 {
-		return
+	if len(p.queue) == 0 {
+		p.includeAllShown()
 	}
+}
+
+// includeAllShown includes every shown element.
+// TRLC-LINKS: REQ-EMG-052
+func (p *semanticProjection) includeAllShown() {
 	for _, element := range p.semantic.Elements {
 		if p.allowedElement(element) {
 			p.included[element.ID] = true
@@ -151,17 +156,33 @@ func (p *semanticProjection) reach(neighbor, current string) {
 // TRLC-LINKS: REQ-EMG-052
 func (p *semanticProjection) project() ProjectedView {
 	projected := ProjectedView{ID: p.view.ID, Kind: p.view.Kind, Title: p.view.ID}
+	projected.Nodes = p.shownNodes()
+	projected.Edges = p.shownEdges()
+	return projected
+}
+
+// shownNodes are the nodes of the included shown elements.
+// TRLC-LINKS: REQ-EMG-052
+func (p *semanticProjection) shownNodes() []Node {
+	var nodes []Node
 	for _, element := range p.semantic.Elements {
 		if p.included[element.ID] && p.allowedElement(element) {
-			projected.Nodes = append(projected.Nodes, semanticNode(element))
+			nodes = append(nodes, semanticNode(element))
 		}
 	}
+	return nodes
+}
+
+// shownEdges are the edges of the shown relationships between included elements.
+// TRLC-LINKS: REQ-EMG-052
+func (p *semanticProjection) shownEdges() []Edge {
+	var edges []Edge
 	for sequence, relationship := range p.semantic.Relationships {
 		if p.allowedRelationship(relationship) && p.included[relationship.Source] && p.included[relationship.Target] {
-			projected.Edges = append(projected.Edges, semanticEdge(relationship, sequence))
+			edges = append(edges, semanticEdge(relationship, sequence))
 		}
 	}
-	return projected
+	return edges
 }
 
 // semanticNode is the node of an element with its features.
