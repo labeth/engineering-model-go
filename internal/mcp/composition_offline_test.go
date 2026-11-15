@@ -63,7 +63,6 @@ type offlineFixture struct {
 
 // newOfflineFixture publishes the child module, writes the parent and warms the
 // module cache without writing a lock.
-// TRLC-LINKS: REQ-EMG-069, REQ-EMG-064
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
 func newOfflineFixture(t *testing.T) *offlineFixture {
 	t.Helper()
@@ -94,7 +93,6 @@ func newOfflineFixture(t *testing.T) *offlineFixture {
 }
 
 // requireNoFile fails with msg when the path exists.
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func requireNoFile(t *testing.T, path, msg string) {
 	t.Helper()
@@ -104,7 +102,6 @@ func requireNoFile(t *testing.T, path, msg string) {
 }
 
 // requireNoRegistryRequests fails when the counting registry saw a request.
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func requireNoRegistryRequests(t *testing.T, label string, requests *atomic.Int64) {
 	t.Helper()
@@ -114,7 +111,6 @@ func requireNoRegistryRequests(t *testing.T, label string, requests *atomic.Int6
 }
 
 // provenanceDirs returns the ResolvedDir of every provenance entry.
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func provenanceDirs(comp map[string]any) []any {
 	var dirs []any
@@ -126,7 +122,6 @@ func provenanceDirs(comp map[string]any) []any {
 
 // singleSubsystemDir reports whether composition.resolve lists exactly one
 // subsystem whose resolvedDirectory is want.
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func singleSubsystemDir(comp map[string]any, want string) bool {
 	subs, _ := comp["subsystems"].([]any)
@@ -135,7 +130,6 @@ func singleSubsystemDir(comp map[string]any, want string) bool {
 
 // checkComposition resolves the composition and requires module@version
 // directories and no cache path.
-// TRLC-LINKS: REQ-EMG-069, REQ-EMG-064
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
 func (f *offlineFixture) checkComposition(t *testing.T, label string) {
 	t.Helper()
@@ -153,7 +147,6 @@ func (f *offlineFixture) checkComposition(t *testing.T, label string) {
 }
 
 // callAll calls every composing read tool and requires no registry request.
-// TRLC-LINKS: REQ-EMG-069, REQ-EMG-064
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
 func (f *offlineFixture) callAll(t *testing.T, label string) {
 	t.Helper()
@@ -168,7 +161,6 @@ func (f *offlineFixture) callAll(t *testing.T, label string) {
 
 // checkExportersOffline requires the exporters to compose without registry
 // requests and without writing the lock under the server's process defaults.
-// TRLC-LINKS: REQ-EMG-069, REQ-EMG-064
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
 func (f *offlineFixture) checkExportersOffline(t *testing.T) {
 	t.Helper()
@@ -285,7 +277,6 @@ func TestToolOutputCarriesNoAbsolutePaths(t *testing.T) {
 
 // requireLockCheckSkippedRelative requires a composition.lock_check_skipped
 // diagnostic whose path is project-relative.
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func requireLockCheckSkippedRelative(t *testing.T, comp map[string]any) {
 	t.Helper()

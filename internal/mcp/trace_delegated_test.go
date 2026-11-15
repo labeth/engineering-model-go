@@ -27,7 +27,6 @@ func initializeMCPAt(t *testing.T, base string) *Server {
 
 // initializeModelAt starts the MCP server on the model and repository in base,
 // without a requirements path.
-// TRLC-LINKS: REQ-EMG-067
 func initializeModelAt(t *testing.T, base string) *Server {
 	t.Helper()
 	s := NewServer()
@@ -122,7 +121,6 @@ func TestTraceMatrixToolReportsGatedOnly(t *testing.T) {
 
 // gatedSoloServer starts the MCP server on a one-module model whose linked
 // test skips unless SOLO_E2E is set.
-// TRLC-LINKS: REQ-EMG-088
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func gatedSoloServer(t *testing.T) *Server {
 	t.Helper()
@@ -133,7 +131,6 @@ func gatedSoloServer(t *testing.T) *Server {
 }
 
 // assertGatedSummary checks the gatedOnly counters of one trace.matrix summary.
-// TRLC-LINKS: REQ-EMG-088
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertGatedSummary(t *testing.T, args, summary map[string]any) {
 	t.Helper()
@@ -144,7 +141,6 @@ func assertGatedSummary(t *testing.T, args, summary map[string]any) {
 
 // gatedSummaryHolds reports whether the summary counts exactly REQ-PARENT as
 // gated only and two test-linked requirements.
-// TRLC-LINKS: REQ-EMG-088
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func gatedSummaryHolds(summary map[string]any) bool {
 	list, _ := summary["gatedOnlyRequirements"].([]any)
@@ -155,7 +151,6 @@ func gatedSummaryHolds(summary map[string]any) bool {
 }
 
 // assertGatedRow checks the gated and gates fields of one trace.matrix row.
-// TRLC-LINKS: REQ-EMG-088
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertGatedRow(t *testing.T, row map[string]any) {
 	t.Helper()

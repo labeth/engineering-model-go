@@ -93,7 +93,6 @@ func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 }
 
 // assertContractEnums checks the enum counts of the contract rules.
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractEnums(t *testing.T, rules map[string]any, want validate.Rules) {
 	t.Helper()
@@ -108,7 +107,6 @@ func assertContractEnums(t *testing.T, rules map[string]any, want validate.Rules
 }
 
 // assertContractPairs checks the relationship pairs of the contract rules.
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractPairs(t *testing.T, rules map[string]any, want validate.Rules) {
 	t.Helper()
@@ -142,7 +140,6 @@ func TestModelAuthoringContractListsFieldSetsAndPublicationSections(t *testing.T
 }
 
 // contractFieldSet joins the fields the contract lists for one entity kind.
-// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func contractFieldSet(sets map[string]any, kind string) string {
 	list, _ := sets[kind].([]any)
@@ -155,7 +152,6 @@ func contractFieldSet(sets map[string]any, kind string) string {
 
 // assertContractFieldSets checks the fields of the control, risk and other
 // entity kinds in the contract's fieldSets.
-// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractFieldSets(t *testing.T, sets map[string]any) {
 	t.Helper()
@@ -172,7 +168,6 @@ func assertContractFieldSets(t *testing.T, sets map[string]any) {
 // assertRiskFieldSet checks the fields of the risk kind in the contract's
 // fieldSets.
 //
-// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertRiskFieldSet(t *testing.T, sets map[string]any) {
 	t.Helper()
@@ -187,7 +182,6 @@ func assertRiskFieldSet(t *testing.T, sets map[string]any) {
 // assertFieldSetKinds checks that the contract lists fields for each of the
 // entity kinds.
 //
-// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertFieldSetKinds(t *testing.T, sets map[string]any) {
 	t.Helper()
@@ -200,7 +194,6 @@ func assertFieldSetKinds(t *testing.T, sets map[string]any) {
 
 // assertContractFieldTypes checks that the contract types stride and
 // preconditions of the threatScenario kind.
-// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractFieldTypes(t *testing.T, rules map[string]any) {
 	t.Helper()
@@ -217,7 +210,6 @@ func assertContractFieldTypes(t *testing.T, rules map[string]any) {
 }
 
 // assertContractPublicationSections checks the manifest publication sections.
-// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractPublicationSections(t *testing.T, rules map[string]any) {
 	t.Helper()
@@ -233,7 +225,6 @@ func assertContractPublicationSections(t *testing.T, rules map[string]any) {
 
 // assertContractFieldRules checks that the field rule texts carry the
 // boundaryCrossing, event_unused, multiple_responses and EARS rules.
-// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractFieldRules(t *testing.T, rules map[string]any) {
 	t.Helper()

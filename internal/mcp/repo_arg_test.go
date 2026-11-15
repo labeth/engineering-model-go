@@ -48,7 +48,6 @@ type repoArgFixture struct {
 
 // newRepoArgFixture copies the family, removes engmod.work.yml (remembering
 // its content) and starts a server before the workspace exists.
-// TRLC-LINKS: REQ-EMG-120
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func newRepoArgFixture(t *testing.T) *repoArgFixture {
 	t.Helper()
@@ -65,7 +64,6 @@ func newRepoArgFixture(t *testing.T) *repoArgFixture {
 }
 
 // requirementCount returns the trace.matrix requirements count for the args.
-// TRLC-LINKS: REQ-EMG-120
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func (f *repoArgFixture) requirementCount(t *testing.T, args map[string]any) any {
 	t.Helper()
@@ -73,7 +71,6 @@ func (f *repoArgFixture) requirementCount(t *testing.T, args map[string]any) any
 }
 
 // withoutWorkspace allows only the server's own checkout.
-// TRLC-LINKS: REQ-EMG-120
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func (f *repoArgFixture) withoutWorkspace(t *testing.T) {
 	t.Helper()
@@ -87,7 +84,6 @@ func (f *repoArgFixture) withoutWorkspace(t *testing.T) {
 }
 
 // answersPerMember answers for each family member named by repo.
-// TRLC-LINKS: REQ-EMG-120
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func (f *repoArgFixture) answersPerMember(t *testing.T) {
 	t.Helper()
@@ -104,7 +100,6 @@ func (f *repoArgFixture) answersPerMember(t *testing.T) {
 
 // defaultsToOwnCheckout answers for the server's own checkout without repo
 // and diagnoses a document of the named member.
-// TRLC-LINKS: REQ-EMG-120
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func (f *repoArgFixture) defaultsToOwnCheckout(t *testing.T) {
 	t.Helper()
@@ -119,7 +114,6 @@ func (f *repoArgFixture) defaultsToOwnCheckout(t *testing.T) {
 
 // rejectsEscapes refuses a valid model outside the workspace, reachable
 // through a symlink, and the other repo values that leave the root.
-// TRLC-LINKS: REQ-EMG-120
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func (f *repoArgFixture) rejectsEscapes(t *testing.T) {
 	t.Helper()
@@ -142,7 +136,6 @@ func (f *repoArgFixture) rejectsEscapes(t *testing.T) {
 
 // refusesWorldWritableWorkspace refuses a world-writable workspace file like
 // the upward search does.
-// TRLC-LINKS: REQ-EMG-120
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func (f *repoArgFixture) refusesWorldWritableWorkspace(t *testing.T) {
 	t.Helper()
@@ -159,7 +152,6 @@ func (f *repoArgFixture) refusesWorldWritableWorkspace(t *testing.T) {
 
 // requireRepoInSchemas requires every model-reading tool to list repo in its
 // input schema.
-// TRLC-LINKS: REQ-EMG-120
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
 func requireRepoInSchemas(t *testing.T) {
 	t.Helper()

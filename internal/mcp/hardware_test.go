@@ -22,7 +22,6 @@ func TestHardwareEntitiesAreDiscoverable(t *testing.T) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-050
 func (s *Server) assertHardwareLookup(t *testing.T, id, want string) {
 	t.Helper()
 	kind, entity, ok := s.modelEntity(id)
@@ -31,7 +30,6 @@ func (s *Server) assertHardwareLookup(t *testing.T, id, want string) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-050
 func (s *Server) assertHardwareListed(t *testing.T, id, kind string) {
 	t.Helper()
 	nodes := s.modelEntityNodes(id, kind, 10)

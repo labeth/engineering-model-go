@@ -42,7 +42,6 @@ type patchFixture struct {
 
 // newPatchFixture copies the payments model, adds a comment that must survive
 // every edit, makes the assurance document mode 0640 and starts a server.
-// TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY, CTRL-REPO-LOCAL-WRITES
 func newPatchFixture(t *testing.T) *patchFixture {
 	t.Helper()
@@ -69,7 +68,6 @@ func newPatchFixture(t *testing.T) *patchFixture {
 }
 
 // read returns the assurance document on disk.
-// TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-REPO-LOCAL-WRITES
 func (f *patchFixture) read(t *testing.T) string {
 	t.Helper()
@@ -81,7 +79,6 @@ func (f *patchFixture) read(t *testing.T) string {
 }
 
 // dryRun applies a scalar set, a nested field and an append without write.
-// TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY, CTRL-REPO-LOCAL-WRITES
 func (f *patchFixture) dryRun(t *testing.T) {
 	t.Helper()
@@ -105,7 +102,6 @@ func (f *patchFixture) dryRun(t *testing.T) {
 
 // validWrite writes a valid nested edit: the file changes, the comment and
 // the mode stay.
-// TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY, CTRL-REPO-LOCAL-WRITES
 func (f *patchFixture) validWrite(t *testing.T) {
 	t.Helper()
@@ -124,7 +120,6 @@ func (f *patchFixture) validWrite(t *testing.T) {
 }
 
 // invalidWrite reports an invalid result with diagnostics and writes nothing.
-// TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY, CTRL-REPO-LOCAL-WRITES
 func (f *patchFixture) invalidWrite(t *testing.T) {
 	t.Helper()
@@ -143,7 +138,6 @@ func (f *patchFixture) invalidWrite(t *testing.T) {
 // refusals covers an unknown id, an unknown field segment, a stable-ID
 // rename, no operation, a document outside the manifest and wrong argument
 // types: each is a tool error and nothing is written.
-// TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY, CTRL-REPO-LOCAL-WRITES
 func (f *patchFixture) refusals(t *testing.T) {
 	t.Helper()
@@ -172,7 +166,6 @@ func (f *patchFixture) refusals(t *testing.T) {
 
 // outsideModelRoot refuses a manifest document that resolves outside the
 // model root through a symlink and leaves the target untouched.
-// TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY, CTRL-REPO-LOCAL-WRITES
 func (f *patchFixture) outsideModelRoot(t *testing.T) {
 	t.Helper()
@@ -197,7 +190,6 @@ func (f *patchFixture) outsideModelRoot(t *testing.T) {
 
 // requireDecisionsRefused requires model.patch on the decisions document to
 // be refused as outside the model root.
-// TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY, CTRL-REPO-LOCAL-WRITES
 func (f *patchFixture) requireDecisionsRefused(t *testing.T, decisionID string) {
 	t.Helper()

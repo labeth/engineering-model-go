@@ -40,7 +40,6 @@ func TestMCPScanHonoursGitignoreAndExclude(t *testing.T) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-114
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
 func writeScopeFixture(t *testing.T, root string) {
 	t.Helper()

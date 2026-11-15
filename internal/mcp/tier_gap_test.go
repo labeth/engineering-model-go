@@ -32,7 +32,6 @@ func TestTierGapTool(t *testing.T) {
 
 // setRepoTier rewrites the lifecycle of the manifest in dir to tier (none when
 // tier is empty) and the tier decision to match.
-// TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func setRepoTier(t *testing.T, dir, tier string) {
 	t.Helper()
@@ -53,7 +52,6 @@ func setRepoTier(t *testing.T, dir, tier string) {
 }
 
 // rewriteTierDecision points the MVP tier decision in the file at tier.
-// TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func rewriteTierDecision(t *testing.T, decisions, tier string) {
 	t.Helper()
@@ -69,7 +67,6 @@ func rewriteTierDecision(t *testing.T, decisions, tier string) {
 
 // assertTierGapPayload checks the tiers, dependencies, byCode and blocking
 // list of a tier.gap payload.
-// TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertTierGapPayload(t *testing.T, gap map[string]any) {
 	t.Helper()
@@ -95,7 +92,6 @@ func assertTierGapPayload(t *testing.T, gap map[string]any) {
 
 // assertTierGapRefusals checks the refusals of an unknown target, a missing
 // target and an unknown argument.
-// TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertTierGapRefusals(t *testing.T, s *Server) {
 	t.Helper()
@@ -111,7 +107,6 @@ func assertTierGapRefusals(t *testing.T, s *Server) {
 }
 
 // assertTierGapSchema checks that the tier.gap input schema is strict with repo.
-// TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertTierGapSchema(t *testing.T) {
 	t.Helper()
@@ -124,7 +119,6 @@ func assertTierGapSchema(t *testing.T) {
 
 // assertMatrixTierFields checks that the trace.matrix tier diagnostic carries
 // requiredFrom and severity.
-// TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertMatrixTierFields(t *testing.T, matrix map[string]any) {
 	t.Helper()

@@ -30,8 +30,6 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 
 // initializedServerWithDesign starts the server on the payments sample with
 // its views document as design path.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func initializedServerWithDesign(t *testing.T) *Server {
 	t.Helper()
 	s := NewServer()
@@ -56,8 +54,6 @@ func initializedServerWithDesign(t *testing.T) *Server {
 }
 
 // assertToolsList checks that tools/list lists every tool of the server.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertToolsList(t *testing.T, s *Server) {
 	t.Helper()
 	listResp := rpcCall(t, s, map[string]any{
@@ -81,8 +77,6 @@ func assertToolsList(t *testing.T, s *Server) {
 
 // assertToolReturnsPayload calls one tool with its sample arguments and
 // checks the envelope and the domain payload of the result.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func (s *Server) assertToolReturnsPayload(t *testing.T, index int, name string) {
 	t.Helper()
 	resp := rpcCall(t, s, map[string]any{
@@ -101,8 +95,6 @@ func (s *Server) assertToolReturnsPayload(t *testing.T, index int, name string) 
 
 // toolResultText returns the text of the first content chunk of a successful
 // tools/call response.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func toolResultText(t *testing.T, name string, resp map[string]any) string {
 	t.Helper()
 	if resp["error"] != nil {
@@ -126,8 +118,6 @@ func toolResultText(t *testing.T, name string, resp map[string]any) string {
 
 // decodeToolEnvelope parses the tool text and checks ok, schemaVersion and
 // the tool name echo.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func decodeToolEnvelope(t *testing.T, name, text string) map[string]any {
 	t.Helper()
 	var payload map[string]any
@@ -166,7 +156,6 @@ func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 // assertContractHealthGuide checks the health guide of the contract: 16 codes
 // and the waiver rule.
 //
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-182
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractHealthGuide(t *testing.T, contract map[string]any) {
 	t.Helper()
@@ -182,7 +171,6 @@ func assertContractHealthGuide(t *testing.T, contract map[string]any) {
 // assertContractRequiredRules checks that the rules list the required
 // switches with their remedies.
 //
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-182
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractRequiredRules(t *testing.T, payload map[string]any) {
 	t.Helper()
@@ -196,7 +184,6 @@ func assertContractRequiredRules(t *testing.T, payload map[string]any) {
 // assertContractDocuments checks the document count, the absent compatibility
 // field and the dependency authoring guidance of the contract.
 //
-// TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-182
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContractDocuments(t *testing.T, contract map[string]any) {
 	t.Helper()
@@ -491,8 +478,6 @@ var customPayloadChecks = map[string]func(*testing.T, map[string]any){
 }
 
 // assertNoPlaceholderText fails when the tool text carries placeholder text.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertNoPlaceholderText(t *testing.T, out toolOutput) {
 	t.Helper()
 	for _, forbidden := range []string{"tool not implemented", "not yet semantic", "go run ./cmd/engdoc ...", "go run ./cmd/engdragon ...", "go run ./cmd/engstruct ...", "go run ./cmd/engtrlc ..."} {
@@ -503,8 +488,6 @@ func assertNoPlaceholderText(t *testing.T, out toolOutput) {
 }
 
 // assertHasDomainKeys fails when the payload carries only envelope keys.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertHasDomainKeys(t *testing.T, out toolOutput) {
 	t.Helper()
 	domainKeys := 0
@@ -521,8 +504,6 @@ func assertHasDomainKeys(t *testing.T, out toolOutput) {
 }
 
 // assertNonEmptyList fails when the payload list named by the spec is empty.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertNonEmptyList(t *testing.T, payload map[string]any, spec listSpec) {
 	t.Helper()
 	rows, _ := payload[spec.key].([]any)
@@ -533,8 +514,6 @@ func assertNonEmptyList(t *testing.T, payload map[string]any, spec listSpec) {
 
 // assertGenerationPlanPayload checks that every planned command is usable and
 // has outputs.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertGenerationPlanPayload(t *testing.T, payload map[string]any) {
 	t.Helper()
 	rows, _ := payload["commands"].([]any)
@@ -554,8 +533,6 @@ func assertGenerationPlanPayload(t *testing.T, payload map[string]any) {
 }
 
 // assertFlowsDiffPayload checks that the diff has field, set or step changes.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertFlowsDiffPayload(t *testing.T, payload map[string]any) {
 	t.Helper()
 	if len(payload["fieldChanges"].([]any)) != 0 || len(payload["setChanges"].([]any)) != 0 {
@@ -567,8 +544,6 @@ func assertFlowsDiffPayload(t *testing.T, payload map[string]any) {
 }
 
 // assertGovernancePolicyPayload checks that the policy carries rules.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertGovernancePolicyPayload(t *testing.T, payload map[string]any) {
 	t.Helper()
 	policy, _ := payload["policy"].(map[string]any)
@@ -580,8 +555,6 @@ func assertGovernancePolicyPayload(t *testing.T, payload map[string]any) {
 
 // assertConfidencePayload checks that the explanation carries a confidence and
 // its basis.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertConfidencePayload(t *testing.T, payload map[string]any) {
 	t.Helper()
 	if strings.TrimSpace(payload["confidence"].(string)) == "" {
@@ -604,8 +577,6 @@ func TestInterfaceImplementationsReturnsLinkedSymbols(t *testing.T) {
 }
 
 // hasPathContaining reports whether a row of items has a path containing sub.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func hasPathContaining(items []any, sub string) bool {
 	for _, item := range items {
 		row, _ := item.(map[string]any)
@@ -737,8 +708,6 @@ func TestDeveloperContextToolsReturnGroupedImplementations(t *testing.T) {
 
 // assertGroupedFlowImplementations checks that the grouped flow files carry
 // checkout_api.go with its lineList.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertGroupedFlowImplementations(t *testing.T, implPayload map[string]any) {
 	t.Helper()
 	files, _ := implPayload["files"].([]any)
@@ -759,8 +728,6 @@ func assertGroupedFlowImplementations(t *testing.T, implPayload map[string]any) 
 }
 
 // assertHasLineList fails when a grouped implementation row has no lineList.
-//
-// TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func assertHasLineList(t *testing.T, row map[string]any) {
 	t.Helper()
 	if strings.TrimSpace(row["lineList"].(string)) == "" {

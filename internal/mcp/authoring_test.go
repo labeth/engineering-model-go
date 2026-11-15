@@ -51,7 +51,6 @@ func TestModelCompleteLocalIDsByPrefix(t *testing.T) {
 // assertLocalPrefixCandidates checks that the candidates for the prefix
 // fu-check carry FU-CHECKOUT, all match the prefix and are sorted.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT
 func assertLocalPrefixCandidates(t *testing.T, values []string, byValue map[string]map[string]any) {
 	t.Helper()
@@ -132,7 +131,6 @@ func TestModelCompleteRelationshipTypes(t *testing.T) {
 // assertContainsPairs checks that the contains candidate carries its kind
 // pairs.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertContainsPairs(t *testing.T, row map[string]any) {
 	t.Helper()
@@ -168,7 +166,6 @@ func TestModelCompleteIDFieldFiltersKinds(t *testing.T) {
 
 // assertCatalogCandidates checks that the catalog field returns catalog terms.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func assertCatalogCandidates(t *testing.T, catalog map[string]any) {
 	t.Helper()
@@ -272,7 +269,6 @@ func TestModelCompleteImportedQualifiedIDs(t *testing.T) {
 // assertAppliesToTail checks that the prefix fu- lists local and imported
 // units and not an unpublished child entity.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
 func assertAppliesToTail(t *testing.T, byTail map[string]any) {
 	t.Helper()
@@ -426,7 +422,6 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 // assertDiagnoseUnchanged checks that unchanged content has no errors and
 // reports the document path.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
 func assertDiagnoseUnchanged(t *testing.T, s *Server, original string) {
 	t.Helper()
@@ -442,7 +437,6 @@ func assertDiagnoseUnchanged(t *testing.T, s *Server, original string) {
 // assertDiagnoseUnknownSourceRef checks that an unknown sourceRef is reported
 // for the document at about its line.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
 func assertDiagnoseUnknownSourceRef(t *testing.T, s *Server, original string) {
 	t.Helper()
@@ -461,7 +455,6 @@ func assertDiagnoseUnknownSourceRef(t *testing.T, s *Server, original string) {
 
 // assertSourceRefLine checks the line of an invalid sourceRef diagnostic.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
 func assertSourceRefLine(t *testing.T, row map[string]any, broken string) {
 	t.Helper()
@@ -477,7 +470,6 @@ func assertSourceRefLine(t *testing.T, row map[string]any, broken string) {
 // assertDiagnoseSchemaError checks that a schema violation carries its line
 // and no temp path.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
 func assertDiagnoseSchemaError(t *testing.T, s *Server, original string) {
 	t.Helper()
@@ -496,7 +488,6 @@ func assertDiagnoseSchemaError(t *testing.T, s *Server, original string) {
 // assertDiagnoseDanglingRelationship checks that a dangling relationship is an
 // error attributed to behavior.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
 func assertDiagnoseDanglingRelationship(t *testing.T, s *Server, modelDir string) {
 	t.Helper()
@@ -514,7 +505,6 @@ func assertDiagnoseDanglingRelationship(t *testing.T, s *Server, modelDir string
 // assertDiagnoseParseError checks that a syntax error is a parse error with
 // line 3 and a column.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
 func assertDiagnoseParseError(t *testing.T, s *Server) {
 	t.Helper()
@@ -533,7 +523,6 @@ func assertDiagnoseParseError(t *testing.T, s *Server) {
 // assertDiagnoseRejectsDocuments checks that a document that is no manifest
 // document is a tool error.
 //
-// TRLC-LINKS: REQ-EMG-069
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
 func assertDiagnoseRejectsDocuments(t *testing.T, s *Server) {
 	t.Helper()

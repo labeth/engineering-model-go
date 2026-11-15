@@ -46,7 +46,6 @@ func TestModelDiagnoseChecksSubmittedQualifiedReferences(t *testing.T) {
 // diagnoseQualifiedFixture writes the composition fixture with the child
 // publishing a functional group and returns the parent directory and a
 // requirements document with a valid qualified reference.
-// TRLC-LINKS: REQ-EMG-069, REQ-EMG-065
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
 func diagnoseQualifiedFixture(t *testing.T) (string, string) {
 	t.Helper()
@@ -64,7 +63,6 @@ func diagnoseQualifiedFixture(t *testing.T) (string, string) {
 
 // requireUnpublishedReference requires an invalid result carrying an
 // unpublished_reference diagnostic with line 6 and no temp path.
-// TRLC-LINKS: REQ-EMG-069, REQ-EMG-065
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
 func requireUnpublishedReference(t *testing.T, result map[string]any) {
 	t.Helper()
@@ -84,7 +82,6 @@ func requireUnpublishedReference(t *testing.T, result map[string]any) {
 
 // requireSnapshotUnchanged fails, naming the changed files, when the workspace
 // differs from the snapshot taken before the call.
-// TRLC-LINKS: REQ-EMG-069, REQ-EMG-065
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
 func requireSnapshotUnchanged(t *testing.T, before, after map[string]string) {
 	t.Helper()

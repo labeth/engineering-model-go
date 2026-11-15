@@ -19,7 +19,6 @@ const (
 )
 
 // copyPaymentsTree copies the whole payments sample into a temp directory.
-// TRLC-LINKS: REQ-EMG-089, REQ-EMG-015
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func copyPaymentsTree(t *testing.T) string {
 	t.Helper()
@@ -31,7 +30,6 @@ func copyPaymentsTree(t *testing.T) string {
 }
 
 // acceptSSORisk returns the assurance document with the SSO risk accepted.
-// TRLC-LINKS: REQ-EMG-089, REQ-EMG-015
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func acceptSSORisk(t *testing.T, doc string) string {
 	t.Helper()
@@ -42,7 +40,6 @@ func acceptSSORisk(t *testing.T, doc string) string {
 }
 
 // renderedGemaraDocs renders the server's bundle to a mutable document map.
-// TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func renderedGemaraDocs(t *testing.T, s *Server) map[string]string {
 	t.Helper()
@@ -58,7 +55,6 @@ func renderedGemaraDocs(t *testing.T, s *Server) map[string]string {
 }
 
 // requireInvalid requires validateGemaraDocuments to report valid=false.
-// TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func requireInvalid(t *testing.T, s *Server, docs map[string]string) map[string]any {
 	t.Helper()
@@ -70,7 +66,6 @@ func requireInvalid(t *testing.T, s *Server, docs map[string]string) map[string]
 }
 
 // gemaraPolicyDocument returns the document of a gemara.policy call.
-// TRLC-LINKS: REQ-EMG-089, REQ-EMG-015
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func gemaraPolicyDocument(t *testing.T, s *Server) string {
 	t.Helper()
@@ -182,7 +177,6 @@ func TestToolCallReturnsReloadErrorForBrokenModel(t *testing.T) {
 }
 
 // reloadErrorWanted reports whether resp is a -32001 reload error with no result.
-// TRLC-LINKS: REQ-EMG-089
 // ENGMODEL-LINKS: FU-MCP-SERVER, EVT-MCP-TOOL-CALL-RECEIVED
 func reloadErrorWanted(resp map[string]any) bool {
 	rpcErr, _ := resp["error"].(map[string]any)
@@ -194,7 +188,6 @@ func reloadErrorWanted(resp map[string]any) bool {
 }
 
 // requireReloadError fails unless resp is the reload error.
-// TRLC-LINKS: REQ-EMG-089
 // ENGMODEL-LINKS: FU-MCP-SERVER, EVT-MCP-TOOL-CALL-RECEIVED
 func requireReloadError(t *testing.T, attempt int, resp map[string]any) {
 	t.Helper()

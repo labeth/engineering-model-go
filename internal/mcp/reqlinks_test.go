@@ -199,7 +199,6 @@ func TestTraceMatrixToolReportsRequirementLinks(t *testing.T) {
 }
 
 // requireLinkCountersZero requires every link counter of the summary to be 0.
-// TRLC-LINKS: REQ-EMG-105
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func requireLinkCountersZero(t *testing.T, args, summary map[string]any) {
 	t.Helper()
@@ -276,7 +275,6 @@ const (
 
 // newLinksSuspectFixture publishes v0.1.0, edits the child text, publishes
 // v0.2.0 and starts a server on the system checkout.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func newLinksSuspectFixture(t *testing.T) *linksSuspectFixture {
 	t.Helper()
@@ -290,7 +288,6 @@ func newLinksSuspectFixture(t *testing.T) *linksSuspectFixture {
 
 // requireWorkspaceLinksUnchanged requires links.list to keep every link
 // unchanged although the child checkout was edited.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (f *linksSuspectFixture) requireWorkspaceLinksUnchanged(t *testing.T) {
 	t.Helper()
@@ -306,7 +303,6 @@ func (f *linksSuspectFixture) requireWorkspaceLinksUnchanged(t *testing.T) {
 // requireWorkspaceSuspectShowsPublished requires links.suspect in the
 // workspace to review against the published v0.1.0 (one sentence), not the
 // edited checkout (two).
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (f *linksSuspectFixture) requireWorkspaceSuspectShowsPublished(t *testing.T) {
 	t.Helper()
@@ -321,7 +317,6 @@ func (f *linksSuspectFixture) requireWorkspaceSuspectShowsPublished(t *testing.T
 // moveSystemToV2 leaves the workspace: the system moves to v0.2.0 (published
 // with two sentences); one link stays reviewed at v0.1.0 and one becomes
 // claimed.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (f *linksSuspectFixture) moveSystemToV2(t *testing.T) {
 	t.Helper()
@@ -336,7 +331,6 @@ func (f *linksSuspectFixture) moveSystemToV2(t *testing.T) {
 }
 
 // requireStaleLink requires links.list to report the stale pin.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (f *linksSuspectFixture) requireStaleLink(t *testing.T) {
 	t.Helper()
@@ -349,7 +343,6 @@ func (f *linksSuspectFixture) requireStaleLink(t *testing.T) {
 
 // requireSuspectEntries requires links.suspect to list the stale link with
 // the item before and after and what changed, and the claimed link.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (f *linksSuspectFixture) requireSuspectEntries(t *testing.T) {
 	t.Helper()
@@ -365,7 +358,6 @@ func (f *linksSuspectFixture) requireSuspectEntries(t *testing.T) {
 
 // requireSuspectEntry requires the stale links.suspect entry to carry the item
 // before and after, the change list and the parent text.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func requireSuspectEntry(t *testing.T, r map[string]any) {
 	t.Helper()
@@ -383,7 +375,6 @@ func requireSuspectEntry(t *testing.T, r map[string]any) {
 }
 
 // requireChildHasNoLinks requires a model without links to return empty lists.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (f *linksSuspectFixture) requireChildHasNoLinks(t *testing.T) {
 	t.Helper()
@@ -439,7 +430,6 @@ func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 
 // requireReviewPatch requires the links.review patch to move the pin and the
 // reviewedOn line, add the rationale and not be written.
-// TRLC-LINKS: REQ-EMG-106, REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func requireReviewPatch(t *testing.T, got map[string]any) {
 	t.Helper()
@@ -461,7 +451,6 @@ type toolErrorCase struct {
 }
 
 // requireToolError requires the call to fail with the wanted message.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func requireToolError(t *testing.T, s *Server, c toolErrorCase) {
 	t.Helper()
@@ -487,7 +476,6 @@ func TestRequirementsParentsTool(t *testing.T) {
 
 // requireSystemRequirementParents covers REQ-SYS-001: no realizes, two links
 // with child items, and the children on requirements.get.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func requireSystemRequirementParents(t *testing.T, sys *Server) {
 	t.Helper()
@@ -514,7 +502,6 @@ func requireSystemRequirementParents(t *testing.T, sys *Server) {
 
 // requireChildRequirementParents covers REQ-A-002 (realizes CAP-A-1, parent of
 // no link) and the derived REQ-A-004 of the child checkout.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func requireChildRequirementParents(t *testing.T, child *Server) {
 	t.Helper()
@@ -533,7 +520,6 @@ func requireChildRequirementParents(t *testing.T, child *Server) {
 
 // requireChildCard covers requirements.get of REQ-A-002: parent CAP-A-1, no
 // children.
-// TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func requireChildCard(t *testing.T, child *Server) {
 	t.Helper()

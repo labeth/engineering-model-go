@@ -17,7 +17,6 @@ type checker struct {
 func check(t *testing.T, what string) checker { return checker{t: t, what: what} }
 
 // keysPresent fails unless every key is present in the map.
-// TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func (c checker) keysPresent(m map[string]any, keys ...string) {
 	c.t.Helper()
@@ -29,7 +28,6 @@ func (c checker) keysPresent(m map[string]any, keys ...string) {
 }
 
 // keysAbsent fails if any key is present in the map.
-// TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func (c checker) keysAbsent(m map[string]any, keys ...string) {
 	c.t.Helper()
@@ -41,7 +39,6 @@ func (c checker) keysAbsent(m map[string]any, keys ...string) {
 }
 
 // textHas fails unless the text contains every fragment.
-// TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func (c checker) textHas(text string, fragments ...string) {
 	c.t.Helper()
@@ -53,7 +50,6 @@ func (c checker) textHas(text string, fragments ...string) {
 }
 
 // textLacks fails if the text contains any fragment.
-// TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func (c checker) textLacks(text string, fragments ...string) {
 	c.t.Helper()
@@ -65,7 +61,6 @@ func (c checker) textLacks(text string, fragments ...string) {
 }
 
 // fieldsEqual fails unless every wanted field of the map is equal.
-// TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func (c checker) fieldsEqual(m, want map[string]any) {
 	c.t.Helper()
@@ -77,7 +72,6 @@ func (c checker) fieldsEqual(m, want map[string]any) {
 }
 
 // fileIs fails unless the file holds exactly want.
-// TRLC-LINKS: REQ-EMG-007
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func (c checker) fileIs(path string, want []byte) {
 	c.t.Helper()

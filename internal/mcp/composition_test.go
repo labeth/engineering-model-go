@@ -200,7 +200,6 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 
 // requireSummaryOnly requires summaryOnly=arg to drop the rows, keep the
 // diagnostics and report the same summary requirements count.
-// TRLC-LINKS: REQ-EMG-030, REQ-EMG-061, REQ-EMG-008
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) requireSummaryOnly(t *testing.T, arg any, summary map[string]any) {
 	t.Helper()

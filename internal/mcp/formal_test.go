@@ -45,8 +45,6 @@ func formalMCPServer(t *testing.T, entries ...formalMCPEntry) *Server {
 
 // formalFixtureRoot copies the Quint payments model into a temp directory and
 // adds the extra requirements of the roll-up cases.
-//
-// TRLC-LINKS: REQ-EMG-148
 func formalFixtureRoot(t *testing.T) string {
 	t.Helper()
 	root := t.TempDir()
@@ -70,8 +68,6 @@ func formalFixtureRoot(t *testing.T) string {
 
 // writeFormalEvidence writes the module of every entry and the evidence file
 // listing them; no entries writes no evidence file.
-//
-// TRLC-LINKS: REQ-EMG-148
 func writeFormalEvidence(t *testing.T, root string, entries []formalMCPEntry) {
 	t.Helper()
 	var results []map[string]string
@@ -87,8 +83,6 @@ func writeFormalEvidence(t *testing.T, root string, entries []formalMCPEntry) {
 
 // writeFormalModule writes the generated module of one entry and returns its
 // evidence result.
-//
-// TRLC-LINKS: REQ-EMG-148
 func writeFormalModule(t *testing.T, root string, e formalMCPEntry) map[string]string {
 	t.Helper()
 	file := "generated/quint/" + strings.ToLower(strings.ReplaceAll(e.machine, "-", "_")) + ".qnt"
@@ -143,7 +137,6 @@ func TestVerificationToolsReportFormalPassFailedStale(t *testing.T) {
 
 // assertFormalResults checks the result of each requirement in formalResults.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertFormalResults(t *testing.T, status map[string]any) {
 	t.Helper()
@@ -158,7 +151,6 @@ func assertFormalResults(t *testing.T, status map[string]any) {
 // assertFormalInvariantEntries checks the invariant entry of the passing and
 // of the stale requirement.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertFormalInvariantEntries(t *testing.T, status map[string]any) {
 	t.Helper()
@@ -179,7 +171,6 @@ func assertFormalInvariantEntries(t *testing.T, status map[string]any) {
 // assertFormalEntityNarrowing checks that an entityId narrows verification
 // status to a requirement, a machine or an invariant.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertFormalEntityNarrowing(t *testing.T, s *Server) {
 	t.Helper()
@@ -195,7 +186,6 @@ func assertFormalEntityNarrowing(t *testing.T, s *Server) {
 // assertFormalGaps checks that verification.gaps lists the failed and stale
 // requirements and not the passing one.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertFormalGaps(t *testing.T, gaps map[string]any) {
 	t.Helper()
@@ -280,7 +270,6 @@ func TestTraceMatrixRowsCarryFormalEvidence(t *testing.T) {
 
 // assertFormalPassRow checks the verified row of a passing current result.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertFormalPassRow(t *testing.T, pass map[string]any) {
 	t.Helper()
@@ -294,7 +283,6 @@ func assertFormalPassRow(t *testing.T, pass map[string]any) {
 
 // assertFormalStaleRow checks that a stale result is no verification evidence.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func assertFormalStaleRow(t *testing.T, stale map[string]any) {
 	t.Helper()
@@ -334,7 +322,6 @@ func TestAuthoringContractDocumentsTheMachineContract(t *testing.T) {
 
 // assertMachineFieldSets checks that the field sets cover the machine kinds.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertMachineFieldSets(t *testing.T, sets map[string]any) {
 	t.Helper()
@@ -347,7 +334,6 @@ func assertMachineFieldSets(t *testing.T, sets map[string]any) {
 
 // assertMachineOperators checks the operator table of the machine contract.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertMachineOperators(t *testing.T, machines map[string]any) {
 	t.Helper()
@@ -364,7 +350,6 @@ func assertMachineOperators(t *testing.T, machines map[string]any) {
 // machineOperatorShapesHold reports whether the implies, in_state, <= and :=
 // operators carry their documented shape.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func machineOperatorShapesHold(ops map[string]map[string]any) bool {
 	if ops["implies"]["rightAssociative"] != true || ops["in_state"]["form"] != "call" {
@@ -376,7 +361,6 @@ func machineOperatorShapesHold(ops map[string]map[string]any) bool {
 // assertMachineContractText checks that the machine contract mentions the
 // workflow and evidence terms.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func assertMachineContractText(t *testing.T, machines map[string]any) {
 	t.Helper()
@@ -470,7 +454,6 @@ func TestFormalEvidenceDirectoriesAgreeWithTheVerificationScan(t *testing.T) {
 // assertNestedEvidenceRows checks that the matrix rows carry the nested
 // evidence file.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func assertNestedEvidenceRows(t *testing.T, s *Server) {
 	t.Helper()
@@ -482,7 +465,6 @@ func assertNestedEvidenceRows(t *testing.T, s *Server) {
 
 // moveEvidenceFile renames an evidence file, creating the target directory.
 //
-// TRLC-LINKS: REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func moveEvidenceFile(t *testing.T, from, to string) {
 	t.Helper()
