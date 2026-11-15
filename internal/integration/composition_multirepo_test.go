@@ -131,7 +131,7 @@ func generateService(t *testing.T, f multiRepoFixture) ([]validate.Diagnostic, e
 	if err != nil {
 		t.Fatalf("load service: %v", err)
 	}
-	res, err := asciidoc.Generate(bundle, bundle.Requirements, bundle.Design, asciidoc.Options{})
+	res, err := asciidoc.Generate(asciidoc.Inputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, asciidoc.Options{})
 	return res.Diagnostics, err
 }
 
@@ -579,7 +579,7 @@ requirements:
 	if diags := composition.QualifiedReferenceDiagnostics(bundle, composition.CompositionResult{}); len(diags) != 0 {
 		t.Fatalf("prose with :: reported as qualified references: %+v", diags)
 	}
-	res, _ := asciidoc.Generate(bundle, bundle.Requirements, bundle.Design, asciidoc.Options{})
+	res, _ := asciidoc.Generate(asciidoc.Inputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, asciidoc.Options{})
 	for _, d := range res.Diagnostics {
 		if strings.HasPrefix(d.Code, "composition.") || strings.Contains(d.Message, "::") {
 			t.Fatalf("prose with :: produced %+v", d)

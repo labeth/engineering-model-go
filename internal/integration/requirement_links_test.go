@@ -136,7 +136,7 @@ func pinChild(t *testing.T, root, alias, version string) {
 // and requirement link diagnostics, trace integrity).
 func checkRepository(t *testing.T, dir string) []validate.Diagnostic {
 	t.Helper()
-	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"), asciidoc.Options{})
+	res, err := asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: filepath.Join(dir, "engmod.yml"), Requirements: filepath.Join(dir, "model", "requirements.yml"), Design: filepath.Join(dir, "model", "views.yml")}, asciidoc.Options{})
 	if err != nil && !validate.HasErrors(res.Diagnostics) {
 		t.Fatalf("check %s: %v", dir, err)
 	}

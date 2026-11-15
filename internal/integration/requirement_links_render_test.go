@@ -18,7 +18,7 @@ import (
 func renderRepo(t *testing.T, root, repo, workspace string) asciidoc.Result {
 	t.Helper()
 	dir := filepath.Join(root, "repos", repo)
-	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
+	res, err := asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: filepath.Join(dir, "engmod.yml"), Requirements: filepath.Join(dir, "model", "requirements.yml"), Design: filepath.Join(dir, "model", "views.yml")},
 		asciidoc.Options{Resolution: asciidocResolution(workspace)})
 	if err != nil {
 		t.Fatalf("render %s: %v\n%+v", repo, err, res.Diagnostics)
@@ -30,7 +30,7 @@ func renderRepo(t *testing.T, root, repo, workspace string) asciidoc.Result {
 func renderRepoUsedBy(t *testing.T, root, repo, workspace string) asciidoc.Result {
 	t.Helper()
 	dir := filepath.Join(root, "repos", repo)
-	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
+	res, err := asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: filepath.Join(dir, "engmod.yml"), Requirements: filepath.Join(dir, "model", "requirements.yml"), Design: filepath.Join(dir, "model", "views.yml")},
 		asciidoc.Options{Resolution: asciidocResolution(workspace), UsedBy: true})
 	if err != nil {
 		t.Fatalf("render %s: %v\n%+v", repo, err, res.Diagnostics)
@@ -126,7 +126,7 @@ func TestRequirementLinksAsciiDocMarksVersionMismatch(t *testing.T) {
 	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.1.0\n  status: accepted\n",
 		"- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.2.0\n  status: claimed\n")
 	dir := filepath.Join(root, "repos", "system")
-	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
+	res, err := asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: filepath.Join(dir, "engmod.yml"), Requirements: filepath.Join(dir, "model", "requirements.yml"), Design: filepath.Join(dir, "model", "views.yml")},
 		asciidoc.Options{Resolution: composition.ResolutionOptions{Lock: "write"}})
 	if err != nil {
 		t.Fatalf("render: %v\n%+v", err, res.Diagnostics)
@@ -211,7 +211,7 @@ func TestStrictLinkFindingsDoNotStopTheRender(t *testing.T) {
 	}
 	editFile(t, filepath.Join(child, "model", "requirements.yml"), "appliesTo: [FU-ENCODER]", "appliesTo: [FU-NOWHERE]")
 	dir := filepath.Join(root, "repos", "child-a")
-	if _, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
+	if _, err := asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: filepath.Join(dir, "engmod.yml"), Requirements: filepath.Join(dir, "model", "requirements.yml"), Design: filepath.Join(dir, "model", "views.yml")},
 		asciidoc.Options{Resolution: asciidocResolution("off")}); err == nil {
 		t.Fatal("another validation error must still stop the render")
 	}

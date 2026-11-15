@@ -44,7 +44,7 @@ func TestArchitecturePublicationIncludesHardwareProjectionAndDistinctHeadings(t 
 		},
 		Views: []model.View{{ID: "VIEW-LOGIC", Kind: "architecture-intent", Roots: []string{"FU-A"}}, {ID: "VIEW-HARDWARE", Kind: "deployment", Roots: []string{"HW-ADC"}, IncludeKinds: []string{"hardware_item"}}, {ID: "VIEW-OTHER", Kind: "architecture-intent", Roots: []string{"FU-SIBLING"}}},
 	}}
-	result, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), Options{})
+	result, err := Generate(Inputs{Bundle: schemaV2TestBundle(bundle), Requirements: schemaV2TestRequirements(model.RequirementsDocument{}), Design: schemaV2TestDesign(model.DesignDocument{})}, Options{})
 	if err != nil {
 		t.Fatalf("generation: %v %+v", err, result.Diagnostics)
 	}
@@ -82,7 +82,7 @@ func TestPublicationKeepsAuthoredScopeWithEachView(t *testing.T) {
 			{ID: "VIEW-OTHER", Kind: "security", Roots: []string{"TB-A"}},
 		},
 	}}
-	result, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), Options{})
+	result, err := Generate(Inputs{Bundle: schemaV2TestBundle(bundle), Requirements: schemaV2TestRequirements(model.RequirementsDocument{}), Design: schemaV2TestDesign(model.DesignDocument{})}, Options{})
 	if err != nil {
 		t.Fatalf("generation: %v", err)
 	}
