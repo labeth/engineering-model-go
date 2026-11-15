@@ -964,6 +964,8 @@ func threatActorsFor(ts model.ThreatScenario) []gemaraproj.Actor {
 }
 
 // containsAny reports whether text contains one of the substrings.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func containsAny(text string, substrings []string) bool {
 	for _, sub := range substrings {
 		if strings.Contains(text, sub) {
@@ -1033,7 +1035,11 @@ func slug(s string) string {
 }
 
 // isASCIILower reports whether r is in a-z.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func isASCIILower(r rune) bool { return r >= 'a' && r <= 'z' }
 
 // isASCIIDigit reports whether r is in 0-9.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func isASCIIDigit(r rune) bool { return r >= '0' && r <= '9' }
