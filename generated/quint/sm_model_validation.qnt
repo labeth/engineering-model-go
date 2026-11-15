@@ -30,10 +30,26 @@ module sm_model_validation {
     v_generationPermitted' = v_generationPermitted,
     lastTransition' = "TR-MODEL-STATUS-SUGGEST",
   }
+  // TR-MODEL-CHECK-VALID (EVT-MODEL-CHECK-REQUESTED): Model Valid -> Model Valid
+  action tr_model_check_valid = all {
+    state == StateModelValid,
+    state' = StateModelValid,
+    v_generationPermitted' = v_generationPermitted,
+    lastTransition' = "TR-MODEL-CHECK-VALID",
+  }
+  // TR-MODEL-CHECK-INVALID (EVT-MODEL-CHECK-REQUESTED): Model Invalid -> Model Invalid
+  action tr_model_check_invalid = all {
+    state == StateModelInvalid,
+    state' = StateModelInvalid,
+    v_generationPermitted' = v_generationPermitted,
+    lastTransition' = "TR-MODEL-CHECK-INVALID",
+  }
   action step = any {
     tr_model_validation_fails,
     tr_model_validation_recovers,
     tr_model_status_suggest,
+    tr_model_check_valid,
+    tr_model_check_invalid,
   }
   // INV-MODEL-GENERATION-ONLY-WHEN-VALID protects REQ-EMG-046
   val inv_model_generation_only_when_valid = v_generationPermitted implies (state == StateModelValid)

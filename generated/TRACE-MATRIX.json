@@ -5,6 +5,7 @@
       "id": "REQ-EMG-001",
       "text": "While local development mode is active, when model updated event is received, the engineering model go shall validate architecture model before generation run is requested.",
       "units": [
+        "EVT-MODEL-UPDATED",
         "FU-ASCIIDOC-GENERATOR",
         "FU-CLI-ORCHESTRATION",
         "FU-MODEL-LOADER",
@@ -372,22 +373,22 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--DEDUPEDIAGNOSTICS",
           "path": "validate_api.go",
-          "line": 136
+          "line": 137
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--HASERRORS",
           "path": "validate_api.go",
-          "line": 119
+          "line": 120
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--SORTDIAGNOSTICS",
           "path": "validate_api.go",
-          "line": 127
+          "line": 128
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -413,6 +414,8 @@
       "id": "REQ-EMG-003",
       "text": "While model is valid, when generation run is requested, the engineering model go shall produce AsciiDoc architecture publication output without whitespace-only lines.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ASCIIDOC-GENERATOR",
         "FU-CLI-ORCHESTRATION",
         "FU-VIEW-PROJECTION"
@@ -1348,6 +1351,8 @@
       "id": "REQ-EMG-004",
       "text": "Where threat export is enabled, when generation run is requested, the engineering model go shall export threat dragon json artifact plus open threat model artifact.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-THREAT-EXPORTER"
       ],
@@ -1436,6 +1441,8 @@
       "id": "REQ-EMG-005",
       "text": "Where structurizr export is enabled, when generation run is requested, the engineering model go shall export structurizr dsl artifact.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-STRUCTURIZR-EXPORTER"
       ],
@@ -1627,8 +1634,10 @@
     },
     {
       "id": "REQ-EMG-006",
-      "text": "Where traceability export is enabled, when generation run is requested, the engineering model go shall produce trlc package and lobster trace report artifacts.",
+      "text": "Where traceability export is enabled, when generation run is requested, the engineering model go shall produce trlc package plus lobster trace report artifacts.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-LOBSTER-EXPORTER",
         "FU-TRLC-EXPORTER"
@@ -2113,8 +2122,10 @@
     },
     {
       "id": "REQ-EMG-008",
-      "text": "When mcp tool call is received, the engineering model go shall reject path arguments outside repository workspace boundary.",
+      "text": "If path argument is outside repository workspace boundary, then the engineering model go shall reject the path argument with a structured error.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER"
       ],
       "code": [
@@ -2417,27 +2428,27 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
           "path": "validate_api.go",
-          "line": 144
+          "line": 145
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--DEDUPEDIAGNOSTICS",
           "path": "validate_api.go",
-          "line": 136
+          "line": 137
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--HASERRORS",
           "path": "validate_api.go",
-          "line": 119
+          "line": 120
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--SORTDIAGNOSTICS",
           "path": "validate_api.go",
-          "line": 127
+          "line": 128
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -2486,8 +2497,10 @@
     },
     {
       "id": "REQ-EMG-010",
-      "text": "Where requirement trace is complete, when model updated event is received, the engineering model go shall infer traceability coverage from trace markers.",
+      "text": "Where requirement trace is complete, when model check is requested, the engineering model go shall infer traceability coverage from trace markers.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CODEMAP-INFERENCE"
       ],
       "code": [
@@ -3115,8 +3128,9 @@
     },
     {
       "id": "REQ-EMG-011",
-      "text": "Where external schema dependencies are available, when generation run is requested, the engineering model go shall fail validation if schema checks do not match expected constraints.",
+      "text": "Where external schema dependencies are available, if schema checks mismatch expected constraints, then the engineering model go shall fail validation.",
       "units": [
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-STRUCTURIZR-EXPORTER",
         "FU-THREAT-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -3225,22 +3239,22 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--DEDUPEDIAGNOSTICS",
           "path": "validate_api.go",
-          "line": 136
+          "line": 137
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--HASERRORS",
           "path": "validate_api.go",
-          "line": 119
+          "line": 120
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--SORTDIAGNOSTICS",
           "path": "validate_api.go",
-          "line": 127
+          "line": 128
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -3256,7 +3270,7 @@
     },
     {
       "id": "REQ-EMG-012",
-      "text": "When generation run is requested, the engineering model go shall generate artifacts deterministically so that regeneration is reproducible.",
+      "text": "The engineering model go shall generate artifacts deterministically so that regeneration is reproducible.",
       "units": [
         "FU-ALLOCATION-TRACE",
         "FU-ASCIIDOC-GENERATOR",
@@ -3389,7 +3403,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--SORTDIAGNOSTICS",
           "path": "validate_api.go",
-          "line": 127
+          "line": 128
         }
       ],
       "verifications": [
@@ -3410,8 +3424,10 @@
     },
     {
       "id": "REQ-EMG-013",
-      "text": "Where traceability export is enabled, when generation run is requested, the engineering model go shall export an OSCAL aggregate profile plus SSP plus assessment plan plus assessment results plus POA\u0026M artifacts when the corresponding compliance and remediation content is applicable.",
+      "text": "Where traceability export is enabled, when generation run is requested, the engineering model go shall export an OSCAL aggregate profile plus SSP plus assessment plan plus assessment results plus POA\u0026M artifacts when the corresponding compliance plus remediation content is applicable.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-OSCAL-EXPORTER"
       ],
@@ -3719,6 +3735,8 @@
       "id": "REQ-EMG-014",
       "text": "Where architecture decision records are authored, when generation run is requested, the engineering model go shall publish architecture decision records document linked from AsciiDoc architecture publication output.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ASCIIDOC-GENERATOR",
         "FU-CLI-ORCHESTRATION"
       ],
@@ -3777,6 +3795,8 @@
       "id": "REQ-EMG-015",
       "text": "Where gemara export is enabled, when generation run is requested, the engineering model go shall render OpenSSF Gemara model artifacts.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-GEMARA-EXPORTER",
         "FU-MCP-SERVER"
@@ -4321,6 +4341,8 @@
       "id": "REQ-EMG-016",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve the subsystem references declared by the parent system from local subdirectory paths.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-MODEL-LOADER",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -4388,8 +4410,9 @@
     },
     {
       "id": "REQ-EMG-017",
-      "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall reject any subsystem reference that resolves outside the repository workspace boundary.",
+      "text": "Where system composition is enabled, if subsystem reference resolves outside repository workspace boundary, then the engineering model go shall reject the subsystem reference.",
       "units": [
+        "FLOW-MODEL-CHECK",
         "FU-SYSTEM-COMPOSITION"
       ],
       "code": [
@@ -4421,8 +4444,9 @@
     },
     {
       "id": "REQ-EMG-018",
-      "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall reject a subsystem reference graph that contains a cycle.",
+      "text": "Where system composition is enabled, if subsystem reference graph contains a cycle, then the engineering model go shall reject the subsystem reference graph.",
       "units": [
+        "FLOW-MODEL-CHECK",
         "FU-SYSTEM-COMPOSITION",
         "FU-VALIDATION-ENGINE"
       ],
@@ -4442,6 +4466,8 @@
       "id": "REQ-EMG-019",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve cross-system references using subsystem-qualified identifiers.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -4484,6 +4510,8 @@
       "id": "REQ-EMG-021",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall report each subsystem required interface that the parent system does not satisfy.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-VALIDATION-ENGINE"
       ],
@@ -4522,6 +4550,8 @@
       "id": "REQ-EMG-023",
       "text": "When generation run is requested, the engineering model go shall flag any requirement that links to another requirement in the same document.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-VALIDATION-ENGINE"
       ],
@@ -4541,6 +4571,8 @@
       "id": "REQ-EMG-024",
       "text": "Where hardware interfaces are authored, when generation run is requested, the engineering model go shall render the hardware to software interface allocation view.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ASCIIDOC-GENERATOR",
         "FU-VIEW-PROJECTION"
       ],
@@ -4613,6 +4645,8 @@
       "id": "REQ-EMG-026",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall render in the requirement view the delegation link from each delegated requirement to the specific subsystem requirement that satisfies it.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-ASCIIDOC-GENERATOR",
         "FU-VALIDATION-ENGINE"
@@ -4653,8 +4687,9 @@
     },
     {
       "id": "REQ-EMG-028",
-      "text": "When generation run is requested, the engineering model go shall reject a code trace link that resolves to no requirement or model element.",
+      "text": "If code trace link names no model target, then the engineering model go shall reject the code trace link.",
       "units": [
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-CODEMAP-INFERENCE",
         "FU-VALIDATION-ENGINE"
@@ -4736,6 +4771,8 @@
       "id": "REQ-EMG-029",
       "text": "When generation run is requested, the engineering model go shall flag each requirement that is traced by neither code nor verification nor a downward delegation.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-VALIDATION-ENGINE"
       ],
@@ -4763,8 +4800,10 @@
     },
     {
       "id": "REQ-EMG-030",
-      "text": "When generation run is requested, the engineering model go shall export a machine-readable traceability matrix that links each requirement to its implementing code and verification and delegated subsystem requirement.",
+      "text": "When generation run is requested, the engineering model go shall export a machine-readable traceability matrix that links each requirement to its implementing code plus verification plus delegated subsystem requirement.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-CODEMAP-INFERENCE"
       ],
@@ -4899,6 +4938,7 @@
       "id": "REQ-EMG-031",
       "text": "When requirements delta is received, the engineering model go shall strictly validate requirements delta schema plus stable identifier operation uniqueness.",
       "units": [
+        "EVT-REQUIREMENTS-DELTA-RECEIVED",
         "FU-MODEL-CHANGE",
         "FU-MODEL-LOADER"
       ],
@@ -5233,6 +5273,7 @@
       "id": "REQ-EMG-034",
       "text": "When requirements delta is received, the engineering model go shall produce deterministic requirements change summary.",
       "units": [
+        "EVT-REQUIREMENTS-DELTA-RECEIVED",
         "FU-CLI-ORCHESTRATION",
         "FU-MODEL-CHANGE"
       ],
@@ -5255,8 +5296,10 @@
     },
     {
       "id": "REQ-EMG-035",
-      "text": "When model updated event is received, the engineering model go shall normalize architecture model plus requirements document into canonical semantic model.",
+      "text": "When model check is requested, the engineering model go shall normalize architecture model plus requirements document into canonical semantic model.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-SYSML-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -5680,7 +5723,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -5702,6 +5745,8 @@
       "id": "REQ-EMG-036",
       "text": "Where sysml export is enabled, when generation run is requested, the engineering model go shall generate sysml v2 model artifact from canonical semantic model.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-SYSML-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -6260,7 +6305,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -6285,6 +6330,8 @@
       "id": "REQ-EMG-037",
       "text": "While ci validation mode is active, when generation run is requested, the engineering model go shall validate sysml v2 model artifact before artifact generated event is raised.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-SYSML-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -6423,7 +6470,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -6443,6 +6490,8 @@
       "id": "REQ-EMG-038",
       "text": "Where sysml export is enabled, when generation run is requested, the engineering model go shall validate canonical semantic model against sysml v2 metamodel.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-MODEL-LOADER",
         "FU-SYSML-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -6726,8 +6775,9 @@
     },
     {
       "id": "REQ-EMG-039",
-      "text": "While ci validation mode is active, when generation run is requested, the engineering model go shall reject incomplete sysml v2 metamodel coverage.",
+      "text": "While ci validation mode is active, if sysml v2 metamodel coverage is incomplete, then the engineering model go shall fail validation.",
       "units": [
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-SYSML-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -7126,6 +7176,8 @@
       "id": "REQ-EMG-040",
       "text": "When generation run is requested, the engineering model go shall preserve the deterministic native sysml v2 source through project interchange round trip.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-SYSML-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -7222,8 +7274,10 @@
     },
     {
       "id": "REQ-EMG-041",
-      "text": "Where naf profile authoring is enabled, when model updated event is received, the engineering model go shall validate naf v4.1 stakeholder plus concern plus viewpoint metadata against canonical model references.",
+      "text": "Where naf profile authoring is enabled, when model check is requested, the engineering model go shall validate naf v4.1 stakeholder plus concern plus viewpoint metadata against canonical model references.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-NAF-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -7297,7 +7351,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -7314,6 +7368,8 @@
       "id": "REQ-EMG-042",
       "text": "Where naf export is enabled, when generation run is requested, the engineering model go shall generate deterministic naf v4.1 architecture document from referenced canonical model views.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-NAF-EXPORTER",
         "FU-VIEW-PROJECTION"
@@ -7380,6 +7436,8 @@
       "id": "REQ-EMG-043",
       "text": "While ci validation mode is active, when generation run is requested, the engineering model go shall reject unsupported naf version plus unknown viewpoint code plus dangling profile reference before artifact generated event is raised.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-NAF-EXPORTER",
         "FU-VALIDATION-ENGINE"
@@ -7438,7 +7496,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -7454,8 +7512,10 @@
     },
     {
       "id": "REQ-EMG-044",
-      "text": "When model updated event is received, the engineering model go shall load schema version 2 engmod manifest plus catalog plus requirements plus architecture plus behavior plus assurance plus compliance plus views plus decisions documents into one canonical semantic model.",
+      "text": "When model check is requested, the engineering model go shall load schema version 2 engmod manifest plus catalog plus requirements plus architecture plus behavior plus assurance plus compliance plus views plus decisions documents into one canonical semantic model.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CLI-ORCHESTRATION",
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
@@ -7635,6 +7695,8 @@
       "id": "REQ-EMG-045",
       "text": "While mcp server is enabled, when mcp tool call is received and catalog references resolve successfully, the engineering model go shall return schema version 2 model authoring contract.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER",
         "FU-MODEL-LOADER"
       ],
@@ -7682,7 +7744,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
           "path": "validate_api.go",
-          "line": 144
+          "line": 145
         }
       ],
       "verifications": [
@@ -7864,7 +7926,7 @@
           "mode": "run+verify",
           "result": "pass",
           "qntFile": "generated/quint/sm_model_validation.qnt",
-          "qntSha256": "34dff5bf42189471b7a95cf6f25f915313cf9f3f449fddc3e1272dceba51037f",
+          "qntSha256": "ba325d7fc0d8896e4f314f9bb361e05ec2096efacc3958f815dc16bd0fe530db",
           "evidence": "test-results/quint-formal.json",
           "notes": "INV-MODEL-GENERATION-ONLY-WHEN-VALID of SM-MODEL-VALIDATION holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1"
         }
@@ -7878,6 +7940,8 @@
       "id": "REQ-EMG-047",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall resolve each exact CUE module version from the OCI registry configured by CUE_REGISTRY.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-MODEL-LOADER",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -8105,6 +8169,8 @@
       "id": "REQ-EMG-048",
       "text": "Where a model workspace replacement is declared, when generation run is requested, the engineering model go shall resolve the matching manifest dependency from the replacement repository without changing module identity or selected publications.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-MODEL-LOADER",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -8265,6 +8331,8 @@
       "id": "REQ-EMG-049",
       "text": "While ci validation mode is active, when generation run is requested, the engineering model go shall reject invalid manifest dependency plus publication plus workspace replacement plus qualified reference declarations.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-SYSTEM-COMPOSITION",
         "FU-VALIDATION-ENGINE"
@@ -8543,7 +8611,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -8563,6 +8631,8 @@
       "id": "REQ-EMG-050",
       "text": "When example validation is requested, the engineering model go shall validate a schema version 2 company portfolio composed from multiple product systems that reuse published hardware plus software plus security plus compliance facets across repository boundaries.",
       "units": [
+        "EVT-EXAMPLE-VALIDATION-REQUESTED",
+        "FLOW-EXAMPLE-VALIDATION",
         "FU-ASCIIDOC-GENERATOR",
         "FU-GEMARA-EXPORTER",
         "FU-OSCAL-EXPORTER",
@@ -8806,6 +8876,8 @@
       "id": "REQ-EMG-051",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall import only explicitly selected dependency publications with qualified identity plus source provenance.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-MODEL-LOADER",
         "FU-SYSTEM-COMPOSITION",
@@ -9208,8 +9280,10 @@
     },
     {
       "id": "REQ-EMG-052",
-      "text": "Where six-view example output is enabled, when generation run is requested, the engineering model go shall generate deterministic use-case plus logical plus process plus physical plus implementation plus deployment view artifacts and native SysML from one schema version 2 YAML bundle.",
+      "text": "Where six-view example output is enabled, when generation run is requested, the engineering model go shall generate deterministic use-case plus logical plus process plus physical plus implementation plus deployment view artifacts plus native SysML from one schema version 2 YAML bundle.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-MODEL-LOADER",
         "FU-SYSML-EXPORTER",
@@ -9356,8 +9430,10 @@
     },
     {
       "id": "REQ-EMG-053",
-      "text": "Where do-178c dal c readiness output is enabled, when model updated event is received, the engineering model go shall load a strict aviation assurance profile plus lifecycle data plus verification evidence plus configuration baselines plus tool assessments plus structural coverage summaries.",
+      "text": "Where do-178c dal c readiness output is enabled, when model check is requested, the engineering model go shall load a strict aviation assurance profile plus lifecycle data plus verification evidence plus configuration baselines plus tool assessments plus structural coverage summaries.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-AIRBORNE-ASSURANCE-EXPORTER",
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
@@ -9429,6 +9505,8 @@
       "id": "REQ-EMG-054",
       "text": "Where do-178c dal c readiness output is enabled, when generation run is requested, the engineering model go shall reject incomplete or inconsistent requirement classification plus derived requirement disposition plus verification chain plus independence plus baseline plus structural coverage plus tool assessment evidence.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-AIRBORNE-ASSURANCE-EXPORTER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -9497,6 +9575,8 @@
       "id": "REQ-EMG-055",
       "text": "Where do-178c dal c readiness output is enabled, when generation run is requested, the engineering model go shall generate deterministic draft lifecycle data index plus objective evidence matrix plus requirements trace matrix plus verification summary plus structural coverage summary plus tool assessment register plus configuration index plus open gap report plus software accomplishment summary.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-AIRBORNE-ASSURANCE-EXPORTER",
         "FU-CLI-ORCHESTRATION"
       ],
@@ -9611,6 +9691,8 @@
       "id": "REQ-EMG-056",
       "text": "When example validation is requested, the engineering model go shall validate a schema version 2 DAL C flight control software example with placeholder planning plus requirements plus design plus code plus verification plus coverage plus configuration plus quality assurance plus certification liaison evidence.",
       "units": [
+        "EVT-EXAMPLE-VALIDATION-REQUESTED",
+        "FLOW-EXAMPLE-VALIDATION",
         "FU-AIRBORNE-ASSURANCE-EXPORTER",
         "FU-ASCIIDOC-GENERATOR",
         "FU-VALIDATION-ENGINE"
@@ -9654,7 +9736,7 @@
     },
     {
       "id": "REQ-EMG-057",
-      "text": "When model updated event is received, the engineering model go shall derive the default code scan root from the enclosing module boundary.",
+      "text": "When model check is requested, the engineering model go shall derive the default code scan root from the enclosing module boundary.",
       "units": [
         "FU-CODEMAP-INFERENCE"
       ],
@@ -9714,8 +9796,10 @@
     },
     {
       "id": "REQ-EMG-058",
-      "text": "When model updated event is received, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.",
+      "text": "When model check is requested, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CODEMAP-INFERENCE"
       ],
       "code": [
@@ -9751,8 +9835,10 @@
     },
     {
       "id": "REQ-EMG-059",
-      "text": "When model updated event is received, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.",
+      "text": "When model check is requested, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CODEMAP-INFERENCE",
         "FU-VALIDATION-ENGINE"
       ],
@@ -9800,8 +9886,9 @@
     },
     {
       "id": "REQ-EMG-060",
-      "text": "When model updated event is received, the engineering model go shall reject referenced elements whose uri addresses a local path.",
+      "text": "If referenced element uri addresses a local path, then the engineering model go shall reject the referenced element.",
       "units": [
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -9822,7 +9909,7 @@
     },
     {
       "id": "REQ-EMG-061",
-      "text": "When generation run is requested, the engineering model go shall count a requirement as tested only through test entry points.",
+      "text": "The engineering model go shall count a requirement as tested only through test entry points.",
       "units": [
         "FU-ALLOCATION-TRACE",
         "FU-CODEMAP-INFERENCE"
@@ -9906,6 +9993,8 @@
       "id": "REQ-EMG-062",
       "text": "Where gemara export is enabled, when generation run is requested, the engineering model go shall derive each gemara enforcement disposition plus policy risk treatment from the model status.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-GEMARA-EXPORTER",
         "FU-MCP-SERVER"
       ],
@@ -9970,6 +10059,8 @@
       "id": "REQ-EMG-063",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall select the model workspace from the ENGMOD_WORK setting.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-MODEL-LOADER",
         "FU-SYSTEM-COMPOSITION"
@@ -10130,6 +10221,8 @@
       "id": "REQ-EMG-064",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall write or check the composition lock according to the lock mode.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-SYSTEM-COMPOSITION"
       ],
       "code": [
@@ -10326,6 +10419,8 @@
       "id": "REQ-EMG-065",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall validate each qualified reference against the published entities of the selected dependencies.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-SYSTEM-COMPOSITION",
         "FU-VALIDATION-ENGINE"
@@ -10434,7 +10529,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -10452,6 +10547,8 @@
       "id": "REQ-EMG-066",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall return the composition diagnostics with the generation result.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ASCIIDOC-GENERATOR",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -10567,6 +10664,8 @@
       "id": "REQ-EMG-067",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall show the trace status of each delegated requirement in its target repository.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -10631,6 +10730,8 @@
       "id": "REQ-EMG-068",
       "text": "When workspace sync is requested, the engineering model go shall write a local workspace that replaces only changed or pinned checkouts.",
       "units": [
+        "EVT-WORKSPACE-SYNC-REQUESTED",
+        "FLOW-WORKSPACE-SYNC",
         "FU-CLI-ORCHESTRATION",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -11000,6 +11101,8 @@
       "id": "REQ-EMG-069",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return authoring assistance for an edited model document.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER"
       ],
       "code": [
@@ -11248,8 +11351,10 @@
     },
     {
       "id": "REQ-EMG-070",
-      "text": "When model updated event is received, the engineering model go shall warn about every unconnected behavior element.",
+      "text": "When model check is requested, the engineering model go shall warn about every unconnected behavior element.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -11271,7 +11376,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -11285,8 +11390,10 @@
     },
     {
       "id": "REQ-EMG-071",
-      "text": "When model updated event is received, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.",
+      "text": "When model check is requested, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -11307,8 +11414,10 @@
     },
     {
       "id": "REQ-EMG-072",
-      "text": "When model updated event is received, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.",
+      "text": "When model check is requested, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -11336,6 +11445,8 @@
       "id": "REQ-EMG-073",
       "text": "When generation run is requested, the engineering model go shall warn about each control verification status that lags its existing tests.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-VALIDATION-ENGINE"
       ],
@@ -11376,6 +11487,8 @@
       "id": "REQ-EMG-080",
       "text": "When workspace staging is requested, the engineering model go shall publish every workspace checkout into the local staging area in dependency order.",
       "units": [
+        "EVT-WORKSPACE-STAGING-REQUESTED",
+        "FLOW-WORKSPACE-SYNC",
         "FU-CLI-ORCHESTRATION",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -11504,6 +11617,8 @@
       "id": "REQ-EMG-081",
       "text": "When spec delta is requested, the engineering model go shall render OpenSpec spec delta text from the selected model requirements.",
       "units": [
+        "EVT-SPEC-DELTA-REQUESTED",
+        "FLOW-SPEC-DELTA",
         "FU-MODEL-CHANGE"
       ],
       "code": [
@@ -11570,8 +11685,10 @@
     },
     {
       "id": "REQ-EMG-082",
-      "text": "When model updated event is received, the engineering model go shall report each assurance record whose verification links disagree.",
+      "text": "When model check is requested, the engineering model go shall report each assurance record whose verification links disagree.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -11593,12 +11710,12 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
           "path": "validate_api.go",
-          "line": 144
+          "line": 145
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -11612,8 +11729,10 @@
     },
     {
       "id": "REQ-EMG-083",
-      "text": "When model updated event is received, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.",
+      "text": "When model check is requested, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-GEMARA-EXPORTER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -11651,12 +11770,12 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
           "path": "validate_api.go",
-          "line": 144
+          "line": 145
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -11671,8 +11790,10 @@
     },
     {
       "id": "REQ-EMG-084",
-      "text": "When model updated event is received, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts.",
+      "text": "When model check is requested, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-CODEMAP-INFERENCE"
       ],
@@ -11786,8 +11907,10 @@
     },
     {
       "id": "REQ-EMG-085",
-      "text": "When model updated event is received, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record.",
+      "text": "When model check is requested, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-GEMARA-EXPORTER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -11855,12 +11978,12 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
           "path": "validate_api.go",
-          "line": 144
+          "line": 145
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -11878,6 +12001,8 @@
       "id": "REQ-EMG-086",
       "text": "When workspace sync is requested, the engineering model go shall write a go workspace replace directive for each required version of a workspace go module.",
       "units": [
+        "EVT-WORKSPACE-SYNC-REQUESTED",
+        "FLOW-WORKSPACE-SYNC",
         "FU-CLI-ORCHESTRATION"
       ],
       "code": [
@@ -11920,6 +12045,8 @@
       "id": "REQ-EMG-087",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the allowed fields of each entity kind with the model authoring contract.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -11947,7 +12074,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--AUTHORINGRULES",
           "path": "validate_api.go",
-          "line": 144
+          "line": 145
         }
       ],
       "verifications": [
@@ -11962,8 +12089,10 @@
     },
     {
       "id": "REQ-EMG-088",
-      "text": "When model updated event is received, the engineering model go shall report each requirement whose linked tests are all environment gated.",
+      "text": "When model check is requested, the engineering model go shall report each requirement whose linked tests are all environment gated.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-CODEMAP-INFERENCE",
         "FU-MCP-SERVER"
@@ -12092,8 +12221,10 @@
     },
     {
       "id": "REQ-EMG-090",
-      "text": "When model updated event is received, the engineering model go shall report each requirement without an upward trace.",
+      "text": "When model check is requested, the engineering model go shall report each requirement without an upward trace.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -12169,8 +12300,10 @@
     },
     {
       "id": "REQ-EMG-091",
-      "text": "When model updated event is received, the engineering model go shall load assumptions of use as contract items with their realizing requirements.",
+      "text": "When model check is requested, the engineering model go shall load assumptions of use as contract items with their realizing requirements.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -12221,8 +12354,10 @@
     },
     {
       "id": "REQ-EMG-092",
-      "text": "When model updated event is received, the engineering model go shall report each requirement that realizes a published contract item without being published itself.",
+      "text": "When model check is requested, the engineering model go shall report each requirement that realizes a published contract item without being published itself.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -12263,8 +12398,10 @@
     },
     {
       "id": "REQ-EMG-093",
-      "text": "When model updated event is received, the engineering model go shall warn at each published capability without a realizing requirement.",
+      "text": "When model check is requested, the engineering model go shall warn at each published capability without a realizing requirement.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -12285,7 +12422,7 @@
     },
     {
       "id": "REQ-EMG-094",
-      "text": "Where system composition is enabled, when model updated event is received, the engineering model go shall validate each requirement link against the manifest dependency pins.",
+      "text": "Where system composition is enabled, when model check is requested, the engineering model go shall validate each requirement link against the manifest dependency pins.",
       "units": [
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
@@ -12488,6 +12625,8 @@
       "id": "REQ-EMG-097",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose contract item does not exist at the pinned dependency version.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -12594,6 +12733,8 @@
       "id": "REQ-EMG-098",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall report each dependency assumption of use without an evidence link and each system requirement satisfied by nothing.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -12649,6 +12790,8 @@
       "id": "REQ-EMG-099",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall describe requirement links in the model authoring contract.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -12678,6 +12821,8 @@
       "id": "REQ-EMG-100",
       "text": "When dependency bump is requested, the engineering model go shall move the pin of each requirement link whose contract item means the same at the new version and keep the pin of every other link for review.",
       "units": [
+        "EVT-DEPENDENCY-BUMP-REQUESTED",
+        "FLOW-DEPENDENCY-BUMP",
         "FU-ALLOCATION-TRACE",
         "FU-CLI-ORCHESTRATION"
       ],
@@ -13079,6 +13224,7 @@
       "id": "REQ-EMG-102",
       "text": "When contract diff is requested, the engineering model go shall classify each contract item change between two git refs with its semantic version impact.",
       "units": [
+        "EVT-CONTRACT-DIFF-REQUESTED",
         "FU-ALLOCATION-TRACE",
         "FU-CLI-ORCHESTRATION"
       ],
@@ -13184,6 +13330,7 @@
       "id": "REQ-EMG-103",
       "text": "When release check is requested, the engineering model go shall reject a release that pins an unreleased dependency or whose tag bump is smaller than its contract diff requires.",
       "units": [
+        "EVT-RELEASE-CHECK-REQUESTED",
         "FU-ALLOCATION-TRACE",
         "FU-CLI-ORCHESTRATION"
       ],
@@ -13365,6 +13512,8 @@
       "id": "REQ-EMG-105",
       "text": "Where system composition is enabled, when generation run is requested, the engineering model go shall report the parents and children of each requirement and roll each linked system requirement up from its realizing child requirements.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-MCP-SERVER"
       ],
@@ -13485,6 +13634,8 @@
       "id": "REQ-EMG-106",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the requirement links of the loaded model with their state and the trace of each requirement through them.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-ALLOCATION-TRACE",
         "FU-MCP-SERVER"
       ],
@@ -13644,6 +13795,8 @@
       "id": "REQ-EMG-107",
       "text": "When generation run is requested, the engineering model go shall render the requirement link tree of a using model and the contract items of a child model without disclosing the users of the child.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ALLOCATION-TRACE",
         "FU-ASCIIDOC-GENERATOR",
         "FU-SYSTEM-COMPOSITION"
@@ -13737,8 +13890,10 @@
     },
     {
       "id": "REQ-EMG-108",
-      "text": "When model updated event is received, the engineering model go shall ignore each workspace file and sibling checkout that another user could have written or that leaves the workspace.",
+      "text": "When model check is requested, the engineering model go shall ignore each workspace entry that leaves the workspace plus each workspace entry that another user could have written.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -13793,8 +13948,10 @@
     },
     {
       "id": "REQ-EMG-110",
-      "text": "When generation run is requested, the engineering model go shall render requirement link and contract item text without AsciiDoc passthrough.",
+      "text": "When generation run is requested, the engineering model go shall render requirement link plus contract item text without AsciiDoc passthrough.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ASCIIDOC-GENERATOR"
       ],
       "code": [
@@ -13820,8 +13977,10 @@
     },
     {
       "id": "REQ-EMG-111",
-      "text": "When model updated event is received, the engineering model go shall report each accepted requirement link without a resolving reviewer and review date.",
+      "text": "When model check is requested, the engineering model go shall report each accepted requirement link without a resolving reviewer plus review date.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -13842,8 +14001,10 @@
     },
     {
       "id": "REQ-EMG-112",
-      "text": "When model updated event is received, the engineering model go shall report each requirement link to a capability without a parent requirement.",
+      "text": "When model check is requested, the engineering model go shall report each requirement link to a capability without a parent requirement.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -13866,6 +14027,8 @@
       "id": "REQ-EMG-113",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall write an edit of one model entity only when the edited model is valid.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER",
         "FU-MODEL-CHANGE"
       ],
@@ -14001,6 +14164,8 @@
       "id": "REQ-EMG-114",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall scan the same code scope as the model check.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-CODEMAP-INFERENCE",
         "FU-MCP-SERVER",
         "FU-VALIDATION-ENGINE"
@@ -14039,7 +14204,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--EXCLUDEPATTERNPROBLEM",
           "path": "validate_api.go",
-          "line": 156
+          "line": 157
         }
       ],
       "verifications": [
@@ -14056,6 +14221,8 @@
       "id": "REQ-EMG-115",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the type of every authorable field with the authoring rules.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -14083,8 +14250,10 @@
     },
     {
       "id": "REQ-EMG-116",
-      "text": "When model updated event is received, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.",
+      "text": "When model check is requested, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -14105,8 +14274,10 @@
     },
     {
       "id": "REQ-EMG-117",
-      "text": "When model updated event is received, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model.",
+      "text": "When model check is requested, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -14151,7 +14322,7 @@
     },
     {
       "id": "REQ-EMG-119",
-      "text": "When link add is requested, the engineering model go shall write a claimed requirement link pinned to the dependency version after checking its parent and child.",
+      "text": "When link add is requested, the engineering model go shall write a claimed requirement link with its parent, child and a pin at the dependency version.",
       "units": [
         "FU-ALLOCATION-TRACE",
         "FU-CLI-ORCHESTRATION"
@@ -14286,6 +14457,8 @@
       "id": "REQ-EMG-120",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall answer a model-reading tool for the family member checkout its repo argument names.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER"
       ],
       "code": [
@@ -14321,8 +14494,10 @@
     },
     {
       "id": "REQ-EMG-121",
-      "text": "When model updated event is received, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.",
+      "text": "When model check is requested, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-CODEMAP-INFERENCE"
       ],
@@ -14369,10 +14544,12 @@
     },
     {
       "id": "REQ-EMG-122",
-      "text": "When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree.",
+      "text": "When status suggestion is requested, the engineering model go shall print the status each requirement plus control verification earns from the evidence of the tree.",
       "units": [
+        "EVT-STATUS-SUGGEST-REQUESTED",
         "FU-ALLOCATION-TRACE",
-        "FU-CLI-ORCHESTRATION"
+        "FU-CLI-ORCHESTRATION",
+        "TR-MODEL-STATUS-SUGGEST"
       ],
       "code": [
         {
@@ -14437,8 +14614,10 @@
     },
     {
       "id": "REQ-EMG-123",
-      "text": "When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.",
+      "text": "When model check is requested, the engineering model go shall name the term plus the catalog section of each unknown term in a requirement expression.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -14469,8 +14648,10 @@
     },
     {
       "id": "REQ-EMG-124",
-      "text": "When model updated event is received, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.",
+      "text": "When model check is requested, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -14598,7 +14779,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--EFFECTIVETIER",
           "path": "validate_api.go",
-          "line": 74
+          "line": 75
         }
       ],
       "verifications": [
@@ -14615,8 +14796,10 @@
     },
     {
       "id": "REQ-EMG-125",
-      "text": "When model updated event is received, the engineering model go shall report each tier-keyed diagnostic with the severity of the project tier.",
+      "text": "When model check is requested, the engineering model go shall report each tier-keyed diagnostic with the severity of the project tier.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-VALIDATION-ENGINE"
       ],
@@ -14834,37 +15017,37 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--APPLYTIERPOLICY",
           "path": "validate_api.go",
-          "line": 66
+          "line": 67
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--CORECODES",
           "path": "validate_api.go",
-          "line": 90
+          "line": 91
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--ISCORECODE",
           "path": "validate_api.go",
-          "line": 97
+          "line": 98
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--TIERKEYED",
           "path": "validate_api.go",
-          "line": 104
+          "line": 105
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--TIERPOLICY",
           "path": "validate_api.go",
-          "line": 47
+          "line": 48
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--TIERPOLICYMARKDOWN",
           "path": "validate_api.go",
-          "line": 55
+          "line": 56
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [
@@ -14884,8 +15067,10 @@
     },
     {
       "id": "REQ-EMG-126",
-      "text": "When model updated event is received, the engineering model go shall report a composed dependency whose life-cycle tier is below or unknown to the tier of the system.",
+      "text": "When model check is requested, the engineering model go shall report a composed dependency whose life-cycle tier is below or unknown to the tier of the system.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CLI-ORCHESTRATION",
         "FU-SYSTEM-COMPOSITION"
       ],
@@ -14979,8 +15164,10 @@
     },
     {
       "id": "REQ-EMG-127",
-      "text": "When model updated event is received, the engineering model go shall apply strict requirement links from life-cycle tier mvp.",
+      "text": "When model check is requested, the engineering model go shall apply strict requirement links from life-cycle tier mvp.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -15027,7 +15214,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--EFFECTIVEREQUIREMENTLINKMODE",
           "path": "validate_api.go",
-          "line": 82
+          "line": 83
         }
       ],
       "verifications": [
@@ -15043,8 +15230,10 @@
     },
     {
       "id": "REQ-EMG-128",
-      "text": "When model updated event is received, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier.",
+      "text": "When model check is requested, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-VALIDATION-ENGINE"
       ],
@@ -15087,8 +15276,10 @@
     },
     {
       "id": "REQ-EMG-129",
-      "text": "When model updated event is received, the engineering model go shall report a diagnostic that an open POA\u0026M item of the project tier defers as a deferred warning naming the item.",
+      "text": "When model check is requested, the engineering model go shall report a diagnostic that an open POA\u0026M item of the project tier defers as a deferred warning naming the item.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -15250,7 +15441,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--APPLYTIERPOLICY",
           "path": "validate_api.go",
-          "line": 66
+          "line": 67
         }
       ],
       "verifications": [
@@ -15266,8 +15457,9 @@
     },
     {
       "id": "REQ-EMG-130",
-      "text": "When generation run is requested, the engineering model go shall render the document despite errors that only the life-cycle tier raises.",
+      "text": "If errors are raised only by the life-cycle tier, then the engineering model go shall render the document.",
       "units": [
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-ASCIIDOC-GENERATOR",
         "FU-VALIDATION-ENGINE"
       ],
@@ -15295,7 +15487,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--RENDERSDESPITE",
           "path": "validate_api.go",
-          "line": 112
+          "line": 113
         }
       ],
       "verifications": [
@@ -15311,6 +15503,8 @@
       "id": "REQ-EMG-131",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return the severity of each tier-keyed code per life-cycle tier in the authoring contract.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -15337,8 +15531,10 @@
     },
     {
       "id": "REQ-EMG-132",
-      "text": "When model updated event is received, the engineering model go shall report each aviation evidence record below the evidence floor of the life-cycle tier.",
+      "text": "When model check is requested, the engineering model go shall report each aviation evidence record below the evidence floor of the life-cycle tier.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -15406,8 +15602,10 @@
     },
     {
       "id": "REQ-EMG-133",
-      "text": "When model updated event is received, the engineering model go shall report each aviation assurance record that names an AI agent as the person holding the credit.",
+      "text": "When model check is requested, the engineering model go shall report each aviation assurance record that names an AI agent as the person holding the credit.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -15445,6 +15643,8 @@
       "id": "REQ-EMG-134",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall return what a target life-cycle tier requires that the model does not meet.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-ALLOCATION-TRACE",
         "FU-MCP-SERVER",
         "FU-SYSTEM-COMPOSITION"
@@ -15534,8 +15734,10 @@
     },
     {
       "id": "REQ-EMG-135",
-      "text": "When model updated event is received, the engineering model go shall load each machine authored in a behavior document with its variables, states, initial state, final states, transitions and invariants.",
+      "text": "When model check is requested, the engineering model go shall load each machine authored in a behavior document with its variables, states, initial state, final states, transitions and invariants.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER"
       ],
       "code": [
@@ -15576,7 +15778,7 @@
     },
     {
       "id": "REQ-EMG-136",
-      "text": "When model updated event is received, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error.",
+      "text": "When model check is requested, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error.",
       "units": [
         "FU-MODEL-LOADER"
       ],
@@ -15785,7 +15987,7 @@
     },
     {
       "id": "REQ-EMG-137",
-      "text": "When model updated event is received, the engineering model go shall project each loaded machine into elements of the canonical semantic model.",
+      "text": "When model check is requested, the engineering model go shall project each loaded machine into elements of the canonical semantic model.",
       "units": [
         "FU-MODEL-LOADER",
         "FU-SYSML-EXPORTER"
@@ -15951,8 +16153,10 @@
     },
     {
       "id": "REQ-EMG-138",
-      "text": "When model updated event is received, the engineering model go shall validate each machine against the machine rules.",
+      "text": "When model check is requested, the engineering model go shall validate each machine against the machine rules.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -16096,8 +16300,9 @@
     },
     {
       "id": "REQ-EMG-139",
-      "text": "When model updated event is received, the engineering model go shall reject free-floating behavior states with a diagnostic that names the machines block.",
+      "text": "If behavior state is free-floating, then the engineering model go shall reject the state with a diagnostic that names the machines block.",
       "units": [
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -16184,8 +16389,10 @@
     },
     {
       "id": "REQ-EMG-140",
-      "text": "When model updated event is received, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier.",
+      "text": "When model check is requested, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -16220,6 +16427,8 @@
       "id": "REQ-EMG-141",
       "text": "When generation run is requested, the engineering model go shall generate one deterministic Quint module for each machine.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-QUINT-EXPORTER"
       ],
       "code": [
@@ -16410,6 +16619,8 @@
       "id": "REQ-EMG-142",
       "text": "When generation run is requested, the engineering model go shall generate Quint modules with engquint generate and check them with engquint check, exiting 0 on pass, 1 on a violation, a stale or drifted module or a vacuous trace and 2 on a setup error.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-QUINT-EXPORTER"
       ],
       "code": [
@@ -16578,6 +16789,8 @@
       "id": "REQ-EMG-143",
       "text": "When generation run is requested, the engineering model go shall run Quint on the TypeScript backend once for each invariant.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-QUINT-EXPORTER"
       ],
       "code": [
@@ -16730,6 +16943,8 @@
       "id": "REQ-EMG-144",
       "text": "When generation run is requested, the engineering model go shall verify each machine in verify mode against a pre-provisioned pinned Apalache without a download at run time.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-QUINT-EXPORTER"
       ],
       "code": [
@@ -16864,6 +17079,8 @@
       "id": "REQ-EMG-145",
       "text": "When generation run is requested, the engineering model go shall record each Quint result with the sha256 of its module so that a stale result is no evidence.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-QUINT-EXPORTER"
       ],
       "code": [
@@ -17047,8 +17264,10 @@
     },
     {
       "id": "REQ-EMG-146",
-      "text": "When model updated event is received, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix.",
+      "text": "When model check is requested, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-CODEMAP-INFERENCE"
       ],
@@ -17245,6 +17464,8 @@
       "id": "REQ-EMG-147",
       "text": "When generation run is requested, the engineering model go shall write a requirement-keyed formal entry for each Quint result into the Gemara evaluation log.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-GEMARA-EXPORTER"
       ],
       "code": [
@@ -17308,6 +17529,8 @@
       "id": "REQ-EMG-148",
       "text": "While mcp server is enabled, when mcp tool call is received, the engineering model go shall report requirement-level formal results in the verification tools.",
       "units": [
+        "EVT-MCP-TOOL-CALL-RECEIVED",
+        "FLOW-MCP-TOOL-CALL",
         "FU-MCP-SERVER"
       ],
       "code": [
@@ -17375,6 +17598,8 @@
       "id": "REQ-EMG-149",
       "text": "When generation run is requested, the engineering model go shall keep the generated Quint modules with the other generated artifacts and report any drift in the artifact freshness gate.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-QUINT-EXPORTER"
       ],
       "code": [
@@ -17454,6 +17679,8 @@
       "id": "REQ-EMG-150",
       "text": "When generation run is requested, the engineering model go shall report code health smells for each function of Go, Rust, TypeScript, JavaScript and Python source files.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CODE-HEALTH"
       ],
       "code": [
@@ -17978,6 +18205,8 @@
       "id": "REQ-EMG-151",
       "text": "When generation run is requested, the engineering model go shall compute an explainable code health score from 1.0 to 10.0 for each source file.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CODE-HEALTH"
       ],
       "code": [
@@ -18084,6 +18313,8 @@
       "id": "REQ-EMG-152",
       "text": "When generation run is requested, the engineering model go shall roll up file code health scores along the traceability of the model.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CODE-HEALTH"
       ],
       "code": [
@@ -18152,8 +18383,10 @@
     },
     {
       "id": "REQ-EMG-153",
-      "text": "When model updated event is received, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.",
+      "text": "When model check is requested, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -18415,8 +18648,10 @@
     },
     {
       "id": "REQ-EMG-154",
-      "text": "When model updated event is received, the engineering model go shall require each code health waiver to cite an existing accepted decision.",
+      "text": "When model check is requested, the engineering model go shall require each code health waiver to cite an existing accepted decision.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CODE-HEALTH",
         "FU-VALIDATION-ENGINE"
       ],
@@ -18567,8 +18802,10 @@
     },
     {
       "id": "REQ-EMG-155",
-      "text": "When model updated event is received, the engineering model go shall report code health findings in enghealth reports with the severity of the project life-cycle tier.",
+      "text": "When model check is requested, the engineering model go shall report code health findings in enghealth reports with the severity of the project life-cycle tier.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CODE-HEALTH",
         "FU-VALIDATION-ENGINE"
       ],
@@ -19067,6 +19304,8 @@
       "id": "REQ-EMG-156",
       "text": "When generation run is requested, the engineering model go shall classify each code health finding against a base revision of the working tree.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CODE-HEALTH"
       ],
       "code": [
@@ -19492,6 +19731,8 @@
       "id": "REQ-EMG-157",
       "text": "When generation run is requested, the engineering model go shall write the code health report in the neutral format engmod-health/1.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CODE-HEALTH"
       ],
       "code": [
@@ -19694,6 +19935,8 @@
       "id": "REQ-EMG-158",
       "text": "When generation run is requested, the engineering model go shall run code health analysis with enghealth scan, check and baseline, exiting 0 when ok, 1 on blocking findings and 2 on a setup error.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CODE-HEALTH"
       ],
       "code": [
@@ -20191,7 +20434,7 @@
     },
     {
       "id": "REQ-EMG-160",
-      "text": "When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block at the tiers below product.",
+      "text": "The engineering model go shall produce byte-identical validation diagnostics plus generated documents for a model without a health block at the tiers below product.",
       "units": [
         "FU-VALIDATION-ENGINE"
       ],
@@ -20236,6 +20479,8 @@
       "id": "REQ-EMG-161",
       "text": "When generation run is requested, the engineering model go shall treat a finding listed in the committed health baseline as accepted debt.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CODE-HEALTH",
         "FU-VALIDATION-ENGINE"
       ],
@@ -20433,8 +20678,10 @@
     },
     {
       "id": "REQ-EMG-162",
-      "text": "When model updated event is received, the engineering model go shall report the error lifecycle.missing for a model without a lifecycle block.",
+      "text": "When model check is requested, the engineering model go shall report the error lifecycle.missing for a model without a lifecycle block.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -20480,8 +20727,10 @@
     },
     {
       "id": "REQ-EMG-163",
-      "text": "When model updated event is received, the engineering model go shall report an error when the lifecycle has no bundles, no tier decision, or a tier decision without a Bundles line.",
+      "text": "If lifecycle block is incomplete, then the engineering model go shall report an error.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -20527,8 +20776,10 @@
     },
     {
       "id": "REQ-EMG-164",
-      "text": "When model updated event is received, the engineering model go shall report an error when requirementLinks or lintRun.mode is missing, invalid or guided at mvp or above.",
+      "text": "If required switch has a wrong value, then the engineering model go shall report an error.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -20569,8 +20820,10 @@
     },
     {
       "id": "REQ-EMG-165",
-      "text": "When model updated event is received, the engineering model go shall report health.block_missing at the tiers product and operational for a manifest without a health block.",
+      "text": "When model check is requested, the engineering model go shall report health.block_missing at the tiers product plus operational for a manifest without a health block.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -20587,8 +20840,10 @@
     },
     {
       "id": "REQ-EMG-166",
-      "text": "When model updated event is received, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.",
+      "text": "When model check is requested, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-MODEL-LOADER",
         "FU-VALIDATION-ENGINE"
       ],
@@ -20641,8 +20896,10 @@
     },
     {
       "id": "REQ-EMG-167",
-      "text": "When model updated event is received, the engineering model go shall report model.id_missing for an empty model identifier.",
+      "text": "When model check is requested, the engineering model go shall report model.id_missing for an empty model identifier.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -20661,6 +20918,8 @@
       "id": "REQ-EMG-168",
       "text": "When generation run is requested, the engineering model go shall print the remedy of a required-switch diagnostic and carry it in the structured output.",
       "units": [
+        "EVT-GENERATION-RUN-REQUESTED",
+        "FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS",
         "FU-CLI-ORCHESTRATION",
         "FU-MCP-SERVER",
         "FU-VALIDATION-ENGINE"
@@ -20953,7 +21212,7 @@
     },
     {
       "id": "REQ-EMG-169",
-      "text": "When model updated event is received, the engineering model go shall keep a remedy for every required-switch code in one table that an inventory test compares with the codes in both directions.",
+      "text": "The engineering model go shall keep a remedy for every required-switch code in one table that an inventory test compares with the codes in both directions.",
       "units": [
         "FU-VALIDATION-ENGINE"
       ],
@@ -20983,8 +21242,10 @@
     },
     {
       "id": "REQ-EMG-170",
-      "text": "When model updated event is received, the engineering model go shall report a source file whose owner unit marker is missing or names no functional unit.",
+      "text": "When model check is requested, the engineering model go shall report a source file whose owner unit marker is missing or names no functional unit.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE"
       ],
       "code": [
@@ -21020,8 +21281,10 @@
     },
     {
       "id": "REQ-EMG-171",
-      "text": "When model updated event is received, the engineering model go shall report a model link marker that names a requirement or a catalog term instead of a model element.",
+      "text": "When model check is requested, the engineering model go shall report a model link marker that names a requirement or a catalog term instead of a model element.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE"
       ],
       "code": [
@@ -21052,8 +21315,10 @@
     },
     {
       "id": "REQ-EMG-172",
-      "text": "When model updated event is received, the engineering model go shall report an event-driven or state-driven requirement that no machine invariant or applies-to element models.",
+      "text": "When model check is requested, the engineering model go shall report an event-driven or state-driven requirement that no machine invariant or applies-to element models.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -21104,8 +21369,10 @@
     },
     {
       "id": "REQ-EMG-173",
-      "text": "When model updated event is received, the engineering model go shall report a machine without an invariant and an invariant without a current formal result.",
+      "text": "When model check is requested, the engineering model go shall report a machine without an invariant and an invariant without a current formal result.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE"
       ],
       "code": [
@@ -21141,7 +21408,7 @@
     },
     {
       "id": "REQ-EMG-174",
-      "text": "When model updated event is received, the engineering model go shall keep every model link marker stacked above one declaration.",
+      "text": "The engineering model go shall keep every model link marker stacked above one declaration.",
       "units": [
         "FU-CODEMAP-INFERENCE"
       ],
@@ -21168,8 +21435,10 @@
     },
     {
       "id": "REQ-EMG-175",
-      "text": "When model updated event is received, the engineering model go shall report a functional unit, machine or software interface that no source code names.",
+      "text": "When model check is requested, the engineering model go shall report each functional unit plus machine plus software interface that no source code names.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE"
       ],
       "code": [
@@ -21331,8 +21600,10 @@
     },
     {
       "id": "REQ-EMG-176",
-      "text": "When model updated event is received, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.",
+      "text": "When model check is requested, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-MODEL-LOADER"
       ],
@@ -21396,7 +21667,7 @@
     },
     {
       "id": "REQ-EMG-177",
-      "text": "When model updated event is received, the engineering model go shall accept a list of requirements on every machine state, transition and event.",
+      "text": "The engineering model go shall accept a list of requirements on every machine state, transition and event.",
       "units": [
         "FU-MODEL-LOADER"
       ],
@@ -21444,8 +21715,10 @@
     },
     {
       "id": "REQ-EMG-178",
-      "text": "When model updated event is received, the engineering model go shall report a machine state, transition or event that lists no requirement.",
+      "text": "When model check is requested, the engineering model go shall report each machine state plus transition plus event that lists no requirement.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -21501,8 +21774,10 @@
     },
     {
       "id": "REQ-EMG-179",
-      "text": "When model updated event is received, the engineering model go shall report a composition lock whose schema version is not the current one.",
+      "text": "When model check is requested, the engineering model go shall report a composition lock whose schema version is not the current one.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-SYSTEM-COMPOSITION"
       ],
       "code": [
@@ -21528,8 +21803,10 @@
     },
     {
       "id": "REQ-EMG-180",
-      "text": "When model updated event is received, the engineering model go shall report a repository check template that cannot take the workspace root instead of checking the repository with the library.",
+      "text": "When model check is requested, the engineering model go shall report a repository check template that cannot take the workspace root instead of checking the repository with the library.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CLI-ORCHESTRATION"
       ],
       "code": [
@@ -21570,8 +21847,10 @@
     },
     {
       "id": "REQ-EMG-181",
-      "text": "When model updated event is received, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.",
+      "text": "When model check is requested, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CLI-ORCHESTRATION"
       ],
       "code": [
@@ -21632,7 +21911,7 @@
     },
     {
       "id": "REQ-EMG-182",
-      "text": "When model updated event is received, the engineering model go shall provide one name for every argument of every tool and command.",
+      "text": "The engineering model go shall provide one name for every argument of every tool and command.",
       "units": [
         "FU-CLI-ORCHESTRATION",
         "FU-MCP-SERVER"
@@ -21666,8 +21945,10 @@
     },
     {
       "id": "REQ-EMG-183",
-      "text": "When model updated event is received, the engineering model go shall report a dependency without a declared tier as an error and report an incomplete aviation assessment and an unreferenced catalog term by tier.",
+      "text": "When model check is requested, the engineering model go shall report a dependency without a declared tier as an error and report an incomplete aviation assessment and an unreferenced catalog term by tier.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-SYSTEM-COMPOSITION",
         "FU-VALIDATION-ENGINE"
       ],
@@ -21684,8 +21965,9 @@
     },
     {
       "id": "REQ-EMG-184",
-      "text": "When model updated event is received, the engineering model go shall reject a deprecated pinned fingerprint and a deprecated provides reference with an error that names the remedy.",
+      "text": "If model declares a removed field, then the engineering model go shall reject the removed field with an error that names the remedy.",
       "units": [
+        "FLOW-MODEL-CHECK",
         "FU-ALLOCATION-TRACE",
         "FU-MODEL-LOADER"
       ],
@@ -21735,9 +22017,10 @@
     },
     {
       "id": "REQ-EMG-185",
-      "text": "When requirements delta apply is requested, the engineering model go shall refuse to write when another apply holds the lock, when the candidate is invalid or when the requirements document changed while the delta was planned.",
+      "text": "If requirements apply is unsafe, then the engineering model go shall refuse to write the requirements document.",
       "units": [
-        "FU-MODEL-CHANGE"
+        "FU-MODEL-CHANGE",
+        "TR-DELTA-LOCK-BUSY"
       ],
       "code": [
         {
@@ -21824,8 +22107,9 @@
     },
     {
       "id": "REQ-EMG-186",
-      "text": "When release check is requested, the engineering model go shall reject a release whose changelog entry declares a breaking release and whose model schema version is not greater than the schema version at the previous release.",
+      "text": "When release check is requested, the engineering model go shall reject a release whose changelog entry declares a breaking release without a greater model schema version than the previous release.",
       "units": [
+        "EVT-RELEASE-CHECK-REQUESTED",
         "FU-CLI-ORCHESTRATION",
         "FU-MODEL-LOADER"
       ],
@@ -21914,7 +22198,7 @@
     },
     {
       "id": "REQ-EMG-187",
-      "text": "When model updated event is received, the engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.",
+      "text": "The engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.",
       "units": [
         "FU-ALLOCATION-TRACE",
         "FU-SYSTEM-COMPOSITION"
@@ -21952,8 +22236,10 @@
     },
     {
       "id": "REQ-EMG-188",
-      "text": "When model updated event is received, the engineering model go shall report a Go state-like type that no machine models and no comment explains.",
+      "text": "When model check is requested, the engineering model go shall report a Go state-like type that no machine models without a comment that explains it.",
       "units": [
+        "EVT-MODEL-CHECK-REQUESTED",
+        "FLOW-MODEL-CHECK",
         "FU-CODEMAP-INFERENCE"
       ],
       "code": [
@@ -22156,8 +22442,9 @@
     },
     {
       "id": "REQ-EMG-189",
-      "text": "When model updated event is received, the engineering model go shall list every authored entity of the model with its kind, document, parent and fields and every reference between entities.",
+      "text": "When go api call is received, the engineering model go shall list every authored entity of the model with its kind, document, parent and fields and every reference between entities.",
       "units": [
+        "FLOW-GO-READ-MODEL",
         "FU-MODEL-LOADER"
       ],
       "code": [
@@ -22313,8 +22600,9 @@
     },
     {
       "id": "REQ-EMG-190",
-      "text": "When model updated event is received, the engineering model go shall report the entities added, removed and changed between two git revisions of a model or between a revision and the working tree.",
+      "text": "When go api call is received, the engineering model go shall report the difference of a model between two revisions with the entities added, removed and changed.",
       "units": [
+        "FLOW-GO-COMPARE-REVISIONS",
         "FU-CLI-ORCHESTRATION",
         "FU-MODEL-LOADER"
       ],
@@ -22513,8 +22801,9 @@
     },
     {
       "id": "REQ-EMG-191",
-      "text": "When model updated event is received, the engineering model go shall report which requirements gained code, gained a test, became orphans or stopped being orphans between two revisions.",
+      "text": "When go api call is received, the engineering model go shall report the trace change of each requirement between two revisions.",
       "units": [
+        "FLOW-GO-COMPARE-REVISIONS",
         "FU-ALLOCATION-TRACE",
         "FU-CLI-ORCHESTRATION"
       ],
@@ -22617,8 +22906,9 @@
     },
     {
       "id": "REQ-EMG-192",
-      "text": "When model updated event is received, the engineering model go shall list every named declaration of the code scope with its kind, language, path and lines.",
+      "text": "When go api call is received, the engineering model go shall list every named declaration of the code scope with its kind, language, path and lines.",
       "units": [
+        "FLOW-GO-LOOK-UP-CODE",
         "FU-CODEMAP-INFERENCE"
       ],
       "code": [
@@ -22750,8 +23040,9 @@
     },
     {
       "id": "REQ-EMG-193",
-      "text": "When model updated event is received, the engineering model go shall list every catalog term with the requirements that name it and the entities that reference it.",
+      "text": "When go api call is received, the engineering model go shall list every catalog term with the requirements that name it and the entities that reference it.",
       "units": [
+        "FLOW-GO-READ-MODEL",
         "FU-VALIDATION-ENGINE"
       ],
       "code": [
@@ -22870,7 +23161,7 @@
         {
           "symbol": "CODE-VALIDATE-API-GO--VALIDATEBUNDLE",
           "path": "validate_api.go",
-          "line": 35
+          "line": 36
         }
       ],
       "verifications": [

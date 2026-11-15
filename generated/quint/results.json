@@ -5,7 +5,7 @@
       "machine": "SM-MODEL-VALIDATION",
       "module": "sm_model_validation",
       "qntFile": "generated/quint/sm_model_validation.qnt",
-      "qntSha256": "34dff5bf42189471b7a95cf6f25f915313cf9f3f449fddc3e1272dceba51037f",
+      "qntSha256": "ba325d7fc0d8896e4f314f9bb361e05ec2096efacc3958f815dc16bd0fe530db",
       "quintVersion": "0.33.1",
       "backend": "typescript",
       "modes": [
@@ -49,7 +49,7 @@
         {
           "name": "wit_state_model_invalid",
           "state": "STATE-MODEL-INVALID",
-          "witnessed": 10000,
+          "witnessed": 9994,
           "total": 10000
         }
       ],

@@ -112,6 +112,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`IF-CLI-ENGTRACE` |interface |engtrace CLI
 |`IF-CLI-ENGTRLC` |interface |engtrlc CLI
 |`IF-CLI-ENGVIEW` |interface |engview CLI
+|`IF-CLI-ENGWS` |interface |engws CLI
 |`IF-GO-CODE-LOOKUP` |interface |Go API code declarations and catalog usage
 |`IF-GO-COMPOSITION` |interface |Go API composition
 |`IF-GO-ENTITY-INDEX-DIFF` |interface |Go API entity index and model diff
@@ -174,6 +175,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-ASCIIDOC-GENERATOR` |depends_on
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-MODEL-LOADER` |depends_on
 |`FU-CLI-ORCHESTRATION` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
+|`FU-CLI-ORCHESTRATION` |contains |`IF-CLI-ENGWS` |contains
 |`FU-CODE-HEALTH` |depends_on |`FU-CODEMAP-INFERENCE` |depends_on
 |`FU-CODE-HEALTH` |depends_on |`FU-MODEL-LOADER` |depends_on
 |`FU-CODE-HEALTH` |depends_on |`FU-VALIDATION-ENGINE` |depends_on
@@ -364,6 +366,7 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`EVT-LINK-ADD-REQUESTED` |event |Link Add Requested
 |`EVT-LINK-REVIEW-REQUESTED` |event |Link Review Requested
 |`EVT-MCP-TOOL-CALL-RECEIVED` |event |MCP Tool Call Received
+|`EVT-MODEL-CHECK-REQUESTED` |event |Model Check Requested
 |`EVT-MODEL-UPDATED` |event |Model Updated
 |`EVT-RELEASE-CHECK-REQUESTED` |event |Release Check Requested
 |`EVT-REQUIREMENTS-CANDIDATE-VALIDATED` |event |Requirements Candidate Validated
@@ -473,11 +476,15 @@ Architecture elements and relationships remain defined once in the canonical Sys
 |`STATE-MCP-MODEL-OUTDATED` |transition |`STATE-MCP-MODEL-CURRENT` |transition: TR-MCP-CALL-RELOADS on EVT-MCP-TOOL-CALL-RECEIVED [not reloadFails] / fingerprintMatches := true; lastCallFailed := false
 |`STATE-MCP-MODEL-OUTDATED` |transition |`STATE-MCP-MODEL-OUTDATED` |transition: TR-MCP-FILES-LOADABILITY-CHANGES on EVT-MODEL-UPDATED / reloadFails := not reloadFails
 |`STATE-MCP-MODEL-OUTDATED` |transition |`STATE-MCP-MODEL-OUTDATED` |transition: TR-MCP-RELOAD-FAILS on EVT-MCP-TOOL-CALL-RECEIVED [reloadFails] / lastCallFailed := true
+|`STATE-MODEL-INVALID` |on_event |`EVT-MODEL-CHECK-REQUESTED` |on_event
 |`STATE-MODEL-INVALID` |on_event |`EVT-MODEL-UPDATED` |on_event
+|`STATE-MODEL-INVALID` |transition |`STATE-MODEL-INVALID` |transition: TR-MODEL-CHECK-INVALID on EVT-MODEL-CHECK-REQUESTED
 |`STATE-MODEL-INVALID` |transition |`STATE-MODEL-VALID` |transition: TR-MODEL-VALIDATION-RECOVERS on EVT-MODEL-UPDATED / generationPermitted := true
 |`STATE-MODEL-VALID` |guarded_by |`CTRL-STRICT-MCP-INPUT-SCHEMA` |guarded_by: Model-aware tool usage requires strict MCP input semantics.
+|`STATE-MODEL-VALID` |on_event |`EVT-MODEL-CHECK-REQUESTED` |on_event
 |`STATE-MODEL-VALID` |on_event |`EVT-STATUS-SUGGEST-REQUESTED` |on_event
 |`STATE-MODEL-VALID` |on_event |`EVT-VALIDATION-FAILED` |on_event
 |`STATE-MODEL-VALID` |transition |`STATE-MODEL-INVALID` |transition: TR-MODEL-VALIDATION-FAILS on EVT-VALIDATION-FAILED / generationPermitted := false
+|`STATE-MODEL-VALID` |transition |`STATE-MODEL-VALID` |transition: TR-MODEL-CHECK-VALID on EVT-MODEL-CHECK-REQUESTED
 |`STATE-MODEL-VALID` |transition |`STATE-MODEL-VALID` |transition: TR-MODEL-STATUS-SUGGEST on EVT-STATUS-SUGGEST-REQUESTED
 |===
