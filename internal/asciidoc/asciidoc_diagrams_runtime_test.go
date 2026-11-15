@@ -2,7 +2,6 @@
 package asciidoc
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/codescan"
@@ -21,30 +20,16 @@ func TestBuildDeploymentMermaid_UsesNamespaceAndClusterContainers(t *testing.T) 
 
 	out := buildDeploymentMermaid(rows)
 
-	if !strings.Contains(out, `subgraph CLUSTER_PAYMENTS_CLUSTER["Cluster: payments-cluster"]`) {
-		t.Fatalf("missing cluster container")
-	}
-	if !strings.Contains(out, `subgraph NS_PAYMENTS["Namespace: payments"]`) {
-		t.Fatalf("missing namespace container")
-	}
-	if !strings.Contains(out, `DP_PAYMENTS_API_DEPLOYMENT["Workload: payments/api-deployment"]:::runtime_element`) {
-		t.Fatalf("missing runtime workload node inside deployment graph")
-	}
-	if !strings.Contains(out, `subgraph CONTROL_PLANE["Control Plane"]`) {
-		t.Fatalf("missing control plane container")
-	}
-	if !strings.Contains(out, `DP_PAYMENTS_PAYMENTS_API["Release: payments/payments-api"]:::deployment_element`) {
-		t.Fatalf("missing release node with role-prefixed label")
-	}
-	if !strings.Contains(out, `DP_PAYMENTS_PAYMENTS_API -->|targets| DP_PAYMENTS`) {
-		t.Fatalf("missing release-to-namespace edge")
-	}
-	if !strings.Contains(out, `DP_PAYMENTS_PAYMENTS_API -->|deploys| DP_PAYMENTS_API_DEPLOYMENT`) {
-		t.Fatalf("missing release-to-workload edge")
-	}
-	if strings.Contains(out, "|part_of|") {
-		t.Fatalf("did not expect explicit part_of edges when using cluster containers")
-	}
+	requireContains(t, out,
+		docCheck{`subgraph CLUSTER_PAYMENTS_CLUSTER["Cluster: payments-cluster"]`, "missing cluster container"},
+		docCheck{`subgraph NS_PAYMENTS["Namespace: payments"]`, "missing namespace container"},
+		docCheck{`DP_PAYMENTS_API_DEPLOYMENT["Workload: payments/api-deployment"]:::runtime_element`, "missing runtime workload node inside deployment graph"},
+		docCheck{`subgraph CONTROL_PLANE["Control Plane"]`, "missing control plane container"},
+		docCheck{`DP_PAYMENTS_PAYMENTS_API["Release: payments/payments-api"]:::deployment_element`, "missing release node with role-prefixed label"},
+		docCheck{`DP_PAYMENTS_PAYMENTS_API -->|targets| DP_PAYMENTS`, "missing release-to-namespace edge"},
+		docCheck{`DP_PAYMENTS_PAYMENTS_API -->|deploys| DP_PAYMENTS_API_DEPLOYMENT`, "missing release-to-workload edge"},
+	)
+	requireNotContains(t, out, docCheck{"|part_of|", "did not expect explicit part_of edges when using cluster containers"})
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -84,17 +69,14 @@ func TestBuildSecurityPathMermaid_GroupsCodeNodesByFile(t *testing.T) {
 
 	out := buildSecurityPathMermaid(rows, nil, code)
 
-	if got := strings.Count(out, `["payment_engine.rs"]:::code_element`); got != 1 {
-		t.Fatalf("expected one security code box at file granularity, got %d:\n%s", got, out)
-	}
-	if strings.Contains(out, `payment_engine.rs:11`) || strings.Contains(out, `payment_engine.rs:25`) || strings.Contains(out, `payment_engine.rs:11,25`) {
-		t.Fatalf("did not expect line numbers in security attack-vector code boxes:\n%s", out)
-	}
+	requireCount(t, out, `["payment_engine.rs"]:::code_element`, 1, "expected one security code box at file granularity, got %d:\n%s")
+	requireDiagramLacks(t, out, "did not expect line numbers in security attack-vector code boxes:\n%[2]s", `payment_engine.rs:11`, `payment_engine.rs:25`, `payment_engine.rs:11,25`)
 }
 
-// TRLC-LINKS: REQ-EMG-003
-func TestBuildSecurityContextDFDMermaidByGroup_GroupsOwnedNodesInsideFG(t *testing.T) {
-	a := model.AuthoredArchitecture{
+// groupContextArchitecture is two groups with an actor, a referenced element,
+// an interface, data objects and trust boundaries, some owned by the first group.
+func groupContextArchitecture() model.AuthoredArchitecture {
+	return model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{
 			{ID: "FG-A", Name: "Group A"},
 			{ID: "FG-B", Name: "Group B"},
@@ -127,55 +109,36 @@ func TestBuildSecurityContextDFDMermaidByGroup_GroupsOwnedNodesInsideFG(t *testi
 			{Type: "writes", From: "FU-B", To: "DO-B"},
 		},
 	}
+}
 
-	out := buildSecurityContextDFDMermaidByGroup(a, nil, nil)
+// TRLC-LINKS: REQ-EMG-003
+func TestBuildSecurityContextDFDMermaidByGroup_GroupsOwnedNodesInsideFG(t *testing.T) {
+	out := buildSecurityContextDFDMermaidByGroup(groupContextArchitecture(), nil, nil)
 	if len(out) != 2 {
 		t.Fatalf("expected one context diagram per functional group, got %d", len(out))
 	}
 	graph := out[0].Mermaid
-	localStart := strings.Index(graph, `subgraph CTXGROUP_FG_A["Group A"]`)
-	if localStart < 0 {
-		t.Fatalf("missing FG-A container:\n%s", graph)
-	}
-	localEnd := strings.Index(graph[localStart:], "\n  end")
-	if localEnd < 0 {
-		t.Fatalf("missing FG-A container close:\n%s", graph)
-	}
-	localBlock := graph[localStart : localStart+localEnd]
-	for _, want := range []string{
+	localBlock := blockUntil(t, graph, `subgraph CTXGROUP_FG_A["Group A"]`, "\n  end", graph,
+		"missing FG-A container:\n%s", "missing FG-A container close:\n%s")
+	requireIn(t, localBlock, graph, "expected owned node inside FG-A container %q:\n%s",
 		`CTX_FU_A["FU-A"]:::functional_unit`,
 		`CTX_IF_A[/"IF-A"/]:::interface`,
 		`CTX_DO_A[("DO-A")]:::data_object`,
 		`CTX_TB_A[/"TB-A"\]:::trust_boundary`,
-	} {
-		if !strings.Contains(localBlock, want) {
-			t.Fatalf("expected owned node inside FG-A container %q:\n%s", want, graph)
-		}
-	}
-	for _, external := range []string{
+	)
+	external := []string{
 		`CTX_ACT_USER(("ACT-USER")):::actor`,
 		`CTX_FU_B["FU-B"]:::functional_unit`,
 		`CTX_REF_EXT["REF-EXT"]:::referenced_element`,
 		`CTX_DO_EXT[("DO-EXT")]:::data_object`,
 		`CTX_TB_EXT[/"TB-EXT"\]:::trust_boundary`,
-	} {
-		if !strings.Contains(graph, external) {
-			t.Fatalf("expected external node %q in diagram:\n%s", external, graph)
-		}
-		if strings.Contains(localBlock, external) {
-			t.Fatalf("external node should not be inside FG-A container %q:\n%s", external, graph)
-		}
 	}
-	if strings.Contains(graph, `CTX_DO_B[("DO-B")]:::data_object`) {
-		t.Fatalf("did not expect unrelated other-group data object in FG-A diagram:\n%s", graph)
-	}
-	for _, want := range []string{
+	requireDiagramHas(t, graph, "expected external node %q in diagram:\n%s", external...)
+	requireNotIn(t, localBlock, graph, "external node should not be inside FG-A container %q:\n%s", external...)
+	requireDiagramLacks(t, graph, "did not expect unrelated other-group data object in FG-A diagram:\n%[2]s", `CTX_DO_B[("DO-B")]:::data_object`)
+	requireDiagramHas(t, graph, "missing context edge %q:\n%s",
 		`CTX_ACT_USER -->|interacts_with| CTX_FU_A`,
 		`CTX_FU_A -->|depends_on| CTX_FU_B`,
 		`CTX_FU_A -->|reads| CTX_DO_EXT`,
-	} {
-		if !strings.Contains(graph, want) {
-			t.Fatalf("missing context edge %q:\n%s", want, graph)
-		}
-	}
+	)
 }

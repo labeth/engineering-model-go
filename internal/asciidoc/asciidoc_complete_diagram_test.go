@@ -10,6 +10,17 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// requireNoSplitPublication fails the test when the document has the markers
+// of a diagram split into parts.
+func requireNoSplitPublication(t *testing.T, doc string) {
+	t.Helper()
+	for _, unwanted := range []string{"Implementation files 1", "Evidence part", "Diagram part", "divided into numbered parts"} {
+		if strings.Contains(doc, unwanted) {
+			t.Fatalf("split publication returned: %s", unwanted)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-003
 func TestLargePublicationDiagramsRemainComplete(t *testing.T) {
 	var code []codescan.CodeItem
@@ -31,10 +42,6 @@ func TestLargePublicationDiagramsRemainComplete(t *testing.T) {
 		if strings.Count(doc, block) != 2 {
 			t.Fatalf("%s: view and requirement must each retain exactly one complete graph", kind)
 		}
-		for _, unwanted := range []string{"Implementation files 1", "Evidence part", "Diagram part", "divided into numbered parts"} {
-			if strings.Contains(doc, unwanted) {
-				t.Fatalf("split publication returned: %s", unwanted)
-			}
-		}
+		requireNoSplitPublication(t, doc)
 	}
 }

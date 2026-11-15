@@ -6,22 +6,25 @@ import (
 	"testing"
 )
 
+// edgeKeyHasDescriptions reports whether the key has two entries with the
+// description, the second numbered R2.
+func edgeKeyHasDescriptions(key []map[string]string, label string) bool {
+	if len(key) != 2 {
+		return false
+	}
+	return key[0]["Description"] == label && key[1]["Description"] == label && key[1]["Number"] == "R2"
+}
+
 // TRLC-LINKS: REQ-EMG-003
 func TestPublicationEdgeKeyPreservesRelationships(t *testing.T) {
 	label := "interacts_with: complete long hardware relationship description"
 	graph := "flowchart LR\nN_TEXT[\"literal -->|this is a long embedded string rather than an edge|\"]\nA -->|" + label + "| B\nB -->|contains| C\nC -->|" + label + "| A\n"
 	got, key := publicationEdgeKey("deployment", graph)
-	if len(key) != 2 || key[0]["Description"] != label || key[1]["Description"] != label || key[1]["Number"] != "R2" {
+	if !edgeKeyHasDescriptions(key, label) {
 		t.Fatalf("lost descriptions: %#v", key)
 	}
-	if !strings.Contains(got, `N_TEXT["literal -->|this is a long embedded string rather than an edge|"]`) {
-		t.Fatal("rewrote node text")
-	}
-	for _, edge := range []string{"A --->|R1| B", "B -->|contains| C", "C --->|R2| A"} {
-		if !strings.Contains(got, edge) {
-			t.Fatal(got)
-		}
-	}
+	requireContains(t, got, docCheck{`N_TEXT["literal -->|this is a long embedded string rather than an edge|"]`, "rewrote node text"})
+	requireIn(t, got, got, "%[2]s", "A --->|R1| B", "B -->|contains| C", "C --->|R2| A")
 	unchanged, empty := publicationEdgeKey("architecture-intent", graph)
 	if unchanged != graph || len(empty) != 0 {
 		t.Fatal("changed unrelated view")
@@ -32,7 +35,10 @@ func TestPublicationEdgeKeyPreservesRelationships(t *testing.T) {
 func TestPublicationEdgeKeyAvoidsExistingLabel(t *testing.T) {
 	label := "long original relationship with <br/> explicit break"
 	graph, key := publicationEdgeKey("deployment", "A --->|R1| B\nB -->|"+label+"| C")
-	if len(key) != 1 || key[0]["Number"] != "R2" || key[0]["Description"] != label || !strings.Contains(graph, "B --->|R2| C") {
+	if len(key) != 1 || key[0]["Number"] != "R2" || key[0]["Description"] != label {
+		t.Fatalf("%s %#v", graph, key)
+	}
+	if !strings.Contains(graph, "B --->|R2| C") {
 		t.Fatalf("%s %#v", graph, key)
 	}
 }
