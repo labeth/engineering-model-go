@@ -390,13 +390,9 @@ func (ix *attackChapterIndex) indexMappings(mappings []model.Mapping) {
 		case "targets":
 			ix.indexTarget(from, to)
 		case "mitigated_by":
-			if strings.HasPrefix(from, "AV-") && to != "" {
-				ix.mitigationsByAttack[from] = append(ix.mitigationsByAttack[from], labelOrID(to, ix.scope.labels))
-			}
+			ix.mitigationsByAttack = appendLabeled(ix.mitigationsByAttack, "AV-", from, labelOrID(to, ix.scope.labels), to)
 		case "bounded_by":
-			if strings.HasPrefix(from, "FU-") && to != "" {
-				ix.boundariesByUnit[from] = append(ix.boundariesByUnit[from], labelOrID(to, ix.scope.labels))
-			}
+			ix.boundariesByUnit = appendLabeled(ix.boundariesByUnit, "FU-", from, labelOrID(to, ix.scope.labels), to)
 		}
 	}
 	for attackID, items := range ix.mitigationsByAttack {
@@ -405,6 +401,16 @@ func (ix *attackChapterIndex) indexMappings(mappings []model.Mapping) {
 	for unitID, items := range ix.boundariesByUnit {
 		ix.boundariesByUnit[unitID] = textutil.UniqueSorted(items)
 	}
+}
+
+// appendLabeled adds the label under the key when the key has the prefix and
+// the target is not blank.
+// TRLC-LINKS: REQ-EMG-003
+func appendLabeled(m map[string][]string, prefix, key, label, target string) map[string][]string {
+	if strings.HasPrefix(key, prefix) && target != "" {
+		m[key] = append(m[key], label)
+	}
+	return m
 }
 
 // indexTarget records that the attack vector targets a unit that is in scope
@@ -664,20 +670,24 @@ func controlVerificationRow(cv model.ControlVerification, labels map[string]stri
 func verificationsByScenario(a model.AuthoredArchitecture, inScope map[string]bool, labels map[string]string) map[string][]asciidocControlVerificationRow {
 	byScenario := map[string][]asciidocControlVerificationRow{}
 	for _, cv := range a.ControlVerifications {
-		if strings.TrimSpace(cv.ID) == "" {
-			continue
-		}
-		row := controlVerificationRow(cv, labels)
-		for _, scenarioID := range cv.ThreatScenarioRefs {
-			if scenarioID = strings.TrimSpace(scenarioID); inScope[scenarioID] {
-				byScenario[scenarioID] = append(byScenario[scenarioID], row)
-			}
+		if strings.TrimSpace(cv.ID) != "" {
+			addScenarioRow(byScenario, controlVerificationRow(cv, labels), cv.ThreatScenarioRefs, inScope)
 		}
 	}
 	for _, rows := range byScenario {
 		sort.SliceStable(rows, func(i, j int) bool { return rows[i].ID < rows[j].ID })
 	}
 	return byScenario
+}
+
+// addScenarioRow adds the row under each of the scenarios in scope.
+// TRLC-LINKS: REQ-EMG-003
+func addScenarioRow(byScenario map[string][]asciidocControlVerificationRow, row asciidocControlVerificationRow, scenarioIDs []string, inScope map[string]bool) {
+	for _, scenarioID := range scenarioIDs {
+		if scenarioID = strings.TrimSpace(scenarioID); inScope[scenarioID] {
+			byScenario[scenarioID] = append(byScenario[scenarioID], row)
+		}
+	}
 }
 
 // threatScenarioRow is the table row of a threat scenario.
@@ -968,47 +978,87 @@ func publicationViewHeading(kind, id string, sameKindCount int) string {
 	return heading
 }
 
-// functionalPublicationArchitecture scopes supporting functional diagrams to the
-// selected projection. Parent groups are retained without expanding their sibling
-// units. The complete authored architecture remains in the reference appendix.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func functionalPublicationArchitecture(a model.AuthoredArchitecture, selected map[string]bool) model.AuthoredArchitecture {
-	out := model.AuthoredArchitecture{}
-	include := map[string]bool{}
 	owners := interfaceOwners(a)
 	selected = withInterfaceOwners(selected, owners)
+	include := map[string]bool{}
 	for id, chosen := range selected {
 		if chosen {
 			include[id] = true
 		}
 	}
-	for _, unit := range a.FunctionalUnits {
-		if selected[unit.ID] {
-			out.FunctionalUnits = append(out.FunctionalUnits, unit)
-			if unit.Group != "" {
-				include[unit.Group] = true
-			}
+	out := model.AuthoredArchitecture{}
+	out.FunctionalUnits = selectedUnits(a.FunctionalUnits, selected, include)
+	out.FunctionalGroups = includedGroups(a.FunctionalGroups, include)
+	out.Actors = selectedActors(a.Actors, selected)
+	out.ReferencedElements = selectedReferences(a.ReferencedElements, selected)
+	out.Mappings = includedMappings(a.Mappings, owners, include)
+	return out
+}
+
+// selectedUnits lists the selected units and includes their groups.
+// TRLC-LINKS: REQ-EMG-003
+func selectedUnits(units []model.FunctionalUnit, selected, include map[string]bool) []model.FunctionalUnit {
+	var out []model.FunctionalUnit
+	for _, unit := range units {
+		if !selected[unit.ID] {
+			continue
+		}
+		out = append(out, unit)
+		if unit.Group != "" {
+			include[unit.Group] = true
 		}
 	}
-	for _, group := range a.FunctionalGroups {
+	return out
+}
+
+// includedGroups lists the groups in the include set.
+// TRLC-LINKS: REQ-EMG-003
+func includedGroups(groups []model.FunctionalGroup, include map[string]bool) []model.FunctionalGroup {
+	var out []model.FunctionalGroup
+	for _, group := range groups {
 		if include[group.ID] {
-			out.FunctionalGroups = append(out.FunctionalGroups, group)
+			out = append(out, group)
 		}
 	}
-	for _, actor := range a.Actors {
+	return out
+}
+
+// selectedActors lists the selected actors.
+// TRLC-LINKS: REQ-EMG-003
+func selectedActors(actors []model.Actor, selected map[string]bool) []model.Actor {
+	var out []model.Actor
+	for _, actor := range actors {
 		if selected[actor.ID] {
-			out.Actors = append(out.Actors, actor)
+			out = append(out, actor)
 		}
 	}
-	for _, ref := range a.ReferencedElements {
+	return out
+}
+
+// selectedReferences lists the selected referenced elements.
+// TRLC-LINKS: REQ-EMG-003
+func selectedReferences(refs []model.ReferencedElement, selected map[string]bool) []model.ReferencedElement {
+	var out []model.ReferencedElement
+	for _, ref := range refs {
 		if selected[ref.ID] {
-			out.ReferencedElements = append(out.ReferencedElements, ref)
+			out = append(out, ref)
 		}
 	}
-	for _, mapping := range a.Mappings {
+	return out
+}
+
+// includedMappings lists the mappings between included elements, with
+// interfaces replaced by their owners.
+// TRLC-LINKS: REQ-EMG-003
+func includedMappings(mappings []model.Mapping, owners map[string]string, include map[string]bool) []model.Mapping {
+	var out []model.Mapping
+	for _, mapping := range mappings {
 		mapping = throughOwners(mapping, owners)
 		if include[mapping.From] && include[mapping.To] {
-			out.Mappings = append(out.Mappings, mapping)
+			out = append(out, mapping)
 		}
 	}
 	return out

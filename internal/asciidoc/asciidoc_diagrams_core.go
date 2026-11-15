@@ -784,12 +784,12 @@ func runtimeNamesByOwner(runtime []codescan.RuntimeItem) map[string][]string {
 // file names but only the lines of the requirement.
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
 func codeByOwnerAndRequirement(code []codescan.CodeItem) map[string]map[string][]string {
-	rawByOwnerReq := map[string]map[string][]string{}
+	rawByOwnerReq := requirementCode{}
 	allRaw := []string{}
 	for _, c := range code {
 		owner, elem, ok := implementingCodeElement(c)
 		if ok {
-			allRaw = append(allRaw, addImplementingElement(rawByOwnerReq, owner, elem, c.Implements)...)
+			allRaw = append(allRaw, rawByOwnerReq.add(owner, elem, c.Implements)...)
 		}
 	}
 	globalLookup := codescan.EvidenceLabelLookup(allRaw)
@@ -800,16 +800,19 @@ func codeByOwnerAndRequirement(code []codescan.CodeItem) map[string]map[string][
 	return byOwnerReq
 }
 
-// addImplementingElement adds the element under each requirement it implements
-// and returns it once per requirement.
+// requirementCode lists code elements by owner and requirement.
+type requirementCode map[string]map[string][]string
+
+// add lists the element under each requirement it implements and returns it
+// once per requirement.
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
-func addImplementingElement(rawByOwnerReq map[string]map[string][]string, owner, elem string, implements []string) []string {
+func (r requirementCode) add(owner, elem string, implements []string) []string {
 	added := []string{}
 	for _, reqID := range textutil.UniqueSorted(implements) {
-		if rawByOwnerReq[owner] == nil {
-			rawByOwnerReq[owner] = map[string][]string{}
+		if r[owner] == nil {
+			r[owner] = map[string][]string{}
 		}
-		rawByOwnerReq[owner][reqID] = append(rawByOwnerReq[owner][reqID], elem)
+		r[owner][reqID] = append(r[owner][reqID], elem)
 		added = append(added, elem)
 	}
 	return added

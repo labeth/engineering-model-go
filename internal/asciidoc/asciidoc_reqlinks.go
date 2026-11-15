@@ -62,6 +62,13 @@ func realizerTraceLabel(s *trace.DelegatedStatus) string {
 	if s.Status == "unknown-requirement" {
 		return "unknown requirement"
 	}
+	return implementationLabel(s)
+}
+
+// implementationLabel describes whether a realizing requirement is implemented
+// and linked to a test.
+// TRLC-LINKS: REQ-EMG-107
+func implementationLabel(s *trace.DelegatedStatus) string {
 	switch {
 	case s.Implemented && s.TestLinked:
 		return "implemented, test linked"
