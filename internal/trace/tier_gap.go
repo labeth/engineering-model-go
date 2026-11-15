@@ -9,7 +9,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/validate"
@@ -63,90 +62,128 @@ type TierGapDependency struct {
 // tierDecision mismatch the in-memory tier causes is not reported.
 // TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
-func TierGapFromFiles(modelPath, requirementsPath, codeRoot, target string, options Options) (TierGapReport, error) {
+func TierGapFromFiles(req FileRequest, target string, options Options) (TierGapReport, error) {
 	rank := model.TierRank(target)
 	if rank == 0 {
 		return TierGapReport{}, fmt.Errorf("unknown target tier %q: want one of %s", target, strings.Join(model.Tiers, ", "))
 	}
-	bundle, err := codescan.LoadBundle(modelPath)
+	bundle, err := loadRequestBundle(req)
 	if err != nil {
 		return TierGapReport{}, err
 	}
-	requirements, err := model.LoadRequirements(requirementsPath)
-	if err != nil {
-		return TierGapReport{}, err
-	}
-	bundle.Requirements = requirements
 	report := TierGapReport{TargetTier: model.Tiers[rank-1], ByCode: map[string]int{}, Blocking: []TierGapFinding{},
 		AviationBelowFloor: []validate.AviationFloorGap{}, Dependencies: []TierGapDependency{}}
-	current, _, _ := validate.EffectiveTier(bundle)
-	report.CurrentTier = current
+	report.CurrentTier, _, _ = validate.EffectiveTier(bundle)
 
 	var composed composition.CompositionResult
 	options.Composed = &composed
-	_, now, err := buildFromBundle(bundle, modelPath, codeRoot, options)
+	now, err := diagnosticsAt(bundle, req, options)
 	if err != nil {
 		return report, err
 	}
-	now = append(now, validate.ApplyTierPolicy(bundle, validate.Bundle(bundle))...)
+	targeted, lifecycle := withTier(bundle, report.TargetTier)
+	options.Composition, options.Composed = nil, nil
+	then, err := diagnosticsAt(targeted, req, options)
+	if err != nil {
+		return report, err
+	}
+	report.addBlocking(now, then)
+	if bundle.Aviation != nil && lifecycle.HasBundle(model.BundleSafety) {
+		report.AviationBelowFloor = append(report.AviationBelowFloor, validate.AviationFloorGaps(bundle.Aviation.Aviation, rank)...)
+	}
+	report.addDependenciesBelow(composed, rank)
+	return report, nil
+}
 
+// diagnosticsAt is every diagnostic of the bundle at its own tier: the trace
+// diagnostics and the validation diagnostics under the tier policy.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
+func diagnosticsAt(bundle model.Bundle, req FileRequest, options Options) ([]validate.Diagnostic, error) {
+	_, diags, err := buildFromBundle(bundle, req, options)
+	if err != nil {
+		return nil, err
+	}
+	return append(diags, validate.ApplyTierPolicy(bundle, validate.Bundle(bundle))...), nil
+}
+
+// withTier is a copy of the bundle whose lifecycle tier is set in memory, and
+// that lifecycle.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
+func withTier(bundle model.Bundle, tier string) (model.Bundle, model.ManifestLifecycle) {
 	targeted := bundle
 	lifecycle := model.ManifestLifecycle{}
 	if bundle.Manifest.Lifecycle != nil {
 		lifecycle = *bundle.Manifest.Lifecycle
 	}
-	lifecycle.Tier = report.TargetTier
+	lifecycle.Tier = tier
 	targeted.Manifest.Lifecycle = &lifecycle
-	at := options
-	at.Composition, at.Composed = nil, nil
-	_, then, err := buildFromBundle(targeted, modelPath, codeRoot, at)
-	if err != nil {
-		return report, err
-	}
-	then = append(then, validate.ApplyTierPolicy(targeted, validate.Bundle(targeted))...)
+	return targeted, lifecycle
+}
 
-	type key struct{ code, path, message string }
-	before := map[key]validate.Diagnostic{}
+// diagnosticKey identifies a diagnostic across the two tiers.
+type diagnosticKey struct{ code, path, message string }
+
+// addBlocking adds the findings that are errors at the target tier (then) but
+// not at the current one (now), with the counts by code.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
+func (r *TierGapReport) addBlocking(now, then []validate.Diagnostic) {
+	before := map[diagnosticKey]validate.Diagnostic{}
 	for _, d := range now {
-		before[key{d.Code, d.Path, d.Message}] = d
+		before[diagnosticKey{d.Code, d.Path, d.Message}] = d
 	}
-	seen := map[key]bool{}
+	seen := map[diagnosticKey]bool{}
 	for _, d := range then {
-		k := key{d.Code, d.Path, d.Message}
-		if d.Severity != validate.SeverityError || seen[k] || d.Code == "lifecycle.tier_decision_mismatch" {
+		k := diagnosticKey{d.Code, d.Path, d.Message}
+		prior, existed := before[k]
+		if seen[k] || !blocksAtTarget(d, prior, existed) {
 			continue
 		}
 		seen[k] = true
-		prior, existed := before[k]
-		if existed && prior.Severity == validate.SeverityError {
-			continue
-		}
 		severity := "absent"
 		if existed {
 			severity = string(prior.Severity)
 		}
-		report.Blocking = append(report.Blocking, TierGapFinding{Code: d.Code, RequiredFrom: d.RequiredFrom, SeverityNow: severity,
+		r.Blocking = append(r.Blocking, TierGapFinding{Code: d.Code, RequiredFrom: d.RequiredFrom, SeverityNow: severity,
 			Deferred: prior.Deferred, PoamRef: prior.PoamRef, Path: d.Path, Message: d.Message})
-		report.ByCode[d.Code]++
+		r.ByCode[d.Code]++
 	}
-	sort.SliceStable(report.Blocking, func(i, j int) bool {
-		if report.Blocking[i].Code != report.Blocking[j].Code {
-			return report.Blocking[i].Code < report.Blocking[j].Code
+	sort.SliceStable(r.Blocking, func(i, j int) bool {
+		if r.Blocking[i].Code != r.Blocking[j].Code {
+			return r.Blocking[i].Code < r.Blocking[j].Code
 		}
-		return report.Blocking[i].Path < report.Blocking[j].Path
+		return r.Blocking[i].Path < r.Blocking[j].Path
 	})
-	if bundle.Aviation != nil && lifecycle.HasBundle(model.BundleSafety) {
-		report.AviationBelowFloor = append(report.AviationBelowFloor, validate.AviationFloorGaps(bundle.Aviation.Aviation, rank)...)
+}
+
+// blocksAtTarget reports whether a diagnostic at the target tier is a new
+// error: an error that was not one already (prior, when existed). A
+// tierDecision mismatch the in-memory tier causes is not one.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
+func blocksAtTarget(d, prior validate.Diagnostic, existed bool) bool {
+	if d.Severity != validate.SeverityError || d.Code == "lifecycle.tier_decision_mismatch" {
+		return false
 	}
-	if composed.Root != nil {
-		for _, child := range composed.Root.Children {
-			tier, childRank, ok := validate.EffectiveTier(child.Bundle)
-			if ok && childRank >= rank {
-				continue
-			}
-			report.Dependencies = append(report.Dependencies, TierGapDependency{Alias: child.Dependency, Subsystem: child.SubsystemID,
-				Module: child.ModulePath, Version: child.Version, Tier: tier, Required: report.TargetTier})
+	return !existed || prior.Severity != validate.SeverityError
+}
+
+// addDependenciesBelow lists the composed dependencies whose tier is below
+// the target rank or unset.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
+func (r *TierGapReport) addDependenciesBelow(composed composition.CompositionResult, rank int) {
+	if composed.Root == nil {
+		return
+	}
+	for _, child := range composed.Root.Children {
+		tier, childRank, ok := validate.EffectiveTier(child.Bundle)
+		if ok && childRank >= rank {
+			continue
 		}
+		r.Dependencies = append(r.Dependencies, TierGapDependency{Alias: child.Dependency, Subsystem: child.SubsystemID,
+			Module: child.ModulePath, Version: child.Version, Tier: tier, Required: r.TargetTier})
 	}
-	return report, nil
 }

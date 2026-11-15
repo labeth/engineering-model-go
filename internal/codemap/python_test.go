@@ -2,8 +2,7 @@
 package codemap
 
 import (
-	"os"
-	"path/filepath"
+	"slices"
 	"testing"
 )
 
@@ -35,29 +34,14 @@ def fake(): pass
 # TRLC-LINKS: REQ-PY-005
 def final(): pass
 `
-	root := t.TempDir()
-	path := filepath.Join(root, "source.py")
-	if err := os.WriteFile(path, []byte(source), 0600); err != nil {
-		t.Fatal(err)
-	}
-	symbols, diags, err := Scan(path)
-	if err != nil || len(diags) != 0 {
-		t.Fatalf("scan: %v %+v", err, diags)
-	}
-	want := map[string]int{"CODE-SOURCE-PY--OUTER": 6, "CODE-SOURCE-PY--OUTERINNER": 8, "CODE-SOURCE-PY--READER": 12, "CODE-SOURCE-PY--READERVALUE": 15, "CODE-SOURCE-PY--OTHERVALUE": 19, "CODE-SOURCE-PY--FINAL": 25}
-	if len(symbols) != len(want) {
-		t.Fatalf("symbols: %+v", symbols)
-	}
+	symbols, diags := scanRoot(t, writeSource(t, "source.py", source))
+	requireNoDiags(t, diags)
+	got := map[string]int{}
 	for _, symbol := range symbols {
-		if want[symbol.TraceID] != symbol.Line {
-			t.Fatalf("wrong declaration: %+v", symbol)
-		}
-		for _, req := range symbol.Implements {
-			if req == "REQ-FAKE-999" {
-				t.Fatalf("string created trace: %+v", symbol)
-			}
-		}
+		got[symbol.TraceID] = symbol.Line
 	}
+	requireEqual(t, got, map[string]int{"CODE-SOURCE-PY--OUTER": 6, "CODE-SOURCE-PY--OUTERINNER": 8, "CODE-SOURCE-PY--READER": 12, "CODE-SOURCE-PY--READERVALUE": 15, "CODE-SOURCE-PY--OTHERVALUE": 19, "CODE-SOURCE-PY--FINAL": 25})
+	requireEqual(t, slices.Contains(implementedBy(symbols), "REQ-FAKE-999"), false)
 }
 
 // TRLC-LINKS: REQ-EMG-010
@@ -68,20 +52,8 @@ func TestPythonMissingLinksAndSyntaxErrors(t *testing.T) {
 		{"nested", "# TRLC-LINKS: REQ-PY-001\ndef outer():\n    def inner(): pass\n", "code.missing_trlc_link"},
 	} {
 		t.Run(sample.name, func(t *testing.T) {
-			path := filepath.Join(t.TempDir(), "source.py")
-			if err := os.WriteFile(path, []byte(sample.source), 0600); err != nil {
-				t.Fatal(err)
-			}
-			_, diags, err := Scan(path)
-			if err != nil {
-				t.Fatal(err)
-			}
-			for _, d := range diags {
-				if d.Code == sample.code && string(d.Severity) == "error" {
-					return
-				}
-			}
-			t.Fatalf("missing %s: %+v", sample.code, diags)
+			_, diags := scanRoot(t, writeSource(t, "source.py", sample.source))
+			requireErrorDiag(t, diags, sample.code)
 		})
 	}
 }

@@ -10,6 +10,7 @@ package codemap
 import (
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -25,14 +26,12 @@ import (
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
 func markTestContext(relPath string, decls []declaration) []declaration {
 	ext := strings.ToLower(filepath.Ext(relPath))
-	inTestsDir := false
-	for _, part := range strings.Split(filepath.ToSlash(relPath), "/") {
-		if strings.EqualFold(part, "tests") {
-			inTestsDir = true
-		}
-	}
+	inTestsDir := slices.ContainsFunc(strings.Split(filepath.ToSlash(relPath), "/"), func(part string) bool {
+		return strings.EqualFold(part, "tests")
+	})
+	testsOnly := (ext == ".rs" || ext == ".py") && inTestsDir
 	for i := range decls {
-		if (ext == ".rs" || ext == ".py") && inTestsDir {
+		if testsOnly {
 			decls[i].TestOnly = true
 		}
 		if decls[i].TestOnly && !decls[i].IsTest {
@@ -86,6 +85,13 @@ func pythonTestFunction(n *sitter.Node, src []byte) bool {
 	if name == nil || !strings.HasPrefix(name.Utf8Text(src), "test") {
 		return false
 	}
+	return pythonCollectedScope(n)
+}
+
+// pythonCollectedScope reports whether a function sits at module level or
+// directly in a class, where pytest and unittest collect it.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
+func pythonCollectedScope(n *sitter.Node) bool {
 	parent := n.Parent()
 	if parent != nil && parent.Kind() == "decorated_definition" {
 		parent = parent.Parent()
@@ -138,24 +144,34 @@ func rustBenchFunction(n *sitter.Node, src []byte) bool {
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
 func rustInTestScope(n *sitter.Node, src []byte) bool {
 	for cur := n; cur != nil; cur = cur.Parent() {
-		if strings.HasSuffix(cur.Kind(), "_item") && cur.Kind() != "attribute_item" {
-			for _, attr := range rustOuterAttributes(cur) {
-				if rustCfgTest(attr, src) {
-					return true
-				}
-			}
-		}
-		if cur.Kind() == "source_file" || cur.Kind() == "declaration_list" {
-			count := cur.NamedChildCount()
-			for i := uint(0); i < count; i++ {
-				child := cur.NamedChild(i)
-				if child != nil && child.Kind() == "inner_attribute_item" && rustCfgTest(child, src) {
-					return true
-				}
-			}
+		if rustItemCfgTest(cur, src) || rustScopeCfgTest(cur, src) {
+			return true
 		}
 	}
 	return false
+}
+
+// rustItemCfgTest reports whether an item carries an outer `#[cfg(test)]`.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
+func rustItemCfgTest(item *sitter.Node, src []byte) bool {
+	if !strings.HasSuffix(item.Kind(), "_item") || item.Kind() == "attribute_item" {
+		return false
+	}
+	return slices.ContainsFunc(rustOuterAttributes(item), func(attr *sitter.Node) bool {
+		return rustCfgTest(attr, src)
+	})
+}
+
+// rustScopeCfgTest reports whether a file or module body carries an inner
+// `#![cfg(test)]`.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
+func rustScopeCfgTest(scope *sitter.Node, src []byte) bool {
+	if scope.Kind() != "source_file" && scope.Kind() != "declaration_list" {
+		return false
+	}
+	return slices.ContainsFunc(namedChildren(scope), func(child *sitter.Node) bool {
+		return child.Kind() == "inner_attribute_item" && rustCfgTest(child, src)
+	})
 }
 
 // rustOuterAttributes returns the attribute_item siblings directly preceding an item,
@@ -196,19 +212,21 @@ func rustCfgTest(item *sitter.Node, src []byte) bool {
 	if args == nil {
 		return false
 	}
-	text := strings.Join(strings.Fields(args.Utf8Text(src)), "")
+	return cfgArgumentsTest(strings.Join(strings.Fields(args.Utf8Text(src)), ""))
+}
+
+// cfgArgumentsTest reports whether the white-space-free arguments of a cfg
+// attribute are `(test)` or `(all(..))` naming test.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
+func cfgArgumentsTest(text string) bool {
 	if text == "(test)" {
 		return true
 	}
 	if !strings.HasPrefix(text, "(all(") {
 		return false
 	}
-	for _, part := range strings.FieldsFunc(strings.TrimSuffix(strings.TrimPrefix(text, "(all("), "))"), func(r rune) bool { return r == ',' }) {
-		if part == "test" {
-			return true
-		}
-	}
-	return false
+	parts := strings.FieldsFunc(strings.TrimSuffix(strings.TrimPrefix(text, "(all("), "))"), func(r rune) bool { return r == ',' })
+	return slices.Contains(parts, "test")
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-061
@@ -254,47 +272,77 @@ func goTestGates(n *sitter.Node, src []byte) []string {
 		list = body.NamedChild(0)
 	}
 	var gates []string
-	count := list.NamedChildCount()
-	statements := 0
-	for i := uint(0); i < count && statements < goTestGateStatements; i++ {
-		stmt := list.NamedChild(i)
-		if stmt == nil || strings.Contains(stmt.Kind(), "comment") {
-			continue
+	for _, stmt := range leadingStatements(list, goTestGateStatements) {
+		for _, gate := range skipGates(stmt, src) {
+			gates = appendGate(gates, gate)
 		}
-		statements++
-		if stmt.Kind() != "if_statement" {
-			continue
+	}
+	return gates
+}
+
+// leadingStatements returns the first limit statements of a statement list,
+// not counting comments.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+func leadingStatements(list *sitter.Node, limit int) []*sitter.Node {
+	var out []*sitter.Node
+	for _, stmt := range namedChildren(list) {
+		if len(out) >= limit {
+			break
 		}
-		consequence := stmt.ChildByFieldName("consequence")
-		if consequence == nil || !goTestSkipRe.MatchString(consequence.Utf8Text(src)) {
-			continue
+		if !strings.Contains(stmt.Kind(), "comment") {
+			out = append(out, stmt)
 		}
-		cond := ""
-		for _, field := range []string{"initializer", "condition"} {
-			if part := stmt.ChildByFieldName(field); part != nil {
-				cond += part.Utf8Text(src) + "\n"
-			}
+	}
+	return out
+}
+
+// skipGates returns the gates of an if statement whose consequence calls
+// Skip: the environment variables and testing.Short its initializer or
+// condition reads.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+func skipGates(stmt *sitter.Node, src []byte) []string {
+	if stmt.Kind() != "if_statement" {
+		return nil
+	}
+	consequence := stmt.ChildByFieldName("consequence")
+	if consequence == nil || !goTestSkipRe.MatchString(consequence.Utf8Text(src)) {
+		return nil
+	}
+	cond := ""
+	for _, field := range []string{"initializer", "condition"} {
+		if part := stmt.ChildByFieldName(field); part != nil {
+			cond += part.Utf8Text(src) + "\n"
 		}
-		for _, m := range goEnvReadRe.FindAllStringSubmatch(cond, -1) {
-			name := m[1]
-			if lit := goStringLitRe.FindStringSubmatch(name); lit != nil {
-				name = lit[1] + lit[2]
-			}
-			gates = appendGate(gates, name)
+	}
+	gates := envGates(cond)
+	if goShortRe.MatchString(cond) {
+		gates = append(gates, "testing.Short")
+	}
+	return gates
+}
+
+// envGates returns the variable names an if condition reads with os.Getenv or
+// os.LookupEnv: the argument text when it is not a string literal.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+func envGates(cond string) []string {
+	var gates []string
+	for _, m := range goEnvReadRe.FindAllStringSubmatch(cond, -1) {
+		name := m[1]
+		if lit := goStringLitRe.FindStringSubmatch(name); lit != nil {
+			name = lit[1] + lit[2]
 		}
-		if goShortRe.MatchString(cond) {
-			gates = appendGate(gates, "testing.Short")
-		}
+		gates = append(gates, name)
 	}
 	return gates
 }
 
 // TRLC-LINKS: REQ-EMG-088
 func appendGate(gates []string, gate string) []string {
-	for _, g := range gates {
-		if g == gate {
-			return gates
-		}
+	if slices.Contains(gates, gate) {
+		return gates
 	}
 	return append(gates, gate)
 }

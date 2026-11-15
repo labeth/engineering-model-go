@@ -69,51 +69,64 @@ func isMarkdownFile(path string) bool {
 // drops lines.
 // TRLC-LINKS: REQ-EMG-084
 func artifactComments(path string, src []byte) map[int]string {
-	out := map[int]string{}
-	markdown := isMarkdownFile(path)
-	inComment := false
-	var fence markdownFence
+	reader := commentReader{out: map[int]string{}, markdown: isMarkdownFile(path)}
 	for i, raw := range bytes.Split(src, []byte("\n")) {
-		lineNo := i + 1
-		text := strings.TrimSuffix(string(raw), "\r")
-		line := strings.TrimSpace(text)
-		if !markdown {
-			if comment, ok := strings.CutPrefix(line, "#"); ok {
-				out[lineNo] = strings.TrimSpace(comment)
-			}
-			continue
-		}
-		if inComment {
-			body, closed := strings.CutSuffix(line, "-->")
-			if !closed {
-				body, _, closed = strings.Cut(line, "-->")
-			}
-			out[lineNo] = strings.TrimSpace(body)
-			inComment = !closed
-			continue
-		}
-		if fence.char != 0 {
-			if fence.closedBy(text) {
-				fence = markdownFence{}
-			}
-			continue
-		}
-		if f, ok := openMarkdownFence(text); ok {
-			fence = f
-			continue
-		}
-		// A line indented four or more columns is an indented code block or
-		// a nested list continuation; neither starts a comment.
-		if markdownIndent(text) >= 4 {
-			continue
-		}
-		if body, ok := strings.CutPrefix(line, "<!--"); ok {
-			comment, _, closed := strings.Cut(body, "-->")
-			out[lineNo] = strings.TrimSpace(comment)
-			inComment = !closed
-		}
+		reader.readLine(i+1, strings.TrimSuffix(string(raw), "\r"))
 	}
-	return out
+	return reader.out
+}
+
+// commentReader reads the comments of an artifact line by line.
+type commentReader struct {
+	out       map[int]string
+	markdown  bool
+	inComment bool
+	fence     markdownFence
+}
+
+// readLine reads one line, without its line break.
+// TRLC-LINKS: REQ-EMG-084
+func (r *commentReader) readLine(lineNo int, text string) {
+	line := strings.TrimSpace(text)
+	switch {
+	case !r.markdown:
+		if comment, ok := strings.CutPrefix(line, "#"); ok {
+			r.out[lineNo] = strings.TrimSpace(comment)
+		}
+	case r.inComment:
+		body, closed := strings.CutSuffix(line, "-->")
+		if !closed {
+			body, _, closed = strings.Cut(line, "-->")
+		}
+		r.out[lineNo] = strings.TrimSpace(body)
+		r.inComment = !closed
+	case r.fence.char != 0:
+		if r.fence.closedBy(text) {
+			r.fence = markdownFence{}
+		}
+	default:
+		r.readMarkdownLine(lineNo, text)
+	}
+}
+
+// readMarkdownLine reads a Markdown line outside a comment and a fence: a
+// fence opening, an indented line, or the start of an HTML comment.
+// TRLC-LINKS: REQ-EMG-084
+func (r *commentReader) readMarkdownLine(lineNo int, text string) {
+	if f, ok := openMarkdownFence(text); ok {
+		r.fence = f
+		return
+	}
+	// A line indented four or more columns is an indented code block or
+	// a nested list continuation; neither starts a comment.
+	if markdownIndent(text) >= 4 {
+		return
+	}
+	if body, ok := strings.CutPrefix(strings.TrimSpace(text), "<!--"); ok {
+		comment, _, closed := strings.Cut(body, "-->")
+		r.out[lineNo] = strings.TrimSpace(comment)
+		r.inComment = !closed
+	}
 }
 
 // markdownFence is an open CommonMark fenced code block: its fence character
@@ -132,14 +145,21 @@ func openMarkdownFence(line string) (markdownFence, bool) {
 		return markdownFence{}, false
 	}
 	t := strings.TrimLeft(line, " ")
-	if t == "" || (t[0] != '`' && t[0] != '~') {
+	if t == "" || !strings.ContainsRune("`~", rune(t[0])) {
 		return markdownFence{}, false
 	}
 	n := len(t) - len(strings.TrimLeft(t, t[:1]))
-	if n < 3 || (t[0] == '`' && strings.Contains(t[n:], "`")) {
+	if n < 3 || backtickInInfo(t, n) {
 		return markdownFence{}, false
 	}
 	return markdownFence{char: t[0], n: n}, true
+}
+
+// backtickInInfo reports whether a backtick fence of n characters has a
+// backtick in its info string, which a fence opening may not.
+// TRLC-LINKS: REQ-EMG-084
+func backtickInInfo(t string, n int) bool {
+	return t[0] == '`' && strings.Contains(t[n:], "`")
 }
 
 // closedBy reports whether a line closes the fence: at most three spaces of
@@ -197,10 +217,8 @@ func ArtifactMarkers(path string, src []byte) (owner string, ownerLine, linksLin
 // TRLC-LINKS: REQ-EMG-084
 func artifactMarker(comments map[int]string, marker string) (string, int) {
 	for _, lineNo := range sortedLines(comments) {
-		if v, ok := strings.CutPrefix(comments[lineNo], marker); ok {
-			if fields := strings.Fields(v); len(fields) > 0 {
-				return fields[0], lineNo
-			}
+		if v, ok := strings.CutPrefix(comments[lineNo], marker); ok && len(strings.Fields(v)) > 0 {
+			return strings.Fields(v)[0], lineNo
 		}
 	}
 	return "", 0
@@ -223,38 +241,59 @@ func sortedLines(comments map[int]string) []int {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
 func scanArtifact(relPath, idPath string, src []byte) ([]Symbol, []validate.Diagnostic) {
 	comments := artifactComments(relPath, src)
-	var implements, modelLinks []string
-	var diags []validate.Diagnostic
-	first := 0
+	var links artifactLinks
 	for _, lineNo := range sortedLines(comments) {
-		text := comments[lineNo]
-		if v, ok := strings.CutPrefix(text, "TRLC-LINKS:"); ok {
-			links := splitCSV(v)
-			implements = append(implements, links...)
-			for _, link := range links {
-				if !validRequirementID(link) {
-					diags = append(diags, validate.Diagnostic{Code: "code.invalid_trlc_link", Severity: validate.SeverityError,
-						Message: fmt.Sprintf("TRLC-LINKS value %q is not a requirement id", link), Path: fmt.Sprintf("%s:%d", relPath, lineNo)})
-				}
-			}
-		} else if v, ok := strings.CutPrefix(text, "ENGMODEL-LINKS:"); ok {
-			modelLinks = append(modelLinks, splitCSV(v)...)
-		} else {
-			continue
-		}
-		if first == 0 {
-			first = lineNo
-		}
+		links.note(relPath, lineNo, comments[lineNo])
 	}
-	if first == 0 {
-		return nil, diags
+	if links.first == 0 {
+		return nil, links.diags
 	}
 	return []Symbol{{
 		TraceID:    FileID(idPath),
-		Implements: implements,
-		ModelLinks: modelLinks,
+		Implements: links.implements,
+		ModelLinks: links.modelLinks,
 		Path:       relPath,
-		Line:       first,
+		Line:       links.first,
 		Signature:  filepath.Base(relPath),
-	}}, diags
+	}}, links.diags
+}
+
+// artifactLinks collects the TRLC-LINKS and ENGMODEL-LINKS values of an
+// artifact's comments and the line of the first.
+type artifactLinks struct {
+	implements []string
+	modelLinks []string
+	diags      []validate.Diagnostic
+	first      int
+}
+
+// note reads one comment line.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+func (a *artifactLinks) note(relPath string, lineNo int, text string) {
+	if v, ok := strings.CutPrefix(text, "TRLC-LINKS:"); ok {
+		a.noteRequirements(relPath, lineNo, v)
+	} else if v, ok := strings.CutPrefix(text, "ENGMODEL-LINKS:"); ok {
+		a.modelLinks = append(a.modelLinks, splitCSV(v)...)
+	} else {
+		return
+	}
+	if a.first == 0 {
+		a.first = lineNo
+	}
+}
+
+// noteRequirements collects the requirement ids of a TRLC-LINKS value and
+// reports each that is not one.
+// TRLC-LINKS: REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE
+func (a *artifactLinks) noteRequirements(relPath string, lineNo int, value string) {
+	links := splitCSV(value)
+	a.implements = append(a.implements, links...)
+	for _, link := range links {
+		if !validRequirementID(link) {
+			a.diags = append(a.diags, validate.Diagnostic{Code: "code.invalid_trlc_link", Severity: validate.SeverityError,
+				Message: fmt.Sprintf("TRLC-LINKS value %q is not a requirement id", link), Path: fmt.Sprintf("%s:%d", relPath, lineNo)})
+		}
+	}
 }

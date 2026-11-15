@@ -25,8 +25,8 @@ func TestCompositionProjectionQualifiesCollidingPublishedIDsWithoutMutatingSourc
 		{Dependency: "right", Publication: "public", ModulePath: right.Manifest.Module.Path, Version: right.Manifest.Module.Version, Bundle: right, PublishedFacet: map[string]string{"FU-SHARED": "architecture"}},
 	}}}
 	result.Provenance = append(
-		publicationProvenance("left", model.ManifestDependency{Alias: "left", Path: left.Manifest.Module.Path, Version: left.Manifest.Module.Version}, result.Root.Children[0], left.Manifest.Publications[0], ""),
-		publicationProvenance("right", model.ManifestDependency{Alias: "right", Path: right.Manifest.Module.Path, Version: right.Manifest.Module.Version}, result.Root.Children[1], right.Manifest.Publications[0], "")...,
+		provenanceOf("left", left, result.Root.Children[0]),
+		provenanceOf("right", right, result.Root.Children[1])...,
 	)
 
 	projection := BuildCompositionProjection(result)
@@ -67,4 +67,11 @@ func TestCompositionProjectionImportsAssumptionsOfUse(t *testing.T) {
 	if len(got) != 1 || got[0].ID != "child::AOU-BUS" || got[0].Text != "Lab bus only." {
 		t.Fatalf("imported assumptions = %+v", got)
 	}
+}
+
+// provenanceOf is the provenance of what the child publishes through the
+// first publication of its bundle.
+func provenanceOf(alias string, bundle model.Bundle, child *ComposedSystem) []ImportedEntityProvenance {
+	dependency := model.ManifestDependency{Alias: alias, Path: bundle.Manifest.Module.Path, Version: bundle.Manifest.Module.Version}
+	return publicationProvenance(alias, resolvedDependency{dependency: dependency}, publishedChild{child: child, publication: bundle.Manifest.Publications[0]})
 }

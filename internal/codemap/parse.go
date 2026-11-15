@@ -101,6 +101,22 @@ func ParseSource(language string, src []byte, fn func(root *sitter.Node, languag
 	if err := parser.SetLanguage(grammar); err != nil {
 		return fmt.Errorf("set parser language %s: %w", language, err)
 	}
+	tree, err := parseWithinTimeout(parser, src, language)
+	if err != nil {
+		return err
+	}
+	defer tree.Close()
+	root := tree.RootNode()
+	if root == nil {
+		return fmt.Errorf("parse %s: tree-sitter produced no syntax tree", language)
+	}
+	return fn(root, language)
+}
+
+// parseWithinTimeout parses src and fails when the parse is cancelled by
+// ParseTimeout or produces no tree.
+// TRLC-LINKS: REQ-EMG-150
+func parseWithinTimeout(parser *sitter.Parser, src []byte, language string) (*sitter.Tree, error) {
 	deadline := time.Now().Add(ParseTimeout)
 	timedOut := false
 	tree := parser.ParseWithOptions(func(offset int, _ sitter.Point) []byte {
@@ -113,17 +129,12 @@ func ParseSource(language string, src []byte, fn func(root *sitter.Node, languag
 		return timedOut
 	}})
 	if tree == nil && timedOut {
-		return fmt.Errorf("parse %s: cancelled after %s", language, ParseTimeout)
+		return nil, fmt.Errorf("parse %s: cancelled after %s", language, ParseTimeout)
 	}
 	if tree == nil {
-		return fmt.Errorf("parse %s: tree-sitter produced no syntax tree", language)
+		return nil, fmt.Errorf("parse %s: tree-sitter produced no syntax tree", language)
 	}
-	defer tree.Close()
-	root := tree.RootNode()
-	if root == nil {
-		return fmt.Errorf("parse %s: tree-sitter produced no syntax tree", language)
-	}
-	return fn(root, language)
+	return tree, nil
 }
 
 // IsGoTestFile reports whether path is a Go _test.go file.

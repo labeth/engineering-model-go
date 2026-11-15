@@ -78,40 +78,33 @@ func TestLinkDiagnostics(t *testing.T) {
 	for _, d := range LinkDiagnostics(system, deps) {
 		codes[d.Code] += string(d.Severity) + "|" + d.Message + "\n"
 	}
-	if strings.Contains(codes["link.broken"]+codes["link.child_unpublished"], "LNK-SAME-PIN") || codes["link.suspect"] != "" {
-		t.Fatalf("a link at its pin was compared with content: %v", codes)
-	}
-	if !strings.Contains(codes["link.broken"], "error|") || !strings.Contains(codes["link.broken"], "LNK-BROKEN") {
-		t.Fatalf("link.broken = %q", codes["link.broken"])
-	}
-	if !strings.Contains(codes["link.child_unpublished"], "LNK-IF") {
-		t.Fatalf("link.child_unpublished = %q", codes["link.child_unpublished"])
-	}
-	if !strings.Contains(codes["link.aou_unverified"], "error|") || !strings.Contains(codes["link.aou_unverified"], "dep::AOU-A") {
-		t.Fatalf("strict link.aou_unverified = %q", codes["link.aou_unverified"])
-	}
+	requireEqual(t, codes["link.broken"]+codes["link.child_unpublished"]+codes["link.suspect"], codes["link.broken"]+codes["link.child_unpublished"])
+	requireEqual(t, strings.Contains(codes["link.broken"]+codes["link.child_unpublished"], "LNK-SAME-PIN"), false) // a link at its pin is not compared with content
+	requireEqual(t, strings.HasPrefix(codes["link.broken"], "error|") && strings.Contains(codes["link.broken"], "LNK-BROKEN"), true)
+	requireEqual(t, strings.Contains(codes["link.child_unpublished"], "LNK-IF"), true)
+	requireEqual(t, strings.HasPrefix(codes["link.aou_unverified"], "error|") && strings.Contains(codes["link.aou_unverified"], "dep::AOU-A"), true)
 
 	local := dependency(child)
 	local.Local = true
-	if d := LinkDiagnostics(system, []reqlinks.Dependency{local}); len(d) != 0 {
-		t.Fatalf("a workspace replacement raised link findings: %+v", d)
-	}
+	requireEqual(t, len(LinkDiagnostics(system, []reqlinks.Dependency{local})), 0) // a workspace replacement raises no link findings
+	checkGuidedLinks(t, deps)
+}
 
+// checkGuidedLinks checks the link.aou_unverified rule in a guided model: an
+// evidenced assumption raises nothing, one without evidence is a warning, and
+// a model without links or contract is quiet.
+func checkGuidedLinks(t *testing.T, deps []reqlinks.Dependency) {
 	evidenced := systemWith(model.ReqLink{ID: "LNK-AOU", Child: "dep::AOU-A", Evidence: []string{"REQ-SYS-1"}, Status: "accepted",
 		Pinned: model.ReqLinkPin{Version: "v0.1.0"}})
-	if d := LinkDiagnostics(evidenced, deps); len(d) != 0 {
-		t.Fatalf("evidenced assumption: %+v", d)
-	}
+	requireEqual(t, len(LinkDiagnostics(evidenced, deps)), 0)
 	noEvidence := evidenced
 	noEvidence.ReqLinks.ReqLinks = []model.ReqLink{evidenced.ReqLinks.ReqLinks[0]}
 	noEvidence.ReqLinks.ReqLinks[0].Evidence = nil
 	noEvidence.ReqLinks.ReqLinks[0].Parent = "REQ-SYS-1"
-	if d := LinkDiagnostics(noEvidence, deps); len(d) != 1 || d[0].Code != "link.aou_unverified" || d[0].Severity != "warning" {
-		t.Fatalf("guided link without evidence: %+v", d)
-	}
-	if d := LinkDiagnostics(systemWith(), deps); len(d) != 0 {
-		t.Fatalf("guided model without links or contract: %+v", d)
-	}
+	got := LinkDiagnostics(noEvidence, deps)
+	requireEqual(t, len(got), 1)
+	requireEqual(t, []string{got[0].Code, string(got[0].Severity)}, []string{"link.aou_unverified", "warning"})
+	requireEqual(t, len(LinkDiagnostics(systemWith(), deps)), 0)
 }
 
 // A stale pin (version_mismatch, reported by validation) whose item is gone

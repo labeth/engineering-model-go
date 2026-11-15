@@ -28,7 +28,7 @@ package trace
 
 import (
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/codescan"
@@ -133,20 +133,14 @@ func formalCheckFiles(c codescan.VerificationCheck) []string {
 // TRLC-LINKS: REQ-EMG-146
 func formalResultsOf(baseDir string, verification []codescan.VerificationCheck) []formalResult {
 	var files []string
-	seen := map[string]bool{}
 	for _, c := range verification {
-		for _, f := range formalCheckFiles(c) {
-			if !seen[f] {
-				seen[f] = true
-				files = append(files, f)
-			}
-		}
+		files = append(files, formalCheckFiles(c)...)
 	}
 	if len(files) == 0 {
 		return nil
 	}
-	sort.Strings(files)
-	return readFormalResults(baseDir, files)
+	slices.Sort(files)
+	return readFormalResults(baseDir, slices.Compact(files))
 }
 
 // effectiveVerification applies the roll-up rule to the inferred checks: a
@@ -160,35 +154,12 @@ func formalResultsOf(baseDir string, verification []codescan.VerificationCheck) 
 func effectiveVerification(baseDir string, verification []codescan.VerificationCheck) []codescan.VerificationCheck {
 	var out []codescan.VerificationCheck
 	for i, c := range verification {
-		files := formalCheckFiles(c)
-		if len(files) == 0 {
-			continue
-		}
-		byReq := formalByRequirement(readFormalResults(baseDir, files))
-		drop := map[string]bool{}
-		for _, req := range c.Verifies {
-			id := strings.TrimSpace(req)
-			if r := formalRequirementResult(byReq[id]); r == formalStaleResult || r == formalNotRun {
-				drop[id] = true
-			}
-		}
-		if len(drop) == 0 {
+		kept, changed := withoutStaleFormal(baseDir, c)
+		if !changed {
 			continue
 		}
 		if out == nil {
 			out = append([]codescan.VerificationCheck(nil), verification...)
-		}
-		kept := c
-		kept.Verifies, kept.Results = nil, nil
-		for _, req := range c.Verifies {
-			if !drop[strings.TrimSpace(req)] {
-				kept.Verifies = append(kept.Verifies, req)
-			}
-		}
-		for _, res := range c.Results {
-			if !drop[strings.TrimSpace(res.Requirement)] {
-				kept.Results = append(kept.Results, res)
-			}
 		}
 		out[i] = kept
 	}
@@ -196,4 +167,44 @@ func effectiveVerification(baseDir string, verification []codescan.VerificationC
 		return verification
 	}
 	return out
+}
+
+// withoutStaleFormal is the check without the requirements whose formal
+// entries are all stale or not-run, and whether it changed.
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE
+// TRLC-LINKS: REQ-EMG-146
+func withoutStaleFormal(baseDir string, c codescan.VerificationCheck) (codescan.VerificationCheck, bool) {
+	files := formalCheckFiles(c)
+	if len(files) == 0 {
+		return c, false
+	}
+	byReq := formalByRequirement(readFormalResults(baseDir, files))
+	drop := map[string]bool{}
+	for _, req := range c.Verifies {
+		id := strings.TrimSpace(req)
+		if r := formalRequirementResult(byReq[id]); r == formalStaleResult || r == formalNotRun {
+			drop[id] = true
+		}
+	}
+	if len(drop) == 0 {
+		return c, false
+	}
+	kept := c
+	kept.Verifies = keepUndropped(c.Verifies, drop, func(req string) string { return req })
+	kept.Results = keepUndropped(c.Results, drop, func(res codescan.VerificationResult) string { return res.Requirement })
+	return kept, true
+}
+
+// keepUndropped is the items whose requirement, trimmed, is not dropped; nil
+// when none is kept.
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CODEMAP-INFERENCE
+// TRLC-LINKS: REQ-EMG-146
+func keepUndropped[T any](items []T, drop map[string]bool, requirement func(T) string) []T {
+	var kept []T
+	for _, item := range items {
+		if !drop[strings.TrimSpace(requirement(item))] {
+			kept = append(kept, item)
+		}
+	}
+	return kept
 }

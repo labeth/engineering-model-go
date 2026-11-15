@@ -144,6 +144,10 @@ func facadePackages2() []implPackage {
 		}, internalOnly: []string{
 			// used by internal/asciidoc and internal/reqdelta.
 			"EffectiveCodeRoots", "KnownModelIDs", "ScopeCodeToModel", "ValidateIntegrity",
+			// the request and evidence parameters of BuildFromFilesWith,
+			// TierGapFromFiles and ValidateIntegrity; the root functions take
+			// the paths themselves.
+			"Evidence", "FileRequest",
 			// used by internal/asciidoc for the requirement link tree.
 			"DependencyRequirementStatus",
 		}},

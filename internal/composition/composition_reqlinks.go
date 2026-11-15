@@ -7,6 +7,7 @@ package composition
 
 import (
 	"fmt"
+	"slices"
 	"sort"
 	"strings"
 
@@ -33,24 +34,45 @@ func LinkDiagnostics(system model.Bundle, deps []reqlinks.Dependency) []validate
 		path = "reqLinks"
 	}
 	var diags []validate.Diagnostic
-	errAt := func(code, msg string) {
-		diags = append(diags, validate.Diagnostic{Code: code, Severity: validate.SeverityError, Message: msg, Path: path})
-	}
 	for _, s := range reqlinks.EvaluateLinks(system, deps) {
-		switch s.State {
-		case reqlinks.StateBroken:
-			errAt("link.broken", fmt.Sprintf("link %s: %s does not exist in %s at %s; remove the link or link another contract item", s.ID, s.Child, s.Alias, s.Version))
-		case reqlinks.StateChildUnpublished:
-			// An undeclared or uncomposed alias is reported by validation.
-			if s.Reason == reqlinks.ReasonNotInPublication || s.Reason == reqlinks.ReasonNotContractItem {
-				errAt("link.child_unpublished", fmt.Sprintf("link %s: %s is not a published contract item of dependency %q (%s)", s.ID, s.Child, s.Alias, s.Detail))
-			}
+		if d, ok := linkProblem(s, path); ok {
+			diags = append(diags, d)
 		}
 	}
 	severity, applies := validate.RequirementLinkRules(system)
 	if !applies {
 		return diags
 	}
+	return append(diags, unverifiedAssumptionDiagnostics(system, deps, unverifiedSeverity{severity: severity, path: path})...)
+}
+
+// linkProblem is the error of a link that is broken or names a child that is
+// not a published contract item.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-098
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
+func linkProblem(s reqlinks.LinkStatus, path string) (validate.Diagnostic, bool) {
+	switch {
+	case s.State == reqlinks.StateBroken:
+		return errDiag("link.broken", fmt.Sprintf("link %s: %s does not exist in %s at %s; remove the link or link another contract item", s.ID, s.Child, s.Alias, s.Version), path), true
+	case s.State == reqlinks.StateChildUnpublished && (s.Reason == reqlinks.ReasonNotInPublication || s.Reason == reqlinks.ReasonNotContractItem):
+		// An undeclared or uncomposed alias is reported by validation.
+		return errDiag("link.child_unpublished", fmt.Sprintf("link %s: %s is not a published contract item of dependency %q (%s)", s.ID, s.Child, s.Alias, s.Detail), path), true
+	}
+	return validate.Diagnostic{}, false
+}
+
+// unverifiedSeverity is how link.aou_unverified is reported: its severity and path.
+type unverifiedSeverity struct {
+	severity validate.Severity
+	path     string
+}
+
+// unverifiedAssumptionDiagnostics reports link.aou_unverified for every
+// published assumption of use of a resolved dependency that no link with
+// evidence covers, in qualified id order.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-098
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
+func unverifiedAssumptionDiagnostics(system model.Bundle, deps []reqlinks.Dependency, report unverifiedSeverity) []validate.Diagnostic {
 	evidenced := map[string]bool{}
 	for _, link := range system.ReqLinks.ReqLinks {
 		if len(link.Evidence) > 0 {
@@ -58,26 +80,36 @@ func LinkDiagnostics(system model.Bundle, deps []reqlinks.Dependency) []validate
 		}
 	}
 	var unverified []string
-	seen := map[string]bool{}
 	for _, dep := range deps {
-		if dep.Local {
-			continue
-		}
-		for id, item := range reqlinks.PublishedItems(dep.Bundle, dep.Publications...) {
-			qualified := dep.Alias + "::" + id
-			if item.Kind != reqlinks.KindAssumption || evidenced[qualified] || seen[qualified] {
-				continue
-			}
-			seen[qualified] = true
-			unverified = append(unverified, qualified)
-		}
+		unverified = append(unverified, unverifiedAssumptions(dep, evidenced)...)
 	}
 	sort.Strings(unverified)
-	for _, q := range unverified {
+	var diags []validate.Diagnostic
+	for _, q := range slices.Compact(unverified) {
 		diags = append(diags, validate.Diagnostic{
-			Code: "link.aou_unverified", Severity: severity, Path: path,
+			Code: "link.aou_unverified", Severity: report.severity, Path: report.path,
 			Message: fmt.Sprintf("assumption of use %s has no requirement link with evidence in this model; add a reqLinks entry with child %s and evidence naming the local requirement, test or control that shows it holds", q, q),
 		})
 	}
 	return diags
+}
+
+// unverifiedAssumptions is the qualified ids of the assumptions of use a
+// resolved dependency publishes that no evidenced link covers. A dependency
+// resolved from a workspace replacement has none: a checkout is work in
+// progress.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-098
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
+func unverifiedAssumptions(dep reqlinks.Dependency, evidenced map[string]bool) []string {
+	if dep.Local {
+		return nil
+	}
+	var out []string
+	for id, item := range reqlinks.PublishedItems(dep.Bundle, dep.Publications...) {
+		qualified := dep.Alias + "::" + id
+		if item.Kind == reqlinks.KindAssumption && !evidenced[qualified] {
+			out = append(out, qualified)
+		}
+	}
+	return out
 }
