@@ -474,7 +474,7 @@ func (g *generation) unitSection(u model.FunctionalUnit, design model.DesignFunc
 		Tags:        strings.Join(u.Tags, ", "),
 		Intro:       strings.TrimSpace(u.Prose),
 		Details:     buildDesignDetails(u.Prose, design.Views, g.bundle.Architecture.Views),
-		WhatOwns:    unitOwnershipSummary(u, maps, g.reqByUnit, g.labelByID),
+		WhatOwns:    unitOwnershipSummary(u, maps, g.labelByID),
 		Triggers:    textutil.NonEmpty(g.reqByUnit[u.ID], "no explicit authored requirement trigger"),
 		Consumes:    textutil.NonEmpty(unitConsumers(u.ID, maps, g.labelByID), "none"),
 		Produces:    textutil.NonEmpty(unitOutputs(u.ID, maps, g.labelByID), "none"),
