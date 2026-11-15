@@ -138,13 +138,13 @@ func loadAviationSample(t *testing.T, variant aviationSampleVariant) error {
 	}
 	t.Cleanup(func() { _ = os.RemoveAll(dir) })
 	for _, rel := range aviationSampleFiles {
-		writeAviationSampleFile(t, dir, rel, variant)
+		variant.writeFile(t, dir, rel)
 	}
 	_, err = LoadBundle(filepath.Join(dir, "engmod.yml"))
 	return err
 }
 
-func writeAviationSampleFile(t *testing.T, dir, rel string, variant aviationSampleVariant) {
+func (variant aviationSampleVariant) writeFile(t *testing.T, dir, rel string) {
 	t.Helper()
 	data, err := os.ReadFile(filepath.Join("..", "..", "examples", "dal-c-flight-control-sample", rel))
 	if err != nil {
