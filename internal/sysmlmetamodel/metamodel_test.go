@@ -45,22 +45,44 @@ func TestBuildIsDeterministicAndExtractsSemantics(t *testing.T) {
 	if string(firstJSON) != string(secondJSON) {
 		t.Fatal("inventory generation is not deterministic")
 	}
-	child := findClass(t, first, "KerML::Child")
+	checkInheritedProperties(t, first)
+	checkDerivedProperty(t, first)
+	checkRelationshipSemantics(t, first)
+}
+
+// checkInheritedProperties checks that Child inherits the properties of Base,
+// sorted.
+func checkInheritedProperties(t *testing.T, inventory Inventory) {
+	t.Helper()
+	child := findClass(t, inventory, "KerML::Child")
 	if len(child.InheritedProperties) != 2 ||
 		child.InheritedProperties[0] != "KerML::Base::derivedItems" ||
 		child.InheritedProperties[1] != "KerML::Base::name" {
 		t.Fatalf("unexpected inherited properties: %#v", child.InheritedProperties)
 	}
-	base := findClass(t, first, "KerML::Base")
-	derived := findProperty(t, base, "derivedItems")
+}
+
+// checkDerivedProperty checks that a derived property is normalized to an
+// optional unbounded one.
+func checkDerivedProperty(t *testing.T, inventory Inventory) {
+	t.Helper()
+	derived := findProperty(t, findClass(t, inventory, "KerML::Base"), "derivedItems")
 	if !derived.Derived || derived.Multiplicity.Lower != 0 || derived.Multiplicity.Upper != -1 {
 		t.Fatalf("derived property was not normalized: %#v", derived)
 	}
-	link := findClass(t, first, "KerML::Link")
+}
+
+// checkRelationshipSemantics checks that Link is a relationship whose
+// containment property has its multiplicity and that it has three ends.
+func checkRelationshipSemantics(t *testing.T, inventory Inventory) {
+	t.Helper()
+	link := findClass(t, inventory, "KerML::Link")
 	linked := findProperty(t, link, "linked")
-	if !link.Relationship || linked.Multiplicity.Lower != 1 || linked.Multiplicity.Upper != 2 ||
-		!linked.Containment || len(link.RelationshipEnds) != 3 {
+	if !link.Relationship || len(link.RelationshipEnds) != 3 {
 		t.Fatalf("relationship semantics were not normalized: class=%#v property=%#v", link, linked)
+	}
+	if linked.Multiplicity != (Multiplicity{Lower: 1, Upper: 2}) || !linked.Containment {
+		t.Fatalf("relationship property was not normalized: class=%#v property=%#v", link, linked)
 	}
 }
 
@@ -84,17 +106,22 @@ func TestCoverageRejectsUnaccountedInventoryEntry(t *testing.T) {
 	for _, kind := range []string{"metaclass", "property"} {
 		t.Run(kind, func(t *testing.T) {
 			coverage := BootstrapCoverage(inventory, inventoryBytes)
-			for index, entry := range coverage.Entries {
-				if entry.Kind == kind {
-					coverage.Entries = append(coverage.Entries[:index], coverage.Entries[index+1:]...)
-					break
-				}
-			}
+			coverage.Entries = withoutFirstOfKind(coverage.Entries, kind)
 			if err := CheckCoverage(inventory, inventoryBytes, coverage); err == nil || !strings.Contains(err.Error(), "unaccounted") {
 				t.Fatalf("expected unaccounted %s error, got %v", kind, err)
 			}
 		})
 	}
+}
+
+// withoutFirstOfKind returns the entries without the first one of kind.
+func withoutFirstOfKind(entries []CoverageEntry, kind string) []CoverageEntry {
+	for index, entry := range entries {
+		if entry.Kind == kind {
+			return append(entries[:index], entries[index+1:]...)
+		}
+	}
+	return entries
 }
 
 // TRLC-LINKS: REQ-EMG-039

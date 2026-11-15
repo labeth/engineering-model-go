@@ -4,6 +4,8 @@ package yamledit
 import (
 	"strings"
 	"testing"
+
+	"gopkg.in/yaml.v3"
 )
 
 const linkFile = `schemaVersion: 3
@@ -34,49 +36,55 @@ reqLinks:
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-104
 // ENGMODEL-LINKS: FU-MODEL-CHANGE
 func TestSetKey(t *testing.T) {
+	for _, tc := range setKeyCases() {
+		t.Run(tc.name, func(t *testing.T) { checkSetKey(t, tc) })
+	}
+}
+
+// finder selects a node of a document, as the edit functions take it.
+type finder = func(*yaml.Node) (*yaml.Node, error)
+
+// setKeyCase is one SetKey table row: the finder, the key and raw value to
+// set, and the expected document or error text.
+type setKeyCase struct {
+	name, key, raw string
+	find           finder
+	want, err      string
+}
+
+// checkSetKey runs one SetKey table row on linkFile.
+func checkSetKey(t *testing.T, tc setKeyCase) {
+	t.Helper()
+	got, err := SetKey([]byte(linkFile), tc.find, tc.key, tc.raw)
+	if tc.err != "" {
+		if err == nil || !strings.Contains(err.Error(), tc.err) {
+			t.Fatalf("err = %v, want %q", err, tc.err)
+		}
+		return
+	}
+	if err != nil || string(got) != tc.want {
+		t.Fatalf("err %v\ngot\n%s\nwant\n%s", err, got, tc.want)
+	}
+}
+
+// setKeyCases lists the SetKey table rows.
+func setKeyCases() []setKeyCase {
 	linkA, pinA := FindListItem([]string{"reqLinks"}, "id", "LNK-A"), FindListItem([]string{"reqLinks"}, "id", "LNK-A", "pinned")
 	linkB, pinB := FindListItem([]string{"reqLinks"}, "id", "LNK-B"), FindListItem([]string{"reqLinks"}, "id", "LNK-B", "pinned")
-	for _, tc := range []struct {
-		name, key, raw string
-		want, err      string
-	}{
-		{name: "plain in place keeps comment", key: "parent", raw: "REQ-Z",
+	return []setKeyCase{
+		{name: "plain in place keeps comment", key: "parent", raw: "REQ-Z", find: linkA,
 			want: strings.Replace(linkFile, "  parent: REQ-A   # the parent\n", "  parent: REQ-Z   # the parent\n", 1)},
-		{name: "quoted value replaced", key: "version", raw: "v0.2.0",
+		{name: "quoted value replaced", key: "version", raw: "v0.2.0", find: pinA,
 			want: strings.Replace(linkFile, `    version: "v0.1.0"`, `    version: v0.2.0`, 1)},
-		{name: "missing key added at item indent", key: "rationale", raw: "Because.",
+		{name: "missing key added at item indent", key: "rationale", raw: "Because.", find: linkA,
 			want: strings.Replace(linkFile, "  status: claimed\n- id: LNK-B", "  status: claimed\n  rationale: Because.\n- id: LNK-B", 1)},
-		{name: "block value replaced", key: "evidence", raw: "[REQ-C]",
+		{name: "block value replaced", key: "evidence", raw: "[REQ-C]", find: linkB,
 			want: strings.Replace(linkFile, "  evidence:\n  - REQ-A\n", "  evidence: [REQ-C]\n", 1)},
-		{name: "flow scalar in place", key: "fingerprint", raw: "y",
+		{name: "flow scalar in place", key: "fingerprint", raw: "y", find: pinB,
 			want: strings.Replace(linkFile, "fingerprint: x}", "fingerprint: y}", 1)},
-		{name: "flow insert refused", key: "extra", raw: "1", err: "flow mapping"},
-		{name: "unknown item refused", key: "status", raw: "accepted", err: "no reqLinks entry with id LNK-NONE"},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			find := linkA
-			switch tc.key {
-			case "version":
-				find = pinA
-			case "evidence":
-				find = linkB
-			case "fingerprint", "extra":
-				find = pinB
-			}
-			if tc.name == "unknown item refused" {
-				find = FindListItem([]string{"reqLinks"}, "id", "LNK-NONE")
-			}
-			got, err := SetKey([]byte(linkFile), find, tc.key, tc.raw)
-			if tc.err != "" {
-				if err == nil || !strings.Contains(err.Error(), tc.err) {
-					t.Fatalf("err = %v, want %q", err, tc.err)
-				}
-				return
-			}
-			if err != nil || string(got) != tc.want {
-				t.Fatalf("err %v\ngot\n%s\nwant\n%s", err, got, tc.want)
-			}
-		})
+		{name: "flow insert refused", key: "extra", raw: "1", find: pinB, err: "flow mapping"},
+		{name: "unknown item refused", key: "status", raw: "accepted", err: "no reqLinks entry with id LNK-NONE",
+			find: FindListItem([]string{"reqLinks"}, "id", "LNK-NONE")},
 	}
 }
 
@@ -125,6 +133,14 @@ func TestSetScalarInPlace(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-104
 // ENGMODEL-LINKS: FU-MODEL-CHANGE
 func TestRemoveAndSequenceEdits(t *testing.T) {
+	t.Run("RemoveKey", checkRemoveKey)
+	t.Run("RemoveKey refusals", checkRemoveKeyRefusals)
+	t.Run("AppendSequenceItems", checkAppendSequenceItems)
+	t.Run("RemoveSequenceItems", checkRemoveSequenceItems)
+}
+
+// checkRemoveKey checks RemoveKey on an existing and on a missing key.
+func checkRemoveKey(t *testing.T) {
 	linkB := FindListItem([]string{"reqLinks"}, "id", "LNK-B")
 	got, changed, err := RemoveKey([]byte(linkFile), linkB, "evidence")
 	if want := strings.Replace(linkFile, "  evidence:\n  - REQ-A\n", "", 1); err != nil || !changed || string(got) != want {
@@ -133,15 +149,26 @@ func TestRemoveAndSequenceEdits(t *testing.T) {
 	if got, changed, err := RemoveKey([]byte(linkFile), linkB, "nope"); err != nil || changed || string(got) != linkFile {
 		t.Fatalf("RemoveKey missing: %v %v", err, changed)
 	}
+}
+
+// checkRemoveKeyRefusals checks that RemoveKey refuses the first key of a
+// list item and a key of a flow mapping.
+func checkRemoveKeyRefusals(t *testing.T) {
+	linkB := FindListItem([]string{"reqLinks"}, "id", "LNK-B")
 	if _, _, err := RemoveKey([]byte(linkFile), linkB, "id"); err == nil || !strings.Contains(err.Error(), "first key of a list item") {
 		t.Fatalf("RemoveKey id: %v", err)
 	}
 	if _, _, err := RemoveKey([]byte(linkFile), FindListItem([]string{"reqLinks"}, "id", "LNK-B", "pinned"), "fingerprint"); err == nil || !strings.Contains(err.Error(), "flow mapping") {
 		t.Fatalf("RemoveKey flow: %v", err)
 	}
+}
 
-	indented := "root:\n  items:\n    - id: A\n      x: 1\n    - id: B\n      x: 2\n  after: true\n"
-	got, err = AppendSequenceItems([]byte(indented), FindPath("root"), "items", []string{"- id: C\n  x: 3\n"})
+const indentedItems = "root:\n  items:\n    - id: A\n      x: 1\n    - id: B\n      x: 2\n  after: true\n"
+
+// checkAppendSequenceItems checks appending at the items' indentation and
+// into an empty flow sequence.
+func checkAppendSequenceItems(t *testing.T) {
+	got, err := AppendSequenceItems([]byte(indentedItems), FindPath("root"), "items", []string{"- id: C\n  x: 3\n"})
 	if want := "root:\n  items:\n    - id: A\n      x: 1\n    - id: B\n      x: 2\n    - id: C\n      x: 3\n  after: true\n"; err != nil || string(got) != want {
 		t.Fatalf("AppendSequenceItems:\n%s (%v)", got, err)
 	}
@@ -149,7 +176,11 @@ func TestRemoveAndSequenceEdits(t *testing.T) {
 	if want := "root:\n  items:\n  - id: C\n"; err != nil || string(got) != want {
 		t.Fatalf("AppendSequenceItems empty flow:\n%q (%v)", got, err)
 	}
-	got, err = RemoveSequenceItems([]byte(indented), FindPath("root"), "items", []int{0})
+}
+
+// checkRemoveSequenceItems checks that the chosen item goes with its lines.
+func checkRemoveSequenceItems(t *testing.T) {
+	got, err := RemoveSequenceItems([]byte(indentedItems), FindPath("root"), "items", []int{0})
 	if want := "root:\n  items:\n    - id: B\n      x: 2\n  after: true\n"; err != nil || string(got) != want {
 		t.Fatalf("RemoveSequenceItems:\n%s (%v)", got, err)
 	}

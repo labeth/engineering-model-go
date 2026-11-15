@@ -46,12 +46,18 @@ func TestFindByID(t *testing.T) {
 			t.Fatalf("FindByID(%s) = line %v, %v; want line %d", id, node, err, wantLine)
 		}
 	}
-	if _, err := FindByID("RISK-NONE")(root); err == nil || !strings.Contains(err.Error(), "no entity with id RISK-NONE") {
-		t.Fatalf("unknown id: %v", err)
-	}
+	_, err = FindByID("RISK-NONE")(root)
+	checkErrContains(t, err, "no entity with id RISK-NONE")
 	dup, _ := Parse([]byte(strings.Replace(assuranceFile, "- id: RISK-B", "- id: RISK-A", 1)))
-	if _, err := FindByID("RISK-A")(dup); err == nil || !strings.Contains(err.Error(), "not unique") {
-		t.Fatalf("duplicate id: %v", err)
+	_, err = FindByID("RISK-A")(dup)
+	checkErrContains(t, err, "not unique")
+}
+
+// checkErrContains checks that err is an error containing want.
+func checkErrContains(t *testing.T, err error, want string) {
+	t.Helper()
+	if err == nil || !strings.Contains(err.Error(), want) {
+		t.Fatalf("err = %v, want %q", err, want)
 	}
 }
 
@@ -66,13 +72,39 @@ func TestFindByID(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MODEL-CHANGE
 func TestEntityPathEdits(t *testing.T) {
+	for _, tc := range append(entitySetCases(), entityListCases()...) {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := tc.edit([]byte(assuranceFile))
+			want := strings.Replace(assuranceFile, tc.old, tc.new, 1)
+			if err != nil || string(got) != want {
+				t.Fatalf("err %v\ngot\n%s\nwant\n%s", err, got, want)
+			}
+		})
+	}
+	t.Run("errors", checkEntityErrors)
+}
+
+// checkEntityErrors checks that every edit of entityErrorCases fails.
+func checkEntityErrors(t *testing.T) {
+	for name, edit := range entityErrorCases() {
+		if err := edit(); err == nil {
+			t.Errorf("%s: expected an error", name)
+		}
+	}
+}
+
+// entityCase is one entity edit: the edit and the text it replaces.
+type entityCase struct {
+	name string
+	edit func([]byte) ([]byte, error)
+	old  string
+	new  string
+}
+
+// entitySetCases lists the SetPath and UnsetPath cases.
+func entitySetCases() []entityCase {
 	riskA, riskB := FindByID("RISK-A"), FindByID("RISK-B")
-	for _, tc := range []struct {
-		name string
-		edit func([]byte) ([]byte, error)
-		old  string
-		new  string
-	}{
+	return []entityCase{
 		{"scalar in place keeps comment", func(d []byte) ([]byte, error) { return SetPath(d, riskA, []string{"title"}, "Renamed: risk") },
 			"      title: First risk   # keep this comment\n", "      title: 'Renamed: risk'   # keep this comment\n"},
 		{"missing key added", func(d []byte) ([]byte, error) { return SetPath(d, riskA, []string{"owner"}, "ACT-OWNER") },
@@ -95,6 +127,13 @@ func TestEntityPathEdits(t *testing.T) {
 		}, "        - CTRL-A\n", "        - CTRL-B\n        - CTRL-C\n"},
 		{"unset removes lines", func(d []byte) ([]byte, error) { return UnsetPath(d, riskB, []string{"acceptedBy"}) },
 			"      acceptedBy:\n        actor: ACT-OWNER\n        date: \"2026-11-03\"\n", ""},
+	}
+}
+
+// entityListCases lists the AppendPath and RemovePath cases.
+func entityListCases() []entityCase {
+	riskA, riskB := FindByID("RISK-A"), FindByID("RISK-B")
+	return []entityCase{
 		{"append block", func(d []byte) ([]byte, error) {
 			return AppendPath(d, riskA, []string{"relatedControls"}, []any{"CTRL-B"})
 		},
@@ -115,31 +154,25 @@ func TestEntityPathEdits(t *testing.T) {
 			return RemovePath(d, FindByID("FLOW-X"), []string{"steps"}, []any{"STEP-1"})
 		},
 			"      steps:\n        - id: STEP-1\n          ref: FU-A\n", "      steps: []\n"},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			got, err := tc.edit([]byte(assuranceFile))
-			want := strings.Replace(assuranceFile, tc.old, tc.new, 1)
-			if err != nil || string(got) != want {
-				t.Fatalf("err %v\ngot\n%s\nwant\n%s", err, got, want)
-			}
-		})
 	}
-	for name, edit := range map[string]func() error{
-		"unset missing": func() error { _, err := UnsetPath([]byte(assuranceFile), riskA, []string{"owner"}); return err },
+}
+
+// entityErrorCases lists the edits that must fail.
+func entityErrorCases() map[string]func() error {
+	riskA := FindByID("RISK-A")
+	data := []byte(assuranceFile)
+	return map[string]func() error{
+		"unset missing": func() error { _, err := UnsetPath(data, riskA, []string{"owner"}); return err },
 		"remove missing item": func() error {
-			_, err := RemovePath([]byte(assuranceFile), riskA, []string{"appliesTo"}, []any{"FU-Z"})
+			_, err := RemovePath(data, riskA, []string{"appliesTo"}, []any{"FU-Z"})
 			return err
 		},
 		"append to scalar": func() error {
-			_, err := AppendPath([]byte(assuranceFile), riskA, []string{"title"}, []any{"x"})
+			_, err := AppendPath(data, riskA, []string{"title"}, []any{"x"})
 			return err
 		},
-		"set through scalar": func() error { _, err := SetPath([]byte(assuranceFile), riskA, []string{"title", "x"}, "y"); return err },
-		"set null":           func() error { _, err := SetPath([]byte(assuranceFile), riskA, []string{"title"}, nil); return err },
-	} {
-		if err := edit(); err == nil {
-			t.Errorf("%s: expected an error", name)
-		}
+		"set through scalar": func() error { _, err := SetPath(data, riskA, []string{"title", "x"}, "y"); return err },
+		"set null":           func() error { _, err := SetPath(data, riskA, []string{"title"}, nil); return err },
 	}
 }
 
