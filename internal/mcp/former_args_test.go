@@ -62,7 +62,7 @@ func TestFormerToolArgumentAliasesAreRejectedWithTheCanonicalName(t *testing.T) 
 			t.Errorf("%s with %q: want rejection naming %q, got %+v", tc.tool, tc.former, tc.canonical, resp)
 		}
 	}
-	if payload := callToolPayload(t, s, "requirements.get", map[string]any{"requirementId": "REQ-PAY-001"}); payload["ok"] != true {
+	if payload := s.callToolPayload(t, "requirements.get", map[string]any{"requirementId": "REQ-PAY-001"}); payload["ok"] != true {
 		t.Fatalf("canonical requirementId must work: %+v", payload)
 	}
 	resp := rpcCall(t, s, map[string]any{

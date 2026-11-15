@@ -61,7 +61,7 @@ func TestFilesOwnerReadsOnlyOwnerMarker(t *testing.T) {
 		{"no_marker.go", "", false, 0},
 	} {
 		t.Run(tc.file, func(t *testing.T) {
-			payload := callToolPayload(t, s, "files.owner", map[string]any{"path": tc.file})
+			payload := s.callToolPayload(t, "files.owner", map[string]any{"path": tc.file})
 			if payload["ownerFunctionalUnit"] != tc.owner {
 				t.Fatalf("owner = %v, want %q", payload["ownerFunctionalUnit"], tc.owner)
 			}
@@ -79,12 +79,23 @@ func TestFilesOwnerReadsOnlyOwnerMarker(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	payload := s.callToolPayload(t, "model.authoringContract", map[string]any{})
 	rules, ok := payload["rules"].(map[string]any)
 	if !ok {
 		t.Fatalf("missing rules: %+v", payload)
 	}
 	want := validate.AuthoringRules()
+	assertContractEnums(t, rules, want)
+	assertContractPairs(t, rules, want)
+	if fieldRules, _ := rules["fieldRules"].([]any); len(fieldRules) != len(want.FieldRules) {
+		t.Fatalf("fieldRules = %v", fieldRules)
+	}
+}
+
+// assertContractEnums checks the enum counts of the contract rules.
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractEnums(t *testing.T, rules map[string]any, want validate.Rules) {
+	t.Helper()
 	enums, _ := rules["enums"].(map[string]any)
 	if len(enums) != len(want.Enums) {
 		t.Fatalf("enums = %d, want %d", len(enums), len(want.Enums))
@@ -93,6 +104,12 @@ func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 	if len(riskStatus) != len(want.Enums["risk.status"]) {
 		t.Fatalf("risk.status = %v", riskStatus)
 	}
+}
+
+// assertContractPairs checks the relationship pairs of the contract rules.
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractPairs(t *testing.T, rules map[string]any, want validate.Rules) {
+	t.Helper()
 	pairs, _ := rules["relationshipPairs"].([]any)
 	if len(pairs) != len(want.RelationshipPairs) || len(pairs) == 0 {
 		t.Fatalf("relationshipPairs = %d, want %d", len(pairs), len(want.RelationshipPairs))
@@ -100,9 +117,6 @@ func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 	first, _ := pairs[0].(map[string]any)
 	if first["type"] == "" || first["from"] == "" || first["to"] == "" {
 		t.Fatalf("pair shape: %+v", first)
-	}
-	if fieldRules, _ := rules["fieldRules"].([]any); len(fieldRules) != len(want.FieldRules) {
-		t.Fatalf("fieldRules = %v", fieldRules)
 	}
 }
 
@@ -116,34 +130,73 @@ func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractListsFieldSetsAndPublicationSections(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	payload := s.callToolPayload(t, "model.authoringContract", map[string]any{})
 	rules, _ := payload["rules"].(map[string]any)
 	sets, _ := rules["fieldSets"].(map[string]any)
-	fields := func(kind string) string {
-		list, _ := sets[kind].([]any)
-		out := make([]string, 0, len(list))
-		for _, f := range list {
-			out = append(out, f.(string))
-		}
-		return strings.Join(out, ",")
+	assertContractFieldSets(t, sets)
+	assertContractFieldTypes(t, rules)
+	assertContractPublicationSections(t, rules)
+	assertContractFieldRules(t, rules)
+}
+
+// contractFieldSet joins the fields the contract lists for one entity kind.
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func contractFieldSet(sets map[string]any, kind string) string {
+	list, _ := sets[kind].([]any)
+	out := make([]string, 0, len(list))
+	for _, f := range list {
+		out = append(out, f.(string))
 	}
-	if got := fields("control"); got != "id,name,category,description" {
+	return strings.Join(out, ",")
+}
+
+// assertContractFieldSets checks the fields of the control, risk and other
+// entity kinds in the contract's fieldSets.
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractFieldSets(t *testing.T, sets map[string]any) {
+	t.Helper()
+	if got := contractFieldSet(sets, "control"); got != "id,name,category,description" {
 		t.Fatalf("fieldSets.control = %q", got)
 	}
-	risk := "," + fields("risk") + ","
+	assertRiskFieldSet(t, sets)
+	assertFieldSetKinds(t, sets)
+	if !strings.Contains(","+contractFieldSet(sets, "flowStep")+",", ",trustBoundaryRef,") {
+		t.Fatalf("fieldSets.flowStep = %s", contractFieldSet(sets, "flowStep"))
+	}
+}
+
+// assertRiskFieldSet checks the fields of the risk kind in the contract's
+// fieldSets.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertRiskFieldSet(t *testing.T, sets map[string]any) {
+	t.Helper()
+	risk := "," + contractFieldSet(sets, "risk") + ","
 	for _, f := range []string{"id", "status", "response", "owner", "evidence", "residualRisk", "rationale", "acceptedBy"} {
 		if !strings.Contains(risk, ","+f+",") {
 			t.Fatalf("fieldSets.risk lacks %s: %s", f, risk)
 		}
 	}
+}
+
+// assertFieldSetKinds checks that the contract lists fields for each of the
+// entity kinds.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertFieldSetKinds(t *testing.T, sets map[string]any) {
+	t.Helper()
 	for _, kind := range []string{"threatScenario", "flowStep", "flow", "functionalUnit", "requirement", "decision", "acceptanceRecord", "controlVerification", "publication"} {
-		if fields(kind) == "" {
+		if contractFieldSet(sets, kind) == "" {
 			t.Fatalf("fieldSets has no %s: %v", kind, sets)
 		}
 	}
-	if !strings.Contains(","+fields("flowStep")+",", ",trustBoundaryRef,") {
-		t.Fatalf("fieldSets.flowStep = %s", fields("flowStep"))
-	}
+}
+
+// assertContractFieldTypes checks that the contract types stride and
+// preconditions of the threatScenario kind.
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractFieldTypes(t *testing.T, rules map[string]any) {
+	t.Helper()
 	types, _ := rules["fieldTypes"].(map[string]any)
 	stride := ""
 	for _, f := range types["threatScenario"].([]any) {
@@ -154,6 +207,12 @@ func TestModelAuthoringContractListsFieldSetsAndPublicationSections(t *testing.T
 	if stride != "stride:string preconditions:list<string> " {
 		t.Fatalf("fieldTypes.threatScenario must type stride and preconditions: %q", stride)
 	}
+}
+
+// assertContractPublicationSections checks the manifest publication sections.
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractPublicationSections(t *testing.T, rules map[string]any) {
+	t.Helper()
 	sections, _ := rules["publicationSections"].([]any)
 	var got []string
 	for _, x := range sections {
@@ -162,6 +221,13 @@ func TestModelAuthoringContractListsFieldSetsAndPublicationSections(t *testing.T
 	if strings.Join(got, ",") != "architecture,behavior,assurance,compliance,requirements,views" {
 		t.Fatalf("publicationSections = %v", got)
 	}
+}
+
+// assertContractFieldRules checks that the field rule texts carry the
+// boundaryCrossing, event_unused, multiple_responses and EARS rules.
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractFieldRules(t *testing.T, rules map[string]any) {
+	t.Helper()
 	fieldRules, _ := rules["fieldRules"].([]any)
 	all := ""
 	for _, r := range fieldRules {

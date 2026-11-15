@@ -39,8 +39,21 @@ func completionValues(t *testing.T, payload map[string]any) ([]string, map[strin
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT
 func TestModelCompleteLocalIDsByPrefix(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "fu-check"})
+	payload := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "fu-check"})
 	values, byValue := completionValues(t, payload)
+	assertLocalPrefixCandidates(t, values, byValue)
+	limited := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "", "max": "2"})
+	if got, _ := completionValues(t, limited); len(got) != 2 || limited["truncated"] != true {
+		t.Fatalf("max=2 must return 2 candidates and truncated=true, got %v truncated=%v", got, limited["truncated"])
+	}
+}
+
+// assertLocalPrefixCandidates checks that the candidates for the prefix
+// fu-check carry FU-CHECKOUT, all match the prefix and are sorted.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT
+func assertLocalPrefixCandidates(t *testing.T, values []string, byValue map[string]map[string]any) {
+	t.Helper()
 	row, ok := byValue["FU-CHECKOUT"]
 	if !ok {
 		t.Fatalf("expected FU-CHECKOUT for prefix fu-check, got %v", values)
@@ -56,10 +69,6 @@ func TestModelCompleteLocalIDsByPrefix(t *testing.T) {
 	if !sort.SliceIsSorted(values, func(i, j int) bool { return strings.ToLower(values[i]) < strings.ToLower(values[j]) }) {
 		t.Fatalf("candidates are not sorted: %v", values)
 	}
-	limited := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "", "max": "2"})
-	if got, _ := completionValues(t, limited); len(got) != 2 || limited["truncated"] != true {
-		t.Fatalf("max=2 must return 2 candidates and truncated=true, got %v truncated=%v", got, limited["truncated"])
-	}
 }
 
 // An enum field returns exactly its allowed values; a bare field name collects
@@ -70,7 +79,7 @@ func TestModelCompleteLocalIDsByPrefix(t *testing.T) {
 func TestModelCompleteEnumValuesForField(t *testing.T) {
 	s := initializedPaymentsServer(t)
 	rules := validate.AuthoringRules()
-	payload := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "", "field": "risk.status"})
+	payload := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "", "field": "risk.status"})
 	values, _ := completionValues(t, payload)
 	want := append([]string(nil), rules.Enums["risk.status"]...)
 	sort.Strings(want)
@@ -78,7 +87,7 @@ func TestModelCompleteEnumValuesForField(t *testing.T) {
 	if strings.Join(values, ",") != strings.Join(want, ",") {
 		t.Fatalf("risk.status values: got %v want %v", values, want)
 	}
-	status := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "PRO", "field": "status"})
+	status := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "PRO", "field": "status"})
 	statusValues, byValue := completionValues(t, status)
 	if _, ok := byValue["proposed"]; !ok {
 		t.Fatalf("field status prefix PRO must include requirement status proposed, got %v", statusValues)
@@ -105,12 +114,26 @@ func containsAny(items []any, want string) bool {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelCompleteRelationshipTypes(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "con", "field": "relationship.type"})
+	payload := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "con", "field": "relationship.type"})
 	values, byValue := completionValues(t, payload)
 	row, ok := byValue["contains"]
 	if !ok {
 		t.Fatalf("expected relationship type contains, got %v", values)
 	}
+	assertContainsPairs(t, row)
+	for _, v := range values {
+		if strings.HasPrefix(v, "FU-") || strings.HasPrefix(v, "REQ-") {
+			t.Fatalf("relationship.type must not return entity IDs, got %q", v)
+		}
+	}
+}
+
+// assertContainsPairs checks that the contains candidate carries its kind
+// pairs.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContainsPairs(t *testing.T, row map[string]any) {
+	t.Helper()
 	pairs, _ := row["pairs"].([]any)
 	if row["kind"] != "relationship.type" || len(pairs) == 0 {
 		t.Fatalf("contains must carry kind relationship.type and its pairs: %+v", row)
@@ -118,11 +141,6 @@ func TestModelCompleteRelationshipTypes(t *testing.T) {
 	first, _ := pairs[0].(map[string]any)
 	if first["from"] == "" || first["to"] == "" {
 		t.Fatalf("pair without from/to: %+v", first)
-	}
-	for _, v := range values {
-		if strings.HasPrefix(v, "FU-") || strings.HasPrefix(v, "REQ-") {
-			t.Fatalf("relationship.type must not return entity IDs, got %q", v)
-		}
 	}
 }
 
@@ -132,7 +150,7 @@ func TestModelCompleteRelationshipTypes(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func TestModelCompleteIDFieldFiltersKinds(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "", "field": "owner", "max": "500"})
+	payload := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "", "field": "owner", "max": "500"})
 	values, byValue := completionValues(t, payload)
 	if len(values) == 0 {
 		t.Fatalf("owner must return actor IDs")
@@ -142,7 +160,15 @@ func TestModelCompleteIDFieldFiltersKinds(t *testing.T) {
 			t.Fatalf("owner candidate %q has kind %v, want actor", v, byValue[v]["kind"])
 		}
 	}
-	catalog := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "pay", "field": "catalog"})
+	catalog := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "pay", "field": "catalog"})
+	assertCatalogCandidates(t, catalog)
+}
+
+// assertCatalogCandidates checks that the catalog field returns catalog terms.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func assertCatalogCandidates(t *testing.T, catalog map[string]any) {
+	t.Helper()
 	names, rows := completionValues(t, catalog)
 	if len(names) == 0 {
 		t.Fatalf("catalog field must return catalog term names")
@@ -162,7 +188,7 @@ func writeAuthoringCompositionFixture(t *testing.T, withWorkspace bool) string {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
 	parent := filepath.Join(root, "parent")
-	writeMCPModule(t, child, "example.com/child@v1", "v1.0.0", "CHILD", `publications:
+	writeMCPModule(t, child, mcpModule{"example.com/child@v1", "v1.0.0", "CHILD", `publications:
   - id: public
     architecture: [FU-CHILD-UNIT, CAP-CHILD]
 `, `  functionalGroups:
@@ -176,8 +202,8 @@ func writeAuthoringCompositionFixture(t *testing.T, withWorkspace bool) string {
     provides:
       - id: CAP-CHILD
         kind: capability
-`)
-	writeMCPModule(t, parent, "example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
+`})
+	writeMCPModule(t, parent, mcpModule{"example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
   - alias: child
     path: example.com/child@v1
     version: v1.0.0
@@ -194,7 +220,7 @@ func writeAuthoringCompositionFixture(t *testing.T, withWorkspace bool) string {
       - id: SUB-CHILD
         dependency: child
         publication: public
-`)
+`})
 	if withWorkspace {
 		writeMCPFile(t, filepath.Join(root, "engmod.work.yml"), "schemaVersion: 3\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
 	}
@@ -227,7 +253,7 @@ func TestModelCompleteImportedQualifiedIDs(t *testing.T) {
 	t.Setenv("CUE_REGISTRY", "none")
 	parent := writeAuthoringCompositionFixture(t, true)
 	s := initializedServerAt(t, parent)
-	payload := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "child::"})
+	payload := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "child::"})
 	values, byValue := completionValues(t, payload)
 	row, ok := byValue["child::FU-CHILD-UNIT"]
 	if !ok {
@@ -236,7 +262,16 @@ func TestModelCompleteImportedQualifiedIDs(t *testing.T) {
 	if row["source"] != "child" || row["kind"] != "functional_unit" || row["title"] != "Child unit" {
 		t.Fatalf("imported candidate has wrong source/kind/title: %+v", row)
 	}
-	byTail := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "fu-", "field": "appliesTo"})
+	byTail := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "fu-", "field": "appliesTo"})
+	assertAppliesToTail(t, byTail)
+}
+
+// assertAppliesToTail checks that the prefix fu- lists local and imported
+// units and not an unpublished child entity.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func assertAppliesToTail(t *testing.T, byTail map[string]any) {
+	t.Helper()
 	tailValues, _ := completionValues(t, byTail)
 	if !containsString(tailValues, "child::FU-CHILD-UNIT") || !containsString(tailValues, "FU-PARENT-UNIT") {
 		t.Fatalf("appliesTo prefix fu- must list local and imported units, got %v", tailValues)
@@ -255,7 +290,7 @@ func TestModelCompleteDegradesWhenImportsUnresolved(t *testing.T) {
 	t.Setenv("CUE_REGISTRY", "none")
 	parent := writeAuthoringCompositionFixture(t, false)
 	s := initializedServerAt(t, parent)
-	payload := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "FU-"})
+	payload := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "FU-"})
 	values, _ := completionValues(t, payload)
 	if !containsString(values, "FU-PARENT-UNIT") {
 		t.Fatalf("local candidates missing: %v", values)
@@ -329,7 +364,7 @@ func diagnosticCodes(payload map[string]any, key string) []string {
 }
 
 // TRLC-LINKS: REQ-EMG-069
-func callToolRaw(t *testing.T, s *Server, name string, args map[string]any) (map[string]any, bool) {
+func (s *Server) callToolRaw(t *testing.T, name string, args map[string]any) (map[string]any, bool) {
 	t.Helper()
 	resp := rpcCall(t, s, map[string]any{
 		"jsonrpc": "2.0", "id": name, "method": "tools/call",
@@ -369,35 +404,77 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	assertDiagnoseUnchanged(t, s, string(original))
+	assertDiagnoseUnknownSourceRef(t, s, string(original))
+	assertDiagnoseSchemaError(t, s, string(original))
+	assertDiagnoseDanglingRelationship(t, s, modelDir)
+	assertDiagnoseParseError(t, s)
+	assertDiagnoseRejectsDocuments(t, s)
 
-	valid := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": string(original)})
+	if after := snapshotDir(t, modelDir); fmt.Sprint(after) != fmt.Sprint(before) {
+		t.Fatalf("model.diagnose changed the model directory")
+	}
+	if left, _ := os.ReadDir(tmp); len(left) != 0 {
+		t.Fatalf("model.diagnose left temp files: %v", left)
+	}
+}
+
+// assertDiagnoseUnchanged checks that unchanged content has no errors and
+// reports the document path.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseUnchanged(t *testing.T, s *Server, original string) {
+	t.Helper()
+	valid := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": original})
 	if valid["errors"] != float64(0) || valid["valid"] != true {
 		t.Fatalf("unchanged requirements must have 0 errors: %+v", valid)
 	}
 	if valid["path"] != "model/requirements.yml" {
 		t.Fatalf("diagnose must report the document path, got %v", valid["path"])
 	}
+}
 
-	broken := strings.Replace(string(original), "- id: REQ-PAY-002\n", "- id: REQ-PAY-002\n  sourceRefs: [REQ-DOES-NOT-EXIST]\n", 1)
-	if broken == string(original) {
+// assertDiagnoseUnknownSourceRef checks that an unknown sourceRef is reported
+// for the document at about its line.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseUnknownSourceRef(t *testing.T, s *Server, original string) {
+	t.Helper()
+	broken := strings.Replace(original, "- id: REQ-PAY-002\n", "- id: REQ-PAY-002\n  sourceRefs: [REQ-DOES-NOT-EXIST]\n", 1)
+	if broken == original {
 		t.Fatal("fixture edit did not apply")
 	}
-	bad := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "model/requirements.yml", "content": broken})
+	bad := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "model/requirements.yml", "content": broken})
 	if !containsString(diagnosticCodes(bad, "diagnostics"), "model.invalid_requirement_source_ref") || bad["valid"] != false {
 		t.Fatalf("unknown sourceRef must be reported for the document: %+v", bad)
 	}
 	for _, item := range bad["diagnostics"].([]any) {
-		row := item.(map[string]any)
-		if row["code"] == "model.invalid_requirement_source_ref" {
-			wantLine := float64(strings.Count(broken[:strings.Index(broken, "- id: REQ-PAY-002")], "\n") + 1)
-			if line, _ := row["line"].(float64); line < wantLine || line > wantLine+1 {
-				t.Fatalf("diagnostic line %v, want about %v: %+v", row["line"], wantLine, row)
-			}
-		}
+		assertSourceRefLine(t, item.(map[string]any), broken)
 	}
+}
 
-	schema := strings.Replace(string(original), "- id: REQ-PAY-002\n", "- id: REQ-PAY-002\n  status: banana\n", 1)
-	schemaResult := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": schema})
+// assertSourceRefLine checks the line of an invalid sourceRef diagnostic.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertSourceRefLine(t *testing.T, row map[string]any, broken string) {
+	t.Helper()
+	if row["code"] != "model.invalid_requirement_source_ref" {
+		return
+	}
+	wantLine := float64(strings.Count(broken[:strings.Index(broken, "- id: REQ-PAY-002")], "\n") + 1)
+	if line, _ := row["line"].(float64); line < wantLine || line > wantLine+1 {
+		t.Fatalf("diagnostic line %v, want about %v: %+v", row["line"], wantLine, row)
+	}
+}
+
+// assertDiagnoseSchemaError checks that a schema violation carries its line
+// and no temp path.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseSchemaError(t *testing.T, s *Server, original string) {
+	t.Helper()
+	schema := strings.Replace(original, "- id: REQ-PAY-002\n", "- id: REQ-PAY-002\n  status: banana\n", 1)
+	schemaResult := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": schema})
 	schemaRows, _ := schemaResult["diagnostics"].([]any)
 	if len(schemaRows) == 0 || schemaResult["valid"] != false {
 		t.Fatalf("schema violation must be reported for the document: %+v", schemaResult)
@@ -406,19 +483,33 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 	if row := schemaRows[0].(map[string]any); row["line"] != wantSchemaLine || strings.Contains(toString(row["message"]), os.TempDir()) {
 		t.Fatalf("schema error must carry line %v and no temp path: %+v", wantSchemaLine, row)
 	}
+}
 
+// assertDiagnoseDanglingRelationship checks that a dangling relationship is an
+// error attributed to behavior.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseDanglingRelationship(t *testing.T, s *Server, modelDir string) {
+	t.Helper()
 	behavior, err := os.ReadFile(filepath.Join(modelDir, "model", "behavior.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	dangling := strings.Replace(string(behavior), "  relationships:\n", "  relationships:\n  - type: contains\n    from: FG-PAYMENTS\n    to: FU-DOES-NOT-EXIST\n", 1)
-	behaviorResult := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "behavior", "content": dangling})
+	behaviorResult := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "behavior", "content": dangling})
 	if behaviorResult["errors"] == float64(0) {
 		t.Fatalf("dangling relationship must be an error attributed to behavior: %+v", behaviorResult)
 	}
+}
 
+// assertDiagnoseParseError checks that a syntax error is a parse error with
+// line 3 and a column.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseParseError(t *testing.T, s *Server) {
+	t.Helper()
 	syntax := "schemaVersion: 3\nrequirements:\n  - id: [unclosed\n"
-	parse := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": syntax})
+	parse := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": syntax})
 	parseErrors, _ := parse["parseErrors"].([]any)
 	if len(parseErrors) == 0 || parse["valid"] != false {
 		t.Fatalf("syntax error must be reported as a parse error: %+v", parse)
@@ -427,18 +518,18 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 	if first["line"] != float64(3) || first["column"] == nil {
 		t.Fatalf("parse error must carry line 3 and a column: %+v", first)
 	}
+}
 
+// assertDiagnoseRejectsDocuments checks that a document that is no manifest
+// document is a tool error.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseRejectsDocuments(t *testing.T, s *Server) {
+	t.Helper()
 	for _, document := range []string{"secrets", "../engmod.yml", "engmod.yml", "model/unknown.yml"} {
-		payload, isErr := callToolRaw(t, s, "model.diagnose", map[string]any{"document": document, "content": "x: 1\n"})
+		payload, isErr := s.callToolRaw(t, "model.diagnose", map[string]any{"document": document, "content": "x: 1\n"})
 		if !isErr {
 			t.Fatalf("document %q is not a manifest document and must be rejected: %+v", document, payload)
 		}
-	}
-
-	if after := snapshotDir(t, modelDir); fmt.Sprint(after) != fmt.Sprint(before) {
-		t.Fatalf("model.diagnose changed the model directory")
-	}
-	if left, _ := os.ReadDir(tmp); len(left) != 0 {
-		t.Fatalf("model.diagnose left temp files: %v", left)
 	}
 }

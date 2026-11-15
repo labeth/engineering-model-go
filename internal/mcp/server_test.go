@@ -4,8 +4,10 @@ package mcp
 import (
 	"encoding/json"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -14,29 +16,46 @@ import (
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
-	s := NewServer()
-	modelPath := filepath.Join("..", "..", "examples", "payments-engineering-sample", "engmod.yml")
-	reqPath := filepath.Join("..", "..", "examples", "payments-engineering-sample", "model", "requirements.yml")
-	designPath := filepath.Join("..", "..", "examples", "payments-engineering-sample", "model", "views.yml")
-	repoRoot := filepath.Join("..", "..")
+	s := initializedServerWithDesign(t)
+	assertToolsList(t, s)
+	for i, name := range s.ToolNames() {
+		if name == "links.review" {
+			// Needs a model with requirement links; the payments sample has
+			// none (TestLinksReviewToolReturnsCommandAndPatch covers it).
+			continue
+		}
+		s.assertToolReturnsPayload(t, i, name)
+	}
+}
 
+// initializedServerWithDesign starts the server on the payments sample with
+// its views document as design path.
+func initializedServerWithDesign(t *testing.T) *Server {
+	t.Helper()
+	s := NewServer()
+	sample := filepath.Join("..", "..", "examples", "payments-engineering-sample")
 	initResp := rpcCall(t, s, map[string]any{
 		"jsonrpc": "2.0",
 		"id":      1,
 		"method":  "initialize",
 		"params": map[string]any{
 			"initializationOptions": map[string]any{
-				"modelPath":        modelPath,
-				"requirementsPath": reqPath,
-				"designPath":       designPath,
-				"repoRoot":         repoRoot,
+				"modelPath":        filepath.Join(sample, "engmod.yml"),
+				"requirementsPath": filepath.Join(sample, "model", "requirements.yml"),
+				"designPath":       filepath.Join(sample, "model", "views.yml"),
+				"repoRoot":         filepath.Join("..", ".."),
 			},
 		},
 	})
 	if initResp["error"] != nil {
 		t.Fatalf("initialize returned error: %+v", initResp["error"])
 	}
+	return s
+}
 
+// assertToolsList checks that tools/list lists every tool of the server.
+func assertToolsList(t *testing.T, s *Server) {
+	t.Helper()
 	listResp := rpcCall(t, s, map[string]any{
 		"jsonrpc": "2.0",
 		"id":      2,
@@ -54,61 +73,74 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 	if got, want := len(tools), len(s.ToolNames()); got != want {
 		t.Fatalf("unexpected tools count, got %d want %d", got, want)
 	}
+}
 
-	for i, name := range s.ToolNames() {
-		if name == "links.review" {
-			// Needs a model with requirement links; the payments sample has
-			// none (TestLinksReviewToolReturnsCommandAndPatch covers it).
-			continue
-		}
-		args := argsForTool(name)
-		resp := rpcCall(t, s, map[string]any{
-			"jsonrpc": "2.0",
-			"id":      100 + i,
-			"method":  "tools/call",
-			"params": map[string]any{
-				"name":      name,
-				"arguments": args,
-			},
-		})
-		if resp["error"] != nil {
-			t.Fatalf("tool %s returned error: %+v", name, resp["error"])
-		}
-		result, ok := resp["result"].(map[string]any)
-		if !ok {
-			t.Fatalf("tool %s missing result", name)
-		}
-		if isErr, _ := result["isError"].(bool); isErr {
-			t.Fatalf("tool %s returned isError=true", name)
-		}
-		content, ok := result["content"].([]any)
-		if !ok || len(content) == 0 {
-			t.Fatalf("tool %s missing content", name)
-		}
-		chunk, _ := content[0].(map[string]any)
-		text, _ := chunk["text"].(string)
-		var payload map[string]any
-		if err := json.Unmarshal([]byte(text), &payload); err != nil {
-			t.Fatalf("tool %s content not json: %v", name, err)
-		}
-		if payload["ok"] != true {
-			t.Fatalf("tool %s missing ok=true", name)
-		}
-		if payload["schemaVersion"] == "" {
-			t.Fatalf("tool %s missing schemaVersion", name)
-		}
-		if payload["tool"] != name {
-			t.Fatalf("tool %s echo mismatch, got %v", name, payload["tool"])
-		}
-		assertUsefulToolPayload(t, name, payload, text)
+// assertToolReturnsPayload calls one tool with its sample arguments and
+// checks the envelope and the domain payload of the result.
+func (s *Server) assertToolReturnsPayload(t *testing.T, index int, name string) {
+	t.Helper()
+	resp := rpcCall(t, s, map[string]any{
+		"jsonrpc": "2.0",
+		"id":      100 + index,
+		"method":  "tools/call",
+		"params": map[string]any{
+			"name":      name,
+			"arguments": argsForTool(name),
+		},
+	})
+	text := toolResultText(t, name, resp)
+	payload := decodeToolEnvelope(t, name, text)
+	assertUsefulToolPayload(t, toolOutput{name: name, payload: payload, text: text})
+}
+
+// toolResultText returns the text of the first content chunk of a successful
+// tools/call response.
+func toolResultText(t *testing.T, name string, resp map[string]any) string {
+	t.Helper()
+	if resp["error"] != nil {
+		t.Fatalf("tool %s returned error: %+v", name, resp["error"])
 	}
+	result, ok := resp["result"].(map[string]any)
+	if !ok {
+		t.Fatalf("tool %s missing result", name)
+	}
+	if isErr, _ := result["isError"].(bool); isErr {
+		t.Fatalf("tool %s returned isError=true", name)
+	}
+	content, ok := result["content"].([]any)
+	if !ok || len(content) == 0 {
+		t.Fatalf("tool %s missing content", name)
+	}
+	chunk, _ := content[0].(map[string]any)
+	text, _ := chunk["text"].(string)
+	return text
+}
+
+// decodeToolEnvelope parses the tool text and checks ok, schemaVersion and
+// the tool name echo.
+func decodeToolEnvelope(t *testing.T, name, text string) map[string]any {
+	t.Helper()
+	var payload map[string]any
+	if err := json.Unmarshal([]byte(text), &payload); err != nil {
+		t.Fatalf("tool %s content not json: %v", name, err)
+	}
+	if payload["ok"] != true {
+		t.Fatalf("tool %s missing ok=true", name)
+	}
+	if payload["schemaVersion"] == "" {
+		t.Fatalf("tool %s missing schemaVersion", name)
+	}
+	if payload["tool"] != name {
+		t.Fatalf("tool %s echo mismatch, got %v", name, payload["tool"])
+	}
+	return payload
 }
 
 // TRLC-LINKS: REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-182
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	payload := s.callToolPayload(t, "model.authoringContract", map[string]any{})
 	contract, ok := payload["contract"].(map[string]any)
 	if !ok {
 		t.Fatalf("missing authoring contract: %+v", payload)
@@ -116,6 +148,17 @@ func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	if contract["contractVersion"] != "engineering-model.authoring.v8" {
 		t.Fatalf("unexpected contract version: %v", contract["contractVersion"])
 	}
+	assertContractHealthGuide(t, contract)
+	assertContractRequiredRules(t, payload)
+	assertContractDocuments(t, contract)
+}
+
+// assertContractHealthGuide checks the health guide of the contract: 16 codes
+// and the waiver rule.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractHealthGuide(t *testing.T, contract map[string]any) {
+	t.Helper()
 	health, _ := contract["health"].(map[string]any)
 	if codes, _ := health["codes"].([]any); len(codes) != 16 {
 		t.Fatalf("the v7 contract must carry the health guide with 16 codes: %+v", health)
@@ -123,11 +166,27 @@ func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	if rules, _ := health["rules"].([]any); len(rules) == 0 || !strings.Contains(fmt.Sprint(rules...), "health.waiver_unjustified") {
 		t.Fatalf("the health guide must state the waiver rule: %+v", health)
 	}
+}
+
+// assertContractRequiredRules checks that the rules list the required
+// switches with their remedies.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractRequiredRules(t *testing.T, payload map[string]any) {
+	t.Helper()
 	rules, _ := payload["rules"].(map[string]any)
 	required, _ := rules["required"].([]any)
 	if len(required) == 0 || !strings.Contains(fmt.Sprint(required...), "lifecycle.missing") || !strings.Contains(fmt.Sprint(required...), "ef-tier-up") {
 		t.Fatalf("the v7 rules must list the required switches with their remedies: %+v", rules["required"])
 	}
+}
+
+// assertContractDocuments checks the document count, the absent compatibility
+// field and the dependency authoring guidance of the contract.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContractDocuments(t *testing.T, contract map[string]any) {
+	t.Helper()
 	documents, _ := contract["documents"].([]any)
 	if len(documents) != 9 {
 		t.Fatalf("expected manifest plus eight domain documents, got %d", len(documents))
@@ -297,67 +356,49 @@ func TestToolMissingRequiredArgument(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func argsForTool(name string) map[string]any {
-	switch name {
-	case "requirements.get", "requirements.parents", "requirements.impact", "requirements.supportPath", "requirements.suggestEditPlan", "files.forRequirement", "threats.forRequirement", "flows.forRequirement", "changes.preflight":
-		return map[string]any{"requirementId": "REQ-PAY-001"}
-	case "files.forControl":
-		return map[string]any{"controlId": "CTRL-PAYMENTS-SSO-MFA"}
-	case "files.forThreat":
-		return map[string]any{"threatId": "TS-PAYMENTS-CHECKOUT-SPOOFING"}
-	case "files.owner", "interfaces.matchFromCode":
-		return map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")}
-	case "verification.status", "ownership.resolve", "runtime.resolve", "confidence.explain":
-		return map[string]any{"entityId": "IF-PAYMENTS-CHECKOUT-API"}
-	case "flows.diff":
-		return map[string]any{"fromFlowId": "FLOW-CUSTOMER-CHECKOUT", "toFlowId": "FLOW-PAYMENTS-MANUAL-REVIEW"}
-	case "graph.neighborhood", "graph.search":
-		return map[string]any{"query": "payments"}
-	case "graph.explainEdge":
-		return map[string]any{"from": "FG-PAYMENTS", "to": "FU-CHECKOUT"}
-	case "model.list":
-		return map[string]any{"query": "checkout"}
-	case "model.entity":
-		return map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"}
-	case "model.implementations":
-		return map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"}
-	case "code.contextForTask":
-		return map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT", "requirementId": "REQ-PAY-001"}
-	case "views.recommend":
-		return map[string]any{"taskType": "security"}
-	case "tier.gap":
-		return map[string]any{"target": "product"}
-	case "views.renderContext":
-		return map[string]any{"viewId": "VIEW-SECURITY"}
-	case "governance.checkPatch":
-		return map[string]any{"diff": "tests/x_test.go"}
-	case "interfaces.resolve", "endpoints.resolve":
-		return map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API", "environment": "prod"}
-	case "interfaces.implementations":
-		return map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API"}
-	case "identity.resolve", "policy.resolve", "schema.resolve":
-		return map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API"}
-	case "environments.resolve":
-		return map[string]any{"environment": "prod"}
-	case "schema.diff":
-		return map[string]any{"fromInterfaceId": "IF-PAYMENTS-CHECKOUT-API", "toInterfaceId": "IF-PAYMENTS-BANK-AUTH"}
-	case "flow.detail", "flow.implementations":
-		return map[string]any{"flowId": "FLOW-CUSTOMER-CHECKOUT"}
-	case "tests.forRequirement":
-		return map[string]any{"requirementId": "REQ-PAY-001"}
-	case "tests.forEntity":
-		return map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"}
-	case "coverage.strictStatus":
-		return map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")}
-	case "model.complete":
-		return map[string]any{"prefix": "FU-", "field": "appliesTo"}
-	case "model.patch":
-		return map[string]any{"document": "assurance", "id": "RISK-PAYMENTS-SSO-MFA-GAP", "set": map[string]any{"title": "Renamed"}}
-	case "model.diagnose":
+	if name == "model.diagnose" {
 		content, _ := os.ReadFile(filepath.Join("..", "..", "examples", "payments-engineering-sample", "model", "decisions.yml"))
 		return map[string]any{"document": "decisions", "content": string(content)}
-	default:
-		return map[string]any{}
 	}
+	for _, entry := range toolArgsTable {
+		if slices.Contains(entry.names, name) {
+			return maps.Clone(entry.args)
+		}
+	}
+	return map[string]any{}
+}
+
+// toolArgs gives the sample arguments of the tools named by names.
+type toolArgs struct {
+	names []string
+	args  map[string]any
+}
+
+// toolArgsTable lists the sample arguments each tool is called with against
+// the payments sample; a tool not listed is called without arguments.
+var toolArgsTable = []toolArgs{
+	{[]string{"requirements.get", "requirements.parents", "requirements.impact", "requirements.supportPath", "requirements.suggestEditPlan", "files.forRequirement", "threats.forRequirement", "flows.forRequirement", "changes.preflight", "tests.forRequirement"}, map[string]any{"requirementId": "REQ-PAY-001"}},
+	{[]string{"files.forControl"}, map[string]any{"controlId": "CTRL-PAYMENTS-SSO-MFA"}},
+	{[]string{"files.forThreat"}, map[string]any{"threatId": "TS-PAYMENTS-CHECKOUT-SPOOFING"}},
+	{[]string{"files.owner", "interfaces.matchFromCode", "coverage.strictStatus"}, map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")}},
+	{[]string{"verification.status", "ownership.resolve", "runtime.resolve", "confidence.explain"}, map[string]any{"entityId": "IF-PAYMENTS-CHECKOUT-API"}},
+	{[]string{"flows.diff"}, map[string]any{"fromFlowId": "FLOW-CUSTOMER-CHECKOUT", "toFlowId": "FLOW-PAYMENTS-MANUAL-REVIEW"}},
+	{[]string{"graph.neighborhood", "graph.search"}, map[string]any{"query": "payments"}},
+	{[]string{"graph.explainEdge"}, map[string]any{"from": "FG-PAYMENTS", "to": "FU-CHECKOUT"}},
+	{[]string{"model.list"}, map[string]any{"query": "checkout"}},
+	{[]string{"model.entity", "model.implementations", "tests.forEntity"}, map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"}},
+	{[]string{"code.contextForTask"}, map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT", "requirementId": "REQ-PAY-001"}},
+	{[]string{"views.recommend"}, map[string]any{"taskType": "security"}},
+	{[]string{"tier.gap"}, map[string]any{"target": "product"}},
+	{[]string{"views.renderContext"}, map[string]any{"viewId": "VIEW-SECURITY"}},
+	{[]string{"governance.checkPatch"}, map[string]any{"diff": "tests/x_test.go"}},
+	{[]string{"interfaces.resolve", "endpoints.resolve"}, map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API", "environment": "prod"}},
+	{[]string{"interfaces.implementations", "identity.resolve", "policy.resolve", "schema.resolve"}, map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API"}},
+	{[]string{"environments.resolve"}, map[string]any{"environment": "prod"}},
+	{[]string{"schema.diff"}, map[string]any{"fromInterfaceId": "IF-PAYMENTS-CHECKOUT-API", "toInterfaceId": "IF-PAYMENTS-BANK-AUTH"}},
+	{[]string{"flow.detail", "flow.implementations"}, map[string]any{"flowId": "FLOW-CUSTOMER-CHECKOUT"}},
+	{[]string{"model.complete"}, map[string]any{"prefix": "FU-", "field": "appliesTo"}},
+	{[]string{"model.patch"}, map[string]any{"document": "assurance", "id": "RISK-PAYMENTS-SSO-MFA-GAP", "set": map[string]any{"title": "Renamed"}}},
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
@@ -389,15 +430,68 @@ func decodeResponse(t *testing.T, out []byte) map[string]any {
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
-func assertUsefulToolPayload(t *testing.T, name string, payload map[string]any, text string) {
+func assertUsefulToolPayload(t *testing.T, out toolOutput) {
+	t.Helper()
+	assertNoPlaceholderText(t, out)
+	assertHasDomainKeys(t, out)
+	if spec, ok := nonEmptyListChecks[out.name]; ok {
+		spec.tool = out.name
+		assertNonEmptyList(t, out.payload, spec)
+	}
+	if check, ok := customPayloadChecks[out.name]; ok {
+		check(t, out.payload)
+	}
+}
+
+// toolOutput is the result of one tool call: its name, the decoded payload and
+// the raw text.
+type toolOutput struct {
+	name    string
+	payload map[string]any
+	text    string
+}
+
+// listSpec names a list a tool payload must carry non-empty: the tool, the
+// payload key and the plural noun the failure message uses.
+type listSpec struct {
+	tool, key, what string
+}
+
+// nonEmptyListChecks lists the tools whose payload must carry a non-empty list.
+var nonEmptyListChecks = map[string]listSpec{
+	"generation.status":      {key: "artifacts", what: "artifacts"},
+	"verification.recommend": {key: "recommendations", what: "recommendations"},
+	"tasks.entryPoints":      {key: "entryPoints", what: "entry points"},
+	"tasks.nextBestActions":  {key: "actions", what: "actions"},
+	"views.recommend":        {key: "recommendedViews", what: "views"},
+	"code.contextForTask":    {key: "implementationFiles", what: "implementation files"},
+	"runtime.resolve":        {key: "deploymentTargets", what: "deployment targets"},
+	"policy.resolve":         {key: "controls", what: "controls"},
+}
+
+// customPayloadChecks lists the tools with a payload check of their own.
+var customPayloadChecks = map[string]func(*testing.T, map[string]any){
+	"generation.plan":    assertGenerationPlanPayload,
+	"flows.diff":         assertFlowsDiffPayload,
+	"governance.policy":  assertGovernancePolicyPayload,
+	"confidence.explain": assertConfidencePayload,
+}
+
+// assertNoPlaceholderText fails when the tool text carries placeholder text.
+func assertNoPlaceholderText(t *testing.T, out toolOutput) {
 	t.Helper()
 	for _, forbidden := range []string{"tool not implemented", "not yet semantic", "go run ./cmd/engdoc ...", "go run ./cmd/engdragon ...", "go run ./cmd/engstruct ...", "go run ./cmd/engtrlc ..."} {
-		if strings.Contains(text, forbidden) {
-			t.Fatalf("tool %s returned placeholder text %q: %s", name, forbidden, text)
+		if strings.Contains(out.text, forbidden) {
+			t.Fatalf("tool %s returned placeholder text %q: %s", out.name, forbidden, out.text)
 		}
 	}
+}
+
+// assertHasDomainKeys fails when the payload carries only envelope keys.
+func assertHasDomainKeys(t *testing.T, out toolOutput) {
+	t.Helper()
 	domainKeys := 0
-	for k := range payload {
+	for k := range out.payload {
 		switch k {
 		case "ok", "tool", "schemaVersion", "generatedAt":
 		default:
@@ -405,139 +499,92 @@ func assertUsefulToolPayload(t *testing.T, name string, payload map[string]any, 
 		}
 	}
 	if domainKeys == 0 {
-		t.Fatalf("tool %s returned no domain payload keys: %+v", name, payload)
+		t.Fatalf("tool %s returned no domain payload keys: %+v", out.name, out.payload)
 	}
-	switch name {
-	case "generation.plan":
-		rows, _ := payload["commands"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("generation.plan returned no commands")
+}
+
+// assertNonEmptyList fails when the payload list named by the spec is empty.
+func assertNonEmptyList(t *testing.T, payload map[string]any, spec listSpec) {
+	t.Helper()
+	rows, _ := payload[spec.key].([]any)
+	if len(rows) == 0 {
+		t.Fatalf("%s returned no %s", spec.tool, spec.what)
+	}
+}
+
+// assertGenerationPlanPayload checks that every planned command is usable and
+// has outputs.
+func assertGenerationPlanPayload(t *testing.T, payload map[string]any) {
+	t.Helper()
+	rows, _ := payload["commands"].([]any)
+	if len(rows) == 0 {
+		t.Fatalf("generation.plan returned no commands")
+	}
+	for _, item := range rows {
+		row, _ := item.(map[string]any)
+		if strings.TrimSpace(row["command"].(string)) == "" || strings.Contains(row["command"].(string), "<missing>") {
+			t.Fatalf("generation.plan returned unusable command: %+v", row)
 		}
-		for _, item := range rows {
-			row, _ := item.(map[string]any)
-			if strings.TrimSpace(row["command"].(string)) == "" || strings.Contains(row["command"].(string), "<missing>") {
-				t.Fatalf("generation.plan returned unusable command: %+v", row)
-			}
-			outputs, _ := row["outputs"].([]any)
-			if len(outputs) == 0 {
-				t.Fatalf("generation.plan command has no outputs: %+v", row)
-			}
-		}
-	case "generation.status":
-		rows, _ := payload["artifacts"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("generation.status returned no artifacts")
-		}
-	case "flows.diff":
-		if len(payload["fieldChanges"].([]any)) == 0 && len(payload["setChanges"].([]any)) == 0 {
-			stepChanges, _ := payload["stepChanges"].(map[string]any)
-			if len(stepChanges) == 0 {
-				t.Fatalf("flows.diff returned no semantic diff content: %+v", payload)
-			}
-		}
-	case "verification.recommend":
-		rows, _ := payload["recommendations"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("verification.recommend returned no recommendations")
-		}
-	case "governance.policy":
-		policy, _ := payload["policy"].(map[string]any)
-		rules, _ := policy["rules"].([]any)
-		if len(rules) == 0 {
-			t.Fatalf("governance.policy returned no rules: %+v", payload)
-		}
-	case "tasks.entryPoints":
-		rows, _ := payload["entryPoints"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("tasks.entryPoints returned no entry points")
-		}
-	case "tasks.nextBestActions":
-		rows, _ := payload["actions"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("tasks.nextBestActions returned no actions")
-		}
-	case "views.recommend":
-		rows, _ := payload["recommendedViews"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("views.recommend returned no views")
-		}
-	case "code.contextForTask":
-		rows, _ := payload["implementationFiles"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("code.contextForTask returned no implementation files")
-		}
-	case "runtime.resolve":
-		rows, _ := payload["deploymentTargets"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("runtime.resolve returned no deployment targets")
-		}
-	case "policy.resolve":
-		rows, _ := payload["controls"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("policy.resolve returned no controls")
-		}
-	case "confidence.explain":
-		if strings.TrimSpace(payload["confidence"].(string)) == "" {
-			t.Fatalf("confidence.explain returned no confidence")
-		}
-		rows, _ := payload["basis"].([]any)
-		if len(rows) == 0 {
-			t.Fatalf("confidence.explain returned no basis")
+		outputs, _ := row["outputs"].([]any)
+		if len(outputs) == 0 {
+			t.Fatalf("generation.plan command has no outputs: %+v", row)
 		}
 	}
 }
 
+// assertFlowsDiffPayload checks that the diff has field, set or step changes.
+func assertFlowsDiffPayload(t *testing.T, payload map[string]any) {
+	t.Helper()
+	if len(payload["fieldChanges"].([]any)) != 0 || len(payload["setChanges"].([]any)) != 0 {
+		return
+	}
+	if stepChanges, _ := payload["stepChanges"].(map[string]any); len(stepChanges) == 0 {
+		t.Fatalf("flows.diff returned no semantic diff content: %+v", payload)
+	}
+}
+
+// assertGovernancePolicyPayload checks that the policy carries rules.
+func assertGovernancePolicyPayload(t *testing.T, payload map[string]any) {
+	t.Helper()
+	policy, _ := payload["policy"].(map[string]any)
+	rules, _ := policy["rules"].([]any)
+	if len(rules) == 0 {
+		t.Fatalf("governance.policy returned no rules: %+v", payload)
+	}
+}
+
+// assertConfidencePayload checks that the explanation carries a confidence and
+// its basis.
+func assertConfidencePayload(t *testing.T, payload map[string]any) {
+	t.Helper()
+	if strings.TrimSpace(payload["confidence"].(string)) == "" {
+		t.Fatalf("confidence.explain returned no confidence")
+	}
+	assertNonEmptyList(t, payload, listSpec{tool: "confidence.explain", key: "basis", what: "basis"})
+}
+
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
 func TestInterfaceImplementationsReturnsLinkedSymbols(t *testing.T) {
-	s := NewServer()
-	rpcCall(t, s, map[string]any{
-		"jsonrpc": "2.0",
-		"id":      1,
-		"method":  "initialize",
-		"params": map[string]any{
-			"initializationOptions": map[string]any{
-				"modelPath":        filepath.Join("..", "..", "examples", "payments-engineering-sample", "engmod.yml"),
-				"requirementsPath": filepath.Join("..", "..", "examples", "payments-engineering-sample", "model", "requirements.yml"),
-				"repoRoot":         filepath.Join("..", ".."),
-			},
-		},
-	})
-
-	resp := rpcCall(t, s, map[string]any{
-		"jsonrpc": "2.0",
-		"id":      2,
-		"method":  "tools/call",
-		"params": map[string]any{
-			"name":      "interfaces.implementations",
-			"arguments": map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API"},
-		},
-	})
-	result, _ := resp["result"].(map[string]any)
-	if isErr, _ := result["isError"].(bool); isErr {
-		t.Fatalf("expected implementations lookup to succeed")
-	}
-	content, _ := result["content"].([]any)
-	chunk, _ := content[0].(map[string]any)
-	text, _ := chunk["text"].(string)
-	var payload map[string]any
-	if err := json.Unmarshal([]byte(text), &payload); err != nil {
-		t.Fatalf("tool payload json: %v", err)
-	}
+	s := initializedPaymentsServer(t)
+	payload := s.callToolPayload(t, "interfaces.implementations", map[string]any{"interfaceId": "IF-PAYMENTS-CHECKOUT-API"})
 	items, _ := payload["implementations"].([]any)
 	if len(items) == 0 {
 		t.Fatalf("expected at least one linked implementation")
 	}
-	found := false
-	for _, item := range items {
-		row, _ := item.(map[string]any)
-		if strings.Contains(row["path"].(string), "checkout_api.go") {
-			found = true
-			break
-		}
-	}
-	if !found {
+	if !hasPathContaining(items, "checkout_api.go") {
 		t.Fatalf("expected checkout_api.go in implementations: %+v", items)
 	}
+}
+
+// hasPathContaining reports whether a row of items has a path containing sub.
+func hasPathContaining(items []any, sub string) bool {
+	for _, item := range items {
+		row, _ := item.(map[string]any)
+		if strings.Contains(row["path"].(string), sub) {
+			return true
+		}
+	}
+	return false
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
@@ -634,18 +681,35 @@ func TestGraphSearchIncludesFlowsAndOtherModelEntities(t *testing.T) {
 func TestDeveloperContextToolsReturnGroupedImplementations(t *testing.T) {
 	s := initializedPaymentsServer(t)
 
-	listPayload := callToolPayload(t, s, "model.list", map[string]any{"query": "REQ-PAY-001", "kind": "requirement"})
+	listPayload := s.callToolPayload(t, "model.list", map[string]any{"query": "REQ-PAY-001", "kind": "requirement"})
 	entities, _ := listPayload["entities"].([]any)
 	if len(entities) == 0 {
 		t.Fatalf("expected model.list to return matching requirement")
 	}
 
-	entityPayload := callToolPayload(t, s, "model.entity", map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"})
+	entityPayload := s.callToolPayload(t, "model.entity", map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"})
 	if entityPayload["kind"] != "flow" || entityPayload["exists"] != true {
 		t.Fatalf("expected model.entity flow detail, got %+v", entityPayload)
 	}
 
-	implPayload := callToolPayload(t, s, "flow.implementations", map[string]any{"flowId": "FLOW-CUSTOMER-CHECKOUT"})
+	assertGroupedFlowImplementations(t, s.callToolPayload(t, "flow.implementations", map[string]any{"flowId": "FLOW-CUSTOMER-CHECKOUT"}))
+
+	contextPayload := s.callToolPayload(t, "code.contextForTask", map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT", "requirementId": "REQ-PAY-001"})
+	contextFiles, _ := contextPayload["implementationFiles"].([]any)
+	if len(contextFiles) == 0 {
+		t.Fatalf("expected code.contextForTask to include implementationFiles")
+	}
+
+	coveragePayload := s.callToolPayload(t, "coverage.strictStatus", map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")})
+	if coveragePayload["status"] == "" {
+		t.Fatalf("expected coverage.strictStatus status")
+	}
+}
+
+// assertGroupedFlowImplementations checks that the grouped flow files carry
+// checkout_api.go with its lineList.
+func assertGroupedFlowImplementations(t *testing.T, implPayload map[string]any) {
+	t.Helper()
 	files, _ := implPayload["files"].([]any)
 	if len(files) == 0 {
 		t.Fatalf("expected grouped flow implementation files")
@@ -655,24 +719,19 @@ func TestDeveloperContextToolsReturnGroupedImplementations(t *testing.T) {
 		row, _ := item.(map[string]any)
 		if strings.Contains(row["path"].(string), "checkout_api.go") {
 			foundCheckout = true
-			if strings.TrimSpace(row["lineList"].(string)) == "" {
-				t.Fatalf("expected checkout_api.go grouped row to include lineList: %+v", row)
-			}
+			assertHasLineList(t, row)
 		}
 	}
 	if !foundCheckout {
 		t.Fatalf("expected checkout_api.go in grouped implementation files: %+v", files)
 	}
+}
 
-	contextPayload := callToolPayload(t, s, "code.contextForTask", map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT", "requirementId": "REQ-PAY-001"})
-	contextFiles, _ := contextPayload["implementationFiles"].([]any)
-	if len(contextFiles) == 0 {
-		t.Fatalf("expected code.contextForTask to include implementationFiles")
-	}
-
-	coveragePayload := callToolPayload(t, s, "coverage.strictStatus", map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")})
-	if coveragePayload["status"] == "" {
-		t.Fatalf("expected coverage.strictStatus status")
+// assertHasLineList fails when a grouped implementation row has no lineList.
+func assertHasLineList(t *testing.T, row map[string]any) {
+	t.Helper()
+	if strings.TrimSpace(row["lineList"].(string)) == "" {
+		t.Fatalf("expected checkout_api.go grouped row to include lineList: %+v", row)
 	}
 }
 
@@ -699,7 +758,7 @@ func initializedPaymentsServer(t *testing.T) *Server {
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
-func callToolPayload(t *testing.T, s *Server, name string, args map[string]any) map[string]any {
+func (s *Server) callToolPayload(t *testing.T, name string, args map[string]any) map[string]any {
 	t.Helper()
 	resp := rpcCall(t, s, map[string]any{
 		"jsonrpc": "2.0",

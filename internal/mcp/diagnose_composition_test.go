@@ -22,6 +22,33 @@ func TestModelDiagnoseChecksSubmittedQualifiedReferences(t *testing.T) {
 	t.Setenv("CUE_REGISTRY", "none")
 	t.Setenv("ENGMOD_LOCK", "")
 	t.Setenv("ENGMOD_WORK", "")
+	parent, good := diagnoseQualifiedFixture(t)
+	bad := strings.Replace(good, "child::FU-CHILD-UNIT", "child::FU-NOPE", 1)
+	requirementsPath := filepath.Join(parent, "model", "requirements.yml")
+	writeMCPFile(t, requirementsPath, good)
+	s := initializedServerAt(t, parent)
+
+	baseline := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": good})
+	if baseline["valid"] != true {
+		t.Fatalf("good content must be valid: %+v", baseline)
+	}
+	requireUnpublishedReference(t, s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": bad}))
+
+	writeMCPFile(t, requirementsPath, bad)
+	before := snapshotDir(t, filepath.Dir(parent))
+	fixed := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": good})
+	if fixed["valid"] != true {
+		t.Fatalf("on-disk bad reference fixed by the submitted content must be valid: %+v", fixed)
+	}
+	requireSnapshotUnchanged(t, before, snapshotDir(t, filepath.Dir(parent)))
+}
+
+// diagnoseQualifiedFixture writes the composition fixture with the child
+// publishing a functional group and returns the parent directory and a
+// requirements document with a valid qualified reference.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func diagnoseQualifiedFixture(t *testing.T) (string, string) {
+	t.Helper()
 	parent := writeAuthoringCompositionFixture(t, true)
 	childManifest := filepath.Join(filepath.Dir(parent), "child", "engmod.yml")
 	data, err := os.ReadFile(childManifest)
@@ -30,18 +57,15 @@ func TestModelDiagnoseChecksSubmittedQualifiedReferences(t *testing.T) {
 	}
 	writeMCPFile(t, childManifest, strings.Replace(string(data), "[FU-CHILD-UNIT, CAP-CHILD]", "[FG-CHILD, FU-CHILD-UNIT, CAP-CHILD]", 1))
 	writeMCPFile(t, filepath.Join(parent, "model", "catalog.yml"), "schemaVersion: 3\ncatalog:\n  systems:\n    - id: SYS-PARENT\n      name: parent system\n      definition: Test system.\n")
-	requirementsPath := filepath.Join(parent, "model", "requirements.yml")
 	good := "schemaVersion: 3\nlintRun: {mode: strict, catalogRef: ./catalog.yml}\nrequirements:\n  - id: REQ-PARENT\n    text: 'The parent system shall publish one message.'\n    appliesTo: [child::FU-CHILD-UNIT]\n"
-	bad := strings.Replace(good, "child::FU-CHILD-UNIT", "child::FU-NOPE", 1)
-	writeMCPFile(t, requirementsPath, good)
-	s := initializedServerAt(t, parent)
-	before := snapshotDir(t, filepath.Dir(parent))
+	return parent, good
+}
 
-	baseline := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": good})
-	if baseline["valid"] != true {
-		t.Fatalf("good content must be valid: %+v", baseline)
-	}
-	result := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": bad})
+// requireUnpublishedReference requires an invalid result carrying an
+// unpublished_reference diagnostic with line 6 and no temp path.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func requireUnpublishedReference(t *testing.T, result map[string]any) {
+	t.Helper()
 	var row map[string]any
 	for _, item := range result["diagnostics"].([]any) {
 		if d := item.(map[string]any); d["code"] == "composition.unpublished_reference" {
@@ -54,19 +78,20 @@ func TestModelDiagnoseChecksSubmittedQualifiedReferences(t *testing.T) {
 	if row["line"] != float64(6) || strings.Contains(fmt.Sprint(row["path"]), os.TempDir()) {
 		t.Fatalf("unpublished_reference must carry line 6 and no temp path: %+v", row)
 	}
+}
 
-	writeMCPFile(t, requirementsPath, bad)
-	before = snapshotDir(t, filepath.Dir(parent))
-	fixed := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": good})
-	if fixed["valid"] != true {
-		t.Fatalf("on-disk bad reference fixed by the submitted content must be valid: %+v", fixed)
+// requireSnapshotUnchanged fails, naming the changed files, when the workspace
+// differs from the snapshot taken before the call.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func requireSnapshotUnchanged(t *testing.T, before, after map[string]string) {
+	t.Helper()
+	if fmt.Sprint(after) == fmt.Sprint(before) {
+		return
 	}
-	if after := snapshotDir(t, filepath.Dir(parent)); fmt.Sprint(after) != fmt.Sprint(before) {
-		for k, v := range after {
-			if before[k] != v {
-				t.Errorf("changed: %s", k)
-			}
+	for k, v := range after {
+		if before[k] != v {
+			t.Errorf("changed: %s", k)
 		}
-		t.Fatalf("model.diagnose wrote into the workspace")
 	}
+	t.Fatalf("model.diagnose wrote into the workspace")
 }

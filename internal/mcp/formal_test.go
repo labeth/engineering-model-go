@@ -38,11 +38,19 @@ func formalMCPModuleText(machine string) string {
 // TRLC-LINKS: REQ-EMG-148
 func formalMCPServer(t *testing.T, entries ...formalMCPEntry) *Server {
 	t.Helper()
+	root := formalFixtureRoot(t)
+	writeFormalEvidence(t, root, entries)
+	return initializeModelAt(t, root)
+}
+
+// formalFixtureRoot copies the Quint payments model into a temp directory and
+// adds the extra requirements of the roll-up cases.
+func formalFixtureRoot(t *testing.T) string {
+	t.Helper()
 	root := t.TempDir()
 	if err := os.CopyFS(root, os.DirFS(filepath.Join("..", "export", "quint", "testdata", "payments"))); err != nil {
 		t.Fatal(err)
 	}
-	// Extra requirements for the roll-up cases.
 	reqPath := filepath.Join(root, "model", "requirements.yml")
 	reqs, err := os.ReadFile(reqPath)
 	if err != nil {
@@ -55,54 +63,46 @@ func formalMCPServer(t *testing.T, entries ...formalMCPEntry) *Server {
 	if err := os.WriteFile(reqPath, []byte(extra), 0o644); err != nil {
 		t.Fatal(err)
 	}
+	return root
+}
+
+// writeFormalEvidence writes the module of every entry and the evidence file
+// listing them; no entries writes no evidence file.
+func writeFormalEvidence(t *testing.T, root string, entries []formalMCPEntry) {
+	t.Helper()
 	var results []map[string]string
 	for _, e := range entries {
-		file := "generated/quint/" + strings.ToLower(strings.ReplaceAll(e.machine, "-", "_")) + ".qnt"
-		text := formalMCPModuleText(e.machine)
-		sum := sha256.Sum256([]byte(text))
-		sha := hex.EncodeToString(sum[:])
-		if e.stale {
-			sha = strings.Repeat("b", 64)
-		}
-		path := filepath.Join(root, filepath.FromSlash(file))
-		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
-			t.Fatal(err)
-		}
-		results = append(results, map[string]string{
-			"requirement": e.req, "status": e.status, "method": "analysis", "kind": "formal",
-			"machine": e.machine, "invariant": e.invariant, "mode": "run", "qntFile": file, "qntSha256": sha, "notes": "fixture",
-		})
+		results = append(results, writeFormalModule(t, root, e))
 	}
-	if len(results) > 0 {
-		data, _ := json.Marshal(map[string]any{"schema": "engmod-quint-results/1", "results": results})
-		path := filepath.Join(root, "test-results", "quint-formal.json")
-		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(path, data, 0o644); err != nil {
-			t.Fatal(err)
-		}
+	if len(results) == 0 {
+		return
 	}
-	s := NewServer()
-	if resp := rpcCall(t, s, map[string]any{
-		"jsonrpc": "2.0", "id": 1, "method": "initialize",
-		"params": map[string]any{"initializationOptions": map[string]any{
-			"modelPath": filepath.Join(root, "engmod.yml"), "repoRoot": root,
-		}},
-	}); resp["error"] != nil {
-		t.Fatalf("initialize: %+v", resp["error"])
+	data, _ := json.Marshal(map[string]any{"schema": "engmod-quint-results/1", "results": results})
+	writeMCPFile(t, filepath.Join(root, "test-results", "quint-formal.json"), string(data))
+}
+
+// writeFormalModule writes the generated module of one entry and returns its
+// evidence result.
+func writeFormalModule(t *testing.T, root string, e formalMCPEntry) map[string]string {
+	t.Helper()
+	file := "generated/quint/" + strings.ToLower(strings.ReplaceAll(e.machine, "-", "_")) + ".qnt"
+	text := formalMCPModuleText(e.machine)
+	sum := sha256.Sum256([]byte(text))
+	sha := hex.EncodeToString(sum[:])
+	if e.stale {
+		sha = strings.Repeat("b", 64)
 	}
-	return s
+	writeMCPFile(t, filepath.Join(root, filepath.FromSlash(file)), text)
+	return map[string]string{
+		"requirement": e.req, "status": e.status, "method": "analysis", "kind": "formal",
+		"machine": e.machine, "invariant": e.invariant, "mode": "run", "qntFile": file, "qntSha256": sha, "notes": "fixture",
+	}
 }
 
 // formalEntryOf returns the formalResults or formalGaps entry for a requirement.
 //
 // TRLC-LINKS: REQ-EMG-148
-func formalEntryOf(t *testing.T, payload map[string]any, key, req string) map[string]any {
-	t.Helper()
+func formalEntryOf(payload map[string]any, key, req string) map[string]any {
 	list, _ := payload[key].([]any)
 	for _, item := range list {
 		if m := item.(map[string]any); m["requirement"] == req {
@@ -125,44 +125,77 @@ func TestVerificationToolsReportFormalPassFailedStale(t *testing.T) {
 		formalMCPEntry{req: "REQ-PAYMENTS-002", invariant: "INV-F-2", status: "fail", machine: "SM-ONE"},
 		formalMCPEntry{req: "REQ-PAYMENTS-003", invariant: "INV-F-3", status: "pass", machine: "SM-TWO", stale: true},
 	)
-	status := callToolPayload(t, s, "verification.status", map[string]any{})
+	status := s.callToolPayload(t, "verification.status", map[string]any{})
 	if _, ok := status["controlVerifications"]; !ok {
 		t.Fatalf("authored output must stay: %+v", status)
 	}
+	assertFormalResults(t, status)
+	assertFormalInvariantEntries(t, status)
+	assertFormalEntityNarrowing(t, s)
+	assertFormalGaps(t, s.callToolPayload(t, "verification.gaps", map[string]any{}))
+}
+
+// assertFormalResults checks the result of each requirement in formalResults.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertFormalResults(t *testing.T, status map[string]any) {
+	t.Helper()
 	for req, want := range map[string]string{"REQ-PAYMENTS-001": "pass", "REQ-PAYMENTS-002": "failed", "REQ-PAYMENTS-003": "stale"} {
-		entry := formalEntryOf(t, status, "formalResults", req)
+		entry := formalEntryOf(status, "formalResults", req)
 		if entry == nil || entry["result"] != want {
 			t.Fatalf("%s: want %s, got %+v", req, want, entry)
 		}
 	}
-	pass := formalEntryOf(t, status, "formalResults", "REQ-PAYMENTS-001")["invariants"].([]any)[0].(map[string]any)
+}
+
+// assertFormalInvariantEntries checks the invariant entry of the passing and
+// of the stale requirement.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertFormalInvariantEntries(t *testing.T, status map[string]any) {
+	t.Helper()
+	pass := formalEntryOf(status, "formalResults", "REQ-PAYMENTS-001")["invariants"].([]any)[0].(map[string]any)
 	sum := sha256.Sum256([]byte(formalMCPModuleText("SM-ONE")))
-	if pass["machine"] != "SM-ONE" || pass["invariant"] != "INV-F-1" || pass["mode"] != "run" || pass["requirement"] != "REQ-PAYMENTS-001" ||
-		pass["result"] != "pass" || pass["qntSha256"] != hex.EncodeToString(sum[:]) {
-		t.Fatalf("invariant entry: %+v", pass)
+	want := map[string]any{"machine": "SM-ONE", "invariant": "INV-F-1", "mode": "run", "requirement": "REQ-PAYMENTS-001", "result": "pass", "qntSha256": hex.EncodeToString(sum[:])}
+	for key, value := range want {
+		if pass[key] != value {
+			t.Fatalf("invariant entry: %+v", pass)
+		}
 	}
-	stale := formalEntryOf(t, status, "formalResults", "REQ-PAYMENTS-003")["invariants"].([]any)[0].(map[string]any)
+	stale := formalEntryOf(status, "formalResults", "REQ-PAYMENTS-003")["invariants"].([]any)[0].(map[string]any)
 	if stale["result"] != "stale" || !strings.Contains(stale["notes"].(string), "no longer matches") {
 		t.Fatalf("stale invariant entry: %+v", stale)
 	}
+}
 
-	// An entityId narrows to a requirement, a machine or an invariant.
-	one := callToolPayload(t, s, "verification.status", map[string]any{"entityId": "REQ-PAYMENTS-002"})
+// assertFormalEntityNarrowing checks that an entityId narrows verification
+// status to a requirement, a machine or an invariant.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertFormalEntityNarrowing(t *testing.T, s *Server) {
+	t.Helper()
+	one := s.callToolPayload(t, "verification.status", map[string]any{"entityId": "REQ-PAYMENTS-002"})
 	if list, _ := one["formalResults"].([]any); len(list) != 1 {
 		t.Fatalf("entityId REQ-PAYMENTS-002: %+v", one)
 	}
-	if list, _ := callToolPayload(t, s, "verification.status", map[string]any{"entityId": "SM-ONE"})["formalResults"].([]any); len(list) != 2 {
+	if list, _ := s.callToolPayload(t, "verification.status", map[string]any{"entityId": "SM-ONE"})["formalResults"].([]any); len(list) != 2 {
 		t.Fatalf("entityId SM-ONE should match two requirements: %+v", list)
 	}
+}
 
-	gaps := callToolPayload(t, s, "verification.gaps", map[string]any{})
+// assertFormalGaps checks that verification.gaps lists the failed and stale
+// requirements and not the passing one.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertFormalGaps(t *testing.T, gaps map[string]any) {
+	t.Helper()
 	if _, ok := gaps["requirementsWithoutFiles"]; !ok {
 		t.Fatalf("authored output must stay: %+v", gaps)
 	}
-	if formalEntryOf(t, gaps, "formalGaps", "REQ-PAYMENTS-002")["result"] != "failed" || formalEntryOf(t, gaps, "formalGaps", "REQ-PAYMENTS-003")["result"] != "stale" {
+	if formalEntryOf(gaps, "formalGaps", "REQ-PAYMENTS-002")["result"] != "failed" || formalEntryOf(gaps, "formalGaps", "REQ-PAYMENTS-003")["result"] != "stale" {
 		t.Fatalf("gaps lack the failed and stale requirements: %+v", gaps["formalGaps"])
 	}
-	if formalEntryOf(t, gaps, "formalGaps", "REQ-PAYMENTS-001") != nil {
+	if formalEntryOf(gaps, "formalGaps", "REQ-PAYMENTS-001") != nil {
 		t.Fatalf("a passing requirement is no gap: %+v", gaps["formalGaps"])
 	}
 }
@@ -182,13 +215,13 @@ func TestFormalRequirementResultRollUp(t *testing.T) {
 		formalMCPEntry{req: "REQ-PAYMENTS-006", invariant: "INV-C2", status: "pass", machine: "SM-TWO", stale: true},
 		formalMCPEntry{req: "REQ-PAYMENTS-007", invariant: "INV-D1", status: "pass", machine: "SM-TWO", stale: true},
 	)
-	status := callToolPayload(t, s, "verification.status", map[string]any{})
+	status := s.callToolPayload(t, "verification.status", map[string]any{})
 	for req, want := range map[string]string{"REQ-PAYMENTS-004": "failed", "REQ-PAYMENTS-005": "failed", "REQ-PAYMENTS-006": "pass", "REQ-PAYMENTS-007": "stale"} {
-		if got := formalEntryOf(t, status, "formalResults", req)["result"]; got != want {
+		if got := formalEntryOf(status, "formalResults", req)["result"]; got != want {
 			t.Errorf("%s = %v, want %s", req, got, want)
 		}
 	}
-	if n := len(formalEntryOf(t, status, "formalResults", "REQ-PAYMENTS-006")["invariants"].([]any)); n != 2 {
+	if n := len(formalEntryOf(status, "formalResults", "REQ-PAYMENTS-006")["invariants"].([]any)); n != 2 {
 		t.Errorf("REQ-PAYMENTS-006 lists %d invariants, want both", n)
 	}
 }
@@ -200,15 +233,15 @@ func TestFormalRequirementResultRollUp(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func TestVerificationToolsUnchangedWithoutFormalEvidence(t *testing.T) {
 	s := formalMCPServer(t)
-	status := callToolPayload(t, s, "verification.status", map[string]any{})
-	gaps := callToolPayload(t, s, "verification.gaps", map[string]any{})
+	status := s.callToolPayload(t, "verification.status", map[string]any{})
+	gaps := s.callToolPayload(t, "verification.gaps", map[string]any{})
 	if _, ok := status["formalResults"]; ok {
 		t.Fatalf("verification.status: %+v", status)
 	}
 	if _, ok := gaps["formalGaps"]; ok {
 		t.Fatalf("verification.gaps: %+v", gaps)
 	}
-	matrix := callToolPayload(t, s, "trace.matrix", map[string]any{})
+	matrix := s.callToolPayload(t, "trace.matrix", map[string]any{})
 	for _, item := range matrix["requirements"].([]any) {
 		row := item.(map[string]any)
 		if _, ok := row["formal"]; ok {
@@ -230,15 +263,29 @@ func TestTraceMatrixRowsCarryFormalEvidence(t *testing.T) {
 		formalMCPEntry{req: "REQ-PAYMENTS-001", invariant: "INV-PAYMENTS-001", status: "pass", machine: "SM-PAYMENTS-AUTH"},
 		formalMCPEntry{req: "REQ-PAYMENTS-002", invariant: "INV-PAYMENTS-002", status: "pass", machine: "SM-OTHER", stale: true},
 	)
-	matrix := callToolPayload(t, s, "trace.matrix", map[string]any{})
-	pass := payloadRow(t, matrix, "REQ-PAYMENTS-001")
+	matrix := s.callToolPayload(t, "trace.matrix", map[string]any{})
+	assertFormalPassRow(t, payloadRow(t, matrix, "REQ-PAYMENTS-001"))
+	assertFormalStaleRow(t, payloadRow(t, matrix, "REQ-PAYMENTS-002"))
+}
+
+// assertFormalPassRow checks the verified row of a passing current result.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertFormalPassRow(t *testing.T, pass map[string]any) {
+	t.Helper()
 	if pass["status"] != "verified" || len(pass["verifications"].([]any)) != 1 || pass["evidenceMethods"].([]any)[0] != "analysis" {
 		t.Fatalf("pass row: %+v", pass)
 	}
 	if formal := pass["formal"].([]any)[0].(map[string]any); formal["result"] != "pass" || formal["machine"] != "SM-PAYMENTS-AUTH" {
 		t.Fatalf("pass formal: %+v", formal)
 	}
-	stale := payloadRow(t, matrix, "REQ-PAYMENTS-002")
+}
+
+// assertFormalStaleRow checks that a stale result is no verification evidence.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertFormalStaleRow(t *testing.T, stale map[string]any) {
+	t.Helper()
 	if stale["status"] != "orphan" || len(stale["verifications"].([]any)) != 0 || stale["formal"].([]any)[0].(map[string]any)["result"] != "stale" {
 		t.Fatalf("stale row: %+v", stale)
 	}
@@ -255,7 +302,7 @@ func TestTraceMatrixRowsCarryFormalEvidence(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestAuthoringContractDocumentsTheMachineContract(t *testing.T) {
 	s := formalMCPServer(t)
-	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	payload := s.callToolPayload(t, "model.authoringContract", map[string]any{})
 	contract := payload["contract"].(map[string]any)
 	if contract["contractVersion"] != model.AuthoringContractVersion {
 		t.Fatalf("contract version %v", contract["contractVersion"])
@@ -264,30 +311,64 @@ func TestAuthoringContractDocumentsTheMachineContract(t *testing.T) {
 	if !ok {
 		t.Fatalf("contract lacks machines: %+v", contract)
 	}
-	ops := map[string]map[string]any{}
-	for _, item := range machines["operators"].([]any) {
-		op := item.(map[string]any)
-		ops[op["operator"].(string)] = op
+	assertMachineOperators(t, machines)
+	assertMachineContractText(t, machines)
+	assertMachineFieldSets(t, payload["rules"].(map[string]any)["fieldSets"].(map[string]any))
+	prefixes := contract["stableIdentifiers"].(map[string]any)["prefixes"].(map[string]any)
+	if prefixes["SM"] == nil || prefixes["TR"] == nil || prefixes["INV"] == nil {
+		t.Errorf("identifier prefixes: %+v", prefixes)
 	}
-	if len(ops) != len(model.MachineOperators()) || ops["implies"]["rightAssociative"] != true || ops["in_state"]["form"] != "call" || ops["<="]["result"] != "Boolean" || ops[":="]["sameType"] != true {
-		t.Fatalf("operator table: %+v", ops)
-	}
-	text, _ := json.Marshal(machines)
-	for _, want := range []string{"engquint generate", "engquint check", "qntSha256", "stale", "analysis", "precedence", "reserved"} {
-		if !strings.Contains(string(text), want) {
-			t.Errorf("machine contract does not mention %q", want)
-		}
-	}
-	rules := payload["rules"].(map[string]any)
-	sets := rules["fieldSets"].(map[string]any)
+}
+
+// assertMachineFieldSets checks that the field sets cover the machine kinds.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertMachineFieldSets(t *testing.T, sets map[string]any) {
+	t.Helper()
 	for _, kind := range []string{"machine", "machineVariable", "machineState", "machineTransition", "machineInvariant"} {
 		if _, ok := sets[kind]; !ok {
 			t.Errorf("fieldSets lack %s", kind)
 		}
 	}
-	prefixes := contract["stableIdentifiers"].(map[string]any)["prefixes"].(map[string]any)
-	if prefixes["SM"] == nil || prefixes["TR"] == nil || prefixes["INV"] == nil {
-		t.Errorf("identifier prefixes: %+v", prefixes)
+}
+
+// assertMachineOperators checks the operator table of the machine contract.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertMachineOperators(t *testing.T, machines map[string]any) {
+	t.Helper()
+	ops := map[string]map[string]any{}
+	for _, item := range machines["operators"].([]any) {
+		op := item.(map[string]any)
+		ops[op["operator"].(string)] = op
+	}
+	if len(ops) != len(model.MachineOperators()) || !machineOperatorShapesHold(ops) {
+		t.Fatalf("operator table: %+v", ops)
+	}
+}
+
+// machineOperatorShapesHold reports whether the implies, in_state, <= and :=
+// operators carry their documented shape.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func machineOperatorShapesHold(ops map[string]map[string]any) bool {
+	if ops["implies"]["rightAssociative"] != true || ops["in_state"]["form"] != "call" {
+		return false
+	}
+	return ops["<="]["result"] == "Boolean" && ops[":="]["sameType"] == true
+}
+
+// assertMachineContractText checks that the machine contract mentions the
+// workflow and evidence terms.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertMachineContractText(t *testing.T, machines map[string]any) {
+	t.Helper()
+	text, _ := json.Marshal(machines)
+	for _, want := range []string{"engquint generate", "engquint check", "qntSha256", "stale", "analysis", "precedence", "reserved"} {
+		if !strings.Contains(string(text), want) {
+			t.Errorf("machine contract does not mention %q", want)
+		}
 	}
 }
 
@@ -301,11 +382,11 @@ func TestGemaraToolsAcceptFormalEvaluationEntries(t *testing.T) {
 		formalMCPEntry{req: "REQ-PAYMENTS-001", invariant: "INV-PAYMENTS-001", status: "pass", machine: "SM-PAYMENTS-AUTH"},
 		formalMCPEntry{req: "REQ-PAYMENTS-002", invariant: "INV-PAYMENTS-002", status: "fail", machine: "SM-PAYMENTS-AUTH"},
 	)
-	eval := callToolPayload(t, s, "gemara.evaluationLog", map[string]any{})
+	eval := s.callToolPayload(t, "gemara.evaluationLog", map[string]any{})
 	if eval["evaluationCount"] != float64(2) || eval["aggregateResult"] != "Failed" {
 		t.Fatalf("gemara.evaluationLog: %+v", eval)
 	}
-	valid := callToolPayload(t, s, "gemara.validate", map[string]any{})
+	valid := s.callToolPayload(t, "gemara.validate", map[string]any{})
 	if errs, _ := valid["crossReferenceErrors"].([]any); len(errs) != 0 || valid["valid"] != true {
 		t.Fatalf("gemara.validate: %+v", valid)
 	}
@@ -331,7 +412,7 @@ func TestVerificationToolsReportFormalErrorWhenMatrixFails(t *testing.T) {
 		t.Fatalf("formalStatus must return the matrix error")
 	}
 	for _, tool := range []string{"verification.status", "verification.gaps"} {
-		payload := callToolPayload(t, s, tool, map[string]any{})
+		payload := s.callToolPayload(t, tool, map[string]any{})
 		msg, _ := payload["formalError"].(string)
 		if !strings.Contains(msg, "trace matrix could not be built") {
 			t.Errorf("%s: formalError = %q in %+v", tool, msg, payload)
@@ -355,29 +436,42 @@ func TestVerificationToolsReportFormalErrorWhenMatrixFails(t *testing.T) {
 func TestFormalEvidenceDirectoriesAgreeWithTheVerificationScan(t *testing.T) {
 	s := formalMCPServer(t, formalMCPEntry{req: "REQ-PAYMENTS-001", invariant: "INV-F-1", status: "pass", machine: "SM-ONE"})
 	root := codescan.ModelRootDir(*s.bundle)
-	from := filepath.Join(root, "test-results", "quint-formal.json")
 	nested := filepath.Join(root, "test-results", "ci", "quint-formal.json")
-	if err := os.MkdirAll(filepath.Dir(nested), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Rename(from, nested); err != nil {
-		t.Fatal(err)
-	}
+	moveEvidenceFile(t, filepath.Join(root, "test-results", "quint-formal.json"), nested)
 	if !s.hasFormalEvidence() {
 		t.Fatalf("a nested evidence file is in the scanned directories")
 	}
-	got, err := s.formalRequirements()
-	if err != nil || len(got) != 1 || got[0].Invariants[0].Evidence != "test-results/ci/quint-formal.json" {
-		t.Fatalf("matrix rows: %+v (%v)", got, err)
-	}
-	outside := filepath.Join(root, "quint-formal.json")
-	if err := os.Rename(nested, outside); err != nil {
-		t.Fatal(err)
-	}
+	assertNestedEvidenceRows(t, s)
+	moveEvidenceFile(t, nested, filepath.Join(root, "quint-formal.json"))
 	if s.hasFormalEvidence() {
 		t.Fatalf("an evidence file outside test-results is not scanned")
 	}
 	if got, err := s.formalRequirements(); err != nil || got != nil {
 		t.Fatalf("no evidence in the scanned directories: %+v (%v)", got, err)
+	}
+}
+
+// assertNestedEvidenceRows checks that the matrix rows carry the nested
+// evidence file.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func assertNestedEvidenceRows(t *testing.T, s *Server) {
+	t.Helper()
+	got, err := s.formalRequirements()
+	if err != nil || len(got) != 1 || got[0].Invariants[0].Evidence != "test-results/ci/quint-formal.json" {
+		t.Fatalf("matrix rows: %+v (%v)", got, err)
+	}
+}
+
+// moveEvidenceFile renames an evidence file, creating the target directory.
+//
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func moveEvidenceFile(t *testing.T, from, to string) {
+	t.Helper()
+	if err := os.MkdirAll(filepath.Dir(to), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Rename(from, to); err != nil {
+		t.Fatal(err)
 	}
 }
