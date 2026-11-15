@@ -49,17 +49,17 @@ func TestArchitecturePublicationIncludesHardwareProjectionAndDistinctHeadings(t 
 		t.Fatalf("generation: %v %+v", err, result.Diagnostics)
 	}
 	doc := result.Document
-	requireAllContain(t, doc, "missing %q", ":showtitle:", "== Deployment View", "== Architecture Intent View (VIEW-LOGIC)", "=== Authored View Diagram", "ADC hardware")
+	about(t, doc).hasAll("missing %q", ":showtitle:", "== Deployment View", "== Architecture Intent View (VIEW-LOGIC)", "=== Authored View Diagram", "ADC hardware")
 	hardware := sectionByHeading(doc, "== Deployment View")
-	requireContains(t, hardware,
+	about(t, hardware).has(
 		docCheck{"ADC hardware", "hardware projection missing from its deployment chapter"},
 		docCheck{"=== Authored View Diagram", "hardware projection missing from its deployment chapter"},
 	)
-	requireNotContains(t, hardware, docCheck{"=== System Decomposition Diagram", "hardware-only view gained unrelated functional decomposition"})
+	about(t, hardware).lacks(docCheck{"=== System Decomposition Diagram", "hardware-only view gained unrelated functional decomposition"})
 	logic := sectionByHeading(doc, "== Architecture Intent View (VIEW-LOGIC)")
-	requireNotContains(t, logic, docCheck{"FU_SIBLING[", "incorrect logical diagram scope"})
-	requireContains(t, logic, docCheck{"FU_FU_A[", "incorrect logical diagram scope"})
-	requireContains(t, doc, docCheck{"Unselected sibling", "complete reference material was lost"})
+	about(t, logic).lacks(docCheck{"FU_SIBLING[", "incorrect logical diagram scope"})
+	about(t, logic).has(docCheck{"FU_FU_A[", "incorrect logical diagram scope"})
+	about(t, doc).has(docCheck{"Unselected sibling", "complete reference material was lost"})
 	if publicationViewHeading("deployment", "VIEW-ONLY", 1) != "Deployment View" {
 		t.Fatal("single-view heading compatibility changed")
 	}
@@ -92,7 +92,7 @@ func TestPublicationKeepsAuthoredScopeWithEachView(t *testing.T) {
 	}
 	other := sectionByHeading(result.Document, "== Security View (VIEW-OTHER)")
 	leaked := "scope leaked or fallback missing: " + other
-	requireNotContains(t, other, docCheck{"Membership only;", leaked})
-	requireContains(t, other, docCheck{"*Authored status:* unspecified", leaked}, docCheck{"No authored status explanation provided.", leaked})
-	requireNotContains(t, section, docCheck{"focused on attack paths and security evidence", "generic prose overstates projected evidence"})
+	about(t, other).lacks(docCheck{"Membership only;", leaked})
+	about(t, other).has(docCheck{"*Authored status:* unspecified", leaked}, docCheck{"No authored status explanation provided.", leaked})
+	about(t, section).lacks(docCheck{"focused on attack paths and security evidence", "generic prose overstates projected evidence"})
 }

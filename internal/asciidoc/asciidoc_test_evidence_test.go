@@ -42,9 +42,9 @@ func (c testCodeCase) requireVerificationOnly(t *testing.T) {
 	t.Helper()
 	requirement := buildRequirementCoverageMermaid(c.reqs, coverageSources{code: c.testCode, verification: c.checks})
 	lost := "verification evidence lost: " + requirement
-	requireContains(t, requirement, docCheck{"VERCODE_", lost}, docCheck{"partial", lost}, docCheck{": 17", lost})
+	about(t, requirement).has(docCheck{"VERCODE_", lost}, docCheck{"partial", lost}, docCheck{": 17", lost})
 	gained := "test-only owner gained implementation evidence: " + requirement
-	requireNotContains(t, requirement, docCheck{"code trace", gained}, docCheck{"runtime evidence", gained})
+	about(t, requirement).lacks(docCheck{"code trace", gained}, docCheck{"runtime evidence", gained})
 }
 
 // requireNoInferredRuntime fails the test when a diagram infers a runtime from
@@ -56,7 +56,7 @@ func (c testCodeCase) requireNoInferredRuntime(t *testing.T) {
 		"security": buildSecurityPathMermaid(c.security, nil, c.testCode),
 	}
 	for name, diagram := range diagrams {
-		requireNotContains(t, diagram, docCheck{"runtime (inferred)", name + " retained test runtime: " + diagram}, docCheck{"CODE_", name + " retained test runtime: " + diagram})
+		about(t, diagram).lacks(docCheck{"runtime (inferred)", name + " retained test runtime: " + diagram}, docCheck{"CODE_", name + " retained test runtime: " + diagram})
 	}
 	if len(buildOwnerEvidence(nil, c.testCode)) != 0 || len(buildSecurityObservabilityRows(nil, c.testCode)) != 0 {
 		t.Fatal("test code created owner/security evidence")
@@ -70,9 +70,9 @@ func (c testCodeCase) requireMixedEvidence(t *testing.T) {
 	mixed := append(append([]codescan.CodeItem{}, c.testCode...), codescan.CodeItem{Kind: "symbol", Owner: "FU-A", Source: "production.go:9", Implements: []string{"REQ-A"}})
 	requirement := buildRequirementCoverageMermaid(c.reqs, coverageSources{code: mixed, verification: c.checks})
 	lost := "mixed evidence lost production or verification: " + requirement
-	requireContains(t, requirement, docCheck{"production.go: 9", lost}, docCheck{"code trace", lost}, docCheck{"VERCODE_", lost})
+	about(t, requirement).has(docCheck{"production.go: 9", lost}, docCheck{"code trace", lost}, docCheck{"VERCODE_", lost})
 	explicit := buildRequirementCoverageMermaid(c.reqs, coverageSources{runtime: []codescan.RuntimeItem{{Owner: "FU-A", Name: "authored-service"}}, code: c.testCode, verification: c.checks})
-	requireContains(t, explicit, docCheck{"authored-service", "independent runtime evidence lost"})
+	about(t, explicit).has(docCheck{"authored-service", "independent runtime evidence lost"})
 }
 
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-010, REQ-EMG-030

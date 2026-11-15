@@ -390,9 +390,9 @@ func (ix *attackChapterIndex) indexMappings(mappings []model.Mapping) {
 		case "targets":
 			ix.indexTarget(from, to)
 		case "mitigated_by":
-			ix.mitigationsByAttack = appendLabeled(ix.mitigationsByAttack, "AV-", from, labelOrID(to, ix.scope.labels), to)
+			ix.noteLink(ix.mitigationsByAttack, "AV-", m)
 		case "bounded_by":
-			ix.boundariesByUnit = appendLabeled(ix.boundariesByUnit, "FU-", from, labelOrID(to, ix.scope.labels), to)
+			ix.noteLink(ix.boundariesByUnit, "FU-", m)
 		}
 	}
 	for attackID, items := range ix.mitigationsByAttack {
@@ -403,14 +403,15 @@ func (ix *attackChapterIndex) indexMappings(mappings []model.Mapping) {
 	}
 }
 
-// appendLabeled adds the label under the key when the key has the prefix and
-// the target is not blank.
+// noteLink adds the label of the target of a mapping under its source, when the
+// source has the prefix and the target is not blank.
 // TRLC-LINKS: REQ-EMG-003
-func appendLabeled(m map[string][]string, prefix, key, label, target string) map[string][]string {
-	if strings.HasPrefix(key, prefix) && target != "" {
-		m[key] = append(m[key], label)
+func (ix *attackChapterIndex) noteLink(links map[string][]string, prefix string, m model.Mapping) {
+	from := strings.TrimSpace(m.From)
+	to := strings.TrimSpace(m.To)
+	if strings.HasPrefix(from, prefix) && to != "" {
+		links[from] = append(links[from], labelOrID(to, ix.scope.labels))
 	}
-	return m
 }
 
 // indexTarget records that the attack vector targets a unit that is in scope
@@ -668,10 +669,10 @@ func controlVerificationRow(cv model.ControlVerification, labels map[string]stri
 // control verifications that name it, by ID.
 // TRLC-LINKS: REQ-EMG-003
 func verificationsByScenario(a model.AuthoredArchitecture, inScope map[string]bool, labels map[string]string) map[string][]asciidocControlVerificationRow {
-	byScenario := map[string][]asciidocControlVerificationRow{}
+	byScenario := scenarioRows{}
 	for _, cv := range a.ControlVerifications {
 		if strings.TrimSpace(cv.ID) != "" {
-			addScenarioRow(byScenario, controlVerificationRow(cv, labels), cv.ThreatScenarioRefs, inScope)
+			byScenario.add(controlVerificationRow(cv, labels), cv.ThreatScenarioRefs, inScope)
 		}
 	}
 	for _, rows := range byScenario {
@@ -680,12 +681,15 @@ func verificationsByScenario(a model.AuthoredArchitecture, inScope map[string]bo
 	return byScenario
 }
 
-// addScenarioRow adds the row under each of the scenarios in scope.
+// scenarioRows lists control verification rows by threat scenario.
+type scenarioRows map[string][]asciidocControlVerificationRow
+
+// add adds the row under each of the scenarios in scope.
 // TRLC-LINKS: REQ-EMG-003
-func addScenarioRow(byScenario map[string][]asciidocControlVerificationRow, row asciidocControlVerificationRow, scenarioIDs []string, inScope map[string]bool) {
+func (s scenarioRows) add(row asciidocControlVerificationRow, scenarioIDs []string, inScope map[string]bool) {
 	for _, scenarioID := range scenarioIDs {
 		if scenarioID = strings.TrimSpace(scenarioID); inScope[scenarioID] {
-			byScenario[scenarioID] = append(byScenario[scenarioID], row)
+			s[scenarioID] = append(s[scenarioID], row)
 		}
 	}
 }

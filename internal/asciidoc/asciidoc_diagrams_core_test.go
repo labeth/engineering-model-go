@@ -75,7 +75,7 @@ func TestBuildFunctionalGroupDependencyMermaid_ShowsOutgoingDependenciesOnly(t *
 
 	out := buildFunctionalGroupDependencyMermaid(a, "FG-A", evidence)
 
-	requireDiagramHas(t, out, "functional group dependency diagram missing %q:\n%s",
+	about(t, out).hasShowing("functional group dependency diagram missing %q:\n%s",
 		`subgraph FGDEP_FG_A["Group A"]`,
 		`subgraph FGDEP_TARGET_FG_B["Group B"]`,
 		`FU_FU_A["Unit A"]:::functional_unit`,
@@ -87,14 +87,14 @@ func TestBuildFunctionalGroupDependencyMermaid_ShowsOutgoingDependenciesOnly(t *
 		`FU_FU_A -->|runtime evidence| RT_FU_A_UNIT_A_RUNTIME`,
 		`CODE_UNIT_A_GO["unit_a.go"]:::code_element`,
 	)
-	requireDiagramLacks(t, out, "functional group dependency diagram should not include %q:\n%s",
+	about(t, out).lacksShowing("functional group dependency diagram should not include %q:\n%s",
 		`unit_a.go:12`,
 		`implemented_by`,
 		`code evidence`,
 		`FU_FU_B -->|runtime evidence| RT_FU_B_RUNTIME`,
 		`CODE_UNIT_B_GO["unit_b.go"]:::code_element`,
 	)
-	requireDiagramLacks(t, out, "functional group dependency diagram should not include incoming dependencies:\n%[2]s", "FU_FU_C -->|depends_on| FU_FU_A")
+	about(t, out).lacksShowing("functional group dependency diagram should not include incoming dependencies:\n%[2]s", "FU_FU_C -->|depends_on| FU_FU_A")
 	requireGroupDependencyLayout(t, out)
 }
 
@@ -109,29 +109,41 @@ func requireGroupDependencyLayout(t *testing.T, out string) {
 		t.Fatalf("expected local FG subgraph before target FG subgraph:\n%s", out)
 	}
 	localBlock := out[localStart:targetStart]
-	requireIn(t, localBlock, out, "expected local FG subgraph to contain %q:\n%s",
+	inside(t, localBlock, out).hasShowing("expected local FG subgraph to contain %q:\n%s",
 		`subgraph RT_FU_A_UNIT_A_RUNTIME["unit-a-runtime"]`,
 		`CODE_UNIT_A_GO["unit_a.go"]:::code_element`,
 	)
-	runtimeBlock := blockUntil(t, localBlock, `subgraph RT_FU_A_UNIT_A_RUNTIME["unit-a-runtime"]`, "\n    end", out,
-		"expected runtime subgraph inside local FG subgraph:\n%s", "expected runtime subgraph to close inside local FG subgraph:\n%s")
-	requireIn(t, runtimeBlock, out, "expected code box inside runtime subgraph:\n%[2]s", `CODE_UNIT_A_GO["unit_a.go"]:::code_element`)
-	targetBlock := blockUntil(t, out[targetStart:], "", "\n  end", out, "", "expected target FG subgraph to close:\n%s")
-	requireNotIn(t, targetBlock, out, "target FG subgraph should only contain dependency FUs:\n%[2]s", ":::runtime_element", ":::code_element")
+	runtimeBlock := blockUntil(t, localBlock, blockSpec{
+		start: `subgraph RT_FU_A_UNIT_A_RUNTIME["unit-a-runtime"]`, end: "\n    end", whole: out,
+		startMsg: "expected runtime subgraph inside local FG subgraph:\n%s", endMsg: "expected runtime subgraph to close inside local FG subgraph:\n%s",
+	})
+	inside(t, runtimeBlock, out).hasShowing("expected code box inside runtime subgraph:\n%[2]s", `CODE_UNIT_A_GO["unit_a.go"]:::code_element`)
+	targetBlock := blockUntil(t, out[targetStart:], blockSpec{end: "\n  end", whole: out, endMsg: "expected target FG subgraph to close:\n%s"})
+	inside(t, targetBlock, out).lacksShowing("target FG subgraph should only contain dependency FUs:\n%[2]s", ":::runtime_element", ":::code_element")
+}
+
+// blockSpec says where a block of a diagram starts and ends and what to report
+// when a marker is missing; an empty start marker starts at the beginning.
+type blockSpec struct {
+	start    string
+	end      string
+	whole    string
+	startMsg string
+	endMsg   string
 }
 
 // blockUntil is the text from the start marker up to the end marker after it;
 // the test fails with the messages (filled with the whole diagram) when a
-// marker is missing. An empty start marker starts at the beginning.
-func blockUntil(t *testing.T, text, startMarker, endMarker, whole, startMsg, endMsg string) string {
+// marker is missing.
+func blockUntil(t *testing.T, text string, spec blockSpec) string {
 	t.Helper()
-	start := strings.Index(text, startMarker)
+	start := strings.Index(text, spec.start)
 	if start < 0 {
-		t.Fatalf(startMsg, whole)
+		t.Fatalf(spec.startMsg, spec.whole)
 	}
-	end := strings.Index(text[start:], endMarker)
+	end := strings.Index(text[start:], spec.end)
 	if end < 0 {
-		t.Fatalf(endMsg, whole)
+		t.Fatalf(spec.endMsg, spec.whole)
 	}
 	return text[start : start+end]
 }
@@ -142,12 +154,12 @@ func TestBuildFunctionalManhattanTable_SingleBand(t *testing.T) {
 
 	out := buildFunctionalManhattanTable(a)
 
-	requireNotContains(t, out, docCheck{"*FG Columns ", "single-band layout should not include band headings"})
+	about(t, out).lacks(docCheck{"*FG Columns ", "single-band layout should not include band headings"})
 	if got := strings.Count(out, `<svg `); got != 1 {
 		t.Fatalf("expected exactly one html table, got %d", got)
 	}
-	requireAllContain(t, out, "missing functional group label %q", numberedLabels("Capability FG-%02d", 4)...)
-	requireAllContain(t, out, "missing functional unit label %q", numberedLabels("Unit FU-%02d", 9)...)
+	about(t, out).hasAll("missing functional group label %q", numberedLabels("Capability FG-%02d", 4)...)
+	about(t, out).hasAll("missing functional unit label %q", numberedLabels("Unit FU-%02d", 9)...)
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -159,9 +171,9 @@ func TestBuildFunctionalManhattanTable_CompleteOverviewIncludesAllColumnsAndUnit
 	if strings.Contains(out, "*FG Columns") || strings.Count(out, "<svg ") != 1 {
 		t.Fatal("all groups must share one complete vector overview")
 	}
-	requireAllContain(t, out, "missing functional group label %q", numberedLabels("Capability FG-%02d", 19)...)
+	about(t, out).hasAll("missing functional group label %q", numberedLabels("Capability FG-%02d", 19)...)
 	unitLabels := numberedLabels("Unit FU-%02d", 20)
-	requireAllContain(t, out, "missing functional unit label %q", unitLabels...)
+	about(t, out).hasAll("missing functional unit label %q", unitLabels...)
 	for _, label := range unitLabels {
 		if got := strings.Count(out, label); got != 1 {
 			t.Fatalf("expected functional unit label %q exactly once, got %d", label, got)
@@ -178,8 +190,8 @@ func TestBuildFunctionalManhattanTable_RandomizedCoverage(t *testing.T) {
 		out := buildFunctionalManhattanTable(testRandomMatrixArchitecture(r, fgCount, fuCount))
 
 		t.Run(fmt.Sprintf("case_%02d_fg_%02d_fu_%02d", caseIdx+1, fgCount, fuCount), func(t *testing.T) {
-			requireAllContain(t, out, "missing functional group label %q", numberedLabels("Capability FG-%02d", fgCount)...)
-			requireAllContain(t, out, "missing functional unit label %q", numberedLabels("Unit FU-%02d", fuCount)...)
+			about(t, out).hasAll("missing functional group label %q", numberedLabels("Capability FG-%02d", fgCount)...)
+			about(t, out).hasAll("missing functional unit label %q", numberedLabels("Unit FU-%02d", fuCount)...)
 		})
 	}
 }
@@ -232,11 +244,11 @@ func TestBuildRequirementCoverageMermaid_GroupsCodeNodesByFile(t *testing.T) {
 
 	out := buildRequirementCoverageMermaid(reqs, coverageSources{code: code, verification: verification, labels: map[string]string{"FU-A": "Unit A"}})
 
-	requireCount(t, out, `["payment_engine.rs: 11, 25"]:::code_element`, 1, "expected one implementation code box with comma-separated lines, got %d:\n%s")
-	requireCount(t, out, `["payment_engine_test.go: 12, 30"]:::code_element`, 1, "expected one verification code box with comma-separated lines, got %d:\n%s")
-	requireDiagramLacks(t, out, "did not expect separate implementation boxes per line:\n%[2]s", `["payment_engine.rs: 11"]`, `["payment_engine.rs: 25"]`)
-	requireDiagramLacks(t, out, "did not expect owner-only source files without TRLC-LINKS in requirement coverage:\n%[2]s", "ai_view_schema.go")
-	requireDiagramLacks(t, out, "did not expect line numbers in Mermaid code node IDs:\n%[2]s", "CODE_PAYMENT_ENGINE_RS_")
+	about(t, out).count(`["payment_engine.rs: 11, 25"]:::code_element`, 1, "expected one implementation code box with comma-separated lines, got %d:\n%s")
+	about(t, out).count(`["payment_engine_test.go: 12, 30"]:::code_element`, 1, "expected one verification code box with comma-separated lines, got %d:\n%s")
+	about(t, out).lacksShowing("did not expect separate implementation boxes per line:\n%[2]s", `["payment_engine.rs: 11"]`, `["payment_engine.rs: 25"]`)
+	about(t, out).lacksShowing("did not expect owner-only source files without TRLC-LINKS in requirement coverage:\n%[2]s", "ai_view_schema.go")
+	about(t, out).lacksShowing("did not expect line numbers in Mermaid code node IDs:\n%[2]s", "CODE_PAYMENT_ENGINE_RS_")
 }
 
 // TRLC-LINKS: REQ-EMG-003

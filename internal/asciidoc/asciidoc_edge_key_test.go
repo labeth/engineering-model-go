@@ -23,8 +23,8 @@ func TestPublicationEdgeKeyPreservesRelationships(t *testing.T) {
 	if !edgeKeyHasDescriptions(key, label) {
 		t.Fatalf("lost descriptions: %#v", key)
 	}
-	requireContains(t, got, docCheck{`N_TEXT["literal -->|this is a long embedded string rather than an edge|"]`, "rewrote node text"})
-	requireIn(t, got, got, "%[2]s", "A --->|R1| B", "B -->|contains| C", "C --->|R2| A")
+	about(t, got).has(docCheck{`N_TEXT["literal -->|this is a long embedded string rather than an edge|"]`, "rewrote node text"})
+	inside(t, got, got).hasShowing("%[2]s", "A --->|R1| B", "B -->|contains| C", "C --->|R2| A")
 	unchanged, empty := publicationEdgeKey("architecture-intent", graph)
 	if unchanged != graph || len(empty) != 0 {
 		t.Fatal("changed unrelated view")

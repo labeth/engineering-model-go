@@ -19,47 +19,94 @@ type docCheck struct {
 	msg  string
 }
 
-// requireContains fails the test with the message of the first check whose
-// text the document lacks.
-func requireContains(t *testing.T, doc string, checks ...docCheck) {
-	t.Helper()
+// subject is a text a test makes assertions about, and the whole document or
+// diagram it is part of, which the failure messages may show.
+type subject struct {
+	t     *testing.T
+	text  string
+	whole string
+}
+
+// about is a text that is its own whole.
+func about(t *testing.T, text string) subject {
+	return subject{t: t, text: text, whole: text}
+}
+
+// inside is a block of a whole document or diagram.
+func inside(t *testing.T, block, whole string) subject {
+	return subject{t: t, text: block, whole: whole}
+}
+
+// has fails the test with the message of the first check whose text is missing.
+func (s subject) has(checks ...docCheck) {
+	s.t.Helper()
 	for _, c := range checks {
-		if !strings.Contains(doc, c.text) {
-			t.Fatalf("%s", c.msg)
+		if !strings.Contains(s.text, c.text) {
+			s.t.Fatalf("%s", c.msg)
 		}
 	}
 }
 
-// requireNotContains fails the test with the message of the first check whose
-// text the document has.
-func requireNotContains(t *testing.T, doc string, checks ...docCheck) {
-	t.Helper()
+// lacks fails the test with the message of the first check whose text is present.
+func (s subject) lacks(checks ...docCheck) {
+	s.t.Helper()
 	for _, c := range checks {
-		if strings.Contains(doc, c.text) {
-			t.Fatalf("%s", c.msg)
+		if strings.Contains(s.text, c.text) {
+			s.t.Fatalf("%s", c.msg)
 		}
 	}
 }
 
-// requireAllContain fails the test, with the format filled with the text, for
-// each text the document lacks.
-func requireAllContain(t *testing.T, doc, format string, wants ...string) {
-	t.Helper()
+// hasAll fails the test, with the format filled with the text, for each text
+// that is missing.
+func (s subject) hasAll(format string, wants ...string) {
+	s.t.Helper()
 	for _, want := range wants {
-		if !strings.Contains(doc, want) {
-			t.Fatalf(format, want)
+		if !strings.Contains(s.text, want) {
+			s.t.Fatalf(format, want)
 		}
 	}
 }
 
-// requireNoneContain fails the test, with the format filled with the text, for
-// each text the document has.
-func requireNoneContain(t *testing.T, doc, format string, unwanted ...string) {
-	t.Helper()
+// hasNone fails the test, with the format filled with the text, for each text
+// that is present.
+func (s subject) hasNone(format string, unwanted ...string) {
+	s.t.Helper()
 	for _, text := range unwanted {
-		if strings.Contains(doc, text) {
-			t.Fatalf(format, text)
+		if strings.Contains(s.text, text) {
+			s.t.Fatalf(format, text)
 		}
+	}
+}
+
+// hasShowing fails the test, with the format filled with the text and the
+// whole, for each text that is missing.
+func (s subject) hasShowing(format string, wants ...string) {
+	s.t.Helper()
+	for _, want := range wants {
+		if !strings.Contains(s.text, want) {
+			s.t.Fatalf(format, want, s.whole)
+		}
+	}
+}
+
+// lacksShowing fails the test, with the format filled with the text and the
+// whole, for each text that is present.
+func (s subject) lacksShowing(format string, unwanted ...string) {
+	s.t.Helper()
+	for _, text := range unwanted {
+		if strings.Contains(s.text, text) {
+			s.t.Fatalf(format, text, s.whole)
+		}
+	}
+}
+
+// count fails the test, with the format filled with the count and the whole,
+// unless the text occurs the number of times.
+func (s subject) count(text string, want int, format string) {
+	s.t.Helper()
+	if got := strings.Count(s.text, text); got != want {
+		s.t.Fatalf(format, got, s.whole)
 	}
 }
 
@@ -158,37 +205,6 @@ func hasDiagnostic(diags []validate.Diagnostic, code string) bool {
 	return false
 }
 
-// requireIn fails the test, with the format filled with the text and the whole
-// diagram, for each text the block lacks.
-func requireIn(t *testing.T, block, whole, format string, wants ...string) {
-	t.Helper()
-	for _, want := range wants {
-		if !strings.Contains(block, want) {
-			t.Fatalf(format, want, whole)
-		}
-	}
-}
-
-// requireNotIn fails the test, with the format filled with the text and the
-// whole diagram, for each text the block has.
-func requireNotIn(t *testing.T, block, whole, format string, unwanted ...string) {
-	t.Helper()
-	for _, text := range unwanted {
-		if strings.Contains(block, text) {
-			t.Fatalf(format, text, whole)
-		}
-	}
-}
-
-// requireCount fails the test, with the format filled with the count and the
-// document, unless the text occurs the number of times.
-func requireCount(t *testing.T, doc, text string, want int, format string) {
-	t.Helper()
-	if got := strings.Count(doc, text); got != want {
-		t.Fatalf(format, got, doc)
-	}
-}
-
 // numberedLabels are the labels of the format for 1 up to count.
 func numberedLabels(format string, count int) []string {
 	labels := make([]string, 0, count)
@@ -196,18 +212,4 @@ func numberedLabels(format string, count int) []string {
 		labels = append(labels, fmt.Sprintf(format, i))
 	}
 	return labels
-}
-
-// requireDiagramHas fails the test, with the format filled with the text and
-// the diagram, for each text the diagram lacks.
-func requireDiagramHas(t *testing.T, diagram, format string, wants ...string) {
-	t.Helper()
-	requireIn(t, diagram, diagram, format, wants...)
-}
-
-// requireDiagramLacks fails the test, with the format filled with the text and
-// the diagram, for each text the diagram has.
-func requireDiagramLacks(t *testing.T, diagram, format string, unwanted ...string) {
-	t.Helper()
-	requireNotIn(t, diagram, diagram, format, unwanted...)
 }

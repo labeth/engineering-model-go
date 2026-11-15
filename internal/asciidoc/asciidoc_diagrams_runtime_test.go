@@ -20,7 +20,7 @@ func TestBuildDeploymentMermaid_UsesNamespaceAndClusterContainers(t *testing.T) 
 
 	out := buildDeploymentMermaid(rows)
 
-	requireContains(t, out,
+	about(t, out).has(
 		docCheck{`subgraph CLUSTER_PAYMENTS_CLUSTER["Cluster: payments-cluster"]`, "missing cluster container"},
 		docCheck{`subgraph NS_PAYMENTS["Namespace: payments"]`, "missing namespace container"},
 		docCheck{`DP_PAYMENTS_API_DEPLOYMENT["Workload: payments/api-deployment"]:::runtime_element`, "missing runtime workload node inside deployment graph"},
@@ -29,7 +29,7 @@ func TestBuildDeploymentMermaid_UsesNamespaceAndClusterContainers(t *testing.T) 
 		docCheck{`DP_PAYMENTS_PAYMENTS_API -->|targets| DP_PAYMENTS`, "missing release-to-namespace edge"},
 		docCheck{`DP_PAYMENTS_PAYMENTS_API -->|deploys| DP_PAYMENTS_API_DEPLOYMENT`, "missing release-to-workload edge"},
 	)
-	requireNotContains(t, out, docCheck{"|part_of|", "did not expect explicit part_of edges when using cluster containers"})
+	about(t, out).lacks(docCheck{"|part_of|", "did not expect explicit part_of edges when using cluster containers"})
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -69,8 +69,8 @@ func TestBuildSecurityPathMermaid_GroupsCodeNodesByFile(t *testing.T) {
 
 	out := buildSecurityPathMermaid(rows, nil, code)
 
-	requireCount(t, out, `["payment_engine.rs"]:::code_element`, 1, "expected one security code box at file granularity, got %d:\n%s")
-	requireDiagramLacks(t, out, "did not expect line numbers in security attack-vector code boxes:\n%[2]s", `payment_engine.rs:11`, `payment_engine.rs:25`, `payment_engine.rs:11,25`)
+	about(t, out).count(`["payment_engine.rs"]:::code_element`, 1, "expected one security code box at file granularity, got %d:\n%s")
+	about(t, out).lacksShowing("did not expect line numbers in security attack-vector code boxes:\n%[2]s", `payment_engine.rs:11`, `payment_engine.rs:25`, `payment_engine.rs:11,25`)
 }
 
 // groupContextArchitecture is two groups with an actor, a referenced element,
@@ -118,9 +118,11 @@ func TestBuildSecurityContextDFDMermaidByGroup_GroupsOwnedNodesInsideFG(t *testi
 		t.Fatalf("expected one context diagram per functional group, got %d", len(out))
 	}
 	graph := out[0].Mermaid
-	localBlock := blockUntil(t, graph, `subgraph CTXGROUP_FG_A["Group A"]`, "\n  end", graph,
-		"missing FG-A container:\n%s", "missing FG-A container close:\n%s")
-	requireIn(t, localBlock, graph, "expected owned node inside FG-A container %q:\n%s",
+	localBlock := blockUntil(t, graph, blockSpec{
+		start: `subgraph CTXGROUP_FG_A["Group A"]`, end: "\n  end", whole: graph,
+		startMsg: "missing FG-A container:\n%s", endMsg: "missing FG-A container close:\n%s",
+	})
+	inside(t, localBlock, graph).hasShowing("expected owned node inside FG-A container %q:\n%s",
 		`CTX_FU_A["FU-A"]:::functional_unit`,
 		`CTX_IF_A[/"IF-A"/]:::interface`,
 		`CTX_DO_A[("DO-A")]:::data_object`,
@@ -133,10 +135,10 @@ func TestBuildSecurityContextDFDMermaidByGroup_GroupsOwnedNodesInsideFG(t *testi
 		`CTX_DO_EXT[("DO-EXT")]:::data_object`,
 		`CTX_TB_EXT[/"TB-EXT"\]:::trust_boundary`,
 	}
-	requireDiagramHas(t, graph, "expected external node %q in diagram:\n%s", external...)
-	requireNotIn(t, localBlock, graph, "external node should not be inside FG-A container %q:\n%s", external...)
-	requireDiagramLacks(t, graph, "did not expect unrelated other-group data object in FG-A diagram:\n%[2]s", `CTX_DO_B[("DO-B")]:::data_object`)
-	requireDiagramHas(t, graph, "missing context edge %q:\n%s",
+	about(t, graph).hasShowing("expected external node %q in diagram:\n%s", external...)
+	inside(t, localBlock, graph).lacksShowing("external node should not be inside FG-A container %q:\n%s", external...)
+	about(t, graph).lacksShowing("did not expect unrelated other-group data object in FG-A diagram:\n%[2]s", `CTX_DO_B[("DO-B")]:::data_object`)
+	about(t, graph).hasShowing("missing context edge %q:\n%s",
 		`CTX_ACT_USER -->|interacts_with| CTX_FU_A`,
 		`CTX_FU_A -->|depends_on| CTX_FU_B`,
 		`CTX_FU_A -->|reads| CTX_DO_EXT`,

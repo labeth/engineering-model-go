@@ -29,7 +29,7 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	if validate.HasErrors(res.Diagnostics) {
 		t.Fatalf("unexpected diagnostics: %+v", res.Diagnostics)
 	}
-	requireContains(t, res.Document,
+	about(t, res.Document).has(
 		docCheck{"= Sample Payments Layered Design", "missing document title"},
 		docCheck{"[source,mermaid]", "missing mermaid blocks"},
 		docCheck{"=== Functional Groups and Units (View Scoped)", "missing view-scoped functional groups/units section"},
@@ -41,7 +41,7 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 		docCheck{"REQ-PAY-005", "missing verification result rows"},
 		docCheck{"partial", "missing verification result rows"},
 	)
-	requireNotContains(t, res.Document,
+	about(t, res.Document).lacks(
 		docCheck{"MERMAID:", "did not expect helper markers in final document"},
 		docCheck{"INF:", "did not expect helper markers in final document"},
 		docCheck{"=== View-Scoped Projection", "did not expect low-value view-scoped projection section"},
@@ -70,11 +70,11 @@ func TestGenerateAsciiDoc_DecisionsDocumentAndMainDocLinks(t *testing.T) {
 	}}
 
 	res := mustGenerateBundle(t, bundle, Options{DecisionsDocPath: "DECISIONS.adoc"})
-	requireContains(t, res.Document,
+	about(t, res.Document).has(
 		docCheck{"== Architecture Decision Records", "main document missing ADR index"},
 		docCheck{"xref:DECISIONS.adoc#ADR-SAMPLE-001[ADR-SAMPLE-001]", "main document missing ADR xref: " + res.Document},
 	)
-	requireContains(t, res.DecisionsDocument,
+	about(t, res.DecisionsDocument).has(
 		docCheck{"= Architecture Decision Records", "missing decisions document title"},
 		docCheck{"[[ADR-SAMPLE-001]]", "missing decision anchor"},
 		docCheck{"== ADR-SAMPLE-001: Publish ADRs separately", "missing decision section"},
@@ -197,7 +197,7 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 	}
 
 	adocRes := sample.mustGenerate(t)
-	requireContains(t, adocRes.Document,
+	about(t, adocRes.Document).has(
 		docCheck{"=== Verification Inventory", "asciidoc output missing verification inventory"},
 		docCheck{"=== Verification Result Mapping", "asciidoc output missing verification result mapping"},
 		docCheck{"REQ-PAY-001", "asciidoc output missing mapped requirement"},
@@ -219,7 +219,7 @@ func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testi
 	sample.bundle.Architecture.InferenceHints.RuntimeSources = []string{"."}
 
 	adocRes := sample.mustGenerate(t)
-	requireContains(t, adocRes.Document,
+	about(t, adocRes.Document).has(
 		docCheck{"REQ-PAY-001", "expected requirement section for REQ-PAY-001"},
 		docCheck{"deploy/oci/checkout-images.lock.json", "expected deployment evidence label in requirement coverage graph"},
 		docCheck{"runtime evidence", "expected runtime evidence edge in requirement coverage graph"},
@@ -367,25 +367,25 @@ func mediaChestBundle(t *testing.T) model.Bundle {
 // TRLC-LINKS: REQ-EMG-003
 func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *testing.T) {
 	res := mustGenerateBundle(t, mediaChestBundle(t), Options{})
-	requireContains(t, res.Document, docCheck{"== State Lifecycle View", "missing State Lifecycle View chapter"})
+	about(t, res.Document).has(docCheck{"== State Lifecycle View", "missing State Lifecycle View chapter"})
 
 	stateSection := sectionByHeading(res.Document, "== State Lifecycle View")
-	requireContains(t, stateSection, docCheck{"=== State Lifecycle Diagram", "state lifecycle section missing purpose-specific diagram"})
-	requireNotContains(t, stateSection,
+	about(t, stateSection).has(docCheck{"=== State Lifecycle Diagram", "state lifecycle section missing purpose-specific diagram"})
+	about(t, stateSection).lacks(
 		docCheck{"=== View-Scoped Projection", "state lifecycle section should not render generic view-scoped projection"},
 		docCheck{"depends_on", "state lifecycle section should respect includeMappings and exclude depends_on"},
 	)
 
 	securitySection := sectionByHeading(res.Document, "== Security View")
-	requireAllContain(t, securitySection, "security section missing %s", "Threat Scenario Register", "Threat Mitigation Coverage", "Control Verification Status", "Security Flow Semantics", "Threat Assumptions", "Threat Model Out-of-Scope Decisions", "TS-MEDIACHESTV-INPUT-SPOOF", "MIT-MEDIACHESTV-DIGEST", "CV-MEDIACHESTV-DIGEST", "FLOW-MEDIACHESTV-SECURITY")
-	requireNotContains(t, securitySection, docCheck{"\n=== Control Verification Status", "control verification status should be nested under threat scenarios, not rendered as a standalone security section"})
-	requireContains(t, securitySection, docCheck{"==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)", "threat scenario register should render one chapter per scenario"})
+	about(t, securitySection).hasAll("security section missing %s", "Threat Scenario Register", "Threat Mitigation Coverage", "Control Verification Status", "Security Flow Semantics", "Threat Assumptions", "Threat Model Out-of-Scope Decisions", "TS-MEDIACHESTV-INPUT-SPOOF", "MIT-MEDIACHESTV-DIGEST", "CV-MEDIACHESTV-DIGEST", "FLOW-MEDIACHESTV-SECURITY")
+	about(t, securitySection).lacks(docCheck{"\n=== Control Verification Status", "control verification status should be nested under threat scenarios, not rendered as a standalone security section"})
+	about(t, securitySection).has(docCheck{"==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)", "threat scenario register should render one chapter per scenario"})
 	scenarioSection := sectionByHeading(securitySection, "==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)")
-	requireContains(t, scenarioSection,
+	about(t, scenarioSection).has(
 		docCheck{"===== Control Verification Status", "threat scenario should include nested control verification status"},
 		docCheck{"====== CV-MEDIACHESTV-DIGEST", "threat scenario should include nested control verification status"},
 	)
-	requireNoneContain(t, securitySection, "threat scenario register should not use wide table header %q", "|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity", "|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes")
+	about(t, securitySection).hasNone("threat scenario register should not use wide table header %q", "|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity", "|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes")
 	requireReferenceEntries(t, res.Document, "IF-MEDIACHESTV-CONTROL-API", "DO-MEDIACHESTV-OCI-LOCK", "DEP-MEDIACHESTV-KAIROS-NODE", "CTRL-MEDIACHESTV-DIGEST-PINNING", "TB-MEDIACHESTV-DEVICE", "STATE-MEDIACHESTV-IDLE", "EVT-MEDIACHESTV-DEPLOY-REQUESTED")
 }
 

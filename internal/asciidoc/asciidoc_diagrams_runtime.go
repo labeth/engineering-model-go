@@ -991,11 +991,11 @@ func writeSecurityDependencies(m *mermaidLines, tNode, dependsOn string) {
 func (e securityPathEvidence) writeRuntime(m *mermaidLines, t securityTarget) []string {
 	runtimeNodes := make([]string, 0, len(e.runtimeByOwner[t.id]))
 	for _, rt := range e.runtimeByOwner[t.id] {
-		runtimeNodes = append(runtimeNodes, writeSecurityRuntime(m, t.node, "SEC_RT_"+codescan.SanitizeNode(t.id+"-"+rt), rt))
+		runtimeNodes = append(runtimeNodes, t.writeRuntimeNode(m, "SEC_RT_"+codescan.SanitizeNode(t.id+"-"+rt), rt))
 	}
 	if len(runtimeNodes) == 0 && len(e.codeByOwner[t.id]) > 0 {
 		rtLabel := textutil.NonEmpty(strings.TrimSpace(t.label), t.id) + " runtime (inferred)"
-		runtimeNodes = append(runtimeNodes, writeSecurityRuntime(m, t.node, "SEC_RT_"+codescan.SanitizeNode(t.id+"-runtime"), rtLabel))
+		runtimeNodes = append(runtimeNodes, t.writeRuntimeNode(m, "SEC_RT_"+codescan.SanitizeNode(t.id+"-runtime"), rtLabel))
 	}
 	return runtimeNodes
 }
@@ -1007,11 +1007,11 @@ type securityTarget struct {
 	label string
 }
 
-// writeSecurityRuntime draws a runtime element of a target and returns its node.
+// writeRuntimeNode draws a runtime element of the target and returns its node.
 // TRLC-LINKS: REQ-EMG-003
-func writeSecurityRuntime(m *mermaidLines, targetNode, rtNode, label string) string {
+func (t securityTarget) writeRuntimeNode(m *mermaidLines, rtNode, label string) string {
 	m.add(mermaidTypedNodeLine(rtNode, label, "runtime_element"))
-	m.addf("  %s -->|runtime| %s", targetNode, rtNode)
+	m.addf("  %s -->|runtime| %s", t.node, rtNode)
 	return rtNode
 }
 
