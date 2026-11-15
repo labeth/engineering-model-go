@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"os/exec"
 	"path"
+	"slices"
 	"sort"
 	"strings"
 	"testing"
@@ -74,57 +75,102 @@ var topPackages = map[string]string{"internal/mcp": "internal/engws", "internal/
 // internal/integration (end-to-end) may use it.
 // TRLC-LINKS: REQ-EMG-001
 func TestPackageLayering(t *testing.T) {
+	pkgs := listLayerPackages(t)
+	for _, p := range pkgs {
+		checkPackageLayering(t, p)
+	}
+	if len(pkgs) < len(layerRules) {
+		t.Fatalf("checked %d packages, want at least %d", len(pkgs), len(layerRules))
+	}
+}
+
+// layerPackage is a package of the module with the in-module packages its
+// production code and its tests import, relative to the module root.
+type layerPackage struct {
+	name        string
+	imports     []string
+	testImports []string
+}
+
+// listLayerPackages lists the packages of the module the layering rules cover:
+// every package except the root, cmd/* and examples/*.
+func listLayerPackages(t *testing.T) []layerPackage {
+	t.Helper()
 	out, err := exec.Command("go", "list", "-f", "{{.ImportPath}}|{{join .Imports \" \"}}|{{join .TestImports \" \"}} {{join .XTestImports \" \"}}", "./...").Output()
 	if err != nil {
 		t.Fatalf("go list: %v", err)
 	}
-	checked := 0
+	var pkgs []layerPackage
 	scanner := bufio.NewScanner(bytes.NewReader(out))
 	for scanner.Scan() {
 		parts := strings.SplitN(scanner.Text(), "|", 3)
 		pkg, ok := relPackage(parts[0])
-		if !ok || strings.HasPrefix(pkg, "examples/") {
+		if !ok || !coveredByLayering(pkg) {
 			continue
 		}
-		imports := inModule(parts[1])
-		testImports := inModule(parts[2])
-		if pkg == "" || strings.HasPrefix(pkg, "cmd/") {
-			continue
-		}
-		checked++
-		for _, imp := range imports {
-			if _, top := topPackages[pkg]; imp == "" && !top {
-				t.Errorf("%s imports the root facade; only cmd/*, internal/mcp and internal/engws may", pkg)
-			}
-		}
-		// Tests may drive the public facade only in the end-to-end package.
-		for _, imp := range testImports {
-			if _, top := topPackages[pkg]; imp == "" && !top && pkg != "internal/integration" {
-				t.Errorf("%s tests import the root facade; put end-to-end tests in internal/integration", pkg)
-			}
-		}
-		if other, top := topPackages[pkg]; top {
-			for _, imp := range imports {
-				if imp == other || strings.HasPrefix(imp, "cmd/") {
-					t.Errorf("%s must not import %s", pkg, imp)
-				}
-			}
-			continue
-		}
-		allowed, ok := rulesFor(pkg)
-		if !ok {
-			t.Errorf("%s has no layering rule; add it to layerRules", pkg)
-			continue
-		}
-		for _, imp := range imports {
-			if imp == pkg || matchesAny(imp, allowed) {
-				continue
-			}
-			t.Errorf("%s imports %s, which its layer does not allow (allowed: %s)", pkg, imp, strings.Join(allowed, ", "))
+		pkgs = append(pkgs, layerPackage{name: pkg, imports: inModule(parts[1]), testImports: inModule(parts[2])})
+	}
+	return pkgs
+}
+
+// coveredByLayering reports whether the layering rules cover a package of the
+// module: every package except the root, cmd/* and examples/*.
+func coveredByLayering(pkg string) bool {
+	return pkg != "" && !strings.HasPrefix(pkg, "cmd/") && !strings.HasPrefix(pkg, "examples/")
+}
+
+// checkPackageLayering reports every import of p that its layer does not allow.
+func checkPackageLayering(t *testing.T, p layerPackage) {
+	t.Helper()
+	checkRootFacadeImports(t, p)
+	if other, top := topPackages[p.name]; top {
+		checkTopPackageImports(t, p, other)
+		return
+	}
+	checkLayerImports(t, p)
+}
+
+// checkRootFacadeImports reports a package that imports the root facade
+// ("" relative to the module) although it is not a top package, and tests
+// that drive the facade outside the end-to-end package.
+func checkRootFacadeImports(t *testing.T, p layerPackage) {
+	t.Helper()
+	if _, top := topPackages[p.name]; top {
+		return
+	}
+	if slices.Contains(p.imports, "") {
+		t.Errorf("%s imports the root facade; only cmd/*, internal/mcp and internal/engws may", p.name)
+	}
+	// Tests may drive the public facade only in the end-to-end package.
+	if slices.Contains(p.testImports, "") && p.name != "internal/integration" {
+		t.Errorf("%s tests import the root facade; put end-to-end tests in internal/integration", p.name)
+	}
+}
+
+// checkTopPackageImports reports a top package that imports its sibling top
+// package or a command.
+func checkTopPackageImports(t *testing.T, p layerPackage, other string) {
+	t.Helper()
+	for _, imp := range p.imports {
+		if imp == other || strings.HasPrefix(imp, "cmd/") {
+			t.Errorf("%s must not import %s", p.name, imp)
 		}
 	}
-	if checked < len(layerRules) {
-		t.Fatalf("checked %d packages, want at least %d", checked, len(layerRules))
+}
+
+// checkLayerImports reports the imports of p that layerRules does not allow.
+func checkLayerImports(t *testing.T, p layerPackage) {
+	t.Helper()
+	allowed, ok := rulesFor(p.name)
+	if !ok {
+		t.Errorf("%s has no layering rule; add it to layerRules", p.name)
+		return
+	}
+	for _, imp := range p.imports {
+		if imp == p.name || matchesAny(imp, allowed) {
+			continue
+		}
+		t.Errorf("%s imports %s, which its layer does not allow (allowed: %s)", p.name, imp, strings.Join(allowed, ", "))
 	}
 }
 

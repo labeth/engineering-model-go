@@ -28,23 +28,26 @@ func TestFacadeLoadsAndValidatesWithoutInternalImports(t *testing.T) {
 	if engmodel.HasErrors(diags) {
 		t.Fatalf("sample model has validation errors: %+v", diags)
 	}
+	assertBrokenAppliesToRejected(t, bundle)
+}
 
+// assertBrokenAppliesToRejected checks that ValidateBundle reports a
+// requirement that applies to an unknown ID as requirement.invalid_applies_to.
+func assertBrokenAppliesToRejected(t *testing.T, bundle engmodel.Bundle) {
+	t.Helper()
 	broken := bundle
 	broken.Requirements.Requirements = append([]engmodel.Requirement(nil), bundle.Requirements.Requirements...)
 	broken.Requirements.Requirements[0].AppliesTo = []string{"FU-DOES-NOT-EXIST"}
-	diags = engmodel.SortDiagnostics(engmodel.ValidateBundle(broken))
+	diags := engmodel.SortDiagnostics(engmodel.ValidateBundle(broken))
 	if !engmodel.HasErrors(diags) {
 		t.Fatal("ValidateBundle accepted a requirement that applies to an unknown ID")
 	}
-	found := false
 	for _, d := range diags {
 		if d.Code == "requirement.invalid_applies_to" && d.Severity == engmodel.SeverityError {
-			found = true
+			return
 		}
 	}
-	if !found {
-		t.Fatalf("expected requirement.invalid_applies_to error, got %+v", diags)
-	}
+	t.Fatalf("expected requirement.invalid_applies_to error, got %+v", diags)
 }
 
 // implPackage is an internal package whose exported names the root facade re-exports.
@@ -121,7 +124,7 @@ func facadePackages2() []implPackage {
 			"ParseLineNumberList", "RuntimeItem", "SanitizeNode", "SanitizeSourcePath",
 			"SkipScanDir", "SplitEvidencePathLines", "SplitSourceLine",
 			"UniqueExistingSources", "VerificationCheck", "VerificationResult",
-			"WithCodeIndex", "WithDefaultCodeRoot",
+			"VerificationScan", "WithCodeIndex", "WithDefaultCodeRoot",
 			// the code scope the MCP tools share with the check (REQ-EMG-114).
 			"CodeScopeSkip", "ScanCodeScope",
 			// the one reader of formal (Quint) evidence, shared by internal/trace,
@@ -288,34 +291,55 @@ func facadePackages5() []implPackage {
 // internal packages; they are not public API.
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-044
 func TestFacadeReexportsEngine(t *testing.T) {
-	packages := facadePackages()
 	root := exportedNames(t, ".")
-	for _, pkg := range packages {
+	for _, pkg := range facadePackages() {
 		impl := exportedNames(t, pkg.dir)
 		if len(impl) == 0 {
 			t.Fatalf("found no exported names in %s", pkg.dir)
 		}
-		internal := map[string]bool{}
-		for _, name := range pkg.internalOnly {
-			internal[name] = true
-			if !impl[name] {
-				t.Errorf("%s lists %s as internal-only but does not export it", pkg.dir, name)
-			}
-			if root[name] && name != "LoadBundle" {
-				t.Errorf("%s is listed as internal-only but the root facade exports it", name)
-			}
+		view := facadeView{pkg: pkg, impl: impl, root: root}
+		view.checkReexported(t, view.checkInternalOnly(t))
+	}
+}
+
+// facadeView is an implementation package with the names it exports and the
+// names the root facade exports.
+type facadeView struct {
+	pkg        implPackage
+	impl, root map[string]bool
+}
+
+// checkInternalOnly reports the internalOnly names of the package that it does
+// not export or that the root facade exports, and returns them as a set.
+func (v facadeView) checkInternalOnly(t *testing.T) map[string]bool {
+	t.Helper()
+	internal := map[string]bool{}
+	for _, name := range v.pkg.internalOnly {
+		internal[name] = true
+		if !v.impl[name] {
+			t.Errorf("%s lists %s as internal-only but does not export it", v.pkg.dir, name)
 		}
-		for name := range impl {
-			if internal[name] {
-				continue
-			}
-			public := name
-			if renamed, ok := pkg.rootName[name]; ok {
-				public = renamed
-			}
-			if !root[public] {
-				t.Errorf("%s exports %s but the root facade does not export %s", pkg.dir, name, public)
-			}
+		if v.root[name] && name != "LoadBundle" {
+			t.Errorf("%s is listed as internal-only but the root facade exports it", name)
+		}
+	}
+	return internal
+}
+
+// checkReexported reports every public name of the package that the root
+// facade does not export under its public (possibly renamed) name.
+func (v facadeView) checkReexported(t *testing.T, internal map[string]bool) {
+	t.Helper()
+	for name := range v.impl {
+		if internal[name] {
+			continue
+		}
+		public := name
+		if renamed, ok := v.pkg.rootName[name]; ok {
+			public = renamed
+		}
+		if !v.root[public] {
+			t.Errorf("%s exports %s but the root facade does not export %s", v.pkg.dir, name, public)
 		}
 	}
 }
@@ -330,30 +354,50 @@ func exportedNames(t *testing.T, dir string) map[string]bool {
 	names := map[string]bool{}
 	for _, pkg := range pkgs {
 		for _, file := range pkg.Files {
-			for _, decl := range file.Decls {
-				switch d := decl.(type) {
-				case *ast.FuncDecl:
-					if d.Recv == nil && d.Name.IsExported() {
-						names[d.Name.Name] = true
-					}
-				case *ast.GenDecl:
-					for _, spec := range d.Specs {
-						switch s := spec.(type) {
-						case *ast.TypeSpec:
-							if s.Name.IsExported() {
-								names[s.Name.Name] = true
-							}
-						case *ast.ValueSpec:
-							for _, n := range s.Names {
-								if n.IsExported() {
-									names[n.Name] = true
-								}
-							}
-						}
-					}
-				}
-			}
+			addFileNames(names, file)
 		}
 	}
 	return names
+}
+
+// addFileNames adds the exported top-level names of a file.
+func addFileNames(names map[string]bool, file *ast.File) {
+	for _, decl := range file.Decls {
+		addDeclNames(names, decl)
+	}
+}
+
+// addDeclNames adds the exported top-level names a declaration introduces.
+func addDeclNames(names map[string]bool, decl ast.Decl) {
+	switch d := decl.(type) {
+	case *ast.FuncDecl:
+		if d.Recv == nil && d.Name.IsExported() {
+			names[d.Name.Name] = true
+		}
+	case *ast.GenDecl:
+		for _, spec := range d.Specs {
+			addSpecNames(names, spec)
+		}
+	}
+}
+
+// addSpecNames adds the exported names of a type or value spec.
+func addSpecNames(names map[string]bool, spec ast.Spec) {
+	switch s := spec.(type) {
+	case *ast.TypeSpec:
+		if s.Name.IsExported() {
+			names[s.Name.Name] = true
+		}
+	case *ast.ValueSpec:
+		addIdentNames(names, s.Names)
+	}
+}
+
+// addIdentNames adds the exported identifiers.
+func addIdentNames(names map[string]bool, idents []*ast.Ident) {
+	for _, n := range idents {
+		if n.IsExported() {
+			names[n.Name] = true
+		}
+	}
 }
