@@ -80,6 +80,10 @@ func facadePackages1() []implPackage {
 		{dir: filepath.Join("internal", "asciidoc"), rootName: map[string]string{
 			"Options": "AsciiDocOptions", "Result": "AsciiDocResult",
 			"Generate": "GenerateAsciiDoc", "GenerateFromFiles": "GenerateAsciiDocFromFiles",
+		}, internalOnly: []string{
+			// parameter structs of Generate and GenerateFromFiles; the root
+			// functions keep their separate parameters.
+			"Inputs", "FilePaths",
 		}},
 		{dir: filepath.Join("internal", "composition"), internalOnly: []string{
 			// used by internal/asciidoc and internal/trace.
