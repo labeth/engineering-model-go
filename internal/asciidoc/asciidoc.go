@@ -618,7 +618,7 @@ func (g *generation) fillSecurity(vs *asciidocViewSection) {
 	vs.SecurityGraph = buildSecurityPathMermaid(secRows, g.inferredRuntime, g.inferredCode)
 	vs.SecurityContextDiagrams = buildSecurityContextDFDMermaidByGroup(a, g.bundle.Architecture.Compliance.Mappings, g.labelByID)
 	vs.SecurityObsRows = buildSecurityObservabilityRows(g.inferredRuntime, g.inferredCode)
-	vs.SecurityAttackChapters = buildSecurityAttackChapters(a, vs.Units, nodeSet, secRows, g.labelByID, g.inferredRuntime, g.inferredCode)
+	vs.SecurityAttackChapters = buildSecurityAttackChapters(a, attackChapterScope{vs.Units, nodeSet, secRows, g.labelByID, realizationEvidence{g.inferredRuntime, g.inferredCode}})
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
