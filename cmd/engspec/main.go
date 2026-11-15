@@ -56,6 +56,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 }
 
 // engspecSelectionMissing reports whether neither --ids nor --prefix selects requirements.
+// TRLC-LINKS: REQ-EMG-081
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, IF-CLI-ENGSPEC
 func engspecSelectionMissing(ids, prefix string) bool {
 	return strings.TrimSpace(ids) == "" && strings.TrimSpace(prefix) == ""
 }

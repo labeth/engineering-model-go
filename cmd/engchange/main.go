@@ -11,6 +11,9 @@ import (
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
+// main runs engchange with the process arguments and exits with its code.
+// TRLC-LINKS: REQ-EMG-031
+// ENGMODEL-LINKS: FU-MODEL-CHANGE
 func main() {
 	os.Exit(runEngchange(os.Args[1:]))
 }
