@@ -82,7 +82,6 @@ func replacePathPrefix(s string, prefix scrubPrefix) string {
 	if !strings.Contains(s, from) {
 		return s
 	}
-	sep := string(filepath.Separator)
 	var b strings.Builder
 	for i := 0; i < len(s); {
 		j := strings.Index(s[i:], from)
@@ -92,37 +91,67 @@ func replacePathPrefix(s string, prefix scrubPrefix) string {
 		}
 		at := i + j
 		end := at + len(from)
-		// "file://" + path is a path, not a URL host or path segment.
-		before := at == 0 || !pathChar(s[at-1]) || strings.HasSuffix(s[:at], "file://")
-		next := byte(0)
-		if end < len(s) {
-			next = s[end]
-		}
-		// A '.' that ends a sentence (followed by the end or a non-path
-		// character) is not part of the path.
-		sentenceDot := next == '.' && (end+1 == len(s) || !pathChar(s[end+1]))
-		after := end == len(s) || string(next) == sep || !pathChar(next) || sentenceDot
-		if !before || !after {
+		if !wholePath(s, at, end) {
 			b.WriteString(s[i : at+1])
 			i = at + 1
 			continue
 		}
 		b.WriteString(s[i:at])
-		atSep := end < len(s) && string(next) == sep
-		switch {
-		case prefix.to == "" && atSep:
-			end++ // project-relative: drop the separator too
-		case prefix.to == "":
-			b.WriteString(".")
-		case strings.HasSuffix(prefix.to, ":") && atSep:
-			b.WriteString(prefix.to)
+		repl, dropSep := pathReplacement(prefix.to, end < len(s) && s[end] == filepath.Separator)
+		b.WriteString(repl)
+		if dropSep {
 			end++
-		default:
-			b.WriteString(prefix.to)
 		}
 		i = end
 	}
 	return b.String()
+}
+
+// wholePath reports whether the prefix found at s[at:end] is a whole path.
+// TRLC-LINKS: REQ-EMG-069
+func wholePath(s string, at, end int) bool {
+	return pathStartBoundary(s, at) && pathEndBoundary(s, end)
+}
+
+// pathStartBoundary reports whether a prefix found at index at begins a
+// path: at the start of s or after a character that cannot be part of a
+// path. "file://" + path is a path, not a URL host or path segment.
+// TRLC-LINKS: REQ-EMG-069
+func pathStartBoundary(s string, at int) bool {
+	return at == 0 || !pathChar(s[at-1]) || strings.HasSuffix(s[:at], "file://")
+}
+
+// pathEndBoundary reports whether a prefix ending before index end is a
+// whole path: at the end of s, before a separator or a character that
+// cannot continue a path element, or before a '.' that ends a sentence
+// (followed by the end or a non-path character).
+// TRLC-LINKS: REQ-EMG-069
+func pathEndBoundary(s string, end int) bool {
+	if end == len(s) {
+		return true
+	}
+	next := s[end]
+	if next == filepath.Separator || !pathChar(next) {
+		return true
+	}
+	return next == '.' && (end+1 == len(s) || !pathChar(s[end+1]))
+}
+
+// pathReplacement returns the replacement of a matched prefix and whether
+// the separator that follows it is consumed too. An empty replacement drops a
+// following separator (project-relative) or becomes "."; a replacement ending
+// in ":" also takes the separator.
+// TRLC-LINKS: REQ-EMG-069
+func pathReplacement(to string, atSep bool) (string, bool) {
+	switch {
+	case to == "" && atSep:
+		return "", true // project-relative: drop the separator too
+	case to == "":
+		return ".", false
+	case strings.HasSuffix(to, ":") && atSep:
+		return to, true
+	}
+	return to, false
 }
 
 // pathChar reports whether c can appear inside a path element, so a prefix

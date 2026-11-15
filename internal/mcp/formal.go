@@ -122,15 +122,27 @@ func (s *Server) formalStatus(entityID string) ([]formalRequirement, error) {
 	}
 	var out []formalRequirement
 	for _, fr := range all {
-		keep := fr.Requirement == entityID
-		for _, inv := range fr.Invariants {
-			keep = keep || inv.Machine == entityID || inv.Invariant == entityID
-		}
-		if keep {
+		if formalNamesEntity(fr, entityID) {
 			out = append(out, fr)
 		}
 	}
 	return out, nil
+}
+
+// formalNamesEntity reports whether entityID is the requirement of fr or a
+// machine or invariant of one of its results.
+// TRLC-LINKS: REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func formalNamesEntity(fr formalRequirement, entityID string) bool {
+	if fr.Requirement == entityID {
+		return true
+	}
+	for _, inv := range fr.Invariants {
+		if inv.Machine == entityID || inv.Invariant == entityID {
+			return true
+		}
+	}
+	return false
 }
 
 // formalGaps is the formal part of verification.gaps: the requirements whose
