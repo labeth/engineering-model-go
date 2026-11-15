@@ -7,6 +7,26 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// hasTermID reports whether a term has the ID.
+func hasTermID(terms []asciidocTerm, id string) bool {
+	for _, term := range terms {
+		if term.ID == id {
+			return true
+		}
+	}
+	return false
+}
+
+// hasReference reports whether a reference entry has the ID and the kind.
+func hasReference(refs []asciidocReferenceEntry, id, kind string) bool {
+	for _, ref := range refs {
+		if ref.ID == id && ref.Kind == kind {
+			return true
+		}
+	}
+	return false
+}
+
 // TRLC-LINKS: REQ-EMG-001
 func TestCatalogSystems_AppearInTermsAndRegistry(t *testing.T) {
 	doc := model.CatalogDocument{
@@ -22,33 +42,14 @@ func TestCatalogSystems_AppearInTermsAndRegistry(t *testing.T) {
 		},
 	}
 
-	terms := buildTermsFromCatalog(doc)
-	foundTerm := false
-	for _, term := range terms {
-		if term.ID == "SYS-COFFEE-FLEET-SYSTEM" {
-			foundTerm = true
-			break
-		}
-	}
-	if !foundTerm {
+	if !hasTermID(buildTermsFromCatalog(doc), "SYS-COFFEE-FLEET-SYSTEM") {
 		t.Fatalf("expected system term in terms and definitions")
 	}
-
 	refs := buildCatalogReferences(doc)
-	foundSystemRef := false
-	foundAliasRef := false
-	for _, ref := range refs {
-		if ref.ID == "SYS-COFFEE-FLEET-SYSTEM" && ref.Kind == "Catalog System" {
-			foundSystemRef = true
-		}
-		if ref.ID == "the coffee fleet system" && ref.Kind == "Catalog Alias" {
-			foundAliasRef = true
-		}
-	}
-	if !foundSystemRef {
+	if !hasReference(refs, "SYS-COFFEE-FLEET-SYSTEM", "Catalog System") {
 		t.Fatalf("expected system entry in catalog registry")
 	}
-	if !foundAliasRef {
+	if !hasReference(refs, "the coffee fleet system", "Catalog Alias") {
 		t.Fatalf("expected system alias entry in catalog registry")
 	}
 }

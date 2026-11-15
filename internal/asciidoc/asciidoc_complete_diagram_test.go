@@ -10,6 +10,17 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// requireNoSplitPublication fails the test when the document has the markers
+// of a diagram split into parts.
+func requireNoSplitPublication(t *testing.T, doc string) {
+	t.Helper()
+	for _, unwanted := range []string{"Implementation files 1", "Evidence part", "Diagram part", "divided into numbered parts"} {
+		if strings.Contains(doc, unwanted) {
+			t.Fatalf("split publication returned: %s", unwanted)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-003
 func TestLargePublicationDiagramsRemainComplete(t *testing.T) {
 	var code []codescan.CodeItem
@@ -18,7 +29,7 @@ func TestLargePublicationDiagramsRemainComplete(t *testing.T) {
 		code = append(code, codescan.CodeItem{Kind: "symbol", Owner: "FU-A", Source: fmt.Sprintf("src/file%d.go:%d", i, 100+i), Implements: []string{"REQ-A"}})
 		checks = append(checks, codescan.VerificationCheck{ID: fmt.Sprintf("VER-%d", i), Status: "partial", Verifies: []string{"REQ-A"}, CodeElements: []string{fmt.Sprintf("tests/file%d_test.go:10", i)}})
 	}
-	graph := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-A", AppliesTo: []string{"FU-A"}}}, nil, code, checks, nil)
+	graph := buildRequirementCoverageMermaid([]model.Requirement{{ID: "REQ-A", AppliesTo: []string{"FU-A"}}}, coverageSources{code: code, verification: checks})
 	for _, kind := range []string{"architecture-intent", "state-lifecycle", "interaction-flow"} {
 		doc, err := renderAsciiDocTemplate(asciidocTemplateData{
 			Views:        []asciidocViewSection{{ID: "VIEW-LARGE", Kind: kind, Mermaid: graph}},
@@ -31,10 +42,6 @@ func TestLargePublicationDiagramsRemainComplete(t *testing.T) {
 		if strings.Count(doc, block) != 2 {
 			t.Fatalf("%s: view and requirement must each retain exactly one complete graph", kind)
 		}
-		for _, unwanted := range []string{"Implementation files 1", "Evidence part", "Diagram part", "divided into numbered parts"} {
-			if strings.Contains(doc, unwanted) {
-				t.Fatalf("split publication returned: %s", unwanted)
-			}
-		}
+		requireNoSplitPublication(t, doc)
 	}
 }

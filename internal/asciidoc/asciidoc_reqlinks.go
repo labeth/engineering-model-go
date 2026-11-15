@@ -56,11 +56,20 @@ func reviewLabel(status string) string {
 // its own repository.
 // TRLC-LINKS: REQ-EMG-107
 func realizerTraceLabel(s *trace.DelegatedStatus) string {
-	switch {
-	case s == nil || s.Status == "not-available":
+	if s == nil || s.Status == "not-available" {
 		return "status not available"
-	case s.Status == "unknown-requirement":
+	}
+	if s.Status == "unknown-requirement" {
 		return "unknown requirement"
+	}
+	return implementationLabel(s)
+}
+
+// implementationLabel describes whether a realizing requirement is implemented
+// and linked to a test.
+// TRLC-LINKS: REQ-EMG-107
+func implementationLabel(s *trace.DelegatedStatus) string {
+	switch {
 	case s.Implemented && s.TestLinked:
 		return "implemented, test linked"
 	case s.Implemented:
@@ -90,6 +99,37 @@ func escapePassthrough(s string) string {
 	return s
 }
 
+// requirementLinkIndex indexes the evaluated requirement links of a composed model.
+type requirementLinkIndex struct {
+	statuses       []reqlinks.LinkStatus
+	reviewStatus   map[string]string
+	evidence       map[string][]string
+	byParent       map[string][]reqlinks.LinkStatus
+	realizerStatus func(alias, id string) *trace.DelegatedStatus
+}
+
+// newRequirementLinkIndex evaluates the links of the model against the dependencies.
+// TRLC-LINKS: REQ-EMG-107
+func newRequirementLinkIndex(bundle model.Bundle, composed composition.CompositionResult) requirementLinkIndex {
+	ix := requirementLinkIndex{
+		statuses:       reqlinks.EvaluateLinks(composed.Root.Bundle, composition.LinkDependencies(composed.Root)),
+		reviewStatus:   map[string]string{},
+		evidence:       map[string][]string{},
+		byParent:       map[string][]reqlinks.LinkStatus{},
+		realizerStatus: trace.DependencyRequirementStatus(composed),
+	}
+	for _, l := range bundle.ReqLinks.ReqLinks {
+		ix.reviewStatus[strings.TrimSpace(l.ID)] = strings.TrimSpace(l.Status)
+		ix.evidence[strings.TrimSpace(l.ID)] = l.Evidence
+	}
+	for _, s := range ix.statuses {
+		if s.Parent != "" {
+			ix.byParent[s.Parent] = append(ix.byParent[s.Parent], s)
+		}
+	}
+	return ix
+}
+
 // renderRequirementLinksChapter renders the requirement link tree of a
 // composed model with requirement links ("" otherwise).
 // TRLC-LINKS: REQ-EMG-107
@@ -98,85 +138,119 @@ func renderRequirementLinksChapter(bundle model.Bundle, composed composition.Com
 	if len(bundle.ReqLinks.ReqLinks) == 0 || composed.Root == nil {
 		return ""
 	}
-	statuses := reqlinks.EvaluateLinks(composed.Root.Bundle, composition.LinkDependencies(composed.Root))
-	reviewStatus := map[string]string{}
-	evidence := map[string][]string{}
-	for _, l := range bundle.ReqLinks.ReqLinks {
-		reviewStatus[strings.TrimSpace(l.ID)] = strings.TrimSpace(l.Status)
-		evidence[strings.TrimSpace(l.ID)] = l.Evidence
-	}
-	byParent := map[string][]reqlinks.LinkStatus{}
-	for _, s := range statuses {
-		if s.Parent != "" {
-			byParent[s.Parent] = append(byParent[s.Parent], s)
-		}
-	}
-	realizerStatus := trace.DependencyRequirementStatus(composed)
-
+	ix := newRequirementLinkIndex(bundle, composed)
 	var b strings.Builder
 	b.WriteString("\n<<<\n== Requirement Links\n\n")
 	b.WriteString("Each requirement of this model with the requirement links (`model/req-links.yml`) that satisfy it: the linked contract item of a dependency at the pinned version, ")
 	b.WriteString("and the dependency requirements that realize the item with their implementation and test status in the dependency's own repository. ")
 	b.WriteString("A link pinned to another version than the dependency, a broken and a claimed link are marked; review it with `engws review-links`.\n\n")
 	for _, r := range bundle.Requirements.Requirements {
-		id := strings.TrimSpace(r.ID)
-		b.WriteString(fmt.Sprintf("* *%s*: %s\n", id, oneLineText(r.Text)))
-		links := byParent[id]
-		if len(links) == 0 {
-			if r.Derived {
-				b.WriteString("** derived: " + oneLineText(r.DerivedRationale) + "\n")
-			} else {
-				b.WriteString("** no requirement link\n")
-			}
-		}
-		for _, s := range links {
-			b.WriteString(fmt.Sprintf("** link %s (%s, %s) to `%s`", s.ID, linkStateLabel(s), reviewLabel(reviewStatus[s.ID]), s.Child))
-			if s.Item == nil {
-				b.WriteString("\n")
-				continue
-			}
-			b.WriteString(": " + oneLineText(s.Item.Text) + "\n")
-			for _, rz := range reqlinks.SortedRealizers(s.Item.Realizers) {
-				b.WriteString(fmt.Sprintf("*** `%s::%s` (%s): %s\n", s.Alias, rz.ID, realizerTraceLabel(realizerStatus(s.Alias, rz.ID)), oneLineText(rz.Text)))
-			}
-		}
+		ix.writeRequirement(&b, r)
 	}
 	b.WriteString("\n")
-
 	// Assumptions of use of the resolved dependencies and the links that
 	// evidence them.
-	type assumption struct {
-		id, text string
+	ix.writeAssumptions(&b, dependencyAssumptions(composed))
+	return b.String()
+}
+
+// writeRequirement writes a requirement with its links, or why it has none.
+// TRLC-LINKS: REQ-EMG-107
+func (ix requirementLinkIndex) writeRequirement(b *strings.Builder, r model.Requirement) {
+	id := strings.TrimSpace(r.ID)
+	b.WriteString(fmt.Sprintf("* *%s*: %s\n", id, oneLineText(r.Text)))
+	links := ix.byParent[id]
+	if len(links) == 0 {
+		b.WriteString(noLinkLine(r))
 	}
-	var assumptions []assumption
+	for _, s := range links {
+		ix.writeLink(b, s)
+	}
+}
+
+// noLinkLine says that a requirement is derived, or has no requirement link.
+// TRLC-LINKS: REQ-EMG-107
+func noLinkLine(r model.Requirement) string {
+	if r.Derived {
+		return "** derived: " + oneLineText(r.DerivedRationale) + "\n"
+	}
+	return "** no requirement link\n"
+}
+
+// writeLink writes a link with its linked item and the realizers of the item.
+// TRLC-LINKS: REQ-EMG-107
+func (ix requirementLinkIndex) writeLink(b *strings.Builder, s reqlinks.LinkStatus) {
+	b.WriteString(fmt.Sprintf("** link %s (%s, %s) to `%s`", s.ID, linkStateLabel(s), reviewLabel(ix.reviewStatus[s.ID]), s.Child))
+	if s.Item == nil {
+		b.WriteString("\n")
+		return
+	}
+	b.WriteString(": " + oneLineText(s.Item.Text) + "\n")
+	for _, rz := range reqlinks.SortedRealizers(s.Item.Realizers) {
+		b.WriteString(fmt.Sprintf("*** `%s::%s` (%s): %s\n", s.Alias, rz.ID, realizerTraceLabel(ix.realizerStatus(s.Alias, rz.ID)), oneLineText(rz.Text)))
+	}
+}
+
+// linkAssumption is an assumption of use that a dependency publishes.
+type linkAssumption struct {
+	id   string
+	text string
+}
+
+// dependencyAssumptions lists the assumptions of use of the dependencies, by qualified ID.
+// TRLC-LINKS: REQ-EMG-107
+func dependencyAssumptions(composed composition.CompositionResult) []linkAssumption {
+	var assumptions []linkAssumption
 	for _, dep := range composition.LinkDependencies(composed.Root) {
-		for id, item := range reqlinks.PublishedItems(dep.Bundle, dep.Publications...) {
-			if item.Kind == reqlinks.KindAssumption {
-				assumptions = append(assumptions, assumption{dep.Alias + "::" + id, oneLineText(item.Text)})
-			}
-		}
+		assumptions = append(assumptions, publishedAssumptions(dep)...)
 	}
 	sort.Slice(assumptions, func(i, j int) bool { return assumptions[i].id < assumptions[j].id })
-	if len(assumptions) > 0 {
-		b.WriteString("=== Assumptions of Use\n\n")
-		b.WriteString("Conditions a dependency relies on, with the local requirements, controls or tests that show they hold in this model.\n\n")
-		for _, a := range assumptions {
-			b.WriteString(fmt.Sprintf("* `%s`: %s\n", a.id, a.text))
-			found := false
-			for _, s := range statuses {
-				if s.Child != a.id || len(evidence[s.ID]) == 0 {
-					continue
-				}
-				found = true
-				b.WriteString(fmt.Sprintf("** evidence %s (link %s, %s, %s)\n", strings.Join(evidence[s.ID], ", "), s.ID, linkStateLabel(s), reviewLabel(reviewStatus[s.ID])))
-			}
-			if !found {
-				b.WriteString("** *UNVERIFIED*: no link with evidence names this assumption (link.aou_unverified)\n")
-			}
+	return assumptions
+}
+
+// publishedAssumptions lists the assumptions of use a dependency publishes.
+// TRLC-LINKS: REQ-EMG-107
+func publishedAssumptions(dep reqlinks.Dependency) []linkAssumption {
+	var assumptions []linkAssumption
+	for id, item := range reqlinks.PublishedItems(dep.Bundle, dep.Publications...) {
+		if item.Kind == reqlinks.KindAssumption {
+			assumptions = append(assumptions, linkAssumption{dep.Alias + "::" + id, oneLineText(item.Text)})
 		}
-		b.WriteString("\n")
 	}
-	return b.String()
+	return assumptions
+}
+
+// writeAssumptions writes the assumptions of use with the links that evidence
+// them.
+// TRLC-LINKS: REQ-EMG-107
+func (ix requirementLinkIndex) writeAssumptions(b *strings.Builder, assumptions []linkAssumption) {
+	if len(assumptions) == 0 {
+		return
+	}
+	b.WriteString("=== Assumptions of Use\n\n")
+	b.WriteString("Conditions a dependency relies on, with the local requirements, controls or tests that show they hold in this model.\n\n")
+	for _, a := range assumptions {
+		b.WriteString(fmt.Sprintf("* `%s`: %s\n", a.id, a.text))
+		ix.writeEvidence(b, a.id)
+	}
+	b.WriteString("\n")
+}
+
+// writeEvidence writes the links with evidence that name the assumption, or
+// that it is unverified.
+// TRLC-LINKS: REQ-EMG-107
+func (ix requirementLinkIndex) writeEvidence(b *strings.Builder, assumptionID string) {
+	found := false
+	for _, s := range ix.statuses {
+		if s.Child != assumptionID || len(ix.evidence[s.ID]) == 0 {
+			continue
+		}
+		found = true
+		b.WriteString(fmt.Sprintf("** evidence %s (link %s, %s, %s)\n", strings.Join(ix.evidence[s.ID], ", "), s.ID, linkStateLabel(s), reviewLabel(ix.reviewStatus[s.ID])))
+	}
+	if !found {
+		b.WriteString("** *UNVERIFIED*: no link with evidence names this assumption (link.aou_unverified)\n")
+	}
 }
 
 // renderContractItemsChapter renders the published contract items of the
@@ -190,46 +264,53 @@ func renderContractItemsChapter(bundle model.Bundle, workspaceMode string, usedB
 	if len(items) == 0 {
 		return ""
 	}
-	ids := make([]string, 0, len(items))
-	for id := range items {
-		ids = append(ids, id)
-	}
-	sort.Strings(ids)
 	var b strings.Builder
 	b.WriteString("\n<<<\n== Contract Items\n\n")
 	b.WriteString("The capabilities and assumptions of use this model publishes, each with the requirements that realize it. ")
 	b.WriteString("A using system pins the version it reviewed in its requirement links; a release that changes the text or verification criteria of an item or a realizing requirement needs a new review in every user.\n\n")
-	for _, id := range ids {
-		item := items[id]
-		b.WriteString(fmt.Sprintf("=== %s (%s)\n\n%s\n\n", id, item.Kind, oneLineText(item.Text)))
-		if v := oneLineText(item.VerificationCriteria); v != "" {
-			b.WriteString("Verification criteria: " + v + "\n\n")
-		}
-		realizers := reqlinks.SortedRealizers(item.Realizers)
-		if len(realizers) == 0 {
-			b.WriteString("Realized by no published requirement.\n\n")
-		} else {
-			b.WriteString("Realized by:\n\n")
-			for _, r := range realizers {
-				b.WriteString(fmt.Sprintf("* `%s`: %s\n", r.ID, oneLineText(r.Text)))
-			}
-			b.WriteString("\n")
-		}
+	for _, id := range sortedKeys(items) {
+		writeContractItem(&b, id, items[id])
 	}
-	if !usedBy {
-		return b.String()
-	}
-	if uses := composition.WorkspaceLinkUsers(bundle, workspaceMode); len(uses) > 0 {
-		b.WriteString("=== Used By\n\n")
-		b.WriteString("Requirement links of the other models in this workspace onto these items, found at render time because the render opted in (engdoc --used-by). This section is not part of the model; do not commit a document that contains it into this repository.\n\n")
-		b.WriteString("[cols=\"2,2,2,2,1\",options=\"header\"]\n|===\n|Item |Model |Link |Parent requirement |Status\n")
-		for _, u := range uses {
-			cell := func(v string) string { return escapeTableCell(oneLineText(v)) }
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n|%s\n", cell(u.Item), cell(u.Model), cell(u.Link), cell(nonEmptyDash(u.Parent)), cell(u.Status)))
-		}
-		b.WriteString("|===\n\n")
+	if usedBy {
+		writeContractUsers(&b, composition.WorkspaceLinkUsers(bundle, workspaceMode))
 	}
 	return b.String()
+}
+
+// writeContractItem writes a published item with its verification criteria and realizers.
+// TRLC-LINKS: REQ-EMG-107
+func writeContractItem(b *strings.Builder, id string, item reqlinks.Item) {
+	b.WriteString(fmt.Sprintf("=== %s (%s)\n\n%s\n\n", id, item.Kind, oneLineText(item.Text)))
+	if v := oneLineText(item.VerificationCriteria); v != "" {
+		b.WriteString("Verification criteria: " + v + "\n\n")
+	}
+	realizers := reqlinks.SortedRealizers(item.Realizers)
+	if len(realizers) == 0 {
+		b.WriteString("Realized by no published requirement.\n\n")
+		return
+	}
+	b.WriteString("Realized by:\n\n")
+	for _, r := range realizers {
+		b.WriteString(fmt.Sprintf("* `%s`: %s\n", r.ID, oneLineText(r.Text)))
+	}
+	b.WriteString("\n")
+}
+
+// writeContractUsers writes the Used By table of the requirement links of the
+// other models in the workspace.
+// TRLC-LINKS: REQ-EMG-107
+func writeContractUsers(b *strings.Builder, uses []composition.LinkUse) {
+	if len(uses) == 0 {
+		return
+	}
+	b.WriteString("=== Used By\n\n")
+	b.WriteString("Requirement links of the other models in this workspace onto these items, found at render time because the render opted in (engdoc --used-by). This section is not part of the model; do not commit a document that contains it into this repository.\n\n")
+	b.WriteString("[cols=\"2,2,2,2,1\",options=\"header\"]\n|===\n|Item |Model |Link |Parent requirement |Status\n")
+	cell := func(v string) string { return escapeTableCell(oneLineText(v)) }
+	for _, u := range uses {
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n|%s\n", cell(u.Item), cell(u.Model), cell(u.Link), cell(nonEmptyDash(u.Parent)), cell(u.Status)))
+	}
+	b.WriteString("|===\n\n")
 }
 
 // nonEmptyDash returns s, or "-" when it is empty.

@@ -38,74 +38,98 @@ func renderCompositionAsciiDocChapterFor(bundle model.Bundle, res composition.Co
 	if !hasHW && !hasComp {
 		return ""
 	}
-
 	var b strings.Builder
 	b.WriteString("\n<<<\n== System Composition & Hardware\n\n")
 	b.WriteString("This chapter shows the system architecture across hardware and software: hardware items and their ")
 	b.WriteString("interfaces and the subsystems this system composes. ")
 	b.WriteString("Subsystem references are downward-only and resolved from exact-version manifest dependencies, with optional workspace replacements.\n\n")
-
-	if len(a.HardwareItems) > 0 {
-		b.WriteString("=== Hardware Items\n\n[cols=\"2,3,1,3,1\",options=\"header\"]\n|===\n|ID |Name |Kind |Hosts |Safety\n")
-		for _, h := range a.HardwareItems {
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n|%s\n",
-				escapeTableCell(h.ID), escapeTableCell(textutil.Fallback(h.Name, h.ID)), escapeTableCell(h.Kind),
-				escapeTableCell(strings.Join(h.Hosts, ", ")), escapeTableCell(textutil.Fallback(h.SafetyLevel, "-"))))
-		}
-		b.WriteString("|===\n\n")
-	}
-
-	if len(a.HardwareInterfaces) > 0 {
-		b.WriteString("=== Hardware Interfaces\n\n[cols=\"2,2,3,1,2\",options=\"header\"]\n|===\n|ID |Bus |From → To |Dir |Software IF\n")
-		for _, hi := range a.HardwareInterfaces {
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s → %s\n|%s\n|%s\n",
-				escapeTableCell(hi.ID), escapeTableCell(hi.BusType),
-				escapeTableCell(hi.From), escapeTableCell(hi.To),
-				escapeTableCell(textutil.Fallback(hi.Direction, "-")), escapeTableCell(textutil.Fallback(hi.SoftwareInterfaceRef, "-"))))
-		}
-		b.WriteString("|===\n\n")
-		if mmd := compositionHardwareMermaid(bundle); mmd != "" {
-			b.WriteString("==== Hardware/Software Interface View\n\nHardware IDs identify the items in the tables above. The Hardware Items table lists every hosted unit.\n\n[source,mermaid]\n----\n")
-			b.WriteString(mmd)
-			b.WriteString("\n----\n\n")
-		}
-	}
-
+	writeHardwareItems(&b, a.HardwareItems)
+	writeHardwareInterfaces(&b, bundle)
 	if !hasComp {
 		return b.String()
 	}
-
 	if err != nil {
 		b.WriteString("NOTE: composition could not be resolved: " + escapeTableCell(err.Error()) + "\n\n")
 		return b.String()
 	}
+	writeSubsystems(&b, bundle.Architecture.Composition.Subsystems)
+	renderPublishedProjectionTables(&b, composition.BuildCompositionProjection(res))
+	writeCompositionFindings(&b, res.Diagnostics)
+	return b.String()
+}
 
+// writeHardwareItems writes the Hardware Items table when there are items.
+// TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051, REQ-EMG-066
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func writeHardwareItems(b *strings.Builder, items []model.HardwareItem) {
+	if len(items) == 0 {
+		return
+	}
+	b.WriteString("=== Hardware Items\n\n[cols=\"2,3,1,3,1\",options=\"header\"]\n|===\n|ID |Name |Kind |Hosts |Safety\n")
+	for _, h := range items {
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%s\n|%s\n",
+			escapeTableCell(h.ID), escapeTableCell(textutil.Fallback(h.Name, h.ID)), escapeTableCell(h.Kind),
+			escapeTableCell(strings.Join(h.Hosts, ", ")), escapeTableCell(textutil.Fallback(h.SafetyLevel, "-"))))
+	}
+	b.WriteString("|===\n\n")
+}
+
+// writeHardwareInterfaces writes the Hardware Interfaces table and the
+// hardware/software interface view when there are interfaces.
+// TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051, REQ-EMG-066
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func writeHardwareInterfaces(b *strings.Builder, bundle model.Bundle) {
+	interfaces := bundle.Architecture.AuthoredArchitecture.HardwareInterfaces
+	if len(interfaces) == 0 {
+		return
+	}
+	b.WriteString("=== Hardware Interfaces\n\n[cols=\"2,2,3,1,2\",options=\"header\"]\n|===\n|ID |Bus |From → To |Dir |Software IF\n")
+	for _, hi := range interfaces {
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s → %s\n|%s\n|%s\n",
+			escapeTableCell(hi.ID), escapeTableCell(hi.BusType),
+			escapeTableCell(hi.From), escapeTableCell(hi.To),
+			escapeTableCell(textutil.Fallback(hi.Direction, "-")), escapeTableCell(textutil.Fallback(hi.SoftwareInterfaceRef, "-"))))
+	}
+	b.WriteString("|===\n\n")
+	if mmd := compositionHardwareMermaid(bundle); mmd != "" {
+		b.WriteString("==== Hardware/Software Interface View\n\nHardware IDs identify the items in the tables above. The Hardware Items table lists every hosted unit.\n\n[source,mermaid]\n----\n")
+		b.WriteString(mmd)
+		b.WriteString("\n----\n\n")
+	}
+}
+
+// writeSubsystems writes the Subsystems table.
+// TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051, REQ-EMG-066
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func writeSubsystems(b *strings.Builder, subsystems []model.Subsystem) {
 	b.WriteString("=== Subsystems\n\n[cols=\"2,3,3\",options=\"header\"]\n|===\n|ID |Name |Reference\n")
-	for _, sub := range bundle.Architecture.Composition.Subsystems {
+	for _, sub := range subsystems {
 		reference := sub.Dependency + "::" + sub.Publication
 		b.WriteString(fmt.Sprintf("|%s\n|%s\n|`%s`\n", escapeTableCell(sub.ID), escapeTableCell(textutil.Fallback(sub.Name, sub.ID)), escapeTableCell(reference)))
 	}
 	b.WriteString("|===\n\n")
+}
 
-	renderPublishedProjectionTables(&b, composition.BuildCompositionProjection(res))
-
+// writeCompositionFindings writes the composition diagnostics, or says that
+// all subsystem required interfaces are satisfied.
+// TRLC-LINKS: REQ-EMG-024, REQ-EMG-025, REQ-EMG-050, REQ-EMG-051, REQ-EMG-066
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func writeCompositionFindings(b *strings.Builder, diags []validate.Diagnostic) {
 	var findings []validate.Diagnostic
-	for _, d := range res.Diagnostics {
+	for _, d := range diags {
 		if strings.HasPrefix(d.Code, "composition.") {
 			findings = append(findings, d)
 		}
 	}
-	if len(findings) > 0 {
-		b.WriteString("=== Composition Findings\n\n[cols=\"2,1,4\",options=\"header\"]\n|===\n|Code |Severity |Message\n")
-		for _, d := range findings {
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n", escapeTableCell(d.Code), escapeTableCell(string(d.Severity)), escapeTableCell(d.Message)))
-		}
-		b.WriteString("|===\n\n")
-	} else {
+	if len(findings) == 0 {
 		b.WriteString("All subsystem required interfaces are satisfied.\n\n")
+		return
 	}
-
-	return b.String()
+	b.WriteString("=== Composition Findings\n\n[cols=\"2,1,4\",options=\"header\"]\n|===\n|Code |Severity |Message\n")
+	for _, d := range findings {
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n", escapeTableCell(d.Code), escapeTableCell(string(d.Severity)), escapeTableCell(d.Message)))
+	}
+	b.WriteString("|===\n\n")
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
@@ -157,15 +181,26 @@ func projectionEntityLabel(value any) string {
 	if reflected.Kind() == reflect.Pointer {
 		reflected = reflected.Elem()
 	}
-	if reflected.IsValid() && reflected.Kind() == reflect.Struct {
-		for _, fieldName := range []string{"Name", "Title", "Text", "Kind"} {
-			field := reflected.FieldByName(fieldName)
-			if field.IsValid() && field.Kind() == reflect.String && strings.TrimSpace(field.String()) != "" {
-				return strings.TrimSpace(field.String())
-			}
+	if !reflected.IsValid() || reflected.Kind() != reflect.Struct {
+		return "-"
+	}
+	for _, fieldName := range []string{"Name", "Title", "Text", "Kind"} {
+		if label := trimmedStringField(reflected, fieldName); label != "" {
+			return label
 		}
 	}
 	return "-"
+}
+
+// trimmedStringField is the trimmed value of a string field, or empty when the
+// struct has no such string field.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func trimmedStringField(structValue reflect.Value, name string) string {
+	field := structValue.FieldByName(name)
+	if !field.IsValid() || field.Kind() != reflect.String {
+		return ""
+	}
+	return strings.TrimSpace(field.String())
 }
 
 // compositionHardwareMermaid renders hardware items as nodes and hardware interfaces as edges.
@@ -198,7 +233,7 @@ func compositionHardwareMermaid(bundle model.Bundle) string {
 func mermaidID(s string) string {
 	var b strings.Builder
 	for _, r := range s {
-		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' {
+		if strings.ContainsRune(mermaidIDRunes, r) {
 			b.WriteRune(r)
 		} else {
 			b.WriteRune('_')
@@ -210,6 +245,9 @@ func mermaidID(s string) string {
 	}
 	return out
 }
+
+// mermaidIDRunes are the runes a Mermaid node id keeps.
+const mermaidIDRunes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_"
 
 // mermaidLabel escapes a label for a Mermaid node.
 // TRLC-LINKS: REQ-EMG-024

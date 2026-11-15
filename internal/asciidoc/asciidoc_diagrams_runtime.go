@@ -2,6 +2,7 @@
 package asciidoc
 
 import (
+	"cmp"
 	"fmt"
 	"sort"
 	"strings"
@@ -11,62 +12,74 @@ import (
 	"github.com/labeth/engineering-model-go/internal/textutil"
 )
 
+// runtimeEndpointKinds are the runtime kinds that stand for a unit in the API view.
+var runtimeEndpointKinds = map[string]bool{
+	"helmrelease": true, "deployment": true, "workload": true, "service": true, "lambda_function": true,
+	"terraform_resource": true, "eventbridge_rule": true, "eventbridge_target": true, "queue": true, "topic": true,
+}
+
+// runtimeEndpoints indexes the runtime elements that stand for units and the
+// ports of the services.
+type runtimeEndpoints struct {
+	byUnit       map[string]string
+	servicePorts map[string]string
+}
+
+// newRuntimeEndpoints maps each unit to the first runtime element it owns
+// and each service to its ports.
+// TRLC-LINKS: REQ-EMG-003
+func newRuntimeEndpoints(runtime []codescan.RuntimeItem) runtimeEndpoints {
+	ix := runtimeEndpoints{byUnit: map[string]string{}, servicePorts: map[string]string{}}
+	for _, r := range runtime {
+		name := runtimeShortName(r.Name)
+		ix.noteOwner(r, name)
+		if (r.Kind == "service" || r.Kind == "helmrelease") && len(r.Ports) > 0 {
+			ix.servicePorts[name] = strings.Join(r.Ports, ", ")
+		}
+	}
+	return ix
+}
+
+// noteOwner maps the owner of an endpoint element to its name, unless it has one.
+// TRLC-LINKS: REQ-EMG-003
+func (ix runtimeEndpoints) noteOwner(r codescan.RuntimeItem, name string) {
+	owner := strings.TrimSpace(r.Owner)
+	if owner == "" || owner == "unresolved" || !runtimeEndpointKinds[strings.TrimSpace(strings.ToLower(r.Kind))] {
+		return
+	}
+	if _, ok := ix.byUnit[r.Owner]; !ok {
+		ix.byUnit[r.Owner] = name
+	}
+}
+
+// row is the API row of a depends_on mapping between units that have a runtime element.
+// TRLC-LINKS: REQ-EMG-003
+func (ix runtimeEndpoints) row(m model.Mapping) (asciidocRuntimeAPIRow, bool) {
+	from := ix.byUnit[m.From]
+	to := ix.byUnit[m.To]
+	if m.Type != "depends_on" || strings.TrimSpace(from) == "" || strings.TrimSpace(to) == "" {
+		return asciidocRuntimeAPIRow{}, false
+	}
+	ports := textutil.NonEmpty(ix.servicePorts[to], "unknown")
+	return asciidocRuntimeAPIRow{Consumer: from, Provider: to, Ports: ports}, true
+}
+
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
 func buildRuntimeAPIRows(runtime []codescan.RuntimeItem, mappings []model.Mapping) []asciidocRuntimeAPIRow {
-	fuToRuntime := map[string]string{}
-	servicePorts := map[string]string{}
-	isRuntimeEndpoint := func(kind string) bool {
-		switch strings.TrimSpace(strings.ToLower(kind)) {
-		case "helmrelease", "deployment", "workload", "service", "lambda_function", "terraform_resource", "eventbridge_rule", "eventbridge_target", "queue", "topic":
-			return true
-		default:
-			return false
-		}
-	}
-	for _, r := range runtime {
-		name := runtimeShortName(r.Name)
-		if strings.TrimSpace(r.Owner) != "" && strings.TrimSpace(r.Owner) != "unresolved" && isRuntimeEndpoint(r.Kind) {
-			if _, ok := fuToRuntime[r.Owner]; !ok {
-				fuToRuntime[r.Owner] = name
-			}
-		}
-		if (r.Kind == "service" || r.Kind == "helmrelease") && len(r.Ports) > 0 {
-			servicePorts[name] = strings.Join(r.Ports, ", ")
-		}
-	}
-
+	ix := newRuntimeEndpoints(runtime)
 	out := []asciidocRuntimeAPIRow{}
 	seen := map[string]bool{}
 	for _, m := range mappings {
-		if m.Type != "depends_on" {
-			continue
+		row, ok := ix.row(m)
+		key := row.Consumer + "|" + row.Provider + "|" + row.Ports
+		if ok && !seen[key] {
+			seen[key] = true
+			out = append(out, row)
 		}
-		from := fuToRuntime[m.From]
-		to := fuToRuntime[m.To]
-		if strings.TrimSpace(from) == "" || strings.TrimSpace(to) == "" {
-			continue
-		}
-		ports := servicePorts[to]
-		if strings.TrimSpace(ports) == "" {
-			ports = "unknown"
-		}
-		key := from + "|" + to + "|" + ports
-		if seen[key] {
-			continue
-		}
-		seen[key] = true
-		out = append(out, asciidocRuntimeAPIRow{
-			Consumer: from,
-			Provider: to,
-			Ports:    ports,
-		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
-		if out[i].Provider != out[j].Provider {
-			return out[i].Provider < out[j].Provider
-		}
-		return out[i].Consumer < out[j].Consumer
+		return cmp.Or(cmp.Compare(out[i].Provider, out[j].Provider), cmp.Compare(out[i].Consumer, out[j].Consumer)) < 0
 	})
 	return out
 }
@@ -77,13 +90,13 @@ func buildRuntimeAPIMermaid(rows []asciidocRuntimeAPIRow) string {
 	if len(rows) == 0 {
 		return ""
 	}
-	lines := []string{"flowchart LR"}
+	lines := mermaidLines{"flowchart LR"}
 	for _, r := range rows {
 		cn := "RT_" + codescan.SanitizeNode(r.Consumer)
 		pn := "RT_" + codescan.SanitizeNode(r.Provider)
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::runtime_element", cn, escapeMermaidLabel(r.Consumer)))
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::runtime_element", pn, escapeMermaidLabel(r.Provider)))
-		lines = append(lines, fmt.Sprintf("  %s -->|API %s| %s", cn, escapeMermaidLabel(r.Ports), pn))
+		lines.addf("  %s[\"%s\"]:::runtime_element", cn, escapeMermaidLabel(r.Consumer))
+		lines.addf("  %s[\"%s\"]:::runtime_element", pn, escapeMermaidLabel(r.Provider))
+		lines.addf("  %s -->|API %s| %s", cn, escapeMermaidLabel(r.Ports), pn)
 	}
 	lines = appendMermaidClassDefs(lines)
 	return strings.Join(uniquePreserve(lines), "\n")
@@ -102,415 +115,575 @@ func runtimeShortName(s string) string {
 	return x
 }
 
+// deploymentKindRoles maps the runtime kinds of a deployment to the role of
+// their element in the deployment rows.
+var deploymentKindRoles = map[string]string{
+	"gitrepository": "source", "kustomization": "kustomization",
+	"helmrelease": "release", "eventbridge_rule": "release", "terraform_resource": "release",
+	"deployment": "workload", "workload": "workload", "lambda_function": "workload", "service": "workload",
+	"queue": "workload", "topic": "workload", "eventbridge_target": "workload",
+	"namespace": "namespace", "cluster": "cluster",
+}
+
+// deploymentInventory is the deployment elements of the runtime by role.
+type deploymentInventory struct {
+	sourceName string
+	kustomName string
+	releases   []string
+	workloads  []string
+	namespaces []string
+	clusters   []string
+}
+
+// newDeploymentInventory sorts the runtime elements into their roles; the
+// first git repository and kustomization stand for all.
+// TRLC-LINKS: REQ-EMG-003
+func newDeploymentInventory(runtime []codescan.RuntimeItem) deploymentInventory {
+	byRole := map[string][]string{}
+	for _, r := range runtime {
+		if role, ok := deploymentKindRoles[r.Kind]; ok {
+			byRole[role] = append(byRole[role], deploymentNodeName(r))
+		}
+	}
+	return deploymentInventory{
+		sourceName: firstNonEmpty(byRole["source"]),
+		kustomName: firstNonEmpty(byRole["kustomization"]),
+		releases:   textutil.UniqueSorted(byRole["release"]),
+		workloads:  textutil.UniqueSorted(byRole["workload"]),
+		namespaces: textutil.UniqueSorted(byRole["namespace"]),
+		clusters:   textutil.UniqueSorted(byRole["cluster"]),
+	}
+}
+
+// firstNonEmpty is the first item that is not empty, or empty.
+// TRLC-LINKS: REQ-EMG-003
+func firstNonEmpty(items []string) string {
+	for _, item := range items {
+		if item != "" {
+			return item
+		}
+	}
+	return ""
+}
+
+// deploymentRowSet collects deployment rows, each once.
+type deploymentRowSet struct {
+	rows []asciidocDeploymentRow
+	seen map[string]bool
+}
+
+// add records a row when its three parts are not blank and it is new.
+// TRLC-LINKS: REQ-EMG-003
+func (s *deploymentRowSet) add(from, to, how string) {
+	from = strings.TrimSpace(from)
+	to = strings.TrimSpace(to)
+	how = strings.TrimSpace(how)
+	key := from + "|" + to + "|" + how
+	if hasBlank(from, to, how) || s.seen[key] {
+		return
+	}
+	s.seen[key] = true
+	s.rows = append(s.rows, asciidocDeploymentRow{From: from, To: to, How: how})
+}
+
+// addFrom adds a row from one element to each of the to elements.
+// TRLC-LINKS: REQ-EMG-003
+func (s *deploymentRowSet) addFrom(from string, to []string, how string) {
+	for _, t := range to {
+		s.add(from, t, how)
+	}
+}
+
+// addTo adds a row from each of the from elements to one element.
+// TRLC-LINKS: REQ-EMG-003
+func (s *deploymentRowSet) addTo(from []string, to, how string) {
+	for _, f := range from {
+		s.add(f, to, how)
+	}
+}
+
+// hasBlank reports whether one of the values is empty.
+// TRLC-LINKS: REQ-EMG-003
+func hasBlank(values ...string) bool {
+	for _, v := range values {
+		if v == "" {
+			return true
+		}
+	}
+	return false
+}
+
+// deploymentRule is a kind of deployment row and when two elements have it.
+type deploymentRule struct {
+	how     string
+	matches func(from, to string) bool
+}
+
+// addMatching adds a row of the rule for each pair of from and to elements that match.
+// TRLC-LINKS: REQ-EMG-003
+func (s *deploymentRowSet) addMatching(rule deploymentRule, from, to []string) {
+	for _, f := range from {
+		s.addMatchesOf(rule, f, to)
+	}
+}
+
+// addMatchesOf adds a row of the rule for each of the to elements that match the from element.
+// TRLC-LINKS: REQ-EMG-003
+func (s *deploymentRowSet) addMatchesOf(rule deploymentRule, from string, to []string) {
+	for _, t := range to {
+		if rule.matches(from, t) {
+			s.add(from, t, rule.how)
+		}
+	}
+}
+
+// containsFold reports whether s contains substr, ignoring case.
+// TRLC-LINKS: REQ-EMG-003
+func containsFold(s, substr string) bool {
+	return strings.Contains(strings.ToLower(s), strings.ToLower(substr))
+}
+
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-003
 func buildDeploymentRows(runtime []codescan.RuntimeItem) []asciidocDeploymentRow {
-	var sourceName, kustomName string
-	releases := []string{}
-	workloads := []string{}
-	namespaces := []string{}
-	clusters := []string{}
-	out := []asciidocDeploymentRow{}
-	seen := map[string]bool{}
-	addRow := func(from, to, how string) {
-		from = strings.TrimSpace(from)
-		to = strings.TrimSpace(to)
-		how = strings.TrimSpace(how)
-		if from == "" || to == "" || how == "" {
-			return
-		}
-		key := from + "|" + to + "|" + how
-		if seen[key] {
-			return
-		}
-		seen[key] = true
-		out = append(out, asciidocDeploymentRow{From: from, To: to, How: how})
+	inv := newDeploymentInventory(runtime)
+	set := &deploymentRowSet{rows: []asciidocDeploymentRow{}, seen: map[string]bool{}}
+	if inv.sourceName != "" && inv.kustomName != "" {
+		set.add(inv.sourceName, inv.kustomName, "reconciles")
 	}
-
-	for _, r := range runtime {
-		n := deploymentNodeName(r)
-		switch r.Kind {
-		case "gitrepository":
-			if sourceName == "" {
-				sourceName = n
-			}
-		case "kustomization":
-			if kustomName == "" {
-				kustomName = n
-			}
-		case "helmrelease":
-			releases = append(releases, n)
-		case "deployment", "workload", "lambda_function", "service", "queue", "topic", "eventbridge_target":
-			workloads = append(workloads, n)
-		case "eventbridge_rule", "terraform_resource":
-			releases = append(releases, n)
-		case "namespace":
-			namespaces = append(namespaces, n)
-		case "cluster":
-			clusters = append(clusters, n)
-		}
+	if inv.kustomName != "" {
+		set.addFrom(inv.kustomName, inv.releases, "applies")
 	}
-	releases = textutil.UniqueSorted(releases)
-	workloads = textutil.UniqueSorted(workloads)
-	namespaces = textutil.UniqueSorted(namespaces)
-	clusters = textutil.UniqueSorted(clusters)
-
-	if sourceName != "" && kustomName != "" {
-		addRow(sourceName, kustomName, "reconciles")
+	set.addMatching(deploymentRule{"deploys", func(release, workload string) bool { return containsFold(workload, release) }}, inv.releases, inv.workloads)
+	set.addMatching(deploymentRule{"targets", func(release, ns string) bool { return containsFold(release, ns) }}, inv.releases, inv.namespaces)
+	if len(inv.clusters) > 0 {
+		set.addTo(inv.namespaces, inv.clusters[0], "part_of")
 	}
-	for _, r := range releases {
-		if kustomName != "" {
-			addRow(kustomName, r, "applies")
-		}
-	}
-	for _, r := range releases {
-		for _, w := range workloads {
-			if strings.Contains(strings.ToLower(w), strings.ToLower(r)) {
-				addRow(r, w, "deploys")
-			}
-		}
-	}
-	for _, r := range releases {
-		for _, ns := range namespaces {
-			if strings.Contains(strings.ToLower(r), strings.ToLower(ns)) {
-				addRow(r, ns, "targets")
-			}
-		}
-	}
-	if len(clusters) > 0 {
-		clusterName := clusters[0]
-		for _, ns := range namespaces {
-			addRow(ns, clusterName, "part_of")
-		}
-	}
-
 	// Fallback for runtime sets that do not naturally match the release/namespace
 	// heuristics above (for example Terraform Lambda/EventBridge-only samples).
-	if len(out) == 0 {
-		for _, r := range runtime {
-			target := deploymentNodeName(r)
-			if target == "" {
-				continue
-			}
-			source := runtimeShortName(strings.ReplaceAll(strings.TrimSpace(r.Source), "\\", "/"))
-			if source == "" {
-				source = "inferred-runtime-source"
-			}
-			addRow(source, target, "deploys")
-		}
+	if len(set.rows) == 0 {
+		set.addFallback(runtime)
 	}
-
-	sort.SliceStable(out, func(i, j int) bool {
-		if out[i].From != out[j].From {
-			return out[i].From < out[j].From
-		}
-		if out[i].To != out[j].To {
-			return out[i].To < out[j].To
-		}
-		return out[i].How < out[j].How
+	sort.SliceStable(set.rows, func(i, j int) bool {
+		a, b := set.rows[i], set.rows[j]
+		return cmp.Or(cmp.Compare(a.From, b.From), cmp.Compare(a.To, b.To), cmp.Compare(a.How, b.How)) < 0
 	})
-	return out
+	return set.rows
+}
+
+// addFallback adds a deploys row from the source of each runtime element.
+// TRLC-LINKS: REQ-EMG-003
+func (s *deploymentRowSet) addFallback(runtime []codescan.RuntimeItem) {
+	for _, r := range runtime {
+		target := deploymentNodeName(r)
+		if target == "" {
+			continue
+		}
+		source := runtimeShortName(strings.ReplaceAll(strings.TrimSpace(r.Source), "\\", "/"))
+		s.add(textutil.NonEmpty(source, "inferred-runtime-source"), target, "deploys")
+	}
+}
+
+// deploymentEdge is a deployment row drawn as an edge.
+type deploymentEdge struct {
+	From string
+	To   string
+	How  string
+}
+
+// deploymentClassRank orders the node classes; a node keeps the higher class.
+var deploymentClassRank = map[string]int{
+	"deployment_element": 1,
+	"runtime_element":    2,
+}
+
+// deploymentDiagram draws the deployment rows as namespaces in clusters, a
+// control plane and standalone nodes.
+type deploymentDiagram struct {
+	lines          mermaidLines
+	edges          []deploymentEdge
+	nodeClass      map[string]string
+	nodeRole       map[string]string
+	sourceSet      map[string]bool
+	kustomSet      map[string]bool
+	releaseSet     map[string]bool
+	workloadSet    map[string]bool
+	nsSet          map[string]bool
+	clusterSet     map[string]bool
+	releaseTargets map[string]map[string]bool
+	releaseDeploys map[string]map[string]bool
+	nsCluster      map[string]string
+	releaseNS      map[string]string
+	nsReleases     map[string][]string
+	nsWorkloads    map[string][]string
+	emitted        map[string]bool
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-003
 func buildDeploymentMermaid(rows []asciidocDeploymentRow) string {
-	lines := []string{"flowchart TB"}
-
-	type edge struct {
-		From string
-		To   string
-		How  string
-	}
-	edges := make([]edge, 0, len(rows))
-
-	nodeClass := map[string]string{}
-	classRank := map[string]int{
-		"deployment_element": 1,
-		"runtime_element":    2,
-	}
-	sourceSet := map[string]bool{}
-	kustomSet := map[string]bool{}
-	releaseSet := map[string]bool{}
-	workloadSet := map[string]bool{}
-	nsSet := map[string]bool{}
-	clusterSet := map[string]bool{}
-	releaseTargets := map[string]map[string]bool{}
-	releaseDeploys := map[string]map[string]bool{}
-	nsCluster := map[string]string{}
-
-	setClass := func(node, class string) {
-		if existing, ok := nodeClass[node]; ok {
-			if classRank[class] <= classRank[existing] {
-				return
-			}
-		}
-		nodeClass[node] = class
-	}
+	d := newDeploymentDiagram()
 	for _, r := range rows {
-		if strings.TrimSpace(r.From) == "" || strings.TrimSpace(r.To) == "" || strings.TrimSpace(r.How) == "" {
-			continue
-		}
-		edges = append(edges, edge{From: r.From, To: r.To, How: r.How})
-		setClass(r.From, "deployment_element")
-		setClass(r.To, "deployment_element")
-		switch r.How {
-		case "reconciles":
-			sourceSet[r.From] = true
-			kustomSet[r.To] = true
-		case "applies":
-			kustomSet[r.From] = true
-			releaseSet[r.To] = true
-		case "deploys":
-			releaseSet[r.From] = true
-			workloadSet[r.To] = true
-			setClass(r.To, "runtime_element")
-			if releaseDeploys[r.From] == nil {
-				releaseDeploys[r.From] = map[string]bool{}
-			}
-			releaseDeploys[r.From][r.To] = true
-		case "targets":
-			releaseSet[r.From] = true
-			nsSet[r.To] = true
-			if releaseTargets[r.From] == nil {
-				releaseTargets[r.From] = map[string]bool{}
-			}
-			releaseTargets[r.From][r.To] = true
-		case "part_of":
-			nsSet[r.From] = true
-			clusterSet[r.To] = true
-			if strings.TrimSpace(nsCluster[r.From]) == "" {
-				nsCluster[r.From] = r.To
-			}
+		d.classify(r)
+	}
+	d.indexPlacement()
+	d.assignRoles()
+	d.emitNamespaces()
+	d.emitControlPlane()
+	d.emitStandalone()
+	d.emitEdges()
+	d.lines = appendMermaidClassDefs(d.lines)
+	return strings.Join(d.lines, "\n")
+}
+
+// newDeploymentDiagram is an empty diagram.
+// TRLC-LINKS: REQ-EMG-003
+func newDeploymentDiagram() *deploymentDiagram {
+	return &deploymentDiagram{
+		lines:          mermaidLines{"flowchart TB"},
+		nodeClass:      map[string]string{},
+		nodeRole:       map[string]string{},
+		sourceSet:      map[string]bool{},
+		kustomSet:      map[string]bool{},
+		releaseSet:     map[string]bool{},
+		workloadSet:    map[string]bool{},
+		nsSet:          map[string]bool{},
+		clusterSet:     map[string]bool{},
+		releaseTargets: map[string]map[string]bool{},
+		releaseDeploys: map[string]map[string]bool{},
+		nsCluster:      map[string]string{},
+		emitted:        map[string]bool{},
+	}
+}
+
+// setClass gives the node the class, unless it has one of at least that rank.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) setClass(node, class string) {
+	if existing, ok := d.nodeClass[node]; ok && deploymentClassRank[class] <= deploymentClassRank[existing] {
+		return
+	}
+	d.nodeClass[node] = class
+}
+
+// deploymentRowKinds notes what a row of each kind tells about its elements.
+var deploymentRowKinds = map[string]func(*deploymentDiagram, asciidocDeploymentRow){
+	"reconciles": (*deploymentDiagram).noteReconciles,
+	"applies":    (*deploymentDiagram).noteApplies,
+	"deploys":    (*deploymentDiagram).noteDeploys,
+	"targets":    (*deploymentDiagram).noteTargets,
+	"part_of":    (*deploymentDiagram).notePartOf,
+}
+
+// classify records a row as an edge and what it tells about its elements.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) classify(r asciidocDeploymentRow) {
+	if strings.TrimSpace(r.From) == "" || strings.TrimSpace(r.To) == "" || strings.TrimSpace(r.How) == "" {
+		return
+	}
+	d.edges = append(d.edges, deploymentEdge{From: r.From, To: r.To, How: r.How})
+	d.setClass(r.From, "deployment_element")
+	d.setClass(r.To, "deployment_element")
+	if note := deploymentRowKinds[r.How]; note != nil {
+		note(d, r)
+	}
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) noteReconciles(r asciidocDeploymentRow) {
+	d.sourceSet[r.From] = true
+	d.kustomSet[r.To] = true
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) noteApplies(r asciidocDeploymentRow) {
+	d.kustomSet[r.From] = true
+	d.releaseSet[r.To] = true
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) noteDeploys(r asciidocDeploymentRow) {
+	d.releaseSet[r.From] = true
+	d.workloadSet[r.To] = true
+	d.setClass(r.To, "runtime_element")
+	addToSetMap(d.releaseDeploys, r.From, r.To)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) noteTargets(r asciidocDeploymentRow) {
+	d.releaseSet[r.From] = true
+	d.nsSet[r.To] = true
+	addToSetMap(d.releaseTargets, r.From, r.To)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) notePartOf(r asciidocDeploymentRow) {
+	d.nsSet[r.From] = true
+	d.clusterSet[r.To] = true
+	if strings.TrimSpace(d.nsCluster[r.From]) == "" {
+		d.nsCluster[r.From] = r.To
+	}
+}
+
+// addToSetMap adds the value to the set under the key.
+// TRLC-LINKS: REQ-EMG-003
+func addToSetMap(m map[string]map[string]bool, key, value string) {
+	if m[key] == nil {
+		m[key] = map[string]bool{}
+	}
+	m[key][value] = true
+}
+
+// firstSorted maps each key to the first of its sorted values.
+// TRLC-LINKS: REQ-EMG-003
+func firstSorted(m map[string]map[string]bool) map[string]string {
+	first := map[string]string{}
+	for key, values := range m {
+		if names := keysSorted(values); len(names) > 0 {
+			first[key] = names[0]
 		}
 	}
+	return first
+}
 
-	releasePrimaryNS := map[string]string{}
+// groupBySorted maps each value to the sorted keys that have it.
+// TRLC-LINKS: REQ-EMG-003
+func groupBySorted(m map[string]string) map[string][]string {
+	grouped := map[string][]string{}
+	for key, value := range m {
+		grouped[value] = append(grouped[value], key)
+	}
+	for _, keys := range grouped {
+		sort.Strings(keys)
+	}
+	return grouped
+}
+
+// workloadNamespaces maps each workload to the namespaces of the releases that deploy it.
+// TRLC-LINKS: REQ-EMG-003
+func workloadNamespaces(releaseTargets, releaseDeploys map[string]map[string]bool) map[string]map[string]bool {
+	byWorkload := map[string]map[string]bool{}
 	for release, targets := range releaseTargets {
-		names := make([]string, 0, len(targets))
-		for ns := range targets {
-			names = append(names, ns)
-		}
-		sort.Strings(names)
-		if len(names) > 0 {
-			releasePrimaryNS[release] = names[0]
+		for workload := range releaseDeploys[release] {
+			addAllToSetMap(byWorkload, workload, targets)
 		}
 	}
-	nsReleases := map[string][]string{}
-	for release, ns := range releasePrimaryNS {
-		nsReleases[ns] = append(nsReleases[ns], release)
-	}
-	for ns := range nsReleases {
-		sort.Strings(nsReleases[ns])
-	}
+	return byWorkload
+}
 
-	workloadNamespaces := map[string]map[string]bool{}
-	for release, targets := range releaseTargets {
-		for ns := range targets {
-			for workload := range releaseDeploys[release] {
-				if workloadNamespaces[workload] == nil {
-					workloadNamespaces[workload] = map[string]bool{}
-				}
-				workloadNamespaces[workload][ns] = true
-			}
-		}
+// addAllToSetMap adds the values to the set under the key.
+// TRLC-LINKS: REQ-EMG-003
+func addAllToSetMap(m map[string]map[string]bool, key string, values map[string]bool) {
+	for value := range values {
+		addToSetMap(m, key, value)
 	}
-	workloadPrimaryNS := map[string]string{}
-	for workload, nsCandidates := range workloadNamespaces {
-		names := make([]string, 0, len(nsCandidates))
-		for ns := range nsCandidates {
-			names = append(names, ns)
-		}
-		sort.Strings(names)
-		if len(names) > 0 {
-			workloadPrimaryNS[workload] = names[0]
-		}
-	}
-	nsWorkloads := map[string][]string{}
-	for workload, ns := range workloadPrimaryNS {
-		nsWorkloads[ns] = append(nsWorkloads[ns], workload)
-	}
-	for ns := range nsWorkloads {
-		sort.Strings(nsWorkloads[ns])
-	}
+}
 
-	nodeRole := map[string]string{}
-	for x := range sourceSet {
-		nodeRole[x] = "source"
-	}
-	for x := range kustomSet {
-		nodeRole[x] = "kustomization"
-	}
-	for x := range releaseSet {
-		nodeRole[x] = "release"
-	}
-	for x := range workloadSet {
-		nodeRole[x] = "workload"
-	}
-	for x := range nsSet {
-		nodeRole[x] = "namespace"
-	}
-	for x := range clusterSet {
-		if nsSet[x] {
-			continue
-		}
-		nodeRole[x] = "cluster"
-	}
+// indexPlacement places each release and workload in its first namespace.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) indexPlacement() {
+	d.releaseNS = firstSorted(d.releaseTargets)
+	d.nsReleases = groupBySorted(d.releaseNS)
+	d.nsWorkloads = groupBySorted(firstSorted(workloadNamespaces(d.releaseTargets, d.releaseDeploys)))
+}
 
-	nodeID := func(name string) string {
-		return "DP_" + codescan.SanitizeNode(name)
-	}
-	nodeLabel := func(name string) string {
-		switch nodeRole[name] {
-		case "source":
-			return "Source: " + name
-		case "kustomization":
-			return "Kustomization: " + name
-		case "release":
-			return "Release: " + name
-		case "workload":
-			return "Workload: " + name
-		case "namespace":
-			return "ns/" + runtimeShortName(name)
-		case "cluster":
-			return "cluster/" + runtimeShortName(name)
-		default:
-			return name
+// assignRoles gives each node its role; a later role replaces an earlier one,
+// and a namespace is never a cluster.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) assignRoles() {
+	for _, role := range []struct {
+		set  map[string]bool
+		name string
+	}{{d.sourceSet, "source"}, {d.kustomSet, "kustomization"}, {d.releaseSet, "release"}, {d.workloadSet, "workload"}, {d.nsSet, "namespace"}} {
+		for x := range role.set {
+			d.nodeRole[x] = role.name
 		}
 	}
-	nodeDecl := func(name string) string {
-		class := nodeClass[name]
-		if strings.TrimSpace(class) == "" {
-			class = "deployment_element"
-		}
-		return fmt.Sprintf("%s[\"%s\"]:::%s", nodeID(name), escapeMermaidLabel(nodeLabel(name)), class)
-	}
-	sortedNodeNames := func(set map[string]bool) []string {
-		out := make([]string, 0, len(set))
-		for k := range set {
-			out = append(out, k)
-		}
-		sort.Strings(out)
-		return out
-	}
-	emitted := map[string]bool{}
-	emitStandalone := func(name string) {
-		if emitted[name] {
-			return
-		}
-		lines = append(lines, "  "+nodeDecl(name))
-		emitted[name] = true
-	}
+	d.assignClusterRoles()
+}
 
-	namespaces := sortedNodeNames(nsSet)
-	if len(namespaces) > 0 {
-		clusteredNamespaces := map[string][]string{}
-		unclusteredNamespaces := []string{}
-		for _, ns := range namespaces {
-			cluster := strings.TrimSpace(nsCluster[ns])
-			if cluster == "" {
-				unclusteredNamespaces = append(unclusteredNamespaces, ns)
-				continue
-			}
-			clusteredNamespaces[cluster] = append(clusteredNamespaces[cluster], ns)
+// assignClusterRoles makes the clusters that are not namespaces clusters.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) assignClusterRoles() {
+	for x := range d.clusterSet {
+		if !d.nsSet[x] {
+			d.nodeRole[x] = "cluster"
 		}
-		for cluster := range clusteredNamespaces {
-			sort.Strings(clusteredNamespaces[cluster])
-		}
-		sort.Strings(unclusteredNamespaces)
+	}
+}
 
-		emitNamespaceSubgraph := func(indent, ns string) {
-			subgraphID := "NS_" + codescan.SanitizeNode(ns)
-			lines = append(lines, fmt.Sprintf("%ssubgraph %s[\"Namespace: %s\"]", indent, subgraphID, escapeMermaidLabel(ns)))
-			lines = append(lines, indent+"  direction TB")
-			lines = append(lines, indent+"  "+nodeDecl(ns))
-			emitted[ns] = true
-			for _, release := range nsReleases[ns] {
-				lines = append(lines, indent+"  "+nodeDecl(release))
-				emitted[release] = true
-			}
-			for _, workload := range nsWorkloads[ns] {
-				lines = append(lines, indent+"  "+nodeDecl(workload))
-				emitted[workload] = true
-			}
-			lines = append(lines, indent+"end")
-		}
+// deploymentLabelPrefixes are the label prefixes of the roles.
+var deploymentLabelPrefixes = map[string]string{
+	"source": "Source: ", "kustomization": "Kustomization: ", "release": "Release: ", "workload": "Workload: ",
+}
 
-		clusterNames := sortedNodeNames(clusterSet)
-		for _, cluster := range clusterNames {
-			namesInCluster := clusteredNamespaces[cluster]
-			if len(namesInCluster) == 0 {
-				continue
-			}
-			clusterID := "CLUSTER_" + codescan.SanitizeNode(cluster)
-			lines = append(lines, fmt.Sprintf("  subgraph %s[\"Cluster: %s\"]", clusterID, escapeMermaidLabel(cluster)))
-			lines = append(lines, "    direction TB")
-			for _, ns := range namesInCluster {
-				emitNamespaceSubgraph("    ", ns)
-			}
-			lines = append(lines, "  end")
-		}
-		for _, ns := range unclusteredNamespaces {
-			emitNamespaceSubgraph("  ", ns)
-		}
+// nodeLabel is the label of a node by its role.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) nodeLabel(name string) string {
+	role := d.nodeRole[name]
+	switch role {
+	case "namespace":
+		return "ns/" + runtimeShortName(name)
+	case "cluster":
+		return "cluster/" + runtimeShortName(name)
 	}
+	return deploymentLabelPrefixes[role] + name
+}
 
-	controlPlaneNodes := map[string]bool{}
-	for n := range sourceSet {
-		controlPlaneNodes[n] = true
-	}
-	for n := range kustomSet {
-		controlPlaneNodes[n] = true
-	}
-	for n := range releaseSet {
-		if strings.TrimSpace(releasePrimaryNS[n]) == "" {
-			controlPlaneNodes[n] = true
-		}
-	}
-	if len(controlPlaneNodes) > 0 {
-		lines = append(lines, `  subgraph CONTROL_PLANE["Control Plane"]`)
-		lines = append(lines, "    direction TB")
-		for _, n := range sortedNodeNames(controlPlaneNodes) {
-			if emitted[n] {
-				continue
-			}
-			lines = append(lines, "    "+nodeDecl(n))
-			emitted[n] = true
-		}
-		lines = append(lines, "  end")
-	}
+// nodeDecl is the declaration of a node with its label and class.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) nodeDecl(name string) string {
+	class := textutil.NonEmpty(d.nodeClass[name], "deployment_element")
+	return fmt.Sprintf("%s[\"%s\"]:::%s", deploymentNodeID(name), escapeMermaidLabel(d.nodeLabel(name)), class)
+}
 
-	allNodes := map[string]bool{}
-	for n := range nodeClass {
-		allNodes[n] = true
-	}
-	for _, n := range sortedNodeNames(allNodes) {
-		if clusterSet[n] {
-			continue
-		}
-		emitStandalone(n)
-	}
-	for _, cluster := range sortedNodeNames(clusterSet) {
-		hasNamespace := false
-		for _, c := range nsCluster {
-			if strings.TrimSpace(c) == strings.TrimSpace(cluster) {
-				hasNamespace = true
-				break
-			}
-		}
-		if !hasNamespace {
-			emitStandalone(cluster)
-		}
-	}
+// deploymentNodeID is the Mermaid node ID of a deployment element.
+// TRLC-LINKS: REQ-EMG-003
+func deploymentNodeID(name string) string {
+	return "DP_" + codescan.SanitizeNode(name)
+}
 
-	for _, r := range edges {
-		if r.How == "part_of" {
-			continue
-		}
-		lines = append(lines, fmt.Sprintf("  %s -->|%s| %s", nodeID(r.From), escapeMermaidLabel(r.How), nodeID(r.To)))
+// emit declares a node once, with the indent.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) emit(indent, name string) {
+	d.lines.add(indent + d.nodeDecl(name))
+	d.emitted[name] = true
+}
+
+// emitNamespaceSubgraph draws a namespace with its releases and workloads.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) emitNamespaceSubgraph(indent, ns string) {
+	d.lines.addf("%ssubgraph %s[\"Namespace: %s\"]", indent, "NS_"+codescan.SanitizeNode(ns), escapeMermaidLabel(ns))
+	d.lines.add(indent + "  direction TB")
+	d.emit(indent+"  ", ns)
+	for _, release := range d.nsReleases[ns] {
+		d.emit(indent+"  ", release)
 	}
-	lines = appendMermaidClassDefs(lines)
-	return strings.Join(lines, "\n")
+	for _, workload := range d.nsWorkloads[ns] {
+		d.emit(indent+"  ", workload)
+	}
+	d.lines.add(indent + "end")
+}
+
+// emitNamespaces draws the namespaces inside their clusters, then the
+// namespaces without a cluster.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) emitNamespaces() {
+	clustered := map[string][]string{}
+	unclustered := []string{}
+	for _, ns := range keysSorted(d.nsSet) {
+		if cluster := strings.TrimSpace(d.nsCluster[ns]); cluster == "" {
+			unclustered = append(unclustered, ns)
+		} else {
+			clustered[cluster] = append(clustered[cluster], ns)
+		}
+	}
+	for _, cluster := range keysSorted(d.clusterSet) {
+		d.emitCluster(cluster, clustered[cluster])
+	}
+	for _, ns := range unclustered {
+		d.emitNamespaceSubgraph("  ", ns)
+	}
+}
+
+// emitCluster draws a cluster with its namespaces, when it has any.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) emitCluster(cluster string, namespaces []string) {
+	if len(namespaces) == 0 {
+		return
+	}
+	d.lines.addf("  subgraph %s[\"Cluster: %s\"]", "CLUSTER_"+codescan.SanitizeNode(cluster), escapeMermaidLabel(cluster))
+	d.lines.add("    direction TB")
+	for _, ns := range namespaces {
+		d.emitNamespaceSubgraph("    ", ns)
+	}
+	d.lines.add("  end")
+}
+
+// emitControlPlane draws the sources, kustomizations and releases without a namespace.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) emitControlPlane() {
+	nodes := d.controlPlaneNodes()
+	if len(nodes) == 0 {
+		return
+	}
+	d.lines.add(`  subgraph CONTROL_PLANE["Control Plane"]`)
+	d.lines.add("    direction TB")
+	for _, n := range keysSorted(nodes) {
+		if !d.emitted[n] {
+			d.emit("    ", n)
+		}
+	}
+	d.lines.add("  end")
+}
+
+// controlPlaneNodes is the sources, kustomizations and releases without a namespace.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) controlPlaneNodes() map[string]bool {
+	nodes := unionSets(d.sourceSet, d.kustomSet)
+	for n := range d.releaseSet {
+		if strings.TrimSpace(d.releaseNS[n]) == "" {
+			nodes[n] = true
+		}
+	}
+	return nodes
+}
+
+// emitStandalone draws the nodes no subgraph holds, and the clusters without namespaces.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) emitStandalone() {
+	for _, n := range sortedKeys(d.nodeClass) {
+		if !d.clusterSet[n] && !d.emitted[n] {
+			d.emit("  ", n)
+		}
+	}
+	d.emitEmptyClusters()
+}
+
+// emitEmptyClusters draws the clusters that no namespace is part of.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) emitEmptyClusters() {
+	for _, cluster := range keysSorted(d.clusterSet) {
+		if !d.clusterHasNamespace(cluster) && !d.emitted[cluster] {
+			d.emit("  ", cluster)
+		}
+	}
+}
+
+// clusterHasNamespace reports whether a namespace is part of the cluster.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) clusterHasNamespace(cluster string) bool {
+	for _, c := range d.nsCluster {
+		if strings.TrimSpace(c) == strings.TrimSpace(cluster) {
+			return true
+		}
+	}
+	return false
+}
+
+// emitEdges draws the rows, except the cluster membership that the subgraphs show.
+// TRLC-LINKS: REQ-EMG-003
+func (d *deploymentDiagram) emitEdges() {
+	for _, r := range d.edges {
+		if r.How != "part_of" {
+			d.lines.addf("  %s -->|%s| %s", deploymentNodeID(r.From), escapeMermaidLabel(r.How), deploymentNodeID(r.To))
+		}
+	}
+}
+
+// sortedKeys is the sorted keys of a map.
+// TRLC-LINKS: REQ-EMG-003
+func sortedKeys[V any](m map[string]V) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -527,17 +700,25 @@ func deploymentNodeName(r codescan.RuntimeItem) string {
 	}
 }
 
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
+// platformGroups are the functional groups whose units operate the platform.
+var platformGroups = map[string]bool{"FG-PLATFORM": true, "FG-PLATFORM-OPERATIONS": true}
+
+// platformUnitNames maps each unit of a platform group to its name.
 // TRLC-LINKS: REQ-EMG-003
-func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []codescan.RuntimeItem) []asciidocPlatformOpRow {
-	platformUnits := map[string]string{}
-	for _, u := range a.FunctionalUnits {
-		groupID := strings.TrimSpace(strings.ToUpper(u.Group))
-		if groupID == "FG-PLATFORM" || groupID == "FG-PLATFORM-OPERATIONS" {
-			platformUnits[u.ID] = textutil.NonEmpty(u.Name, u.ID)
+func platformUnitNames(units []model.FunctionalUnit) map[string]string {
+	names := map[string]string{}
+	for _, u := range units {
+		if platformGroups[strings.TrimSpace(strings.ToUpper(u.Group))] {
+			names[u.ID] = textutil.NonEmpty(u.Name, u.ID)
 		}
 	}
+	return names
+}
 
+// platformUnitTargets lists the runtime elements each unit operates: those it
+// owns, and by convention the cluster and GitOps elements of the platform units.
+// TRLC-LINKS: REQ-EMG-003
+func platformUnitTargets(runtime []codescan.RuntimeItem) map[string][]string {
 	unitTargets := map[string][]string{}
 	for _, r := range runtime {
 		owner := strings.TrimSpace(r.Owner)
@@ -545,40 +726,57 @@ func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []codescan.Runti
 			unitTargets[owner] = append(unitTargets[owner], runtimeShortName(r.Name))
 		}
 	}
-	// Convention fallback for platform provisioning artifacts.
-	for _, r := range runtime {
-		n := runtimeShortName(r.Name)
-		switch r.Kind {
-		case "cluster", "namespace":
-			unitTargets["FU-CLUSTER-PROVISIONING"] = append(unitTargets["FU-CLUSTER-PROVISIONING"], n)
-		case "gitrepository", "kustomization", "helmrelease":
-			unitTargets["FU-GITOPS-OPERATIONS"] = append(unitTargets["FU-GITOPS-OPERATIONS"], n)
-		}
-	}
+	addConventionTargets(unitTargets, runtime)
 	for k, v := range unitTargets {
 		unitTargets[k] = textutil.UniqueSorted(v)
 	}
+	return unitTargets
+}
 
+// platformConventionUnits maps the runtime kinds of platform provisioning
+// artifacts to the unit that operates them by convention.
+var platformConventionUnits = map[string]string{
+	"cluster": "FU-CLUSTER-PROVISIONING", "namespace": "FU-CLUSTER-PROVISIONING",
+	"gitrepository": "FU-GITOPS-OPERATIONS", "kustomization": "FU-GITOPS-OPERATIONS", "helmrelease": "FU-GITOPS-OPERATIONS",
+}
+
+// addConventionTargets adds the platform provisioning artifacts to the unit
+// that operates them by convention.
+// TRLC-LINKS: REQ-EMG-003
+func addConventionTargets(unitTargets map[string][]string, runtime []codescan.RuntimeItem) {
+	for _, r := range runtime {
+		if unit, ok := platformConventionUnits[r.Kind]; ok {
+			unitTargets[unit] = append(unitTargets[unit], runtimeShortName(r.Name))
+		}
+	}
+}
+
+// actorLabel is the name of the actor with the ID, or the ID.
+// TRLC-LINKS: REQ-EMG-003
+func actorLabel(actors []model.Actor, id string) string {
+	for _, x := range actors {
+		if x.ID == id {
+			return textutil.NonEmpty(x.Name, x.ID)
+		}
+	}
+	return id
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
+// TRLC-LINKS: REQ-EMG-003
+func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []codescan.RuntimeItem) []asciidocPlatformOpRow {
+	platformUnits := platformUnitNames(a.FunctionalUnits)
+	unitTargets := platformUnitTargets(runtime)
 	out := []asciidocPlatformOpRow{}
 	for _, m := range a.Mappings {
-		if m.Type != "interacts_with" {
-			continue
-		}
 		unitName, ok := platformUnits[m.To]
-		if !ok {
+		if m.Type != "interacts_with" || !ok {
 			continue
 		}
-		actorName := m.From
-		for _, x := range a.Actors {
-			if x.ID == m.From {
-				actorName = textutil.NonEmpty(x.Name, x.ID)
-				break
-			}
-		}
+		actorName := actorLabel(a.Actors, m.From)
 		targets := unitTargets[m.To]
 		if len(targets) == 0 {
-			out = append(out, asciidocPlatformOpRow{Actor: actorName, Unit: unitName, Target: "platform control operations"})
-			continue
+			targets = []string{"platform control operations"}
 		}
 		for _, t := range targets {
 			out = append(out, asciidocPlatformOpRow{Actor: actorName, Unit: unitName, Target: t})
@@ -587,43 +785,62 @@ func buildPlatformOpsRows(a model.AuthoredArchitecture, runtime []codescan.Runti
 	return out
 }
 
+// runtimeTargetWords mark a platform target as a runtime element.
+var runtimeTargetWords = []string{"deployment", "workload", "pod", "service"}
+
+// isRuntimeTarget reports whether the target names a runtime element.
+// TRLC-LINKS: REQ-EMG-003
+func isRuntimeTarget(target string) bool {
+	lower := strings.ToLower(target)
+	for _, word := range runtimeTargetWords {
+		if strings.Contains(lower, word) {
+			return true
+		}
+	}
+	return false
+}
+
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-003
 func buildPlatformOpsMermaid(rows []asciidocPlatformOpRow) string {
-	lines := []string{"flowchart LR"}
+	lines := mermaidLines{"flowchart LR"}
 	for _, r := range rows {
 		an := "ACT_" + codescan.SanitizeNode(r.Actor)
 		un := "PFU_" + codescan.SanitizeNode(r.Unit)
 		tn := "TGT_" + codescan.SanitizeNode(r.Target)
 		targetClass := "deployment_element"
-		lowerTarget := strings.ToLower(r.Target)
-		if strings.Contains(lowerTarget, "deployment") || strings.Contains(lowerTarget, "workload") || strings.Contains(lowerTarget, "pod") || strings.Contains(lowerTarget, "service") {
+		if isRuntimeTarget(r.Target) {
 			targetClass = "runtime_element"
 		}
-		lines = append(lines, fmt.Sprintf("  %s((\"%s\")):::actor", an, escapeMermaidLabel(r.Actor)))
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(r.Unit)))
-		lines = append(lines, fmt.Sprintf("  %s[\"%s\"]:::%s", tn, escapeMermaidLabel(r.Target), targetClass))
-		lines = append(lines, fmt.Sprintf("  %s --> %s", an, un))
-		lines = append(lines, fmt.Sprintf("  %s --> %s", un, tn))
+		lines.addf("  %s((\"%s\")):::actor", an, escapeMermaidLabel(r.Actor))
+		lines.addf("  %s[\"%s\"]:::functional_unit", un, escapeMermaidLabel(r.Unit))
+		lines.addf("  %s[\"%s\"]:::%s", tn, escapeMermaidLabel(r.Target), targetClass)
+		lines.addf("  %s --> %s", an, un)
+		lines.addf("  %s --> %s", un, tn)
 	}
 	lines = appendMermaidClassDefs(lines)
 	return strings.Join(uniquePreserve(lines), "\n")
 }
 
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+// dependencySummaries lists the labels of what each unit depends on.
 // TRLC-LINKS: REQ-EMG-003
-func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]string) []asciidocSecurityPathRow {
+func dependencySummaries(mappings []model.Mapping, labels map[string]string) map[string][]string {
 	depsByTarget := map[string][]string{}
-	for _, m := range a.Mappings {
-		if m.Type != "depends_on" {
-			continue
+	for _, m := range mappings {
+		if m.Type == "depends_on" {
+			depsByTarget[m.From] = append(depsByTarget[m.From], textutil.NonEmpty(labels[m.To], m.To))
 		}
-		depsByTarget[m.From] = append(depsByTarget[m.From], textutil.NonEmpty(labels[m.To], m.To))
 	}
 	for k, v := range depsByTarget {
 		depsByTarget[k] = textutil.UniqueSorted(v)
 	}
+	return depsByTarget
+}
 
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER, CTRL-TRACEABILITY-COVERAGE, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+// TRLC-LINKS: REQ-EMG-003
+func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]string) []asciidocSecurityPathRow {
+	depsByTarget := dependencySummaries(a.Mappings, labels)
 	out := []asciidocSecurityPathRow{}
 	seen := map[string]bool{}
 	for _, m := range a.Mappings {
@@ -632,11 +849,7 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 		}
 		attack := textutil.NonEmpty(labels[m.From], m.From)
 		target := textutil.NonEmpty(labels[m.To], m.To)
-		deps := depsByTarget[m.To]
-		depSummary := "none"
-		if len(deps) > 0 {
-			depSummary = strings.Join(deps, ", ")
-		}
+		depSummary := textutil.NonEmpty(strings.Join(depsByTarget[m.To], ", "), "none")
 		key := attack + "|" + target + "|" + depSummary
 		if seen[key] {
 			continue
@@ -651,562 +864,750 @@ func buildSecurityPathRows(a model.AuthoredArchitecture, labels map[string]strin
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
-		if out[i].AttackVector != out[j].AttackVector {
-			return out[i].AttackVector < out[j].AttackVector
-		}
-		return out[i].Target < out[j].Target
+		return cmp.Or(cmp.Compare(out[i].AttackVector, out[j].AttackVector), cmp.Compare(out[i].Target, out[j].Target)) < 0
 	})
 	return out
+}
+
+// securityPathEvidence is the runtime and code labels of each unit that a
+// security path diagram hangs under its targets.
+type securityPathEvidence struct {
+	runtimeByOwner map[string][]string
+	codeByOwner    map[string][]string
+}
+
+// newSecurityPathEvidence indexes the runtime and code evidence of the units.
+// TRLC-LINKS: REQ-EMG-003
+func newSecurityPathEvidence(runtime []codescan.RuntimeItem, code []codescan.CodeItem) securityPathEvidence {
+	return securityPathEvidence{runtimeByOwner: securityRuntimeLabels(runtime), codeByOwner: securityCodeLabels(code)}
+}
+
+// securityRuntimeLabels lists the sorted runtime element names of each resolved owner.
+// TRLC-LINKS: REQ-EMG-003
+func securityRuntimeLabels(runtime []codescan.RuntimeItem) map[string][]string {
+	byOwner := map[string][]string{}
+	for _, r := range runtime {
+		owner := strings.TrimSpace(r.Owner)
+		label := runtimeShortName(strings.TrimSpace(r.Name))
+		if owner != "" && owner != "unresolved" && label != "" {
+			byOwner[owner] = append(byOwner[owner], label)
+		}
+	}
+	for owner, items := range byOwner {
+		byOwner[owner] = textutil.UniqueSorted(items)
+	}
+	return byOwner
+}
+
+// securityCodeLabels lists the grouped code element labels of each resolved owner.
+// TRLC-LINKS: REQ-EMG-003
+func securityCodeLabels(code []codescan.CodeItem) map[string][]string {
+	rawByOwner := map[string][]string{}
+	allRaw := []string{}
+	for _, c := range code {
+		if owner, label, ok := securityCodeElement(c); ok {
+			rawByOwner[owner] = append(rawByOwner[owner], label)
+			allRaw = append(allRaw, label)
+		}
+	}
+	byOwner := map[string][]string{}
+	lookup := codescan.EvidenceLabelLookup(allRaw)
+	for owner, items := range rawByOwner {
+		byOwner[owner] = codescan.GroupedFileLabels(items, lookup)
+	}
+	return byOwner
+}
+
+// securityCodeElement is the owner and evidence element of a source file or
+// symbol of a resolved owner, other than verification code.
+// TRLC-LINKS: REQ-EMG-003
+func securityCodeElement(c codescan.CodeItem) (owner, label string, ok bool) {
+	owner = strings.TrimSpace(c.Owner)
+	if codescan.IsVerificationCodeItem(c) || owner == "" || owner == "unresolved" {
+		return "", "", false
+	}
+	if kind := strings.TrimSpace(c.Kind); kind != "source_file" && kind != "symbol" {
+		return "", "", false
+	}
+	if codescan.ItemPath(c) == "" {
+		return "", "", false
+	}
+	label = codescan.ItemEvidenceElement(c)
+	return owner, label, strings.TrimSpace(label) != ""
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityPathMermaid(rows []asciidocSecurityPathRow, runtime []codescan.RuntimeItem, code []codescan.CodeItem) string {
-	runtimeByOwner := map[string][]string{}
-	for _, r := range runtime {
-		owner := strings.TrimSpace(r.Owner)
-		if owner == "" || owner == "unresolved" {
-			continue
-		}
-		label := runtimeShortName(strings.TrimSpace(r.Name))
-		if label == "" {
-			continue
-		}
-		runtimeByOwner[owner] = append(runtimeByOwner[owner], label)
-	}
-	for owner, items := range runtimeByOwner {
-		runtimeByOwner[owner] = textutil.UniqueSorted(items)
-	}
-
-	codeRawByOwner := map[string][]string{}
-	allCodeRaw := []string{}
-	for _, c := range code {
-		if codescan.IsVerificationCodeItem(c) {
-			continue
-		}
-		owner := strings.TrimSpace(c.Owner)
-		if owner == "" || owner == "unresolved" {
-			continue
-		}
-		label := ""
-		switch strings.TrimSpace(c.Kind) {
-		case "source_file", "symbol":
-			path := codescan.ItemPath(c)
-			if path == "" {
-				continue
-			}
-			label = codescan.ItemEvidenceElement(c)
-		default:
-			continue
-		}
-		if strings.TrimSpace(label) == "" {
-			continue
-		}
-		codeRawByOwner[owner] = append(codeRawByOwner[owner], label)
-		allCodeRaw = append(allCodeRaw, label)
-	}
-	codeByOwner := map[string][]string{}
-	codeLabelLookup := codescan.EvidenceLabelLookup(allCodeRaw)
-	for owner, items := range codeRawByOwner {
-		codeByOwner[owner] = codescan.GroupedFileLabels(items, codeLabelLookup)
-	}
-
-	lines := []string{"flowchart LR"}
+	evidence := newSecurityPathEvidence(runtime, code)
+	lines := mermaidLines{"flowchart LR"}
 	for _, r := range rows {
-		attackID := strings.TrimSpace(r.AttackVectorID)
-		if attackID == "" {
-			attackID = r.AttackVector
-		}
-		targetID := strings.TrimSpace(r.TargetID)
-		if targetID == "" {
-			targetID = r.Target
-		}
-		avNode := "AV_" + codescan.SanitizeNode(attackID)
-		tNode := "SEC_TGT_" + codescan.SanitizeNode(targetID)
-		lines = append(lines, mermaidTypedNodeLine(avNode, r.AttackVector, "attack_vector"))
-		lines = append(lines, mermaidTypedNodeLine(tNode, r.Target, "functional_unit"))
-		lines = append(lines, fmt.Sprintf("  %s -->|targets| %s", avNode, tNode))
-		for _, dep := range strings.Split(r.DependsOn, ",") {
-			dep = strings.TrimSpace(dep)
-			if dep == "" || dep == "none" {
-				continue
-			}
-			dNode := "SEC_DEP_" + codescan.SanitizeNode(dep)
-			lines = append(lines, mermaidTypedNodeLine(dNode, dep, "referenced_element"))
-			lines = append(lines, fmt.Sprintf("  %s -->|depends_on| %s", tNode, dNode))
-		}
-		runtimeNodes := make([]string, 0, len(runtimeByOwner[targetID]))
-		for _, rt := range runtimeByOwner[targetID] {
-			rtNode := "SEC_RT_" + codescan.SanitizeNode(targetID+"-"+rt)
-			lines = append(lines, mermaidTypedNodeLine(rtNode, rt, "runtime_element"))
-			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
-			runtimeNodes = append(runtimeNodes, rtNode)
-		}
-		// Keep code evidence traced via runtime, even when no direct runtime artifact is inferred.
-		if len(runtimeNodes) == 0 && len(codeByOwner[targetID]) > 0 {
-			rtLabel := textutil.NonEmpty(strings.TrimSpace(r.Target), targetID) + " runtime (inferred)"
-			rtNode := "SEC_RT_" + codescan.SanitizeNode(targetID+"-runtime")
-			lines = append(lines, mermaidTypedNodeLine(rtNode, rtLabel, "runtime_element"))
-			lines = append(lines, fmt.Sprintf("  %s -->|runtime| %s", tNode, rtNode))
-			runtimeNodes = append(runtimeNodes, rtNode)
-		}
-		for _, mod := range codeByOwner[targetID] {
-			codeNode := "CODE_" + codescan.SanitizeNode(codescan.EvidenceFileKey(mod))
-			lines = append(lines, mermaidTypedNodeLine(codeNode, mod, "code_element"))
-			if len(runtimeNodes) > 0 {
-				lines = append(lines, fmt.Sprintf("  %s -->|implemented_by| %s", runtimeNodes[0], codeNode))
-			}
-		}
+		evidence.writeRow(&lines, r)
 	}
 	lines = appendMermaidClassDefs(lines)
 	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+// writeRow draws an attack vector, its target, the dependencies of the target
+// and the runtime and code evidence of the target.
+// TRLC-LINKS: REQ-EMG-003
+func (e securityPathEvidence) writeRow(m *mermaidLines, r asciidocSecurityPathRow) {
+	targetID := textutil.NonEmpty(strings.TrimSpace(r.TargetID), r.Target)
+	avNode := "AV_" + codescan.SanitizeNode(textutil.NonEmpty(strings.TrimSpace(r.AttackVectorID), r.AttackVector))
+	tNode := "SEC_TGT_" + codescan.SanitizeNode(targetID)
+	m.add(mermaidTypedNodeLine(avNode, r.AttackVector, "attack_vector"))
+	m.add(mermaidTypedNodeLine(tNode, r.Target, "functional_unit"))
+	m.addf("  %s -->|targets| %s", avNode, tNode)
+	writeSecurityDependencies(m, tNode, r.DependsOn)
+	runtimeNodes := e.writeRuntime(m, securityTarget{node: tNode, id: targetID, label: r.Target})
+	// Keep code evidence traced via runtime, even when no direct runtime artifact is inferred.
+	for _, mod := range e.codeByOwner[targetID] {
+		codeNode := "CODE_" + codescan.SanitizeNode(codescan.EvidenceFileKey(mod))
+		m.add(mermaidTypedNodeLine(codeNode, mod, "code_element"))
+		if len(runtimeNodes) > 0 {
+			m.addf("  %s -->|implemented_by| %s", runtimeNodes[0], codeNode)
+		}
+	}
+}
+
+// writeSecurityDependencies draws what the target depends on, from the comma
+// separated summary.
+// TRLC-LINKS: REQ-EMG-003
+func writeSecurityDependencies(m *mermaidLines, tNode, dependsOn string) {
+	for _, dep := range strings.Split(dependsOn, ",") {
+		dep = strings.TrimSpace(dep)
+		if dep == "" || dep == "none" {
+			continue
+		}
+		dNode := "SEC_DEP_" + codescan.SanitizeNode(dep)
+		m.add(mermaidTypedNodeLine(dNode, dep, "referenced_element"))
+		m.addf("  %s -->|depends_on| %s", tNode, dNode)
+	}
+}
+
+// writeRuntime draws the runtime elements of the target, or one inferred
+// runtime when it has none but code. It returns their nodes.
+// TRLC-LINKS: REQ-EMG-003
+func (e securityPathEvidence) writeRuntime(m *mermaidLines, t securityTarget) []string {
+	runtimeNodes := make([]string, 0, len(e.runtimeByOwner[t.id]))
+	for _, rt := range e.runtimeByOwner[t.id] {
+		runtimeNodes = append(runtimeNodes, t.writeRuntimeNode(m, "SEC_RT_"+codescan.SanitizeNode(t.id+"-"+rt), rt))
+	}
+	if len(runtimeNodes) == 0 && len(e.codeByOwner[t.id]) > 0 {
+		rtLabel := textutil.NonEmpty(strings.TrimSpace(t.label), t.id) + " runtime (inferred)"
+		runtimeNodes = append(runtimeNodes, t.writeRuntimeNode(m, "SEC_RT_"+codescan.SanitizeNode(t.id+"-runtime"), rtLabel))
+	}
+	return runtimeNodes
+}
+
+// securityTarget is the target of a security path: its node, ID and label.
+type securityTarget struct {
+	node  string
+	id    string
+	label string
+}
+
+// writeRuntimeNode draws a runtime element of the target and returns its node.
+// TRLC-LINKS: REQ-EMG-003
+func (t securityTarget) writeRuntimeNode(m *mermaidLines, rtNode, label string) string {
+	m.add(mermaidTypedNodeLine(rtNode, label, "runtime_element"))
+	m.addf("  %s -->|runtime| %s", t.node, rtNode)
+	return rtNode
+}
+
+// securityContextDiagram draws the context data flow diagram of the security view.
+type securityContextDiagram struct {
+	lines     mermaidLines
+	added     map[string]bool
+	connected map[string]bool
+	labels    map[string]string
+}
+
+// add appends a line the first time.
+// TRLC-LINKS: REQ-EMG-003
+func (c *securityContextDiagram) add(line string) {
+	if !c.added[line] {
+		c.added[line] = true
+		c.lines.add(line)
+	}
+}
+
+// markEdge records that both ends of an edge are connected.
+// TRLC-LINKS: REQ-EMG-003
+func (c *securityContextDiagram) markEdge(fromID, toID string) {
+	for _, id := range []string{fromID, toID} {
+		if id = strings.TrimSpace(id); id != "" {
+			c.connected[id] = true
+		}
+	}
+}
+
+// node draws a node with its label and class.
+// TRLC-LINKS: REQ-EMG-003
+func (c *securityContextDiagram) node(id, class string) {
+	c.add(mermaidTypedNodeLine("CTX_"+codescan.SanitizeNode(id), textutil.NonEmpty(c.labels[id], id), class))
+}
+
+// edge draws an edge between two nodes and marks them connected.
+// TRLC-LINKS: REQ-EMG-003
+func (c *securityContextDiagram) edge(from, label, to string) {
+	c.add(fmt.Sprintf("  CTX_%s -->|%s| CTX_%s", codescan.SanitizeNode(from), label, codescan.SanitizeNode(to)))
+	c.markEdge(from, to)
+}
+
+// addNodes draws a node of the class for each ID that is not blank.
+// TRLC-LINKS: REQ-EMG-003
+func (c *securityContextDiagram) addNodes(ids []string, class string) {
+	for _, id := range ids {
+		if id = strings.TrimSpace(id); id != "" {
+			c.node(id, class)
+		}
+	}
+}
+
+// securityContextDataFlowTypes are the mapping types that attach data and interfaces to units.
+var securityContextDataFlowTypes = map[string]bool{
+	"contains": true, "reads": true, "writes": true, "publishes": true, "subscribes": true, "streams": true,
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityContextDFDMermaid(a model.AuthoredArchitecture, labels map[string]string) string {
-	lines := []string{"flowchart LR"}
-	added := map[string]bool{}
-	connected := map[string]bool{}
-	add := func(line string) {
-		if !added[line] {
-			added[line] = true
-			lines = append(lines, line)
-		}
-	}
-	markEdge := func(fromID, toID string) {
-		fromID = strings.TrimSpace(fromID)
-		toID = strings.TrimSpace(toID)
-		if fromID != "" {
-			connected[fromID] = true
-		}
-		if toID != "" {
-			connected[toID] = true
-		}
-	}
-
-	for _, x := range a.Interfaces {
-		id := strings.TrimSpace(x.ID)
-		if id == "" {
-			continue
-		}
-		n := "CTX_" + codescan.SanitizeNode(id)
-		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "interface"))
-	}
-	for _, x := range a.DataObjects {
-		id := strings.TrimSpace(x.ID)
-		if id == "" {
-			continue
-		}
-		n := "CTX_" + codescan.SanitizeNode(id)
-		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "data_object"))
-	}
-	for _, x := range a.TrustBoundaries {
-		id := strings.TrimSpace(x.ID)
-		if id == "" {
-			continue
-		}
-		n := "CTX_" + codescan.SanitizeNode(id)
-		add(mermaidTypedNodeLine(n, textutil.NonEmpty(labels[id], id), "trust_boundary"))
-	}
-
-	for _, m := range a.Mappings {
-		t := strings.TrimSpace(m.Type)
-		if t != "interacts_with" && t != "depends_on" && t != "calls" && t != "bounded_by" && t != "contains" && t != "reads" && t != "writes" && t != "publishes" && t != "subscribes" && t != "streams" {
-			continue
-		}
-		from := strings.TrimSpace(m.From)
-		to := strings.TrimSpace(m.To)
-		if from == "" || to == "" {
-			continue
-		}
-		fn := "CTX_" + codescan.SanitizeNode(from)
-		tn := "CTX_" + codescan.SanitizeNode(to)
-		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[from], from), securityDFDClassForID(from)))
-		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[to], to), securityDFDClassForID(to)))
-		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
-		markEdge(from, to)
-	}
-
+	c := &securityContextDiagram{lines: mermaidLines{"flowchart LR"}, added: map[string]bool{}, connected: map[string]bool{}, labels: labels}
+	c.addNodes(interfaceIDs(a.Interfaces), "interface")
+	c.addNodes(dataObjectIDs(a.DataObjects), "data_object")
+	c.addNodes(trustBoundaryIDs(a.TrustBoundaries), "trust_boundary")
+	c.addMappings(a.Mappings)
 	// Explicitly include data-flow and ownership links in context diagrams so
 	// data/interface nodes are visually connected (not floating).
-	for _, m := range a.Mappings {
+	c.addDataFlows(a.Mappings)
+	// Keep context diagram connected when data/interface nodes are authored but only weakly linked.
+	c.addInterfaceOwners(a.Interfaces)
+	c.lines = appendMermaidClassDefs(c.lines)
+	return strings.Join(uniquePreserve(c.lines), "\n")
+}
+
+// interfaceIDs is the IDs of the interfaces.
+// TRLC-LINKS: REQ-EMG-003
+func interfaceIDs(items []model.Interface) []string {
+	ids := make([]string, 0, len(items))
+	for _, x := range items {
+		ids = append(ids, x.ID)
+	}
+	return ids
+}
+
+// dataObjectIDs is the IDs of the data objects.
+// TRLC-LINKS: REQ-EMG-003
+func dataObjectIDs(items []model.DataObject) []string {
+	ids := make([]string, 0, len(items))
+	for _, x := range items {
+		ids = append(ids, x.ID)
+	}
+	return ids
+}
+
+// trustBoundaryIDs is the IDs of the trust boundaries.
+// TRLC-LINKS: REQ-EMG-003
+func trustBoundaryIDs(items []model.TrustBoundary) []string {
+	ids := make([]string, 0, len(items))
+	for _, x := range items {
+		ids = append(ids, x.ID)
+	}
+	return ids
+}
+
+// addMappings draws the mappings of the context types between the IDs they name.
+// TRLC-LINKS: REQ-EMG-003
+func (c *securityContextDiagram) addMappings(mappings []model.Mapping) {
+	for _, m := range mappings {
 		t := strings.TrimSpace(m.Type)
-		if t != "contains" && t != "reads" && t != "writes" && t != "publishes" && t != "subscribes" && t != "streams" {
-			continue
-		}
 		from := strings.TrimSpace(m.From)
 		to := strings.TrimSpace(m.To)
-		if from == "" || to == "" {
+		if !securityContextMappingType(t) || from == "" || to == "" {
 			continue
 		}
-		if !strings.HasPrefix(from, "FU-") {
-			continue
-		}
-		if !strings.HasPrefix(to, "DO-") && !strings.HasPrefix(to, "IF-") && !strings.HasPrefix(to, "TB-") {
-			continue
-		}
-		fn := "CTX_" + codescan.SanitizeNode(from)
-		tn := "CTX_" + codescan.SanitizeNode(to)
-		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[from], from), "functional_unit"))
-		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[to], to), securityDFDClassForID(to)))
-		add(fmt.Sprintf("  %s -->|%s| %s", fn, t, tn))
-		markEdge(from, to)
+		c.node(from, securityDFDClassForID(from))
+		c.node(to, securityDFDClassForID(to))
+		c.edge(from, t, to)
 	}
+}
 
-	// Keep context diagram connected when data/interface nodes are authored but only weakly linked.
-	for _, iface := range a.Interfaces {
+// addDataFlows draws the data flow and ownership mappings from units to data
+// objects, interfaces and trust boundaries.
+// TRLC-LINKS: REQ-EMG-003
+func (c *securityContextDiagram) addDataFlows(mappings []model.Mapping) {
+	for _, m := range mappings {
+		t := strings.TrimSpace(m.Type)
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		if !securityContextDataFlowTypes[t] || !strings.HasPrefix(from, "FU-") || !hasAnyPrefix(to, "DO-", "IF-", "TB-") {
+			continue
+		}
+		c.node(from, "functional_unit")
+		c.node(to, securityDFDClassForID(to))
+		c.edge(from, t, to)
+	}
+}
+
+// hasAnyPrefix reports whether s starts with one of the prefixes.
+// TRLC-LINKS: REQ-EMG-003
+func hasAnyPrefix(s string, prefixes ...string) bool {
+	for _, p := range prefixes {
+		if strings.HasPrefix(s, p) {
+			return true
+		}
+	}
+	return false
+}
+
+// addInterfaceOwners connects each unconnected interface to the unit that owns it.
+// TRLC-LINKS: REQ-EMG-003
+func (c *securityContextDiagram) addInterfaceOwners(interfaces []model.Interface) {
+	for _, iface := range interfaces {
 		id := strings.TrimSpace(iface.ID)
 		owner := strings.TrimSpace(iface.Owner)
-		if id == "" || owner == "" || connected[id] || !strings.HasPrefix(owner, "FU-") {
+		if id == "" || c.connected[id] || !strings.HasPrefix(owner, "FU-") {
 			continue
 		}
-		fn := "CTX_" + codescan.SanitizeNode(owner)
-		tn := "CTX_" + codescan.SanitizeNode(id)
-		add(mermaidTypedNodeLine(fn, textutil.NonEmpty(labels[owner], owner), "functional_unit"))
-		add(mermaidTypedNodeLine(tn, textutil.NonEmpty(labels[id], id), "interface"))
-		add(fmt.Sprintf("  %s -->|contains| %s", fn, tn))
-		markEdge(owner, id)
+		c.node(owner, "functional_unit")
+		c.node(id, "interface")
+		c.edge(owner, "contains", id)
 	}
-	lines = appendMermaidClassDefs(lines)
-	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+// groupContext is the units of each group that a group context diagram is drawn for.
+type groupContext struct {
+	unitGroupByID map[string]string
+	groupUnits    map[string]map[string]bool
+}
+
+// newGroupContext indexes the units that have an ID and a group.
+// TRLC-LINKS: REQ-EMG-003
+func newGroupContext(units []model.FunctionalUnit) groupContext {
+	g := groupContext{unitGroupByID: map[string]string{}, groupUnits: map[string]map[string]bool{}}
+	for _, fu := range units {
+		id := strings.TrimSpace(fu.ID)
+		gid := strings.TrimSpace(fu.Group)
+		if id != "" && gid != "" {
+			g.unitGroupByID[id] = gid
+			addToSetMap(g.groupUnits, gid, id)
+		}
+	}
+	return g
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityContextDFDMermaidByGroup(a model.AuthoredArchitecture, complianceMappings []model.ComplianceMapping, labels map[string]string) []asciidocSecurityContextDiagram {
-	unitGroupByID := map[string]string{}
-	groupUnits := map[string]map[string]bool{}
-	for _, fu := range a.FunctionalUnits {
-		id := strings.TrimSpace(fu.ID)
-		gid := strings.TrimSpace(fu.Group)
-		if id == "" || gid == "" {
-			continue
-		}
-		unitGroupByID[id] = gid
-		if groupUnits[gid] == nil {
-			groupUnits[gid] = map[string]bool{}
-		}
-		groupUnits[gid][id] = true
-	}
-	ownedByGroup := securityContextOwnedIDsByGroup(a, complianceMappings, unitGroupByID, groupUnits)
-
+	ctx := newGroupContext(a.FunctionalUnits)
+	ownedByGroup := securityContextOwnedIDsByGroup(a, complianceMappings, ctx)
 	out := []asciidocSecurityContextDiagram{}
 	for _, fg := range a.FunctionalGroups {
 		groupID := strings.TrimSpace(fg.ID)
-		if groupID == "" || len(groupUnits[groupID]) == 0 {
+		if groupID == "" || len(ctx.groupUnits[groupID]) == 0 {
 			continue
 		}
-		owned := map[string]bool{}
-		for id := range ownedByGroup[groupID] {
-			owned[id] = true
+		d := &groupContextDiagram{
+			groupID: groupID,
+			name:    textutil.NonEmpty(labels[groupID], textutil.NonEmpty(fg.Name, groupID)),
+			labels:  labels,
+			units:   ctx.groupUnits[groupID],
+			owned:   unionSets(ownedByGroup[groupID], ctx.groupUnits[groupID]),
 		}
-		for id := range groupUnits[groupID] {
-			owned[id] = true
-		}
-
-		included := map[string]bool{}
-		for id := range owned {
-			included[id] = true
-		}
-		edges := []string{}
-		edgeSet := map[string]bool{}
-		addEdge := func(from, to, label string) {
-			edge := fmt.Sprintf("  CTX_%s -->|%s| CTX_%s", codescan.SanitizeNode(from), escapeMermaidLabel(label), codescan.SanitizeNode(to))
-			if edgeSet[edge] {
-				return
-			}
-			edgeSet[edge] = true
-			edges = append(edges, edge)
-		}
-
-		for _, m := range a.Mappings {
-			t := strings.TrimSpace(m.Type)
-			if !securityContextMappingType(t) {
-				continue
-			}
-			from := strings.TrimSpace(m.From)
-			to := strings.TrimSpace(m.To)
-			if from == "" || to == "" {
-				continue
-			}
-			if t == "contains" && from == groupID && groupUnits[groupID][to] {
-				continue
-			}
-			if !(owned[from] || owned[to]) {
-				continue
-			}
-			included[from] = true
-			included[to] = true
-			addEdge(from, to, t)
-		}
-
-		lines := []string{"flowchart LR"}
-		boxID := "CTXGROUP_" + codescan.SanitizeNode(groupID)
-		lines = append(lines, fmt.Sprintf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(textutil.NonEmpty(labels[groupID], textutil.NonEmpty(fg.Name, groupID)))))
-		lines = append(lines, "    direction TB")
-		for _, id := range keysSorted(owned) {
-			lines = append(lines, mermaidTypedNodeLineIndented("    ", "CTX_"+codescan.SanitizeNode(id), textutil.NonEmpty(labels[id], id), securityDFDClassForID(id)))
-		}
-		lines = append(lines, "  end")
-		lines = append(lines, fmt.Sprintf("  style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID))
-
-		external := map[string]bool{}
-		for id := range included {
-			if !owned[id] && id != groupID {
-				external[id] = true
-			}
-		}
-		for _, id := range keysSorted(external) {
-			lines = append(lines, mermaidTypedNodeLine("CTX_"+codescan.SanitizeNode(id), textutil.NonEmpty(labels[id], id), securityDFDClassForID(id)))
-		}
-		lines = append(lines, edges...)
-		lines = appendMermaidClassDefs(lines)
-		out = append(out, asciidocSecurityContextDiagram{
-			GroupID:   groupID,
-			GroupName: textutil.NonEmpty(labels[groupID], textutil.NonEmpty(fg.Name, groupID)),
-			Mermaid:   strings.Join(uniquePreserve(lines), "\n"),
-		})
+		d.included = unionSets(d.owned)
+		out = append(out, asciidocSecurityContextDiagram{GroupID: groupID, GroupName: d.name, Mermaid: d.render(a.Mappings)})
 	}
 	return out
 }
 
+// unionSets is a new set of the members of all the sets.
 // TRLC-LINKS: REQ-EMG-003
-func securityContextOwnedIDsByGroup(a model.AuthoredArchitecture, complianceMappings []model.ComplianceMapping, unitGroupByID map[string]string, groupUnits map[string]map[string]bool) map[string]map[string]bool {
-	owned := map[string]map[string]bool{}
-	add := func(groupID, id string) {
-		groupID = strings.TrimSpace(groupID)
-		id = strings.TrimSpace(id)
-		if groupID == "" || id == "" || strings.HasPrefix(id, "ACT-") || strings.HasPrefix(id, "REF-") {
-			return
+func unionSets(sets ...map[string]bool) map[string]bool {
+	union := map[string]bool{}
+	for _, set := range sets {
+		for id := range set {
+			union[id] = true
 		}
-		if owned[groupID] == nil {
-			owned[groupID] = map[string]bool{}
-		}
-		owned[groupID][id] = true
 	}
+	return union
+}
+
+// groupContextDiagram draws the data flow context of one functional group.
+type groupContextDiagram struct {
+	groupID  string
+	name     string
+	labels   map[string]string
+	units    map[string]bool
+	owned    map[string]bool
+	included map[string]bool
+}
+
+// render draws the group with the elements it owns, the elements outside it
+// that the mappings connect to them, and the edges.
+// TRLC-LINKS: REQ-EMG-003
+func (d *groupContextDiagram) render(mappings []model.Mapping) string {
+	edges := d.collectEdges(mappings)
+	lines := mermaidLines{"flowchart LR"}
+	boxID := "CTXGROUP_" + codescan.SanitizeNode(d.groupID)
+	lines.addf("  subgraph %s[\"%s\"]", boxID, escapeMermaidLabel(d.name))
+	lines.add("    direction TB")
+	for _, id := range keysSorted(d.owned) {
+		lines.add(indentMermaidLine("    ", d.nodeLine(id)))
+	}
+	lines.add("  end")
+	lines.addf("  style %s fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px;", boxID)
+	for _, id := range d.externalIDs() {
+		lines.add(d.nodeLine(id))
+	}
+	lines = append(lines, edges...)
+	lines = appendMermaidClassDefs(lines)
+	return strings.Join(uniquePreserve(lines), "\n")
+}
+
+// nodeLine is the typed node of an element, labeled and classed by its ID.
+// TRLC-LINKS: REQ-EMG-003
+func (d *groupContextDiagram) nodeLine(id string) string {
+	return mermaidTypedNodeLine("CTX_"+codescan.SanitizeNode(id), textutil.NonEmpty(d.labels[id], id), securityDFDClassForID(id))
+}
+
+// externalIDs is the sorted IDs the edges connect to the group that it does not own.
+// TRLC-LINKS: REQ-EMG-003
+func (d *groupContextDiagram) externalIDs() []string {
+	external := map[string]bool{}
+	for id := range d.included {
+		if !d.owned[id] && id != d.groupID {
+			external[id] = true
+		}
+	}
+	return keysSorted(external)
+}
+
+// collectEdges lists the mappings that touch an owned element, once each, and
+// includes their ends in the diagram.
+// TRLC-LINKS: REQ-EMG-003
+func (d *groupContextDiagram) collectEdges(mappings []model.Mapping) []string {
+	edges := []string{}
+	seen := map[string]bool{}
+	for _, m := range mappings {
+		t := strings.TrimSpace(m.Type)
+		from := strings.TrimSpace(m.From)
+		to := strings.TrimSpace(m.To)
+		if !d.includesMapping(t, from, to) {
+			continue
+		}
+		d.included[from] = true
+		d.included[to] = true
+		edge := fmt.Sprintf("  CTX_%s -->|%s| CTX_%s", codescan.SanitizeNode(from), escapeMermaidLabel(t), codescan.SanitizeNode(to))
+		if !seen[edge] {
+			seen[edge] = true
+			edges = append(edges, edge)
+		}
+	}
+	return edges
+}
+
+// includesMapping reports whether a mapping of a context type touches an owned
+// element, other than the containment of a unit by the group itself.
+// TRLC-LINKS: REQ-EMG-003
+func (d *groupContextDiagram) includesMapping(t, from, to string) bool {
+	if !securityContextMappingType(t) || hasBlank(from, to) {
+		return false
+	}
+	return !d.isGroupContainment(t, from, to) && (d.owned[from] || d.owned[to])
+}
+
+// isGroupContainment reports whether a mapping is the group containing one of its units.
+// TRLC-LINKS: REQ-EMG-003
+func (d *groupContextDiagram) isGroupContainment(t, from, to string) bool {
+	return t == "contains" && from == d.groupID && d.units[to]
+}
+
+// indentMermaidLine puts a line at the indent, replacing its own.
+// TRLC-LINKS: REQ-EMG-003
+func indentMermaidLine(indent, line string) string {
+	return indent + strings.TrimLeft(line, " ")
+}
+
+// securityOwnership collects the elements each group owns in the security context.
+type securityOwnership struct {
+	ctx   groupContext
+	owned map[string]map[string]bool
+}
+
+// add makes the group the owner of the element, unless either is blank or the
+// element is an actor or referenced element.
+// TRLC-LINKS: REQ-EMG-003
+func (o *securityOwnership) add(groupID, id string) {
+	groupID = strings.TrimSpace(groupID)
+	id = strings.TrimSpace(id)
+	if groupID == "" || id == "" || hasAnyPrefix(id, "ACT-", "REF-") {
+		return
+	}
+	addToSetMap(o.owned, groupID, id)
+}
+
+// securityContextOwnedIDsByGroup maps each group to the units, interfaces,
+// controls, trust boundaries and data it owns.
+// TRLC-LINKS: REQ-EMG-003
+func securityContextOwnedIDsByGroup(a model.AuthoredArchitecture, complianceMappings []model.ComplianceMapping, ctx groupContext) map[string]map[string]bool {
+	o := &securityOwnership{ctx: ctx, owned: map[string]map[string]bool{}}
 	for _, fu := range a.FunctionalUnits {
-		add(unitGroupByID[strings.TrimSpace(fu.ID)], strings.TrimSpace(fu.ID))
+		o.add(ctx.unitGroupByID[strings.TrimSpace(fu.ID)], strings.TrimSpace(fu.ID))
 	}
 	for _, iface := range a.Interfaces {
-		add(unitGroupByID[strings.TrimSpace(iface.Owner)], strings.TrimSpace(iface.ID))
+		o.add(ctx.unitGroupByID[strings.TrimSpace(iface.Owner)], strings.TrimSpace(iface.ID))
 	}
+	o.addControls(complianceMappings)
+	o.addTrustBoundaries(a.TrustBoundaries)
+	o.addMappedData(a.Mappings)
+	return o.owned
+}
+
+// addControls makes the group of each unit or group a compliance mapping
+// applies to the owner of the control.
+// TRLC-LINKS: REQ-EMG-003
+func (o *securityOwnership) addControls(complianceMappings []model.ComplianceMapping) {
 	for _, mapping := range complianceMappings {
 		controlRef := strings.TrimSpace(mapping.ModelControlRef)
 		for _, target := range mapping.AppliesTo {
-			target = strings.TrimSpace(target)
-			if strings.HasPrefix(target, "FU-") {
-				add(unitGroupByID[target], controlRef)
-			}
-			if strings.HasPrefix(target, "FG-") {
-				add(target, controlRef)
-			}
+			o.addControl(strings.TrimSpace(target), controlRef)
 		}
 	}
-	for _, tb := range a.TrustBoundaries {
+}
+
+// addControl makes the group of the target the owner of the control.
+// TRLC-LINKS: REQ-EMG-003
+func (o *securityOwnership) addControl(target, controlRef string) {
+	if strings.HasPrefix(target, "FU-") {
+		o.add(o.ctx.unitGroupByID[target], controlRef)
+	}
+	if strings.HasPrefix(target, "FG-") {
+		o.add(target, controlRef)
+	}
+}
+
+// addTrustBoundaries makes the group the owner of the trust boundaries whose
+// members are all units of that group.
+// TRLC-LINKS: REQ-EMG-003
+func (o *securityOwnership) addTrustBoundaries(boundaries []model.TrustBoundary) {
+	for _, tb := range boundaries {
 		id := strings.TrimSpace(tb.ID)
 		if id == "" || len(tb.Members) == 0 {
 			continue
 		}
-		groupID := ""
-		allLocalFUs := true
-		for _, member := range tb.Members {
-			member = strings.TrimSpace(member)
-			if !strings.HasPrefix(member, "FU-") {
-				allLocalFUs = false
-				break
-			}
-			memberGroup := unitGroupByID[member]
-			if memberGroup == "" {
-				allLocalFUs = false
-				break
-			}
-			if groupID == "" {
-				groupID = memberGroup
-			}
-			if groupID != memberGroup || !groupUnits[groupID][member] {
-				allLocalFUs = false
-				break
-			}
-		}
-		if allLocalFUs {
-			add(groupID, id)
+		if groupID, ok := o.localGroup(tb.Members); ok {
+			o.add(groupID, id)
 		}
 	}
-	for _, m := range a.Mappings {
-		t := strings.TrimSpace(m.Type)
-		from := strings.TrimSpace(m.From)
-		to := strings.TrimSpace(m.To)
-		groupID := unitGroupByID[from]
+}
+
+// localGroup is the group that all the members are units of, if there is one.
+// TRLC-LINKS: REQ-EMG-003
+func (o *securityOwnership) localGroup(members []string) (string, bool) {
+	groupID := ""
+	for _, member := range members {
+		member = strings.TrimSpace(member)
+		memberGroup := o.ctx.unitGroupByID[member]
+		if !strings.HasPrefix(member, "FU-") || memberGroup == "" {
+			return "", false
+		}
 		if groupID == "" {
-			continue
+			groupID = memberGroup
 		}
-		switch {
-		case t == "contains":
-			add(groupID, to)
-		case (t == "writes" || t == "publishes") && (strings.HasPrefix(to, "DO-") || strings.HasPrefix(to, "IF-")):
-			add(groupID, to)
+		if groupID != memberGroup || !o.ctx.groupUnits[groupID][member] {
+			return "", false
 		}
 	}
-	return owned
+	return groupID, true
+}
+
+// addMappedData makes the group of a unit the owner of what the unit contains
+// and of the data objects and interfaces it writes or publishes.
+// TRLC-LINKS: REQ-EMG-003
+func (o *securityOwnership) addMappedData(mappings []model.Mapping) {
+	for _, m := range mappings {
+		to := strings.TrimSpace(m.To)
+		if ownsMappedTarget(strings.TrimSpace(m.Type), to) {
+			o.add(o.ctx.unitGroupByID[strings.TrimSpace(m.From)], to)
+		}
+	}
+}
+
+// ownsMappedTarget reports whether a mapping of the type makes its source
+// own the target: containment, or writing or publishing a data object or interface.
+// TRLC-LINKS: REQ-EMG-003
+func ownsMappedTarget(mappingType, target string) bool {
+	if mappingType == "contains" {
+		return true
+	}
+	return (mappingType == "writes" || mappingType == "publishes") && hasAnyPrefix(target, "DO-", "IF-")
+}
+
+// securityContextMappingTypes are the mapping types a security context diagram shows.
+var securityContextMappingTypes = map[string]bool{
+	"interacts_with": true, "depends_on": true, "calls": true, "bounded_by": true, "contains": true,
+	"reads": true, "writes": true, "publishes": true, "subscribes": true, "streams": true,
 }
 
 // TRLC-LINKS: REQ-EMG-003
 func securityContextMappingType(t string) bool {
-	switch strings.TrimSpace(t) {
-	case "interacts_with", "depends_on", "calls", "bounded_by", "contains", "reads", "writes", "publishes", "subscribes", "streams":
-		return true
-	default:
-		return false
-	}
+	return securityContextMappingTypes[strings.TrimSpace(t)]
+}
+
+// securityDFDClasses maps the ID prefix of an element to its diagram class, by
+// the first prefix that matches.
+var securityDFDClasses = []struct{ prefix, class string }{
+	{"ACT-", "actor"}, {"FG-", "functional_group"}, {"FU-", "functional_unit"}, {"AV-", "attack_vector"},
+	{"IF-", "interface"}, {"DO-", "data_object"}, {"TB-", "trust_boundary"}, {"CTRL-", "control"},
+	{"DEP-", "deployment_target"}, {"STATE-", "state"}, {"EVT-", "event"}, {"FLOW-", "flow"},
 }
 
 // TRLC-LINKS: REQ-EMG-003
 func securityDFDClassForID(id string) string {
 	id = strings.TrimSpace(id)
-	switch {
-	case strings.HasPrefix(id, "ACT-"):
-		return "actor"
-	case strings.HasPrefix(id, "FG-"):
-		return "functional_group"
-	case strings.HasPrefix(id, "FU-"):
-		return "functional_unit"
-	case strings.HasPrefix(id, "AV-"):
-		return "attack_vector"
-	case strings.HasPrefix(id, "IF-"):
-		return "interface"
-	case strings.HasPrefix(id, "DO-"):
-		return "data_object"
-	case strings.HasPrefix(id, "TB-"):
-		return "trust_boundary"
-	case strings.HasPrefix(id, "CTRL-"):
-		return "control"
-	case strings.HasPrefix(id, "DEP-"):
-		return "deployment_target"
-	case strings.HasPrefix(id, "STATE-"):
-		return "state"
-	case strings.HasPrefix(id, "EVT-"):
-		return "event"
-	case strings.HasPrefix(id, "FLOW-"):
-		return "flow"
-	case strings.HasPrefix(id, "REF-"):
-		return "referenced_element"
-	default:
-		return "referenced_element"
+	for _, c := range securityDFDClasses {
+		if strings.HasPrefix(id, c.prefix) {
+			return c.class
+		}
 	}
+	return "referenced_element"
+}
+
+// mermaidNodeShapes maps a node class to its Mermaid node syntax, filled with
+// the node ID, the label and the class.
+var mermaidNodeShapes = map[string]string{
+	"actor":          "  %s((\"%s\")):::%s",
+	"attack_vector":  "  %s((\"%s\")):::%s",
+	"interface":      "  %s[/\"%s\"/]:::%s",
+	"data_object":    "  %s[(\"%s\")]:::%s",
+	"control":        "  %s[[\"%s\"]]:::%s",
+	"trust_boundary": "  %s[/\"%s\"\\]:::%s",
+	"state":          "  %s([\"%s\"]):::%s",
+	"event":          "  %s((\"%s\")):::%s",
+	"flow":           "  %s{\"%s\"}:::%s",
+	"flow_step":      "  %s>\"%s\"]:::%s",
 }
 
 // TRLC-LINKS: REQ-EMG-003
 func mermaidTypedNodeLine(nodeID, label, className string) string {
-	l := escapeMermaidLabel(label)
-	switch strings.TrimSpace(className) {
-	case "actor":
-		return fmt.Sprintf("  %s((\"%s\")):::%s", nodeID, l, className)
-	case "attack_vector":
-		return fmt.Sprintf("  %s((\"%s\")):::%s", nodeID, l, className)
-	case "interface":
-		return fmt.Sprintf("  %s[/\"%s\"/]:::%s", nodeID, l, className)
-	case "data_object":
-		return fmt.Sprintf("  %s[(\"%s\")]:::%s", nodeID, l, className)
-	case "control":
-		return fmt.Sprintf("  %s[[\"%s\"]]:::%s", nodeID, l, className)
-	case "trust_boundary":
-		return fmt.Sprintf("  %s[/\"%s\"\\]:::%s", nodeID, l, className)
-	case "state":
-		return fmt.Sprintf("  %s([\"%s\"]):::%s", nodeID, l, className)
-	case "event":
-		return fmt.Sprintf("  %s((\"%s\")):::%s", nodeID, l, className)
-	case "flow":
-		return fmt.Sprintf("  %s{\"%s\"}:::%s", nodeID, l, className)
-	case "flow_step":
-		return fmt.Sprintf("  %s>\"%s\"]:::%s", nodeID, l, className)
-	default:
-		return fmt.Sprintf("  %s[\"%s\"]:::%s", nodeID, l, className)
+	shape, ok := mermaidNodeShapes[strings.TrimSpace(className)]
+	if !ok {
+		shape = "  %s[\"%s\"]:::%s"
+	}
+	return fmt.Sprintf(shape, nodeID, escapeMermaidLabel(label), className)
+}
+
+// observabilityKindSignals maps a runtime kind to the signal and layer it yields.
+var observabilityKindSignals = map[string]asciidocSecurityObsRow{
+	"ingress":            {Signal: "ingress access and suspicious request logs", Layer: "runtime"},
+	"service":            {Signal: "runtime request, error, and dependency logs", Layer: "runtime"},
+	"deployment":         {Signal: "runtime request, error, and dependency logs", Layer: "runtime"},
+	"workload":           {Signal: "runtime request, error, and dependency logs", Layer: "runtime"},
+	"pod":                {Signal: "runtime request, error, and dependency logs", Layer: "runtime"},
+	"helmrelease":        {Signal: "deployment and platform audit events", Layer: "deployment"},
+	"kustomization":      {Signal: "deployment and platform audit events", Layer: "deployment"},
+	"gitrepository":      {Signal: "deployment and platform audit events", Layer: "deployment"},
+	"cluster":            {Signal: "deployment and platform audit events", Layer: "deployment"},
+	"namespace":          {Signal: "deployment and platform audit events", Layer: "deployment"},
+	"terraform_resource": {Signal: "deployment and platform audit events", Layer: "deployment"},
+}
+
+// observabilityWordSignal says which words in a name or path yield a signal.
+type observabilityWordSignal struct {
+	words  []string
+	signal string
+}
+
+var runtimeWordSignals = []observabilityWordSignal{
+	{[]string{"auth", "token"}, "authentication and token misuse events"},
+	{[]string{"risk", "fraud"}, "abuse and fraud decision logs"},
+}
+
+var codeWordSignals = []observabilityWordSignal{
+	{[]string{"log", "audit", "trace"}, "application security telemetry hooks"},
+	{[]string{"auth", "token"}, "authorization and credential handling checks"},
+	{[]string{"risk", "fraud"}, "fraud and abuse detection code paths"},
+}
+
+// observabilityRows collects security observability rows, each once.
+type observabilityRows struct {
+	rows []asciidocSecurityObsRow
+	seen map[string]bool
+}
+
+// add records a row when it has a signal, a layer and evidence, and is new; a
+// blank owner is unresolved.
+// TRLC-LINKS: REQ-EMG-003
+func (o *observabilityRows) add(row asciidocSecurityObsRow) {
+	row.Signal = strings.TrimSpace(row.Signal)
+	row.Layer = strings.TrimSpace(row.Layer)
+	row.Owner = textutil.NonEmpty(strings.TrimSpace(row.Owner), "unresolved")
+	row.Evidence = strings.TrimSpace(row.Evidence)
+	key := row.Signal + "|" + row.Layer + "|" + row.Owner + "|" + row.Evidence
+	if hasBlank(row.Signal, row.Layer, row.Evidence) || o.seen[key] {
+		return
+	}
+	o.seen[key] = true
+	o.rows = append(o.rows, row)
+}
+
+// addWordSignals adds a row for each signal that has a word in the text.
+// TRLC-LINKS: REQ-EMG-003
+func (o *observabilityRows) addWordSignals(signals []observabilityWordSignal, text string, row asciidocSecurityObsRow) {
+	for _, s := range signals {
+		if containsAny(text, s.words) {
+			row.Signal = s.signal
+			o.add(row)
+		}
 	}
 }
 
+// containsAny reports whether s contains one of the words.
 // TRLC-LINKS: REQ-EMG-003
-func mermaidTypedNodeLineIndented(indent, nodeID, label, className string) string {
-	return indent + strings.TrimLeft(mermaidTypedNodeLine(nodeID, label, className), " ")
+func containsAny(s string, words []string) bool {
+	for _, w := range words {
+		if strings.Contains(s, w) {
+			return true
+		}
+	}
+	return false
+}
+
+// addRuntime adds the signals of a runtime element: by its kind and by the
+// words in its name.
+// TRLC-LINKS: REQ-EMG-003
+func (o *observabilityRows) addRuntime(r codescan.RuntimeItem) {
+	evidence := r.Kind + " " + runtimeShortName(r.Name)
+	if kindRow, ok := observabilityKindSignals[r.Kind]; ok {
+		o.add(asciidocSecurityObsRow{Signal: kindRow.Signal, Layer: kindRow.Layer, Owner: r.Owner, Evidence: evidence})
+	}
+	o.addWordSignals(runtimeWordSignals, strings.ToLower(runtimeShortName(r.Name)), asciidocSecurityObsRow{Layer: "runtime", Owner: r.Owner, Evidence: evidence})
+}
+
+// addCode adds the signals of a code item by the words in its path.
+// TRLC-LINKS: REQ-EMG-003
+func (o *observabilityRows) addCode(c codescan.CodeItem) {
+	if codescan.IsVerificationCodeItem(c) {
+		return
+	}
+	o.addWordSignals(codeWordSignals, strings.ToLower(codescan.ItemPath(c)), asciidocSecurityObsRow{Layer: "code", Owner: c.Owner, Evidence: "code " + codescan.ItemPath(c)})
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
 func buildSecurityObservabilityRows(runtime []codescan.RuntimeItem, code []codescan.CodeItem) []asciidocSecurityObsRow {
-	out := []asciidocSecurityObsRow{}
-	seen := map[string]bool{}
-
-	add := func(signal, layer, owner, evidence string) {
-		signal = strings.TrimSpace(signal)
-		layer = strings.TrimSpace(layer)
-		owner = strings.TrimSpace(owner)
-		evidence = strings.TrimSpace(evidence)
-		if signal == "" || layer == "" || evidence == "" {
-			return
-		}
-		if owner == "" {
-			owner = "unresolved"
-		}
-		key := signal + "|" + layer + "|" + owner + "|" + evidence
-		if seen[key] {
-			return
-		}
-		seen[key] = true
-		out = append(out, asciidocSecurityObsRow{
-			Signal:   signal,
-			Layer:    layer,
-			Owner:    owner,
-			Evidence: evidence,
-		})
-	}
-
+	o := &observabilityRows{rows: []asciidocSecurityObsRow{}, seen: map[string]bool{}}
 	for _, r := range runtime {
-		name := strings.ToLower(runtimeShortName(r.Name))
-		owner := r.Owner
-		switch r.Kind {
-		case "ingress":
-			add("ingress access and suspicious request logs", "runtime", owner, r.Kind+" "+runtimeShortName(r.Name))
-		case "service", "deployment", "workload", "pod":
-			add("runtime request, error, and dependency logs", "runtime", owner, r.Kind+" "+runtimeShortName(r.Name))
-		case "helmrelease", "kustomization", "gitrepository", "cluster", "namespace", "terraform_resource":
-			add("deployment and platform audit events", "deployment", owner, r.Kind+" "+runtimeShortName(r.Name))
-		}
-		if strings.Contains(name, "auth") || strings.Contains(name, "token") {
-			add("authentication and token misuse events", "runtime", owner, r.Kind+" "+runtimeShortName(r.Name))
-		}
-		if strings.Contains(name, "risk") || strings.Contains(name, "fraud") {
-			add("abuse and fraud decision logs", "runtime", owner, r.Kind+" "+runtimeShortName(r.Name))
-		}
+		o.addRuntime(r)
 	}
-
 	for _, c := range code {
-		if codescan.IsVerificationCodeItem(c) {
-			continue
-		}
-		path := strings.ToLower(codescan.ItemPath(c))
-		owner := c.Owner
-		if strings.Contains(path, "log") || strings.Contains(path, "audit") || strings.Contains(path, "trace") {
-			add("application security telemetry hooks", "code", owner, "code "+codescan.ItemPath(c))
-		}
-		if strings.Contains(path, "auth") || strings.Contains(path, "token") {
-			add("authorization and credential handling checks", "code", owner, "code "+codescan.ItemPath(c))
-		}
-		if strings.Contains(path, "risk") || strings.Contains(path, "fraud") {
-			add("fraud and abuse detection code paths", "code", owner, "code "+codescan.ItemPath(c))
-		}
+		o.addCode(c)
 	}
-
+	out := o.rows
 	sort.SliceStable(out, func(i, j int) bool {
-		if out[i].Layer != out[j].Layer {
-			return out[i].Layer < out[j].Layer
-		}
-		if out[i].Signal != out[j].Signal {
-			return out[i].Signal < out[j].Signal
-		}
-		if out[i].Owner != out[j].Owner {
-			return out[i].Owner < out[j].Owner
-		}
-		return out[i].Evidence < out[j].Evidence
+		return cmp.Or(cmp.Compare(out[i].Layer, out[j].Layer), cmp.Compare(out[i].Signal, out[j].Signal),
+			cmp.Compare(out[i].Owner, out[j].Owner), cmp.Compare(out[i].Evidence, out[j].Evidence)) < 0
 	})
 	if len(out) > 28 {
 		return out[:28]

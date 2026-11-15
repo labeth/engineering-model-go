@@ -21,14 +21,22 @@ func renderGemaraAsciiDocChapter(bundle model.Bundle) string {
 	if err != nil {
 		return ""
 	}
-
 	var b strings.Builder
 	b.WriteString("\n<<<\n== Gemara GRC Model\n\n")
 	b.WriteString("This chapter renders the model as OpenSSF Gemara (https://gemara.openssf.org) documents. ")
 	b.WriteString("Each artifact is built with the official `go-gemara` SDK types and validated against the published Gemara CUE schemas. ")
 	b.WriteString("Generate the full YAML set with `enggemara`; query it via the `gemara.*` MCP tools.\n\n")
+	writeGemaraLayerSummary(&b, res)
+	writeGemaraControls(&b, res)
+	writeGemaraThreats(&b, res)
+	writeGemaraRisks(&b, res)
+	return b.String()
+}
 
-	// Layer coverage summary across all produced artifact types.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// writeGemaraLayerSummary writes the layer coverage summary across all produced artifact types.
+func writeGemaraLayerSummary(b *strings.Builder, res gemara.Result) {
 	b.WriteString("[cols=\"1,3,1\",options=\"header\"]\n|===\n|Gemara Layer |Artifact |Entries\n")
 	b.WriteString(gemaraRow("L1", "Vector Catalog", len(res.VectorCatalog.Vectors)))
 	b.WriteString(gemaraRow("L1", "Principle Catalog", len(res.PrincipleCatalog.Principles)))
@@ -51,48 +59,64 @@ func renderGemaraAsciiDocChapter(bundle model.Bundle) string {
 		b.WriteString(gemaraRow("L6", "Enforcement Log", len(res.EnforcementLog.Actions)))
 	}
 	b.WriteString("|===\n\n")
+}
 
-	// Controls (L2) with assessment requirement counts.
-	if len(res.ControlCatalog.Controls) > 0 {
-		b.WriteString("=== Controls (L2)\n\n")
-		b.WriteString("[cols=\"2,4,2,1\",options=\"header\"]\n|===\n|Control |Objective |Group |Assessment Requirements\n")
-		for _, c := range res.ControlCatalog.Controls {
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%d\n",
-				escapeTableCell(c.Id),
-				escapeTableCell(gemaraTruncate(c.Objective, 140)),
-				escapeTableCell(c.Group),
-				len(c.AssessmentRequirements)))
-		}
-		b.WriteString("|===\n\n")
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// writeGemaraControls writes the controls (L2) with their assessment requirement counts.
+func writeGemaraControls(b *strings.Builder, res gemara.Result) {
+	controls := res.ControlCatalog.Controls
+	if len(controls) == 0 {
+		return
 	}
-
-	// Threats (L2).
-	if len(res.ThreatCatalog.Threats) > 0 {
-		b.WriteString("=== Threats (L2)\n\n")
-		b.WriteString("[cols=\"2,4,2\",options=\"header\"]\n|===\n|Threat |Title |Group\n")
-		for _, t := range res.ThreatCatalog.Threats {
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n",
-				escapeTableCell(t.Id),
-				escapeTableCell(gemaraTruncate(t.Title, 120)),
-				escapeTableCell(t.Group)))
-		}
-		b.WriteString("|===\n\n")
+	b.WriteString("=== Controls (L2)\n\n")
+	b.WriteString("[cols=\"2,4,2,1\",options=\"header\"]\n|===\n|Control |Objective |Group |Assessment Requirements\n")
+	for _, c := range controls {
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n|%d\n",
+			escapeTableCell(c.Id),
+			escapeTableCell(gemaraTruncate(c.Objective, 140)),
+			escapeTableCell(c.Group),
+			len(c.AssessmentRequirements)))
 	}
+	b.WriteString("|===\n\n")
+}
 
-	// Risks (L3) with derived severity.
-	if len(res.RiskCatalog.Risks) > 0 {
-		b.WriteString("=== Risks (L3)\n\n")
-		b.WriteString("[cols=\"2,4,1\",options=\"header\"]\n|===\n|Risk |Title |Severity\n")
-		for _, r := range res.RiskCatalog.Risks {
-			b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n",
-				escapeTableCell(r.Id),
-				escapeTableCell(gemaraTruncate(r.Title, 120)),
-				escapeTableCell(r.Severity.String())))
-		}
-		b.WriteString("|===\n\n")
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// writeGemaraThreats writes the threats (L2).
+func writeGemaraThreats(b *strings.Builder, res gemara.Result) {
+	threats := res.ThreatCatalog.Threats
+	if len(threats) == 0 {
+		return
 	}
+	b.WriteString("=== Threats (L2)\n\n")
+	b.WriteString("[cols=\"2,4,2\",options=\"header\"]\n|===\n|Threat |Title |Group\n")
+	for _, t := range threats {
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n",
+			escapeTableCell(t.Id),
+			escapeTableCell(gemaraTruncate(t.Title, 120)),
+			escapeTableCell(t.Group)))
+	}
+	b.WriteString("|===\n\n")
+}
 
-	return b.String()
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+// writeGemaraRisks writes the risks (L3) with their derived severity.
+func writeGemaraRisks(b *strings.Builder, res gemara.Result) {
+	risks := res.RiskCatalog.Risks
+	if len(risks) == 0 {
+		return
+	}
+	b.WriteString("=== Risks (L3)\n\n")
+	b.WriteString("[cols=\"2,4,1\",options=\"header\"]\n|===\n|Risk |Title |Severity\n")
+	for _, r := range risks {
+		b.WriteString(fmt.Sprintf("|%s\n|%s\n|%s\n",
+			escapeTableCell(r.Id),
+			escapeTableCell(gemaraTruncate(r.Title, 120)),
+			escapeTableCell(r.Severity.String())))
+	}
+	b.WriteString("|===\n\n")
 }
 
 // TRLC-LINKS: REQ-EMG-015

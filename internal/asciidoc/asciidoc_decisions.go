@@ -13,13 +13,6 @@ import (
 func buildDecisionSections(in []model.Decision) []asciidocDecisionSection {
 	out := make([]asciidocDecisionSection, 0, len(in))
 	for _, d := range in {
-		consequences := make([]string, 0, len(d.Consequences))
-		for _, c := range d.Consequences {
-			c = strings.TrimSpace(c)
-			if c != "" {
-				consequences = append(consequences, c)
-			}
-		}
 		out = append(out, asciidocDecisionSection{
 			ID:           strings.TrimSpace(d.ID),
 			Title:        strings.TrimSpace(d.Title),
@@ -27,12 +20,25 @@ func buildDecisionSections(in []model.Decision) []asciidocDecisionSection {
 			Date:         strings.TrimSpace(d.Date),
 			Context:      strings.TrimSpace(d.Context),
 			Decision:     strings.TrimSpace(d.Decision),
-			Consequences: consequences,
+			Consequences: trimmedNonBlank(d.Consequences),
 		})
 	}
 	sort.SliceStable(out, func(i, j int) bool {
 		return out[i].ID < out[j].ID
 	})
+	return out
+}
+
+// trimmedNonBlank is the trimmed items that are not blank, never nil.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-014
+func trimmedNonBlank(items []string) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		if t := strings.TrimSpace(item); t != "" {
+			out = append(out, t)
+		}
+	}
 	return out
 }
 
