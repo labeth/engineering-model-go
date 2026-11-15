@@ -37,10 +37,7 @@ func TestThreatVerificationMissingWarnsAtTheThreat(t *testing.T) {
 			{ID: "CV-B", ControlRef: "CTRL-B", Method: "analysis", Status: "not-run"},
 		})
 	got := behaviorDiags(b, "threat.verification_missing")
-	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "authoredArchitecture.threatScenarios[0].verificationRefs" ||
-		!strings.Contains(got[0].Message, "TS-A") || !strings.Contains(got[0].Message, "CV-A") || !strings.Contains(got[0].Message, "CV-B") {
-		t.Fatalf("want one threat.verification_missing for TS-A naming CV-A and CV-B, got %+v", got)
-	}
+	expect(t, got).one(SeverityWarning, "authoredArchitecture.threatScenarios[0].verificationRefs", "TS-A", "CV-A", "CV-B")
 
 	b.Architecture.AuthoredArchitecture.ThreatScenarios[0].VerificationRefs = []string{"CV-A", "CV-B"}
 	if got := behaviorDiags(b, "threat.verification_missing"); len(got) != 0 {
@@ -62,10 +59,7 @@ func TestMitigationVerificationControlMismatchIsAnError(t *testing.T) {
 			{ID: "CV-B", ControlRef: "CTRL-B", Method: "analysis", Status: "not-run"},
 		})
 	got := behaviorDiags(b, "mitigation.verification_control_mismatch")
-	if len(got) != 1 || got[0].Severity != SeverityError || got[0].Path != "authoredArchitecture.threatMitigations[0].verificationRefs[1]" ||
-		!strings.Contains(got[0].Message, "MIT-A") || !strings.Contains(got[0].Message, "CTRL-B") || !strings.Contains(got[0].Message, "CTRL-A") {
-		t.Fatalf("want one mitigation.verification_control_mismatch error at verificationRefs[1], got %+v", got)
-	}
+	expect(t, got).one(SeverityError, "authoredArchitecture.threatMitigations[0].verificationRefs[1]", "MIT-A", "CTRL-B", "CTRL-A")
 }
 
 // A test-method control verification with status pass or partial and no
@@ -84,11 +78,11 @@ func TestVerificationUnlinkedWarnsForPassingTestWithoutRefs(t *testing.T) {
 		{ID: "CV-INSPECT", ControlRef: "CTRL-B", Method: "inspection", Status: "pass"},
 	})
 	got := behaviorDiags(b, "verification.unlinked")
-	if len(got) != 2 || got[0].Path != "authoredArchitecture.controlVerifications[0].verificationRefs" ||
-		got[1].Path != "authoredArchitecture.controlVerifications[2].verificationRefs" || got[0].Severity != SeverityWarning ||
-		!strings.Contains(got[0].Message, "CV-PASS") || !strings.Contains(got[1].Message, "CV-PARTIAL") {
+	if len(got) != 2 {
 		t.Fatalf("want verification.unlinked for CV-PASS and CV-PARTIAL, got %+v", got)
 	}
+	expect(t, got[:1]).one(SeverityWarning, "authoredArchitecture.controlVerifications[0].verificationRefs", "CV-PASS")
+	expect(t, got[1:]).one(SeverityWarning, "authoredArchitecture.controlVerifications[2].verificationRefs", "CV-PARTIAL")
 }
 
 // A control that no control verification names gets a Needs Review result in
@@ -104,10 +98,7 @@ func TestGemaraControlNeedsReviewWarnsAtUnverifiedControl(t *testing.T) {
 		[]model.ThreatMitigation{{ID: "MIT-B", ThreatScenarioRef: "TS-A", ControlRef: "CTRL-B", VerificationRefs: []string{"CV-A"}}},
 		[]model.ControlVerification{{ID: "CV-A", ControlRef: "CTRL-A", Method: "analysis", Status: "pass"}})
 	got := behaviorDiags(b, "gemara.control_needs_review")
-	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "authoredArchitecture.controls[1]" ||
-		!strings.Contains(got[0].Message, "CTRL-B") || !strings.Contains(got[0].Message, "CV-A verifies CTRL-A") {
-		t.Fatalf("want one gemara.control_needs_review for CTRL-B naming CV-A of CTRL-A, got %+v", got)
-	}
+	expect(t, got).one(SeverityWarning, "authoredArchitecture.controls[1]", "CTRL-B", "CV-A verifies CTRL-A")
 }
 
 // A control whose only verifications need review (partial) is reported like
@@ -189,10 +180,7 @@ func TestRiskControlUnlinkedWarnsAtTheVerification(t *testing.T) {
 		{ID: "RISK-OMITS", Title: "o", Statement: "o", Status: "open", RelatedControls: []string{"CTRL-B"}},
 	}
 	got := behaviorDiags(b, "controlVerification.risk_control_unlinked")
-	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "authoredArchitecture.controlVerifications[0].riskRefs[1]" ||
-		!strings.Contains(got[0].Message, "RISK-OMITS") || !strings.Contains(got[0].Message, "CTRL-A") {
-		t.Fatalf("want one warning at riskRefs[1] naming RISK-OMITS and CTRL-A, got %+v", got)
-	}
+	expect(t, got).one(SeverityWarning, "authoredArchitecture.controlVerifications[0].riskRefs[1]", "RISK-OMITS", "CTRL-A")
 }
 
 // Where at least one local threat scenario names its attackVectorRef, each
@@ -211,7 +199,5 @@ func TestAttackVectorMissingWhenOthersHaveOne(t *testing.T) {
 	a.AttackVectors = []model.AttackVector{{ID: "AV-A", Name: "A"}}
 	a.ThreatScenarios = append(a.ThreatScenarios, model.ThreatScenario{ID: "TS-WITH", Title: "w", AppliesTo: []string{"FU-A"}, AttackVectorRef: "AV-A"})
 	got := behaviorDiags(b, "threat.attack_vector_missing")
-	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "authoredArchitecture.threatScenarios[0].attackVectorRef" || !strings.Contains(got[0].Message, "TS-NONE") {
-		t.Fatalf("want one warning at TS-NONE attackVectorRef, got %+v", got)
-	}
+	expect(t, got).one(SeverityWarning, "authoredArchitecture.threatScenarios[0].attackVectorRef", "TS-NONE")
 }

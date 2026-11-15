@@ -8,11 +8,15 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// aviationFixture names the tier, the software level, the state of the five plans and the coverage metric of an aviation model.
+type aviationFixture struct{ tier, level, planState, metric string }
+
 // aviationTierBundle is a model at tier with the safety bundle and a DAL
 // software level aviation document: the five plans at planState, one
 // execution, review, approval and independence record (people as actors),
 // and one coverage record of metric.
-func aviationTierBundle(tier, level, planState, metric string) model.Bundle {
+func aviationTierBundle(f aviationFixture) model.Bundle {
+	tier, level, planState, metric := f.tier, f.level, f.planState, f.metric
 	b := tierBundle(tier, "safety")
 	plans := []string{"PLAN-SOFTWARE-ASPECTS-CERTIFICATION", "SOFTWARE-DEVELOPMENT-PLAN", "SOFTWARE-VERIFICATION-PLAN", "SOFTWARE-CONFIGURATION-MANAGEMENT-PLAN", "SOFTWARE-QUALITY-ASSURANCE-PLAN"}
 	var data []model.LifecycleDataRecord
@@ -52,45 +56,75 @@ func pathsOf(diags []Diagnostic, code string) []string {
 // with a rationale. aviation.state_below_tier names each record below.
 // TRLC-LINKS: REQ-EMG-132
 func TestAviationFloorsByTierAndLevel(t *testing.T) {
-	if got := pathsOf(Bundle(aviationTierBundle("prototype", "C", "declared", "statement")), "aviation.state_below_tier"); len(got) != 0 {
-		t.Errorf("prototype: %v", got)
+	assertFloorFindings(t, aviationFixture{"prototype", "C", "declared", "statement"}, 0)
+	assertFloorFindings(t, aviationFixture{"mvp", "C", "declared", "statement"}, 5)
+	assertFloorFindings(t, aviationFixture{"mvp", "C", "planned", "statement"}, 0)
+	assertFloorFindings(t, aviationFixture{"product", "C", "planned", "statement"}, 5)
+	assertFloorFindings(t, aviationFixture{"product", "C", "reviewed", "statement"}, 0)
+	assertFloorFindings(t, aviationFixture{"product", "D", "reviewed", ""}, 0)
+	assertCoverageFloorByLevel(t)
+	assertExecutionFloor(t)
+	assertOperationalFloor(t)
+	assertNotApplicableFloor(t)
+	foundation := aviationTierBundle(aviationFixture{"operational", "C", "declared", "statement"})
+	foundation.Manifest.Lifecycle.Bundles = nil
+	if got := pathsOf(Bundle(foundation), "aviation.state_below_tier"); len(got) != 0 {
+		t.Errorf("without the safety bundle: %v", got)
 	}
-	if got := pathsOf(Bundle(aviationTierBundle("mvp", "C", "declared", "statement")), "aviation.state_below_tier"); len(got) != 5 || !strings.Contains(got[0], "aviation.lifecycleData.DATA-PLAN-S") {
-		t.Errorf("mvp with declared plans: %v, want the five plans", got)
+}
+
+// assertFloorFindings checks the number of aviation.state_below_tier findings
+// of a model; five findings are the five plans.
+func assertFloorFindings(t *testing.T, f aviationFixture, want int) {
+	t.Helper()
+	got := pathsOf(Bundle(aviationTierBundle(f)), "aviation.state_below_tier")
+	if len(got) != want {
+		t.Errorf("%+v: %v, want %d findings", f, got, want)
 	}
-	if got := pathsOf(Bundle(aviationTierBundle("mvp", "C", "planned", "statement")), "aviation.state_below_tier"); len(got) != 0 {
-		t.Errorf("mvp with planned plans: %v", got)
+	if want == 5 && len(got) > 0 && !strings.Contains(got[0], "aviation.lifecycleData.DATA-PLAN-S") {
+		t.Errorf("%+v: %v, want the five plans", f, got)
 	}
-	product := Bundle(aviationTierBundle("product", "C", "planned", "statement"))
-	if got := pathsOf(product, "aviation.state_below_tier"); len(got) != 5 {
-		t.Errorf("product with planned plans: %v, want the five plans", got)
-	}
-	if got := pathsOf(Bundle(aviationTierBundle("product", "C", "reviewed", "statement")), "aviation.state_below_tier"); len(got) != 0 {
-		t.Errorf("product with reviewed plans: %v", got)
-	}
+}
+
+// assertCoverageFloorByLevel checks that a software level A, B or C without
+// coverage of its metric has one finding at aviation.coverage naming the metric.
+func assertCoverageFloorByLevel(t *testing.T) {
+	t.Helper()
 	for level, metric := range map[string]string{"A": "mcdc", "B": "decision", "C": "statement"} {
-		b := aviationTierBundle("product", level, "reviewed", "statement")
+		other := "statement"
 		if metric == "statement" {
-			b = aviationTierBundle("product", level, "reviewed", "decision")
+			other = "decision"
 		}
-		got := codesOf(Bundle(b), "aviation.state_below_tier")
+		got := codesOf(Bundle(aviationTierBundle(aviationFixture{"product", level, "reviewed", other})), "aviation.state_below_tier")
 		if len(got) != 1 || got[0].Path != "aviation.coverage" || !strings.Contains(got[0].Message, metric) {
 			t.Errorf("level %s without %s coverage: %+v", level, metric, got)
 		}
 	}
-	if got := pathsOf(Bundle(aviationTierBundle("product", "D", "reviewed", "")), "aviation.state_below_tier"); len(got) != 0 {
-		t.Errorf("level D needs no coverage: %v", got)
-	}
-	exec := aviationTierBundle("product", "C", "reviewed", "statement")
+}
+
+// assertExecutionFloor checks that a planned execution is below the product floor.
+func assertExecutionFloor(t *testing.T) {
+	t.Helper()
+	exec := aviationTierBundle(aviationFixture{"product", "C", "reviewed", "statement"})
 	exec.Aviation.Aviation.Executions[0].Status = "planned"
 	if got := pathsOf(Bundle(exec), "aviation.state_below_tier"); len(got) != 1 || got[0] != "aviation.executions.EXEC-1" {
 		t.Errorf("planned execution at product: %v", got)
 	}
-	operational := Bundle(aviationTierBundle("operational", "C", "reviewed", "statement"))
+}
+
+// assertOperationalFloor checks that at operational every reviewed record is below accepted.
+func assertOperationalFloor(t *testing.T) {
+	t.Helper()
+	operational := Bundle(aviationTierBundle(aviationFixture{"operational", "C", "reviewed", "statement"}))
 	if got := pathsOf(operational, "aviation.state_below_tier"); len(got) < 22 {
 		t.Errorf("operational with reviewed records: %d findings, want every record below accepted", len(got))
 	}
-	na := aviationTierBundle("mvp", "C", "planned", "statement")
+}
+
+// assertNotApplicableFloor checks that not-applicable satisfies a floor only with a rationale.
+func assertNotApplicableFloor(t *testing.T) {
+	t.Helper()
+	na := aviationTierBundle(aviationFixture{"mvp", "C", "planned", "statement"})
 	na.Aviation.Aviation.LifecycleData[0].State = "not-applicable"
 	if got := pathsOf(Bundle(na), "aviation.state_below_tier"); len(got) != 1 {
 		t.Errorf("not-applicable plan without rationale: %v", got)
@@ -98,11 +132,6 @@ func TestAviationFloorsByTierAndLevel(t *testing.T) {
 	na.Aviation.Aviation.LifecycleData[0].Rationale = "The certification liaison agreed no PSAC for this item."
 	if got := pathsOf(Bundle(na), "aviation.state_below_tier"); len(got) != 0 {
 		t.Errorf("not-applicable plan with rationale: %v", got)
-	}
-	foundation := aviationTierBundle("operational", "C", "declared", "statement")
-	foundation.Manifest.Lifecycle.Bundles = nil
-	if got := pathsOf(Bundle(foundation), "aviation.state_below_tier"); len(got) != 0 {
-		t.Errorf("without the safety bundle: %v", got)
 	}
 }
 
@@ -113,7 +142,7 @@ func TestAviationFloorsByTierAndLevel(t *testing.T) {
 // is reported.
 // TRLC-LINKS: REQ-EMG-133
 func TestAviationAIActorAsCredit(t *testing.T) {
-	b := aviationTierBundle("poc", "C", "planned", "statement")
+	b := aviationTierBundle(aviationFixture{"poc", "C", "planned", "statement"})
 	a := &b.Aviation.Aviation
 	a.Reviews[0].Reviewer = "verification-review"
 	a.Independence[0].Producer = "ef-implementer"
@@ -121,17 +150,7 @@ func TestAviationAIActorAsCredit(t *testing.T) {
 	a.Executions[0].Verifier = " quality-review "
 	a.Approvals[0].Approver = "ef-modeler"
 	got := codesOf(ApplyTierPolicy(b, Bundle(b)), "aviation.ai_actor_as_credit")
-	want := []string{"aviation.approvals.APPROVAL-1.approver", "aviation.executions.EXEC-1.verifier", "aviation.independence.INDEP-1.producer", "aviation.independence.INDEP-1.verifier", "aviation.reviews.REVIEW-1.reviewer"}
-	var paths []string
-	for _, d := range got {
-		if d.Severity != SeverityError {
-			t.Errorf("not an error: %+v", d)
-		}
-		paths = append(paths, d.Path)
-	}
-	if strings.Join(paths, ",") != strings.Join(want, ",") {
-		t.Fatalf("paths %v, want %v", paths, want)
-	}
+	assertAICreditPaths(t, got)
 	if !strings.Contains(got[0].Message, "ef-modeler") || !strings.Contains(got[0].Message, "person") {
 		t.Errorf("message: %s", got[0].Message)
 	}
@@ -145,13 +164,29 @@ func TestAviationAIActorAsCredit(t *testing.T) {
 	}
 }
 
+// assertAICreditPaths checks that the credit findings are errors at the five expected paths.
+func assertAICreditPaths(t *testing.T, got []Diagnostic) {
+	t.Helper()
+	want := []string{"aviation.approvals.APPROVAL-1.approver", "aviation.executions.EXEC-1.verifier", "aviation.independence.INDEP-1.producer", "aviation.independence.INDEP-1.verifier", "aviation.reviews.REVIEW-1.reviewer"}
+	var paths []string
+	for _, d := range got {
+		if d.Severity != SeverityError {
+			t.Errorf("not an error: %+v", d)
+		}
+		paths = append(paths, d.Path)
+	}
+	if strings.Join(paths, ",") != strings.Join(want, ",") {
+		t.Fatalf("paths %v, want %v", paths, want)
+	}
+}
+
 // With lifecycle the aviation state codes are validation diagnostics keyed
 // by tier (the load no longer fails on them) and an authority-accepted
 // state without a liaison authority record is
 // aviation.authority_state_unevidenced (error, rank 0).
 // TRLC-LINKS: REQ-EMG-132
 func TestAviationStateCodesAreTierKeyed(t *testing.T) {
-	b := aviationTierBundle("prototype", "C", "planned", "statement")
+	b := aviationTierBundle(aviationFixture{"prototype", "C", "planned", "statement"})
 	b.Aviation.Aviation.Tools = []model.AirborneTool{{ID: "TOOL-1", CreditClaimed: true}}
 	b.Aviation.Aviation.Reviews[0].State = "authority-accepted"
 	diags := ApplyTierPolicy(b, Bundle(b))
@@ -160,7 +195,7 @@ func TestAviationStateCodesAreTierKeyed(t *testing.T) {
 		t.Errorf("tool credit at prototype: %+v", tool)
 	}
 	auth := codesOf(diags, "aviation.authority_state_unevidenced")
-	if len(auth) != 1 || auth[0].Severity != SeverityError || auth[0].Path != "aviation.reviews.REVIEW-1" {
+	if len(auth) != 1 || !isErrorAt(auth[0], "aviation.authority_state_unevidenced", "aviation.reviews.REVIEW-1") {
 		t.Errorf("authority state: %+v", auth)
 	}
 	b.Manifest.Lifecycle = nil

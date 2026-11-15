@@ -663,10 +663,7 @@ func TestDiagnosticRemedyIsRenderedAndSerialized(t *testing.T) {
 	diag := codesOf(Bundle(b), "lifecycle.missing")[0]
 	var out bytes.Buffer
 	WriteDiagnostic(&out, diag)
-	lines := strings.Split(strings.TrimRight(out.String(), "\n"), "\n")
-	if len(lines) != 2 || !strings.HasPrefix(lines[0], "lifecycle.missing [error] ") || !strings.HasSuffix(lines[0], "(lifecycle)") || lines[1] != "  fix: "+remedyFor("lifecycle.missing") {
-		t.Fatalf("rendered %q", out.String())
-	}
+	assertRenderedWithFix(t, out.String())
 	data, err := json.Marshal(diag)
 	if err != nil || !strings.Contains(string(data), `"remedy":"run the ef-tier-up skill`) {
 		t.Fatalf("json = %s, %v", data, err)
@@ -681,6 +678,28 @@ func TestDiagnosticRemedyIsRenderedAndSerialized(t *testing.T) {
 	}
 }
 
+// assertRenderedWithFix checks that the rendering is the diagnostic line followed by its fix line.
+func assertRenderedWithFix(t *testing.T, rendered string) {
+	t.Helper()
+	lines := strings.Split(strings.TrimRight(rendered, "\n"), "\n")
+	if len(lines) != 2 || lines[1] != "  fix: "+remedyFor("lifecycle.missing") {
+		t.Fatalf("rendered %q", rendered)
+	}
+	if !strings.HasPrefix(lines[0], "lifecycle.missing [error] ") || !strings.HasSuffix(lines[0], "(lifecycle)") {
+		t.Fatalf("rendered %q", rendered)
+	}
+}
+
+// assertRequiredRowsComplete checks that every required switch row names its switch, code and remedy.
+func assertRequiredRowsComplete(t *testing.T, rows []RequiredSwitch) {
+	t.Helper()
+	for _, r := range rows {
+		if r.Switch == "" || r.Code == "" || r.Remedy == "" {
+			t.Errorf("incomplete required row %+v", r)
+		}
+	}
+}
+
 // The authoring contract rules list the required switches, and the README
 // "Required model switches" table is the current one.
 // TRLC-LINKS: REQ-EMG-045, REQ-EMG-124, REQ-EMG-125
@@ -689,11 +708,7 @@ func TestRequiredSwitchesAreInTheContractAndTheReadme(t *testing.T) {
 	if !reflect.DeepEqual(rules.Required, RequiredSwitches()) || len(rules.Required) == 0 {
 		t.Fatalf("rules.required = %+v", rules.Required)
 	}
-	for _, r := range rules.Required {
-		if r.Switch == "" || r.Code == "" || r.Remedy == "" {
-			t.Errorf("incomplete required row %+v", r)
-		}
-	}
+	assertRequiredRowsComplete(t, rules.Required)
 	data, err := json.Marshal(rules)
 	if err != nil || !strings.Contains(string(data), `"required":[{"switch":"engmod.yml lifecycle","code":"lifecycle.missing","remedy":"run the ef-tier-up skill`) {
 		t.Fatalf("rules json lacks the required section: %v", err)
