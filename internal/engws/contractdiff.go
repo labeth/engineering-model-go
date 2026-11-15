@@ -82,6 +82,20 @@ type ContractDiffResult struct {
 func DiffContracts(from, to model.Bundle) ContractDiffResult {
 	before := reqlinks.PublishedItems(from, from.Manifest.Publications...)
 	after := reqlinks.PublishedItems(to, to.Manifest.Publications...)
+	result := ContractDiffResult{Items: []ItemChange{}, Impact: ImpactPatch}
+	for _, id := range contractItemIDs(before, after) {
+		c := diffContractItem(id, before, after)
+		if c.Impact.rank() > result.Impact.rank() {
+			result.Impact = c.Impact
+		}
+		result.Items = append(result.Items, c)
+	}
+	return result
+}
+
+// contractItemIDs is the sorted union of the item IDs of both versions.
+// TRLC-LINKS: REQ-EMG-102
+func contractItemIDs(before, after map[string]reqlinks.Item) []string {
 	ids := map[string]bool{}
 	for id := range before {
 		ids[id] = true
@@ -94,32 +108,42 @@ func DiffContracts(from, to model.Bundle) ContractDiffResult {
 		sorted = append(sorted, id)
 	}
 	sort.Strings(sorted)
-	result := ContractDiffResult{Items: []ItemChange{}, Impact: ImpactPatch}
-	for _, id := range sorted {
-		b, inBefore := before[id]
-		a, inAfter := after[id]
-		var c ItemChange
-		switch {
-		case !inBefore:
-			c = ItemChange{ID: id, Kind: string(a.Kind), Change: ChangeAdded, Text: oneLine(a.Text), Impact: ImpactMinor}
-			if a.Kind == reqlinks.KindAssumption {
-				c.Impact = ImpactMajor
-				c.Notes = append(c.Notes, "a new assumption of use binds every user")
-			}
-		case !inAfter:
-			c = ItemChange{ID: id, Kind: string(b.Kind), Change: ChangeRemoved, Text: oneLine(b.Text), Impact: ImpactMajor}
-			if b.Kind == reqlinks.KindAssumption {
-				c.Impact = ImpactMinor
-			}
-		default:
-			c = diffItem(b, a)
-		}
-		if c.Impact.rank() > result.Impact.rank() {
-			result.Impact = c.Impact
-		}
-		result.Items = append(result.Items, c)
+	return sorted
+}
+
+// diffContractItem classifies item id as added, removed or compared.
+// TRLC-LINKS: REQ-EMG-102
+func diffContractItem(id string, before, after map[string]reqlinks.Item) ItemChange {
+	b, inBefore := before[id]
+	a, inAfter := after[id]
+	switch {
+	case !inBefore:
+		return addedItemChange(id, a)
+	case !inAfter:
+		return removedItemChange(id, b)
 	}
-	return result
+	return diffItem(b, a)
+}
+
+// addedItemChange is the change of an item new in the second version: minor, major for an assumption of use.
+// TRLC-LINKS: REQ-EMG-102
+func addedItemChange(id string, a reqlinks.Item) ItemChange {
+	c := ItemChange{ID: id, Kind: string(a.Kind), Change: ChangeAdded, Text: oneLine(a.Text), Impact: ImpactMinor}
+	if a.Kind == reqlinks.KindAssumption {
+		c.Impact = ImpactMajor
+		c.Notes = append(c.Notes, "a new assumption of use binds every user")
+	}
+	return c
+}
+
+// removedItemChange is the change of an item gone from the second version: major, minor for an assumption of use.
+// TRLC-LINKS: REQ-EMG-102
+func removedItemChange(id string, b reqlinks.Item) ItemChange {
+	c := ItemChange{ID: id, Kind: string(b.Kind), Change: ChangeRemoved, Text: oneLine(b.Text), Impact: ImpactMajor}
+	if b.Kind == reqlinks.KindAssumption {
+		c.Impact = ImpactMinor
+	}
+	return c
 }
 
 // diffItem compares one item present in both versions.
@@ -159,29 +183,51 @@ func diffItem(b, a reqlinks.Item) ItemChange {
 // when they did not.
 // TRLC-LINKS: REQ-EMG-102
 func diffRealizers(before, after []reqlinks.Realizer) string {
-	canonical := func(r reqlinks.Realizer) string {
-		return oneLine(r.Text) + "\x00" + oneLine(r.VerificationCriteria) + "\x00" + strings.TrimSpace(r.Status)
-	}
-	b, a := map[string]string{}, map[string]string{}
-	for _, r := range before {
-		b[r.ID] = canonical(r)
-	}
-	for _, r := range after {
-		a[r.ID] = canonical(r)
-	}
-	var added, removed, changed []string
+	b, a := realizerDigests(before), realizerDigests(after)
+	added, changed := addedAndChangedRealizers(b, a)
+	return realizerParts(added, removedRealizers(b, a), changed)
+}
+
+// addedAndChangedRealizers lists the realizer IDs only in a, and those in both with another digest.
+// TRLC-LINKS: REQ-EMG-102
+func addedAndChangedRealizers(b, a map[string]string) (added, changed []string) {
 	for id, v := range a {
-		if old, ok := b[id]; !ok {
+		old, ok := b[id]
+		switch {
+		case !ok:
 			added = append(added, id)
-		} else if old != v {
+		case old != v:
 			changed = append(changed, id)
 		}
 	}
+	return added, changed
+}
+
+// removedRealizers lists the realizer IDs only in b.
+// TRLC-LINKS: REQ-EMG-102
+func removedRealizers(b, a map[string]string) []string {
+	var removed []string
 	for id := range b {
 		if _, ok := a[id]; !ok {
 			removed = append(removed, id)
 		}
 	}
+	return removed
+}
+
+// realizerDigests maps each realizer ID to its canonical text, criteria and status.
+// TRLC-LINKS: REQ-EMG-102
+func realizerDigests(realizers []reqlinks.Realizer) map[string]string {
+	digests := map[string]string{}
+	for _, r := range realizers {
+		digests[r.ID] = oneLine(r.Text) + "\x00" + oneLine(r.VerificationCriteria) + "\x00" + strings.TrimSpace(r.Status)
+	}
+	return digests
+}
+
+// realizerParts joins the non-empty added, removed and changed ID lists, each sorted, into one description.
+// TRLC-LINKS: REQ-EMG-102
+func realizerParts(added, removed, changed []string) string {
 	var parts []string
 	for _, p := range []struct {
 		label string
@@ -233,38 +279,54 @@ func ContractDiff(repo, fromRef, toRef string) (ContractDiffResult, error) {
 func printContractDiff(w io.Writer, d ContractDiffResult) {
 	fmt.Fprintf(w, "contract %s..%s\n", d.From, d.To)
 	for _, c := range d.Items {
-		line := fmt.Sprintf("  %-9s %s %s", c.Change, c.Kind, c.ID)
-		switch c.Change {
-		case ChangeChanged:
-			line += " (" + strings.Join(c.Aspects, ", ") + "): " + strings.Join(c.Notes, "; ")
-		default:
-			line += ": " + c.Text
-			if len(c.Notes) > 0 {
-				line += " (" + strings.Join(c.Notes, "; ") + ")"
-			}
-		}
-		if c.Impact != "" {
-			line += " [" + string(c.Impact) + "]"
-		}
-		fmt.Fprintln(w, line)
+		fmt.Fprintln(w, contractDiffLine(c))
 	}
 	fmt.Fprintf(w, "impact: %s\n", d.Impact)
+}
+
+// contractDiffLine is the text line of one item change.
+// TRLC-LINKS: REQ-EMG-102
+func contractDiffLine(c ItemChange) string {
+	line := fmt.Sprintf("  %-9s %s %s", c.Change, c.Kind, c.ID)
+	switch c.Change {
+	case ChangeChanged:
+		line += " (" + strings.Join(c.Aspects, ", ") + "): " + strings.Join(c.Notes, "; ")
+	default:
+		line += ": " + c.Text
+		if len(c.Notes) > 0 {
+			line += " (" + strings.Join(c.Notes, "; ") + ")"
+		}
+	}
+	if c.Impact != "" {
+		line += " [" + string(c.Impact) + "]"
+	}
+	return line
 }
 
 // runContractDiff prints the contract diff (text or JSON); IO and git
 // errors exit 2.
 // TRLC-LINKS: REQ-EMG-102
 // ENGMODEL-LINKS: EVT-CONTRACT-DIFF-REQUESTED
-func runContractDiff(repo, fromRef, toRef string, asJSON bool, w io.Writer) (int, error) {
-	d, err := ContractDiff(repo, fromRef, toRef)
+func runContractDiff(options ContractDiffOptions, w io.Writer) (int, error) {
+	d, err := ContractDiff(options.Repo, options.From, options.To)
 	if err != nil {
 		return 2, err
 	}
-	if asJSON {
+	if options.JSON {
 		enc := json.NewEncoder(w)
 		enc.SetIndent("", "  ")
 		return 0, enc.Encode(d)
 	}
 	printContractDiff(w, d)
 	return 0, nil
+}
+
+// ContractDiffOptions are the arguments of engws contract-diff: the model directory, the two refs and whether to
+// print JSON.
+// TRLC-LINKS: REQ-EMG-102
+type ContractDiffOptions struct {
+	Repo string
+	From string
+	To   string
+	JSON bool
 }

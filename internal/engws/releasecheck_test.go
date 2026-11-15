@@ -23,34 +23,43 @@ func TestReleaseCheckSemverGate(t *testing.T) {
 	removeCapA2(t, dir)
 	runGit(t, dir, "commit", "-q", "-am", "drop the checksum")
 
-	code, out, errOut := runMain(t, fakeRegistry{}, "release-check", "--repo", dir, "--tag", "v2.0.0")
-	if code != 0 || !strings.Contains(out, "contract v1.0.0..HEAD: impact major, tag v2.0.0 is a major bump") {
-		t.Fatalf("major tag: %d\n%s\n%s", code, out, errOut)
-	}
-	code, out, errOut = runMain(t, fakeRegistry{}, "release-check", "--repo", dir, "--tag", "v1.1.0")
-	if code != 1 || !strings.Contains(out, "contract.semver_too_small [error]") || !strings.Contains(out, "v1.1.0 is a minor bump over v1.0.0 but the contract change is major") ||
-		!strings.Contains(out, "removed   capability CAP-A-2") {
-		t.Fatalf("minor tag: %d\n%s\n%s", code, out, errOut)
-	}
+	assertReleaseCheck(t, releaseCheckCase{name: "major tag", dir: dir, args: []string{"--tag", "v2.0.0"}, code: 0,
+		out: []string{"contract v1.0.0..HEAD: impact major, tag v2.0.0 is a major bump"}})
+	assertReleaseCheck(t, releaseCheckCase{name: "minor tag", dir: dir, args: []string{"--tag", "v1.1.0"}, code: 1,
+		out: []string{"contract.semver_too_small [error]", "v1.1.0 is a minor bump over v1.0.0 but the contract change is major", "removed   capability CAP-A-2"}})
 	runGit(t, dir, "tag", "v1.1.0")
-	if code, out, _ := runMain(t, fakeRegistry{}, "release-check", "--repo", dir); code != 1 || !strings.Contains(out, "contract v1.0.0..v1.1.0") || !strings.Contains(out, "contract.semver_too_small") {
-		t.Fatalf("tag at HEAD: %d\n%s", code, out)
-	}
+	assertReleaseCheck(t, releaseCheckCase{name: "tag at HEAD", dir: dir, code: 1,
+		out: []string{"contract v1.0.0..v1.1.0", "contract.semver_too_small"}})
 
 	zero := gitModel(t, "child-a", "v0.1.0")
 	removeCapA2(t, zero)
 	runGit(t, zero, "commit", "-q", "-am", "drop the checksum")
-	if code, out, errOut := runMain(t, fakeRegistry{}, "release-check", "--repo", zero, "--tag", "v0.2.0"); code != 0 || !strings.Contains(out, "v0.x") {
-		t.Fatalf("v0.x minor bump with a breaking change: %d\n%s\n%s", code, out, errOut)
+	assertReleaseCheck(t, releaseCheckCase{name: "v0.x minor bump with a breaking change", dir: zero, args: []string{"--tag", "v0.2.0"}, code: 0, out: []string{"v0.x"}})
+	assertReleaseCheck(t, releaseCheckCase{name: "v0.x patch bump with a breaking change", dir: zero, args: []string{"--tag", "v0.1.1"}, code: 1, out: []string{"contract.semver_too_small"}})
+	assertReleaseCheck(t, releaseCheckCase{name: "invalid tag", dir: zero, args: []string{"--tag", "latest"}, code: 2})
+	assertReleaseCheck(t, releaseCheckCase{name: "first release", dir: zero, args: []string{"--tag", "v0.1.0"}, code: 0, out: []string{"no release tag below v0.1.0"}})
+}
+
+// releaseCheckCase is one release-check run: the arguments after --repo, the exit code and the output it must contain.
+type releaseCheckCase struct {
+	name string
+	dir  string
+	args []string
+	code int
+	out  []string
+}
+
+// assertReleaseCheck runs release-check and checks the exit code and that the output contains every wanted text.
+func assertReleaseCheck(t *testing.T, c releaseCheckCase) {
+	t.Helper()
+	code, out, errOut := runMain(t, fakeRegistry{}, append([]string{"release-check", "--repo", c.dir}, c.args...)...)
+	if code != c.code {
+		t.Fatalf("%s: exit %d, want %d\n%s\n%s", c.name, code, c.code, out, errOut)
 	}
-	if code, out, _ := runMain(t, fakeRegistry{}, "release-check", "--repo", zero, "--tag", "v0.1.1"); code != 1 || !strings.Contains(out, "contract.semver_too_small") {
-		t.Fatalf("v0.x patch bump with a breaking change: %d\n%s", code, out)
-	}
-	if code, _, _ := runMain(t, fakeRegistry{}, "release-check", "--repo", zero, "--tag", "latest"); code != 2 {
-		t.Fatalf("invalid tag: %d", code)
-	}
-	if code, out, _ := runMain(t, fakeRegistry{}, "release-check", "--repo", zero, "--tag", "v0.1.0"); code != 0 || !strings.Contains(out, "no release tag below v0.1.0") {
-		t.Fatalf("first release: %d\n%s", code, out)
+	for _, want := range c.out {
+		if !strings.Contains(out, want) {
+			t.Fatalf("%s: output lacks %q\n%s\n%s", c.name, want, out, errOut)
+		}
 	}
 }
 

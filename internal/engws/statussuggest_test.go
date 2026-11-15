@@ -85,12 +85,27 @@ func redLine(tree, verdict string, reqs ...string) string {
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-ALLOCATION-TRACE
 func TestStatusSuggest(t *testing.T) {
 	newLinksRegistry(t)
-	dir := statusFixture(t)
+	dir, tree := statusSuggestScenario(t)
+	before := runGit(t, dir, "status", "--porcelain")
+
+	assertStatusSuggestJSON(t, dir, tree)
+	assertStatusSuggestRedOnTree(t, dir, tree)
+	assertStatusSuggestOtherTree(t, dir)
+	if after := runGit(t, dir, "status", "--porcelain"); after != before {
+		t.Fatalf("status-suggest changed the tree:\n%s", after)
+	}
+}
+
+// statusSuggestScenario prepares the fixture with an uncommitted edit and a red-checks log; it returns the
+// directory and the working-tree hash.
+func statusSuggestScenario(t *testing.T) (dir, tree string) {
+	t.Helper()
+	dir = statusFixture(t)
 	// An uncommitted edit: the tree is the working tree's, not HEAD's.
 	write(t, filepath.Join(dir, "NOTES.md"), "work in progress\n")
 	headTree := runGit(t, dir, "rev-parse", "HEAD^{tree}")
 	runGit(t, dir, "add", "NOTES.md")
-	tree := runGit(t, dir, "write-tree")
+	tree = runGit(t, dir, "write-tree")
 	runGit(t, dir, "reset", "-q", "NOTES.md")
 	if tree == headTree {
 		t.Fatal("fixture: the working tree must differ from HEAD")
@@ -106,8 +121,11 @@ func TestStatusSuggest(t *testing.T) {
 		redLine(tree, "RED", "REQ-A-002"),
 		"not json",
 	}, "\n")+"\n")
-	before := runGit(t, dir, "status", "--porcelain")
+	return dir, tree
+}
 
+func assertStatusSuggestJSON(t *testing.T, dir, tree string) {
+	t.Helper()
 	code, out, errOut := runMain(t, fakeRegistry{}, "status-suggest", "--repo", dir, "--json")
 	if code != 0 {
 		t.Fatalf("status-suggest: %d\n%s\n%s", code, out, errOut)
@@ -119,6 +137,18 @@ func TestStatusSuggest(t *testing.T) {
 	if got.Tree != tree {
 		t.Fatalf("tree %s, want %s", got.Tree, tree)
 	}
+	assertSuggestedRequirements(t, got)
+	cv := map[string]string{}
+	for _, v := range got.ControlVerifications {
+		cv[v.ID] = v.Suggested
+	}
+	if cv["VER-ENC-INTEGRITY"] != "not-run" || cv["VER-ENC-FORMAT"] != "not-run" {
+		t.Fatalf("control verifications %v", cv)
+	}
+}
+
+func assertSuggestedRequirements(t *testing.T, got StatusSuggestion) {
+	t.Helper()
 	want := map[string]string{"REQ-A-001": "verified", "REQ-A-002": "implemented", "REQ-A-003": "implemented", "REQ-A-004": ""}
 	for _, r := range got.Requirements {
 		if w, ok := want[r.ID]; !ok || r.Suggested != w {
@@ -129,26 +159,26 @@ func TestStatusSuggest(t *testing.T) {
 	if len(want) > 0 {
 		t.Fatalf("missing rows %v", want)
 	}
-	cv := map[string]string{}
-	for _, v := range got.ControlVerifications {
-		cv[v.ID] = v.Suggested
-	}
-	if cv["VER-ENC-INTEGRITY"] != "not-run" || cv["VER-ENC-FORMAT"] != "not-run" {
-		t.Fatalf("control verifications %v", cv)
-	}
+}
 
-	// The RED for REQ-A-003 on this tree makes the integrity verification pass.
+// assertStatusSuggestRedOnTree: the RED for REQ-A-003 on this tree makes the integrity verification pass.
+func assertStatusSuggestRedOnTree(t *testing.T, dir, tree string) {
+	t.Helper()
 	write(t, filepath.Join(dir, ".engflow", "red-checks.jsonl"), redLine(tree, "RED", "REQ-A-001", "REQ-A-003")+"\n")
-	code, out, _ = runMain(t, fakeRegistry{}, "status-suggest", "--repo", dir)
-	if code != 0 || !regexpLine(out, `REQ-A-003\s+-\s+verified`) || !regexpLine(out, `VER-ENC-INTEGRITY\s+not-run\s+pass`) || !regexpLine(out, `VER-ENC-FORMAT\s+not-run\s+not-run`) {
+	code, out, _ := runMain(t, fakeRegistry{}, "status-suggest", "--repo", dir)
+	if code != 0 || !regexpLine(out, `REQ-A-003\s+-\s+verified`) {
 		t.Fatalf("table:\n%s", out)
 	}
-	// --tree names another tree: nothing on it is RED.
-	code, out, _ = runMain(t, fakeRegistry{}, "status-suggest", "--repo", dir, "--tree", strings.Repeat("1", 40))
+	if !regexpLine(out, `VER-ENC-INTEGRITY\s+not-run\s+pass`) || !regexpLine(out, `VER-ENC-FORMAT\s+not-run\s+not-run`) {
+		t.Fatalf("table:\n%s", out)
+	}
+}
+
+// assertStatusSuggestOtherTree: --tree names another tree, so nothing on it is RED.
+func assertStatusSuggestOtherTree(t *testing.T, dir string) {
+	t.Helper()
+	code, out, _ := runMain(t, fakeRegistry{}, "status-suggest", "--repo", dir, "--tree", strings.Repeat("1", 40))
 	if code != 0 || regexpLine(out, `REQ-A-001\s+-\s+verified`) || !regexpLine(out, `REQ-A-001\s+-\s+implemented`) {
 		t.Fatalf("--tree:\n%s", out)
-	}
-	if after := runGit(t, dir, "status", "--porcelain"); after != before {
-		t.Fatalf("status-suggest changed the tree:\n%s", after)
 	}
 }

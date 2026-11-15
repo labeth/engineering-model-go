@@ -404,7 +404,7 @@ func (c *cliCall) linkAdd() int {
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func (c *cliCall) statusSuggest() int {
-	code, err := runStatusSuggest(c.flags.repo, strings.TrimSpace(c.flags.tree), c.flags.asJSON, c.stdout)
+	code, err := runStatusSuggest(StatusSuggestOptions{Repo: c.flags.repo, Tree: strings.TrimSpace(c.flags.tree), JSON: c.flags.asJSON}, c.stdout)
 	return c.failed(c.name, err, code)
 }
 
@@ -420,7 +420,7 @@ func (c *cliCall) releaseCheck() int {
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func (c *cliCall) contractDiff() int {
-	code, err := runContractDiff(c.flags.repo, c.args[0], c.args[1], c.flags.asJSON, c.stdout)
+	code, err := runContractDiff(ContractDiffOptions{Repo: c.flags.repo, From: c.args[0], To: c.args[1], JSON: c.flags.asJSON}, c.stdout)
 	return c.failed(c.name, err, code)
 }
 
@@ -697,7 +697,7 @@ func (c *cliCall) printChecks(results []CheckResult) int {
 // ENGMODEL-LINKS: EVT-DEPENDENCY-BUMP-REQUESTED
 func (c *cliCall) runBump(root string) (int, error) {
 	repo, alias, version := c.args[0], c.args[1], c.args[2]
-	result, err := Bump(root, repo, alias, version, BumpOptions{AllowReview: c.flags.allowReview})
+	result, err := Bump(root, BumpTarget{Repo: repo, Alias: alias, Version: version}, BumpOptions{AllowReview: c.flags.allowReview})
 	c.printBumpErrors(result)
 	if err != nil {
 		return 1, err
@@ -801,11 +801,11 @@ func (c *cliCall) runStage(root string) (int, error) {
 		printStageEnv(w, StageEnv(result, "", current))
 		return 0, nil
 	}
-	err = ServeStaging(c.ctx, result, c.flags.addr, func(host string) {
+	err = ServeStaging(c.ctx, result, ServeOptions{Addr: c.flags.addr, Ready: func(host string) {
 		fmt.Fprintln(w, "engws: environment for the gate against staging (export in another shell):")
 		printStageEnv(w, StageEnv(result, host, current))
 		fmt.Fprintf(w, "engws: serving %d staged CUE module(s) on %s; interrupt to stop\n", len(result.Modules), host)
-	})
+	}})
 	if err != nil {
 		return 1, err
 	}

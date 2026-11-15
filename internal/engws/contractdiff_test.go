@@ -133,6 +133,18 @@ func TestContractDiffBetweenTags(t *testing.T) {
 	// The working tree differs from both refs.
 	replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "at the configured epoch rate.", "at the working tree rate.")
 
+	assertContractDiffText(t, dir)
+	assertContractDiffJSON(t, dir)
+	if code, _, errOut := runMain(t, fakeRegistry{}, "contract-diff", "v1.0.0", "v9.9.9", "--repo", dir); code != 2 || !strings.Contains(errOut, "v9.9.9") {
+		t.Fatalf("unknown ref: %d %s", code, errOut)
+	}
+	if code, _, _ := runMain(t, fakeRegistry{}, "contract-diff", "v1.0.0", "--repo", dir); code != 2 {
+		t.Fatalf("one ref accepted: %d", code)
+	}
+}
+
+func assertContractDiffText(t *testing.T, dir string) {
+	t.Helper()
 	code, out, errOut := runMain(t, fakeRegistry{}, "contract-diff", "v1.0.0", "v1.1.0", "--repo", dir)
 	if code != 0 {
 		t.Fatalf("contract-diff: %d\n%s\n%s", code, out, errOut)
@@ -149,16 +161,18 @@ func TestContractDiffBetweenTags(t *testing.T) {
 	if strings.Contains(out, "working tree") {
 		t.Fatalf("contract-diff read the working tree:\n%s", out)
 	}
-	code, out, _ = runMain(t, fakeRegistry{}, "contract-diff", "--repo", dir, "--json", "v1.0.0", "v1.1.0")
+}
+
+func assertContractDiffJSON(t *testing.T, dir string) {
+	t.Helper()
+	code, out, _ := runMain(t, fakeRegistry{}, "contract-diff", "--repo", dir, "--json", "v1.0.0", "v1.1.0")
 	var result ContractDiffResult
-	if err := json.Unmarshal([]byte(out), &result); code != 0 || err != nil || result.Impact != ImpactMajor || result.From != "v1.0.0" || len(result.Items) != 2 {
+	err := json.Unmarshal([]byte(out), &result)
+	if code != 0 || err != nil {
 		t.Fatalf("contract-diff --json: %d %v\n%s", code, err, out)
 	}
-	if code, _, errOut := runMain(t, fakeRegistry{}, "contract-diff", "v1.0.0", "v9.9.9", "--repo", dir); code != 2 || !strings.Contains(errOut, "v9.9.9") {
-		t.Fatalf("unknown ref: %d %s", code, errOut)
-	}
-	if code, _, _ := runMain(t, fakeRegistry{}, "contract-diff", "v1.0.0", "--repo", dir); code != 2 {
-		t.Fatalf("one ref accepted: %d", code)
+	if result.Impact != ImpactMajor || result.From != "v1.0.0" || len(result.Items) != 2 {
+		t.Fatalf("contract-diff --json: %d %v\n%s", code, err, out)
 	}
 }
 
