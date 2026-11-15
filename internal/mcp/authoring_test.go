@@ -41,6 +41,20 @@ func TestModelCompleteLocalIDsByPrefix(t *testing.T) {
 	s := initializedPaymentsServer(t)
 	payload := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "fu-check"})
 	values, byValue := completionValues(t, payload)
+	assertLocalPrefixCandidates(t, values, byValue)
+	limited := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "", "max": "2"})
+	if got, _ := completionValues(t, limited); len(got) != 2 || limited["truncated"] != true {
+		t.Fatalf("max=2 must return 2 candidates and truncated=true, got %v truncated=%v", got, limited["truncated"])
+	}
+}
+
+// assertLocalPrefixCandidates checks that the candidates for the prefix
+// fu-check carry FU-CHECKOUT, all match the prefix and are sorted.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT
+func assertLocalPrefixCandidates(t *testing.T, values []string, byValue map[string]map[string]any) {
+	t.Helper()
 	row, ok := byValue["FU-CHECKOUT"]
 	if !ok {
 		t.Fatalf("expected FU-CHECKOUT for prefix fu-check, got %v", values)
@@ -55,10 +69,6 @@ func TestModelCompleteLocalIDsByPrefix(t *testing.T) {
 	}
 	if !sort.SliceIsSorted(values, func(i, j int) bool { return strings.ToLower(values[i]) < strings.ToLower(values[j]) }) {
 		t.Fatalf("candidates are not sorted: %v", values)
-	}
-	limited := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "", "max": "2"})
-	if got, _ := completionValues(t, limited); len(got) != 2 || limited["truncated"] != true {
-		t.Fatalf("max=2 must return 2 candidates and truncated=true, got %v truncated=%v", got, limited["truncated"])
 	}
 }
 
@@ -111,6 +121,21 @@ func TestModelCompleteRelationshipTypes(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected relationship type contains, got %v", values)
 	}
+	assertContainsPairs(t, row)
+	for _, v := range values {
+		if strings.HasPrefix(v, "FU-") || strings.HasPrefix(v, "REQ-") {
+			t.Fatalf("relationship.type must not return entity IDs, got %q", v)
+		}
+	}
+}
+
+// assertContainsPairs checks that the contains candidate carries its kind
+// pairs.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertContainsPairs(t *testing.T, row map[string]any) {
+	t.Helper()
 	pairs, _ := row["pairs"].([]any)
 	if row["kind"] != "relationship.type" || len(pairs) == 0 {
 		t.Fatalf("contains must carry kind relationship.type and its pairs: %+v", row)
@@ -118,11 +143,6 @@ func TestModelCompleteRelationshipTypes(t *testing.T) {
 	first, _ := pairs[0].(map[string]any)
 	if first["from"] == "" || first["to"] == "" {
 		t.Fatalf("pair without from/to: %+v", first)
-	}
-	for _, v := range values {
-		if strings.HasPrefix(v, "FU-") || strings.HasPrefix(v, "REQ-") {
-			t.Fatalf("relationship.type must not return entity IDs, got %q", v)
-		}
 	}
 }
 
@@ -143,6 +163,15 @@ func TestModelCompleteIDFieldFiltersKinds(t *testing.T) {
 		}
 	}
 	catalog := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "pay", "field": "catalog"})
+	assertCatalogCandidates(t, catalog)
+}
+
+// assertCatalogCandidates checks that the catalog field returns catalog terms.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func assertCatalogCandidates(t *testing.T, catalog map[string]any) {
+	t.Helper()
 	names, rows := completionValues(t, catalog)
 	if len(names) == 0 {
 		t.Fatalf("catalog field must return catalog term names")
@@ -237,6 +266,16 @@ func TestModelCompleteImportedQualifiedIDs(t *testing.T) {
 		t.Fatalf("imported candidate has wrong source/kind/title: %+v", row)
 	}
 	byTail := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "fu-", "field": "appliesTo"})
+	assertAppliesToTail(t, byTail)
+}
+
+// assertAppliesToTail checks that the prefix fu- lists local and imported
+// units and not an unpublished child entity.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
+func assertAppliesToTail(t *testing.T, byTail map[string]any) {
+	t.Helper()
 	tailValues, _ := completionValues(t, byTail)
 	if !containsString(tailValues, "child::FU-CHILD-UNIT") || !containsString(tailValues, "FU-PARENT-UNIT") {
 		t.Fatalf("appliesTo prefix fu- must list local and imported units, got %v", tailValues)
@@ -369,17 +408,46 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	assertDiagnoseUnchanged(t, s, string(original))
+	assertDiagnoseUnknownSourceRef(t, s, string(original))
+	assertDiagnoseSchemaError(t, s, string(original))
+	assertDiagnoseDanglingRelationship(t, s, modelDir)
+	assertDiagnoseParseError(t, s)
+	assertDiagnoseRejectsDocuments(t, s)
 
-	valid := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": string(original)})
+	if after := snapshotDir(t, modelDir); fmt.Sprint(after) != fmt.Sprint(before) {
+		t.Fatalf("model.diagnose changed the model directory")
+	}
+	if left, _ := os.ReadDir(tmp); len(left) != 0 {
+		t.Fatalf("model.diagnose left temp files: %v", left)
+	}
+}
+
+// assertDiagnoseUnchanged checks that unchanged content has no errors and
+// reports the document path.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseUnchanged(t *testing.T, s *Server, original string) {
+	t.Helper()
+	valid := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": original})
 	if valid["errors"] != float64(0) || valid["valid"] != true {
 		t.Fatalf("unchanged requirements must have 0 errors: %+v", valid)
 	}
 	if valid["path"] != "model/requirements.yml" {
 		t.Fatalf("diagnose must report the document path, got %v", valid["path"])
 	}
+}
 
-	broken := strings.Replace(string(original), "- id: REQ-PAY-002\n", "- id: REQ-PAY-002\n  sourceRefs: [REQ-DOES-NOT-EXIST]\n", 1)
-	if broken == string(original) {
+// assertDiagnoseUnknownSourceRef checks that an unknown sourceRef is reported
+// for the document at about its line.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseUnknownSourceRef(t *testing.T, s *Server, original string) {
+	t.Helper()
+	broken := strings.Replace(original, "- id: REQ-PAY-002\n", "- id: REQ-PAY-002\n  sourceRefs: [REQ-DOES-NOT-EXIST]\n", 1)
+	if broken == original {
 		t.Fatal("fixture edit did not apply")
 	}
 	bad := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "model/requirements.yml", "content": broken})
@@ -387,16 +455,33 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 		t.Fatalf("unknown sourceRef must be reported for the document: %+v", bad)
 	}
 	for _, item := range bad["diagnostics"].([]any) {
-		row := item.(map[string]any)
-		if row["code"] == "model.invalid_requirement_source_ref" {
-			wantLine := float64(strings.Count(broken[:strings.Index(broken, "- id: REQ-PAY-002")], "\n") + 1)
-			if line, _ := row["line"].(float64); line < wantLine || line > wantLine+1 {
-				t.Fatalf("diagnostic line %v, want about %v: %+v", row["line"], wantLine, row)
-			}
-		}
+		assertSourceRefLine(t, item.(map[string]any), broken)
 	}
+}
 
-	schema := strings.Replace(string(original), "- id: REQ-PAY-002\n", "- id: REQ-PAY-002\n  status: banana\n", 1)
+// assertSourceRefLine checks the line of an invalid sourceRef diagnostic.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertSourceRefLine(t *testing.T, row map[string]any, broken string) {
+	t.Helper()
+	if row["code"] != "model.invalid_requirement_source_ref" {
+		return
+	}
+	wantLine := float64(strings.Count(broken[:strings.Index(broken, "- id: REQ-PAY-002")], "\n") + 1)
+	if line, _ := row["line"].(float64); line < wantLine || line > wantLine+1 {
+		t.Fatalf("diagnostic line %v, want about %v: %+v", row["line"], wantLine, row)
+	}
+}
+
+// assertDiagnoseSchemaError checks that a schema violation carries its line
+// and no temp path.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseSchemaError(t *testing.T, s *Server, original string) {
+	t.Helper()
+	schema := strings.Replace(original, "- id: REQ-PAY-002\n", "- id: REQ-PAY-002\n  status: banana\n", 1)
 	schemaResult := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": schema})
 	schemaRows, _ := schemaResult["diagnostics"].([]any)
 	if len(schemaRows) == 0 || schemaResult["valid"] != false {
@@ -406,7 +491,15 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 	if row := schemaRows[0].(map[string]any); row["line"] != wantSchemaLine || strings.Contains(toString(row["message"]), os.TempDir()) {
 		t.Fatalf("schema error must carry line %v and no temp path: %+v", wantSchemaLine, row)
 	}
+}
 
+// assertDiagnoseDanglingRelationship checks that a dangling relationship is an
+// error attributed to behavior.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseDanglingRelationship(t *testing.T, s *Server, modelDir string) {
+	t.Helper()
 	behavior, err := os.ReadFile(filepath.Join(modelDir, "model", "behavior.yml"))
 	if err != nil {
 		t.Fatal(err)
@@ -416,7 +509,15 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 	if behaviorResult["errors"] == float64(0) {
 		t.Fatalf("dangling relationship must be an error attributed to behavior: %+v", behaviorResult)
 	}
+}
 
+// assertDiagnoseParseError checks that a syntax error is a parse error with
+// line 3 and a column.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseParseError(t *testing.T, s *Server) {
+	t.Helper()
 	syntax := "schemaVersion: 3\nrequirements:\n  - id: [unclosed\n"
 	parse := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": syntax})
 	parseErrors, _ := parse["parseErrors"].([]any)
@@ -427,18 +528,19 @@ func TestModelDiagnoseValidatesContentInMemory(t *testing.T) {
 	if first["line"] != float64(3) || first["column"] == nil {
 		t.Fatalf("parse error must carry line 3 and a column: %+v", first)
 	}
+}
 
+// assertDiagnoseRejectsDocuments checks that a document that is no manifest
+// document is a tool error.
+//
+// TRLC-LINKS: REQ-EMG-069
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MCP-TOOL-RESULT, CTRL-MCP-PATH-BOUNDARY
+func assertDiagnoseRejectsDocuments(t *testing.T, s *Server) {
+	t.Helper()
 	for _, document := range []string{"secrets", "../engmod.yml", "engmod.yml", "model/unknown.yml"} {
 		payload, isErr := s.callToolRaw(t, "model.diagnose", map[string]any{"document": document, "content": "x: 1\n"})
 		if !isErr {
 			t.Fatalf("document %q is not a manifest document and must be rejected: %+v", document, payload)
 		}
-	}
-
-	if after := snapshotDir(t, modelDir); fmt.Sprint(after) != fmt.Sprint(before) {
-		t.Fatalf("model.diagnose changed the model directory")
-	}
-	if left, _ := os.ReadDir(tmp); len(left) != 0 {
-		t.Fatalf("model.diagnose left temp files: %v", left)
 	}
 }
