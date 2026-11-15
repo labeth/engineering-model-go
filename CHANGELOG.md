@@ -6,6 +6,10 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Requirement structure of the engine's own model
+
+- The trigger "model updated event is received" of 61 check requirements is now "model check is requested" (catalog event `EVT-MODEL-CHECK-REQUESTED`, `FLOW-MODEL-CHECK`, `DO-MODEL-DIAGNOSTICS`); eight requirements are written as system properties (for example REQ-EMG-012) and thirteen rejections or failure cases as `If ... then` requirements with catalog conditions. Five workflows gain a flow (`FLOW-MODEL-CHECK`, `FLOW-MCP-TOOL-CALL`, `FLOW-WORKSPACE-SYNC`, `FLOW-SPEC-DELTA`, `FLOW-EXAMPLE-VALIDATION`) and the engws CLI an interface (`IF-CLI-ENGWS`). The 14 POA&M items of `behavior.requirement_unmodeled` are closed. Requirement text changed, so a link to a published contract item of this model needs review at the next bump.
+
 ### Entity index and model diff (ADR-EMG-079, REQ-EMG-189 to 191)
 
 - `BuildEntityIndex` lists every authored entity of a model (kind, documents, parent, fields) and the references between entities (field, mention, contains, relationship) in a deterministic order.
