@@ -36,10 +36,8 @@ func (c *checker) runArgs(path, module string, extra ...string) []string {
 //
 // TRLC-LINKS: REQ-EMG-143
 func (c *checker) runModule(m *ModuleResult, file quint.File, path string) error {
-	if len(file.Witnesses) > 0 {
-		if err := c.runWitnesses(m, file, path); err != nil {
-			return err
-		}
+	if err := c.runWitnesses(m, file, path); err != nil {
+		return err
 	}
 	for i := range file.Invariants {
 		if err := c.runInvariant(m, i, path); err != nil {
@@ -53,6 +51,9 @@ func (c *checker) runModule(m *ModuleResult, file quint.File, path string) error
 //
 // TRLC-LINKS: REQ-EMG-143
 func (c *checker) runWitnesses(m *ModuleResult, file quint.File, path string) error {
+	if len(file.Witnesses) == 0 {
+		return nil
+	}
 	args := append(c.runArgs(path, m.Module), "--witnesses")
 	args = append(args, file.Witnesses...)
 	out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: c.env})

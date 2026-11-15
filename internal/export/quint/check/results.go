@@ -197,19 +197,31 @@ func extraModules(dir string, produced map[string]bool) ([]Drift, error) {
 	}
 	var extra []Drift
 	for _, entry := range entries {
-		name := entry.Name()
-		if !entry.Type().IsRegular() || filepath.Ext(name) != ".qnt" || produced[name] {
-			continue
-		}
-		data, err := os.ReadFile(filepath.Join(dir, name))
+		isExtra, err := isExtraModule(dir, entry, produced)
 		if err != nil {
 			return nil, err
 		}
-		if IsGeneratedModule(data) {
-			extra = append(extra, Drift{File: name, Kind: "extra"})
+		if isExtra {
+			extra = append(extra, Drift{File: entry.Name(), Kind: "extra"})
 		}
 	}
 	return extra, nil
+}
+
+// isExtraModule reports whether a directory entry is a regular .qnt file that
+// no machine produces and that carries the generated header.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
+func isExtraModule(dir string, entry fs.DirEntry, produced map[string]bool) (bool, error) {
+	name := entry.Name()
+	if !entry.Type().IsRegular() || filepath.Ext(name) != ".qnt" || produced[name] {
+		return false, nil
+	}
+	data, err := os.ReadFile(filepath.Join(dir, name))
+	if err != nil {
+		return false, err
+	}
+	return IsGeneratedModule(data), nil
 }
 
 // resultsFile is the layout of results.json.

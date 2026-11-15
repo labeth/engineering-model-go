@@ -117,9 +117,19 @@ func TestCheckCallTimeoutAndOutputLimitReachTheRunnerAndFailTheStep(t *testing.T
 			t.Errorf("limits not passed on: %+v", cmd)
 		}
 	}
+	checkLimitVerdicts(t, report)
+}
+
+// checkLimitVerdicts checks that a timed out and a truncated call are error
+// steps, never a pass, and give no evidence.
+func checkLimitVerdicts(t *testing.T, report CheckReport) {
+	t.Helper()
 	m := report.Modules[0]
 	first, second := invariant(t, m, "INV-PAYMENTS-001"), invariant(t, m, "INV-PAYMENTS-002")
-	if !report.Failed() || first.Status != StatusError || !strings.Contains(first.Run.Message, "time limit") {
+	if !report.Failed() || first.Status != StatusError {
+		t.Fatalf("timed out step %+v", first.Run)
+	}
+	if !strings.Contains(first.Run.Message, "time limit") {
 		t.Fatalf("timed out step %+v", first.Run)
 	}
 	if second.Status != StatusError || !strings.Contains(second.Run.Message, "capture limit") {
@@ -169,19 +179,41 @@ func TestCheckPassesOnlyAllowListedEnvironment(t *testing.T) {
 	home := provision(t, e)
 	fakeJava(t, e, java21)
 
-	var mu sync.Mutex
-	envs := map[string][]string{}
+	envs := &recordedEnvs{byCall: map[string][]string{}}
 	opts := e.opts()
 	opts.Mode, opts.QuintHome = ModeBoth, home
 	opts.PassEnv = append(opts.PassEnv, "CUSTOM_ASKED_FOR")
-	opts.Runner = func(_ context.Context, cmd Command) (Output, error) {
-		mu.Lock()
-		defer mu.Unlock()
+	opts.Runner = envs.runner()
+	mustCheck(t, opts)
+
+	for _, sub := range []string{"java", "--version", "typecheck", "run", "verify"} {
+		checkNoSecretsIn(t, sub, envs.byCall[sub])
+	}
+	for _, sub := range []string{"run", "typecheck"} {
+		env := strings.Join(envs.byCall[sub], "\n")
+		requireAll(t, env, "CUSTOM_ASKED_FOR=yes")
+		requireNone(t, env, "PROXY")
+	}
+	requireAll(t, strings.Join(envs.byCall["verify"], "\n"), "HTTPS_PROXY=http://proxy.example:3128", "NO_PROXY=localhost,127.0.0.1", "QUINT_HOME="+home)
+}
+
+// recordedEnvs records the environment of the last call of each kind.
+type recordedEnvs struct {
+	mu     sync.Mutex
+	byCall map[string][]string
+}
+
+// runner answers the calls of a check in both modes and records their
+// environments under java, --version, typecheck, run or verify.
+func (r *recordedEnvs) runner() Runner {
+	return func(_ context.Context, cmd Command) (Output, error) {
+		r.mu.Lock()
+		defer r.mu.Unlock()
 		sub := cmd.Args[0]
 		if strings.HasSuffix(cmd.Path, "java") {
 			sub = "java"
 		}
-		envs[sub] = cmd.Env
+		r.byCall[sub] = cmd.Env
 		switch sub {
 		case "java":
 			return Output{Stderr: java21}, nil
@@ -192,35 +224,18 @@ func TestCheckPassesOnlyAllowListedEnvironment(t *testing.T) {
 		}
 		return Output{}, nil
 	}
-	mustCheck(t, opts)
+}
 
-	for _, sub := range []string{"java", "--version", "typecheck", "run", "verify"} {
-		env := strings.Join(envs[sub], "\n")
-		if envs[sub] == nil {
-			t.Fatalf("no %s call recorded", sub)
-		}
-		for _, banned := range []string{"GITHUB_TOKEN", "AWS_SECRET", "NODE_OPTIONS", "JAVA_TOOL_OPTIONS", "ghp_secret"} {
-			if strings.Contains(env, banned) {
-				t.Errorf("%s call inherited %s:\n%s", sub, banned, env)
-			}
-		}
-		for _, want := range []string{"PATH=", "LANG=C.UTF-8"} {
-			if !strings.Contains(env, want) {
-				t.Errorf("%s call lacks %s", sub, want)
-			}
-		}
+// checkNoSecretsIn checks that a recorded call ran with the allow-listed
+// environment only.
+func checkNoSecretsIn(t *testing.T, sub string, environ []string) {
+	t.Helper()
+	if environ == nil {
+		t.Fatalf("no %s call recorded", sub)
 	}
-	for _, sub := range []string{"run", "typecheck"} {
-		if env := strings.Join(envs[sub], "\n"); !strings.Contains(env, "CUSTOM_ASKED_FOR=yes") || strings.Contains(env, "PROXY") {
-			t.Errorf("%s env should hold PassEnv names and no proxy:\n%s", sub, env)
-		}
-	}
-	verify := strings.Join(envs["verify"], "\n")
-	for _, want := range []string{"HTTPS_PROXY=http://proxy.example:3128", "NO_PROXY=localhost,127.0.0.1", "QUINT_HOME=" + home} {
-		if !strings.Contains(verify, want) {
-			t.Errorf("verify env lacks %s:\n%s", want, verify)
-		}
-	}
+	env := strings.Join(environ, "\n")
+	requireNone(t, env, "GITHUB_TOKEN", "AWS_SECRET", "NODE_OPTIONS", "JAVA_TOOL_OPTIONS", "ghp_secret")
+	requireAll(t, env, "PATH=", "LANG=C.UTF-8")
 }
 
 // TRLC-LINKS: REQ-EMG-143
@@ -242,24 +257,23 @@ func TestAllowEnvKeepsOnlyNamedVariables(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-144
 func TestVerifyEnvPathHandling(t *testing.T) {
 	sep := string(os.PathListSeparator)
-	got := strings.Join(buildVerifyEnv(true, []string{"Path=C:\\bin", "http_proxy=p", "No_Proxy=x"}, verifyDirs{quintHome: "H", tmpDir: "T", javaDir: "C:\\jdk"}), "|")
-	for _, want := range []string{"Path=C:\\jdk" + sep + "C:\\bin", "No_Proxy=x,localhost,127.0.0.1"} {
-		if !strings.Contains(got, want) {
-			t.Errorf("windows env lacks %q: %s", want, got)
-		}
-	}
-	if strings.Count(strings.ToUpper(got), "PATH=") != 1 || strings.Count(strings.ToUpper(got), "NO_PROXY=") != 1 {
-		t.Errorf("a name appears under two spellings: %s", got)
-	}
-	got = strings.Join(buildVerifyEnv(false, []string{"HOME=/h"}, verifyDirs{quintHome: "H", tmpDir: "T", javaDir: "/jdk/bin"}), "|")
+	checkWindowsVerifyEnv(t, sep)
+	got := strings.Join(buildVerifyEnv(false, []string{"HOME=/h"}, verifyDirs{quintHome: "H", tmpDir: "T", javaDir: "/jdk/bin"}), "|")
 	if !strings.Contains(got, "PATH=/jdk/bin|") && !strings.HasSuffix(got, "PATH=/jdk/bin") {
 		t.Errorf("unset PATH: %s", got)
 	}
-	if strings.Contains(got, "PATH=/jdk/bin"+sep) {
-		t.Errorf("empty PATH element: %s", got)
-	}
+	requireNone(t, got, "PATH=/jdk/bin"+sep)
 	if javaBinary("windows") != "java.exe" || javaBinary("linux") != "java" {
 		t.Error("java launcher name")
+	}
+}
+
+func checkWindowsVerifyEnv(t *testing.T, sep string) {
+	t.Helper()
+	got := strings.Join(buildVerifyEnv(true, []string{"Path=C:\\bin", "http_proxy=p", "No_Proxy=x"}, verifyDirs{quintHome: "H", tmpDir: "T", javaDir: "C:\\jdk"}), "|")
+	requireAll(t, got, "Path=C:\\jdk"+sep+"C:\\bin", "No_Proxy=x,localhost,127.0.0.1")
+	if strings.Count(strings.ToUpper(got), "PATH=") != 1 || strings.Count(strings.ToUpper(got), "NO_PROXY=") != 1 {
+		t.Errorf("a name appears under two spellings: %s", got)
 	}
 }
 
@@ -268,93 +282,131 @@ func TestVerifyEnvPathHandling(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
 func TestCheckClearsEvidenceWhenNothingCanBeTrusted(t *testing.T) {
-	passFirst := func(t *testing.T) env {
-		e := newEnv(t)
-		mustCheck(t, e.opts())
-		if evidenceOnDisk(t, e) != 3 {
-			t.Fatalf("setup: want 3 entries\n%s", evidenceOf(t, e))
-		}
-		return e
+	for _, tc := range clearEvidenceCases {
+		t.Run(tc.name, tc.run)
 	}
-	behavior := func(e env) string { return filepath.Join(filepath.Dir(e.manifest), "model", "behavior.yml") }
+}
 
-	t.Run("generation error", func(t *testing.T) {
-		e := passFirst(t)
-		writeFile(t, behavior(e), strings.Replace(readFile(t, behavior(e)), "guard: attempts < 3\n      effect", "guard: attempts <\n      effect", 1), 0o644)
-		report := mustCheck(t, e.opts())
-		if len(report.GenerationErrors) == 0 || evidenceOnDisk(t, e) != 0 || report.EvidencePath == "" {
-			t.Fatalf("report %+v\n%s", report, evidenceOf(t, e))
-		}
-		if !strings.Contains(evidenceOf(t, e), `"quintVersion": "0.33.1"`) {
-			t.Errorf("the tool version of the cleared file is kept:\n%s", evidenceOf(t, e))
-		}
-	})
-	t.Run("drift", func(t *testing.T) {
-		e := passFirst(t)
-		module := filepath.Join(e.outDir, "sm_payments_auth.qnt")
-		writeFile(t, module, readFile(t, module)+"// edit\n", 0o644)
-		mustCheck(t, e.opts())
-		if evidenceOnDisk(t, e) != 0 {
-			t.Fatalf("stale pass survived drift:\n%s", evidenceOf(t, e))
-		}
-	})
-	t.Run("drift with no module left to check", func(t *testing.T) {
-		e := passFirst(t)
-		writeFile(t, behavior(e), "schemaVersion: 3\nbehavior:\n  machines: []\n", 0o644)
-		report := mustCheck(t, e.opts())
-		if len(report.Drift) != 1 || report.Drift[0].Kind != "extra" || evidenceOnDisk(t, e) != 0 {
-			t.Fatalf("drift %+v\n%s", report.Drift, evidenceOf(t, e))
-		}
-	})
-	t.Run("model without machines", func(t *testing.T) {
-		e := passFirst(t)
-		writeFile(t, behavior(e), "schemaVersion: 3\nbehavior:\n  machines: []\n", 0o644)
-		if err := os.Remove(filepath.Join(e.outDir, "sm_payments_auth.qnt")); err != nil {
-			t.Fatal(err)
-		}
-		report := mustCheck(t, e.opts())
-		if !report.NoMachines || evidenceOnDisk(t, e) != 0 {
-			t.Fatalf("report %+v\n%s", report, evidenceOf(t, e))
-		}
-		// A second run has nothing left to clear.
-		if report = mustCheck(t, e.opts()); report.EvidencePath != "" {
-			t.Errorf("an already empty file was reported as rewritten")
-		}
-	})
-	t.Run("type error", func(t *testing.T) {
-		e := passFirst(t)
-		t.Setenv("FAKE_QUINT_TYPE_ERROR", "1")
-		mustCheck(t, e.opts())
-		if evidenceOnDisk(t, e) != 0 {
-			t.Fatalf("stale pass survived a type error:\n%s", evidenceOf(t, e))
-		}
-	})
-	t.Run("vacuous run", func(t *testing.T) {
-		e := passFirst(t)
-		t.Setenv("FAKE_QUINT_TRACE_MAX", "0")
-		mustCheck(t, e.opts())
-		if evidenceOnDisk(t, e) != 0 {
-			t.Fatalf("stale pass survived a vacuous run:\n%s", evidenceOf(t, e))
-		}
-	})
-	t.Run("no evidence file is created for a model that never had one", func(t *testing.T) {
-		e := newEnv(t)
-		writeFile(t, behavior(e), strings.Replace(readFile(t, behavior(e)), "guard: attempts < 3\n      effect", "guard: attempts <\n      effect", 1), 0o644)
-		mustCheck(t, e.opts())
-		if _, err := os.Stat(filepath.Join(filepath.Dir(e.manifest), "test-results", "quint-formal.json")); err == nil {
-			t.Error("evidence created for a model that does not generate")
-		}
-	})
-	t.Run("NoEvidence leaves the file alone", func(t *testing.T) {
-		e := passFirst(t)
-		writeFile(t, behavior(e), "schemaVersion: 3\nbehavior:\n  machines: []\n", 0o644)
-		opts := e.opts()
-		opts.NoEvidence = true
-		mustCheck(t, opts)
-		if evidenceOnDisk(t, e) != 3 {
-			t.Error("--no-evidence rewrote the evidence file")
-		}
-	})
+var clearEvidenceCases = []struct {
+	name string
+	run  func(t *testing.T)
+}{
+	{"generation error", evidenceClearedByGenerationError},
+	{"drift", evidenceClearedByDrift},
+	{"drift with no module left to check", evidenceClearedByDriftWithoutModules},
+	{"model without machines", evidenceClearedWithoutMachines},
+	{"type error", evidenceClearedByTypeError},
+	{"vacuous run", evidenceClearedByVacuousRun},
+	{"no evidence file is created for a model that never had one", evidenceNotCreatedWhenNeverThere},
+	{"NoEvidence leaves the file alone", evidenceKeptWithNoEvidence},
+}
+
+const noMachinesBehavior = "schemaVersion: 3\nbehavior:\n  machines: []\n"
+
+// passFirst runs a passing check, so the evidence file holds three entries.
+func passFirst(t *testing.T) env {
+	t.Helper()
+	e := newEnv(t)
+	mustCheck(t, e.opts())
+	if evidenceOnDisk(t, e) != 3 {
+		t.Fatalf("setup: want 3 entries\n%s", evidenceOf(t, e))
+	}
+	return e
+}
+
+func behaviorPath(e env) string {
+	return filepath.Join(filepath.Dir(e.manifest), "model", "behavior.yml")
+}
+
+// breakGuard gives a transition guard a syntax error, so the model no longer
+// generates.
+func breakGuard(t *testing.T, e env) {
+	t.Helper()
+	path := behaviorPath(e)
+	writeFile(t, path, strings.Replace(readFile(t, path), "guard: attempts < 3\n      effect", "guard: attempts <\n      effect", 1))
+}
+
+func evidenceClearedByGenerationError(t *testing.T) {
+	e := passFirst(t)
+	breakGuard(t, e)
+	report := mustCheck(t, e.opts())
+	if len(report.GenerationErrors) == 0 || evidenceOnDisk(t, e) != 0 || report.EvidencePath == "" {
+		t.Fatalf("report %+v\n%s", report, evidenceOf(t, e))
+	}
+	if !strings.Contains(evidenceOf(t, e), `"quintVersion": "0.33.1"`) {
+		t.Errorf("the tool version of the cleared file is kept:\n%s", evidenceOf(t, e))
+	}
+}
+
+func evidenceClearedByDrift(t *testing.T) {
+	e := passFirst(t)
+	module := filepath.Join(e.outDir, "sm_payments_auth.qnt")
+	writeFile(t, module, readFile(t, module)+"// edit\n")
+	mustCheck(t, e.opts())
+	if evidenceOnDisk(t, e) != 0 {
+		t.Fatalf("stale pass survived drift:\n%s", evidenceOf(t, e))
+	}
+}
+
+func evidenceClearedByDriftWithoutModules(t *testing.T) {
+	e := passFirst(t)
+	writeFile(t, behaviorPath(e), noMachinesBehavior)
+	report := mustCheck(t, e.opts())
+	if len(report.Drift) != 1 || report.Drift[0].Kind != "extra" || evidenceOnDisk(t, e) != 0 {
+		t.Fatalf("drift %+v\n%s", report.Drift, evidenceOf(t, e))
+	}
+}
+
+func evidenceClearedWithoutMachines(t *testing.T) {
+	e := passFirst(t)
+	writeFile(t, behaviorPath(e), noMachinesBehavior)
+	removeFile(t, filepath.Join(e.outDir, "sm_payments_auth.qnt"))
+	report := mustCheck(t, e.opts())
+	if !report.NoMachines || evidenceOnDisk(t, e) != 0 {
+		t.Fatalf("report %+v\n%s", report, evidenceOf(t, e))
+	}
+	// A second run has nothing left to clear.
+	if report = mustCheck(t, e.opts()); report.EvidencePath != "" {
+		t.Errorf("an already empty file was reported as rewritten")
+	}
+}
+
+func evidenceClearedByTypeError(t *testing.T) {
+	e := passFirst(t)
+	t.Setenv("FAKE_QUINT_TYPE_ERROR", "1")
+	mustCheck(t, e.opts())
+	if evidenceOnDisk(t, e) != 0 {
+		t.Fatalf("stale pass survived a type error:\n%s", evidenceOf(t, e))
+	}
+}
+
+func evidenceClearedByVacuousRun(t *testing.T) {
+	e := passFirst(t)
+	t.Setenv("FAKE_QUINT_TRACE_MAX", "0")
+	mustCheck(t, e.opts())
+	if evidenceOnDisk(t, e) != 0 {
+		t.Fatalf("stale pass survived a vacuous run:\n%s", evidenceOf(t, e))
+	}
+}
+
+func evidenceNotCreatedWhenNeverThere(t *testing.T) {
+	e := newEnv(t)
+	breakGuard(t, e)
+	mustCheck(t, e.opts())
+	if _, err := os.Stat(filepath.Join(filepath.Dir(e.manifest), "test-results", "quint-formal.json")); err == nil {
+		t.Error("evidence created for a model that does not generate")
+	}
+}
+
+func evidenceKeptWithNoEvidence(t *testing.T) {
+	e := passFirst(t)
+	writeFile(t, behaviorPath(e), noMachinesBehavior)
+	opts := e.opts()
+	opts.NoEvidence = true
+	mustCheck(t, opts)
+	if evidenceOnDisk(t, e) != 3 {
+		t.Error("--no-evidence rewrote the evidence file")
+	}
 }
 
 // A checkout that converted the module to CRLF is neither drift nor a
@@ -367,21 +419,26 @@ func TestCheckNormalisesCRLFBeforeDriftAndHash(t *testing.T) {
 	lf := mustCheck(t, e.opts())
 	module := filepath.Join(e.outDir, "sm_payments_auth.qnt")
 	text := readFile(t, module)
-	writeFile(t, module, strings.ReplaceAll(text, "\n", "\r\n"), 0o644)
+	writeFile(t, module, strings.ReplaceAll(text, "\n", "\r\n"))
 	crlf := mustCheck(t, e.opts())
 	if len(crlf.Drift) != 0 || crlf.Failed() {
 		t.Fatalf("CRLF read as drift: %+v", crlf.Drift)
 	}
-	if crlf.Modules[0].QntSha256 == "" || crlf.Modules[0].QntSha256 != lf.Modules[0].QntSha256 || crlf.Modules[0].QntSha256 != sha256Hex([]byte(text)) {
-		t.Errorf("hash %s differs from the LF hash %s", crlf.Modules[0].QntSha256, lf.Modules[0].QntSha256)
-	}
-	if got := string(normalizeEOL([]byte("a\r\nb\rc\n\r\n"))); got != "a\nb\rc\n\n" {
-		t.Errorf("normalizeEOL = %q: only CRLF changes", got)
+	hash := crlf.Modules[0].QntSha256
+	if hash == "" || hash != lf.Modules[0].QntSha256 || hash != sha256Hex([]byte(text)) {
+		t.Errorf("hash %s differs from the LF hash %s", hash, lf.Modules[0].QntSha256)
 	}
 	// A real edit is still drift.
-	writeFile(t, module, strings.ReplaceAll(text+"// edit\n", "\n", "\r\n"), 0o644)
+	writeFile(t, module, strings.ReplaceAll(text+"// edit\n", "\n", "\r\n"))
 	if edited := mustCheck(t, e.opts()); len(edited.Drift) != 1 {
 		t.Errorf("an edit hidden by CRLF: %+v", edited.Drift)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func TestNormalizeEOLChangesOnlyCRLF(t *testing.T) {
+	if got := string(normalizeEOL([]byte("a\r\nb\rc\n\r\n"))); got != "a\nb\rc\n\n" {
+		t.Errorf("normalizeEOL = %q: only CRLF changes", got)
 	}
 }
 
@@ -392,15 +449,8 @@ func TestCheckNormalisesCRLFBeforeDriftAndHash(t *testing.T) {
 func TestCounterexampleDistinguishesAnUnreadableTraceFromTheInitialState(t *testing.T) {
 	violation := Output{ExitCode: 1, Stdout: "[violation] Found an issue (8ms).\n"}
 	dir := t.TempDir()
-
 	missing := stepFromOutput(violation, filepath.Join(dir, "no-such.itf.json"))
-	if missing.Status != StatusViolated || !missing.TraceUnavailable || !strings.Contains(missing.Message, "readable trace") {
-		t.Fatalf("missing trace %+v", missing)
-	}
-	if got := FormatCounterexample(missing); !strings.Contains(got, "trace unavailable") || strings.Contains(got, "initial state") {
-		t.Errorf("format %q", got)
-	}
-
+	checkMissingTrace(t, missing)
 	for name, body := range map[string]string{
 		"garbage":            "not json",
 		"no states":          `{"states":[]}`,
@@ -408,14 +458,29 @@ func TestCounterexampleDistinguishesAnUnreadableTraceFromTheInitialState(t *test
 		"transition not str": `{"states":[{"a":1},{"lastTransition":5}]}`,
 	} {
 		path := filepath.Join(dir, strings.ReplaceAll(name, " ", "-")+".json")
-		writeFile(t, path, body, 0o644)
+		writeFile(t, path, body)
 		if step := stepFromOutput(violation, path); !step.TraceUnavailable {
 			t.Errorf("%s: %+v", name, step)
 		}
 	}
+	checkInitialOnlyTrace(t, violation, dir)
+	checkUnavailableFlagReachesOutputs(t, missing)
+}
 
+func checkMissingTrace(t *testing.T, missing StepResult) {
+	t.Helper()
+	if missing.Status != StatusViolated || !missing.TraceUnavailable || !strings.Contains(missing.Message, "readable trace") {
+		t.Fatalf("missing trace %+v", missing)
+	}
+	if got := FormatCounterexample(missing); !strings.Contains(got, "trace unavailable") || strings.Contains(got, "initial state") {
+		t.Errorf("format %q", got)
+	}
+}
+
+func checkInitialOnlyTrace(t *testing.T, violation Output, dir string) {
+	t.Helper()
 	path := filepath.Join(dir, "initial.json")
-	writeFile(t, path, `{"states":[{"lastTransition":"init"}]}`, 0o644)
+	writeFile(t, path, `{"states":[{"lastTransition":"init"}]}`)
 	initial := stepFromOutput(violation, path)
 	if initial.TraceUnavailable || len(initial.Counterexample) != 0 || initial.Message != "" {
 		t.Fatalf("initial-only trace %+v", initial)
@@ -423,16 +488,16 @@ func TestCounterexampleDistinguishesAnUnreadableTraceFromTheInitialState(t *test
 	if got := FormatCounterexample(initial); !strings.Contains(got, "initial state violates") {
 		t.Errorf("format %q", got)
 	}
+}
 
-	// The flag reaches results.json and the evidence note.
+// checkUnavailableFlagReachesOutputs checks that the flag reaches results.json
+// and the evidence note.
+func checkUnavailableFlagReachesOutputs(t *testing.T, missing StepResult) {
+	t.Helper()
 	data, _ := json.Marshal(missing)
-	if !strings.Contains(string(data), `"traceUnavailable":true`) {
-		t.Errorf("json %s", data)
-	}
+	requireAll(t, string(data), `"traceUnavailable":true`)
 	notes := evidenceNotes(ModuleResult{Machine: "SM-X"}, InvariantResult{ID: "INV-X", Status: StatusViolated, Run: &missing})
-	if !strings.Contains(notes, "trace unavailable") {
-		t.Errorf("notes %q", notes)
-	}
+	requireAll(t, notes, "trace unavailable")
 }
 
 // TRLC-LINKS: REQ-EMG-143
@@ -461,7 +526,7 @@ func TestErrorMessageTruncatesOnARuneBoundary(t *testing.T) {
 func TestWritesRefuseSymlinksAndReplaceAtomically(t *testing.T) {
 	dir := t.TempDir()
 	victim := filepath.Join(dir, "victim.txt")
-	writeFile(t, victim, "precious", 0o644)
+	writeFile(t, victim, "precious")
 	link := filepath.Join(dir, "link.json")
 	if err := os.Symlink(victim, link); err != nil {
 		t.Skipf("no symlinks here: %v", err)
@@ -472,31 +537,13 @@ func TestWritesRefuseSymlinksAndReplaceAtomically(t *testing.T) {
 	if readFile(t, victim) != "precious" {
 		t.Fatal("the write went through the symlink")
 	}
-	if err := os.Mkdir(filepath.Join(dir, "sub"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := WriteFileIfChanged(filepath.Join(dir, "sub"), []byte("x")); err == nil || !strings.Contains(err.Error(), "directory") {
-		t.Fatalf("directory target: %v", err)
-	}
+	checkDirectoryTargetRefused(t, dir)
+	checkAtomicReplace(t, filepath.Join(dir, "out.json"))
+	requireNoTempFiles(t, dir)
+}
 
-	target := filepath.Join(dir, "out.json")
-	if wrote, err := WriteFileIfChanged(target, []byte("one")); err != nil || !wrote {
-		t.Fatalf("create: %v %v", wrote, err)
-	}
-	if info, _ := os.Stat(target); info.Mode().Perm() != 0o644 {
-		t.Errorf("mode %v", info.Mode())
-	}
-	before, _ := os.Stat(target)
-	if wrote, err := WriteFileIfChanged(target, []byte("one")); err != nil || wrote {
-		t.Fatalf("an identical file is not rewritten: %v %v", wrote, err)
-	}
-	after, _ := os.Stat(target)
-	if !os.SameFile(before, after) {
-		t.Error("identical content replaced the file")
-	}
-	if wrote, err := WriteFileIfChanged(target, []byte("two")); err != nil || !wrote || readFile(t, target) != "two" {
-		t.Fatalf("update: %v %v", wrote, err)
-	}
+func requireNoTempFiles(t *testing.T, dir string) {
+	t.Helper()
 	entries, _ := os.ReadDir(dir)
 	for _, entry := range entries {
 		if strings.Contains(entry.Name(), ".tmp-") {
@@ -505,11 +552,48 @@ func TestWritesRefuseSymlinksAndReplaceAtomically(t *testing.T) {
 	}
 }
 
+func checkDirectoryTargetRefused(t *testing.T, dir string) {
+	t.Helper()
+	if err := os.Mkdir(filepath.Join(dir, "sub"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := WriteFileIfChanged(filepath.Join(dir, "sub"), []byte("x")); err == nil || !strings.Contains(err.Error(), "directory") {
+		t.Fatalf("directory target: %v", err)
+	}
+}
+
+// checkAtomicReplace checks create, rewrite-free no-op and update of a target.
+func checkAtomicReplace(t *testing.T, target string) {
+	t.Helper()
+	if wrote, err := WriteFileIfChanged(target, []byte("one")); err != nil || !wrote {
+		t.Fatalf("create: %v %v", wrote, err)
+	}
+	if info, _ := os.Stat(target); info.Mode().Perm() != 0o644 {
+		t.Errorf("mode %v", info.Mode())
+	}
+	checkIdenticalWriteIsANoOp(t, target)
+	if wrote, err := WriteFileIfChanged(target, []byte("two")); err != nil || !wrote || readFile(t, target) != "two" {
+		t.Fatalf("update: %v %v", wrote, err)
+	}
+}
+
+func checkIdenticalWriteIsANoOp(t *testing.T, target string) {
+	t.Helper()
+	before, _ := os.Stat(target)
+	if wrote, err := WriteFileIfChanged(target, []byte("one")); err != nil || wrote {
+		t.Fatalf("an identical file is not rewritten: %v %v", wrote, err)
+	}
+	after, _ := os.Stat(target)
+	if !os.SameFile(before, after) {
+		t.Error("identical content replaced the file")
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
 func TestCheckRefusesToWriteResultsThroughASymlinkAndToReadALinkedModule(t *testing.T) {
 	e := newEnv(t)
 	victim := filepath.Join(e.dir, "victim.txt")
-	writeFile(t, victim, "precious", 0o644)
+	writeFile(t, victim, "precious")
 	results := filepath.Join(e.outDir, "results.json")
 	if err := os.Symlink(victim, results); err != nil {
 		t.Skipf("no symlinks here: %v", err)
@@ -523,7 +607,11 @@ func TestCheckRefusesToWriteResultsThroughASymlinkAndToReadALinkedModule(t *test
 	}
 	os.Remove(results)
 	os.Remove(e.log)
+	checkLinkedModuleRefused(t, e)
+}
 
+func checkLinkedModuleRefused(t *testing.T, e env) {
+	t.Helper()
 	module := filepath.Join(e.outDir, "sm_payments_auth.qnt")
 	real := filepath.Join(e.dir, "real.qnt")
 	if err := os.Rename(module, real); err != nil {

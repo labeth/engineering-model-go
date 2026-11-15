@@ -34,9 +34,7 @@ func processAlive(pid int) bool {
 //
 // TRLC-LINKS: REQ-EMG-143
 func TestExecRunnerTimeoutKillsTheWholeProcessGroup(t *testing.T) {
-	old := waitDelay
-	waitDelay = 4 * time.Second
-	t.Cleanup(func() { waitDelay = old })
+	shortenWaitDelay(t, 4*time.Second)
 	pidFile := filepath.Join(t.TempDir(), "child.pid")
 	start := time.Now()
 	out, err := ExecRunner(context.Background(), Command{
@@ -49,22 +47,53 @@ func TestExecRunnerTimeoutKillsTheWholeProcessGroup(t *testing.T) {
 	if elapsed := time.Since(start); elapsed > 3*time.Second {
 		t.Fatalf("Run blocked for %s: the child kept the pipes open", elapsed)
 	}
-	if !out.TimedOut || out.ExitCode != -1 || !strings.Contains(out.Stderr, "killed:") {
-		t.Fatalf("output %+v", out)
-	}
-	data, readErr := os.ReadFile(pidFile)
+	requireKilledByTimeout(t, out)
+	pid, readErr := readPid(pidFile)
 	if readErr != nil {
 		t.Fatal(readErr)
 	}
+	if waitForExit(pid) {
+		t.Fatalf("child %d outlived the timeout", pid)
+	}
+}
+
+func requireKilledByTimeout(t *testing.T, out Output) {
+	t.Helper()
+	if !out.TimedOut || out.ExitCode != -1 || !strings.Contains(out.Stderr, "killed:") {
+		t.Fatalf("output %+v", out)
+	}
+}
+
+// shortenWaitDelay sets waitDelay for the test.
+func shortenWaitDelay(t *testing.T, d time.Duration) {
+	t.Helper()
+	old := waitDelay
+	waitDelay = d
+	t.Cleanup(func() { waitDelay = old })
+}
+
+// readPid reads the process ID a script wrote to a file.
+func readPid(path string) (int, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return 0, err
+	}
 	pid, _ := strconv.Atoi(strings.TrimSpace(string(data)))
+	return pid, nil
+}
+
+// waitForExit waits up to two seconds for the process to end; if it is still
+// running it is killed and true is returned.
+func waitForExit(pid int) bool {
 	deadline := time.Now().Add(2 * time.Second)
 	for processAlive(pid) && time.Now().Before(deadline) {
 		time.Sleep(20 * time.Millisecond)
 	}
-	if processAlive(pid) {
-		syscall.Kill(pid, syscall.SIGKILL)
-		t.Fatalf("child %d outlived the timeout", pid)
+	if !processAlive(pid) {
+		return false
 	}
+	syscall.Kill(pid, syscall.SIGKILL)
+	return true
 }
 
 // A tool that exits but leaves a child holding the pipes does not block Run
@@ -72,9 +101,7 @@ func TestExecRunnerTimeoutKillsTheWholeProcessGroup(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-143
 func TestExecRunnerDoesNotWaitForAChildThatKeepsThePipesOpen(t *testing.T) {
-	old := waitDelay
-	waitDelay = 300 * time.Millisecond
-	t.Cleanup(func() { waitDelay = old })
+	shortenWaitDelay(t, 300*time.Millisecond)
 	pidFile := filepath.Join(t.TempDir(), "child.pid")
 	start := time.Now()
 	out, err := ExecRunner(context.Background(), Command{
@@ -86,14 +113,8 @@ func TestExecRunnerDoesNotWaitForAChildThatKeepsThePipesOpen(t *testing.T) {
 	if elapsed := time.Since(start); elapsed > 3*time.Second {
 		t.Fatalf("Run blocked for %s", elapsed)
 	}
-	data, _ := os.ReadFile(pidFile)
-	pid, _ := strconv.Atoi(strings.TrimSpace(string(data)))
-	deadline := time.Now().Add(2 * time.Second)
-	for pid > 0 && processAlive(pid) && time.Now().Before(deadline) {
-		time.Sleep(20 * time.Millisecond)
-	}
-	if pid > 0 && processAlive(pid) {
-		syscall.Kill(pid, syscall.SIGKILL)
+	pid, _ := readPid(pidFile)
+	if pid > 0 && waitForExit(pid) {
 		t.Fatalf("orphan %d is still running", pid)
 	}
 }
@@ -110,8 +131,11 @@ func TestExecRunnerCapsCapturedOutput(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(out.Stdout) != 1000 || !out.Truncated || out.ExitCode != 3 || out.TimedOut || out.Stderr != "failed\n" {
-		t.Fatalf("stdout %d bytes, truncated %v, exit %d, stderr %q", len(out.Stdout), out.Truncated, out.ExitCode, out.Stderr)
+	if len(out.Stdout) != 1000 || !out.Truncated {
+		t.Fatalf("stdout %d bytes, truncated %v", len(out.Stdout), out.Truncated)
+	}
+	if out.ExitCode != 3 || out.TimedOut || out.Stderr != "failed\n" {
+		t.Fatalf("exit %d, timed out %v, stderr %q", out.ExitCode, out.TimedOut, out.Stderr)
 	}
 }
 

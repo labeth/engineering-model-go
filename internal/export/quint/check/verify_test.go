@@ -13,7 +13,7 @@ import (
 func provision(t *testing.T, e env) string {
 	t.Helper()
 	home := filepath.Join(e.dir, "quint-home")
-	writeFile(t, apalacheMC(home), "#!/bin/sh\n", 0o755)
+	writeExecutable(t, apalacheMC(home), "#!/bin/sh\n")
 	return home
 }
 
@@ -22,7 +22,7 @@ func provision(t *testing.T, e env) string {
 func fakeJava(t *testing.T, e env, versionOutput string) {
 	t.Helper()
 	dir := filepath.Join(e.dir, "javabin")
-	writeFile(t, filepath.Join(dir, "java"), "#!/bin/sh\ncat >&2 <<'EOF'\n"+versionOutput+"\nEOF\n", 0o755)
+	writeExecutable(t, filepath.Join(dir, "java"), "#!/bin/sh\ncat >&2 <<'EOF'\n"+versionOutput+"\nEOF\n")
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
 }
 
@@ -46,35 +46,30 @@ func TestVerifyModePassesThePinnedApalacheAndNoNetworkSettings(t *testing.T) {
 	if len(e.calls(t, "run")) != 0 {
 		t.Error("run mode commands ran in verify mode")
 	}
-	verifies := e.calls(t, "verify")
+	checkVerifyCalls(t, e.calls(t, "verify"), home)
+	inv := invariant(t, report.Modules[0], "INV-PAYMENTS-001")
+	if inv.Verify == nil || inv.Verify.Status != StatusPass || inv.Run != nil {
+		t.Fatalf("invariant %+v", inv)
+	}
+	requireAll(t, evidenceOf(t, e), `"mode": "verify"`, "quint verify, apalache 0.62.4")
+}
+
+// checkVerifyCalls checks one verify call per invariant, each with the pinned
+// settings, its own port and no --apalache-version.
+func checkVerifyCalls(t *testing.T, verifies []string, home string) {
+	t.Helper()
 	if len(verifies) != 2 {
 		t.Fatalf("want one verify per invariant, got %v", verifies)
 	}
 	ports := map[string]bool{}
 	for i, v := range verifies {
-		for _, want := range []string{"main=sm_payments_auth", "steps=10", "QUINT_HOME=" + home, "NO_PROXY=localhost,127.0.0.1", "no_proxy=corp.example,localhost,127.0.0.1", "config="} {
-			if !strings.Contains(v, want) {
-				t.Errorf("verify %d lacks %q: %s", i, want, v)
-			}
-		}
-		if strings.Contains(v, "apalache-version") {
-			t.Errorf("--apalache-version passed: %s", v)
-		}
+		requireAll(t, v, "main=sm_payments_auth", "steps=10", "QUINT_HOME="+home, "NO_PROXY=localhost,127.0.0.1", "no_proxy=corp.example,localhost,127.0.0.1", "config=", "inv=inv_payments_00"+string(rune('1'+i)))
+		requireNone(t, v, "apalache-version")
 		endpoint := v[strings.Index(v, "endpoint="):strings.Index(v, " config=")]
 		if ports[endpoint] {
 			t.Errorf("port reused: %s", endpoint)
 		}
 		ports[endpoint] = true
-		if !strings.Contains(v, "inv=inv_payments_00"+string(rune('1'+i))) {
-			t.Errorf("verify %d invariant: %s", i, v)
-		}
-	}
-	inv := invariant(t, report.Modules[0], "INV-PAYMENTS-001")
-	if inv.Verify == nil || inv.Verify.Status != StatusPass || inv.Run != nil {
-		t.Fatalf("invariant %+v", inv)
-	}
-	if got := evidenceOf(t, e); !strings.Contains(got, `"mode": "verify"`) || !strings.Contains(got, "quint verify, apalache 0.62.4") {
-		t.Errorf("evidence:\n%s", got)
 	}
 }
 
@@ -89,14 +84,31 @@ func TestVerifyModeMapsCounterexampleToTransitionIDs(t *testing.T) {
 	opts.Mode, opts.QuintHome = ModeBoth, home
 	report := mustCheck(t, opts)
 	inv := invariant(t, report.Modules[0], "INV-PAYMENTS-002")
-	if !report.Failed() || inv.Verify.Status != StatusViolated || strings.Join(inv.Verify.Counterexample, ">") != "TR-PAYMENTS-001>TR-PAYMENTS-002" {
+	if !report.Failed() || inv.Verify.Status != StatusViolated {
 		t.Fatalf("invariant %+v verify %+v", inv, inv.Verify)
+	}
+	if got := strings.Join(inv.Verify.Counterexample, ">"); got != "TR-PAYMENTS-001>TR-PAYMENTS-002" {
+		t.Fatalf("counterexample %q", got)
 	}
 	if inv.Run.Status != StatusViolated || inv.Status != StatusViolated {
 		t.Errorf("run %+v status %s", inv.Run, inv.Status)
 	}
 	if got := report.Modules[0].Modes; strings.Join(got, ",") != "run,verify" {
 		t.Errorf("modes %v", got)
+	}
+}
+
+// requireSetupError checks that err is a setup error that mentions every given
+// fragment.
+func requireSetupError(t *testing.T, err error, mentions ...string) {
+	t.Helper()
+	if !IsSetupError(err) {
+		t.Fatalf("not a setup error: %v", err)
+	}
+	for _, m := range mentions {
+		if !strings.Contains(err.Error(), m) {
+			t.Fatalf("%v lacks %q", err, m)
+		}
 	}
 }
 
@@ -111,14 +123,11 @@ func TestVerifyModeMissingApalacheIsASetupErrorAndNothingRuns(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, err := Check(opts)
-	if !IsSetupError(err) || !strings.Contains(err.Error(), "scripts/install-quint-toolchain.sh") || !strings.Contains(err.Error(), "0.62.4") {
-		t.Fatalf("missing dist: %v", err)
-	}
+	requireSetupError(t, err, "scripts/install-quint-toolchain.sh", "0.62.4")
 	opts.QuintHome = ""
 	t.Setenv("QUINT_HOME", "")
-	if _, err := Check(opts); !IsSetupError(err) || !strings.Contains(err.Error(), "QUINT_HOME") {
-		t.Fatalf("no QUINT_HOME: %v", err)
-	}
+	_, err = Check(opts)
+	requireSetupError(t, err, "QUINT_HOME")
 	if got := e.calls(t, "verify"); len(got) != 0 {
 		t.Errorf("quint verify ran without a provisioned Apalache (it would download): %v", got)
 	}
@@ -136,20 +145,16 @@ func TestVerifyModeJavaTooOldOrMissingIsASetupError(t *testing.T) {
 
 	fakeJava(t, e, `openjdk version "17.0.9" 2023-10-17`)
 	_, err := Check(opts)
-	if !IsSetupError(err) || !strings.Contains(err.Error(), "java 21 or later") || !strings.Contains(err.Error(), "found java 17") {
-		t.Fatalf("java 17: %v", err)
-	}
+	requireSetupError(t, err, "java 21 or later", "found java 17")
 
 	fakeJava(t, e, `java version "1.8.0_402"`)
-	if _, err := Check(opts); !IsSetupError(err) || !strings.Contains(err.Error(), "found java 8") {
-		t.Fatalf("java 8: %v", err)
-	}
+	_, err = Check(opts)
+	requireSetupError(t, err, "found java 8")
 
 	t.Setenv("PATH", t.TempDir())
 	t.Setenv("JAVA_HOME", "")
-	if _, err := Check(opts); !IsSetupError(err) || !strings.Contains(err.Error(), "java 21 or later") {
-		t.Fatalf("no java: %v", err)
-	}
+	_, err = Check(opts)
+	requireSetupError(t, err, "java 21 or later")
 	if len(e.calls(t, "run"))+len(e.calls(t, "verify"))+len(e.calls(t, "typecheck")) != 0 {
 		t.Error("quint ran although java is unusable")
 	}
@@ -188,11 +193,7 @@ func TestJavaMajorParsesModernAndLegacyVersions(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-144
 func TestVerifyEnvAppendsNoProxyAndSetsScratchDirectories(t *testing.T) {
 	base := []string{"PATH=/usr/bin", "HTTP_PROXY=http://p", "NO_PROXY=a.example", "TMPDIR=/tmp"}
-	got := map[string]string{}
-	for _, kv := range verifyEnv(base, verifyDirs{quintHome: "/q/home", tmpDir: "/scratch", javaDir: "/jdk/bin"}) {
-		k, v, _ := strings.Cut(kv, "=")
-		got[k] = v
-	}
+	got := envMap(verifyEnv(base, verifyDirs{quintHome: "/q/home", tmpDir: "/scratch", javaDir: "/jdk/bin"}))
 	for k, want := range map[string]string{
 		"QUINT_HOME": "/q/home", "TMPDIR": "/scratch", "PATH": "/jdk/bin:/usr/bin",
 		"NO_PROXY": "a.example,localhost,127.0.0.1", "no_proxy": "localhost,127.0.0.1",
@@ -202,9 +203,21 @@ func TestVerifyEnvAppendsNoProxyAndSetsScratchDirectories(t *testing.T) {
 		}
 	}
 	// Without a proxy the environment is left alone.
-	for _, kv := range verifyEnv([]string{"PATH=/usr/bin"}, verifyDirs{quintHome: "/h", tmpDir: "/s"}) {
-		if strings.HasPrefix(kv, "NO_PROXY=") || strings.HasPrefix(kv, "no_proxy=") {
-			t.Errorf("NO_PROXY set without a proxy: %s", kv)
-		}
+	plain := envMap(verifyEnv([]string{"PATH=/usr/bin"}, verifyDirs{quintHome: "/h", tmpDir: "/s"}))
+	if _, set := plain["NO_PROXY"]; set {
+		t.Error("NO_PROXY set without a proxy")
 	}
+	if _, set := plain["no_proxy"]; set {
+		t.Error("no_proxy set without a proxy")
+	}
+}
+
+// envMap turns a NAME=value list into a map.
+func envMap(list []string) map[string]string {
+	m := map[string]string{}
+	for _, kv := range list {
+		k, v, _ := strings.Cut(kv, "=")
+		m[k] = v
+	}
+	return m
 }

@@ -259,7 +259,7 @@ func javaMajor(output string) (int, error) {
 	if m == nil {
 		return 0, fmt.Errorf("no java version in %q", firstLine(output))
 	}
-	parts := strings.FieldsFunc(m[1], func(r rune) bool { return r == '.' || r == '_' || r == '-' || r == '+' })
+	parts := strings.FieldsFunc(m[1], func(r rune) bool { return strings.ContainsRune("._-+", r) })
 	major, ok := majorOf(parts)
 	if !ok {
 		return 0, fmt.Errorf("unparsable java version %q", m[1])
@@ -404,18 +404,27 @@ func (e *envSet) list() []string {
 // TRLC-LINKS: REQ-EMG-144
 func filterEnv(fold bool, environ []string, allow ...[]string) *envSet {
 	env := newEnvSet(fold)
-	allowed := map[string]bool{}
-	for _, names := range allow {
-		for _, name := range names {
-			allowed[env.key(name)] = true
-		}
-	}
+	allowed := allowedKeys(env, allow)
 	for _, kv := range environ {
 		if k, v, ok := splitEnv(kv); ok && allowed[env.key(k)] {
 			env.set(k, v)
 		}
 	}
 	return env
+}
+
+// allowedKeys is the set of the keys, as env matches them, of every name in
+// the allow-lists.
+//
+// TRLC-LINKS: REQ-EMG-144
+func allowedKeys(env *envSet, allow [][]string) map[string]bool {
+	allowed := map[string]bool{}
+	for _, names := range allow {
+		for _, name := range names {
+			allowed[env.key(name)] = true
+		}
+	}
+	return allowed
 }
 
 // splitEnv splits a "NAME=value" entry; ok is false for an entry without a
@@ -474,12 +483,21 @@ func buildVerifyEnv(fold bool, base []string, dirs verifyDirs) []string {
 	if dirs.javaDir != "" {
 		env.set("PATH", prependPath(dirs.javaDir, env.get("PATH")))
 	}
-	if proxyConfigured(env) {
-		for _, k := range []string{"NO_PROXY", "no_proxy"} {
-			env.set(k, appendNoProxy(env.get(k)))
-		}
-	}
+	keepLocalhostDirect(env)
 	return env.list()
+}
+
+// keepLocalhostDirect adds localhost to NO_PROXY and no_proxy when a proxy is
+// configured.
+//
+// TRLC-LINKS: REQ-EMG-144
+func keepLocalhostDirect(env *envSet) {
+	if !proxyConfigured(env) {
+		return
+	}
+	for _, k := range []string{"NO_PROXY", "no_proxy"} {
+		env.set(k, appendNoProxy(env.get(k)))
+	}
 }
 
 // prependPath puts dir before an existing PATH value, without an empty element.
@@ -509,13 +527,10 @@ func proxyConfigured(env *envSet) bool {
 //
 // TRLC-LINKS: REQ-EMG-144
 func appendNoProxy(current string) string {
+	items := splitList(current)
 	have := map[string]bool{}
-	var items []string
-	for _, item := range strings.Split(current, ",") {
-		if item = strings.TrimSpace(item); item != "" {
-			have[item] = true
-			items = append(items, item)
-		}
+	for _, item := range items {
+		have[item] = true
 	}
 	for _, item := range []string{"localhost", "127.0.0.1"} {
 		if !have[item] {
@@ -523,6 +538,19 @@ func appendNoProxy(current string) string {
 		}
 	}
 	return strings.Join(items, ",")
+}
+
+// splitList splits a comma separated list into its trimmed, non-empty items.
+//
+// TRLC-LINKS: REQ-EMG-144
+func splitList(list string) []string {
+	var items []string
+	for _, item := range strings.Split(list, ",") {
+		if item = strings.TrimSpace(item); item != "" {
+			items = append(items, item)
+		}
+	}
+	return items
 }
 
 // firstLine returns the first non-empty line of s.

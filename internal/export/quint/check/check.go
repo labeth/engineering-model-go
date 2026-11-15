@@ -500,6 +500,13 @@ func defaultRuntime(opts *CheckOptions) error {
 	if opts.Context == nil {
 		opts.Context = context.Background()
 	}
+	return defaultLimits(opts)
+}
+
+// defaultLimits fills the time and output limits and rejects a negative one.
+//
+// TRLC-LINKS: REQ-EMG-142
+func defaultLimits(opts *CheckOptions) error {
 	if opts.Timeout < 0 || opts.CallTimeout < 0 || opts.MaxOutput < 0 {
 		return setupError(nil, "timeouts and the output limit must not be negative")
 	}
