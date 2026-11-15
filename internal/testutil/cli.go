@@ -58,8 +58,7 @@ func RunMain(t *testing.T, main func(), args ...string) (code int, stdout, stder
 func NoLifecycleModel(t testing.TB) string {
 	t.Helper()
 	dir := t.TempDir()
-	WriteV2ModuleFiles(t, dir, "example.com/nolifecycle@v0", "v0.1.0", "NOLIFECYCLE", "",
-		"  functionalGroups:\n    - id: FG-A\n      name: A\n")
+	WriteV2ModuleFiles(t, dir, V2Module{Path: "example.com/nolifecycle@v0", Version: "v0.1.0", ModelID: "NOLIFECYCLE", ManifestExtra: "", Architecture: "  functionalGroups:\n    - id: FG-A\n      name: A\n"})
 	manifest := filepath.Join(dir, "engmod.yml")
 	WithoutSwitches(t, manifest)
 	return manifest

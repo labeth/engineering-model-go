@@ -22,7 +22,7 @@ func TestValidationGate(t *testing.T) {
 	testutil.AssertRefusesWithFix(t, 1, out.String())
 
 	dir := t.TempDir()
-	testutil.WriteV2ModuleFiles(t, dir, "example.com/complete@v0", "v0.1.0", "COMPLETE", "", "  functionalGroups:\n    - id: FG-A\n      name: A\n")
+	testutil.WriteV2ModuleFiles(t, dir, testutil.V2Module{Path: "example.com/complete@v0", Version: "v0.1.0", ModelID: "COMPLETE", ManifestExtra: "", Architecture: "  functionalGroups:\n    - id: FG-A\n      name: A\n"})
 	out.Reset()
 	if _, ok, err := ValidationGate(filepath.Join(dir, "engmod.yml"), &out); err != nil || !ok {
 		t.Fatalf("complete model: ok=%v err=%v\n%s", ok, err, out.String())

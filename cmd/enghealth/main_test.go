@@ -19,14 +19,14 @@ import (
 func project(t *testing.T, extra string) string {
 	t.Helper()
 	dir := t.TempDir()
-	testutil.WriteV2ModuleFiles(t, dir, "example.com/hc@v0", "v0.1.0", "hc", extra, `  functionalGroups:
+	testutil.WriteV2ModuleFiles(t, dir, testutil.V2Module{Path: "example.com/hc@v0", Version: "v0.1.0", ModelID: "hc", ManifestExtra: extra, Architecture: `  functionalGroups:
     - id: FG-A
       name: Group
   functionalUnits:
     - id: FU-A
       name: Unit A
       group: FG-A
-`)
+`})
 	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun: {}\nrequirements:\n  - id: REQ-X\n    text: The unit shall decide.\n")
 	// Decisions that the waivers, the baseline and the policy decision of the
 	// tests refer to: a waiver (ADR-EMG-051, ADR-EMG-052), a baseline or a policy

@@ -169,7 +169,7 @@ func TestRegistryDependencyPathsAreConfinedToTheModule(t *testing.T) {
 	publishEscapingModule(t, root)
 
 	workspace := filepath.Join(root, "workspace")
-	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, workspace, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 	res, err := composition.GenerateCompositionFromFile(filepath.Join(workspace, "engmod.yml"))
 	if err != nil {
 		t.Fatal(err)
@@ -193,7 +193,7 @@ func publishEscapingModule(t *testing.T, root string) {
 	testutil.WriteFile(t, filepath.Join(root, "secret.yml"), "schemaVersion: 3\ncatalog:\n  "+confinementSecret+": leaked\n")
 	registryRoot := filepath.Join(root, "registry")
 	moduleDir := filepath.Join(registryRoot, "models.atlas.example_shared-edge_v0.1.0")
-	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	testutil.WriteOCIModuleFixture(t, moduleDir, testutil.OCIModule{Path: "models.atlas.example/shared-edge@v0", ModelID: "SHARED-EDGE", CapabilityID: "CAP-SHARED-EDGE", RequirementID: "REQ-SHARED-001"})
 	manifest := filepath.Join(moduleDir, "engmod.yml")
 	data, err := os.ReadFile(manifest)
 	if err != nil {
