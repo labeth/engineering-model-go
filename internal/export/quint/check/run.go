@@ -37,34 +37,65 @@ func (c *checker) runArgs(path, module string, extra ...string) []string {
 // TRLC-LINKS: REQ-EMG-143
 func (c *checker) runModule(m *ModuleResult, file quint.File, path string) error {
 	if len(file.Witnesses) > 0 {
-		args := append(c.runArgs(path, m.Module), "--witnesses")
-		args = append(args, file.Witnesses...)
-		out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: c.env})
-		if err != nil {
+		if err := c.runWitnesses(m, file, path); err != nil {
 			return err
 		}
-		c.recordWitnesses(m, file, out)
 	}
-	for i, inv := range file.Invariants {
-		itf := filepath.Join(c.scratch, fmt.Sprintf("%s.%s.run.itf.json", m.Module, inv.Name))
-		args := c.runArgs(path, m.Module, "--invariant="+inv.Name, "--out-itf="+itf)
-		out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: c.env})
-		if err != nil {
+	for i := range file.Invariants {
+		if err := c.runInvariant(m, i, path); err != nil {
 			return err
 		}
-		step := stepFromOutput(out, itf)
-		if step.Status == StatusPass && step.TraceMax != nil {
-			switch *step.TraceMax {
-			case 0:
-				step.Status = StatusError
-				step.Message = "vacuous: the longest trace has length 0, the initial state is unsatisfiable or deadlocked, so nothing was checked"
-			case 1:
-				m.addWarning(deadlockWarning)
-			}
-		}
-		m.Invariants[i].Run = &step
 	}
 	return nil
+}
+
+// runWitnesses runs quint run once for all reachability witnesses of a module.
+//
+// TRLC-LINKS: REQ-EMG-143
+func (c *checker) runWitnesses(m *ModuleResult, file quint.File, path string) error {
+	args := append(c.runArgs(path, m.Module), "--witnesses")
+	args = append(args, file.Witnesses...)
+	out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: c.env})
+	if err != nil {
+		return err
+	}
+	c.recordWitnesses(m, file, out)
+	return nil
+}
+
+// runInvariant runs quint run on invariant i of the module and records its
+// step result.
+//
+// TRLC-LINKS: REQ-EMG-143
+func (c *checker) runInvariant(m *ModuleResult, i int, path string) error {
+	name := m.Invariants[i].Name
+	itf := filepath.Join(c.scratch, fmt.Sprintf("%s.%s.run.itf.json", m.Module, name))
+	args := c.runArgs(path, m.Module, "--invariant="+name, "--out-itf="+itf)
+	out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: c.env})
+	if err != nil {
+		return err
+	}
+	step := stepFromOutput(out, itf)
+	judgeTraceLength(m, &step)
+	m.Invariants[i].Run = &step
+	return nil
+}
+
+// judgeTraceLength turns a passing run whose longest trace has length 0 into
+// an error (nothing was checked) and warns when it has length 1.
+//
+// TRLC-LINKS: REQ-EMG-143
+func judgeTraceLength(m *ModuleResult, step *StepResult) {
+	if step.Status != StatusPass || step.TraceMax == nil {
+		return
+	}
+	switch *step.TraceMax {
+	case 0:
+		step.Status = StatusError
+		step.Message = "vacuous: the longest trace has length 0, the initial state is unsatisfiable or deadlocked, so nothing was checked"
+	case 1:
+		m.addWarning(deadlockWarning)
+	}
 }
 
 const deadlockWarning = "deadlock: no transition is enabled in the initial state, so every trace has length 1 and only the initial state was checked"
@@ -85,31 +116,54 @@ func (c *checker) recordWitnesses(m *ModuleResult, file quint.File, out Output) 
 		return
 	}
 	if p.TraceMax != nil {
-		switch *p.TraceMax {
-		case 0:
-			m.Errors = append(m.Errors, "vacuous: the longest trace has length 0, the initial state is unsatisfiable or deadlocked")
-		case 1:
-			m.addWarning(deadlockWarning)
-		}
+		recordWitnessTraceLength(m, *p.TraceMax)
 	}
-	counts := parseWitnesses(out)
+	r := witnessRecorder{m: m, file: file, counts: parseWitnesses(out)}
 	for i, name := range file.Witnesses {
-		state := ""
-		if i < len(file.States) {
-			state = file.States[i]
-		}
-		count, ok := counts[name]
-		if !ok {
-			m.addWarning(fmt.Sprintf("no witness result for state %s (%s)", state, name))
-			continue
-		}
-		m.Witnesses = append(m.Witnesses, WitnessResult{Name: name, State: state, Witnessed: count.Witnessed, Total: count.Total})
-		// The initial state holds by construction; Quint's witness count does
-		// not include the state a trace starts in, so a machine that never
-		// re-enters its initial state would be reported as unreachable.
-		if count.Witnessed == 0 && state != file.Initial {
-			m.addWarning(fmt.Sprintf("unreachable state %s: %s was witnessed in 0 of %d traces", state, name, count.Total))
-		}
+		r.record(i, name)
+	}
+}
+
+// recordWitnessTraceLength records what the longest trace of the witnesses run
+// says: length 0 is an error, length 1 a warning.
+//
+// TRLC-LINKS: REQ-EMG-143
+func recordWitnessTraceLength(m *ModuleResult, longest int) {
+	switch longest {
+	case 0:
+		m.Errors = append(m.Errors, "vacuous: the longest trace has length 0, the initial state is unsatisfiable or deadlocked")
+	case 1:
+		m.addWarning(deadlockWarning)
+	}
+}
+
+// witnessRecorder records the witness counts of one module.
+type witnessRecorder struct {
+	m      *ModuleResult
+	file   quint.File
+	counts map[string]witnessCount
+}
+
+// record records witness i, named name: its count, or a warning when the run
+// has none or the state is unreachable.
+//
+// TRLC-LINKS: REQ-EMG-143
+func (r witnessRecorder) record(i int, name string) {
+	state := ""
+	if i < len(r.file.States) {
+		state = r.file.States[i]
+	}
+	count, ok := r.counts[name]
+	if !ok {
+		r.m.addWarning(fmt.Sprintf("no witness result for state %s (%s)", state, name))
+		return
+	}
+	r.m.Witnesses = append(r.m.Witnesses, WitnessResult{Name: name, State: state, Witnessed: count.Witnessed, Total: count.Total})
+	// The initial state holds by construction; Quint's witness count does
+	// not include the state a trace starts in, so a machine that never
+	// re-enters its initial state would be reported as unreachable.
+	if count.Witnessed == 0 && state != r.file.Initial {
+		r.m.addWarning(fmt.Sprintf("unreachable state %s: %s was witnessed in 0 of %d traces", state, name, count.Total))
 	}
 }
 
@@ -138,30 +192,42 @@ func stepFromOutput(out Output, itfPath string) StepResult {
 //
 // TRLC-LINKS: REQ-EMG-144
 func (c *checker) verifyModule(m *ModuleResult, path string) error {
-	env := verifyEnv(c.verifyBaseEnv, c.opts.QuintHome, c.scratch, c.javaDir)
-	for i, inv := range m.Invariants {
-		port, err := freePort()
-		if err != nil {
-			return setupError(err, "allocate a port for the Apalache server")
-		}
-		itf := filepath.Join(c.scratch, fmt.Sprintf("%s.%s.verify.itf.json", m.Module, inv.Name))
-		args := []string{
-			"verify", path,
-			"--main=" + m.Module,
-			"--invariant=" + inv.Name,
-			fmt.Sprintf("--max-steps=%d", c.opts.VerifySteps),
-			"--out-itf=" + itf,
-			fmt.Sprintf("--server-endpoint=localhost:%d", port),
-			"--apalache-config=" + c.apalacheConfig,
-		}
-		out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: env})
-		if err != nil {
+	for i := range m.Invariants {
+		if err := c.verifyInvariant(m, i, path); err != nil {
 			return err
 		}
-		step := stepFromOutput(out, itf)
-		step.TraceMin, step.TraceMax = nil, nil
-		m.Invariants[i].Verify = &step
 	}
+	return nil
+}
+
+// verifyInvariant runs quint verify on invariant i of the module and records
+// its step result.
+//
+// TRLC-LINKS: REQ-EMG-144
+func (c *checker) verifyInvariant(m *ModuleResult, i int, path string) error {
+	port, err := freePort()
+	if err != nil {
+		return setupError(err, "allocate a port for the Apalache server")
+	}
+	name := m.Invariants[i].Name
+	itf := filepath.Join(c.scratch, fmt.Sprintf("%s.%s.verify.itf.json", m.Module, name))
+	args := []string{
+		"verify", path,
+		"--main=" + m.Module,
+		"--invariant=" + name,
+		fmt.Sprintf("--max-steps=%d", c.opts.VerifySteps),
+		"--out-itf=" + itf,
+		fmt.Sprintf("--server-endpoint=localhost:%d", port),
+		"--apalache-config=" + c.apalacheConfig,
+	}
+	env := verifyEnv(c.verifyBaseEnv, verifyDirs{quintHome: c.opts.QuintHome, tmpDir: c.scratch, javaDir: c.javaDir})
+	out, err := c.call(Command{Path: c.quint, Args: args, Dir: c.scratch, Env: env})
+	if err != nil {
+		return err
+	}
+	step := stepFromOutput(out, itf)
+	step.TraceMin, step.TraceMax = nil, nil
+	m.Invariants[i].Verify = &step
 	return nil
 }
 

@@ -242,7 +242,7 @@ func TestAllowEnvKeepsOnlyNamedVariables(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-144
 func TestVerifyEnvPathHandling(t *testing.T) {
 	sep := string(os.PathListSeparator)
-	got := strings.Join(buildVerifyEnv(true, []string{"Path=C:\\bin", "http_proxy=p", "No_Proxy=x"}, "H", "T", "C:\\jdk"), "|")
+	got := strings.Join(buildVerifyEnv(true, []string{"Path=C:\\bin", "http_proxy=p", "No_Proxy=x"}, verifyDirs{quintHome: "H", tmpDir: "T", javaDir: "C:\\jdk"}), "|")
 	for _, want := range []string{"Path=C:\\jdk" + sep + "C:\\bin", "No_Proxy=x,localhost,127.0.0.1"} {
 		if !strings.Contains(got, want) {
 			t.Errorf("windows env lacks %q: %s", want, got)
@@ -251,7 +251,7 @@ func TestVerifyEnvPathHandling(t *testing.T) {
 	if strings.Count(strings.ToUpper(got), "PATH=") != 1 || strings.Count(strings.ToUpper(got), "NO_PROXY=") != 1 {
 		t.Errorf("a name appears under two spellings: %s", got)
 	}
-	got = strings.Join(buildVerifyEnv(false, []string{"HOME=/h"}, "H", "T", "/jdk/bin"), "|")
+	got = strings.Join(buildVerifyEnv(false, []string{"HOME=/h"}, verifyDirs{quintHome: "H", tmpDir: "T", javaDir: "/jdk/bin"}), "|")
 	if !strings.Contains(got, "PATH=/jdk/bin|") && !strings.HasSuffix(got, "PATH=/jdk/bin") {
 		t.Errorf("unset PATH: %s", got)
 	}

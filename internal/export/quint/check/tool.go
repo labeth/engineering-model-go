@@ -156,16 +156,35 @@ func (c *cappedBuffer) Write(p []byte) (int, error) {
 //
 // TRLC-LINKS: REQ-EMG-143
 func ExecRunner(ctx context.Context, cmd Command) (Output, error) {
-	limit := cmd.Timeout
-	if limit <= 0 {
-		limit = DefaultCallTimeout
-	}
-	capacity := cmd.MaxOutput
-	if capacity <= 0 {
-		capacity = DefaultMaxOutput
-	}
-	ctx, cancel := context.WithTimeout(ctx, limit)
+	ctx, cancel := context.WithTimeout(ctx, orDefault(cmd.Timeout, DefaultCallTimeout))
 	defer cancel()
+	proc, stdout, stderr := newProcess(ctx, cmd, orDefault(cmd.MaxOutput, DefaultMaxOutput))
+	err := proc.Run()
+	if proc.Process != nil {
+		// Whatever the verdict, no child of the tool outlives the call.
+		killGroup(proc)
+	}
+	out := Output{Stdout: stdout.buf.String(), Stderr: stderr.buf.String(), Truncated: stdout.truncated || stderr.truncated}
+	if proc.Process == nil {
+		return out, err
+	}
+	return classifyExit(ctx, out, err)
+}
+
+// orDefault returns v, or def when v is not positive.
+//
+// TRLC-LINKS: REQ-EMG-143
+func orDefault[T int | time.Duration](v, def T) T {
+	if v <= 0 {
+		return def
+	}
+	return v
+}
+
+// newProcess prepares the process of a command with capped output buffers.
+//
+// TRLC-LINKS: REQ-EMG-143
+func newProcess(ctx context.Context, cmd Command, capacity int) (*exec.Cmd, *cappedBuffer, *cappedBuffer) {
 	proc := exec.CommandContext(ctx, cmd.Path, cmd.Args...)
 	proc.Dir = cmd.Dir
 	proc.Env = cmd.Env
@@ -176,15 +195,15 @@ func ExecRunner(ctx context.Context, cmd Command) (Output, error) {
 	proc.Stdout, proc.Stderr = stdout, stderr
 	proc.WaitDelay = waitDelay
 	isolateProcess(proc)
-	err := proc.Run()
-	if proc.Process != nil {
-		// Whatever the verdict, no child of the tool outlives the call.
-		killGroup(proc)
-	}
-	out := Output{Stdout: stdout.buf.String(), Stderr: stderr.buf.String(), Truncated: stdout.truncated || stderr.truncated}
-	if proc.Process == nil {
-		return out, err
-	}
+	return proc, stdout, stderr
+}
+
+// classifyExit turns the error of a process that started into its Output: a
+// kill by the time limit or the context, a non-zero exit and a child that kept
+// the pipes open are results, anything else is an error.
+//
+// TRLC-LINKS: REQ-EMG-143
+func classifyExit(ctx context.Context, out Output, err error) (Output, error) {
 	var exit *exec.ExitError
 	switch {
 	case err == nil:
@@ -241,19 +260,29 @@ func javaMajor(output string) (int, error) {
 		return 0, fmt.Errorf("no java version in %q", firstLine(output))
 	}
 	parts := strings.FieldsFunc(m[1], func(r rune) bool { return r == '.' || r == '_' || r == '-' || r == '+' })
-	if len(parts) == 0 {
+	major, ok := majorOf(parts)
+	if !ok {
 		return 0, fmt.Errorf("unparsable java version %q", m[1])
+	}
+	return major, nil
+}
+
+// majorOf reads the major version from the numeric parts of a Java version;
+// the legacy "1.x" scheme names the major in its second part.
+//
+// TRLC-LINKS: REQ-EMG-144
+func majorOf(parts []string) (int, bool) {
+	if len(parts) == 0 {
+		return 0, false
 	}
 	major, err := strconv.Atoi(parts[0])
 	if err != nil {
-		return 0, fmt.Errorf("unparsable java version %q", m[1])
+		return 0, false
 	}
 	if major == 1 && len(parts) > 1 {
-		if major, err = strconv.Atoi(parts[1]); err != nil {
-			return 0, fmt.Errorf("unparsable java version %q", m[1])
-		}
+		major, err = strconv.Atoi(parts[1])
 	}
-	return major, nil
+	return major, err == nil
 }
 
 // javaBinary is the file name of the Java launcher on the given platform.
@@ -374,20 +403,28 @@ func (e *envSet) list() []string {
 //
 // TRLC-LINKS: REQ-EMG-144
 func filterEnv(fold bool, environ []string, allow ...[]string) *envSet {
+	env := newEnvSet(fold)
 	allowed := map[string]bool{}
-	probe := newEnvSet(fold)
 	for _, names := range allow {
 		for _, name := range names {
-			allowed[probe.key(name)] = true
+			allowed[env.key(name)] = true
 		}
 	}
-	env := newEnvSet(fold)
 	for _, kv := range environ {
-		if k, v, ok := strings.Cut(kv, "="); ok && k != "" && allowed[env.key(k)] {
+		if k, v, ok := splitEnv(kv); ok && allowed[env.key(k)] {
 			env.set(k, v)
 		}
 	}
 	return env
+}
+
+// splitEnv splits a "NAME=value" entry; ok is false for an entry without a
+// name.
+//
+// TRLC-LINKS: REQ-EMG-144
+func splitEnv(kv string) (name, value string, ok bool) {
+	name, value, ok = strings.Cut(kv, "=")
+	return name, value, ok && name != ""
 }
 
 // allowEnv builds the environment of an external call from environ: the
@@ -403,6 +440,13 @@ func allowEnv(environ, extra []string, proxies bool) []string {
 	return filterEnv(runtime.GOOS == "windows", environ, lists...).list()
 }
 
+// verifyDirs are the directories a verify call is pointed at.
+type verifyDirs struct {
+	quintHome string
+	tmpDir    string
+	javaDir   string
+}
+
 // verifyEnv completes the allow-listed environment base of a quint verify call:
 // the pinned QUINT_HOME, a scratch TMPDIR, the chosen Java first on PATH and,
 // when any proxy is configured, NO_PROXY and no_proxy that keep localhost
@@ -411,41 +455,54 @@ func allowEnv(environ, extra []string, proxies bool) []string {
 // element.
 //
 // TRLC-LINKS: REQ-EMG-144
-func verifyEnv(base []string, quintHome, tmpDir, javaDir string) []string {
-	return buildVerifyEnv(runtime.GOOS == "windows", base, quintHome, tmpDir, javaDir)
+func verifyEnv(base []string, dirs verifyDirs) []string {
+	return buildVerifyEnv(runtime.GOOS == "windows", base, dirs)
 }
 
 // buildVerifyEnv is verifyEnv with the name matching rule chosen by fold.
 //
 // TRLC-LINKS: REQ-EMG-144
-func buildVerifyEnv(fold bool, base []string, quintHome, tmpDir, javaDir string) []string {
+func buildVerifyEnv(fold bool, base []string, dirs verifyDirs) []string {
 	env := newEnvSet(fold)
 	for _, kv := range base {
-		if k, v, ok := strings.Cut(kv, "="); ok && k != "" {
+		if k, v, ok := splitEnv(kv); ok {
 			env.set(k, v)
 		}
 	}
-	env.set(QuintHomeEnv, quintHome)
-	env.set("TMPDIR", tmpDir)
-	if javaDir != "" {
-		path := javaDir
-		if current := env.get("PATH"); current != "" {
-			path += string(os.PathListSeparator) + current
-		}
-		env.set("PATH", path)
+	env.set(QuintHomeEnv, dirs.quintHome)
+	env.set("TMPDIR", dirs.tmpDir)
+	if dirs.javaDir != "" {
+		env.set("PATH", prependPath(dirs.javaDir, env.get("PATH")))
 	}
-	proxied := false
-	for _, k := range proxyEnvNames {
-		if k != "NO_PROXY" && k != "no_proxy" && env.get(k) != "" {
-			proxied = true
-		}
-	}
-	if proxied {
+	if proxyConfigured(env) {
 		for _, k := range []string{"NO_PROXY", "no_proxy"} {
 			env.set(k, appendNoProxy(env.get(k)))
 		}
 	}
 	return env.list()
+}
+
+// prependPath puts dir before an existing PATH value, without an empty element.
+//
+// TRLC-LINKS: REQ-EMG-144
+func prependPath(dir, current string) string {
+	if current == "" {
+		return dir
+	}
+	return dir + string(os.PathListSeparator) + current
+}
+
+// proxyConfigured reports whether any proxy variable other than NO_PROXY is
+// set.
+//
+// TRLC-LINKS: REQ-EMG-144
+func proxyConfigured(env *envSet) bool {
+	for _, k := range proxyEnvNames {
+		if k != "NO_PROXY" && k != "no_proxy" && env.get(k) != "" {
+			return true
+		}
+	}
+	return false
 }
 
 // appendNoProxy adds localhost and 127.0.0.1 to a NO_PROXY list.
@@ -455,12 +512,10 @@ func appendNoProxy(current string) string {
 	have := map[string]bool{}
 	var items []string
 	for _, item := range strings.Split(current, ",") {
-		item = strings.TrimSpace(item)
-		if item == "" {
-			continue
+		if item = strings.TrimSpace(item); item != "" {
+			have[item] = true
+			items = append(items, item)
 		}
-		have[item] = true
-		items = append(items, item)
 	}
 	for _, item := range []string{"localhost", "127.0.0.1"} {
 		if !have[item] {

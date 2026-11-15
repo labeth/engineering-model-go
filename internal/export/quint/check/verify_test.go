@@ -189,7 +189,7 @@ func TestJavaMajorParsesModernAndLegacyVersions(t *testing.T) {
 func TestVerifyEnvAppendsNoProxyAndSetsScratchDirectories(t *testing.T) {
 	base := []string{"PATH=/usr/bin", "HTTP_PROXY=http://p", "NO_PROXY=a.example", "TMPDIR=/tmp"}
 	got := map[string]string{}
-	for _, kv := range verifyEnv(base, "/q/home", "/scratch", "/jdk/bin") {
+	for _, kv := range verifyEnv(base, verifyDirs{quintHome: "/q/home", tmpDir: "/scratch", javaDir: "/jdk/bin"}) {
 		k, v, _ := strings.Cut(kv, "=")
 		got[k] = v
 	}
@@ -202,7 +202,7 @@ func TestVerifyEnvAppendsNoProxyAndSetsScratchDirectories(t *testing.T) {
 		}
 	}
 	// Without a proxy the environment is left alone.
-	for _, kv := range verifyEnv([]string{"PATH=/usr/bin"}, "/h", "/s", "") {
+	for _, kv := range verifyEnv([]string{"PATH=/usr/bin"}, verifyDirs{quintHome: "/h", tmpDir: "/s"}) {
 		if strings.HasPrefix(kv, "NO_PROXY=") || strings.HasPrefix(kv, "no_proxy=") {
 			t.Errorf("NO_PROXY set without a proxy: %s", kv)
 		}

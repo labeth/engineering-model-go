@@ -63,23 +63,45 @@ func IsGeneratedModule(data []byte) bool {
 //
 // TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
 func WriteFileIfChanged(path string, data []byte) (bool, error) {
-	perm := os.FileMode(0o644)
-	info, err := os.Lstat(path)
-	switch {
-	case err == nil:
-		if !info.Mode().IsRegular() {
-			return false, fmt.Errorf("refusing to write %s: it exists and is a %s, not a regular file; remove it first", path, fileKind(info.Mode()))
-		}
-		perm = info.Mode().Perm()
-		if existing, readErr := os.ReadFile(path); readErr == nil && bytes.Equal(existing, data) {
-			return false, nil
-		}
-	case !errors.Is(err, fs.ErrNotExist):
+	perm, unchanged, err := inspectTarget(path, data)
+	if err != nil || unchanged {
 		return false, err
 	}
+	if err := replaceFile(path, data, perm); err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+// inspectTarget checks the target of WriteFileIfChanged: a missing file gets
+// mode 0644, an existing regular file keeps its permission bits and may
+// already hold data, anything else is refused.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
+func inspectTarget(path string, data []byte) (perm os.FileMode, unchanged bool, err error) {
+	info, err := os.Lstat(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		return 0o644, false, nil
+	}
+	if err != nil {
+		return 0, false, err
+	}
+	if !info.Mode().IsRegular() {
+		return 0, false, fmt.Errorf("refusing to write %s: it exists and is a %s, not a regular file; remove it first", path, fileKind(info.Mode()))
+	}
+	existing, readErr := os.ReadFile(path)
+	return info.Mode().Perm(), readErr == nil && bytes.Equal(existing, data), nil
+}
+
+// replaceFile writes data to a temporary file next to path and renames it over
+// path, so a reader never sees a partial file and a symlink at path is
+// replaced, not written through.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
+func replaceFile(path string, data []byte, perm os.FileMode) error {
 	tmp, err := os.CreateTemp(filepath.Dir(path), "."+filepath.Base(path)+".tmp-*")
 	if err != nil {
-		return false, err
+		return err
 	}
 	tmpName := tmp.Name()
 	_, err = tmp.Write(data)
@@ -94,9 +116,8 @@ func WriteFileIfChanged(path string, data []byte) (bool, error) {
 	}
 	if err != nil {
 		os.Remove(tmpName)
-		return false, err
 	}
-	return true, nil
+	return err
 }
 
 // fileKind names the kind of a non-regular file for an error message.
@@ -126,27 +147,55 @@ func compareWithCommitted(dir string, files []quint.File) ([]Drift, map[string]s
 	produced := map[string]bool{}
 	for _, file := range files {
 		produced[file.Name] = true
-		path := filepath.Join(dir, file.Name)
-		info, statErr := os.Lstat(path)
-		if statErr == nil && !info.Mode().IsRegular() {
-			return nil, nil, fmt.Errorf("%s is a %s, not a regular file", path, fileKind(info.Mode()))
-		}
-		committed, err := os.ReadFile(path)
-		switch {
-		case errors.Is(err, fs.ErrNotExist):
-			drifts = append(drifts, Drift{File: file.Name, Kind: "missing"})
-			perModule[file.Name] = "missing"
-		case err != nil:
+		kind, err := driftKind(dir, file)
+		if err != nil {
 			return nil, nil, err
-		case !bytes.Equal(normalizeEOL(committed), []byte(file.Text)):
-			drifts = append(drifts, Drift{File: file.Name, Kind: "changed"})
-			perModule[file.Name] = "changed"
+		}
+		if kind != "" {
+			drifts = append(drifts, Drift{File: file.Name, Kind: kind})
+			perModule[file.Name] = kind
 		}
 	}
-	entries, err := os.ReadDir(dir)
-	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+	extra, err := extraModules(dir, produced)
+	if err != nil {
 		return nil, nil, err
 	}
+	return append(drifts, extra...), perModule, nil
+}
+
+// driftKind compares one generated module with its committed file: "missing",
+// "changed", or "" when they agree. A committed file that is not a regular file
+// is an error.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
+func driftKind(dir string, file quint.File) (string, error) {
+	path := filepath.Join(dir, file.Name)
+	info, statErr := os.Lstat(path)
+	if statErr == nil && !info.Mode().IsRegular() {
+		return "", fmt.Errorf("%s is a %s, not a regular file", path, fileKind(info.Mode()))
+	}
+	committed, err := os.ReadFile(path)
+	switch {
+	case errors.Is(err, fs.ErrNotExist):
+		return "missing", nil
+	case err != nil:
+		return "", err
+	case !bytes.Equal(normalizeEOL(committed), []byte(file.Text)):
+		return "changed", nil
+	}
+	return "", nil
+}
+
+// extraModules lists the files with the generated header that no machine
+// produces any more.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
+func extraModules(dir string, produced map[string]bool) ([]Drift, error) {
+	entries, err := os.ReadDir(dir)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return nil, err
+	}
+	var extra []Drift
 	for _, entry := range entries {
 		name := entry.Name()
 		if !entry.Type().IsRegular() || filepath.Ext(name) != ".qnt" || produced[name] {
@@ -154,13 +203,13 @@ func compareWithCommitted(dir string, files []quint.File) ([]Drift, map[string]s
 		}
 		data, err := os.ReadFile(filepath.Join(dir, name))
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		if IsGeneratedModule(data) {
-			drifts = append(drifts, Drift{File: name, Kind: "extra"})
+			extra = append(extra, Drift{File: name, Kind: "extra"})
 		}
 	}
-	return drifts, perModule, nil
+	return extra, nil
 }
 
 // resultsFile is the layout of results.json.
@@ -236,24 +285,8 @@ type evidenceFile struct {
 func evidenceEntries(modules []ModuleResult) []EvidenceEntry {
 	entries := []EvidenceEntry{}
 	for _, m := range modules {
-		if m.Status != StatusPass && m.Status != StatusViolated {
-			continue
-		}
-		for _, inv := range m.Invariants {
-			if inv.Status != StatusPass && inv.Status != StatusViolated {
-				continue
-			}
-			status := "pass"
-			if inv.Status == StatusViolated {
-				status = "fail"
-			}
-			for _, req := range inv.Requirements {
-				entries = append(entries, EvidenceEntry{
-					Requirement: req, Status: status, Method: "analysis", Kind: "formal",
-					Machine: m.Machine, Invariant: inv.ID, Mode: evidenceMode(m.Modes),
-					QntFile: m.QntFile, QntSha256: m.QntSha256, Notes: evidenceNotes(m, inv),
-				})
-			}
+		if conclusive(m.Status) {
+			entries = append(entries, moduleEvidence(m)...)
 		}
 	}
 	sort.SliceStable(entries, func(i, j int) bool {
@@ -269,6 +302,36 @@ func evidenceEntries(modules []ModuleResult) []EvidenceEntry {
 	return entries
 }
 
+// conclusive reports whether a status is a pass or a violation.
+//
+// TRLC-LINKS: REQ-EMG-145
+func conclusive(status string) bool { return status == StatusPass || status == StatusViolated }
+
+// moduleEvidence builds the evidence entries of the conclusive invariants of
+// one module.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func moduleEvidence(m ModuleResult) []EvidenceEntry {
+	var entries []EvidenceEntry
+	for _, inv := range m.Invariants {
+		if !conclusive(inv.Status) {
+			continue
+		}
+		status := "pass"
+		if inv.Status == StatusViolated {
+			status = "fail"
+		}
+		for _, req := range inv.Requirements {
+			entries = append(entries, EvidenceEntry{
+				Requirement: req, Status: status, Method: "analysis", Kind: "formal",
+				Machine: m.Machine, Invariant: inv.ID, Mode: evidenceMode(m.Modes),
+				QntFile: m.QntFile, QntSha256: m.QntSha256, Notes: evidenceNotes(m, inv),
+			})
+		}
+	}
+	return entries
+}
+
 // evidenceMode joins the modes with a plus sign.
 //
 // TRLC-LINKS: REQ-EMG-146
@@ -279,10 +342,8 @@ func evidenceMode(modes []string) string { return strings.Join(modes, "+") }
 // TRLC-LINKS: REQ-EMG-146
 func evidenceNotes(m ModuleResult, inv InvariantResult) string {
 	if inv.Status == StatusViolated {
-		for _, step := range []*StepResult{inv.Run, inv.Verify} {
-			if step != nil && step.Status == StatusViolated {
-				return fmt.Sprintf("%s of %s violated: %s", inv.ID, m.Machine, FormatCounterexample(*step))
-			}
+		if step := violatedStep(inv); step != nil {
+			return fmt.Sprintf("%s of %s violated: %s", inv.ID, m.Machine, FormatCounterexample(*step))
 		}
 	}
 	var parts []string
@@ -293,6 +354,18 @@ func evidenceNotes(m ModuleResult, inv InvariantResult) string {
 		parts = append(parts, fmt.Sprintf("quint verify, apalache %s, max-steps %d", ApalacheVersion, m.Bounds.VerifySteps))
 	}
 	return fmt.Sprintf("%s of %s holds: %s; quint %s", inv.ID, m.Machine, strings.Join(parts, "; "), m.QuintVersion)
+}
+
+// violatedStep is the first step of an invariant that found a violation, or nil.
+//
+// TRLC-LINKS: REQ-EMG-146
+func violatedStep(inv InvariantResult) *StepResult {
+	for _, step := range []*StepResult{inv.Run, inv.Verify} {
+		if step != nil && step.Status == StatusViolated {
+			return step
+		}
+	}
+	return nil
 }
 
 // writeEvidence writes the formal evidence file the trace reads from
