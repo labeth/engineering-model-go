@@ -32,31 +32,11 @@ func main() {
 // TRLC-LINKS: REQ-EMG-081
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, IF-CLI-ENGSPEC
 func run(args []string, stdout, stderr io.Writer) int {
-	flags := flag.NewFlagSet("engspec", flag.ContinueOnError)
-	flags.SetOutput(io.Discard)
-	modelPath := flags.String("model", "engmod.yml", "")
-	ids := flags.String("ids", "", "")
-	prefix := flags.String("prefix", "", "")
-	capability := flags.String("capability", "", "")
-	modified := flags.Bool("modified", false, "")
-	outPath := flags.String("out", "", "")
-	if err := flags.Parse(args); err != nil || flags.NArg() > 0 || (strings.TrimSpace(*ids) == "" && strings.TrimSpace(*prefix) == "") {
-		if err != nil {
-			fmt.Fprintln(stderr, "engspec:", err)
-		}
-		fmt.Fprint(stderr, usage)
-		return 2
+	modelPath, options, outPath, code, ok := parseEngspecArgs(args, stderr)
+	if !ok {
+		return code
 	}
-	options := engmodel.SpecDeltaOptions{Prefix: *prefix, Capability: *capability}
-	for _, id := range strings.Split(*ids, ",") {
-		if id = strings.TrimSpace(id); id != "" {
-			options.IDs = append(options.IDs, id)
-		}
-	}
-	if *modified {
-		options.Operation = engmodel.SpecDeltaModified
-	}
-	result, err := engmodel.RenderSpecDeltaFromModel(*modelPath, options)
+	result, err := engmodel.RenderSpecDeltaFromModel(modelPath, options)
 	if err != nil {
 		fmt.Fprintln(stderr, "engspec:", err)
 		return 1
@@ -64,13 +44,59 @@ func run(args []string, stdout, stderr io.Writer) int {
 	for _, warning := range result.Warnings {
 		fmt.Fprintln(stderr, "engspec: warning:", warning)
 	}
-	if *outPath == "" {
+	if outPath == "" {
 		fmt.Fprint(stdout, result.Markdown)
 		return 0
 	}
-	if err := os.WriteFile(*outPath, []byte(result.Markdown), 0o644); err != nil {
+	if err := os.WriteFile(outPath, []byte(result.Markdown), 0o644); err != nil {
 		fmt.Fprintln(stderr, "engspec:", err)
 		return 1
 	}
 	return 0
+}
+
+// engspecSelectionMissing reports whether neither --ids nor --prefix selects requirements.
+func engspecSelectionMissing(ids, prefix string) bool {
+	return strings.TrimSpace(ids) == "" && strings.TrimSpace(prefix) == ""
+}
+
+// parseEngspecArgs reads the flags into the model path, the delta options and the --out path. ok is false with the
+// exit code 2 when the command line is unusable.
+// TRLC-LINKS: REQ-EMG-081
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, IF-CLI-ENGSPEC
+func parseEngspecArgs(args []string, stderr io.Writer) (modelPath string, options engmodel.SpecDeltaOptions, outPath string, code int, ok bool) {
+	flags := flag.NewFlagSet("engspec", flag.ContinueOnError)
+	flags.SetOutput(io.Discard)
+	model := flags.String("model", "engmod.yml", "")
+	ids := flags.String("ids", "", "")
+	prefix := flags.String("prefix", "", "")
+	capability := flags.String("capability", "", "")
+	modified := flags.Bool("modified", false, "")
+	out := flags.String("out", "", "")
+	err := flags.Parse(args)
+	if err != nil || flags.NArg() > 0 || engspecSelectionMissing(*ids, *prefix) {
+		if err != nil {
+			fmt.Fprintln(stderr, "engspec:", err)
+		}
+		fmt.Fprint(stderr, usage)
+		return "", options, "", 2, false
+	}
+	options = engmodel.SpecDeltaOptions{Prefix: *prefix, Capability: *capability, IDs: splitEngspecIDs(*ids)}
+	if *modified {
+		options.Operation = engmodel.SpecDeltaModified
+	}
+	return *model, options, *out, 0, true
+}
+
+// splitEngspecIDs splits the comma separated --ids value, dropping blanks.
+// TRLC-LINKS: REQ-EMG-081
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, IF-CLI-ENGSPEC
+func splitEngspecIDs(ids string) []string {
+	var out []string
+	for _, id := range strings.Split(ids, ",") {
+		if id = strings.TrimSpace(id); id != "" {
+			out = append(out, id)
+		}
+	}
+	return out
 }

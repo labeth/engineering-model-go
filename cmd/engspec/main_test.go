@@ -30,24 +30,7 @@ func TestRunRendersDeltaThatPassesConsistencyAndOpenSpec(t *testing.T) {
 	if !strings.Contains(out, "## ADDED Requirements\n") || strings.Count(out, "#### Scenario:") < 3 {
 		t.Fatalf("delta:\n%s", out)
 	}
-	model, err := os.ReadFile(filepath.Join("..", "..", "examples", "dal-c-flight-control-sample", "model", "requirements.yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	texts := map[string]string{}
-	for _, m := range regexp.MustCompile(`(?m)^  - id: (REQ-\S+)\n(?:    .*\n)*?    text: (.+)$`).FindAllStringSubmatch(string(model), -1) {
-		texts[m[1]] = m[2]
-	}
-	lines := regexp.MustCompile(`(?m)^(REQ-[A-Z0-9-]+): (.+)$`).FindAllStringSubmatch(out, -1)
-	if len(lines) < 3 {
-		t.Fatalf("no REQ lines:\n%s", out)
-	}
-	for _, line := range lines {
-		want, ok := texts[line[1]]
-		if !ok || !strings.HasPrefix(normalize(line[2]), normalize(want)) {
-			t.Fatalf("%s: spec %q does not start with model %q", line[1], line[2], want)
-		}
-	}
+	assertSpecLinesStartWithModelText(t, out)
 	openspecValidate(t, out)
 }
 
@@ -104,5 +87,35 @@ func openspecValidate(t *testing.T, delta string) {
 	cmd.Env = append(os.Environ(), "OPENSPEC_TELEMETRY=0", "DO_NOT_TRACK=1")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("openspec validate --strict: %v\n%s\n--- delta\n%s", err, out, delta)
+	}
+}
+
+// modelRequirementTexts reads the requirement texts of the dal-c sample model by ID.
+func modelRequirementTexts(t *testing.T) map[string]string {
+	t.Helper()
+	model, err := os.ReadFile(filepath.Join("..", "..", "examples", "dal-c-flight-control-sample", "model", "requirements.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	texts := map[string]string{}
+	for _, m := range regexp.MustCompile(`(?m)^  - id: (REQ-\S+)\n(?:    .*\n)*?    text: (.+)$`).FindAllStringSubmatch(string(model), -1) {
+		texts[m[1]] = m[2]
+	}
+	return texts
+}
+
+// assertSpecLinesStartWithModelText checks every REQ line of the delta against the model text.
+func assertSpecLinesStartWithModelText(t *testing.T, out string) {
+	t.Helper()
+	texts := modelRequirementTexts(t)
+	lines := regexp.MustCompile(`(?m)^(REQ-[A-Z0-9-]+): (.+)$`).FindAllStringSubmatch(out, -1)
+	if len(lines) < 3 {
+		t.Fatalf("no REQ lines:\n%s", out)
+	}
+	for _, line := range lines {
+		want, ok := texts[line[1]]
+		if !ok || !strings.HasPrefix(normalize(line[2]), normalize(want)) {
+			t.Fatalf("%s: spec %q does not start with model %q", line[1], line[2], want)
+		}
 	}
 }
