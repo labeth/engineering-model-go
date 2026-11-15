@@ -9,26 +9,11 @@ import (
 	"testing"
 )
 
-// TRLC-LINKS: REQ-EMG-006, REQ-EMG-012
-func TestGenerateLobsterActivityTraceFromDir(t *testing.T) {
-	dir := t.TempDir()
-	testsDir := filepath.Join(dir, "tests")
-	if err := os.MkdirAll(testsDir, 0o755); err != nil {
-		t.Fatalf("mkdir tests dir: %v", err)
-	}
-
-	goFile := filepath.Join(testsDir, "foo_test.go")
-	if err := os.WriteFile(goFile, []byte("package test\n\n// TRLC-LINKS: REQ-ABC-001, REQ-ABC-002\n"), 0o644); err != nil {
-		t.Fatalf("write test file: %v", err)
-	}
-
-	res, err := GenerateActivityTraceFromDir(testsDir, Options{RequirementsPackage: "ExampleReqs", ActivityNamespace: "tests"})
-	if err != nil {
-		t.Fatalf("export lobster activity failed: %v", err)
-	}
-
+// firstActivityItem decodes the LOBSTER JSON and returns its single activity item.
+func firstActivityItem(t *testing.T, raw string) map[string]any {
+	t.Helper()
 	var doc map[string]any
-	if err := json.Unmarshal([]byte(res.JSON), &doc); err != nil {
+	if err := json.Unmarshal([]byte(raw), &doc); err != nil {
 		t.Fatalf("invalid json: %v", err)
 	}
 	if doc["schema"] != "lobster-act-trace" {
@@ -42,13 +27,25 @@ func TestGenerateLobsterActivityTraceFromDir(t *testing.T) {
 	if !ok {
 		t.Fatalf("expected object activity item")
 	}
+	return item
+}
+
+func assertActivityRefs(t *testing.T, item map[string]any) {
+	t.Helper()
 	if _, ok := item["tag"].(string); !ok {
 		t.Fatalf("expected tag string")
 	}
 	refs, ok := item["refs"].([]any)
-	if !ok || len(refs) != 2 || refs[0] != "req ExampleReqs.REQ_ABC_001" || refs[1] != "req ExampleReqs.REQ_ABC_002" {
+	if !ok || len(refs) != 2 {
+		t.Fatalf("expected two refs, got %#v", item["refs"])
+	}
+	if refs[0] != "req ExampleReqs.REQ_ABC_001" || refs[1] != "req ExampleReqs.REQ_ABC_002" {
 		t.Fatalf("expected TRLC-sanitized refs req ExampleReqs.REQ_ABC_00{1,2}, got %#v", item["refs"])
 	}
+}
+
+func assertActivityLocation(t *testing.T, item map[string]any) {
+	t.Helper()
 	location, ok := item["location"].(map[string]any)
 	if !ok || location["line"] != float64(3) || location["column"] != float64(4) {
 		t.Fatalf("expected marker source location 3:4, got %#v", item["location"])
@@ -56,6 +53,27 @@ func TestGenerateLobsterActivityTraceFromDir(t *testing.T) {
 	if location["file"] != "foo_test.go" {
 		t.Fatalf("expected portable relative source path, got %#v", location["file"])
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-012
+func TestGenerateLobsterActivityTraceFromDir(t *testing.T) {
+	testsDir := filepath.Join(t.TempDir(), "tests")
+	if err := os.MkdirAll(testsDir, 0o755); err != nil {
+		t.Fatalf("mkdir tests dir: %v", err)
+	}
+	goFile := filepath.Join(testsDir, "foo_test.go")
+	if err := os.WriteFile(goFile, []byte("package test\n\n// TRLC-LINKS: REQ-ABC-001, REQ-ABC-002\n"), 0o644); err != nil {
+		t.Fatalf("write test file: %v", err)
+	}
+
+	res, err := GenerateActivityTraceFromDir(testsDir, Options{RequirementsPackage: "ExampleReqs", ActivityNamespace: "tests"})
+	if err != nil {
+		t.Fatalf("export lobster activity failed: %v", err)
+	}
+
+	item := firstActivityItem(t, res.JSON)
+	assertActivityRefs(t, item)
+	assertActivityLocation(t, item)
 }
 
 // TRLC-LINKS: REQ-EMG-006, REQ-EMG-012

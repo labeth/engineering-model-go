@@ -11,17 +11,20 @@ import (
 	"testing"
 )
 
+func generateExample(t *testing.T) Result {
+	t.Helper()
+	path := filepath.Join("examples", "dal-c-flight-control-sample", "engmod.yml")
+	result, err := GenerateFromFile(path, Options{Date: "2026-09-19", Version: "v0.1.0"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return result
+}
+
 // TRLC-LINKS: REQ-EMG-053, REQ-EMG-055, REQ-EMG-056
 func TestGenerateAirborneAssuranceExample(t *testing.T) {
-	path := filepath.Join("examples", "dal-c-flight-control-sample", "engmod.yml")
-	first, err := GenerateFromFile(path, Options{Date: "2026-09-19", Version: "v0.1.0"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	second, err := GenerateFromFile(path, Options{Date: "2026-09-19", Version: "v0.1.0"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	first := generateExample(t)
+	second := generateExample(t)
 	if len(first.Files) != 15 {
 		t.Fatalf("expected 15 outputs, got %d", len(first.Files))
 	}
