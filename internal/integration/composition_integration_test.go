@@ -54,7 +54,15 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	assertAtlasAsciiDoc(t, bundle)
+	assertAtlasTrace(t, manifest, bundle.RequirementsPath)
+	assertAtlasSysML(t, manifest)
+	assertAtlasStructurizr(t, manifest)
+	assertAtlasAssuranceExports(t, manifest)
+}
 
+func assertAtlasAsciiDoc(t *testing.T, bundle model.Bundle) {
+	t.Helper()
 	doc, err := asciidoc.Generate(bundle, bundle.Requirements, bundle.Design, asciidoc.Options{})
 	if err != nil {
 		t.Fatal(err)
@@ -67,13 +75,16 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 	if strings.Contains(doc.Document, "security::INTERNAL") {
 		t.Fatal("AsciiDoc exposed unpublished dependency data")
 	}
+}
 
-	trace, _, err := trace.BuildFromFiles(manifest, bundle.RequirementsPath, "")
+func assertAtlasTrace(t *testing.T, manifest, requirementsPath string) {
+	t.Helper()
+	matrix, _, err := trace.BuildFromFiles(manifest, requirementsPath, "")
 	if err != nil {
 		t.Fatal(err)
 	}
 	foundRequirement := false
-	for _, row := range trace.Requirements {
+	for _, row := range matrix.Requirements {
 		if row.ID == "security::REQ-SEC-001" {
 			foundRequirement = row.Provenance != nil && row.Provenance.Publication == "public"
 		}
@@ -81,7 +92,10 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 	if !foundRequirement {
 		t.Fatal("trace matrix omitted qualified published requirement provenance")
 	}
+}
 
+func assertAtlasSysML(t *testing.T, manifest string) {
+	t.Helper()
 	sysmlRes, err := sysml.GenerateV2FromFile(manifest)
 	if err != nil {
 		t.Fatal(err)
@@ -95,7 +109,10 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 			t.Fatalf("SysML contains forbidden opaque representation %q", forbidden)
 		}
 	}
+}
 
+func assertAtlasStructurizr(t *testing.T, manifest string) {
+	t.Helper()
 	dsl, err := structurizr.GenerateDSLFromFile(manifest)
 	if err != nil {
 		t.Fatal(err)
@@ -106,7 +123,10 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 	if strings.Contains(dsl.DSL, "properties {") {
 		t.Fatal("Structurizr output contains a generic property bag")
 	}
+}
 
+func assertAtlasAssuranceExports(t *testing.T, manifest string) {
+	t.Helper()
 	poam, err := oscal.GeneratePOAMFromFile(manifest, oscal.POAMOptions{LastModified: "2026-09-19T00:00:00Z"})
 	if err != nil {
 		t.Fatal(err)
@@ -146,6 +166,29 @@ func TestRegistryDependencyPathsAreConfinedToTheModule(t *testing.T) {
 	t.Setenv(composition.LockEnv, "")
 	t.Setenv(composition.ModuleCacheEnv, "")
 	root := t.TempDir()
+	publishEscapingModule(t, root)
+
+	workspace := filepath.Join(root, "workspace")
+	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	res, err := composition.GenerateCompositionFromFile(filepath.Join(workspace, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertNoSecret(t, res.Diagnostics)
+	assertEscapesRejected(t, res)
+	// The trace never reads the rejected dependency either.
+	_, traceDiags, err := trace.BuildFromFiles(filepath.Join(workspace, "engmod.yml"), filepath.Join(workspace, "model", "requirements.yml"), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertNoSecret(t, traceDiags)
+}
+
+// publishEscapingModule starts a registry under root that serves a module whose
+// manifest points a document and an exclude pattern outside the module, next
+// to a secret file those paths would reach.
+func publishEscapingModule(t *testing.T, root string) {
+	t.Helper()
 	// workspace/.engmod/modules/<entry>/../../../../secret.yml is root/secret.yml.
 	testutil.WriteFile(t, filepath.Join(root, "secret.yml"), "schemaVersion: 3\ncatalog:\n  "+confinementSecret+": leaked\n")
 	registryRoot := filepath.Join(root, "registry")
@@ -163,35 +206,34 @@ func TestRegistryDependencyPathsAreConfinedToTheModule(t *testing.T) {
 	if err != nil {
 		t.Fatalf("start registry: %v", err)
 	}
-	defer registry.Close()
+	t.Cleanup(func() { registry.Close() })
 	t.Setenv("CUE_REGISTRY", registry.Host()+"+insecure")
+}
 
-	workspace := filepath.Join(root, "workspace")
-	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
-	res, err := composition.GenerateCompositionFromFile(filepath.Join(workspace, "engmod.yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	assertNoSecret(t, res.Diagnostics)
+// assertEscapesRejected checks that each escaping field produced one error
+// naming the alias and that the dependency was not loaded.
+func assertEscapesRejected(t *testing.T, res composition.CompositionResult) {
+	t.Helper()
 	got := escapeDiagnostics(res.Diagnostics)
-	var fields []string
-	for _, d := range got {
-		if !strings.Contains(d.Message, `"shared"`) || d.Severity != validate.SeverityError {
-			t.Fatalf("escape diagnostic must be an error naming the alias: %+v", d)
-		}
-		fields = append(fields, d.Message)
-	}
-	joined := strings.Join(fields, "\n")
+	joined := escapeMessages(t, got)
 	if len(got) != 2 || !strings.Contains(joined, "documents.catalog") || !strings.Contains(joined, "inferenceHints.exclude[0]") {
 		t.Fatalf("want documents.catalog and inferenceHints.exclude[0] escapes, got %+v", res.Diagnostics)
 	}
 	if res.Root != nil && len(res.Root.Children) != 0 {
 		t.Fatal("a dependency with escaping paths must not be loaded")
 	}
-	// The trace never reads the rejected dependency either.
-	_, traceDiags, err := trace.BuildFromFiles(filepath.Join(workspace, "engmod.yml"), filepath.Join(workspace, "model", "requirements.yml"), "")
-	if err != nil {
-		t.Fatal(err)
+}
+
+// escapeMessages checks that every escape diagnostic is an error naming the
+// alias and returns their messages, one per line.
+func escapeMessages(t *testing.T, escapes []validate.Diagnostic) string {
+	t.Helper()
+	var messages []string
+	for _, d := range escapes {
+		if !strings.Contains(d.Message, `"shared"`) || d.Severity != validate.SeverityError {
+			t.Fatalf("escape diagnostic must be an error naming the alias: %+v", d)
+		}
+		messages = append(messages, d.Message)
 	}
-	assertNoSecret(t, traceDiags)
+	return strings.Join(messages, "\n")
 }

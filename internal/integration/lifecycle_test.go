@@ -21,47 +21,80 @@ func copyExample(t *testing.T, name string) string {
 	t.Setenv(model.WorkspaceEnv, "")
 	t.Setenv(composition.LockEnv, "")
 	t.Setenv(composition.ModuleCacheEnv, "")
-	src := filepath.Join("examples", name)
-	root := filepath.Join(t.TempDir(), name)
-	err := filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		rel, _ := filepath.Rel(src, path)
-		if d.IsDir() {
-			if d.Name() == "generated" || d.Name() == ".engmod" {
-				return filepath.SkipDir
-			}
-			return os.MkdirAll(filepath.Join(root, rel), 0o755)
-		}
-		if d.Name() == "engmod.lock.local.yml" {
-			return nil
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(filepath.Join(root, rel), data, 0o644)
-	})
-	if err != nil {
+	copying := exampleCopy{
+		src:       filepath.Join("examples", name),
+		dst:       filepath.Join(t.TempDir(), name),
+		skipsFile: func(file string) bool { return file == "engmod.lock.local.yml" },
+	}
+	if err := filepath.WalkDir(copying.src, copying.visit); err != nil {
 		t.Fatal(err)
 	}
-	return root
+	return copying.dst
+}
+
+// exampleCopy copies the files of one example directory tree, leaving out the
+// files skipsFile names.
+type exampleCopy struct {
+	src, dst  string
+	skipsFile func(name string) bool
+}
+
+// visit copies one entry of the walk, skipping generated outputs, module
+// caches and the files skipsFile names.
+func (c exampleCopy) visit(path string, d fs.DirEntry, err error) error {
+	if err != nil {
+		return err
+	}
+	rel, _ := filepath.Rel(c.src, path)
+	if d.IsDir() {
+		return c.visitDir(d, rel)
+	}
+	if c.skipsFile(d.Name()) {
+		return nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(filepath.Join(c.dst, rel), data, 0o644)
+}
+
+// visitDir creates the copy of a directory, or skips a generated or cache one.
+func (c exampleCopy) visitDir(d fs.DirEntry, rel string) error {
+	if d.Name() == "generated" || d.Name() == ".engmod" {
+		return filepath.SkipDir
+	}
+	return os.MkdirAll(filepath.Join(c.dst, rel), 0o755)
 }
 
 // tierDecisionLine matches the Tier: and Bundles: lines of a tier decision.
 var tierDecisionLine = regexp.MustCompile(`(?m)^(\s*)(Tier|Bundles): .*$`)
 
+// lifecycleChoice is a tier with the bundles that apply at it.
+type lifecycleChoice struct {
+	tier    string
+	bundles []string
+}
+
+// decisionID is the ID of the accepted decision that records the tier.
+func (c lifecycleChoice) decisionID() string {
+	return "DEC-TIER-" + strings.ToUpper(c.tier)
+}
+
 // setLifecycle gives the example copy in dir the lifecycle tier with the
-// bundles (foundation when none are given), the matching accepted
-// DEC-TIER-<TIER> decision (the examples carry DEC-TIER-MVP; its id, Tier:
-// and Bundles: lines are rewritten) and, from product, the health block that
-// tier requires. It returns the manifest path.
-func setLifecycle(t *testing.T, dir, tier string, bundles ...string) string {
+// foundation bundle; see setLifecycleWith.
+func setLifecycle(t *testing.T, dir, tier string) string {
 	t.Helper()
-	if len(bundles) == 0 {
-		bundles = []string{"foundation"}
-	}
+	return setLifecycleWith(t, dir, lifecycleChoice{tier: tier, bundles: []string{"foundation"}})
+}
+
+// setLifecycleWith gives the example copy in dir the lifecycle tier with the
+// bundles, the matching accepted DEC-TIER-<TIER> decision (the examples carry
+// DEC-TIER-MVP; its id, Tier: and Bundles: lines are rewritten) and, from
+// product, the health block that tier requires. It returns the manifest path.
+func setLifecycleWith(t *testing.T, dir string, choice lifecycleChoice) string {
+	t.Helper()
+	id := choice.decisionID()
 	manifest := filepath.Join(dir, "engmod.yml")
 	data, err := os.ReadFile(manifest)
 	if err != nil {
@@ -70,31 +103,36 @@ func setLifecycle(t *testing.T, dir, tier string, bundles ...string) string {
 	if i := strings.Index(string(data), "lifecycle:"); i >= 0 {
 		data = data[:i]
 	}
-	id := "DEC-TIER-" + strings.ToUpper(tier)
-	block := "lifecycle:\n  tier: " + tier + "\n  bundles: [" + strings.Join(bundles, ", ") + "]\n  tierDecision: " + id + "\n"
-	if model.TierRank(tier) >= model.TierRank(model.TierProduct) {
+	block := "lifecycle:\n  tier: " + choice.tier + "\n  bundles: [" + strings.Join(choice.bundles, ", ") + "]\n  tierDecision: " + id + "\n"
+	if model.TierRank(choice.tier) >= model.TierRank(model.TierProduct) {
 		block += "health: {}\n"
 	}
 	if err := os.WriteFile(manifest, append(data, []byte(block)...), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	decisions := filepath.Join(dir, "model", "decisions.yml")
+	rewriteTierDecision(t, filepath.Join(dir, "model", "decisions.yml"), choice)
+	return manifest
+}
+
+// rewriteTierDecision gives the tier decision in the decisions document the
+// ID and the tier and bundles of choice.
+func rewriteTierDecision(t *testing.T, decisions string, choice lifecycleChoice) {
+	t.Helper()
 	text, err := os.ReadFile(decisions)
 	if err != nil {
 		t.Fatal(err)
 	}
-	out := regexp.MustCompile(`id: DEC-TIER-[A-Z]+`).ReplaceAllString(string(text), "id: "+id)
+	out := regexp.MustCompile(`id: DEC-TIER-[A-Z]+`).ReplaceAllString(string(text), "id: "+choice.decisionID())
 	out = tierDecisionLine.ReplaceAllStringFunc(out, func(line string) string {
 		m := tierDecisionLine.FindStringSubmatch(line)
 		if m[2] == "Tier" {
-			return m[1] + "Tier: " + tier
+			return m[1] + "Tier: " + choice.tier
 		}
-		return m[1] + "Bundles: " + strings.Join(bundles, ", ")
+		return m[1] + "Bundles: " + strings.Join(choice.bundles, ", ")
 	})
 	if err := os.WriteFile(decisions, []byte(out), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	return manifest
 }
 
 // removeLifecycle cuts the lifecycle block (the last key the examples write,
@@ -139,6 +177,27 @@ func diagnosticsOf(diags []engmodel.Diagnostic, code string) []engmodel.Diagnost
 // TRLC-LINKS: REQ-EMG-125, REQ-EMG-130
 func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 	dir := copyExample(t, "payments-engineering-sample")
+	assertOrphansDeferredAtPoc(t, dir)
+	bundle := renderAtProductTier(t, dir)
+
+	broken := bundle
+	broken.Requirements.Requirements = append([]engmodel.Requirement(nil), bundle.Requirements.Requirements...)
+	broken.Requirements.Requirements[0].AppliesTo = []string{"FU-DOES-NOT-EXIST"}
+	stopped, err := engmodel.GenerateAsciiDoc(broken, broken.Requirements, broken.Design, engmodel.AsciiDocOptions{CodeRoot: dir})
+	if err == nil {
+		t.Fatal("a requirement.invalid_applies_to error did not stop the render")
+	}
+	// The diagnostics of a stopped render carry the tier severities too.
+	if got := diagnosticsOf(stopped.Diagnostics, "lifecycle.requirement_unverified"); len(got) == 0 || got[0].RequiredFrom != "operational" {
+		t.Fatalf("stopped render: lifecycle.requirement_unverified %+v, want requiredFrom operational", got)
+	}
+}
+
+// assertOrphansDeferredAtPoc checks that at tier poc the generate and trace
+// entries report requirement.orphan as a warning deferred to product and
+// ValidateBundle reports lifecycle.requirement_unverified as deferred.
+func assertOrphansDeferredAtPoc(t *testing.T, dir string) {
+	t.Helper()
 	manifest := setLifecycle(t, dir, "poc")
 	bundle, err := engmodel.LoadBundle(manifest)
 	if err != nil {
@@ -153,53 +212,61 @@ func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 		t.Fatal(err)
 	}
 	for name, diags := range map[string][]engmodel.Diagnostic{"generate": doc.Diagnostics, "trace": traceDiags} {
-		orphans := diagnosticsOf(diags, "requirement.orphan")
-		if len(orphans) == 0 {
-			t.Fatalf("%s: no requirement.orphan in %+v", name, diags)
-		}
-		for _, d := range orphans {
-			if d.Severity != engmodel.SeverityWarning || !d.Deferred || d.RequiredFrom != "product" {
-				t.Errorf("%s at poc: %+v, want a deferred warning required from product", name, d)
-			}
-		}
+		assertOrphansDeferred(t, name, diags)
 	}
 	unverified := diagnosticsOf(engmodel.ValidateBundle(bundle), "lifecycle.requirement_unverified")
 	if len(unverified) == 0 || !unverified[0].Deferred {
 		t.Fatalf("ValidateBundle at poc: lifecycle.requirement_unverified %+v, want deferred", unverified)
 	}
+}
 
-	manifest = setLifecycle(t, dir, "product")
-	bundle, err = engmodel.LoadBundle(manifest)
+// assertOrphansDeferred checks that diags hold requirement.orphan only as
+// warnings deferred to product.
+func assertOrphansDeferred(t *testing.T, name string, diags []engmodel.Diagnostic) {
+	t.Helper()
+	orphans := diagnosticsOf(diags, "requirement.orphan")
+	if len(orphans) == 0 {
+		t.Fatalf("%s: no requirement.orphan in %+v", name, diags)
+	}
+	for _, d := range orphans {
+		if d.Severity != engmodel.SeverityWarning || !d.Deferred || d.RequiredFrom != "product" {
+			t.Errorf("%s at poc: %+v, want a deferred warning required from product", name, d)
+		}
+	}
+}
+
+// renderAtProductTier checks that at tier product the orphans and unlinked
+// verifications are errors that fail the check although the document is still
+// rendered, and returns the loaded bundle.
+func renderAtProductTier(t *testing.T, dir string) engmodel.Bundle {
+	t.Helper()
+	bundle, err := engmodel.LoadBundle(setLifecycle(t, dir, "product"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err = engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: dir})
+	doc, err := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: dir})
 	if err != nil {
 		t.Fatalf("render at product stopped on tier-raised errors: %v", err)
 	}
 	if !strings.Contains(doc.Document, "== ") {
 		t.Fatal("no document rendered at product")
 	}
-	orphans := diagnosticsOf(doc.Diagnostics, "requirement.orphan")
-	if len(orphans) == 0 || orphans[0].Severity != engmodel.SeverityError || !engmodel.HasErrors(doc.Diagnostics) {
+	assertTierRaisedErrors(t, doc.Diagnostics)
+	return bundle
+}
+
+// assertTierRaisedErrors checks that the orphans and unlinked verifications
+// are errors at product, and that the orphans fail the check.
+func assertTierRaisedErrors(t *testing.T, diags []engmodel.Diagnostic) {
+	t.Helper()
+	orphans := diagnosticsOf(diags, "requirement.orphan")
+	if len(orphans) == 0 || orphans[0].Severity != engmodel.SeverityError || !engmodel.HasErrors(diags) {
 		t.Fatalf("at product: %+v, want requirement.orphan errors that fail the check", orphans)
 	}
 	// verification.unlinked comes from model validation, which runs before
 	// the render gate: as a tier-raised error it does not stop the render.
-	if unlinked := diagnosticsOf(doc.Diagnostics, "verification.unlinked"); len(unlinked) == 0 || unlinked[0].Severity != engmodel.SeverityError {
+	if unlinked := diagnosticsOf(diags, "verification.unlinked"); len(unlinked) == 0 || unlinked[0].Severity != engmodel.SeverityError {
 		t.Fatalf("at product: verification.unlinked %+v, want errors", unlinked)
-	}
-
-	broken := bundle
-	broken.Requirements.Requirements = append([]engmodel.Requirement(nil), bundle.Requirements.Requirements...)
-	broken.Requirements.Requirements[0].AppliesTo = []string{"FU-DOES-NOT-EXIST"}
-	stopped, err := engmodel.GenerateAsciiDoc(broken, broken.Requirements, broken.Design, engmodel.AsciiDocOptions{CodeRoot: dir})
-	if err == nil {
-		t.Fatal("a requirement.invalid_applies_to error did not stop the render")
-	}
-	// The diagnostics of a stopped render carry the tier severities too.
-	if got := diagnosticsOf(stopped.Diagnostics, "lifecycle.requirement_unverified"); len(got) == 0 || got[0].RequiredFrom != "operational" {
-		t.Fatalf("stopped render: lifecycle.requirement_unverified %+v, want requiredFrom operational", got)
 	}
 }
 
@@ -236,26 +303,32 @@ func TestCompositionTierRules(t *testing.T) {
 	for _, name := range []string{"system", "child-a", "child-b"} {
 		removeLifecycle(t, filepath.Join(root, "repos", name))
 	}
-	if got := append(withCode(composeSystem(t, root), "composition.dependency_below_tier"), withCode(composeSystem(t, root), "composition.dependency_tier_unknown")...); len(got) != 0 {
+	diags := composeSystem(t, root)
+	if got := append(withCode(diags, "composition.dependency_below_tier"), withCode(diags, "composition.dependency_tier_unknown")...); len(got) != 0 {
 		t.Fatalf("system without lifecycle: %+v", got)
 	}
 	setLifecycle(t, filepath.Join(root, "repos", "child-a"), "prototype")
 	setLifecycle(t, system, "product")
-	diags := composeSystem(t, root)
-	below := withCode(diags, "composition.dependency_below_tier")
-	if len(below) != 1 || below[0].Severity != engmodel.SeverityError || below[0].RequiredFrom != "product" ||
-		!strings.Contains(below[0].Message, `"encoder"`) || !strings.Contains(below[0].Message, "prototype") || !strings.Contains(below[0].Message, "REQ-SYS-001, REQ-SYS-002") {
-		t.Fatalf("below tier: %+v", below)
-	}
+	assertBelowTierNamesTheEncoder(t, withCode(composeSystem(t, root), "composition.dependency_below_tier"))
 	requireTierUnknownIsCoreError(t, root, system)
 
-	assurance := "schemaVersion: 3\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: accepted\n    owner: ACT-SYSTEM-OWNER\n    appliesTo: [SUB-ENCODER]\n" +
-		"    acceptedBy: {actor: ACT-SYSTEM-OWNER, date: \"2026-11-05\", statement: I accept the prototype encoder until v1.}\n"
-	if err := os.WriteFile(filepath.Join(system, "model", "assurance.yml"), []byte(assurance), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	writeSystemRisk(t, system, systemRisk{status: "accepted", field: "appliesTo", list: "[SUB-ENCODER]"})
 	if got := withCode(composeSystem(t, root), "composition.dependency_below_tier"); len(got) != 0 {
 		t.Fatalf("accepted risk on SUB-ENCODER: %+v", got)
+	}
+}
+
+// assertBelowTierNamesTheEncoder checks that below is one error required from
+// product naming the alias, the tier and the linked system requirements.
+func assertBelowTierNamesTheEncoder(t *testing.T, below []engmodel.Diagnostic) {
+	t.Helper()
+	if len(below) != 1 || below[0].Severity != engmodel.SeverityError || below[0].RequiredFrom != "product" {
+		t.Fatalf("below tier: %+v", below)
+	}
+	for _, want := range []string{`"encoder"`, "prototype", "REQ-SYS-001, REQ-SYS-002"} {
+		if !strings.Contains(below[0].Message, want) {
+			t.Fatalf("below tier: %+v", below)
+		}
 	}
 }
 
@@ -286,12 +359,15 @@ func requireTierUnknownIsCoreError(t *testing.T, root, system string) {
 	setLifecycle(t, system, "product")
 }
 
+// systemRisk is the risk of the encoder dependency: its status, and the field
+// (dependencies or appliesTo) with its list.
+type systemRisk struct{ status, field, list string }
+
 // writeSystemRisk writes repos/system/model/assurance.yml with one risk on
-// the encoder dependency: status, and the field (dependencies or appliesTo)
-// with its list.
-func writeSystemRisk(t *testing.T, system, status, field, list string) {
+// the encoder dependency.
+func writeSystemRisk(t *testing.T, system string, risk systemRisk) {
 	t.Helper()
-	assurance := "schemaVersion: 3\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: " + status + "\n    owner: ACT-SYSTEM-OWNER\n    " + field + ": " + list + "\n" +
+	assurance := "schemaVersion: 3\nassurance:\n  risks:\n  - id: RISK-ENCODER-TIER\n    title: Encoder below tier\n    statement: The encoder is a prototype.\n    status: " + risk.status + "\n    owner: ACT-SYSTEM-OWNER\n    " + risk.field + ": " + risk.list + "\n" +
 		"    acceptedBy: {actor: ACT-SYSTEM-OWNER, date: \"2026-11-05\", statement: I accept the prototype encoder until v1.}\n"
 	if err := os.WriteFile(filepath.Join(system, "model", "assurance.yml"), []byte(assurance), 0o644); err != nil {
 		t.Fatal(err)
@@ -311,21 +387,16 @@ func TestCompositionBelowTierWaivedByRiskDependency(t *testing.T) {
 	setLifecycle(t, filepath.Join(root, "repos", "child-b"), "product")
 	setLifecycle(t, system, "product")
 
-	writeSystemRisk(t, system, "open", "dependencies", "[encoder]")
-	below := withCode(composeSystem(t, root), "composition.dependency_below_tier")
-	if len(below) != 1 || !strings.Contains(below[0].Message, "dependencies [encoder]") || !strings.Contains(below[0].Message, "appliesTo [SUB-ENCODER]") ||
-		strings.Index(below[0].Message, "dependencies [encoder]") > strings.Index(below[0].Message, "appliesTo [SUB-ENCODER]") {
-		t.Fatalf("unaccepted risk on encoder: want the finding naming dependencies [encoder] before appliesTo [SUB-ENCODER], got %+v", below)
-	}
+	writeSystemRisk(t, system, systemRisk{status: "open", field: "dependencies", list: "[encoder]"})
+	assertFindingNamesBothAcceptances(t, withCode(composeSystem(t, root), "composition.dependency_below_tier"))
 
-	writeSystemRisk(t, system, "accepted", "dependencies", "[bridge]")
+	writeSystemRisk(t, system, systemRisk{status: "accepted", field: "dependencies", list: "[bridge]"})
 	if got := withCode(composeSystem(t, root), "composition.dependency_below_tier"); len(got) != 1 {
 		t.Fatalf("accepted risk on bridge must not waive encoder: %+v", got)
 	}
 
-	writeSystemRisk(t, system, "accepted", "dependencies", "[encoder]")
-	diags := composeSystem(t, root)
-	if got := withCode(diags, "composition.dependency_below_tier"); len(got) != 0 {
+	writeSystemRisk(t, system, systemRisk{status: "accepted", field: "dependencies", list: "[encoder]"})
+	if got := withCode(composeSystem(t, root), "composition.dependency_below_tier"); len(got) != 0 {
 		t.Fatalf("accepted risk with dependencies [encoder]: %+v", got)
 	}
 	bundle, err := engmodel.LoadBundle(filepath.Join(system, "engmod.yml"))
@@ -334,5 +405,19 @@ func TestCompositionBelowTierWaivedByRiskDependency(t *testing.T) {
 	}
 	if got := withCode(engmodel.ValidateBundle(bundle), "model.invalid_risk_dependency"); len(got) != 0 {
 		t.Fatalf("a declared alias is valid: %+v", got)
+	}
+}
+
+// assertFindingNamesBothAcceptances checks that below is one finding that names
+// dependencies [encoder] before appliesTo [SUB-ENCODER].
+func assertFindingNamesBothAcceptances(t *testing.T, below []engmodel.Diagnostic) {
+	t.Helper()
+	if len(below) != 1 {
+		t.Fatalf("unaccepted risk on encoder: want one finding, got %+v", below)
+	}
+	byDependencies := strings.Index(below[0].Message, "dependencies [encoder]")
+	byApplies := strings.Index(below[0].Message, "appliesTo [SUB-ENCODER]")
+	if byDependencies < 0 || byApplies < 0 || byDependencies > byApplies {
+		t.Fatalf("unaccepted risk on encoder: want the finding naming dependencies [encoder] before appliesTo [SUB-ENCODER], got %+v", below)
 	}
 }

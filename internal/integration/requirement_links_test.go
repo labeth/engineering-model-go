@@ -2,7 +2,6 @@
 package integration
 
 import (
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,44 +26,31 @@ func copyRequirementLinksExample(t *testing.T) string {
 	t.Setenv(model.WorkspaceEnv, "")
 	t.Setenv(composition.LockEnv, "")
 	t.Setenv(composition.ModuleCacheEnv, "")
-	root := t.TempDir()
-	err := filepath.WalkDir(requirementLinksExample, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		rel, _ := filepath.Rel(requirementLinksExample, path)
-		if d.IsDir() {
-			if d.Name() == "generated" || d.Name() == ".engmod" {
-				return filepath.SkipDir
-			}
-			return os.MkdirAll(filepath.Join(root, rel), 0o755)
-		}
-		if strings.HasPrefix(d.Name(), "engmod.lock") {
-			return nil
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(filepath.Join(root, rel), data, 0o644)
-	})
-	if err != nil {
+	copying := exampleCopy{
+		src:       requirementLinksExample,
+		dst:       t.TempDir(),
+		skipsFile: func(file string) bool { return strings.HasPrefix(file, "engmod.lock") },
+	}
+	if err := filepath.WalkDir(copying.src, copying.visit); err != nil {
 		t.Fatal(err)
 	}
-	return root
+	return copying.dst
 }
 
-// editFile replaces old (which must occur) with new in a fixture file.
-func editFile(t *testing.T, path, old, new string) {
+// textEdit replaces the text from (which must occur) with the text to.
+type textEdit struct{ from, to string }
+
+// editFile applies edit to a fixture file.
+func editFile(t *testing.T, path string, edit textEdit) {
 	t.Helper()
 	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(data), old) {
-		t.Fatalf("%s does not contain %q", path, old)
+	if !strings.Contains(string(data), edit.from) {
+		t.Fatalf("%s does not contain %q", path, edit.from)
 	}
-	testutil.WriteFile(t, path, strings.Replace(string(data), old, new, 1))
+	testutil.WriteFile(t, path, strings.Replace(string(data), edit.from, edit.to, 1))
 }
 
 // publishedChildren is a registry with releases of the fixture children:
@@ -86,28 +72,9 @@ func newPublishedChildren(t *testing.T, root string) *publishedChildren {
 // publish copies repos/<child> of root at version into the registry.
 func (p *publishedChildren) publish(child, version string) {
 	p.t.Helper()
-	src := filepath.Join(p.root, "repos", child)
 	dst := filepath.Join(p.dir, "models.example_reqlinks_"+child+"_"+version)
-	err := filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		rel, _ := filepath.Rel(src, path)
-		if d.IsDir() {
-			return os.MkdirAll(filepath.Join(dst, rel), 0o755)
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		if rel == "engmod.yml" {
-			data = []byte(strings.Replace(string(data), "  version: v0.1.0\n", "  version: "+version+"\n", 1))
-		}
-		return os.WriteFile(filepath.Join(dst, rel), data, 0o644)
-	})
-	if err != nil {
-		p.t.Fatal(err)
-	}
+	copyDir(p.t, filepath.Join(p.root, "repos", child), dst)
+	editFile(p.t, filepath.Join(dst, "engmod.yml"), textEdit{from: "  version: v0.1.0\n", to: "  version: " + version + "\n"})
 }
 
 // serve starts the registry and leaves the workspace.
@@ -124,11 +91,17 @@ func (p *publishedChildren) serve() {
 	}
 }
 
-// pinChild sets the system's dependency pin of child (encoder or bridge).
-func pinChild(t *testing.T, root, alias, version string) {
+// childPin is the version a dependency alias (encoder or bridge) is pinned to.
+type childPin struct{ alias, version string }
+
+// pinChild sets the system's dependency pin of a child.
+func pinChild(t *testing.T, root string, pin childPin) {
 	t.Helper()
-	child := map[string]string{"encoder": "child-a", "bridge": "child-b"}[alias]
-	editFile(t, filepath.Join(root, "repos", "system", "engmod.yml"), "  path: models.example/reqlinks/"+child+"@v0\n  version: v0.1.0\n", "  path: models.example/reqlinks/"+child+"@v0\n  version: "+version+"\n")
+	child := map[string]string{"encoder": "child-a", "bridge": "child-b"}[pin.alias]
+	editFile(t, filepath.Join(root, "repos", "system", "engmod.yml"), textEdit{
+		from: "  path: models.example/reqlinks/" + child + "@v0\n  version: v0.1.0\n",
+		to:   "  path: models.example/reqlinks/" + child + "@v0\n  version: " + pin.version + "\n",
+	})
 }
 
 // checkRepository runs the model check of one repository the way
@@ -174,17 +147,7 @@ func withCode(diags []validate.Diagnostic, code string) []validate.Diagnostic {
 func TestRequirementLinksExample(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	for _, repo := range []string{"child-a", "child-b", "system"} {
-		dir := filepath.Join(root, "repos", repo)
-		bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if model.RequirementLinkMode(bundle.Manifest) != model.RequirementLinksStrict {
-			t.Fatalf("%s is not strict", repo)
-		}
-		if errs := linkErrors(checkRepository(t, dir)); len(errs) > 0 {
-			t.Fatalf("%s check errors:\n%s", repo, strings.Join(errs, "\n"))
-		}
+		assertStrictRepositoryPasses(t, root, repo)
 	}
 	res, err := composition.GenerateCompositionFromFile(filepath.Join(root, "repos", "system", "engmod.yml"))
 	if err != nil {
@@ -201,6 +164,32 @@ func TestRequirementLinksExample(t *testing.T) {
 	}
 }
 
+// assertStrictRepositoryPasses checks that a repository of the fixture is in
+// strict requirement link mode and passes its check with no errors.
+func assertStrictRepositoryPasses(t *testing.T, root, repo string) {
+	t.Helper()
+	dir := filepath.Join(root, "repos", repo)
+	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if model.RequirementLinkMode(bundle.Manifest) != model.RequirementLinksStrict {
+		t.Fatalf("%s is not strict", repo)
+	}
+	if errs := linkErrors(checkRepository(t, dir)); len(errs) > 0 {
+		t.Fatalf("%s check errors:\n%s", repo, strings.Join(errs, "\n"))
+	}
+}
+
+// assertNoLinkErrors fails with the reason when the check of the repository
+// at dir reports an error.
+func assertNoLinkErrors(t *testing.T, dir, reason string) {
+	t.Helper()
+	if errs := linkErrors(checkRepository(t, dir)); len(errs) > 0 {
+		t.Fatalf("%s:\n%s", reason, strings.Join(errs, "\n"))
+	}
+}
+
 // Acceptance 2: removing realizes from a child requirement gives a
 // requirement.no_parent error in the child's own check, with only the child
 // repository present.
@@ -212,7 +201,7 @@ func TestRequirementLinksChildRuleWithoutSystem(t *testing.T) {
 	if err := os.Rename(filepath.Join(root, "repos", "child-a"), alone); err != nil {
 		t.Fatal(err)
 	}
-	editFile(t, filepath.Join(alone, "model", "requirements.yml"), "  realizes: [CAP-A-1]\n- id: REQ-A-002", "- id: REQ-A-002")
+	editFile(t, filepath.Join(alone, "model", "requirements.yml"), textEdit{from: "  realizes: [CAP-A-1]\n- id: REQ-A-002", to: "- id: REQ-A-002"})
 	got := withCode(checkRepository(t, alone), "requirement.no_parent")
 	if len(got) != 1 || got[0].Severity != validate.SeverityError || !strings.Contains(got[0].Message, "REQ-A-001") {
 		t.Fatalf("want one requirement.no_parent error for REQ-A-001, got %+v", got)
@@ -234,25 +223,30 @@ func TestRequirementLinksNoChurnAndVersionMismatch(t *testing.T) {
 	system := filepath.Join(root, "repos", "system")
 	childReqs := filepath.Join(root, "repos", "child-a", "model", "requirements.yml")
 
-	editFile(t, childReqs, "shall publish one position sentence.", "shall publish two position sentences.")
-	editFile(t, childReqs, "the position encoder shall write one log line.", "the position encoder shall write one structured log line.")
-	if errs := linkErrors(checkRepository(t, system)); len(errs) > 0 {
-		t.Fatalf("a workspace edit must raise no link finding:\n%s", strings.Join(errs, "\n"))
-	}
+	editFile(t, childReqs, textEdit{from: "shall publish one position sentence.", to: "shall publish two position sentences."})
+	editFile(t, childReqs, textEdit{from: "the position encoder shall write one log line.", to: "the position encoder shall write one structured log line."})
+	assertNoLinkErrors(t, system, "a workspace edit must raise no link finding")
 
 	registry := newPublishedChildren(t, root)
 	registry.publish("child-a", "v0.2.0")
-	editFile(t, childReqs, "shall publish two position sentences.", "shall publish one position sentence.")
+	editFile(t, childReqs, textEdit{from: "shall publish two position sentences.", to: "shall publish one position sentence."})
 	registry.publish("child-a", "v0.1.0")
 	registry.publish("child-b", "v0.1.0")
 	registry.serve()
-	if errs := linkErrors(checkRepository(t, system)); len(errs) > 0 {
-		t.Fatalf("published v0.1.0 at its pins:\n%s", strings.Join(errs, "\n"))
+	assertNoLinkErrors(t, system, "published v0.1.0 at its pins")
+	pinChild(t, root, childPin{alias: "encoder", version: "v0.2.0"})
+	assertVersionMismatchNamesIDsOnly(t, withCode(checkRepository(t, system), "link.version_mismatch"))
+}
+
+// assertVersionMismatchNamesIDsOnly checks that got is the link.version_mismatch
+// error of both encoder links, naming engws review-links and no requirement
+// text.
+func assertVersionMismatchNamesIDsOnly(t *testing.T, got []validate.Diagnostic) {
+	t.Helper()
+	if len(got) != 2 || got[0].Severity != validate.SeverityError {
+		t.Fatalf("want link.version_mismatch for both encoder links, ID only, got %+v", got)
 	}
-	pinChild(t, root, "encoder", "v0.2.0")
-	got := withCode(checkRepository(t, system), "link.version_mismatch")
-	if len(got) != 2 || got[0].Severity != validate.SeverityError || !strings.Contains(got[0].Message, "engws review-links") ||
-		strings.Contains(got[0].Message+got[1].Message, "position sentence") {
+	if !strings.Contains(got[0].Message, "engws review-links") || strings.Contains(got[0].Message+got[1].Message, "position sentence") {
 		t.Fatalf("want link.version_mismatch for both encoder links, ID only, got %+v", got)
 	}
 }
@@ -265,9 +259,9 @@ func TestRequirementLinksNoChurnAndVersionMismatch(t *testing.T) {
 func TestRequirementLinksBrokenWhenCapabilityRemoved(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	child := filepath.Join(root, "repos", "child-a")
-	editFile(t, filepath.Join(child, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
-	editFile(t, filepath.Join(child, "engmod.yml"), "  - CAP-A-2\n", "")
-	editFile(t, filepath.Join(child, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  derived: true\n  derivedRationale: Integrity of the encoder output.\n")
+	editFile(t, filepath.Join(child, "model", "architecture.yml"), textEdit{from: "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", to: ""})
+	editFile(t, filepath.Join(child, "engmod.yml"), textEdit{from: "  - CAP-A-2\n", to: ""})
+	editFile(t, filepath.Join(child, "model", "requirements.yml"), textEdit{from: "  realizes: [CAP-A-2]\n", to: "  derived: true\n  derivedRationale: Integrity of the encoder output.\n"})
 	if got := withCode(checkRepository(t, filepath.Join(root, "repos", "system")), "link.broken"); len(got) != 0 {
 		t.Fatalf("a workspace edit raised link.broken: %+v", got)
 	}
@@ -289,9 +283,8 @@ func TestRequirementLinksNewAssumptionNeedsEvidence(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	child := filepath.Join(root, "repos", "child-b")
 	system := filepath.Join(root, "repos", "system")
-	editFile(t, filepath.Join(child, "model", "architecture.yml"), "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n",
-		"      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n    - id: AOU-B-2\n      text: Position sentences arrive at most once per epoch.\n")
-	editFile(t, filepath.Join(child, "engmod.yml"), "  - AOU-B-1\n", "  - AOU-B-1\n  - AOU-B-2\n")
+	editFile(t, filepath.Join(child, "model", "architecture.yml"), textEdit{from: "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n", to: "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n    - id: AOU-B-2\n      text: Position sentences arrive at most once per epoch.\n"})
+	editFile(t, filepath.Join(child, "engmod.yml"), textEdit{from: "  - AOU-B-1\n", to: "  - AOU-B-1\n  - AOU-B-2\n"})
 	registry := newPublishedChildren(t, root)
 	registry.publish("child-a", "v0.1.0")
 	registry.publish("child-b", "v0.1.0")
@@ -307,9 +300,7 @@ func TestRequirementLinksNewAssumptionNeedsEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	testutil.WriteFile(t, links, string(data)+"- id: LNK-AOU-B-2\n  child: bridge::AOU-B-2\n  evidence:\n  - REQ-SYS-001\n  pinned:\n    version: v0.1.0\n  status: accepted\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-03\"\n")
-	if errs := linkErrors(checkRepository(t, system)); len(errs) > 0 {
-		t.Fatalf("an evidence link must clear link.aou_unverified:\n%s", strings.Join(errs, "\n"))
-	}
+	assertNoLinkErrors(t, system, "an evidence link must clear link.aou_unverified")
 }
 
 // A requirement that realizes two contract items (REQ-B-001 realizes
@@ -327,16 +318,13 @@ func TestRequirementLinksMultiTargetAndMixedLinks(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	system := filepath.Join(root, "repos", "system")
 	links := filepath.Join(system, "model", "req-links.yml")
-	editFile(t, links, "- id: LNK-AOU-B-1\n  child: bridge::AOU-B-1\n", "- id: LNK-AOU-B-1\n  parent: REQ-SYS-001\n  child: bridge::AOU-B-1\n")
+	editFile(t, links, textEdit{from: "- id: LNK-AOU-B-1\n  child: bridge::AOU-B-1\n", to: "- id: LNK-AOU-B-1\n  parent: REQ-SYS-001\n  child: bridge::AOU-B-1\n"})
 	// child-a publishes a capability that no system link names.
 	childA := filepath.Join(root, "repos", "child-a")
-	editFile(t, filepath.Join(childA, "model", "architecture.yml"), "      note: Protect each position sentence with a checksum.\n",
-		"      note: Protect each position sentence with a checksum.\n    - id: CAP-A-3\n      kind: capability\n      note: Report the encoder version.\n")
-	editFile(t, filepath.Join(childA, "engmod.yml"), "  - CAP-A-2\n", "  - CAP-A-2\n  - CAP-A-3\n")
-	editFile(t, filepath.Join(childA, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  realizes: [CAP-A-2, CAP-A-3]\n")
-	if errs := linkErrors(checkRepository(t, system)); len(errs) > 0 {
-		t.Fatalf("an unlinked capability or an assumption link with a parent raised:\n%s", strings.Join(errs, "\n"))
-	}
+	editFile(t, filepath.Join(childA, "model", "architecture.yml"), textEdit{from: "      note: Protect each position sentence with a checksum.\n", to: "      note: Protect each position sentence with a checksum.\n    - id: CAP-A-3\n      kind: capability\n      note: Report the encoder version.\n"})
+	editFile(t, filepath.Join(childA, "engmod.yml"), textEdit{from: "  - CAP-A-2\n", to: "  - CAP-A-2\n  - CAP-A-3\n"})
+	editFile(t, filepath.Join(childA, "model", "requirements.yml"), textEdit{from: "  realizes: [CAP-A-2]\n", to: "  realizes: [CAP-A-2, CAP-A-3]\n"})
+	assertNoLinkErrors(t, system, "an unlinked capability or an assumption link with a parent raised")
 
 	before := map[string]reqlinks.Item{}
 	childB := filepath.Join(root, "repos", "child-b")
@@ -348,7 +336,7 @@ func TestRequirementLinksMultiTargetAndMixedLinks(t *testing.T) {
 		return reqlinks.PublishedItems(b, b.Manifest.Publications...)
 	}
 	before = load()
-	editFile(t, filepath.Join(childB, "model", "requirements.yml"), "shall forward one bus frame.", "shall forward two bus frames.")
+	editFile(t, filepath.Join(childB, "model", "requirements.yml"), textEdit{from: "shall forward one bus frame.", to: "shall forward two bus frames."})
 	after := load()
 	for _, id := range []string{"CAP-B-1", "AOU-B-1"} {
 		if got := reqlinks.MeaningChanges(before[id], after[id]); strings.Join(got, ",") != "REQ-B-001 text" {
