@@ -89,15 +89,10 @@ func (s *Server) linksSuspect() (map[string]any, error) {
 // TRLC-LINKS: REQ-EMG-106
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) linksReview(id, by, rationale string) (map[string]any, error) {
-	if err := requireStableID(id, "LNK-"); err != nil {
+	if err := checkReviewActors(id, by); err != nil {
 		return nil, err
 	}
-	if err := requireStableID(by, "ACT-"); err != nil {
-		return nil, err
-	}
-	if strings.TrimSpace(rationale) == "" {
-		rationale = "<why the changed item still satisfies the parent requirement>"
-	}
+	rationale = reviewRationale(rationale)
 	if s.bundle == nil || s.bundle.ManifestPath == "" {
 		return nil, fmt.Errorf("model not loaded from an engmod.yml")
 	}
@@ -106,27 +101,64 @@ func (s *Server) linksReview(id, by, rationale string) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	var data []byte
-	if ctx.Bundle.ReqLinksPath != "" {
-		if data, err = os.ReadFile(ctx.Bundle.ReqLinksPath); err != nil {
-			return nil, err
-		}
+	data, err := readReqLinksFile(ctx.Bundle.ReqLinksPath)
+	if err != nil {
+		return nil, err
 	}
 	date := s.now().Format("2006-01-02")
 	acceptance, err := linkreview.Accept(ctx, data, id, by, rationale, date)
 	if err != nil {
 		return nil, err
 	}
-	rel := filepath.Base(acceptance.Path)
-	if r, err := filepath.Rel(filepath.Dir(ctx.Manifest), acceptance.Path); err == nil && filepath.IsLocal(r) {
-		rel = filepath.ToSlash(r)
-	}
+	rel := acceptanceRelPath(ctx, acceptance)
 	command := fmt.Sprintf("engws review-links --accept %s --by %s --rationale %s", id, by, shellQuote(linkreview.OneLine(rationale)))
 	return map[string]any{
 		"link": id, "child": acceptance.Status.Child, "state": string(acceptance.Status.State),
 		"command": command, "path": rel, "patch": acceptance.Patch(rel), "reviewedOn": date, "written": false,
 		"note": "links.review writes nothing and model.patch does not edit the link file: review the change (links.suspect), then run the command in the repository",
 	}, nil
+}
+
+// checkReviewActors checks the link and actor IDs of a review.
+// TRLC-LINKS: REQ-EMG-106
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func checkReviewActors(id, by string) error {
+	if err := requireStableID(id, "LNK-"); err != nil {
+		return err
+	}
+	return requireStableID(by, "ACT-")
+}
+
+// reviewRationale returns the rationale, or a placeholder when it is blank.
+// TRLC-LINKS: REQ-EMG-106
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func reviewRationale(rationale string) string {
+	if strings.TrimSpace(rationale) == "" {
+		return "<why the changed item still satisfies the parent requirement>"
+	}
+	return rationale
+}
+
+// readReqLinksFile reads the requirement link file, or returns no content
+// when the model has none.
+// TRLC-LINKS: REQ-EMG-106
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func readReqLinksFile(path string) ([]byte, error) {
+	if path == "" {
+		return nil, nil
+	}
+	return os.ReadFile(path)
+}
+
+// acceptanceRelPath names the link file of an acceptance relative to the
+// manifest directory, or by its base name when it lies elsewhere.
+// TRLC-LINKS: REQ-EMG-106
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func acceptanceRelPath(ctx linkreview.Context, acceptance linkreview.Acceptance) string {
+	if r, err := filepath.Rel(filepath.Dir(ctx.Manifest), acceptance.Path); err == nil && filepath.IsLocal(r) {
+		return filepath.ToSlash(r)
+	}
+	return filepath.Base(acceptance.Path)
 }
 
 // shellQuote quotes s for a POSIX shell.
@@ -153,37 +185,67 @@ func (s *Server) requirementTrace(r model.Requirement) (realizes []string, paren
 	if err != nil {
 		return realizes, parents, links, children, err
 	}
-	id := strings.TrimSpace(r.ID)
+	links, children = requirementLinkRows(ctx, strings.TrimSpace(r.ID))
+	return realizes, parents, links, children, nil
+}
+
+// orderedSet collects strings in first-seen order without duplicates.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+type orderedSet struct {
+	seen  map[string]bool
+	items []string
+}
+
+// add appends v unless it was added before.
+// TRLC-LINKS: REQ-EMG-106
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func (o *orderedSet) add(v string) {
+	if o.seen[v] {
+		return
+	}
+	o.seen[v] = true
+	o.items = append(o.items, v)
+}
+
+// requirementLinkRows lists the links of the requirement id (it is their
+// parent) with state and linked item, and the children they reach: each
+// linked item, then each of its realizers, qualified.
+// TRLC-LINKS: REQ-EMG-106
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func requirementLinkRows(ctx linkreview.Context, id string) ([]map[string]any, []string) {
 	status := map[string]string{}
 	for _, l := range ctx.Bundle.ReqLinks.ReqLinks {
 		status[strings.TrimSpace(l.ID)] = strings.TrimSpace(l.Status)
 	}
-	seen := map[string]bool{}
-	add := func(v string) {
-		if !seen[v] {
-			seen[v] = true
-			children = append(children, v)
-		}
-	}
+	children := &orderedSet{seen: map[string]bool{}, items: []string{}}
+	links := []map[string]any{}
 	for _, st := range ctx.Statuses {
 		if st.Parent != id {
 			continue
 		}
 		link := map[string]any{"id": st.ID, "child": st.Child, "state": string(st.State), "status": status[st.ID]}
-		add(st.Child)
+		children.add(st.Child)
 		if st.Item != nil {
-			view := linkreview.NewItemView(st.Item)
-			realizers := []map[string]any{}
-			for _, rz := range view.Realizers {
-				q := st.Alias + "::" + rz.ID
-				add(q)
-				realizers = append(realizers, map[string]any{"id": q, "text": rz.Text, "status": rz.Status})
-			}
-			link["item"] = map[string]any{"id": st.Child, "kind": view.Kind, "text": view.Text, "realizers": realizers}
+			link["item"] = linkItemRow(st, children)
 		}
 		links = append(links, link)
 	}
-	return realizes, parents, links, children, nil
+	return links, children.items
+}
+
+// linkItemRow describes the linked child item of a link status with its
+// realizing requirements, adding each qualified realizer to children.
+// TRLC-LINKS: REQ-EMG-106
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func linkItemRow(st reqlinks.LinkStatus, children *orderedSet) map[string]any {
+	view := linkreview.NewItemView(st.Item)
+	realizers := []map[string]any{}
+	for _, rz := range view.Realizers {
+		q := st.Alias + "::" + rz.ID
+		children.add(q)
+		realizers = append(realizers, map[string]any{"id": q, "text": rz.Text, "status": rz.Status})
+	}
+	return map[string]any{"id": st.Child, "kind": view.Kind, "text": view.Text, "realizers": realizers}
 }
 
 // requirementsParents returns the trace of one requirement for

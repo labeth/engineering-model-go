@@ -53,24 +53,41 @@ func (s *Server) resolveRepo(repo string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("repo: resolve workspace root: %w", err)
 	}
-	dir := repo
-	switch {
-	case repo == "" || repo == ".":
-		dir = filepath.Dir(s.bundle.ManifestPath)
-	case !filepath.IsAbs(repo):
-		dir = filepath.Join(root, filepath.FromSlash(repo))
-	}
-	real, err := filepath.EvalSymlinks(dir)
+	real, err := filepath.EvalSymlinks(s.repoCandidate(root, repo))
 	if err != nil {
 		return "", fmt.Errorf("repo %q: %w", repo, err)
 	}
-	if rel, err := filepath.Rel(realRoot, real); err != nil || (rel != "." && !filepath.IsLocal(rel)) {
+	if !insideRoot(realRoot, real) {
 		return "", fmt.Errorf("repo %q lies outside the workspace root (the directory of engmod.work.yml above this model, or the model itself without one)", repo)
 	}
 	if info, err := os.Stat(filepath.Join(real, "engmod.yml")); err != nil || !info.Mode().IsRegular() {
 		return "", fmt.Errorf("repo %q has no engmod.yml", repo)
 	}
 	return real, nil
+}
+
+// repoCandidate is the directory a repo argument names before symlinks are
+// resolved: the server's own model directory for an empty or "." repo, a
+// path relative to the family root, or an absolute path as given.
+// TRLC-LINKS: REQ-EMG-120
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
+func (s *Server) repoCandidate(root, repo string) string {
+	switch {
+	case repo == "" || repo == ".":
+		return filepath.Dir(s.bundle.ManifestPath)
+	case !filepath.IsAbs(repo):
+		return filepath.Join(root, filepath.FromSlash(repo))
+	}
+	return repo
+}
+
+// insideRoot reports whether the resolved directory is the resolved root or
+// lies below it.
+// TRLC-LINKS: REQ-EMG-120
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
+func insideRoot(realRoot, real string) bool {
+	rel, err := filepath.Rel(realRoot, real)
+	return err == nil && (rel == "." || filepath.IsLocal(rel))
 }
 
 // memberServer returns the server that answers for repo: this one for its
