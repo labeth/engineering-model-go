@@ -134,7 +134,7 @@ func Check(opts CheckOptions) (health.CheckReport, error) {
 	if err != nil {
 		return health.CheckReport{}, err
 	}
-	return health.NewCheckReport(delta, health.CheckLevels(bundle), waiving.Waived(), verdict), nil
+	return health.NewCheckReport(delta, health.CheckInput{Levels: health.CheckLevels(bundle), Waived: waiving.Waived(), Policy: verdict}), nil
 }
 
 // policyVerdict compares the health policy of the model with the one of its

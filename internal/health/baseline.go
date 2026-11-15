@@ -74,31 +74,39 @@ func applyBaseline(results []FileResult, entries []model.HealthBaselineEntry) ba
 	for _, e := range entries {
 		want[baselineKey{e.Path, e.Function, e.Code}] = &baselineWant{value: e.Value}
 	}
-	out := baselineResult{baselined: collectBaselined(results, want), grown: map[baselineKey]int{}}
+	out := baselineResult{baselined: collectBaselined(results, want)}
 	sort.SliceStable(out.baselined, func(a, b int) bool {
-		x, y := out.baselined[a], out.baselined[b]
-		if x.Path != y.Path {
-			return x.Path < y.Path
-		}
-		if x.StartLine != y.StartLine {
-			return x.StartLine < y.StartLine
-		}
-		if x.Function != y.Function {
-			return x.Function < y.Function
-		}
-		return codeOrder(x.Code) < codeOrder(y.Code)
+		return lessFindingKey(out.baselined[a].sortKey(), out.baselined[b].sortKey())
 	})
+	stale, grown := staleAndGrown(want)
+	out.stale = model.SortHealthBaselineEntries(stale)
+	out.grown = grown
+	return out
+}
+
+// sortKey is the order of the baselined findings of a report.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-155, REQ-EMG-161
+func (b BaselinedFinding) sortKey() findingKey {
+	return findingKey{path: b.Path, function: b.Function, line: b.StartLine, code: codeOrder(b.Code)}
+}
+
+// staleAndGrown reads the matched entries: the entries no finding matched, and
+// the recorded value of each entry whose finding grew.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-155, REQ-EMG-161
+func staleAndGrown(want map[baselineKey]*baselineWant) ([]model.HealthBaselineEntry, map[baselineKey]int) {
 	var stale []model.HealthBaselineEntry
+	grown := map[baselineKey]int{}
 	for k, w := range want {
 		switch {
 		case !w.matched:
 			stale = append(stale, model.HealthBaselineEntry{Path: k.path, Function: k.function, Code: k.code, Value: w.value})
 		case w.grown:
-			out.grown[k] = w.value
+			grown[k] = w.value
 		}
 	}
-	out.stale = model.SortHealthBaselineEntries(stale)
-	return out
+	return stale, grown
 }
 
 // baselineWant is the state of one entry while the findings are matched.
@@ -116,19 +124,28 @@ func collectBaselined(results []FileResult, want map[baselineKey]*baselineWant) 
 	var baselined []BaselinedFinding
 	for _, r := range results {
 		for _, fn := range r.Functions {
-			for _, f := range fn.Findings {
-				w, ok := want[baselineKey{r.Path, fn.Name, f.Code}]
-				if !ok {
-					continue
-				}
-				w.matched = true
-				if f.Value > w.value {
-					w.grown = true
-					continue
-				}
-				baselined = append(baselined, BaselinedFinding{Path: r.Path, Function: fn.Name, Finding: f})
-			}
+			baselined = append(baselined, collectFunction(r.Path, fn, want)...)
 		}
+	}
+	return baselined
+}
+
+// collectFunction returns the findings of one function that an entry accepts.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-161
+func collectFunction(path string, fn Function, want map[baselineKey]*baselineWant) []BaselinedFinding {
+	var baselined []BaselinedFinding
+	for _, f := range fn.Findings {
+		w, ok := want[baselineKey{path, fn.Name, f.Code}]
+		if !ok {
+			continue
+		}
+		w.matched = true
+		if f.Value > w.value {
+			w.grown = true
+			continue
+		}
+		baselined = append(baselined, BaselinedFinding{Path: path, Function: fn.Name, Finding: f})
 	}
 	return baselined
 }
@@ -143,23 +160,38 @@ func annotateGrown(files []FileReport, grown map[baselineKey]int) {
 		return
 	}
 	for i := range files {
-		for j, fn := range files[i].Functions {
-			var copied []Finding
-			for k, f := range fn.Findings {
-				recorded, ok := grown[baselineKey{files[i].Path, fn.Name, f.Code}]
-				if !ok || f.Value <= recorded {
-					continue
-				}
-				if copied == nil {
-					copied = append([]Finding(nil), fn.Findings...)
-				}
-				copied[k].Message = fmt.Sprintf("%s (the baseline accepts %s %d, now %d: debt that grows is not baselined)", f.Message, f.Metric, recorded, f.Value)
-			}
-			if copied != nil {
-				files[i].Functions[j].Findings = copied
-			}
+		annotateFile(&files[i], grown)
+	}
+}
+
+// annotateFile annotates the grown findings of the functions of one file.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-161
+func annotateFile(file *FileReport, grown map[baselineKey]int) {
+	for j, fn := range file.Functions {
+		if copied := annotateFunction(file.Path, fn, grown); copied != nil {
+			file.Functions[j].Findings = copied
 		}
 	}
+}
+
+// annotateFunction returns a copy of the findings of fn with the grown ones
+// annotated, or nil when none grew.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-161
+func annotateFunction(path string, fn Function, grown map[baselineKey]int) []Finding {
+	var copied []Finding
+	for k, f := range fn.Findings {
+		recorded, ok := grown[baselineKey{path, fn.Name, f.Code}]
+		if !ok || f.Value <= recorded {
+			continue
+		}
+		if copied == nil {
+			copied = append([]Finding(nil), fn.Findings...)
+		}
+		copied[k].Message = fmt.Sprintf("%s (the baseline accepts %s %d, now %d: debt that grows is not baselined)", f.Message, f.Metric, recorded, f.Value)
+	}
+	return copied
 }
 
 // baselinedSet is the set of findings the report marks as baselined.
@@ -197,14 +229,24 @@ func BaselineEntries(r Report, keep func(code string) bool) []model.HealthBaseli
 	var entries []model.HealthBaselineEntry
 	for _, f := range r.Files {
 		for _, fn := range f.Functions {
-			for _, finding := range fn.Findings {
-				if keep == nil || keep(finding.Code) {
-					entries = append(entries, model.HealthBaselineEntry{Path: f.Path, Function: fn.Name, Code: finding.Code, Value: finding.Value})
-				}
-			}
+			entries = append(entries, functionBaselineEntries(f.Path, fn, keep)...)
 		}
 	}
 	return model.SortHealthBaselineEntries(entries)
+}
+
+// functionBaselineEntries derives the entries of the findings of one function
+// that keep accepts.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
+func functionBaselineEntries(path string, fn Function, keep func(code string) bool) []model.HealthBaselineEntry {
+	var entries []model.HealthBaselineEntry
+	for _, finding := range fn.Findings {
+		if keep == nil || keep(finding.Code) {
+			entries = append(entries, model.HealthBaselineEntry{Path: path, Function: fn.Name, Code: finding.Code, Value: finding.Value})
+		}
+	}
+	return entries
 }
 
 // BaselineDiff compares a baseline file with the entries a scan would write.
@@ -214,21 +256,30 @@ func BaselineEntries(r Report, keep func(code string) bool) []model.HealthBaseli
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
 func BaselineDiff(have, want []model.HealthBaselineEntry) (stale, missing []model.HealthBaselineEntry) {
-	inHave := make(map[model.HealthBaselineEntry]bool, len(have))
-	for _, e := range have {
-		inHave[e] = true
+	inHave, inWant := entrySet(have), entrySet(want)
+	return model.SortHealthBaselineEntries(entriesNotIn(have, inWant)), model.SortHealthBaselineEntries(entriesNotIn(want, inHave))
+}
+
+// entrySet is the set of the entries of a list.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
+func entrySet(entries []model.HealthBaselineEntry) map[model.HealthBaselineEntry]bool {
+	set := make(map[model.HealthBaselineEntry]bool, len(entries))
+	for _, e := range entries {
+		set[e] = true
 	}
-	inWant := make(map[model.HealthBaselineEntry]bool, len(want))
-	for _, e := range want {
-		inWant[e] = true
-		if !inHave[e] {
-			missing = append(missing, e)
+	return set
+}
+
+// entriesNotIn lists the entries that are not in the set, in order.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
+func entriesNotIn(entries []model.HealthBaselineEntry, set map[model.HealthBaselineEntry]bool) []model.HealthBaselineEntry {
+	var out []model.HealthBaselineEntry
+	for _, e := range entries {
+		if !set[e] {
+			out = append(out, e)
 		}
 	}
-	for _, e := range have {
-		if !inWant[e] {
-			stale = append(stale, e)
-		}
-	}
-	return model.SortHealthBaselineEntries(stale), model.SortHealthBaselineEntries(missing)
+	return out
 }

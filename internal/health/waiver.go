@@ -44,61 +44,86 @@ func waiverMatchesPath(pattern, rel string) bool {
 // TRLC-LINKS: REQ-EMG-154
 // ENGMODEL-LINKS: FU-CODE-HEALTH
 func ApplyWaivers(results []FileResult, waivers []model.HealthWaiver) ([]FileResult, []WaivedFinding, []model.HealthWaiver) {
+	run := &waiverRun{waivers: waivers, used: make([]bool, len(waivers))}
 	out := make([]FileResult, len(results))
-	var waived []WaivedFinding
-	used := make([]bool, len(waivers))
 	for i, r := range results {
-		out[i] = r
-		out[i].Functions = make([]Function, len(r.Functions))
-		for j, f := range r.Functions {
-			out[i].Functions[j] = f
-			if len(f.Findings) == 0 {
-				continue
-			}
-			kept := make([]Finding, 0, len(f.Findings))
-			for _, finding := range f.Findings {
-				w := matchWaiver(waivers, r.Path, f.Name, finding.Code)
-				if w < 0 {
-					kept = append(kept, finding)
-					continue
-				}
-				used[w] = true
-				waived = append(waived, WaivedFinding{Path: r.Path, Function: f.Name, Decision: strings.TrimSpace(waivers[w].Decision), Finding: finding})
-			}
-			if len(kept) == 0 {
-				kept = nil
-			}
-			out[i].Functions[j].Findings = kept
-		}
+		out[i] = run.applyFile(r)
 	}
-	sort.SliceStable(waived, func(a, b int) bool {
-		x, y := waived[a], waived[b]
-		if x.Path != y.Path {
-			return x.Path < y.Path
-		}
-		if x.StartLine != y.StartLine {
-			return x.StartLine < y.StartLine
-		}
-		if x.Function != y.Function {
-			return x.Function < y.Function
-		}
-		return codeOrder(x.Code) < codeOrder(y.Code)
-	})
-	var unused []model.HealthWaiver
-	for i, w := range waivers {
-		if !used[i] {
-			unused = append(unused, w)
-		}
-	}
-	return out, waived, unused
+	sort.SliceStable(run.waived, func(a, b int) bool { return lessFindingKey(run.waived[a].sortKey(), run.waived[b].sortKey()) })
+	return out, run.waived, run.unused()
 }
 
-// matchWaiver returns the index of the first waiver for a finding, or -1.
+// waiverRun is the state of one ApplyWaivers call: which waivers matched and
+// the findings they took out.
+type waiverRun struct {
+	waivers []model.HealthWaiver
+	used    []bool
+	waived  []WaivedFinding
+}
+
+// sortKey is the order of the waived findings of a report.
 //
 // TRLC-LINKS: REQ-EMG-154
-func matchWaiver(waivers []model.HealthWaiver, filePath, function, code string) int {
+func (w WaivedFinding) sortKey() findingKey {
+	return findingKey{path: w.Path, function: w.Function, line: w.StartLine, code: codeOrder(w.Code)}
+}
+
+// applyFile returns a copy of a result without the findings the waivers cover.
+//
+// TRLC-LINKS: REQ-EMG-154
+func (w *waiverRun) applyFile(r FileResult) FileResult {
+	out := r
+	out.Functions = make([]Function, len(r.Functions))
+	for j, f := range r.Functions {
+		out.Functions[j] = f
+		if len(f.Findings) > 0 {
+			out.Functions[j].Findings = w.applyFunction(r.Path, f)
+		}
+	}
+	return out
+}
+
+// applyFunction returns the findings of a function that no waiver covers (nil
+// when there are none) and records the others as waived.
+//
+// TRLC-LINKS: REQ-EMG-154
+func (w *waiverRun) applyFunction(path string, f Function) []Finding {
+	kept := make([]Finding, 0, len(f.Findings))
+	for _, finding := range f.Findings {
+		idx := matchWaiver(w.waivers, baselineKey{path, f.Name, finding.Code})
+		if idx < 0 {
+			kept = append(kept, finding)
+			continue
+		}
+		w.used[idx] = true
+		w.waived = append(w.waived, WaivedFinding{Path: path, Function: f.Name, Decision: strings.TrimSpace(w.waivers[idx].Decision), Finding: finding})
+	}
+	if len(kept) == 0 {
+		return nil
+	}
+	return kept
+}
+
+// unused lists the waivers that matched no finding.
+//
+// TRLC-LINKS: REQ-EMG-154
+func (w *waiverRun) unused() []model.HealthWaiver {
+	var unused []model.HealthWaiver
+	for i, waiver := range w.waivers {
+		if !w.used[i] {
+			unused = append(unused, waiver)
+		}
+	}
+	return unused
+}
+
+// matchWaiver returns the index of the first waiver for a finding (the key
+// holds the file, the function and the code), or -1.
+//
+// TRLC-LINKS: REQ-EMG-154
+func matchWaiver(waivers []model.HealthWaiver, k baselineKey) int {
 	for i, w := range waivers {
-		if strings.TrimSpace(w.Code) == code && strings.TrimSpace(w.Function) == function && waiverMatchesPath(w.Path, filePath) {
+		if strings.TrimSpace(w.Code) == k.code && strings.TrimSpace(w.Function) == k.function && waiverMatchesPath(w.Path, k.path) {
 			return i
 		}
 	}
@@ -113,12 +138,21 @@ func matchWaiver(waivers []model.HealthWaiver, filePath, function, code string) 
 func WaiversForFiles(waivers []model.HealthWaiver, files []string) []model.HealthWaiver {
 	var out []model.HealthWaiver
 	for _, w := range waivers {
-		for _, f := range files {
-			if waiverMatchesPath(w.Path, f) {
-				out = append(out, w)
-				break
-			}
+		if namesAny(w.Path, files) {
+			out = append(out, w)
 		}
 	}
 	return out
+}
+
+// namesAny reports whether a waiver path names one of the files.
+//
+// TRLC-LINKS: REQ-EMG-154
+func namesAny(waiverPath string, files []string) bool {
+	for _, f := range files {
+		if waiverMatchesPath(waiverPath, f) {
+			return true
+		}
+	}
+	return false
 }

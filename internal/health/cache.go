@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync/atomic"
 )
 
@@ -110,7 +111,7 @@ func validKey(key string) bool {
 		return false
 	}
 	for _, r := range key {
-		if (r < '0' || r > '9') && (r < 'a' || r > 'f') {
+		if !strings.ContainsRune("0123456789abcdef", r) {
 			return false
 		}
 	}
@@ -125,21 +126,26 @@ func (c *Cache) usable(create bool) bool {
 	dir := c.root
 	for _, part := range cacheSubdir {
 		dir = filepath.Join(dir, part)
-		info, err := os.Lstat(dir)
-		switch {
-		case err == nil:
-			if !info.IsDir() {
-				return false
-			}
-		case os.IsNotExist(err) && create:
-			if os.Mkdir(dir, 0o700) != nil {
-				return false
-			}
-		default:
+		if !cacheDirUsable(dir, create) {
 			return false
 		}
 	}
 	return true
+}
+
+// cacheDirUsable reports whether dir is a real directory; with create a
+// missing one is made.
+//
+// TRLC-LINKS: REQ-EMG-159
+func cacheDirUsable(dir string, create bool) bool {
+	info, err := os.Lstat(dir)
+	switch {
+	case err == nil:
+		return info.IsDir()
+	case os.IsNotExist(err) && create:
+		return os.Mkdir(dir, 0o700) == nil
+	}
+	return false
 }
 
 // Get returns the cached result for key. The returned result has an empty
@@ -161,15 +167,29 @@ func (c *Cache) read(key string) (FileResult, bool) {
 	if !validKey(key) || !c.usable(false) {
 		return FileResult{}, false
 	}
-	file := filepath.Join(c.Dir(), key+".json")
+	data, ok := readCacheFile(filepath.Join(c.Dir(), key+".json"))
+	if !ok {
+		return FileResult{}, false
+	}
+	return decodeEntry(key, data)
+}
+
+// readCacheFile reads an entry file that is a regular file of a bounded size.
+//
+// TRLC-LINKS: REQ-EMG-159
+func readCacheFile(file string) ([]byte, bool) {
 	info, err := os.Lstat(file)
 	if err != nil || !info.Mode().IsRegular() || info.Size() > maxCacheEntry {
-		return FileResult{}, false
+		return nil, false
 	}
 	data, err := os.ReadFile(file)
-	if err != nil {
-		return FileResult{}, false
-	}
+	return data, err == nil
+}
+
+// decodeEntry decodes an entry and checks its digest against the key.
+//
+// TRLC-LINKS: REQ-EMG-159
+func decodeEntry(key string, data []byte) (FileResult, bool) {
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.DisallowUnknownFields()
 	var entry cacheEntry
@@ -220,7 +240,13 @@ func (c *Cache) Put(key string, res FileResult) {
 	if err != nil {
 		return
 	}
-	final := filepath.Join(c.Dir(), key+".json")
+	c.writeEntry(filepath.Join(c.Dir(), key+".json"), data)
+}
+
+// writeEntry writes the entry file through a temporary file and a rename.
+//
+// TRLC-LINKS: REQ-EMG-159
+func (c *Cache) writeEntry(final string, data []byte) {
 	if info, err := os.Lstat(final); err == nil && !info.Mode().IsRegular() {
 		return // never write through a symlink or into a directory
 	}
@@ -262,36 +288,57 @@ func (e CachedEngine) Analyze(inputs []FileInput, cfg Config) ([]FileResult, err
 	if e.Cache == nil {
 		return e.Engine.Analyze(inputs, cfg)
 	}
-	results := make([]FileResult, len(inputs))
-	keys := make([]string, len(inputs))
-	var missing []FileInput
-	var missingAt []int
-	for i, in := range inputs {
-		keys[i] = CacheKey(e.Engine, in, cfg)
-		if res, ok := e.Cache.Get(keys[i]); ok {
-			res.Path = in.Path
-			results[i] = res
-			continue
-		}
-		missing = append(missing, in)
-		missingAt = append(missingAt, i)
+	l := e.lookup(inputs, cfg)
+	if len(l.missing) == 0 {
+		return l.results, nil
 	}
-	if len(missing) == 0 {
-		return results, nil
-	}
-	fresh, err := e.Engine.Analyze(missing, cfg)
+	fresh, err := e.Engine.Analyze(l.missing, cfg)
 	if err != nil {
 		return nil, err
 	}
-	if len(fresh) != len(missing) {
-		return nil, fmt.Errorf("health: engine %s returned %d results for %d files", e.Engine.Name(), len(fresh), len(missing))
+	if len(fresh) != len(l.missing) {
+		return nil, fmt.Errorf("health: engine %s returned %d results for %d files", e.Engine.Name(), len(fresh), len(l.missing))
 	}
+	e.store(l, fresh)
+	return l.results, nil
+}
+
+// cacheLookup is the outcome of looking the inputs up: the results found, the
+// key of every input, and the inputs that missed with their positions.
+type cacheLookup struct {
+	results   []FileResult
+	keys      []string
+	missing   []FileInput
+	missingAt []int
+}
+
+// lookup serves each input from the cache when it can.
+//
+// TRLC-LINKS: REQ-EMG-159
+func (e CachedEngine) lookup(inputs []FileInput, cfg Config) cacheLookup {
+	l := cacheLookup{results: make([]FileResult, len(inputs)), keys: make([]string, len(inputs))}
+	for i, in := range inputs {
+		l.keys[i] = CacheKey(e.Engine, in, cfg)
+		if res, ok := e.Cache.Get(l.keys[i]); ok {
+			res.Path = in.Path
+			l.results[i] = res
+			continue
+		}
+		l.missing = append(l.missing, in)
+		l.missingAt = append(l.missingAt, i)
+	}
+	return l
+}
+
+// store puts the fresh results in the cache and in their positions.
+//
+// TRLC-LINKS: REQ-EMG-159
+func (e CachedEngine) store(l cacheLookup, fresh []FileResult) {
 	for j, res := range fresh {
-		i := missingAt[j]
-		e.Cache.Put(keys[i], res)
-		results[i] = res
+		i := l.missingAt[j]
+		e.Cache.Put(l.keys[i], res)
+		l.results[i] = res
 	}
-	return results, nil
 }
 
 // CachePolicy decides whether a run may use the result cache.
@@ -302,6 +349,18 @@ type CachePolicy struct {
 	Force bool
 	// Getenv reads the environment; nil means os.Getenv.
 	Getenv func(string) string
+}
+
+// off reports whether the policy turns the cache off: disabled, or CI is set
+// and the cache is not forced.
+//
+// TRLC-LINKS: REQ-EMG-159
+func (p CachePolicy) off() bool {
+	getenv := p.Getenv
+	if getenv == nil {
+		getenv = os.Getenv
+	}
+	return p.Disabled || (getenv("CI") != "" && !p.Force)
 }
 
 // OpenCache returns the cache of the project at root, or nil when this run
@@ -315,11 +374,7 @@ type CachePolicy struct {
 //
 // TRLC-LINKS: REQ-EMG-159
 func OpenCache(root string, policy CachePolicy) (*Cache, string) {
-	getenv := policy.Getenv
-	if getenv == nil {
-		getenv = os.Getenv
-	}
-	if policy.Disabled || (getenv("CI") != "" && !policy.Force) {
+	if policy.off() {
 		return nil, ""
 	}
 	tracked, err := NewGitRepo(root).TrackedFiles(".engmod")

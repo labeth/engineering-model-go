@@ -198,7 +198,7 @@ func TestSARIFURIsArePercentEncoded(t *testing.T) {
 
 	delta := DeltaReport{Blocking: []DeltaEntry{{Path: "a b/c#d.go", Function: "F", Code: CodeComplexMethod, Change: ChangeNew, Severity: SeverityHigh}},
 		Skipped: []SkippedFile{{Path: "100%.go", Reason: "too large"}}}
-	data, err = CheckSARIF(NewCheckReport(delta, map[string]string{"health.regression": "error", CodeFileSkipped: "error"}, nil, PolicyVerdict{}))
+	data, err = CheckSARIF(NewCheckReport(delta, CheckInput{Levels: map[string]string{"health.regression": "error", CodeFileSkipped: "error"}}))
 	if err != nil {
 		t.Fatal(err)
 	}

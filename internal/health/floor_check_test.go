@@ -50,7 +50,7 @@ func gateCases() []gateCase {
 func TestCheckReportGateFollowsTheFloorLevel(t *testing.T) {
 	for _, c := range gateCases() {
 		t.Run(c.name, func(t *testing.T) {
-			r := NewCheckReport(c.d, c.levels, nil, PolicyVerdict{})
+			r := NewCheckReport(c.d, CheckInput{Levels: c.levels})
 			if r.Failed != c.failed || r.FloorLevel != c.level {
 				t.Errorf("failed %v floor level %q, want %v and %q", r.Failed, r.FloorLevel, c.failed, c.level)
 			}

@@ -53,15 +53,17 @@ func PathMatches(pattern, rel string) bool {
 // TRLC-LINKS: REQ-EMG-153
 func Excluded(h *model.ManifestHealth, rel string) bool {
 	rel = strings.TrimPrefix(filepath.ToSlash(rel), "./")
-	for _, pattern := range DefaultExcludes() {
-		if PathMatches(pattern, rel) {
-			return true
-		}
+	if anyPathMatches(DefaultExcludes(), rel) {
+		return true
 	}
-	if h == nil {
-		return false
-	}
-	for _, pattern := range h.Exclude {
+	return h != nil && anyPathMatches(h.Exclude, rel)
+}
+
+// anyPathMatches reports whether a path matches one of the patterns.
+//
+// TRLC-LINKS: REQ-EMG-153
+func anyPathMatches(patterns []string, rel string) bool {
+	for _, pattern := range patterns {
 		if PathMatches(pattern, rel) {
 			return true
 		}
