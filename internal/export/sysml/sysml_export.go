@@ -318,6 +318,7 @@ type sysmlWriter struct {
 	diagnostics *[]model.SemanticDiagnostic
 }
 
+// TRLC-LINKS: REQ-EMG-036, REQ-EMG-168
 func (w *sysmlWriter) diagnoseError(code, message, path string) {
 	*w.diagnostics = append(*w.diagnostics, model.SemanticDiagnostic{
 		Code: code, Severity: model.SemanticSeverityError, Message: message, Path: path,

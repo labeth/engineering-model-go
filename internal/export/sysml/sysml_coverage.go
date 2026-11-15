@@ -157,6 +157,7 @@ func loadCoverageInputs() coverageInputs {
 	return in
 }
 
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
 func (in coverageInputs) authority() CoverageAuthority {
 	return CoverageAuthority{
 		Baseline:             in.sourceManifest.Baseline,
@@ -168,6 +169,7 @@ func (in coverageInputs) authority() CoverageAuthority {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
 func (in coverageInputs) totals(renderer RendererCoverage) CoverageTotals {
 	counts := in.inventory.Counts
 	return CoverageTotals{
@@ -186,6 +188,7 @@ func (in coverageInputs) totals(renderer RendererCoverage) CoverageTotals {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
 func coverageLimitations() []string {
 	return []string{
 		"This claim does not include execution or simulation semantics.",
@@ -194,6 +197,7 @@ func coverageLimitations() []string {
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
 func coverageChecks() []CoverageCheckEvidence {
 	return []CoverageCheckEvidence{
 		{ID: "inventory-hash", Status: "passed", Evidence: []string{"scripts/check-sysml-metamodel.sh", "internal/sysmlmetamodel/metamodel_test.go"}},
@@ -232,6 +236,7 @@ func (manifest *CoverageManifest) appendClass(class sysmlmetamodel.Metaclass, re
 	}
 }
 
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
 func propertyCoverage(metaclass, propertyID string, entry sysmlmetamodel.CoverageEntry) PropertyCoverage {
 	status := entry.Status
 	if status == "derived" {

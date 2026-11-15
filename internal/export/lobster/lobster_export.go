@@ -107,6 +107,8 @@ type activityScan struct {
 // newActivityScan resolves the namespace and requirements package defaults.
 //
 // ENGMODEL-LINKS: FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+//
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
 func newActivityScan(root string, options Options) activityScan {
 	scan := activityScan{root: root, namespace: strings.TrimSpace(options.ActivityNamespace), reqPkg: trlc.SanitizeIdentifier(strings.TrimSpace(options.RequirementsPackage))}
 	if scan.namespace == "" {
@@ -179,6 +181,8 @@ func (scan activityScan) itemForFile(path string) (lobsterActivityItem, bool) {
 // requirementRefs renders the LOBSTER requirement references of the IDs.
 //
 // ENGMODEL-LINKS: FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+//
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
 func (scan activityScan) requirementRefs(ids []string) []string {
 	refs := make([]string, 0, len(ids))
 	for _, id := range ids {
@@ -209,6 +213,8 @@ func (scan activityScan) resolveRefs(items []lobsterActivityItem) error {
 // requireCanonical fails on the first ID missing from the canonical projection.
 //
 // ENGMODEL-LINKS: FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+//
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
 func requireCanonical(ids []string, canonical map[string]bool) error {
 	for _, id := range ids {
 		if !canonical[id] {
@@ -221,6 +227,8 @@ func requireCanonical(ids []string, canonical map[string]bool) error {
 // referencedRequirements returns the requirements the items reference, sorted by ID.
 //
 // ENGMODEL-LINKS: FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+//
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
 func referencedRequirements(items []lobsterActivityItem) []model.Requirement {
 	requirementByID := map[string]model.Requirement{}
 	for _, item := range items {
@@ -279,6 +287,7 @@ func extractTRLCMarkerRefs(content string) ([]string, int, int) {
 
 // markerColumnOf returns the 1-based column of the TRLC-LINKS marker in line.
 //
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func markerColumnOf(line string) int {
 	if location := lobsterTRLCMarkerRe.FindStringIndex(line); location != nil {
@@ -291,6 +300,8 @@ func markerColumnOf(line string) int {
 // not in seen yet, recording them as seen.
 //
 // ENGMODEL-LINKS: FU-LOBSTER-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+//
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
 func appendNewRequirementIDs(reqs []string, seen map[string]bool, list string) []string {
 	for _, req := range lobsterReqIDRe.FindAllString(list, -1) {
 		req = strings.TrimSpace(req)

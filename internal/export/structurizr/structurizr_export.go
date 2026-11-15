@@ -321,6 +321,8 @@ func (b *structurizrBuilder) addDataObjects(in []model.DataObject) {
 }
 
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, CTRL-TRACEABILITY-COVERAGE
+//
+// TRLC-LINKS: REQ-EMG-005
 func (b *structurizrBuilder) addControls(in []model.Control) {
 	for _, x := range sortedControls(in) {
 		id := b.register(x.ID, classControl)
@@ -329,6 +331,8 @@ func (b *structurizrBuilder) addControls(in []model.Control) {
 }
 
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, FU-THREAT-EXPORTER
+//
+// TRLC-LINKS: REQ-EMG-005
 func (b *structurizrBuilder) addAttackVectors(in []model.AttackVector) {
 	for _, x := range sortedAttackVectors(in) {
 		id := b.register(x.ID, classAttackVector)
@@ -337,6 +341,8 @@ func (b *structurizrBuilder) addAttackVectors(in []model.AttackVector) {
 }
 
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+//
+// TRLC-LINKS: REQ-EMG-005
 func (b *structurizrBuilder) addTrustBoundaries(in []model.TrustBoundary) {
 	for _, x := range sortedTrustBoundaries(in) {
 		id := b.register(x.ID, classTrustBoundary)
@@ -345,6 +351,8 @@ func (b *structurizrBuilder) addTrustBoundaries(in []model.TrustBoundary) {
 }
 
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, FU-THREAT-EXPORTER
+//
+// TRLC-LINKS: REQ-EMG-005
 func (b *structurizrBuilder) addThreatScenarios(in []model.ThreatScenario) {
 	for _, x := range sortedThreatScenarios(in) {
 		id := b.register(x.ID, classThreatScenario)

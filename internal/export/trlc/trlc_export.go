@@ -160,6 +160,8 @@ func SanitizeIdentifier(in string) string {
 // isASCIILetter reports whether r is an ASCII letter (the 0x20 bit folds case).
 //
 // ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+//
+// TRLC-LINKS: REQ-EMG-006
 func isASCIILetter(r rune) bool {
 	return r|0x20 >= 'a' && r|0x20 <= 'z'
 }
@@ -167,6 +169,8 @@ func isASCIILetter(r rune) bool {
 // isASCIIDigit reports whether r is an ASCII digit.
 //
 // ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+//
+// TRLC-LINKS: REQ-EMG-006
 func isASCIIDigit(r rune) bool {
 	return r >= '0' && r <= '9'
 }

@@ -44,6 +44,8 @@ func reservedModule(module string) string {
 
 // snakeRune lower-cases an ASCII letter and keeps an ASCII digit; ok is false
 // for every other character.
+//
+// TRLC-LINKS: REQ-EMG-141
 func snakeRune(r rune) (lower rune, ok bool) {
 	switch {
 	case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
@@ -81,6 +83,8 @@ func snakeCase(id string) string {
 // pascalRune gives an ASCII letter its case in a part: upper case at the
 // start, lower case after it; an ASCII digit is kept and ok is false for every
 // other character.
+//
+// TRLC-LINKS: REQ-EMG-141
 func pascalRune(r rune, startOfPart bool) (cased rune, ok bool) {
 	lower, ok := snakeRune(r)
 	if !ok {
