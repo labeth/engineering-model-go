@@ -162,19 +162,39 @@ func assertContractFieldSets(t *testing.T, sets map[string]any) {
 	if got := contractFieldSet(sets, "control"); got != "id,name,category,description" {
 		t.Fatalf("fieldSets.control = %q", got)
 	}
+	assertRiskFieldSet(t, sets)
+	assertFieldSetKinds(t, sets)
+	if !strings.Contains(","+contractFieldSet(sets, "flowStep")+",", ",trustBoundaryRef,") {
+		t.Fatalf("fieldSets.flowStep = %s", contractFieldSet(sets, "flowStep"))
+	}
+}
+
+// assertRiskFieldSet checks the fields of the risk kind in the contract's
+// fieldSets.
+//
+// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertRiskFieldSet(t *testing.T, sets map[string]any) {
+	t.Helper()
 	risk := "," + contractFieldSet(sets, "risk") + ","
 	for _, f := range []string{"id", "status", "response", "owner", "evidence", "residualRisk", "rationale", "acceptedBy"} {
 		if !strings.Contains(risk, ","+f+",") {
 			t.Fatalf("fieldSets.risk lacks %s: %s", f, risk)
 		}
 	}
+}
+
+// assertFieldSetKinds checks that the contract lists fields for each of the
+// entity kinds.
+//
+// TRLC-LINKS: REQ-EMG-087, REQ-EMG-045, REQ-EMG-115
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertFieldSetKinds(t *testing.T, sets map[string]any) {
+	t.Helper()
 	for _, kind := range []string{"threatScenario", "flowStep", "flow", "functionalUnit", "requirement", "decision", "acceptanceRecord", "controlVerification", "publication"} {
 		if contractFieldSet(sets, kind) == "" {
 			t.Fatalf("fieldSets has no %s: %v", kind, sets)
 		}
-	}
-	if !strings.Contains(","+contractFieldSet(sets, "flowStep")+",", ",trustBoundaryRef,") {
-		t.Fatalf("fieldSets.flowStep = %s", contractFieldSet(sets, "flowStep"))
 	}
 }
 
