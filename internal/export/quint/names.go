@@ -42,6 +42,18 @@ func reservedModule(module string) string {
 	return ""
 }
 
+// snakeRune lower-cases an ASCII letter and keeps an ASCII digit; ok is false
+// for every other character.
+func snakeRune(r rune) (lower rune, ok bool) {
+	switch {
+	case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
+		return r, true
+	case r >= 'A' && r <= 'Z':
+		return r + 'a' - 'A', true
+	}
+	return r, false
+}
+
 // snakeCase turns a model ID into a Quint identifier part: ASCII letters and
 // digits are lower-cased and every other run of characters becomes one
 // underscore ("SM-PAYMENTS-AUTH" -> "sm_payments_auth"). The result is empty
@@ -52,11 +64,8 @@ func snakeCase(id string) string {
 	var out strings.Builder
 	pendingSeparator := false
 	for _, r := range id {
-		switch {
-		case r >= 'a' && r <= 'z', r >= '0' && r <= '9':
-		case r >= 'A' && r <= 'Z':
-			r += 'a' - 'A'
-		default:
+		lower, ok := snakeRune(r)
+		if !ok {
 			pendingSeparator = out.Len() > 0
 			continue
 		}
@@ -64,9 +73,23 @@ func snakeCase(id string) string {
 			out.WriteByte('_')
 			pendingSeparator = false
 		}
-		out.WriteRune(r)
+		out.WriteRune(lower)
 	}
 	return out.String()
+}
+
+// pascalRune gives an ASCII letter its case in a part: upper case at the
+// start, lower case after it; an ASCII digit is kept and ok is false for every
+// other character.
+func pascalRune(r rune, startOfPart bool) (cased rune, ok bool) {
+	lower, ok := snakeRune(r)
+	if !ok {
+		return r, false
+	}
+	if startOfPart && lower >= 'a' && lower <= 'z' {
+		return lower - ('a' - 'A'), true
+	}
+	return lower, true
 }
 
 // pascalCase turns a model ID into a Quint constructor name: the ID is split
@@ -79,22 +102,11 @@ func pascalCase(id string) string {
 	var out strings.Builder
 	startOfPart := true
 	for _, r := range id {
-		switch {
-		case r >= 'a' && r <= 'z':
-			if startOfPart {
-				r -= 'a' - 'A'
-			}
-		case r >= 'A' && r <= 'Z':
-			if !startOfPart {
-				r += 'a' - 'A'
-			}
-		case r >= '0' && r <= '9':
-		default:
-			startOfPart = true
-			continue
+		cased, ok := pascalRune(r, startOfPart)
+		startOfPart = !ok
+		if ok {
+			out.WriteRune(cased)
 		}
-		startOfPart = false
-		out.WriteRune(r)
 	}
 	return out.String()
 }
