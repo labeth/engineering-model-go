@@ -217,16 +217,16 @@ func TestParseMachineExprPassesStructuralValidation(t *testing.T) {
 		{`attempts := attempts + 1; status := "retry"; open := true; n := -1`, MachineExprEffect},
 	} {
 		expr := mustParse(t, tc.src, tc.kind)
-		var diags []SemanticDiagnostic
-		validateExpression(&expr, "guard", identities, &diags)
-		if len(diags) != 0 {
-			t.Errorf("%q: structural diagnostics %+v", tc.src, diags)
+		validator := semanticValidator{identities: identities}
+		validator.validateExpression(&expr, "guard")
+		if len(validator.diagnostics) != 0 {
+			t.Errorf("%q: structural diagnostics %+v", tc.src, validator.diagnostics)
 		}
 	}
 	expr := mustParse(t, "in_state(STATE-NOPE)", MachineExprBoolean)
-	var diags []SemanticDiagnostic
-	validateExpression(&expr, "guard", identities, &diags)
-	if len(diags) != 1 || diags[0].Code != "semantic.dangling_reference" {
+	validator := semanticValidator{identities: identities}
+	validator.validateExpression(&expr, "guard")
+	if diags := validator.diagnostics; len(diags) != 1 || diags[0].Code != "semantic.dangling_reference" {
 		t.Errorf("unknown state must dangle, got %+v", diags)
 	}
 }
