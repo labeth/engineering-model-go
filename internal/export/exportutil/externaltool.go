@@ -22,18 +22,7 @@ import (
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func ResolveExternalTool(configured, name, installHint string) (string, error) {
 	if strings.TrimSpace(configured) != "" {
-		path, err := filepath.Abs(configured)
-		if err != nil {
-			return "", fmt.Errorf("resolve %s path: %w", name, err)
-		}
-		info, err := os.Stat(path)
-		if err != nil {
-			return "", fmt.Errorf("%s is unavailable at %s: %w", name, configured, err)
-		}
-		if info.IsDir() {
-			return "", fmt.Errorf("%s path %s is a directory", name, configured)
-		}
-		return path, nil
+		return resolveConfiguredTool(configured, name)
 	}
 	path, err := exec.LookPath(name)
 	if err != nil {
@@ -42,6 +31,26 @@ func ResolveExternalTool(configured, name, installHint string) (string, error) {
 			return "", fmt.Errorf("%s is required; %s: %w", name, hint, err)
 		}
 		return "", fmt.Errorf("%s is required: %w", name, err)
+	}
+	return path, nil
+}
+
+// resolveConfiguredTool checks that the configured path names an existing
+// regular file and returns its absolute path.
+//
+// TRLC-LINKS: REQ-EMG-142
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func resolveConfiguredTool(configured, name string) (string, error) {
+	path, err := filepath.Abs(configured)
+	if err != nil {
+		return "", fmt.Errorf("resolve %s path: %w", name, err)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return "", fmt.Errorf("%s is unavailable at %s: %w", name, configured, err)
+	}
+	if info.IsDir() {
+		return "", fmt.Errorf("%s path %s is a directory", name, configured)
 	}
 	return path, nil
 }
