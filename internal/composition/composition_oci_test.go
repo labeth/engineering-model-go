@@ -21,33 +21,28 @@ func TestCompositionResolvesCUEModule(t *testing.T) {
 	moduleDir := filepath.Join(registryRoot, "models.atlas.example_shared-edge_v0.1.0")
 	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
-	if err != nil {
-		t.Fatalf("start registry: %v", err)
-	}
+	requireEqual(t, err, nil)
 	t.Setenv("CUE_REGISTRY", registry.Host()+"+insecure")
 
 	workspace := filepath.Join(root, "workspace")
 	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
 	manifest := filepath.Join(workspace, "engmod.yml")
 	res, err := GenerateCompositionFromFile(manifest)
-	if err != nil {
-		registry.Close()
-		t.Fatalf("compose OCI module: %v", err)
-	}
-	if res.Root == nil || len(res.Root.Children) != 1 {
-		registry.Close()
-		t.Fatalf("expected one module child, got %#v", res.Root)
-	}
-	assertNoCompositionErrors(t, res.Diagnostics)
-
 	registry.Close()
+	requireEqual(t, err, nil)
+	requireOneChild(t, res)
+
+	// The module is cached in .engmod and reusable with the registry closed.
 	res, err = GenerateCompositionFromFile(manifest)
-	if err != nil {
-		t.Fatalf("compose cached OCI module: %v", err)
-	}
-	if res.Root == nil || len(res.Root.Children) != 1 {
-		t.Fatalf("expected cached module child, got %#v", res.Root)
-	}
+	requireEqual(t, err, nil)
+	requireOneChild(t, res)
+}
+
+// requireOneChild fails the test unless the composition resolved one child
+// without errors.
+func requireOneChild(t *testing.T, res CompositionResult) {
+	t.Helper()
+	requireEqual(t, res.Root != nil && len(res.Root.Children) == 1, true)
 	assertNoCompositionErrors(t, res.Diagnostics)
 }
 

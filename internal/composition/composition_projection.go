@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 
@@ -56,29 +57,7 @@ func BuildCompositionProjection(result CompositionResult) CompositionProjection 
 		provenanceByID[provenance.QualifiedID] = provenance
 	}
 	for _, child := range result.Root.Children {
-		published := PublishedProjection{
-			Alias: child.Dependency, Publication: child.Publication,
-			ModulePath: child.ModulePath, Version: child.Version,
-			SourceModel: child.Bundle.Manifest.Module.ModelID,
-		}
-		for sourceID, domain := range child.PublishedFacet {
-			value, ok := projectionEntityByID(child.Bundle, domain, sourceID)
-			if !ok {
-				continue
-			}
-			qualifiedID, err := model.QualifyReference(child.Dependency, sourceID)
-			if err != nil {
-				continue
-			}
-			entity := PublishedProjectionEntity{
-				QualifiedID: qualifiedID, SourceID: sourceID, Domain: domain, Facet: domain,
-				Value: value, Source: &child.Bundle, Provenance: provenanceByID[qualifiedID],
-			}
-			published.Entities = append(published.Entities, entity)
-		}
-		sort.Slice(published.Entities, func(i, j int) bool {
-			return published.Entities[i].QualifiedID < published.Entities[j].QualifiedID
-		})
+		published := publishedProjection(child, provenanceByID)
 		projection.Publications = append(projection.Publications, published)
 		projection.Entities = append(projection.Entities, published.Entities...)
 	}
@@ -92,6 +71,32 @@ func BuildCompositionProjection(result CompositionResult) CompositionProjection 
 		return projection.Entities[i].QualifiedID < projection.Entities[j].QualifiedID
 	})
 	return projection
+}
+
+// publishedProjection is the entities a child publishes, ordered by
+// qualified id, with the provenance of each.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func publishedProjection(child *ComposedSystem, provenanceByID map[string]ImportedEntityProvenance) PublishedProjection {
+	published := PublishedProjection{
+		Alias: child.Dependency, Publication: child.Publication,
+		ModulePath: child.ModulePath, Version: child.Version,
+		SourceModel: child.Bundle.Manifest.Module.ModelID,
+	}
+	for sourceID, domain := range child.PublishedFacet {
+		value, ok := projectionEntityByID(child.Bundle, domain, sourceID)
+		qualifiedID, err := model.QualifyReference(child.Dependency, sourceID)
+		if !ok || err != nil {
+			continue
+		}
+		published.Entities = append(published.Entities, PublishedProjectionEntity{
+			QualifiedID: qualifiedID, SourceID: sourceID, Domain: domain, Facet: domain,
+			Value: value, Source: &child.Bundle, Provenance: provenanceByID[qualifiedID],
+		})
+	}
+	sort.Slice(published.Entities, func(i, j int) bool {
+		return published.Entities[i].QualifiedID < published.Entities[j].QualifiedID
+	})
+	return published
 }
 
 // ResolveCompositionProjection resolves and validates composition for a bundle.
@@ -143,33 +148,7 @@ func (projection CompositionProjection) Domain(domain string) []PublishedProject
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
 func projectionEntityByID(bundle model.Bundle, domain, id string) (any, bool) {
-	var roots []any
-	switch domain {
-	case "architecture":
-		roots = []any{
-			bundle.Architecture.AuthoredArchitecture.FunctionalGroups,
-			bundle.Architecture.AuthoredArchitecture.FunctionalUnits,
-			bundle.Architecture.AuthoredArchitecture.Actors,
-			bundle.Architecture.AuthoredArchitecture.ReferencedElements,
-			bundle.Architecture.AuthoredArchitecture.Interfaces,
-			bundle.Architecture.AuthoredArchitecture.DataObjects,
-			bundle.Architecture.AuthoredArchitecture.DeploymentTargets,
-			bundle.Architecture.AuthoredArchitecture.HardwareItems,
-			bundle.Architecture.AuthoredArchitecture.HardwareInterfaces,
-			bundle.Architecture.Contract,
-		}
-	case "behavior":
-		roots = []any{bundle.Behavior.Behavior}
-	case "assurance":
-		roots = []any{bundle.Assurance.Assurance}
-	case "compliance":
-		roots = []any{bundle.Compliance.Compliance}
-	case "requirements":
-		roots = []any{bundle.Requirements.Requirements}
-	case "views":
-		roots = []any{bundle.Views.Views}
-	}
-	for _, root := range roots {
+	for _, root := range projectionRoots(bundle, domain) {
 		if value, ok := findProjectionEntity(reflect.ValueOf(root), id); ok {
 			return value, true
 		}
@@ -177,41 +156,76 @@ func projectionEntityByID(bundle model.Bundle, domain, id string) (any, bool) {
 	return nil, false
 }
 
+// projectionRoots is the parts of the bundle that hold the entities of one
+// publication domain.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func projectionRoots(bundle model.Bundle, domain string) []any {
+	switch domain {
+	case "architecture":
+		a := bundle.Architecture.AuthoredArchitecture
+		return []any{
+			a.FunctionalGroups, a.FunctionalUnits, a.Actors, a.ReferencedElements, a.Interfaces,
+			a.DataObjects, a.DeploymentTargets, a.HardwareItems, a.HardwareInterfaces,
+			bundle.Architecture.Contract,
+		}
+	case "behavior":
+		return []any{bundle.Behavior.Behavior}
+	case "assurance":
+		return []any{bundle.Assurance.Assurance}
+	case "compliance":
+		return []any{bundle.Compliance.Compliance}
+	case "requirements":
+		return []any{bundle.Requirements.Requirements}
+	case "views":
+		return []any{bundle.Views.Views}
+	}
+	return nil
+}
+
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
 func findProjectionEntity(value reflect.Value, id string) (any, bool) {
 	if !value.IsValid() {
 		return nil, false
 	}
-	if value.Kind() == reflect.Pointer {
-		if value.IsNil() {
-			return nil, false
-		}
-		return findProjectionEntity(value.Elem(), id)
-	}
 	switch value.Kind() {
+	case reflect.Pointer:
+		if !value.IsNil() {
+			return findProjectionEntity(value.Elem(), id)
+		}
 	case reflect.Slice, reflect.Array:
-		for i := 0; i < value.Len(); i++ {
-			if found, ok := findProjectionEntity(value.Index(i), id); ok {
-				return found, true
-			}
-		}
+		return firstProjectionEntity(value.Len(), value.Index, id)
 	case reflect.Struct:
-		valueType := value.Type()
-		for i := 0; i < value.NumField(); i++ {
-			field := valueType.Field(i)
-			if strings.Split(field.Tag.Get("yaml"), ",")[0] == "id" &&
-				value.Field(i).Kind() == reflect.String &&
-				strings.TrimSpace(value.Field(i).String()) == id {
-				return value.Interface(), true
-			}
+		if hasID(value, id) {
+			return value.Interface(), true
 		}
-		for i := 0; i < value.NumField(); i++ {
-			if found, ok := findProjectionEntity(value.Field(i), id); ok {
-				return found, true
-			}
+		return firstProjectionEntity(value.NumField(), value.Field, id)
+	}
+	return nil, false
+}
+
+// firstProjectionEntity is the first entity with the id among the n values
+// that at returns.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func firstProjectionEntity(n int, at func(int) reflect.Value, id string) (any, bool) {
+	for i := 0; i < n; i++ {
+		if found, ok := findProjectionEntity(at(i), id); ok {
+			return found, true
 		}
 	}
 	return nil, false
+}
+
+// hasID reports whether a struct has a string field tagged id that holds id.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func hasID(value reflect.Value, id string) bool {
+	valueType := value.Type()
+	for i := 0; i < value.NumField(); i++ {
+		isID := strings.Split(valueType.Field(i).Tag.Get("yaml"), ",")[0] == "id" && value.Field(i).Kind() == reflect.String
+		if isID && strings.TrimSpace(value.Field(i).String()) == id {
+			return true
+		}
+	}
+	return false
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
@@ -220,25 +234,32 @@ func (entity PublishedProjectionEntity) qualify(ref string) string {
 	if ref == "" || strings.Contains(ref, "::") {
 		return ref
 	}
-	if entity.Source != nil {
-		for _, publication := range entity.Source.Manifest.Publications {
-			if publication.ID != entity.Provenance.Publication {
-				continue
-			}
-			for _, ids := range [][]string{
-				publication.Architecture, publication.Behavior, publication.Assurance,
-				publication.Compliance, publication.Requirements, publication.Views,
-			} {
-				for _, id := range ids {
-					if id == ref {
-						qualified, _ := model.QualifyReference(entity.Provenance.Alias, ref)
-						return qualified
-					}
-				}
-			}
-		}
+	if entity.Source != nil && entity.publishes(ref) {
+		qualified, _ := model.QualifyReference(entity.Provenance.Alias, ref)
+		return qualified
 	}
 	return ""
+}
+
+// publishes reports whether the publication the entity comes through makes
+// the id visible.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func (entity PublishedProjectionEntity) publishes(id string) bool {
+	for _, publication := range entity.Source.Manifest.Publications {
+		if publication.ID == entity.Provenance.Publication && publicationShows(publication, id) {
+			return true
+		}
+	}
+	return false
+}
+
+// publicationShows reports whether any domain of the publication selects the id.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func publicationShows(publication model.ManifestPublication, id string) bool {
+	return slices.ContainsFunc([][]string{
+		publication.Architecture, publication.Behavior, publication.Assurance,
+		publication.Compliance, publication.Requirements, publication.Views,
+	}, func(ids []string) bool { return slices.Contains(ids, id) })
 }
 
 // QualifyList qualifies each reference that the entity's publication makes
@@ -269,192 +290,310 @@ func (projection CompositionProjection) EnrichBundle(bundle model.Bundle, domain
 	for _, value := range []any{bundle.Architecture, bundle.Behavior, bundle.Assurance, bundle.Compliance, bundle.Requirements, bundle.Views} {
 		collectOwnedIDs(reflect.ValueOf(value), present)
 	}
-	mappingKey := func(m model.Mapping) string { return m.Type + "\x00" + m.From + "\x00" + m.To }
 	for _, m := range bundle.Architecture.AuthoredArchitecture.Mappings {
 		present[mappingKey(m)] = true
 	}
 	for _, entity := range projection.Entities {
-		if !selected[entity.Domain] {
-			continue
-		}
-		q := entity.QualifiedID
-		if mapping, ok := entity.Value.(model.Mapping); ok {
-			mapping.From, mapping.To = entity.qualify(mapping.From), entity.qualify(mapping.To)
-			if present[mappingKey(mapping)] {
-				continue
-			}
-		} else if present[q] {
-			continue
-		}
-		switch value := entity.Value.(type) {
-		case model.FunctionalGroup:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.FunctionalGroups = append(bundle.Architecture.AuthoredArchitecture.FunctionalGroups, value)
-		case model.FunctionalUnit:
-			value.ID, value.Group = q, entity.qualify(value.Group)
-			bundle.Architecture.AuthoredArchitecture.FunctionalUnits = append(bundle.Architecture.AuthoredArchitecture.FunctionalUnits, value)
-		case model.Actor:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.Actors = append(bundle.Architecture.AuthoredArchitecture.Actors, value)
-		case model.ReferencedElement:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.ReferencedElements = append(bundle.Architecture.AuthoredArchitecture.ReferencedElements, value)
-		case model.Interface:
-			value.ID, value.Owner = q, entity.qualify(value.Owner)
-			bundle.Architecture.AuthoredArchitecture.Interfaces = append(bundle.Architecture.AuthoredArchitecture.Interfaces, value)
-		case model.DataObject:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.DataObjects = append(bundle.Architecture.AuthoredArchitecture.DataObjects, value)
-		case model.DeploymentTarget:
-			value.ID, value.TrustZone = q, entity.qualify(value.TrustZone)
-			bundle.Architecture.AuthoredArchitecture.DeploymentTargets = append(bundle.Architecture.AuthoredArchitecture.DeploymentTargets, value)
-		case model.HardwareItem:
-			value.ID, value.Hosts = q, entity.QualifyList(value.Hosts)
-			bundle.Architecture.AuthoredArchitecture.HardwareItems = append(bundle.Architecture.AuthoredArchitecture.HardwareItems, value)
-		case model.HardwareInterface:
-			value.ID, value.From, value.To = q, entity.qualify(value.From), entity.qualify(value.To)
-			value.SoftwareInterfaceRef = entity.qualify(value.SoftwareInterfaceRef)
-			if value.From != "" && value.To != "" {
-				bundle.Architecture.AuthoredArchitecture.HardwareInterfaces = append(bundle.Architecture.AuthoredArchitecture.HardwareInterfaces, value)
-			}
-		case model.ContractEntry:
-			value.ID, value.Ref = q, ""
-			if projectionContractRequires(entity) {
-				bundle.Architecture.Contract.Requires = append(bundle.Architecture.Contract.Requires, value)
-			} else {
-				bundle.Architecture.Contract.Provides = append(bundle.Architecture.Contract.Provides, value)
-			}
-		case model.ContractAssumption:
-			value.ID = q
-			bundle.Architecture.Contract.Assumptions = append(bundle.Architecture.Contract.Assumptions, value)
-		case model.MachineState, model.Machine:
-			// A machine is not merged into the importing model: its states,
-			// transitions and expressions belong to the publishing model.
-		case model.Event:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.Events = append(bundle.Architecture.AuthoredArchitecture.Events, value)
-			bundle.Behavior.Behavior.Events = append(bundle.Behavior.Behavior.Events, value)
-		case model.Flow:
-			value.ID = q
-			value.SourceRef, value.DestinationRef = entity.qualify(value.SourceRef), entity.qualify(value.DestinationRef)
-			value.DataRefs, value.Threats = entity.QualifyList(value.DataRefs), entity.QualifyList(value.Threats)
-			for i := range value.Steps {
-				value.Steps[i].Ref = entity.qualify(value.Steps[i].Ref)
-				value.Steps[i].SourceRef = entity.qualify(value.Steps[i].SourceRef)
-				value.Steps[i].DestinationRef = entity.qualify(value.Steps[i].DestinationRef)
-				value.Steps[i].DataIn = entity.QualifyList(value.Steps[i].DataIn)
-				value.Steps[i].DataOut = entity.QualifyList(value.Steps[i].DataOut)
-				value.Steps[i].DataRefs = entity.QualifyList(value.Steps[i].DataRefs)
-				value.Steps[i].InterfaceRef = entity.qualify(value.Steps[i].InterfaceRef)
-				value.Steps[i].TrustBoundaryRef = entity.qualify(value.Steps[i].TrustBoundaryRef)
-			}
-			bundle.Architecture.AuthoredArchitecture.Flows = append(bundle.Architecture.AuthoredArchitecture.Flows, value)
-			bundle.Behavior.Behavior.Flows = append(bundle.Behavior.Behavior.Flows, value)
-		case model.Mapping:
-			value.From, value.To = entity.qualify(value.From), entity.qualify(value.To)
-			if value.From != "" && value.To != "" {
-				bundle.Architecture.AuthoredArchitecture.Mappings = append(bundle.Architecture.AuthoredArchitecture.Mappings, value)
-				bundle.Behavior.Behavior.Relationships = append(bundle.Behavior.Behavior.Relationships, value)
-			}
-		case model.AttackVector:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.AttackVectors = append(bundle.Architecture.AuthoredArchitecture.AttackVectors, value)
-			bundle.Assurance.Assurance.AttackVectors = append(bundle.Assurance.Assurance.AttackVectors, value)
-		case model.Control:
-			value.ID = q
-			bundle.Architecture.AuthoredArchitecture.Controls = append(bundle.Architecture.AuthoredArchitecture.Controls, value)
-			bundle.Assurance.Assurance.Controls = append(bundle.Assurance.Assurance.Controls, value)
-		case model.Risk:
-			value.ID, value.Owner = q, entity.qualify(value.Owner)
-			value.AppliesTo = entity.QualifyList(value.AppliesTo)
-			value.RelatedControls = entity.QualifyList(value.RelatedControls)
-			value.AttackVectors = entity.QualifyList(value.AttackVectors)
-			value.ThreatScenarios = entity.QualifyList(value.ThreatScenarios)
-			bundle.Architecture.AuthoredArchitecture.Risks = append(bundle.Architecture.AuthoredArchitecture.Risks, value)
-			bundle.Assurance.Assurance.Risks = append(bundle.Assurance.Assurance.Risks, value)
-		case model.POAMItem:
-			value.ID, value.RiskRef = q, entity.qualify(value.RiskRef)
-			value.ResponsibleRole = entity.qualify(value.ResponsibleRole)
-			bundle.Architecture.AuthoredArchitecture.POAMItems = append(bundle.Architecture.AuthoredArchitecture.POAMItems, value)
-			bundle.Assurance.Assurance.POAMItems = append(bundle.Assurance.Assurance.POAMItems, value)
-		case model.TrustBoundary:
-			value.ID, value.ParentRef = q, entity.qualify(value.ParentRef)
-			value.Members = entity.QualifyList(value.Members)
-			bundle.Architecture.AuthoredArchitecture.TrustBoundaries = append(bundle.Architecture.AuthoredArchitecture.TrustBoundaries, value)
-			bundle.Assurance.Assurance.TrustBoundaries = append(bundle.Assurance.Assurance.TrustBoundaries, value)
-		case model.ThreatScenario:
-			value.ID = q
-			value.Owner = entity.qualify(value.Owner)
-			value.AttackVectorRef, value.RiskRef = entity.qualify(value.AttackVectorRef), entity.qualify(value.RiskRef)
-			value.AppliesTo = entity.QualifyList(value.AppliesTo)
-			value.FlowRefs = entity.QualifyList(value.FlowRefs)
-			value.RelatedControls = entity.QualifyList(value.RelatedControls)
-			value.AssumptionRefs = entity.QualifyList(value.AssumptionRefs)
-			value.OutOfScopeRefs = entity.QualifyList(value.OutOfScopeRefs)
-			value.MitigationRefs = entity.QualifyList(value.MitigationRefs)
-			value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
-			bundle.Architecture.AuthoredArchitecture.ThreatScenarios = append(bundle.Architecture.AuthoredArchitecture.ThreatScenarios, value)
-			bundle.Assurance.Assurance.ThreatScenarios = append(bundle.Assurance.Assurance.ThreatScenarios, value)
-		case model.ThreatAssumption:
-			value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
-			value.Owner = entity.qualify(value.Owner)
-			bundle.Architecture.AuthoredArchitecture.ThreatAssumptions = append(bundle.Architecture.AuthoredArchitecture.ThreatAssumptions, value)
-			bundle.Assurance.Assurance.ThreatAssumptions = append(bundle.Assurance.Assurance.ThreatAssumptions, value)
-		case model.ThreatOutOfScope:
-			value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
-			value.Owner = entity.qualify(value.Owner)
-			bundle.Architecture.AuthoredArchitecture.ThreatOutOfScope = append(bundle.Architecture.AuthoredArchitecture.ThreatOutOfScope, value)
-			bundle.Assurance.Assurance.ThreatOutOfScope = append(bundle.Assurance.Assurance.ThreatOutOfScope, value)
-		case model.ThreatMitigation:
-			value.ID = q
-			value.Owner = entity.qualify(value.Owner)
-			value.ThreatScenarioRef, value.ControlRef = entity.qualify(value.ThreatScenarioRef), entity.qualify(value.ControlRef)
-			value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
-			bundle.Architecture.AuthoredArchitecture.ThreatMitigations = append(bundle.Architecture.AuthoredArchitecture.ThreatMitigations, value)
-			bundle.Assurance.Assurance.ThreatMitigations = append(bundle.Assurance.Assurance.ThreatMitigations, value)
-		case model.ControlVerification:
-			value.ID, value.ControlRef = q, entity.qualify(value.ControlRef)
-			value.Owner = entity.qualify(value.Owner)
-			value.ThreatScenarioRefs = entity.QualifyList(value.ThreatScenarioRefs)
-			value.RiskRefs = entity.QualifyList(value.RiskRefs)
-			value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
-			bundle.Architecture.AuthoredArchitecture.ControlVerifications = append(bundle.Architecture.AuthoredArchitecture.ControlVerifications, value)
-			bundle.Assurance.Assurance.ControlVerifications = append(bundle.Assurance.Assurance.ControlVerifications, value)
-		case model.ComplianceProfile:
-			value.ID = q
-			value.Href = projectionSourcePath(bundle, entity, value.Href)
-			value.CatalogHref = projectionSourcePath(bundle, entity, value.CatalogHref)
-			bundle.Architecture.Compliance.Profiles = append(bundle.Architecture.Compliance.Profiles, value)
-			bundle.Compliance.Compliance.Profiles = append(bundle.Compliance.Compliance.Profiles, value)
-		case model.ComplianceMapping:
-			value.ID, value.ProfileRef = q, entity.qualify(value.ProfileRef)
-			value.ModelControlRef = entity.qualify(value.ModelControlRef)
-			value.AppliesTo = entity.QualifyList(value.AppliesTo)
-			value.InheritedFrom = entity.QualifyList(value.InheritedFrom)
-			value.ResponsibleRoles = entity.QualifyList(value.ResponsibleRoles)
-			if value.ProfileRef != "" && value.ModelControlRef != "" {
-				bundle.Architecture.Compliance.Mappings = append(bundle.Architecture.Compliance.Mappings, value)
-				bundle.Compliance.Compliance.Mappings = append(bundle.Compliance.Compliance.Mappings, value)
-			}
-		case model.Requirement:
-			// realizes names the dependency's own contract items: qualify
-			// the published ones and drop the others with the alias.
-			value.ID, value.AppliesTo, value.Realizes = q, entity.QualifyList(value.AppliesTo), entity.QualifyList(value.Realizes)
-			bundle.Requirements.Requirements = append(bundle.Requirements.Requirements, value)
-		case model.View:
-			value.ID, value.Roots = q, entity.QualifyList(value.Roots)
-			bundle.Architecture.Views = append(bundle.Architecture.Views, value)
-			bundle.Views.Views = append(bundle.Views.Views, value)
+		if selected[entity.Domain] && !entity.present(present) {
+			enrichment{bundle: &bundle, entity: entity}.add()
 		}
 	}
 	return bundle
 }
 
+// mappingKey identifies a mapping by type and ends.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func mappingKey(m model.Mapping) string { return m.Type + "\x00" + m.From + "\x00" + m.To }
+
+// present reports whether the bundle already has the entity: its qualified id
+// or, for a mapping, the mapping between its qualified ends.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (entity PublishedProjectionEntity) present(present map[string]bool) bool {
+	mapping, ok := entity.Value.(model.Mapping)
+	if !ok {
+		return present[entity.QualifiedID]
+	}
+	mapping.From, mapping.To = entity.qualify(mapping.From), entity.qualify(mapping.To)
+	return present[mappingKey(mapping)]
+}
+
+// enrichment adds one published entity to a bundle, with its references
+// qualified by the dependency alias.
+type enrichment struct {
+	bundle *model.Bundle
+	entity PublishedProjectionEntity
+}
+
+// add appends the entity to the lists of its kind. A machine is not merged
+// into the importing model: its states, transitions and expressions belong to
+// the publishing model.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) add() {
+	for _, handle := range []func(any) bool{e.addArchitecture, e.addDeployment, e.addBehavior, e.addThreats, e.addOther} {
+		if handle(e.entity.Value) {
+			return
+		}
+	}
+}
+
+// addArchitecture adds a functional group or unit, actor, referenced element, interface or data object.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addArchitecture(entityValue any) bool {
+	entity, q, bundle := e.entity, e.entity.QualifiedID, e.bundle
+	switch value := entityValue.(type) {
+	case model.FunctionalGroup:
+		value.ID = q
+		bundle.Architecture.AuthoredArchitecture.FunctionalGroups = append(bundle.Architecture.AuthoredArchitecture.FunctionalGroups, value)
+	case model.FunctionalUnit:
+		value.ID, value.Group = q, entity.qualify(value.Group)
+		bundle.Architecture.AuthoredArchitecture.FunctionalUnits = append(bundle.Architecture.AuthoredArchitecture.FunctionalUnits, value)
+	case model.Actor:
+		value.ID = q
+		bundle.Architecture.AuthoredArchitecture.Actors = append(bundle.Architecture.AuthoredArchitecture.Actors, value)
+	case model.ReferencedElement:
+		value.ID = q
+		bundle.Architecture.AuthoredArchitecture.ReferencedElements = append(bundle.Architecture.AuthoredArchitecture.ReferencedElements, value)
+	case model.Interface:
+		value.ID, value.Owner = q, entity.qualify(value.Owner)
+		bundle.Architecture.AuthoredArchitecture.Interfaces = append(bundle.Architecture.AuthoredArchitecture.Interfaces, value)
+	case model.DataObject:
+		value.ID = q
+		bundle.Architecture.AuthoredArchitecture.DataObjects = append(bundle.Architecture.AuthoredArchitecture.DataObjects, value)
+	default:
+		return false
+	}
+	return true
+}
+
+// addDeployment adds a deployment target, hardware item or interface, or a contract entry or assumption.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addDeployment(entityValue any) bool {
+	entity, q, bundle := e.entity, e.entity.QualifiedID, e.bundle
+	switch value := entityValue.(type) {
+	case model.DeploymentTarget:
+		value.ID, value.TrustZone = q, entity.qualify(value.TrustZone)
+		bundle.Architecture.AuthoredArchitecture.DeploymentTargets = append(bundle.Architecture.AuthoredArchitecture.DeploymentTargets, value)
+	case model.HardwareItem:
+		value.ID, value.Hosts = q, entity.QualifyList(value.Hosts)
+		bundle.Architecture.AuthoredArchitecture.HardwareItems = append(bundle.Architecture.AuthoredArchitecture.HardwareItems, value)
+	case model.HardwareInterface:
+		e.addHardwareInterface(value)
+	case model.ContractEntry:
+		e.addContractEntry(value)
+	case model.ContractAssumption:
+		value.ID = q
+		bundle.Architecture.Contract.Assumptions = append(bundle.Architecture.Contract.Assumptions, value)
+	default:
+		return false
+	}
+	return true
+}
+
+// addBehavior adds an event, flow or mapping, or an attack vector, control or risk.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addBehavior(entityValue any) bool {
+	entity, q, bundle := e.entity, e.entity.QualifiedID, e.bundle
+	switch value := entityValue.(type) {
+	case model.Event:
+		value.ID = q
+		bundle.Architecture.AuthoredArchitecture.Events = append(bundle.Architecture.AuthoredArchitecture.Events, value)
+		bundle.Behavior.Behavior.Events = append(bundle.Behavior.Behavior.Events, value)
+	case model.Flow:
+		e.addFlow(value)
+	case model.Mapping:
+		e.addMapping(value)
+	case model.AttackVector:
+		value.ID = q
+		bundle.Architecture.AuthoredArchitecture.AttackVectors = append(bundle.Architecture.AuthoredArchitecture.AttackVectors, value)
+		bundle.Assurance.Assurance.AttackVectors = append(bundle.Assurance.Assurance.AttackVectors, value)
+	case model.Control:
+		value.ID = q
+		bundle.Architecture.AuthoredArchitecture.Controls = append(bundle.Architecture.AuthoredArchitecture.Controls, value)
+		bundle.Assurance.Assurance.Controls = append(bundle.Assurance.Assurance.Controls, value)
+	case model.Risk:
+		value.ID, value.Owner = q, entity.qualify(value.Owner)
+		value.AppliesTo = entity.QualifyList(value.AppliesTo)
+		value.RelatedControls = entity.QualifyList(value.RelatedControls)
+		value.AttackVectors = entity.QualifyList(value.AttackVectors)
+		value.ThreatScenarios = entity.QualifyList(value.ThreatScenarios)
+		bundle.Architecture.AuthoredArchitecture.Risks = append(bundle.Architecture.AuthoredArchitecture.Risks, value)
+		bundle.Assurance.Assurance.Risks = append(bundle.Assurance.Assurance.Risks, value)
+	default:
+		return false
+	}
+	return true
+}
+
+// addThreats adds a plan of action item, trust boundary or a threat record.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addThreats(entityValue any) bool {
+	entity, q, bundle := e.entity, e.entity.QualifiedID, e.bundle
+	switch value := entityValue.(type) {
+	case model.POAMItem:
+		value.ID, value.RiskRef = q, entity.qualify(value.RiskRef)
+		value.ResponsibleRole = entity.qualify(value.ResponsibleRole)
+		bundle.Architecture.AuthoredArchitecture.POAMItems = append(bundle.Architecture.AuthoredArchitecture.POAMItems, value)
+		bundle.Assurance.Assurance.POAMItems = append(bundle.Assurance.Assurance.POAMItems, value)
+	case model.TrustBoundary:
+		value.ID, value.ParentRef = q, entity.qualify(value.ParentRef)
+		value.Members = entity.QualifyList(value.Members)
+		bundle.Architecture.AuthoredArchitecture.TrustBoundaries = append(bundle.Architecture.AuthoredArchitecture.TrustBoundaries, value)
+		bundle.Assurance.Assurance.TrustBoundaries = append(bundle.Assurance.Assurance.TrustBoundaries, value)
+	case model.ThreatScenario:
+		value.ID = q
+		value.Owner = entity.qualify(value.Owner)
+		value.AttackVectorRef, value.RiskRef = entity.qualify(value.AttackVectorRef), entity.qualify(value.RiskRef)
+		value.AppliesTo = entity.QualifyList(value.AppliesTo)
+		value.FlowRefs = entity.QualifyList(value.FlowRefs)
+		value.RelatedControls = entity.QualifyList(value.RelatedControls)
+		value.AssumptionRefs = entity.QualifyList(value.AssumptionRefs)
+		value.OutOfScopeRefs = entity.QualifyList(value.OutOfScopeRefs)
+		value.MitigationRefs = entity.QualifyList(value.MitigationRefs)
+		value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
+		bundle.Architecture.AuthoredArchitecture.ThreatScenarios = append(bundle.Architecture.AuthoredArchitecture.ThreatScenarios, value)
+		bundle.Assurance.Assurance.ThreatScenarios = append(bundle.Assurance.Assurance.ThreatScenarios, value)
+	case model.ThreatAssumption:
+		value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
+		value.Owner = entity.qualify(value.Owner)
+		bundle.Architecture.AuthoredArchitecture.ThreatAssumptions = append(bundle.Architecture.AuthoredArchitecture.ThreatAssumptions, value)
+		bundle.Assurance.Assurance.ThreatAssumptions = append(bundle.Assurance.Assurance.ThreatAssumptions, value)
+	case model.ThreatOutOfScope:
+		value.ID, value.AppliesTo = q, entity.QualifyList(value.AppliesTo)
+		value.Owner = entity.qualify(value.Owner)
+		bundle.Architecture.AuthoredArchitecture.ThreatOutOfScope = append(bundle.Architecture.AuthoredArchitecture.ThreatOutOfScope, value)
+		bundle.Assurance.Assurance.ThreatOutOfScope = append(bundle.Assurance.Assurance.ThreatOutOfScope, value)
+	case model.ThreatMitigation:
+		value.ID = q
+		value.Owner = entity.qualify(value.Owner)
+		value.ThreatScenarioRef, value.ControlRef = entity.qualify(value.ThreatScenarioRef), entity.qualify(value.ControlRef)
+		value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
+		bundle.Architecture.AuthoredArchitecture.ThreatMitigations = append(bundle.Architecture.AuthoredArchitecture.ThreatMitigations, value)
+		bundle.Assurance.Assurance.ThreatMitigations = append(bundle.Assurance.Assurance.ThreatMitigations, value)
+	default:
+		return false
+	}
+	return true
+}
+
+// addOther adds a control verification, compliance profile or mapping, requirement or view.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addOther(entityValue any) bool {
+	entity, q, bundle := e.entity, e.entity.QualifiedID, e.bundle
+	switch value := entityValue.(type) {
+	case model.ControlVerification:
+		value.ID, value.ControlRef = q, entity.qualify(value.ControlRef)
+		value.Owner = entity.qualify(value.Owner)
+		value.ThreatScenarioRefs = entity.QualifyList(value.ThreatScenarioRefs)
+		value.RiskRefs = entity.QualifyList(value.RiskRefs)
+		value.VerificationRefs = entity.QualifyList(value.VerificationRefs)
+		bundle.Architecture.AuthoredArchitecture.ControlVerifications = append(bundle.Architecture.AuthoredArchitecture.ControlVerifications, value)
+		bundle.Assurance.Assurance.ControlVerifications = append(bundle.Assurance.Assurance.ControlVerifications, value)
+	case model.ComplianceProfile:
+		value.ID = q
+		value.Href = projectionSourcePath(*bundle, entity, value.Href)
+		value.CatalogHref = projectionSourcePath(*bundle, entity, value.CatalogHref)
+		bundle.Architecture.Compliance.Profiles = append(bundle.Architecture.Compliance.Profiles, value)
+		bundle.Compliance.Compliance.Profiles = append(bundle.Compliance.Compliance.Profiles, value)
+	case model.ComplianceMapping:
+		e.addComplianceMapping(value)
+	case model.Requirement:
+		// realizes names the dependency's own contract items: qualify
+		// the published ones and drop the others with the alias.
+		value.ID, value.AppliesTo, value.Realizes = q, entity.QualifyList(value.AppliesTo), entity.QualifyList(value.Realizes)
+		bundle.Requirements.Requirements = append(bundle.Requirements.Requirements, value)
+	case model.View:
+		value.ID, value.Roots = q, entity.QualifyList(value.Roots)
+		bundle.Architecture.Views = append(bundle.Architecture.Views, value)
+		bundle.Views.Views = append(bundle.Views.Views, value)
+	default:
+		return false
+	}
+	return true
+}
+
+// addHardwareInterface adds a hardware interface whose ends both qualify.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addHardwareInterface(value model.HardwareInterface) {
+	entity := e.entity
+	value.ID, value.From, value.To = entity.QualifiedID, entity.qualify(value.From), entity.qualify(value.To)
+	value.SoftwareInterfaceRef = entity.qualify(value.SoftwareInterfaceRef)
+	if value.From != "" && value.To != "" {
+		e.bundle.Architecture.AuthoredArchitecture.HardwareInterfaces = append(e.bundle.Architecture.AuthoredArchitecture.HardwareInterfaces, value)
+	}
+}
+
+// addContractEntry adds a contract entry to the required or provided list of
+// the contract, by where its source model lists it.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addContractEntry(value model.ContractEntry) {
+	value.ID, value.Ref = e.entity.QualifiedID, ""
+	if projectionContractRequires(e.entity) {
+		e.bundle.Architecture.Contract.Requires = append(e.bundle.Architecture.Contract.Requires, value)
+	} else {
+		e.bundle.Architecture.Contract.Provides = append(e.bundle.Architecture.Contract.Provides, value)
+	}
+}
+
+// addFlow adds a flow with the references of it and its steps qualified, to
+// the architecture and the behavior.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addFlow(value model.Flow) {
+	entity := e.entity
+	value.ID = entity.QualifiedID
+	value.SourceRef, value.DestinationRef = entity.qualify(value.SourceRef), entity.qualify(value.DestinationRef)
+	value.DataRefs, value.Threats = entity.QualifyList(value.DataRefs), entity.QualifyList(value.Threats)
+	for i := range value.Steps {
+		value.Steps[i] = entity.qualifyStep(value.Steps[i])
+	}
+	e.bundle.Architecture.AuthoredArchitecture.Flows = append(e.bundle.Architecture.AuthoredArchitecture.Flows, value)
+	e.bundle.Behavior.Behavior.Flows = append(e.bundle.Behavior.Behavior.Flows, value)
+}
+
+// qualifyStep qualifies the references of a flow step.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (entity PublishedProjectionEntity) qualifyStep(step model.FlowStep) model.FlowStep {
+	step.Ref = entity.qualify(step.Ref)
+	step.SourceRef = entity.qualify(step.SourceRef)
+	step.DestinationRef = entity.qualify(step.DestinationRef)
+	step.DataIn = entity.QualifyList(step.DataIn)
+	step.DataOut = entity.QualifyList(step.DataOut)
+	step.DataRefs = entity.QualifyList(step.DataRefs)
+	step.InterfaceRef = entity.qualify(step.InterfaceRef)
+	step.TrustBoundaryRef = entity.qualify(step.TrustBoundaryRef)
+	return step
+}
+
+// addMapping adds a mapping whose ends both qualify, to the architecture and
+// the behavior relationships.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addMapping(value model.Mapping) {
+	value.From, value.To = e.entity.qualify(value.From), e.entity.qualify(value.To)
+	if value.From != "" && value.To != "" {
+		e.bundle.Architecture.AuthoredArchitecture.Mappings = append(e.bundle.Architecture.AuthoredArchitecture.Mappings, value)
+		e.bundle.Behavior.Behavior.Relationships = append(e.bundle.Behavior.Behavior.Relationships, value)
+	}
+}
+
+// addComplianceMapping adds a compliance mapping whose profile and control
+// references both qualify.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-091
+func (e enrichment) addComplianceMapping(value model.ComplianceMapping) {
+	entity := e.entity
+	value.ID, value.ProfileRef = entity.QualifiedID, entity.qualify(value.ProfileRef)
+	value.ModelControlRef = entity.qualify(value.ModelControlRef)
+	value.AppliesTo = entity.QualifyList(value.AppliesTo)
+	value.InheritedFrom = entity.QualifyList(value.InheritedFrom)
+	value.ResponsibleRoles = entity.QualifyList(value.ResponsibleRoles)
+	if value.ProfileRef != "" && value.ModelControlRef != "" {
+		e.bundle.Architecture.Compliance.Mappings = append(e.bundle.Architecture.Compliance.Mappings, value)
+		e.bundle.Compliance.Compliance.Mappings = append(e.bundle.Compliance.Compliance.Mappings, value)
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
 func projectionSourcePath(bundle model.Bundle, entity PublishedProjectionEntity, path string) string {
 	path = strings.TrimSpace(path)
-	if path == "" || filepath.IsAbs(path) || strings.Contains(path, "://") ||
-		entity.Source == nil || strings.TrimSpace(entity.Source.ManifestPath) == "" {
+	if isOpaquePath(path) || !entity.hasManifest() {
 		return path
 	}
 	base := filepath.Dir(bundle.ManifestPath)
@@ -464,6 +603,19 @@ func projectionSourcePath(bundle model.Bundle, entity PublishedProjectionEntity,
 		return path
 	}
 	return filepath.ToSlash(relative)
+}
+
+// isOpaquePath reports whether a path is empty, absolute or a URL, and so
+// not relative to a model.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func isOpaquePath(path string) bool {
+	return path == "" || filepath.IsAbs(path) || strings.Contains(path, "://")
+}
+
+// hasManifest reports whether the entity's source bundle has a manifest path.
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+func (entity PublishedProjectionEntity) hasManifest() bool {
+	return entity.Source != nil && strings.TrimSpace(entity.Source.ManifestPath) != ""
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
