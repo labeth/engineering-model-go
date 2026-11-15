@@ -41,7 +41,7 @@ func engineeringMetaclass(extension string) string {
 		return "Engineering::Extension"
 	}
 	parts := strings.FieldsFunc(extension, func(r rune) bool {
-		return r == '.' || r == '-' || r == '_' || r == ':'
+		return strings.ContainsRune(".-_:", r)
 	})
 	for i := range parts {
 		if parts[i] == "" {
@@ -52,56 +52,102 @@ func engineeringMetaclass(extension string) string {
 	return "Engineering::" + strings.Join(parts, "")
 }
 
+// metamodelInstance is one element or relationship whose metaclass and
+// property values are checked against the official metamodel.
+type metamodelInstance struct {
+	id         string
+	metaclass  string
+	properties map[string]MetamodelPropertyValue
+	path       string
+	extension  bool
+}
+
 // TRLC-LINKS: REQ-EMG-038, REQ-EMG-039, REQ-EMG-040
-func validateMetamodelInstance(id, metaclass string, properties map[string]MetamodelPropertyValue, path string, extension bool) []SemanticDiagnostic {
-	metaclass = strings.TrimSpace(metaclass)
+func validateMetamodelInstance(instance metamodelInstance) []SemanticDiagnostic {
+	metaclass := strings.TrimSpace(instance.metaclass)
 	if metaclass == "" {
 		return nil
 	}
 	class, ok := OfficialSysMLMetaclasses[metaclass]
 	if !ok {
-		if strings.HasPrefix(metaclass, "Engineering::") && (extension || metaclass != "Engineering::Extension") {
-			return validateExtensionProperties(properties, path)
-		}
-		return []SemanticDiagnostic{{
-			Code: "semantic.unknown_metaclass", Severity: SemanticSeverityError,
-			Message: fmt.Sprintf("semantic instance %q has unknown official metaclass %q", id, metaclass),
-			Path:    path + ".metaclass",
-		}}
+		return validateUnofficialMetaclass(instance, metaclass)
+	}
+	official := officialInstance{class: class, metaclass: metaclass, path: instance.path}
+	var diagnostics []SemanticDiagnostic
+	for name, value := range instance.properties {
+		diagnostics = append(diagnostics, official.validateProperty(name, value)...)
+	}
+	return diagnostics
+}
+
+// validateUnofficialMetaclass accepts the Engineering:: extension metaclasses
+// and rejects every other metaclass that is not in the official inventory.
+//
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039, REQ-EMG-040
+func validateUnofficialMetaclass(instance metamodelInstance, metaclass string) []SemanticDiagnostic {
+	if isEngineeringMetaclass(metaclass, instance.extension) {
+		return validateExtensionProperties(instance.properties, instance.path)
+	}
+	return []SemanticDiagnostic{semanticError("semantic.unknown_metaclass", instance.path+".metaclass",
+		fmt.Sprintf("semantic instance %q has unknown official metaclass %q", instance.id, metaclass))}
+}
+
+// isEngineeringMetaclass reports whether metaclass is an Engineering::
+// extension metaclass; the generic Engineering::Extension is one only for an
+// extension instance.
+//
+// TRLC-LINKS: REQ-EMG-040
+func isEngineeringMetaclass(metaclass string, extension bool) bool {
+	if !strings.HasPrefix(metaclass, "Engineering::") {
+		return false
+	}
+	return extension || metaclass != "Engineering::Extension"
+}
+
+// officialInstance checks the properties of an instance of one official metaclass.
+type officialInstance struct {
+	class     OfficialSysMLMetaclass
+	metaclass string
+	path      string
+}
+
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
+func (o officialInstance) validateProperty(name string, value MetamodelPropertyValue) []SemanticDiagnostic {
+	definition, exists := o.class.Properties[name]
+	propertyPath := o.path + ".properties." + name
+	if !exists {
+		return []SemanticDiagnostic{semanticError("semantic.unknown_property", propertyPath,
+			fmt.Sprintf("metaclass %q has no property %q", o.metaclass, name))}
 	}
 	var diagnostics []SemanticDiagnostic
-	for name, value := range properties {
-		definition, exists := class.Properties[name]
-		propertyPath := path + ".properties." + name
-		if !exists {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.unknown_property", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("metaclass %q has no property %q", metaclass, name), Path: propertyPath,
-			})
-			continue
-		}
-		if definition.Derived && !value.Derived {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.read_only_property", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("derived property %q must be marked derived", definition.ID), Path: propertyPath,
-			})
-		}
-		count := len(value.Values)
-		if count < definition.Lower || definition.Upper >= 0 && count > definition.Upper {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.invalid_property_multiplicity", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("property %q has %d values, expected %d..%s", definition.ID, count, definition.Lower, multiplicityUpper(definition.Upper)),
-				Path:    propertyPath + ".values",
-			})
-		}
-		for index, item := range value.Values {
-			if !metamodelValueMatches(definition.Kind, definition.Type, item) {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_property_value", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("property %q requires %s values, got %q", definition.ID, metamodelValueKind(definition.Kind, definition.Type), item.Kind),
-					Path:    indexPath(propertyPath+".values", index),
-				})
-			}
+	if definition.Derived && !value.Derived {
+		diagnostics = append(diagnostics, semanticError("semantic.read_only_property", propertyPath,
+			fmt.Sprintf("derived property %q must be marked derived", definition.ID)))
+	}
+	if count := len(value.Values); propertyCountInvalid(definition, count) {
+		diagnostics = append(diagnostics, semanticError("semantic.invalid_property_multiplicity", propertyPath+".values",
+			fmt.Sprintf("property %q has %d values, expected %d..%s", definition.ID, count, definition.Lower, multiplicityUpper(definition.Upper))))
+	}
+	return append(diagnostics, validatePropertyValues(definition, value, propertyPath)...)
+}
+
+// propertyCountInvalid reports a value count outside the property multiplicity.
+//
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
+func propertyCountInvalid(definition OfficialSysMLProperty, count int) bool {
+	if count < definition.Lower {
+		return true
+	}
+	return definition.Upper >= 0 && count > definition.Upper
+}
+
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
+func validatePropertyValues(definition OfficialSysMLProperty, value MetamodelPropertyValue, propertyPath string) []SemanticDiagnostic {
+	var diagnostics []SemanticDiagnostic
+	for index, item := range value.Values {
+		if !metamodelValueMatches(definition.Kind, definition.Type, item) {
+			diagnostics = append(diagnostics, semanticError("semantic.invalid_property_value", indexPath(propertyPath+".values", index),
+				fmt.Sprintf("property %q requires %s values, got %q", definition.ID, metamodelValueKind(definition.Kind, definition.Type), item.Kind)))
 		}
 	}
 	return diagnostics
@@ -111,14 +157,19 @@ func validateMetamodelInstance(id, metaclass string, properties map[string]Metam
 func validateExtensionProperties(properties map[string]MetamodelPropertyValue, path string) []SemanticDiagnostic {
 	var diagnostics []SemanticDiagnostic
 	for name, property := range properties {
-		for index, value := range property.Values {
-			if !validMetamodelValue(value) {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_extension_value", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("extension property %q has an invalid typed value", name),
-					Path:    indexPath(path+".properties."+name+".values", index),
-				})
-			}
+		diagnostics = append(diagnostics, invalidExtensionValues(name, property, path)...)
+	}
+	return diagnostics
+}
+
+// TRLC-LINKS: REQ-EMG-040
+func invalidExtensionValues(name string, property MetamodelPropertyValue, path string) []SemanticDiagnostic {
+	var diagnostics []SemanticDiagnostic
+	for index, value := range property.Values {
+		if !validMetamodelValue(value) {
+			diagnostics = append(diagnostics, semanticError("semantic.invalid_extension_value",
+				indexPath(path+".properties."+name+".values", index),
+				fmt.Sprintf("extension property %q has an invalid typed value", name)))
 		}
 	}
 	return diagnostics
@@ -146,49 +197,65 @@ func metamodelValueKind(propertyKind, propertyType string) string {
 	}
 }
 
+// metamodelScalarChecks tells, per scalar value kind, whether a value of that
+// kind carries exactly its one representation.
+var metamodelScalarChecks = map[string]func(MetamodelValue) bool{
+	"string":    func(MetamodelValue) bool { return true },
+	"integer":   func(value MetamodelValue) bool { return value.Integer != nil },
+	"real":      func(value MetamodelValue) bool { return value.Real != nil },
+	"boolean":   func(value MetamodelValue) bool { return value.Boolean != nil },
+	"reference": func(value MetamodelValue) bool { return strings.TrimSpace(value.Reference) != "" },
+}
+
 // TRLC-LINKS: REQ-EMG-038, REQ-EMG-039, REQ-EMG-040
 func validMetamodelValue(value MetamodelValue) bool {
-	count := 0
 	switch value.Kind {
 	case "null":
-		return value.String == "" && value.Integer == nil && value.Real == nil && value.Boolean == nil &&
-			value.Reference == "" && len(value.Object) == 0 && len(value.List) == 0
-	case "string":
-		count++
-	case "integer":
-		if value.Integer != nil {
-			count++
-		}
-	case "real":
-		if value.Real != nil {
-			count++
-		}
-	case "boolean":
-		if value.Boolean != nil {
-			count++
-		}
-	case "reference":
-		if strings.TrimSpace(value.Reference) != "" {
-			count++
-		}
+		return metamodelNullIsEmpty(value)
 	case "object":
-		count++
-		for _, child := range value.Object {
-			if !validMetamodelValue(child) {
-				return false
-			}
-		}
+		return validMetamodelObject(value.Object)
 	case "list":
-		count++
-		for _, child := range value.List {
-			if !validMetamodelValue(child) {
-				return false
-			}
-		}
+		return validMetamodelList(value.List)
 	default:
-		return false
+		check, ok := metamodelScalarChecks[value.Kind]
+		return ok && check(value)
 	}
-	return count == 1
+}
+
+// metamodelNullIsEmpty reports a null value that carries no representation.
+//
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039, REQ-EMG-040
+func metamodelNullIsEmpty(value MetamodelValue) bool {
+	absent := []bool{
+		value.String == "", value.Integer == nil, value.Real == nil, value.Boolean == nil,
+		value.Reference == "", len(value.Object) == 0, len(value.List) == 0,
+	}
+	for _, isAbsent := range absent {
+		if !isAbsent {
+			return false
+		}
+	}
+	return true
+}
+
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039, REQ-EMG-040
+func validMetamodelObject(object map[string]MetamodelValue) bool {
+	for _, child := range object {
+		if !validMetamodelValue(child) {
+			return false
+		}
+	}
+	return true
+}
+
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039, REQ-EMG-040
+func validMetamodelList(list []MetamodelValue) bool {
+	for _, child := range list {
+		if !validMetamodelValue(child) {
+			return false
+		}
+	}
+	return true
 }
 
 // TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
@@ -199,20 +266,27 @@ func multiplicityUpper(upper int) string {
 	return fmt.Sprint(upper)
 }
 
+// officialProperty is one official property value to add to an instance.
+type officialProperty struct {
+	name    string
+	derived bool
+	value   MetamodelValue
+}
+
 // TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
 func normalizeElementMetamodelProperties(element *SemanticElement) {
 	if element.Metaclass == "" || strings.HasPrefix(element.Metaclass, "Engineering::") {
 		return
 	}
-	addOfficialProperty(element.Metaclass, &element.Properties, "elementId", false, stringMetamodelValue(element.ID))
+	addOfficialProperty(element.Metaclass, &element.Properties, officialProperty{"elementId", false, stringMetamodelValue(element.ID)})
 	if element.Name != "" {
-		addOfficialProperty(element.Metaclass, &element.Properties, "declaredName", false, stringMetamodelValue(element.Name))
+		addOfficialProperty(element.Metaclass, &element.Properties, officialProperty{"declaredName", false, stringMetamodelValue(element.Name)})
 	}
 	if element.Owner != "" {
-		addOfficialProperty(element.Metaclass, &element.Properties, "owner", true, referenceMetamodelValue(element.Owner))
+		addOfficialProperty(element.Metaclass, &element.Properties, officialProperty{"owner", true, referenceMetamodelValue(element.Owner)})
 	}
 	if element.Namespace != "" {
-		addOfficialProperty(element.Metaclass, &element.Properties, "owningNamespace", true, referenceMetamodelValue(element.Namespace))
+		addOfficialProperty(element.Metaclass, &element.Properties, officialProperty{"owningNamespace", true, referenceMetamodelValue(element.Namespace)})
 	}
 }
 
@@ -221,33 +295,34 @@ func normalizeRelationshipMetamodelProperties(relationship *SemanticRelationship
 	if relationship.Metaclass == "" || strings.HasPrefix(relationship.Metaclass, "Engineering::") {
 		return
 	}
-	addOfficialProperty(relationship.Metaclass, &relationship.Properties, "elementId", false, stringMetamodelValue(relationship.ID))
-	addOfficialProperty(relationship.Metaclass, &relationship.Properties, "source", false, referenceMetamodelValue(relationship.Source))
-	addOfficialProperty(relationship.Metaclass, &relationship.Properties, "target", false, referenceMetamodelValue(relationship.Target))
+	properties := &relationship.Properties
+	addOfficialProperty(relationship.Metaclass, properties, officialProperty{"elementId", false, stringMetamodelValue(relationship.ID)})
+	addOfficialProperty(relationship.Metaclass, properties, officialProperty{"source", false, referenceMetamodelValue(relationship.Source)})
+	addOfficialProperty(relationship.Metaclass, properties, officialProperty{"target", false, referenceMetamodelValue(relationship.Target)})
 	if relationship.Owner != "" {
-		addOfficialProperty(relationship.Metaclass, &relationship.Properties, "owningRelatedElement", false, referenceMetamodelValue(relationship.Owner))
+		addOfficialProperty(relationship.Metaclass, properties, officialProperty{"owningRelatedElement", false, referenceMetamodelValue(relationship.Owner)})
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
-func addOfficialProperty(metaclass string, properties *map[string]MetamodelPropertyValue, name string, derived bool, value MetamodelValue) {
+func addOfficialProperty(metaclass string, properties *map[string]MetamodelPropertyValue, property officialProperty) {
 	class, ok := OfficialSysMLMetaclasses[metaclass]
 	if !ok {
 		return
 	}
-	definition, ok := class.Properties[name]
+	definition, ok := class.Properties[property.name]
 	if !ok {
 		return
 	}
 	if *properties == nil {
 		*properties = map[string]MetamodelPropertyValue{}
 	}
-	if _, exists := (*properties)[name]; exists {
+	if _, exists := (*properties)[property.name]; exists {
 		return
 	}
-	(*properties)[name] = MetamodelPropertyValue{
-		Values:  []MetamodelValue{value},
-		Derived: derived || definition.Derived,
+	(*properties)[property.name] = MetamodelPropertyValue{
+		Values:  []MetamodelValue{property.value},
+		Derived: property.derived || definition.Derived,
 	}
 }
 
