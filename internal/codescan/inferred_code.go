@@ -32,95 +32,158 @@ func InferCodeItems(bundle model.Bundle, codeRootOption string) ([]CodeItem, []v
 	if len(roots) == 0 {
 		return nil, nil
 	}
-	moduleRoot := moduleCodeRoot(bundle)
-	skip := codeScanSkipper(bundle)
-
-	items := []CodeItem{}
-	diags := []validate.Diagnostic{}
-	seen := map[string]bool{}
-
+	inf := &codeInference{
+		moduleRoot: moduleCodeRoot(bundle),
+		skip:       codeScanSkipper(bundle),
+		seen:       map[string]bool{},
+		items:      []CodeItem{},
+		diags:      []validate.Diagnostic{},
+	}
 	for _, root := range roots {
-		abs := root
-		if !filepath.IsAbs(abs) {
-			abs, _ = filepath.Abs(root)
-		}
-		sourceBase := sourceRootDir(abs)
-		metadata := scanCodeMetadata(abs, skip)
-		owners := map[string]string{}
-		descriptions := map[string]string{}
-		for rel, m := range metadata {
-			owners[rel] = m.Owner
-			if x := strings.TrimSpace(m.Description); x != "" {
-				descriptions[rel] = x
-			}
-		}
-		symbols, sDiags, err := codemap.ScanWithOptions(abs, codemap.ScanOptions{IDBase: moduleRoot, Skip: skip})
-		if err != nil {
-			diags = append(diags, validate.Diagnostic{
-				Code:     "code.scan_failed",
-				Severity: validate.SeverityWarning,
-				Message:  err.Error(),
-				Path:     abs,
-			})
-			continue
-		}
-		diags = append(diags, sDiags...)
+		inf.scanRoot(root)
+	}
+	if failed := relativizeCodeItems(inf.items, baseDir); failed != nil {
+		return nil, failed
+	}
+	sortCodeItems(inf.items)
+	return inf.items, validate.SortDiagnostics(inf.diags)
+}
 
-		for rel, owner := range owners {
-			desc := strings.TrimSpace(descriptions[rel])
-			key := "source_file|" + filepath.Join(sourceBase, rel) + "|" + owner
-			if seen[key] {
-				continue
-			}
-			seen[key] = true
-			items = append(items, CodeItem{
-				Element:     rel,
-				Kind:        "source_file",
-				AbsPath:     filepath.Join(sourceBase, rel),
-				Owner:       owner,
-				Description: desc,
-				Source:      rel,
-			})
+// codeInference accumulates the code items and diagnostics of the scanned roots.
+type codeInference struct {
+	moduleRoot string
+	skip       func(path string, isDir bool) bool
+	seen       map[string]bool
+	items      []CodeItem
+	diags      []validate.Diagnostic
+}
 
-			deps, depDiags := parseCodeDependencies(sourceBase, rel, owner)
-			diags = append(diags, depDiags...)
-			for _, dep := range deps {
-				dep.AbsPath = filepath.Join(sourceBase, rel)
-				key := dep.Kind + "|" + dep.Element + "|" + dep.Owner + "|" + filepath.Join(sourceBase, dep.Source)
-				if seen[key] {
-					continue
-				}
-				seen[key] = true
-				items = append(items, dep)
-			}
-		}
+// rootScan is what one scanned root yields: the base for its relative paths,
+// the owner and description of each source file and its trace-marked symbols.
+type rootScan struct {
+	base         string
+	owners       map[string]string
+	descriptions map[string]string
+	symbols      []codemap.Symbol
+}
 
-		for _, s := range symbols {
-			owner := ownerForPath(s.Path, owners)
-			label := s.TraceID
-			if strings.TrimSpace(label) == "" {
-				label = s.Signature
-			}
-			key := "symbol|" + label + "|" + filepath.Join(sourceBase, s.Path) + fmt.Sprintf("|%d", s.Line)
-			if seen[key] {
-				continue
-			}
-			seen[key] = true
-			items = append(items, CodeItem{
-				Element:    label,
-				Kind:       "symbol",
-				Owner:      owner,
-				Source:     fmt.Sprintf("%s:%d", s.Path, s.Line),
-				AbsPath:    filepath.Join(sourceBase, s.Path),
-				Implements: textutil.UniqueSorted(s.Implements),
-				ModelLinks: textutil.UniqueSorted(s.ModelLinks),
-			})
+// scanRoot scans one code root; a failed symbol scan is a warning and skips the root.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (c *codeInference) scanRoot(root string) {
+	abs := root
+	if !filepath.IsAbs(abs) {
+		abs, _ = filepath.Abs(root)
+	}
+	rs := rootScan{base: sourceRootDir(abs), owners: map[string]string{}, descriptions: map[string]string{}}
+	for rel, m := range scanCodeMetadata(abs, c.skip) {
+		rs.owners[rel] = m.Owner
+		if x := strings.TrimSpace(m.Description); x != "" {
+			rs.descriptions[rel] = x
 		}
 	}
+	symbols, sDiags, err := codemap.ScanWithOptions(abs, codemap.ScanOptions{IDBase: c.moduleRoot, Skip: c.skip})
+	if err != nil {
+		c.diags = append(c.diags, validate.Diagnostic{
+			Code:     "code.scan_failed",
+			Severity: validate.SeverityWarning,
+			Message:  err.Error(),
+			Path:     abs,
+		})
+		return
+	}
+	c.diags = append(c.diags, sDiags...)
+	rs.symbols = symbols
+	c.addFileItems(rs)
+	c.addSymbolItems(rs)
+}
 
-	// Preserve compact scan-relative display paths unless separate roots produce
-	// the same source label for different files. Publication and trace matrices
-	// also use Source as identity, so those collisions must be disambiguated.
+// addOnce appends the item unless its key was seen; it reports whether it did.
+// TRLC-LINKS: REQ-EMG-010
+func (c *codeInference) addOnce(key string, item CodeItem) bool {
+	if c.seen[key] {
+		return false
+	}
+	c.seen[key] = true
+	c.items = append(c.items, item)
+	return true
+}
+
+// addFileItems adds one source-file item with its dependencies per owned file.
+// TRLC-LINKS: REQ-EMG-010
+func (c *codeInference) addFileItems(rs rootScan) {
+	for rel, owner := range rs.owners {
+		c.addFileItem(rs, rel, owner)
+	}
+}
+
+// addFileItem adds a source-file item and, when it is new, the dependencies it imports.
+// TRLC-LINKS: REQ-EMG-010
+func (c *codeInference) addFileItem(rs rootScan, rel, owner string) {
+	absPath := filepath.Join(rs.base, rel)
+	item := CodeItem{
+		Element:     rel,
+		Kind:        "source_file",
+		AbsPath:     absPath,
+		Owner:       owner,
+		Description: strings.TrimSpace(rs.descriptions[rel]),
+		Source:      rel,
+	}
+	if !c.addOnce("source_file|"+absPath+"|"+owner, item) {
+		return
+	}
+	deps, depDiags := parseCodeDependencies(rs.base, rel, owner)
+	c.diags = append(c.diags, depDiags...)
+	for _, dep := range deps {
+		dep.AbsPath = absPath
+		c.addOnce(dep.Kind+"|"+dep.Element+"|"+dep.Owner+"|"+filepath.Join(rs.base, dep.Source), dep)
+	}
+}
+
+// addSymbolItems adds one item per trace-marked symbol, owned by the nearest owned path.
+// TRLC-LINKS: REQ-EMG-010
+func (c *codeInference) addSymbolItems(rs rootScan) {
+	for _, s := range rs.symbols {
+		label := s.TraceID
+		if strings.TrimSpace(label) == "" {
+			label = s.Signature
+		}
+		absPath := filepath.Join(rs.base, s.Path)
+		c.addOnce("symbol|"+label+"|"+absPath+fmt.Sprintf("|%d", s.Line), CodeItem{
+			Element:    label,
+			Kind:       "symbol",
+			Owner:      ownerForPath(s.Path, rs.owners),
+			Source:     fmt.Sprintf("%s:%d", s.Path, s.Line),
+			AbsPath:    absPath,
+			Implements: textutil.UniqueSorted(s.Implements),
+			ModelLinks: textutil.UniqueSorted(s.ModelLinks),
+		})
+	}
+}
+
+// relativizeCodeItems gives symbol items their model-relative evidence path and,
+// where roots produce the same source label for different files, a
+// model-relative source. Publication and trace matrices also use Source as
+// identity, so those collisions must be disambiguated. It returns the failure
+// diagnostics when a path cannot be made relative.
+// TRLC-LINKS: REQ-EMG-010
+func relativizeCodeItems(items []CodeItem, baseDir string) []validate.Diagnostic {
+	ambiguous := ambiguousSources(items)
+	for i := range items {
+		if failed := setEvidencePath(&items[i], baseDir); failed != nil {
+			return failed
+		}
+		if ambiguous[items[i].Source] {
+			rebaseSource(&items[i], baseDir)
+		}
+	}
+	return nil
+}
+
+// ambiguousSources lists the Source labels shared by items of different files.
+// Compact scan-relative display paths are preserved otherwise.
+// TRLC-LINKS: REQ-EMG-010
+func ambiguousSources(items []CodeItem) map[string]bool {
 	pathsBySource := map[string]string{}
 	ambiguous := map[string]bool{}
 	for _, item := range items {
@@ -129,28 +192,41 @@ func InferCodeItems(bundle model.Bundle, codeRootOption string) ([]CodeItem, []v
 		}
 		pathsBySource[item.Source] = item.AbsPath
 	}
-	for i := range items {
-		if items[i].Kind == "symbol" && composition.PathWithin(baseDir, items[i].AbsPath) {
-			relative, err := filepath.Rel(baseDir, items[i].AbsPath)
-			if err != nil {
-				return nil, []validate.Diagnostic{{Code: "code.relative_path_failed", Severity: validate.SeverityError, Message: err.Error(), Path: items[i].AbsPath}}
-			}
-			items[i].EvidencePath = filepath.ToSlash(relative)
-		}
-		if !ambiguous[items[i].Source] {
-			continue
-		}
-		_, line := SplitSourceLine(items[i].Source)
-		path, err := filepath.Rel(baseDir, items[i].AbsPath)
-		if err != nil {
-			path = items[i].AbsPath
-		}
-		items[i].Source = filepath.ToSlash(path)
-		if line > 0 {
-			items[i].Source += fmt.Sprintf(":%d", line)
-		}
-	}
+	return ambiguous
+}
 
+// setEvidencePath sets the model-relative evidence path of a symbol inside baseDir.
+// TRLC-LINKS: REQ-EMG-010
+func setEvidencePath(item *CodeItem, baseDir string) []validate.Diagnostic {
+	if item.Kind != "symbol" || !composition.PathWithin(baseDir, item.AbsPath) {
+		return nil
+	}
+	relative, err := filepath.Rel(baseDir, item.AbsPath)
+	if err != nil {
+		return []validate.Diagnostic{{Code: "code.relative_path_failed", Severity: validate.SeverityError, Message: err.Error(), Path: item.AbsPath}}
+	}
+	item.EvidencePath = filepath.ToSlash(relative)
+	return nil
+}
+
+// rebaseSource replaces the item's source path with its path relative to
+// baseDir (the absolute path when it cannot be made relative), keeping the line.
+// TRLC-LINKS: REQ-EMG-010
+func rebaseSource(item *CodeItem, baseDir string) {
+	_, line := SplitSourceLine(item.Source)
+	path, err := filepath.Rel(baseDir, item.AbsPath)
+	if err != nil {
+		path = item.AbsPath
+	}
+	item.Source = filepath.ToSlash(path)
+	if line > 0 {
+		item.Source += fmt.Sprintf(":%d", line)
+	}
+}
+
+// sortCodeItems orders items by kind, element and source.
+// TRLC-LINKS: REQ-EMG-010
+func sortCodeItems(items []CodeItem) {
 	sort.SliceStable(items, func(i, j int) bool {
 		if items[i].Kind != items[j].Kind {
 			return items[i].Kind < items[j].Kind
@@ -160,7 +236,6 @@ func InferCodeItems(bundle model.Bundle, codeRootOption string) ([]CodeItem, []v
 		}
 		return items[i].Source < items[j].Source
 	})
-	return items, validate.SortDiagnostics(diags)
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -171,7 +246,10 @@ func InferCodeItems(bundle model.Bundle, codeRootOption string) ([]CodeItem, []v
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-012
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
 func SkipScanDir(name string) bool {
-	return name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.')
+	if name == "node_modules" || name == "vendor" {
+		return true
+	}
+	return len(name) > 1 && name[0] == '.'
 }
 
 // TRLC-LINKS: REQ-EMG-010
@@ -258,10 +336,11 @@ var (
 // TRLC-LINKS: REQ-EMG-010
 func parseTypeScriptDependencies(rel, content, owner string) []CodeItem {
 	out := []CodeItem{}
-	add := func(dep string) {
+	specs := append(moduleSpecs(tsImportRe, content), moduleSpecs(tsRequireRe, content)...)
+	for _, dep := range specs {
 		dep = strings.TrimSpace(dep)
 		if dep == "" {
-			return
+			continue
 		}
 		kind := "library_external"
 		if strings.HasPrefix(dep, ".") || strings.HasPrefix(dep, "/") {
@@ -274,17 +353,19 @@ func parseTypeScriptDependencies(rel, content, owner string) []CodeItem {
 			Source:  rel,
 		})
 	}
-	for _, m := range tsImportRe.FindAllStringSubmatch(content, -1) {
-		if len(m) > 1 {
-			add(m[1])
-		}
-	}
-	for _, m := range tsRequireRe.FindAllStringSubmatch(content, -1) {
-		if len(m) > 1 {
-			add(m[1])
-		}
-	}
 	return out
+}
+
+// moduleSpecs lists the first capture group of each match of an import pattern.
+// TRLC-LINKS: REQ-EMG-010
+func moduleSpecs(re *regexp.Regexp, content string) []string {
+	var specs []string
+	for _, m := range re.FindAllStringSubmatch(content, -1) {
+		if len(m) > 1 {
+			specs = append(specs, m[1])
+		}
+	}
+	return specs
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -316,74 +397,141 @@ func parseRustDependencies(rel, content, owner string) []CodeItem {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
 func scanCodeMetadata(root string, skip func(path string, isDir bool) bool) map[string]codeFileMetadata {
-	out := map[string]codeFileMetadata{}
+	scan := metadataScan{root: root, skip: skip, out: map[string]codeFileMetadata{}}
 	_ = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
-		if d.IsDir() {
-			if SkipScanDir(d.Name()) || (path != root && skip != nil && skip(path, true)) {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		if skip != nil && skip(path, false) {
-			return nil
-		}
-		ext := strings.ToLower(filepath.Ext(path))
-		artifact := codemap.IsArtifactFile(path)
-		if !artifact && ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".v" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".py" {
-			return nil
-		}
-		if artifact && !codemap.ReadableArtifact(path) {
-			return nil
-		}
-		data, readErr := os.ReadFile(path)
-		if readErr != nil {
-			return nil
-		}
-		rel, relErr := filepath.Rel(sourceRootDir(root), path)
-		if relErr != nil {
-			rel = path
-		}
-		rel = filepath.ToSlash(rel)
-		if artifact {
-			// A container file or Markdown document is a source file only when
-			// it carries trace markers; its owner comes from its comments.
-			owner, _, links, modelLinks := codemap.ArtifactMarkers(path, data)
-			if owner != "" || links > 0 || modelLinks > 0 {
-				out[rel] = codeFileMetadata{Owner: textutil.NonEmpty(owner, "unresolved")}
-			}
-			return nil
-		}
-		owner := "unresolved"
-		description := ""
-		var pythonComments map[int]bool
-		if ext == ".py" {
-			pythonComments, _ = codemap.CommentLines(path, data)
-		}
-		for index, line := range strings.Split(string(data), "\n") {
-			if ext == ".py" && !pythonComments[index+1] {
-				continue
-			}
-			if v, ok := extractMarkerValue(strings.TrimSpace(line), "ENGMODEL-OWNER-UNIT:"); ok {
-				if x := strings.TrimSpace(v); x != "" {
-					owner = x
-				}
-			}
-			if description == "" {
-				if desc, ok := extractCodeDescriptionMarker(line); ok {
-					description = desc
-				}
-			}
-		}
-		out[rel] = codeFileMetadata{
-			Owner:       owner,
-			Description: description,
+		return scan.visit(path, d)
+	})
+	return scan.out
+}
+
+// metadataScan collects the owner and description of the source files under root.
+type metadataScan struct {
+	root string
+	skip func(path string, isDir bool) bool
+	out  map[string]codeFileMetadata
+}
+
+// visit prunes skipped directories and records the metadata of each in-scope file.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (m metadataScan) visit(path string, d fs.DirEntry) error {
+	if d.IsDir() {
+		if m.skipDir(path, d.Name()) {
+			return filepath.SkipDir
 		}
 		return nil
-	})
-	return out
+	}
+	if m.skip != nil && m.skip(path, false) {
+		return nil
+	}
+	if rel, meta, ok := m.fileMetadata(path); ok {
+		m.out[rel] = meta
+	}
+	return nil
+}
+
+// skipDir reports whether a directory is left out of the walk.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (m metadataScan) skipDir(path, name string) bool {
+	if SkipScanDir(name) {
+		return true
+	}
+	return path != m.root && m.skip != nil && m.skip(path, true)
+}
+
+// metadataExtensions are the source file extensions scanned for ownership markers.
+var metadataExtensions = map[string]bool{
+	".go": true, ".ts": true, ".tsx": true, ".rs": true, ".v": true,
+	".js": true, ".mjs": true, ".cjs": true, ".py": true,
+}
+
+// fileMetadata reads one file: the source-relative path and its metadata, or false
+// when the file is not a source file, is unreadable or an artifact without markers.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (m metadataScan) fileMetadata(path string) (string, codeFileMetadata, bool) {
+	if codemap.IsArtifactFile(path) {
+		return m.artifactMetadata(path)
+	}
+	ext := strings.ToLower(filepath.Ext(path))
+	if !metadataExtensions[ext] {
+		return "", codeFileMetadata{}, false
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", codeFileMetadata{}, false
+	}
+	return m.relativePath(path), sourceFileMetadata(path, ext, data), true
+}
+
+// artifactMetadata reads a container file or Markdown document, which is a
+// source file only when it carries trace markers; its owner comes from its comments.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (m metadataScan) artifactMetadata(path string) (string, codeFileMetadata, bool) {
+	if !codemap.ReadableArtifact(path) {
+		return "", codeFileMetadata{}, false
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", codeFileMetadata{}, false
+	}
+	owner, _, links, modelLinks := codemap.ArtifactMarkers(path, data)
+	if owner == "" && links == 0 && modelLinks == 0 {
+		return "", codeFileMetadata{}, false
+	}
+	return m.relativePath(path), codeFileMetadata{Owner: textutil.NonEmpty(owner, "unresolved")}, true
+}
+
+// relativePath is the slashed path relative to the source root, else the path itself.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (m metadataScan) relativePath(path string) string {
+	rel, err := filepath.Rel(sourceRootDir(m.root), path)
+	if err != nil {
+		rel = path
+	}
+	return filepath.ToSlash(rel)
+}
+
+// sourceFileMetadata finds the owner and the first description marker in a source
+// file; Python files count only their comment lines.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func sourceFileMetadata(path, ext string, data []byte) codeFileMetadata {
+	include := func(int) bool { return true }
+	if ext == ".py" {
+		comments, _ := codemap.CommentLines(path, data)
+		include = func(line int) bool { return comments[line] }
+	}
+	meta := codeFileMetadata{Owner: "unresolved"}
+	for index, line := range strings.Split(string(data), "\n") {
+		if !include(index + 1) {
+			continue
+		}
+		if owner := ownerMarkerValue(line); owner != "" {
+			meta.Owner = owner
+		}
+		if meta.Description == "" {
+			meta.Description, _ = extractCodeDescriptionMarker(line)
+		}
+	}
+	return meta
+}
+
+// ownerMarkerValue is the trimmed ENGMODEL-OWNER-UNIT value of a line, or "".
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func ownerMarkerValue(line string) string {
+	v, ok := extractMarkerValue(strings.TrimSpace(line), "ENGMODEL-OWNER-UNIT:")
+	if !ok {
+		return ""
+	}
+	return strings.TrimSpace(v)
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -397,14 +545,21 @@ func extractCodeDescriptionMarker(line string) (string, bool) {
 		"engmodel.code.description",
 	}
 	for _, marker := range markers {
-		if v, ok := extractMarkerValue(line, marker); ok {
-			v = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), ":"))
-			if v != "" {
-				return v, true
-			}
+		if v := markerDescription(line, marker); v != "" {
+			return v, true
 		}
 	}
 	return "", false
+}
+
+// markerDescription is the description following the marker on the line, or "".
+// TRLC-LINKS: REQ-EMG-010
+func markerDescription(line, marker string) string {
+	v, ok := extractMarkerValue(line, marker)
+	if !ok {
+		return ""
+	}
+	return strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), ":"))
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -413,21 +568,26 @@ func ownerForPath(path string, owners map[string]string) string {
 	if x := strings.TrimSpace(owners[path]); x != "" && x != "unresolved" {
 		return x
 	}
+	if best := prefixOwner(path, owners); best != "" {
+		return best
+	}
+	return "unresolved"
+}
+
+// prefixOwner is the resolved owner of a path prefix of path, preferring the
+// owner whose prefix is longer than the owner chosen so far.
+// TRLC-LINKS: REQ-EMG-010
+func prefixOwner(path string, owners map[string]string) string {
 	best := ""
 	for p, owner := range owners {
 		if owner == "" || owner == "unresolved" {
 			continue
 		}
-		if strings.HasPrefix(path, p) {
-			if len(p) > len(best) {
-				best = owner
-			}
+		if strings.HasPrefix(path, p) && len(p) > len(best) {
+			best = owner
 		}
 	}
-	if best != "" {
-		return best
-	}
-	return "unresolved"
+	return best
 }
 
 // sourceRootDir resolves source paths consistently for directory and single-file roots.
@@ -466,12 +626,26 @@ func UniqueExistingSources(in []string) []string {
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030, REQ-EMG-084
 func IsVerificationCodeItem(item CodeItem) bool {
 	path, line := SplitSourceLine(item.Source)
-	if codemap.IsArtifactFile(path) || item.AbsPath != "" && codemap.IsArtifactFile(item.AbsPath) {
+	if isArtifactItem(item, path) {
 		return false
 	}
 	if isVerificationTestPath(item.AbsPath) || isVerificationTestPath(path) {
 		return true
 	}
+	return isRustTestOnlyItem(item, line)
+}
+
+// isArtifactItem reports whether the item's source or absolute path is a
+// container build file or Markdown document.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030, REQ-EMG-084
+func isArtifactItem(item CodeItem, path string) bool {
+	return codemap.IsArtifactFile(path) || item.AbsPath != "" && codemap.IsArtifactFile(item.AbsPath)
+}
+
+// isRustTestOnlyItem reports whether a symbol item sits on a Rust declaration line
+// compiled only for tests.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func isRustTestOnlyItem(item CodeItem, line int) bool {
 	if item.Kind != "symbol" || line <= 0 || !strings.EqualFold(filepath.Ext(item.AbsPath), ".rs") {
 		return false
 	}
@@ -502,19 +676,32 @@ func rustTestOnlyLines(absPath string) map[int]bool {
 	}
 	rustTestOnlyCache.Lock()
 	defer rustTestOnlyCache.Unlock()
-	if e, ok := rustTestOnlyCache.entries[absPath]; ok && e.size == info.Size() && e.modTime == info.ModTime().UnixNano() {
+	if e, ok := rustTestOnlyCache.entries[absPath]; ok && e.current(info) {
 		return e.lines
 	}
 	symbols, _, err := codemap.Scan(absPath)
 	if err != nil {
 		return nil
 	}
+	lines := testOnlyLines(symbols)
+	rustTestOnlyCache.entries[absPath] = rustTestOnlyEntry{size: info.Size(), modTime: info.ModTime().UnixNano(), lines: lines}
+	return lines
+}
+
+// current reports whether the entry was taken from a file of this size and modification time.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func (e rustTestOnlyEntry) current(info os.FileInfo) bool {
+	return e.size == info.Size() && e.modTime == info.ModTime().UnixNano()
+}
+
+// testOnlyLines is the set of declaration lines of the test-only symbols.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
+func testOnlyLines(symbols []codemap.Symbol) map[int]bool {
 	lines := map[int]bool{}
 	for _, s := range symbols {
 		if s.TestOnly {
 			lines[s.Line] = true
 		}
 	}
-	rustTestOnlyCache.entries[absPath] = rustTestOnlyEntry{size: info.Size(), modTime: info.ModTime().UnixNano(), lines: lines}
 	return lines
 }

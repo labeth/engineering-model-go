@@ -55,12 +55,24 @@ func TestModuleCodeRootStopsAtEnclosingModule(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-057
 func TestExcludedPathPatterns(t *testing.T) {
 	patterns := []string{"build/**", "*.gen.go", "docs/notes.md"}
-	for _, rel := range []string{"build", "build/out/x.go", "a.gen.go", "docs/notes.md"} {
+	assertExcluded(t, patterns, []string{"build", "build/out/x.go", "a.gen.go", "docs/notes.md"})
+	assertKept(t, patterns, []string{"src/a.go", "builder/x.go", "docs/other.md"})
+}
+
+// assertExcluded checks that the patterns exclude every path.
+func assertExcluded(t *testing.T, patterns, paths []string) {
+	t.Helper()
+	for _, rel := range paths {
 		if !excludedPath(rel, patterns) {
 			t.Fatalf("%q should be excluded", rel)
 		}
 	}
-	for _, rel := range []string{"src/a.go", "builder/x.go", "docs/other.md"} {
+}
+
+// assertKept checks that the patterns exclude none of the paths.
+func assertKept(t *testing.T, patterns, paths []string) {
+	t.Helper()
+	for _, rel := range paths {
 		if excludedPath(rel, patterns) {
 			t.Fatalf("%q should not be excluded", rel)
 		}
@@ -70,30 +82,11 @@ func TestExcludedPathPatterns(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-057, REQ-EMG-058, REQ-EMG-059
 func TestCodeReferencesResolveAgainstModuleFiles(t *testing.T) {
 	root := t.TempDir()
-	mustWrite(t, filepath.Join(root, "app", "capture.go"), "package app\n\n// TRLC-LINKS: REQ-X-001\nfunc Capture() {}\n")
-	mustWrite(t, filepath.Join(root, "app", "README.md"), "notes\n")
-	mustWrite(t, filepath.Join(root, "app", "a-b.go"), "package app\n")
-	mustWrite(t, filepath.Join(root, "app", "a_b.go"), "package app\n")
-	mustWrite(t, filepath.Join(root, "build", "out.go"), "package build\n")
-	mustWrite(t, filepath.Join(root, "sub", "engmod.yml"), "")
-	mustWrite(t, filepath.Join(root, "sub", "own.go"), "package sub\n")
-
+	writeCodeReferenceFixture(t, root)
 	bundle := model.Bundle{ManifestPath: filepath.Join(root, "engmod.yml")}
 	bundle.Architecture.InferenceHints.Exclude = []string{"build/**"}
 	index := buildCodeIndex(bundle)
-	for _, id := range []string{"CODE-APP-CAPTURE-GO", "CODE-APP-README-MD", "CODE-APP-CAPTURE-GO--CAPTURE"} {
-		if index[id] != 1 {
-			t.Fatalf("expected %s once, index=%v", id, index)
-		}
-	}
-	if index["CODE-APP-A-B-GO"] != 2 {
-		t.Fatalf("colliding paths must be counted twice, index=%v", index)
-	}
-	for _, id := range []string{"CODE-BUILD-OUT-GO", "CODE-SUB-OWN-GO"} {
-		if index[id] != 0 {
-			t.Fatalf("%s is excluded or owned by a nested module, index=%v", id, index)
-		}
-	}
+	assertCodeIndexCounts(t, index)
 
 	bundle.CodeIndex = func() map[string]int { return index }
 	bundle.Requirements.Requirements = []model.Requirement{{ID: "REQ-X-001", Text: "x", SourceRefs: []string{"CODE-APP-CAPTURE-GO", "CODE-APP-GONE-GO", "CODE-APP-A-B-GO"}}}
@@ -106,6 +99,46 @@ func TestCodeReferencesResolveAgainstModuleFiles(t *testing.T) {
 	testutil.AssertDiag(t, diags, "model.invalid_requirement_source_ref", "CODE-APP-GONE-GO")
 	testutil.AssertDiag(t, diags, "model.ambiguous_code_reference", "CODE-APP-A-B-GO")
 	testutil.AssertDiag(t, diags, "model.inferred_id_not_allowed", "AUTO-")
+	assertCaptureReferenceAccepted(t, diags)
+}
+
+// writeCodeReferenceFixture writes the module files the code references resolve against.
+func writeCodeReferenceFixture(t *testing.T, root string) {
+	t.Helper()
+	mustWrite(t, filepath.Join(root, "app", "capture.go"), "package app\n\n// TRLC-LINKS: REQ-X-001\nfunc Capture() {}\n")
+	mustWrite(t, filepath.Join(root, "app", "README.md"), "notes\n")
+	mustWrite(t, filepath.Join(root, "app", "a-b.go"), "package app\n")
+	mustWrite(t, filepath.Join(root, "app", "a_b.go"), "package app\n")
+	mustWrite(t, filepath.Join(root, "build", "out.go"), "package build\n")
+	mustWrite(t, filepath.Join(root, "sub", "engmod.yml"), "")
+	mustWrite(t, filepath.Join(root, "sub", "own.go"), "package sub\n")
+}
+
+// assertCodeIndexCounts checks how often each identifier of the fixture is produced.
+func assertCodeIndexCounts(t *testing.T, index map[string]int) {
+	t.Helper()
+	assertIndexCounts(t, index, map[string]int{
+		"CODE-APP-CAPTURE-GO": 1, "CODE-APP-README-MD": 1, "CODE-APP-CAPTURE-GO--CAPTURE": 1,
+		// colliding paths are counted twice
+		"CODE-APP-A-B-GO": 2,
+		// excluded, or owned by a nested module
+		"CODE-BUILD-OUT-GO": 0, "CODE-SUB-OWN-GO": 0,
+	})
+}
+
+// assertIndexCounts checks the count of each identifier in the code index.
+func assertIndexCounts(t *testing.T, index, want map[string]int) {
+	t.Helper()
+	for id, n := range want {
+		if index[id] != n {
+			t.Fatalf("expected %s %d times, index=%v", id, n, index)
+		}
+	}
+}
+
+// assertCaptureReferenceAccepted checks that no diagnostic rejects the resolvable capture references.
+func assertCaptureReferenceAccepted(t *testing.T, diags []validate.Diagnostic) {
+	t.Helper()
 	for _, d := range diags {
 		if strings.Contains(d.Message, `"CODE-APP-CAPTURE-GO"`) || strings.Contains(d.Message, "CODE-APP-CAPTURE-GO--CAPTURE") {
 			t.Fatalf("resolvable CODE reference rejected: %+v", d)
@@ -138,10 +171,16 @@ func TestReferencedElementURIRules(t *testing.T) {
 	testutil.AssertDiag(t, diags, "model.referenced_element_local_uri", "REF-FILE")
 	testutil.AssertDiag(t, diags, "model.referenced_element_missing_version", "REF-WEB")
 	for _, d := range diags {
-		for _, ok := range []string{"REF-WEB-V", "REF-PINNED", "REF-DOI", "REF-OFFLINE"} {
-			if strings.Contains(d.Message, `"`+ok+`"`) {
-				t.Fatalf("valid referenced element rejected: %+v", d)
-			}
+		assertNotNamingValidRef(t, d)
+	}
+}
+
+// assertNotNamingValidRef checks that a diagnostic does not name a valid referenced element.
+func assertNotNamingValidRef(t *testing.T, d validate.Diagnostic) {
+	t.Helper()
+	for _, ok := range []string{"REF-WEB-V", "REF-PINNED", "REF-DOI", "REF-OFFLINE"} {
+		if strings.Contains(d.Message, `"`+ok+`"`) {
+			t.Fatalf("valid referenced element rejected: %+v", d)
 		}
 	}
 }
@@ -172,21 +211,27 @@ func TestArtifactFilesAreOwnedIndexedAndExcluded(t *testing.T) {
 	bundle := model.Bundle{ManifestPath: filepath.Join(root, "engmod.yml")}
 	bundle.Architecture.InferenceHints.Exclude = []string{"build/**"}
 
-	items, diags := InferCodeItems(bundle, "")
-	for _, d := range diags {
-		if d.Severity == validate.SeverityError {
-			t.Fatalf("unexpected error %+v", d)
-		}
-	}
-	owners := map[string]string{}
-	for _, it := range items {
-		owners[it.Kind+" "+it.Source] = it.Owner + " " + strings.Join(it.Implements, ",")
-	}
-	want := map[string]string{
+	assertOwnedItems(t, bundle, map[string]string{
 		"source_file Dockerfile":  "FU-IMAGE ",
 		"symbol Dockerfile:2":     "FU-IMAGE REQ-IMG-001",
 		"source_file docs/RUN.md": "FU-DOCS ",
 		"symbol docs/RUN.md:2":    "FU-DOCS REQ-DOC-001",
+	})
+	index := buildCodeIndex(bundle)
+	if index["CODE-DOCKERFILE"] != 1 || index["CODE-DOCS-RUN-MD"] != 1 || index["CODE-BUILD-DOCKERFILE"] != 0 {
+		t.Fatalf("artifact CODE ids must be indexed once and excluded ones not at all: %v", index)
+	}
+}
+
+// assertOwnedItems checks that the inferred code items are exactly want, keyed
+// by kind and source, each with its owner and implemented requirements.
+func assertOwnedItems(t *testing.T, bundle model.Bundle, want map[string]string) {
+	t.Helper()
+	items, diags := InferCodeItems(bundle, "")
+	assertNoErrorDiagnostics(t, diags)
+	owners := map[string]string{}
+	for _, it := range items {
+		owners[it.Kind+" "+it.Source] = it.Owner + " " + strings.Join(it.Implements, ",")
 	}
 	if len(owners) != len(want) {
 		t.Fatalf("want items %v, got %v", want, owners)
@@ -196,9 +241,15 @@ func TestArtifactFilesAreOwnedIndexedAndExcluded(t *testing.T) {
 			t.Fatalf("%s: want %q, got %q (all %v)", k, v, owners[k], owners)
 		}
 	}
-	index := buildCodeIndex(bundle)
-	if index["CODE-DOCKERFILE"] != 1 || index["CODE-DOCS-RUN-MD"] != 1 || index["CODE-BUILD-DOCKERFILE"] != 0 {
-		t.Fatalf("artifact CODE ids must be indexed once and excluded ones not at all: %v", index)
+}
+
+// assertNoErrorDiagnostics fails on any error diagnostic.
+func assertNoErrorDiagnostics(t *testing.T, diags []validate.Diagnostic) {
+	t.Helper()
+	for _, d := range diags {
+		if d.Severity == validate.SeverityError {
+			t.Fatalf("unexpected error %+v", d)
+		}
 	}
 }
 
@@ -212,18 +263,25 @@ func TestArtifactFilesAreOwnedIndexedAndExcluded(t *testing.T) {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
 func TestExcludeAcceptsDirectoryForms(t *testing.T) {
 	for _, pattern := range []string{"viewer/dist", "viewer/dist/", "viewer/dist/*", "viewer/dist/**", "./viewer/dist"} {
-		if !excludedPath("viewer/dist/assets/app.js", []string{pattern}) || !excludedPath("viewer/dist/index.js", []string{pattern}) {
-			t.Errorf("%q must exclude everything below viewer/dist", pattern)
-		}
-		if excludedPath("viewer/distribution/app.js", []string{pattern}) || excludedPath("viewer/src/main.js", []string{pattern}) {
-			t.Errorf("%q must not exclude files outside viewer/dist", pattern)
-		}
+		inside := []string{"viewer/dist/assets/app.js", "viewer/dist/index.js"}
+		outside := []string{"viewer/distribution/app.js", "viewer/src/main.js"}
+		assertExcluded(t, []string{pattern}, inside)
+		assertKept(t, []string{pattern}, outside)
 	}
 	root := t.TempDir()
 	mustWrite(t, filepath.Join(root, "viewer", "dist", "assets", "app.js"), "function bundled() {}\n")
 	mustWrite(t, filepath.Join(root, "viewer", "src", "main.js"), "// TRLC-LINKS: REQ-X-001\nfunction main() {}\n")
 	bundle := model.Bundle{ManifestPath: filepath.Join(root, "engmod.yml")}
 	bundle.Architecture.InferenceHints.Exclude = []string{"viewer/dist/*"}
+	paths, diags := scannedScopePaths(t, bundle, root)
+	if !paths["viewer/src/main.js"] || len(diags) != 0 {
+		t.Fatalf("ScanCodeScope must scan viewer/src and leave viewer/dist out: %v %+v", paths, diags)
+	}
+}
+
+// scannedScopePaths is the set of paths ScanCodeScope reports on, with its diagnostics.
+func scannedScopePaths(t *testing.T, bundle model.Bundle, root string) (map[string]bool, []validate.Diagnostic) {
+	t.Helper()
 	symbols, diags, err := ScanCodeScope(bundle, root)
 	if err != nil {
 		t.Fatal(err)
@@ -235,9 +293,7 @@ func TestExcludeAcceptsDirectoryForms(t *testing.T) {
 	for _, d := range diags {
 		paths[d.Path] = true
 	}
-	if !paths["viewer/src/main.js"] || len(diags) != 0 {
-		t.Fatalf("ScanCodeScope must scan viewer/src and leave viewer/dist out: %v %+v", paths, diags)
-	}
+	return paths, diags
 }
 
 // An exclude pattern the matcher cannot apply is a validation error naming
@@ -248,12 +304,7 @@ func TestExcludeAcceptsDirectoryForms(t *testing.T) {
 func TestInvalidExcludePatternNamesAcceptedForms(t *testing.T) {
 	bundle := model.Bundle{}
 	bundle.Architecture.InferenceHints.Exclude = []string{"viewer/dist", "viewer/dist/", "viewer/dist/*", "viewer/dist/**", "*.gen.go", "/abs/dir", "../up/**", "**/dist", "a/**/b", "bad[glob"}
-	reported := map[string]string{}
-	for _, d := range validate.Bundle(bundle) {
-		if d.Code == "model.invalid_exclude_pattern" {
-			reported[d.Path] = d.Message
-		}
-	}
+	reported := invalidExcludeMessages(bundle)
 	for i := 5; i < 10; i++ {
 		msg, ok := reported[fmt.Sprintf("inferenceHints.exclude[%d]", i)]
 		if !ok || !strings.Contains(msg, "dir, dir/, dir/* or dir/**") {
@@ -263,4 +314,15 @@ func TestInvalidExcludePatternNamesAcceptedForms(t *testing.T) {
 	if len(reported) != 5 {
 		t.Fatalf("only the five unusable patterns may be reported: %v", reported)
 	}
+}
+
+// invalidExcludeMessages maps the path of each invalid exclude pattern of the bundle to its message.
+func invalidExcludeMessages(bundle model.Bundle) map[string]string {
+	reported := map[string]string{}
+	for _, d := range validate.Bundle(bundle) {
+		if d.Code == "model.invalid_exclude_pattern" {
+			reported[d.Path] = d.Message
+		}
+	}
+	return reported
 }

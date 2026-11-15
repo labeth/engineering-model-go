@@ -81,14 +81,21 @@ func TestFormalEvidenceWithMatchingShaIsAnalysisEvidence(t *testing.T) {
 	if c.Method != "analysis" || c.Status != "pass" || len(c.Verifies) != 2 {
 		t.Fatalf("check %+v", c)
 	}
-	for _, req := range []string{"REQ-X-1", "REQ-X-2"} {
+	assertFormalPasses(t, c, "REQ-X-1", "REQ-X-2")
+	if !strings.HasPrefix(c.ID, "VER-INF-FORMAL-") {
+		t.Errorf("id %q", c.ID)
+	}
+}
+
+// assertFormalPasses checks that the check holds a passing result from the
+// formal evidence file for each requirement.
+func assertFormalPasses(t *testing.T, c VerificationCheck, reqs ...string) {
+	t.Helper()
+	for _, req := range reqs {
 		r, ok := resultFor(c, req)
 		if !ok || r.Status != "pass" || r.Evidence != "test-results/quint-formal.json" {
 			t.Fatalf("%s: %+v %v", req, r, ok)
 		}
-	}
-	if !strings.HasPrefix(c.ID, "VER-INF-FORMAL-") {
-		t.Errorf("id %q", c.ID)
 	}
 }
 
@@ -100,15 +107,34 @@ func TestFormalEvidenceWithChangedModuleIsStaleAndNotEvidence(t *testing.T) {
 	if !hasDiag(diags, "verification.formal_stale") {
 		t.Fatalf("no stale diagnostic: %+v", diags)
 	}
+	assertStaleWarningsName(t, diags)
+	assertStaleResult(t, formalCheck(t, checks), "REQ-X-1")
+}
+
+// assertStaleWarningsName checks that every stale diagnostic is a warning
+// naming the invariant and the machine of the fixture.
+func assertStaleWarningsName(t *testing.T, diags []validate.Diagnostic) {
+	t.Helper()
 	for _, d := range diags {
-		if d.Code == "verification.formal_stale" && (d.Severity != validate.SeverityWarning || !strings.Contains(d.Message, "INV-X") || !strings.Contains(d.Message, "SM-X")) {
+		if d.Code != "verification.formal_stale" {
+			continue
+		}
+		if d.Severity != validate.SeverityWarning || !strings.Contains(d.Message, "INV-X") || !strings.Contains(d.Message, "SM-X") {
 			t.Errorf("diagnostic %+v", d)
 		}
 	}
-	c := formalCheck(t, checks)
-	r, ok := resultFor(c, "REQ-X-1")
-	if !ok || r.Status == "pass" || r.Status != "not-run" || !strings.Contains(r.Notes, "stale") || c.Status == "pass" {
-		t.Fatalf("a stale result must not pass: %+v / check %q", r, c.Status)
+}
+
+// assertStaleResult checks that the requirement's result is not-run with a stale
+// note and that the check does not pass.
+func assertStaleResult(t *testing.T, c VerificationCheck, req string) {
+	t.Helper()
+	r, ok := resultFor(c, req)
+	if !ok || r.Status != "not-run" || !strings.Contains(r.Notes, "stale") {
+		t.Fatalf("a stale result must not pass: %+v", r)
+	}
+	if c.Status == "pass" {
+		t.Fatalf("a stale result must not pass: check %q", c.Status)
 	}
 }
 
@@ -139,13 +165,19 @@ func TestFormalEvidenceFailIsFailAndNotMergedIntoTestChecks(t *testing.T) {
 	if r, _ := resultFor(c, "REQ-X-1"); r.Status != "fail" || c.Status != "fail" {
 		t.Fatalf("fail entry: %+v check %q", r, c.Status)
 	}
-	for _, other := range checks {
-		if other.Kind != "formal" && len(other.Evidence) > 0 && strings.Contains(strings.Join(other.Evidence, ","), "quint-formal") {
-			t.Fatalf("formal evidence leaked into test check %+v", other)
-		}
-	}
+	assertNoFormalLeak(t, checks)
 	if len(checks) != 2 {
 		t.Fatalf("want one test check and one formal check, got %d", len(checks))
+	}
+}
+
+// assertNoFormalLeak checks that no test check carries the formal evidence file.
+func assertNoFormalLeak(t *testing.T, checks []VerificationCheck) {
+	t.Helper()
+	for _, other := range checks {
+		if other.Kind != "formal" && strings.Contains(strings.Join(other.Evidence, ","), "quint-formal") {
+			t.Fatalf("formal evidence leaked into test check %+v", other)
+		}
 	}
 }
 

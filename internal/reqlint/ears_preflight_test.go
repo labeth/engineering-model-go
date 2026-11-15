@@ -40,22 +40,22 @@ func TestLintRequirementsEARS_UnresolvedCatalogTermsAreBlocking(t *testing.T) {
 		t.Fatalf("expected diagnostics")
 	}
 
-	eventUnresolvedError := false
-	unknownTermError := false
-	for _, d := range diags {
-		if d.Code == "catalog.event_unresolved" && d.Severity == "error" {
-			eventUnresolvedError = true
-		}
-		if d.Code == "expr.unknown_term" && d.Severity == "error" {
-			unknownTermError = true
-		}
-	}
-	if !eventUnresolvedError {
+	if !hasCodeAtSeverity(diags, "catalog.event_unresolved", validate.SeverityError) {
 		t.Fatalf("expected catalog.event_unresolved to be blocking error")
 	}
-	if !unknownTermError {
+	if !hasCodeAtSeverity(diags, "expr.unknown_term", validate.SeverityError) {
 		t.Fatalf("expected expr.unknown_term to be blocking error")
 	}
+}
+
+// hasCodeAtSeverity reports whether a diagnostic has the code and severity.
+func hasCodeAtSeverity(diags []validate.Diagnostic, code string, severity validate.Severity) bool {
+	for _, d := range diags {
+		if d.Code == code && d.Severity == severity {
+			return true
+		}
+	}
+	return false
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
@@ -91,14 +91,7 @@ func TestLintRequirementsEARS_UnreferencedCatalogTermsWarnInStrict(t *testing.T)
 	}
 
 	diags := lintRequirementsEARS(requirements, catalog)
-	found := false
-	for _, d := range diags {
-		if d.Code == "catalog.term_unreferenced" && d.Severity == "warning" {
-			found = true
-			break
-		}
-	}
-	if !found {
+	if !hasCodeAtSeverity(diags, "catalog.term_unreferenced", validate.SeverityWarning) {
 		t.Fatalf("expected catalog.term_unreferenced warning, got: %+v", diags)
 	}
 }
@@ -226,14 +219,8 @@ func TestLintModelRequirementsEARS_SuppressesTermsUsedInModel(t *testing.T) {
 	}
 
 	reported := map[string]bool{}
-	for _, d := range LintModelRequirementsEARS(bundle, requirements) {
-		if d.Code == "catalog.term_unreferenced" {
-			for _, id := range []string{"ACT-SECURITY-ANALYST", "ACT-UNUSED", "EVT-REBOOT"} {
-				if strings.Contains(d.Message, "("+id+")") {
-					reported[id] = true
-				}
-			}
-		}
+	for id := range unreferencedMessages(LintModelRequirementsEARS(bundle, requirements), "ACT-SECURITY-ANALYST", "ACT-UNUSED", "EVT-REBOOT") {
+		reported[id] = true
 	}
 	if reported["ACT-SECURITY-ANALYST"] || reported["EVT-REBOOT"] {
 		t.Fatalf("terms referenced in the model were reported: %v", reported)
@@ -243,6 +230,32 @@ func TestLintModelRequirementsEARS_SuppressesTermsUsedInModel(t *testing.T) {
 	}
 }
 
+// unreferencedMessages maps each of the ids to the message of the
+// catalog.term_unreferenced diagnostic that names it.
+func unreferencedMessages(diags []validate.Diagnostic, ids ...string) map[string]string {
+	out := map[string]string{}
+	for _, d := range diags {
+		if d.Code != "catalog.term_unreferenced" {
+			continue
+		}
+		for _, id := range idsNamedIn(d.Message, ids) {
+			out[id] = d.Message
+		}
+	}
+	return out
+}
+
+// idsNamedIn lists the ids the message names in parentheses.
+func idsNamedIn(message string, ids []string) []string {
+	var named []string
+	for _, id := range ids {
+		if strings.Contains(message, "("+id+")") {
+			named = append(named, id)
+		}
+	}
+	return named
+}
+
 // A catalog term whose name appears in any authored model text other than its
 // own entry (requirement notes or verification criteria, another catalog
 // entry's definition, an architecture, behavior or assurance description) is
@@ -250,6 +263,29 @@ func TestLintModelRequirementsEARS_SuppressesTermsUsedInModel(t *testing.T) {
 // message that says "anywhere in the model".
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func TestLintModelRequirementsEARS_TermNamedInModelTextIsReferenced(t *testing.T) {
+	bundle, requirements := termNamedFixture()
+	var ids []string
+	for _, e := range bundle.Catalog.Catalog.DataTerms {
+		ids = append(ids, e.ID)
+	}
+	reported := unreferencedMessages(LintModelRequirementsEARS(bundle, requirements), ids...)
+	for _, id := range []string{"DATA-OUTPUT-RATE", "DATA-NOTES-ONLY", "DATA-CRITERIA-ONLY", "DATA-ARCH-ONLY", "DATA-BEHAVIOR-ONLY", "DATA-ASSURANCE-ONLY"} {
+		if msg, ok := reported[id]; ok {
+			t.Errorf("%s is named in model text but reported: %s", id, msg)
+		}
+	}
+	msg, ok := reported["DATA-SELF-ONLY"]
+	if !ok {
+		t.Fatalf("term named only in its own entry must be reported: %v", reported)
+	}
+	if !strings.Contains(msg, "anywhere in the model") || strings.Contains(msg, "requirement text") {
+		t.Fatalf("message = %q, want it to say anywhere in the model", msg)
+	}
+}
+
+// termNamedFixture is a model whose catalog terms are named in different model
+// texts, with the requirements that publish brew telemetry.
+func termNamedFixture() (model.Bundle, model.RequirementsDocument) {
 	var bundle model.Bundle
 	bundle.Catalog = model.CatalogDocument{Catalog: model.CatalogGroups{
 		Systems: []model.CatalogEntry{{ID: "SYS-COFFEE-FLEET-SYSTEM", Name: "coffee fleet system"}},
@@ -277,29 +313,7 @@ func TestLintModelRequirementsEARS_TermNamedInModelTextIsReferenced(t *testing.T
 			VerificationCriteria: "Measured at nominal water hardness.",
 		}},
 	}
-	reported := map[string]string{}
-	for _, d := range LintModelRequirementsEARS(bundle, requirements) {
-		if d.Code != "catalog.term_unreferenced" {
-			continue
-		}
-		for _, e := range bundle.Catalog.Catalog.DataTerms {
-			if strings.Contains(d.Message, "("+e.ID+")") {
-				reported[e.ID] = d.Message
-			}
-		}
-	}
-	for _, id := range []string{"DATA-OUTPUT-RATE", "DATA-NOTES-ONLY", "DATA-CRITERIA-ONLY", "DATA-ARCH-ONLY", "DATA-BEHAVIOR-ONLY", "DATA-ASSURANCE-ONLY"} {
-		if msg, ok := reported[id]; ok {
-			t.Errorf("%s is named in model text but reported: %s", id, msg)
-		}
-	}
-	msg, ok := reported["DATA-SELF-ONLY"]
-	if !ok {
-		t.Fatalf("term named only in its own entry must be reported: %v", reported)
-	}
-	if !strings.Contains(msg, "anywhere in the model") || strings.Contains(msg, "requirement text") {
-		t.Fatalf("message = %q, want it to say anywhere in the model", msg)
-	}
+	return bundle, requirements
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
@@ -317,16 +331,22 @@ func TestSuppressWaivedDiagnostics(t *testing.T) {
 	if len(got) != 4 {
 		t.Fatalf("got %d diagnostics, want 4: %+v", len(got), got)
 	}
-	for _, d := range got {
-		if d.Path != "requirements" && strings.HasPrefix(d.Path, "requirements[REQ-A]") && d.Code == "lint.multiple_responses" {
-			t.Fatalf("waived diagnostic kept: %+v", d)
-		}
-	}
+	assertWaivedRemoved(t, got)
 	if !validate.HasErrors(got) {
 		t.Fatalf("an error must never be waived")
 	}
 	if len(SuppressWaivedDiagnostics(diags, nil)) != len(diags) {
 		t.Fatalf("no waivers must keep every diagnostic")
+	}
+}
+
+// assertWaivedRemoved checks that no waived multiple-responses diagnostic of REQ-A is kept.
+func assertWaivedRemoved(t *testing.T, got []validate.Diagnostic) {
+	t.Helper()
+	for _, d := range got {
+		if d.Path != "requirements" && strings.HasPrefix(d.Path, "requirements[REQ-A]") && d.Code == "lint.multiple_responses" {
+			t.Fatalf("waived diagnostic kept: %+v", d)
+		}
 	}
 }
 
@@ -339,44 +359,55 @@ func TestLintRequirementsEARS_HonorsLintWaiversWithReason(t *testing.T) {
 	text := "The simulator shall write the sentence and then the simulator shall flush the sentence."
 	base := model.RequirementsDocument{LintRun: model.LintRun{Mode: "strict", CommaAsAnd: true},
 		Requirements: []model.Requirement{{ID: "REQ-SIM-001", Text: text}}}
-	codes := func(doc model.RequirementsDocument) map[string]bool {
-		out := map[string]bool{}
-		for _, d := range lintRequirementsEARS(doc, catalog) {
-			if strings.HasPrefix(d.Path, "requirements[REQ-SIM-001]") {
-				out[d.Code] = true
-			}
-		}
-		return out
-	}
-	before := codes(base)
+	before := simulatorCodes(base, catalog)
 	if len(before) == 0 {
 		t.Skip("fixture text no longer produces a requirement-scoped lint warning")
 	}
 	waived := base
-	waived.Requirements = []model.Requirement{{ID: "REQ-SIM-001", Text: text}}
-	for code := range before {
-		if strings.HasPrefix(code, "lint.") {
-			waived.Requirements[0].LintWaivers = append(waived.Requirements[0].LintWaivers, model.LintWaiver{Code: code, Reason: "two actions are one atomic write"})
-		}
-	}
-	after := codes(waived)
+	waived.Requirements = []model.Requirement{{ID: "REQ-SIM-001", Text: text, LintWaivers: lintWaiversFor(before)}}
+	after := simulatorCodes(waived, catalog)
 	for code := range before {
 		if strings.HasPrefix(code, "lint.") && after[code] {
 			t.Fatalf("waived %s still reported", code)
 		}
 	}
-	noReason := base
-	noReason.Requirements = []model.Requirement{{ID: "REQ-SIM-001", Text: text, LintWaivers: []model.LintWaiver{{Code: "lint.multiple_responses"}}}}
-	diags := validate.Bundle(model.Bundle{Requirements: noReason})
-	found := false
-	for _, d := range diags {
-		if d.Code == "model.missing_lint_waiver_reason" {
-			found = true
+	assertWaiverNeedsReason(t, text)
+}
+
+// lintWaiversFor waives each lint.* code of the set with a reason.
+func lintWaiversFor(codes map[string]bool) []model.LintWaiver {
+	var waivers []model.LintWaiver
+	for code := range codes {
+		if strings.HasPrefix(code, "lint.") {
+			waivers = append(waivers, model.LintWaiver{Code: code, Reason: "two actions are one atomic write"})
 		}
 	}
-	if !found {
-		t.Fatalf("waiver without reason must be rejected, got %+v", diags)
+	return waivers
+}
+
+// simulatorCodes is the set of lint codes reported for requirement REQ-SIM-001.
+func simulatorCodes(doc model.RequirementsDocument, catalog model.CatalogDocument) map[string]bool {
+	out := map[string]bool{}
+	for _, d := range lintRequirementsEARS(doc, catalog) {
+		if strings.HasPrefix(d.Path, "requirements[REQ-SIM-001]") {
+			out[d.Code] = true
+		}
 	}
+	return out
+}
+
+// assertWaiverNeedsReason checks that validation rejects a lint waiver without a reason.
+func assertWaiverNeedsReason(t *testing.T, text string) {
+	t.Helper()
+	noReason := model.RequirementsDocument{LintRun: model.LintRun{Mode: "strict", CommaAsAnd: true},
+		Requirements: []model.Requirement{{ID: "REQ-SIM-001", Text: text, LintWaivers: []model.LintWaiver{{Code: "lint.multiple_responses"}}}}}
+	diags := validate.Bundle(model.Bundle{Requirements: noReason})
+	for _, d := range diags {
+		if d.Code == "model.missing_lint_waiver_reason" {
+			return
+		}
+	}
+	t.Fatalf("waiver without reason must be rejected, got %+v", diags)
 }
 
 // lint.multiple_responses is not reported for one response verb whose
@@ -406,16 +437,20 @@ func TestLintMultipleResponsesIgnoresFieldListAfterOneVerb(t *testing.T) {
 	}
 	for text, want := range cases {
 		doc := model.RequirementsDocument{LintRun: model.LintRun{Mode: "strict"}, Requirements: []model.Requirement{{ID: "REQ-SIM-001", Text: text}}}
-		got := false
-		for _, d := range lintRequirementsEARS(doc, catalog) {
-			if d.Code == "lint.multiple_responses" {
-				got = true
-			}
-		}
-		if got != want {
+		if got := reportsMultipleResponses(doc, catalog); got != want {
 			t.Errorf("%q: lint.multiple_responses reported=%v, want %v", text, got, want)
 		}
 	}
+}
+
+// reportsMultipleResponses reports whether the lint of the document reports lint.multiple_responses.
+func reportsMultipleResponses(doc model.RequirementsDocument, catalog model.CatalogDocument) bool {
+	for _, d := range lintRequirementsEARS(doc, catalog) {
+		if d.Code == "lint.multiple_responses" {
+			return true
+		}
+	}
+	return false
 }
 
 // An unknown term in an EARS clause names the term and the catalog section

@@ -4,6 +4,7 @@ package codescan
 import (
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -128,32 +129,11 @@ func TestInferVerificationChecks_UsesTestFunctionCodeElement(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-010
 func TestInferVerificationChecks_MatchesResultArtifactToTestFileByNormalizedIdentity(t *testing.T) {
 	root := t.TempDir()
-	testsDir := filepath.Join(root, "tests")
-	if err := os.MkdirAll(testsDir, 0o755); err != nil {
-		t.Fatalf("create tests dir: %v", err)
-	}
-	resultsDir := filepath.Join(root, "test-results")
-	if err := os.MkdirAll(resultsDir, 0o755); err != nil {
-		t.Fatalf("create test-results dir: %v", err)
-	}
-
-	validationPath := filepath.Join(testsDir, "validation.test.js")
-	validationTest := "// TRLC-LINKS: REQ-PRR-004\n"
-	if err := os.WriteFile(validationPath, []byte(validationTest), 0o644); err != nil {
-		t.Fatalf("write validation test fixture: %v", err)
-	}
-
-	e2ePath := filepath.Join(testsDir, "e2e-requirements.test.js")
-	e2eTest := "// TRLC-LINKS: REQ-PRR-004\n"
-	if err := os.WriteFile(e2ePath, []byte(e2eTest), 0o644); err != nil {
-		t.Fatalf("write e2e test fixture: %v", err)
-	}
-
-	validationResultPath := filepath.Join(resultsDir, "validation.json")
-	validationResult := `{"results":[{"requirement":"REQ-PRR-004","status":"pass"}]}`
-	if err := os.WriteFile(validationResultPath, []byte(validationResult), 0o644); err != nil {
-		t.Fatalf("write validation result fixture: %v", err)
-	}
+	writeFixtureFiles(t, root, map[string]string{
+		"tests/validation.test.js":       "// TRLC-LINKS: REQ-PRR-004\n",
+		"tests/e2e-requirements.test.js": "// TRLC-LINKS: REQ-PRR-004\n",
+		"test-results/validation.json":   `{"results":[{"requirement":"REQ-PRR-004","status":"pass"}]}`,
+	})
 
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	requirements := model.RequirementsDocument{
@@ -172,16 +152,34 @@ func TestInferVerificationChecks_MatchesResultArtifactToTestFileByNormalizedIden
 	}
 
 	resultRel := filepath.ToSlash(filepath.Join("test-results", "validation.json"))
-	foundResultEvidence := false
-	for _, r := range validationCheck.Results {
-		if r.Requirement == "REQ-PRR-004" && r.Status == "pass" && r.Evidence == resultRel {
-			foundResultEvidence = true
-			break
-		}
-	}
-	if !foundResultEvidence {
+	if !hasPassEvidence(validationCheck, "REQ-PRR-004", resultRel) {
 		t.Fatalf("expected pass result evidence from %s in validation check", resultRel)
 	}
+}
+
+// writeFixtureFiles writes each slash-separated path under root, creating its directories.
+func writeFixtureFiles(t *testing.T, root string, files map[string]string) {
+	t.Helper()
+	for rel, text := range files {
+		path := filepath.Join(root, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatalf("create dir of %s: %v", rel, err)
+		}
+		if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
+			t.Fatalf("write fixture %s: %v", rel, err)
+		}
+	}
+}
+
+// hasPassEvidence reports whether the check holds a passing result for the
+// requirement taken from the evidence file.
+func hasPassEvidence(c VerificationCheck, req, evidence string) bool {
+	for _, r := range c.Results {
+		if r.Requirement == req && r.Status == "pass" && r.Evidence == evidence {
+			return true
+		}
+	}
+	return false
 }
 
 // TRLC-LINKS: REQ-EMG-010
@@ -211,10 +209,8 @@ func TestBuildVerificationCodeElementIndex_PrefersSymbolsAndSkipsDependencies(t 
 // TRLC-LINKS: REQ-EMG-010
 func findCheckByEvidence(checks []VerificationCheck, evidence string) (VerificationCheck, bool) {
 	for _, check := range checks {
-		for _, ev := range check.Evidence {
-			if ev == evidence {
-				return check, true
-			}
+		if slices.Contains(check.Evidence, evidence) {
+			return check, true
 		}
 	}
 	return VerificationCheck{}, false
@@ -222,14 +218,16 @@ func findCheckByEvidence(checks []VerificationCheck, evidence string) (Verificat
 
 // TRLC-LINKS: REQ-EMG-010
 func TestVerilogTestbenchPathClassification(t *testing.T) {
-	for _, path := range []string{"fpga/sram_bench/sim/tb.v", "fpga/sim/tb_capture.v", "rtl/capture_tb.v"} {
-		if !isVerificationTestPath(path) {
-			t.Errorf("missing testbench: %s", path)
-		}
-	}
-	for _, path := range []string{"fpga/sram_bench/bench.v", "rtl/tb_controller.vh", "rtl/table.v"} {
-		if isVerificationTestPath(path) {
-			t.Errorf("production source classified as test: %s", path)
+	assertTestPaths(t, []string{"fpga/sram_bench/sim/tb.v", "fpga/sim/tb_capture.v", "rtl/capture_tb.v"}, true)
+	assertTestPaths(t, []string{"fpga/sram_bench/bench.v", "rtl/tb_controller.vh", "rtl/table.v"}, false)
+}
+
+// assertTestPaths checks the test-path classification of each path against want.
+func assertTestPaths(t *testing.T, paths []string, want bool) {
+	t.Helper()
+	for _, path := range paths {
+		if isVerificationTestPath(path) != want {
+			t.Errorf("%s: test path = %v, want %v", path, !want, want)
 		}
 	}
 }

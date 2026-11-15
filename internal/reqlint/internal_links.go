@@ -24,15 +24,24 @@ func LintRequirementInternalLinks(reqs model.RequirementsDocument) []validate.Di
 	}
 	var diags []validate.Diagnostic
 	for _, r := range reqs.Requirements {
-		for _, raw := range r.AppliesTo {
-			target := strings.TrimSpace(raw)
-			if ids[target] {
-				diags = append(diags, validate.Diagnostic{
-					Code: "requirement.internal_link", Severity: validate.SeverityWarning,
-					Message: fmt.Sprintf("requirement %s links to requirement %s in the same document; requirements delegate to subsystems, not to other requirements here", r.ID, target),
-					Path:    "requirements",
-				})
-			}
+		diags = append(diags, internalLinkDiagnostics(r, ids)...)
+	}
+	return diags
+}
+
+// internalLinkDiagnostics warns for each applies-to target of a requirement that is a requirement id.
+// TRLC-LINKS: REQ-EMG-023
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE, CTRL-TRACEABILITY-COVERAGE
+func internalLinkDiagnostics(r model.Requirement, ids map[string]bool) []validate.Diagnostic {
+	var diags []validate.Diagnostic
+	for _, raw := range r.AppliesTo {
+		target := strings.TrimSpace(raw)
+		if ids[target] {
+			diags = append(diags, validate.Diagnostic{
+				Code: "requirement.internal_link", Severity: validate.SeverityWarning,
+				Message: fmt.Sprintf("requirement %s links to requirement %s in the same document; requirements delegate to subsystems, not to other requirements here", r.ID, target),
+				Path:    "requirements",
+			})
 		}
 	}
 	return diags

@@ -94,13 +94,7 @@ func TestHealthValidationIsOptIn(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-153
 func TestHealthConfigurationErrors(t *testing.T) {
 	ok := model.HealthThreshold{Warn: 5, High: 10}
-	cases := []struct {
-		name   string
-		health model.ManifestHealth
-		code   string
-		path   string
-		in     string // a fragment of the message
-	}{
+	cases := []healthCase{
 		{"exclude absolute", model.ManifestHealth{Exclude: []string{"/etc"}}, "model.invalid_health_exclude", "health.exclude[0]", "is absolute"},
 		{"exclude parent", model.ManifestHealth{Exclude: []string{"a", "../x"}}, "model.invalid_health_exclude", "health.exclude[1]", "leaves the module root"},
 		{"exclude double star", model.ManifestHealth{Exclude: []string{"a/**/b"}}, "model.invalid_health_exclude", "health.exclude[0]", "** other than"},
@@ -124,20 +118,37 @@ func TestHealthConfigurationErrors(t *testing.T) {
 		{"waiver absolute path", waivers(model.HealthWaiver{Code: "health.large_method", Path: "/a.go", Function: "f", Decision: "ADR-OK"}), "model.invalid_health_waiver", "health.waivers[0].path", "is absolute"},
 	}
 	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			h := c.health
-			got := healthCodes(healthBundle(&h))
-			if len(got) != 1 {
-				t.Fatalf("want one health diagnostic, got %+v", got)
-			}
-			d := got[0]
-			if d.Code != c.code || d.Path != c.path || d.Severity != SeverityError || !strings.Contains(d.Message, c.in) {
-				t.Fatalf("got %+v, want %s at %s containing %q", d, c.code, c.path, c.in)
-			}
-			if !IsCoreCode(d.Code) {
-				t.Fatalf("%s must be a core code: a broken configuration is never deferred", d.Code)
-			}
-		})
+		t.Run(c.name, func(t *testing.T) { assertHealthCase(t, c) })
+	}
+}
+
+// healthCase is a health block with the one diagnostic it must report.
+type healthCase struct {
+	name   string
+	health model.ManifestHealth
+	code   string
+	path   string
+	in     string // a fragment of the message
+}
+
+// assertHealthCase checks that the case reports exactly its code at its path
+// as a core error.
+func assertHealthCase(t *testing.T, c healthCase) {
+	t.Helper()
+	h := c.health
+	got := healthCodes(healthBundle(&h))
+	if len(got) != 1 {
+		t.Fatalf("want one health diagnostic, got %+v", got)
+	}
+	d := got[0]
+	if d.Code != c.code || d.Path != c.path || d.Severity != SeverityError {
+		t.Fatalf("got %+v, want %s at %s", d, c.code, c.path)
+	}
+	if !strings.Contains(d.Message, c.in) {
+		t.Fatalf("message %q lacks %q", d.Message, c.in)
+	}
+	if !IsCoreCode(d.Code) {
+		t.Fatalf("%s must be a core code: a broken configuration is never deferred", d.Code)
 	}
 }
 
@@ -146,23 +157,42 @@ func TestHealthConfigurationErrors(t *testing.T) {
 // (error) naming the waiver and the decision.
 // TRLC-LINKS: REQ-EMG-154
 func TestHealthWaiverNeedsAcceptedDecision(t *testing.T) {
-	waiver := func(decision string) *model.ManifestHealth {
-		w := okWaiver()
-		w.Decision = decision
-		return &model.ManifestHealth{Waivers: []model.HealthWaiver{w}}
-	}
-	if got := healthCodes(healthBundle(waiver("ADR-OK"))); len(got) != 0 {
+	if got := healthCodes(healthBundle(waiverWithDecision("ADR-OK"))); len(got) != 0 {
 		t.Fatalf("accepted decision: got %+v", got)
 	}
 	for decision, problem := range map[string]string{"ADR-DRAFT": `has status "proposed", not accepted`, "ADR-NONE": "does not exist"} {
-		got := healthCodes(healthBundle(waiver(decision)))
-		if len(got) != 1 || got[0].Code != "health.waiver_unjustified" || got[0].Severity != SeverityError || got[0].Path != "health.waivers[0].decision" {
-			t.Fatalf("%s: got %+v", decision, got)
-		}
-		for _, want := range []string{"health.complex_method", "parse", "internal/a.go", decision, problem} {
-			if !strings.Contains(got[0].Message, want) {
-				t.Errorf("%s: message %q lacks %q", decision, got[0].Message, want)
-			}
+		assertWaiverUnjustified(t, decision, problem)
+	}
+}
+
+// waiverWithDecision is a health block with the valid waiver naming the decision.
+func waiverWithDecision(decision string) *model.ManifestHealth {
+	w := okWaiver()
+	w.Decision = decision
+	return &model.ManifestHealth{Waivers: []model.HealthWaiver{w}}
+}
+
+// assertWaiverUnjustified checks that a waiver naming the decision is reported as unjustified with the problem.
+func assertWaiverUnjustified(t *testing.T, decision, problem string) {
+	t.Helper()
+	got := healthCodes(healthBundle(waiverWithDecision(decision)))
+	if len(got) != 1 || !isErrorAt(got[0], "health.waiver_unjustified", "health.waivers[0].decision") {
+		t.Fatalf("%s: got %+v", decision, got)
+	}
+	assertMessageHas(t, got[0], "health.complex_method", "parse", "internal/a.go", decision, problem)
+}
+
+// isErrorAt reports whether a diagnostic is an error with the code at the path.
+func isErrorAt(d Diagnostic, code, path string) bool {
+	return d.Code == code && d.Severity == SeverityError && d.Path == path
+}
+
+// assertMessageHas checks that the message of the diagnostic holds every fragment.
+func assertMessageHas(t *testing.T, d Diagnostic, fragments ...string) {
+	t.Helper()
+	for _, want := range fragments {
+		if !strings.Contains(d.Message, want) {
+			t.Errorf("message %q lacks %q", d.Message, want)
 		}
 	}
 }
@@ -175,25 +205,54 @@ func TestHealthWaiverUnjustifiedIsUntieredAndNeverDeferred(t *testing.T) {
 	if TierKeyed("health.waiver_unjustified") || IsCoreCode("health.waiver_unjustified") {
 		t.Fatal("health.waiver_unjustified must be untiered and not core")
 	}
-	w := okWaiver()
-	w.Decision = "ADR-NONE"
 	for _, tier := range model.Tiers {
-		b := healthBundle(&model.ManifestHealth{Waivers: []model.HealthWaiver{w}})
-		b.Manifest.Lifecycle = &model.ManifestLifecycle{Tier: tier}
-		b.Architecture.AuthoredArchitecture.POAMItems = []model.POAMItem{{ID: "POAM-1", Milestone: "tier:" + tier, Status: "open", Defers: []model.POAMDefer{{Code: "health.*"}}}}
-		var found bool
-		for _, d := range ApplyTierPolicy(b, Bundle(b)) {
-			if d.Code == "health.waiver_unjustified" {
-				found = true
-				if d.Severity != SeverityError || d.Deferred || d.PoamRef != "" || d.RequiredFrom != "" {
-					t.Errorf("%s: untiered error changed: %+v", tier, d)
-				}
-			}
-		}
-		if !found {
-			t.Errorf("%s: no health.waiver_unjustified", tier)
+		assertUnjustifiedStaysAnError(t, tier)
+	}
+}
+
+// assertUnjustifiedStaysAnError checks that at the tier the unjustified waiver is
+// an untiered error that an open POA&M item naming health.* does not defer.
+func assertUnjustifiedStaysAnError(t *testing.T, tier string) {
+	t.Helper()
+	b := healthBundle(&model.ManifestHealth{Waivers: []model.HealthWaiver{unjustifiedWaiver()}})
+	b.Manifest.Lifecycle = &model.ManifestLifecycle{Tier: tier}
+	b.Architecture.AuthoredArchitecture.POAMItems = []model.POAMItem{{ID: "POAM-1", Milestone: "tier:" + tier, Status: "open", Defers: []model.POAMDefer{{Code: "health.*"}}}}
+	found := diagnosticsWithCode(ApplyTierPolicy(b, Bundle(b)), "health.waiver_unjustified")
+	if len(found) == 0 {
+		t.Errorf("%s: no health.waiver_unjustified", tier)
+	}
+	for _, d := range found {
+		if !isUntieredError(d) {
+			t.Errorf("%s: untiered error changed: %+v", tier, d)
 		}
 	}
+}
+
+// diagnosticsWithCode lists the diagnostics with the code.
+func diagnosticsWithCode(diags []Diagnostic, code string) []Diagnostic {
+	var out []Diagnostic
+	for _, d := range diags {
+		if d.Code == code {
+			out = append(out, d)
+		}
+	}
+	return out
+}
+
+// isUntieredError reports whether a diagnostic is an error that no tier
+// keyed, deferred or required from a tier.
+func isUntieredError(d Diagnostic) bool {
+	if d.Severity != SeverityError {
+		return false
+	}
+	return !d.Deferred && d.PoamRef == "" && d.RequiredFrom == ""
+}
+
+// unjustifiedWaiver is the valid waiver with a decision that does not exist.
+func unjustifiedWaiver() model.HealthWaiver {
+	w := okWaiver()
+	w.Decision = "ADR-NONE"
+	return w
 }
 
 // The health tier rows end to end through ApplyTierPolicy with lifecycle at
@@ -205,11 +264,29 @@ func TestHealthWaiverUnjustifiedIsUntieredAndNeverDeferred(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-155
 func TestHealthTierRowsEndToEnd(t *testing.T) {
 	debt := model.HealthSmellCodes()
-	rows := []struct {
-		code    string
-		bundles []string
-		want    string // E or W per tier
-	}{
+	for _, r := range healthTierRows(debt) {
+		assertHealthRow(t, r)
+	}
+	// regression RequiredFrom follows the row.
+	if d := severityAt(t, tierBundle("poc"), probe("health.regression", "p", SeverityWarning)); d.RequiredFrom != "product" {
+		t.Errorf("regression requiredFrom = %q", d.RequiredFrom)
+	}
+	if d := severityAt(t, tierBundle("poc", "safety"), probe("health.regression", "p", SeverityWarning)); d.RequiredFrom != "mvp" {
+		t.Errorf("regression with safety requiredFrom = %q", d.RequiredFrom)
+	}
+	assertRaiseMakesDebtBlocking(t, debt)
+}
+
+// healthTierRow is a health code with its severity per tier, E or W, with the bundles.
+type healthTierRow struct {
+	code    string
+	bundles []string
+	want    string // E or W per tier
+}
+
+// healthTierRows lists the rows of the health tier policy, with a row for each debt code with and without safety.
+func healthTierRows(debt []string) []healthTierRow {
+	rows := []healthTierRow{
 		{"health.regression", nil, "WWWEE"},
 		{"health.regression", []string{"safety"}, "WWEEE"},
 		{model.HealthPolicyWeakenedCode, nil, "WWWEE"},
@@ -222,44 +299,38 @@ func TestHealthTierRowsEndToEnd(t *testing.T) {
 		{model.HealthBaselineStaleCode, []string{"safety"}, "WWWWE"},
 	}
 	for _, code := range debt {
-		rows = append(rows, struct {
-			code    string
-			bundles []string
-			want    string
-		}{code, nil, "WWWEE"}, struct {
-			code    string
-			bundles []string
-			want    string
-		}{code, []string{"safety"}, "WWEEE"})
+		rows = append(rows, healthTierRow{code, nil, "WWWEE"}, healthTierRow{code, []string{"safety"}, "WWEEE"})
 	}
-	for _, r := range rows {
-		var got strings.Builder
-		for _, tier := range model.Tiers {
-			d := severityAt(t, tierBundle(tier, r.bundles...), r.code, "p", SeverityWarning)
-			if d.Deferred {
-				t.Errorf("%s at %s must not be deferred", r.code, tier)
-			}
-			got.WriteString(map[Severity]string{SeverityWarning: "W", SeverityError: "E"}[d.Severity])
+	return rows
+}
+
+// assertHealthRow checks the severity of the row's code at every tier, that none
+// is deferred and that without lifecycle the diagnostic is unchanged.
+func assertHealthRow(t *testing.T, r healthTierRow) {
+	t.Helper()
+	var got strings.Builder
+	for _, tier := range model.Tiers {
+		d := severityAt(t, tierBundle(tier, r.bundles...), probe(r.code, "p", SeverityWarning))
+		if d.Deferred {
+			t.Errorf("%s at %s must not be deferred", r.code, tier)
 		}
-		if got.String() != r.want {
-			t.Errorf("%s %v: %s, want %s", r.code, r.bundles, got.String(), r.want)
-		}
-		if d := severityAt(t, tierBundle(""), r.code, "p", SeverityWarning); d.Severity != SeverityWarning || d.RequiredFrom != "" {
-			t.Errorf("%s without lifecycle changed: %+v", r.code, d)
-		}
+		got.WriteString(map[Severity]string{SeverityWarning: "W", SeverityError: "E"}[d.Severity])
 	}
-	// regression RequiredFrom follows the row.
-	if d := severityAt(t, tierBundle("poc"), "health.regression", "p", SeverityWarning); d.RequiredFrom != "product" {
-		t.Errorf("regression requiredFrom = %q", d.RequiredFrom)
+	if got.String() != r.want {
+		t.Errorf("%s %v: %s, want %s", r.code, r.bundles, got.String(), r.want)
 	}
-	if d := severityAt(t, tierBundle("poc", "safety"), "health.regression", "p", SeverityWarning); d.RequiredFrom != "mvp" {
-		t.Errorf("regression with safety requiredFrom = %q", d.RequiredFrom)
+	if d := severityAt(t, tierBundle(""), probe(r.code, "p", SeverityWarning)); d.Severity != SeverityWarning || d.RequiredFrom != "" {
+		t.Errorf("%s without lifecycle changed: %+v", r.code, d)
 	}
-	// The escape hatch: lifecycle.raise health.* makes debt blocking.
+}
+
+// assertRaiseMakesDebtBlocking checks the escape hatch: lifecycle.raise health.* makes debt an error.
+func assertRaiseMakesDebtBlocking(t *testing.T, debt []string) {
+	t.Helper()
 	b := tierBundle("poc")
 	b.Manifest.Lifecycle.Raise = []string{"health.*"}
 	for _, code := range debt {
-		if d := severityAt(t, b, code, "p", SeverityWarning); d.Severity != SeverityError || d.Deferred {
+		if d := severityAt(t, b, probe(code, "p", SeverityWarning)); d.Severity != SeverityError || d.Deferred {
 			t.Errorf("%s raised: %+v", code, d)
 		}
 	}
@@ -270,6 +341,35 @@ func TestHealthTierRowsEndToEnd(t *testing.T) {
 // authoring rules list them.
 // TRLC-LINKS: REQ-EMG-155
 func TestHealthCodesAreInTheTierTable(t *testing.T) {
+	assertHealthCodesKeyed(t)
+	assertThresholdCodesAreSmellCodes(t)
+	assertHealthRowsInTheTable(t, TierPolicyMarkdown())
+	assertHealthCodesUntiered(t, "health.waiver_unjustified", model.HealthBaselineUnreadableCode)
+}
+
+// assertThresholdCodesAreSmellCodes checks that every threshold code is a smell code.
+func assertThresholdCodesAreSmellCodes(t *testing.T) {
+	t.Helper()
+	for _, code := range model.HealthThresholdCodes() {
+		if !model.IsHealthSmellCode(code) {
+			t.Errorf("threshold code %s is no smell code", code)
+		}
+	}
+}
+
+// assertHealthCodesUntiered checks that none of the codes is tier keyed.
+func assertHealthCodesUntiered(t *testing.T, codes ...string) {
+	t.Helper()
+	for _, code := range codes {
+		if TierKeyed(code) {
+			t.Errorf("%s must be untiered", code)
+		}
+	}
+}
+
+// assertHealthCodesKeyed checks that every health code is tier keyed, none is core and none is bundle specific.
+func assertHealthCodesKeyed(t *testing.T) {
+	t.Helper()
 	keyed := map[string]TierRule{}
 	for _, r := range TierPolicy() {
 		keyed[r.Code] = r
@@ -283,12 +383,11 @@ func TestHealthCodesAreInTheTierTable(t *testing.T) {
 			t.Errorf("%s must not be bundle specific", code)
 		}
 	}
-	for _, code := range model.HealthThresholdCodes() {
-		if !model.IsHealthSmellCode(code) {
-			t.Errorf("threshold code %s is no smell code", code)
-		}
-	}
-	md := TierPolicyMarkdown()
+}
+
+// assertHealthRowsInTheTable checks the markdown rows of the health codes.
+func assertHealthRowsInTheTable(t *testing.T, md string) {
+	t.Helper()
 	for _, row := range []string{
 		"| `health.complex_method` | W | W | W | E | E |",
 		"| `health.complex_method` with safety | W | W | E | E | E |",
@@ -299,17 +398,10 @@ func TestHealthCodesAreInTheTierTable(t *testing.T) {
 		"| `health.waiver_unused` | W | W | W | E | E |",
 		"| `health.file_below_floor` | W | W | W | E | E |",
 		"| `health.file_below_floor` with safety | W | W | E | E | E |",
+		"| `health.baseline_stale` | W | W | W | W | E |",
 	} {
 		if !strings.Contains(md, row) {
 			t.Errorf("table lacks %s", row)
-		}
-	}
-	if !strings.Contains(md, "| `health.baseline_stale` | W | W | W | W | E |") {
-		t.Error("table lacks the health.baseline_stale row")
-	}
-	for _, code := range []string{"health.waiver_unjustified", model.HealthBaselineUnreadableCode} {
-		if TierKeyed(code) {
-			t.Errorf("%s must be untiered", code)
 		}
 	}
 }
@@ -330,29 +422,36 @@ func TestAuthoringRulesDescribeHealth(t *testing.T) {
 			t.Errorf("fieldSets[%s] = %s, want %s", kind, got, want)
 		}
 	}
-	var thresholds FieldType
-	for _, f := range rules.FieldTypes["health"] {
-		if f.Name == "thresholds" {
-			thresholds = f
-		}
-	}
-	if thresholds.Type != "map<string,object>" || thresholds.Of != "healthThreshold" {
+	if thresholds := fieldTypeNamed(rules.FieldTypes["health"], "thresholds"); thresholds.Type != "map<string,object>" || thresholds.Of != "healthThreshold" {
 		t.Errorf("health.thresholds type = %+v", thresholds)
 	}
-	text := strings.Join(rules.FieldRules, "\n")
-	for _, want := range []string{"Code health: engmod.yml health", "health.block_missing", "health.waiver_unjustified", "model.invalid_health_threshold", "lifecycle.raise: [health.*]", "health.regression", "health.policy_weakened", "policyDecision", "health.file_below_floor", "health.floor", "model.invalid_health_floor"} {
+	assertHealthFieldRules(t, strings.Join(rules.FieldRules, "\n"))
+}
+
+// fieldTypeNamed is the field with the name, or the zero field.
+func fieldTypeNamed(fields []FieldType, name string) FieldType {
+	for _, f := range fields {
+		if f.Name == name {
+			return f
+		}
+	}
+	return FieldType{}
+}
+
+// assertHealthFieldRules checks that the field rules text names the health terms.
+func assertHealthFieldRules(t *testing.T, text string) {
+	t.Helper()
+	assertTextHas(t, text, []string{"Code health: engmod.yml health", "health.block_missing", "health.waiver_unjustified", "model.invalid_health_threshold", "lifecycle.raise: [health.*]", "health.regression", "health.policy_weakened", "policyDecision", "health.file_below_floor", "health.floor", "model.invalid_health_floor"})
+	assertTextHas(t, text, []string{"health.baseline", "health.baseline_stale", "health.baseline_unreadable", "model.invalid_health_baseline", "engmod-health-baseline/1", "never baselined", "suppresses nothing", "path, function, code, value"})
+	assertTextHas(t, text, model.HealthThresholdCodes())
+}
+
+// assertTextHas checks that the text holds every fragment.
+func assertTextHas(t *testing.T, text string, fragments []string) {
+	t.Helper()
+	for _, want := range fragments {
 		if !strings.Contains(text, want) {
 			t.Errorf("field rules lack %q", want)
-		}
-	}
-	for _, want := range []string{"health.baseline", "health.baseline_stale", "health.baseline_unreadable", "model.invalid_health_baseline", "engmod-health-baseline/1", "never baselined", "suppresses nothing", "path, function, code, value"} {
-		if !strings.Contains(text, want) {
-			t.Errorf("field rules lack the baseline term %q", want)
-		}
-	}
-	for _, code := range model.HealthThresholdCodes() {
-		if !strings.Contains(text, code) {
-			t.Errorf("field rules lack threshold code %s", code)
 		}
 	}
 }
@@ -379,18 +478,7 @@ func TestHealthPolicyDecisionNeedsAnAcceptedDecision(t *testing.T) {
 		t.Fatalf("no policy decision: got %+v", got)
 	}
 	for decision, problem := range map[string]string{"ADR-DRAFT": `has status "proposed", not accepted`, "ADR-NONE": "does not exist"} {
-		got := healthCodes(healthBundle(&model.ManifestHealth{PolicyDecision: decision}))
-		if len(got) != 1 || got[0].Code != model.HealthWaiverUnjustifiedCode || got[0].Severity != SeverityError || got[0].Path != "health.policyDecision" {
-			t.Fatalf("%s: got %+v", decision, got)
-		}
-		for _, want := range []string{"policy decision", decision, problem} {
-			if !strings.Contains(got[0].Message, want) {
-				t.Errorf("%s: message %q lacks %q", decision, got[0].Message, want)
-			}
-		}
-		if AcceptedHealthPolicyDecision(healthBundle(&model.ManifestHealth{PolicyDecision: decision})) != "" {
-			t.Errorf("%s must record nothing", decision)
-		}
+		assertPolicyDecisionProblem(t, decision, problem)
 	}
 	if got := AcceptedHealthPolicyDecision(healthBundle(&model.ManifestHealth{PolicyDecision: " ADR-OK "})); got != "ADR-OK" {
 		t.Errorf("AcceptedHealthPolicyDecision = %q", got)
@@ -400,6 +488,20 @@ func TestHealthPolicyDecisionNeedsAnAcceptedDecision(t *testing.T) {
 	}
 	if TierKeyed("health.waiver_unjustified") {
 		t.Error("the diagnostic must stay untiered")
+	}
+}
+
+// assertPolicyDecisionProblem checks that a policyDecision naming the decision
+// is reported as unjustified with the problem and records nothing.
+func assertPolicyDecisionProblem(t *testing.T, decision, problem string) {
+	t.Helper()
+	got := healthCodes(healthBundle(&model.ManifestHealth{PolicyDecision: decision}))
+	if len(got) != 1 || !isErrorAt(got[0], model.HealthWaiverUnjustifiedCode, "health.policyDecision") {
+		t.Fatalf("%s: got %+v", decision, got)
+	}
+	assertMessageHas(t, got[0], "policy decision", decision, problem)
+	if AcceptedHealthPolicyDecision(healthBundle(&model.ManifestHealth{PolicyDecision: decision})) != "" {
+		t.Errorf("%s must record nothing", decision)
 	}
 }
 

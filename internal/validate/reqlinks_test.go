@@ -52,18 +52,13 @@ func codesOf(diags []Diagnostic, code string) []Diagnostic {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 func TestRequirementNoParent(t *testing.T) {
 	got := codesOf(Bundle(linkTestBundle("strict")), "requirement.no_parent")
-	if len(got) != 2 || got[0].Severity != SeverityError || got[0].Path != "requirements[2]" || !strings.Contains(got[0].Message, "REQ-S") ||
-		got[1].Path != "requirements[3]" || !strings.Contains(got[1].Message, "REQ-N") {
+	if len(got) != 2 {
 		t.Fatalf("strict: want errors for REQ-S (sourceRefs only) and REQ-N, got %+v", got)
 	}
-	for _, want := range []string{"realizes", "parent of a reqLinks entry", "derived: true with derivedRationale"} {
-		if !strings.Contains(got[1].Message, want) {
-			t.Fatalf("message %q must name %q", got[1].Message, want)
-		}
-	}
-	if strings.Contains(got[1].Message, "sourceRefs") || strings.Contains(got[1].Message, "topLevel") {
-		t.Fatalf("message %q names an option that no longer exists", got[1].Message)
-	}
+	expect(t, got[:1]).one(SeverityError, "requirements[2]", "REQ-S")
+	expect(t, got[1:]).one(SeverityError, "requirements[3]", "REQ-N")
+	assertMessageHas(t, got[1], "realizes", "parent of a reqLinks entry", "derived: true with derivedRationale")
+	assertMessageLacks(t, got[1], "sourceRefs", "topLevel")
 	got = codesOf(Bundle(linkTestBundle("")), "requirement.no_parent")
 	if len(got) != 2 || got[0].Severity != SeverityWarning {
 		t.Fatalf("guided with contract: want two warnings, got %+v", got)
@@ -75,6 +70,16 @@ func TestRequirementNoParent(t *testing.T) {
 	}
 }
 
+// assertMessageLacks checks that the message of the diagnostic holds none of the fragments.
+func assertMessageLacks(t *testing.T, d Diagnostic, fragments ...string) {
+	t.Helper()
+	for _, stale := range fragments {
+		if strings.Contains(d.Message, stale) {
+			t.Fatalf("message %q names an option that no longer exists: %q", d.Message, stale)
+		}
+	}
+}
+
 // The three upward traces of D22 each satisfy requirement.no_parent on
 // their own: (a) realizes a local capability or assumption of use, (b) the
 // parent of a reqLinks entry to a dependency capability, (c) derived with
@@ -83,32 +88,34 @@ func TestRequirementNoParent(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-090
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 func TestRequirementUpwardTraceOptions(t *testing.T) {
-	only := func(r model.Requirement, links ...model.ReqLink) []Diagnostic {
-		b := linkTestBundle("strict")
-		b.Requirements.Requirements = []model.Requirement{b.Requirements.Requirements[0], r}
-		b.ReqLinks.ReqLinks = links
-		return codesOf(Bundle(b), "requirement.no_parent")
+	unit := []string{"FU-A"}
+	for _, c := range []struct {
+		name  string
+		req   model.Requirement
+		links []model.ReqLink
+		want  int
+	}{
+		{"(a) realizes an assumption of use", model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: unit, Realizes: []string{"AOU-A"}}, nil, 0},
+		{"(b) parent of a capability link", model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: unit}, []model.ReqLink{{ID: "LNK-X", Parent: "REQ-X", Child: "dep::CAP-Z"}}, 0},
+		{"(c) derived with rationale", model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: unit, Derived: true, DerivedRationale: "Operability."}, nil, 0},
+		{"a link to an assumption of use is no upward trace", model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: unit},
+			[]model.ReqLink{{ID: "LNK-X", Parent: "REQ-X", Child: "dep::AOU-Z"}, {ID: "LNK-Y", Child: "dep::AOU-Z", Evidence: []string{"REQ-X"}}}, 1},
+		{"derived without derivedRationale", model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: unit, Derived: true}, nil, 1},
+		{"sourceRefs only", model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: unit, SourceRefs: []string{"REF-STAKE"}}, nil, 1},
+	} {
+		if got := noParentFor(c.req, c.links...); len(got) != c.want {
+			t.Fatalf("%s: want %d, got %+v", c.name, c.want, got)
+		}
 	}
-	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}, Realizes: []string{"AOU-A"}}); len(got) != 0 {
-		t.Fatalf("(a) realizes an assumption of use: want none, got %+v", got)
-	}
-	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}},
-		model.ReqLink{ID: "LNK-X", Parent: "REQ-X", Child: "dep::CAP-Z"}); len(got) != 0 {
-		t.Fatalf("(b) parent of a capability link: want none, got %+v", got)
-	}
-	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}, Derived: true, DerivedRationale: "Operability."}); len(got) != 0 {
-		t.Fatalf("(c) derived with rationale: want none, got %+v", got)
-	}
-	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}},
-		model.ReqLink{ID: "LNK-X", Parent: "REQ-X", Child: "dep::AOU-Z"}, model.ReqLink{ID: "LNK-Y", Child: "dep::AOU-Z", Evidence: []string{"REQ-X"}}); len(got) != 1 {
-		t.Fatalf("a link to an assumption of use is no upward trace: want one, got %+v", got)
-	}
-	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}, Derived: true}); len(got) != 1 {
-		t.Fatalf("derived without derivedRationale: want one, got %+v", got)
-	}
-	if got := only(model.Requirement{ID: "REQ-X", Text: "The unit shall x.", AppliesTo: []string{"FU-A"}, SourceRefs: []string{"REF-STAKE"}}); len(got) != 1 {
-		t.Fatalf("sourceRefs only: want one, got %+v", got)
-	}
+}
+
+// noParentFor is the requirement.no_parent diagnostics of the link test model
+// with REQ-A and the requirement, and the links.
+func noParentFor(r model.Requirement, links ...model.ReqLink) []Diagnostic {
+	b := linkTestBundle("strict")
+	b.Requirements.Requirements = []model.Requirement{b.Requirements.Requirements[0], r}
+	b.ReqLinks.ReqLinks = links
+	return codesOf(Bundle(b), "requirement.no_parent")
 }
 
 // requirement.realizes_unknown: a realizes target that is a requirement, an
@@ -128,6 +135,13 @@ func TestRequirementRealizesUnknown(t *testing.T) {
 			t.Fatalf("diagnostic %d = %+v, want %q", i, got[i], want)
 		}
 	}
+	assertNoParentNotRepeated(t, b)
+}
+
+// assertNoParentNotRepeated checks that invalid realizes targets are reported
+// once, as realizes_unknown, and not also as no_parent.
+func assertNoParentNotRepeated(t *testing.T, b model.Bundle) {
+	t.Helper()
 	for _, n := range codesOf(Bundle(b), "requirement.no_parent") {
 		if n.Path == "requirements[3]" {
 			t.Fatalf("invalid targets are reported once, as realizes_unknown, not also as no_parent; got %+v", n)
@@ -151,19 +165,22 @@ func TestContractItemRules(t *testing.T) {
 	b.Manifest.Publications[0].Architecture = append(b.Manifest.Publications[0].Architecture, "CAP-B", "CAP-C")
 	b.Manifest.Publications[0].Requirements = append(b.Manifest.Publications[0].Requirements, "REQ-S")
 	diags := Bundle(b)
-	if got := codesOf(diags, "contract.unrealized"); len(got) != 1 || got[0].Severity != SeverityWarning || !strings.Contains(got[0].Message, "CAP-B") {
-		t.Fatalf("contract.unrealized = %+v", got)
-	}
-	if got := codesOf(diags, "contract.ref_deprecated"); len(got) != 0 {
-		t.Fatalf("contract.ref_deprecated is no longer reported, got %+v", got)
-	}
-	if got := codesOf(diags, "contract.realizer_unpublished"); len(got) != 0 {
-		t.Fatalf("all realizers published, got %+v", got)
-	}
+	expect(t, codesOf(diags, "contract.unrealized")).one(SeverityWarning, "contract.provides", "CAP-B")
+	assertCodeAbsent(t, diags, "contract.ref_deprecated")
+	assertCodeAbsent(t, diags, "contract.realizer_unpublished")
 	b.Manifest.Publications[0].Requirements = []string{"REQ-S"}
 	got := codesOf(Bundle(b), "contract.realizer_unpublished")
-	if len(got) != 2 || got[0].Severity != SeverityError || got[0].Path != "requirements[0]" || !strings.Contains(got[0].Message, "REQ-A") {
+	if len(got) != 2 {
 		t.Fatalf("contract.realizer_unpublished = %+v", got)
+	}
+	expect(t, got[:1]).one(SeverityError, "requirements[0]", "REQ-A")
+}
+
+// assertCodeAbsent checks that no diagnostic has the code.
+func assertCodeAbsent(t *testing.T, diags []Diagnostic, code string) {
+	t.Helper()
+	if got := codesOf(diags, code); len(got) != 0 {
+		t.Fatalf("%s must not be reported, got %+v", code, got)
 	}
 }
 
@@ -277,10 +294,7 @@ func TestCapabilityLinkNeedsParent(t *testing.T) {
 		model.ReqLink{ID: "LNK-CAP", Child: "dep::CAP-X", Evidence: []string{"REQ-A"}, Pinned: linkPin, Status: "claimed"},
 		model.ReqLink{ID: "LNK-AOU", Child: "dep::AOU-X", Evidence: []string{"REQ-A"}, Pinned: linkPin, Status: "claimed"},
 	)
-	got := codesOf(Bundle(b), "link.parent_missing")
-	if len(got) != 1 || got[0].Path != "reqLinks[0].parent" || got[0].Severity != SeverityError || !strings.Contains(got[0].Message, "LNK-CAP") {
-		t.Fatalf("link.parent_missing = %+v", got)
-	}
+	expect(t, codesOf(Bundle(b), "link.parent_missing")).one(SeverityError, "reqLinks[0].parent", "LNK-CAP")
 }
 
 // The remaining link file rules: a duplicate link id is model.duplicate_id,

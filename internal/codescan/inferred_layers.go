@@ -54,80 +54,111 @@ func ModelRootDir(bundle model.Bundle) string {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func InferRuntimeItems(bundle model.Bundle) ([]RuntimeItem, []validate.Diagnostic) {
-	baseDir := ModelRootDir(bundle)
-	items := []RuntimeItem{}
-	diags := []validate.Diagnostic{}
-	seen := map[string]bool{}
-
-	for _, src := range bundle.Architecture.InferenceHints.RuntimeSources {
-		root := resolveSourcePath(baseDir, src)
-		parsedBySource := map[string]bool{}
-		walkErr := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			if d.IsDir() {
-				return nil
-			}
-			ext := strings.ToLower(filepath.Ext(path))
-			switch ext {
-			case ".tf":
-				tfItems, tfDiags := parseTerraformRuntime(path)
-				diags = append(diags, tfDiags...)
-				for _, it := range tfItems {
-					it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
-					parsedBySource[filepath.ToSlash(strings.TrimSpace(it.Source))] = true
-					key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
-					if !seen[key] {
-						seen[key] = true
-						items = append(items, it)
-					}
-				}
-			case ".yaml", ".yml":
-				yItems, yDiags := parseManifestRuntime(path)
-				diags = append(diags, yDiags...)
-				for _, it := range yItems {
-					it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
-					parsedBySource[filepath.ToSlash(strings.TrimSpace(it.Source))] = true
-					key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
-					if !seen[key] {
-						seen[key] = true
-						items = append(items, it)
-					}
-				}
-				if !parsedBySource[filepath.ToSlash(path)] {
-					for _, it := range inferDeploymentArtifactItems(baseDir, path) {
-						it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
-						key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
-						if !seen[key] {
-							seen[key] = true
-							items = append(items, it)
-						}
-					}
-				}
-			case ".json":
-				for _, it := range inferDeploymentArtifactItems(baseDir, path) {
-					it.Owner = resolveRuntimeOwner(it, bundle.Architecture.AuthoredArchitecture.FunctionalUnits)
-					key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
-					if !seen[key] {
-						seen[key] = true
-						items = append(items, it)
-					}
-				}
-			}
-			return nil
-		})
-		if walkErr != nil {
-			diags = append(diags, validate.Diagnostic{
-				Code:     "runtime.source_walk_failed",
-				Severity: validate.SeverityWarning,
-				Message:  fmt.Sprintf("failed to walk runtime source %q: %v", root, walkErr),
-				Path:     "inferenceHints.runtimeSources",
-			})
-		}
+	inf := &runtimeInference{
+		baseDir: ModelRootDir(bundle),
+		units:   bundle.Architecture.AuthoredArchitecture.FunctionalUnits,
+		seen:    map[string]bool{},
+		items:   []RuntimeItem{},
+		diags:   []validate.Diagnostic{},
 	}
+	for _, src := range bundle.Architecture.InferenceHints.RuntimeSources {
+		inf.walkSource(resolveSourcePath(inf.baseDir, src))
+	}
+	sortRuntimeItems(inf.items)
+	return inf.items, validate.SortDiagnostics(inf.diags)
+}
 
+// runtimeInference accumulates the runtime items and diagnostics of the runtime sources.
+type runtimeInference struct {
+	baseDir string
+	units   []model.FunctionalUnit
+	seen    map[string]bool
+	items   []RuntimeItem
+	diags   []validate.Diagnostic
+}
+
+// walkSource walks one runtime source; a failed walk is a warning.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (r *runtimeInference) walkSource(root string) {
+	parsedBySource := map[string]bool{}
+	walkErr := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if !d.IsDir() {
+			r.visitFile(path, parsedBySource)
+		}
+		return nil
+	})
+	if walkErr != nil {
+		r.diags = append(r.diags, validate.Diagnostic{
+			Code:     "runtime.source_walk_failed",
+			Severity: validate.SeverityWarning,
+			Message:  fmt.Sprintf("failed to walk runtime source %q: %v", root, walkErr),
+			Path:     "inferenceHints.runtimeSources",
+		})
+	}
+}
+
+// visitFile infers the runtime items of one file by its extension: Terraform
+// resources, Kubernetes manifests (and, when no manifest item names the file,
+// a deployment artifact) or a JSON deployment artifact.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (r *runtimeInference) visitFile(path string, parsedBySource map[string]bool) {
+	switch strings.ToLower(filepath.Ext(path)) {
+	case ".tf":
+		tfItems, tfDiags := parseTerraformRuntime(path)
+		r.diags = append(r.diags, tfDiags...)
+		r.addParsed(tfItems, parsedBySource)
+	case ".yaml", ".yml":
+		yItems, yDiags := parseManifestRuntime(path)
+		r.diags = append(r.diags, yDiags...)
+		r.addParsed(yItems, parsedBySource)
+		if !parsedBySource[filepath.ToSlash(path)] {
+			r.addAll(inferDeploymentArtifactItems(r.baseDir, path))
+		}
+	case ".json":
+		r.addAll(inferDeploymentArtifactItems(r.baseDir, path))
+	}
+}
+
+// addParsed adds parsed items and records their sources as parsed.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (r *runtimeInference) addParsed(items []RuntimeItem, parsedBySource map[string]bool) {
+	for _, it := range items {
+		parsedBySource[filepath.ToSlash(strings.TrimSpace(it.Source))] = true
+		r.add(it)
+	}
+}
+
+// addAll adds every item.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (r *runtimeInference) addAll(items []RuntimeItem) {
+	for _, it := range items {
+		r.add(it)
+	}
+}
+
+// add resolves the owner of an item and adds it unless an equal item exists.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (r *runtimeInference) add(it RuntimeItem) {
+	it.Owner = resolveRuntimeOwner(it, r.units)
+	key := it.Source + "|" + it.Kind + "|" + it.Name + "|" + it.Owner
+	if r.seen[key] {
+		return
+	}
+	r.seen[key] = true
+	r.items = append(r.items, it)
+}
+
+// sortRuntimeItems orders items by kind, name and source.
+// TRLC-LINKS: REQ-EMG-010
+func sortRuntimeItems(items []RuntimeItem) {
 	sort.SliceStable(items, func(i, j int) bool {
 		if items[i].Kind != items[j].Kind {
 			return items[i].Kind < items[j].Kind
@@ -137,7 +168,6 @@ func InferRuntimeItems(bundle model.Bundle) ([]RuntimeItem, []validate.Diagnosti
 		}
 		return items[i].Source < items[j].Source
 	})
-	return items, validate.SortDiagnostics(diags)
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
@@ -145,25 +175,37 @@ func InferRuntimeItems(bundle model.Bundle) ([]RuntimeItem, []validate.Diagnosti
 func parseTerraformRuntime(path string) ([]RuntimeItem, []validate.Diagnostic) {
 	descHints, hintErr := parseTerraformRuntimeDescriptions(path)
 	if hintErr != nil {
-		return nil, []validate.Diagnostic{{
-			Code:     "runtime.terraform_description_parse_failed",
-			Severity: validate.SeverityWarning,
-			Message:  fmt.Sprintf("parse terraform runtime description hints: %v", hintErr),
-			Path:     path,
-		}}
+		return nil, []validate.Diagnostic{runtimeWarning("runtime.terraform_description_parse_failed", fmt.Sprintf("parse terraform runtime description hints: %v", hintErr), path)}
 	}
+	content, failed := terraformResourceBlocks(path)
+	if failed != nil {
+		return nil, []validate.Diagnostic{*failed}
+	}
+	out := []RuntimeItem{}
+	for _, b := range content.Blocks {
+		if item, ok := terraformRuntimeItem(b, descHints, path); ok {
+			out = append(out, item)
+		}
+	}
+	return out, nil
+}
 
-	parser := hclparse.NewParser()
-	file, diags := parser.ParseHCLFile(path)
+// runtimeWarning is a warning diagnostic of runtime inference.
+// TRLC-LINKS: REQ-EMG-010
+func runtimeWarning(code, message, path string) validate.Diagnostic {
+	return validate.Diagnostic{Code: code, Severity: validate.SeverityWarning, Message: message, Path: path}
+}
+
+// terraformResourceBlocks parses a Terraform file and returns its resource blocks, or
+// the warning when the file does not parse.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
+func terraformResourceBlocks(path string) (*hcl.BodyContent, *validate.Diagnostic) {
+	file, diags := hclparse.NewParser().ParseHCLFile(path)
 	if diags.HasErrors() {
-		return nil, []validate.Diagnostic{{
-			Code:     "runtime.terraform_parse_failed",
-			Severity: validate.SeverityWarning,
-			Message:  diags.Error(),
-			Path:     path,
-		}}
+		d := runtimeWarning("runtime.terraform_parse_failed", diags.Error(), path)
+		return nil, &d
 	}
-
 	schema := &hcl.BodySchema{
 		Blocks: []hcl.BlockHeaderSchema{
 			{Type: "resource", LabelNames: []string{"type", "name"}},
@@ -171,41 +213,38 @@ func parseTerraformRuntime(path string) ([]RuntimeItem, []validate.Diagnostic) {
 	}
 	content, _, cDiags := file.Body.PartialContent(schema)
 	if cDiags.HasErrors() {
-		return nil, []validate.Diagnostic{{
-			Code:     "runtime.terraform_schema_failed",
-			Severity: validate.SeverityWarning,
-			Message:  cDiags.Error(),
-			Path:     path,
-		}}
+		d := runtimeWarning("runtime.terraform_schema_failed", cDiags.Error(), path)
+		return nil, &d
 	}
+	return content, nil
+}
 
-	out := []RuntimeItem{}
-	for _, b := range content.Blocks {
-		rtype := ""
-		rname := ""
-		if len(b.Labels) > 0 {
-			rtype = strings.TrimSpace(b.Labels[0])
-		}
-		if len(b.Labels) > 1 {
-			rname = strings.TrimSpace(b.Labels[1])
-		}
-		if rtype == "" && rname == "" {
-			continue
-		}
-		kind := normalizeTerraformKind(rtype)
-		name := rname
-		if name == "" {
-			name = rtype
-		}
-		out = append(out, RuntimeItem{
-			Name:        name,
-			Kind:        kind,
-			Owner:       inferOwnerByConvention(kind, name),
-			Description: strings.TrimSpace(descHints[rtype+"|"+rname]),
-			Source:      filepath.ToSlash(path),
-		})
+// terraformRuntimeItem is the runtime item of one resource block; false when it has no labels.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
+func terraformRuntimeItem(b *hcl.Block, descHints map[string]string, path string) (RuntimeItem, bool) {
+	rtype, rname := "", ""
+	if len(b.Labels) > 0 {
+		rtype = strings.TrimSpace(b.Labels[0])
 	}
-	return out, nil
+	if len(b.Labels) > 1 {
+		rname = strings.TrimSpace(b.Labels[1])
+	}
+	if rtype == "" && rname == "" {
+		return RuntimeItem{}, false
+	}
+	kind := normalizeTerraformKind(rtype)
+	name := rname
+	if name == "" {
+		name = rtype
+	}
+	return RuntimeItem{
+		Name:        name,
+		Kind:        kind,
+		Owner:       inferOwnerByConvention(kind, name),
+		Description: strings.TrimSpace(descHints[rtype+"|"+rname]),
+		Source:      filepath.ToSlash(path),
+	}, true
 }
 
 var terraformResourceLinePattern = regexp.MustCompile(`^\s*resource\s+"([^"]+)"\s+"([^"]+)"\s*\{`)
@@ -223,26 +262,7 @@ func parseTerraformRuntimeDescriptions(path string) (map[string]string, error) {
 	scanner := bufio.NewScanner(f)
 	pending := ""
 	for scanner.Scan() {
-		line := scanner.Text()
-		if desc, ok := extractRuntimeDescriptionMarker(line); ok {
-			pending = desc
-			continue
-		}
-
-		m := terraformResourceLinePattern.FindStringSubmatch(line)
-		if len(m) == 3 {
-			if strings.TrimSpace(pending) != "" {
-				out[strings.TrimSpace(m[1])+"|"+strings.TrimSpace(m[2])] = strings.TrimSpace(pending)
-			}
-			pending = ""
-			continue
-		}
-
-		trimmed := strings.TrimSpace(line)
-		if trimmed == "" || strings.HasPrefix(trimmed, "#") || strings.HasPrefix(trimmed, "//") || strings.HasPrefix(trimmed, "/*") || strings.HasPrefix(trimmed, "*") {
-			continue
-		}
-		pending = ""
+		pending = recordTerraformDescription(scanner.Text(), pending, out)
 	}
 	if err := scanner.Err(); err != nil {
 		return nil, err
@@ -250,27 +270,90 @@ func parseTerraformRuntimeDescriptions(path string) (map[string]string, error) {
 	return out, nil
 }
 
+// recordTerraformDescription handles one line: a description marker becomes the
+// pending description, a resource line takes it, a comment or blank line keeps it
+// and any other line drops it. It returns the pending description.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
+func recordTerraformDescription(line, pending string, out map[string]string) string {
+	if desc, ok := extractRuntimeDescriptionMarker(line); ok {
+		return desc
+	}
+	if m := terraformResourceLinePattern.FindStringSubmatch(line); len(m) == 3 {
+		if strings.TrimSpace(pending) != "" {
+			out[strings.TrimSpace(m[1])+"|"+strings.TrimSpace(m[2])] = strings.TrimSpace(pending)
+		}
+		return ""
+	}
+	if isCommentOrBlank(strings.TrimSpace(line)) {
+		return pending
+	}
+	return ""
+}
+
+// isCommentOrBlank reports whether a trimmed line is empty or starts a comment.
+// TRLC-LINKS: REQ-EMG-010
+func isCommentOrBlank(trimmed string) bool {
+	if trimmed == "" {
+		return true
+	}
+	for _, prefix := range []string{"#", "//", "/*", "*"} {
+		if strings.HasPrefix(trimmed, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+// terraformKindRule maps a resource type to a runtime kind when it contains,
+// for any one alternative, every term of that alternative.
+type terraformKindRule struct {
+	kind         string
+	alternatives [][]string
+}
+
+// terraformKindRules are matched in order against the lowercased resource type.
+var terraformKindRules = []terraformKindRule{
+	{"lambda_function", [][]string{{"lambda_function"}}},
+	{"eventbridge_rule", [][]string{{"cloudwatch_event_rule"}, {"eventbridge_rule"}}},
+	{"eventbridge_target", [][]string{{"cloudwatch_event_target"}, {"eventbridge_target"}}},
+	{"queue", [][]string{{"sqs_queue"}}},
+	{"topic", [][]string{{"sns_topic"}}},
+	{"cluster", [][]string{{"eks", "cluster"}}},
+	{"namespace", [][]string{{"namespace"}}},
+}
+
 // TRLC-LINKS: REQ-EMG-010
 func normalizeTerraformKind(resourceType string) string {
 	t := strings.TrimSpace(strings.ToLower(resourceType))
-	switch {
-	case strings.Contains(t, "lambda_function"):
-		return "lambda_function"
-	case strings.Contains(t, "cloudwatch_event_rule") || strings.Contains(t, "eventbridge_rule"):
-		return "eventbridge_rule"
-	case strings.Contains(t, "cloudwatch_event_target") || strings.Contains(t, "eventbridge_target"):
-		return "eventbridge_target"
-	case strings.Contains(t, "sqs_queue"):
-		return "queue"
-	case strings.Contains(t, "sns_topic"):
-		return "topic"
-	case strings.Contains(t, "eks") && strings.Contains(t, "cluster"):
-		return "cluster"
-	case strings.Contains(t, "namespace"):
-		return "namespace"
-	default:
-		return "terraform_resource"
+	for _, rule := range terraformKindRules {
+		if rule.matches(t) {
+			return rule.kind
+		}
 	}
+	return "terraform_resource"
+}
+
+// matches reports whether the type contains all terms of some alternative.
+// TRLC-LINKS: REQ-EMG-010
+func (r terraformKindRule) matches(t string) bool {
+	for _, terms := range r.alternatives {
+		if containsAll(t, terms) {
+			return true
+		}
+	}
+	return false
+}
+
+// containsAll reports whether s contains every term.
+// TRLC-LINKS: REQ-EMG-010
+func containsAll(s string, terms []string) bool {
+	for _, term := range terms {
+		if !strings.Contains(s, term) {
+			return false
+		}
+	}
+	return true
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -278,18 +361,27 @@ func normalizeTerraformKind(resourceType string) string {
 func inferOwnerByConvention(kind, name string) string {
 	k := strings.ToLower(strings.TrimSpace(kind))
 	n := strings.ToLower(strings.TrimSpace(name))
-	switch {
-	case k == "cluster":
+	switch k {
+	case "cluster":
 		return "FU-CLUSTER-PROVISIONING"
-	case k == "gitrepository" || k == "kustomization":
+	case "gitrepository", "kustomization":
 		return "FU-GITOPS-OPERATIONS"
-	case k == "namespace" && (n == "flux-system" || n == "flux_system"):
+	case "namespace":
+		return namespaceOwner(n)
+	default:
+		return "unresolved"
+	}
+}
+
+// namespaceOwner is the conventional owner of a namespace by its lowercased name.
+// TRLC-LINKS: REQ-EMG-010
+func namespaceOwner(name string) string {
+	switch name {
+	case "flux-system", "flux_system":
 		return "FU-GITOPS-OPERATIONS"
-	case (k == "gitrepository" || k == "kustomization") && strings.HasPrefix(n, "flux-system/"):
-		return "FU-GITOPS-OPERATIONS"
-	case k == "namespace" && n == "payments":
+	case "payments":
 		return "FU-CHECKOUT"
-	case k == "namespace" && n == "risk":
+	case "risk":
 		return "FU-RISK-SCORING"
 	default:
 		return "unresolved"
@@ -300,26 +392,24 @@ func inferOwnerByConvention(kind, name string) string {
 // TRLC-LINKS: REQ-EMG-010
 func resolveRuntimeOwner(item RuntimeItem, units []model.FunctionalUnit) string {
 	owner := strings.TrimSpace(item.Owner)
-	if owner != "" && owner != "unresolved" && functionalUnitExists(owner, units) {
+	declared := owner != "" && owner != "unresolved"
+	if declared && functionalUnitExists(owner, units) {
 		return owner
 	}
+	if conventional := inferOwnerByConvention(item.Kind, item.Name); existingUnitOwner(conventional, units) {
+		return conventional
+	}
+	inferred := inferOwnerByFunctionalUnits(item.Name+" "+item.Source, units)
+	if inferred != "" || !declared {
+		return inferred
+	}
+	return owner
+}
 
-	owner = inferOwnerByConvention(item.Kind, item.Name)
-	if owner != "unresolved" && functionalUnitExists(owner, units) {
-		return owner
-	}
-
-	owner = inferOwnerByFunctionalUnits(item.Name+" "+item.Source, units)
-	if owner != "" {
-		return owner
-	}
-	if strings.TrimSpace(item.Owner) != "" && strings.TrimSpace(item.Owner) != "unresolved" {
-		return strings.TrimSpace(item.Owner)
-	}
-	if owner != "unresolved" {
-		return owner
-	}
-	return "unresolved"
+// existingUnitOwner reports whether an owner is resolved and names a functional unit.
+// TRLC-LINKS: REQ-EMG-010
+func existingUnitOwner(owner string, units []model.FunctionalUnit) bool {
+	return owner != "unresolved" && functionalUnitExists(owner, units)
 }
 
 // TRLC-LINKS: REQ-EMG-010
@@ -380,6 +470,26 @@ func deploymentArtifactDisplayPath(baseDir, path string) string {
 	return filepath.ToSlash(abs)
 }
 
+// ownerCandidate is a functional unit scored against a runtime item name.
+type ownerCandidate struct {
+	id     string
+	score  int
+	tokens int
+}
+
+// better reports whether the candidate outranks best: by score, then by token
+// count, then by the smaller id.
+// TRLC-LINKS: REQ-EMG-010
+func (c ownerCandidate) better(best ownerCandidate) bool {
+	if c.score != best.score {
+		return c.score > best.score
+	}
+	if c.tokens != best.tokens {
+		return c.tokens > best.tokens
+	}
+	return c.id < best.id
+}
+
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func inferOwnerByFunctionalUnits(name string, units []model.FunctionalUnit) string {
@@ -387,44 +497,59 @@ func inferOwnerByFunctionalUnits(name string, units []model.FunctionalUnit) stri
 	if len(nameTokens) == 0 {
 		return ""
 	}
-
-	bestID := ""
-	bestScore := 0
-	bestTokenCount := 0
+	best := ownerCandidate{}
 	for _, fu := range units {
-		candidateTokens := normalizeOwnerTokens(fu.ID + " " + fu.Name)
-		if len(candidateTokens) == 0 {
-			continue
-		}
-		score := tokenMatchScore(nameTokens, candidateTokens)
-		if score < 2 {
-			continue
-		}
-		if score > bestScore || (score == bestScore && len(candidateTokens) > bestTokenCount) || (score == bestScore && len(candidateTokens) == bestTokenCount && strings.TrimSpace(fu.ID) < bestID) {
-			bestID = strings.TrimSpace(fu.ID)
-			bestScore = score
-			bestTokenCount = len(candidateTokens)
+		cand, ok := scoreOwnerCandidate(nameTokens, fu)
+		if ok && cand.better(best) {
+			best = cand
 		}
 	}
-	return bestID
+	return best.id
+}
+
+// scoreOwnerCandidate scores a functional unit against the name tokens; false
+// when it has no tokens or scores below two.
+// TRLC-LINKS: REQ-EMG-010
+func scoreOwnerCandidate(nameTokens []string, fu model.FunctionalUnit) (ownerCandidate, bool) {
+	candidateTokens := normalizeOwnerTokens(fu.ID + " " + fu.Name)
+	if len(candidateTokens) == 0 {
+		return ownerCandidate{}, false
+	}
+	score := tokenMatchScore(nameTokens, candidateTokens)
+	return ownerCandidate{id: strings.TrimSpace(fu.ID), score: score, tokens: len(candidateTokens)}, score >= 2
 }
 
 // TRLC-LINKS: REQ-EMG-010
 func tokenMatchScore(left, right []string) int {
 	score := 0
 	for _, l := range left {
-		for _, r := range right {
-			if l == r {
-				score += 2
-				break
-			}
-			if len(l) >= 5 && len(r) >= 5 && (strings.HasPrefix(l, r) || strings.HasPrefix(r, l)) {
-				score++
-				break
-			}
-		}
+		score += tokenScore(l, right)
 	}
 	return score
+}
+
+// tokenScore is 2 when the token equals one of the candidates, else 1 when it
+// shares a prefix with one of them (both of five characters or more), else 0.
+// The first candidate that matches either way decides.
+// TRLC-LINKS: REQ-EMG-010
+func tokenScore(l string, right []string) int {
+	for _, r := range right {
+		if l == r {
+			return 2
+		}
+		if sharesLongPrefix(l, r) {
+			return 1
+		}
+	}
+	return 0
+}
+
+// sharesLongPrefix reports whether two tokens of five characters or more are
+// prefixes of each other.
+// TRLC-LINKS: REQ-EMG-010
+func sharesLongPrefix(l, r string) bool {
+	long := len(l) >= 5 && len(r) >= 5
+	return long && (strings.HasPrefix(l, r) || strings.HasPrefix(r, l))
 }
 
 // TRLC-LINKS: REQ-EMG-010
@@ -454,21 +579,43 @@ func normalizeOwnerToken(token string) string {
 	if len(x) < 3 {
 		return ""
 	}
+	return stripOwnerSuffix(canonicalOwnerStem(x))
+}
 
+// canonicalOwnerStem folds the publish, orchestrate and configure families to one stem.
+// TRLC-LINKS: REQ-EMG-010
+func canonicalOwnerStem(x string) string {
 	switch {
-	case strings.HasPrefix(x, "publicat"), strings.HasPrefix(x, "publish"):
-		x = "publish"
-	case strings.HasPrefix(x, "orchestrat"):
-		x = "orchestr"
-	case strings.HasPrefix(x, "configur"), strings.HasPrefix(x, "config"), strings.HasPrefix(x, "cfg"):
-		x = "config"
+	case hasAnyPrefix(x, "publicat", "publish"):
+		return "publish"
+	case hasAnyPrefix(x, "orchestrat"):
+		return "orchestr"
+	case hasAnyPrefix(x, "configur", "config", "cfg"):
+		return "config"
 	}
+	return x
+}
 
-	suffixes := []string{"ation", "ition", "tion", "sion", "ment", "ness", "izer", "iser", "ized", "ised", "ing", "ers", "ors", "er", "or", "ed", "es", "s"}
-	for _, suffix := range suffixes {
+// hasAnyPrefix reports whether s starts with one of the prefixes.
+// TRLC-LINKS: REQ-EMG-010
+func hasAnyPrefix(s string, prefixes ...string) bool {
+	for _, prefix := range prefixes {
+		if strings.HasPrefix(s, prefix) {
+			return true
+		}
+	}
+	return false
+}
+
+// ownerSuffixes are tried in order; the first that leaves four characters is stripped.
+var ownerSuffixes = []string{"ation", "ition", "tion", "sion", "ment", "ness", "izer", "iser", "ized", "ised", "ing", "ers", "ors", "er", "or", "ed", "es", "s"}
+
+// stripOwnerSuffix removes the first matching suffix that leaves at least four characters.
+// TRLC-LINKS: REQ-EMG-010
+func stripOwnerSuffix(x string) string {
+	for _, suffix := range ownerSuffixes {
 		if strings.HasSuffix(x, suffix) && len(x)-len(suffix) >= 4 {
-			x = strings.TrimSuffix(x, suffix)
-			break
+			return strings.TrimSuffix(x, suffix)
 		}
 	}
 	return x
@@ -501,23 +648,12 @@ type manifestPort struct {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
 // TRLC-LINKS: REQ-EMG-010
 func parseManifestRuntime(path string) ([]RuntimeItem, []validate.Diagnostic) {
-	raw, readErr := os.ReadFile(path)
-	if readErr == nil {
-		txt := string(raw)
-		// Skip unrendered Helm templates; they are not concrete runtime manifests.
-		if strings.Contains(txt, "{{") && strings.Contains(txt, "}}") {
-			return nil, nil
-		}
+	if isUnrenderedTemplate(path) {
+		return nil, nil
 	}
-
 	f, err := os.Open(path)
 	if err != nil {
-		return nil, []validate.Diagnostic{{
-			Code:     "runtime.manifest_open_failed",
-			Severity: validate.SeverityWarning,
-			Message:  fmt.Sprintf("open manifest: %v", err),
-			Path:     path,
-		}}
+		return nil, []validate.Diagnostic{runtimeWarning("runtime.manifest_open_failed", fmt.Sprintf("open manifest: %v", err), path)}
 	}
 	defer f.Close()
 
@@ -526,55 +662,76 @@ func parseManifestRuntime(path string) ([]RuntimeItem, []validate.Diagnostic) {
 	for {
 		var doc manifestObject
 		err := dec.Decode(&doc)
+		if err == io.EOF {
+			return out, nil
+		}
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return out, []validate.Diagnostic{{
-				Code:     "runtime.manifest_parse_failed",
-				Severity: validate.SeverityWarning,
-				Message:  fmt.Sprintf("decode manifest: %v", err),
-				Path:     path,
-			}}
+			return out, []validate.Diagnostic{runtimeWarning("runtime.manifest_parse_failed", fmt.Sprintf("decode manifest: %v", err), path)}
 		}
-
-		kind := strings.TrimSpace(doc.Kind)
-		name := strings.TrimSpace(doc.Metadata.Name)
-		if kind == "" || name == "" {
-			continue
+		if item, ok := manifestRuntimeItem(doc, path); ok {
+			out = append(out, item)
 		}
-		ports := normalizePorts(doc.Spec.Ports)
-		if len(ports) == 0 && strings.EqualFold(kind, "HelmRelease") {
-			ports = portsFromHelmValues(doc.Spec.Values)
-		}
-		if ns := strings.TrimSpace(doc.Metadata.Namespace); ns != "" {
-			name = fmt.Sprintf("%s/%s", ns, name)
-		}
-		owner := "unresolved"
-		description := ""
-		if doc.Metadata.Annotations != nil {
-			if x := strings.TrimSpace(doc.Metadata.Annotations["engmodel.dev/owner-unit"]); x != "" {
-				owner = x
-			}
-			if x := strings.TrimSpace(doc.Metadata.Annotations["engmodel.dev/runtime-description"]); x != "" {
-				description = x
-			} else if x := strings.TrimSpace(doc.Metadata.Annotations["engmodel.dev/description"]); x != "" {
-				description = x
-			}
-		}
-		if owner == "unresolved" {
-			owner = inferOwnerByConvention(strings.ToLower(kind), name)
-		}
-		out = append(out, RuntimeItem{
-			Name:        name,
-			Kind:        strings.ToLower(kind),
-			Owner:       owner,
-			Description: description,
-			Source:      filepath.ToSlash(path),
-			Ports:       ports,
-		})
 	}
-	return out, nil
+}
+
+// isUnrenderedTemplate reports whether a readable file holds Helm template
+// braces; such files are not concrete runtime manifests.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
+func isUnrenderedTemplate(path string) bool {
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		return false
+	}
+	txt := string(raw)
+	return strings.Contains(txt, "{{") && strings.Contains(txt, "}}")
+}
+
+// manifestRuntimeItem is the runtime item of one manifest document; false when
+// it lacks a kind or name.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
+func manifestRuntimeItem(doc manifestObject, path string) (RuntimeItem, bool) {
+	kind := strings.TrimSpace(doc.Kind)
+	name := strings.TrimSpace(doc.Metadata.Name)
+	if kind == "" || name == "" {
+		return RuntimeItem{}, false
+	}
+	ports := normalizePorts(doc.Spec.Ports)
+	if len(ports) == 0 && strings.EqualFold(kind, "HelmRelease") {
+		ports = portsFromHelmValues(doc.Spec.Values)
+	}
+	if ns := strings.TrimSpace(doc.Metadata.Namespace); ns != "" {
+		name = fmt.Sprintf("%s/%s", ns, name)
+	}
+	owner, description := manifestAnnotations(doc.Metadata.Annotations)
+	if owner == "unresolved" {
+		owner = inferOwnerByConvention(strings.ToLower(kind), name)
+	}
+	return RuntimeItem{
+		Name:        name,
+		Kind:        strings.ToLower(kind),
+		Owner:       owner,
+		Description: description,
+		Source:      filepath.ToSlash(path),
+		Ports:       ports,
+	}, true
+}
+
+// manifestAnnotations reads the owner unit ("unresolved" without one) and the
+// description (the runtime description, else the description) annotations.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE
+func manifestAnnotations(annotations map[string]string) (string, string) {
+	owner := "unresolved"
+	if x := strings.TrimSpace(annotations["engmodel.dev/owner-unit"]); x != "" {
+		owner = x
+	}
+	description := strings.TrimSpace(annotations["engmodel.dev/runtime-description"])
+	if description == "" {
+		description = strings.TrimSpace(annotations["engmodel.dev/description"])
+	}
+	return owner, description
 }
 
 // TRLC-LINKS: REQ-EMG-010
@@ -600,14 +757,7 @@ func normalizePorts(in []manifestPort) []string {
 
 // TRLC-LINKS: REQ-EMG-010
 func portsFromHelmValues(values map[string]any) []string {
-	if values == nil {
-		return nil
-	}
-	serviceRaw, ok := values["service"]
-	if !ok {
-		return nil
-	}
-	service, ok := serviceRaw.(map[string]any)
+	service, ok := values["service"].(map[string]any)
 	if !ok {
 		return nil
 	}
@@ -615,8 +765,18 @@ func portsFromHelmValues(values map[string]any) []string {
 	if !ok {
 		return nil
 	}
+	port := helmPortNumber(portRaw)
+	if port <= 0 {
+		return nil
+	}
+	return []string{fmt.Sprintf("%d/TCP", port)}
+}
+
+// helmPortNumber is the number of an int, int64, float64 or numeric string; 0 otherwise.
+// TRLC-LINKS: REQ-EMG-010
+func helmPortNumber(raw any) int {
 	port := 0
-	switch v := portRaw.(type) {
+	switch v := raw.(type) {
 	case int:
 		port = v
 	case int64:
@@ -626,10 +786,7 @@ func portsFromHelmValues(values map[string]any) []string {
 	case string:
 		fmt.Sscanf(strings.TrimSpace(v), "%d", &port)
 	}
-	if port <= 0 {
-		return nil
-	}
-	return []string{fmt.Sprintf("%d/TCP", port)}
+	return port
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -669,11 +826,8 @@ func extractRuntimeDescriptionMarker(line string) (string, bool) {
 		"engmodel.runtime.description",
 	}
 	for _, marker := range markers {
-		if v, ok := extractMarkerValue(line, marker); ok {
-			v = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), ":"))
-			if v != "" {
-				return v, true
-			}
+		if v := markerDescription(line, marker); v != "" {
+			return v, true
 		}
 	}
 	return "", false

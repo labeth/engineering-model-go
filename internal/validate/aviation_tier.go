@@ -78,22 +78,34 @@ func aviationTierDiagnostics(b model.Bundle) []Diagnostic {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func authorityStateDiagnostics(a model.AviationProfile) []Diagnostic {
 	var diags []Diagnostic
-	evidenced := func(id string) bool {
-		for _, l := range a.Liaison {
-			if l.AuthorityState == "authority-accepted" && strings.TrimSpace(l.AuthorityRecord.ID) != "" &&
-				(len(l.SubmissionRefs) == 0 || containsTrimmed(l.SubmissionRefs, id)) {
-				return true
-			}
-		}
-		return false
-	}
 	for _, r := range aviationRecords(a) {
-		if r.state == "authority-accepted" && !evidenced(r.id) {
+		if r.state == "authority-accepted" && !authorityEvidenced(a, r.id) {
 			diags = append(diags, Diagnostic{Code: "aviation.authority_state_unevidenced", Severity: SeverityError, Path: r.path,
 				Message: fmt.Sprintf("%s is authority-accepted but no liaison entry records the authority's acceptance (authorityState authority-accepted with an authorityRecord); record the authority record or lower the state", r.id)})
 		}
 	}
 	return diags
+}
+
+// authorityEvidenced reports whether a liaison entry is authority-accepted,
+// has an authorityRecord and covers the record id (no submissionRefs, or
+// ones naming it).
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func authorityEvidenced(a model.AviationProfile, id string) bool {
+	for _, l := range a.Liaison {
+		if l.AuthorityState == "authority-accepted" && strings.TrimSpace(l.AuthorityRecord.ID) != "" && liaisonCovers(l, id) {
+			return true
+		}
+	}
+	return false
+}
+
+// liaisonCovers reports whether a liaison entry has no submissionRefs or names the record id.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func liaisonCovers(l model.CertificationLiaison, id string) bool {
+	return len(l.SubmissionRefs) == 0 || containsTrimmed(l.SubmissionRefs, id)
 }
 
 // aviationRecord is one aviation evidence record with a state.
@@ -102,64 +114,106 @@ type aviationRecord struct {
 	kind                               string // lifecycleData, execution, other
 }
 
+// recordList collects aviation records in document order.
+type recordList struct {
+	out []aviationRecord
+}
+
+// recordSection names the kind of the records of one section of the aviation document and the section.
+type recordSection struct{ kind, name string }
+
+// add appends a record of a section with its id and state.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (l *recordList) add(sec recordSection, id, state string) {
+	l.out = append(l.out, aviationRecord{id: id, path: "aviation." + sec.name + "." + id, state: strings.TrimSpace(state), kind: sec.kind})
+}
+
 // aviationRecords lists the aviation records that carry an evidence state,
 // in document order.
 // TRLC-LINKS: REQ-EMG-132
 func aviationRecords(a model.AviationProfile) []aviationRecord {
-	var out []aviationRecord
-	add := func(kind, section, id, state string) {
-		out = append(out, aviationRecord{id: id, path: "aviation." + section + "." + id, state: strings.TrimSpace(state), kind: kind})
-	}
+	var l recordList
+	l.addLifecycleAndObjectives(a)
+	l.addPlanningRecords(a)
+	l.addBuildRecords(a)
+	l.addReviewRecords(a)
+	return l.out
+}
+
+// addLifecycleAndObjectives adds the lifecycle data and the applicable objectives.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (l *recordList) addLifecycleAndObjectives(a model.AviationProfile) {
 	for _, v := range a.LifecycleData {
-		out = append(out, aviationRecord{id: v.ID, path: "aviation.lifecycleData." + v.ID, state: strings.TrimSpace(v.State), family: v.CategoryCode, rationale: v.Rationale, kind: "lifecycleData"})
+		l.out = append(l.out, aviationRecord{id: v.ID, path: "aviation.lifecycleData." + v.ID, state: strings.TrimSpace(v.State), family: v.CategoryCode, rationale: v.Rationale, kind: "lifecycleData"})
 	}
 	for _, v := range a.Objectives {
 		if strings.EqualFold(strings.TrimSpace(v.Applicability), "not-applicable") {
 			// Applicability comes from the level's objectives, not the tier.
 			continue
 		}
-		out = append(out, aviationRecord{id: v.ID, path: "aviation.objectives." + v.ID, state: strings.TrimSpace(v.State), rationale: v.Rationale, kind: "other"})
+		l.out = append(l.out, aviationRecord{id: v.ID, path: "aviation.objectives." + v.ID, state: strings.TrimSpace(v.State), rationale: v.Rationale, kind: "other"})
 	}
+}
+
+// addPlanningRecords adds the requirement assurance, verification cases, procedures, executions and baselines.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (l *recordList) addPlanningRecords(a model.AviationProfile) {
+	other := func(name string) recordSection { return recordSection{"other", name} }
 	for _, v := range a.RequirementAssurance {
-		add("other", "requirementAssurance", v.RequirementID, v.State)
+		l.add(other("requirementAssurance"), v.RequirementID, v.State)
 	}
 	for _, v := range a.VerificationCases {
-		add("other", "verificationCases", v.ID, v.State)
+		l.add(other("verificationCases"), v.ID, v.State)
 	}
 	for _, v := range a.Procedures {
-		add("other", "procedures", v.ID, v.State)
+		l.add(other("procedures"), v.ID, v.State)
 	}
 	for _, v := range a.Executions {
-		add("execution", "executions", v.ID, v.Status)
+		l.add(recordSection{"execution", "executions"}, v.ID, v.Status)
 	}
 	for _, v := range a.Baselines {
-		add("other", "baselines", v.ID, v.State)
+		l.add(other("baselines"), v.ID, v.State)
 	}
+}
+
+// addBuildRecords adds the builds, coverage and tools.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (l *recordList) addBuildRecords(a model.AviationProfile) {
 	for _, v := range a.Builds {
-		add("other", "builds", v.ID, v.Status)
+		l.add(recordSection{"other", "builds"}, v.ID, v.Status)
 	}
 	for _, v := range a.Coverage {
-		add("coverage", "coverage", v.ID, v.Status)
+		l.add(recordSection{"coverage", "coverage"}, v.ID, v.Status)
 	}
 	for _, v := range a.Tools {
-		add("other", "tools", v.ID, v.Status)
+		l.add(recordSection{"other", "tools"}, v.ID, v.Status)
 	}
+}
+
+// addReviewRecords adds the reviews, approvals, independence records, problem reports and SQA audits.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (l *recordList) addReviewRecords(a model.AviationProfile) {
+	other := func(name string) recordSection { return recordSection{"other", name} }
 	for _, v := range a.Reviews {
-		add("other", "reviews", v.ID, v.State)
+		l.add(other("reviews"), v.ID, v.State)
 	}
 	for _, v := range a.Approvals {
-		add("other", "approvals", v.ID, v.State)
+		l.add(other("approvals"), v.ID, v.State)
 	}
 	for _, v := range a.Independence {
-		add("other", "independence", v.ID, v.State)
+		l.add(other("independence"), v.ID, v.State)
 	}
 	for _, v := range a.ProblemReports {
-		add("other", "problemReports", v.ID, v.State)
+		l.add(other("problemReports"), v.ID, v.State)
 	}
 	for _, v := range a.SQAAudits {
-		add("other", "sqaAudits", v.ID, v.State)
+		l.add(other("sqaAudits"), v.ID, v.State)
 	}
-	return out
 }
 
 // floorFor returns the minimum evidence state a record needs at a tier
@@ -168,17 +222,38 @@ func aviationRecords(a model.AviationProfile) []aviationRecord {
 // operational (ADR-EMG-035).
 // TRLC-LINKS: REQ-EMG-132
 func floorFor(r aviationRecord, rank int) string {
-	switch {
-	case rank >= model.TierRank(model.TierOperational):
+	if rank >= model.TierRank(model.TierOperational) {
 		return "accepted"
-	case rank >= model.TierRank(model.TierProduct) && r.kind == "lifecycleData" && planFamilies[r.family]:
-		return "reviewed"
-	case rank >= model.TierRank(model.TierProduct) && r.kind == "execution":
-		return "executed"
-	case rank >= model.TierRank(model.TierMVP) && r.kind == "lifecycleData" && planFamilies[r.family]:
+	}
+	if rank >= model.TierRank(model.TierProduct) {
+		if floor := productFloor(r); floor != "" {
+			return floor
+		}
+	}
+	if rank >= model.TierRank(model.TierMVP) && isPlanRecord(r) {
 		return "planned"
 	}
 	return ""
+}
+
+// productFloor is the floor of a record at tier product: reviewed for a plan, executed for an execution.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func productFloor(r aviationRecord) string {
+	switch {
+	case isPlanRecord(r):
+		return "reviewed"
+	case r.kind == "execution":
+		return "executed"
+	}
+	return ""
+}
+
+// isPlanRecord reports whether a record is lifecycle data of one of the five plans.
+// TRLC-LINKS: REQ-EMG-132
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func isPlanRecord(r aviationRecord) bool {
+	return r.kind == "lifecycleData" && planFamilies[r.family]
 }
 
 // AviationFloorGaps returns the aviation records below the evidence floor of
@@ -190,27 +265,46 @@ func floorFor(r aviationRecord, rank int) string {
 func AviationFloorGaps(a model.AviationProfile, rank int) []AviationFloorGap {
 	var out []AviationFloorGap
 	for _, r := range aviationRecords(a) {
-		floor := floorFor(r, rank)
-		if floor == "" {
-			continue
-		}
-		if r.state == "not-applicable" && strings.TrimSpace(r.rationale) != "" {
-			continue
-		}
-		if evidenceStateRank[r.state] < evidenceStateRank[floor] {
-			out = append(out, AviationFloorGap{Path: r.path, ID: r.id, State: r.state, Floor: floor})
+		if gap, ok := recordFloorGap(r, rank); ok {
+			out = append(out, gap)
 		}
 	}
-	if metric := levelCoverageMetric[strings.TrimSpace(a.Profile.SoftwareLevel)]; metric != "" && rank >= model.TierRank(model.TierProduct) {
-		found := false
-		for _, c := range a.Coverage {
-			found = found || strings.EqualFold(strings.TrimSpace(c.Metric), metric)
-		}
-		if !found {
-			out = append(out, AviationFloorGap{Path: "aviation.coverage", ID: "coverage:" + metric, State: "missing", Floor: metric})
-		}
+	if gap, ok := coverageFloorGap(a, rank); ok {
+		out = append(out, gap)
 	}
 	return out
+}
+
+// recordFloorGap is the gap of a record below its floor at the rank; none for
+// a record without a floor or one that is not-applicable with a rationale.
+// TRLC-LINKS: REQ-EMG-132, REQ-EMG-134
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func recordFloorGap(r aviationRecord, rank int) (AviationFloorGap, bool) {
+	floor := floorFor(r, rank)
+	if floor == "" || r.state == "not-applicable" && strings.TrimSpace(r.rationale) != "" {
+		return AviationFloorGap{}, false
+	}
+	if evidenceStateRank[r.state] >= evidenceStateRank[floor] {
+		return AviationFloorGap{}, false
+	}
+	return AviationFloorGap{Path: r.path, ID: r.id, State: r.state, Floor: floor}, true
+}
+
+// coverageFloorGap is the missing structural coverage of the metric a software
+// level needs from tier product.
+// TRLC-LINKS: REQ-EMG-132, REQ-EMG-134
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func coverageFloorGap(a model.AviationProfile, rank int) (AviationFloorGap, bool) {
+	metric := levelCoverageMetric[strings.TrimSpace(a.Profile.SoftwareLevel)]
+	if metric == "" || rank < model.TierRank(model.TierProduct) {
+		return AviationFloorGap{}, false
+	}
+	for _, c := range a.Coverage {
+		if strings.EqualFold(strings.TrimSpace(c.Metric), metric) {
+			return AviationFloorGap{}, false
+		}
+	}
+	return AviationFloorGap{Path: "aviation.coverage", ID: "coverage:" + metric, State: "missing", Floor: metric}, true
 }
 
 // AviationFloorGap is one aviation record below the evidence floor of a

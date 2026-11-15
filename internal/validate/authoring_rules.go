@@ -244,6 +244,15 @@ func fieldSets() map[string][]string {
 	return out
 }
 
+// scalarYAMLTypes names the YAML type of each scalar Go kind a strict-decoding field may have.
+var scalarYAMLTypes = map[reflect.Kind]string{
+	reflect.String: "string", reflect.Bool: "bool",
+	reflect.Int: "int", reflect.Int64: "int", reflect.Int32: "int",
+	reflect.Uint: "int", reflect.Uint64: "int", reflect.Uint32: "int",
+	reflect.Float32: "number", reflect.Float64: "number",
+	reflect.Interface: "any",
+}
+
 // yamlType returns the YAML type name of a strict-decoding Go field type and,
 // for a struct element, the fieldSets kind of that struct.
 // TRLC-LINKS: REQ-EMG-115
@@ -251,17 +260,10 @@ func yamlType(t reflect.Type, kinds map[reflect.Type]string) (string, string) {
 	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
+	if name, ok := scalarYAMLTypes[t.Kind()]; ok {
+		return name, ""
+	}
 	switch t.Kind() {
-	case reflect.String:
-		return "string", ""
-	case reflect.Bool:
-		return "bool", ""
-	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Uint, reflect.Uint64, reflect.Uint32:
-		return "int", ""
-	case reflect.Float32, reflect.Float64:
-		return "number", ""
-	case reflect.Interface:
-		return "any", ""
 	case reflect.Struct:
 		return "object", kinds[t]
 	case reflect.Map:
@@ -280,42 +282,66 @@ func yamlType(t reflect.Type, kinds map[reflect.Type]string) (string, string) {
 // TRLC-LINKS: REQ-EMG-115
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func fieldTypes() map[string][]FieldType {
+	kinds := fieldSetKinds()
+	out := make(map[string][]FieldType, len(fieldSetTypes))
+	for kind, value := range fieldSetTypes {
+		out[kind] = typedFields(reflect.TypeOf(value), kinds)
+	}
+	return out
+}
+
+// fieldSetKinds maps each fieldSetTypes struct to its kind and each evidence
+// or artifact struct they hold to the kind evidence.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func fieldSetKinds() map[reflect.Type]string {
 	kinds := map[reflect.Type]string{}
 	for kind, value := range fieldSetTypes {
 		kinds[reflect.TypeOf(value)] = kind
 	}
-	evidence := func(t reflect.Type) {
-		if _, ok := kinds[t]; !ok && (strings.HasSuffix(t.Name(), "Evidence") || strings.HasSuffix(t.Name(), "Artifact")) {
-			kinds[t] = "evidence"
-		}
-	}
 	for _, value := range fieldSetTypes {
-		t := reflect.TypeOf(value)
-		for i := 0; i < t.NumField(); i++ {
-			ft := t.Field(i).Type
-			for ft.Kind() == reflect.Pointer || ft.Kind() == reflect.Slice {
-				ft = ft.Elem()
-			}
-			if ft.Kind() == reflect.Struct {
-				evidence(ft)
-			}
+		markEvidenceFields(kinds, reflect.TypeOf(value))
+	}
+	return kinds
+}
+
+// markEvidenceFields maps the struct types of the fields of t that are named
+// ...Evidence or ...Artifact to the kind evidence, unless they have a kind.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func markEvidenceFields(kinds map[reflect.Type]string, t reflect.Type) {
+	for i := 0; i < t.NumField(); i++ {
+		ft := t.Field(i).Type
+		for ft.Kind() == reflect.Pointer || ft.Kind() == reflect.Slice {
+			ft = ft.Elem()
+		}
+		if _, ok := kinds[ft]; !ok && isEvidenceStruct(ft) {
+			kinds[ft] = "evidence"
 		}
 	}
-	out := make(map[string][]FieldType, len(fieldSetTypes))
-	for kind, value := range fieldSetTypes {
-		t := reflect.TypeOf(value)
-		fields := []FieldType{}
-		for i := 0; i < t.NumField(); i++ {
-			name, _, _ := strings.Cut(t.Field(i).Tag.Get("yaml"), ",")
-			if name == "" || name == "-" {
-				continue
-			}
-			typ, of := yamlType(t.Field(i).Type, kinds)
-			fields = append(fields, FieldType{Name: name, Type: typ, Of: of})
+}
+
+// isEvidenceStruct reports whether a type is a struct named ...Evidence or ...Artifact.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func isEvidenceStruct(t reflect.Type) bool {
+	return t.Kind() == reflect.Struct && (strings.HasSuffix(t.Name(), "Evidence") || strings.HasSuffix(t.Name(), "Artifact"))
+}
+
+// typedFields lists the yaml fields of a struct with their types, in declaration order.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func typedFields(t reflect.Type, kinds map[reflect.Type]string) []FieldType {
+	fields := []FieldType{}
+	for i := 0; i < t.NumField(); i++ {
+		name, _, _ := strings.Cut(t.Field(i).Tag.Get("yaml"), ",")
+		if name == "" || name == "-" {
+			continue
 		}
-		out[kind] = fields
+		typ, of := yamlType(t.Field(i).Type, kinds)
+		fields = append(fields, FieldType{Name: name, Type: typ, Of: of})
 	}
-	return out
+	return fields
 }
 
 // AuthoringRules returns the validation vocabularies and relationship pairs as
@@ -327,15 +353,20 @@ func AuthoringRules() Rules {
 	for key, table := range enumTables {
 		enums[key] = sortedKeys(table)
 	}
+	return Rules{
+		Enums: enums, RelationshipPairs: relationshipPairs(), FieldRules: append([]string(nil), authoringFieldRules...),
+		FieldSets: fieldSets(), FieldTypes: fieldTypes(), PublicationSections: publicationSections(),
+		TierPolicy: TierPolicy(), Required: RequiredSwitches(),
+	}
+}
+
+// relationshipPairs lists the allowed relationship kind pairs sorted by type, from and to.
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func relationshipPairs() []RelationshipPair {
 	pairs := []RelationshipPair{}
 	for mappingType, kinds := range mappingPairs {
-		for key, ok := range kinds {
-			if !ok {
-				continue
-			}
-			from, to, _ := strings.Cut(key, ":")
-			pairs = append(pairs, RelationshipPair{Type: mappingType, From: from, To: to})
-		}
+		pairs = append(pairs, pairsOfType(mappingType, kinds)...)
 	}
 	sort.Slice(pairs, func(i, j int) bool {
 		if pairs[i].Type != pairs[j].Type {
@@ -346,11 +377,21 @@ func AuthoringRules() Rules {
 		}
 		return pairs[i].To < pairs[j].To
 	})
-	return Rules{
-		Enums: enums, RelationshipPairs: pairs, FieldRules: append([]string(nil), authoringFieldRules...),
-		FieldSets: fieldSets(), FieldTypes: fieldTypes(), PublicationSections: publicationSections(),
-		TierPolicy: TierPolicy(), Required: RequiredSwitches(),
+	return pairs
+}
+
+// pairsOfType lists the allowed from:to kind pairs of one mapping type.
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func pairsOfType(mappingType string, kinds map[string]bool) []RelationshipPair {
+	var pairs []RelationshipPair
+	for key, ok := range kinds {
+		if ok {
+			from, to, _ := strings.Cut(key, ":")
+			pairs = append(pairs, RelationshipPair{Type: mappingType, From: from, To: to})
+		}
 	}
+	return pairs
 }
 
 // TRLC-LINKS: REQ-EMG-045

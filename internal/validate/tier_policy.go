@@ -660,12 +660,22 @@ func poamDefers(b model.Bundle, tier string, asOf time.Time) func(code, path str
 	items := activePoamItems(b, tier, asOf)
 	return func(code, path string) string {
 		for _, p := range items {
-			for _, d := range p.item.Defers {
-				if deferMatches(b, d, Diagnostic{Code: code, Path: path}) {
-					return strings.TrimSpace(p.item.ID)
-				}
+			if deferringItem(b, p, Diagnostic{Code: code, Path: path}) {
+				return strings.TrimSpace(p.item.ID)
 			}
 		}
 		return ""
 	}
+}
+
+// deferringItem reports whether a defers entry of the item matches the diagnostic.
+// TRLC-LINKS: REQ-EMG-129
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func deferringItem(b model.Bundle, p activePoamItem, d Diagnostic) bool {
+	for _, entry := range p.item.Defers {
+		if deferMatches(b, entry, d) {
+			return true
+		}
+	}
+	return false
 }

@@ -37,33 +37,47 @@ func TestAcceptedRecordsNeedAnOwnerAcceptance(t *testing.T) {
 		},
 		[]model.ThreatScenario{{ID: "TS-A", Title: "t", AppliesTo: []string{"FU-A"}, Status: "accepted"}},
 	)
-	got := behaviorDiags(b, "risk.acceptance_unrecorded")
-	paths := []string{}
-	for _, d := range got {
-		if d.Severity != SeverityError || !strings.Contains(d.Message, "add acceptedBy with actor, date, statement or decisionRef (") {
-			t.Fatalf("diagnostic must be an error naming the missing actor, date, statement or decisionRef: %+v", d)
-		}
-		paths = append(paths, d.Path)
-	}
-	want := "authoredArchitecture.risks[0].acceptedBy,authoredArchitecture.risks[1].acceptedBy,authoredArchitecture.threatScenarios[0].acceptedBy"
-	if strings.Join(paths, ",") != want {
-		t.Fatalf("risk.acceptance_unrecorded paths = %v, want %s", paths, want)
-	}
-	open := behaviorDiags(b, "risk.accept_while_open")
-	if len(open) != 1 || open[0].Severity != SeverityWarning || open[0].Path != "authoredArchitecture.risks[1].status" {
-		t.Fatalf("want one risk.accept_while_open warning at risks[1].status, got %+v", open)
-	}
-
-	a := &b.Architecture.AuthoredArchitecture
-	a.Risks[0].AcceptedBy = &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", Statement: "I accept this risk."}
-	a.Risks[1].AcceptedBy = &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}
-	a.ThreatScenarios[0].AcceptedBy = &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", Statement: "Accepted."}
+	assertUnrecordedAcceptances(t, b)
+	expect(t, behaviorDiags(b, "risk.accept_while_open")).one(SeverityWarning, "authoredArchitecture.risks[1].status")
+	completeAcceptances(b)
 	if got := behaviorDiags(b, "risk.acceptance_unrecorded"); len(got) != 0 {
 		t.Fatalf("complete records must clear the error, got %+v", got)
 	}
 	if hasErrors(Bundle(b)) {
 		t.Fatalf("bundle with complete acceptance records has errors: %+v", Bundle(b))
 	}
+}
+
+// pathList is the paths of the diagnostics, comma separated.
+func pathList(diags []Diagnostic) string {
+	paths := []string{}
+	for _, d := range diags {
+		paths = append(paths, d.Path)
+	}
+	return strings.Join(paths, ",")
+}
+
+// assertUnrecordedAcceptances checks that the accepted risks and threat scenario without acceptedBy are errors naming the fields to add.
+func assertUnrecordedAcceptances(t *testing.T, b model.Bundle) {
+	t.Helper()
+	got := behaviorDiags(b, "risk.acceptance_unrecorded")
+	for _, d := range got {
+		if d.Severity != SeverityError || !strings.Contains(d.Message, "add acceptedBy with actor, date, statement or decisionRef (") {
+			t.Fatalf("diagnostic must be an error naming the missing actor, date, statement or decisionRef: %+v", d)
+		}
+	}
+	want := "authoredArchitecture.risks[0].acceptedBy,authoredArchitecture.risks[1].acceptedBy,authoredArchitecture.threatScenarios[0].acceptedBy"
+	if pathList(got) != want {
+		t.Fatalf("risk.acceptance_unrecorded paths = %v, want %s", pathList(got), want)
+	}
+}
+
+// completeAcceptances gives the two risks and the threat scenario complete acceptance records.
+func completeAcceptances(b model.Bundle) {
+	a := &b.Architecture.AuthoredArchitecture
+	a.Risks[0].AcceptedBy = &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", Statement: "I accept this risk."}
+	a.Risks[1].AcceptedBy = &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}
+	a.ThreatScenarios[0].AcceptedBy = &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", Statement: "Accepted."}
 }
 
 // A partial record names exactly the missing parts, and an acceptedBy actor,
@@ -79,30 +93,34 @@ func TestAcceptanceRecordFieldsResolve(t *testing.T) {
 			{ID: "RISK-PARTIAL", Title: "p", Statement: "p", Status: "accepted", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OWNER"}},
 			{ID: "RISK-BAD", Title: "b", Statement: "b", Status: "accepted", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-NOBODY", Date: "1 Nov", DecisionRef: "DEC-NONE"}},
 		}, nil)
-	unrecorded := behaviorDiags(b, "risk.acceptance_unrecorded")
-	if len(unrecorded) != 1 || unrecorded[0].Path != "authoredArchitecture.risks[0].acceptedBy" || !strings.Contains(unrecorded[0].Message, "add acceptedBy with date, statement or decisionRef (") {
-		t.Fatalf("want one risk.acceptance_unrecorded naming only date, statement or decisionRef for RISK-PARTIAL, got %+v", unrecorded)
-	}
-	if got := AcceptanceMissing(&model.AcceptanceRecord{Actor: "ACT-OWNER"}); strings.Join(got, "|") != "date|statement or decisionRef" {
-		t.Fatalf("AcceptanceMissing = %v", got)
-	}
-	if got := AcceptanceMissing(&model.AcceptanceRecord{Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}); strings.Join(got, "|") != "actor" {
-		t.Fatalf("AcceptanceMissing without actor = %v, want [actor]", got)
-	}
-	if got := AcceptanceMissing(nil); strings.Join(got, "|") != "actor|date|statement or decisionRef" {
-		t.Fatalf("AcceptanceMissing(nil) = %v", got)
-	}
+	expect(t, behaviorDiags(b, "risk.acceptance_unrecorded")).one(SeverityError, "authoredArchitecture.risks[0].acceptedBy", "add acceptedBy with date, statement or decisionRef (")
+	assertAcceptanceMissing(t)
 	invalid := behaviorDiags(b, "model.invalid_acceptance")
-	paths := []string{}
 	for _, d := range invalid {
 		if d.Severity != SeverityError {
 			t.Fatalf("model.invalid_acceptance must be an error: %+v", d)
 		}
-		paths = append(paths, d.Path)
 	}
 	want := "authoredArchitecture.risks[1].acceptedBy.actor,authoredArchitecture.risks[1].acceptedBy.date,authoredArchitecture.risks[1].acceptedBy.decisionRef"
-	if strings.Join(paths, ",") != want {
-		t.Fatalf("model.invalid_acceptance paths = %v, want %s", paths, want)
+	if pathList(invalid) != want {
+		t.Fatalf("model.invalid_acceptance paths = %v, want %s", pathList(invalid), want)
+	}
+}
+
+// assertAcceptanceMissing checks the parts AcceptanceMissing names for partial, actorless and nil records.
+func assertAcceptanceMissing(t *testing.T) {
+	t.Helper()
+	for _, c := range []struct {
+		rec  *model.AcceptanceRecord
+		want string
+	}{
+		{&model.AcceptanceRecord{Actor: "ACT-OWNER"}, "date|statement or decisionRef"},
+		{&model.AcceptanceRecord{Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}, "actor"},
+		{nil, "actor|date|statement or decisionRef"},
+	} {
+		if got := AcceptanceMissing(c.rec); strings.Join(got, "|") != c.want {
+			t.Fatalf("AcceptanceMissing(%+v) = %v, want %s", c.rec, got, c.want)
+		}
 	}
 }
 
@@ -129,22 +147,12 @@ func TestAcceptanceRecordNeedsCalendarDateAcceptedDecisionAndOwner(t *testing.T)
 	a.Actors = append(a.Actors, model.Actor{ID: "ACT-OTHER", Name: "Other"})
 	b.Architecture.Decisions = append(b.Architecture.Decisions, model.Decision{ID: "DEC-PROPOSED", Title: "Maybe", Status: "proposed", Date: "2026-11-01", Context: "c", Decision: "d", Consequences: []string{"c"}})
 	invalid := behaviorDiags(b, "model.invalid_acceptance")
-	paths := []string{}
-	for _, d := range invalid {
-		paths = append(paths, d.Path)
-	}
 	want := "authoredArchitecture.risks[0].acceptedBy.date,authoredArchitecture.risks[1].acceptedBy.decisionRef"
-	if strings.Join(paths, ",") != want {
-		t.Fatalf("model.invalid_acceptance paths = %v, want %s (%+v)", paths, want, invalid)
+	if pathList(invalid) != want {
+		t.Fatalf("model.invalid_acceptance paths = %v, want %s (%+v)", pathList(invalid), want, invalid)
 	}
-	if !strings.Contains(invalid[1].Message, `status "proposed"`) {
-		t.Fatalf("decisionRef message must name the status: %+v", invalid[1])
-	}
-	notOwner := behaviorDiags(b, "risk.acceptance_not_owner")
-	if len(notOwner) != 1 || notOwner[0].Severity != SeverityWarning || notOwner[0].Path != "authoredArchitecture.risks[2].acceptedBy.actor" ||
-		!strings.Contains(notOwner[0].Message, "ACT-OTHER") || !strings.Contains(notOwner[0].Message, "ACT-OWNER") {
-		t.Fatalf("want one risk.acceptance_not_owner warning at risks[2].acceptedBy.actor, got %+v", notOwner)
-	}
+	assertMessageHas(t, invalid[1], `status "proposed"`)
+	expect(t, behaviorDiags(b, "risk.acceptance_not_owner")).one(SeverityWarning, "authoredArchitecture.risks[2].acceptedBy.actor", "ACT-OTHER", "ACT-OWNER")
 	refs := NewAcceptanceRefs(b)
 	var resolving []string
 	for _, r := range a.Risks {
@@ -174,15 +182,14 @@ func TestAcceptanceByDecisionOnlyWarns(t *testing.T) {
 		},
 		[]model.ThreatScenario{{ID: "TS-DEC", Title: "t", AppliesTo: []string{"FU-A"}, Status: "accepted", AcceptedBy: &model.AcceptanceRecord{Actor: "ACT-OWNER", Date: "2026-11-01", DecisionRef: "DEC-ACCEPT"}}},
 	)
-	var paths []string
-	for _, d := range behaviorDiags(b, "risk.acceptance_by_decision_only") {
+	got := behaviorDiags(b, "risk.acceptance_by_decision_only")
+	for _, d := range got {
 		if d.Severity != SeverityWarning || !strings.Contains(d.Message, "DEC-ACCEPT") || !strings.Contains(d.Message, "statement") {
 			t.Fatalf("must be a warning naming the decision and statement: %+v", d)
 		}
-		paths = append(paths, d.Path)
 	}
-	if want := "authoredArchitecture.risks[0].acceptedBy.statement,authoredArchitecture.threatScenarios[0].acceptedBy.statement"; strings.Join(paths, ",") != want {
-		t.Fatalf("risk.acceptance_by_decision_only paths = %v, want %s", paths, want)
+	if want := "authoredArchitecture.risks[0].acceptedBy.statement,authoredArchitecture.threatScenarios[0].acceptedBy.statement"; pathList(got) != want {
+		t.Fatalf("risk.acceptance_by_decision_only paths = %v, want %s", pathList(got), want)
 	}
 	if hasErrors(Bundle(b)) {
 		t.Fatalf("decision-only acceptance must stay a warning: %+v", Bundle(b))
@@ -200,11 +207,7 @@ func TestRiskDependencyMustBeADeclaredAlias(t *testing.T) {
 		{ID: "RISK-DEP", Title: "d", Statement: "d", Status: "open", Dependencies: []string{"encoder", "nosuch"}},
 	}, nil)
 	b.Manifest.Dependencies = []model.ManifestDependency{{Alias: "encoder", Path: "models.example/encoder@v0", Version: "v0.1.0"}}
-	got := behaviorDiags(b, "model.invalid_risk_dependency")
-	if len(got) != 1 || got[0].Severity != SeverityError || got[0].Path != "authoredArchitecture.risks[0].dependencies[1]" ||
-		!strings.Contains(got[0].Message, `"nosuch"`) || !strings.Contains(got[0].Message, "encoder") {
-		t.Fatalf("model.invalid_risk_dependency = %+v, want one error at dependencies[1] naming nosuch and the alias encoder", got)
-	}
+	expect(t, behaviorDiags(b, "model.invalid_risk_dependency")).one(SeverityError, "authoredArchitecture.risks[0].dependencies[1]", `"nosuch"`, "encoder")
 	b.Architecture.AuthoredArchitecture.Risks[0].Dependencies = []string{"encoder"}
 	if got := behaviorDiags(b, "model.invalid_risk_dependency"); len(got) != 0 {
 		t.Fatalf("a declared alias must not be reported: %+v", got)

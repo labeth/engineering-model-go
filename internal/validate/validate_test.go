@@ -8,6 +8,16 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// assertCodesReported fails unless the diagnostics hold every code.
+func assertCodesReported(t *testing.T, diags []Diagnostic, codes ...string) {
+	t.Helper()
+	for _, code := range codes {
+		if len(diagnosticsWithCode(diags, code)) == 0 {
+			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-046
 func TestBundleValidationRejectsUnsupportedSchemaVersion(t *testing.T) {
 	diagnostics := Bundle(schemaV2TestBundle(model.Bundle{Architecture: model.ArchitectureDocument{SchemaVersion: 1}}))
@@ -35,64 +45,7 @@ func TestBundleValidationNoErrors(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
 // ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
 func TestBundleValidationIncludesCanonicalSemanticDiagnostics(t *testing.T) {
-	tests := []struct {
-		name string
-		edit func(*model.Bundle)
-		code string
-	}{
-		{
-			name: "duplicate identity",
-			edit: func(bundle *model.Bundle) {
-				bundle.Architecture.AuthoredArchitecture.FunctionalGroups = append(
-					bundle.Architecture.AuthoredArchitecture.FunctionalGroups,
-					model.FunctionalGroup{ID: "FG-A", Name: "Duplicate"},
-				)
-			},
-			code: "semantic.duplicate_identity",
-		},
-		{
-			name: "dangling semantic relationship",
-			edit: func(bundle *model.Bundle) {
-				bundle.Architecture.AuthoredArchitecture.Mappings = append(
-					bundle.Architecture.AuthoredArchitecture.Mappings,
-					model.Mapping{Type: "depends_on", From: "FU-A", To: "FU-MISSING"},
-				)
-			},
-			code: "semantic.dangling_relationship",
-		},
-		{
-			name: "invalid ownership",
-			edit: func(bundle *model.Bundle) {
-				bundle.Architecture.AuthoredArchitecture.Interfaces = append(
-					bundle.Architecture.AuthoredArchitecture.Interfaces,
-					model.Interface{ID: "IF-A", Name: "API", Owner: "FU-MISSING"},
-				)
-			},
-			code: "semantic.invalid_ownership",
-		},
-		{
-			name: "unsupported projection",
-			edit: func(bundle *model.Bundle) {
-				bundle.Architecture.AuthoredArchitecture.Mappings = append(
-					bundle.Architecture.AuthoredArchitecture.Mappings,
-					model.Mapping{Type: "future_relation", From: "FU-A", To: "FG-A"},
-				)
-			},
-			code: "semantic.unsupported_relationship",
-		},
-		{
-			name: "lossy projection",
-			edit: func(bundle *model.Bundle) {
-				bundle.Architecture.AuthoredArchitecture.Mappings = append(
-					bundle.Architecture.AuthoredArchitecture.Mappings,
-					model.Mapping{Type: "depends_on", From: "", To: "FG-A"},
-				)
-			},
-			code: "semantic.lossy_relationship",
-		},
-	}
-
-	for _, tt := range tests {
+	for _, tt := range semanticDiagnosticCases() {
 		t.Run(tt.name, func(t *testing.T) {
 			bundle := model.Bundle{Architecture: model.ArchitectureDocument{
 				Model: model.ModelMeta{ID: "MODEL-A"},
@@ -102,18 +55,40 @@ func TestBundleValidationIncludesCanonicalSemanticDiagnostics(t *testing.T) {
 				},
 			}}
 			tt.edit(&bundle)
-			diagnostics := Bundle(schemaV2TestBundle(bundle))
-			found := false
-			for _, diagnostic := range diagnostics {
-				if diagnostic.Code == tt.code {
-					found = true
-					break
-				}
-			}
-			if !found {
-				t.Fatalf("expected %s diagnostic, got %+v", tt.code, diagnostics)
-			}
+			assertCodesReported(t, Bundle(schemaV2TestBundle(bundle)), tt.code)
 		})
+	}
+}
+
+// semanticCase is an edit of a valid model with the semantic diagnostic it must cause.
+type semanticCase struct {
+	name string
+	edit func(*model.Bundle)
+	code string
+}
+
+// addMapping returns an edit that appends a mapping.
+func addMapping(m model.Mapping) func(*model.Bundle) {
+	return func(bundle *model.Bundle) {
+		a := &bundle.Architecture.AuthoredArchitecture
+		a.Mappings = append(a.Mappings, m)
+	}
+}
+
+// semanticDiagnosticCases lists the edits that the canonical semantic model rejects.
+func semanticDiagnosticCases() []semanticCase {
+	return []semanticCase{
+		{"duplicate identity", func(bundle *model.Bundle) {
+			a := &bundle.Architecture.AuthoredArchitecture
+			a.FunctionalGroups = append(a.FunctionalGroups, model.FunctionalGroup{ID: "FG-A", Name: "Duplicate"})
+		}, "semantic.duplicate_identity"},
+		{"dangling semantic relationship", addMapping(model.Mapping{Type: "depends_on", From: "FU-A", To: "FU-MISSING"}), "semantic.dangling_relationship"},
+		{"invalid ownership", func(bundle *model.Bundle) {
+			a := &bundle.Architecture.AuthoredArchitecture
+			a.Interfaces = append(a.Interfaces, model.Interface{ID: "IF-A", Name: "API", Owner: "FU-MISSING"})
+		}, "semantic.invalid_ownership"},
+		{"unsupported projection", addMapping(model.Mapping{Type: "future_relation", From: "FU-A", To: "FG-A"}), "semantic.unsupported_relationship"},
+		{"lossy projection", addMapping(model.Mapping{Type: "depends_on", From: "", To: "FG-A"}), "semantic.lossy_relationship"},
 	}
 }
 
@@ -142,16 +117,7 @@ func TestViewIDIsFreeButKindIsStrict(t *testing.T) {
 	if !hasErrors(diags) {
 		t.Fatalf("expected errors for unsupported view kind")
 	}
-	found := false
-	for _, d := range diags {
-		if d.Code == "model.unknown_view_kind" {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Fatalf("expected model.unknown_view_kind diagnostic, got: %+v", diags)
-	}
+	assertCodesReported(t, diags, "model.unknown_view_kind")
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
@@ -184,21 +150,7 @@ func TestBundleValidation_Decisions(t *testing.T) {
 	if !hasErrors(diags) {
 		t.Fatalf("expected invalid decision to fail")
 	}
-	want := map[string]bool{
-		"model.missing_decision_date":       false,
-		"model.invalid_decision_status":     false,
-		"model.empty_decision_consequences": false,
-	}
-	for _, d := range diags {
-		if _, ok := want[d.Code]; ok {
-			want[d.Code] = true
-		}
-	}
-	for code, found := range want {
-		if !found {
-			t.Fatalf("missing %s in diagnostics: %+v", code, diags)
-		}
-	}
+	assertCodesReported(t, diags, "model.missing_decision_date", "model.invalid_decision_status", "model.empty_decision_consequences")
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
@@ -240,16 +192,7 @@ func TestBundleValidation_ExpandedMappingTypesAndPairs(t *testing.T) {
 	if !hasErrors(diags) {
 		t.Fatalf("expected invalid mapping pair to fail")
 	}
-	found := false
-	for _, d := range diags {
-		if d.Code == "model.invalid_mapping_pair" {
-			found = true
-			break
-		}
-	}
-	if !found {
-		t.Fatalf("expected model.invalid_mapping_pair diagnostic, got: %+v", diags)
-	}
+	assertCodesReported(t, diags, "model.invalid_mapping_pair")
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
@@ -278,19 +221,7 @@ func TestBundleValidation_ViewSpecFields(t *testing.T) {
 	if !hasErrors(diags) {
 		t.Fatalf("expected invalid view spec to fail")
 	}
-	hasKindErr := false
-	hasDepthErr := false
-	for _, d := range diags {
-		if d.Code == "model.unknown_view_entity_kind" {
-			hasKindErr = true
-		}
-		if d.Code == "model.invalid_view_depth" {
-			hasDepthErr = true
-		}
-	}
-	if !hasKindErr || !hasDepthErr {
-		t.Fatalf("expected unknown kind and invalid depth diagnostics, got: %+v", diags)
-	}
+	assertCodesReported(t, diags, "model.unknown_view_entity_kind", "model.invalid_view_depth")
 }
 
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-046
@@ -334,22 +265,7 @@ func TestBundleValidation_FormalDocumentInputs(t *testing.T) {
 	b.Views.Documents[0].ContentRefs = append(b.Views.Documents[0].ContentRefs, "MISSING")
 	b.Views.Documents[0].Sections = append(b.Views.Documents[0].Sections, model.DocumentSection{ID: "scope", Title: "Repeated"})
 	diags := Bundle(schemaV2TestBundle(b))
-	want := map[string]bool{
-		"model.missing_derived_requirement_rationale": false,
-		"model.invalid_document_issue_date":           false,
-		"model.invalid_document_content_ref":          false,
-		"model.duplicate_document_section_id":         false,
-	}
-	for _, diagnostic := range diags {
-		if _, ok := want[diagnostic.Code]; ok {
-			want[diagnostic.Code] = true
-		}
-	}
-	for code, found := range want {
-		if !found {
-			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
-		}
-	}
+	assertCodesReported(t, diags, "model.missing_derived_requirement_rationale", "model.invalid_document_issue_date", "model.invalid_document_content_ref", "model.duplicate_document_section_id")
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
@@ -398,15 +314,7 @@ func TestBundleValidation_InteractionFlowInvalid(t *testing.T) {
 	if !hasErrors(diags) {
 		t.Fatalf("expected invalid flow model to fail")
 	}
-	checks := map[string]bool{}
-	for _, d := range diags {
-		checks[d.Code] = true
-	}
-	for _, code := range []string{"model.invalid_flow_step_kind", "model.broken_flow_reference", "model.duplicate_flow_step_id", "model.broken_flow_step_link"} {
-		if !checks[code] {
-			t.Fatalf("expected diagnostic %s, got: %+v", code, diags)
-		}
-	}
+	assertCodesReported(t, diags, "model.invalid_flow_step_kind", "model.broken_flow_reference", "model.duplicate_flow_step_id", "model.broken_flow_step_link")
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
@@ -443,15 +351,7 @@ func TestBundleValidation_ComplianceMappings(t *testing.T) {
 	if !hasErrors(diags) {
 		t.Fatalf("expected invalid compliance mapping diagnostics")
 	}
-	seen := map[string]bool{}
-	for _, d := range diags {
-		seen[d.Code] = true
-	}
-	for _, code := range []string{"model.invalid_compliance_model_control_ref", "model.invalid_compliance_control_id", "model.invalid_compliance_responsible_role"} {
-		if !seen[code] {
-			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
-		}
-	}
+	assertCodesReported(t, diags, "model.invalid_compliance_model_control_ref", "model.invalid_compliance_control_id", "model.invalid_compliance_responsible_role")
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
@@ -498,20 +398,43 @@ func TestBundleValidation_RisksAndPOAM(t *testing.T) {
 	if !hasErrors(diags) {
 		t.Fatalf("expected invalid risk/poam diagnostics")
 	}
-	seen := map[string]bool{}
-	for _, d := range diags {
-		seen[d.Code] = true
-	}
-	for _, code := range []string{"model.invalid_risk_owner", "model.invalid_poam_risk_ref"} {
-		if !seen[code] {
-			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
-		}
-	}
+	assertCodesReported(t, diags, "model.invalid_risk_owner", "model.invalid_poam_risk_ref")
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ThreatScenariosAndFlowMetadataValid(t *testing.T) {
-	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
+	aa := validThreatBase()
+	aa.Flows = []model.Flow{webhookIngressFlow()}
+	addValidThreatRecords(&aa)
+	aa.ThreatScenarios = []model.ThreatScenario{{
+		ID:               "TS-A",
+		Title:            "Webhook replay with stale signature",
+		AttackVectorRef:  "AV-A",
+		AppliesTo:        []string{"FU-A"},
+		FlowRefs:         []string{"FLOW-A"},
+		Likelihood:       "medium",
+		Impact:           "high",
+		Severity:         "high",
+		Status:           "identified",
+		Owner:            "ACT-A",
+		RiskRef:          "RISK-A",
+		RelatedControls:  []string{"CTRL-A"},
+		AssumptionRefs:   []string{"ASM-A"},
+		OutOfScopeRefs:   []string{"OOS-A"},
+		MitigationRefs:   []string{"MIT-A"},
+		VerificationRefs: []string{"CV-A"},
+		Evidence:         []model.ThreatScenarioEvidence{{Path: "docs/threats/replay.md"}},
+	}}
+	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: aa, Views: []model.View{{ID: "V", Kind: "security", Roots: []string{"FU-A"}}}}}
+	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
+		t.Fatalf("expected valid threat scenario and flow metadata model, got: %+v", diags)
+	}
+}
+
+// validThreatBase is the units, actors, controls, interfaces, data, trust
+// boundary and risk the valid threat records refer to.
+func validThreatBase() model.AuthoredArchitecture {
+	return model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
 		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
 		Actors:           []model.Actor{{ID: "ACT-A", Name: "Sec Owner"}},
@@ -528,94 +451,110 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataValid(t *testing.T) {
 			Impact:          "high",
 			ThreatScenarios: []string{"TS-A"},
 		}},
-		Flows: []model.Flow{{
-			ID:             "FLOW-A",
-			Title:          "Webhook ingress",
-			Kind:           "security",
-			Direction:      "inbound",
-			Frequency:      "realtime",
-			SourceRef:      "IF-A",
-			DestinationRef: "FU-A",
-			DataRefs:       []string{"DATA-A"},
-			Criticality:    "high",
-			Threats:        []string{"TS-A"},
-			Entry:          []string{"receive"},
-			Exits:          []string{"persist"},
-			Steps: []model.FlowStep{
-				{ID: "receive", Kind: "external_interaction", FlowType: "interaction", Direction: "inbound", Frequency: "realtime", SourceRef: "IF-A", DestinationRef: "FU-A", Ref: "IF-A", InterfaceRef: "IF-A", Next: []string{"verify"}},
-				{ID: "verify", Kind: "security_check", FlowType: "security", Direction: "internal", Frequency: "realtime", SourceRef: "FU-A", DestinationRef: "DATA-A", Ref: "FU-A", DataRefs: []string{"DATA-A"}, BoundaryCrossing: true, TrustBoundaryRef: "TB-A", EncryptionInTransit: "tls1.3", Authentication: "hmac", Next: []string{"persist"}},
-				{ID: "persist", Kind: "data_move", FlowType: "data", Ref: "DATA-A"},
-			},
-		}},
-		ThreatAssumptions: []model.ThreatAssumption{{
-			ID:        "ASM-A",
-			Title:     "Gateway signs callbacks",
-			Statement: "Bank gateway callback signatures are generated with managed keys.",
-			Status:    "accepted",
-			Owner:     "ACT-A",
-			AppliesTo: []string{"IF-A", "FU-A"},
-			Evidence:  []model.ThreatAssumptionEvidence{{Path: "docs/assumptions/bank-signing.md"}},
-		}},
-		ThreatOutOfScope: []model.ThreatOutOfScope{{
-			ID:        "OOS-A",
-			Title:     "Bank HSM internals",
-			Reason:    "Managed by external bank provider control environment.",
-			Status:    "approved",
-			Owner:     "ACT-A",
-			AppliesTo: []string{"IF-A"},
-			ExpiresOn: "2027-01-01",
-			Evidence:  []model.ThreatOutOfScopeEvidence{{Path: "docs/scope/external-bank.md"}},
-		}},
-		ControlVerifications: []model.ControlVerification{{
-			ID:                 "CV-A",
-			ControlRef:         "CTRL-A",
-			ThreatScenarioRefs: []string{"TS-A"},
-			RiskRefs:           []string{"RISK-A"},
-			Method:             "test",
-			Status:             "pass",
-			Owner:              "ACT-A",
-			LastTested:         "2026-07-01",
-			Evidence:           []model.ControlVerificationEvidence{{Path: "tests/contract/replay_protection_test.go"}},
-		}},
-		ThreatMitigations: []model.ThreatMitigation{{
-			ID:                "MIT-A",
-			ThreatScenarioRef: "TS-A",
-			ControlRef:        "CTRL-A",
-			Status:            "verified",
-			Effectiveness:     "high",
-			Owner:             "ACT-A",
-			VerificationRefs:  []string{"CV-A"},
-			Evidence:          []model.ThreatMitigationEvidence{{Path: "docs/controls/nonce-validation.md"}},
-		}},
-		ThreatScenarios: []model.ThreatScenario{{
-			ID:               "TS-A",
-			Title:            "Webhook replay with stale signature",
-			AttackVectorRef:  "AV-A",
-			AppliesTo:        []string{"FU-A"},
-			FlowRefs:         []string{"FLOW-A"},
-			Likelihood:       "medium",
-			Impact:           "high",
-			Severity:         "high",
-			Status:           "identified",
-			Owner:            "ACT-A",
-			RiskRef:          "RISK-A",
-			RelatedControls:  []string{"CTRL-A"},
-			AssumptionRefs:   []string{"ASM-A"},
-			OutOfScopeRefs:   []string{"OOS-A"},
-			MitigationRefs:   []string{"MIT-A"},
-			VerificationRefs: []string{"CV-A"},
-			Evidence:         []model.ThreatScenarioEvidence{{Path: "docs/threats/replay.md"}},
-		}},
-	}, Views: []model.View{{ID: "V", Kind: "security", Roots: []string{"FU-A"}}}}}
-
-	if diags := Bundle(schemaV2TestBundle(b)); hasErrors(diags) {
-		t.Fatalf("expected valid threat scenario and flow metadata model, got: %+v", diags)
 	}
+}
+
+// webhookIngressFlow is a valid security flow with three steps and the metadata of a trust boundary crossing.
+func webhookIngressFlow() model.Flow {
+	return model.Flow{
+		ID:             "FLOW-A",
+		Title:          "Webhook ingress",
+		Kind:           "security",
+		Direction:      "inbound",
+		Frequency:      "realtime",
+		SourceRef:      "IF-A",
+		DestinationRef: "FU-A",
+		DataRefs:       []string{"DATA-A"},
+		Criticality:    "high",
+		Threats:        []string{"TS-A"},
+		Entry:          []string{"receive"},
+		Exits:          []string{"persist"},
+		Steps: []model.FlowStep{
+			{ID: "receive", Kind: "external_interaction", FlowType: "interaction", Direction: "inbound", Frequency: "realtime", SourceRef: "IF-A", DestinationRef: "FU-A", Ref: "IF-A", InterfaceRef: "IF-A", Next: []string{"verify"}},
+			{ID: "verify", Kind: "security_check", FlowType: "security", Direction: "internal", Frequency: "realtime", SourceRef: "FU-A", DestinationRef: "DATA-A", Ref: "FU-A", DataRefs: []string{"DATA-A"}, BoundaryCrossing: true, TrustBoundaryRef: "TB-A", EncryptionInTransit: "tls1.3", Authentication: "hmac", Next: []string{"persist"}},
+			{ID: "persist", Kind: "data_move", FlowType: "data", Ref: "DATA-A"},
+		},
+	}
+}
+
+// addValidThreatRecords adds the valid assumption, exclusion, verification and mitigation.
+func addValidThreatRecords(aa *model.AuthoredArchitecture) {
+	aa.ThreatAssumptions = []model.ThreatAssumption{{
+		ID:        "ASM-A",
+		Title:     "Gateway signs callbacks",
+		Statement: "Bank gateway callback signatures are generated with managed keys.",
+		Status:    "accepted",
+		Owner:     "ACT-A",
+		AppliesTo: []string{"IF-A", "FU-A"},
+		Evidence:  []model.ThreatAssumptionEvidence{{Path: "docs/assumptions/bank-signing.md"}},
+	}}
+	aa.ThreatOutOfScope = []model.ThreatOutOfScope{{
+		ID:        "OOS-A",
+		Title:     "Bank HSM internals",
+		Reason:    "Managed by external bank provider control environment.",
+		Status:    "approved",
+		Owner:     "ACT-A",
+		AppliesTo: []string{"IF-A"},
+		ExpiresOn: "2027-01-01",
+		Evidence:  []model.ThreatOutOfScopeEvidence{{Path: "docs/scope/external-bank.md"}},
+	}}
+	aa.ControlVerifications = []model.ControlVerification{{
+		ID:                 "CV-A",
+		ControlRef:         "CTRL-A",
+		ThreatScenarioRefs: []string{"TS-A"},
+		RiskRefs:           []string{"RISK-A"},
+		Method:             "test",
+		Status:             "pass",
+		Owner:              "ACT-A",
+		LastTested:         "2026-07-01",
+		Evidence:           []model.ControlVerificationEvidence{{Path: "tests/contract/replay_protection_test.go"}},
+	}}
+	aa.ThreatMitigations = []model.ThreatMitigation{{
+		ID:                "MIT-A",
+		ThreatScenarioRef: "TS-A",
+		ControlRef:        "CTRL-A",
+		Status:            "verified",
+		Effectiveness:     "high",
+		Owner:             "ACT-A",
+		VerificationRefs:  []string{"CV-A"},
+		Evidence:          []model.ThreatMitigationEvidence{{Path: "docs/controls/nonce-validation.md"}},
+	}}
 }
 
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011
 func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
-	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: model.AuthoredArchitecture{
+	aa := brokenThreatBase()
+	aa.Flows = []model.Flow{brokenIngressFlow()}
+	addBrokenThreatRecords(&aa)
+	aa.ThreatScenarios = []model.ThreatScenario{{
+		ID:               "TS-A",
+		Title:            "Broken threat",
+		AttackVectorRef:  "AV-MISSING",
+		FlowRefs:         []string{"FLOW-MISSING"},
+		Status:           "not-a-status",
+		Owner:            "ACT-MISSING",
+		RiskRef:          "RISK-MISSING",
+		RelatedControls:  []string{"CTRL-MISSING"},
+		AssumptionRefs:   []string{"ASM-MISSING"},
+		OutOfScopeRefs:   []string{"OOS-MISSING"},
+		MitigationRefs:   []string{"MIT-MISSING"},
+		VerificationRefs: []string{"CV-MISSING"},
+		Evidence:         []model.ThreatScenarioEvidence{{Path: ""}},
+	}}
+	b := model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: aa, Views: []model.View{{ID: "V", Kind: "security", Roots: []string{"FU-A"}}}}}
+	diags := Bundle(schemaV2TestBundle(b))
+	if !hasErrors(diags) {
+		t.Fatalf("expected invalid threat scenario and flow metadata diagnostics")
+	}
+	assertCodesReported(t, diags, brokenFlowCodes()...)
+	assertCodesReported(t, diags, brokenThreatCodes()...)
+	assertCodesReported(t, diags, brokenRecordCodes()...)
+}
+
+// brokenThreatBase is the valid units, actors and interfaces with a trust
+// boundary naming a missing parent and member and a risk naming a missing threat.
+func brokenThreatBase() model.AuthoredArchitecture {
+	return model.AuthoredArchitecture{
 		FunctionalGroups: []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}},
 		FunctionalUnits:  []model.FunctionalUnit{{ID: "FU-A", Group: "FG-A", Name: "Unit A"}},
 		Actors:           []model.Actor{{ID: "ACT-A", Name: "Sec Owner"}},
@@ -624,103 +563,91 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
 		Interfaces:       []model.Interface{{ID: "IF-A", Name: "Webhook API", Owner: "FU-A"}},
 		DataObjects:      []model.DataObject{{ID: "DATA-A", Name: "Webhook Payload"}},
 		TrustBoundaries:  []model.TrustBoundary{{ID: "TB-A", Name: "Edge", ParentRef: "TB-MISSING", Members: []string{"FU-MISSING"}}},
-		Flows: []model.Flow{{
-			ID:             "FLOW-A",
-			Title:          "Webhook ingress",
-			Kind:           "not-a-kind",
-			Direction:      "sideways",
-			Frequency:      "sometimes",
-			SourceRef:      "MISSING-SRC",
-			DestinationRef: "MISSING-DST",
-			DataRefs:       []string{"DATA-MISSING-FLOW"},
-			Threats:        []string{"TS-MISSING"},
-			Entry:          []string{"receive"},
-			Steps: []model.FlowStep{{
-				ID:               "receive",
-				Kind:             "external_interaction",
-				FlowType:         "not-a-flow",
-				Direction:        "up",
-				Frequency:        "rare",
-				SourceRef:        "MISSING-STEP-SRC",
-				DestinationRef:   "MISSING-STEP-DST",
-				Ref:              "IF-A",
-				InterfaceRef:     "IF-MISSING",
-				DataRefs:         []string{"DATA-MISSING"},
-				BoundaryCrossing: true,
-			}},
-		}},
-		ThreatAssumptions: []model.ThreatAssumption{{
-			ID:        "ASM-A",
-			Title:     "",
-			Statement: "",
-			Status:    "wrong",
-			Owner:     "ACT-MISSING",
-			AppliesTo: []string{"MISSING-SCOPE"},
-			Evidence:  []model.ThreatAssumptionEvidence{{Path: ""}},
-		}},
-		ThreatOutOfScope: []model.ThreatOutOfScope{{
-			ID:        "OOS-A",
-			Title:     "",
-			Reason:    "",
-			Status:    "wrong",
-			Owner:     "ACT-MISSING",
-			AppliesTo: []string{"MISSING-SCOPE"},
-			ExpiresOn: "2026/13/50",
-			Evidence:  []model.ThreatOutOfScopeEvidence{{Path: ""}},
-		}},
-		ControlVerifications: []model.ControlVerification{{
-			ID:                 "CV-A",
-			ControlRef:         "CTRL-MISSING",
-			ThreatScenarioRefs: []string{"TS-MISSING"},
-			RiskRefs:           []string{"RISK-MISSING"},
-			Method:             "chaos",
-			Status:             "done",
-			Owner:              "ACT-MISSING",
-			LastTested:         "not-a-date",
-			Evidence:           []model.ControlVerificationEvidence{{Path: ""}},
-		}},
-		ThreatMitigations: []model.ThreatMitigation{{
-			ID:                "MIT-A",
-			ThreatScenarioRef: "TS-MISSING",
-			ControlRef:        "CTRL-MISSING",
-			Status:            "unknown",
-			Effectiveness:     "extreme",
-			Owner:             "ACT-MISSING",
-			VerificationRefs:  []string{"CV-MISSING"},
-			Evidence:          []model.ThreatMitigationEvidence{{Path: ""}},
-		}},
 		Risks: []model.Risk{{
 			ID:              "RISK-A",
 			Title:           "Replay risk",
 			Statement:       "Replay can trigger duplicate processing.",
 			ThreatScenarios: []string{"TS-MISSING"},
 		}},
-		ThreatScenarios: []model.ThreatScenario{{
-			ID:               "TS-A",
-			Title:            "Broken threat",
-			AttackVectorRef:  "AV-MISSING",
-			FlowRefs:         []string{"FLOW-MISSING"},
-			Status:           "not-a-status",
-			Owner:            "ACT-MISSING",
-			RiskRef:          "RISK-MISSING",
-			RelatedControls:  []string{"CTRL-MISSING"},
-			AssumptionRefs:   []string{"ASM-MISSING"},
-			OutOfScopeRefs:   []string{"OOS-MISSING"},
-			MitigationRefs:   []string{"MIT-MISSING"},
-			VerificationRefs: []string{"CV-MISSING"},
-			Evidence:         []model.ThreatScenarioEvidence{{Path: ""}},
-		}},
-	}, Views: []model.View{{ID: "V", Kind: "security", Roots: []string{"FU-A"}}}}}
+	}
+}
 
-	diags := Bundle(schemaV2TestBundle(b))
-	if !hasErrors(diags) {
-		t.Fatalf("expected invalid threat scenario and flow metadata diagnostics")
+// brokenIngressFlow is a flow whose vocabulary and references are all wrong.
+func brokenIngressFlow() model.Flow {
+	return model.Flow{
+		ID:             "FLOW-A",
+		Title:          "Webhook ingress",
+		Kind:           "not-a-kind",
+		Direction:      "sideways",
+		Frequency:      "sometimes",
+		SourceRef:      "MISSING-SRC",
+		DestinationRef: "MISSING-DST",
+		DataRefs:       []string{"DATA-MISSING-FLOW"},
+		Threats:        []string{"TS-MISSING"},
+		Entry:          []string{"receive"},
+		Steps: []model.FlowStep{{
+			ID:               "receive",
+			Kind:             "external_interaction",
+			FlowType:         "not-a-flow",
+			Direction:        "up",
+			Frequency:        "rare",
+			SourceRef:        "MISSING-STEP-SRC",
+			DestinationRef:   "MISSING-STEP-DST",
+			Ref:              "IF-A",
+			InterfaceRef:     "IF-MISSING",
+			DataRefs:         []string{"DATA-MISSING"},
+			BoundaryCrossing: true,
+		}},
 	}
-	seen := map[string]bool{}
-	for _, d := range diags {
-		seen[d.Code] = true
-	}
-	for _, code := range []string{
+}
+
+// addBrokenThreatRecords adds an assumption, exclusion, verification and mitigation that are all wrong.
+func addBrokenThreatRecords(aa *model.AuthoredArchitecture) {
+	aa.ThreatAssumptions = []model.ThreatAssumption{{
+		ID:        "ASM-A",
+		Title:     "",
+		Statement: "",
+		Status:    "wrong",
+		Owner:     "ACT-MISSING",
+		AppliesTo: []string{"MISSING-SCOPE"},
+		Evidence:  []model.ThreatAssumptionEvidence{{Path: ""}},
+	}}
+	aa.ThreatOutOfScope = []model.ThreatOutOfScope{{
+		ID:        "OOS-A",
+		Title:     "",
+		Reason:    "",
+		Status:    "wrong",
+		Owner:     "ACT-MISSING",
+		AppliesTo: []string{"MISSING-SCOPE"},
+		ExpiresOn: "2026/13/50",
+		Evidence:  []model.ThreatOutOfScopeEvidence{{Path: ""}},
+	}}
+	aa.ControlVerifications = []model.ControlVerification{{
+		ID:                 "CV-A",
+		ControlRef:         "CTRL-MISSING",
+		ThreatScenarioRefs: []string{"TS-MISSING"},
+		RiskRefs:           []string{"RISK-MISSING"},
+		Method:             "chaos",
+		Status:             "done",
+		Owner:              "ACT-MISSING",
+		LastTested:         "not-a-date",
+		Evidence:           []model.ControlVerificationEvidence{{Path: ""}},
+	}}
+	aa.ThreatMitigations = []model.ThreatMitigation{{
+		ID:                "MIT-A",
+		ThreatScenarioRef: "TS-MISSING",
+		ControlRef:        "CTRL-MISSING",
+		Status:            "unknown",
+		Effectiveness:     "extreme",
+		Owner:             "ACT-MISSING",
+		VerificationRefs:  []string{"CV-MISSING"},
+		Evidence:          []model.ThreatMitigationEvidence{{Path: ""}},
+	}}
+}
+
+// brokenFlowCodes are the codes for the flow, trust boundary and risk errors of the broken threat model.
+func brokenFlowCodes() []string {
+	return []string{
 		"model.invalid_flow_kind",
 		"model.invalid_flow_direction",
 		"model.invalid_flow_frequency",
@@ -738,6 +665,12 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
 		"model.invalid_trust_boundary_parent",
 		"model.invalid_trust_boundary_member",
 		"model.invalid_risk_threat_scenario_ref",
+	}
+}
+
+// brokenThreatCodes are the codes for the threat scenario errors of the broken threat model.
+func brokenThreatCodes() []string {
+	return []string{
 		"model.invalid_threat_scenario_attack_vector",
 		"model.invalid_threat_scenario_flow_ref",
 		"model.invalid_threat_scenario_status",
@@ -755,6 +688,12 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
 		"model.invalid_threat_assumption_owner",
 		"model.invalid_threat_assumption_scope_target",
 		"model.empty_threat_assumption_evidence_path",
+	}
+}
+
+// brokenRecordCodes are the codes for the exclusion, verification and mitigation errors of the broken threat model.
+func brokenRecordCodes() []string {
+	return []string{
 		"model.missing_threat_out_of_scope_title",
 		"model.missing_threat_out_of_scope_reason",
 		"model.invalid_threat_out_of_scope_status",
@@ -777,41 +716,19 @@ func TestBundleValidation_ThreatScenariosAndFlowMetadataInvalid(t *testing.T) {
 		"model.invalid_threat_mitigation_owner",
 		"model.invalid_threat_mitigation_verification_ref",
 		"model.empty_threat_mitigation_evidence_path",
-	} {
-		if !seen[code] {
-			t.Fatalf("expected diagnostic %s, got %+v", code, diags)
-		}
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-046
 func schemaV2TestBundle(bundle model.Bundle) model.Bundle {
-	if bundle.Architecture.SchemaVersion == 0 {
-		bundle.Architecture.SchemaVersion = model.CurrentSchemaVersion
-	}
-	if bundle.Catalog.SchemaVersion == 0 {
-		bundle.Catalog.SchemaVersion = model.CurrentSchemaVersion
-	}
-	if bundle.Requirements.SchemaVersion == 0 {
-		bundle.Requirements.SchemaVersion = model.CurrentSchemaVersion
-	}
-	if bundle.Decisions.SchemaVersion == 0 {
-		bundle.Decisions.SchemaVersion = model.CurrentSchemaVersion
-	}
-	if bundle.Design.SchemaVersion == 0 {
-		bundle.Design.SchemaVersion = model.CurrentSchemaVersion
-	}
-	if bundle.Behavior.SchemaVersion == 0 {
-		bundle.Behavior.SchemaVersion = model.CurrentSchemaVersion
-	}
-	if bundle.Assurance.SchemaVersion == 0 {
-		bundle.Assurance.SchemaVersion = model.CurrentSchemaVersion
-	}
-	if bundle.Compliance.SchemaVersion == 0 {
-		bundle.Compliance.SchemaVersion = model.CurrentSchemaVersion
-	}
-	if bundle.Views.SchemaVersion == 0 {
-		bundle.Views.SchemaVersion = model.CurrentSchemaVersion
+	for _, version := range []*int{
+		&bundle.Architecture.SchemaVersion, &bundle.Catalog.SchemaVersion, &bundle.Requirements.SchemaVersion,
+		&bundle.Decisions.SchemaVersion, &bundle.Design.SchemaVersion, &bundle.Behavior.SchemaVersion,
+		&bundle.Assurance.SchemaVersion, &bundle.Compliance.SchemaVersion, &bundle.Views.SchemaVersion,
+	} {
+		if *version == 0 {
+			*version = model.CurrentSchemaVersion
+		}
 	}
 	// The required switches that do not change what a rule reports: a model
 	// id, an EARS lint mode and guided requirement links (the library

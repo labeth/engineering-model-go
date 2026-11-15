@@ -51,65 +51,101 @@ func LintModelRequirementsEARS(bundle model.Bundle, requirements model.Requireme
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func catalogTermsNamedInModel(bundle model.Bundle, requirements model.RequirementsDocument) map[string]bool {
 	var texts []string
-	add := func(ss ...string) {
-		for _, s := range ss {
-			if s = strings.ToLower(strings.TrimSpace(s)); s != "" {
-				texts = append(texts, s)
-			}
-		}
-	}
 	for _, r := range requirements.Requirements {
-		add(r.Title, r.Text, r.Notes, r.VerificationCriteria, r.Rationale, r.DerivedRationale)
+		texts = append(texts, lowerTrimmed(r.Title, r.Text, r.Notes, r.VerificationCriteria, r.Rationale, r.DerivedRationale)...)
 	}
-	for _, doc := range []any{bundle.Architecture, bundle.Behavior, bundle.Assurance, bundle.Compliance, bundle.Views, bundle.Decisions, bundle.Design, bundle.Aviation} {
-		walkStrings(reflect.ValueOf(doc), 0, func(s string) { add(s) })
-	}
-	g := bundle.Catalog.Catalog
-	groups := [][]model.CatalogEntry{g.Systems, g.FunctionalGroups, g.FunctionalUnits, g.ReferencedElements, g.Actors, g.AttackVectors, g.Events, g.States, g.Features, g.Modes, g.Conditions, g.DataTerms}
-	type entryText struct {
-		id    string
-		texts []string
-	}
-	var catalogTexts []entryText
-	for _, group := range groups {
-		for _, e := range group {
-			et := entryText{id: strings.TrimSpace(e.ID)}
-			for _, s := range append([]string{e.Name, e.Definition}, e.Aliases...) {
-				if s = strings.ToLower(strings.TrimSpace(s)); s != "" {
-					et.texts = append(et.texts, s)
-				}
-			}
-			catalogTexts = append(catalogTexts, et)
-		}
-	}
+	walkModelDocuments(bundle, func(s string) { texts = append(texts, lowerTrimmed(s)...) })
+	groups := entryGroups(bundle.Catalog)
+	lookup := namedLookup{texts: texts, catalogTexts: catalogEntryTexts(groups)}
 	named := map[string]bool{}
 	for _, group := range groups {
-		for _, e := range group {
-			id := strings.TrimSpace(e.ID)
-			if id == "" || named[id] {
-				continue
-			}
-			candidates := []string{}
-			for _, c := range append([]string{e.Name}, e.Aliases...) {
-				if c = strings.ToLower(strings.TrimSpace(c)); c != "" {
-					candidates = append(candidates, c)
-				}
-			}
-			found := anyPhraseIn(texts, candidates)
-			for _, other := range catalogTexts {
-				if found {
-					break
-				}
-				if other.id != id {
-					found = anyPhraseIn(other.texts, candidates)
-				}
-			}
-			if found {
-				named[id] = true
-			}
-		}
+		lookup.collectNamed(group, named)
 	}
 	return named
+}
+
+// lowerTrimmed is the lowercased, trimmed, non-empty strings.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func lowerTrimmed(ss ...string) []string {
+	var out []string
+	for _, s := range ss {
+		if s = strings.ToLower(strings.TrimSpace(s)); s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
+}
+
+// walkModelDocuments calls visit for every string of the model documents other
+// than the catalog and the requirements.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func walkModelDocuments(bundle model.Bundle, visit func(string)) {
+	for _, doc := range []any{bundle.Architecture, bundle.Behavior, bundle.Assurance, bundle.Compliance, bundle.Views, bundle.Decisions, bundle.Design, bundle.Aviation} {
+		walkStrings(reflect.ValueOf(doc), 0, visit)
+	}
+}
+
+// entryGroups lists the entry groups of the catalog the model texts are matched against.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func entryGroups(doc model.CatalogDocument) [][]model.CatalogEntry {
+	g := doc.Catalog
+	return [][]model.CatalogEntry{g.Systems, g.FunctionalGroups, g.FunctionalUnits, g.ReferencedElements, g.Actors, g.AttackVectors, g.Events, g.States, g.Features, g.Modes, g.Conditions, g.DataTerms}
+}
+
+// entryText is the lowercased name, definition and aliases of one catalog entry.
+type entryText struct {
+	id    string
+	texts []string
+}
+
+// catalogEntryTexts is the texts of every catalog entry.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func catalogEntryTexts(groups [][]model.CatalogEntry) []entryText {
+	var out []entryText
+	for _, group := range groups {
+		for _, e := range group {
+			out = append(out, entryText{id: strings.TrimSpace(e.ID), texts: lowerTrimmed(append([]string{e.Name, e.Definition}, e.Aliases...)...)})
+		}
+	}
+	return out
+}
+
+// namedLookup finds catalog terms in the authored texts of the model.
+type namedLookup struct {
+	texts        []string
+	catalogTexts []entryText
+}
+
+// collectNamed adds the ids of the entries whose name or alias the model texts name.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func (l namedLookup) collectNamed(group []model.CatalogEntry, named map[string]bool) {
+	for _, e := range group {
+		id := strings.TrimSpace(e.ID)
+		if id != "" && !named[id] && l.names(id, lowerTrimmed(append([]string{e.Name}, e.Aliases...)...)) {
+			named[id] = true
+		}
+	}
+}
+
+// names reports whether any candidate phrase appears in the model texts or in
+// the texts of a catalog entry other than the entry id itself.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func (l namedLookup) names(id string, candidates []string) bool {
+	if anyPhraseIn(l.texts, candidates) {
+		return true
+	}
+	for _, other := range l.catalogTexts {
+		if other.id != id && anyPhraseIn(other.texts, candidates) {
+			return true
+		}
+	}
+	return false
 }
 
 // anyPhraseIn reports whether any lowercase phrase occurs in any lowercase text
@@ -118,10 +154,20 @@ func catalogTermsNamedInModel(bundle model.Bundle, requirements model.Requiremen
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func anyPhraseIn(texts, phrases []string) bool {
 	for _, p := range phrases {
-		for _, t := range texts {
-			if containsPhrase(t, p) {
-				return true
-			}
+		if phraseInAny(texts, p) {
+			return true
+		}
+	}
+	return false
+}
+
+// phraseInAny reports whether the lowercase phrase occurs in any lowercase text on word boundaries.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func phraseInAny(texts []string, phrase string) bool {
+	for _, t := range texts {
+		if containsPhrase(t, phrase) {
+			return true
 		}
 	}
 	return false
@@ -132,13 +178,6 @@ func anyPhraseIn(texts, phrases []string) bool {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func containsPhrase(text, phrase string) bool {
-	isWord := func(idx int) bool {
-		if idx < 0 || idx >= len(text) {
-			return false
-		}
-		b := text[idx]
-		return (b >= 'a' && b <= 'z') || (b >= '0' && b <= '9')
-	}
 	for from := 0; phrase != "" && from < len(text); {
 		i := strings.Index(text[from:], phrase)
 		if i < 0 {
@@ -146,12 +185,23 @@ func containsPhrase(text, phrase string) bool {
 		}
 		start := from + i
 		end := start + len(phrase)
-		if !isWord(start-1) && !isWord(end) {
+		if !isWordByteAt(text, start-1) && !isWordByteAt(text, end) {
 			return true
 		}
 		from = start + 1
 	}
 	return false
+}
+
+// isWordByteAt reports whether text has a lowercase letter or digit at idx.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func isWordByteAt(text string, idx int) bool {
+	if idx < 0 || idx >= len(text) {
+		return false
+	}
+	b := text[idx]
+	return b-'a' < 26 || b-'0' < 10
 }
 
 // lintRequirementsEARSWithUsage runs the EARS lint; catalog terms whose id is in
@@ -166,51 +216,9 @@ func lintRequirementsEARSWithUsage(requirements model.RequirementsDocument, cata
 	if len(items) == 0 {
 		return nil
 	}
-
-	mode := earslint.ModeStrict
-	if strings.EqualFold(strings.TrimSpace(requirements.LintRun.Mode), string(earslint.ModeGuided)) {
-		mode = earslint.ModeGuided
-	}
-	catalog := toEarsCatalog(catalogDoc)
-
-	results := earslint.LintEarsBatch(items, catalog, &earslint.Options{
-		Mode:       mode,
-		CommaAsAnd: requirements.LintRun.CommaAsAnd,
-	})
-
-	textByID := map[string]string{}
-	for _, req := range requirements.Requirements {
-		textByID[req.ID] = req.Text
-	}
-	out := make([]validate.Diagnostic, 0)
-	for _, r := range results {
-		reqPath := requirementPath(r.ID)
-		sections := unresolvedSections(r.Diagnostics)
-		for _, d := range r.Diagnostics {
-			if d.Code == "lint.multiple_responses" && responseConjunctionsOnlyInFieldList(textByID[r.ID]) {
-				continue
-			}
-			path := reqPath
-			if d.Span != nil {
-				path = fmt.Sprintf("%s@%d:%d", reqPath, d.Span.Start, d.Span.End)
-			}
-			severity := mapEarsSeverity(d.Severity)
-			if isBlockingCatalogDiagnostic(strings.TrimSpace(d.Code)) {
-				severity = validate.SeverityError
-			}
-			out = append(out, validate.Diagnostic{
-				Code:     d.Code,
-				Severity: severity,
-				Message:  unknownTermMessage(d, textByID[r.ID], sections),
-				Path:     path,
-			})
-		}
-	}
-
-	coverageDiags := earslint.LintCatalogCoverage(items, withoutUsedTerms(toEarsCoverageCatalog(catalogDoc), usedIDs), &earslint.Options{
-		Mode:       mode,
-		CommaAsAnd: requirements.LintRun.CommaAsAnd,
-	})
+	results := earslint.LintEarsBatch(items, toEarsCatalog(catalogDoc), earsOptions(requirements))
+	out := lintResultDiagnostics(results, requirements)
+	coverageDiags := earslint.LintCatalogCoverage(items, withoutUsedTerms(toEarsCoverageCatalog(catalogDoc), usedIDs), earsOptions(requirements))
 	for _, d := range coverageDiags {
 		out = append(out, validate.Diagnostic{
 			Code:     d.Code,
@@ -219,15 +227,104 @@ func lintRequirementsEARSWithUsage(requirements model.RequirementsDocument, cata
 			Path:     "requirements",
 		})
 	}
+	return validate.SortDiagnostics(SuppressWaivedDiagnostics(out, requirementWaivers(requirements)))
+}
+
+// earsOptions are the lint options of the requirements document: strict unless
+// the lint run asks for guided mode.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-072, REQ-EMG-123
+func earsOptions(requirements model.RequirementsDocument) *earslint.Options {
+	mode := earslint.ModeStrict
+	if strings.EqualFold(strings.TrimSpace(requirements.LintRun.Mode), string(earslint.ModeGuided)) {
+		mode = earslint.ModeGuided
+	}
+	return &earslint.Options{Mode: mode, CommaAsAnd: requirements.LintRun.CommaAsAnd}
+}
+
+// lintResultDiagnostics converts the lint results to diagnostics: a multiple
+// responses finding that only lists fields is dropped and an unresolved
+// catalog term is blocking.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-072, REQ-EMG-123
+func lintResultDiagnostics(results []earslint.LintResult, requirements model.RequirementsDocument) []validate.Diagnostic {
+	textByID := map[string]string{}
+	for _, req := range requirements.Requirements {
+		textByID[req.ID] = req.Text
+	}
+	out := make([]validate.Diagnostic, 0)
+	for _, r := range results {
+		out = append(out, resultDiagnostics(r, textByID[r.ID])...)
+	}
+	return out
+}
+
+// resultDiagnostics converts the diagnostics of one requirement's lint result.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-072, REQ-EMG-123
+func resultDiagnostics(r earslint.LintResult, text string) []validate.Diagnostic {
+	var out []validate.Diagnostic
+	reqPath := requirementPath(r.ID)
+	sections := unresolvedSections(r.Diagnostics)
+	for _, d := range r.Diagnostics {
+		if d.Code == "lint.multiple_responses" && responseConjunctionsOnlyInFieldList(text) {
+			continue
+		}
+		out = append(out, validate.Diagnostic{
+			Code:     d.Code,
+			Severity: diagnosticSeverity(d),
+			Message:  unknownTermMessage(d, text, sections),
+			Path:     diagnosticPath(reqPath, d),
+		})
+	}
+	return out
+}
+
+// diagnosticSeverity maps the lint severity; an unresolved catalog term is an error.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func diagnosticSeverity(d earslint.Diagnostic) validate.Severity {
+	if isBlockingCatalogDiagnostic(strings.TrimSpace(d.Code)) {
+		return validate.SeverityError
+	}
+	return mapEarsSeverity(d.Severity)
+}
+
+// diagnosticPath is the requirement path, with the span of the finding when it has one.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func diagnosticPath(reqPath string, d earslint.Diagnostic) string {
+	if d.Span == nil {
+		return reqPath
+	}
+	return fmt.Sprintf("%s@%d:%d", reqPath, d.Span.Start, d.Span.End)
+}
+
+// requirementWaivers maps each requirement id to the lint codes it waives with a reason.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func requirementWaivers(requirements model.RequirementsDocument) map[string][]string {
 	waivers := map[string][]string{}
 	for _, req := range requirements.Requirements {
-		for _, w := range req.LintWaivers {
-			if strings.TrimSpace(w.Reason) != "" {
-				waivers[strings.TrimSpace(req.ID)] = append(waivers[strings.TrimSpace(req.ID)], strings.TrimSpace(w.Code))
-			}
+		if codes := reasonedWaiverCodes(req); len(codes) > 0 {
+			id := strings.TrimSpace(req.ID)
+			waivers[id] = append(waivers[id], codes...)
 		}
 	}
-	return validate.SortDiagnostics(SuppressWaivedDiagnostics(out, waivers))
+	return waivers
+}
+
+// reasonedWaiverCodes are the codes of a requirement's lint waivers that give a reason.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func reasonedWaiverCodes(req model.Requirement) []string {
+	var codes []string
+	for _, w := range req.LintWaivers {
+		if strings.TrimSpace(w.Reason) != "" {
+			codes = append(codes, strings.TrimSpace(w.Code))
+		}
+	}
+	return codes
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID
@@ -345,12 +442,12 @@ func unresolvedSections(diags []earslint.Diagnostic) map[earslint.Span]string {
 // in (from sections); other diagnostics keep their message.
 // TRLC-LINKS: REQ-EMG-123
 func unknownTermMessage(d earslint.Diagnostic, text string, sections map[earslint.Span]string) string {
-	unresolved := strings.HasPrefix(d.Code, "catalog.") && strings.HasSuffix(d.Code, "_unresolved")
+	unresolved := isUnresolvedCode(d.Code)
 	if (d.Code != "expr.unknown_term" && !unresolved) || d.Span == nil {
 		return d.Message
 	}
 	section, ok := sections[*d.Span]
-	if !ok || d.Span.Start < 0 || d.Span.End > len(text) || d.Span.Start >= d.Span.End {
+	if !ok || !spanWithin(*d.Span, len(text)) {
 		return d.Message
 	}
 	term := strings.TrimSpace(text[d.Span.Start:d.Span.End])
@@ -361,13 +458,25 @@ func unknownTermMessage(d earslint.Diagnostic, text string, sections map[earslin
 	return fmt.Sprintf("unknown term %q in expression%s", term, hint)
 }
 
+// isUnresolvedCode reports whether a lint code is catalog.<role>_unresolved.
+// TRLC-LINKS: REQ-EMG-123
+func isUnresolvedCode(code string) bool {
+	return strings.HasPrefix(code, "catalog.") && strings.HasSuffix(code, "_unresolved")
+}
+
+// spanWithin reports whether a span is a non-empty range inside a text of the given length.
+// TRLC-LINKS: REQ-EMG-123
+func spanWithin(span earslint.Span, length int) bool {
+	return span.Start >= 0 && span.End <= length && span.Start < span.End
+}
+
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func isBlockingCatalogDiagnostic(code string) bool {
 	if code == "expr.unknown_term" {
 		return true
 	}
-	return strings.HasPrefix(code, "catalog.") && strings.HasSuffix(code, "_unresolved")
+	return isUnresolvedCode(code)
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
@@ -409,13 +518,11 @@ func withoutUsedTerms(c earslint.Catalog, used map[string]bool) earslint.Catalog
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func modelReferencedIDs(bundle model.Bundle) map[string]bool {
 	used := map[string]bool{}
-	for _, doc := range []any{bundle.Architecture, bundle.Behavior, bundle.Assurance, bundle.Compliance, bundle.Views, bundle.Decisions, bundle.Design, bundle.Aviation} {
-		walkStrings(reflect.ValueOf(doc), 0, func(s string) {
-			for _, tok := range strings.FieldsFunc(s, isNotIDRune) {
-				used[tok] = true
-			}
-		})
-	}
+	walkModelDocuments(bundle, func(s string) {
+		for _, tok := range strings.FieldsFunc(s, isNotIDRune) {
+			used[tok] = true
+		}
+	})
 	return used
 }
 
@@ -427,36 +534,89 @@ func walkStrings(v reflect.Value, depth int, visit func(string)) {
 	if depth > 64 || !v.IsValid() {
 		return
 	}
+	if v.Kind() == reflect.String {
+		visit(v.String())
+		return
+	}
+	for _, child := range childValues(v) {
+		walkStrings(child, depth+1, visit)
+	}
+}
+
+// childValues are the values one level below v that walkStrings descends into.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func childValues(v reflect.Value) []reflect.Value {
 	switch v.Kind() {
 	case reflect.Pointer, reflect.Interface:
-		if !v.IsNil() {
-			walkStrings(v.Elem(), depth+1, visit)
-		}
+		return indirectValues(v)
 	case reflect.Struct:
-		for i := 0; i < v.NumField(); i++ {
-			if v.Type().Field(i).IsExported() {
-				walkStrings(v.Field(i), depth+1, visit)
-			}
-		}
+		return exportedFieldValues(v)
 	case reflect.Slice, reflect.Array:
-		for i := 0; i < v.Len(); i++ {
-			walkStrings(v.Index(i), depth+1, visit)
-		}
+		return elementValues(v)
 	case reflect.Map:
-		iter := v.MapRange()
-		for iter.Next() {
-			walkStrings(iter.Key(), depth+1, visit)
-			walkStrings(iter.Value(), depth+1, visit)
-		}
-	case reflect.String:
-		visit(v.String())
+		return mapEntryValues(v)
 	}
+	return nil
+}
+
+// indirectValues is the target of a non-nil pointer or interface.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func indirectValues(v reflect.Value) []reflect.Value {
+	if v.IsNil() {
+		return nil
+	}
+	return []reflect.Value{v.Elem()}
+}
+
+// exportedFieldValues are the exported fields of a struct.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func exportedFieldValues(v reflect.Value) []reflect.Value {
+	var out []reflect.Value
+	for i := 0; i < v.NumField(); i++ {
+		if v.Type().Field(i).IsExported() {
+			out = append(out, v.Field(i))
+		}
+	}
+	return out
+}
+
+// elementValues are the elements of a slice or array.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func elementValues(v reflect.Value) []reflect.Value {
+	out := make([]reflect.Value, 0, v.Len())
+	for i := 0; i < v.Len(); i++ {
+		out = append(out, v.Index(i))
+	}
+	return out
+}
+
+// mapEntryValues are the keys and values of a map, each key before its value.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func mapEntryValues(v reflect.Value) []reflect.Value {
+	var out []reflect.Value
+	iter := v.MapRange()
+	for iter.Next() {
+		out = append(out, iter.Key(), iter.Value())
+	}
+	return out
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
 func isNotIDRune(r rune) bool {
-	return !(r == '-' || r == '_' || r == '.' || unicode.IsLetter(r) || unicode.IsDigit(r))
+	return !(isIDPunctuation(r) || unicode.IsLetter(r) || unicode.IsDigit(r))
+}
+
+// isIDPunctuation reports whether r is the hyphen, underscore or dot of an id.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func isIDPunctuation(r rune) bool {
+	return r == '-' || r == '_' || r == '.'
 }
 
 // SuppressWaivedDiagnostics removes requirement-scoped diagnostics a model has
@@ -470,22 +630,38 @@ func SuppressWaivedDiagnostics(diags []validate.Diagnostic, waivers map[string][
 	if len(waivers) == 0 {
 		return diags
 	}
+	waived := waivedKeys(waivers)
+	out := make([]validate.Diagnostic, 0, len(diags))
+	for _, d := range diags {
+		if !isWaivedWarning(d, waived) {
+			out = append(out, d)
+		}
+	}
+	return out
+}
+
+// waivedKeys is the set of "requirement|code" keys of the waivers.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func waivedKeys(waivers map[string][]string) map[string]bool {
 	waived := map[string]bool{}
 	for req, codes := range waivers {
 		for _, c := range codes {
 			waived[strings.TrimSpace(req)+"|"+strings.TrimSpace(c)] = true
 		}
 	}
-	out := make([]validate.Diagnostic, 0, len(diags))
-	for _, d := range diags {
-		if d.Severity != validate.SeverityError {
-			if id, ok := requirementIDFromPath(d.Path); ok && waived[id+"|"+d.Code] {
-				continue
-			}
-		}
-		out = append(out, d)
+	return waived
+}
+
+// isWaivedWarning reports whether a non-error diagnostic of a requirement path is waived.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func isWaivedWarning(d validate.Diagnostic, waived map[string]bool) bool {
+	if d.Severity == validate.SeverityError {
+		return false
 	}
-	return out
+	id, ok := requirementIDFromPath(d.Path)
+	return ok && waived[id+"|"+d.Code]
 }
 
 // requirementIDFromPath extracts REQ from "requirements[REQ]" or "requirements[REQ]@s:e".
@@ -529,27 +705,48 @@ var fieldListDeterminers = map[string]bool{"the": true, "a": true, "an": true, "
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 // TRLC-LINKS: REQ-EMG-072
 func responseConjunctionsOnlyInFieldList(text string) bool {
+	before, list, ok := splitFieldList(text)
+	if !ok || conjunctionBeforeList(before) || containsPhrase(list, "then") {
+		return false
+	}
+	return !hasVerbItem(list)
+}
+
+// splitFieldList splits the single response of a requirement at the preposition
+// that opens its field list; false when the text has not exactly one "shall" or
+// has a ";" or no preposition.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+// TRLC-LINKS: REQ-EMG-072
+func splitFieldList(text string) (string, string, bool) {
 	lower := strings.ToLower(strings.TrimSpace(text))
 	if strings.Count(" "+lower+" ", " shall ") != 1 || strings.Contains(lower, ";") {
-		return false
+		return "", "", false
 	}
 	_, response, _ := strings.Cut(lower, " shall ")
 	response = strings.TrimSuffix(strings.TrimSpace(response), ".")
 	loc := fieldListPrepositionRe.FindStringIndex(response)
 	if loc == nil {
-		return false
+		return "", "", false
 	}
-	before, list := response[:loc[0]], strings.TrimSpace(response[loc[1]:])
-	if strings.Contains(before, ",") || containsPhrase(before, "and") || containsPhrase(before, "or") {
-		return false
-	}
-	if containsPhrase(list, "then") {
-		return false
-	}
+	return response[:loc[0]], strings.TrimSpace(response[loc[1]:]), true
+}
+
+// conjunctionBeforeList reports whether a comma, "and" or "or" comes before the field list.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+// TRLC-LINKS: REQ-EMG-072
+func conjunctionBeforeList(before string) bool {
+	return strings.Contains(before, ",") || containsPhrase(before, "and") || containsPhrase(before, "or")
+}
+
+// hasVerbItem reports whether a list item after the first reads as a verb with
+// its object: its second word is a determiner.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+// TRLC-LINKS: REQ-EMG-072
+func hasVerbItem(list string) bool {
 	for i, item := range fieldListSplitRe.Split(list, -1) {
 		if words := strings.Fields(item); i > 0 && len(words) > 1 && fieldListDeterminers[words[1]] {
-			return false
+			return true
 		}
 	}
-	return true
+	return false
 }

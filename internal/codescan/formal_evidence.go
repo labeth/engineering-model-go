@@ -50,14 +50,7 @@ func parseFormalEvidence(baseDir, path string) ([]VerificationResult, []validate
 	rel = filepath.ToSlash(rel)
 	entries, err := readFormalEvidenceFile(newFormalModules(baseDir), path, rel)
 	if err != nil {
-		message := err.Error()
-		if errors.Is(err, errFormalNotJSON) {
-			message = "formal evidence is not valid JSON: " + strings.TrimPrefix(err.Error(), errFormalNotJSON.Error()+": ")
-		}
-		return nil, []validate.Diagnostic{{
-			Code: "verification.formal_unreadable", Severity: validate.SeverityWarning,
-			Message: message, Path: rel,
-		}}
+		return nil, []validate.Diagnostic{formalUnreadableDiagnostic(err, rel)}
 	}
 	var results []VerificationResult
 	var diags []validate.Diagnostic
@@ -66,19 +59,42 @@ func parseFormalEvidence(baseDir, path string) ([]VerificationResult, []validate
 		status := entry.Status
 		if entry.StaleReason != "" {
 			status = "not-run"
-			key := entry.QntFile + "|" + entry.Invariant
-			if !reported[key] {
-				reported[key] = true
-				diags = append(diags, validate.Diagnostic{
-					Code: "verification.formal_stale", Severity: validate.SeverityWarning, Path: rel,
-					Message: fmt.Sprintf("formal result for invariant %s of %s is stale and counts as no evidence: %s; rerun engquint check",
-						textutil.NonEmpty(entry.Invariant, "(unnamed)"), textutil.NonEmpty(entry.Machine, "(unnamed machine)"), entry.StaleReason),
-				})
-			}
 		}
+		diags = append(diags, staleDiagnostics(entry, rel, reported)...)
 		results = append(results, VerificationResult{Requirement: entry.Requirement, Status: status, Notes: entry.Notes})
 	}
 	return results, diags
+}
+
+// formalUnreadableDiagnostic warns that an evidence file could not be read or is not JSON.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func formalUnreadableDiagnostic(err error, rel string) validate.Diagnostic {
+	message := err.Error()
+	if errors.Is(err, errFormalNotJSON) {
+		message = "formal evidence is not valid JSON: " + strings.TrimPrefix(err.Error(), errFormalNotJSON.Error()+": ")
+	}
+	return validate.Diagnostic{
+		Code: "verification.formal_unreadable", Severity: validate.SeverityWarning,
+		Message: message, Path: rel,
+	}
+}
+
+// staleDiagnostics is the verification.formal_stale warning of a stale entry, one
+// per invariant and module (reported tracks those already warned about).
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func staleDiagnostics(entry FormalEntry, rel string, reported map[string]bool) []validate.Diagnostic {
+	key := entry.QntFile + "|" + entry.Invariant
+	if entry.StaleReason == "" || reported[key] {
+		return nil
+	}
+	reported[key] = true
+	return []validate.Diagnostic{{
+		Code: "verification.formal_stale", Severity: validate.SeverityWarning, Path: rel,
+		Message: fmt.Sprintf("formal result for invariant %s of %s is stale and counts as no evidence: %s; rerun engquint check",
+			textutil.NonEmpty(entry.Invariant, "(unnamed)"), textutil.NonEmpty(entry.Machine, "(unnamed machine)"), entry.StaleReason),
+	}}
 }
 
 // verificationDescriptionForArtifact describes the check inferred from a result

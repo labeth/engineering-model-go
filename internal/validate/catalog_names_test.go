@@ -28,12 +28,7 @@ func TestCatalogNameHasOperatorWarnsAtTheCatalogEntry(t *testing.T) {
 		},
 		Features: []model.CatalogEntry{{ID: "FEAT-A", Name: "Import OR export is enabled", Definition: "d"}},
 	}}})
-	var got []Diagnostic
-	for _, d := range Bundle(b) {
-		if d.Code == "catalog.name_has_operator" {
-			got = append(got, d)
-		}
-	}
+	got := diagnosticsWithCode(Bundle(b), "catalog.name_has_operator")
 	want := map[string]bool{
 		"catalog.states[0].name":       true,
 		"catalog.events[0].name":       true,

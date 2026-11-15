@@ -14,7 +14,7 @@ func severityRow(t *testing.T, code string, bundles ...string) string {
 	t.Helper()
 	var row strings.Builder
 	for _, tier := range model.Tiers {
-		d := severityAt(t, tierBundle(tier, bundles...), code, "p", SeverityWarning)
+		d := severityAt(t, tierBundle(tier, bundles...), probe(code, "p", SeverityWarning))
 		row.WriteString(map[Severity]string{SeverityWarning: "W", SeverityError: "E"}[d.Severity])
 	}
 	return row.String()
@@ -36,7 +36,7 @@ func TestFileBelowFloorRow(t *testing.T) {
 	if got := severityRow(t, code, "safety"); got != "WWEEE" {
 		t.Errorf("%s with the safety bundle = %s, want WWEEE", code, got)
 	}
-	if d := severityAt(t, tierBundle(""), code, "p", SeverityWarning); d.Severity != SeverityWarning {
+	if d := severityAt(t, tierBundle(""), probe(code, "p", SeverityWarning)); d.Severity != SeverityWarning {
 		t.Errorf("%s without a tier = %+v, want a warning", code, d)
 	}
 	if !TierKeyed(code) || IsCoreCode(code) {

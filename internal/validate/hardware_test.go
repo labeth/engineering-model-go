@@ -33,12 +33,7 @@ func TestHardwareViewsAndEndpointValidation(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			b := base()
 			tc.edit(&b)
-			for _, d := range Bundle(b) {
-				if d.Code == tc.code {
-					return
-				}
-			}
-			t.Fatalf("missing %s", tc.code)
+			assertCodesReported(t, Bundle(b), tc.code)
 		})
 	}
 }
