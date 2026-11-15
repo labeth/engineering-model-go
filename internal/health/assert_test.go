@@ -2,6 +2,7 @@
 package health
 
 import (
+	"errors"
 	"reflect"
 	"strings"
 	"testing"
@@ -52,5 +53,13 @@ func wantDeepEqual(t testing.TB, got, want any) {
 	t.Helper()
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %+v, want %+v", got, want)
+	}
+}
+
+// wantErrorIs fails the test when err is not, or does not wrap, target.
+func wantErrorIs(t testing.TB, err, target error) {
+	t.Helper()
+	if !errors.Is(err, target) {
+		t.Errorf("error %v, want %v", err, target)
 	}
 }

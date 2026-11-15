@@ -2,6 +2,7 @@
 package health_test
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -43,5 +44,13 @@ func wantNone(t testing.TB, text, unwanted string) {
 	t.Helper()
 	if strings.Contains(text, unwanted) {
 		t.Errorf("%q holds %q", text, unwanted)
+	}
+}
+
+// wantDeepEqual fails the test when got and want are not deeply equal.
+func wantDeepEqual(t testing.TB, got, want any) {
+	t.Helper()
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("got %+v, want %+v", got, want)
 	}
 }

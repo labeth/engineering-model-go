@@ -110,19 +110,28 @@ func TestImportRejectsNonConformingReports(t *testing.T) {
 	for _, c := range cases {
 		doc := sampleDocument(t)
 		c.mutate(doc)
-		_, err := importDoc(t, doc)
-		if !errors.Is(err, ErrInvalidReport) {
-			t.Errorf("%s: err = %v, want ErrInvalidReport", c.name, err)
-			continue
-		}
-		if !strings.Contains(err.Error(), c.message) {
-			t.Errorf("%s: error %q does not mention %q", c.name, err, c.message)
-		}
+		t.Run(c.name, func(t *testing.T) {
+			_, err := importDoc(t, doc)
+			requireInvalidReport(t, err, c.message)
+		})
 	}
+	requireJunkRejected(t)
+}
+
+// requireInvalidReport checks that an import failed with ErrInvalidReport and a
+// message that mentions the field.
+func requireInvalidReport(t *testing.T, err error, field string) {
+	t.Helper()
+	mustEqual(t, errors.Is(err, ErrInvalidReport), true)
+	wantContains(t, err.Error(), field)
+}
+
+// requireJunkRejected checks that text that is no report is refused.
+func requireJunkRejected(t *testing.T) {
+	t.Helper()
 	for _, bad := range []string{"", "not json", "[]", `{"schema": 5}`} {
-		if _, err := Import(strings.NewReader(bad)); !errors.Is(err, ErrInvalidReport) {
-			t.Errorf("Import(%q) err = %v, want ErrInvalidReport", bad, err)
-		}
+		_, err := Import(strings.NewReader(bad))
+		wantEqual(t, [2]any{bad, errors.Is(err, ErrInvalidReport)}, [2]any{bad, true})
 	}
 }
 
@@ -138,15 +147,10 @@ func TestImportAcceptsAMinimalForeignReport(t *testing.T) {
 	  "rollups": {"project": {"files": 1, "loc": 10, "score": 9.0, "band": "green", "bands": {"green": 1, "yellow": 0, "red": 0}}}
 	}`
 	r, err := Import(strings.NewReader(minimal))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if r.Engine.Name != "other" || r.Summary.Files != 1 || r.Waived == nil || r.Diagnostics == nil || r.Rollups.Units == nil {
-		t.Errorf("got %+v", r)
-	}
-	if r.LevelOf(CodeComplexMethod) != LevelWarning {
-		t.Error("a report without levels must read as warnings")
-	}
+	mustEqual(t, err, nil)
+	wantEqual(t, [2]any{r.Engine.Name, r.Summary.Files}, [2]any{"other", 1})
+	wantEqual(t, [3]bool{r.Waived != nil, r.Diagnostics != nil, r.Rollups.Units != nil}, [3]bool{true, true, true})
+	wantEqual(t, r.LevelOf(CodeComplexMethod), LevelWarning) // no levels read as warnings
 }
 
 // Import reads scoring versions 1 and 2 and keeps the one the report was
@@ -159,34 +163,31 @@ func TestImportAcceptsAMinimalForeignReport(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-151, REQ-EMG-157
 func TestImportReadsScoringVersions1And2(t *testing.T) {
 	for _, v := range []int{1, 2} {
-		doc := sampleDocument(t)
-		doc["engine"].(map[string]any)["scoringVersion"] = v
-		first := doc["files"].([]any)[0].(map[string]any)
-		first["score"], first["band"] = 9.5, "green"
-		first["deductions"] = []any{}
-		r, err := importDoc(t, doc)
-		if err != nil {
-			t.Fatalf("scoring version %d: %v", v, err)
-		}
-		if r.Engine.ScoringVersion != v {
-			t.Errorf("scoring version %d was read as %d", v, r.Engine.ScoringVersion)
-		}
-		for _, f := range r.Files {
-			if f.Path == first["path"] && f.Score != 9.5 {
-				t.Errorf("version %d: the score was recomputed to %v", v, f.Score)
-			}
-		}
+		requireVersionKept(t, v)
 	}
 	for _, v := range []int{0, 3, 99} {
 		doc := sampleDocument(t)
 		doc["engine"].(map[string]any)["scoringVersion"] = v
 		_, err := importDoc(t, doc)
-		if !errors.Is(err, ErrInvalidReport) || !strings.Contains(err.Error(), "scoring versions 1 and 2") {
-			t.Errorf("scoring version %d: err = %v, want ErrInvalidReport naming versions 1 and 2", v, err)
-		}
+		requireInvalidReport(t, err, "scoring versions 1 and 2")
 	}
-	if !ReadableScoringVersion(1) || !ReadableScoringVersion(2) || ReadableScoringVersion(3) || ReadableScoringVersion(0) {
-		t.Error("ReadableScoringVersion is not 1 and 2")
+	wantEqual(t, [4]bool{ReadableScoringVersion(1), ReadableScoringVersion(2), ReadableScoringVersion(3), ReadableScoringVersion(0)}, [4]bool{true, true, false, false})
+}
+
+// requireVersionKept checks that a report of a scoring version imports with
+// that version and the scores it carries.
+func requireVersionKept(t *testing.T, v int) {
+	t.Helper()
+	doc := sampleDocument(t)
+	doc["engine"].(map[string]any)["scoringVersion"] = v
+	first := doc["files"].([]any)[0].(map[string]any)
+	first["score"], first["band"] = 9.5, "green"
+	first["deductions"] = []any{}
+	r, err := importDoc(t, doc)
+	mustEqual(t, err, nil)
+	wantEqual(t, r.Engine.ScoringVersion, v)
+	for _, f := range r.Files {
+		wantEqual(t, f.Path == first["path"] && f.Score != 9.5, false) // the score is not recomputed
 	}
 }
 
