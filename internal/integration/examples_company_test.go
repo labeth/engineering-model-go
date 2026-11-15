@@ -31,32 +31,53 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 	}
 	for _, repository := range repositories {
 		t.Run("load/"+repository, func(t *testing.T) {
-			architecture := filepath.Join(root, "repos", repository, "engmod.yml")
-			bundle, err := model.LoadBundle(architecture)
-			if err != nil {
-				t.Fatalf("load %s: %v", repository, err)
-			}
-			for _, diagnostic := range validate.Bundle(bundle) {
-				if diagnostic.Severity == validate.SeverityError {
-					t.Fatalf("%s validation error: %s %s", repository, diagnostic.Code, diagnostic.Message)
-				}
-			}
-			modulePath, err := model.ReadCUEModulePath(filepath.Join(root, "repos", repository))
-			if err != nil {
-				t.Fatalf("read module identity for %s: %v", repository, err)
-			}
-			version, err := module.NewVersion(modulePath, "v0.1.0")
-			if err != nil {
-				t.Fatalf("module version for %s: %v", repository, err)
-			}
-			if report, err := modzip.CheckDir(filepath.Join(root, "repos", repository)); err != nil {
-				t.Fatalf("module %s is not publishable: %v (%+v)", version, err, report)
-			}
+			assertAtlasRepository(t, root, repository)
 		})
 	}
 
-	portfolio := filepath.Join(root, "repos", "company-portfolio", "engmod.yml")
-	composed, err := composition.GenerateCompositionFromFile(portfolio)
+	composed := composeAtlasPortfolio(t, root)
+	assertSharedModulesBelowBothProducts(t, composed)
+	for _, product := range composed.Children {
+		if !inheritsPeopleBaseline(product) {
+			t.Fatalf("product %s does not inherit the people compliance baseline", product.Bundle.Architecture.Model.ID)
+		}
+	}
+	assertAtlasRequirementLinks(t, composed)
+	assertPeopleComplianceBaseline(t, root)
+}
+
+// assertAtlasRepository checks that one repository loads, validates and is a
+// publishable module.
+func assertAtlasRepository(t *testing.T, root, repository string) {
+	t.Helper()
+	dir := filepath.Join(root, "repos", repository)
+	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
+	if err != nil {
+		t.Fatalf("load %s: %v", repository, err)
+	}
+	for _, diagnostic := range validate.Bundle(bundle) {
+		if diagnostic.Severity == validate.SeverityError {
+			t.Fatalf("%s validation error: %s %s", repository, diagnostic.Code, diagnostic.Message)
+		}
+	}
+	modulePath, err := model.ReadCUEModulePath(dir)
+	if err != nil {
+		t.Fatalf("read module identity for %s: %v", repository, err)
+	}
+	version, err := module.NewVersion(modulePath, "v0.1.0")
+	if err != nil {
+		t.Fatalf("module version for %s: %v", repository, err)
+	}
+	if report, err := modzip.CheckDir(dir); err != nil {
+		t.Fatalf("module %s is not publishable: %v (%+v)", version, err, report)
+	}
+}
+
+// composeAtlasPortfolio composes the company portfolio and returns its root,
+// which has the two product children.
+func composeAtlasPortfolio(t *testing.T, root string) *composition.ComposedSystem {
+	t.Helper()
+	composed, err := composition.GenerateCompositionFromFile(filepath.Join(root, "repos", "company-portfolio", "engmod.yml"))
 	if err != nil {
 		t.Fatalf("compose portfolio: %v", err)
 	}
@@ -71,16 +92,14 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 	if got := len(composed.Root.Children); got != 2 {
 		t.Fatalf("expected two product children, got %d", got)
 	}
+	return composed.Root
+}
 
-	shared := map[string]int{}
-	for _, product := range composed.Root.Children {
-		if got := len(product.Children); got != 4 {
-			t.Fatalf("product %s: expected four shared children, got %d", product.Bundle.Architecture.Model.ID, got)
-		}
-		for _, child := range product.Children {
-			shared[child.Bundle.Architecture.Model.ID]++
-		}
-	}
+// assertSharedModulesBelowBothProducts checks that each product composes the
+// four shared modules.
+func assertSharedModulesBelowBothProducts(t *testing.T, portfolio *composition.ComposedSystem) {
+	t.Helper()
+	shared := sharedModuleUses(t, portfolio)
 	for _, id := range []string{
 		"atlas-shared-edge-platform",
 		"atlas-shared-cloud-platform",
@@ -91,28 +110,52 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 			t.Fatalf("expected shared module %s below both products, got %d uses", id, got)
 		}
 	}
-	for _, product := range composed.Root.Children {
-		foundPeopleBaseline := false
-		for _, child := range product.Children {
-			if child.Bundle.Architecture.Model.ID != "atlas-shared-compliance-baseline" {
-				continue
-			}
-			for _, unit := range child.Bundle.Architecture.AuthoredArchitecture.FunctionalUnits {
-				if unit.ID == "FU-COMP-PEOPLE" {
-					foundPeopleBaseline = true
-					break
-				}
-			}
+}
+
+// sharedModuleUses counts, per model ID, how many products compose the module.
+func sharedModuleUses(t *testing.T, portfolio *composition.ComposedSystem) map[string]int {
+	t.Helper()
+	shared := map[string]int{}
+	for _, product := range portfolio.Children {
+		if got := len(product.Children); got != 4 {
+			t.Fatalf("product %s: expected four shared children, got %d", product.Bundle.Architecture.Model.ID, got)
 		}
-		if !foundPeopleBaseline {
-			t.Fatalf("product %s does not inherit the people compliance baseline", product.Bundle.Architecture.Model.ID)
+		for _, child := range product.Children {
+			shared[child.Bundle.Architecture.Model.ID]++
 		}
 	}
-	// Product requirements link to shared-module capabilities and portfolio
-	// requirements to product capabilities (model/req-links.yml); every link
-	// resolves to an unchanged published item at the pinned version.
-	links := reqlinks.EvaluateLinks(composed.Root.Bundle, composition.LinkDependencies(composed.Root))
-	for _, product := range composed.Root.Children {
+	return shared
+}
+
+// inheritsPeopleBaseline reports whether a product composes the compliance
+// baseline that holds the people functional unit.
+func inheritsPeopleBaseline(product *composition.ComposedSystem) bool {
+	for _, child := range product.Children {
+		if child.Bundle.Architecture.Model.ID == "atlas-shared-compliance-baseline" && hasFunctionalUnit(child, "FU-COMP-PEOPLE") {
+			return true
+		}
+	}
+	return false
+}
+
+// hasFunctionalUnit reports whether a composed module authors the unit.
+func hasFunctionalUnit(system *composition.ComposedSystem, id string) bool {
+	for _, unit := range system.Bundle.Architecture.AuthoredArchitecture.FunctionalUnits {
+		if unit.ID == id {
+			return true
+		}
+	}
+	return false
+}
+
+// assertAtlasRequirementLinks checks that product requirements link to
+// shared-module capabilities and portfolio requirements to product
+// capabilities (model/req-links.yml); every link resolves to an unchanged
+// published item at the pinned version.
+func assertAtlasRequirementLinks(t *testing.T, portfolio *composition.ComposedSystem) {
+	t.Helper()
+	links := reqlinks.EvaluateLinks(portfolio.Bundle, composition.LinkDependencies(portfolio))
+	for _, product := range portfolio.Children {
 		links = append(links, reqlinks.EvaluateLinks(product.Bundle, composition.LinkDependencies(product))...)
 	}
 	if got := len(links); got != 10 {
@@ -123,39 +166,47 @@ func TestAtlasIndustriesCompanyExample(t *testing.T) {
 			t.Fatalf("link %s is %s: %+v", link.ID, link.State, link)
 		}
 	}
+}
 
+// assertPeopleComplianceBaseline checks that the compliance baseline holds the
+// people controls and complete framework mappings.
+func assertPeopleComplianceBaseline(t *testing.T, root string) {
+	t.Helper()
 	compliance, err := model.LoadBundle(filepath.Join(root, "repos", "shared-compliance-baseline", "engmod.yml"))
 	if err != nil {
 		t.Fatalf("load compliance baseline: %v", err)
 	}
-	requiredControls := map[string]bool{
-		"CTRL-COMP-PERSONNEL-SCREENING":   false,
-		"CTRL-COMP-POLICY-ACKNOWLEDGMENT": false,
-		"CTRL-COMP-SECURITY-AWARENESS":    false,
-		"CTRL-COMP-ROLE-CHANGE-REVIEW":    false,
-		"CTRL-COMP-OFFBOARDING":           false,
-	}
+	assertPeopleControls(t, compliance)
+	assertPeopleMappings(t, compliance)
+}
+
+func assertPeopleControls(t *testing.T, compliance model.Bundle) {
+	t.Helper()
+	authored := map[string]bool{}
 	for _, control := range compliance.Architecture.AuthoredArchitecture.Controls {
-		if _, required := requiredControls[control.ID]; required {
-			requiredControls[control.ID] = true
-		}
+		authored[control.ID] = true
 	}
-	for controlID, found := range requiredControls {
-		if !found {
+	for _, controlID := range []string{
+		"CTRL-COMP-PERSONNEL-SCREENING",
+		"CTRL-COMP-POLICY-ACKNOWLEDGMENT",
+		"CTRL-COMP-SECURITY-AWARENESS",
+		"CTRL-COMP-ROLE-CHANGE-REVIEW",
+		"CTRL-COMP-OFFBOARDING",
+	} {
+		if !authored[controlID] {
 			t.Errorf("people compliance baseline is missing control %s", controlID)
 		}
 	}
-	requiredMappings := map[string]bool{
-		"IMPL-COMP-NIST-PEOPLE": false,
-		"IMPL-COMP-ISO-PEOPLE":  false,
-	}
+}
+
+func assertPeopleMappings(t *testing.T, compliance model.Bundle) {
+	t.Helper()
+	complete := map[string]bool{}
 	for _, mapping := range compliance.Architecture.Compliance.Mappings {
-		if _, required := requiredMappings[mapping.ID]; required {
-			requiredMappings[mapping.ID] = len(mapping.ControlIDs) >= 4 && len(mapping.Evidence) >= 2
-		}
+		complete[mapping.ID] = len(mapping.ControlIDs) >= 4 && len(mapping.Evidence) >= 2
 	}
-	for mappingID, complete := range requiredMappings {
-		if !complete {
+	for _, mappingID := range []string{"IMPL-COMP-NIST-PEOPLE", "IMPL-COMP-ISO-PEOPLE"} {
+		if !complete[mappingID] {
 			t.Errorf("people compliance mapping %s is missing framework controls or evidence", mappingID)
 		}
 	}

@@ -33,10 +33,13 @@ func systemMarkers(t *testing.T, root string) []string {
 	return markers
 }
 
-// assertNoDisclosure fails when output names any system marker.
-func assertNoDisclosure(t *testing.T, what, output string, markers []string) {
+// disclosure checks that output names none of the markers of the using system.
+type disclosure struct{ markers []string }
+
+// assertNone fails when output names any system marker.
+func (d disclosure) assertNone(t *testing.T, what, output string) {
 	t.Helper()
-	for _, m := range markers {
+	for _, m := range d.markers {
 		if m != "" && strings.Contains(output, m) {
 			t.Fatalf("%s discloses %q of the using system", what, m)
 		}
@@ -55,19 +58,35 @@ func assertNoDisclosure(t *testing.T, what, output string, markers []string) {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, FU-MCP-SERVER, FU-SYSTEM-COMPOSITION
 func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
 	root := copyRequirementLinksExample(t)
-	markers := systemMarkers(t, root)
-	childDir := filepath.Join(root, "repos", "child-a")
-	manifest := filepath.Join(childDir, "engmod.yml")
-	requirements := filepath.Join(childDir, "model", "requirements.yml")
+	none := disclosure{markers: systemMarkers(t, root)}
+	child := repo(root, "child-a")
 	// A system link onto an ID that is no contract item of child-a is not
 	// a use of child-a's items.
-	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "- id: LNK-AOU-B-1\n", "- id: LNK-SYS-002-GHOST\n  parent: REQ-SYS-002\n  child: encoder::CAP-GHOST\n  pinned:\n    version: v0.1.0\n  status: claimed\n- id: LNK-AOU-B-1\n")
+	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), textEdit{from: "- id: LNK-AOU-B-1\n", to: "- id: LNK-SYS-002-GHOST\n  parent: REQ-SYS-002\n  child: encoder::CAP-GHOST\n  pinned:\n    version: v0.1.0\n  status: claimed\n- id: LNK-AOU-B-1\n"})
 
 	// The render's own workspace mode decides: off, although
 	// engmod.work.yml is above the checkout and ENGMOD_WORK is unset.
-	assertNoDisclosure(t, "AsciiDoc of child-a", renderRepo(t, root, "child-a", model.WorkspaceOff).Document, markers)
+	none.assertNone(t, "AsciiDoc of child-a", child.render(t, model.WorkspaceOff).Document)
 	t.Setenv(model.WorkspaceEnv, model.WorkspaceOff)
-	bundle, err := model.LoadBundle(manifest)
+	none.assertGemara(t, child)
+	none.assertMCP(t, child)
+
+	// In the workspace with the system, by default: still no user. Used By
+	// is opt-in (AsciiDocOptions.UsedBy, engdoc --used-by), so a committed
+	// render of a child never lists its users.
+	t.Setenv(model.WorkspaceEnv, "")
+	none.assertNone(t, "default AsciiDoc of child-a in the workspace", child.render(t, "").Document)
+	assertUsedByListsOnlyContractUses(t, child)
+	// Opted in with the workspace off: nothing to see, nothing shown.
+	none.assertNone(t, "opted-in AsciiDoc of child-a without a workspace", child.renderUsedBy(t, model.WorkspaceOff).Document)
+}
+
+// assertGemara checks that no Gemara artifact of the repository discloses the
+// using system.
+func (d disclosure) assertGemara(t *testing.T, r fixtureRepo) {
+	t.Helper()
+	dir := filepath.Join(r.root, "repos", r.name)
+	bundle, err := model.LoadBundle(filepath.Join(dir, "engmod.yml"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,13 +98,25 @@ func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
 		t.Fatal("no Gemara artifacts")
 	}
 	for kind, doc := range res.YAML {
-		assertNoDisclosure(t, "Gemara "+kind+" of child-a", doc, markers)
+		d.assertNone(t, "Gemara "+kind+" of child-a", doc)
 	}
-	eval, err := gemara.GenerateEvaluationLog(bundle, bundle.Requirements, gemara.EvalRun{CodeRoot: childDir})
+	eval, err := gemara.GenerateEvaluationLog(bundle, bundle.Requirements, gemara.EvalRun{CodeRoot: dir})
 	if err != nil {
 		t.Fatal(err)
 	}
-	assertNoDisclosure(t, "Gemara evaluation log of child-a", eval.YAML, markers)
+	d.assertNone(t, "Gemara evaluation log of child-a", eval.YAML)
+}
+
+// assertMCP checks that no MCP tool output for the repository discloses the
+// using system.
+func (d disclosure) assertMCP(t *testing.T, r fixtureRepo) {
+	t.Helper()
+	dir := filepath.Join(r.root, "repos", r.name)
+	server := mcpModel{
+		architecture: filepath.Join(dir, "engmod.yml"),
+		requirements: filepath.Join(dir, "model", "requirements.yml"),
+		design:       filepath.Join(dir, "model", "views.yml"),
+	}
 	for _, call := range []struct {
 		tool string
 		args map[string]any
@@ -94,31 +125,26 @@ func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
 		{"requirements.get", map[string]any{"requirementId": "REQ-A-001"}}, {"requirements.parents", map[string]any{"requirementId": "REQ-A-001"}},
 		{"requirements.get", map[string]any{"requirementId": "REQ-A-003"}}, {"requirements.parents", map[string]any{"requirementId": "REQ-A-003"}},
 	} {
-		out, err := mcpToolPayload(manifest, requirements, filepath.Join(childDir, "model", "views.yml"), call.tool, call.args)
+		out, err := server.toolPayload(call.tool, call.args)
 		if err != nil {
 			t.Fatal(err)
 		}
-		assertNoDisclosure(t, "MCP "+call.tool+" of child-a", out, markers)
+		d.assertNone(t, "MCP "+call.tool+" of child-a", out)
 	}
+}
 
-	// In the workspace with the system, by default: still no user. Used By
-	// is opt-in (AsciiDocOptions.UsedBy, engdoc --used-by), so a committed
-	// render of a child never lists its users.
-	t.Setenv(model.WorkspaceEnv, "")
-	assertNoDisclosure(t, "default AsciiDoc of child-a in the workspace", renderRepo(t, root, "child-a", "").Document, markers)
-
-	// Opted in, in the workspace: Used By, from the system's link file.
-	used := section(renderRepoUsedBy(t, root, "child-a", "").Document, "=== Used By")
-	for _, want := range []string{"|CAP-A-1\n|REQLINKS-SYSTEM\n|LNK-SYS-001-ENCODER\n|REQ-SYS-001\n|accepted", "|CAP-A-2\n|REQLINKS-SYSTEM\n|LNK-SYS-002-ENCODER\n|REQ-SYS-002\n|accepted"} {
-		if !strings.Contains(used, want) {
-			t.Fatalf("Used By lacks %q:\n%s", want, used)
-		}
-	}
+// assertUsedByListsOnlyContractUses checks that the opted-in render in the
+// workspace lists the system's links onto the repository's contract items and
+// no link onto an ID that is none.
+func assertUsedByListsOnlyContractUses(t *testing.T, r fixtureRepo) {
+	t.Helper()
+	used := section(r.renderUsedBy(t, "").Document, "=== Used By")
+	chapter{name: "Used By", text: used}.assertContains(t,
+		"|CAP-A-1\n|REQLINKS-SYSTEM\n|LNK-SYS-001-ENCODER\n|REQ-SYS-001\n|accepted",
+		"|CAP-A-2\n|REQLINKS-SYSTEM\n|LNK-SYS-002-ENCODER\n|REQ-SYS-002\n|accepted")
 	if strings.Contains(used, "GHOST") {
 		t.Fatalf("Used By lists a link onto no contract item of child-a:\n%s", used)
 	}
-	// Opted in with the workspace off: nothing to see, nothing shown.
-	assertNoDisclosure(t, "opted-in AsciiDoc of child-a without a workspace", renderRepoUsedBy(t, root, "child-a", model.WorkspaceOff).Document, markers)
 }
 
 // A workspace file next to the using system's own manifest (the system is
@@ -137,7 +163,10 @@ func TestUsedByIncludesTheWorkspaceRootModel(t *testing.T) {
 		t.Fatal(err)
 	}
 	uses := composition.WorkspaceLinkUsers(bundle, work)
-	if len(uses) != 2 || uses[0].Model != "REQLINKS-SYSTEM" || uses[0].Link != "LNK-SYS-001-ENCODER" || uses[1].Item != "CAP-A-2" {
+	if len(uses) != 2 {
+		t.Fatalf("uses = %+v", uses)
+	}
+	if uses[0].Model != "REQLINKS-SYSTEM" || uses[0].Link != "LNK-SYS-001-ENCODER" || uses[1].Item != "CAP-A-2" {
 		t.Fatalf("uses = %+v", uses)
 	}
 }
@@ -154,26 +183,12 @@ func TestUsedByIncludesTheWorkspaceRootModel(t *testing.T) {
 func TestUsedByScanStaysInTheWorkspace(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	system := filepath.Join(root, "repos", "system")
-	// A copy of the system outside the workspace, named by a replacement.
-	outside := filepath.Join(t.TempDir(), "outside")
-	copyDir(t, system, outside)
-	editFile(t, filepath.Join(outside, "engmod.yml"), "modelId: REQLINKS-SYSTEM", "modelId: OUTSIDE-SYSTEM")
-	rel, err := filepath.Rel(root, outside)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// A sibling inside the workspace whose link file lies outside its module.
-	escaping := filepath.Join(root, "repos", "escaping")
-	copyDir(t, system, escaping)
-	editFile(t, filepath.Join(escaping, "engmod.yml"), "modelId: REQLINKS-SYSTEM", "modelId: ESCAPING-SYSTEM")
-	editFile(t, filepath.Join(escaping, "engmod.yml"), "reqLinks: model/req-links.yml", "reqLinks: ../../escaped-links.yml")
-	data, err := os.ReadFile(filepath.Join(system, "model", "req-links.yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	testutil.WriteFile(t, filepath.Join(root, "escaped-links.yml"), string(data))
-	editFile(t, filepath.Join(root, model.WorkspaceFileName), "replacements:\n",
-		"replacements:\n- module: models.example/reqlinks/outside@v0\n  path: "+filepath.ToSlash(rel)+"\n- module: models.example/reqlinks/escaping@v0\n  path: ./repos/escaping\n")
+	rel := addSystemCopyOutsideWorkspace(t, root, system)
+	addEscapingSibling(t, root, system)
+	editFile(t, filepath.Join(root, model.WorkspaceFileName), textEdit{
+		from: "replacements:\n",
+		to:   "replacements:\n- module: models.example/reqlinks/outside@v0\n  path: " + filepath.ToSlash(rel) + "\n- module: models.example/reqlinks/escaping@v0\n  path: ./repos/escaping\n",
+	})
 
 	bundle, err := model.LoadBundle(filepath.Join(root, "repos", "child-a", "engmod.yml"))
 	if err != nil {
@@ -187,6 +202,36 @@ func TestUsedByScanStaysInTheWorkspace(t *testing.T) {
 	if !models["REQLINKS-SYSTEM"] || models["OUTSIDE-SYSTEM"] || models["ESCAPING-SYSTEM"] {
 		t.Fatalf("uses = %+v", uses)
 	}
+}
+
+// addSystemCopyOutsideWorkspace copies the system to a directory outside the
+// workspace and returns that directory relative to root, as a replacement
+// names it.
+func addSystemCopyOutsideWorkspace(t *testing.T, root, system string) string {
+	t.Helper()
+	outside := filepath.Join(t.TempDir(), "outside")
+	copyDir(t, system, outside)
+	editFile(t, filepath.Join(outside, "engmod.yml"), textEdit{from: "modelId: REQLINKS-SYSTEM", to: "modelId: OUTSIDE-SYSTEM"})
+	rel, err := filepath.Rel(root, outside)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return rel
+}
+
+// addEscapingSibling adds a sibling inside the workspace whose link file lies
+// outside its module.
+func addEscapingSibling(t *testing.T, root, system string) {
+	t.Helper()
+	escaping := filepath.Join(root, "repos", "escaping")
+	copyDir(t, system, escaping)
+	editFile(t, filepath.Join(escaping, "engmod.yml"), textEdit{from: "modelId: REQLINKS-SYSTEM", to: "modelId: ESCAPING-SYSTEM"})
+	editFile(t, filepath.Join(escaping, "engmod.yml"), textEdit{from: "reqLinks: model/req-links.yml", to: "reqLinks: ../../escaped-links.yml"})
+	data, err := os.ReadFile(filepath.Join(system, "model", "req-links.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	testutil.WriteFile(t, filepath.Join(root, "escaped-links.yml"), string(data))
 }
 
 // copyDir copies a fixture directory tree.

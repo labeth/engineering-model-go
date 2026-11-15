@@ -12,28 +12,36 @@ import (
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
-// renderRepo renders repos/<repo> of a copied fixture to AsciiDoc with the
-// given workspace mode ("" finds engmod.work.yml above the repository,
-// "off" ignores it). Link findings do not stop the render.
-func renderRepo(t *testing.T, root, repo, workspace string) asciidoc.Result {
-	t.Helper()
-	dir := filepath.Join(root, "repos", repo)
-	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
-		asciidoc.Options{Resolution: asciidocResolution(workspace)})
-	if err != nil {
-		t.Fatalf("render %s: %v\n%+v", repo, err, res.Diagnostics)
-	}
-	return res
+// fixtureRepo is one repository, repos/<name>, of a copied fixture.
+type fixtureRepo struct{ root, name string }
+
+func repo(root, name string) fixtureRepo { return fixtureRepo{root: root, name: name} }
+
+// generate renders the repository to AsciiDoc.
+func (r fixtureRepo) generate(opts asciidoc.Options) (asciidoc.Result, error) {
+	dir := filepath.Join(r.root, "repos", r.name)
+	return asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"), opts)
 }
 
-// renderRepoUsedBy is renderRepo with the Used By opt-in.
-func renderRepoUsedBy(t *testing.T, root, repo, workspace string) asciidoc.Result {
+// render renders the repository to AsciiDoc with the given workspace mode (""
+// finds engmod.work.yml above the repository, "off" ignores it). Link
+// findings do not stop the render.
+func (r fixtureRepo) render(t *testing.T, workspace string) asciidoc.Result {
 	t.Helper()
-	dir := filepath.Join(root, "repos", repo)
-	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
-		asciidoc.Options{Resolution: asciidocResolution(workspace), UsedBy: true})
+	return r.renderWith(t, asciidoc.Options{Resolution: asciidocResolution(workspace)})
+}
+
+// renderUsedBy is render with the Used By opt-in.
+func (r fixtureRepo) renderUsedBy(t *testing.T, workspace string) asciidoc.Result {
+	t.Helper()
+	return r.renderWith(t, asciidoc.Options{Resolution: asciidocResolution(workspace), UsedBy: true})
+}
+
+func (r fixtureRepo) renderWith(t *testing.T, opts asciidoc.Options) asciidoc.Result {
+	t.Helper()
+	res, err := r.generate(opts)
 	if err != nil {
-		t.Fatalf("render %s: %v\n%+v", repo, err, res.Diagnostics)
+		t.Fatalf("render %s: %v\n%+v", r.name, err, res.Diagnostics)
 	}
 	return res
 }
@@ -48,11 +56,34 @@ func section(doc, heading string) string {
 	level := strings.Count(strings.Fields(heading)[0], "=")
 	rest := doc[i+1+len(heading):]
 	for _, line := range strings.SplitAfter(rest, "\n") {
-		if f := strings.Fields(line); len(f) > 0 && strings.Trim(f[0], "=") == "" && strings.Count(f[0], "=") <= level && strings.HasPrefix(line, "=") {
+		if isHeadingAtOrAbove(line, level) {
 			return doc[i : i+1+len(heading)+strings.Index(rest, line)]
 		}
 	}
 	return doc[i:]
+}
+
+// isHeadingAtOrAbove reports whether line is a heading of the level or a
+// higher one.
+func isHeadingAtOrAbove(line string, level int) bool {
+	fields := strings.Fields(line)
+	if len(fields) == 0 || !strings.HasPrefix(line, "=") {
+		return false
+	}
+	return strings.Trim(fields[0], "=") == "" && strings.Count(fields[0], "=") <= level
+}
+
+// chapter is a named part of a rendered document.
+type chapter struct{ name, text string }
+
+// assertContains fails for each want the chapter does not contain.
+func (c chapter) assertContains(t *testing.T, wants ...string) {
+	t.Helper()
+	for _, want := range wants {
+		if !strings.Contains(c.text, want) {
+			t.Fatalf("%s lacks %q:\n%s", c.name, want, c.text)
+		}
+	}
 }
 
 // E5: the system's AsciiDoc has a Requirement Links chapter with a tree per
@@ -69,9 +100,16 @@ func section(doc, heading string) string {
 func TestRequirementLinksAsciiDocTree(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	addChildCode(t, filepath.Join(root, "repos", "child-a"), "REQ-A-001", "REQ-A-002", "REQ-A-003")
-	doc := renderRepo(t, root, "system", "").Document
-	tree := section(doc, "== Requirement Links")
-	for _, want := range []string{
+	assertSystemRequirementLinks(t, root)
+	assertChildContractItems(t, root)
+}
+
+// assertSystemRequirementLinks checks the Requirement Links chapter of the
+// system and that the system publishes no contract items.
+func assertSystemRequirementLinks(t *testing.T, root string) {
+	t.Helper()
+	doc := repo(root, "system").render(t, "").Document
+	chapter{name: "system Requirement Links", text: section(doc, "== Requirement Links")}.assertContains(t,
 		"* *REQ-SYS-001*: When simulation epoch elapses, the position simulator shall publish ownship position on the lab bus.",
 		"** link LNK-SYS-001-ENCODER (unchanged, accepted) to `encoder::CAP-A-1`: Publish ownship position sentences at the configured rate.",
 		"*** `encoder::REQ-A-001` (implemented, test linked): When epoch period elapses, the position encoder shall publish one position sentence.",
@@ -79,26 +117,21 @@ func TestRequirementLinksAsciiDocTree(t *testing.T) {
 		"* *REQ-SYS-003*: The lab network shall isolate the lab bus from every other network.",
 		"** derived: Holds the bridge's assumption of use that the lab bus is isolated.",
 		"=== Assumptions of Use",
-		"`bridge::AOU-B-1`", "evidence REQ-SYS-003 (link LNK-AOU-B-1, unchanged, accepted)",
-	} {
-		if !strings.Contains(tree, want) {
-			t.Fatalf("system Requirement Links lacks %q:\n%s", want, tree)
-		}
-	}
+		"`bridge::AOU-B-1`", "evidence REQ-SYS-003 (link LNK-AOU-B-1, unchanged, accepted)")
 	if section(doc, "== Contract Items") != "" {
 		t.Fatal("the system publishes no contract items")
 	}
+}
 
-	child := renderRepo(t, root, "child-a", "off").Document
+// assertChildContractItems checks the Contract Items chapter of a child
+// rendered alone: items with realizers, no fingerprint, no users, no links.
+func assertChildContractItems(t *testing.T, root string) {
+	t.Helper()
+	child := repo(root, "child-a").render(t, "off").Document
 	items := section(child, "== Contract Items")
-	for _, want := range []string{
+	chapter{name: "child Contract Items", text: items}.assertContains(t,
 		"=== CAP-A-1 (capability)", "Publish ownship position sentences at the configured rate.",
-		"* `REQ-A-001`: When epoch period elapses", "* `REQ-A-002`: The sentence encoder shall format",
-	} {
-		if !strings.Contains(items, want) {
-			t.Fatalf("child Contract Items lacks %q:\n%s", want, items)
-		}
-	}
+		"* `REQ-A-001`: When epoch period elapses", "* `REQ-A-002`: The sentence encoder shall format")
 	if strings.Contains(items, "ingerprint") {
 		t.Fatalf("child Contract Items names a fingerprint:\n%s", items)
 	}
@@ -122,19 +155,18 @@ func TestRequirementLinksAsciiDocMarksVersionMismatch(t *testing.T) {
 	registry.publish("child-a", "v0.2.0")
 	registry.publish("child-b", "v0.1.0")
 	registry.serve()
-	pinChild(t, root, "encoder", "v0.2.0")
-	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.1.0\n  status: accepted\n",
-		"- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.2.0\n  status: claimed\n")
-	dir := filepath.Join(root, "repos", "system")
-	res, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
-		asciidoc.Options{Resolution: composition.ResolutionOptions{Lock: "write"}})
+	pinChild(t, root, childPin{alias: "encoder", version: "v0.2.0"})
+	editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), textEdit{from: "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.1.0\n  status: accepted\n", to: "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.2.0\n  status: claimed\n"})
+	res, err := repo(root, "system").generate(asciidoc.Options{Resolution: composition.ResolutionOptions{Lock: "write"}})
 	if err != nil {
 		t.Fatalf("render: %v\n%+v", err, res.Diagnostics)
 	}
 	tree := section(res.Document, "== Requirement Links")
-	if !strings.Contains(tree, "** link LNK-SYS-001-ENCODER (*VERSION MISMATCH*: reviewed at v0.1.0, dependency v0.2.0; run engws review-links, accepted) to `encoder::CAP-A-1`") ||
-		len(withCode(res.Diagnostics, "link.version_mismatch")) != 1 {
+	if !strings.Contains(tree, "** link LNK-SYS-001-ENCODER (*VERSION MISMATCH*: reviewed at v0.1.0, dependency v0.2.0; run engws review-links, accepted) to `encoder::CAP-A-1`") {
 		t.Fatalf("stale link not marked:\n%s\n%+v", tree, res.Diagnostics)
+	}
+	if len(withCode(res.Diagnostics, "link.version_mismatch")) != 1 {
+		t.Fatalf("stale link not reported:\n%+v", res.Diagnostics)
 	}
 	if !strings.Contains(tree, "** link LNK-SYS-002-ENCODER (unchanged, *CLAIMED*: not yet reviewed)") {
 		t.Fatalf("claimed link not marked:\n%s", tree)
@@ -170,20 +202,31 @@ func TestImportedRequirementRealizesIsTheDependencys(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var imported *model.Requirement
-	for i, r := range enriched.Requirements.Requirements {
-		if r.ID == "encoder::REQ-A-003" {
-			imported = &enriched.Requirements.Requirements[i]
-		}
-	}
+	imported := requirementByID(enriched, "encoder::REQ-A-003")
 	if imported == nil || len(imported.Realizes) != 1 || imported.Realizes[0] != "encoder::CAP-A-2" {
 		t.Fatalf("imported REQ-A-003: %+v", imported)
 	}
-	for _, d := range validate.Bundle(enriched) {
+	assertNoValidationErrors(t, enriched)
+}
+
+// assertNoValidationErrors fails on the first validation error of the bundle.
+func assertNoValidationErrors(t *testing.T, bundle model.Bundle) {
+	t.Helper()
+	for _, d := range validate.Bundle(bundle) {
 		if d.Severity == validate.SeverityError {
 			t.Fatalf("enriched system: %s %s", d.Code, d.Message)
 		}
 	}
+}
+
+// requirementByID returns the requirement of the bundle with the ID, or nil.
+func requirementByID(bundle model.Bundle, id string) *model.Requirement {
+	for i, r := range bundle.Requirements.Requirements {
+		if r.ID == id {
+			return &bundle.Requirements.Requirements[i]
+		}
+	}
+	return nil
 }
 
 // The strict-mode requirement link findings do not stop the AsciiDoc render
@@ -198,21 +241,19 @@ func TestImportedRequirementRealizesIsTheDependencys(t *testing.T) {
 func TestStrictLinkFindingsDoNotStopTheRender(t *testing.T) {
 	root := copyRequirementLinksExample(t)
 	child := filepath.Join(root, "repos", "child-a")
-	editFile(t, filepath.Join(child, "model", "requirements.yml"), "  realizes: [CAP-A-1]\n- id: REQ-A-002", "- id: REQ-A-002")
-	editFile(t, filepath.Join(child, "engmod.yml"), "  - REQ-A-003\n", "")
-	res := renderRepo(t, root, "child-a", "off")
+	editFile(t, filepath.Join(child, "model", "requirements.yml"), textEdit{from: "  realizes: [CAP-A-1]\n- id: REQ-A-002", to: "- id: REQ-A-002"})
+	editFile(t, filepath.Join(child, "engmod.yml"), textEdit{from: "  - REQ-A-003\n", to: ""})
+	res := repo(root, "child-a").render(t, "off")
 	if len(withCode(res.Diagnostics, "requirement.no_parent")) != 1 || len(withCode(res.Diagnostics, "contract.realizer_unpublished")) != 1 || !strings.Contains(res.Document, "== Contract Items") {
 		t.Fatalf("child render: %+v", res.Diagnostics)
 	}
 	system := filepath.Join(root, "repos", "system")
-	editFile(t, filepath.Join(system, "model", "requirements.yml"), "- id: REQ-SYS-003", "- id: REQ-SYS-004\n  text: The position simulator shall log each start.\n  verificationMethods: [test]\n  verificationCriteria: A start is logged.\n  appliesTo: [FU-LAB-NETWORK]\n- id: REQ-SYS-003")
-	if res := renderRepo(t, root, "system", ""); len(withCode(res.Diagnostics, "requirement.unsatisfied")) != 1 {
+	editFile(t, filepath.Join(system, "model", "requirements.yml"), textEdit{from: "- id: REQ-SYS-003", to: "- id: REQ-SYS-004\n  text: The position simulator shall log each start.\n  verificationMethods: [test]\n  verificationCriteria: A start is logged.\n  appliesTo: [FU-LAB-NETWORK]\n- id: REQ-SYS-003"})
+	if res := repo(root, "system").render(t, ""); len(withCode(res.Diagnostics, "requirement.unsatisfied")) != 1 {
 		t.Fatalf("system render: %+v", res.Diagnostics)
 	}
-	editFile(t, filepath.Join(child, "model", "requirements.yml"), "appliesTo: [FU-ENCODER]", "appliesTo: [FU-NOWHERE]")
-	dir := filepath.Join(root, "repos", "child-a")
-	if _, err := asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"),
-		asciidoc.Options{Resolution: asciidocResolution("off")}); err == nil {
+	editFile(t, filepath.Join(child, "model", "requirements.yml"), textEdit{from: "appliesTo: [FU-ENCODER]", to: "appliesTo: [FU-NOWHERE]"})
+	if _, err := repo(root, "child-a").generate(asciidoc.Options{Resolution: asciidocResolution("off")}); err == nil {
 		t.Fatal("another validation error must still stop the render")
 	}
 }

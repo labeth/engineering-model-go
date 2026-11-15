@@ -34,23 +34,37 @@ type diagramTemplateData struct {
 	ClassDefs []string
 }
 
+// kindRenderers are the renderers of the views that have their own diagram
+// form, by view kind; every other kind is rendered by renderFlowchart.
+var kindRenderers = map[string]func(view.ProjectedView) string{
+	"use-case": renderUseCase,
+	"logical": func(v view.ProjectedView) string {
+		return renderConcernFlowchart(v, "TB", renderLogicalNode)
+	},
+	"process": renderProcess,
+	"physical": func(v view.ProjectedView) string {
+		return renderConcernFlowchart(v, "LR", renderPhysicalNode)
+	},
+	"implementation": renderImplementation,
+	"deployment": func(v view.ProjectedView) string {
+		return renderConcernFlowchart(v, "LR", renderDeploymentNode)
+	},
+}
+
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-052
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
 func Render(v view.ProjectedView) string {
-	switch strings.TrimSpace(v.Kind) {
-	case "use-case":
-		return renderUseCase(v)
-	case "logical":
-		return renderConcernFlowchart(v, "TB", renderLogicalNode)
-	case "process":
-		return renderProcess(v)
-	case "physical":
-		return renderConcernFlowchart(v, "LR", renderPhysicalNode)
-	case "implementation":
-		return renderImplementation(v)
-	case "deployment":
-		return renderConcernFlowchart(v, "LR", renderDeploymentNode)
+	if render, ok := kindRenderers[strings.TrimSpace(v.Kind)]; ok {
+		return render(v)
 	}
+	return renderFlowchart(v)
+}
+
+// renderFlowchart renders the view through the shared flowchart template.
+//
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-052
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION, FU-ASCIIDOC-GENERATOR
+func renderFlowchart(v view.ProjectedView) string {
 	nodes := sortedNodes(v.Nodes)
 	nodeLines := make([]string, 0, len(nodes))
 	for _, n := range nodes {
@@ -80,22 +94,30 @@ func renderUseCase(v view.ProjectedView) string {
 	fmt.Fprintln(&b, "flowchart LR")
 	fmt.Fprintf(&b, "%%%% view: %s (%s)\n", escapeComment(v.ID), escapeComment(v.Kind))
 	for _, node := range sortedNodes(v.Nodes) {
-		if node.Kind == "actor" {
-			fmt.Fprintf(&b, "%s((\"%s\")):::actor\n", mermaidID(node.ID), escapeLabel(node.Label))
-		} else {
-			fmt.Fprintf(&b, "%s([\"%s\"]):::use_case\n", mermaidID(node.ID), escapeLabel(node.Label))
-		}
+		fmt.Fprintln(&b, useCaseNodeLine(node))
 	}
 	for _, edge := range sortedEdges(v.Edges) {
-		if edge.Label == "include" {
-			fmt.Fprintf(&b, "%s -.->|include| %s\n", mermaidID(edge.From), mermaidID(edge.To))
-		} else {
-			fmt.Fprintf(&b, "%s -->|%s| %s\n", mermaidID(edge.From), escapeLabel(edge.Label), mermaidID(edge.To))
-		}
+		fmt.Fprintln(&b, useCaseEdgeLine(edge))
 	}
 	fmt.Fprintln(&b, "classDef actor fill:#fff8e1,stroke:#ef6c00,color:#7f3600;")
 	fmt.Fprintln(&b, "classDef use_case fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20;")
 	return b.String()
+}
+
+// TRLC-LINKS: REQ-EMG-052
+func useCaseNodeLine(node view.Node) string {
+	if node.Kind == "actor" {
+		return fmt.Sprintf("%s((\"%s\")):::actor", mermaidID(node.ID), escapeLabel(node.Label))
+	}
+	return fmt.Sprintf("%s([\"%s\"]):::use_case", mermaidID(node.ID), escapeLabel(node.Label))
+}
+
+// TRLC-LINKS: REQ-EMG-052
+func useCaseEdgeLine(edge view.Edge) string {
+	if edge.Label == "include" {
+		return fmt.Sprintf("%s -.->|include| %s", mermaidID(edge.From), mermaidID(edge.To))
+	}
+	return fmt.Sprintf("%s -->|%s| %s", mermaidID(edge.From), escapeLabel(edge.Label), mermaidID(edge.To))
 }
 
 // TRLC-LINKS: REQ-EMG-052
@@ -244,45 +266,35 @@ func concernClass(kind string) string {
 	}
 }
 
+// nodeShape is the opening and closing bracket of a node kind and its class.
+type nodeShape struct{ open, close, class string }
+
+var nodeShapes = map[string]nodeShape{
+	"hardware_item":      {`[[`, `]]`, "deployment_element"},
+	"hardware_interface": {`[/`, `/]`, "interface"},
+	"functional_group":   {`[`, `]`, "functional_group"},
+	"functional_unit":    {`[`, `]`, "functional_unit"},
+	"actor":              {`((`, `))`, "actor"},
+	"attack_vector":      {`((`, `))`, "attack_vector"},
+	"referenced_element": {`[`, `]`, "referenced_element"},
+	"interface":          {`[/`, `/]`, "interface"},
+	"data_object":        {`[(`, `)]`, "data_object"},
+	"deployment_target":  {`[`, `]`, "deployment_target"},
+	"control":            {`[[`, `]]`, "control"},
+	"trust_boundary":     {`[/`, `\]`, "trust_boundary"},
+	"state":              {`([`, `])`, "state"},
+	"event":              {`((`, `))`, "event"},
+	"flow":               {`{`, `}`, "flow"},
+	"flow_step":          {`>`, `]`, "flow_step"},
+}
+
 // TRLC-LINKS: REQ-EMG-003
 func renderNode(n view.Node) string {
-	id, label := mermaidID(n.ID), escapeLabel(n.Label)
-	switch n.Kind {
-	case "hardware_item":
-		return fmt.Sprintf("%s[[\"%s\"]]:::deployment_element", id, label)
-	case "hardware_interface":
-		return fmt.Sprintf("%s[/\"%s\"/]:::interface", id, label)
-	case "functional_group":
-		return fmt.Sprintf("%s[\"%s\"]:::functional_group", id, label)
-	case "functional_unit":
-		return fmt.Sprintf("%s[\"%s\"]:::functional_unit", id, label)
-	case "actor":
-		return fmt.Sprintf("%s((\"%s\")):::actor", id, label)
-	case "attack_vector":
-		return fmt.Sprintf("%s((\"%s\")):::attack_vector", id, label)
-	case "referenced_element":
-		return fmt.Sprintf("%s[\"%s\"]:::referenced_element", id, label)
-	case "interface":
-		return fmt.Sprintf("%s[/\"%s\"/]:::interface", id, label)
-	case "data_object":
-		return fmt.Sprintf("%s[(\"%s\")]:::data_object", id, label)
-	case "deployment_target":
-		return fmt.Sprintf("%s[\"%s\"]:::deployment_target", id, label)
-	case "control":
-		return fmt.Sprintf("%s[[\"%s\"]]:::control", id, label)
-	case "trust_boundary":
-		return fmt.Sprintf("%s[/\"%s\"\\]:::trust_boundary", id, label)
-	case "state":
-		return fmt.Sprintf("%s([\"%s\"]):::state", id, label)
-	case "event":
-		return fmt.Sprintf("%s((\"%s\")):::event", id, label)
-	case "flow":
-		return fmt.Sprintf("%s{\"%s\"}:::flow", id, label)
-	case "flow_step":
-		return fmt.Sprintf("%s>\"%s\"]:::flow_step", id, label)
-	default:
-		return fmt.Sprintf("%s[\"%s\"]:::unknown", id, label)
+	shape, ok := nodeShapes[n.Kind]
+	if !ok {
+		shape = nodeShape{`[`, `]`, "unknown"}
 	}
+	return mermaidID(n.ID) + shape.open + `"` + escapeLabel(n.Label) + `"` + shape.close + ":::" + shape.class
 }
 
 // TRLC-LINKS: REQ-EMG-003

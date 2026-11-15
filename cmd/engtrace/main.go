@@ -33,7 +33,13 @@ func main() {
 		os.Exit(2)
 	}
 	if target := strings.TrimSpace(*tierGap); target != "" {
-		os.Exit(printTierGap(*modelPath, *requirementsPath, *codeRoot, target, *out))
+		os.Exit(printTierGap(tierGapArgs{
+			modelPath:        *modelPath,
+			requirementsPath: *requirementsPath,
+			codeRoot:         *codeRoot,
+			target:           target,
+			out:              *out,
+		}))
 	}
 
 	// The matrix builder reports trace findings only; the validation gate
@@ -136,16 +142,25 @@ func emitMatrix(data []byte, matrix engmodel.TraceMatrix, out string) int {
 	return 0
 }
 
-// printTierGap writes the tier gap report as JSON to out (default stdout);
+// tierGapArgs are the inputs of the --tier-gap report.
+type tierGapArgs struct {
+	modelPath        string
+	requirementsPath string
+	codeRoot         string
+	target           string
+	out              string
+}
+
+// printTierGap writes the tier gap report as JSON to a.out (default stdout);
 // it exits 0, 1 on an error and 2 for an unknown tier.
 // TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-CLI-ORCHESTRATION
-func printTierGap(modelPath, requirementsPath, codeRoot, target, out string) int {
-	if engmodel.TierRank(target) == 0 {
-		fmt.Fprintf(os.Stderr, "unknown tier %q: want poc, prototype, mvp, product or operational\n", target)
+func printTierGap(a tierGapArgs) int {
+	if engmodel.TierRank(a.target) == 0 {
+		fmt.Fprintf(os.Stderr, "unknown tier %q: want poc, prototype, mvp, product or operational\n", a.target)
 		return 2
 	}
-	report, err := engmodel.TierGapFromFiles(modelPath, requirementsPath, codeRoot, target)
+	report, err := engmodel.TierGapFromFiles(a.modelPath, a.requirementsPath, a.codeRoot, a.target)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 		return 1
@@ -156,7 +171,7 @@ func printTierGap(modelPath, requirementsPath, codeRoot, target, out string) int
 		return 1
 	}
 	data = append(data, '\n')
-	if o := strings.TrimSpace(out); o != "" {
+	if o := strings.TrimSpace(a.out); o != "" {
 		if err := os.WriteFile(o, data, 0o644); err != nil {
 			fmt.Fprintln(os.Stderr, "error writing output:", err)
 			return 1

@@ -68,49 +68,103 @@ func TestRequirementLinksTraceRollUp(t *testing.T) {
 	addChildCode(t, childA, "REQ-A-001", "REQ-A-002", "REQ-A-003")
 	addChildCode(t, filepath.Join(root, "repos", "child-b"), "REQ-B-001")
 
+	assertRolledUpThroughLinks(t, systemMatrix(t, root, "system"))
+	assertUntestedRealizerIsNotTestLinked(t, root)
+	assertUnimplementedRealizerLeavesAnOrphan(t, root)
+	assertLinksNeedingReviewAreCounted(t, root)
+	// The child alone: REQ-A-003 now traces to nothing.
+	child := systemMatrix(t, root, "child-a")
+	if r := traceRow(t, child, "REQ-A-001"); !slices.Equal(r.Parents, []string{"CAP-A-1"}) || len(r.Children) != 0 || child.Summary.Unparented != 1 {
+		t.Fatalf("child-a: REQ-A-001 %+v, summary %+v", r, child.Summary)
+	}
+}
+
+// assertUntestedRealizerIsNotTestLinked checks that a realizing requirement
+// without a test is implemented but not test linked.
+func assertUntestedRealizerIsNotTestLinked(t *testing.T, root string) {
+	t.Helper()
+	testutil.WriteFile(t, filepath.Join(root, "repos", "child-a", "src", "child_test.go"), "package child\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-A-001\nfunc TestA001(t *testing.T) { FA001() }\n\n// TRLC-LINKS: REQ-A-003\nfunc TestA003(t *testing.T) { FA003() }\n")
 	m := systemMatrix(t, root, "system")
+	if r := traceRow(t, m, "REQ-SYS-001"); r.Status != "implemented" || m.Summary.TestLinked != 1 || len(r.Verifications) != 0 {
+		t.Fatalf("REQ-A-002 untested: REQ-SYS-001 %+v, summary %+v", r, m.Summary)
+	}
+}
+
+// assertUnimplementedRealizerLeavesAnOrphan checks that without code or tests
+// for its realizer the requirement is not satisfied.
+func assertUnimplementedRealizerLeavesAnOrphan(t *testing.T, root string) {
+	t.Helper()
+	if err := os.RemoveAll(filepath.Join(root, "repos", "child-a", "src")); err != nil {
+		t.Fatal(err)
+	}
+	m := systemMatrix(t, root, "system")
+	if r := traceRow(t, m, "REQ-SYS-002"); r.Status != "orphan" || r.SatisfiedBy != "" || len(r.Children) != 2 {
+		t.Fatalf("REQ-SYS-002 without implemented realizer: %+v", r)
+	}
+}
+
+// assertRolledUpThroughLinks checks that with every realizer implemented and
+// test linked, REQ-SYS-001 is implemented through its two links and nothing
+// needs review.
+func assertRolledUpThroughLinks(t *testing.T, m trace.Matrix) {
+	t.Helper()
 	sys1 := traceRow(t, m, "REQ-SYS-001")
 	if want := []string{"bridge::CAP-B-1", "bridge::REQ-B-001", "encoder::CAP-A-1", "encoder::REQ-A-001", "encoder::REQ-A-002"}; !slices.Equal(sortedCopy(sys1.Children), want) {
 		t.Fatalf("REQ-SYS-001 children %v, want %v", sys1.Children, want)
 	}
-	if sys1.Status != "implemented" || sys1.SatisfiedBy != "links" || len(sys1.Parents) != 0 || len(sys1.Links) != 2 {
+	assertSystemRequirementImplementedThroughLinks(t, sys1)
+	assertRolledUpSummary(t, m)
+}
+
+// assertSystemRequirementImplementedThroughLinks checks that the row is
+// implemented through its two links and is no child.
+func assertSystemRequirementImplementedThroughLinks(t *testing.T, sys1 trace.Row) {
+	t.Helper()
+	if sys1.Status != "implemented" || sys1.SatisfiedBy != "links" {
 		t.Fatalf("REQ-SYS-001 must be implemented through its two links: %+v", sys1)
 	}
-	if r := traceRow(t, m, "encoder::REQ-A-001"); !slices.Equal(r.Parents, []string{"encoder::CAP-A-1"}) || len(r.Children) != 0 ||
-		r.DelegatedStatus == nil || !r.DelegatedStatus.Implemented || !r.DelegatedStatus.TestLinked {
+	if len(sys1.Parents) != 0 || len(sys1.Links) != 2 {
+		t.Fatalf("REQ-SYS-001 must be implemented through its two links: %+v", sys1)
+	}
+}
+
+// assertRolledUpSummary checks the delegated status of a child requirement
+// and the summary counters.
+func assertRolledUpSummary(t *testing.T, m trace.Matrix) {
+	t.Helper()
+	if r := traceRow(t, m, "encoder::REQ-A-001"); !slices.Equal(r.Parents, []string{"encoder::CAP-A-1"}) || len(r.Children) != 0 || !implementedAndTested(r.DelegatedStatus) {
 		t.Fatalf("encoder::REQ-A-001: %+v (status %+v)", r, r.DelegatedStatus)
 	}
-	if m.Summary.Implemented != 2 || m.Summary.TestLinked != 2 || m.Summary.Orphan != 1 || slices.Contains(m.Orphans, "REQ-SYS-001") ||
-		m.Summary.LinksNeedReview != 0 || m.Summary.LinksVersionMismatch != 0 || m.Summary.LinksBroken != 0 || m.Summary.LinksClaimed != 0 || m.Summary.Unparented != 0 {
-		t.Fatalf("summary %+v orphans %v", m.Summary, m.Orphans)
+	s := m.Summary
+	if [3]int{s.Implemented, s.TestLinked, s.Orphan} != [3]int{2, 2, 1} || slices.Contains(m.Orphans, "REQ-SYS-001") {
+		t.Fatalf("summary %+v orphans %v", s, m.Orphans)
 	}
+	if [5]int{s.LinksNeedReview, s.LinksVersionMismatch, s.LinksBroken, s.LinksClaimed, s.Unparented} != [5]int{} {
+		t.Fatalf("summary %+v orphans %v", s, m.Orphans)
+	}
+}
 
-	// A realizing requirement without a test: implemented, not test linked.
-	testutil.WriteFile(t, filepath.Join(childA, "src", "child_test.go"), "package child\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-A-001\nfunc TestA001(t *testing.T) { FA001() }\n\n// TRLC-LINKS: REQ-A-003\nfunc TestA003(t *testing.T) { FA003() }\n")
-	m = systemMatrix(t, root, "system")
-	if r := traceRow(t, m, "REQ-SYS-001"); r.Status != "implemented" || m.Summary.TestLinked != 1 || len(r.Verifications) != 0 {
-		t.Fatalf("REQ-A-002 untested: REQ-SYS-001 %+v, summary %+v", r, m.Summary)
-	}
-	// Without code or tests for its realizer the requirement is not satisfied.
-	if err := os.RemoveAll(filepath.Join(childA, "src")); err != nil {
-		t.Fatal(err)
-	}
-	m = systemMatrix(t, root, "system")
-	if r := traceRow(t, m, "REQ-SYS-002"); r.Status != "orphan" || r.SatisfiedBy != "" || len(r.Children) != 2 {
-		t.Fatalf("REQ-SYS-002 without implemented realizer: %+v", r)
-	}
+// implementedAndTested reports whether a delegated status is implemented and
+// test linked.
+func implementedAndTested(status *trace.DelegatedStatus) bool {
+	return status != nil && status.Implemented && status.TestLinked
+}
 
-	// Version-mismatched, broken and claimed links are counted, each link
-	// once in linksNeedReview; a published release without CAP-A-2 breaks
-	// its link (a workspace checkout would not, D23).
-	editFile(t, filepath.Join(childA, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
-	editFile(t, filepath.Join(childA, "engmod.yml"), "  - CAP-A-2\n", "")
-	editFile(t, filepath.Join(childA, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "")
+// assertLinksNeedingReviewAreCounted checks that version-mismatched, broken
+// and claimed links are counted, each link once in linksNeedReview; a
+// published release without CAP-A-2 breaks its link (a workspace checkout
+// would not, D23).
+func assertLinksNeedingReviewAreCounted(t *testing.T, root string) {
+	t.Helper()
+	childA := filepath.Join(root, "repos", "child-a")
+	editFile(t, filepath.Join(childA, "model", "architecture.yml"), textEdit{from: "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", to: ""})
+	editFile(t, filepath.Join(childA, "engmod.yml"), textEdit{from: "  - CAP-A-2\n", to: ""})
+	editFile(t, filepath.Join(childA, "model", "requirements.yml"), textEdit{from: "  realizes: [CAP-A-2]\n", to: ""})
 	links := filepath.Join(root, "repos", "system", "model", "req-links.yml")
-	editFile(t, links, "  status: accepted\n  rationale: The bridge", "  status: claimed\n  rationale: The bridge")
-	editFile(t, links, "  child: encoder::CAP-A-1\n  pinned:\n    version: v0.1.0\n", "  child: encoder::CAP-A-1\n  pinned:\n    version: v0.0.9\n")
-	m = systemMatrix(t, root, "system")
-	if m.Summary.LinksBroken != 0 || m.Summary.LinksVersionMismatch != 1 || m.Summary.LinksClaimed != 1 || m.Summary.LinksNeedReview != 2 {
+	editFile(t, links, textEdit{from: "  status: accepted\n  rationale: The bridge", to: "  status: claimed\n  rationale: The bridge"})
+	editFile(t, links, textEdit{from: "  child: encoder::CAP-A-1\n  pinned:\n    version: v0.1.0\n", to: "  child: encoder::CAP-A-1\n  pinned:\n    version: v0.0.9\n"})
+	m := systemMatrix(t, root, "system")
+	if [4]int{m.Summary.LinksBroken, m.Summary.LinksVersionMismatch, m.Summary.LinksClaimed, m.Summary.LinksNeedReview} != [4]int{0, 1, 1, 2} {
 		t.Fatalf("workspace: want 0 broken, 1 version mismatch, 1 claimed, 2 to review: %+v", m.Summary)
 	}
 	registry := newPublishedChildren(t, root)
@@ -118,13 +172,8 @@ func TestRequirementLinksTraceRollUp(t *testing.T) {
 	registry.publish("child-b", "v0.1.0")
 	registry.serve()
 	m = systemMatrix(t, root, "system")
-	if m.Summary.LinksBroken != 1 || m.Summary.LinksVersionMismatch != 1 || m.Summary.LinksClaimed != 1 || m.Summary.LinksNeedReview != 3 {
+	if [4]int{m.Summary.LinksBroken, m.Summary.LinksVersionMismatch, m.Summary.LinksClaimed, m.Summary.LinksNeedReview} != [4]int{1, 1, 1, 3} {
 		t.Fatalf("published: want 1 broken, 1 version mismatch, 1 claimed, 3 to review: %+v", m.Summary)
-	}
-	// The child alone: REQ-A-003 now traces to nothing.
-	child := systemMatrix(t, root, "child-a")
-	if r := traceRow(t, child, "REQ-A-001"); !slices.Equal(r.Parents, []string{"CAP-A-1"}) || len(r.Children) != 0 || child.Summary.Unparented != 1 {
-		t.Fatalf("child-a: REQ-A-001 %+v, summary %+v", r, child.Summary)
 	}
 }
 
@@ -147,10 +196,10 @@ func sortedCopy(list []string) []string {
 func TestRequirementLinksRollUpNeedsReviewedLinks(t *testing.T) {
 	for name, edit := range map[string]func(root string){
 		"claimed": func(root string) {
-			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "  status: accepted\n  rationale: The bridge", "  status: claimed\n  rationale: The bridge")
+			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), textEdit{from: "  status: accepted\n  rationale: The bridge", to: "  status: claimed\n  rationale: The bridge"})
 		},
 		"version mismatch": func(root string) {
-			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), "  child: bridge::CAP-B-1\n  pinned:\n    version: v0.1.0\n", "  child: bridge::CAP-B-1\n  pinned:\n    version: v0.0.9\n")
+			editFile(t, filepath.Join(root, "repos", "system", "model", "req-links.yml"), textEdit{from: "  child: bridge::CAP-B-1\n  pinned:\n    version: v0.1.0\n", to: "  child: bridge::CAP-B-1\n  pinned:\n    version: v0.0.9\n"})
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -158,14 +207,34 @@ func TestRequirementLinksRollUpNeedsReviewedLinks(t *testing.T) {
 			addChildCode(t, filepath.Join(root, "repos", "child-a"), "REQ-A-001", "REQ-A-002", "REQ-A-003")
 			addChildCode(t, filepath.Join(root, "repos", "child-b"), "REQ-B-001")
 			edit(root)
-			m := systemMatrix(t, root, "system")
-			sys1 := traceRow(t, m, "REQ-SYS-001")
-			if sys1.SatisfiedBy != "links-unreviewed" || sys1.Status != "orphan" || sys1.LinksImplemented || sys1.LinksTestLinked || !slices.Contains(m.Orphans, "REQ-SYS-001") {
-				t.Fatalf("REQ-SYS-001 with a %s link: %+v", name, sys1)
-			}
-			if sys2 := traceRow(t, m, "REQ-SYS-002"); sys2.SatisfiedBy != "links" || sys2.Status != "implemented" || m.Summary.Implemented != 1 || m.Summary.TestLinked != 1 {
-				t.Fatalf("REQ-SYS-002 (accepted, unchanged): %+v, summary %+v", sys2, m.Summary)
-			}
+			assertOnlyReviewedLinksRollUp(t, systemMatrix(t, root, "system"), name)
 		})
+	}
+}
+
+// assertOnlyReviewedLinksRollUp checks that REQ-SYS-001 (with the link edited
+// for the case) is not satisfied while REQ-SYS-002 (accepted, unchanged) is.
+func assertOnlyReviewedLinksRollUp(t *testing.T, m trace.Matrix, name string) {
+	t.Helper()
+	sys1 := traceRow(t, m, "REQ-SYS-001")
+	if sys1.SatisfiedBy != "links-unreviewed" || sys1.Status != "orphan" || !slices.Contains(m.Orphans, "REQ-SYS-001") {
+		t.Fatalf("REQ-SYS-001 with a %s link: %+v", name, sys1)
+	}
+	if sys1.LinksImplemented || sys1.LinksTestLinked {
+		t.Fatalf("REQ-SYS-001 with a %s link: %+v", name, sys1)
+	}
+	assertAcceptedLinkRollsUp(t, m)
+}
+
+// assertAcceptedLinkRollsUp checks that REQ-SYS-002 is implemented through its
+// accepted, unchanged link and is the only requirement counted.
+func assertAcceptedLinkRollsUp(t *testing.T, m trace.Matrix) {
+	t.Helper()
+	sys2 := traceRow(t, m, "REQ-SYS-002")
+	if sys2.SatisfiedBy != "links" || sys2.Status != "implemented" {
+		t.Fatalf("REQ-SYS-002 (accepted, unchanged): %+v, summary %+v", sys2, m.Summary)
+	}
+	if m.Summary.Implemented != 1 || m.Summary.TestLinked != 1 {
+		t.Fatalf("REQ-SYS-002 (accepted, unchanged): %+v, summary %+v", sys2, m.Summary)
 	}
 }

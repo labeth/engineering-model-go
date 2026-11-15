@@ -11,6 +11,14 @@ import (
 	engmodel "github.com/labeth/engineering-model-go"
 )
 
+// tierGapInput is what the tier gap of a model is computed from.
+type tierGapInput struct{ manifest, requirements, codeRoot string }
+
+// gap computes the gap to the target tier.
+func (in tierGapInput) gap(target string) (engmodel.TierGapReport, error) {
+	return engmodel.TierGapFromFiles(in.manifest, in.requirements, in.codeRoot, target)
+}
+
 // TierGap for the payments example at tier mvp and target product lists
 // every finding the target makes an error (requirement.orphan among them)
 // with its code, requiredFrom and current severity, counts them by code,
@@ -19,13 +27,44 @@ import (
 func TestTierGapListsWhatTheTargetRequires(t *testing.T) {
 	dir := copyExample(t, "payments-engineering-sample")
 	manifest := setLifecycle(t, dir, "mvp")
-	gap, err := engmodel.TierGapFromFiles(manifest, filepath.Join(dir, "model", "requirements.yml"), dir, engmodel.TierProduct)
+	in := tierGapInput{manifest: manifest, requirements: filepath.Join(dir, "model", "requirements.yml"), codeRoot: dir}
+	gap, err := in.gap(engmodel.TierProduct)
 	if err != nil {
 		t.Fatal(err)
 	}
+	assertOrphanDebt(t, gap)
+	same, err := in.gap(engmodel.TierMVP)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(same.Blocking) != 0 {
+		t.Fatalf("gap to the current tier: %+v", same.Blocking)
+	}
+	if _, err := in.gap("beta"); err == nil {
+		t.Fatal("an unknown target tier was accepted")
+	}
+	assertEngtraceTierGap(t, in, gap)
+}
+
+// assertOrphanDebt checks the gap from mvp to product: the orphan findings are
+// warnings now that product makes errors, no current error is listed and no
+// objective ID is named.
+func assertOrphanDebt(t *testing.T, gap engmodel.TierGapReport) {
+	t.Helper()
 	if gap.CurrentTier != "mvp" || gap.TargetTier != "product" || gap.ByCode["requirement.orphan"] == 0 {
 		t.Fatalf("gap: %+v", gap)
 	}
+	assertBlockingFindings(t, gap)
+	data, _ := json.Marshal(gap)
+	if strings.Contains(string(data), "objective") {
+		t.Fatalf("tier gap names objectives: %s", data)
+	}
+}
+
+// assertBlockingFindings checks that the orphan findings are warnings required
+// from product and that no current error is listed.
+func assertBlockingFindings(t *testing.T, gap engmodel.TierGapReport) {
+	t.Helper()
 	for _, f := range gap.Blocking {
 		if f.Code == "requirement.orphan" && (f.RequiredFrom != "product" || f.SeverityNow != "warning") {
 			t.Fatalf("orphan finding: %+v", f)
@@ -34,22 +73,12 @@ func TestTierGapListsWhatTheTargetRequires(t *testing.T) {
 			t.Fatalf("a current error is not debt of the target: %+v", f)
 		}
 	}
-	data, _ := json.Marshal(gap)
-	if strings.Contains(string(data), "objective") {
-		t.Fatalf("tier gap names objectives: %s", data)
-	}
-	same, err := engmodel.TierGapFromFiles(manifest, filepath.Join(dir, "model", "requirements.yml"), dir, engmodel.TierMVP)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(same.Blocking) != 0 {
-		t.Fatalf("gap to the current tier: %+v", same.Blocking)
-	}
-	if _, err := engmodel.TierGapFromFiles(manifest, filepath.Join(dir, "model", "requirements.yml"), dir, "beta"); err == nil {
-		t.Fatal("an unknown target tier was accepted")
-	}
+}
 
-	out, err := exec.Command("go", "run", "./cmd/engtrace", "--model", manifest, "--requirements", filepath.Join(dir, "model", "requirements.yml"), "--code-root", dir, "--tier-gap", "product").Output()
+// assertEngtraceTierGap checks that engtrace --tier-gap prints the same gap.
+func assertEngtraceTierGap(t *testing.T, in tierGapInput, gap engmodel.TierGapReport) {
+	t.Helper()
+	out, err := exec.Command("go", "run", "./cmd/engtrace", "--model", in.manifest, "--requirements", in.requirements, "--code-root", in.codeRoot, "--tier-gap", "product").Output()
 	if err != nil {
 		t.Fatalf("engtrace --tier-gap: %v\n%s", err, out)
 	}
@@ -64,12 +93,20 @@ func TestTierGapListsWhatTheTargetRequires(t *testing.T) {
 // target floor.
 // TRLC-LINKS: REQ-EMG-134
 func TestTierGapDependenciesAndAviation(t *testing.T) {
+	assertDependenciesBelowTarget(t)
+	assertAviationRecordsBelowFloor(t)
+}
+
+// assertDependenciesBelowTarget checks that the gap of a system at mvp names
+// the dependency at mvp and the one without a tier.
+func assertDependenciesBelowTarget(t *testing.T) {
+	t.Helper()
 	root := copyRequirementLinksExample(t)
 	setLifecycle(t, filepath.Join(root, "repos", "child-a"), "mvp")
 	removeLifecycle(t, filepath.Join(root, "repos", "child-b")) // a dependency without a tier
 	system := filepath.Join(root, "repos", "system")
 	manifest := setLifecycle(t, system, "mvp")
-	gap, err := engmodel.TierGapFromFiles(manifest, filepath.Join(system, "model", "requirements.yml"), "", engmodel.TierProduct)
+	gap, err := tierGapInput{manifest: manifest, requirements: filepath.Join(system, "model", "requirements.yml")}.gap(engmodel.TierProduct)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,10 +117,15 @@ func TestTierGapDependenciesAndAviation(t *testing.T) {
 	if got["encoder"] != "mvp>product" || got["bridge"] != ">product" || len(got) != 2 {
 		t.Fatalf("dependencies: %+v", gap.Dependencies)
 	}
+}
 
+// assertAviationRecordsBelowFloor checks that the gap of a safety model at mvp
+// names the aviation records below the product floor.
+func assertAviationRecordsBelowFloor(t *testing.T) {
+	t.Helper()
 	dal := copyExample(t, "dal-c-flight-control-sample")
-	dalManifest := setLifecycle(t, dal, "mvp", "foundation", "safety")
-	gap, err = engmodel.TierGapFromFiles(dalManifest, filepath.Join(dal, "model", "requirements.yml"), dal, engmodel.TierProduct)
+	manifest := setLifecycleWith(t, dal, lifecycleChoice{tier: "mvp", bundles: []string{"foundation", "safety"}})
+	gap, err := tierGapInput{manifest: manifest, requirements: filepath.Join(dal, "model", "requirements.yml"), codeRoot: dal}.gap(engmodel.TierProduct)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -57,15 +57,29 @@ func TestExamplesGolden(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	recorder := goldenRecorder{t: t, root: root}
+	got := map[string]goldenModel{}
+	for _, manifest := range exampleManifests(t) {
+		got[filepath.ToSlash(manifest)] = recorder.record(manifest)
+	}
+	if os.Getenv("ENGMOD_UPDATE_GOLDEN") == "1" {
+		writeGolden(t, got)
+		return
+	}
+	compareGolden(t, readGolden(t), got)
+}
+
+// exampleManifests returns the sorted manifests of every example model.
+func exampleManifests(t *testing.T) []string {
+	t.Helper()
 	var manifests []string
-	err = filepath.WalkDir("examples", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
+	err := filepath.WalkDir("examples", func(path string, d fs.DirEntry, err error) error {
+		switch {
+		case err != nil:
 			return err
-		}
-		if d.IsDir() && (d.Name() == "generated" || d.Name() == ".engmod") {
+		case d.IsDir() && isGeneratedDir(d.Name()):
 			return filepath.SkipDir
-		}
-		if !d.IsDir() && d.Name() == "engmod.yml" {
+		case !d.IsDir() && d.Name() == "engmod.yml":
 			manifests = append(manifests, path)
 		}
 		return nil
@@ -74,56 +88,94 @@ func TestExamplesGolden(t *testing.T) {
 		t.Fatal(err)
 	}
 	sort.Strings(manifests)
-	scrub := func(s string) string { return strings.ReplaceAll(s, root, "<root>") }
-	raw := func(v any) json.RawMessage {
-		data, err := json.Marshal(v)
-		if err != nil {
-			t.Fatal(err)
-		}
-		return json.RawMessage(scrub(string(data)))
+	return manifests
+}
+
+// isGeneratedDir reports whether a directory holds generated outputs or a
+// module cache.
+func isGeneratedDir(name string) bool {
+	return name == "generated" || name == ".engmod"
+}
+
+// goldenRecorder records the observable result of a model; the repository
+// root is scrubbed from everything it records.
+type goldenRecorder struct {
+	t    *testing.T
+	root string
+}
+
+func (r goldenRecorder) scrub(s string) string { return strings.ReplaceAll(s, r.root, "<root>") }
+
+func (r goldenRecorder) raw(v any) json.RawMessage {
+	data, err := json.Marshal(v)
+	if err != nil {
+		r.t.Fatal(err)
 	}
-	hash := func(s string) string { return fmt.Sprintf("%x", sha256.Sum256([]byte(scrub(s)))) }
-	got := map[string]goldenModel{}
-	for _, manifest := range manifests {
-		bundle, err := engmodel.LoadBundle(manifest)
-		if err != nil {
-			t.Fatalf("load %s: %v", manifest, err)
+	return json.RawMessage(r.scrub(string(data)))
+}
+
+func (r goldenRecorder) hash(s string) string {
+	return fmt.Sprintf("%x", sha256.Sum256([]byte(r.scrub(s))))
+}
+
+// anyErrors reports whether one of the diagnostic lists holds an error.
+func anyErrors(lists ...[]engmodel.Diagnostic) bool {
+	for _, diags := range lists {
+		if engmodel.HasErrors(diags) {
+			return true
 		}
-		if bundle.Manifest.Lifecycle == nil {
-			t.Fatalf("%s declares no lifecycle; every example is at a stated tier", manifest)
-		}
-		var g goldenModel
-		g.Tier, g.Bundles = bundle.Manifest.Lifecycle.Tier, bundle.Manifest.Lifecycle.EffectiveBundles()
-		g.Validate = raw(engmodel.SortDiagnostics(engmodel.ValidateBundle(bundle)))
-		doc, gerr := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: filepath.Dir(manifest)})
-		if gerr != nil {
-			// A generation error is never a golden: it fails the run, also
-			// when the goldens are being updated.
-			t.Fatalf("generate %s: %v", manifest, gerr)
-		}
-		g.Generate, g.Document, g.Decisions = raw(doc.Diagnostics), hash(doc.Document), hash(doc.DecisionsDocument)
-		matrix, diags, terr := engmodel.BuildTraceMatrixFromFiles(manifest, bundle.RequirementsPath, filepath.Dir(manifest))
-		if terr != nil {
-			t.Fatalf("trace %s: %v", manifest, terr)
-		}
-		g.Trace = raw(diags)
-		if engmodel.HasErrors(engmodel.ValidateBundle(bundle)) || engmodel.HasErrors(doc.Diagnostics) || engmodel.HasErrors(diags) {
-			t.Errorf("%s has errors at its declared tier %s; an example is a complete, valid model", manifest, g.Tier)
-		}
-		data, _ := json.Marshal(matrix)
-		g.Matrix = hash(string(data))
-		got[filepath.ToSlash(manifest)] = g
 	}
-	if os.Getenv("ENGMOD_UPDATE_GOLDEN") == "1" {
-		data, _ := json.MarshalIndent(got, "", " ")
-		if err := os.MkdirAll(filepath.Dir(goldenExamples), 0o755); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(goldenExamples, append(data, '\n'), 0o644); err != nil {
-			t.Fatal(err)
-		}
-		return
+	return false
+}
+
+// record loads one example and records its validation, generation and trace.
+func (r goldenRecorder) record(manifest string) goldenModel {
+	t := r.t
+	bundle, err := engmodel.LoadBundle(manifest)
+	if err != nil {
+		t.Fatalf("load %s: %v", manifest, err)
 	}
+	if bundle.Manifest.Lifecycle == nil {
+		t.Fatalf("%s declares no lifecycle; every example is at a stated tier", manifest)
+	}
+	var g goldenModel
+	g.Tier, g.Bundles = bundle.Manifest.Lifecycle.Tier, bundle.Manifest.Lifecycle.EffectiveBundles()
+	g.Validate = r.raw(engmodel.SortDiagnostics(engmodel.ValidateBundle(bundle)))
+	doc, gerr := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: filepath.Dir(manifest)})
+	if gerr != nil {
+		// A generation error is never a golden: it fails the run, also
+		// when the goldens are being updated.
+		t.Fatalf("generate %s: %v", manifest, gerr)
+	}
+	g.Generate, g.Document, g.Decisions = r.raw(doc.Diagnostics), r.hash(doc.Document), r.hash(doc.DecisionsDocument)
+	matrix, diags, terr := engmodel.BuildTraceMatrixFromFiles(manifest, bundle.RequirementsPath, filepath.Dir(manifest))
+	if terr != nil {
+		t.Fatalf("trace %s: %v", manifest, terr)
+	}
+	g.Trace = r.raw(diags)
+	if anyErrors(engmodel.ValidateBundle(bundle), doc.Diagnostics, diags) {
+		t.Errorf("%s has errors at its declared tier %s; an example is a complete, valid model", manifest, g.Tier)
+	}
+	data, _ := json.Marshal(matrix)
+	g.Matrix = r.hash(string(data))
+	return g
+}
+
+// writeGolden rewrites the golden file with got.
+func writeGolden(t *testing.T, got map[string]goldenModel) {
+	t.Helper()
+	data, _ := json.MarshalIndent(got, "", " ")
+	if err := os.MkdirAll(filepath.Dir(goldenExamples), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(goldenExamples, append(data, '\n'), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// readGolden reads the recorded golden file.
+func readGolden(t *testing.T) map[string]goldenModel {
+	t.Helper()
 	data, err := os.ReadFile(goldenExamples)
 	if err != nil {
 		t.Fatal(err)
@@ -132,6 +184,12 @@ func TestExamplesGolden(t *testing.T) {
 	if err := json.Unmarshal(data, &want); err != nil {
 		t.Fatal(err)
 	}
+	return want
+}
+
+// compareGolden reports every recorded model that is missing or differs.
+func compareGolden(t *testing.T, want, got map[string]goldenModel) {
+	t.Helper()
 	if len(want) != len(got) {
 		t.Errorf("golden has %d models, the examples %d", len(want), len(got))
 	}

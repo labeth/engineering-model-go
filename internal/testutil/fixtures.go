@@ -115,13 +115,8 @@ module:
 	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), decisions)
 }
 
-// WriteInterfaceModule writes the example.com/iface@v0 module: it publishes an
-// FG, FU, IF, DO, actor, trust boundary, control and the capability CAP-SCHEMA.
-// TRLC-LINKS: REQ-EMG-065
-func WriteInterfaceModule(t testing.TB, dir string) {
-	t.Helper()
-	WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/iface@v0\"\nlanguage: version: \"v0.17.0\"\n")
-	WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: `+modelSchemaVersion+`
+// ifaceManifest is the manifest of the example.com/iface@v0 module.
+var ifaceManifest = `schemaVersion: ` + modelSchemaVersion + `
 module:
   path: example.com/iface@v0
   version: v0.1.0
@@ -129,7 +124,7 @@ module:
   title: Interface
   introduction: ""
   kind: system
-`+CompleteSwitches+`publications:
+` + CompleteSwitches + `publications:
   - id: public
     architecture: [FG-NATS, FU-NATS, IF-WS, DO-WS, ACT-OWNER, CAP-SCHEMA]
     assurance: [TB-BUS, CTRL-SCHEMA]
@@ -142,10 +137,10 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
-`)
-	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: "+modelSchemaVersion+"\ncatalog: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: "+modelSchemaVersion+"\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    realizes: [CAP-SCHEMA]\n")
-	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), `schemaVersion: `+modelSchemaVersion+`
+`
+
+// ifaceArchitecture is the architecture document of the iface module.
+var ifaceArchitecture = `schemaVersion: ` + modelSchemaVersion + `
 architecture:
   functionalGroups:
     - id: FG-NATS
@@ -170,9 +165,10 @@ architecture:
     provides:
       - id: CAP-SCHEMA
         kind: capability
-`)
-	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: "+modelSchemaVersion+"\nbehavior: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), `schemaVersion: `+modelSchemaVersion+`
+`
+
+// ifaceAssurance is the assurance document of the iface module.
+var ifaceAssurance = `schemaVersion: ` + modelSchemaVersion + `
 assurance:
   controls:
     - id: CTRL-SCHEMA
@@ -185,7 +181,20 @@ assurance:
       description: Message bus.
       boundaryType: network
       members: [FU-NATS]
-`)
+`
+
+// WriteInterfaceModule writes the example.com/iface@v0 module: it publishes an
+// FG, FU, IF, DO, actor, trust boundary, control and the capability CAP-SCHEMA.
+// TRLC-LINKS: REQ-EMG-065
+func WriteInterfaceModule(t testing.TB, dir string) {
+	t.Helper()
+	WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/iface@v0\"\nlanguage: version: \"v0.17.0\"\n")
+	WriteFile(t, filepath.Join(dir, "engmod.yml"), ifaceManifest)
+	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: "+modelSchemaVersion+"\ncatalog: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: "+modelSchemaVersion+"\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    realizes: [CAP-SCHEMA]\n")
+	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), ifaceArchitecture)
+	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: "+modelSchemaVersion+"\nbehavior: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), ifaceAssurance)
 	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: "+modelSchemaVersion+"\ncompliance: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: "+modelSchemaVersion+"\nviews: []\n")
 	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), TierDecisionPoC)
