@@ -198,20 +198,9 @@ func printMachineExpr(sb *strings.Builder, e SemanticExpression, minPrec int) {
 		return
 	}
 	op, known := LookupMachineOperator(e.Operator)
-	operand := func(i int) SemanticExpression {
-		if i < len(e.Operands) {
-			return e.Operands[i]
-		}
-		return SemanticExpression{Kind: MachineKindVariable, Value: "?"}
-	}
 	if !known {
 		sb.WriteString("?" + e.Operator + "(")
-		for i, o := range e.Operands {
-			if i > 0 {
-				sb.WriteString(", ")
-			}
-			printMachineExpr(sb, o, 0)
-		}
+		printMachineList(sb, e.Operands, ", ")
 		sb.WriteString(")")
 		return
 	}
@@ -219,68 +208,107 @@ func printMachineExpr(sb *strings.Builder, e SemanticExpression, minPrec int) {
 	if wrap {
 		sb.WriteString("(")
 	}
-	switch op.Form {
-	case MachineFormInfix:
-		leftMin, rightMin := op.Precedence, op.Precedence+1
-		switch {
-		case op.RightAssociative:
-			leftMin, rightMin = op.Precedence+1, op.Precedence
-		case op.Precedence == machinePrecComparison:
-			leftMin = op.Precedence + 1
-		}
-		printMachineExpr(sb, operand(0), leftMin)
-		sb.WriteString(" " + op.Syntax + " ")
-		printMachineExpr(sb, operand(1), rightMin)
-	case MachineFormPrefix:
-		sb.WriteString(op.Syntax)
-		if op.Name == "not" {
-			sb.WriteString(" ")
-		}
-		printMachineExpr(sb, operand(0), op.Precedence)
-	case MachineFormCall:
-		sb.WriteString(op.Syntax + "(")
-		printMachineLeaf(sb, operand(0))
-		sb.WriteString(")")
-	case MachineFormAssign:
-		printMachineLeaf(sb, operand(0))
-		sb.WriteString(" := ")
-		printMachineExpr(sb, operand(1), machinePrecImplies)
-	case MachineFormSequence:
-		for i, o := range e.Operands {
-			if i > 0 {
-				sb.WriteString("; ")
-			}
-			printMachineExpr(sb, o, 0)
-		}
-	}
+	printMachineForm(sb, op, e)
 	if wrap {
 		sb.WriteString(")")
 	}
 }
 
+// machineOperand returns operand i of e, or a "?" placeholder when missing.
+//
+// TRLC-LINKS: REQ-EMG-138
+func machineOperand(e SemanticExpression, i int) SemanticExpression {
+	if i < len(e.Operands) {
+		return e.Operands[i]
+	}
+	return SemanticExpression{Kind: MachineKindVariable, Value: "?"}
+}
+
+// printMachineList prints operands separated by sep.
+//
+// TRLC-LINKS: REQ-EMG-138
+func printMachineList(sb *strings.Builder, operands []SemanticExpression, sep string) {
+	for i, o := range operands {
+		if i > 0 {
+			sb.WriteString(sep)
+		}
+		printMachineExpr(sb, o, 0)
+	}
+}
+
+// printMachineForm prints the known operator op applied to the operands of e
+// in the source form of the operator.
+//
+// TRLC-LINKS: REQ-EMG-138
+func printMachineForm(sb *strings.Builder, op MachineOperator, e SemanticExpression) {
+	switch op.Form {
+	case MachineFormInfix:
+		leftMin, rightMin := machineInfixMinimums(op)
+		printMachineExpr(sb, machineOperand(e, 0), leftMin)
+		sb.WriteString(" " + op.Syntax + " ")
+		printMachineExpr(sb, machineOperand(e, 1), rightMin)
+	case MachineFormPrefix:
+		sb.WriteString(op.Syntax)
+		if op.Name == "not" {
+			sb.WriteString(" ")
+		}
+		printMachineExpr(sb, machineOperand(e, 0), op.Precedence)
+	case MachineFormCall:
+		sb.WriteString(op.Syntax + "(")
+		printMachineLeaf(sb, machineOperand(e, 0))
+		sb.WriteString(")")
+	case MachineFormAssign:
+		printMachineLeaf(sb, machineOperand(e, 0))
+		sb.WriteString(" := ")
+		printMachineExpr(sb, machineOperand(e, 1), machinePrecImplies)
+	case MachineFormSequence:
+		printMachineList(sb, e.Operands, "; ")
+	}
+}
+
+// machineInfixMinimums returns the minimum precedence of the left and right
+// operand of an infix operator that needs no parentheses.
+//
+// TRLC-LINKS: REQ-EMG-138
+func machineInfixMinimums(op MachineOperator) (left, right int) {
+	switch {
+	case op.RightAssociative:
+		return op.Precedence + 1, op.Precedence
+	case op.Precedence == machinePrecComparison:
+		return op.Precedence + 1, op.Precedence + 1
+	}
+	return op.Precedence, op.Precedence + 1
+}
+
 // TRLC-LINKS: REQ-EMG-138
 func printMachineLeaf(sb *strings.Builder, e SemanticExpression) {
-	if e.Operator != "" {
-		printMachineExpr(sb, e, 0)
-		return
-	}
-	v := e.TypedValue
 	switch {
+	case e.Operator != "":
+		printMachineExpr(sb, e, 0)
 	case e.Kind == MachineKindVariable:
 		sb.WriteString(e.Value)
-	case v == nil:
+	case e.TypedValue == nil:
 		sb.WriteString(fmt.Sprintf("?%s", e.Value))
-	case v.Reference != "":
-		sb.WriteString(v.Reference)
-	case v.Integer != nil:
-		sb.WriteString(strconv.FormatInt(*v.Integer, 10))
-	case v.Boolean != nil:
-		sb.WriteString(strconv.FormatBool(*v.Boolean))
-	case v.Real != nil:
-		sb.WriteString(strconv.FormatFloat(*v.Real, 'g', -1, 64))
 	default:
-		sb.WriteString(quoteMachineString(v.String))
+		sb.WriteString(machineValueText(e.TypedValue))
 	}
+}
+
+// machineValueText renders a typed literal; the first populated field wins.
+//
+// TRLC-LINKS: REQ-EMG-138
+func machineValueText(v *SemanticValue) string {
+	switch {
+	case v.Reference != "":
+		return v.Reference
+	case v.Integer != nil:
+		return strconv.FormatInt(*v.Integer, 10)
+	case v.Boolean != nil:
+		return strconv.FormatBool(*v.Boolean)
+	case v.Real != nil:
+		return strconv.FormatFloat(*v.Real, 'g', -1, 64)
+	}
+	return quoteMachineString(v.String)
 }
 
 // TRLC-LINKS: REQ-EMG-138

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -109,6 +110,13 @@ type machineToken struct {
 	err          string
 }
 
+// is reports whether t has the given kind and text.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (t machineToken) is(kind machineTokenKind, text string) bool {
+	return t.kind == kind && t.text == text
+}
+
 type machineSyntaxError struct {
 	pos int
 	msg string
@@ -198,96 +206,187 @@ func machineSourceTooLong(src string) MachineExprDiagnostic {
 	}
 }
 
+// machineSpan is a half-open rune range of the source.
+type machineSpan struct{ start, end int }
+
+// machineLexer scans a machine expression one token at a time.
+type machineLexer struct {
+	src  []rune
+	toks []machineToken
+	i    int
+}
+
+// noMachineRune is returned by machineRuneAt past the end of the source.
+const noMachineRune rune = -1
+
+// Character classes of the machine expression lexer, as ASCII range tables.
+var (
+	machineDigitRunes = &unicode.RangeTable{R16: []unicode.Range16{{Lo: '0', Hi: '9', Stride: 1}}}
+	machineIdentRunes = &unicode.RangeTable{R16: []unicode.Range16{
+		{Lo: '0', Hi: '9', Stride: 1}, {Lo: 'A', Hi: 'Z', Stride: 1}, {Lo: '_', Hi: '_', Stride: 1}, {Lo: 'a', Hi: 'z', Stride: 1},
+	}}
+	machineStartRunes = &unicode.RangeTable{R16: []unicode.Range16{
+		{Lo: 'A', Hi: 'Z', Stride: 1}, {Lo: '_', Hi: '_', Stride: 1}, {Lo: 'a', Hi: 'z', Stride: 1},
+	}}
+	machineStateIDRunes = &unicode.RangeTable{R16: []unicode.Range16{
+		{Lo: '-', Hi: '-', Stride: 1}, {Lo: '0', Hi: '9', Stride: 1}, {Lo: 'A', Hi: 'Z', Stride: 1},
+		{Lo: '_', Hi: '_', Stride: 1}, {Lo: 'a', Hi: 'z', Stride: 1},
+	}}
+)
+
+const (
+	machineOnePunct = "();+-*<>"
+	machineTwoFirst = "=!<>:"
+)
+
 // lexMachineExpr tokenizes src. It stops after the first lexical error,
 // appending an mtError token, so the parser reports the earliest problem.
 //
 // TRLC-LINKS: REQ-EMG-136
 func lexMachineExpr(src []rune) []machineToken {
-	var toks []machineToken
-	i := 0
-	for {
-		for i < len(src) && unicode.IsSpace(src[i]) {
-			i++
-		}
-		n := len(toks)
-		if n >= 2 && toks[n-1].kind == mtPunct && toks[n-1].text == "(" && toks[n-2].kind == mtIdent && toks[n-2].text == "in_state" {
-			start := i
-			for i < len(src) && isMachineStateIDRune(src[i]) {
-				i++
-			}
-			toks = append(toks, machineToken{kind: mtStateID, text: string(src[start:i]), start: start, end: i})
-			continue
-		}
-		if i >= len(src) {
-			return append(toks, machineToken{kind: mtEOF, start: i, end: i})
-		}
-		c := src[i]
-		start := i
-		switch {
-		case c >= '0' && c <= '9':
-			for i < len(src) && src[i] >= '0' && src[i] <= '9' {
-				i++
-			}
-			if i < len(src) && isMachineIdentStart(src[i]) {
-				return append(toks, machineToken{kind: mtError, start: start, end: i, err: "invalid integer literal: digits followed by a letter"})
-			}
-			digits := string(src[start:i])
-			v, err := strconv.ParseInt(digits, 10, 64)
-			if err != nil {
-				if u, uerr := strconv.ParseUint(digits, 10, 64); uerr == nil && u == 1<<63 {
-					toks = append(toks, machineToken{kind: mtInt, num: math.MinInt64, minMagnitude: true, text: digits, start: start, end: i})
-					continue
-				}
-				return append(toks, machineToken{kind: mtError, start: start, end: i, err: "integer literal out of range"})
-			}
-			toks = append(toks, machineToken{kind: mtInt, num: v, text: digits, start: start, end: i})
-		case isMachineIdentStart(c):
-			for i < len(src) && (isMachineIdentStart(src[i]) || src[i] >= '0' && src[i] <= '9') {
-				i++
-			}
-			toks = append(toks, machineToken{kind: mtIdent, text: string(src[start:i]), start: start, end: i})
-		case c == '"':
-			tok, next := lexMachineString(src, i)
-			toks = append(toks, tok)
-			if tok.kind == mtError {
-				return toks
-			}
-			i = next
-		default:
-			text := ""
-			switch {
-			case i+1 < len(src) && isMachineTwoRune(c, src[i+1]):
-				text = string(src[i : i+2])
-			case c == '(' || c == ')' || c == ';' || c == '+' || c == '-' || c == '*' || c == '<' || c == '>':
-				text = string(c)
-			}
-			if text == "" {
-				msg := fmt.Sprintf("unexpected character %q", c)
-				if c == '=' || c == '!' {
-					msg += "; did you mean '==' or '!='"
-				}
-				return append(toks, machineToken{kind: mtError, start: start, end: i + 1, err: msg})
-			}
-			i += len([]rune(text))
-			toks = append(toks, machineToken{kind: mtPunct, text: text, start: start, end: i})
-		}
+	lx := &machineLexer{src: src}
+	for lx.step() {
 	}
+	return lx.toks
+}
+
+// step lexes one token and reports whether more input may follow.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (lx *machineLexer) step() bool {
+	for lx.i < len(lx.src) && unicode.IsSpace(lx.src[lx.i]) {
+		lx.i++
+	}
+	if lx.afterInState() {
+		sp := lx.take(machineStateIDRunes)
+		lx.toks = append(lx.toks, machineToken{kind: mtStateID, text: lx.text(sp), start: sp.start, end: sp.end})
+		return true
+	}
+	if lx.i >= len(lx.src) {
+		lx.toks = append(lx.toks, machineToken{kind: mtEOF, start: lx.i, end: lx.i})
+		return false
+	}
+	return lx.lexToken(lx.src[lx.i])
+}
+
+// lexToken lexes the token that starts with c at the current position.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (lx *machineLexer) lexToken(c rune) bool {
+	switch {
+	case unicode.Is(machineDigitRunes, c):
+		return lx.lexNumber()
+	case isMachineIdentStart(c):
+		sp := lx.take(machineIdentRunes)
+		lx.toks = append(lx.toks, machineToken{kind: mtIdent, text: lx.text(sp), start: sp.start, end: sp.end})
+		return true
+	case c == '"':
+		tok, next := lexMachineString(lx.src, lx.i)
+		lx.toks = append(lx.toks, tok)
+		lx.i = next
+		return tok.kind != mtError
+	default:
+		return lx.lexPunct(c)
+	}
+}
+
+// afterInState reports whether the previous tokens are "in_state" and "(".
+//
+// TRLC-LINKS: REQ-EMG-136
+func (lx *machineLexer) afterInState() bool {
+	n := len(lx.toks)
+	return n >= 2 && lx.toks[n-1].is(mtPunct, "(") && lx.toks[n-2].is(mtIdent, "in_state")
+}
+
+// take consumes the run of runes in class and returns its span.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (lx *machineLexer) take(class *unicode.RangeTable) machineSpan {
+	start := lx.i
+	for lx.i < len(lx.src) && unicode.Is(class, lx.src[lx.i]) {
+		lx.i++
+	}
+	return machineSpan{start, lx.i}
+}
+
+// text returns the source text of sp.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (lx *machineLexer) text(sp machineSpan) string { return string(lx.src[sp.start:sp.end]) }
+
+// lexNumber lexes an integer literal at the current position.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (lx *machineLexer) lexNumber() bool {
+	sp := lx.take(machineDigitRunes)
+	tok := machineErrorToken(sp, "invalid integer literal: digits followed by a letter")
+	if lx.i >= len(lx.src) || !isMachineIdentStart(lx.src[lx.i]) {
+		tok = machineIntToken(lx.text(sp), sp)
+	}
+	lx.toks = append(lx.toks, tok)
+	return tok.kind != mtError
+}
+
+// machineIntToken converts digits to an integer token, or to an error token
+// when the value does not fit. 9223372036854775808 is kept as the minimum
+// magnitude, which is valid only as the operand of a unary minus.
+//
+// TRLC-LINKS: REQ-EMG-136
+func machineIntToken(digits string, sp machineSpan) machineToken {
+	v, err := strconv.ParseInt(digits, 10, 64)
+	if err == nil {
+		return machineToken{kind: mtInt, num: v, text: digits, start: sp.start, end: sp.end}
+	}
+	if u, uerr := strconv.ParseUint(digits, 10, 64); uerr == nil && u == 1<<63 {
+		return machineToken{kind: mtInt, num: math.MinInt64, minMagnitude: true, text: digits, start: sp.start, end: sp.end}
+	}
+	return machineErrorToken(sp, "integer literal out of range")
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func machineErrorToken(sp machineSpan, msg string) machineToken {
+	return machineToken{kind: mtError, start: sp.start, end: sp.end, err: msg}
+}
+
+// lexPunct lexes an operator or punctuation token starting with c.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (lx *machineLexer) lexPunct(c rune) bool {
+	start := lx.i
+	text := ""
+	if isMachineTwoRune(c, machineRuneAt(lx.src, start+1)) {
+		text = string(lx.src[start : start+2])
+	} else if strings.ContainsRune(machineOnePunct, c) {
+		text = string(c)
+	}
+	if text == "" {
+		msg := fmt.Sprintf("unexpected character %q", c)
+		if c == '=' || c == '!' {
+			msg += "; did you mean '==' or '!='"
+		}
+		lx.toks = append(lx.toks, machineErrorToken(machineSpan{start, start + 1}, msg))
+		return false
+	}
+	lx.i += len([]rune(text))
+	lx.toks = append(lx.toks, machineToken{kind: mtPunct, text: text, start: start, end: lx.i})
+	return true
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func machineRuneAt(src []rune, i int) rune {
+	if i < 0 || i >= len(src) {
+		return noMachineRune
+	}
+	return src[i]
 }
 
 // TRLC-LINKS: REQ-EMG-136
 func isMachineTwoRune(a, b rune) bool {
-	return b == '=' && (a == '=' || a == '!' || a == '<' || a == '>' || a == ':')
+	return b == '=' && strings.ContainsRune(machineTwoFirst, a)
 }
 
 // TRLC-LINKS: REQ-EMG-136
-func isMachineIdentStart(c rune) bool {
-	return c == '_' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'
-}
-
-// TRLC-LINKS: REQ-EMG-136
-func isMachineStateIDRune(c rune) bool {
-	return c == '_' || c == '-' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9'
-}
+func isMachineIdentStart(c rune) bool { return unicode.Is(machineStartRunes, c) }
 
 // lexMachineString scans the string literal starting at the quote at src[start].
 //
@@ -295,23 +394,27 @@ func isMachineStateIDRune(c rune) bool {
 func lexMachineString(src []rune, start int) (machineToken, int) {
 	var value []rune
 	i := start + 1
-	for i < len(src) && src[i] != '"' && src[i] != '\n' {
+	for !isMachineStringEnd(machineRuneAt(src, i)) {
 		if src[i] != '\\' {
 			value = append(value, src[i])
 			i++
 			continue
 		}
-		if i+1 >= len(src) || (src[i+1] != '"' && src[i+1] != '\\') {
-			return machineToken{kind: mtError, start: i, end: i + 1, err: `invalid escape sequence; only \" and \\ are supported`}, i
+		esc := machineRuneAt(src, i+1)
+		if esc != '"' && esc != '\\' {
+			return machineErrorToken(machineSpan{i, i + 1}, `invalid escape sequence; only \" and \\ are supported`), i
 		}
-		value = append(value, src[i+1])
+		value = append(value, esc)
 		i += 2
 	}
-	if i >= len(src) || src[i] != '"' {
-		return machineToken{kind: mtError, start: start, end: start + 1, err: "unterminated string literal"}, i
+	if machineRuneAt(src, i) != '"' {
+		return machineErrorToken(machineSpan{start, start + 1}, "unterminated string literal"), i
 	}
 	return machineToken{kind: mtString, text: string(value), start: start, end: i + 1}, i + 1
 }
+
+// TRLC-LINKS: REQ-EMG-136
+func isMachineStringEnd(c rune) bool { return c == noMachineRune || c == '"' || c == '\n' }
 
 type machineParser struct {
 	src   []rune
@@ -425,38 +528,74 @@ func (p *machineParser) parseEffect() (SemanticExpression, *machineSyntaxError) 
 	var assigns []SemanticExpression
 	seen := map[string]bool{}
 	for {
-		t := p.cur()
-		switch {
-		case t.kind == mtEOF && len(assigns) == 0:
-			return SemanticExpression{}, p.errAt(t, "empty effect: expected 'variable := expression'")
-		case t.kind != mtIdent:
-			return SemanticExpression{}, p.errAt(t, "unexpected "+p.describe(t)+", expected a variable name")
-		case IsMachineKeyword(t.text):
-			return SemanticExpression{}, p.errAt(t, fmt.Sprintf("keyword %q cannot be used as a variable name", t.text))
-		}
-		if seen[t.text] {
-			p.diags = append(p.diags, p.diagnostic(t.start, fmt.Sprintf("variable %q is assigned more than once in this effect", t.text)))
-		}
-		seen[t.text] = true
-		p.advance()
-		if !p.isPunct(":=") {
-			return SemanticExpression{}, p.errAt(p.cur(), "unexpected "+p.describe(p.cur())+", expected ':=' after the variable name")
-		}
-		p.advance()
-		value, err := p.parseImplies()
+		assign, err := p.parseAssignment(seen, len(assigns) == 0)
 		if err != nil {
 			return SemanticExpression{}, err
 		}
-		assigns = append(assigns, machineOperator(":=", machineVariable(t.text), value))
-		if p.isPunct(";") {
-			p.advance()
-		} else if p.cur().kind != mtEOF {
-			return SemanticExpression{}, p.errAt(p.cur(), "unexpected "+p.describe(p.cur())+", expected ';' or the end of the effect")
+		assigns = append(assigns, assign)
+		if err := p.endAssignment(); err != nil {
+			return SemanticExpression{}, err
 		}
 		if p.cur().kind == mtEOF {
 			return machineOperator("all", assigns...), nil
 		}
 	}
+}
+
+// parseAssignment parses one "variable := expression" of an effect. first
+// marks the first assignment, where an empty effect is reported.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (p *machineParser) parseAssignment(seen map[string]bool, first bool) (SemanticExpression, *machineSyntaxError) {
+	t, err := p.effectTarget(first)
+	if err != nil {
+		return SemanticExpression{}, err
+	}
+	if seen[t.text] {
+		p.diags = append(p.diags, p.diagnostic(t.start, fmt.Sprintf("variable %q is assigned more than once in this effect", t.text)))
+	}
+	seen[t.text] = true
+	p.advance()
+	if !p.isPunct(":=") {
+		return SemanticExpression{}, p.errAt(p.cur(), "unexpected "+p.describe(p.cur())+", expected ':=' after the variable name")
+	}
+	p.advance()
+	value, err := p.parseImplies()
+	if err != nil {
+		return SemanticExpression{}, err
+	}
+	return machineOperator(":=", machineVariable(t.text), value), nil
+}
+
+// effectTarget returns the current token when it can be assigned to.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (p *machineParser) effectTarget(first bool) (machineToken, *machineSyntaxError) {
+	t := p.cur()
+	switch {
+	case t.kind == mtEOF && first:
+		return t, p.errAt(t, "empty effect: expected 'variable := expression'")
+	case t.kind != mtIdent:
+		return t, p.errAt(t, "unexpected "+p.describe(t)+", expected a variable name")
+	case IsMachineKeyword(t.text):
+		return t, p.errAt(t, fmt.Sprintf("keyword %q cannot be used as a variable name", t.text))
+	}
+	return t, nil
+}
+
+// endAssignment consumes the ";" after an assignment, which is optional at
+// the end of the effect.
+//
+// TRLC-LINKS: REQ-EMG-136
+func (p *machineParser) endAssignment() *machineSyntaxError {
+	if p.isPunct(";") {
+		p.advance()
+		return nil
+	}
+	if p.cur().kind != mtEOF {
+		return p.errAt(p.cur(), "unexpected "+p.describe(p.cur())+", expected ';' or the end of the effect")
+	}
+	return nil
 }
 
 // TRLC-LINKS: REQ-EMG-136
@@ -605,18 +744,9 @@ func (p *machineParser) parsePrimary() (SemanticExpression, *machineSyntaxError)
 	t := p.cur()
 	switch t.kind {
 	case mtInt:
-		if t.minMagnitude {
-			return SemanticExpression{}, p.errAt(t, "integer literal out of range")
-		}
-		p.advance()
-		v := t.num
-		return SemanticExpression{Kind: MachineKindLiteral, TypedValue: &SemanticValue{Kind: "integer", Integer: &v}}, nil
+		return p.parseIntLiteral(t)
 	case mtString:
-		if t.text == "" {
-			return SemanticExpression{}, p.errAt(t, "empty string literals are not supported")
-		}
-		p.advance()
-		return SemanticExpression{Kind: MachineKindLiteral, TypedValue: &SemanticValue{Kind: "string", String: t.text}}, nil
+		return p.parseStringLiteral(t)
 	case mtIdent:
 		return p.parseIdentifier(t)
 	case mtPunct:
@@ -625,6 +755,25 @@ func (p *machineParser) parsePrimary() (SemanticExpression, *machineSyntaxError)
 		}
 	}
 	return SemanticExpression{}, p.errAt(t, "unexpected "+p.describe(t)+", expected an expression")
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func (p *machineParser) parseIntLiteral(t machineToken) (SemanticExpression, *machineSyntaxError) {
+	if t.minMagnitude {
+		return SemanticExpression{}, p.errAt(t, "integer literal out of range")
+	}
+	p.advance()
+	v := t.num
+	return SemanticExpression{Kind: MachineKindLiteral, TypedValue: &SemanticValue{Kind: "integer", Integer: &v}}, nil
+}
+
+// TRLC-LINKS: REQ-EMG-136
+func (p *machineParser) parseStringLiteral(t machineToken) (SemanticExpression, *machineSyntaxError) {
+	if t.text == "" {
+		return SemanticExpression{}, p.errAt(t, "empty string literals are not supported")
+	}
+	p.advance()
+	return SemanticExpression{Kind: MachineKindLiteral, TypedValue: &SemanticValue{Kind: "string", String: t.text}}, nil
 }
 
 // TRLC-LINKS: REQ-EMG-136
