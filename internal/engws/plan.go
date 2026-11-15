@@ -83,15 +83,10 @@ func BuildPlan(ctx context.Context, req PlanRequest) (Plan, error) {
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func planNotes(entries []Entry, pins map[string]bool) []string {
-	var out []string
+	out := planEntryNotes(entries)
 	known := map[string]bool{}
-	notes := map[string]bool{}
 	for _, entry := range entries {
 		known[entry.Name] = true
-		if entry.Note != "" && !notes[entry.Note] {
-			notes[entry.Note] = true
-			out = append(out, entry.Note)
-		}
 	}
 	for pin := range pins {
 		if !known[pin] {
@@ -99,6 +94,21 @@ func planNotes(entries []Entry, pins map[string]bool) []string {
 		}
 	}
 	sort.Strings(out)
+	return out
+}
+
+// planEntryNotes returns the distinct notes of entries, in order.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func planEntryNotes(entries []Entry) []string {
+	var out []string
+	notes := map[string]bool{}
+	for _, entry := range entries {
+		if entry.Note != "" && !notes[entry.Note] {
+			notes[entry.Note] = true
+			out = append(out, entry.Note)
+		}
+	}
 	return out
 }
 
@@ -251,16 +261,26 @@ func (p Plan) dependencySkews() []Skew {
 	}
 	var out []Skew
 	for _, entry := range p.Entries {
-		for _, dep := range entry.Manifest.Dependencies {
-			l, ok := local[strings.TrimSpace(dep.Path)]
-			if !ok || tagFor(dep.Version) == tagFor(l.Manifest.Module.Version) {
-				continue
-			}
-			out = append(out, Skew{
-				Consumer: entry.Name, Alias: dep.Alias, Module: dep.Path, Pinned: dep.Version,
-				LocalCheckout: l.Name, LocalVersion: l.Manifest.Module.Version,
-			})
+		out = append(out, entryDependencySkews(entry, local)...)
+	}
+	return out
+}
+
+// entryDependencySkews lists the dependencies of entry that a local checkout
+// replaces at another version.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func entryDependencySkews(entry Entry, local map[string]Entry) []Skew {
+	var out []Skew
+	for _, dep := range entry.Manifest.Dependencies {
+		l, ok := local[strings.TrimSpace(dep.Path)]
+		if !ok || tagFor(dep.Version) == tagFor(l.Manifest.Module.Version) {
+			continue
 		}
+		out = append(out, Skew{
+			Consumer: entry.Name, Alias: dep.Alias, Module: dep.Path, Pinned: dep.Version,
+			LocalCheckout: l.Name, LocalVersion: l.Manifest.Module.Version,
+		})
 	}
 	return out
 }

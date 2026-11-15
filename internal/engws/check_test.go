@@ -90,27 +90,27 @@ func assertTargetReasons(t *testing.T, targets []CheckTarget, want map[string]st
 // TRLC-LINKS: REQ-EMG-068
 func TestCheckRunsLibraryCheckAndFailsOnErrors(t *testing.T) {
 	root := t.TempDir()
-	good := checkout(t, root, "if-a")
-	bad := checkout(t, root, "if-b")
+	good := checkout(t, repoSpec{Root: root, Name: "if-a"})
+	bad := checkout(t, repoSpec{Root: root, Name: "if-b"})
 	reg := allPublished("if-a", "if-b")
 	code, out, errOut := runMain(t, reg, "--root", root, "check", "--in-process")
 	if code != 0 {
 		t.Fatalf("clean check: %d\n%s\n%s", code, out, errOut)
 	}
-	assertAllIn(t, "clean check", out, "ok   if-a (0 errors", "ok   if-b")
+	assertAllIn(t, labeledText{What: "clean check", Body: out}, "ok   if-a (0 errors", "ok   if-b")
 	// A dangling trace link in if-b makes it local (dirty) and failing.
 	write(t, filepath.Join(bad, "src", "x.go"), "// ENGMODEL-OWNER-UNIT: FU-X\npackage x\n\n// TRLC-LINKS: REQ-NOPE-404\nfunc X() {}\n")
 	code, out, _ = runMain(t, reg, "--root", root, "check", "--in-process")
 	if code != 1 {
 		t.Fatalf("broken check: %d\n%s", code, out)
 	}
-	assertAllIn(t, "broken check", out, "FAIL if-b (", "[error]")
-	assertAllIn(t, "if-a is a top system and must still pass", out, "ok   if-a (0 errors, 2 warnings) [library; top system]")
+	assertAllIn(t, labeledText{What: "broken check", Body: out}, "FAIL if-b (", "[error]")
+	assertAllIn(t, labeledText{What: "if-a is a top system and must still pass", Body: out}, "ok   if-a (0 errors, 2 warnings) [library; top system]")
 	code, out, _ = runMain(t, reg, "--root", root, "check", "--in-process", "--summary")
 	if code != 1 {
 		t.Fatalf("--summary exit: %d\n%s", code, out)
 	}
-	assertNoneIn(t, "--summary prints only lines", out, "[error]")
+	assertNoneIn(t, labeledText{What: "--summary prints only lines", Body: out}, "[error]")
 	assertClean(t, good)
 }
 
@@ -144,7 +144,7 @@ func TestPinnedCheckDetection(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-068
 func TestWorkFileDriftWarnsWhenNotSynced(t *testing.T) {
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	reg := allPublished("if-a")
 	plan, _ := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: reg})
 	if d := WorkFileDrift(plan); d != "" {
@@ -174,9 +174,9 @@ func TestWorkFileDriftWarnsWhenNotSynced(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-068
 func TestCheckWritesNothingInsideCheckouts(t *testing.T) {
 	root := t.TempDir()
-	ifA := checkout(t, root, "if-a")
-	svc := checkout(t, root, "svc-b", dep{"ia", "if-a", "v0.1.0"})
-	sys := checkout(t, root, "sys-c", dep{"sb", "svc-b", "v0.1.0"})
+	ifA := checkout(t, repoSpec{Root: root, Name: "if-a"})
+	svc := checkout(t, repoSpec{Root: root, Name: "svc-b"}, dep{"ia", "if-a", "v0.1.0"})
+	sys := checkout(t, repoSpec{Root: root, Name: "sys-c"}, dep{"sb", "svc-b", "v0.1.0"})
 	lock := "schemaVersion: 1\ndependencies: []\n# committed\n"
 	write(t, filepath.Join(sys, "engmod.lock.yml"), lock)
 	runGit(t, sys, "add", "engmod.lock.yml")
@@ -206,7 +206,7 @@ func TestCheckWritesNothingInsideCheckouts(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-068
 func TestExecCheckSelectsToolGoWork(t *testing.T) {
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	checkDir := filepath.Join(dir, ".github", "engmod-check")
 	write(t, filepath.Join(checkDir, "go.mod"), "module example.com/engmod-check\n\ngo 1.22\n")
 	write(t, filepath.Join(checkDir, "main.go"), `package main
@@ -251,8 +251,8 @@ func main() {
 // TRLC-LINKS: REQ-EMG-068
 func TestCheckAllDoesNotWarnAboutWorkFileDrift(t *testing.T) {
 	root := t.TempDir()
-	checkout(t, root, "if-a")
-	dirty := checkout(t, root, "if-b")
+	checkout(t, repoSpec{Root: root, Name: "if-a"})
+	dirty := checkout(t, repoSpec{Root: root, Name: "if-b"})
 	reg := allPublished("if-a", "if-b")
 	if code, _, errOut := runMain(t, reg, "--root", root, "sync"); code != 0 {
 		t.Fatal(errOut)
@@ -274,7 +274,7 @@ func TestCheckAllDoesNotWarnAboutWorkFileDrift(t *testing.T) {
 func TestCheckRefreshSetsModuleCacheRefresh(t *testing.T) {
 	t.Setenv("ENGMOD_MODULE_CACHE", "")
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	checkDir := filepath.Join(dir, ".github", "engmod-check")
 	write(t, filepath.Join(checkDir, "go.mod"), "module example.com/engmod-check\n\ngo 1.22\n")
 	write(t, filepath.Join(checkDir, "main.go"), `package main
@@ -311,7 +311,7 @@ func TestExecCheckFiltersEnvironment(t *testing.T) {
 	t.Setenv("ENGMOD_PROBE", "kept")
 	t.Setenv("CUE_REGISTRY", "registry.example")
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	checkDir := filepath.Join(dir, ".github", "engmod-check")
 	write(t, filepath.Join(checkDir, "go.mod"), "module example.com/engmod-check\n\ngo 1.22\n")
 	write(t, filepath.Join(checkDir, "main.go"), `package main
@@ -344,7 +344,7 @@ func main() {
 // TRLC-LINKS: REQ-EMG-068
 func TestCheckStatesTrust(t *testing.T) {
 	root := t.TempDir()
-	checkout(t, root, "if-a")
+	checkout(t, repoSpec{Root: root, Name: "if-a"})
 	_, out, _ := runMain(t, allPublished("if-a"), "--root", root, "check")
 	if !strings.Contains(out, "every checkout under "+root+" is trusted code") {
 		t.Fatalf("check output must state the trust assumption:\n%s", out)

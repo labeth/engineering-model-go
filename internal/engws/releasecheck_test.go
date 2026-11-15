@@ -75,7 +75,7 @@ func TestReleaseCheckUnreleasedPins(t *testing.T) {
 		t.Fatalf("released pins: %d\n%s\n%s", code, out, errOut)
 	}
 	pseudo := "v0.1.1-0.20261102103400-abcdef123456"
-	replaceIn(t, filepath.Join(system, "engmod.yml"), "  path: models.example/reqlinks/child-a@v0\n  version: v0.1.0\n", "  path: models.example/reqlinks/child-a@v0\n  version: "+pseudo+"\n")
+	replaceIn(t, filepath.Join(system, "engmod.yml"), textEdit{Old: "  path: models.example/reqlinks/child-a@v0\n  version: v0.1.0\n", New: "  path: models.example/reqlinks/child-a@v0\n  version: " + pseudo + "\n"})
 	write(t, filepath.Join(system, "engmod.lock.yml"), "schemaVersion: 1\ndependencies:\n    - alias: bridge\n      path: models.example/reqlinks/child-b@v0\n      version: v0.2.0-rc.1\n      publications:\n        - public\n      digest: sha256:00\n")
 	code, out, errOut := runMain(t, fakeRegistry{}, "release-check", "--repo", system)
 	if code != 1 || !strings.Contains(out, "dependency.unreleased_pin [error] dependency encoder pins "+pseudo+" (engmod.yml)") ||

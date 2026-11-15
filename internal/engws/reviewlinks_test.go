@@ -63,15 +63,27 @@ func reviewTestLCS(b, a []string) [][]int {
 	for i := range lcs {
 		lcs[i] = make([]int, len(a)+1)
 	}
+	grid := reviewTestGrid{b: b, a: a, cells: lcs}
 	for i := len(b) - 1; i >= 0; i-- {
-		for j := len(a) - 1; j >= 0; j-- {
-			lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])
-			if b[i] == a[j] {
-				lcs[i][j] = lcs[i+1][j+1] + 1
-			}
-		}
+		grid.fillRow(i)
 	}
 	return lcs
+}
+
+// reviewTestGrid is the table of an LCS computation with the lines it compares.
+type reviewTestGrid struct {
+	b, a  []string
+	cells [][]int
+}
+
+// fillRow fills row i of the table for the line b[i].
+func (g reviewTestGrid) fillRow(i int) {
+	for j := len(g.a) - 1; j >= 0; j-- {
+		g.cells[i][j] = max(g.cells[i+1][j], g.cells[i][j+1])
+		if g.b[i] == g.a[j] {
+			g.cells[i][j] = g.cells[i+1][j+1] + 1
+		}
+	}
 }
 
 // Acceptance 3 end to end: after a bump that leaves a link for review,
@@ -93,7 +105,7 @@ func TestReviewLinksShowsAndAcceptsChangedLink(t *testing.T) {
 	root, system := systemWorkspace(t)
 	links := filepath.Join(system, "model", "req-links.yml")
 	// A comment the edit must keep.
-	replaceIn(t, links, "reqLinks:\n", "reqLinks:\n# reviewed links of the position simulator\n")
+	replaceIn(t, links, textEdit{Old: "reqLinks:\n", New: "reqLinks:\n# reviewed links of the position simulator\n"})
 	for _, args := range [][]string{{"bump", "system", "encoder", "v0.2.0"}, {"bump", "system", "encoder", "v0.3.0", "--allow-review"}} {
 		if code, out, errOut := runMain(t, NewCUERegistry(), append([]string{"--root", root}, args...)...); code != 0 {
 			t.Fatalf("%v: %d\n%s\n%s", args, code, out, errOut)
@@ -143,12 +155,21 @@ func reviewTestJSON(t *testing.T, system string) {
 	if code != 1 || err != nil || len(reviews) != 1 {
 		t.Fatalf("review-links --json: %d %v\n%s", code, err, jsonOut)
 	}
-	r := reviews[0]
+	reviewTestJSONItems(t, reviews[0], jsonOut)
+}
+
+// reviewTestJSONItems checks the before and after items and the changes of
+// the one review in the --json output.
+func reviewTestJSONItems(t *testing.T, r LinkReview, jsonOut string) {
+	t.Helper()
 	if r.Before == nil || r.After == nil || strings.Join(r.Changes, ",") != "REQ-A-001 text" {
-		t.Fatalf("review-links --json: %d %v\n%s", code, err, jsonOut)
+		t.Fatalf("review-links --json: items or changes wrong\n%s", jsonOut)
 	}
-	if !strings.Contains(r.Before.Realizers[0].Text, "one position sentence") || !strings.Contains(r.After.Realizers[0].Text, "two position sentences") {
-		t.Fatalf("review-links --json: %d %v\n%s", code, err, jsonOut)
+	if !strings.Contains(r.Before.Realizers[0].Text, "one position sentence") {
+		t.Fatalf("review-links --json: before text wrong\n%s", jsonOut)
+	}
+	if !strings.Contains(r.After.Realizers[0].Text, "two position sentences") {
+		t.Fatalf("review-links --json: after text wrong\n%s", jsonOut)
 	}
 }
 
@@ -157,11 +178,8 @@ func reviewTestJSON(t *testing.T, system string) {
 func reviewTestAccept(t *testing.T, system, links string) {
 	t.Helper()
 	before := read(t, links)
-	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-ENCODER", "--by", "ACT-NOBODY", "--rationale", "Two sentences still satisfy the epoch requirement.")
-	if code != 1 || !strings.Contains(errOut, "ACT-NOBODY") || read(t, links) != before {
-		t.Fatalf("unknown actor accepted: %d\n%s\n%s", code, out, errOut)
-	}
-	code, out, errOut = runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-ENCODER", "--by", "ACT-SYSTEM-OWNER", "--rationale", "Two sentences per epoch: still one position per epoch on the bus.")
+	reviewTestAcceptUnknownActor(t, system, links)
+	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-ENCODER", "--by", "ACT-SYSTEM-OWNER", "--rationale", "Two sentences per epoch: still one position per epoch on the bus.")
 	if code != 0 || !strings.Contains(out, "accepted LNK-SYS-001-ENCODER encoder::CAP-A-1 at v0.3.0") {
 		t.Fatalf("accept: %d\n%s\n%s", code, out, errOut)
 	}
@@ -177,6 +195,24 @@ func reviewTestAccept(t *testing.T, system, links string) {
 	if !strings.Contains(after, "# reviewed links of the position simulator\n") {
 		t.Fatalf("comment lost:\n%s", after)
 	}
+	reviewTestAcceptedClean(t, system)
+}
+
+// reviewTestAcceptUnknownActor checks that an actor the model does not define
+// is refused with the link file unchanged.
+func reviewTestAcceptUnknownActor(t *testing.T, system, links string) {
+	t.Helper()
+	before := read(t, links)
+	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-ENCODER", "--by", "ACT-NOBODY", "--rationale", "Two sentences still satisfy the epoch requirement.")
+	if code != 1 || !strings.Contains(errOut, "ACT-NOBODY") || read(t, links) != before {
+		t.Fatalf("unknown actor accepted: %d\n%s\n%s", code, out, errOut)
+	}
+}
+
+// reviewTestAcceptedClean checks that the system check passes and nothing is
+// left to review after the accept.
+func reviewTestAcceptedClean(t *testing.T, system string) {
+	t.Helper()
 	if errs := checkErrors(t, system); len(errs) > 0 {
 		t.Fatalf("system check after accept:\n%s", strings.Join(errs, "\n"))
 	}
@@ -199,9 +235,9 @@ func TestReviewLinksBrokenAndOffline(t *testing.T) {
 	fixedClock(t)
 	registry := newLinksRegistry(t)
 	dropCapA2 := func(dir string) {
-		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
-		replaceIn(t, filepath.Join(dir, "engmod.yml"), "  - CAP-A-2\n", "")
-		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  derived: true\n  derivedRationale: Integrity of the encoder output.\n")
+		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", New: ""})
+		replaceIn(t, filepath.Join(dir, "engmod.yml"), textEdit{Old: "  - CAP-A-2\n", New: ""})
+		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: "  realizes: [CAP-A-2]\n", New: "  derived: true\n  derivedRationale: Integrity of the encoder output.\n"})
 	}
 	registry.publish("child-a", "v0.1.0", dropCapA2)
 	registry.publish("child-b", "v0.1.0", nil)
@@ -211,7 +247,7 @@ func TestReviewLinksBrokenAndOffline(t *testing.T) {
 	system := filepath.Join(root, "repos", "system")
 	links := filepath.Join(system, "model", "req-links.yml")
 	// The workspace checkout still has CAP-A-2; the published v0.1.0 does not.
-	replaceIn(t, links, "  status: accepted\n  rationale: The bridge forwards each sentence onto the lab bus.\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-02\"\n", "  status: claimed\n")
+	replaceIn(t, links, textEdit{Old: "  status: accepted\n  rationale: The bridge forwards each sentence onto the lab bus.\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-02\"\n", New: "  status: claimed\n"})
 
 	reviewTestOffline(t, system, links)
 	registry.serve()
@@ -247,7 +283,15 @@ func reviewTestPublished(t *testing.T, system, links string) {
 	if code != 1 || !strings.Contains(errOut, "is broken: encoder::CAP-A-2 does not exist") || read(t, links) != before {
 		t.Fatalf("broken link accepted: %d\n%s\n%s", code, out, errOut)
 	}
-	code, out, errOut = runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-BRIDGE", "--by", "ACT-SYSTEM-OWNER", "--rationale", "Reviewed.")
+	reviewTestAcceptClaimed(t, system, links)
+}
+
+// reviewTestAcceptClaimed checks that accepting a claimed link adds exactly
+// the review lines and that --accept needs --by and --rationale.
+func reviewTestAcceptClaimed(t *testing.T, system, links string) {
+	t.Helper()
+	before := read(t, links)
+	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-BRIDGE", "--by", "ACT-SYSTEM-OWNER", "--rationale", "Reviewed.")
 	if code != 0 {
 		t.Fatalf("accept claimed link: %d\n%s\n%s", code, out, errOut)
 	}
@@ -277,7 +321,7 @@ func TestAcceptReevaluatesTheLink(t *testing.T) {
 	registry.serve()
 	_, system := systemWorkspace(t)
 	links := filepath.Join(system, "model", "req-links.yml")
-	replaceIn(t, links, "- id: LNK-SYS-001-BRIDGE\n  parent: REQ-SYS-001\n", "- id: LNK-SYS-001-BRIDGE\n  parent: REQ-SYS-404\n")
+	replaceIn(t, links, textEdit{Old: "- id: LNK-SYS-001-BRIDGE\n  parent: REQ-SYS-001\n", New: "- id: LNK-SYS-001-BRIDGE\n  parent: REQ-SYS-404\n"})
 	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-BRIDGE", "--by", "ACT-SYSTEM-OWNER", "--rationale", "Reviewed.")
 	if code != 1 || !strings.Contains(errOut, "still does not pass: link.parent_unknown") {
 		t.Fatalf("accept of a link that still fails: %d\n%s\n%s", code, out, errOut)
@@ -299,7 +343,7 @@ func TestReviewLinksRefetchesARestagedVersion(t *testing.T) {
 	first.publish("child-a", "v0.2.0", nil)
 	first.serve()
 	_, system := systemWorkspace(t)
-	replaceIn(t, filepath.Join(system, "engmod.yml"), "  path: models.example/reqlinks/child-a@v0\n  version: v0.1.0\n", "  path: models.example/reqlinks/child-a@v0\n  version: v0.2.0\n")
+	replaceIn(t, filepath.Join(system, "engmod.yml"), textEdit{Old: "  path: models.example/reqlinks/child-a@v0\n  version: v0.1.0\n", New: "  path: models.example/reqlinks/child-a@v0\n  version: v0.2.0\n"})
 	reviews, err := ReviewLinks(system)
 	if err != nil || len(reviews) != 2 || len(reviews[0].Changes) != 0 {
 		t.Fatalf("first stage: %v %+v", err, reviews)
@@ -308,7 +352,7 @@ func TestReviewLinksRefetchesARestagedVersion(t *testing.T) {
 	second.publish("child-a", "v0.1.0", nil)
 	second.publish("child-b", "v0.1.0", nil)
 	second.publish("child-a", "v0.2.0", func(dir string) {
-		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "shall publish one position sentence.", "shall publish two position sentences.")
+		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: "shall publish one position sentence.", New: "shall publish two position sentences."})
 	})
 	second.serve()
 	reviews, err = ReviewLinks(system)

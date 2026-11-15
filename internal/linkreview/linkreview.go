@@ -424,16 +424,29 @@ func lcsTable(before, after []string) [][]int {
 	for i := range lcs {
 		lcs[i] = make([]int, len(after)+1)
 	}
+	grid := lcsGrid{before: before, after: after, cells: lcs}
 	for i := len(before) - 1; i >= 0; i-- {
-		for j := len(after) - 1; j >= 0; j-- {
-			if before[i] == after[j] {
-				lcs[i][j] = lcs[i+1][j+1] + 1
-			} else {
-				lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])
-			}
-		}
+		grid.fillRow(i)
 	}
 	return lcs
+}
+
+// lcsGrid is the table of an LCS computation with the lines it compares.
+type lcsGrid struct {
+	before, after []string
+	cells         [][]int
+}
+
+// fillRow fills row i of the table for the line at before[i].
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func (g lcsGrid) fillRow(i int) {
+	for j := len(g.after) - 1; j >= 0; j-- {
+		if g.before[i] == g.after[j] {
+			g.cells[i][j] = g.cells[i+1][j+1] + 1
+		} else {
+			g.cells[i][j] = max(g.cells[i+1][j], g.cells[i][j+1])
+		}
+	}
 }
 
 // Acceptance is the edit that records the review of one link: the link

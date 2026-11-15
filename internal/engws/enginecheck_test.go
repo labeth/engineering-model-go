@@ -75,7 +75,7 @@ func TestStaleCheckTemplateIsAnErrorNotAFallback(t *testing.T) {
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
 			root := t.TempDir()
-			dir := checkout(t, root, "if-a")
+			dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 			writeTemplate(t, dir, templateFiles{c.gomod, c.source})
 			opts := CheckOptions{Root: root, InProcess: c.inProcess}
 			if got := routeOf(dir, opts); got != c.route {
@@ -137,7 +137,7 @@ func assertOutputHas(t *testing.T, out string, want ...string) {
 // TRLC-LINKS: REQ-EMG-180
 func TestCheckCLIReportsStaleTemplate(t *testing.T) {
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	code, out, _ := runMain(t, allPublished("if-a"), "--root", root, "check")
 	if code != 1 {
 		t.Fatalf("stale check exits %d, want 1:\n%s", code, out)
@@ -232,7 +232,7 @@ func TestRunChecksReportsOutdatedPinOfExecCheck(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			withEngineVersion(t, "v0.12.0")
 			root := t.TempDir()
-			dir := checkout(t, root, "if-a")
+			dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 			writeTemplate(t, dir, templateFiles{engineRequire(c.pin), currentSource})
 			target := CheckTarget{Entry: Entry{Checkout: Checkout{Name: "if-a", Dir: dir}}, Reason: "local"}
 			result := RunChecks(context.Background(), []CheckTarget{target}, CheckOptions{Root: root})[0]

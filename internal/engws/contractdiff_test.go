@@ -30,9 +30,9 @@ func fixtureBundle(t *testing.T, child string, edit func(dir string)) model.Bund
 // becomes derived.
 func removeCapA2(t *testing.T, dir string) {
 	t.Helper()
-	replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
-	replaceIn(t, filepath.Join(dir, "engmod.yml"), "  - CAP-A-2\n", "")
-	replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  derived: true\n  derivedRationale: Integrity of the encoder output.\n")
+	replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", New: ""})
+	replaceIn(t, filepath.Join(dir, "engmod.yml"), textEdit{Old: "  - CAP-A-2\n", New: ""})
+	replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: "  realizes: [CAP-A-2]\n", New: "  derived: true\n  derivedRationale: Integrity of the encoder output.\n"})
 }
 
 // changes returns "ID:change:impact" per changed item and the overall impact.
@@ -60,7 +60,9 @@ func TestDiffContractsImpact(t *testing.T) {
 	baseA := fixtureBundle(t, "child-a", nil)
 	baseB := fixtureBundle(t, "child-b", nil)
 	reqs := func(old, new string) func(string) {
-		return func(dir string) { replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), old, new) }
+		return func(dir string) {
+			replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: old, New: new})
+		}
 	}
 	cases := []struct {
 		name        string
@@ -70,21 +72,20 @@ func TestDiffContractsImpact(t *testing.T) {
 		{"unrelated", baseA, fixtureBundle(t, "child-a", reqs("shall write one log line.", "shall write one structured log line.")), "", "patch"},
 		{"removed capability", baseA, fixtureBundle(t, "child-a", func(dir string) { removeCapA2(t, dir) }), "CAP-A-2:removed:major", "major"},
 		{"capability text", baseA, fixtureBundle(t, "child-a", func(dir string) {
-			replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "note: Protect each position sentence with a checksum.", "note: Protect each position sentence with a CRC.")
+			replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "note: Protect each position sentence with a checksum.", New: "note: Protect each position sentence with a CRC."})
 		}), "CAP-A-2:changed:major", "major"},
 		{"realizer only", baseA, fixtureBundle(t, "child-a", reqs("shall publish one position sentence.", "shall publish two position sentences.")), "CAP-A-1:changed:minor", "minor"},
 		{"added capability", baseA, fixtureBundle(t, "child-a", func(dir string) {
-			replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "      note: Protect each position sentence with a checksum.\n", "      note: Protect each position sentence with a checksum.\n    - id: CAP-A-3\n      kind: capability\n      note: Report the encoder version.\n")
-			replaceIn(t, filepath.Join(dir, "engmod.yml"), "  - CAP-A-2\n", "  - CAP-A-2\n  - CAP-A-3\n")
-			replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  realizes: [CAP-A-2, CAP-A-3]\n")
+			replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "      note: Protect each position sentence with a checksum.\n", New: "      note: Protect each position sentence with a checksum.\n    - id: CAP-A-3\n      kind: capability\n      note: Report the encoder version.\n"})
+			replaceIn(t, filepath.Join(dir, "engmod.yml"), textEdit{Old: "  - CAP-A-2\n", New: "  - CAP-A-2\n  - CAP-A-3\n"})
+			replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: "  realizes: [CAP-A-2]\n", New: "  realizes: [CAP-A-2, CAP-A-3]\n"})
 		}), "CAP-A-3:added:minor", "minor"},
 		{"added assumption", baseB, fixtureBundle(t, "child-b", func(dir string) {
-			replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n",
-				"      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n    - id: AOU-B-2\n      text: Position sentences arrive at most once per epoch.\n")
-			replaceIn(t, filepath.Join(dir, "engmod.yml"), "  - AOU-B-1\n", "  - AOU-B-1\n  - AOU-B-2\n")
+			replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n", New: "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n    - id: AOU-B-2\n      text: Position sentences arrive at most once per epoch.\n"})
+			replaceIn(t, filepath.Join(dir, "engmod.yml"), textEdit{Old: "  - AOU-B-1\n", New: "  - AOU-B-1\n  - AOU-B-2\n"})
 		}), "AOU-B-2:added:major", "major"},
 		{"tightened assumption", baseB, fixtureBundle(t, "child-b", func(dir string) {
-			replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "shows the lab bus is isolated from other networks.", "shows the lab bus is isolated from other networks and the internet.")
+			replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "shows the lab bus is isolated from other networks.", New: "shows the lab bus is isolated from other networks and the internet."})
 		}), "AOU-B-1:changed:major", "major"},
 	}
 	for _, c := range cases {
@@ -95,9 +96,8 @@ func TestDiffContractsImpact(t *testing.T) {
 	}
 	// Removing an assumption is minor (users relied on less).
 	got, level := changes(DiffContracts(fixtureBundle(t, "child-b", func(dir string) {
-		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n",
-			"      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n    - id: AOU-B-2\n      text: Position sentences arrive at most once per epoch.\n")
-		replaceIn(t, filepath.Join(dir, "engmod.yml"), "  - AOU-B-1\n", "  - AOU-B-1\n  - AOU-B-2\n")
+		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n", New: "      verificationCriteria: The using system shows the lab bus is isolated from other networks.\n    - id: AOU-B-2\n      text: Position sentences arrive at most once per epoch.\n"})
+		replaceIn(t, filepath.Join(dir, "engmod.yml"), textEdit{Old: "  - AOU-B-1\n", New: "  - AOU-B-1\n  - AOU-B-2\n"})
 	}), baseB))
 	if got != "AOU-B-2:removed:minor" || level != "minor" {
 		t.Fatalf("removed assumption: %q %s", got, level)
@@ -127,11 +127,11 @@ func gitModel(t *testing.T, child, tag string) string {
 func TestContractDiffBetweenTags(t *testing.T) {
 	dir := gitModel(t, "child-a", "v1.0.0")
 	removeCapA2(t, dir)
-	replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "note: Publish ownship position sentences at the configured rate.", "note: Publish ownship position sentences at the configured epoch rate.")
+	replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "note: Publish ownship position sentences at the configured rate.", New: "note: Publish ownship position sentences at the configured epoch rate."})
 	runGit(t, dir, "commit", "-q", "-am", "drop the checksum")
 	runGit(t, dir, "tag", "v1.1.0")
 	// The working tree differs from both refs.
-	replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "at the configured epoch rate.", "at the working tree rate.")
+	replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "at the configured epoch rate.", New: "at the working tree rate."})
 
 	assertContractDiffText(t, dir)
 	assertContractDiffJSON(t, dir)

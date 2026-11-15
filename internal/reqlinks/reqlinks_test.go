@@ -279,6 +279,13 @@ func checkEvaluatedStatusDetails(t *testing.T, got map[string]LinkStatus) {
 	if got["LNK-CLAIMED"].Status != "claimed" || got["LNK-OK"].Status != "accepted" {
 		t.Fatalf("review status not carried: %+v %+v", got["LNK-CLAIMED"], got["LNK-OK"])
 	}
+	checkEvaluatedHiddenAndVersion(t, got)
+}
+
+// checkEvaluatedHiddenAndVersion checks the detail of the hidden link and the
+// item and versions of the version-mismatched one.
+func checkEvaluatedHiddenAndVersion(t *testing.T, got map[string]LinkStatus) {
+	t.Helper()
 	if d := got["LNK-HIDDEN"].Detail; !strings.Contains(d, "not in a selected publication") {
 		t.Fatalf("LNK-HIDDEN detail = %q", d)
 	}

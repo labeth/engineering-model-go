@@ -48,25 +48,33 @@ func modulePathOf(name string) string { return testFamily + "/" + name + "@v0" }
 // dep is a test dependency: alias, checkout name, pinned version.
 type dep struct{ alias, name, version string }
 
-// writeModel writes a minimal valid schema-v2 model into dir.
-func writeModel(t *testing.T, dir, name, version string, deps ...dep) {
-	t.Helper()
-	var d strings.Builder
+// modelSpec names a test model: where it is written, its model id and version.
+type modelSpec struct{ Dir, Name, Version string }
+
+// repoSpec names a test checkout: the root it lives under and its name.
+type repoSpec struct{ Root, Name string }
+
+// modelDepsYAML renders the dependencies section of a test manifest.
+func modelDepsYAML(deps []dep) string {
 	if len(deps) == 0 {
-		d.WriteString("dependencies: []\n")
-	} else {
-		d.WriteString("dependencies:\n")
-		for _, x := range deps {
-			d.WriteString("  - alias: " + x.alias + "\n    path: " + modulePathOf(x.name) + "\n    version: " + x.version + "\n    publications: [public]\n")
-		}
+		return "dependencies: []\n"
 	}
-	tag := strings.ToUpper(strings.ReplaceAll(name, "-", ""))
-	write(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 3
+	var d strings.Builder
+	d.WriteString("dependencies:\n")
+	for _, x := range deps {
+		d.WriteString("  - alias: " + x.alias + "\n    path: " + modulePathOf(x.name) + "\n    version: " + x.version + "\n    publications: [public]\n")
+	}
+	return d.String()
+}
+
+// modelManifestYAML renders the engmod.yml of a test model.
+func modelManifestYAML(m modelSpec, tag string, deps []dep) string {
+	return `schemaVersion: 3
 module:
-  path: `+modulePathOf(name)+`
-  version: `+version+`
-  modelId: `+name+`
-  title: '`+name+`'
+  path: ` + modulePathOf(m.Name) + `
+  version: ` + m.Version + `
+  modelId: ` + m.Name + `
+  title: '` + m.Name + `'
   introduction: ''
   kind: system
 documents:
@@ -78,15 +86,15 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
-`+d.String()+testutil.CompleteSwitches+`publications:
+` + modelDepsYAML(deps) + testutil.CompleteSwitches + `publications:
   - id: public
-    architecture: [CAP-`+tag+`]
-    requirements: [REQ-`+tag+`-001]
-`)
-	write(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePathOf(name)+"\"\nlanguage: version: \"v0.17.0\"\nsource: kind: \"self\"\n")
-	system := strings.ToLower(tag) + " system"
-	write(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 3\ncatalog:\n  systems:\n    - id: SYS-"+tag+"\n      name: "+system+"\n      definition: Test system.\n")
-	write(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun:\n  id: lint\n  mode: strict\n  catalogRef: ./catalog.yml\nrequirements:\n  - id: REQ-"+tag+"-001\n    text: 'The "+system+" shall publish one message.'\n    realizes: [CAP-"+tag+"]\n    status: verified\n")
+    architecture: [CAP-` + tag + `]
+    requirements: [REQ-` + tag + `-001]
+`
+}
+
+// modelArchitectureYAML renders the architecture document of a test model.
+func modelArchitectureYAML(tag string, deps []dep) string {
 	var composition strings.Builder
 	if len(deps) > 0 {
 		composition.WriteString("  composition:\n    subsystems:\n")
@@ -94,12 +102,24 @@ documents:
 			composition.WriteString("      - id: SUB-" + strings.ToUpper(x.alias) + "\n        dependency: " + x.alias + "\n        publication: public\n")
 		}
 	}
-	write(t, filepath.Join(dir, "model", "architecture.yml"), "schemaVersion: 3\narchitecture:\n  contract:\n    provides:\n      - id: CAP-"+tag+"\n        kind: capability\n"+composition.String())
-	write(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: 3\nbehavior: {}\n")
-	write(t, filepath.Join(dir, "model", "assurance.yml"), "schemaVersion: 3\nassurance: {}\n")
-	write(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: 3\ncompliance: {}\n")
-	write(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: 3\nviews: []\n")
-	write(t, filepath.Join(dir, "model", "decisions.yml"), testutil.TierDecisionPoC)
+	return "schemaVersion: 3\narchitecture:\n  contract:\n    provides:\n      - id: CAP-" + tag + "\n        kind: capability\n" + composition.String()
+}
+
+// writeModel writes a minimal valid schema-v2 model into m.Dir.
+func writeModel(t *testing.T, m modelSpec, deps ...dep) {
+	t.Helper()
+	tag := strings.ToUpper(strings.ReplaceAll(m.Name, "-", ""))
+	write(t, filepath.Join(m.Dir, "engmod.yml"), modelManifestYAML(m, tag, deps))
+	write(t, filepath.Join(m.Dir, "cue.mod", "module.cue"), "module: \""+modulePathOf(m.Name)+"\"\nlanguage: version: \"v0.17.0\"\nsource: kind: \"self\"\n")
+	system := strings.ToLower(tag) + " system"
+	write(t, filepath.Join(m.Dir, "model", "catalog.yml"), "schemaVersion: 3\ncatalog:\n  systems:\n    - id: SYS-"+tag+"\n      name: "+system+"\n      definition: Test system.\n")
+	write(t, filepath.Join(m.Dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun:\n  id: lint\n  mode: strict\n  catalogRef: ./catalog.yml\nrequirements:\n  - id: REQ-"+tag+"-001\n    text: 'The "+system+" shall publish one message.'\n    realizes: [CAP-"+tag+"]\n    status: verified\n")
+	write(t, filepath.Join(m.Dir, "model", "architecture.yml"), modelArchitectureYAML(tag, deps))
+	write(t, filepath.Join(m.Dir, "model", "behavior.yml"), "schemaVersion: 3\nbehavior: {}\n")
+	write(t, filepath.Join(m.Dir, "model", "assurance.yml"), "schemaVersion: 3\nassurance: {}\n")
+	write(t, filepath.Join(m.Dir, "model", "compliance.yml"), "schemaVersion: 3\ncompliance: {}\n")
+	write(t, filepath.Join(m.Dir, "model", "views.yml"), "schemaVersion: 3\nviews: []\n")
+	write(t, filepath.Join(m.Dir, "model", "decisions.yml"), testutil.TierDecisionPoC)
 }
 
 func write(t *testing.T, path, content string) {
@@ -124,10 +144,10 @@ func runGit(t *testing.T, dir string, args ...string) string {
 }
 
 // checkout writes a model as its own git repository, committed and tagged v0.1.0.
-func checkout(t *testing.T, root, name string, deps ...dep) string {
+func checkout(t *testing.T, repo repoSpec, deps ...dep) string {
 	t.Helper()
-	dir := filepath.Join(root, name)
-	writeModel(t, dir, name, "v0.1.0", deps...)
+	dir := filepath.Join(repo.Root, repo.Name)
+	writeModel(t, modelSpec{Dir: dir, Name: repo.Name, Version: "v0.1.0"}, deps...)
 	write(t, filepath.Join(dir, ".gitignore"), ".engmod/\nengmod.lock.local.yml\n")
 	runGit(t, dir, "init", "-q")
 	runGit(t, dir, "add", ".")

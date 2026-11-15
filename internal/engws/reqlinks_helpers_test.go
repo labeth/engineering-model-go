@@ -27,37 +27,46 @@ func copyTree(t *testing.T, src, dst string) {
 			return err
 		}
 		rel, _ := filepath.Rel(src, path)
-		if d.IsDir() {
-			if d.Name() == "generated" || d.Name() == ".engmod" {
-				return filepath.SkipDir
-			}
-			return os.MkdirAll(filepath.Join(dst, rel), 0o755)
-		}
-		if strings.HasPrefix(d.Name(), "engmod.lock") {
-			return nil
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(filepath.Join(dst, rel), data, 0o644)
+		return copyTreeEntry(path, filepath.Join(dst, rel), d)
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-// replaceIn replaces old (which must occur once or more) with new in a file.
-func replaceIn(t *testing.T, path, old, new string) {
+// copyTreeEntry copies one walked entry to target, skipping generated output,
+// module caches and locks.
+func copyTreeEntry(path, target string, d fs.DirEntry) error {
+	if d.IsDir() {
+		if d.Name() == "generated" || d.Name() == ".engmod" {
+			return filepath.SkipDir
+		}
+		return os.MkdirAll(target, 0o755)
+	}
+	if strings.HasPrefix(d.Name(), "engmod.lock") {
+		return nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(target, data, 0o644)
+}
+
+// textEdit is one text replacement: Old must occur once or more in the file.
+type textEdit struct{ Old, New string }
+
+// replaceIn replaces the first occurrence of edit.Old with edit.New in a file.
+func replaceIn(t *testing.T, path string, edit textEdit) {
 	t.Helper()
 	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(data), old) {
-		t.Fatalf("%s does not contain %q", path, old)
+	if !strings.Contains(string(data), edit.Old) {
+		t.Fatalf("%s does not contain %q", path, edit.Old)
 	}
-	write(t, path, strings.Replace(string(data), old, new, 1))
+	write(t, path, strings.Replace(string(data), edit.Old, edit.New, 1))
 }
 
 // read returns a file's content.
@@ -90,7 +99,7 @@ func (r *linksRegistry) publish(child, version string, edit func(dir string)) {
 	r.t.Helper()
 	dir := filepath.Join(r.root, "models.example_reqlinks_"+child+"_"+version)
 	copyTree(r.t, filepath.Join(linksExample, "repos", child), dir)
-	replaceIn(r.t, filepath.Join(dir, "engmod.yml"), "  version: v0.1.0\n", "  version: "+version+"\n")
+	replaceIn(r.t, filepath.Join(dir, "engmod.yml"), textEdit{Old: "  version: v0.1.0\n", New: "  version: " + version + "\n"})
 	if edit != nil {
 		edit(dir)
 	}

@@ -678,15 +678,21 @@ func (c *cliCall) printChecks(results []CheckResult) int {
 	for _, r := range results {
 		fmt.Fprintln(c.stdout, r.Line())
 		if !c.flags.summary {
-			for _, line := range r.Lines {
-				fmt.Fprintln(c.stdout, "    "+line)
-			}
+			printCheckLines(c.stdout, r.Lines)
 		}
 		if r.Failed {
 			code = 1
 		}
 	}
 	return code
+}
+
+// printCheckLines prints the error lines of one check result, indented.
+// TRLC-LINKS: REQ-EMG-068
+func printCheckLines(w io.Writer, lines []string) {
+	for _, line := range lines {
+		fmt.Fprintln(w, "    "+line)
+	}
 }
 
 // runBump applies a dependency version bump and prints one line per

@@ -234,6 +234,19 @@ func ItemsFromBundle(bundle model.Bundle) map[string]Item {
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func declaredItems(bundle model.Bundle) map[string]Item {
 	items := map[string]Item{}
+	declaredCapabilities(bundle, items)
+	for _, a := range bundle.Architecture.Contract.Assumptions {
+		if id := strings.TrimSpace(a.ID); id != "" {
+			items[id] = Item{ID: id, Kind: KindAssumption, Text: a.Text, VerificationCriteria: a.VerificationCriteria}
+		}
+	}
+	return items
+}
+
+// declaredCapabilities adds the capabilities the bundle provides to items.
+// TRLC-LINKS: REQ-EMG-091, REQ-EMG-095
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func declaredCapabilities(bundle model.Bundle, items map[string]Item) {
 	for _, entry := range bundle.Architecture.Contract.Provides {
 		id := strings.TrimSpace(entry.ID)
 		if id == "" || !strings.EqualFold(strings.TrimSpace(entry.Kind), string(KindCapability)) {
@@ -241,12 +254,6 @@ func declaredItems(bundle model.Bundle) map[string]Item {
 		}
 		items[id] = Item{ID: id, Kind: KindCapability, Text: entry.Note}
 	}
-	for _, a := range bundle.Architecture.Contract.Assumptions {
-		if id := strings.TrimSpace(a.ID); id != "" {
-			items[id] = Item{ID: id, Kind: KindAssumption, Text: a.Text, VerificationCriteria: a.VerificationCriteria}
-		}
-	}
-	return items
 }
 
 // attachRealizer adds requirement r to each item it realizes.

@@ -20,13 +20,13 @@ func publishEncoderReleases(t *testing.T) *linksRegistry {
 	registry.publish("child-a", "v0.1.0", nil)
 	v2 := func(dir string) {
 		reqs := filepath.Join(dir, "model", "requirements.yml")
-		replaceIn(t, reqs, "shall write one log line.", "shall write one structured log line.")
-		replaceIn(t, reqs, "  realizes: [CAP-A-1]\n- id: REQ-A-002", "  realizes: [CAP-A-1]\n  status: verified\n  notes: Measured on the bench.\n- id: REQ-A-002")
+		replaceIn(t, reqs, textEdit{Old: "shall write one log line.", New: "shall write one structured log line."})
+		replaceIn(t, reqs, textEdit{Old: "  realizes: [CAP-A-1]\n- id: REQ-A-002", New: "  realizes: [CAP-A-1]\n  status: verified\n  notes: Measured on the bench.\n- id: REQ-A-002"})
 	}
 	registry.publish("child-a", "v0.2.0", v2)
 	registry.publish("child-a", "v0.3.0", func(dir string) {
 		v2(dir)
-		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "shall publish one position sentence.", "shall publish two position sentences.")
+		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: "shall publish one position sentence.", New: "shall publish two position sentences."})
 	})
 	registry.serve()
 	return registry
@@ -124,7 +124,7 @@ func (b encoderBump) requireChangedRealizerBump(t *testing.T) {
 // before and after, and --allow-review, which exits 0.
 func (b encoderBump) requireShowAllowReviewBump(t *testing.T) {
 	t.Helper()
-	replaceIn(t, filepath.Join(b.system, "engmod.yml"), "  version: v0.3.0\n", "  version: v0.2.0\n")
+	replaceIn(t, filepath.Join(b.system, "engmod.yml"), textEdit{Old: "  version: v0.3.0\n", New: "  version: v0.2.0\n"})
 	code, out, errOut := b.bump(t, "v0.3.0", "--allow-review", "--show")
 	if code != 0 || !outputHasAll(out, "review LNK-SYS-001-ENCODER",
 		"- REQ-A-001: When epoch period elapses, the position encoder shall publish one position sentence.",
@@ -166,9 +166,9 @@ func TestBumpUnresolvedAndRemovedItems(t *testing.T) {
 	registry := newLinksRegistry(t)
 	registry.publish("child-b", "v0.1.0", nil)
 	registry.publish("child-a", "v0.2.0", func(dir string) {
-		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
-		replaceIn(t, filepath.Join(dir, "engmod.yml"), "  - CAP-A-2\n", "")
-		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  derived: true\n  derivedRationale: Integrity of the encoder output.\n")
+		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", New: ""})
+		replaceIn(t, filepath.Join(dir, "engmod.yml"), textEdit{Old: "  - CAP-A-2\n", New: ""})
+		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: "  realizes: [CAP-A-2]\n", New: "  derived: true\n  derivedRationale: Integrity of the encoder output.\n"})
 	})
 	registry.serve()
 	root, system := systemWorkspace(t)

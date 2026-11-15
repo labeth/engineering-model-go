@@ -73,7 +73,7 @@ func (r linkAddRepo) requireRefusalMessages(t *testing.T) {
 // create it and add documents.reqLinks.
 func (r linkAddRepo) requireCreatedLinkFile(t *testing.T) {
 	t.Helper()
-	replaceIn(t, filepath.Join(r.system, "engmod.yml"), "  reqLinks: model/req-links.yml\n", "")
+	replaceIn(t, filepath.Join(r.system, "engmod.yml"), textEdit{Old: "  reqLinks: model/req-links.yml\n", New: ""})
 	if err := os.Remove(r.links); err != nil {
 		t.Fatal(err)
 	}

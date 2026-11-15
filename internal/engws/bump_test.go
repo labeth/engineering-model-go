@@ -24,7 +24,7 @@ func startBumpRegistry(t *testing.T, spec bumpRegistrySpec) {
 	registryRoot := filepath.Join(spec.work, "registry")
 	for _, v := range spec.versions {
 		for _, name := range spec.names {
-			writeModel(t, filepath.Join(registryRoot, strings.ReplaceAll(testFamily, "/", "_")+"_"+name+"_"+v), name, v)
+			writeModel(t, modelSpec{Dir: filepath.Join(registryRoot, strings.ReplaceAll(testFamily, "/", "_")+"_"+name+"_"+v), Name: name, Version: v})
 		}
 	}
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
@@ -47,10 +47,10 @@ type bumpWorkspace struct {
 func newBumpWorkspace(t *testing.T, work string) bumpWorkspace {
 	t.Helper()
 	root := filepath.Join(work, "ws")
-	ifA := checkout(t, root, "if-a")
+	ifA := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	write(t, filepath.Join(ifA, "go.mod"), "module example.com/go/if-a\n\ngo 1.25\n")
 	svc := filepath.Join(root, "svc")
-	writeModel(t, svc, "svc", "v0.1.0", dep{"ia", "if-a", "v0.1.0"}, dep{"ib", "if-b", "v0.1.0"})
+	writeModel(t, modelSpec{Dir: svc, Name: "svc", Version: "v0.1.0"}, dep{"ia", "if-a", "v0.1.0"}, dep{"ib", "if-b", "v0.1.0"})
 	manifestPath := filepath.Join(svc, "engmod.yml")
 	before, _ := os.ReadFile(manifestPath)
 	before = []byte(strings.Replace(string(before), "  - alias: ia\n", "  # the interface\n  - alias: ia\n", 1))
@@ -262,10 +262,10 @@ func TestBumpNeverLocksLocalReplacement(t *testing.T) {
 
 	root := filepath.Join(work, "ws")
 	ifA := filepath.Join(root, "if-a")
-	writeModel(t, ifA, "if-a", "v0.2.0")
+	writeModel(t, modelSpec{Dir: ifA, Name: "if-a", Version: "v0.2.0"})
 	write(t, filepath.Join(ifA, "model", "decisions.yml"), "schemaVersion: 3\ndecisions: []\n# local edit\n")
 	svc := filepath.Join(root, "svc")
-	writeModel(t, svc, "svc", "v0.1.0", dep{"ia", "if-a", "v0.1.0"})
+	writeModel(t, modelSpec{Dir: svc, Name: "svc", Version: "v0.1.0"}, dep{"ia", "if-a", "v0.1.0"})
 	manifest, _ := os.ReadFile(filepath.Join(svc, "engmod.yml"))
 
 	// Reference: the registry-only lock, without any work file.
@@ -298,10 +298,10 @@ func TestBumpNeverLocksLocalReplacement(t *testing.T) {
 func TestBumpRejectsInvalidGoModulePath(t *testing.T) {
 	root := t.TempDir()
 	ifA := filepath.Join(root, "if-a")
-	writeModel(t, ifA, "if-a", "v0.1.0")
+	writeModel(t, modelSpec{Dir: ifA, Name: "if-a", Version: "v0.1.0"})
 	write(t, filepath.Join(ifA, "go.mod"), "module -toolexec=/bin/false\n\ngo 1.25\n")
 	svc := filepath.Join(root, "svc")
-	writeModel(t, svc, "svc", "v0.1.0", dep{"ia", "if-a", "v0.1.0"})
+	writeModel(t, modelSpec{Dir: svc, Name: "svc", Version: "v0.1.0"}, dep{"ia", "if-a", "v0.1.0"})
 	goMod := "module example.com/go/svc\n\ngo 1.25\n\nrequire -toolexec=/bin/false v0.1.0\n"
 	write(t, filepath.Join(svc, "go.mod"), goMod)
 	manifest, _ := os.ReadFile(filepath.Join(svc, "engmod.yml"))

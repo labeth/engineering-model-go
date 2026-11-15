@@ -60,15 +60,26 @@ func checkConsumers(plan Plan) ([][]int, []bool) {
 	consumers := make([][]int, len(plan.Entries))
 	dependedOn := make([]bool, len(plan.Entries))
 	for i, entry := range plan.Entries {
-		for _, dep := range entry.Manifest.Dependencies {
-			j, ok := byModule[strings.TrimSpace(dep.Path)]
-			if ok && j != i {
-				consumers[j] = append(consumers[j], i)
-				dependedOn[j] = true
-			}
+		for _, j := range checkDependencyIndexes(entry, byModule, i) {
+			consumers[j] = append(consumers[j], i)
+			dependedOn[j] = true
 		}
 	}
 	return consumers, dependedOn
+}
+
+// checkDependencyIndexes returns the indexes of the other checkouts entry i
+// depends on.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func checkDependencyIndexes(entry Entry, byModule map[string]int, i int) []int {
+	var out []int
+	for _, dep := range entry.Manifest.Dependencies {
+		if j, ok := byModule[strings.TrimSpace(dep.Path)]; ok && j != i {
+			out = append(out, j)
+		}
+	}
+	return out
 }
 
 // checkReasons marks the local checkouts and, breadth first, their consumers.
@@ -85,15 +96,24 @@ func checkReasons(plan Plan, consumers [][]int) map[int]string {
 	}
 	for len(queue) > 0 {
 		j := queue[0]
-		queue = queue[1:]
-		for _, i := range consumers[j] {
-			if _, seen := reason[i]; !seen {
-				reason[i] = "depends on " + plan.Entries[j].Name
-				queue = append(queue, i)
-			}
-		}
+		queue = append(queue[1:], checkNewConsumers(consumers[j], reason, plan.Entries[j].Name)...)
 	}
 	return reason
+}
+
+// checkNewConsumers marks the consumers not yet marked in reason as depending
+// on by and returns them.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func checkNewConsumers(consumers []int, reason map[int]string, by string) []int {
+	var added []int
+	for _, i := range consumers {
+		if _, seen := reason[i]; !seen {
+			reason[i] = "depends on " + by
+			added = append(added, i)
+		}
+	}
+	return added
 }
 
 // CheckResult is the outcome of the model check in one checkout.
@@ -499,16 +519,22 @@ func libraryTally(result *CheckResult, diagnostics []validate.Diagnostic) {
 			continue
 		}
 		seen[key] = true
-		switch d.Severity {
-		case validate.SeverityError:
-			result.Errors++
-			result.Lines = append(result.Lines, fmt.Sprintf("%s [error] %s (%s)", d.Code, d.Message, d.Path))
-			if fix := d.FixLine(); fix != "" {
-				result.Lines = append(result.Lines, fix)
-			}
-		case validate.SeverityWarning:
-			result.Warnings++
+		libraryTallyOne(result, d)
+	}
+}
+
+// libraryTallyOne counts one diagnostic into result.
+// TRLC-LINKS: REQ-EMG-068
+func libraryTallyOne(result *CheckResult, d validate.Diagnostic) {
+	switch d.Severity {
+	case validate.SeverityError:
+		result.Errors++
+		result.Lines = append(result.Lines, fmt.Sprintf("%s [error] %s (%s)", d.Code, d.Message, d.Path))
+		if fix := d.FixLine(); fix != "" {
+			result.Lines = append(result.Lines, fix)
 		}
+	case validate.SeverityWarning:
+		result.Warnings++
 	}
 }
 
@@ -570,14 +596,31 @@ func workFileDiffs(plan Plan, workspace model.WorkspaceDocument, withExtra bool)
 	for _, entry := range plan.Local() {
 		want[entry.Manifest.Module.Path] = entry.Name
 	}
+	diffs := workFileMissing(have, want)
+	if withExtra {
+		diffs = append(diffs, workFileExtra(have, want)...)
+	}
+	return diffs
+}
+
+// workFileMissing lists the wanted checkouts the work file does not name.
+// TRLC-LINKS: REQ-EMG-068
+func workFileMissing(have, want map[string]string) []string {
 	var diffs []string
 	for module, name := range want {
 		if have[module] != name {
 			diffs = append(diffs, "missing "+name)
 		}
 	}
+	return diffs
+}
+
+// workFileExtra lists the work file replacements no wanted checkout needs.
+// TRLC-LINKS: REQ-EMG-068
+func workFileExtra(have, want map[string]string) []string {
+	var diffs []string
 	for module, path := range have {
-		if _, ok := want[module]; !ok && withExtra {
+		if _, ok := want[module]; !ok {
 			diffs = append(diffs, "extra "+path)
 		}
 	}

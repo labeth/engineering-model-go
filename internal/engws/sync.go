@@ -65,6 +65,22 @@ func syncGoWork(plan Plan, goVersion string, result SyncResult) (SyncResult, err
 	goWorkPath := filepath.Join(plan.Root, GoWorkFileName)
 	entries, warnings := goWorkModules(plan.Entries)
 	result.Warnings = warnings
+	goDirs, dirByModule := goWorkDirs(entries)
+	if len(goDirs) == 0 {
+		return removeGoWork(goWorkPath, result)
+	}
+	if err := writeFileAtomic(goWorkPath, []byte(renderGoWork(goVersion, goDirs, goReplaces(entries, dirByModule)))); err != nil {
+		return result, err
+	}
+	result.GoWork = goWorkPath
+	return result, nil
+}
+
+// goWorkDirs returns the checkout directories with a Go module and the
+// directory of each module path.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION, CTRL-GO-WORK-INPUT-VALIDATION
+func goWorkDirs(entries []Entry) ([]string, map[string]string) {
 	var goDirs []string
 	dirByModule := map[string]string{}
 	for _, entry := range entries {
@@ -73,18 +89,20 @@ func syncGoWork(plan Plan, goVersion string, result SyncResult) (SyncResult, err
 			dirByModule[entry.GoModule] = entry.Name
 		}
 	}
-	if len(goDirs) == 0 {
-		if err := os.Remove(goWorkPath); err == nil {
-			result.GoWorkRemoved = true
-		} else if !errors.Is(err, os.ErrNotExist) {
-			return result, err
-		}
-		return result, nil
-	}
-	if err := writeFileAtomic(goWorkPath, []byte(renderGoWork(goVersion, goDirs, goReplaces(entries, dirByModule)))); err != nil {
+	return goDirs, dirByModule
+}
+
+// removeGoWork removes go.work, recording the removal in result; a missing
+// file is not an error.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION, CTRL-GO-WORK-INPUT-VALIDATION
+func removeGoWork(goWorkPath string, result SyncResult) (SyncResult, error) {
+	err := os.Remove(goWorkPath)
+	if err == nil {
+		result.GoWorkRemoved = true
+	} else if !errors.Is(err, os.ErrNotExist) {
 		return result, err
 	}
-	result.GoWork = goWorkPath
 	return result, nil
 }
 

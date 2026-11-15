@@ -131,11 +131,17 @@ func verifyAcceptedValidation(ctx linkreview.Context, id string) error {
 	return nil
 }
 
+// pathUnder reports whether path is prefix or one of its sub-paths.
+// TRLC-LINKS: REQ-EMG-101
+func pathUnder(path, prefix string) bool {
+	return path == prefix || strings.HasPrefix(path, prefix+".")
+}
+
 // linkValidationError returns the first link.* validation error at prefix.
 // TRLC-LINKS: REQ-EMG-101
 func linkValidationError(ctx linkreview.Context, prefix string) (validate.Diagnostic, bool) {
 	for _, d := range validate.Bundle(ctx.Bundle) {
-		if d.Severity == validate.SeverityError && strings.HasPrefix(d.Code, "link.") && (d.Path == prefix || strings.HasPrefix(d.Path, prefix+".")) {
+		if d.Severity == validate.SeverityError && strings.HasPrefix(d.Code, "link.") && pathUnder(d.Path, prefix) {
 			return d, true
 		}
 	}

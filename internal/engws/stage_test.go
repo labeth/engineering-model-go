@@ -46,7 +46,7 @@ type stageSpec struct {
 func stageCheckout(t *testing.T, spec stageSpec) string {
 	t.Helper()
 	dir := filepath.Join(spec.Root, spec.Name)
-	writeModel(t, dir, spec.Name, "v0.1.0", spec.Deps...)
+	writeModel(t, modelSpec{Dir: dir, Name: spec.Name, Version: "v0.1.0"}, spec.Deps...)
 	write(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePathOf(spec.Name)+"\"\nlanguage: version: \"v0.17.0\"\nsource: kind: \"git\"\n")
 	write(t, filepath.Join(dir, ".gitignore"), ".engmod/\nengmod.lock.local.yml\nscratch.txt\n")
 	write(t, filepath.Join(dir, "scratch.txt"), "not committed\n")
