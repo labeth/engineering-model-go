@@ -272,6 +272,11 @@ catalog:
     definition: Event indicating the MCP server received a tool invocation request.
     aliases:
     - tool call
+  - id: EVT-MODEL-CHECK-REQUESTED
+    name: model check is requested
+    definition: Event indicating a caller (a CLI command, the MCP server or a Go consumer) asked the engine to load a model and report its diagnostics.
+    aliases:
+    - model check
   - id: EVT-REQUIREMENTS-DELTA-RECEIVED
     name: requirements delta is received
     definition: Event indicating a typed requirements change is ready for planning and validation.
@@ -559,6 +564,45 @@ catalog:
     definition: Condition requiring external schema artifacts to be present for validation.
     aliases:
     - schema available
+  - id: COND-PATH-ARGUMENT-OUTSIDE-WORKSPACE
+    name: path argument is outside repository workspace boundary
+    definition: A path argument of a tool call resolves, after symlinks, outside the repository workspace.
+  - id: COND-SCHEMA-CHECKS-MISMATCH
+    name: schema checks mismatch expected constraints
+    definition: The external schema validation of an exported artifact disagrees with the constraints the engine expects.
+  - id: COND-SUBSYSTEM-REF-OUTSIDE-WORKSPACE
+    name: subsystem reference resolves outside repository workspace boundary
+    definition: A subsystem reference of the parent system points, after symlinks, outside the repository workspace.
+  - id: COND-SUBSYSTEM-REF-CYCLE
+    name: subsystem reference graph contains a cycle
+    definition: Following the subsystem references of the composed systems returns to a manifest already on the path.
+  - id: COND-CODE-TRACE-LINK-DANGLING
+    name: code trace link names no model target
+    definition: A trace marker in code names an ID that is neither a requirement nor a model element.
+  - id: COND-SYSML-COVERAGE-INCOMPLETE
+    name: sysml v2 metamodel coverage is incomplete
+    definition: The pinned SysML v2 metamodel has an element or property the renderer does not cover.
+  - id: COND-REFERENCED-URI-LOCAL
+    name: referenced element uri addresses a local path
+    definition: The uri of a referenced element is a file path of the author machine instead of a stable address.
+  - id: COND-BEHAVIOR-STATE-FREE-FLOATING
+    name: behavior state is free-floating
+    definition: A behavior state is authored outside the machines block.
+  - id: COND-REMOVED-FIELD-AUTHORED
+    name: model declares a removed field
+    definition: A model document authors a field that the engine removed (pinned fingerprint, provides reference or allocations).
+  - id: COND-TIER-ONLY-ERRORS
+    name: errors are raised only by the life-cycle tier
+    definition: Every error of the model check is one that only the project life-cycle tier makes an error.
+  - id: COND-LIFECYCLE-BLOCK-INCOMPLETE
+    name: lifecycle block is incomplete
+    definition: The lifecycle block of the manifest has no bundles, no tier decision, or a tier decision without a Bundles line.
+  - id: COND-REQUIRED-SWITCH-WRONG
+    name: required switch has a wrong value
+    definition: requirementLinks or lintRun.mode is missing, invalid, or guided at the tier mvp or above.
+  - id: COND-REQUIREMENTS-APPLY-UNSAFE
+    name: requirements apply is unsafe
+    definition: Another engchange run holds the requirements change lock, the candidate requirements document has blocking diagnostics, or the requirements document changed while the delta was planned.
   dataTerms:
   - id: DATA-SYSML-V2-METAMODEL
     name: sysml v2 metamodel

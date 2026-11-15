@@ -40,6 +40,18 @@ behavior:
       on: EVT-STATUS-SUGGEST-REQUESTED
       description: engws status-suggest reads a valid model and its tree's evidence and writes nothing, so the model stays valid (REQ-EMG-122).
       requirements: [REQ-EMG-122]
+    - id: TR-MODEL-CHECK-VALID
+      from: STATE-MODEL-VALID
+      to: STATE-MODEL-VALID
+      on: EVT-MODEL-CHECK-REQUESTED
+      description: A model check reads a valid model and reports its diagnostics (none that block); it writes nothing, so the model stays valid.
+      requirements: [REQ-EMG-044]
+    - id: TR-MODEL-CHECK-INVALID
+      from: STATE-MODEL-INVALID
+      to: STATE-MODEL-INVALID
+      on: EVT-MODEL-CHECK-REQUESTED
+      description: A model check reads an invalid model and reports its diagnostics, among them the errors that block; it writes nothing, so the model stays invalid until a model update resolves them.
+      requirements: [REQ-EMG-044]
     invariants:
     - id: INV-MODEL-GENERATION-ONLY-WHEN-VALID
       requirements: [REQ-EMG-046]
@@ -304,6 +316,7 @@ behavior:
     - id: STATE-DELTA-NONE
       name: Delta None
       description: No requirements delta is being processed; the requirements document is as authored.
+      requirements: [REQ-EMG-031]
     - id: STATE-DELTA-PLANNING
       name: Delta Planning
       description: A delta was received and is being strictly decoded, merged into a candidate and validated; the requirements document is untouched.
@@ -373,6 +386,7 @@ behavior:
       on: EVT-MODEL-UPDATED
       effect: written := false
       description: The replaced requirements document is seen as a model update, which ends the delta.
+      requirements: [REQ-EMG-033]
     - id: TR-DELTA-LOCK
       from: STATE-DELTA-PLANNED
       to: STATE-DELTA-LOCKED
@@ -560,7 +574,64 @@ behavior:
   - id: EVT-GENERATION-RUN-REQUESTED
     name: Generation Run Requested
     description: Request to generate documentation or exchange artifacts from the model.
-    requirements: [REQ-EMG-009, REQ-EMG-012]
+    requirements:
+    - REQ-EMG-003
+    - REQ-EMG-004
+    - REQ-EMG-005
+    - REQ-EMG-006
+    - REQ-EMG-009
+    - REQ-EMG-012
+    - REQ-EMG-013
+    - REQ-EMG-014
+    - REQ-EMG-015
+    - REQ-EMG-016
+    - REQ-EMG-019
+    - REQ-EMG-021
+    - REQ-EMG-023
+    - REQ-EMG-024
+    - REQ-EMG-026
+    - REQ-EMG-029
+    - REQ-EMG-030
+    - REQ-EMG-036
+    - REQ-EMG-037
+    - REQ-EMG-038
+    - REQ-EMG-040
+    - REQ-EMG-042
+    - REQ-EMG-043
+    - REQ-EMG-047
+    - REQ-EMG-048
+    - REQ-EMG-049
+    - REQ-EMG-051
+    - REQ-EMG-052
+    - REQ-EMG-054
+    - REQ-EMG-055
+    - REQ-EMG-062
+    - REQ-EMG-063
+    - REQ-EMG-064
+    - REQ-EMG-065
+    - REQ-EMG-066
+    - REQ-EMG-067
+    - REQ-EMG-073
+    - REQ-EMG-097
+    - REQ-EMG-098
+    - REQ-EMG-105
+    - REQ-EMG-107
+    - REQ-EMG-110
+    - REQ-EMG-141
+    - REQ-EMG-142
+    - REQ-EMG-143
+    - REQ-EMG-144
+    - REQ-EMG-145
+    - REQ-EMG-147
+    - REQ-EMG-149
+    - REQ-EMG-150
+    - REQ-EMG-151
+    - REQ-EMG-152
+    - REQ-EMG-156
+    - REQ-EMG-157
+    - REQ-EMG-158
+    - REQ-EMG-161
+    - REQ-EMG-168
   - id: EVT-VALIDATION-FAILED
     name: Validation Failed
     description: Validation or schema checks failed for model or generated output.
@@ -576,7 +647,22 @@ behavior:
   - id: EVT-MCP-TOOL-CALL-RECEIVED
     name: MCP Tool Call Received
     description: MCP server receives a structured tool invocation request.
-    requirements: [REQ-EMG-007, REQ-EMG-089]
+    requirements:
+    - REQ-EMG-007
+    - REQ-EMG-008
+    - REQ-EMG-045
+    - REQ-EMG-069
+    - REQ-EMG-087
+    - REQ-EMG-089
+    - REQ-EMG-099
+    - REQ-EMG-106
+    - REQ-EMG-113
+    - REQ-EMG-114
+    - REQ-EMG-115
+    - REQ-EMG-120
+    - REQ-EMG-131
+    - REQ-EMG-134
+    - REQ-EMG-148
   - id: EVT-REQUIREMENTS-DELTA-RECEIVED
     name: Requirements Delta Received
     description: A typed requirements delta is ready for strict parsing and candidate validation.
@@ -608,7 +694,7 @@ behavior:
   - id: EVT-RELEASE-CHECK-REQUESTED
     name: Release Check Requested
     description: A release gate asked engws whether a model may be released under a tag (engws release-check).
-    requirements: [REQ-EMG-103]
+    requirements: [REQ-EMG-103, REQ-EMG-186]
   - id: EVT-LINK-ADD-REQUESTED
     name: Link Add Requested
     description: A developer asked engws to write a new claimed requirement link pinned to the dependency version (engws link add).
@@ -625,6 +711,85 @@ behavior:
     name: Go Bundle Load Failed
     description: LoadBundle or LoadBundleAtRef returned an error to a Go consumer because a document or a revision could not be read.
     requirements: [REQ-EMG-206]
+  - id: EVT-MODEL-CHECK-REQUESTED
+    name: Model Check Requested
+    description: A caller (engdoc, engws, engmcp or a Go consumer) asked the engine to load a model and report its diagnostics.
+    requirements:
+    - REQ-EMG-010
+    - REQ-EMG-035
+    - REQ-EMG-041
+    - REQ-EMG-044
+    - REQ-EMG-053
+    - REQ-EMG-058
+    - REQ-EMG-059
+    - REQ-EMG-070
+    - REQ-EMG-071
+    - REQ-EMG-072
+    - REQ-EMG-082
+    - REQ-EMG-083
+    - REQ-EMG-084
+    - REQ-EMG-085
+    - REQ-EMG-088
+    - REQ-EMG-090
+    - REQ-EMG-091
+    - REQ-EMG-092
+    - REQ-EMG-093
+    - REQ-EMG-108
+    - REQ-EMG-111
+    - REQ-EMG-112
+    - REQ-EMG-116
+    - REQ-EMG-117
+    - REQ-EMG-121
+    - REQ-EMG-123
+    - REQ-EMG-124
+    - REQ-EMG-125
+    - REQ-EMG-126
+    - REQ-EMG-127
+    - REQ-EMG-128
+    - REQ-EMG-129
+    - REQ-EMG-132
+    - REQ-EMG-133
+    - REQ-EMG-135
+    - REQ-EMG-138
+    - REQ-EMG-140
+    - REQ-EMG-146
+    - REQ-EMG-153
+    - REQ-EMG-154
+    - REQ-EMG-155
+    - REQ-EMG-162
+    - REQ-EMG-163
+    - REQ-EMG-164
+    - REQ-EMG-165
+    - REQ-EMG-166
+    - REQ-EMG-167
+    - REQ-EMG-170
+    - REQ-EMG-171
+    - REQ-EMG-172
+    - REQ-EMG-173
+    - REQ-EMG-175
+    - REQ-EMG-176
+    - REQ-EMG-178
+    - REQ-EMG-179
+    - REQ-EMG-180
+    - REQ-EMG-181
+    - REQ-EMG-183
+    - REQ-EMG-188
+  - id: EVT-WORKSPACE-SYNC-REQUESTED
+    name: Workspace Sync Requested
+    description: A developer asked engws to rebuild the local multi-repository workspace or report its state (engws sync).
+    requirements: [REQ-EMG-068, REQ-EMG-086]
+  - id: EVT-WORKSPACE-STAGING-REQUESTED
+    name: Workspace Staging Requested
+    description: A developer asked engws to publish every checkout of the workspace into the local staging area before release (engws stage).
+    requirements: [REQ-EMG-080]
+  - id: EVT-SPEC-DELTA-REQUESTED
+    name: Spec Delta Requested
+    description: A caller asked engspec for OpenSpec spec delta text rendered from selected model requirements.
+    requirements: [REQ-EMG-081]
+  - id: EVT-EXAMPLE-VALIDATION-REQUESTED
+    name: Example Validation Requested
+    description: The maintained reference workspaces must be loaded, composed, generated and checked (scripts/validate-all.sh).
+    requirements: [REQ-EMG-050, REQ-EMG-056]
   flows:
   - id: FLOW-REQUIREMENTS-DELTA-TO-CANONICAL
     title: Requirements Delta to Canonical Requirements Flow
@@ -843,6 +1008,196 @@ behavior:
       kind: system_action
       ref: FU-ASCIIDOC-GENERATOR
       action: Persist generated outputs for downstream use
+  - id: FLOW-MODEL-CHECK
+    title: Model Check Reports Diagnostics
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-IMPLEMENTATION-ENGINEER
+    destinationRef: FU-VALIDATION-ENGINE
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-ARCHITECTURE-MODEL
+    - DO-CANONICAL-SEMANTIC-MODEL
+    - DO-MODEL-DIAGNOSTICS
+    description: A caller asks the engine to check a model (engdoc, engws check, the engmcp diagnose tool or the Go function ValidateBundle). The engine loads the manifest and every document it names, normalizes them into the canonical semantic model, runs the schema, reference, EARS, behavior, trace, tier and health checks and returns one diagnostic per finding with a code, a severity, a message and a model path. A model that cannot be loaded returns the load error and no diagnostics.
+    entry:
+    - load-model-documents
+    exits:
+    - report-diagnostics
+    - report-load-error
+    steps:
+    - id: load-model-documents
+      kind: system_action
+      ref: FU-MODEL-LOADER
+      interfaceRef: IF-CLI-ENGDOC
+      action: Load the manifest and every document it names and normalize them into the canonical semantic model.
+      dataIn:
+      - DO-ARCHITECTURE-MODEL
+      dataOut:
+      - DO-CANONICAL-SEMANTIC-MODEL
+      next:
+      - check-model
+      onError:
+      - report-load-error
+    - id: check-model
+      kind: system_action
+      ref: FU-VALIDATION-ENGINE
+      interfaceRef: IF-CLI-ENGDOC
+      action: Run the checks of the model and collect one diagnostic per finding, its severity set by the life-cycle tier of the project.
+      dataIn:
+      - DO-CANONICAL-SEMANTIC-MODEL
+      dataOut:
+      - DO-MODEL-DIAGNOSTICS
+      next:
+      - report-diagnostics
+    - id: report-diagnostics
+      kind: notification
+      ref: ACT-IMPLEMENTATION-ENGINEER
+      action: The caller receives the diagnostics; an error among them blocks generation (EVT-VALIDATION-FAILED).
+      dataIn:
+      - DO-MODEL-DIAGNOSTICS
+    - id: report-load-error
+      kind: notification
+      ref: ACT-IMPLEMENTATION-ENGINEER
+      action: The caller receives the load error and no diagnostics.
+  - id: FLOW-MCP-TOOL-CALL
+    title: MCP Tool Call Answers from the Model on Disk
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-AI-AGENT
+    destinationRef: FU-MCP-SERVER
+    protocol: stdio-jsonrpc
+    channel: local-process
+    dataRefs:
+    - DO-ARCHITECTURE-MODEL
+    - DO-MODEL-AUTHORING-CONTRACT
+    - DO-MCP-TOOL-RESULT
+    description: An AI agent calls a tool of the MCP server. The server checks the arguments against the tool input schema and confines every path argument to the repository workspace, reads the module model files as they are at call time and returns one tool result with the schema version and the structured error fields, or rejects the call with a structured error.
+    entry:
+    - receive-tool-call
+    exits:
+    - answer-tool-call
+    - reject-tool-call
+    steps:
+    - id: receive-tool-call
+      kind: integration_call
+      ref: FU-MCP-SERVER
+      sourceRef: ACT-AI-AGENT
+      destinationRef: FU-MCP-SERVER
+      interfaceRef: IF-CLI-ENGMCP
+      action: Read one JSON-RPC tool call from standard input.
+      next:
+      - check-arguments
+      onError:
+      - reject-tool-call
+    - id: check-arguments
+      kind: decision
+      ref: FU-MCP-SERVER
+      action: Check the arguments against the tool input schema and reject a path argument outside the repository workspace boundary.
+      next:
+      - answer-tool-call
+      onError:
+      - reject-tool-call
+    - id: answer-tool-call
+      kind: integration_call
+      ref: FU-MCP-SERVER
+      sourceRef: FU-MCP-SERVER
+      destinationRef: ACT-AI-AGENT
+      interfaceRef: IF-CLI-ENGMCP
+      action: Read the model files from disk and write one tool result.
+      dataIn:
+      - DO-ARCHITECTURE-MODEL
+      dataOut:
+      - DO-MCP-TOOL-RESULT
+      - DO-MODEL-AUTHORING-CONTRACT
+    - id: reject-tool-call
+      kind: notification
+      ref: ACT-AI-AGENT
+      action: The agent receives a structured error with the schema version and no result.
+  - id: FLOW-WORKSPACE-SYNC
+    title: Workspace Sync and Staging
+    kind: control
+    methodology: validate-before-write
+    direction: internal
+    frequency: on-demand
+    sourceRef: ACT-IMPLEMENTATION-ENGINEER
+    destinationRef: FU-CLI-ORCHESTRATION
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-ARCHITECTURE-MODEL
+    description: engws sync writes a local workspace that replaces only the changed or pinned checkouts and a go workspace replace directive for each required version of a workspace Go module; engws stage publishes every checkout into the local staging area in dependency order.
+    entry:
+    - sync-workspace
+    exits:
+    - stage-workspace
+    steps:
+    - id: sync-workspace
+      kind: system_action
+      ref: FU-CLI-ORCHESTRATION
+      sourceRef: EVT-WORKSPACE-SYNC-REQUESTED
+      interfaceRef: IF-CLI-ENGWS
+      action: Write the local workspace file and the go workspace replace directives.
+      dataIn:
+      - DO-ARCHITECTURE-MODEL
+      next:
+      - stage-workspace
+    - id: stage-workspace
+      kind: system_action
+      ref: FU-SYSTEM-COMPOSITION
+      sourceRef: EVT-WORKSPACE-STAGING-REQUESTED
+      interfaceRef: IF-CLI-ENGWS
+      action: Publish every workspace checkout into the local staging area in dependency order.
+  - id: FLOW-SPEC-DELTA
+    title: Spec Delta Rendered from Model Requirements
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-IMPLEMENTATION-ENGINEER
+    destinationRef: FU-MODEL-CHANGE
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-REQUIREMENTS-DOCUMENT
+    description: engspec renders OpenSpec spec delta text from the model requirements selected by ID or prefix; it reads the model and writes only the rendered text.
+    entry:
+    - render-spec-delta
+    exits:
+    - render-spec-delta
+    steps:
+    - id: render-spec-delta
+      kind: system_action
+      ref: FU-MODEL-CHANGE
+      sourceRef: EVT-SPEC-DELTA-REQUESTED
+      interfaceRef: IF-CLI-ENGSPEC
+      action: Render the selected requirements as OpenSpec spec delta text with SHALL capitalization and criteria shaping.
+      dataIn:
+      - DO-REQUIREMENTS-DOCUMENT
+  - id: FLOW-EXAMPLE-VALIDATION
+    title: Reference Workspaces Validated
+    kind: control
+    methodology: validate-before-write
+    direction: internal
+    frequency: on-demand
+    sourceRef: ACT-CI-PIPELINE
+    destinationRef: FU-CLI-ORCHESTRATION
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-ARCHITECTURE-MODEL
+    description: scripts/validate-all.sh loads, composes, generates and checks each maintained reference workspace and fails when a generated artifact drifts.
+    entry:
+    - validate-examples
+    exits:
+    - validate-examples
+    steps:
+    - id: validate-examples
+      kind: system_action
+      ref: FU-CLI-ORCHESTRATION
+      sourceRef: EVT-EXAMPLE-VALIDATION-REQUESTED
+      action: Load, compose, generate and check each reference workspace.
+      dataIn:
+      - DO-ARCHITECTURE-MODEL
   - id: FLOW-GO-READ-MODEL
     title: Go Consumer Reads a Model
     kind: data
@@ -1326,6 +1681,9 @@ behavior:
   - type: contains
     from: FU-MODEL-CHANGE
     to: IF-CLI-ENGSPEC
+  - type: contains
+    from: FU-CLI-ORCHESTRATION
+    to: IF-CLI-ENGWS
   - type: writes
     from: FU-MCP-SERVER
     to: DO-MCP-TOOL-RESULT

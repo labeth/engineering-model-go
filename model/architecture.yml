@@ -275,6 +275,12 @@ architecture:
     endpoint: cmd/engspec
     schemaRef: internal/reqdelta/spec_delta.go
     owner: FU-MODEL-CHANGE
+  - id: IF-CLI-ENGWS
+    name: engws CLI
+    protocol: cli
+    endpoint: cmd/engws
+    schemaRef: internal/engws/cli.go
+    owner: FU-CLI-ORCHESTRATION
   - id: IF-GO-MODEL-LOADING
     name: Go API model loading
     protocol: go-library

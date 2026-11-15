@@ -23,7 +23,7 @@ Warnings (no SHALL, no criteria) go to stderr. Exit 0 ok, 1 error, 2 usage.
 `
 
 // TRLC-LINKS: REQ-EMG-081
-// ENGMODEL-LINKS: FU-MODEL-CHANGE, IF-CLI-ENGSPEC
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, IF-CLI-ENGSPEC, FLOW-SPEC-DELTA, EVT-SPEC-DELTA-REQUESTED
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
 }
