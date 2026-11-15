@@ -38,7 +38,7 @@ var commands = map[string]command{
 }
 
 // TRLC-LINKS: REQ-EMG-158
-// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
+// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH, FLOW-ARTIFACT-EXPORT
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
 }

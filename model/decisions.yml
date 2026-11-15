@@ -2430,3 +2430,58 @@ decisions:
   consequences:
   - 'The seven points are recorded; each can be adopted on its own.'
   - 'The flows and the machine are written within the present language, so they stay valid whichever proposal is adopted.'
+- id: ADR-EMG-085
+  title: 'An architectural dependency names the interface it goes through'
+  status: proposed
+  date: 2026-11-15
+  context: |-
+    The owner asked: if you have an architectural dependency between two things there must be an interface between them; make this a
+    deterministic check in the model, an error on the two highest levels and a warning on the rest. A relationship of behavior.relationships
+    has type, from, to and description and no field that names an interface, so a unit that calls another unit says nothing about where
+    the call goes in. The engineering tool already reads a relationship whose end is an interface as a dependency on the unit that owns
+    it, with the interface as the way in (internal/views/architecture_edges.go in engineering-tool).
+  decision: |-
+    (1) The code is architecture.dependency_without_interface, a warning that the tier policy keys with the row WWWEE: a warning at poc,
+    prototype and mvp and an error at product and operational, never deferred below; a model without a tier decision gets the warning, like
+    every other tier-keyed code. (2) A dependency is a relationship of type depends_on, calls, publishes, subscribes, reads, writes,
+    streams, implements or interacts_with, the types the tool treats as dependencies; contains, deployed_to, allocated_to, satisfies,
+    verified_by, guarded_by, mitigated_by, bounded_by and targets say where something is or what it is held to and are not asked. (3) It
+    is between two architectural elements: functional unit, functional group, actor, referenced element, hardware item and the same kinds
+    imported as alias::ID. A data object or a deployment target at an end is data access or placement, not a dependency between elements,
+    and is not asked. A dependency of a unit on a unit in another group is a unit to unit dependency; no mapping pair admits a group as an
+    end, so a dependency between groups is the dependencies of the units inside them. (4) The dependency has an interface when one of
+    its ends is an interface: a local interface needs an owner, interface.owner or the unit that contains it; an alias::IF-* interface of a
+    composed dependency is a published one and counts as owned (composition.unpublished_reference reports one that is not published).
+    Two hardware items count as joined by an interface when a hardwareInterfaces entry connects them. (5) The schema gave no way to say
+    this for an actor or an external element, so two things changed: interacts_with may go from an actor to an interface, and an
+    interface may be owned by a referenced element (an interface that an external tool offers), which is what a dependency on a
+    referenced element goes through. (6) No relationship field via was added: the end that is an interface already stands for its owner
+    in every consumer, and a second way to say it would be one more thing to keep equal. (7) A relationship from an element to itself,
+    and one with an end that does not resolve, are not asked. (8) The diagnostic names the type, both ends, the relationship by its path
+    (relationships have no ID) and the fix.
+  consequences:
+  - 'A unit to unit dependency is written as a dependency on an interface of the other unit, so the model lists the interface that the dependency goes through; the asciidoc dependency diagram resolves an interface end to its owner so its edges stay.'
+  - 'A model with unit to unit and unit to referenced element dependencies gets findings until it names an interface, an error from product; a lifecycle.raise entry or an open POA&M item for the tier covers the debt like any tier-keyed code.'
+  - 'The rule is a function of the kinds, ends and owners of the model: it does not read names or prose, and it gives the same diagnostics, sorted by path, for the same model.'
+- id: ADR-EMG-086
+  title: 'An interface carries a data object'
+  status: proposed
+  date: 2026-11-15
+  context: |-
+    The owner asked for a deterministic check that an interface has at least a data type that is sent over it, an error on the two
+    highest levels (the warning below is the same assumption as for ADR-EMG-085). An interface entity has no list of data; the only
+    place the model says what crosses an interface is a flow step that names it in interfaceRef and lists data objects in dataRefs,
+    dataIn or dataOut. A relationship names an interface or a data object but not both, schemaRef is a file path, and the flow's own
+    dataRefs say what the flow carries, not what crosses which interface.
+  decision: |-
+    (1) The code is architecture.interface_without_data with the same row as ADR-EMG-085. (2) A local software interface carries data
+    when at least one flow step whose interfaceRef is the interface lists at least one data object of the model in dataRefs, dataIn
+    or dataOut; an alias::DO-* that an unenriched bundle does not resolve counts. Nothing else counts: the flow dataRefs, a relationship,
+    schemaRef, the name, the protocol or prose. (3) An interface that no dependency, flow or relationship uses is asked all the same: the
+    rule is on the interface. A command line interface counts its input and output data objects like any other. (4) An alias::IF-*
+    interface of a composed dependency is checked in the model that declares it, as the other rules skip an imported entity; a hardware
+    interface joins two hardware items and is not a software interface. (5) The message names the interface and the flow step that
+    would fix it.
+  consequences:
+  - 'Every interface needs a flow step that names it with a data object, so the data that crosses it is in the model and code.flow_unlinked and code.data_unlinked ask the code to link that flow and data.'
+  - 'A step names one interface and several data objects; an interface used by two flows is carried by either.'

@@ -323,6 +323,81 @@ architecture:
     endpoint: github.com/labeth/engineering-model-go
     schemaRef: api_reqlinks.go
     owner: FU-ALLOCATION-TRACE
+  - id: IF-GO-PKG-MODEL
+    name: Go package model loading
+    protocol: go-package
+    endpoint: internal/model
+    schemaRef: internal/model/load.go
+    owner: FU-MODEL-LOADER
+  - id: IF-GO-PKG-VALIDATE
+    name: Go package validation
+    protocol: go-package
+    endpoint: internal/validate
+    schemaRef: internal/validate/validate.go
+    owner: FU-VALIDATION-ENGINE
+  - id: IF-GO-PKG-ASCIIDOC
+    name: Go package AsciiDoc generation
+    protocol: go-package
+    endpoint: internal/asciidoc
+    schemaRef: internal/asciidoc/asciidoc.go
+    owner: FU-ASCIIDOC-GENERATOR
+  - id: IF-GO-PKG-VIEW
+    name: Go package view projection
+    protocol: go-package
+    endpoint: internal/view
+    schemaRef: internal/view/project.go
+    owner: FU-VIEW-PROJECTION
+  - id: IF-GO-PKG-CODEMAP
+    name: Go package code declarations
+    protocol: go-package
+    endpoint: internal/codemap
+    schemaRef: internal/codemap/declarations.go
+    owner: FU-CODEMAP-INFERENCE
+  - id: IF-GO-TOOLCHAIN-CLI
+    name: Go toolchain command line
+    protocol: cli
+    endpoint: go run, go env and go get
+    owner: REF-GO-TOOLCHAIN
+  - id: IF-THREAT-DRAGON-SCHEMA
+    name: Threat Dragon v2 model schema
+    protocol: json-schema
+    endpoint: Threat Dragon v2 threat model JSON
+    owner: REF-THREAT-DRAGON-SCHEMAS
+  - id: IF-OPEN-OTM-SCHEMA
+    name: Open Threat Model schema
+    protocol: json-schema
+    endpoint: Open Threat Model JSON
+    owner: REF-OPEN-OTM-SCHEMA
+  - id: IF-STRUCTURIZR-VALIDATOR-CLI
+    name: Structurizr validator command line
+    protocol: cli
+    endpoint: structurizr validate
+    owner: REF-STRUCTURIZR-VALIDATOR
+  - id: IF-SYSML-V2-TOOLCHAIN-CLI
+    name: SysML v2 toolchain command line
+    protocol: cli
+    endpoint: the pinned SysML v2 validator and KPAR packaging tools
+    owner: REF-SYSML-V2-TOOLCHAIN
+  - id: IF-CUE-OCI-REGISTRY-API
+    name: CUE OCI module registry API
+    protocol: oci
+    endpoint: the registry named by the CUE registry configuration
+    owner: REF-CUE-OCI-MODULE-REGISTRY
+  - id: IF-NAF-V4-1-SPECIFICATION
+    name: NAF v4.1 viewpoint specification
+    protocol: specification
+    endpoint: NATO Architecture Framework v4.1 viewpoints and products
+    owner: REF-NAF-V4-1-SPECIFICATION
+  - id: IF-TRLC-CLI
+    name: TRLC command line
+    protocol: cli
+    endpoint: trlc
+    owner: REF-TRLC-TOOLCHAIN
+  - id: IF-LOBSTER-CLI
+    name: LOBSTER command line
+    protocol: cli
+    endpoint: lobster tools
+    owner: REF-LOBSTER-TOOLCHAIN
   dataObjects:
   - id: DO-ARCHITECTURE-MODEL
     name: Architecture Model
@@ -554,6 +629,126 @@ architecture:
     confidentiality: low
     integrity: medium
     availability: low
+  - id: DO-GEMARA-DOCUMENTS
+    name: Gemara Documents
+    termRef: DATA-GEMARA-DOCUMENTS
+    schemaRef: internal/export/gemara/gemara_export.go
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-LOBSTER-ACTIVITY
+    name: LOBSTER Activity
+    termRef: DATA-LOBSTER-ACTIVITY
+    schemaRef: internal/export/lobster/lobster_export.go
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-OSCAL-DOCUMENTS
+    name: OSCAL Documents
+    termRef: DATA-OSCAL-DOCUMENTS
+    schemaRef: internal/export/oscal/oscal_ssp.go
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-AIRBORNE-READINESS-PACKAGE
+    name: Airborne Readiness Package
+    termRef: DATA-AIRBORNE-READINESS-PACKAGE
+    schemaRef: internal/export/airborne/airborne_assurance.go
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-VIEW-PROJECTION
+    name: View Projection
+    termRef: DATA-VIEW-PROJECTION
+    schemaRef: internal/view/project.go
+    sensitivity: internal
+    classification: derived-model
+    retention: ephemeral
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-VIEW-DIAGRAM
+    name: View Diagram
+    termRef: DATA-VIEW-DIAGRAM
+    schemaRef: generated/VIEW-ARCHITECTURE-INTENT.mmd
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-QUINT-SPECIFICATION
+    name: Quint Specification
+    termRef: DATA-QUINT-SPECIFICATION
+    schemaRef: internal/export/quint/quint_export.go
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-HEALTH-REPORT
+    name: Code Health Report
+    termRef: DATA-HEALTH-REPORT
+    schemaRef: docs/health-report.schema.json
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-TRLC-REQUIREMENTS
+    name: TRLC Requirements
+    termRef: DATA-TRLC-REQUIREMENTS
+    schemaRef: generated/requirements/requirements.trlc
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-OPEN-OTM-JSON
+    name: Open OTM JSON
+    termRef: DATA-OPEN-OTM-JSON
+    schemaRef: internal/export/threatmodel/threat_model_export.go
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: build-artifact
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-MODEL-MODULE-ARCHIVE
+    name: Model Module Archive
+    termRef: DATA-MODEL-MODULE-ARCHIVE
+    schemaRef: internal/composition/composition.go
+    sensitivity: internal
+    classification: dependency-source
+    retention: module-cache
+    confidentiality: medium
+    integrity: high
+    availability: medium
+  - id: DO-ARCHITECTURE-DOCUMENT
+    name: Architecture Document
+    termRef: DATA-ARCHITECTURE-DOCUMENT
+    schemaRef: generated/ARCHITECTURE.adoc
+    sensitivity: internal
+    classification: exchange-artifact
+    retention: repository-history
+    confidentiality: medium
+    integrity: high
+    availability: medium
   deploymentTargets:
   - id: DEP-LOCAL-WORKSPACE
     name: Local Workspace

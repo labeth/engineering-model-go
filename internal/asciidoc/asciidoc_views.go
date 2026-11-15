@@ -914,6 +914,8 @@ func publicationViewHeading(kind, id string, sameKindCount int) string {
 func functionalPublicationArchitecture(a model.AuthoredArchitecture, selected map[string]bool) model.AuthoredArchitecture {
 	out := model.AuthoredArchitecture{}
 	include := map[string]bool{}
+	owners := interfaceOwners(a)
+	selected = withInterfaceOwners(selected, owners)
 	for id, chosen := range selected {
 		if chosen {
 			include[id] = true
@@ -943,9 +945,86 @@ func functionalPublicationArchitecture(a model.AuthoredArchitecture, selected ma
 		}
 	}
 	for _, mapping := range a.Mappings {
+		mapping = throughOwners(mapping, owners)
 		if include[mapping.From] && include[mapping.To] {
 			out.Mappings = append(out.Mappings, mapping)
 		}
 	}
 	return out
+}
+
+// withInterfaceOwners returns the selection with the owner of each selected
+// interface added, so a dependency that goes through a selected interface is
+// drawn to its owner.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+func withInterfaceOwners(selected map[string]bool, owners map[string]string) map[string]bool {
+	out := make(map[string]bool, len(selected))
+	for id, chosen := range selected {
+		out[id] = chosen
+	}
+	for id, owner := range owners {
+		if selected[id] {
+			out[owner] = true
+		}
+	}
+	return out
+}
+
+// throughOwners returns a dependency with an interface at an end replaced by
+// the interface's owner; any other relationship is returned as it is.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+func throughOwners(m model.Mapping, owners map[string]string) model.Mapping {
+	if m.Type == "depends_on" {
+		m.From, m.To = dependencyEnd(owners, m.From), dependencyEnd(owners, m.To)
+	}
+	return m
+}
+
+// interfaceOwners maps each interface to its owner: interface.owner, else the
+// element that a contains relationship names as its container.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+func interfaceOwners(a model.AuthoredArchitecture) map[string]string {
+	owners := containers(a.Mappings)
+	for _, i := range a.Interfaces {
+		owners = withOwnerField(owners, i)
+	}
+	return owners
+}
+
+// containers maps the target of each contains relationship to its source.
+// TRLC-LINKS: REQ-EMG-003
+func containers(mappings []model.Mapping) map[string]string {
+	owners := map[string]string{}
+	for _, m := range mappings {
+		if strings.TrimSpace(m.Type) == "contains" {
+			owners[strings.TrimSpace(m.To)] = strings.TrimSpace(m.From)
+		}
+	}
+	return owners
+}
+
+// withOwnerField sets the owner of an interface from its owner field when
+// the field is set.
+// TRLC-LINKS: REQ-EMG-003
+func withOwnerField(owners map[string]string, i model.Interface) map[string]string {
+	if owner := strings.TrimSpace(i.Owner); owner != "" {
+		owners[strings.TrimSpace(i.ID)] = owner
+	}
+	return owners
+}
+
+// dependencyEnd returns the end of a dependency as the functional diagrams
+// draw it: an interface stands for its owner (a dependency goes through an
+// interface, ADR-EMG-085), every other ID is itself.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+func dependencyEnd(owners map[string]string, id string) string {
+	id = strings.TrimSpace(id)
+	if owner := owners[id]; owner != "" && strings.HasPrefix(id, "IF-") {
+		return owner
+	}
+	return id
 }

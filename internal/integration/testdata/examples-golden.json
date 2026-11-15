@@ -13,6 +13,14 @@
     "requiredFrom": "product"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-AEG-TRACK has no data object sent over it: no flow step with interfaceRef IF-AEG-TRACK lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-AEG-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -80,6 +88,14 @@
     "path": "authoredArchitecture.functionalUnits[0]",
     "requiredFrom": "product",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-AEG-TRACK has no data object sent over it: no flow step with interfaceRef IF-AEG-TRACK lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "code.interface_unlinked",
@@ -357,6 +373,14 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-ORI-MESSAGE has no data object sent over it: no flow step with interfaceRef IF-ORI-MESSAGE lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-ORI-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -432,6 +456,14 @@
     "path": "authoredArchitecture.functionalUnits[0]",
     "requiredFrom": "product",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-ORI-MESSAGE has no data object sent over it: no flow step with interfaceRef IF-ORI-MESSAGE lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "code.interface_unlinked",
@@ -587,6 +619,14 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-CLOUD-EVENTS has no data object sent over it: no flow step with interfaceRef IF-CLOUD-EVENTS lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -617,6 +657,14 @@
     "path": "authoredArchitecture.controls[0]",
     "deferred": true,
     "requiredFrom": "operational"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-CLOUD-EVENTS has no data object sent over it: no flow step with interfaceRef IF-CLOUD-EVENTS lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1021,6 +1069,14 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-EDGE-TELEMETRY has no data object sent over it: no flow step with interfaceRef IF-EDGE-TELEMETRY lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-EDGE-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -1051,6 +1107,14 @@
     "path": "authoredArchitecture.controls[0]",
     "deferred": true,
     "requiredFrom": "operational"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-EDGE-TELEMETRY has no data object sent over it: no flow step with interfaceRef IF-EDGE-TELEMETRY lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1138,6 +1202,14 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-SEC-TOKEN has no data object sent over it: no flow step with interfaceRef IF-SEC-TOKEN lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-SEC-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -1182,6 +1254,14 @@
     "message": "event \"EVT-CREDENTIAL-REPLAY-DETECTED\" is in no machine transition (on), semantic transition trigger or flow; name it in the on of the machine transition it causes or remove the event",
     "path": "authoredArchitecture.events[0]",
     "requiredFrom": "operational"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-SEC-TOKEN has no data object sent over it: no flow step with interfaceRef IF-SEC-TOKEN lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1293,6 +1373,14 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-BEDROCK-WEBHOOK-API has no data object sent over it: no flow step with interfaceRef IF-BEDROCK-WEBHOOK-API lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "behavior.state_unlinked",
     "severity": "warning",
     "message": "state \"STATE-BEDROCK-PR-RECEIVED\" of machine \"SM-BEDROCK-PR-REVIEW\" lists no requirement; list the REQ-* it realizes in requirements",
@@ -1331,6 +1419,158 @@
     "path": "authoredArchitecture.machines[0].transitions[1].requirements",
     "requiredFrom": "operational",
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-SECRETS-CONFIGURATION (relationship authoredArchitecture.mappings[10]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[10]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-REPOSITORY-MAINTAINER to FU-REVIEW-PUBLICATION (relationship authoredArchitecture.mappings[11]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[11]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-GITHUB-WEBHOOK-INGRESS to FU-PR-CONTEXT-ASSEMBLY (relationship authoredArchitecture.mappings[12]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[12]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PR-CONTEXT-ASSEMBLY to REF-GITHUB-APP-API (relationship authoredArchitecture.mappings[14]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[14]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PR-CONTEXT-ASSEMBLY to REF-GITHUB-REST-SDK (relationship authoredArchitecture.mappings[15]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[15]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PR-CONTEXT-ASSEMBLY to FU-REVIEW-ORCHESTRATION (relationship authoredArchitecture.mappings[16]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[16]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-ORCHESTRATION to REF-AWS-BEDROCK-RUNTIME (relationship authoredArchitecture.mappings[18]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[18]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-ORCHESTRATION to FU-POLICY-CHECKS (relationship authoredArchitecture.mappings[19]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[19]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-ORCHESTRATION to FU-REVIEW-PUBLICATION (relationship authoredArchitecture.mappings[20]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[20]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-POLICY-CHECKS to REF-POLICY-RULESET (relationship authoredArchitecture.mappings[23]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[23]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-PUBLICATION to REF-GITHUB-APP-API (relationship authoredArchitecture.mappings[24]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[24]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-PUBLICATION to FU-SECRETS-CONFIGURATION (relationship authoredArchitecture.mappings[27]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[27]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-ORCHESTRATION to FU-SECRETS-CONFIGURATION (relationship authoredArchitecture.mappings[28]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[28]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-LAMBDA-RUNTIME-OPERATIONS to FU-SECRETS-CONFIGURATION (relationship authoredArchitecture.mappings[29]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[29]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-LAMBDA-RUNTIME-OPERATIONS to REF-AWS-SECRETS-MANAGER (relationship authoredArchitecture.mappings[30]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[30]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-SECRETS-CONFIGURATION to REF-AWS-SDK-GO (relationship authoredArchitecture.mappings[31]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[31]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-DEVELOPER to FU-GITHUB-WEBHOOK-INGRESS (relationship authoredArchitecture.mappings[7]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[7]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-SECURITY-ENGINEER to FU-POLICY-CHECKS (relationship authoredArchitecture.mappings[8]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[8]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-LAMBDA-RUNTIME-OPERATIONS (relationship authoredArchitecture.mappings[9]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[9]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1485,6 +1725,14 @@
     "requiredFrom": "operational"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-BEDROCK-WEBHOOK-API has no data object sent over it: no flow step with interfaceRef IF-BEDROCK-WEBHOOK-API lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "code.state_unlinked",
     "severity": "warning",
     "message": "machine state STATE-BEDROCK-PR-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
@@ -1563,6 +1811,158 @@
     "path": "authoredArchitecture.machines[0].transitions[1].requirements",
     "requiredFrom": "operational",
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-SECRETS-CONFIGURATION (relationship authoredArchitecture.mappings[10]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[10]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-REPOSITORY-MAINTAINER to FU-REVIEW-PUBLICATION (relationship authoredArchitecture.mappings[11]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[11]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-GITHUB-WEBHOOK-INGRESS to FU-PR-CONTEXT-ASSEMBLY (relationship authoredArchitecture.mappings[12]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[12]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PR-CONTEXT-ASSEMBLY to REF-GITHUB-APP-API (relationship authoredArchitecture.mappings[14]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[14]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PR-CONTEXT-ASSEMBLY to REF-GITHUB-REST-SDK (relationship authoredArchitecture.mappings[15]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[15]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PR-CONTEXT-ASSEMBLY to FU-REVIEW-ORCHESTRATION (relationship authoredArchitecture.mappings[16]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[16]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-ORCHESTRATION to REF-AWS-BEDROCK-RUNTIME (relationship authoredArchitecture.mappings[18]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[18]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-ORCHESTRATION to FU-POLICY-CHECKS (relationship authoredArchitecture.mappings[19]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[19]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-ORCHESTRATION to FU-REVIEW-PUBLICATION (relationship authoredArchitecture.mappings[20]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[20]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-POLICY-CHECKS to REF-POLICY-RULESET (relationship authoredArchitecture.mappings[23]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[23]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-PUBLICATION to REF-GITHUB-APP-API (relationship authoredArchitecture.mappings[24]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[24]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-PUBLICATION to FU-SECRETS-CONFIGURATION (relationship authoredArchitecture.mappings[27]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[27]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-REVIEW-ORCHESTRATION to FU-SECRETS-CONFIGURATION (relationship authoredArchitecture.mappings[28]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[28]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-LAMBDA-RUNTIME-OPERATIONS to FU-SECRETS-CONFIGURATION (relationship authoredArchitecture.mappings[29]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[29]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-LAMBDA-RUNTIME-OPERATIONS to REF-AWS-SECRETS-MANAGER (relationship authoredArchitecture.mappings[30]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[30]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-SECRETS-CONFIGURATION to REF-AWS-SDK-GO (relationship authoredArchitecture.mappings[31]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[31]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-DEVELOPER to FU-GITHUB-WEBHOOK-INGRESS (relationship authoredArchitecture.mappings[7]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[7]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-SECURITY-ENGINEER to FU-POLICY-CHECKS (relationship authoredArchitecture.mappings[8]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[8]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-LAMBDA-RUNTIME-OPERATIONS (relationship authoredArchitecture.mappings[9]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[9]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -1892,6 +2292,174 @@
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-SECURITY-ANALYST to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[10]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[10]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-MACHINE-TELEMETRY-COLLECTION to REF-IOT-INGEST-ENDPOINT (relationship authoredArchitecture.mappings[11]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[11]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-MACHINE-TELEMETRY-COLLECTION to FU-FLEET-INGESTION-API (relationship authoredArchitecture.mappings[14]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[14]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-MACHINE-TELEMETRY-COLLECTION to REF-MQTT-DEVICE-SDK (relationship authoredArchitecture.mappings[15]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[15]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-MACHINE-TELEMETRY-COLLECTION to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[16]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[16]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-OTA-UPDATE-AGENT to FU-UPDATE-CAMPAIGN-ORCHESTRATION (relationship authoredArchitecture.mappings[17]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[17]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-OTA-UPDATE-AGENT to REF-FIRMWARE-BUNDLE-STORE (relationship authoredArchitecture.mappings[21]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[21]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-OTA-UPDATE-AGENT to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[22]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[22]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-INGESTION-API to FU-FLEET-OBSERVABILITY-REPORTING (relationship authoredArchitecture.mappings[23]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[23]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-INGESTION-API to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[24]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[24]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-INGESTION-API to REF-CLOUD-RUNTIME-SDK (relationship authoredArchitecture.mappings[25]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[25]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-UPDATE-CAMPAIGN-ORCHESTRATION to REF-FIRMWARE-SIGNER-SERVICE (relationship authoredArchitecture.mappings[26]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[26]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-UPDATE-CAMPAIGN-ORCHESTRATION to FU-FLEET-OBSERVABILITY-REPORTING (relationship authoredArchitecture.mappings[27]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[27]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-UPDATE-CAMPAIGN-ORCHESTRATION to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[28]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[28]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-OBSERVABILITY-REPORTING to REF-CLOUD-LOGGING-SERVICE (relationship authoredArchitecture.mappings[29]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[29]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-OBSERVABILITY-REPORTING to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[30]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[30]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-CLOUD-RUNTIME-OPERATIONS to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[31]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[31]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-CLOUD-RUNTIME-OPERATIONS to REF-CLOUD-LOGGING-SERVICE (relationship authoredArchitecture.mappings[32]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[32]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-BARISTA to FU-MACHINE-TELEMETRY-COLLECTION (relationship authoredArchitecture.mappings[7]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[7]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-FLEET-OPERATOR to FU-UPDATE-CAMPAIGN-ORCHESTRATION (relationship authoredArchitecture.mappings[8]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[8]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-CLOUD-RUNTIME-OPERATIONS (relationship authoredArchitecture.mappings[9]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[9]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
     "code": "link.claimed_only",
     "severity": "warning",
     "message": "link LNK-COF-001-TELEMETRY is claimed, not yet reviewed; review it and set status accepted",
@@ -2158,6 +2726,174 @@
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-SECURITY-ANALYST to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[10]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[10]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-MACHINE-TELEMETRY-COLLECTION to REF-IOT-INGEST-ENDPOINT (relationship authoredArchitecture.mappings[11]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[11]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-MACHINE-TELEMETRY-COLLECTION to FU-FLEET-INGESTION-API (relationship authoredArchitecture.mappings[14]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[14]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-MACHINE-TELEMETRY-COLLECTION to REF-MQTT-DEVICE-SDK (relationship authoredArchitecture.mappings[15]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[15]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-MACHINE-TELEMETRY-COLLECTION to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[16]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[16]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-OTA-UPDATE-AGENT to FU-UPDATE-CAMPAIGN-ORCHESTRATION (relationship authoredArchitecture.mappings[17]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[17]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-OTA-UPDATE-AGENT to REF-FIRMWARE-BUNDLE-STORE (relationship authoredArchitecture.mappings[21]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[21]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-OTA-UPDATE-AGENT to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[22]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[22]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-INGESTION-API to FU-FLEET-OBSERVABILITY-REPORTING (relationship authoredArchitecture.mappings[23]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[23]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-INGESTION-API to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[24]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[24]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-INGESTION-API to REF-CLOUD-RUNTIME-SDK (relationship authoredArchitecture.mappings[25]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[25]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-UPDATE-CAMPAIGN-ORCHESTRATION to REF-FIRMWARE-SIGNER-SERVICE (relationship authoredArchitecture.mappings[26]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[26]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-UPDATE-CAMPAIGN-ORCHESTRATION to FU-FLEET-OBSERVABILITY-REPORTING (relationship authoredArchitecture.mappings[27]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[27]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-UPDATE-CAMPAIGN-ORCHESTRATION to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[28]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[28]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-OBSERVABILITY-REPORTING to REF-CLOUD-LOGGING-SERVICE (relationship authoredArchitecture.mappings[29]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[29]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-FLEET-OBSERVABILITY-REPORTING to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[30]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[30]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-CLOUD-RUNTIME-OPERATIONS to FU-DEVICE-IDENTITY-SECRETS (relationship authoredArchitecture.mappings[31]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[31]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-CLOUD-RUNTIME-OPERATIONS to REF-CLOUD-LOGGING-SERVICE (relationship authoredArchitecture.mappings[32]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[32]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-BARISTA to FU-MACHINE-TELEMETRY-COLLECTION (relationship authoredArchitecture.mappings[7]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[7]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-FLEET-OPERATOR to FU-UPDATE-CAMPAIGN-ORCHESTRATION (relationship authoredArchitecture.mappings[8]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[8]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-CLOUD-RUNTIME-OPERATIONS (relationship authoredArchitecture.mappings[9]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[9]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
     "code": "link.claimed_only",
     "severity": "warning",
     "message": "link LNK-COF-001-TELEMETRY is claimed, not yet reviewed; review it and set status accepted",
@@ -2357,6 +3093,14 @@
     "requiredFrom": "product"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-CLOUD-INGEST has no data object sent over it: no flow step with interfaceRef IF-CLOUD-INGEST lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-CLOUD-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -2394,6 +3138,14 @@
     "path": "authoredArchitecture.functionalUnits[1]",
     "requiredFrom": "product",
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-CLOUD-INGEST has no data object sent over it: no flow step with interfaceRef IF-CLOUD-INGEST lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -2446,6 +3198,14 @@
     "requiredFrom": "product"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-OTA-APPLY has no data object sent over it: no flow step with interfaceRef IF-OTA-APPLY lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-OTA-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -2483,6 +3243,14 @@
     "message": "control verification VER-FIRMWARE-SIGNATURE is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
     "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
     "requiredFrom": "product"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-OTA-APPLY has no data object sent over it: no flow step with interfaceRef IF-OTA-APPLY lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -2535,6 +3303,14 @@
     "requiredFrom": "product"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-TELEM-REPORT has no data object sent over it: no flow step with interfaceRef IF-TELEM-REPORT lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "lifecycle.requirement_unverified",
     "severity": "warning",
     "message": "requirement \"REQ-TELEM-001\" has status \"unset\", not verified; record verified once its verification passed (engws status-suggest)",
@@ -2572,6 +3348,14 @@
     "message": "control verification VER-TELEM-INTEGRITY is a test with status pass but has no verificationRefs; name the test declarations or requirements that evidence it",
     "path": "authoredArchitecture.controlVerifications[0].verificationRefs",
     "requiredFrom": "product"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-TELEM-REPORT has no data object sent over it: no flow step with interfaceRef IF-TELEM-REPORT lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -2624,6 +3408,22 @@
     "path": "authoredArchitecture.events[0].requirements",
     "requiredFrom": "operational",
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-YAW-RATE has no data object sent over it: no flow step with interfaceRef IF-YAW-RATE lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-RUDDER-COMMAND has no data object sent over it: no flow step with interfaceRef IF-RUDDER-COMMAND lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[1]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "behavior.state_unlinked",
@@ -2680,6 +3480,22 @@
     "path": "authoredArchitecture.events[0].requirements",
     "requiredFrom": "operational",
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-YAW-RATE has no data object sent over it: no flow step with interfaceRef IF-YAW-RATE lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[0]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-RUDDER-COMMAND has no data object sent over it: no flow step with interfaceRef IF-RUDDER-COMMAND lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[1]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
    },
    {
     "code": "behavior.machine_unverified",
@@ -2861,6 +3677,14 @@
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-PAYMENTS-RISK-SCORE-API has no data object sent over it: no flow step with interfaceRef IF-PAYMENTS-RISK-SCORE-API lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[2]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "behavior.state_unlinked",
     "severity": "warning",
     "message": "state \"STATE-PAYMENTS-CHECKOUT-RECEIVED\" of machine \"SM-PAYMENTS-AUTH\" lists no requirement; list the REQ-* it realizes in requirements",
@@ -2923,6 +3747,94 @@
     "path": "authoredArchitecture.machines[0].transitions[3].requirements",
     "requiredFrom": "operational",
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-CHECKOUT to FU-PAYMENT-AUTHORIZATION (relationship authoredArchitecture.mappings[10]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[10]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PAYMENT-AUTHORIZATION to FU-RISK-SCORING (relationship authoredArchitecture.mappings[14]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[14]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PAYMENT-AUTHORIZATION to REF-BANK-GATEWAY-ENDPOINT (relationship authoredArchitecture.mappings[26]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[26]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PAYMENT-AUTHORIZATION to FU-SUPPORT-REVIEW (relationship authoredArchitecture.mappings[27]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[27]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-RISK-SCORING to REF-POSTGRES-DRIVER (relationship authoredArchitecture.mappings[28]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[28]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-GITOPS-OPERATIONS to FU-CLUSTER-PROVISIONING (relationship authoredArchitecture.mappings[29]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[29]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-GITOPS-OPERATIONS to REF-HELM-PLATFORM (relationship authoredArchitecture.mappings[30]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[30]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-CUSTOMER to FU-CHECKOUT (relationship authoredArchitecture.mappings[6]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[6]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-SUPPORT to FU-SUPPORT-REVIEW (relationship authoredArchitecture.mappings[7]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[7]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-GITOPS-OPERATIONS (relationship authoredArchitecture.mappings[8]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[8]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-CLUSTER-PROVISIONING (relationship authoredArchitecture.mappings[9]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[9]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
    },
    {
     "code": "lifecycle.requirement_unverified",
@@ -3077,6 +3989,14 @@
     "remedy": "run the ef-code-linking skill (engineering-flow) to name the element in an ENGMODEL-LINKS marker above the declaration that realizes it, or in the ENGMODEL-OWNER-UNIT marker of its file; when it is deliberately not implemented here, run the ef-tier-up skill (engineering-flow) to record an accepted decision and list the element in codeCoverage.exempt of engmod.yml"
    },
    {
+    "code": "architecture.interface_without_data",
+    "severity": "warning",
+    "message": "interface IF-PAYMENTS-RISK-SCORE-API has no data object sent over it: no flow step with interfaceRef IF-PAYMENTS-RISK-SCORE-API lists a data object in dataRefs, dataIn or dataOut; name the data type sent over the interface",
+    "path": "authoredArchitecture.interfaces[2]",
+    "requiredFrom": "product",
+    "remedy": "name the data type sent over the interface: declare the data object (DO-*) in architecture dataObjects and list it in dataRefs, dataIn or dataOut of a flow step whose interfaceRef is the interface (run the ef-behavior skill (engineering-flow) to model the flow); an interface nothing is sent over is removed"
+   },
+   {
     "code": "code.state_unlinked",
     "severity": "warning",
     "message": "machine state STATE-PAYMENTS-CHECKOUT-RECEIVED is named by no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker in scanned non-test source",
@@ -3203,6 +4123,94 @@
     "path": "authoredArchitecture.machines[0].transitions[3].requirements",
     "requiredFrom": "operational",
     "remedy": "run the ef-behavior skill (engineering-flow) to list the requirements the state, transition or event realizes in its requirements field, or to model the behavior the requirement asks for"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-CHECKOUT to FU-PAYMENT-AUTHORIZATION (relationship authoredArchitecture.mappings[10]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[10]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PAYMENT-AUTHORIZATION to FU-RISK-SCORING (relationship authoredArchitecture.mappings[14]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[14]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PAYMENT-AUTHORIZATION to REF-BANK-GATEWAY-ENDPOINT (relationship authoredArchitecture.mappings[26]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[26]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-PAYMENT-AUTHORIZATION to FU-SUPPORT-REVIEW (relationship authoredArchitecture.mappings[27]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[27]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-RISK-SCORING to REF-POSTGRES-DRIVER (relationship authoredArchitecture.mappings[28]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[28]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-GITOPS-OPERATIONS to FU-CLUSTER-PROVISIONING (relationship authoredArchitecture.mappings[29]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[29]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"depends_on\" from FU-GITOPS-OPERATIONS to REF-HELM-PLATFORM (relationship authoredArchitecture.mappings[30]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[30]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-CUSTOMER to FU-CHECKOUT (relationship authoredArchitecture.mappings[6]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[6]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-SUPPORT to FU-SUPPORT-REVIEW (relationship authoredArchitecture.mappings[7]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[7]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-GITOPS-OPERATIONS (relationship authoredArchitecture.mappings[8]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[8]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
+   },
+   {
+    "code": "architecture.dependency_without_interface",
+    "severity": "warning",
+    "message": "dependency \"interacts_with\" from ACT-PLATFORM-OPERATOR to FU-CLUSTER-PROVISIONING (relationship authoredArchitecture.mappings[9]) names no interface; name the interface the dependency goes through",
+    "path": "authoredArchitecture.mappings[9]",
+    "requiredFrom": "product",
+    "remedy": "name the interface the dependency goes through: declare it in architecture interfaces with its owner (a functional unit, or a referenced element for an external one) and point the relationship at that interface (IF-*, or alias::IF-* of a composed dependency's publication) instead of at the element itself"
    },
    {
     "code": "lifecycle.requirement_unverified",

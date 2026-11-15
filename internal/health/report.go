@@ -249,7 +249,7 @@ func (r Report) Summarize() Summary {
 // struct order (maps sorted), no HTML escaping and a trailing newline.
 //
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-159
-// ENGMODEL-LINKS: FU-CODE-HEALTH
+// ENGMODEL-LINKS: FU-CODE-HEALTH, DO-HEALTH-REPORT
 func Encode(r Report) ([]byte, error) {
 	return encodeJSON(r)
 }

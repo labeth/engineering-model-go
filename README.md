@@ -324,6 +324,8 @@ but not wired. Warnings do not fail `engdoc`; the rows marked (error) do:
 
 | Code | Reported at | Rule |
 | --- | --- | --- |
+| `architecture.dependency_without_interface` | `authoredArchitecture.mappings[i]` | a relationship of type `depends_on`, `calls`, `publishes`, `subscribes`, `reads`, `writes`, `streams`, `implements` or `interacts_with` between two architectural elements (functional unit, functional group, actor, referenced element, hardware item, or an `alias::ID` element of a composed dependency) of which neither end is an interface. An end that is an interface counts when it has an owner (`interface.owner`, else the functional unit that `contains` it) or is a published `alias::IF-*`; two hardware items count as joined by an interface when a `hardwareInterfaces` entry connects them. Not asked: a relationship from an element to itself, `contains` and every other type (containment, deployment, allocation), and an end that is a data object or a deployment target. A tier-keyed row: a warning up to mvp, an error at product and operational. Fix: point the relationship at the interface it goes through |
+| `architecture.interface_without_data` | `authoredArchitecture.interfaces[i]` | a local software interface that no flow step names in `interfaceRef` together with at least one data object (`DO-*`) in the step's `dataRefs`, `dataIn` or `dataOut`; the flow's own `dataRefs`, relationships, `schemaRef` and names do not count, and an interface that nothing uses is asked all the same. A composed `alias::IF-*` interface is checked in its own model. Same tier row. Fix: model the flow step that sends the data |
 | `behavior.event_unused` | `authoredArchitecture.events[i]` | a behavior event no machine transition names in `on`, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references |
 | `behavior.state_unreachable` | `authoredArchitecture.machines[i].states[j]` | a machine state that no path of transitions leads to from the machine's `initial` state |
 | `behavior.machine_deadlock` | `authoredArchitecture.machines[i].states[j]` | a state that is not `final: true` and has no outgoing transition |
@@ -973,6 +975,8 @@ with `requirementLinks: strict`):
 
 | Code | poc | prototype | mvp | product | operational |
 |---|---|---|---|---|---|
+| `architecture.dependency_without_interface` | W | W | W | E | E |
+| `architecture.interface_without_data` | W | W | W | E | E |
 | `aviation.derived.incomplete_safety_feedback` | D | D | E | E | E |
 | `aviation.lifecycle.missing_category` | D | D | E | E | E |
 | `aviation.state_below_tier` | D | D | E | E | E |

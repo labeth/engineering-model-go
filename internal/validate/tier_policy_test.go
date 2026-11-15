@@ -192,7 +192,7 @@ func TestTierPolicyMonotonic(t *testing.T) {
 }
 
 // codeLiteral finds diagnostic code literals in Go source.
-var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint|gemara|catalog)\.[a-z_.]+)"`)
+var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint|gemara|catalog|architecture)\.[a-z_.]+)"`)
 
 // emittedCodes returns every code literal in the module's non-test Go
 // source.
@@ -418,29 +418,31 @@ func TestMachineAdvisoryCodesFollowTheHygieneRowEndToEnd(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-125
 func TestConsistencyRemedies(t *testing.T) {
 	cases := map[string]string{
-		"code.owner_unresolved":               "ef-code-linking",
-		"code.model_link_kind_mismatch":       "ef-code-linking",
-		"behavior.requirement_unmodeled":      "ef-behavior",
-		"behavior.machine_unverified":         "ef-formal-behavior",
-		"behavior.state_unlinked":             "ef-behavior",
-		"behavior.transition_unlinked":        "ef-behavior",
-		"behavior.event_unlinked":             "ef-behavior",
-		"code.unit_unlinked":                  "ef-code-linking",
-		"code.machine_unlinked":               "ef-code-linking",
-		"code.interface_unlinked":             "ef-code-linking",
-		"code.state_unlinked":                 "ef-code-linking",
-		"code.transition_unlinked":            "ef-code-linking",
-		"code.event_unlinked":                 "ef-code-linking",
-		"code.flow_unlinked":                  "ef-code-linking",
-		"code.data_unlinked":                  "ef-code-linking",
-		"composition.dependency_tier_unknown": "owner of the dependency",
-		"code.exemption_unused":               "ef-tier-up",
-		"code.state_candidate_unlinked":       "ef-behavior",
-		"code.state_suppression_unreasoned":   "ENGMODEL-NOT-A-STATE",
-		"code.state_suppression_unused":       "ENGMODEL-NOT-A-STATE",
-		"code.exemption_unjustified":          "ef-tier-up",
-		"model.invalid_code_exemption":        "ef-tier-up",
-		"requirement.orphan":                  "",
+		"code.owner_unresolved":                     "ef-code-linking",
+		"code.model_link_kind_mismatch":             "ef-code-linking",
+		"behavior.requirement_unmodeled":            "ef-behavior",
+		"behavior.machine_unverified":               "ef-formal-behavior",
+		"behavior.state_unlinked":                   "ef-behavior",
+		"behavior.transition_unlinked":              "ef-behavior",
+		"behavior.event_unlinked":                   "ef-behavior",
+		"code.unit_unlinked":                        "ef-code-linking",
+		"code.machine_unlinked":                     "ef-code-linking",
+		"code.interface_unlinked":                   "ef-code-linking",
+		"code.state_unlinked":                       "ef-code-linking",
+		"code.transition_unlinked":                  "ef-code-linking",
+		"code.event_unlinked":                       "ef-code-linking",
+		"code.flow_unlinked":                        "ef-code-linking",
+		"code.data_unlinked":                        "ef-code-linking",
+		"composition.dependency_tier_unknown":       "owner of the dependency",
+		"code.exemption_unused":                     "ef-tier-up",
+		"code.state_candidate_unlinked":             "ef-behavior",
+		"code.state_suppression_unreasoned":         "ENGMODEL-NOT-A-STATE",
+		"code.state_suppression_unused":             "ENGMODEL-NOT-A-STATE",
+		"code.exemption_unjustified":                "ef-tier-up",
+		"model.invalid_code_exemption":              "ef-tier-up",
+		"requirement.orphan":                        "",
+		"architecture.dependency_without_interface": "name the interface the dependency goes through",
+		"architecture.interface_without_data":       "name the data type sent over the interface",
 	}
 	for code, skill := range cases {
 		got := ConsistencyRemedy(code)

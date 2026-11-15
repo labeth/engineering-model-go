@@ -38,7 +38,7 @@ var commands = map[string]command{
 }
 
 // TRLC-LINKS: REQ-EMG-142
-// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT, FLOW-ARTIFACT-EXPORT
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
 }

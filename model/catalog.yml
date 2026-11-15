@@ -748,3 +748,63 @@ catalog:
     definition: A requirement link that a checkout of the workspace holds on the contract items of a model.
     aliases:
     - link users
+  - id: DATA-GEMARA-DOCUMENTS
+    name: gemara documents
+    definition: The Gemara layer 1 to 3 YAML documents that enggemara writes for a model.
+    aliases:
+    - gemara output
+  - id: DATA-LOBSTER-ACTIVITY
+    name: lobster activity
+    definition: The LOBSTER activity file that englobster writes from the model and the tests of a project, for the LOBSTER traceability tools.
+    aliases:
+    - lobster file
+  - id: DATA-OSCAL-DOCUMENTS
+    name: oscal documents
+    definition: The OSCAL profile, system security plan, assessment plan, assessment results and plan of action and milestones that engoscal writes as JSON.
+    aliases:
+    - oscal output
+  - id: DATA-AIRBORNE-READINESS-PACKAGE
+    name: airborne readiness package
+    definition: The readiness summary, the PSAC outline, the lifecycle data index and the evidence, trace, verification, coverage and gap records that engair writes for airborne certification readiness.
+    aliases:
+    - airborne outputs
+  - id: DATA-VIEW-PROJECTION
+    name: view projection
+    definition: The nodes and edges of one authored view, selected and labelled from a bundle by the view package.
+    aliases:
+    - projected view
+  - id: DATA-VIEW-DIAGRAM
+    name: view diagram
+    definition: The Mermaid text and SVG drawing of one authored view that engview writes.
+    aliases:
+    - view drawing
+  - id: DATA-QUINT-SPECIFICATION
+    name: quint specification
+    definition: The Quint specification that engquint generates from the machines of a model, with the invariants it checks.
+    aliases:
+    - quint spec
+  - id: DATA-HEALTH-REPORT
+    name: code health report
+    definition: The findings of the code health scan, as text, JSON or SARIF, in the form docs/health-report.schema.json describes.
+    aliases:
+    - health findings
+  - id: DATA-TRLC-REQUIREMENTS
+    name: trlc requirements
+    definition: The TRLC requirement files that engtrlc writes from the requirements of a model.
+    aliases:
+    - trlc output
+  - id: DATA-OPEN-OTM-JSON
+    name: open otm json
+    definition: The Open Threat Model JSON document that engdragon writes with the open-otm format.
+    aliases:
+    - otm artifact
+  - id: DATA-MODEL-MODULE-ARCHIVE
+    name: model module archive
+    definition: The published model module of a dependency, fetched at an exact version from the CUE OCI registry and unpacked into the module cache.
+    aliases:
+    - dependency module
+  - id: DATA-ARCHITECTURE-DOCUMENT
+    name: architecture document
+    definition: The AsciiDoc architecture and decision documents that engdoc renders from a model.
+    aliases:
+    - architecture adoc

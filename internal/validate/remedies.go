@@ -180,6 +180,9 @@ var consistencyRemedies = map[string]string{
 
 	"composition.dependency_tier_unknown": remedyDependencyTier,
 
+	"architecture.dependency_without_interface": remedyDependencyInterface,
+	"architecture.interface_without_data":       remedyInterfaceData,
+
 	"model.pinned_fingerprint_removed": remedyPinnedFingerprint,
 	"model.provides_ref_removed":       remedyProvidesRef,
 	"model.allocations_removed":        remedyAllocations,

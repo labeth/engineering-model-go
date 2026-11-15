@@ -16,7 +16,7 @@ import (
 )
 
 // TRLC-LINKS: REQ-EMG-055, REQ-EMG-056, REQ-EMG-168
-// ENGMODEL-LINKS: IF-CLI-ENGAIR, FU-AIRBORNE-ASSURANCE-EXPORTER
+// ENGMODEL-LINKS: IF-CLI-ENGAIR, FU-AIRBORNE-ASSURANCE-EXPORTER, FLOW-ARTIFACT-EXPORT
 func main() {
 	modelPath := flag.String("model", "", "path to engmod.yml manifest")
 	outDir := flag.String("out-dir", "", "directory for generated readiness outputs")

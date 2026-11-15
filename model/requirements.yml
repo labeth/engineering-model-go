@@ -2137,3 +2137,25 @@ requirements:
       - FU-MODEL-LOADER
       - SM-GO-BUNDLE-SESSION
     realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-207
+    status: implemented
+    text: When model check is requested, the engineering model go shall report each architectural dependency that names no interface.
+    notes: 'ADR-EMG-085, architecture.dependency_without_interface, one diagnostic at authoredArchitecture.mappings[i] naming the type, both ends and the fix. A dependency is a relationship of type depends_on, calls, publishes, subscribes, reads, writes, streams, implements or interacts_with between functional units, functional groups, actors, referenced elements, hardware items or alias::ID elements of a composed dependency; it names an interface when an end is an interface that has an owner or is a published alias::IF-*, or when a hardware interface connects two hardware items. Containment, self dependencies, other relationship types and data object or deployment target ends are not asked. The tier policy row is WWWEE: a warning at poc, prototype and mvp, an error at product and operational, and the warning without a tier decision.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a model has a calls relationship from FU-A to FU-B, then architecture.dependency_without_interface is reported at that relationship as a warning at poc, prototype and mvp, an error at product and operational and a warning without lifecycle; the same relationship from FU-A to an interface that FU-B owns, a contains relationship, a relationship from FU-A to FU-A and a reads relationship to a data object are not reported, an interacts_with from an actor to a unit is reported and to an interface is not, and the diagnostics of one model are the same on every run.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
+    realizes: [CAP-EMG-MODEL-VALIDATION]
+  - id: REQ-EMG-208
+    status: implemented
+    text: When model check is requested, the engineering model go shall report each interface that no data object is sent over.
+    notes: 'ADR-EMG-086, architecture.interface_without_data, one diagnostic at authoredArchitecture.interfaces[i] naming the interface and the fix. A local software interface has data when a flow step names it in interfaceRef and lists a data object in its dataRefs, dataIn or dataOut; the flow dataRefs, relationships, schemaRef and names do not count, an unused interface is asked, and a composed alias::IF-* interface is checked in its own model. The tier policy row is WWWEE, as for REQ-EMG-207.'
+    verificationMethods: [test]
+    verificationCriteria: 'When an interface is named by no flow step, or by a step that lists no data object, then architecture.interface_without_data is reported at it as a warning at poc, prototype and mvp and an error at product and operational; an interface that a step names with a data object in dataRefs, dataIn or dataOut, and a composed alias::IF-* interface, are not reported; data that only the flow lists, a relationship to a data object and a schemaRef do not clear it.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
+    realizes: [CAP-EMG-MODEL-VALIDATION]

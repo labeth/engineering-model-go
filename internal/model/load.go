@@ -75,7 +75,7 @@ func EffectiveSchemaVersion(version int) (int, error) {
 	return version, nil
 }
 
-// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, IF-GO-PKG-MODEL, FLOW-ENGINE-INTEGRATIONS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054, REQ-EMG-094, REQ-EMG-132
 func LoadBundle(manifestPath string) (Bundle, error) {
 	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {

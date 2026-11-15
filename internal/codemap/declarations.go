@@ -34,7 +34,7 @@ type Declaration struct {
 // ListDeclarations returns every named declaration under root, in path and line order. It reads files only and
 // follows the same skipping rules as ScanWithOptions.
 // TRLC-LINKS: REQ-EMG-192
-// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, IF-GO-PKG-CODEMAP
 func ListDeclarations(root string, opts ScanOptions) ([]Declaration, error) {
 	absRoot, err := filepath.Abs(root)
 	if err != nil {

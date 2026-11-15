@@ -49,6 +49,7 @@ type gapRecord struct {
 // GenerateFromFile validates and renders the complete
 // evidence-readiness package. It does not determine compliance or certification.
 // TRLC-LINKS: REQ-EMG-053, REQ-EMG-054, REQ-EMG-055
+// ENGMODEL-LINKS: DO-AIRBORNE-READINESS-PACKAGE
 func GenerateFromFile(manifestPath string, options Options) (Result, error) {
 	bundle, err := codescan.LoadBundle(manifestPath)
 	if err != nil {

@@ -1481,6 +1481,389 @@ behavior:
       kind: notification
       ref: ACT-GO-CONSUMER
       action: 'The consumer receives the error of the call and no composed system; it reports that the references to other repositories cannot be checked.'
+  - id: FLOW-ARTIFACT-EXPORT
+    title: Engineer Runs an Export Command
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-IMPLEMENTATION-ENGINEER
+    destinationRef: FU-CLI-ORCHESTRATION
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-ARCHITECTURE-MODEL
+    - DO-GEMARA-DOCUMENTS
+    - DO-LOBSTER-ACTIVITY
+    - DO-OSCAL-DOCUMENTS
+    - DO-AIRBORNE-READINESS-PACKAGE
+    - DO-VIEW-DIAGRAM
+    - DO-REQUIREMENTS-DELTA
+    - DO-REQUIREMENTS-DOCUMENT
+    - DO-THREAT-DRAGON-JSON
+    - DO-OPEN-OTM-JSON
+    - DO-STRUCTURIZR-DSL
+    - DO-SYSML-V2-MODEL
+    - DO-QUINT-SPECIFICATION
+    - DO-HEALTH-REPORT
+    - DO-NAF-V4-ARCHITECTURE
+    - DO-TRLC-REQUIREMENTS
+    - DO-TRACE-MATRIX
+    description: An engineer runs one of the command line tools of the engine that reads a model and writes an artifact (a document, a data file or a report). Each command is its own entry; the interface of a step is the command line the engineer uses and the data objects are what the command reads and writes. The commands that only report diagnostics are in FLOW-MODEL-CHECK.
+    entry:
+    - export-gemara
+    - export-lobster
+    - export-oscal
+    - export-airborne
+    - render-view
+    - change-requirements
+    - export-threat-model
+    - export-structurizr
+    - export-sysml
+    - generate-quint
+    - scan-health
+    - export-naf
+    - export-trlc
+    - write-trace-matrix
+    exits:
+    - export-gemara
+    - export-lobster
+    - export-oscal
+    - export-airborne
+    - render-view
+    - change-requirements
+    - export-threat-model
+    - export-structurizr
+    - export-sysml
+    - generate-quint
+    - scan-health
+    - export-naf
+    - export-trlc
+    - write-trace-matrix
+    steps:
+    - id: export-gemara
+      kind: integration_call
+      ref: FU-GEMARA-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-GEMARA-EXPORTER
+      interfaceRef: IF-CLI-ENGGEMARA
+      action: 'enggemara reads the model, the requirements and the code root and writes the Gemara documents of the model to an output directory.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-GEMARA-DOCUMENTS
+    - id: export-lobster
+      kind: integration_call
+      ref: FU-LOBSTER-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-LOBSTER-EXPORTER
+      interfaceRef: IF-CLI-ENGLOBSTER
+      action: 'englobster reads the model and the tests directory and writes the LOBSTER activity file.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-LOBSTER-ACTIVITY
+    - id: export-oscal
+      kind: integration_call
+      ref: FU-OSCAL-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-OSCAL-EXPORTER
+      interfaceRef: IF-CLI-ENGOSCAL
+      action: 'engoscal reads the model and writes the OSCAL profile, system security plan, assessment plan, assessment results and plan of action and milestones as JSON files.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-OSCAL-DOCUMENTS
+    - id: export-airborne
+      kind: integration_call
+      ref: FU-AIRBORNE-ASSURANCE-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-AIRBORNE-ASSURANCE-EXPORTER
+      interfaceRef: IF-CLI-ENGAIR
+      action: 'engair reads the model and its aviation document and writes the airborne readiness package to an output directory.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-AIRBORNE-READINESS-PACKAGE
+    - id: render-view
+      kind: integration_call
+      ref: FU-VIEW-PROJECTION
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-VIEW-PROJECTION
+      interfaceRef: IF-CLI-ENGVIEW
+      action: 'engview projects one authored view, or every view, and writes it as Mermaid text and as an SVG drawing.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-VIEW-DIAGRAM
+    - id: change-requirements
+      kind: integration_call
+      ref: FU-MODEL-CHANGE
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-MODEL-CHANGE
+      interfaceRef: IF-CLI-ENGCHANGE
+      action: 'engchange validates, diffs or applies a requirements delta to the requirements document of a model root.'
+      dataRefs:
+      - DO-REQUIREMENTS-DELTA
+      - DO-REQUIREMENTS-DOCUMENT
+    - id: export-threat-model
+      kind: integration_call
+      ref: FU-THREAT-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-THREAT-EXPORTER
+      interfaceRef: IF-CLI-ENGDRAGON
+      action: 'engdragon reads the model and writes the threat model as Threat Dragon v2 JSON, or as Open OTM JSON with the open-otm format.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-THREAT-DRAGON-JSON
+      - DO-OPEN-OTM-JSON
+    - id: export-structurizr
+      kind: integration_call
+      ref: FU-STRUCTURIZR-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-STRUCTURIZR-EXPORTER
+      interfaceRef: IF-CLI-ENGSTRUCT
+      action: 'engstruct reads the model and writes the Structurizr DSL workspace.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-STRUCTURIZR-DSL
+    - id: export-sysml
+      kind: integration_call
+      ref: FU-SYSML-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-SYSML-EXPORTER
+      interfaceRef: IF-CLI-ENGSYSML
+      action: 'engsysml reads the model and writes the SysML v2 textual model, with the project and KPAR package on request.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-SYSML-V2-MODEL
+    - id: generate-quint
+      kind: integration_call
+      ref: FU-QUINT-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-QUINT-EXPORTER
+      interfaceRef: IF-CLI-ENGQUINT
+      action: 'engquint generate reads the machines of the model and writes the Quint specification of each.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-QUINT-SPECIFICATION
+    - id: scan-health
+      kind: integration_call
+      ref: FU-CODE-HEALTH
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-CODE-HEALTH
+      interfaceRef: IF-CLI-ENGHEALTH
+      action: 'enghealth scan reads the code scope of the model and writes the code health findings as text, JSON or SARIF.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-HEALTH-REPORT
+    - id: export-naf
+      kind: integration_call
+      ref: FU-NAF-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-NAF-EXPORTER
+      interfaceRef: IF-CLI-ENGNAF
+      action: 'engnaf reads the model and writes the NAF v4.1 architecture description as AsciiDoc.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-NAF-V4-ARCHITECTURE
+    - id: export-trlc
+      kind: integration_call
+      ref: FU-TRLC-EXPORTER
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-TRLC-EXPORTER
+      interfaceRef: IF-CLI-ENGTRLC
+      action: 'engtrlc reads the model and its requirements and writes the TRLC requirement files to an output directory.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-TRLC-REQUIREMENTS
+    - id: write-trace-matrix
+      kind: integration_call
+      ref: FU-ALLOCATION-TRACE
+      sourceRef: ACT-IMPLEMENTATION-ENGINEER
+      destinationRef: FU-ALLOCATION-TRACE
+      interfaceRef: IF-CLI-ENGTRACE
+      action: 'engtrace reads the model, the requirements and the code root and writes the trace matrix as JSON or CSV.'
+      dataRefs:
+      - DO-ARCHITECTURE-MODEL
+      - DO-TRACE-MATRIX
+  - id: FLOW-ENGINE-INTEGRATIONS
+    title: Engine Units and External Tools Exchange Data
+    kind: data
+    frequency: on-demand
+    sourceRef: FU-CLI-ORCHESTRATION
+    destinationRef: FU-MODEL-LOADER
+    protocol: go-package
+    channel: in-process
+    dataRefs:
+    - DO-ARCHITECTURE-DOCUMENT
+    - DO-CODE-DECLARATIONS
+    - DO-LOBSTER-ACTIVITY
+    - DO-MODEL-BUNDLE
+    - DO-MODEL-DIAGNOSTICS
+    - DO-MODEL-MODULE-ARCHIVE
+    - DO-NAF-V4-ARCHITECTURE
+    - DO-OPEN-OTM-JSON
+    - DO-STRUCTURIZR-DSL
+    - DO-SYSML-V2-MODEL
+    - DO-THREAT-DRAGON-JSON
+    - DO-TRLC-REQUIREMENTS
+    - DO-VIEW-PROJECTION
+    description: A command of the engine passes the model between its units through the Go package of each unit, and uses an external tool or a specification through the interface that element offers. Each step names the interface and the data objects that cross it; the package steps are in-process calls, the others run a tool or follow a format that the engine does not own.
+    entry:
+    - use-model-package
+    - use-validate-package
+    - use-asciidoc-package
+    - use-view-package
+    - use-codemap-package
+    - run-go-toolchain
+    - validate-threat-dragon-json
+    - validate-open-otm-json
+    - validate-structurizr-dsl
+    - run-sysml-toolchain
+    - fetch-model-module
+    - follow-naf-specification
+    - validate-trlc-requirements
+    - read-lobster-activity
+    exits:
+    - use-model-package
+    - use-validate-package
+    - use-asciidoc-package
+    - use-view-package
+    - use-codemap-package
+    - run-go-toolchain
+    - validate-threat-dragon-json
+    - validate-open-otm-json
+    - validate-structurizr-dsl
+    - run-sysml-toolchain
+    - fetch-model-module
+    - follow-naf-specification
+    - validate-trlc-requirements
+    - read-lobster-activity
+    steps:
+    - id: use-model-package
+      kind: integration_call
+      ref: FU-MODEL-LOADER
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: FU-MODEL-LOADER
+      interfaceRef: IF-GO-PKG-MODEL
+      action: 'A command or the MCP server loads a model through the internal/model package, which reads the manifest and every document it names into one bundle.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+    - id: use-validate-package
+      kind: integration_call
+      ref: FU-VALIDATION-ENGINE
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: FU-VALIDATION-ENGINE
+      interfaceRef: IF-GO-PKG-VALIDATE
+      action: 'A command or the MCP server passes the bundle to the internal/validate package, which returns the diagnostics of the bundle.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-MODEL-DIAGNOSTICS
+    - id: use-asciidoc-package
+      kind: integration_call
+      ref: FU-ASCIIDOC-GENERATOR
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: FU-ASCIIDOC-GENERATOR
+      interfaceRef: IF-GO-PKG-ASCIIDOC
+      action: 'engws and the other commands that render a document pass the bundle to the internal/asciidoc package, which returns the architecture document.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-ARCHITECTURE-DOCUMENT
+    - id: use-view-package
+      kind: integration_call
+      ref: FU-VIEW-PROJECTION
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: FU-VIEW-PROJECTION
+      interfaceRef: IF-GO-PKG-VIEW
+      action: 'The NAF exporter and the diagram commands pass the bundle to the internal/view package, which returns the nodes and edges of a view.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-VIEW-PROJECTION
+    - id: use-codemap-package
+      kind: integration_call
+      ref: FU-CODEMAP-INFERENCE
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: FU-CODEMAP-INFERENCE
+      interfaceRef: IF-GO-PKG-CODEMAP
+      action: 'The health scan and the exporters that read the code scope list the declarations of the code through the internal/codemap package.'
+      dataRefs:
+      - DO-MODEL-BUNDLE
+      - DO-CODE-DECLARATIONS
+    - id: run-go-toolchain
+      kind: integration_call
+      ref: REF-GO-TOOLCHAIN
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-GO-TOOLCHAIN
+      interfaceRef: IF-GO-TOOLCHAIN-CLI
+      action: 'engws check runs the pinned model check of a repository with go run and reads the error and warning lines it prints.'
+      dataRefs:
+      - DO-MODEL-DIAGNOSTICS
+    - id: validate-threat-dragon-json
+      kind: integration_call
+      ref: REF-THREAT-DRAGON-SCHEMAS
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-THREAT-DRAGON-SCHEMAS
+      interfaceRef: IF-THREAT-DRAGON-SCHEMA
+      action: 'The threat model that engdragon writes in the threat-dragon-v2 format follows the Threat Dragon v2 schema.'
+      dataRefs:
+      - DO-THREAT-DRAGON-JSON
+    - id: validate-open-otm-json
+      kind: integration_call
+      ref: REF-OPEN-OTM-SCHEMA
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-OPEN-OTM-SCHEMA
+      interfaceRef: IF-OPEN-OTM-SCHEMA
+      action: 'The threat model that engdragon writes in the open-otm format follows the Open Threat Model schema.'
+      dataRefs:
+      - DO-OPEN-OTM-JSON
+    - id: validate-structurizr-dsl
+      kind: integration_call
+      ref: REF-STRUCTURIZR-VALIDATOR
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-STRUCTURIZR-VALIDATOR
+      interfaceRef: IF-STRUCTURIZR-VALIDATOR-CLI
+      action: 'The Structurizr validator reads the DSL workspace that engstruct writes and reports whether it is valid.'
+      dataRefs:
+      - DO-STRUCTURIZR-DSL
+    - id: run-sysml-toolchain
+      kind: integration_call
+      ref: REF-SYSML-V2-TOOLCHAIN
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-SYSML-V2-TOOLCHAIN
+      interfaceRef: IF-SYSML-V2-TOOLCHAIN-CLI
+      action: 'engsysml runs the pinned SysML v2 tools on the textual model it writes to check it and to package it as a KPAR.'
+      dataRefs:
+      - DO-SYSML-V2-MODEL
+    - id: fetch-model-module
+      kind: integration_call
+      ref: REF-CUE-OCI-MODULE-REGISTRY
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-CUE-OCI-MODULE-REGISTRY
+      interfaceRef: IF-CUE-OCI-REGISTRY-API
+      action: 'Composition fetches the model module of a dependency at its exact version from the CUE OCI registry into the module cache.'
+      dataRefs:
+      - DO-MODEL-MODULE-ARCHIVE
+    - id: follow-naf-specification
+      kind: integration_call
+      ref: REF-NAF-V4-1-SPECIFICATION
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-NAF-V4-1-SPECIFICATION
+      interfaceRef: IF-NAF-V4-1-SPECIFICATION
+      action: 'engnaf writes the architecture description with the viewpoints and products of the NAF v4.1 specification.'
+      dataRefs:
+      - DO-NAF-V4-ARCHITECTURE
+    - id: validate-trlc-requirements
+      kind: integration_call
+      ref: REF-TRLC-TOOLCHAIN
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-TRLC-TOOLCHAIN
+      interfaceRef: IF-TRLC-CLI
+      action: 'The trlc tool reads the TRLC files that engtrlc writes and reports whether they are valid.'
+      dataRefs:
+      - DO-TRLC-REQUIREMENTS
+    - id: read-lobster-activity
+      kind: integration_call
+      ref: REF-LOBSTER-TOOLCHAIN
+      sourceRef: FU-CLI-ORCHESTRATION
+      destinationRef: REF-LOBSTER-TOOLCHAIN
+      interfaceRef: IF-LOBSTER-CLI
+      action: 'The LOBSTER tools read the activity file that englobster writes and build the traceability report from it.'
+      dataRefs:
+      - DO-LOBSTER-ACTIVITY
   relationships:
   - type: contains
     from: FG-MODEL-AUTHORING
@@ -1544,95 +1927,95 @@ behavior:
     to: FU-MCP-SERVER
   - type: interacts_with
     from: ACT-ARCHITECTURE-AUTHOR
-    to: FU-CLI-ORCHESTRATION
+    to: IF-CLI-ENGWS
     description: Maintains model and design artifacts through CLI generation workflows.
   - type: interacts_with
     from: ACT-IMPLEMENTATION-ENGINEER
-    to: FU-CLI-ORCHESTRATION
+    to: IF-CLI-ENGWS
     description: Runs validation, generation, and export commands during implementation work.
   - type: interacts_with
     from: ACT-COMPLIANCE-ENGINEER
-    to: FU-OSCAL-EXPORTER
+    to: IF-CLI-ENGOSCAL
     description: Uses OSCAL and traceability outputs for assurance workflows.
   - type: interacts_with
     from: ACT-AI-AGENT
-    to: FU-MCP-SERVER
+    to: IF-CLI-ENGMCP
     description: Uses model-backed MCP tools to inspect and update implementation scope.
   - type: interacts_with
     from: ACT-CI-PIPELINE
-    to: FU-CLI-ORCHESTRATION
+    to: IF-CLI-ENGWS
     description: Executes validation and generation commands in automated checks.
   - type: depends_on
     from: FU-CLI-ORCHESTRATION
-    to: FU-MODEL-LOADER
+    to: IF-GO-PKG-MODEL
   - type: depends_on
     from: FU-CLI-ORCHESTRATION
-    to: FU-VALIDATION-ENGINE
+    to: IF-GO-PKG-VALIDATE
   - type: depends_on
     from: FU-CLI-ORCHESTRATION
-    to: FU-ASCIIDOC-GENERATOR
+    to: IF-GO-PKG-ASCIIDOC
   - type: depends_on
     from: FU-MODEL-CHANGE
-    to: FU-MODEL-LOADER
+    to: IF-GO-PKG-MODEL
   - type: depends_on
     from: FU-MODEL-CHANGE
-    to: FU-VALIDATION-ENGINE
+    to: IF-GO-PKG-VALIDATE
   - type: depends_on
-    from: FU-VALIDATION-ENGINE
-    to: REF-GO-TOOLCHAIN
-    description: Runs Go tests and static checks as part of repository validation.
-  - type: depends_on
-    from: FU-THREAT-EXPORTER
-    to: REF-THREAT-DRAGON-SCHEMAS
+    from: FU-CLI-ORCHESTRATION
+    to: IF-GO-TOOLCHAIN-CLI
+    description: Runs the pinned model check of a repository with go run and reads the toolchain version and module pins with go env and go get (engws check, sync and bump).
   - type: depends_on
     from: FU-THREAT-EXPORTER
-    to: REF-OPEN-OTM-SCHEMA
+    to: IF-THREAT-DRAGON-SCHEMA
+  - type: depends_on
+    from: FU-THREAT-EXPORTER
+    to: IF-OPEN-OTM-SCHEMA
   - type: depends_on
     from: FU-STRUCTURIZR-EXPORTER
-    to: REF-STRUCTURIZR-VALIDATOR
+    to: IF-STRUCTURIZR-VALIDATOR-CLI
   - type: depends_on
     from: FU-SYSML-EXPORTER
-    to: REF-SYSML-V2-TOOLCHAIN
+    to: IF-SYSML-V2-TOOLCHAIN-CLI
   - type: depends_on
     from: FU-SYSTEM-COMPOSITION
-    to: REF-CUE-OCI-MODULE-REGISTRY
+    to: IF-CUE-OCI-REGISTRY-API
     description: Fetches exact-version reusable model modules using CUE registry configuration and credentials.
   - type: reads
     from: FU-SYSML-EXPORTER
     to: DO-SYSML-V2-METAMODEL
   - type: depends_on
     from: FU-QUINT-EXPORTER
-    to: FU-MODEL-LOADER
+    to: IF-GO-PKG-MODEL
   - type: depends_on
     from: FU-QUINT-EXPORTER
-    to: FU-VALIDATION-ENGINE
+    to: IF-GO-PKG-VALIDATE
   - type: depends_on
     from: FU-CODE-HEALTH
-    to: FU-MODEL-LOADER
+    to: IF-GO-PKG-MODEL
   - type: depends_on
     from: FU-CODE-HEALTH
-    to: FU-VALIDATION-ENGINE
+    to: IF-GO-PKG-VALIDATE
   - type: depends_on
     from: FU-CODE-HEALTH
-    to: FU-CODEMAP-INFERENCE
+    to: IF-GO-PKG-CODEMAP
   - type: depends_on
     from: FU-NAF-EXPORTER
-    to: FU-VIEW-PROJECTION
+    to: IF-GO-PKG-VIEW
   - type: depends_on
     from: FU-NAF-EXPORTER
-    to: REF-NAF-V4-1-SPECIFICATION
+    to: IF-NAF-V4-1-SPECIFICATION
   - type: depends_on
     from: FU-TRLC-EXPORTER
-    to: REF-TRLC-TOOLCHAIN
+    to: IF-TRLC-CLI
   - type: depends_on
     from: FU-LOBSTER-EXPORTER
-    to: REF-LOBSTER-TOOLCHAIN
+    to: IF-LOBSTER-CLI
   - type: depends_on
     from: FU-MCP-SERVER
-    to: FU-MODEL-LOADER
+    to: IF-GO-PKG-MODEL
   - type: depends_on
     from: FU-MCP-SERVER
-    to: FU-VALIDATION-ENGINE
+    to: IF-GO-PKG-VALIDATE
   - type: contains
     from: FU-ASCIIDOC-GENERATOR
     to: IF-CLI-ENGDOC
@@ -1777,7 +2160,7 @@ behavior:
     description: Model-aware tool usage requires strict MCP input semantics.
   - type: interacts_with
     from: ACT-GO-CONSUMER
-    to: FU-MODEL-LOADER
+    to: IF-GO-MODEL-LOADING
     description: Imports the root Go package, loads models and reads them through the Go API.
   - type: contains
     from: FU-MODEL-LOADER

@@ -648,7 +648,7 @@ func (r *compositionResolver) resolveDependency(dependency model.ManifestDepende
 // recorded at fetch time (or the registry is unreachable) and replaced
 // otherwise; in refresh mode it is always replaced.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-064
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, REF-CUE-OCI-MODULE-REGISTRY
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, REF-CUE-OCI-MODULE-REGISTRY, DO-MODEL-MODULE-ARCHIVE, FLOW-ENGINE-INTEGRATIONS
 func (r *compositionResolver) fetchModule(mv module.Version) (string, error) {
 	cacheRoot := filepath.Join(r.workspace, ".engmod", "modules")
 	dest := filepath.Join(cacheRoot, moduleCacheDirName(mv))

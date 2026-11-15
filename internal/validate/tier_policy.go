@@ -50,6 +50,11 @@ const (
 	rowHygiene           = "DDWWE"
 	rowStrictCoverage    = "WWWEE"
 	rowSafetyFromMVP     = "DDEEE"
+	// rowTopTwoTiers is a warning up to mvp and an error at product and
+	// operational, the two highest tiers (the owner's rules for an architectural
+	// dependency that names no interface and an interface that carries no data,
+	// ADR-EMG-085 and ADR-EMG-086); nothing is deferred.
+	rowTopTwoTiers = "WWWEE"
 	// rowHealthDebt is a warning up to mvp and an error at product and
 	// operational, the two highest tiers, where the bar for code quality is the
 	// same and highest (ADR-EMG-057); with the safety bundle it is an error from
@@ -85,6 +90,8 @@ var tierTable = map[string]tierRow{
 	"lifecycle.requirement_unverified":            {base: rowDebtToOperational, note: "requirement status not verified (rejected and retired excepted)"},
 	"verification.failed":                         {base: rowDebtToOperational, note: "a linked test result failed"},
 	"verification.gated_only":                     {base: rowDebtToOperational, note: "every linked test is environment gated"},
+	"architecture.dependency_without_interface":   {base: rowTopTwoTiers, note: "an architectural dependency (depends_on, calls, publishes, subscribes, reads, writes, streams, implements or interacts_with between functional units, actors, referenced elements, composed alias::ID elements or hardware items) that names no interface: neither end is an interface (a local one needs an owner), and two hardware items are joined by no hardware interface; self dependencies, containment and relationships to data objects or deployment targets are not asked (ADR-EMG-085)"},
+	"architecture.interface_without_data":         {base: rowTopTwoTiers, note: "a local software interface that no flow step names in interfaceRef together with a data object in dataRefs, dataIn or dataOut (a composed alias::IF-* interface is checked in its own model; ADR-EMG-086)"},
 	"behavior.state_unreachable":                  {base: rowHygiene},
 	"behavior.machine_deadlock":                   {base: rowHygiene, note: "a non-final machine state without outgoing transition"},
 	"behavior.transition_nondeterministic":        {base: rowHygiene, note: "two transitions from one state on one trigger without distinguishing guards"},

@@ -395,3 +395,37 @@ func TestRequirementAndVerificationSourceNodesDoNotOverwrite(t *testing.T) {
 		}
 	}
 }
+
+// A dependency that goes through an interface is drawn to the interface's
+// owner (ADR-EMG-085): the owner comes from interface.owner or from the
+// element that contains the interface, a selected interface adds its owner to
+// the selection, and a dependency that names no interface is drawn as before.
+// Mutation: not resolving the end, or not adding the owner of a selected
+// interface, drops an edge.
+// TRLC-LINKS: REQ-EMG-003
+func TestFunctionalDiagramsDrawADependencyOnAnInterfaceToItsOwner(t *testing.T) {
+	a := model.AuthoredArchitecture{
+		FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-A", Name: "Group A"}, {ID: "FG-B", Name: "Group B"}},
+		FunctionalUnits:    []model.FunctionalUnit{{ID: "FU-A", Name: "A", Group: "FG-A"}, {ID: "FU-B", Name: "B", Group: "FG-B"}, {ID: "FU-C", Name: "C", Group: "FG-B"}},
+		ReferencedElements: []model.ReferencedElement{{ID: "REF-X", Name: "External"}},
+		Interfaces: []model.Interface{
+			{ID: "IF-B", Name: "B api", Owner: "FU-B"}, {ID: "IF-C", Name: "C api"}, {ID: "IF-X", Name: "X api", Owner: "REF-X"},
+		},
+		Mappings: []model.Mapping{
+			{Type: "contains", From: "FU-C", To: "IF-C"},
+			{Type: "depends_on", From: "FU-A", To: "IF-B"},
+			{Type: "depends_on", From: "FU-A", To: "IF-C"},
+			{Type: "depends_on", From: "FU-A", To: "IF-X"},
+		},
+	}
+	selected := map[string]bool{"FU-A": true, "FU-B": true, "FU-C": true, "IF-X": true}
+	out := buildFunctionalCollaborationMermaid(functionalPublicationArchitecture(a, selected))
+	for _, want := range []string{`FU_FU_A -->|depends_on| FU_FU_B`, `FU_FU_A -->|depends_on| FU_FU_C`, `FU_FU_A -->|depends_on| REF_REF_X`} {
+		if !strings.Contains(out, want) {
+			t.Errorf("diagram lacks %q:\n%s", want, out)
+		}
+	}
+	if strings.Contains(out, "IF_") {
+		t.Errorf("an interface is drawn as a node:\n%s", out)
+	}
+}

@@ -78,7 +78,7 @@ func GenerateFromFile(manifestPath string) (Result, error) {
 // machines yields no files and no error.
 //
 // TRLC-LINKS: REQ-EMG-141
-// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT, DO-QUINT-SPECIFICATION
 func Generate(bundle model.Bundle) (Result, error) {
 	result := Result{Files: []File{}, Diagnostics: []model.SemanticDiagnostic{}}
 	modules := map[string]string{}

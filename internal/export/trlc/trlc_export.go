@@ -72,7 +72,7 @@ func GenerateRequirementsFromFile(requirementsPath string, options Options) (Res
 }
 
 // TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
-// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-TRLC-REQUIREMENTS
 func GenerateRequirements(requirements model.RequirementsDocument, options Options) (Result, error) {
 	canonical, err := model.NewCanonicalRequirements(requirements)
 	if err != nil {

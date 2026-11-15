@@ -334,7 +334,7 @@ func aviationSchemaVersion(b model.Bundle) int {
 	return b.Aviation.SchemaVersion
 }
 
-// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED, FU-VIEW-PROJECTION, IF-GO-PKG-VALIDATE
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-035, REQ-EMG-036, REQ-EMG-037, REQ-EMG-041, REQ-EMG-043, REQ-EMG-049, REQ-EMG-065, REQ-EMG-070, REQ-EMG-082, REQ-EMG-083, REQ-EMG-085, REQ-EMG-090, REQ-EMG-094, REQ-EMG-124, REQ-EMG-126, REQ-EMG-128, REQ-EMG-132, REQ-EMG-133, REQ-EMG-138, REQ-EMG-139
 func Bundle(b model.Bundle) []Diagnostic {
 	diags := []Diagnostic{}
@@ -436,8 +436,8 @@ func Bundle(b model.Bundle) []Diagnostic {
 		addID(x.ID, path)
 		interfaces[x.ID] = true
 		kindByID[x.ID] = "interface"
-		if owner := strings.TrimSpace(x.Owner); owner != "" && !units[owner] {
-			diags = append(diags, Diagnostic{Code: "model.invalid_interface_owner", Severity: SeverityError, Message: fmt.Sprintf("interface %q owner %q must be a functional unit", x.ID, owner), Path: path})
+		if owner := strings.TrimSpace(x.Owner); invalidInterfaceOwner(owner, units, references) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_interface_owner", Severity: SeverityError, Message: fmt.Sprintf("interface %q owner %q must be a functional unit, or a referenced element for an interface an external element offers", x.ID, owner), Path: path})
 		}
 	}
 	for i, x := range b.Architecture.AuthoredArchitecture.DataObjects {
@@ -724,8 +724,8 @@ func Bundle(b model.Bundle) []Diagnostic {
 		if unreferenceableInferredID(m.From) || unreferenceableInferredID(m.To) {
 			diags = append(diags, Diagnostic{Code: "model.inferred_id_not_allowed", Severity: SeverityError, Message: "authored mappings must not reference inferred RT-* or AUTO-* ids", Path: path})
 		}
-		if m.Type == "interacts_with" && !((actors[m.From] && units[m.To]) || (kindByID[m.From] == "hardware_item" && kindByID[m.To] == "hardware_item")) {
-			diags = append(diags, Diagnostic{Code: "model.invalid_interaction", Severity: SeverityError, Message: "interacts_with must be actor -> functional unit or hardware item -> hardware item", Path: path})
+		if m.Type == "interacts_with" && !validInteractionEnds(m, kindByID) {
+			diags = append(diags, Diagnostic{Code: "model.invalid_interaction", Severity: SeverityError, Message: "interacts_with must be actor -> functional unit, actor -> interface or hardware item -> hardware item", Path: path})
 		}
 		if m.Type == "targets" && !vectors[m.From] {
 			diags = append(diags, Diagnostic{Code: "model.invalid_target", Severity: SeverityError, Message: "targets must originate from an attack vector", Path: path})
@@ -1333,7 +1333,7 @@ func Bundle(b model.Bundle) []Diagnostic {
 	for _, requirement := range b.Requirements.Requirements {
 		requirementIDs[strings.TrimSpace(requirement.ID)] = true
 	}
-	diags = append(diags, behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics, requirementIDs)...)
+	diags = append(diags, append(behaviorDiagnostics(b.Architecture.AuthoredArchitecture, b.Architecture.Semantics, requirementIDs), interfaceDiagnostics(b.Architecture.AuthoredArchitecture, kindByID)...)...)
 	diags = append(diags, catalogNameDiagnostics(b.Catalog.Catalog)...)
 	diags = append(diags, assuranceLinkDiagnostics(b.Architecture.AuthoredArchitecture)...)
 	diags = append(diags, assuranceConsistencyDiagnostics(b.Architecture.AuthoredArchitecture)...)
@@ -1492,6 +1492,7 @@ var mappingPairs = map[string]map[string]bool{
 	"interacts_with": {
 		"hardware_item:hardware_item": true,
 		"actor:functional_unit":       true,
+		"actor:interface":             true,
 	},
 	"targets": {
 		"attack_vector:functional_unit":    true,
@@ -1634,4 +1635,26 @@ func declaredAliasList(b model.Bundle) string {
 	}
 	sort.Strings(aliases)
 	return strings.Join(aliases, ", ")
+}
+
+// invalidInterfaceOwner reports whether an interface owner is set and is
+// neither a functional unit nor a referenced element (the element an external
+// interface belongs to, ADR-EMG-085).
+// TRLC-LINKS: REQ-EMG-207
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func invalidInterfaceOwner(owner string, units, references map[string]bool) bool {
+	return owner != "" && !units[owner] && !references[owner]
+}
+
+// validInteractionEnds reports whether an interacts_with relationship goes
+// from an actor to a functional unit or to an interface, or from a hardware
+// item to a hardware item.
+// TRLC-LINKS: REQ-EMG-207
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func validInteractionEnds(m model.Mapping, kindByID map[string]string) bool {
+	from, to := kindByID[m.From], kindByID[m.To]
+	if from == "actor" {
+		return to == "functional_unit" || to == "interface"
+	}
+	return from == "hardware_item" && to == "hardware_item"
 }

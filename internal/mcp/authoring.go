@@ -61,7 +61,7 @@ var idFieldKinds = map[string][]string{
 	"owner":                {"actor"},
 	"responsiblerole":      {"actor"},
 	"responsibleroles":     {"actor"},
-	"interface.owner":      {"functional_unit"},
+	"interface.owner":      {"functional_unit", "referenced_element"},
 	"group":                {"functional_group"},
 	"interfaceref":         {"interface"},
 	"softwareinterfaceref": {"interface"},

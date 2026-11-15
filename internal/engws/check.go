@@ -258,6 +258,7 @@ func ToolGoWork(repoDir string) string {
 
 // execCheck runs the repository's own pinned check with summary output.
 // TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FLOW-ENGINE-INTEGRATIONS
 func execCheck(ctx context.Context, root string, target CheckTarget) CheckResult {
 	result := CheckResult{Target: target, Method: "exec .github/engmod-check"}
 	args := []string{"-C", ".github/engmod-check", "run", ".",

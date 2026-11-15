@@ -70,7 +70,7 @@ func GenerateFromFiles(architecturePath, requirementsPath, designPath string, op
 // resolves the dependencies once, validates against the bundle enriched with
 // their published entities, and returns every composition diagnostic; a
 // composition error fails the call like any other validation error.
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
 func Generate(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options Options) (Result, error) {
 	bundle.Requirements = requirements
