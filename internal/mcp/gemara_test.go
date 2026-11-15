@@ -15,7 +15,7 @@ import (
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func TestGemaraValidateReportsCrossReferences(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "gemara.validate", map[string]any{})
+	payload := s.callToolPayload(t, "gemara.validate", map[string]any{})
 	if payload["valid"] != true {
 		t.Fatalf("expected valid=true, got %+v", payload)
 	}
@@ -61,7 +61,7 @@ func TestGemaraValidateRejectsEnforcedOpenPOAMItem(t *testing.T) {
 	// The bedrock example has an open POA&M item whose risk is evaluated, so
 	// its enforcement log has an Undetermined action.
 	s := initializedServerAt(t, filepath.Join("..", "..", "examples", "bedrock-pr-review-github-app-sample"))
-	payload := callToolPayload(t, s, "gemara.validate", map[string]any{})
+	payload := s.callToolPayload(t, "gemara.validate", map[string]any{})
 	if errs, ok := payload["modelConsistencyErrors"].([]any); !ok || len(errs) != 0 {
 		t.Fatalf("expected empty modelConsistencyErrors, got %+v", payload["modelConsistencyErrors"])
 	}
@@ -100,7 +100,7 @@ func TestGemaraPolicyReflectsEditsBetweenCalls(t *testing.T) {
 	}
 	s := initializedServerAt(t, dir)
 	const accepted = "ACC-RISK-PAYMENTS-SSO-MFA-GAP"
-	before := callToolPayload(t, s, "gemara.policy", map[string]any{})["document"].(string)
+	before := s.callToolPayload(t, "gemara.policy", map[string]any{})["document"].(string)
 	if strings.Contains(before, accepted) {
 		t.Fatalf("fixture changed: the SSO risk is already accepted:\n%s", before)
 	}
@@ -117,7 +117,7 @@ func TestGemaraPolicyReflectsEditsBetweenCalls(t *testing.T) {
 	if err := os.WriteFile(path, []byte(edited), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	after := callToolPayload(t, s, "gemara.policy", map[string]any{})["document"].(string)
+	after := s.callToolPayload(t, "gemara.policy", map[string]any{})["document"].(string)
 	if !strings.Contains(after, accepted) {
 		t.Fatalf("second gemara.policy call did not reflect the edit:\n%s", after)
 	}
@@ -137,7 +137,7 @@ func TestToolCallReturnsReloadErrorForBrokenModel(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := initializedServerAt(t, dir)
-	callToolPayload(t, s, "gemara.policy", map[string]any{})
+	s.callToolPayload(t, "gemara.policy", map[string]any{})
 	path := filepath.Join(dir, "model", "assurance.yml")
 	good, err := os.ReadFile(path)
 	if err != nil {
@@ -163,7 +163,7 @@ func TestToolCallReturnsReloadErrorForBrokenModel(t *testing.T) {
 	if err := os.WriteFile(path, []byte(fixed), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if after := callToolPayload(t, s, "gemara.policy", map[string]any{})["document"].(string); !strings.Contains(after, accepted) {
+	if after := s.callToolPayload(t, "gemara.policy", map[string]any{})["document"].(string); !strings.Contains(after, accepted) {
 		t.Fatalf("call after the fix did not return the fixed model:\n%s", after)
 	}
 }

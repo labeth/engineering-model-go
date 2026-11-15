@@ -108,7 +108,7 @@ func TestToolsListAndAllToolsReturnPayload(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	payload := s.callToolPayload(t, "model.authoringContract", map[string]any{})
 	contract, ok := payload["contract"].(map[string]any)
 	if !ok {
 		t.Fatalf("missing authoring contract: %+v", payload)
@@ -634,18 +634,18 @@ func TestGraphSearchIncludesFlowsAndOtherModelEntities(t *testing.T) {
 func TestDeveloperContextToolsReturnGroupedImplementations(t *testing.T) {
 	s := initializedPaymentsServer(t)
 
-	listPayload := callToolPayload(t, s, "model.list", map[string]any{"query": "REQ-PAY-001", "kind": "requirement"})
+	listPayload := s.callToolPayload(t, "model.list", map[string]any{"query": "REQ-PAY-001", "kind": "requirement"})
 	entities, _ := listPayload["entities"].([]any)
 	if len(entities) == 0 {
 		t.Fatalf("expected model.list to return matching requirement")
 	}
 
-	entityPayload := callToolPayload(t, s, "model.entity", map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"})
+	entityPayload := s.callToolPayload(t, "model.entity", map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT"})
 	if entityPayload["kind"] != "flow" || entityPayload["exists"] != true {
 		t.Fatalf("expected model.entity flow detail, got %+v", entityPayload)
 	}
 
-	implPayload := callToolPayload(t, s, "flow.implementations", map[string]any{"flowId": "FLOW-CUSTOMER-CHECKOUT"})
+	implPayload := s.callToolPayload(t, "flow.implementations", map[string]any{"flowId": "FLOW-CUSTOMER-CHECKOUT"})
 	files, _ := implPayload["files"].([]any)
 	if len(files) == 0 {
 		t.Fatalf("expected grouped flow implementation files")
@@ -664,13 +664,13 @@ func TestDeveloperContextToolsReturnGroupedImplementations(t *testing.T) {
 		t.Fatalf("expected checkout_api.go in grouped implementation files: %+v", files)
 	}
 
-	contextPayload := callToolPayload(t, s, "code.contextForTask", map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT", "requirementId": "REQ-PAY-001"})
+	contextPayload := s.callToolPayload(t, "code.contextForTask", map[string]any{"entityId": "FLOW-CUSTOMER-CHECKOUT", "requirementId": "REQ-PAY-001"})
 	contextFiles, _ := contextPayload["implementationFiles"].([]any)
 	if len(contextFiles) == 0 {
 		t.Fatalf("expected code.contextForTask to include implementationFiles")
 	}
 
-	coveragePayload := callToolPayload(t, s, "coverage.strictStatus", map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")})
+	coveragePayload := s.callToolPayload(t, "coverage.strictStatus", map[string]any{"path": filepath.Join("examples", "payments-engineering-sample", "src", "checkout_api.go")})
 	if coveragePayload["status"] == "" {
 		t.Fatalf("expected coverage.strictStatus status")
 	}
@@ -699,7 +699,7 @@ func initializedPaymentsServer(t *testing.T) *Server {
 }
 
 // TRLC-LINKS: REQ-EMG-007, REQ-EMG-008
-func callToolPayload(t *testing.T, s *Server, name string, args map[string]any) map[string]any {
+func (s *Server) callToolPayload(t *testing.T, name string, args map[string]any) map[string]any {
 	t.Helper()
 	resp := rpcCall(t, s, map[string]any{
 		"jsonrpc": "2.0",

@@ -49,7 +49,7 @@ func TestModelPatchEditsValidatesAndWritesOnlyValidResults(t *testing.T) {
 	riskID := firstID(t, commented, "  risks:\n")
 
 	// Dry run: a scalar set, a nested field and an append, nothing written.
-	dry := callToolPayload(t, s, "model.patch", map[string]any{
+	dry := s.callToolPayload(t, "model.patch", map[string]any{
 		"document": "assurance", "id": riskID,
 		"set":    map[string]any{"title": "Patched risk title", "rationale": "Patched: because."},
 		"append": map[string]any{"appliesTo": "FU-CHECKOUT"},
@@ -64,7 +64,7 @@ func TestModelPatchEditsValidatesAndWritesOnlyValidResults(t *testing.T) {
 	}
 
 	// Write a valid nested edit: the file changes, the comment and mode stay.
-	wrote := callToolPayload(t, s, "model.patch", map[string]any{
+	wrote := s.callToolPayload(t, "model.patch", map[string]any{
 		"document": "model/assurance.yml", "id": riskID, "write": true,
 		"set": map[string]any{"title": "Patched risk title"},
 	})
@@ -80,7 +80,7 @@ func TestModelPatchEditsValidatesAndWritesOnlyValidResults(t *testing.T) {
 	}
 
 	// An invalid result is reported with diagnostics and not written.
-	invalid := callToolPayload(t, s, "model.patch", map[string]any{
+	invalid := s.callToolPayload(t, "model.patch", map[string]any{
 		"document": "assurance", "id": riskID, "write": true,
 		"set": map[string]any{"owner": "ACT-NOBODY"},
 	})
@@ -105,7 +105,7 @@ func TestModelPatchEditsValidatesAndWritesOnlyValidResults(t *testing.T) {
 		"write not bool":      {"document": "assurance", "id": riskID, "set": map[string]any{"title": "x"}, "write": "yes"},
 		"remove missing item": {"document": "assurance", "id": riskID, "remove": map[string]any{"appliesTo": "FU-NOPE"}},
 	} {
-		if payload, isErr := callToolRaw(t, s, "model.patch", args); !isErr {
+		if payload, isErr := s.callToolRaw(t, "model.patch", args); !isErr {
 			t.Errorf("%s must be refused: %+v", name, payload)
 		}
 	}
@@ -130,7 +130,7 @@ func TestModelPatchEditsValidatesAndWritesOnlyValidResults(t *testing.T) {
 		t.Fatal(err)
 	}
 	decisionID := firstID(t, string(data), "decisions:\n")
-	if payload, isErr := callToolRaw(t, s, "model.patch", map[string]any{"document": "decisions", "id": decisionID, "write": true, "set": map[string]any{"title": "x"}}); !isErr || !strings.Contains(toString(payload["error"].(map[string]any)["message"]), "outside the model root") {
+	if payload, isErr := s.callToolRaw(t, "model.patch", map[string]any{"document": "decisions", "id": decisionID, "write": true, "set": map[string]any{"title": "x"}}); !isErr || !strings.Contains(toString(payload["error"].(map[string]any)["message"]), "outside the model root") {
 		t.Fatalf("a document outside the model root must be refused: %+v", payload)
 	}
 	if got, _ := os.ReadFile(outside); string(got) != string(data) {

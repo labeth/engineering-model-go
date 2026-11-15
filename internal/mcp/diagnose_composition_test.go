@@ -37,11 +37,11 @@ func TestModelDiagnoseChecksSubmittedQualifiedReferences(t *testing.T) {
 	s := initializedServerAt(t, parent)
 	before := snapshotDir(t, filepath.Dir(parent))
 
-	baseline := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": good})
+	baseline := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": good})
 	if baseline["valid"] != true {
 		t.Fatalf("good content must be valid: %+v", baseline)
 	}
-	result := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": bad})
+	result := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": bad})
 	var row map[string]any
 	for _, item := range result["diagnostics"].([]any) {
 		if d := item.(map[string]any); d["code"] == "composition.unpublished_reference" {
@@ -57,7 +57,7 @@ func TestModelDiagnoseChecksSubmittedQualifiedReferences(t *testing.T) {
 
 	writeMCPFile(t, requirementsPath, bad)
 	before = snapshotDir(t, filepath.Dir(parent))
-	fixed := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": good})
+	fixed := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": good})
 	if fixed["valid"] != true {
 		t.Fatalf("on-disk bad reference fixed by the submitted content must be valid: %+v", fixed)
 	}

@@ -73,7 +73,7 @@ func assertLinkSummary(t *testing.T, summary map[string]any) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestTraceMatrixToolReportsDelegatedStatus(t *testing.T) {
 	s := initializeMCPAt(t, writeMCPCompositionFixture(t))
-	rows := traceRowsByID(callToolPayload(t, s, "trace.matrix", map[string]any{}))
+	rows := traceRowsByID(s.callToolPayload(t, "trace.matrix", map[string]any{}))
 	status, _ := rows["child::REQ-CHILD"]["delegatedStatus"].(map[string]any)
 	if status["requirement"] != "REQ-CHILD" || status["status"] == nil {
 		t.Fatalf("the linked row must carry delegatedStatus for REQ-CHILD: %+v", rows)
@@ -83,7 +83,7 @@ func TestTraceMatrixToolReportsDelegatedStatus(t *testing.T) {
 	}
 	assertNoAllocationDelegation(t, rows)
 	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
-		assertLinkSummary(t, callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any))
+		assertLinkSummary(t, s.callToolPayload(t, "trace.matrix", args)["summary"].(map[string]any))
 	}
 }
 
@@ -95,7 +95,7 @@ func TestTraceMatrixToolReportsDelegatedStatus(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestTraceMatrixToolReportsGatedOnly(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "solo")
-	writeMCPModule(t, dir, "example.com/solo@v1", "v1.0.0", "SOLO", "", "  contract: {}\n")
+	writeMCPModule(t, dir, mcpModule{"example.com/solo@v1", "v1.0.0", "SOLO", "", "  contract: {}\n"})
 	writeMCPFile(t, filepath.Join(dir, "e2e_test.go"), "package solo\n\nimport (\n\t\"os\"\n\t\"testing\"\n)\n\n// TRLC-LINKS: REQ-PARENT\nfunc TestE2E(t *testing.T) {\n\tif os.Getenv(\"SOLO_E2E\") == \"\" {\n\t\tt.Skip(\"set SOLO_E2E\")\n\t}\n}\n\n// TRLC-LINKS: REQ-CHILD\nfunc TestUnit(t *testing.T) {}\n")
 	s := NewServer()
 	if resp := rpcCall(t, s, map[string]any{
@@ -107,13 +107,13 @@ func TestTraceMatrixToolReportsGatedOnly(t *testing.T) {
 		t.Fatalf("initialize: %+v", resp["error"])
 	}
 	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
-		summary := callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any)
+		summary := s.callToolPayload(t, "trace.matrix", args)["summary"].(map[string]any)
 		list, _ := summary["gatedOnlyRequirements"].([]any)
 		if summary["gatedOnly"] != float64(1) || len(list) != 1 || list[0] != "REQ-PARENT" || summary["testLinked"] != float64(2) {
 			t.Fatalf("summary %v: want gatedOnly 1 [REQ-PARENT] and testLinked 2, got %+v", args, summary)
 		}
 	}
-	for _, item := range callToolPayload(t, s, "trace.matrix", map[string]any{})["requirements"].([]any) {
+	for _, item := range s.callToolPayload(t, "trace.matrix", map[string]any{})["requirements"].([]any) {
 		row := item.(map[string]any)
 		gated, _ := row["gated"].(bool)
 		gates, _ := row["gates"].([]any)

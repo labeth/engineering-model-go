@@ -23,14 +23,14 @@ import (
 func countingRegistry(t *testing.T) *atomic.Int64 {
 	t.Helper()
 	registryRoot := filepath.Join(t.TempDir(), "registry")
-	writeMCPModule(t, filepath.Join(registryRoot, "example.com_child_v1.0.0"), "example.com/child@v1", "v1.0.0", "CHILD", `publications:
+	writeMCPModule(t, filepath.Join(registryRoot, "example.com_child_v1.0.0"), mcpModule{"example.com/child@v1", "v1.0.0", "CHILD", `publications:
   - id: public
     architecture: [CAP-CHILD]
 `, `  contract:
     provides:
       - id: CAP-CHILD
         kind: capability
-`)
+`})
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {
 		t.Fatal(err)
@@ -67,7 +67,7 @@ func TestMCPCompositionToolsNeverWriteLockAndWorkOffline(t *testing.T) {
 	t.Setenv("ENGMOD_MODULE_CACHE", "")
 	requests := countingRegistry(t)
 	parent := filepath.Join(t.TempDir(), "parent")
-	writeMCPModule(t, parent, "example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
+	writeMCPModule(t, parent, mcpModule{"example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
   - alias: child
     path: example.com/child@v1
     version: v1.0.0
@@ -77,7 +77,7 @@ func TestMCPCompositionToolsNeverWriteLockAndWorkOffline(t *testing.T) {
       - id: SUB-CHILD
         dependency: child
         publication: public
-`)
+`})
 	manifest := filepath.Join(parent, "engmod.yml")
 	lockPath := filepath.Join(parent, engmodel.CompositionLockFileName)
 	// Warm the module cache without writing a lock.
@@ -95,11 +95,11 @@ func TestMCPCompositionToolsNeverWriteLockAndWorkOffline(t *testing.T) {
 	callAll := func(label string) {
 		t.Helper()
 		requests.Store(0)
-		complete := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "child::"})
+		complete := s.callToolPayload(t, "model.complete", map[string]any{"prefix": "child::"})
 		if !strings.Contains(mustJSON(t, complete), "child::CAP-CHILD") {
 			t.Fatalf("%s: model.complete lost the imported IDs: %+v", label, complete)
 		}
-		callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": string(requirements)})
+		s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": string(requirements)})
 		comp := callToolData(t, s, "composition.resolve")
 		text := mustJSON(t, comp)
 		if strings.Contains(text, "module_fetch_failed") {

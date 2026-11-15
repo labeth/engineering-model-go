@@ -61,7 +61,7 @@ func TestFilesOwnerReadsOnlyOwnerMarker(t *testing.T) {
 		{"no_marker.go", "", false, 0},
 	} {
 		t.Run(tc.file, func(t *testing.T) {
-			payload := callToolPayload(t, s, "files.owner", map[string]any{"path": tc.file})
+			payload := s.callToolPayload(t, "files.owner", map[string]any{"path": tc.file})
 			if payload["ownerFunctionalUnit"] != tc.owner {
 				t.Fatalf("owner = %v, want %q", payload["ownerFunctionalUnit"], tc.owner)
 			}
@@ -79,7 +79,7 @@ func TestFilesOwnerReadsOnlyOwnerMarker(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	payload := s.callToolPayload(t, "model.authoringContract", map[string]any{})
 	rules, ok := payload["rules"].(map[string]any)
 	if !ok {
 		t.Fatalf("missing rules: %+v", payload)
@@ -116,7 +116,7 @@ func TestModelAuthoringContractIncludesValidationRules(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestModelAuthoringContractListsFieldSetsAndPublicationSections(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	payload := s.callToolPayload(t, "model.authoringContract", map[string]any{})
 	rules, _ := payload["rules"].(map[string]any)
 	sets, _ := rules["fieldSets"].(map[string]any)
 	fields := func(kind string) string {

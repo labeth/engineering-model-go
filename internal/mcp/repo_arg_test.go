@@ -35,13 +35,13 @@ func TestRepoArgumentAnswersForFamilyMembers(t *testing.T) {
 	}
 	s := linksServer(t, root, "system")
 	requirementCount := func(args map[string]any) any {
-		return callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any)["requirements"]
+		return s.callToolPayload(t, "trace.matrix", args)["summary"].(map[string]any)["requirements"]
 	}
 	own := requirementCount(map[string]any{})
 	if got := requirementCount(map[string]any{"repo": "."}); got != own {
 		t.Fatalf("repo . without a workspace is the server's own checkout: %v, want %v", got, own)
 	}
-	if msg := toolError(t, s, "trace.matrix", map[string]any{"repo": "../child-a"}); !strings.Contains(msg, "outside") {
+	if msg := s.toolError(t, "trace.matrix", map[string]any{"repo": "../child-a"}); !strings.Contains(msg, "outside") {
 		t.Fatalf("a sibling without a workspace: %q", msg)
 	}
 
@@ -52,16 +52,16 @@ func TestRepoArgumentAnswersForFamilyMembers(t *testing.T) {
 	if got := requirementCount(map[string]any{"repo": "repos/child-a"}); got != float64(4) {
 		t.Fatalf("trace.matrix for repos/child-a: %v requirements, want 4", got)
 	}
-	if got := callToolPayload(t, s, "requirements.get", map[string]any{"repo": "repos/child-a", "requirementId": "REQ-A-001"}); got["exists"] != true {
+	if got := s.callToolPayload(t, "requirements.get", map[string]any{"repo": "repos/child-a", "requirementId": "REQ-A-001"}); got["exists"] != true {
 		t.Fatalf("requirements.get in child-a: %+v", got)
 	}
-	if links, _ := callToolPayload(t, s, "links.list", map[string]any{"repo": filepath.Join(root, "repos", "child-b")})["links"].([]any); len(links) != 0 {
+	if links, _ := s.callToolPayload(t, "links.list", map[string]any{"repo": filepath.Join(root, "repos", "child-b")})["links"].([]any); len(links) != 0 {
 		t.Fatalf("links.list in child-b: %+v", links)
 	}
 	if got, sys := requirementCount(map[string]any{}), requirementCount(map[string]any{"repo": "repos/system"}); got != sys || got == float64(4) {
 		t.Fatalf("without repo the server answers for its own checkout: %v, repos/system %v", got, sys)
 	}
-	diag := callToolPayload(t, s, "model.diagnose", map[string]any{"repo": "repos/child-a", "document": "requirements", "content": "schemaVersion: 3\nrequirements: [\n"})
+	diag := s.callToolPayload(t, "model.diagnose", map[string]any{"repo": "repos/child-a", "document": "requirements", "content": "schemaVersion: 3\nrequirements: [\n"})
 	if diag["valid"] != false || diag["path"] != "model/requirements.yml" {
 		t.Fatalf("model.diagnose in child-a: %+v", diag)
 	}
@@ -78,7 +78,7 @@ func TestRepoArgumentAnswersForFamilyMembers(t *testing.T) {
 		t.Fatal(err)
 	}
 	for name, repo := range map[string]string{"dot-dot": "../", "absolute outside": outside, "symlink": "repos/escape", "symlinked member": "repos/child-b", "no model": "repos"} {
-		if msg := toolError(t, s, "links.list", map[string]any{"repo": repo}); msg == "" {
+		if msg := s.toolError(t, "links.list", map[string]any{"repo": repo}); msg == "" {
 			t.Errorf("%s: repo %q accepted", name, repo)
 		}
 	}
@@ -86,7 +86,7 @@ func TestRepoArgumentAnswersForFamilyMembers(t *testing.T) {
 		if err := os.Chmod(work, 0o666); err != nil {
 			t.Fatal(err)
 		}
-		if msg := toolError(t, s, "trace.matrix", map[string]any{"repo": "repos/child-a"}); !strings.Contains(msg, "world-writable") {
+		if msg := s.toolError(t, "trace.matrix", map[string]any{"repo": "repos/child-a"}); !strings.Contains(msg, "world-writable") {
 			t.Fatalf("an untrusted workspace: %q", msg)
 		}
 	}

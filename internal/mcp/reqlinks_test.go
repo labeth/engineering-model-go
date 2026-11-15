@@ -149,14 +149,14 @@ func TestTraceMatrixToolReportsRequirementLinks(t *testing.T) {
 	root := copyLinksExample(t)
 	s := linksServer(t, root, "system")
 	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
-		summary := callToolPayload(t, s, "trace.matrix", args)["summary"].(map[string]any)
+		summary := s.callToolPayload(t, "trace.matrix", args)["summary"].(map[string]any)
 		for _, key := range []string{"linksNeedReview", "linksVersionMismatch", "linksBroken", "linksClaimed", "unparented"} {
 			if summary[key] != float64(0) {
 				t.Fatalf("summary %v: %s = %v, want 0: %+v", args, key, summary[key], summary)
 			}
 		}
 	}
-	full := callToolPayload(t, s, "trace.matrix", map[string]any{})
+	full := s.callToolPayload(t, "trace.matrix", map[string]any{})
 	sys := payloadRow(t, full, "REQ-SYS-002")
 	if got := strings.Join(strs(sys["children"]), ","); got != "encoder::CAP-A-2,encoder::REQ-A-003" {
 		t.Fatalf("REQ-SYS-002 children %q: %+v", got, sys)
@@ -170,7 +170,7 @@ func TestTraceMatrixToolReportsRequirementLinks(t *testing.T) {
 }
 
 // toolError calls a tool and returns its error message ("" when it succeeds).
-func toolError(t *testing.T, s *Server, name string, args map[string]any) string {
+func (s *Server) toolError(t *testing.T, name string, args map[string]any) string {
 	t.Helper()
 	resp := rpcCall(t, s, map[string]any{"jsonrpc": "2.0", "id": name, "method": "tools/call", "params": map[string]any{"name": name, "arguments": args}})
 	if resp["error"] != nil {
@@ -216,7 +216,7 @@ func TestLinksListAndSuspectTools(t *testing.T) {
 	editTestFile(t, childReqs, "shall publish one position sentence.", "shall publish two position sentences.")
 	publishLinksChildren(t, root, "v0.2.0")
 	s := linksServer(t, root, "system")
-	list := callToolPayload(t, s, "links.list", map[string]any{})
+	list := s.callToolPayload(t, "links.list", map[string]any{})
 	if links, _ := list["links"].([]any); len(links) != 4 {
 		t.Fatalf("links.list: %+v", list)
 	}
@@ -231,7 +231,7 @@ func TestLinksListAndSuspectTools(t *testing.T) {
 	claimedEncoder := "  status: claimed\n  rationale: The encoder publishes one position sentence per epoch.\n"
 	acceptedEncoder := "  status: accepted\n  rationale: The encoder publishes one position sentence per epoch.\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-02\"\n"
 	editTestFile(t, linksFile, acceptedEncoder, claimedEncoder)
-	inWorkspace, _ := callToolPayload(t, s, "links.suspect", map[string]any{})["links"].([]any)
+	inWorkspace, _ := s.callToolPayload(t, "links.suspect", map[string]any{})["links"].([]any)
 	if len(inWorkspace) != 1 || !strings.Contains(fmt.Sprint(inWorkspace[0].(map[string]any)["after"]), "shall publish one position sentence.") {
 		t.Fatalf("links.suspect in the workspace must show the published v0.1.0: %+v", inWorkspace)
 	}
@@ -245,14 +245,14 @@ func TestLinksListAndSuspectTools(t *testing.T) {
 	editTestFile(t, manifest, "  path: models.example/reqlinks/child-a@v0\n  version: v0.1.0\n", "  path: models.example/reqlinks/child-a@v0\n  version: v0.2.0\n")
 	editTestFile(t, linksFile, "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.1.0\n", "- id: LNK-SYS-002-ENCODER\n  parent: REQ-SYS-002\n  child: encoder::CAP-A-2\n  pinned:\n    version: v0.2.0\n")
 	editTestFile(t, linksFile, "  status: accepted\n  rationale: The bridge forwards each sentence onto the lab bus.\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-02\"\n", "  status: claimed\n")
-	list = callToolPayload(t, s, "links.list", map[string]any{})
+	list = s.callToolPayload(t, "links.list", map[string]any{})
 	stale := linkByID(t, list["links"], "LNK-SYS-001-ENCODER")
 	if stale["state"] != "version_mismatch" || stale["pinnedVersion"] != "v0.1.0" || stale["dependencyVersion"] != "v0.2.0" || stale["needsReview"] != true ||
 		stale["status"] != "accepted" || stale["parent"] != "REQ-SYS-001" || stale["child"] != "encoder::CAP-A-1" {
 		t.Fatalf("stale link: %+v", stale)
 	}
 
-	review := callToolPayload(t, s, "links.suspect", map[string]any{})
+	review := s.callToolPayload(t, "links.suspect", map[string]any{})
 	reviews, _ := review["links"].([]any)
 	if len(reviews) != 2 {
 		t.Fatalf("links.suspect: want two links, got %+v", review)
@@ -269,10 +269,10 @@ func TestLinksListAndSuspectTools(t *testing.T) {
 	}
 
 	child := linksServer(t, root, "child-a")
-	if links, _ := callToolPayload(t, child, "links.list", map[string]any{})["links"].([]any); len(links) != 0 {
+	if links, _ := child.callToolPayload(t, "links.list", map[string]any{})["links"].([]any); len(links) != 0 {
 		t.Fatalf("child-a has no links: %+v", links)
 	}
-	if links, _ := callToolPayload(t, child, "links.suspect", map[string]any{})["links"].([]any); len(links) != 0 {
+	if links, _ := child.callToolPayload(t, "links.suspect", map[string]any{})["links"].([]any); len(links) != 0 {
 		t.Fatalf("child-a has no links to review: %+v", links)
 	}
 }
@@ -303,7 +303,7 @@ func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 	}
 	s := linksServer(t, root, "system")
 	s.clock = func() time.Time { return time.Date(2031, 4, 5, 6, 7, 8, 0, time.UTC) }
-	got := callToolPayload(t, s, "links.review", map[string]any{"linkId": "LNK-SYS-001-ENCODER", "by": "ACT-SYSTEM-OWNER", "rationale": "Same meaning at v0.2.0."})
+	got := s.callToolPayload(t, "links.review", map[string]any{"linkId": "LNK-SYS-001-ENCODER", "by": "ACT-SYSTEM-OWNER", "rationale": "Same meaning at v0.2.0."})
 	command, _ := got["command"].(string)
 	patch, _ := got["patch"].(string)
 	if !strings.Contains(command, "engws review-links") || !strings.Contains(command, "--accept LNK-SYS-001-ENCODER") || !strings.Contains(command, "--by ACT-SYSTEM-OWNER") ||
@@ -318,14 +318,14 @@ func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 	if after, _ := os.ReadFile(linksFile); string(after) != string(before) {
 		t.Fatal("links.review wrote the link file")
 	}
-	if msg := toolError(t, s, "links.review", map[string]any{"linkId": "LNK-SYS-001-ENCODER", "by": "ACT-NOBODY"}); !strings.Contains(msg, "ACT-NOBODY is not an actor") {
+	if msg := s.toolError(t, "links.review", map[string]any{"linkId": "LNK-SYS-001-ENCODER", "by": "ACT-NOBODY"}); !strings.Contains(msg, "ACT-NOBODY is not an actor") {
 		t.Fatalf("unknown actor: %q", msg)
 	}
-	if msg := toolError(t, s, "links.review", map[string]any{"linkId": "LNK-NONE", "by": "ACT-SYSTEM-OWNER"}); !strings.Contains(msg, "no requirement link LNK-NONE") {
+	if msg := s.toolError(t, "links.review", map[string]any{"linkId": "LNK-NONE", "by": "ACT-SYSTEM-OWNER"}); !strings.Contains(msg, "no requirement link LNK-NONE") {
 		t.Fatalf("unknown link: %q", msg)
 	}
 	// model.patch does not edit the link file either (D14, ADR-EMG-029).
-	if msg := toolError(t, s, "model.patch", map[string]any{"document": "reqLinks", "id": "LNK-SYS-001-ENCODER", "write": true, "set": map[string]any{"status": "accepted"}}); !strings.Contains(msg, "engws review-links --accept") {
+	if msg := s.toolError(t, "model.patch", map[string]any{"document": "reqLinks", "id": "LNK-SYS-001-ENCODER", "write": true, "set": map[string]any{"status": "accepted"}}); !strings.Contains(msg, "engws review-links --accept") {
 		t.Fatalf("model.patch on the link file: %q", msg)
 	}
 	if after, _ := os.ReadFile(linksFile); string(after) != string(before) {
@@ -345,7 +345,7 @@ func TestLinksReviewToolReturnsCommandAndPatch(t *testing.T) {
 func TestRequirementsParentsTool(t *testing.T) {
 	root := copyLinksExample(t)
 	sys := linksServer(t, root, "system")
-	got := callToolPayload(t, sys, "requirements.parents", map[string]any{"requirementId": "REQ-SYS-001"})
+	got := sys.callToolPayload(t, "requirements.parents", map[string]any{"requirementId": "REQ-SYS-001"})
 	if len(strs(got["realizes"])) != 0 || got["exists"] != true {
 		t.Fatalf("REQ-SYS-001 realizes nothing: %+v", got)
 	}
@@ -358,24 +358,24 @@ func TestRequirementsParentsTool(t *testing.T) {
 	if enc["state"] != "unchanged" || item == nil || item["id"] != "encoder::CAP-A-1" || !strings.Contains(fmt.Sprint(item["realizers"]), "encoder::REQ-A-002") {
 		t.Fatalf("LNK-SYS-001-ENCODER: %+v", enc)
 	}
-	card := callToolPayload(t, sys, "requirements.get", map[string]any{"requirementId": "REQ-SYS-001"})
+	card := sys.callToolPayload(t, "requirements.get", map[string]any{"requirementId": "REQ-SYS-001"})
 	if want := "bridge::CAP-B-1,bridge::REQ-B-001,encoder::CAP-A-1,encoder::REQ-A-001,encoder::REQ-A-002"; strings.Join(sortedStrs(card["children"]), ",") != want {
 		t.Fatalf("requirements.get children %v, want %s", card["children"], want)
 	}
 
 	child := linksServer(t, root, "child-a")
-	got = callToolPayload(t, child, "requirements.parents", map[string]any{"requirementId": "REQ-A-002"})
+	got = child.callToolPayload(t, "requirements.parents", map[string]any{"requirementId": "REQ-A-002"})
 	if r := strs(got["realizes"]); len(r) != 1 || r[0] != "CAP-A-1" {
 		t.Fatalf("REQ-A-002 realizes %v", got)
 	}
 	if links, _ := got["links"].([]any); len(links) != 0 {
 		t.Fatalf("a child requirement is the parent of no link: %+v", got)
 	}
-	card = callToolPayload(t, child, "requirements.get", map[string]any{"requirementId": "REQ-A-002"})
+	card = child.callToolPayload(t, "requirements.get", map[string]any{"requirementId": "REQ-A-002"})
 	if p := strs(card["parents"]); len(p) != 1 || p[0] != "CAP-A-1" || len(strs(card["children"])) != 0 {
 		t.Fatalf("requirements.get REQ-A-002: %+v", card)
 	}
-	if got := callToolPayload(t, child, "requirements.parents", map[string]any{"requirementId": "REQ-A-004"}); got["derived"] != true {
+	if got := child.callToolPayload(t, "requirements.parents", map[string]any{"requirementId": "REQ-A-004"}); got["derived"] != true {
 		t.Fatalf("REQ-A-004 is derived: %+v", got)
 	}
 }

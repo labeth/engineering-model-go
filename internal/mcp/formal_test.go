@@ -125,7 +125,7 @@ func TestVerificationToolsReportFormalPassFailedStale(t *testing.T) {
 		formalMCPEntry{req: "REQ-PAYMENTS-002", invariant: "INV-F-2", status: "fail", machine: "SM-ONE"},
 		formalMCPEntry{req: "REQ-PAYMENTS-003", invariant: "INV-F-3", status: "pass", machine: "SM-TWO", stale: true},
 	)
-	status := callToolPayload(t, s, "verification.status", map[string]any{})
+	status := s.callToolPayload(t, "verification.status", map[string]any{})
 	if _, ok := status["controlVerifications"]; !ok {
 		t.Fatalf("authored output must stay: %+v", status)
 	}
@@ -147,15 +147,15 @@ func TestVerificationToolsReportFormalPassFailedStale(t *testing.T) {
 	}
 
 	// An entityId narrows to a requirement, a machine or an invariant.
-	one := callToolPayload(t, s, "verification.status", map[string]any{"entityId": "REQ-PAYMENTS-002"})
+	one := s.callToolPayload(t, "verification.status", map[string]any{"entityId": "REQ-PAYMENTS-002"})
 	if list, _ := one["formalResults"].([]any); len(list) != 1 {
 		t.Fatalf("entityId REQ-PAYMENTS-002: %+v", one)
 	}
-	if list, _ := callToolPayload(t, s, "verification.status", map[string]any{"entityId": "SM-ONE"})["formalResults"].([]any); len(list) != 2 {
+	if list, _ := s.callToolPayload(t, "verification.status", map[string]any{"entityId": "SM-ONE"})["formalResults"].([]any); len(list) != 2 {
 		t.Fatalf("entityId SM-ONE should match two requirements: %+v", list)
 	}
 
-	gaps := callToolPayload(t, s, "verification.gaps", map[string]any{})
+	gaps := s.callToolPayload(t, "verification.gaps", map[string]any{})
 	if _, ok := gaps["requirementsWithoutFiles"]; !ok {
 		t.Fatalf("authored output must stay: %+v", gaps)
 	}
@@ -182,7 +182,7 @@ func TestFormalRequirementResultRollUp(t *testing.T) {
 		formalMCPEntry{req: "REQ-PAYMENTS-006", invariant: "INV-C2", status: "pass", machine: "SM-TWO", stale: true},
 		formalMCPEntry{req: "REQ-PAYMENTS-007", invariant: "INV-D1", status: "pass", machine: "SM-TWO", stale: true},
 	)
-	status := callToolPayload(t, s, "verification.status", map[string]any{})
+	status := s.callToolPayload(t, "verification.status", map[string]any{})
 	for req, want := range map[string]string{"REQ-PAYMENTS-004": "failed", "REQ-PAYMENTS-005": "failed", "REQ-PAYMENTS-006": "pass", "REQ-PAYMENTS-007": "stale"} {
 		if got := formalEntryOf(t, status, "formalResults", req)["result"]; got != want {
 			t.Errorf("%s = %v, want %s", req, got, want)
@@ -200,15 +200,15 @@ func TestFormalRequirementResultRollUp(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER
 func TestVerificationToolsUnchangedWithoutFormalEvidence(t *testing.T) {
 	s := formalMCPServer(t)
-	status := callToolPayload(t, s, "verification.status", map[string]any{})
-	gaps := callToolPayload(t, s, "verification.gaps", map[string]any{})
+	status := s.callToolPayload(t, "verification.status", map[string]any{})
+	gaps := s.callToolPayload(t, "verification.gaps", map[string]any{})
 	if _, ok := status["formalResults"]; ok {
 		t.Fatalf("verification.status: %+v", status)
 	}
 	if _, ok := gaps["formalGaps"]; ok {
 		t.Fatalf("verification.gaps: %+v", gaps)
 	}
-	matrix := callToolPayload(t, s, "trace.matrix", map[string]any{})
+	matrix := s.callToolPayload(t, "trace.matrix", map[string]any{})
 	for _, item := range matrix["requirements"].([]any) {
 		row := item.(map[string]any)
 		if _, ok := row["formal"]; ok {
@@ -230,7 +230,7 @@ func TestTraceMatrixRowsCarryFormalEvidence(t *testing.T) {
 		formalMCPEntry{req: "REQ-PAYMENTS-001", invariant: "INV-PAYMENTS-001", status: "pass", machine: "SM-PAYMENTS-AUTH"},
 		formalMCPEntry{req: "REQ-PAYMENTS-002", invariant: "INV-PAYMENTS-002", status: "pass", machine: "SM-OTHER", stale: true},
 	)
-	matrix := callToolPayload(t, s, "trace.matrix", map[string]any{})
+	matrix := s.callToolPayload(t, "trace.matrix", map[string]any{})
 	pass := payloadRow(t, matrix, "REQ-PAYMENTS-001")
 	if pass["status"] != "verified" || len(pass["verifications"].([]any)) != 1 || pass["evidenceMethods"].([]any)[0] != "analysis" {
 		t.Fatalf("pass row: %+v", pass)
@@ -255,7 +255,7 @@ func TestTraceMatrixRowsCarryFormalEvidence(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
 func TestAuthoringContractDocumentsTheMachineContract(t *testing.T) {
 	s := formalMCPServer(t)
-	payload := callToolPayload(t, s, "model.authoringContract", map[string]any{})
+	payload := s.callToolPayload(t, "model.authoringContract", map[string]any{})
 	contract := payload["contract"].(map[string]any)
 	if contract["contractVersion"] != model.AuthoringContractVersion {
 		t.Fatalf("contract version %v", contract["contractVersion"])
@@ -301,11 +301,11 @@ func TestGemaraToolsAcceptFormalEvaluationEntries(t *testing.T) {
 		formalMCPEntry{req: "REQ-PAYMENTS-001", invariant: "INV-PAYMENTS-001", status: "pass", machine: "SM-PAYMENTS-AUTH"},
 		formalMCPEntry{req: "REQ-PAYMENTS-002", invariant: "INV-PAYMENTS-002", status: "fail", machine: "SM-PAYMENTS-AUTH"},
 	)
-	eval := callToolPayload(t, s, "gemara.evaluationLog", map[string]any{})
+	eval := s.callToolPayload(t, "gemara.evaluationLog", map[string]any{})
 	if eval["evaluationCount"] != float64(2) || eval["aggregateResult"] != "Failed" {
 		t.Fatalf("gemara.evaluationLog: %+v", eval)
 	}
-	valid := callToolPayload(t, s, "gemara.validate", map[string]any{})
+	valid := s.callToolPayload(t, "gemara.validate", map[string]any{})
 	if errs, _ := valid["crossReferenceErrors"].([]any); len(errs) != 0 || valid["valid"] != true {
 		t.Fatalf("gemara.validate: %+v", valid)
 	}
@@ -331,7 +331,7 @@ func TestVerificationToolsReportFormalErrorWhenMatrixFails(t *testing.T) {
 		t.Fatalf("formalStatus must return the matrix error")
 	}
 	for _, tool := range []string{"verification.status", "verification.gaps"} {
-		payload := callToolPayload(t, s, tool, map[string]any{})
+		payload := s.callToolPayload(t, tool, map[string]any{})
 		msg, _ := payload["formalError"].(string)
 		if !strings.Contains(msg, "trace matrix could not be built") {
 			t.Errorf("%s: formalError = %q in %+v", tool, msg, payload)

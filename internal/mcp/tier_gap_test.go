@@ -46,7 +46,7 @@ func TestTierGapTool(t *testing.T) {
 		}
 	}
 	s := linksServer(t, root, "system")
-	gap := callToolPayload(t, s, "tier.gap", map[string]any{"target": "product"})
+	gap := s.callToolPayload(t, "tier.gap", map[string]any{"target": "product"})
 	if gap["currentTier"] != "mvp" || gap["targetTier"] != "product" {
 		t.Fatalf("tier.gap: %+v", gap)
 	}
@@ -65,13 +65,13 @@ func TestTierGapTool(t *testing.T) {
 	if _, ok := gap["blocking"].([]any); !ok {
 		t.Fatalf("blocking is not a list: %+v", gap)
 	}
-	if msg := toolError(t, s, "tier.gap", map[string]any{"target": "beta"}); !strings.Contains(msg, "beta") {
+	if msg := s.toolError(t, "tier.gap", map[string]any{"target": "beta"}); !strings.Contains(msg, "beta") {
 		t.Fatalf("unknown target: %q", msg)
 	}
-	if msg := toolError(t, s, "tier.gap", map[string]any{}); !strings.Contains(msg, "needs target") {
+	if msg := s.toolError(t, "tier.gap", map[string]any{}); !strings.Contains(msg, "needs target") {
 		t.Fatalf("missing target: %q", msg)
 	}
-	if msg := toolError(t, s, "tier.gap", map[string]any{"target": "product", "x": "1"}); msg == "" {
+	if msg := s.toolError(t, "tier.gap", map[string]any{"target": "product", "x": "1"}); msg == "" {
 		t.Fatal("an unknown argument was accepted")
 	}
 	schema := inputSchemaForTool("tier.gap")
@@ -80,7 +80,7 @@ func TestTierGapTool(t *testing.T) {
 		t.Fatalf("schema %+v", schema)
 	}
 
-	matrix := callToolPayload(t, s, "trace.matrix", map[string]any{"summaryOnly": true})
+	matrix := s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": true})
 	found := false
 	for _, d := range matrix["diagnostics"].([]any) {
 		row := d.(map[string]any)
