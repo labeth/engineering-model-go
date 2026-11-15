@@ -325,15 +325,23 @@ func TestAuthoringContractDocumentsTheMachineContract(t *testing.T) {
 	}
 	assertMachineOperators(t, machines)
 	assertMachineContractText(t, machines)
-	sets := payload["rules"].(map[string]any)["fieldSets"].(map[string]any)
+	assertMachineFieldSets(t, payload["rules"].(map[string]any)["fieldSets"].(map[string]any))
+	prefixes := contract["stableIdentifiers"].(map[string]any)["prefixes"].(map[string]any)
+	if prefixes["SM"] == nil || prefixes["TR"] == nil || prefixes["INV"] == nil {
+		t.Errorf("identifier prefixes: %+v", prefixes)
+	}
+}
+
+// assertMachineFieldSets checks that the field sets cover the machine kinds.
+//
+// TRLC-LINKS: REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func assertMachineFieldSets(t *testing.T, sets map[string]any) {
+	t.Helper()
 	for _, kind := range []string{"machine", "machineVariable", "machineState", "machineTransition", "machineInvariant"} {
 		if _, ok := sets[kind]; !ok {
 			t.Errorf("fieldSets lack %s", kind)
 		}
-	}
-	prefixes := contract["stableIdentifiers"].(map[string]any)["prefixes"].(map[string]any)
-	if prefixes["SM"] == nil || prefixes["TR"] == nil || prefixes["INV"] == nil {
-		t.Errorf("identifier prefixes: %+v", prefixes)
 	}
 }
 
@@ -449,16 +457,26 @@ func TestFormalEvidenceDirectoriesAgreeWithTheVerificationScan(t *testing.T) {
 	if !s.hasFormalEvidence() {
 		t.Fatalf("a nested evidence file is in the scanned directories")
 	}
-	got, err := s.formalRequirements()
-	if err != nil || len(got) != 1 || got[0].Invariants[0].Evidence != "test-results/ci/quint-formal.json" {
-		t.Fatalf("matrix rows: %+v (%v)", got, err)
-	}
+	assertNestedEvidenceRows(t, s)
 	moveEvidenceFile(t, nested, filepath.Join(root, "quint-formal.json"))
 	if s.hasFormalEvidence() {
 		t.Fatalf("an evidence file outside test-results is not scanned")
 	}
 	if got, err := s.formalRequirements(); err != nil || got != nil {
 		t.Fatalf("no evidence in the scanned directories: %+v (%v)", got, err)
+	}
+}
+
+// assertNestedEvidenceRows checks that the matrix rows carry the nested
+// evidence file.
+//
+// TRLC-LINKS: REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func assertNestedEvidenceRows(t *testing.T, s *Server) {
+	t.Helper()
+	got, err := s.formalRequirements()
+	if err != nil || len(got) != 1 || got[0].Invariants[0].Evidence != "test-results/ci/quint-formal.json" {
+		t.Fatalf("matrix rows: %+v (%v)", got, err)
 	}
 }
 
