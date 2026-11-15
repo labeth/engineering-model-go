@@ -41,7 +41,7 @@ func TestWithCompleteSwitchesChecksLifecycleKey(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-162, REQ-EMG-163, REQ-EMG-164
 func TestWriteV2ModuleFilesWritesTierDecisionOnlyForItsLifecycle(t *testing.T) {
 	own := t.TempDir()
-	WriteV2ModuleFiles(t, own, "example.com/own@v0", "v0.1.0", "OWN", "requirementLinks: strict\nlifecycle:\n  tier: mvp\n  bundles: [foundation]\n  tierDecision: DEC-TIER-MVP\n", "  functionalGroups: []\n")
+	WriteV2ModuleFiles(t, own, V2Module{Path: "example.com/own@v0", Version: "v0.1.0", ModelID: "OWN", ManifestExtra: "requirementLinks: strict\nlifecycle:\n  tier: mvp\n  bundles: [foundation]\n  tierDecision: DEC-TIER-MVP\n", Architecture: "  functionalGroups: []\n"})
 	data, err := os.ReadFile(filepath.Join(own, "model", "decisions.yml"))
 	if err != nil {
 		t.Fatal(err)
@@ -50,7 +50,7 @@ func TestWriteV2ModuleFilesWritesTierDecisionOnlyForItsLifecycle(t *testing.T) {
 		t.Errorf("a manifest with its own lifecycle got a stray DEC-TIER-POC:\n%s", data)
 	}
 	added := t.TempDir()
-	WriteV2ModuleFiles(t, added, "example.com/added@v0", "v0.1.0", "ADDED", "", "  functionalGroups: []\n")
+	WriteV2ModuleFiles(t, added, V2Module{Path: "example.com/added@v0", Version: "v0.1.0", ModelID: "ADDED", ManifestExtra: "", Architecture: "  functionalGroups: []\n"})
 	data, err = os.ReadFile(filepath.Join(added, "model", "decisions.yml"))
 	if err != nil {
 		t.Fatal(err)

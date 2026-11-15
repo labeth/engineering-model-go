@@ -184,7 +184,7 @@ func machineFixture(t *testing.T, machines []model.Machine, files map[string]str
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	bundle.Architecture.AuthoredArchitecture.Machines = machines
 	code, _ := codescan.InferCodeItems(bundle, root)
-	checks, _ := codescan.InferVerificationChecks(bundle, model.RequirementsDocument{}, code, root)
+	checks, _ := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: model.RequirementsDocument{}, InferredCode: code, CodeRoot: root})
 	return machineVerificationDiagnostics(bundle, checks)
 }
 

@@ -205,7 +205,7 @@ func checkEvidenceIsStale(t *testing.T, bundle model.Bundle) {
 // the evidence file and whether it reported the evidence as stale.
 func formalCheck(t *testing.T, bundle model.Bundle) (codescan.VerificationCheck, bool) {
 	t.Helper()
-	checks, diags := codescan.InferVerificationChecks(bundle, bundle.Requirements, nil, "")
+	checks, diags := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: bundle.Requirements, InferredCode: nil, CodeRoot: ""})
 	stale := false
 	for _, d := range diags {
 		stale = stale || d.Code == "verification.formal_stale"

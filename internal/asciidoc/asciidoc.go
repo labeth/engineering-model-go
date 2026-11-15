@@ -416,7 +416,7 @@ func sortedProjectedMappings(edges []view.Edge) []asciidocMappingSection {
 func (g *generation) inferRealization() {
 	runtime, runtimeDiags := codescan.InferRuntimeItems(g.bundle)
 	code, codeDiags := codescan.InferCodeItems(g.bundle, g.options.CodeRoot)
-	verification, verificationDiags := codescan.InferVerificationChecks(g.bundle, g.requirements, code, g.options.CodeRoot)
+	verification, verificationDiags := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: g.bundle, Requirements: g.requirements, InferredCode: code, CodeRoot: g.options.CodeRoot})
 	g.inferredRuntime, g.inferredCode, g.inferredVerification = runtime, code, verification
 	g.diags = append(g.diags, runtimeDiags...)
 	g.diags = append(g.diags, codeDiags...)

@@ -178,7 +178,7 @@ func TestCraftedModuleZipIsRejected(t *testing.T) {
 // fetchWorkspace writes a parent model that depends on the shared-edge module.
 func fetchWorkspace(t *testing.T, root string) string {
 	workspace := filepath.Join(root, "workspace")
-	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, workspace, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 	return workspace
 }
 

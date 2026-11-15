@@ -19,13 +19,13 @@ func TestCompositionResolvesCUEModule(t *testing.T) {
 	root := t.TempDir()
 	registryRoot := filepath.Join(root, "registry")
 	moduleDir := filepath.Join(registryRoot, "models.atlas.example_shared-edge_v0.1.0")
-	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	testutil.WriteOCIModuleFixture(t, moduleDir, testutil.OCIModule{Path: "models.atlas.example/shared-edge@v0", ModelID: "SHARED-EDGE", CapabilityID: "CAP-SHARED-EDGE", RequirementID: "REQ-SHARED-001"})
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	requireEqual(t, err, nil)
 	t.Setenv("CUE_REGISTRY", registry.Host()+"+insecure")
 
 	workspace := filepath.Join(root, "workspace")
-	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, workspace, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 	manifest := filepath.Join(workspace, "engmod.yml")
 	res, err := GenerateCompositionFromFile(manifest)
 	registry.Close()
@@ -53,7 +53,7 @@ func requireOneChild(t *testing.T, res CompositionResult) {
 func TestCompositionUsesWorkspaceModuleReplacement(t *testing.T) {
 	root := t.TempDir()
 	moduleDir := filepath.Join(root, "repos", "shared-edge")
-	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	testutil.WriteOCIModuleFixture(t, moduleDir, testutil.OCIModule{Path: "models.atlas.example/shared-edge@v0", ModelID: "SHARED-EDGE", CapabilityID: "CAP-SHARED-EDGE", RequirementID: "REQ-SHARED-001"})
 	if err := os.MkdirAll(filepath.Join(moduleDir, ".git"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +63,7 @@ replacements:
     path: ./repos/shared-edge
 `)
 	product := filepath.Join(root, "repos", "product")
-	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, product, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 	if err := os.MkdirAll(filepath.Join(product, ".git"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -85,14 +85,14 @@ replacements:
 func TestCompositionRejectsModuleIdentityMismatch(t *testing.T) {
 	root := t.TempDir()
 	moduleDir := filepath.Join(root, "repos", "shared-edge")
-	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/different@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	testutil.WriteOCIModuleFixture(t, moduleDir, testutil.OCIModule{Path: "models.atlas.example/different@v0", ModelID: "SHARED-EDGE", CapabilityID: "CAP-SHARED-EDGE", RequirementID: "REQ-SHARED-001"})
 	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: models.atlas.example/shared-edge@v0
     path: ./repos/shared-edge
 `)
 	product := filepath.Join(root, "repos", "product")
-	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, product, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 
 	res, err := GenerateCompositionFromFile(filepath.Join(product, "engmod.yml"))
 	if err != nil {
@@ -109,7 +109,7 @@ func TestCompositionRejectsWorkspaceReplacementEscape(t *testing.T) {
 	root := t.TempDir()
 	workspace := filepath.Join(root, "workspace")
 	outside := filepath.Join(root, "outside")
-	testutil.WriteOCIModuleFixture(t, outside, "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	testutil.WriteOCIModuleFixture(t, outside, testutil.OCIModule{Path: "models.atlas.example/shared-edge@v0", ModelID: "SHARED-EDGE", CapabilityID: "CAP-SHARED-EDGE", RequirementID: "REQ-SHARED-001"})
 	if err := os.MkdirAll(workspace, 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -119,7 +119,7 @@ replacements:
     path: ../outside
 `)
 	product := filepath.Join(workspace, "product")
-	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, product, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 
 	res, err := GenerateCompositionFromFile(filepath.Join(product, "engmod.yml"))
 	if err != nil {

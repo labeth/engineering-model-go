@@ -52,7 +52,7 @@ func TestInferVerificationChecks_UsesDescriptionMarkerFromTestSource(t *testing.
 		},
 	}
 
-	checks, _ := InferVerificationChecks(bundle, requirements, nil, "")
+	checks, _ := InferVerificationChecks(VerificationScan{Bundle: bundle, Requirements: requirements, InferredCode: nil, CodeRoot: ""})
 	if len(checks) != 1 {
 		t.Fatalf("expected one inferred verification check, got %d", len(checks))
 	}
@@ -78,7 +78,7 @@ func TestInferVerificationChecks_UsesRootGoTestFilesFromCodeRoot(t *testing.T) {
 		Requirements: []model.Requirement{{ID: "REQ-ROOT-001", AppliesTo: []string{"FU-ROOT"}}},
 	}
 
-	checks, diags := InferVerificationChecks(bundle, requirements, nil, "")
+	checks, diags := InferVerificationChecks(VerificationScan{Bundle: bundle, Requirements: requirements, InferredCode: nil, CodeRoot: ""})
 	if len(diags) != 0 {
 		t.Fatalf("expected no diagnostics, got: %+v", diags)
 	}
@@ -113,7 +113,7 @@ func TestInferVerificationChecks_UsesTestFunctionCodeElement(t *testing.T) {
 		Requirements: []model.Requirement{{ID: "REQ-FEATURE-001", AppliesTo: []string{"FU-FEATURE"}}},
 	}
 
-	checks, diags := InferVerificationChecks(bundle, requirements, nil, "")
+	checks, diags := InferVerificationChecks(VerificationScan{Bundle: bundle, Requirements: requirements, InferredCode: nil, CodeRoot: ""})
 	if len(diags) != 0 {
 		t.Fatalf("expected no diagnostics, got: %+v", diags)
 	}
@@ -140,7 +140,7 @@ func TestInferVerificationChecks_MatchesResultArtifactToTestFileByNormalizedIden
 		Requirements: []model.Requirement{{ID: "REQ-PRR-004", AppliesTo: []string{"FU-POLICY-CHECKS"}}},
 	}
 
-	checks, _ := InferVerificationChecks(bundle, requirements, nil, "")
+	checks, _ := InferVerificationChecks(VerificationScan{Bundle: bundle, Requirements: requirements, InferredCode: nil, CodeRoot: ""})
 
 	validationRel := filepath.ToSlash(filepath.Join("tests", "validation.test.js"))
 	validationCheck, ok := findCheckByEvidence(checks, validationRel)

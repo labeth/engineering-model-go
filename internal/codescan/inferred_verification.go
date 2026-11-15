@@ -55,9 +55,19 @@ var requirementIDRe = regexp.MustCompile(`\bREQ-[A-Za-z0-9-]+\b`)
 var trlcLinksMarkerRe = regexp.MustCompile(`(?i)^\s*(?://+|#|--|/\*+|\*)?\s*TRLC-LINKS:\s*(.+?)\s*(?:\*/)?\s*$`)
 var resultStatusRe = regexp.MustCompile(`(?i)\b(pass|fail|partial|blocked|not-run|flaky)\b`)
 
+// VerificationScan is the input of InferVerificationChecks: the model bundle,
+// its requirements, the inferred code items and the code root option.
+type VerificationScan struct {
+	Bundle       model.Bundle
+	Requirements model.RequirementsDocument
+	InferredCode []CodeItem
+	CodeRoot     string
+}
+
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func InferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []CodeItem, codeRootOption string) ([]VerificationCheck, []validate.Diagnostic) {
+func InferVerificationChecks(scan VerificationScan) ([]VerificationCheck, []validate.Diagnostic) {
+	bundle, requirements, inferredCode, codeRootOption := scan.Bundle, scan.Requirements, scan.InferredCode, scan.CodeRoot
 	baseDir := ModelRootDir(bundle)
 	testRoots := verificationTestRoots(baseDir, bundle, codeRootOption)
 	resultRoots := VerificationResultRoots(baseDir, codeRootOption)

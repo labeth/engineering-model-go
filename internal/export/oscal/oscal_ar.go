@@ -200,7 +200,7 @@ type arHeader struct {
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func collectAREvidence(bundle model.Bundle, options AROptions) arEvidence {
 	inferredCode, codeDiags := codescan.InferCodeItems(bundle, options.CodeRoot)
-	inferredVerification, verDiags := codescan.InferVerificationChecks(bundle, bundle.Requirements, inferredCode, options.CodeRoot)
+	inferredVerification, verDiags := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: bundle.Requirements, InferredCode: inferredCode, CodeRoot: options.CodeRoot})
 	compliance, complianceDiags := resolveOSCALCompliance(bundle, oscalResolveOptions{ProfileHref: options.ProfileHref, CatalogHref: options.CatalogHref})
 	diags := append(append(append([]validate.Diagnostic{}, codeDiags...), verDiags...), complianceDiags...)
 	return arEvidence{Verification: inferredVerification, Compliance: compliance, Diagnostics: diags}

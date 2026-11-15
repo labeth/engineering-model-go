@@ -576,7 +576,7 @@ func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
 	t.Setenv(model.WorkspaceEnv, "")
 	t.Setenv(composition.LockEnv, "")
 	dir := t.TempDir()
-	testutil.WriteV2ModuleFiles(t, dir, "example.com/solo@v0", "v0.1.0", "SOLO", "", `  functionalGroups:
+	testutil.WriteV2ModuleFiles(t, dir, testutil.V2Module{Path: "example.com/solo@v0", Version: "v0.1.0", ModelID: "SOLO", ManifestExtra: "", Architecture: `  functionalGroups:
     - id: FG-CORE
       name: Core
       description: "uses std::vector and a::b"
@@ -592,7 +592,7 @@ func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
       endpoint: "https://[fe80::1]:8443/api"
       schemaRef: "schemas::v1.json"
       owner: FU-CORE
-`)
+`})
 	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), `schemaVersion: 3
 lintRun: {mode: guided}
 requirements:

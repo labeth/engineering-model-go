@@ -128,20 +128,45 @@ func WorstHealthFunctions(r HealthReport, n int) []HealthRankedFunction {
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-157
 // ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
 func RelevelHealthReport(r HealthReport, modelPath, tier string) (HealthReport, error) {
-	var bundle model.Bundle
-	if strings.TrimSpace(modelPath) != "" {
-		var err error
-		if bundle, err = model.LoadBundle(modelPath); err != nil {
-			return HealthReport{}, fmt.Errorf("%w: load model: %v", ErrHealthSetup, err)
-		}
+	bundle, err := loadReleveledBundle(modelPath)
+	if err != nil {
+		return HealthReport{}, err
 	}
-	if tier = strings.ToLower(strings.TrimSpace(tier)); tier != "" {
-		if model.TierRank(tier) == 0 {
-			return HealthReport{}, fmt.Errorf("%w: unknown tier %q; use one of %s", ErrHealthSetup, tier, strings.Join(model.Tiers, ", "))
-		}
-		bundle = health.WithTier(bundle, tier)
+	if bundle, err = applyReleveledTier(bundle, tier); err != nil {
+		return HealthReport{}, err
 	}
 	return health.Relevel(r, bundle), nil
+}
+
+// loadReleveledBundle loads the model at modelPath, or returns the empty
+// bundle for a blank path.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-157
+// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
+func loadReleveledBundle(modelPath string) (model.Bundle, error) {
+	if strings.TrimSpace(modelPath) == "" {
+		return model.Bundle{}, nil
+	}
+	bundle, err := model.LoadBundle(modelPath)
+	if err != nil {
+		return model.Bundle{}, fmt.Errorf("%w: load model: %v", ErrHealthSetup, err)
+	}
+	return bundle, nil
+}
+
+// applyReleveledTier sets the tier of the bundle, unless the tier is blank.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-157
+// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
+func applyReleveledTier(bundle model.Bundle, tier string) (model.Bundle, error) {
+	tier = strings.ToLower(strings.TrimSpace(tier))
+	if tier == "" {
+		return bundle, nil
+	}
+	if model.TierRank(tier) == 0 {
+		return model.Bundle{}, fmt.Errorf("%w: unknown tier %q; use one of %s", ErrHealthSetup, tier, strings.Join(model.Tiers, ", "))
+	}
+	return health.WithTier(bundle, tier), nil
 }
 
 // HealthCheckOptions select what CheckHealth compares.

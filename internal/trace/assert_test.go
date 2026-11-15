@@ -78,7 +78,7 @@ func (f *traceFixture) infer(reqIDs ...string) {
 // inferred infers the code and verification checks for f.reqs.
 func (f *traceFixture) inferred() {
 	f.code, f.codeDiag = codescan.InferCodeItems(f.bundle, "")
-	f.checks, f.verDiag = codescan.InferVerificationChecks(f.bundle, f.reqs, f.code, "")
+	f.checks, f.verDiag = codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: f.bundle, Requirements: f.reqs, InferredCode: f.code, CodeRoot: ""})
 }
 
 // matrix is the trace matrix of the fixture.

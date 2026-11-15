@@ -176,7 +176,7 @@ func formalLifecycleFixture(t *testing.T, entries []formalFixtureEntry, staleSha
 		testutil.WriteFile(t, filepath.Join(root, filepath.FromSlash(name)), content)
 	}
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Manifest: model.ManifestDocument{Lifecycle: &model.ManifestLifecycle{Tier: "product"}}}
-	checks, _ := codescan.InferVerificationChecks(bundle, formalThreeRequirements(), nil, root)
+	checks, _ := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: formalThreeRequirements(), InferredCode: nil, CodeRoot: root})
 	return bundle, checks
 }
 
