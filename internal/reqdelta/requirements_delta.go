@@ -300,27 +300,57 @@ func planRequirementChanges(operations validatedRequirementOperations, currentBy
 		updated: map[string]requirementUpdate{},
 		removed: map[string]model.Requirement{},
 	}
-	for id, requirement := range operations.add {
-		if _, exists := currentByID[id]; exists {
-			return requirementChanges{}, fmt.Errorf("add requirement %q already exists", id)
-		}
-		changes.added[id] = requirement
+	if err := planAddedRequirements(changes.added, operations.add, currentByID); err != nil {
+		return requirementChanges{}, err
 	}
-	for id, requirement := range operations.update {
-		before, exists := currentByID[id]
-		if !exists {
-			return requirementChanges{}, fmt.Errorf("update requirement %q does not exist", id)
-		}
-		changes.updated[id] = requirementUpdate{before: before, after: requirement}
+	if err := planUpdatedRequirements(changes.updated, operations.update, currentByID); err != nil {
+		return requirementChanges{}, err
 	}
-	for id := range operations.remove {
-		before, exists := currentByID[id]
-		if !exists {
-			return requirementChanges{}, fmt.Errorf("remove requirement %q does not exist", id)
-		}
-		changes.removed[id] = before
+	if err := planRemovedRequirements(changes.removed, operations.remove, currentByID); err != nil {
+		return requirementChanges{}, err
 	}
 	return changes, nil
+}
+
+// planAddedRequirements records each added requirement and refuses one that already exists.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func planAddedRequirements(into, add, currentByID map[string]model.Requirement) error {
+	for id, requirement := range add {
+		if _, exists := currentByID[id]; exists {
+			return fmt.Errorf("add requirement %q already exists", id)
+		}
+		into[id] = requirement
+	}
+	return nil
+}
+
+// planUpdatedRequirements records each update with the requirement it replaces and refuses an unknown one.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func planUpdatedRequirements(into map[string]requirementUpdate, update, currentByID map[string]model.Requirement) error {
+	for id, requirement := range update {
+		before, exists := currentByID[id]
+		if !exists {
+			return fmt.Errorf("update requirement %q does not exist", id)
+		}
+		into[id] = requirementUpdate{before: before, after: requirement}
+	}
+	return nil
+}
+
+// planRemovedRequirements records each removed requirement and refuses an unknown one.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func planRemovedRequirements(into map[string]model.Requirement, remove map[string]bool, currentByID map[string]model.Requirement) error {
+	for id := range remove {
+		before, exists := currentByID[id]
+		if !exists {
+			return fmt.Errorf("remove requirement %q does not exist", id)
+		}
+		into[id] = before
+	}
+	return nil
 }
 
 // mergeRequirementItems drops the removed entries, merges the updated ones into their YAML nodes and appends the added ones.
@@ -342,14 +372,26 @@ func mergeRequirementItems(sequence *yaml.Node, operations validatedRequirementO
 		}
 		merged = append(merged, item)
 	}
-	for _, requirement := range add {
+	added, err := encodeRequirementNodes(add)
+	if err != nil {
+		return nil, err
+	}
+	return append(merged, added...), nil
+}
+
+// encodeRequirementNodes encodes the added requirements in order.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func encodeRequirementNodes(requirements []model.Requirement) ([]*yaml.Node, error) {
+	nodes := make([]*yaml.Node, 0, len(requirements))
+	for _, requirement := range requirements {
 		node, err := encodeRequirementNode(requirement)
 		if err != nil {
 			return nil, err
 		}
-		merged = append(merged, node)
+		nodes = append(nodes, node)
 	}
-	return merged, nil
+	return nodes, nil
 }
 
 // uniqueRequirementNodeID returns the id of a requirement node and records it, refusing a duplicate.

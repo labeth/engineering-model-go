@@ -123,8 +123,10 @@ func testSpecDeltaModifiedWithoutCriteria(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasPrefix(got.Markdown, "## MODIFIED Requirements\n") || !strings.Contains(got.Markdown, "- **THEN** REQ-B-002 holds\n") ||
-		len(got.Warnings) != 1 || !strings.Contains(got.Warnings[0], "no verificationCriteria") {
+	if !strings.HasPrefix(got.Markdown, "## MODIFIED Requirements\n") || !strings.Contains(got.Markdown, "- **THEN** REQ-B-002 holds\n") {
+		t.Fatalf("modified/no criteria: %v\n%s", got.Warnings, got.Markdown)
+	}
+	if len(got.Warnings) != 1 || !strings.Contains(got.Warnings[0], "no verificationCriteria") {
 		t.Fatalf("modified/no criteria: %v\n%s", got.Warnings, got.Markdown)
 	}
 }
