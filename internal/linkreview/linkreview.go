@@ -368,32 +368,52 @@ func DiffLines(before, after []string, haveBefore bool) []string {
 		}
 		return out
 	}
-	lcs := lcsTable(before, after)
-	i, j := 0, 0
-	for i < len(before) || j < len(after) {
-		switch {
-		case i < len(before) && j < len(after) && before[i] == after[j]:
-			out = append(out, "  "+after[j])
-			i++
-			j++
-		case diffTakesBefore(lcs, before, [2]int{i, j}, len(after)):
-			out = append(out, "- "+before[i])
-			i++
-		default:
-			out = append(out, "+ "+after[j])
-			j++
-		}
+	w := diffWalk{before: before, after: after, lcs: lcsTable(before, after)}
+	for w.i < len(before) || w.j < len(after) {
+		out = append(out, w.step())
 	}
 	return out
 }
 
-// diffTakesBefore reports whether the walk at pos (before index, after
-// index) emits a removed line: the after lines are used up, or dropping the
-// before line keeps at least as long a common subsequence.
+// diffWalk is the position of the longest-common-subsequence walk of
+// DiffLines.
+type diffWalk struct {
+	before, after []string
+	lcs           [][]int
+	i, j          int
+}
+
+// matches reports whether both walks stand on the same line.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
-func diffTakesBefore(lcs [][]int, before []string, pos [2]int, afterLen int) bool {
-	i, j := pos[0], pos[1]
-	return j == afterLen || (i < len(before) && lcs[i+1][j] >= lcs[i][j+1])
+func (w *diffWalk) matches() bool {
+	return w.i < len(w.before) && w.j < len(w.after) && w.before[w.i] == w.after[w.j]
+}
+
+// takesBefore reports whether the walk emits a removed line: the after
+// lines are used up, or dropping the before line keeps at least as long a
+// common subsequence.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func (w *diffWalk) takesBefore() bool {
+	return w.j == len(w.after) || (w.i < len(w.before) && w.lcs[w.i+1][w.j] >= w.lcs[w.i][w.j+1])
+}
+
+// step emits the next diff line and advances the walk.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func (w *diffWalk) step() string {
+	switch {
+	case w.matches():
+		line := "  " + w.after[w.j]
+		w.i++
+		w.j++
+		return line
+	case w.takesBefore():
+		line := "- " + w.before[w.i]
+		w.i++
+		return line
+	}
+	line := "+ " + w.after[w.j]
+	w.j++
+	return line
 }
 
 // lcsTable returns the longest-common-subsequence lengths of the suffixes of

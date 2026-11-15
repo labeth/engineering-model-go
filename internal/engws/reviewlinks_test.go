@@ -38,19 +38,7 @@ func changedLines(before, after string) []string {
 // common subsequence with before: the lines an edit inserted or rewrote.
 func addedLines(before, after string) []string {
 	b, a := strings.Split(before, "\n"), strings.Split(after, "\n")
-	lcs := make([][]int, len(b)+1)
-	for i := range lcs {
-		lcs[i] = make([]int, len(a)+1)
-	}
-	for i := len(b) - 1; i >= 0; i-- {
-		for j := len(a) - 1; j >= 0; j-- {
-			if b[i] == a[j] {
-				lcs[i][j] = lcs[i+1][j+1] + 1
-			} else {
-				lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])
-			}
-		}
-	}
+	lcs := reviewTestLCS(b, a)
 	var out []string
 	i, j := 0, 0
 	for j < len(a) {
@@ -66,6 +54,24 @@ func addedLines(before, after string) []string {
 		}
 	}
 	return out
+}
+
+// reviewTestLCS returns the longest-common-subsequence lengths of the
+// suffixes of b and a.
+func reviewTestLCS(b, a []string) [][]int {
+	lcs := make([][]int, len(b)+1)
+	for i := range lcs {
+		lcs[i] = make([]int, len(a)+1)
+	}
+	for i := len(b) - 1; i >= 0; i-- {
+		for j := len(a) - 1; j >= 0; j-- {
+			lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])
+			if b[i] == a[j] {
+				lcs[i][j] = lcs[i+1][j+1] + 1
+			}
+		}
+	}
+	return lcs
 }
 
 // Acceptance 3 end to end: after a bump that leaves a link for review,
@@ -93,7 +99,15 @@ func TestReviewLinksShowsAndAcceptsChangedLink(t *testing.T) {
 			t.Fatalf("%v: %d\n%s\n%s", args, code, out, errOut)
 		}
 	}
+	reviewTestList(t, system)
+	reviewTestShow(t, system)
+	reviewTestJSON(t, system)
+	reviewTestAccept(t, system, links)
+}
 
+// reviewTestList checks the one-line listing after the bump.
+func reviewTestList(t *testing.T, system string) {
+	t.Helper()
 	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system)
 	want := "LNK-SYS-001-ENCODER encoder::CAP-A-1: version_mismatch (pinned v0.2.0, dependency v0.3.0): changed REQ-A-001 text\n"
 	if code != 1 || !strings.Contains(out, want) || strings.Contains(out, "position sentence") {
@@ -102,7 +116,12 @@ func TestReviewLinksShowsAndAcceptsChangedLink(t *testing.T) {
 	if strings.Contains(out, "LNK-SYS-002-ENCODER") || strings.Contains(out, "LNK-SYS-001-BRIDGE") {
 		t.Fatalf("review-links lists a link that needs no review:\n%s", out)
 	}
-	code, out, errOut = runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--show")
+}
+
+// reviewTestShow checks --show: parent text and the item before and after.
+func reviewTestShow(t *testing.T, system string) {
+	t.Helper()
+	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--show")
 	for _, want := range []string{
 		"parent REQ-SYS-001: When simulation epoch elapses, the position simulator shall publish ownship position on the lab bus.",
 		"before (v0.2.0)", "after (v0.3.0)",
@@ -113,16 +132,32 @@ func TestReviewLinksShowsAndAcceptsChangedLink(t *testing.T) {
 			t.Fatalf("review-links --show lacks %q:\n%s\n%s", want, out, errOut)
 		}
 	}
+}
+
+// reviewTestJSON checks --json carries both items and the changes.
+func reviewTestJSON(t *testing.T, system string) {
+	t.Helper()
 	code, jsonOut, _ := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--json")
 	var reviews []LinkReview
-	if err := json.Unmarshal([]byte(jsonOut), &reviews); code != 1 || err != nil || len(reviews) != 1 || reviews[0].Before == nil || reviews[0].After == nil ||
-		!strings.Contains(reviews[0].Before.Realizers[0].Text, "one position sentence") || !strings.Contains(reviews[0].After.Realizers[0].Text, "two position sentences") ||
-		strings.Join(reviews[0].Changes, ",") != "REQ-A-001 text" {
+	err := json.Unmarshal([]byte(jsonOut), &reviews)
+	if code != 1 || err != nil || len(reviews) != 1 {
 		t.Fatalf("review-links --json: %d %v\n%s", code, err, jsonOut)
 	}
+	r := reviews[0]
+	if r.Before == nil || r.After == nil || strings.Join(r.Changes, ",") != "REQ-A-001 text" {
+		t.Fatalf("review-links --json: %d %v\n%s", code, err, jsonOut)
+	}
+	if !strings.Contains(r.Before.Realizers[0].Text, "one position sentence") || !strings.Contains(r.After.Realizers[0].Text, "two position sentences") {
+		t.Fatalf("review-links --json: %d %v\n%s", code, err, jsonOut)
+	}
+}
 
+// reviewTestAccept checks the actor check, the line-preserving accept and
+// the clean check afterwards.
+func reviewTestAccept(t *testing.T, system, links string) {
+	t.Helper()
 	before := read(t, links)
-	code, out, errOut = runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-ENCODER", "--by", "ACT-NOBODY", "--rationale", "Two sentences still satisfy the epoch requirement.")
+	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-001-ENCODER", "--by", "ACT-NOBODY", "--rationale", "Two sentences still satisfy the epoch requirement.")
 	if code != 1 || !strings.Contains(errOut, "ACT-NOBODY") || read(t, links) != before {
 		t.Fatalf("unknown actor accepted: %d\n%s\n%s", code, out, errOut)
 	}
@@ -178,6 +213,15 @@ func TestReviewLinksBrokenAndOffline(t *testing.T) {
 	// The workspace checkout still has CAP-A-2; the published v0.1.0 does not.
 	replaceIn(t, links, "  status: accepted\n  rationale: The bridge forwards each sentence onto the lab bus.\n  reviewedBy: ACT-SYSTEM-OWNER\n  reviewedOn: \"2026-11-02\"\n", "  status: claimed\n")
 
+	reviewTestOffline(t, system, links)
+	registry.serve()
+	reviewTestPublished(t, system, links)
+}
+
+// reviewTestOffline checks the review and the refused accept while the
+// registry is unreachable.
+func reviewTestOffline(t *testing.T, system, links string) {
+	t.Helper()
 	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system)
 	if code != 1 || !strings.Contains(out, "LNK-SYS-001-BRIDGE bridge::CAP-B-1: unresolved, claimed (pinned v0.1.0, dependency v0.1.0): dependency \"bridge\" was not resolved (links are reviewed against published versions") {
 		t.Fatalf("review-links offline: %d\n%s\n%s", code, out, errOut)
@@ -187,13 +231,18 @@ func TestReviewLinksBrokenAndOffline(t *testing.T) {
 	if code != 1 || !strings.Contains(errOut, "cannot be accepted: unresolved") || read(t, links) != before {
 		t.Fatalf("accept without the published dependency: %d\n%s\n%s", code, out, errOut)
 	}
+}
 
-	registry.serve()
-	code, out, errOut = runMain(t, NewCUERegistry(), "review-links", "--repo", system)
+// reviewTestPublished checks the broken link, the claimed accept and the
+// usage error with the registry served.
+func reviewTestPublished(t *testing.T, system, links string) {
+	t.Helper()
+	code, out, errOut := runMain(t, NewCUERegistry(), "review-links", "--repo", system)
 	if code != 1 || !strings.Contains(out, "LNK-SYS-002-ENCODER encoder::CAP-A-2: broken (pinned v0.1.0, dependency v0.1.0): the item does not exist at v0.1.0") ||
 		!strings.Contains(out, "LNK-SYS-001-BRIDGE bridge::CAP-B-1: unchanged, claimed (pinned v0.1.0, dependency v0.1.0)") {
 		t.Fatalf("review-links: %d\n%s\n%s", code, out, errOut)
 	}
+	before := read(t, links)
 	code, out, errOut = runMain(t, NewCUERegistry(), "review-links", "--repo", system, "--accept", "LNK-SYS-002-ENCODER", "--by", "ACT-SYSTEM-OWNER", "--rationale", "x")
 	if code != 1 || !strings.Contains(errOut, "is broken: encoder::CAP-A-2 does not exist") || read(t, links) != before {
 		t.Fatalf("broken link accepted: %d\n%s\n%s", code, out, errOut)
