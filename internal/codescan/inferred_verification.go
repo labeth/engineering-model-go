@@ -59,183 +59,300 @@ var resultStatusRe = regexp.MustCompile(`(?i)\b(pass|fail|partial|blocked|not-ru
 // TRLC-LINKS: REQ-EMG-010
 func InferVerificationChecks(bundle model.Bundle, requirements model.RequirementsDocument, inferredCode []CodeItem, codeRootOption string) ([]VerificationCheck, []validate.Diagnostic) {
 	baseDir := ModelRootDir(bundle)
-	reqOwners := requirementOwners(requirements.Requirements)
+	testRoots := verificationTestRoots(baseDir, bundle, codeRootOption)
+	resultRoots := VerificationResultRoots(baseDir, codeRootOption)
 
+	inf := &verificationInference{
+		baseDir:            baseDir,
+		reqOwners:          requirementOwners(requirements.Requirements),
+		skip:               codeScanSkipper(bundle),
+		diags:              []validate.Diagnostic{},
+		checkByID:          map[string]*VerificationCheck{},
+		checkIDsByIdentity: map[string][]string{},
+		checkIdentityByID:  map[string]map[string]bool{},
+	}
+	inf.indexCodeElements(inferredCode, testRoots)
+	for _, root := range testRoots {
+		inf.scanTestRoot(root)
+	}
+	artifacts := inf.collectArtifacts(resultRoots)
+	for _, a := range artifacts {
+		inf.attachArtifact(a)
+	}
+	out := inf.finalChecks()
+	if len(out) == 0 {
+		inf.diags = append(inf.diags, validate.Diagnostic{
+			Code:     "verification.no_artifacts_found",
+			Severity: validate.SeverityWarning,
+			Message:  "no verification artifacts found under inferred tests/ or test-results/ directories",
+			Path:     baseDir,
+		})
+	}
+	return out, validate.SortDiagnostics(inf.diags)
+}
+
+// verificationTestRoots are the existing test directories (the model's tests/ and the
+// tests/ next to the code root) and the code roots, which hold tests inline.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func verificationTestRoots(baseDir string, bundle model.Bundle, codeRootOption string) []string {
 	testRoots := uniqueExistingDirs(append(
 		[]string{
 			filepath.Join(baseDir, "tests"),
 		},
 		inferredSiblingDirs(baseDir, codeRootOption, "tests")...,
 	))
-	testRoots = UniqueExistingSources(append(testRoots, inferredCodeRoots(baseDir, bundle, codeRootOption)...))
-	resultRoots := VerificationResultRoots(baseDir, codeRootOption)
+	return UniqueExistingSources(append(testRoots, inferredCodeRoots(baseDir, bundle, codeRootOption)...))
+}
 
-	diags := []validate.Diagnostic{}
-	codeBySource := buildVerificationCodeElementIndex(inferredCode)
-	skip := codeScanSkipper(bundle)
-	testSymbols, symbolDiags := buildVerificationTestSymbolIndex(baseDir, testRoots, skip)
-	diags = append(diags, symbolDiags...)
+// verificationInference accumulates the inferred checks, their identity keys and the diagnostics.
+type verificationInference struct {
+	baseDir            string
+	reqOwners          map[string][]string
+	skip               func(path string, isDir bool) bool
+	codeBySource       map[string][]string
+	diags              []validate.Diagnostic
+	checkByID          map[string]*VerificationCheck
+	checkIDsByIdentity map[string][]string
+	checkIdentityByID  map[string]map[string]bool
+}
+
+// resultArtifact is a parsed test-result artifact: its model-relative path and results.
+type resultArtifact struct {
+	Path    string
+	Results []artifactResult
+	// Formal marks a formal evidence file; it always gets its own check.
+	Formal bool
+}
+
+// artifactResult is one normalized result of a result artifact.
+type artifactResult struct {
+	Requirement string
+	Status      string
+	Notes       string
+}
+
+// indexCodeElements builds the test-path index of code elements, preferring the
+// symbols found in the test roots over the inferred code items.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) indexCodeElements(inferredCode []CodeItem, testRoots []string) {
+	inf.codeBySource = buildVerificationCodeElementIndex(inferredCode)
+	testSymbols, symbolDiags := buildVerificationTestSymbolIndex(inf.baseDir, testRoots, inf.skip)
+	inf.diags = append(inf.diags, symbolDiags...)
 	for path, symbols := range testSymbols {
 		if len(symbols) > 0 {
-			codeBySource[path] = symbols
+			inf.codeBySource[path] = symbols
 		}
 	}
-	checkByID := map[string]*VerificationCheck{}
-	checkIDsByIdentity := map[string][]string{}
-	checkIdentityByID := map[string]map[string]bool{}
-	registerCheckIdentity := func(id, path string) {
-		keys := verificationIdentityKeysFromPath(path)
-		if len(keys) == 0 {
-			return
-		}
-		if checkIdentityByID[id] == nil {
-			checkIdentityByID[id] = map[string]bool{}
-		}
-		for _, key := range keys {
-			checkIDsByIdentity[key] = textutil.AppendUnique(checkIDsByIdentity[key], id)
-			checkIdentityByID[id][key] = true
-		}
-	}
+}
 
-	for _, root := range testRoots {
-		err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return nil
-			}
-			if d.IsDir() {
-				if path != root && (SkipScanDir(d.Name()) || skip(path, true)) {
-					return filepath.SkipDir
-				}
-				return nil
-			}
-			if skip(path, false) {
-				return nil
-			}
-			rel, _ := filepath.Rel(baseDir, path)
-			rel = filepath.ToSlash(rel)
-			ext := strings.ToLower(filepath.Ext(path))
-			// Rust unit tests live inline in production files (#[cfg(test)] mod tests).
-			if !isVerificationTestPath(rel) && ext != ".rs" {
-				return nil
-			}
-			if ext != ".go" && ext != ".ts" && ext != ".tsx" && ext != ".rs" && ext != ".py" && ext != ".js" && ext != ".mjs" && ext != ".cjs" && ext != ".java" && ext != ".yaml" && ext != ".yml" && ext != ".v" {
-				return nil
-			}
-			data, readErr := os.ReadFile(path)
-			if readErr != nil {
-				diags = append(diags, validate.Diagnostic{
-					Code:     "verification.test_read_failed",
-					Severity: validate.SeverityWarning,
-					Message:  readErr.Error(),
-					Path:     path,
-				})
-				return nil
-			}
-			content := string(data)
-			reqs := extractTRLCLinkedRequirements(content)
-			var gates map[string][]string
-			var benchOnly map[string]bool
-			if hasTestFunctionDetection(rel) {
-				testReqs, testGates, testBench, helperDiags, scanErr := testFunctionRequirements(path, rel)
-				if scanErr != nil {
-					return scanErr
-				}
-				reqs, gates, benchOnly = testReqs, testGates, testBench
-				diags = append(diags, helperDiags...)
-			} else if ext == ".v" || ext == ".py" {
-				reqs = nil
-				symbols, rtlDiags, scanErr := codemap.Scan(path)
-				if scanErr != nil {
-					return scanErr
-				}
-				diags = append(diags, rtlDiags...)
-				for _, symbol := range symbols {
-					reqs = append(reqs, symbol.Implements...)
-				}
-				reqs = uniqueStrings(reqs)
-			}
-			if len(reqs) == 0 {
-				return nil
-			}
-			desc := extractVerificationDescription(content)
-			if desc == "" {
-				desc = "Inferred from test source artifact."
-			}
-			id := verificationIDFromPath(rel)
-			check := &VerificationCheck{
-				ID:            id,
-				Name:          verificationNameFromPath(path),
-				Kind:          verificationKindFromPath(rel),
-				Status:        "not-run",
-				Description:   desc,
-				Verifies:      reqs,
-				CodeElements:  verificationCodeElementsForPath(rel, codeBySource),
-				DerivedOwners: ownersForRequirements(reqOwners, reqs),
-				Evidence:      []string{rel},
-				Gates:         gates,
-				BenchOnly:     benchOnly,
-			}
-			checkByID[id] = check
-			registerCheckIdentity(id, rel)
-			return nil
-		})
+// registerCheckIdentity records the identity keys of a check's source path.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) registerCheckIdentity(id, path string) {
+	keys := verificationIdentityKeysFromPath(path)
+	if len(keys) == 0 {
+		return
+	}
+	if inf.checkIdentityByID[id] == nil {
+		inf.checkIdentityByID[id] = map[string]bool{}
+	}
+	for _, key := range keys {
+		inf.checkIDsByIdentity[key] = textutil.AppendUnique(inf.checkIDsByIdentity[key], id)
+		inf.checkIdentityByID[id][key] = true
+	}
+}
+
+// scanTestRoot infers a check from every test source under root.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) scanTestRoot(root string) {
+	err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
-			diags = append(diags, validate.Diagnostic{
-				Code:     "verification.test_walk_failed",
-				Severity: validate.SeverityWarning,
-				Message:  err.Error(),
-				Path:     root,
-			})
+			return nil
 		}
+		return inf.visitTestPath(root, path, d)
+	})
+	if err != nil {
+		inf.diags = append(inf.diags, validate.Diagnostic{
+			Code:     "verification.test_walk_failed",
+			Severity: validate.SeverityWarning,
+			Message:  err.Error(),
+			Path:     root,
+		})
 	}
+}
 
-	type artifactResult struct {
-		Requirement string
-		Status      string
-		Notes       string
+// visitTestPath prunes skipped directories and adds the check of each in-scope file.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) visitTestPath(root, path string, d fs.DirEntry) error {
+	if d.IsDir() {
+		if path != root && (SkipScanDir(d.Name()) || inf.skip(path, true)) {
+			return filepath.SkipDir
+		}
+		return nil
 	}
-	type artifact struct {
-		Path    string
-		Results []artifactResult
-		// Formal marks a formal evidence file; it always gets its own check.
-		Formal bool
+	if inf.skip(path, false) {
+		return nil
 	}
+	return inf.addTestFile(path)
+}
 
-	artifacts := make([]artifact, 0)
+// verificationSourceExtensions are the test source extensions scanned for requirement links.
+var verificationSourceExtensions = map[string]bool{
+	".go": true, ".ts": true, ".tsx": true, ".rs": true, ".py": true, ".js": true,
+	".mjs": true, ".cjs": true, ".java": true, ".yaml": true, ".yml": true, ".v": true,
+}
+
+// addTestFile adds the check of one test source that links requirements.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) addTestFile(path string) error {
+	rel, ok := inf.scannableTestPath(path)
+	if !ok {
+		return nil
+	}
+	content, ok := inf.readTestFile(path)
+	if !ok {
+		return nil
+	}
+	src := testSource{path: path, rel: rel, content: content}
+	links, err := inf.linkedRequirements(src)
+	if err != nil {
+		return err
+	}
+	if len(links.reqs) > 0 {
+		inf.addTestCheck(src, links)
+	}
+	return nil
+}
+
+// testSource is a test source file: its path, model-relative path and content.
+type testSource struct {
+	path, rel, content string
+}
+
+// scannableTestPath is the model-relative path of a file that may hold test
+// links: a test path or, because Rust unit tests live inline in production
+// files (#[cfg(test)] mod tests), a Rust file, with a scanned extension.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) scannableTestPath(path string) (string, bool) {
+	rel, _ := filepath.Rel(inf.baseDir, path)
+	rel = filepath.ToSlash(rel)
+	ext := strings.ToLower(filepath.Ext(path))
+	if !isVerificationTestPath(rel) && ext != ".rs" {
+		return rel, false
+	}
+	return rel, verificationSourceExtensions[ext]
+}
+
+// readTestFile reads a test source; an unreadable file is a warning.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) readTestFile(path string) (string, bool) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		inf.diags = append(inf.diags, validate.Diagnostic{
+			Code:     "verification.test_read_failed",
+			Severity: validate.SeverityWarning,
+			Message:  err.Error(),
+			Path:     path,
+		})
+		return "", false
+	}
+	return string(data), true
+}
+
+// addTestCheck adds the check of a test source from its linked requirements.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) addTestCheck(src testSource, links testLinks) {
+	path, rel := src.path, src.rel
+	desc := extractVerificationDescription(src.content)
+	if desc == "" {
+		desc = "Inferred from test source artifact."
+	}
+	id := verificationIDFromPath(rel)
+	inf.checkByID[id] = &VerificationCheck{
+		ID:            id,
+		Name:          verificationNameFromPath(path),
+		Kind:          verificationKindFromPath(rel),
+		Status:        "not-run",
+		Description:   desc,
+		Verifies:      links.reqs,
+		CodeElements:  verificationCodeElementsForPath(rel, inf.codeBySource),
+		DerivedOwners: ownersForRequirements(inf.reqOwners, links.reqs),
+		Evidence:      []string{rel},
+		Gates:         links.gates,
+		BenchOnly:     links.benchOnly,
+	}
+	inf.registerCheckIdentity(id, rel)
+}
+
+// testLinks are the requirements a test file verifies, with their gates and benchmark-only marks.
+type testLinks struct {
+	reqs      []string
+	gates     map[string][]string
+	benchOnly map[string]bool
+}
+
+// linkedRequirements reads the requirements a test file verifies: from its test
+// entry points where the scanner can tell them from helpers, from the symbols
+// of a Verilog or Python file, else from its file-level TRLC-LINKS.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) linkedRequirements(src testSource) (testLinks, error) {
+	path := src.path
+	if hasTestFunctionDetection(src.rel) {
+		reqs, gates, benchOnly, helperDiags, err := testFunctionRequirements(path, src.rel)
+		if err != nil {
+			return testLinks{}, err
+		}
+		inf.diags = append(inf.diags, helperDiags...)
+		return testLinks{reqs: reqs, gates: gates, benchOnly: benchOnly}, nil
+	}
+	if ext := strings.ToLower(filepath.Ext(path)); ext == ".v" || ext == ".py" {
+		return inf.symbolRequirements(path)
+	}
+	return testLinks{reqs: extractTRLCLinkedRequirements(src.content)}, nil
+}
+
+// symbolRequirements collects the requirements implemented by the symbols of a file.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) symbolRequirements(path string) (testLinks, error) {
+	symbols, rtlDiags, err := codemap.Scan(path)
+	if err != nil {
+		return testLinks{}, err
+	}
+	inf.diags = append(inf.diags, rtlDiags...)
+	var reqs []string
+	for _, symbol := range symbols {
+		reqs = append(reqs, symbol.Implements...)
+	}
+	return testLinks{reqs: uniqueStrings(reqs)}, nil
+}
+
+// collectArtifacts parses the test-result artifacts under the result roots, ordered by path.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) collectArtifacts(resultRoots []string) []resultArtifact {
+	artifacts := make([]resultArtifact, 0)
 	for _, root := range resultRoots {
 		err := filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 			if err != nil || d.IsDir() {
 				return nil
 			}
-			formal := isFormalEvidencePath(path)
-			var res []VerificationResult
-			var ok bool
-			if formal {
-				var formalDiags []validate.Diagnostic
-				res, formalDiags = parseFormalEvidence(baseDir, path)
-				diags = append(diags, formalDiags...)
-				ok = true
-			} else {
-				res, ok = parseVerificationArtifact(path)
+			if a, ok := inf.readArtifact(path); ok {
+				artifacts = append(artifacts, a)
 			}
-			if !ok || len(res) == 0 {
-				return nil
-			}
-			rel, _ := filepath.Rel(baseDir, path)
-			rel = filepath.ToSlash(rel)
-			arts := make([]artifactResult, 0, len(res))
-			for _, r := range res {
-				arts = append(arts, artifactResult{
-					Requirement: r.Requirement,
-					Status:      NormalizeResultStatus(r.Status),
-					Notes:       r.Notes,
-				})
-			}
-			artifacts = append(artifacts, artifact{Path: rel, Results: arts, Formal: formal})
 			return nil
 		})
 		if err != nil {
-			diags = append(diags, validate.Diagnostic{
+			inf.diags = append(inf.diags, validate.Diagnostic{
 				Code:     "verification.result_walk_failed",
 				Severity: validate.SeverityWarning,
 				Message:  err.Error(),
@@ -246,127 +363,208 @@ func InferVerificationChecks(bundle model.Bundle, requirements model.Requirement
 	sort.SliceStable(artifacts, func(i, j int) bool {
 		return artifacts[i].Path < artifacts[j].Path
 	})
+	return artifacts
+}
 
-	for _, a := range artifacts {
-		bestID := ""
-		reqSet := map[string]bool{}
-		for _, r := range a.Results {
-			if strings.TrimSpace(r.Requirement) != "" {
-				reqSet[r.Requirement] = true
-			}
-		}
+// readArtifact parses one result file; false when it holds no results.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) readArtifact(path string) (resultArtifact, bool) {
+	formal := isFormalEvidencePath(path)
+	res, ok := inf.parseArtifact(path, formal)
+	if !ok || len(res) == 0 {
+		return resultArtifact{}, false
+	}
+	rel, _ := filepath.Rel(inf.baseDir, path)
+	arts := make([]artifactResult, 0, len(res))
+	for _, r := range res {
+		arts = append(arts, artifactResult{
+			Requirement: r.Requirement,
+			Status:      NormalizeResultStatus(r.Status),
+			Notes:       r.Notes,
+		})
+	}
+	return resultArtifact{Path: filepath.ToSlash(rel), Results: arts, Formal: formal}, true
+}
 
-		artifactKeys := verificationIdentityKeysFromPath(a.Path)
-		candidateIDSet := map[string]bool{}
-		for _, key := range artifactKeys {
-			for _, id := range checkIDsByIdentity[key] {
-				candidateIDSet[id] = true
-			}
-		}
-		candidateIDs := make([]string, 0, len(candidateIDSet))
-		for id := range candidateIDSet {
-			candidateIDs = append(candidateIDs, id)
-		}
-		sort.Strings(candidateIDs)
-		if !a.Formal {
-			bestID = selectBestVerificationCheckID(candidateIDs, checkByID, checkIdentityByID, reqSet, artifactKeys, false)
-		}
+// parseArtifact parses a formal evidence file or any other result artifact.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) parseArtifact(path string, formal bool) ([]VerificationResult, bool) {
+	if !formal {
+		return parseVerificationArtifact(path)
+	}
+	res, formalDiags := parseFormalEvidence(inf.baseDir, path)
+	inf.diags = append(inf.diags, formalDiags...)
+	return res, true
+}
 
-		if bestID == "" && !a.Formal {
-			allIDs := make([]string, 0, len(checkByID))
-			for id := range checkByID {
-				allIDs = append(allIDs, id)
-			}
-			sort.Strings(allIDs)
-			bestID = selectBestVerificationCheckID(allIDs, checkByID, checkIdentityByID, reqSet, artifactKeys, true)
-		}
-		if bestID == "" {
-			id := verificationIDFromPath(a.Path)
-			reqs := make([]string, 0, len(reqSet))
-			for req := range reqSet {
-				reqs = append(reqs, req)
-			}
-			sort.Strings(reqs)
-			checkByID[id] = &VerificationCheck{
-				ID:            id,
-				Name:          verificationNameFromPath(a.Path),
-				Kind:          verificationKindFromPath(a.Path),
-				Method:        verificationMethodFromPath(a.Path),
-				Status:        "not-run",
-				Description:   verificationDescriptionForArtifact(baseDir, a.Path),
-				Verifies:      reqs,
-				CodeElements:  verificationCodeElementsForPath(a.Path, codeBySource),
-				DerivedOwners: ownersForRequirements(reqOwners, reqs),
-				Evidence:      []string{a.Path},
-			}
-			registerCheckIdentity(id, a.Path)
-			bestID = id
-		}
-		c := checkByID[bestID]
-		c.Evidence = textutil.AppendUnique(c.Evidence, a.Path)
-		for _, ar := range a.Results {
-			if strings.TrimSpace(ar.Requirement) == "" {
-				continue
-			}
-			c.Verifies = textutil.AppendUnique(c.Verifies, ar.Requirement)
-			c.DerivedOwners = textutil.AppendUniqueSlice(c.DerivedOwners, ownersForRequirements(reqOwners, []string{ar.Requirement}))
-			c.Results = appendOrMergeResult(c.Results, VerificationResult{
-				Requirement: ar.Requirement,
-				Status:      ar.Status,
-				Evidence:    a.Path,
-				Notes:       ar.Notes,
-			})
+// attachArtifact adds the artifact's results to the best matching check, or to a
+// new check of its own when none matches.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) attachArtifact(a resultArtifact) {
+	reqSet := a.requirementSet()
+	selector := checkSelector{
+		checks:       inf.checkByID,
+		identityByID: inf.checkIdentityByID,
+		reqSet:       reqSet,
+		artifactKeys: verificationIdentityKeysFromPath(a.Path),
+	}
+	bestID := inf.bestCheckID(a, selector)
+	if bestID == "" {
+		bestID = inf.addArtifactCheck(a, reqSet)
+	}
+	c := inf.checkByID[bestID]
+	c.Evidence = textutil.AppendUnique(c.Evidence, a.Path)
+	inf.mergeArtifactResults(c, a)
+}
+
+// requirementSet is the non-blank requirements the artifact reports on.
+// TRLC-LINKS: REQ-EMG-010
+func (a resultArtifact) requirementSet() map[string]bool {
+	set := map[string]bool{}
+	for _, r := range a.Results {
+		if strings.TrimSpace(r.Requirement) != "" {
+			set[r.Requirement] = true
 		}
 	}
+	return set
+}
 
-	out := make([]VerificationCheck, 0, len(checkByID))
-	for _, c := range checkByID {
-		for _, req := range c.Verifies {
-			found := false
-			for _, r := range c.Results {
-				if r.Requirement == req {
-					found = true
-					break
-				}
-			}
-			if !found {
-				c.Results = append(c.Results, VerificationResult{
-					Requirement: req,
-					Status:      "not-run",
-					Evidence:    "none",
-					Notes:       "No parsed test-result artifact for this requirement yet.",
-				})
-			}
+// bestCheckID is the check an artifact belongs to: among the checks sharing an
+// identity key, else (requiring a requirement overlap) among all checks. A
+// formal evidence file never joins a check.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) bestCheckID(a resultArtifact, selector checkSelector) string {
+	if a.Formal {
+		return ""
+	}
+	candidateIDSet := map[string]bool{}
+	for _, key := range selector.artifactKeys {
+		for _, id := range inf.checkIDsByIdentity[key] {
+			candidateIDSet[id] = true
 		}
-		sort.Strings(c.Verifies)
-		sort.Strings(c.CodeElements)
-		sort.Strings(c.DerivedOwners)
-		sort.Strings(c.Evidence)
-		sort.SliceStable(c.Results, func(i, j int) bool {
-			if c.Results[i].Requirement != c.Results[j].Requirement {
-				return c.Results[i].Requirement < c.Results[j].Requirement
-			}
-			return c.Results[i].Status < c.Results[j].Status
+	}
+	if bestID := selector.best(sortedKeys(candidateIDSet), false); bestID != "" {
+		return bestID
+	}
+	allIDs := make([]string, 0, len(inf.checkByID))
+	for id := range inf.checkByID {
+		allIDs = append(allIDs, id)
+	}
+	sort.Strings(allIDs)
+	return selector.best(allIDs, true)
+}
+
+// sortedKeys is the sorted keys of a set.
+// TRLC-LINKS: REQ-EMG-010
+func sortedKeys(set map[string]bool) []string {
+	keys := make([]string, 0, len(set))
+	for key := range set {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+// addArtifactCheck creates the check of an artifact that matches no test check.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) addArtifactCheck(a resultArtifact, reqSet map[string]bool) string {
+	id := verificationIDFromPath(a.Path)
+	reqs := sortedKeys(reqSet)
+	inf.checkByID[id] = &VerificationCheck{
+		ID:            id,
+		Name:          verificationNameFromPath(a.Path),
+		Kind:          verificationKindFromPath(a.Path),
+		Method:        verificationMethodFromPath(a.Path),
+		Status:        "not-run",
+		Description:   verificationDescriptionForArtifact(inf.baseDir, a.Path),
+		Verifies:      reqs,
+		CodeElements:  verificationCodeElementsForPath(a.Path, inf.codeBySource),
+		DerivedOwners: ownersForRequirements(inf.reqOwners, reqs),
+		Evidence:      []string{a.Path},
+	}
+	inf.registerCheckIdentity(id, a.Path)
+	return id
+}
+
+// mergeArtifactResults records the artifact's results with a requirement on a check.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) mergeArtifactResults(c *VerificationCheck, a resultArtifact) {
+	for _, ar := range a.Results {
+		if strings.TrimSpace(ar.Requirement) == "" {
+			continue
+		}
+		c.Verifies = textutil.AppendUnique(c.Verifies, ar.Requirement)
+		c.DerivedOwners = textutil.AppendUniqueSlice(c.DerivedOwners, ownersForRequirements(inf.reqOwners, []string{ar.Requirement}))
+		c.Results = appendOrMergeResult(c.Results, VerificationResult{
+			Requirement: ar.Requirement,
+			Status:      ar.Status,
+			Evidence:    a.Path,
+			Notes:       ar.Notes,
 		})
-		c.Status = summarizeCheckStatus(c.Results)
+	}
+}
+
+// finalChecks completes each check with a not-run result per requirement without
+// one, sorts its fields and summarizes its status; the checks are ordered by id and name.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (inf *verificationInference) finalChecks() []VerificationCheck {
+	out := make([]VerificationCheck, 0, len(inf.checkByID))
+	for _, c := range inf.checkByID {
+		completeCheck(c)
 		out = append(out, *c)
 	}
-
 	sort.SliceStable(out, func(i, j int) bool {
 		if out[i].ID != out[j].ID {
 			return out[i].ID < out[j].ID
 		}
 		return out[i].Name < out[j].Name
 	})
-	if len(out) == 0 {
-		diags = append(diags, validate.Diagnostic{
-			Code:     "verification.no_artifacts_found",
-			Severity: validate.SeverityWarning,
-			Message:  "no verification artifacts found under inferred tests/ or test-results/ directories",
-			Path:     baseDir,
-		})
+	return out
+}
+
+// completeCheck adds the missing not-run results, sorts the check's lists and sets its status.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func completeCheck(c *VerificationCheck) {
+	for _, req := range c.Verifies {
+		if !hasResultFor(c.Results, req) {
+			c.Results = append(c.Results, VerificationResult{
+				Requirement: req,
+				Status:      "not-run",
+				Evidence:    "none",
+				Notes:       "No parsed test-result artifact for this requirement yet.",
+			})
+		}
 	}
-	return out, validate.SortDiagnostics(diags)
+	sort.Strings(c.Verifies)
+	sort.Strings(c.CodeElements)
+	sort.Strings(c.DerivedOwners)
+	sort.Strings(c.Evidence)
+	sort.SliceStable(c.Results, func(i, j int) bool {
+		if c.Results[i].Requirement != c.Results[j].Requirement {
+			return c.Results[i].Requirement < c.Results[j].Requirement
+		}
+		return c.Results[i].Status < c.Results[j].Status
+	})
+	c.Status = summarizeCheckStatus(c.Results)
+}
+
+// hasResultFor reports whether a result names the requirement.
+// TRLC-LINKS: REQ-EMG-010
+func hasResultFor(results []VerificationResult, req string) bool {
+	for _, r := range results {
+		if r.Requirement == req {
+			return true
+		}
+	}
+	return false
 }
 
 // hasTestFunctionDetection reports whether the scanner can tell test entry points
@@ -405,53 +603,91 @@ func testFunctionRequirements(path, rel string) ([]string, map[string][]string, 
 		return nil, nil, nil, nil, err
 	}
 	testPath := isVerificationTestPath(rel)
-	reqs := []string{}
-	gates := map[string][]string{}
-	ungated := map[string]bool{}
-	benchOnly, asserted := map[string]bool{}, map[string]bool{}
-	diags := []validate.Diagnostic{}
+	c := newTestLinkCollector()
 	for _, s := range symbols {
-		if len(s.Implements) == 0 {
-			continue
-		}
-		if s.IsTest {
-			reqs = append(reqs, s.Implements...)
-			for _, req := range s.Implements {
-				if s.Benchmark {
-					benchOnly[req] = true
-				} else {
-					asserted[req] = true
-				}
-				if len(s.Gates) == 0 {
-					ungated[req] = true
-					continue
-				}
-				gates[req] = textutil.AppendUniqueSlice(gates[req], s.Gates)
-			}
-			continue
-		}
-		if s.TestOnly || testPath {
-			diags = append(diags, validate.Diagnostic{
-				Code:     "verification.helper_link",
-				Severity: validate.SeverityWarning,
-				Message:  "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
-				Path:     fmt.Sprintf("%s:%d", rel, s.Line),
-			})
+		switch {
+		case len(s.Implements) == 0:
+		case s.IsTest:
+			c.addTest(s)
+		case s.TestOnly || testPath:
+			c.diags = append(c.diags, helperLinkDiagnostic(rel, s.Line))
 		}
 	}
-	for req := range ungated {
-		delete(gates, req)
+	gates, benchOnly := c.result()
+	return uniqueStrings(c.reqs), gates, benchOnly, c.diags, nil
+}
+
+// helperLinkDiagnostic warns about a TRLC-LINKS marker on a non-test declaration of a test file.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-088, REQ-EMG-121
+func helperLinkDiagnostic(rel string, line int) validate.Diagnostic {
+	return validate.Diagnostic{
+		Code:     "verification.helper_link",
+		Severity: validate.SeverityWarning,
+		Message:  "TRLC-LINKS on a non-test declaration in a test file does not verify; put it on the test function",
+		Path:     fmt.Sprintf("%s:%d", rel, line),
 	}
+}
+
+// testLinkCollector gathers the requirements linked from test entry points with their
+// gating and benchmark marks.
+type testLinkCollector struct {
+	reqs      []string
+	gates     map[string][]string
+	ungated   map[string]bool
+	benchOnly map[string]bool
+	asserted  map[string]bool
+	diags     []validate.Diagnostic
+}
+
+// newTestLinkCollector is an empty collector.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-088, REQ-EMG-121
+func newTestLinkCollector() *testLinkCollector {
+	return &testLinkCollector{
+		reqs:      []string{},
+		gates:     map[string][]string{},
+		ungated:   map[string]bool{},
+		benchOnly: map[string]bool{},
+		asserted:  map[string]bool{},
+		diags:     []validate.Diagnostic{},
+	}
+}
+
+// addTest records the requirements one test entry point links.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-088, REQ-EMG-121
+func (c *testLinkCollector) addTest(s codemap.Symbol) {
+	c.reqs = append(c.reqs, s.Implements...)
+	for _, req := range s.Implements {
+		if s.Benchmark {
+			c.benchOnly[req] = true
+		} else {
+			c.asserted[req] = true
+		}
+		if len(s.Gates) == 0 {
+			c.ungated[req] = true
+			continue
+		}
+		c.gates[req] = textutil.AppendUniqueSlice(c.gates[req], s.Gates)
+	}
+}
+
+// result is the gates of the requirements whose every test is gated and the
+// requirements whose every test is a benchmark; nil when empty.
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-088, REQ-EMG-121
+func (c *testLinkCollector) result() (map[string][]string, map[string]bool) {
+	for req := range c.ungated {
+		delete(c.gates, req)
+	}
+	for req := range c.asserted {
+		delete(c.benchOnly, req)
+	}
+	gates, benchOnly := c.gates, c.benchOnly
 	if len(gates) == 0 {
 		gates = nil
-	}
-	for req := range asserted {
-		delete(benchOnly, req)
 	}
 	if len(benchOnly) == 0 {
 		benchOnly = nil
 	}
-	return uniqueStrings(reqs), gates, benchOnly, diags, nil
+	return gates, benchOnly
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -494,39 +730,60 @@ type junitSuites struct {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func parseResultXML(data []byte) []VerificationResult {
-	out := []VerificationResult{}
 	decoder := junitSuites{}
 	if err := xml.Unmarshal(data, &decoder); err != nil {
-		// fallback: best effort regex extraction
-		reqs := uniqueStrings(requirementIDRe.FindAllString(string(data), -1))
-		status := "pass"
-		if strings.Contains(strings.ToLower(string(data)), "<failure") || strings.Contains(strings.ToLower(string(data)), "<error") {
-			status = "fail"
-		}
-		for _, req := range reqs {
-			out = append(out, VerificationResult{Requirement: req, Status: status})
-		}
-		return out
+		return xmlFallbackResults(data)
 	}
-	suites := append(decoder.Suites, decoder.Suite...)
-	for _, s := range suites {
+	out := []VerificationResult{}
+	for _, s := range append(decoder.Suites, decoder.Suite...) {
 		for _, tc := range s.Testcases {
-			reqs := uniqueStrings(requirementIDRe.FindAllString(tc.Name+" "+tc.Classname, -1))
-			if len(reqs) == 0 {
-				continue
-			}
-			status := "pass"
-			if tc.Failure != nil || tc.Error != nil {
-				status = "fail"
-			} else if tc.Skipped != nil {
-				status = "not-run"
-			}
-			for _, req := range reqs {
-				out = append(out, VerificationResult{Requirement: req, Status: status})
-			}
+			out = append(out, testcaseResults(tc)...)
 		}
 	}
 	return out
+}
+
+// xmlFallbackResults is the best-effort extraction for XML that is not JUnit:
+// every requirement id gets one status, fail when the text has a failure or error element.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func xmlFallbackResults(data []byte) []VerificationResult {
+	reqs := uniqueStrings(requirementIDRe.FindAllString(string(data), -1))
+	lower := strings.ToLower(string(data))
+	status := "pass"
+	if strings.Contains(lower, "<failure") || strings.Contains(lower, "<error") {
+		status = "fail"
+	}
+	out := []VerificationResult{}
+	for _, req := range reqs {
+		out = append(out, VerificationResult{Requirement: req, Status: status})
+	}
+	return out
+}
+
+// testcaseResults is one result per requirement named in a test case's name or class.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func testcaseResults(tc junitTestcase) []VerificationResult {
+	reqs := uniqueStrings(requirementIDRe.FindAllString(tc.Name+" "+tc.Classname, -1))
+	status := junitStatus(tc)
+	out := make([]VerificationResult, 0, len(reqs))
+	for _, req := range reqs {
+		out = append(out, VerificationResult{Requirement: req, Status: status})
+	}
+	return out
+}
+
+// junitStatus is fail for a failed or errored test case, not-run for a skipped one, else pass.
+// TRLC-LINKS: REQ-EMG-010
+func junitStatus(tc junitTestcase) string {
+	if tc.Failure != nil || tc.Error != nil {
+		return "fail"
+	}
+	if tc.Skipped != nil {
+		return "not-run"
+	}
+	return "pass"
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -600,89 +857,146 @@ func extractTRLCLinkedRequirements(text string) []string {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func buildVerificationCodeElementIndex(items []CodeItem) map[string][]string {
-	type pathEvidence struct {
-		hasSourceFile bool
-		symbols       []string
-	}
-	byPath := map[string]pathEvidence{}
-	for _, it := range items {
-		src := filepath.ToSlash(strings.TrimSpace(it.Source))
-		if src == "" {
-			continue
-		}
-		srcPath := src
-		if idx := strings.Index(srcPath, ":"); idx > 0 {
-			srcPath = srcPath[:idx]
-		}
-		if !isVerificationTestPath(srcPath) {
-			continue
-		}
-		ev := byPath[srcPath]
-		switch strings.TrimSpace(it.Kind) {
-		case "symbol":
-			ev.symbols = textutil.AppendUnique(ev.symbols, ItemDisplayName(it))
-		case "source_file":
-			ev.hasSourceFile = true
-		default:
-			continue
-		}
-		byPath[srcPath] = ev
-	}
 	out := map[string][]string{}
-	for path, ev := range byPath {
-		if len(ev.symbols) > 0 {
-			out[path] = GroupedEvidenceLabels(ev.symbols, nil)
-			continue
-		}
-		if ev.hasSourceFile {
-			out[path] = GroupedEvidenceLabels([]string{path}, nil)
+	for path, ev := range collectPathEvidence(items) {
+		if labels, ok := ev.labels(path); ok {
+			out[path] = labels
 		}
 	}
 	return out
 }
 
+// collectPathEvidence groups the symbol and source-file items of test paths by path.
+// TRLC-LINKS: REQ-EMG-010
+func collectPathEvidence(items []CodeItem) map[string]pathEvidence {
+	byPath := map[string]pathEvidence{}
+	for _, it := range items {
+		srcPath, ok := testSourcePath(it)
+		ev := byPath[srcPath]
+		if ok && ev.record(it) {
+			byPath[srcPath] = ev
+		}
+	}
+	return byPath
+}
+
+// pathEvidence is what the code items of one test source file show.
+type pathEvidence struct {
+	hasSourceFile bool
+	symbols       []string
+}
+
+// record adds a symbol or source-file item; it reports false for any other kind.
+// TRLC-LINKS: REQ-EMG-010
+func (e *pathEvidence) record(it CodeItem) bool {
+	switch strings.TrimSpace(it.Kind) {
+	case "symbol":
+		e.symbols = textutil.AppendUnique(e.symbols, ItemDisplayName(it))
+	case "source_file":
+		e.hasSourceFile = true
+	default:
+		return false
+	}
+	return true
+}
+
+// labels are the grouped evidence labels of the symbols, else of the file itself
+// when it is a source-file item; false when the path shows neither.
+// TRLC-LINKS: REQ-EMG-010
+func (e pathEvidence) labels(path string) ([]string, bool) {
+	if len(e.symbols) > 0 {
+		return GroupedEvidenceLabels(e.symbols, nil), true
+	}
+	if e.hasSourceFile {
+		return GroupedEvidenceLabels([]string{path}, nil), true
+	}
+	return nil, false
+}
+
+// testSourcePath is the slashed source path of an item (without its line) when
+// it is a test path.
+// TRLC-LINKS: REQ-EMG-010
+func testSourcePath(it CodeItem) (string, bool) {
+	src := filepath.ToSlash(strings.TrimSpace(it.Source))
+	if src == "" {
+		return "", false
+	}
+	if idx := strings.Index(src, ":"); idx > 0 {
+		src = src[:idx]
+	}
+	return src, isVerificationTestPath(src)
+}
+
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func buildVerificationTestSymbolIndex(baseDir string, roots []string, skip func(path string, isDir bool) bool) (map[string][]string, []validate.Diagnostic) {
-	out := map[string][]string{}
-	diags := []validate.Diagnostic{}
+	idx := &testSymbolIndex{baseDir: baseDir, skip: skip, labels: map[string][]string{}, diags: []validate.Diagnostic{}}
 	for _, root := range UniqueExistingSources(roots) {
-		symbols, scanDiags, err := codemap.ScanWithOptions(root, codemap.ScanOptions{Skip: skip})
-		if err != nil {
-			diags = append(diags, validate.Diagnostic{
-				Code:     "verification.code_scan_failed",
-				Severity: validate.SeverityWarning,
-				Message:  err.Error(),
-				Path:     root,
-			})
+		idx.addRoot(root)
+	}
+	for path, elems := range idx.labels {
+		idx.labels[path] = GroupedEvidenceLabels(elems, nil)
+	}
+	return idx.labels, validate.SortDiagnostics(idx.diags)
+}
+
+// testSymbolIndex collects the evidence labels of the test symbols per model-relative path.
+type testSymbolIndex struct {
+	baseDir string
+	skip    func(path string, isDir bool) bool
+	labels  map[string][]string
+	diags   []validate.Diagnostic
+}
+
+// addRoot scans one root; a failed scan is a warning and skips the root.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (x *testSymbolIndex) addRoot(root string) {
+	symbols, scanDiags, err := codemap.ScanWithOptions(root, codemap.ScanOptions{Skip: x.skip})
+	if err != nil {
+		x.diags = append(x.diags, validate.Diagnostic{
+			Code:     "verification.code_scan_failed",
+			Severity: validate.SeverityWarning,
+			Message:  err.Error(),
+			Path:     root,
+		})
+		return
+	}
+	x.diags = append(x.diags, scanDiags...)
+	for _, s := range symbols {
+		rel := x.relativePath(root, s)
+		if !isTestSymbol(rel, s) {
 			continue
 		}
-		diags = append(diags, scanDiags...)
-		for _, s := range symbols {
-			absPath := filepath.Join(sourceRootDir(root), filepath.FromSlash(s.Path))
-			rel, err := filepath.Rel(baseDir, absPath)
-			if err != nil {
-				rel = absPath
-			}
-			rel = filepath.ToSlash(rel)
-			if s.IsTest {
-				// Test entry points, including Rust tests inline in production files.
-			} else if !isVerificationTestPath(rel) || (s.TestOnly && hasTestFunctionDetection(rel)) {
-				continue
-			}
-			if s.Line > 0 {
-				label := EvidenceLabel(fmt.Sprintf("%s:%d", rel, s.Line))
-				out[rel] = textutil.AppendUnique(out[rel], label)
-			} else {
-				label := EvidenceLabel(rel)
-				out[rel] = textutil.AppendUnique(out[rel], label)
-			}
+		label := EvidenceLabel(rel)
+		if s.Line > 0 {
+			label = EvidenceLabel(fmt.Sprintf("%s:%d", rel, s.Line))
 		}
+		x.labels[rel] = textutil.AppendUnique(x.labels[rel], label)
 	}
-	for path, elems := range out {
-		out[path] = GroupedEvidenceLabels(elems, nil)
+}
+
+// relativePath is the slashed path of a symbol's file relative to the model directory.
+// TRLC-LINKS: REQ-EMG-010
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (x *testSymbolIndex) relativePath(root string, s codemap.Symbol) string {
+	absPath := filepath.Join(sourceRootDir(root), filepath.FromSlash(s.Path))
+	rel, err := filepath.Rel(x.baseDir, absPath)
+	if err != nil {
+		rel = absPath
 	}
-	return out, validate.SortDiagnostics(diags)
+	return filepath.ToSlash(rel)
+}
+
+// isTestSymbol reports whether a symbol counts as test evidence: a test entry
+// point (including Rust tests inline in production files), or a symbol of a
+// test path that is not test-only code of a file with test detection.
+// TRLC-LINKS: REQ-EMG-010
+func isTestSymbol(rel string, s codemap.Symbol) bool {
+	if s.IsTest {
+		return true
+	}
+	return isVerificationTestPath(rel) && !(s.TestOnly && hasTestFunctionDetection(rel))
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -710,21 +1024,46 @@ func verificationCodeElementsForPath(path string, index map[string][]string) []s
 func isVerificationTestPath(path string) bool {
 	p := strings.ToLower(filepath.ToSlash(strings.TrimSpace(path)))
 	base := filepath.Base(p)
-	return (strings.HasSuffix(base, ".py") && (strings.HasPrefix(base, "test_") || strings.HasSuffix(base, "_test.py"))) ||
-		(strings.HasSuffix(base, ".v") && (base == "tb.v" || strings.HasPrefix(base, "tb_") || strings.HasSuffix(base, "_tb.v"))) ||
-		strings.HasPrefix(p, "tests/") ||
-		strings.Contains(p, "/tests/") ||
-		strings.HasSuffix(base, "_test.go") ||
-		strings.HasSuffix(base, ".test.js") ||
-		strings.HasSuffix(base, ".test.mjs") ||
-		strings.HasSuffix(base, ".test.cjs") ||
-		strings.HasSuffix(base, ".test.ts") ||
-		strings.HasSuffix(base, ".test.tsx") ||
-		strings.HasSuffix(base, ".spec.js") ||
-		strings.HasSuffix(base, ".spec.mjs") ||
-		strings.HasSuffix(base, ".spec.cjs") ||
-		strings.HasSuffix(base, ".spec.ts") ||
-		strings.HasSuffix(base, ".spec.tsx")
+	if isPythonTestFile(base) || isVerilogTestbench(base) {
+		return true
+	}
+	if strings.HasPrefix(p, "tests/") || strings.Contains(p, "/tests/") {
+		return true
+	}
+	return hasAnySuffix(base, testFileSuffixes)
+}
+
+// testFileSuffixes are the file name endings of Go and JavaScript or TypeScript tests.
+var testFileSuffixes = []string{
+	"_test.go",
+	".test.js", ".test.mjs", ".test.cjs", ".test.ts", ".test.tsx",
+	".spec.js", ".spec.mjs", ".spec.cjs", ".spec.ts", ".spec.tsx",
+}
+
+// hasAnySuffix reports whether s ends with one of the suffixes.
+// TRLC-LINKS: REQ-EMG-010
+func hasAnySuffix(s string, suffixes []string) bool {
+	for _, suffix := range suffixes {
+		if strings.HasSuffix(s, suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+// isPythonTestFile reports whether a lowercased base name is a pytest test module.
+// TRLC-LINKS: REQ-EMG-010
+func isPythonTestFile(base string) bool {
+	return strings.HasSuffix(base, ".py") && (strings.HasPrefix(base, "test_") || strings.HasSuffix(base, "_test.py"))
+}
+
+// isVerilogTestbench reports whether a lowercased base name is a Verilog testbench.
+// TRLC-LINKS: REQ-EMG-010
+func isVerilogTestbench(base string) bool {
+	if !strings.HasSuffix(base, ".v") {
+		return false
+	}
+	return base == "tb.v" || strings.HasPrefix(base, "tb_") || strings.HasSuffix(base, "_tb.v")
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -746,13 +1085,19 @@ func requirementOwners(reqs []model.Requirement) map[string][]string {
 		if id == "" {
 			continue
 		}
-		units := make([]string, 0, len(r.AppliesTo))
-		for _, u := range r.AppliesTo {
-			if t := strings.TrimSpace(u); t != "" {
-				units = append(units, t)
-			}
+		out[id] = uniqueStrings(nonBlank(r.AppliesTo))
+	}
+	return out
+}
+
+// nonBlank is the trimmed non-empty entries of a list.
+// TRLC-LINKS: REQ-EMG-010
+func nonBlank(in []string) []string {
+	out := make([]string, 0, len(in))
+	for _, x := range in {
+		if t := strings.TrimSpace(x); t != "" {
+			out = append(out, t)
 		}
-		out[id] = uniqueStrings(units)
 	}
 	return out
 }
@@ -860,29 +1205,44 @@ func verificationIDFromPath(rel string) string {
 	return "VER-INF-" + kind + "-" + base + "-" + suffix
 }
 
+// resultStatusAliases maps the lowercased spellings of a result status to its canonical form.
+var resultStatusAliases = map[string]string{
+	"pass": "pass", "passed": "pass",
+	"fail": "fail", "failed": "fail", "error": "fail",
+	"partial": "partial",
+	"blocked": "blocked",
+	"not-run": "not-run", "notrun": "not-run", "skipped": "not-run",
+	"flaky": "flaky",
+}
+
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func NormalizeResultStatus(s string) string {
 	x := strings.ToLower(strings.TrimSpace(s))
-	switch x {
-	case "pass", "passed":
-		return "pass"
-	case "fail", "failed", "error":
-		return "fail"
-	case "partial":
-		return "partial"
-	case "blocked":
-		return "blocked"
-	case "not-run", "notrun", "skipped":
-		return "not-run"
-	case "flaky":
-		return "flaky"
-	default:
-		if x == "" {
-			return "not-run"
-		}
-		return x
+	if canonical, ok := resultStatusAliases[x]; ok {
+		return canonical
 	}
+	if x == "" {
+		return "not-run"
+	}
+	return x
+}
+
+// statusSummaryRule gives the status of a check whose results include every listed status.
+type statusSummaryRule struct {
+	all    []string
+	status string
+}
+
+// statusSummaryRules are tried in order; a check matching none is a pass.
+var statusSummaryRules = []statusSummaryRule{
+	{[]string{"fail"}, "fail"},
+	{[]string{"blocked"}, "blocked"},
+	{[]string{"partial"}, "partial"},
+	{[]string{"pass", "not-run"}, "partial"},
+	{[]string{"flaky"}, "flaky"},
+	{[]string{"pass"}, "pass"},
+	{[]string{"not-run"}, "not-run"},
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -895,24 +1255,23 @@ func summarizeCheckStatus(results []VerificationResult) string {
 	for _, r := range results {
 		has[NormalizeResultStatus(r.Status)] = true
 	}
-	switch {
-	case has["fail"]:
-		return "fail"
-	case has["blocked"]:
-		return "blocked"
-	case has["partial"]:
-		return "partial"
-	case has["pass"] && has["not-run"]:
-		return "partial"
-	case has["flaky"]:
-		return "flaky"
-	case has["pass"]:
-		return "pass"
-	case has["not-run"]:
-		return "not-run"
-	default:
-		return "pass"
+	for _, rule := range statusSummaryRules {
+		if rule.matches(has) {
+			return rule.status
+		}
 	}
+	return "pass"
+}
+
+// matches reports whether every listed status is present.
+// TRLC-LINKS: REQ-EMG-010
+func (r statusSummaryRule) matches(has map[string]bool) bool {
+	for _, status := range r.all {
+		if !has[status] {
+			return false
+		}
+	}
+	return true
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -951,39 +1310,77 @@ func normalizeVerificationIdentity(raw string) string {
 
 var nonAlnumRe = regexp.MustCompile(`[^a-z0-9]+`)
 
+// checkSelector picks the check an artifact belongs to by identity-key matches and
+// requirement overlap.
+type checkSelector struct {
+	checks       map[string]*VerificationCheck
+	identityByID map[string]map[string]bool
+	reqSet       map[string]bool
+	artifactKeys []string
+}
+
+// checkRank is a candidate check: its identity-key matches, then its requirement overlap.
+type checkRank struct {
+	id         string
+	keyMatches int
+	overlap    int
+}
+
+// better reports whether the candidate outranks best: by key matches, then
+// overlap, then the smaller id.
+// TRLC-LINKS: REQ-EMG-010
+func (c checkRank) better(best checkRank) bool {
+	if c.keyMatches != best.keyMatches {
+		return c.keyMatches > best.keyMatches
+	}
+	if c.overlap != best.overlap {
+		return c.overlap > best.overlap
+	}
+	return best.id == "" || c.id < best.id
+}
+
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func selectBestVerificationCheckID(ids []string, checks map[string]*VerificationCheck, checkIdentityByID map[string]map[string]bool, reqSet map[string]bool, artifactKeys []string, requireOverlap bool) string {
-	bestID := ""
-	bestKeyMatches := -1
-	bestOverlap := -1
+func (s checkSelector) best(ids []string, requireOverlap bool) string {
+	best := checkRank{keyMatches: -1, overlap: -1}
 	for _, id := range ids {
-		c := checks[id]
+		c := s.checks[id]
 		if c == nil {
 			continue
 		}
-		overlap := 0
-		for _, req := range c.Verifies {
-			if reqSet[req] {
-				overlap++
-			}
-		}
+		overlap := s.overlap(c)
 		if requireOverlap && overlap == 0 {
 			continue
 		}
-		keyMatches := 0
-		for _, key := range artifactKeys {
-			if checkIdentityByID[id][key] {
-				keyMatches++
-			}
-		}
-		if keyMatches > bestKeyMatches || (keyMatches == bestKeyMatches && overlap > bestOverlap) || (keyMatches == bestKeyMatches && overlap == bestOverlap && (bestID == "" || id < bestID)) {
-			bestID = id
-			bestKeyMatches = keyMatches
-			bestOverlap = overlap
+		if cand := (checkRank{id: id, keyMatches: s.keyMatches(id), overlap: overlap}); cand.better(best) {
+			best = cand
 		}
 	}
-	return bestID
+	return best.id
+}
+
+// overlap counts the check's requirements the artifact also names.
+// TRLC-LINKS: REQ-EMG-010
+func (s checkSelector) overlap(c *VerificationCheck) int {
+	n := 0
+	for _, req := range c.Verifies {
+		if s.reqSet[req] {
+			n++
+		}
+	}
+	return n
+}
+
+// keyMatches counts the artifact's identity keys the check also has.
+// TRLC-LINKS: REQ-EMG-010
+func (s checkSelector) keyMatches(id string) int {
+	n := 0
+	for _, key := range s.artifactKeys {
+		if s.identityByID[id][key] {
+			n++
+		}
+	}
+	return n
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -1029,11 +1426,8 @@ func extractVerificationDescriptionMarker(line string) (string, bool) {
 		"engmodel.verification.description",
 	}
 	for _, marker := range markers {
-		if v, ok := extractMarkerValue(line, marker); ok {
-			v = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), ":"))
-			if v != "" {
-				return v, true
-			}
+		if v := markerDescription(line, marker); v != "" {
+			return v, true
 		}
 	}
 	return "", false
