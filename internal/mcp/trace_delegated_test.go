@@ -25,6 +25,23 @@ func initializeMCPAt(t *testing.T, base string) *Server {
 	return s
 }
 
+// initializeModelAt starts the MCP server on the model and repository in base,
+// without a requirements path.
+// TRLC-LINKS: REQ-EMG-067
+func initializeModelAt(t *testing.T, base string) *Server {
+	t.Helper()
+	s := NewServer()
+	if resp := rpcCall(t, s, map[string]any{
+		"jsonrpc": "2.0", "id": 1, "method": "initialize",
+		"params": map[string]any{"initializationOptions": map[string]any{
+			"modelPath": filepath.Join(base, "engmod.yml"), "repoRoot": base,
+		}},
+	}); resp["error"] != nil {
+		t.Fatalf("initialize: %+v", resp["error"])
+	}
+	return s
+}
+
 // traceRowsByID returns the requirement rows of a trace.matrix payload by id.
 // TRLC-LINKS: REQ-EMG-067
 func traceRowsByID(payload map[string]any) map[string]map[string]any {
@@ -94,38 +111,64 @@ func TestTraceMatrixToolReportsDelegatedStatus(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-088
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestTraceMatrixToolReportsGatedOnly(t *testing.T) {
+	s := gatedSoloServer(t)
+	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
+		assertGatedSummary(t, args, s.callToolPayload(t, "trace.matrix", args)["summary"].(map[string]any))
+	}
+	for _, item := range s.callToolPayload(t, "trace.matrix", map[string]any{})["requirements"].([]any) {
+		assertGatedRow(t, item.(map[string]any))
+	}
+}
+
+// gatedSoloServer starts the MCP server on a one-module model whose linked
+// test skips unless SOLO_E2E is set.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func gatedSoloServer(t *testing.T) *Server {
+	t.Helper()
 	dir := filepath.Join(t.TempDir(), "solo")
 	writeMCPModule(t, dir, mcpModule{"example.com/solo@v1", "v1.0.0", "SOLO", "", "  contract: {}\n"})
 	writeMCPFile(t, filepath.Join(dir, "e2e_test.go"), "package solo\n\nimport (\n\t\"os\"\n\t\"testing\"\n)\n\n// TRLC-LINKS: REQ-PARENT\nfunc TestE2E(t *testing.T) {\n\tif os.Getenv(\"SOLO_E2E\") == \"\" {\n\t\tt.Skip(\"set SOLO_E2E\")\n\t}\n}\n\n// TRLC-LINKS: REQ-CHILD\nfunc TestUnit(t *testing.T) {}\n")
-	s := NewServer()
-	if resp := rpcCall(t, s, map[string]any{
-		"jsonrpc": "2.0", "id": 1, "method": "initialize",
-		"params": map[string]any{"initializationOptions": map[string]any{
-			"modelPath": filepath.Join(dir, "engmod.yml"), "repoRoot": dir,
-		}},
-	}); resp["error"] != nil {
-		t.Fatalf("initialize: %+v", resp["error"])
+	return initializeModelAt(t, dir)
+}
+
+// assertGatedSummary checks the gatedOnly counters of one trace.matrix summary.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertGatedSummary(t *testing.T, args, summary map[string]any) {
+	t.Helper()
+	if !gatedSummaryHolds(summary) {
+		t.Fatalf("summary %v: want gatedOnly 1 [REQ-PARENT] and testLinked 2, got %+v", args, summary)
 	}
-	for _, args := range []map[string]any{{}, {"summaryOnly": true}} {
-		summary := s.callToolPayload(t, "trace.matrix", args)["summary"].(map[string]any)
-		list, _ := summary["gatedOnlyRequirements"].([]any)
-		if summary["gatedOnly"] != float64(1) || len(list) != 1 || list[0] != "REQ-PARENT" || summary["testLinked"] != float64(2) {
-			t.Fatalf("summary %v: want gatedOnly 1 [REQ-PARENT] and testLinked 2, got %+v", args, summary)
+}
+
+// gatedSummaryHolds reports whether the summary counts exactly REQ-PARENT as
+// gated only and two test-linked requirements.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func gatedSummaryHolds(summary map[string]any) bool {
+	list, _ := summary["gatedOnlyRequirements"].([]any)
+	if summary["gatedOnly"] != float64(1) || len(list) != 1 {
+		return false
+	}
+	return list[0] == "REQ-PARENT" && summary["testLinked"] == float64(2)
+}
+
+// assertGatedRow checks the gated and gates fields of one trace.matrix row.
+// TRLC-LINKS: REQ-EMG-088
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertGatedRow(t *testing.T, row map[string]any) {
+	t.Helper()
+	gated, _ := row["gated"].(bool)
+	gates, _ := row["gates"].([]any)
+	switch row["id"] {
+	case "REQ-PARENT":
+		if !gated || len(gates) != 1 || gates[0] != "SOLO_E2E" {
+			t.Fatalf("REQ-PARENT row must be gated by SOLO_E2E: %+v", row)
 		}
-	}
-	for _, item := range s.callToolPayload(t, "trace.matrix", map[string]any{})["requirements"].([]any) {
-		row := item.(map[string]any)
-		gated, _ := row["gated"].(bool)
-		gates, _ := row["gates"].([]any)
-		switch row["id"] {
-		case "REQ-PARENT":
-			if !gated || len(gates) != 1 || gates[0] != "SOLO_E2E" {
-				t.Fatalf("REQ-PARENT row must be gated by SOLO_E2E: %+v", row)
-			}
-		case "REQ-CHILD":
-			if gated {
-				t.Fatalf("REQ-CHILD row is not gated: %+v", row)
-			}
+	case "REQ-CHILD":
+		if gated {
+			t.Fatalf("REQ-CHILD row is not gated: %+v", row)
 		}
 	}
 }
