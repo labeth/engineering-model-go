@@ -25,7 +25,7 @@ func TestPublicationKeepsTestCodeOutOfRuntimeEvidence(t *testing.T) {
 				Mappings:         []model.Mapping{{Type: "depends_on", From: "FU-A", To: "FU-B"}},
 			}
 			security := []asciidocSecurityPathRow{{AttackVectorID: "AV-A", AttackVector: "Attack", TargetID: "FU-A", Target: "Unit"}}
-			requirement := buildRequirementCoverageMermaid(reqs, nil, testCode, checks, nil)
+			requirement := buildRequirementCoverageMermaid(reqs, coverageSources{code: testCode, verification: checks})
 			if !strings.Contains(requirement, "VERCODE_") || !strings.Contains(requirement, "partial") || !strings.Contains(requirement, ": 17") {
 				t.Fatalf("verification evidence lost: %s", requirement)
 			}
@@ -33,7 +33,7 @@ func TestPublicationKeepsTestCodeOutOfRuntimeEvidence(t *testing.T) {
 				t.Fatalf("test-only owner gained implementation evidence: %s", requirement)
 			}
 			for name, diagram := range map[string]string{
-				"group":    buildFunctionalGroupDependencyMermaid(a, "FG-A", nil, testCode),
+				"group":    buildFunctionalGroupDependencyMermaid(a, "FG-A", realizationEvidence{code: testCode}),
 				"security": buildSecurityPathMermaid(security, nil, testCode),
 			} {
 				if strings.Contains(diagram, "runtime (inferred)") || strings.Contains(diagram, "CODE_") {
@@ -44,11 +44,11 @@ func TestPublicationKeepsTestCodeOutOfRuntimeEvidence(t *testing.T) {
 				t.Fatal("test code created owner/security evidence")
 			}
 			mixed := append(append([]codescan.CodeItem{}, testCode...), codescan.CodeItem{Kind: "symbol", Owner: "FU-A", Source: "production.go:9", Implements: []string{"REQ-A"}})
-			requirement = buildRequirementCoverageMermaid(reqs, nil, mixed, checks, nil)
+			requirement = buildRequirementCoverageMermaid(reqs, coverageSources{code: mixed, verification: checks})
 			if !strings.Contains(requirement, "production.go: 9") || !strings.Contains(requirement, "code trace") || !strings.Contains(requirement, "VERCODE_") {
 				t.Fatalf("mixed evidence lost production or verification: %s", requirement)
 			}
-			explicit := buildRequirementCoverageMermaid(reqs, []codescan.RuntimeItem{{Owner: "FU-A", Name: "authored-service"}}, testCode, checks, nil)
+			explicit := buildRequirementCoverageMermaid(reqs, coverageSources{runtime: []codescan.RuntimeItem{{Owner: "FU-A", Name: "authored-service"}}, code: testCode, verification: checks})
 			if !strings.Contains(explicit, "authored-service") {
 				t.Fatal("independent runtime evidence lost")
 			}

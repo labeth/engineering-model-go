@@ -579,7 +579,7 @@ func (g *generation) fillArchitectureIntent(vs *asciidocViewSection) {
 		vs.FuncMatrixTable = buildFunctionalManhattanTable(scoped)
 	}
 	for j := range vs.Groups {
-		vs.Groups[j].DependencyGraph = buildFunctionalGroupDependencyMermaid(scoped, vs.Groups[j].ID, g.inferredRuntime, g.inferredCode)
+		vs.Groups[j].DependencyGraph = buildFunctionalGroupDependencyMermaid(scoped, vs.Groups[j].ID, realizationEvidence{g.inferredRuntime, g.inferredCode})
 	}
 }
 
@@ -660,7 +660,7 @@ func (g *generation) requirementSections() []asciidocRequirementSection {
 			Text:                 strings.TrimSpace(r.Text),
 			Notes:                strings.TrimSpace(r.Notes),
 			AlignmentMermaid:     buildRequirementAlignmentMermaid([]model.Requirement{r}, g.labelByID),
-			CoverageMermaid:      buildRequirementCoverageMermaid([]model.Requirement{r}, g.inferredRuntime, g.inferredCode, g.inferredVerification, g.labelByID),
+			CoverageMermaid:      buildRequirementCoverageMermaid([]model.Requirement{r}, coverageSources{g.inferredRuntime, g.inferredCode, g.inferredVerification, g.labelByID}),
 			AlignmentExplanation: "What this diagram shows: direct authored mapping from this requirement to the functional units it applies to.",
 			CoverageExplanation:  "What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.",
 		})
