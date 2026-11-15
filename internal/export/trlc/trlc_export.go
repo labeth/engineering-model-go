@@ -86,10 +86,30 @@ func GenerateRequirements(requirements model.RequirementsDocument, options Optio
 	if pkg == "" {
 		pkg = "Requirements"
 	}
+	reqs := buildTRLCRequirementRecords(requirements.Requirements)
 
+	tplData := trlcTemplateData{PackageName: pkg, Requirements: reqs}
+	modelRSL, err := executeTRLCTemplate(trlcModelTemplate, tplData)
+	if err != nil {
+		return Result{}, err
+	}
+	reqTRLC, err := executeTRLCTemplate(trlcRequirementsTemplate, tplData)
+	if err != nil {
+		return Result{}, err
+	}
+
+	return Result{PackageName: pkg, ModelRSL: modelRSL, RequirementsTRLC: reqTRLC}, nil
+}
+
+// buildTRLCRequirementRecords maps requirements to TRLC records with unique
+// object names, sorted by requirement ID.
+//
+// TRLC-LINKS: REQ-EMG-006, REQ-EMG-035, REQ-EMG-036
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func buildTRLCRequirementRecords(requirements []model.Requirement) []trlcRequirementRecord {
 	used := map[string]bool{}
-	reqs := make([]trlcRequirementRecord, 0, len(requirements.Requirements))
-	for _, r := range requirements.Requirements {
+	reqs := make([]trlcRequirementRecord, 0, len(requirements))
+	for _, r := range requirements {
 		obj := uniqueTRLCObjectName(SanitizeIdentifier(strings.TrimSpace(r.ID)), used)
 		if obj == "" {
 			obj = uniqueTRLCObjectName("requirement", used)
@@ -106,18 +126,7 @@ func GenerateRequirements(requirements model.RequirementsDocument, options Optio
 		})
 	}
 	sort.SliceStable(reqs, func(i, j int) bool { return reqs[i].ID < reqs[j].ID })
-
-	tplData := trlcTemplateData{PackageName: pkg, Requirements: reqs}
-	modelRSL, err := executeTRLCTemplate(trlcModelTemplate, tplData)
-	if err != nil {
-		return Result{}, err
-	}
-	reqTRLC, err := executeTRLCTemplate(trlcRequirementsTemplate, tplData)
-	if err != nil {
-		return Result{}, err
-	}
-
-	return Result{PackageName: pkg, ModelRSL: modelRSL, RequirementsTRLC: reqTRLC}, nil
+	return reqs
 }
 
 // TRLC-LINKS: REQ-EMG-006
@@ -139,34 +148,45 @@ func SanitizeIdentifier(in string) string {
 	}
 	b := strings.Builder{}
 	for i, r := range in {
-		isLetter := (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
-		isDigit := r >= '0' && r <= '9'
-		if isLetter || isDigit || r == '_' {
-			if i == 0 && isDigit {
-				b.WriteByte('R')
-				b.WriteByte('_')
-			}
-			if r == '-' {
-				b.WriteByte('_')
-			} else {
-				b.WriteRune(r)
-			}
-			continue
-		}
-		if r == '-' || r == ' ' || r == '.' || r == '/' {
-			b.WriteByte('_')
-			continue
-		}
+		appendIdentifierRune(&b, i, r)
 	}
 	out := b.String()
 	for strings.Contains(out, "__") {
 		out = strings.ReplaceAll(out, "__", "_")
 	}
-	out = strings.Trim(out, "_")
-	if out == "" {
-		return ""
+	return strings.Trim(out, "_")
+}
+
+// isASCIILetter reports whether r is an ASCII letter (the 0x20 bit folds case).
+//
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func isASCIILetter(r rune) bool {
+	return r|0x20 >= 'a' && r|0x20 <= 'z'
+}
+
+// isASCIIDigit reports whether r is an ASCII digit.
+//
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func isASCIIDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}
+
+// appendIdentifierRune writes the identifier form of r: letters, digits and
+// underscores stay (a leading digit gets an "R_" prefix), separators become
+// an underscore and every other rune is dropped.
+//
+// TRLC-LINKS: REQ-EMG-006
+// ENGMODEL-LINKS: FU-TRLC-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func appendIdentifierRune(b *strings.Builder, index int, r rune) {
+	switch {
+	case isASCIILetter(r) || isASCIIDigit(r) || r == '_':
+		if index == 0 && isASCIIDigit(r) {
+			b.WriteString("R_")
+		}
+		b.WriteRune(r)
+	case strings.ContainsRune("- ./", r):
+		b.WriteByte('_')
 	}
-	return out
 }
 
 // TRLC-LINKS: REQ-EMG-006
