@@ -164,8 +164,8 @@ var notRequiredSwitches = map[string]bool{
 }
 
 // emittedBy parses a Go source file of this package and returns the
-// diagnostic code literals it emits: the first argument of the add helper and
-// the Code field of a Diagnostic literal.
+// diagnostic code literals it emits: the first argument of the add helper or of
+// a sink's fail or warn method, and the Code field of a Diagnostic literal.
 func emittedBy(t *testing.T, file string) map[string]bool {
 	t.Helper()
 	parsed, err := parser.ParseFile(token.NewFileSet(), file, nil, 0)
@@ -189,7 +189,7 @@ func emittedBy(t *testing.T, file string) map[string]bool {
 func emittedCodeExpr(n ast.Node) ast.Expr {
 	switch x := n.(type) {
 	case *ast.CallExpr:
-		if isIdentNamed(x.Fun, "add") && len(x.Args) > 0 {
+		if isEmitHelper(x.Fun) && len(x.Args) > 0 {
 			return x.Args[0]
 		}
 	case *ast.KeyValueExpr:
@@ -198,6 +198,15 @@ func emittedCodeExpr(n ast.Node) ast.Expr {
 		}
 	}
 	return nil
+}
+
+// isEmitHelper reports whether a called function is a diagnostic emitter: the
+// add helper or the fail and warn methods of a diagnostic sink.
+func isEmitHelper(fun ast.Expr) bool {
+	if sel, ok := fun.(*ast.SelectorExpr); ok {
+		return sel.Sel.Name == "fail" || sel.Sel.Name == "warn"
+	}
+	return isIdentNamed(fun, "add")
 }
 
 // isIdentNamed reports whether an expression is the identifier name.

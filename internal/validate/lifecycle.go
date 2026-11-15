@@ -36,58 +36,109 @@ func lifecycleDiagnostics(b model.Bundle, asOf time.Time) []Diagnostic {
 		return append(diags, Diagnostic{Code: "lifecycle.missing", Severity: SeverityError, Path: "lifecycle",
 			Message: "engmod.yml has no lifecycle block: the model has no tier, so no tier rule applies and the project is not at any stage"})
 	}
-	add := func(code string, severity Severity, path, format string, args ...any) {
-		diags = append(diags, Diagnostic{Code: code, Severity: severity, Message: fmt.Sprintf(format, args...), Path: path})
-	}
+	diags = append(diags, lifecycleTierDiagnostics(b, *l)...)
+	diags = append(diags, lifecycleSafetyDiagnostics(b, *l)...)
+	return append(diags, lifecycleRequirementDiagnostics(b)...)
+}
+
+// lifecycleTierDiagnostics checks the tier, the bundles, the tier decision and
+// the requirement links mode of a lifecycle block.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-162, REQ-EMG-163
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func lifecycleTierDiagnostics(b model.Bundle, l model.ManifestLifecycle) []Diagnostic {
+	var s diagSink
 	rank := model.TierRank(l.Tier)
 	if rank == 0 {
-		add("lifecycle.invalid_tier", SeverityError, "lifecycle.tier", "lifecycle.tier %q must be one of %s", l.Tier, strings.Join(model.Tiers, ", "))
+		s.fail("lifecycle.invalid_tier", "lifecycle.tier", fmt.Sprintf("lifecycle.tier %q must be one of %s", l.Tier, strings.Join(model.Tiers, ", ")))
 	}
+	s.lifecycleBundles(l)
+	s.lifecycleTierDecision(b, l)
+	if rank >= model.TierRank(model.TierMVP) && strings.EqualFold(strings.TrimSpace(b.Manifest.RequirementLinks), model.RequirementLinksGuided) {
+		s.fail("lifecycle.requirement_links_conflict", "requirementLinks",
+			fmt.Sprintf("requirementLinks guided at tier %q: the tier requires strict requirement links from mvp; set requirementLinks: strict", strings.ToLower(l.Tier)))
+	}
+	return s.diags
+}
+
+// lifecycleBundles requires the lifecycle bundles to be written and known.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-162, REQ-EMG-163
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (s *diagSink) lifecycleBundles(l model.ManifestLifecycle) {
 	for i, bundle := range l.Bundles {
 		if !containsTrimmed(model.Bundles, strings.ToLower(bundle)) {
-			add("lifecycle.invalid_bundle", SeverityError, fmt.Sprintf("lifecycle.bundles[%d]", i), "lifecycle bundle %q must be one of %s", bundle, strings.Join(model.Bundles, ", "))
+			s.fail("lifecycle.invalid_bundle", indexedPath("lifecycle.bundles", i), fmt.Sprintf("lifecycle bundle %q must be one of %s", bundle, strings.Join(model.Bundles, ", ")))
 		}
 	}
 	if len(l.Bundles) == 0 {
-		add("lifecycle.bundles_missing", SeverityError, "lifecycle.bundles", "lifecycle.bundles is empty: write the assurance bundles (foundation, safety, security) explicitly; there is no default")
+		s.fail("lifecycle.bundles_missing", "lifecycle.bundles", "lifecycle.bundles is empty: write the assurance bundles (foundation, safety, security) explicitly; there is no default")
 	}
+}
+
+// lifecycleTierDecision requires the tier decision to be named and to agree with the lifecycle.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-162, REQ-EMG-163
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (s *diagSink) lifecycleTierDecision(b model.Bundle, l model.ManifestLifecycle) {
 	if ref := strings.TrimSpace(l.TierDecision); ref == "" {
-		add("lifecycle.tier_decision_missing", SeverityError, "lifecycle.tierDecision", "lifecycle.tierDecision is empty: name the accepted DEC-TIER-* decision that records the tier")
-	} else if problem := tierDecisionProblem(b, *l, ref); problem != "" {
-		add("lifecycle.tier_decision_mismatch", SeverityError, "lifecycle.tierDecision", "lifecycle.tierDecision %q: %s", ref, problem)
+		s.fail("lifecycle.tier_decision_missing", "lifecycle.tierDecision", "lifecycle.tierDecision is empty: name the accepted DEC-TIER-* decision that records the tier")
+	} else if problem := tierDecisionProblem(b, l, ref); problem != "" {
+		s.fail("lifecycle.tier_decision_mismatch", "lifecycle.tierDecision", fmt.Sprintf("lifecycle.tierDecision %q: %s", ref, problem))
 	}
-	if rank >= model.TierRank(model.TierMVP) && strings.EqualFold(strings.TrimSpace(b.Manifest.RequirementLinks), model.RequirementLinksGuided) {
-		add("lifecycle.requirement_links_conflict", SeverityError, "requirementLinks",
-			"requirementLinks guided at tier %q: the tier requires strict requirement links from mvp; set requirementLinks: strict", strings.ToLower(l.Tier))
+}
+
+// lifecycleSafetyDiagnostics warns when the safety bundle lacks the aviation profile or software level.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-162, REQ-EMG-163
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func lifecycleSafetyDiagnostics(b model.Bundle, l model.ManifestLifecycle) []Diagnostic {
+	if !l.HasBundle(model.BundleSafety) {
+		return nil
 	}
-	if l.HasBundle(model.BundleSafety) {
-		if b.Aviation == nil {
-			add("lifecycle.aviation_profile_missing", SeverityWarning, "documents.aviation",
-				"the safety bundle needs the DO-178C aviation profile: add documents.aviation (model/aviation.yml) with the software level and lifecycle data")
-		}
-		if b.Aviation == nil || strings.TrimSpace(b.Aviation.Aviation.Profile.SoftwareLevel) == "" {
-			add("lifecycle.software_level_missing", SeverityWarning, "aviation.profile.softwareLevel",
-				"the safety bundle needs aviation.profile.softwareLevel (A to E) from the system safety assessment")
-		}
+	var s diagSink
+	if b.Aviation == nil {
+		s.warn("lifecycle.aviation_profile_missing", "documents.aviation",
+			"the safety bundle needs the DO-178C aviation profile: add documents.aviation (model/aviation.yml) with the software level and lifecycle data")
 	}
+	if b.Aviation == nil || strings.TrimSpace(b.Aviation.Aviation.Profile.SoftwareLevel) == "" {
+		s.warn("lifecycle.software_level_missing", "aviation.profile.softwareLevel",
+			"the safety bundle needs aviation.profile.softwareLevel (A to E) from the system safety assessment")
+	}
+	return s.diags
+}
+
+// lifecycleRequirementDiagnostics warns about requirements that are not approved or not verified.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-162, REQ-EMG-163
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func lifecycleRequirementDiagnostics(b model.Bundle) []Diagnostic {
+	var s diagSink
 	for i, r := range b.Requirements.Requirements {
-		if strings.Contains(r.ID, "::") {
-			continue
-		}
-		status := strings.ToLower(strings.TrimSpace(r.Status))
-		path := fmt.Sprintf("requirements[%d].status", i)
-		shown := status
-		if shown == "" {
-			shown = "unset"
-		}
-		if status == "draft" || status == "proposed" {
-			add("lifecycle.requirement_unapproved", SeverityWarning, path, "requirement %q has status %q; the tier requires approved requirements", r.ID, shown)
-		}
-		if status != "verified" && status != "rejected" && status != "retired" {
-			add("lifecycle.requirement_unverified", SeverityWarning, path, "requirement %q has status %q, not verified; record verified once its verification passed (engws status-suggest)", r.ID, shown)
+		if !strings.Contains(r.ID, "::") {
+			s.requirementStatus(indexedPath("requirements", i)+".status", r)
 		}
 	}
-	return diags
+	return s.diags
+}
+
+// requirementStatus warns about a draft or proposed requirement and about one not yet verified, rejected or retired.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-162, REQ-EMG-163
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (s *diagSink) requirementStatus(path string, r model.Requirement) {
+	status := strings.ToLower(strings.TrimSpace(r.Status))
+	shown := status
+	if shown == "" {
+		shown = "unset"
+	}
+	if status == "draft" || status == "proposed" {
+		s.warn("lifecycle.requirement_unapproved", path, fmt.Sprintf("requirement %q has status %q; the tier requires approved requirements", r.ID, shown))
+	}
+	if !closedRequirementStatus(status) {
+		s.warn("lifecycle.requirement_unverified", path, fmt.Sprintf("requirement %q has status %q, not verified; record verified once its verification passed (engws status-suggest)", r.ID, shown))
+	}
+}
+
+// closedRequirementStatus reports whether a lowercase status is verified, rejected or retired.
+// TRLC-LINKS: REQ-EMG-124, REQ-EMG-125, REQ-EMG-127, REQ-EMG-128, REQ-EMG-129, REQ-EMG-162, REQ-EMG-163
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func closedRequirementStatus(status string) bool {
+	return status == "verified" || status == "rejected" || status == "retired"
 }
 
 // poamDiagnostics checks the POA&M items independently of the lifecycle
@@ -296,48 +347,92 @@ func nonDeferrableCoverage(code string) string {
 // TRLC-LINKS: REQ-EMG-124
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func tierDecisionProblem(b model.Bundle, l model.ManifestLifecycle, ref string) string {
-	var dec *model.Decision
-	for i := range b.Architecture.Decisions {
-		if strings.TrimSpace(b.Architecture.Decisions[i].ID) == ref {
-			dec = &b.Architecture.Decisions[i]
-		}
-	}
+	dec := findDecision(b.Architecture.Decisions, ref)
 	if dec == nil {
 		return "names no decision of this model"
 	}
 	if !strings.EqualFold(strings.TrimSpace(dec.Status), "accepted") {
 		return fmt.Sprintf("has status %q; the tier decision must be accepted", dec.Status)
 	}
-	var tier string
-	var bundles []string
-	tierSeen := false
-	bundlesSeen := false
-	for _, m := range decisionLine.FindAllStringSubmatch(dec.Decision, -1) {
-		switch strings.ToLower(m[1]) {
-		case "tier":
-			if !tierSeen {
-				tier, tierSeen = strings.ToLower(m[2]), true
-			}
-		case "bundles":
-			bundlesSeen = true
-			for _, part := range strings.Split(m[2], ",") {
-				if p := strings.ToLower(strings.TrimSpace(part)); p != "" {
-					bundles = append(bundles, p)
-				}
-			}
-		}
-	}
-	if !tierSeen {
+	rec := parseDecisionRecord(dec.Decision)
+	if !rec.tierSeen {
 		return "the decision text has no Tier: line"
 	}
-	if !bundlesSeen || len(bundles) == 0 {
+	if !rec.bundlesSeen || len(rec.bundles) == 0 {
 		return "the decision text has no Bundles: line naming at least one bundle"
 	}
-	if tier != strings.ToLower(strings.TrimSpace(l.Tier)) {
-		return fmt.Sprintf("the decision records Tier: %q, lifecycle.tier is %q", displayTier(tier), l.Tier)
+	if rec.tier != strings.ToLower(strings.TrimSpace(l.Tier)) {
+		return fmt.Sprintf("the decision records Tier: %q, lifecycle.tier is %q", displayTier(rec.tier), l.Tier)
 	}
+	return bundlesProblem(l, rec.bundles)
+}
+
+// findDecision is the last decision whose trimmed id is ref, or nil.
+// TRLC-LINKS: REQ-EMG-124
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func findDecision(decisions []model.Decision, ref string) *model.Decision {
+	var dec *model.Decision
+	for i := range decisions {
+		if strings.TrimSpace(decisions[i].ID) == ref {
+			dec = &decisions[i]
+		}
+	}
+	return dec
+}
+
+// decisionRecord is the Tier: and Bundles: lines of a decision text.
+type decisionRecord struct {
+	tier        string
+	tierSeen    bool
+	bundles     []string
+	bundlesSeen bool
+}
+
+// parseDecisionRecord reads the first Tier: line and every Bundles: line of a decision text.
+// TRLC-LINKS: REQ-EMG-124
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func parseDecisionRecord(text string) decisionRecord {
+	var rec decisionRecord
+	for _, m := range decisionLine.FindAllStringSubmatch(text, -1) {
+		rec.add(m[1], m[2])
+	}
+	return rec
+}
+
+// add records one labelled line: only the first Tier: line counts.
+// TRLC-LINKS: REQ-EMG-124
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (r *decisionRecord) add(label, value string) {
+	switch strings.ToLower(label) {
+	case "tier":
+		if !r.tierSeen {
+			r.tier, r.tierSeen = strings.ToLower(value), true
+		}
+	case "bundles":
+		r.bundlesSeen = true
+		r.bundles = append(r.bundles, splitBundleList(value)...)
+	}
+}
+
+// splitBundleList splits a comma separated bundle list into lowercase names.
+// TRLC-LINKS: REQ-EMG-124
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func splitBundleList(value string) []string {
+	var out []string
+	for _, part := range strings.Split(value, ",") {
+		if p := strings.ToLower(strings.TrimSpace(part)); p != "" {
+			out = append(out, p)
+		}
+	}
+	return out
+}
+
+// bundlesProblem says how the bundles a decision records differ from the effective bundles of the lifecycle, or "".
+// TRLC-LINKS: REQ-EMG-124
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func bundlesProblem(l model.ManifestLifecycle, recorded []string) string {
 	want := l.EffectiveBundles()
-	got := model.ManifestLifecycle{Bundles: bundles}.EffectiveBundles()
+	got := model.ManifestLifecycle{Bundles: recorded}.EffectiveBundles()
 	sort.Strings(want)
 	sort.Strings(got)
 	if strings.Join(want, ",") != strings.Join(got, ",") {
