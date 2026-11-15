@@ -141,7 +141,7 @@ func TestCheckTypeErrorExitsOne(t *testing.T) {
 }
 
 // TRLC-LINKS: REQ-EMG-142
-func TestCheckSetupErrorsExitTwo(t *testing.T) {
+func TestCheckMissingQuintExitsTwoAndWritesNoEvidence(t *testing.T) {
 	manifest := generated(t)
 	t.Setenv("ENGMOD_QUINT", filepath.Join(t.TempDir(), "no-quint"))
 	code, _, stderr := runCheckCLI("--model", manifest)
@@ -151,17 +151,32 @@ func TestCheckSetupErrorsExitTwo(t *testing.T) {
 	if _, err := os.Stat(filepath.Join(filepath.Dir(manifest), "test-results")); err == nil {
 		t.Error("a setup error wrote evidence")
 	}
+}
 
+// TRLC-LINKS: REQ-EMG-142
+func TestCheckMissingApalacheExitsTwo(t *testing.T) {
+	manifest := generated(t)
 	fakeQuint(t)
-	code, _, stderr = runCheckCLI("--model", manifest, "--mode", "verify", "--quint-home", t.TempDir())
+	code, _, stderr := runCheckCLI("--model", manifest, "--mode", "verify", "--quint-home", t.TempDir())
 	if code != 2 || !strings.Contains(stderr, "scripts/install-quint-toolchain.sh") {
 		t.Fatalf("missing Apalache: %d %q", code, stderr)
 	}
-	code, _, stderr = runCheckCLI("--model", filepath.Join(t.TempDir(), "engmod.yml"))
+}
+
+// TRLC-LINKS: REQ-EMG-142
+func TestCheckUnreadableModelExitsTwo(t *testing.T) {
+	fakeQuint(t)
+	code, _, stderr := runCheckCLI("--model", filepath.Join(t.TempDir(), "engmod.yml"))
 	if code != 2 || !strings.Contains(stderr, "load model") {
 		t.Fatalf("unreadable model: %d %q", code, stderr)
 	}
-	if code, _, stderr = runCheckCLI("--model", manifest, "--mode", "sideways"); code != 2 || !strings.Contains(stderr, "unknown mode") {
+}
+
+// TRLC-LINKS: REQ-EMG-142
+func TestCheckUnknownModeExitsTwo(t *testing.T) {
+	manifest := generated(t)
+	fakeQuint(t)
+	if code, _, stderr := runCheckCLI("--model", manifest, "--mode", "sideways"); code != 2 || !strings.Contains(stderr, "unknown mode") {
 		t.Fatalf("bad mode: %d %q", code, stderr)
 	}
 }
@@ -184,10 +199,7 @@ func TestCheckUsageErrors(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-142
 func TestCheckModelWithoutMachinesPrintsNoMachinesAndWritesNothing(t *testing.T) {
 	manifest := copyFixture(t)
-	behavior := filepath.Join(filepath.Dir(manifest), "model", "behavior.yml")
-	if err := os.WriteFile(behavior, []byte("schemaVersion: 3\nbehavior:\n  machines: []\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	writeNoMachines(t, manifest)
 	t.Setenv("ENGMOD_QUINT", "") // no tool is needed
 	code, stdout, stderr := runCheckCLI("--model", manifest)
 	if code != 0 || !strings.Contains(stdout, "no machines") {
@@ -282,11 +294,7 @@ func TestCheckClearsEvidenceWhenTheModelStopsGenerating(t *testing.T) {
 	if !strings.Contains(mustRead(t, evidence), `"requirement"`) {
 		t.Fatal("setup: no evidence entries")
 	}
-	behavior := filepath.Join(filepath.Dir(manifest), "model", "behavior.yml")
-	broken := strings.Replace(mustRead(t, behavior), "guard: attempts < 3\n      effect", "guard: attempts <\n      effect", 1)
-	if err := os.WriteFile(behavior, []byte(broken), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	breakGuard(t, manifest)
 	code, stdout, _ := runCheckCLI("--model", manifest)
 	if code != 1 || !strings.Contains(stdout, "(cleared: its entries no longer apply)") {
 		t.Fatalf("exit %d\n%s", code, stdout)

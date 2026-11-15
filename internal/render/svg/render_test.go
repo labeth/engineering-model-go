@@ -24,34 +24,47 @@ func TestDenseViewRetainsEdgesWithoutTextOverlap(t *testing.T) {
 	if strings.Count(got, "data-edge=") != len(edges) || !strings.Contains(got, "ADC &lt;bank&gt;") || !strings.Contains(got, "Capture &amp; storage") {
 		t.Fatal("SVG lost a relationship or failed to escape labels")
 	}
-	// Text uses fixed-pitch glyphs. Rows must not collide at a shared x/y anchor.
-	d := xml.NewDecoder(strings.NewReader(got))
-	positions := map[string]bool{}
-	for {
-		token, err := d.Token()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			t.Fatal(err)
-		}
-		if start, ok := token.(xml.StartElement); ok && start.Name.Local == "text" {
-			attrs := map[string]string{}
-			for _, a := range start.Attr {
-				attrs[a.Name.Local] = a.Value
-			}
-			key := attrs["x"] + ":" + attrs["y"]
-			if positions[key] {
-				t.Fatalf("overlapping text anchors: %s", key)
-			}
-			positions[key] = true
-		}
-	}
+	assertDistinctTextAnchors(t, got)
 	projected.Nodes = []view.Node{nodes[1], nodes[0]}
 	projected.Edges = []view.Edge{edges[2], edges[1], edges[0]}
 	if again := Render(projected, "model&source"); again != got {
 		t.Fatal("layout depends on input order")
 	}
+}
+
+// assertDistinctTextAnchors fails when two text elements share an x/y anchor.
+// Text uses fixed-pitch glyphs, so rows must not collide at a shared anchor.
+func assertDistinctTextAnchors(t *testing.T, svg string) {
+	t.Helper()
+	d := xml.NewDecoder(strings.NewReader(svg))
+	positions := map[string]bool{}
+	for {
+		token, err := d.Token()
+		if err == io.EOF {
+			return
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		start, ok := token.(xml.StartElement)
+		if !ok || start.Name.Local != "text" {
+			continue
+		}
+		key := textAnchor(start)
+		if positions[key] {
+			t.Fatalf("overlapping text anchors: %s", key)
+		}
+		positions[key] = true
+	}
+}
+
+// textAnchor is the x:y anchor of a text element.
+func textAnchor(start xml.StartElement) string {
+	attrs := map[string]string{}
+	for _, a := range start.Attr {
+		attrs[a.Name.Local] = a.Value
+	}
+	return attrs["x"] + ":" + attrs["y"]
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-052

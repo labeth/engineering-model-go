@@ -58,16 +58,79 @@ func mustRead(t *testing.T, path string) string {
 	return string(data)
 }
 
+// behaviorPath is the behavior document of the fixture copy at manifest.
+func behaviorPath(manifest string) string {
+	return filepath.Join(filepath.Dir(manifest), "model", "behavior.yml")
+}
+
+// guardEdit rewrites the guard of the first transition from one text to another.
+type guardEdit struct{ from, to string }
+
+// replaceGuard rewrites the first transition guard of the fixture copy.
+func replaceGuard(t *testing.T, manifest string, edit guardEdit) {
+	t.Helper()
+	behavior := behaviorPath(manifest)
+	changed := strings.Replace(mustRead(t, behavior), "guard: "+edit.from+"\n      effect", "guard: "+edit.to+"\n      effect", 1)
+	if err := os.WriteFile(behavior, []byte(changed), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// breakGuard makes the first transition guard of the fixture copy invalid.
+func breakGuard(t *testing.T, manifest string) {
+	t.Helper()
+	replaceGuard(t, manifest, guardEdit{from: "attempts < 3", to: "attempts <"})
+}
+
+// writeNoMachines replaces the behavior of the fixture copy by one without
+// machines.
+func writeNoMachines(t *testing.T, manifest string) {
+	t.Helper()
+	if err := os.WriteFile(behaviorPath(manifest), []byte("schemaVersion: 3\nbehavior:\n  machines: []\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// generateFixture generates the fixture into a new output directory and
+// returns the manifest, the directory and the module path.
+func generateFixture(t *testing.T) (manifest, out, module string) {
+	t.Helper()
+	manifest = copyFixture(t)
+	out = filepath.Join(t.TempDir(), "q")
+	if code, _, stderr := runCLI("generate", "--model", manifest, "--out", out); code != 0 {
+		t.Fatalf("exit %d: %s", code, stderr)
+	}
+	return manifest, out, filepath.Join(out, "sm_payments_auth.qnt")
+}
+
+// writeTestFiles writes each path with its content.
+func writeTestFiles(t *testing.T, files map[string]string) {
+	t.Helper()
+	for path, content := range files {
+		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-142
-func TestRunDispatch(t *testing.T) {
+func TestRunWithoutCommandPrintsUsage(t *testing.T) {
 	code, _, stderr := runCLI()
 	if code != 2 || !strings.Contains(stderr, "usage: engquint <command>") || !strings.Contains(stderr, "generate") {
 		t.Fatalf("no command: %d %q", code, stderr)
 	}
-	code, _, stderr = runCLI("frobnicate")
+}
+
+// TRLC-LINKS: REQ-EMG-142
+func TestRunRejectsUnknownCommand(t *testing.T) {
+	code, _, stderr := runCLI("frobnicate")
 	if code != 2 || !strings.Contains(stderr, `unknown command "frobnicate"`) {
 		t.Fatalf("unknown command: %d %q", code, stderr)
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-142
+func TestRunHelpListsCommands(t *testing.T) {
 	code, stdout, _ := runCLI("--help")
 	if code != 0 || !strings.Contains(stdout, "generate") {
 		t.Fatalf("help: %d %q", code, stdout)
@@ -129,13 +192,8 @@ func TestGenerateWritesModuleNextToModel(t *testing.T) {
 }
 
 // TRLC-LINKS: REQ-EMG-149
-func TestGenerateIsIdempotentAndRewritesOnlyChanges(t *testing.T) {
-	manifest := copyFixture(t)
-	out := filepath.Join(t.TempDir(), "q")
-	if code, _, stderr := runCLI("generate", "--model", manifest, "--out", out); code != 0 {
-		t.Fatalf("exit %d: %s", code, stderr)
-	}
-	path := filepath.Join(out, "sm_payments_auth.qnt")
+func TestGenerateLeavesAnUnchangedModuleAlone(t *testing.T) {
+	manifest, out, path := generateFixture(t)
 	old := time.Date(2020, 1, 2, 3, 4, 5, 0, time.UTC)
 	if err := os.Chtimes(path, old, old); err != nil {
 		t.Fatal(err)
@@ -147,14 +205,15 @@ func TestGenerateIsIdempotentAndRewritesOnlyChanges(t *testing.T) {
 	if info, err := os.Stat(path); err != nil || !info.ModTime().Equal(old) {
 		t.Fatalf("an unchanged module was rewritten: %v %v", info, err)
 	}
+}
 
-	// A model change rewrites the module (the drift the freshness gate sees).
-	behavior := filepath.Join(filepath.Dir(manifest), "model", "behavior.yml")
-	changed := strings.Replace(mustRead(t, behavior), "guard: attempts < 3\n      effect", "guard: attempts < 2\n      effect", 1)
-	if err := os.WriteFile(behavior, []byte(changed), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	code, stdout, _ = runCLI("generate", "--model", manifest, "--out", out)
+// A model change rewrites the module (the drift the freshness gate sees).
+//
+// TRLC-LINKS: REQ-EMG-149
+func TestGenerateRewritesTheModuleAfterAModelChange(t *testing.T) {
+	manifest, out, path := generateFixture(t)
+	replaceGuard(t, manifest, guardEdit{from: "attempts < 3", to: "attempts < 2"})
+	code, stdout, _ := runCLI("generate", "--model", manifest, "--out", out)
 	if code != 0 || stdout != "wrote "+path+"\n" || !strings.Contains(mustRead(t, path), "v_attempts < 2,") {
 		t.Fatalf("after change: %d %q", code, stdout)
 	}
@@ -167,16 +226,7 @@ func TestGenerateIsIdempotentAndRewritesOnlyChanges(t *testing.T) {
 func TestGenerateRefusesToWriteThroughASymlink(t *testing.T) {
 	manifest := copyFixture(t)
 	out := filepath.Join(t.TempDir(), "q")
-	if err := os.MkdirAll(out, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	victim := filepath.Join(t.TempDir(), "victim.txt")
-	if err := os.WriteFile(victim, []byte("precious"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.Symlink(victim, filepath.Join(out, "sm_payments_auth.qnt")); err != nil {
-		t.Skipf("no symlinks here: %v", err)
-	}
+	victim := plantSymlinkedModule(t, out)
 	code, _, stderr := runCLI("generate", "--model", manifest, "--out", out)
 	if code != 1 || !strings.Contains(stderr, "refusing to write") || !strings.Contains(stderr, "symlink") {
 		t.Fatalf("exit %d %q", code, stderr)
@@ -184,6 +234,21 @@ func TestGenerateRefusesToWriteThroughASymlink(t *testing.T) {
 	if mustRead(t, victim) != "precious" {
 		t.Fatal("the module was written through the symlink")
 	}
+}
+
+// plantSymlinkedModule makes the module path in out a symlink to a victim file
+// and returns the victim; it skips the test where symlinks are unavailable.
+func plantSymlinkedModule(t *testing.T, out string) string {
+	t.Helper()
+	if err := os.MkdirAll(out, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	victim := filepath.Join(t.TempDir(), "victim.txt")
+	writeTestFiles(t, map[string]string{victim: "precious"})
+	if err := os.Symlink(victim, filepath.Join(out, "sm_payments_auth.qnt")); err != nil {
+		t.Skipf("no symlinks here: %v", err)
+	}
+	return victim
 }
 
 // TRLC-LINKS: REQ-EMG-149
@@ -196,15 +261,11 @@ func TestGenerateRemovesOnlyStaleGeneratedModules(t *testing.T) {
 	stale := filepath.Join(out, "sm_gone.qnt")
 	handWritten := filepath.Join(out, "notes.qnt")
 	other := filepath.Join(out, "readme.txt")
-	for path, content := range map[string]string{
+	writeTestFiles(t, map[string]string{
 		stale:       "// Generated by engineering-model-go from SM-GONE; do not edit.\nmodule sm_gone {}\n",
 		handWritten: "// my own spec\nmodule notes {}\n",
 		other:       "// Generated by engineering-model-go from SM-GONE; do not edit.\n",
-	} {
-		if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-			t.Fatal(err)
-		}
-	}
+	})
 	code, stdout, stderr := runCLI("generate", "--model", manifest, "--out", out)
 	if code != 0 {
 		t.Fatalf("exit %d: %s", code, stderr)
@@ -215,7 +276,13 @@ func TestGenerateRemovesOnlyStaleGeneratedModules(t *testing.T) {
 	if _, err := os.Stat(stale); !os.IsNotExist(err) {
 		t.Error("the stale generated module was kept")
 	}
-	for _, path := range []string{handWritten, other, filepath.Join(out, "sm_payments_auth.qnt")} {
+	assertAllExist(t, handWritten, other, filepath.Join(out, "sm_payments_auth.qnt"))
+}
+
+// assertAllExist reports each path that was removed.
+func assertAllExist(t *testing.T, paths ...string) {
+	t.Helper()
+	for _, path := range paths {
 		if _, err := os.Stat(path); err != nil {
 			t.Errorf("%s was removed: %v", path, err)
 		}
@@ -225,11 +292,7 @@ func TestGenerateRemovesOnlyStaleGeneratedModules(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-141, REQ-EMG-142
 func TestGenerateErrorExitsOneAndWritesNothing(t *testing.T) {
 	manifest := copyFixture(t)
-	behavior := filepath.Join(filepath.Dir(manifest), "model", "behavior.yml")
-	broken := strings.Replace(mustRead(t, behavior), "guard: attempts < 3\n      effect", "guard: attempts <\n      effect", 1)
-	if err := os.WriteFile(behavior, []byte(broken), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	breakGuard(t, manifest)
 	out := filepath.Join(t.TempDir(), "q")
 	code, stdout, stderr := runCLI("generate", "--model", manifest, "--out", out)
 	if code != 1 || stdout != "" {
@@ -246,10 +309,7 @@ func TestGenerateErrorExitsOneAndWritesNothing(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-141, REQ-EMG-142
 func TestGenerateModelWithoutMachines(t *testing.T) {
 	manifest := copyFixture(t)
-	behavior := filepath.Join(filepath.Dir(manifest), "model", "behavior.yml")
-	if err := os.WriteFile(behavior, []byte("schemaVersion: 3\nbehavior:\n  machines: []\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	writeNoMachines(t, manifest)
 	out := filepath.Join(t.TempDir(), "q")
 	code, stdout, stderr := runCLI("generate", "--model", manifest, "--out", out)
 	if code != 0 || !strings.Contains(stdout, "no machines") {
