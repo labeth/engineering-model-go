@@ -111,10 +111,11 @@ type DependencyGuide struct {
 	Rules                []string `json:"rules"`
 }
 
-// BuildAuthoringContract describes the loaded input model without copying its domain graph.
+// authoringDocuments lists the documents of the loaded bundle: the required
+// ones, then the optional aviation and reqLinks documents when present.
 // TRLC-LINKS: REQ-EMG-044, REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-053, REQ-EMG-094, REQ-EMG-148
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
-func BuildAuthoringContract(bundle Bundle) AuthoringContract {
+func authoringDocuments(bundle Bundle) []AuthoringDocument {
 	baseDir := filepath.Dir(bundle.ManifestPath)
 	relative := func(path string) string {
 		if rel, err := filepath.Rel(baseDir, path); err == nil {
@@ -139,6 +140,14 @@ func BuildAuthoringContract(bundle Bundle) AuthoringContract {
 	if bundle.ReqLinksPath != "" {
 		documents = append(documents, AuthoringDocument{Kind: "reqLinks", Path: relative(bundle.ReqLinksPath), SchemaVersion: contractSchemaVersion(bundle.ReqLinks.SchemaVersion), SchemaPath: "internal/model/schema/reqlinks.cue", Required: false, TopLevelFields: yamlTopLevelFields(ReqLinksDocument{})})
 	}
+	return documents
+}
+
+// BuildAuthoringContract describes the loaded input model without copying its domain graph.
+// TRLC-LINKS: REQ-EMG-044, REQ-EMG-045, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-053, REQ-EMG-094, REQ-EMG-148
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-MCP-SERVER, DO-MODEL-AUTHORING-CONTRACT
+func BuildAuthoringContract(bundle Bundle) AuthoringContract {
+	documents := authoringDocuments(bundle)
 	return AuthoringContract{
 		ContractVersion: AuthoringContractVersion,
 		CanonicalFormat: "YAML",

@@ -26,17 +26,24 @@ func TestSchemaVersionIsRequiredInDesignAndWorkspaceDocuments(t *testing.T) {
 		}
 		return path
 	}
-	if _, err := LoadDesign(write("design-without.yml", "design: {}\n")); err == nil || !strings.Contains(err.Error(), "unsupported schemaVersion 0") || !strings.Contains(err.Error(), SchemaVersionRemedy) {
-		t.Errorf("design without schemaVersion: got %v", err)
-	}
+	_, err := LoadDesign(write("design-without.yml", "design: {}\n"))
+	requireMissingSchemaVersion(t, "design without schemaVersion", err)
 	if _, err := LoadDesign(write("design-with.yml", "schemaVersion: 3\ndesign: {}\n")); err != nil {
 		t.Errorf("design with schemaVersion 3: %v", err)
 	}
-	if _, err := LoadWorkspace(write("workspace-without.yml", "replacements: []\n")); err == nil || !strings.Contains(err.Error(), "unsupported schemaVersion 0") || !strings.Contains(err.Error(), SchemaVersionRemedy) {
-		t.Errorf("workspace without schemaVersion: got %v", err)
-	}
+	_, err = LoadWorkspace(write("workspace-without.yml", "replacements: []\n"))
+	requireMissingSchemaVersion(t, "workspace without schemaVersion", err)
 	if _, err := LoadWorkspace(write("workspace-with.yml", "schemaVersion: 3\nreplacements: []\n")); err != nil {
 		t.Errorf("workspace with schemaVersion 3: %v", err)
+	}
+}
+
+// requireMissingSchemaVersion reports unless err is the missing-schemaVersion
+// error that names the remedy.
+func requireMissingSchemaVersion(t *testing.T, label string, err error) {
+	t.Helper()
+	if err == nil || !strings.Contains(err.Error(), "unsupported schemaVersion 0") || !strings.Contains(err.Error(), SchemaVersionRemedy) {
+		t.Errorf("%s: got %v", label, err)
 	}
 }
 

@@ -168,22 +168,13 @@ type MetamodelValue struct {
 // TRLC-LINKS: REQ-EMG-040
 func (v *MetamodelValue) UnmarshalYAML(node *yaml.Node) error {
 	type plain MetamodelValue
-	if node.Kind == yaml.MappingNode {
-		hasKind := false
-		for index := 0; index+1 < len(node.Content); index += 2 {
-			if node.Content[index].Value == "kind" {
-				hasKind = true
-				break
-			}
+	if yamlMappingHasKind(node) {
+		var decoded plain
+		if err := node.Decode(&decoded); err != nil {
+			return err
 		}
-		if hasKind {
-			var decoded plain
-			if err := node.Decode(&decoded); err != nil {
-				return err
-			}
-			*v = MetamodelValue(decoded)
-			return nil
-		}
+		*v = MetamodelValue(decoded)
+		return nil
 	}
 	var raw any
 	if err := node.Decode(&raw); err != nil {
@@ -191,6 +182,22 @@ func (v *MetamodelValue) UnmarshalYAML(node *yaml.Node) error {
 	}
 	*v = typedMetamodelValue(raw)
 	return nil
+}
+
+// yamlMappingHasKind reports whether node is a mapping with a "kind" key,
+// which marks the typed canonical form of a metamodel value.
+//
+// TRLC-LINKS: REQ-EMG-040
+func yamlMappingHasKind(node *yaml.Node) bool {
+	if node.Kind != yaml.MappingNode {
+		return false
+	}
+	for index := 0; index+1 < len(node.Content); index += 2 {
+		if node.Content[index].Value == "kind" {
+			return true
+		}
+	}
+	return false
 }
 
 // MetamodelPropertyValue preserves ordered multiplicity and records values
@@ -315,567 +322,969 @@ type SemanticModel struct {
 
 var semanticIDPattern = regexp.MustCompile(`^[A-Z][A-Z0-9]*-[A-Za-z0-9]`)
 
+// semanticError builds the error diagnostic that projection and validation
+// rules report.
+//
+// TRLC-LINKS: REQ-EMG-035
+func semanticError(code, path, message string) SemanticDiagnostic {
+	return SemanticDiagnostic{Code: code, Severity: SemanticSeverityError, Message: message, Path: path}
+}
+
+// elementSpec describes one semantic element to project.
+type elementSpec struct {
+	path      string
+	kind      SemanticElementKind
+	extension string
+	id        string
+	name      string
+	owner     string
+	typeRef   string
+	source    any
+	features  []SemanticFeature
+}
+
+// relationshipSpec describes one semantic relationship to project.
+type relationshipSpec struct {
+	path       string
+	kind       SemanticRelationshipKind
+	sourceType string
+	source     string
+	target     string
+	owner      string
+	value      any
+}
+
+// evidenceSpec describes one evidence or artifact item projected as an extension element.
+type evidenceSpec struct {
+	path         string
+	extension    string
+	target       string
+	evidencePath string
+	description  string
+}
+
+// semanticProjector accumulates the projection of one Bundle.
+type semanticProjector struct {
+	bundle              Bundle
+	a                   AuthoredArchitecture
+	out                 SemanticModel
+	diagnostics         []SemanticDiagnostic
+	elementIndex        map[string]int
+	relationshipIDs     map[string]string
+	relationshipAliases map[string]int
+	catalogIDs          map[string]string
+}
+
 // ProjectSemanticModel derives one deterministic semantic graph from the
 // YAML-backed Bundle. It never mutates or replaces the authored model.
 //
 // TRLC-LINKS: REQ-EMG-035
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
 func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
-	a := bundle.Architecture.AuthoredArchitecture
-	out := SemanticModel{
-		ID:      strings.TrimSpace(bundle.Architecture.Model.ID),
-		Title:   strings.TrimSpace(bundle.Architecture.Model.Title),
-		Imports: append([]SemanticImport(nil), bundle.Architecture.Semantics.Imports...),
-	}
-	var diagnostics []SemanticDiagnostic
-	elementIndex := map[string]int{}
-	relationshipIDs := map[string]string{}
-	relationshipAliases := map[string]int{}
+	p := newSemanticProjector(bundle)
+	p.projectRoot()
+	p.projectAuthoredElements()
+	p.projectAuthoredRelationships()
+	p.projectOrganization()
+	p.projectTechnicalItems()
+	p.projectAssurance()
+	p.projectFlows()
+	p.projectMachines()
+	p.projectThreats()
+	p.projectMappings()
+	p.projectCompliance()
+	p.projectContractAndComposition()
+	p.projectDocuments()
+	p.projectRequirementsAndDesign()
+	p.projectCatalog()
+	p.finish()
+	return p.out, p.diagnostics
+}
 
-	addElement := func(path string, kind SemanticElementKind, extension, id, name, owner, typeRef string, source any, features ...SemanticFeature) {
-		id = strings.TrimSpace(id)
-		if id == "" {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.missing_id", Severity: SemanticSeverityError,
-				Message: "semantic elements require a stable source ID", Path: path,
-			})
-			return
-		}
-		if previous, exists := elementIndex[id]; exists {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("duplicate semantic element ID %q (already projected at elements[%d])", id, previous),
-				Path:    path,
-			})
-			return
-		}
-		elementIndex[id] = len(out.Elements)
-		var targets []string
-		if kind == ElementExtension && out.ID != "" && id != out.ID {
-			targets = []string{out.ID}
-		}
-		out.Elements = append(out.Elements, SemanticElement{
-			ID:                 id,
-			Name:               strings.TrimSpace(name),
-			Kind:               kind,
-			Metaclass:          officialMetaclassForElement(kind, extension),
-			Namespace:          out.ID,
-			Owner:              strings.TrimSpace(owner),
-			TypeRef:            strings.TrimSpace(typeRef),
-			References:         nil,
-			Features:           compactFeatures(features),
-			Metadata:           []SemanticMetadata{semanticMetadata(extension, id, source)},
-			ExtensionNamespace: semanticTypeNamespace(extension),
-			Extension:          extension,
-			Targets:            targets,
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func newSemanticProjector(bundle Bundle) *semanticProjector {
+	return &semanticProjector{
+		bundle: bundle,
+		a:      bundle.Architecture.AuthoredArchitecture,
+		out: SemanticModel{
+			ID:      strings.TrimSpace(bundle.Architecture.Model.ID),
+			Title:   strings.TrimSpace(bundle.Architecture.Model.Title),
+			Imports: append([]SemanticImport(nil), bundle.Architecture.Semantics.Imports...),
+		},
+		elementIndex:        map[string]int{},
+		relationshipIDs:     map[string]string{},
+		relationshipAliases: map[string]int{},
+		catalogIDs:          map[string]string{},
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) report(diagnostic SemanticDiagnostic) {
+	p.diagnostics = append(p.diagnostics, diagnostic)
+}
+
+// elementAt returns the projected element with the given source ID.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) elementAt(id string) (*SemanticElement, bool) {
+	index, ok := p.elementIndex[strings.TrimSpace(id)]
+	if !ok {
+		return nil, false
+	}
+	return &p.out.Elements[index], true
+}
+
+// addElement projects one element and reports whether it was added (not
+// rejected as invalid or duplicate).
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) addElement(spec elementSpec) bool {
+	id := strings.TrimSpace(spec.id)
+	if id == "" {
+		p.report(semanticError("semantic.missing_id", spec.path, "semantic elements require a stable source ID"))
+		return false
+	}
+	if previous, exists := p.elementIndex[id]; exists {
+		p.report(semanticError("semantic.duplicate_identity", spec.path,
+			fmt.Sprintf("duplicate semantic element ID %q (already projected at elements[%d])", id, previous)))
+		return false
+	}
+	p.elementIndex[id] = len(p.out.Elements)
+	p.out.Elements = append(p.out.Elements, p.newElement(id, spec))
+	return true
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) newElement(id string, spec elementSpec) SemanticElement {
+	var targets []string
+	if spec.kind == ElementExtension && p.out.ID != "" && id != p.out.ID {
+		targets = []string{p.out.ID}
+	}
+	return SemanticElement{
+		ID:                 id,
+		Name:               strings.TrimSpace(spec.name),
+		Kind:               spec.kind,
+		Metaclass:          officialMetaclassForElement(spec.kind, spec.extension),
+		Namespace:          p.out.ID,
+		Owner:              strings.TrimSpace(spec.owner),
+		TypeRef:            strings.TrimSpace(spec.typeRef),
+		References:         nil,
+		Features:           compactFeatures(spec.features),
+		Metadata:           []SemanticMetadata{semanticMetadata(spec.extension, id, spec.source)},
+		ExtensionNamespace: semanticTypeNamespace(spec.extension),
+		Extension:          spec.extension,
+		Targets:            targets,
+	}
+}
+
+// rejectDuplicateRelationship reports a duplicate relationship identity and
+// says whether id was already projected.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) rejectDuplicateRelationship(id, path string) bool {
+	previous, exists := p.relationshipIDs[id]
+	if exists {
+		p.report(semanticError("semantic.duplicate_identity", path,
+			fmt.Sprintf("duplicate semantic relationship %q (already projected from %s)", id, previous)))
+	}
+	return exists
+}
+
+// addRelationship projects one deterministically identified relationship.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) addRelationship(spec relationshipSpec) {
+	spec.source = strings.TrimSpace(spec.source)
+	spec.target = strings.TrimSpace(spec.target)
+	if spec.source == "" || spec.target == "" {
+		p.report(semanticError("semantic.lossy_relationship", spec.path,
+			fmt.Sprintf("relationship %q requires non-empty source and target", spec.sourceType)))
+		return
+	}
+	aliasKey := semanticRelationshipAliasKey(spec.kind, spec.source, spec.target)
+	if spec.sourceType == "contains" && p.mergeRelationshipAlias(aliasKey, spec) {
+		return
+	}
+	id := semanticRelationshipID(spec)
+	if p.rejectDuplicateRelationship(id, spec.path) {
+		return
+	}
+	p.relationshipIDs[id] = spec.path
+	p.relationshipAliases[aliasKey] = len(p.out.Relationships)
+	p.out.Relationships = append(p.out.Relationships, SemanticRelationship{
+		ID: id, Kind: spec.kind, Source: spec.source, Target: spec.target, Owner: strings.TrimSpace(spec.owner),
+		Metaclass:  officialMetaclassForRelationship(spec.kind, spec.sourceType),
+		SourceType: spec.sourceType,
+		Metadata:   []SemanticMetadata{semanticMetadata("engineering.relationship."+spec.sourceType, id, spec.value)},
+	})
+}
+
+// mergeRelationshipAlias records spec as an alias of an already projected
+// relationship with the same kind and ends.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) mergeRelationshipAlias(aliasKey string, spec relationshipSpec) bool {
+	existing, ok := p.relationshipAliases[aliasKey]
+	if !ok {
+		return false
+	}
+	relationship := &p.out.Relationships[existing]
+	relationship.Metadata = append(relationship.Metadata,
+		semanticMetadata("engineering.relationship_alias."+spec.sourceType, relationship.ID, spec.value))
+	return true
+}
+
+// addTransition projects a transition relationship that keeps its authored ID.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) addTransition(path string, relationship SemanticRelationship, value any) {
+	id := strings.TrimSpace(relationship.ID)
+	if p.rejectDuplicateRelationship(id, path) {
+		return
+	}
+	if previous, exists := p.elementIndex[id]; exists {
+		p.report(semanticError("semantic.duplicate_identity", path,
+			fmt.Sprintf("duplicate semantic identity %q (already projected at elements[%d])", id, previous)))
+		return
+	}
+	p.relationshipIDs[id] = path
+	relationship.Metaclass = officialMetaclassForRelationship(relationship.Kind, relationship.SourceType)
+	relationship.Metadata = []SemanticMetadata{semanticMetadata("engineering.relationship."+relationship.SourceType, id, value)}
+	p.out.Relationships = append(p.out.Relationships, relationship)
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) setExtensionTargets(id string, targets []string) {
+	if element, ok := p.elementAt(id); ok {
+		element.Targets = compactStrings(targets)
+		element.References = compactStrings(append(element.References, targets...))
+	}
+}
+
+// setReferences records the elements an already projected element refers to.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) setReferences(id string, references []string) {
+	if element, ok := p.elementAt(id); ok {
+		element.References = compactStrings(append(element.References, references...))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) appendMetadata(id, metadataType string, source any) {
+	if element, ok := p.elementAt(id); ok {
+		element.Metadata = append(element.Metadata, semanticMetadata(metadataType, id, source))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) addEvidence(spec evidenceSpec) {
+	if strings.TrimSpace(spec.evidencePath) == "" && strings.TrimSpace(spec.description) == "" {
+		return
+	}
+	id := derivedSemanticID("EVIDENCE", spec.target, spec.path, spec.evidencePath)
+	source := map[string]string{"path": spec.evidencePath, "description": spec.description}
+	p.addElement(elementSpec{
+		path: spec.path, kind: ElementExtension, extension: spec.extension, id: id, name: spec.evidencePath, source: source,
+	})
+	p.setExtensionTargets(id, []string{spec.target})
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectRoot() {
+	model := p.bundle.Architecture.Model
+	p.addElement(elementSpec{path: "model", kind: ElementPackageDefinition, extension: "engineering.model", id: model.ID, name: model.Title, source: model})
+	if root, ok := p.elementAt(p.out.ID); ok {
+		root.Namespace = ""
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectAuthoredElements() {
+	for i, element := range p.bundle.Architecture.Semantics.Elements {
+		p.projectAuthoredElement(indexPath("semantics.elements", i), element)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectAuthoredElement(path string, element SemanticElement) {
+	if strings.TrimSpace(element.Namespace) == "" {
+		element.Namespace = p.out.ID
+	}
+	if strings.TrimSpace(element.Extension) == "" {
+		element.Extension = "sysml." + string(element.Kind)
+	}
+	element.Metadata = append(element.Metadata, semanticMetadata("engineering.semantic_source", element.ID, element))
+	p.addElement(elementSpec{
+		path: path, kind: element.Kind, extension: element.Extension, id: element.ID, name: element.Name,
+		owner: element.Owner, typeRef: element.TypeRef, source: element, features: element.Features,
+	})
+	if projected, ok := p.elementAt(element.ID); ok {
+		p.applyAuthoredElement(projected, element)
+	}
+}
+
+// applyAuthoredElement copies the canonical fields an authored semantic
+// element declares onto its projection.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) applyAuthoredElement(projected *SemanticElement, element SemanticElement) {
+	projected.Authored = true
+	if strings.TrimSpace(element.Metaclass) != "" {
+		projected.Metaclass = strings.TrimSpace(element.Metaclass)
+	}
+	projected.Properties = cloneMetamodelProperties(element.Properties)
+	projected.Namespace = strings.TrimSpace(element.Namespace)
+	projected.Multiplicity = element.Multiplicity
+	projected.Ordered = element.Ordered
+	projected.Unique = element.Unique
+	projected.Conjugated = element.Conjugated
+	projected.Specializes = compactStrings(element.Specializes)
+	projected.Subsets = compactStrings(element.Subsets)
+	projected.Redefines = compactStrings(element.Redefines)
+	projected.ControlKind = strings.TrimSpace(element.ControlKind)
+	projected.OccurrenceID = strings.TrimSpace(element.OccurrenceID)
+	projected.PortionOf = strings.TrimSpace(element.PortionOf)
+	projected.Variation = element.Variation
+	projected.Variants = compactStrings(element.Variants)
+	projected.References = compactStrings(append(projected.References, element.References...))
+	projected.ExtensionNamespace = strings.TrimSpace(element.ExtensionNamespace)
+	projected.Targets = compactStrings(element.Targets)
+	if element.Kind == ElementExtension {
+		p.completeExtensionTargets(projected, element)
+	}
+	projected.Metadata = normalizeMetadata(element.Metadata, element.ID)
+}
+
+// completeExtensionTargets defaults the namespace and the targets of an
+// authored extension element.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) completeExtensionTargets(projected *SemanticElement, element SemanticElement) {
+	if projected.ExtensionNamespace == "" {
+		projected.ExtensionNamespace = semanticTypeNamespace(element.Extension)
+	}
+	if len(projected.Targets) > 0 {
+		return
+	}
+	projected.Targets = compactStrings(projected.References)
+	if len(projected.Targets) == 0 && element.ID != p.out.ID {
+		projected.Targets = []string{p.out.ID}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectAuthoredRelationships() {
+	for i, relationship := range p.bundle.Architecture.Semantics.Relationships {
+		p.projectAuthoredRelationship(indexPath("semantics.relationships", i), relationship)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectAuthoredRelationship(path string, relationship SemanticRelationship) {
+	relationship.Source = strings.TrimSpace(relationship.Source)
+	relationship.Target = strings.TrimSpace(relationship.Target)
+	if relationship.Source == "" || relationship.Target == "" {
+		p.report(semanticError("semantic.lossy_relationship", path,
+			fmt.Sprintf("relationship %q requires non-empty source and target", relationship.Kind)))
+		return
+	}
+	if strings.TrimSpace(relationship.ID) == "" {
+		relationship.ID = semanticRelationshipID(relationshipSpec{
+			sourceType: string(relationship.Kind), source: relationship.Source, target: relationship.Target, owner: relationship.Owner,
 		})
 	}
-
-	addRelationship := func(path string, kind SemanticRelationshipKind, sourceType, source, target, owner string, value any) {
-		source = strings.TrimSpace(source)
-		target = strings.TrimSpace(target)
-		if source == "" || target == "" {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.lossy_relationship", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("relationship %q requires non-empty source and target", sourceType), Path: path,
-			})
-			return
-		}
-		aliasKey := semanticRelationshipAliasKey(kind, source, target)
-		if sourceType == "contains" {
-			if existing, ok := relationshipAliases[aliasKey]; ok {
-				out.Relationships[existing].Metadata = append(out.Relationships[existing].Metadata,
-					semanticMetadata("engineering.relationship_alias."+sourceType, out.Relationships[existing].ID, value))
-				return
-			}
-		}
-		id := semanticRelationshipID(sourceType, source, target, owner)
-		if previous, exists := relationshipIDs[id]; exists {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("duplicate semantic relationship %q (already projected from %s)", id, previous),
-				Path:    path,
-			})
-			return
-		}
-		relationshipIDs[id] = path
-		relationshipAliases[aliasKey] = len(out.Relationships)
-		out.Relationships = append(out.Relationships, SemanticRelationship{
-			ID: id, Kind: kind, Source: source, Target: target, Owner: strings.TrimSpace(owner),
-			Metaclass:  officialMetaclassForRelationship(kind, sourceType),
-			SourceType: sourceType,
-			Metadata:   []SemanticMetadata{semanticMetadata("engineering.relationship."+sourceType, id, value)},
-		})
+	if p.rejectDuplicateRelationship(relationship.ID, path) {
+		return
 	}
-	addTransition := func(path string, relationship SemanticRelationship, value any) {
-		id := strings.TrimSpace(relationship.ID)
-		if previous, exists := relationshipIDs[id]; exists {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("duplicate semantic relationship %q (already projected from %s)", id, previous),
-				Path:    path,
-			})
-			return
-		}
-		if previous, exists := elementIndex[id]; exists {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("duplicate semantic identity %q (already projected at elements[%d])", id, previous),
-				Path:    path,
-			})
-			return
-		}
-		relationshipIDs[id] = path
+	p.relationshipIDs[relationship.ID] = path
+	p.relationshipAliases[semanticRelationshipAliasKey(relationship.Kind, relationship.Source, relationship.Target)] = len(p.out.Relationships)
+	p.out.Relationships = append(p.out.Relationships, completeAuthoredRelationship(relationship))
+}
+
+// completeAuthoredRelationship defaults the source type and metaclass of an
+// authored relationship and normalizes its properties and metadata.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func completeAuthoredRelationship(relationship SemanticRelationship) SemanticRelationship {
+	if strings.TrimSpace(relationship.SourceType) == "" {
+		relationship.SourceType = string(relationship.Kind)
+	}
+	if strings.TrimSpace(relationship.Metaclass) == "" {
 		relationship.Metaclass = officialMetaclassForRelationship(relationship.Kind, relationship.SourceType)
-		relationship.Metadata = []SemanticMetadata{semanticMetadata("engineering.relationship."+relationship.SourceType, id, value)}
-		out.Relationships = append(out.Relationships, relationship)
 	}
-	setExtensionTargets := func(id string, targets []string) {
-		if index, ok := elementIndex[strings.TrimSpace(id)]; ok {
-			out.Elements[index].Targets = compactStrings(targets)
-			out.Elements[index].References = compactStrings(append(out.Elements[index].References, targets...))
-		}
-	}
-	appendMetadata := func(id, metadataType string, source any) {
-		if index, ok := elementIndex[strings.TrimSpace(id)]; ok {
-			out.Elements[index].Metadata = append(out.Elements[index].Metadata, semanticMetadata(metadataType, id, source))
-		}
-	}
-	addEvidence := func(path, extension, target, evidencePath, description string) {
-		if strings.TrimSpace(evidencePath) == "" && strings.TrimSpace(description) == "" {
-			return
-		}
-		id := derivedSemanticID("EVIDENCE", target, path, evidencePath)
-		source := map[string]string{"path": evidencePath, "description": description}
-		addElement(path, ElementExtension, extension, id, evidencePath, "", "", source)
-		setExtensionTargets(id, []string{target})
-	}
+	relationship.Properties = cloneMetamodelProperties(relationship.Properties)
+	relationship.Metadata = normalizeMetadata(relationship.Metadata, relationship.ID)
+	return relationship
+}
 
-	addElement("model", ElementPackageDefinition, "engineering.model", bundle.Architecture.Model.ID, bundle.Architecture.Model.Title, "", "", bundle.Architecture.Model)
-	if root, ok := elementIndex[out.ID]; ok {
-		out.Elements[root].Namespace = ""
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectOrganization() {
+	for i, x := range p.a.FunctionalGroups {
+		p.addElement(elementSpec{path: indexPath("authoredArchitecture.functionalGroups", i), kind: ElementPartDefinition, extension: "engineering.functional_group", id: x.ID, name: x.Name, source: x})
 	}
-	for i, element := range bundle.Architecture.Semantics.Elements {
-		path := indexPath("semantics.elements", i)
-		if strings.TrimSpace(element.Namespace) == "" {
-			element.Namespace = out.ID
-		}
-		if strings.TrimSpace(element.Extension) == "" {
-			element.Extension = "sysml." + string(element.Kind)
-		}
-		element.Metadata = append(element.Metadata, semanticMetadata("engineering.semantic_source", element.ID, element))
-		addElement(path, element.Kind, element.Extension, element.ID, element.Name, element.Owner, element.TypeRef, element, element.Features...)
-		if index, ok := elementIndex[strings.TrimSpace(element.ID)]; ok {
-			out.Elements[index].Authored = true
-			if strings.TrimSpace(element.Metaclass) != "" {
-				out.Elements[index].Metaclass = strings.TrimSpace(element.Metaclass)
-			}
-			out.Elements[index].Properties = cloneMetamodelProperties(element.Properties)
-			out.Elements[index].Namespace = strings.TrimSpace(element.Namespace)
-			out.Elements[index].Multiplicity = element.Multiplicity
-			out.Elements[index].Ordered = element.Ordered
-			out.Elements[index].Unique = element.Unique
-			out.Elements[index].Conjugated = element.Conjugated
-			out.Elements[index].Specializes = compactStrings(element.Specializes)
-			out.Elements[index].Subsets = compactStrings(element.Subsets)
-			out.Elements[index].Redefines = compactStrings(element.Redefines)
-			out.Elements[index].ControlKind = strings.TrimSpace(element.ControlKind)
-			out.Elements[index].OccurrenceID = strings.TrimSpace(element.OccurrenceID)
-			out.Elements[index].PortionOf = strings.TrimSpace(element.PortionOf)
-			out.Elements[index].Variation = element.Variation
-			out.Elements[index].Variants = compactStrings(element.Variants)
-			out.Elements[index].References = compactStrings(append(out.Elements[index].References, element.References...))
-			out.Elements[index].ExtensionNamespace = strings.TrimSpace(element.ExtensionNamespace)
-			out.Elements[index].Targets = compactStrings(element.Targets)
-			if element.Kind == ElementExtension {
-				if out.Elements[index].ExtensionNamespace == "" {
-					out.Elements[index].ExtensionNamespace = semanticTypeNamespace(element.Extension)
-				}
-				if len(out.Elements[index].Targets) == 0 {
-					out.Elements[index].Targets = compactStrings(out.Elements[index].References)
-					if len(out.Elements[index].Targets) == 0 && element.ID != out.ID {
-						out.Elements[index].Targets = []string{out.ID}
-					}
-				}
-			}
-			out.Elements[index].Metadata = normalizeMetadata(element.Metadata, element.ID)
-		}
+	for i, x := range p.a.FunctionalUnits {
+		p.projectFunctionalUnit(indexPath("authoredArchitecture.functionalUnits", i), x)
 	}
-	for i, relationship := range bundle.Architecture.Semantics.Relationships {
-		path := indexPath("semantics.relationships", i)
-		relationship.Source = strings.TrimSpace(relationship.Source)
-		relationship.Target = strings.TrimSpace(relationship.Target)
-		if relationship.Source == "" || relationship.Target == "" {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.lossy_relationship", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("relationship %q requires non-empty source and target", relationship.Kind), Path: path,
-			})
-			continue
-		}
-		if strings.TrimSpace(relationship.ID) == "" {
-			relationship.ID = semanticRelationshipID(string(relationship.Kind), relationship.Source, relationship.Target, relationship.Owner)
-		}
-		if previous, exists := relationshipIDs[relationship.ID]; exists {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("duplicate semantic relationship %q (already projected from %s)", relationship.ID, previous),
-				Path:    path,
-			})
-			continue
-		}
-		relationshipIDs[relationship.ID] = path
-		relationshipAliases[semanticRelationshipAliasKey(relationship.Kind, relationship.Source, relationship.Target)] = len(out.Relationships)
-		if strings.TrimSpace(relationship.SourceType) == "" {
-			relationship.SourceType = string(relationship.Kind)
-		}
-		if strings.TrimSpace(relationship.Metaclass) == "" {
-			relationship.Metaclass = officialMetaclassForRelationship(relationship.Kind, relationship.SourceType)
-		}
-		relationship.Properties = cloneMetamodelProperties(relationship.Properties)
-		relationship.Metadata = normalizeMetadata(relationship.Metadata, relationship.ID)
-		out.Relationships = append(out.Relationships, relationship)
+	for i, x := range p.a.Actors {
+		p.addElement(elementSpec{path: indexPath("authoredArchitecture.actors", i), kind: ElementStakeholderDefinition, extension: "engineering.actor", id: x.ID, name: x.Name, source: x})
 	}
-	for i, x := range a.FunctionalGroups {
-		addElement(indexPath("authoredArchitecture.functionalGroups", i), ElementPartDefinition, "engineering.functional_group", x.ID, x.Name, "", "", x)
+	for i, x := range p.a.AttackVectors {
+		p.addElement(elementSpec{path: indexPath("authoredArchitecture.attackVectors", i), kind: ElementExtension, extension: "engineering.attack_vector", id: x.ID, name: x.Name, source: x})
 	}
-	for i, x := range a.FunctionalUnits {
-		path := indexPath("authoredArchitecture.functionalUnits", i)
-		addElement(path, ElementPartUsage, "engineering.functional_unit", x.ID, x.Name, x.Group, "", x)
-		if strings.TrimSpace(x.Group) != "" {
-			addRelationship(path+".group", RelationshipContainment, "contains", x.Group, x.ID, x.Group, x)
-		}
+	for i, x := range p.a.ReferencedElements {
+		p.addElement(elementSpec{path: indexPath("authoredArchitecture.referencedElements", i), kind: ElementExtension, extension: "engineering.referenced_element", id: x.ID, name: x.Name, source: x})
 	}
-	for i, x := range a.Actors {
-		addElement(indexPath("authoredArchitecture.actors", i), ElementStakeholderDefinition, "engineering.actor", x.ID, x.Name, "", "", x)
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectFunctionalUnit(path string, x FunctionalUnit) {
+	p.addElement(elementSpec{path: path, kind: ElementPartUsage, extension: "engineering.functional_unit", id: x.ID, name: x.Name, owner: x.Group, source: x})
+	if strings.TrimSpace(x.Group) != "" {
+		p.addRelationship(relationshipSpec{path: path + ".group", kind: RelationshipContainment, sourceType: "contains", source: x.Group, target: x.ID, owner: x.Group, value: x})
 	}
-	for i, x := range a.AttackVectors {
-		addElement(indexPath("authoredArchitecture.attackVectors", i), ElementExtension, "engineering.attack_vector", x.ID, x.Name, "", "", x)
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectTechnicalItems() {
+	for i, x := range p.a.Interfaces {
+		p.addElement(elementSpec{
+			path: indexPath("authoredArchitecture.interfaces", i), kind: ElementInterfaceDefinition, extension: "engineering.interface",
+			id: x.ID, name: x.Name, owner: x.Owner, source: x,
+			features: []SemanticFeature{attributeFeature("protocol", x.Protocol), attributeFeature("endpoint", x.Endpoint), attributeFeature("schemaRef", x.SchemaRef)},
+		})
 	}
-	for i, x := range a.ReferencedElements {
-		addElement(indexPath("authoredArchitecture.referencedElements", i), ElementExtension, "engineering.referenced_element", x.ID, x.Name, "", "", x)
+	for i, x := range p.a.DataObjects {
+		p.addElement(elementSpec{
+			path: indexPath("authoredArchitecture.dataObjects", i), kind: ElementItemDefinition, extension: "engineering.data_object",
+			id: x.ID, name: x.Name, source: x,
+			features: []SemanticFeature{attributeFeature("schemaRef", x.SchemaRef), attributeFeature("classification", x.Classification)},
+		})
 	}
-	for i, x := range a.Interfaces {
-		addElement(indexPath("authoredArchitecture.interfaces", i), ElementInterfaceDefinition, "engineering.interface", x.ID, x.Name, x.Owner, "", x,
-			attributeFeature("protocol", x.Protocol), attributeFeature("endpoint", x.Endpoint),
-			attributeFeature("schemaRef", x.SchemaRef))
+	for i, x := range p.a.DeploymentTargets {
+		p.addElement(elementSpec{
+			path: indexPath("authoredArchitecture.deploymentTargets", i), kind: ElementPartDefinition, extension: "engineering.deployment_target",
+			id: x.ID, name: x.Name, source: x,
+			features: []SemanticFeature{
+				attributeFeature("environment", x.Environment), attributeFeature("region", x.Region),
+				attributeFeature("namespace", x.Namespace), attributeFeature("trustZone", x.TrustZone),
+			},
+		})
 	}
-	for i, x := range a.DataObjects {
-		addElement(indexPath("authoredArchitecture.dataObjects", i), ElementItemDefinition, "engineering.data_object", x.ID, x.Name, "", "", x,
-			attributeFeature("schemaRef", x.SchemaRef), attributeFeature("classification", x.Classification))
+	for i, x := range p.a.HardwareItems {
+		p.projectHardwareItem(indexPath("authoredArchitecture.hardwareItems", i), x)
 	}
-	for i, x := range a.DeploymentTargets {
-		addElement(indexPath("authoredArchitecture.deploymentTargets", i), ElementPartDefinition, "engineering.deployment_target", x.ID, x.Name, "", "", x,
-			attributeFeature("environment", x.Environment), attributeFeature("region", x.Region),
-			attributeFeature("namespace", x.Namespace), attributeFeature("trustZone", x.TrustZone))
+	for i, x := range p.a.HardwareInterfaces {
+		p.projectHardwareInterface(indexPath("authoredArchitecture.hardwareInterfaces", i), x)
 	}
-	for i, x := range a.HardwareItems {
-		addElement(indexPath("authoredArchitecture.hardwareItems", i), ElementPartDefinition, "engineering.hardware_item", x.ID, x.Name, "", "", x,
+	for i, x := range p.a.Controls {
+		p.addElement(elementSpec{path: indexPath("authoredArchitecture.controls", i), kind: ElementExtension, extension: "engineering.control", id: x.ID, name: x.Name, source: x})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectHardwareItem(path string, x HardwareItem) {
+	p.addElement(elementSpec{
+		path: path, kind: ElementPartDefinition, extension: "engineering.hardware_item", id: x.ID, name: x.Name, source: x,
+		features: []SemanticFeature{
 			attributeFeature("kind", x.Kind), attributeFeature("partNumber", x.PartNumber),
-			attributeFeature("supplier", x.Supplier), attributeFeature("safetyLevel", x.SafetyLevel))
-		for _, hosted := range x.Hosts {
-			addRelationship(indexPath("authoredArchitecture.hardwareItems", i)+".hosts", RelationshipAllocation, "hosts", hosted, x.ID, x.ID, x)
-		}
-	}
-	for i, x := range a.HardwareInterfaces {
-		path := indexPath("authoredArchitecture.hardwareInterfaces", i)
-		addElement(path, ElementConnectionDefinition, "engineering.hardware_interface", x.ID, x.Name, "", "", x,
-			attributeFeature("busType", x.BusType), attributeFeature("direction", x.Direction))
-		addRelationship(path, RelationshipConnection, "hardware_interface", x.From, x.To, x.ID, x)
-	}
-	for i, x := range a.Controls {
-		addElement(indexPath("authoredArchitecture.controls", i), ElementExtension, "engineering.control", x.ID, x.Name, "", "", x)
-	}
-	for i, x := range a.Risks {
-		path := indexPath("authoredArchitecture.risks", i)
-		addElement(path, ElementExtension, "engineering.risk", x.ID, x.Title, x.Owner, "", x)
-		for j, evidence := range x.Evidence {
-			addEvidence(indexPath(path+".evidence", j), "engineering.verification_evidence", x.ID, evidence.Path, evidence.Description)
-		}
-	}
-	for i, x := range a.POAMItems {
-		path := indexPath("authoredArchitecture.poamItems", i)
-		addElement(path, ElementExtension, "engineering.poam_item", x.ID, x.Milestone, x.ResponsibleRole, "", x)
-		for j, artifact := range x.Artifacts {
-			addEvidence(indexPath(path+".artifacts", j), "engineering.poam_artifact", x.ID, artifact.Path, artifact.Description)
-		}
-	}
-	for i, x := range a.TrustBoundaries {
-		path := indexPath("authoredArchitecture.trustBoundaries", i)
-		addElement(path, ElementExtension, "engineering.trust_boundary", x.ID, x.Name, x.ParentRef, "", x)
-		for _, member := range x.Members {
-			addRelationship(path+".members", RelationshipContainment, "boundary_contains", x.ID, member, x.ID, x)
-		}
-	}
-	for i, x := range a.Events {
-		addElement(indexPath("authoredArchitecture.events", i), ElementEventDefinition, "engineering.event", x.ID, x.Name, "", "", x)
-	}
-	for i, x := range a.Flows {
-		path := indexPath("authoredArchitecture.flows", i)
-		flowFeatures := make([]SemanticFeature, 0, len(x.DataRefs))
-		for _, ref := range x.DataRefs {
-			flowFeatures = append(flowFeatures, referenceFeature("item", FeatureParameter, "inout", ref))
-		}
-		addElement(path, ElementActionDefinition, "engineering.flow", x.ID, x.Title, "", "", x, flowFeatures...)
-		if x.SourceRef != "" && x.DestinationRef != "" {
-			addRelationship(path, RelationshipTransfer, "flow_transfer", x.SourceRef, x.DestinationRef, x.ID, x)
-		}
-		for j, step := range x.Steps {
-			stepPath := indexPath(path+".steps", j)
-			stepFeatures := make([]SemanticFeature, 0, len(step.DataIn)+len(step.DataOut)+len(step.DataRefs))
-			for _, ref := range step.DataIn {
-				stepFeatures = append(stepFeatures, referenceFeature("input", FeatureParameter, "in", ref))
-			}
-			for _, ref := range step.DataOut {
-				stepFeatures = append(stepFeatures, referenceFeature("output", FeatureParameter, "out", ref))
-			}
-			for _, ref := range step.DataRefs {
-				stepFeatures = append(stepFeatures, referenceFeature("item", FeatureParameter, "inout", ref))
-			}
-			addElement(stepPath, ElementActionUsage, "engineering.flow_step", step.ID, step.Action, x.ID, step.Ref, step, stepFeatures...)
-			if step.Ref != "" {
-				addRelationship(stepPath+".ref", RelationshipDependency, "flow_ref", step.ID, step.Ref, x.ID, step)
-			}
-			if step.SourceRef != "" && step.DestinationRef != "" {
-				addRelationship(stepPath+".transfer", RelationshipTransfer, "step_transfer", step.SourceRef, step.DestinationRef, step.ID, step)
-			}
-			for _, next := range step.Next {
-				addRelationship(stepPath+".next", RelationshipSuccession, "flow_next", step.ID, next, x.ID, step)
-			}
-			for _, next := range step.OnError {
-				addRelationship(stepPath+".onError", RelationshipSuccession, "flow_error", step.ID, next, x.ID, step)
-			}
-		}
-	}
-	machines := machineSink{
-		addElement: func(path string, kind SemanticElementKind, extension, id, name, owner, typeRef string, source any, features ...SemanticFeature) bool {
-			before := len(out.Elements)
-			addElement(path, kind, extension, id, name, owner, typeRef, source, features...)
-			return len(out.Elements) > before
+			attributeFeature("supplier", x.Supplier), attributeFeature("safetyLevel", x.SafetyLevel),
 		},
-		addSuccession: func(path, sourceType, source, target, owner string, value any) {
-			addRelationship(path, RelationshipSuccession, sourceType, source, target, owner, value)
-		},
-		addTransition: addTransition,
-		setReferences: func(id string, references []string) {
-			if index, ok := elementIndex[strings.TrimSpace(id)]; ok {
-				out.Elements[index].References = compactStrings(append(out.Elements[index].References, references...))
-			}
-		},
-		report: func(diagnostic SemanticDiagnostic) { diagnostics = append(diagnostics, diagnostic) },
+	})
+	for _, hosted := range x.Hosts {
+		p.addRelationship(relationshipSpec{path: path + ".hosts", kind: RelationshipAllocation, sourceType: "hosts", source: hosted, target: x.ID, owner: x.ID, value: x})
 	}
-	for i, x := range a.Machines {
-		projectMachine(machines, indexPath("authoredArchitecture.machines", i), x)
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectHardwareInterface(path string, x HardwareInterface) {
+	p.addElement(elementSpec{
+		path: path, kind: ElementConnectionDefinition, extension: "engineering.hardware_interface", id: x.ID, name: x.Name, source: x,
+		features: []SemanticFeature{attributeFeature("busType", x.BusType), attributeFeature("direction", x.Direction)},
+	})
+	p.addRelationship(relationshipSpec{path: path, kind: RelationshipConnection, sourceType: "hardware_interface", source: x.From, target: x.To, owner: x.ID, value: x})
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectAssurance() {
+	for i, x := range p.a.Risks {
+		p.projectRisk(indexPath("authoredArchitecture.risks", i), x)
 	}
-	for i, x := range a.ThreatScenarios {
-		path := indexPath("authoredArchitecture.threatScenarios", i)
-		addElement(path, ElementExtension, "engineering.threat_scenario", x.ID, x.Title, x.Owner, "", x)
-		for j, evidence := range x.Evidence {
-			addEvidence(indexPath(path+".evidence", j), "engineering.verification_evidence", x.ID, evidence.Path, evidence.Description)
-		}
+	for i, x := range p.a.POAMItems {
+		p.projectPOAMItem(indexPath("authoredArchitecture.poamItems", i), x)
 	}
-	for i, x := range a.ThreatAssumptions {
-		path := indexPath("authoredArchitecture.threatAssumptions", i)
-		addElement(path, ElementExtension, "engineering.threat_assumption", x.ID, x.Title, x.Owner, "", x)
-		for j, evidence := range x.Evidence {
-			addEvidence(indexPath(path+".evidence", j), "engineering.verification_evidence", x.ID, evidence.Path, evidence.Description)
-		}
+	for i, x := range p.a.TrustBoundaries {
+		p.projectTrustBoundary(indexPath("authoredArchitecture.trustBoundaries", i), x)
 	}
-	for i, x := range a.ThreatOutOfScope {
-		path := indexPath("authoredArchitecture.threatOutOfScope", i)
-		addElement(path, ElementExtension, "engineering.threat_out_of_scope", x.ID, x.Title, x.Owner, "", x)
-		for j, evidence := range x.Evidence {
-			addEvidence(indexPath(path+".evidence", j), "engineering.verification_evidence", x.ID, evidence.Path, evidence.Description)
-		}
+	for i, x := range p.a.Events {
+		p.addElement(elementSpec{path: indexPath("authoredArchitecture.events", i), kind: ElementEventDefinition, extension: "engineering.event", id: x.ID, name: x.Name, source: x})
 	}
-	for i, x := range a.ThreatMitigations {
-		path := indexPath("authoredArchitecture.threatMitigations", i)
-		addElement(path, ElementExtension, "engineering.threat_mitigation", x.ID, x.ID, x.Owner, "", x)
-		for j, evidence := range x.Evidence {
-			addEvidence(indexPath(path+".evidence", j), "engineering.verification_evidence", x.ID, evidence.Path, evidence.Description)
-		}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectRisk(path string, x Risk) {
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.risk", id: x.ID, name: x.Title, owner: x.Owner, source: x})
+	for j, evidence := range x.Evidence {
+		p.addEvidence(evidenceSpec{path: indexPath(path+".evidence", j), extension: "engineering.verification_evidence", target: x.ID, evidencePath: evidence.Path, description: evidence.Description})
 	}
-	for i, x := range a.ControlVerifications {
-		path := indexPath("authoredArchitecture.controlVerifications", i)
-		addElement(path, ElementVerificationCaseUsage, "engineering.control_verification", x.ID, x.ID, x.Owner, "", x)
-		if x.ControlRef != "" {
-			addRelationship(path+".controlRef", RelationshipVerification, "verifies", x.ID, x.ControlRef, x.ID, x)
-		}
-		for j, evidence := range x.Evidence {
-			addEvidence(indexPath(path+".evidence", j), "engineering.verification_evidence", x.ID, evidence.Path, evidence.Description)
-		}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectPOAMItem(path string, x POAMItem) {
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.poam_item", id: x.ID, name: x.Milestone, owner: x.ResponsibleRole, source: x})
+	for j, artifact := range x.Artifacts {
+		p.addEvidence(evidenceSpec{path: indexPath(path+".artifacts", j), extension: "engineering.poam_artifact", target: x.ID, evidencePath: artifact.Path, description: artifact.Description})
 	}
-	for i, x := range a.Mappings {
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectTrustBoundary(path string, x TrustBoundary) {
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.trust_boundary", id: x.ID, name: x.Name, owner: x.ParentRef, source: x})
+	for _, member := range x.Members {
+		p.addRelationship(relationshipSpec{path: path + ".members", kind: RelationshipContainment, sourceType: "boundary_contains", source: x.ID, target: member, owner: x.ID, value: x})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectFlows() {
+	for i, x := range p.a.Flows {
+		p.projectFlow(indexPath("authoredArchitecture.flows", i), x)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectFlow(path string, x Flow) {
+	features := make([]SemanticFeature, 0, len(x.DataRefs))
+	for _, ref := range x.DataRefs {
+		features = append(features, referenceFeature(flowItemFeature, ref))
+	}
+	p.addElement(elementSpec{path: path, kind: ElementActionDefinition, extension: "engineering.flow", id: x.ID, name: x.Title, source: x, features: features})
+	if x.SourceRef != "" && x.DestinationRef != "" {
+		p.addRelationship(relationshipSpec{path: path, kind: RelationshipTransfer, sourceType: "flow_transfer", source: x.SourceRef, target: x.DestinationRef, owner: x.ID, value: x})
+	}
+	for j, step := range x.Steps {
+		p.projectFlowStep(indexPath(path+".steps", j), x.ID, step)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectFlowStep(stepPath, flowID string, step FlowStep) {
+	p.addElement(elementSpec{
+		path: stepPath, kind: ElementActionUsage, extension: "engineering.flow_step", id: step.ID, name: step.Action,
+		owner: flowID, typeRef: step.Ref, source: step, features: flowStepFeatures(step),
+	})
+	if step.Ref != "" {
+		p.addRelationship(relationshipSpec{path: stepPath + ".ref", kind: RelationshipDependency, sourceType: "flow_ref", source: step.ID, target: step.Ref, owner: flowID, value: step})
+	}
+	if step.SourceRef != "" && step.DestinationRef != "" {
+		p.addRelationship(relationshipSpec{path: stepPath + ".transfer", kind: RelationshipTransfer, sourceType: "step_transfer", source: step.SourceRef, target: step.DestinationRef, owner: step.ID, value: step})
+	}
+	for _, next := range step.Next {
+		p.addRelationship(relationshipSpec{path: stepPath + ".next", kind: RelationshipSuccession, sourceType: "flow_next", source: step.ID, target: next, owner: flowID, value: step})
+	}
+	for _, next := range step.OnError {
+		p.addRelationship(relationshipSpec{path: stepPath + ".onError", kind: RelationshipSuccession, sourceType: "flow_error", source: step.ID, target: next, owner: flowID, value: step})
+	}
+}
+
+// flowStepFeatures returns the input, output and item parameters of a flow step.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func flowStepFeatures(step FlowStep) []SemanticFeature {
+	features := make([]SemanticFeature, 0, len(step.DataIn)+len(step.DataOut)+len(step.DataRefs))
+	for _, ref := range step.DataIn {
+		features = append(features, referenceFeature(flowInputFeature, ref))
+	}
+	for _, ref := range step.DataOut {
+		features = append(features, referenceFeature(flowOutputFeature, ref))
+	}
+	for _, ref := range step.DataRefs {
+		features = append(features, referenceFeature(flowItemFeature, ref))
+	}
+	return features
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectMachines() {
+	for i, x := range p.a.Machines {
+		projectMachine(p, indexPath("authoredArchitecture.machines", i), x)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectThreats() {
+	for i, x := range p.a.ThreatScenarios {
+		p.projectThreatScenario(indexPath("authoredArchitecture.threatScenarios", i), x)
+	}
+	for i, x := range p.a.ThreatAssumptions {
+		p.projectThreatAssumption(indexPath("authoredArchitecture.threatAssumptions", i), x)
+	}
+	for i, x := range p.a.ThreatOutOfScope {
+		p.projectThreatOutOfScope(indexPath("authoredArchitecture.threatOutOfScope", i), x)
+	}
+	for i, x := range p.a.ThreatMitigations {
+		p.projectThreatMitigation(indexPath("authoredArchitecture.threatMitigations", i), x)
+	}
+	for i, x := range p.a.ControlVerifications {
+		p.projectControlVerification(indexPath("authoredArchitecture.controlVerifications", i), x)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectThreatScenario(path string, x ThreatScenario) {
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.threat_scenario", id: x.ID, name: x.Title, owner: x.Owner, source: x})
+	for j, evidence := range x.Evidence {
+		p.addEvidence(evidenceSpec{path: indexPath(path+".evidence", j), extension: "engineering.verification_evidence", target: x.ID, evidencePath: evidence.Path, description: evidence.Description})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectThreatAssumption(path string, x ThreatAssumption) {
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.threat_assumption", id: x.ID, name: x.Title, owner: x.Owner, source: x})
+	for j, evidence := range x.Evidence {
+		p.addEvidence(evidenceSpec{path: indexPath(path+".evidence", j), extension: "engineering.verification_evidence", target: x.ID, evidencePath: evidence.Path, description: evidence.Description})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectThreatOutOfScope(path string, x ThreatOutOfScope) {
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.threat_out_of_scope", id: x.ID, name: x.Title, owner: x.Owner, source: x})
+	for j, evidence := range x.Evidence {
+		p.addEvidence(evidenceSpec{path: indexPath(path+".evidence", j), extension: "engineering.verification_evidence", target: x.ID, evidencePath: evidence.Path, description: evidence.Description})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectThreatMitigation(path string, x ThreatMitigation) {
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.threat_mitigation", id: x.ID, name: x.ID, owner: x.Owner, source: x})
+	for j, evidence := range x.Evidence {
+		p.addEvidence(evidenceSpec{path: indexPath(path+".evidence", j), extension: "engineering.verification_evidence", target: x.ID, evidencePath: evidence.Path, description: evidence.Description})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectControlVerification(path string, x ControlVerification) {
+	p.addElement(elementSpec{path: path, kind: ElementVerificationCaseUsage, extension: "engineering.control_verification", id: x.ID, name: x.ID, owner: x.Owner, source: x})
+	if x.ControlRef != "" {
+		p.addRelationship(relationshipSpec{path: path + ".controlRef", kind: RelationshipVerification, sourceType: "verifies", source: x.ID, target: x.ControlRef, owner: x.ID, value: x})
+	}
+	for j, evidence := range x.Evidence {
+		p.addEvidence(evidenceSpec{path: indexPath(path+".evidence", j), extension: "engineering.verification_evidence", target: x.ID, evidencePath: evidence.Path, description: evidence.Description})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectMappings() {
+	for i, x := range p.a.Mappings {
 		// Mappings to inferred CODE identifiers are code trace links, not architecture
 		// relationships; validation resolves them against the code index instead.
 		if IsCodeID(x.From) || IsCodeID(x.To) {
 			continue
 		}
-		kind, ok := semanticMappingKind(x.Type)
-		if !ok {
-			kind = RelationshipExtension
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.unsupported_relationship", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("mapping type %q has no canonical relationship mapping", x.Type),
-				Path:    indexPath("authoredArchitecture.mappings", i),
+		p.projectMapping(indexPath("authoredArchitecture.mappings", i), x)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectMapping(path string, x Mapping) {
+	kind, ok := semanticMappingKind(x.Type)
+	if !ok {
+		kind = RelationshipExtension
+		p.report(semanticError("semantic.unsupported_relationship", path,
+			fmt.Sprintf("mapping type %q has no canonical relationship mapping", x.Type)))
+	}
+	p.addRelationship(relationshipSpec{path: path, kind: kind, sourceType: strings.TrimSpace(x.Type), source: x.From, target: x.To, value: x})
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectCompliance() {
+	for i, x := range p.bundle.Architecture.Compliance.Profiles {
+		p.addElement(elementSpec{path: indexPath("compliance.profiles", i), kind: ElementExtension, extension: "engineering.compliance_profile", id: x.ID, name: x.ID, source: x})
+	}
+	for i, x := range p.bundle.Architecture.Compliance.Mappings {
+		p.projectComplianceMapping(indexPath("compliance.mappings", i), x)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectComplianceMapping(path string, x ComplianceMapping) {
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.compliance_mapping", id: x.ID, name: x.ID, source: x})
+	for j, evidence := range x.Evidence {
+		p.addEvidence(evidenceSpec{path: indexPath(path+".evidence", j), extension: "engineering.compliance_evidence", target: x.ID, evidencePath: evidence.Path, description: evidence.Description})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectContractAndComposition() {
+	architecture := p.bundle.Architecture
+	for i, x := range architecture.Contract.Provides {
+		p.addElement(elementSpec{
+			path: indexPath("contract.provides", i), kind: ElementPortUsage, extension: "engineering.contract_provides",
+			id: x.ID, name: x.ID, owner: p.out.ID, typeRef: "EngineeringPort", source: x,
+			features: []SemanticFeature{referenceFeature(providedPortFeature, "EngineeringPort")},
+		})
+	}
+	for i, x := range architecture.Contract.Requires {
+		p.projectRequiredPort(indexPath("contract.requires", i), x)
+	}
+	for i, x := range architecture.Composition.Subsystems {
+		p.addElement(elementSpec{path: indexPath("composition.subsystems", i), kind: ElementPartUsage, extension: "engineering.subsystem", id: x.ID, name: x.Name, owner: p.out.ID, source: x})
+	}
+	for i, x := range architecture.Composition.Satisfactions {
+		p.addRelationship(relationshipSpec{path: indexPath("composition.satisfactions", i), kind: RelationshipSatisfaction, sourceType: "satisfaction", source: x.By, target: x.Need, owner: p.out.ID, value: x})
+	}
+	for i, x := range architecture.Views {
+		p.addElement(elementSpec{path: indexPath("views", i), kind: ElementViewUsage, extension: "engineering.view", id: x.ID, name: x.ID, owner: p.out.ID, source: x})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectRequiredPort(path string, x ContractEntry) {
+	p.addElement(elementSpec{
+		path: path, kind: ElementPortUsage, extension: "engineering.contract_requires",
+		id: x.ID, name: x.ID, owner: p.out.ID, typeRef: "EngineeringPort", source: x,
+		features: []SemanticFeature{referenceFeature(requiredPortFeature, "EngineeringPort")},
+	})
+	if element, ok := p.elementAt(x.ID); ok {
+		element.Conjugated = true
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectDocuments() {
+	for i, document := range p.bundle.Views.Documents {
+		p.projectDocument(indexPath("documents", i), document)
+	}
+	if p.bundle.Architecture.NAF.Enabled() {
+		p.projectNAF()
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectDocument(path string, document DocumentDefinition) {
+	p.addElement(elementSpec{path: path, kind: ElementViewUsage, extension: "engineering.document_definition", id: document.ID, name: document.Title, owner: p.out.ID, source: document})
+	refGroups := []struct {
+		field      string
+		sourceType string
+		refs       []string
+	}{
+		{".contentRefs", "document_content", document.ContentRefs},
+		{".stakeholderRefs", "document_stakeholder", document.StakeholderRefs},
+		{".referenceRefs", "document_reference", document.ReferenceRefs},
+	}
+	for _, group := range refGroups {
+		for _, ref := range group.refs {
+			p.addRelationship(relationshipSpec{path: path + group.field, kind: RelationshipDependency, sourceType: group.sourceType, source: document.ID, target: ref, owner: document.ID, value: document})
+		}
+	}
+	p.projectDocumentSections(path, document)
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectDocumentSections(path string, document DocumentDefinition) {
+	for j, section := range document.Sections {
+		p.appendMetadata(document.ID, "engineering.document_section."+section.ID, section)
+		for _, ref := range section.IncludeRefs {
+			p.addRelationship(relationshipSpec{
+				path: indexPath(path+".sections", j) + ".includeRefs", kind: RelationshipDependency, sourceType: "document_section_content",
+				source: document.ID, target: ref, owner: document.ID, value: section,
 			})
 		}
-		addRelationship(indexPath("authoredArchitecture.mappings", i), kind, strings.TrimSpace(x.Type), x.From, x.To, "", x)
 	}
+}
 
-	for i, x := range bundle.Architecture.Compliance.Profiles {
-		addElement(indexPath("compliance.profiles", i), ElementExtension, "engineering.compliance_profile", x.ID, x.ID, "", "", x)
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectNAF() {
+	naf := p.bundle.Architecture.NAF
+	p.appendMetadata(p.out.ID, "naf.profile.v4_1", naf)
+	for _, product := range naf.Products {
+		p.appendMetadata(product.ViewRef, "naf.viewpoint."+product.Viewpoint, product)
 	}
-	for i, x := range bundle.Architecture.Compliance.Mappings {
-		path := indexPath("compliance.mappings", i)
-		addElement(path, ElementExtension, "engineering.compliance_mapping", x.ID, x.ID, "", "", x)
-		for j, evidence := range x.Evidence {
-			addEvidence(indexPath(path+".evidence", j), "engineering.compliance_evidence", x.ID, evidence.Path, evidence.Description)
-		}
-	}
-	for i, x := range bundle.Architecture.Contract.Provides {
-		addElement(indexPath("contract.provides", i), ElementPortUsage, "engineering.contract_provides", x.ID, x.ID, out.ID, "EngineeringPort", x,
-			referenceFeature("provided", FeaturePort, "out", "EngineeringPort"))
-	}
-	for i, x := range bundle.Architecture.Contract.Requires {
-		addElement(indexPath("contract.requires", i), ElementPortUsage, "engineering.contract_requires", x.ID, x.ID, out.ID, "EngineeringPort", x,
-			referenceFeature("required", FeaturePort, "in", "EngineeringPort"))
-		if index, ok := elementIndex[strings.TrimSpace(x.ID)]; ok {
-			out.Elements[index].Conjugated = true
-		}
-	}
-	for i, x := range bundle.Architecture.Composition.Subsystems {
-		addElement(indexPath("composition.subsystems", i), ElementPartUsage, "engineering.subsystem", x.ID, x.Name, out.ID, "", x)
-	}
-	for i, x := range bundle.Architecture.Composition.Satisfactions {
-		addRelationship(indexPath("composition.satisfactions", i), RelationshipSatisfaction, "satisfaction", x.By, x.Need, out.ID, x)
-	}
-	for i, x := range bundle.Architecture.Views {
-		addElement(indexPath("views", i), ElementViewUsage, "engineering.view", x.ID, x.ID, out.ID, "", x)
-	}
-	for i, document := range bundle.Views.Documents {
-		path := indexPath("documents", i)
-		addElement(path, ElementViewUsage, "engineering.document_definition", document.ID, document.Title, out.ID, "", document)
-		for _, ref := range document.ContentRefs {
-			addRelationship(path+".contentRefs", RelationshipDependency, "document_content", document.ID, ref, document.ID, document)
-		}
-		for _, ref := range document.StakeholderRefs {
-			addRelationship(path+".stakeholderRefs", RelationshipDependency, "document_stakeholder", document.ID, ref, document.ID, document)
-		}
-		for _, ref := range document.ReferenceRefs {
-			addRelationship(path+".referenceRefs", RelationshipDependency, "document_reference", document.ID, ref, document.ID, document)
-		}
-		for j, section := range document.Sections {
-			appendMetadata(document.ID, "engineering.document_section."+section.ID, section)
-			for _, ref := range section.IncludeRefs {
-				addRelationship(indexPath(path+".sections", j)+".includeRefs", RelationshipDependency, "document_section_content", document.ID, ref, document.ID, section)
-			}
-		}
-	}
-	if bundle.Architecture.NAF.Enabled() {
-		appendMetadata(out.ID, "naf.profile.v4_1", bundle.Architecture.NAF)
-		for _, product := range bundle.Architecture.NAF.Products {
-			appendMetadata(product.ViewRef, "naf.viewpoint."+product.Viewpoint, product)
-		}
-	}
-	for i, x := range bundle.Architecture.Decisions {
-		addElement(indexPath("decisions", i), ElementExtension, "engineering.architecture_decision", x.ID, x.Title, "", "", x)
-	}
-	for i, x := range bundle.Requirements.Requirements {
-		path := indexPath("requirements", i)
-		addElement(path, ElementRequirementDefinition, "engineering.requirement_source", x.ID, x.ID, out.ID, "", x,
-			attributeFeature("text", x.Text), attributeFeature("notes", x.Notes))
-	}
-	for i, x := range bundle.Requirements.Expected {
-		addElement(indexPath("expected", i), ElementExtension, "engineering.requirement_pattern", x.ID, x.ID, out.ID, "", x)
-	}
-	if !reflect.DeepEqual(bundle.Requirements.LintRun, LintRun{}) {
-		appendMetadata(out.ID, "engineering.requirements_lint_policy", bundle.Requirements.LintRun)
-	}
-	if !reflect.DeepEqual(bundle.Design.Design, DesignModel{}) {
-		appendMetadata(out.ID, "engineering.design_model", bundle.Design.Design)
-	}
-	for _, group := range bundle.Design.Design.FunctionalGroups {
-		appendMetadata(group.ID, "engineering.design_functional_group", group)
-		for key, narrative := range group.Views {
-			path := "design.functionalGroups." + group.ID + ".views." + key
-			id := derivedSemanticID("CONCERN", group.ID, key)
-			addElement(path, ElementConcernUsage, "engineering.design_narrative", id, narrative.Title, group.ID, "", narrative,
-				attributeFeature("narrative", narrative.Narrative))
-		}
-	}
-	for _, unit := range bundle.Design.Design.FunctionalUnits {
-		appendMetadata(unit.ID, "engineering.design_functional_unit", unit)
-		for key, narrative := range unit.Views {
-			path := "design.functionalUnits." + unit.ID + ".views." + key
-			id := derivedSemanticID("CONCERN", unit.ID, key)
-			addElement(path, ElementConcernUsage, "engineering.design_narrative", id, narrative.Title, unit.ID, "", narrative,
-				attributeFeature("narrative", narrative.Narrative))
-		}
-	}
-	if !reflect.DeepEqual(bundle.Architecture.InferenceHints, InferenceHints{}) {
-		id := derivedSemanticID("EXTENSION", out.ID, "code-ownership-policy")
-		addElement("inferenceHints", ElementExtension, "engineering.code_ownership_policy", id, "Code ownership policy", "", "", bundle.Architecture.InferenceHints)
-		setExtensionTargets(id, []string{out.ID})
-	}
+}
 
-	catalogIDs := map[string]string{}
-	mergeCatalog := func(group string, entries []CatalogEntry) {
-		for i, entry := range entries {
-			path := indexPath("catalog."+group, i)
-			id := strings.TrimSpace(entry.ID)
-			if previous, exists := catalogIDs[id]; exists {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("duplicate catalog ID %q (already declared in %s)", id, previous), Path: path,
-				})
-				continue
-			}
-			catalogIDs[id] = group
-			if idx, exists := elementIndex[id]; exists {
-				out.Elements[idx].Metadata = append(out.Elements[idx].Metadata, semanticMetadata("engineering.catalog."+group, id, entry))
-				continue
-			}
-			addElement(path, ElementExtension, "engineering.catalog."+group, entry.ID, entry.Name, "", "", entry)
-		}
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectRequirementsAndDesign() {
+	for i, x := range p.bundle.Architecture.Decisions {
+		p.addElement(elementSpec{path: indexPath("decisions", i), kind: ElementExtension, extension: "engineering.architecture_decision", id: x.ID, name: x.Title, source: x})
 	}
-	c := bundle.Catalog.Catalog
-	mergeCatalog("systems", c.Systems)
-	mergeCatalog("functional_groups", c.FunctionalGroups)
-	mergeCatalog("functional_units", c.FunctionalUnits)
-	mergeCatalog("referenced_elements", c.ReferencedElements)
-	mergeCatalog("actors", c.Actors)
-	mergeCatalog("attack_vectors", c.AttackVectors)
-	mergeCatalog("events", c.Events)
-	mergeCatalog("states", c.States)
-	mergeCatalog("features", c.Features)
-	mergeCatalog("modes", c.Modes)
-	mergeCatalog("conditions", c.Conditions)
-	mergeCatalog("data_terms", c.DataTerms)
+	for i, x := range p.bundle.Requirements.Requirements {
+		p.addElement(elementSpec{
+			path: indexPath("requirements", i), kind: ElementRequirementDefinition, extension: "engineering.requirement_source",
+			id: x.ID, name: x.ID, owner: p.out.ID, source: x,
+			features: []SemanticFeature{attributeFeature("text", x.Text), attributeFeature("notes", x.Notes)},
+		})
+	}
+	for i, x := range p.bundle.Requirements.Expected {
+		p.addElement(elementSpec{path: indexPath("expected", i), kind: ElementExtension, extension: "engineering.requirement_pattern", id: x.ID, name: x.ID, owner: p.out.ID, source: x})
+	}
+	if !reflect.DeepEqual(p.bundle.Requirements.LintRun, LintRun{}) {
+		p.appendMetadata(p.out.ID, "engineering.requirements_lint_policy", p.bundle.Requirements.LintRun)
+	}
+	p.projectDesign()
+}
 
-	for index := range out.Elements {
-		normalizeElementMetamodelProperties(&out.Elements[index])
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectDesign() {
+	design := p.bundle.Design.Design
+	if !reflect.DeepEqual(design, DesignModel{}) {
+		p.appendMetadata(p.out.ID, "engineering.design_model", design)
 	}
-	for index := range out.Relationships {
-		normalizeRelationshipMetamodelProperties(&out.Relationships[index])
+	for _, group := range design.FunctionalGroups {
+		p.appendMetadata(group.ID, "engineering.design_functional_group", group)
+		p.addNarratives("design.functionalGroups."+group.ID+".views.", group.ID, group.Views)
 	}
-	sort.Slice(out.Elements, func(i, j int) bool { return out.Elements[i].ID < out.Elements[j].ID })
-	sort.Slice(out.Relationships, func(i, j int) bool { return out.Relationships[i].ID < out.Relationships[j].ID })
-	sort.Slice(out.Imports, func(i, j int) bool {
-		if out.Imports[i].Namespace != out.Imports[j].Namespace {
-			return out.Imports[i].Namespace < out.Imports[j].Namespace
+	for _, unit := range design.FunctionalUnits {
+		p.appendMetadata(unit.ID, "engineering.design_functional_unit", unit)
+		p.addNarratives("design.functionalUnits."+unit.ID+".views.", unit.ID, unit.Views)
+	}
+	if !reflect.DeepEqual(p.bundle.Architecture.InferenceHints, InferenceHints{}) {
+		id := derivedSemanticID("EXTENSION", p.out.ID, "code-ownership-policy")
+		p.addElement(elementSpec{path: "inferenceHints", kind: ElementExtension, extension: "engineering.code_ownership_policy", id: id, name: "Code ownership policy", source: p.bundle.Architecture.InferenceHints})
+		p.setExtensionTargets(id, []string{p.out.ID})
+	}
+}
+
+// addNarratives projects the design narratives of one functional group or unit.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) addNarratives(pathPrefix, ownerID string, views map[string]DesignView) {
+	for key, narrative := range views {
+		p.addElement(elementSpec{
+			path: pathPrefix + key, kind: ElementConcernUsage, extension: "engineering.design_narrative",
+			id: derivedSemanticID("CONCERN", ownerID, key), name: narrative.Title, owner: ownerID, source: narrative,
+			features: []SemanticFeature{attributeFeature("narrative", narrative.Narrative)},
+		})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) projectCatalog() {
+	c := p.bundle.Catalog.Catalog
+	groups := []struct {
+		name    string
+		entries []CatalogEntry
+	}{
+		{"systems", c.Systems}, {"functional_groups", c.FunctionalGroups}, {"functional_units", c.FunctionalUnits},
+		{"referenced_elements", c.ReferencedElements}, {"actors", c.Actors}, {"attack_vectors", c.AttackVectors},
+		{"events", c.Events}, {"states", c.States}, {"features", c.Features}, {"modes", c.Modes},
+		{"conditions", c.Conditions}, {"data_terms", c.DataTerms},
+	}
+	for _, group := range groups {
+		for i, entry := range group.entries {
+			p.mergeCatalogEntry(indexPath("catalog."+group.name, i), group.name, entry)
 		}
-		return out.Imports[i].Imported < out.Imports[j].Imported
-	})
-	sort.Slice(diagnostics, func(i, j int) bool {
-		if diagnostics[i].Path != diagnostics[j].Path {
-			return diagnostics[i].Path < diagnostics[j].Path
-		}
-		if diagnostics[i].Code != diagnostics[j].Code {
-			return diagnostics[i].Code < diagnostics[j].Code
-		}
-		return diagnostics[i].Message < diagnostics[j].Message
-	})
-	return out, diagnostics
+	}
+}
+
+// mergeCatalogEntry adds a catalog entry as an extension element, or attaches
+// it as metadata to the element that already has its ID.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) mergeCatalogEntry(path, group string, entry CatalogEntry) {
+	id := strings.TrimSpace(entry.ID)
+	if previous, exists := p.catalogIDs[id]; exists {
+		p.report(semanticError("semantic.duplicate_identity", path,
+			fmt.Sprintf("duplicate catalog ID %q (already declared in %s)", id, previous)))
+		return
+	}
+	p.catalogIDs[id] = group
+	if index, exists := p.elementIndex[id]; exists {
+		element := &p.out.Elements[index]
+		element.Metadata = append(element.Metadata, semanticMetadata("engineering.catalog."+group, id, entry))
+		return
+	}
+	p.addElement(elementSpec{path: path, kind: ElementExtension, extension: "engineering.catalog." + group, id: entry.ID, name: entry.Name, source: entry})
+}
+
+// finish normalizes the metamodel properties and sorts the projection.
+//
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-CANONICAL-SEMANTIC-MODEL, DO-ARCHITECTURE-MODEL
+func (p *semanticProjector) finish() {
+	for index := range p.out.Elements {
+		normalizeElementMetamodelProperties(&p.out.Elements[index])
+	}
+	for index := range p.out.Relationships {
+		normalizeRelationshipMetamodelProperties(&p.out.Relationships[index])
+	}
+	elements, relationships, imports := p.out.Elements, p.out.Relationships, p.out.Imports
+	sort.Slice(elements, func(i, j int) bool { return elements[i].ID < elements[j].ID })
+	sort.Slice(relationships, func(i, j int) bool { return relationships[i].ID < relationships[j].ID })
+	sort.Slice(imports, func(i, j int) bool { return semanticImportLess(imports[i], imports[j]) })
+	sortSemanticDiagnostics(p.diagnostics)
+}
+
+// TRLC-LINKS: REQ-EMG-035
+func semanticImportLess(a, b SemanticImport) bool {
+	if a.Namespace != b.Namespace {
+		return a.Namespace < b.Namespace
+	}
+	return a.Imported < b.Imported
+}
+
+// semanticValidator accumulates the diagnostics of one validation run.
+type semanticValidator struct {
+	semantic    SemanticModel
+	diagnostics []SemanticDiagnostic
+	identities  map[string]string
+	elements    map[string]SemanticElement
+	occurrences map[string]string
 }
 
 // ValidateSemanticModel checks invariants of the canonical projection independently
@@ -884,487 +1293,583 @@ func ProjectSemanticModel(bundle Bundle) (SemanticModel, []SemanticDiagnostic) {
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
 // ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
 func ValidateSemanticModel(semantic SemanticModel) []SemanticDiagnostic {
-	var diagnostics []SemanticDiagnostic
-	identities := map[string]string{}
-	elements := map[string]SemanticElement{}
-	occurrences := map[string]string{}
-
-	addIdentity := func(id, path string) {
-		id = strings.TrimSpace(id)
-		if id == "" {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.missing_identity", Severity: SemanticSeverityError,
-				Message: "canonical semantic identities must not be empty", Path: path,
-			})
-			return
-		}
-		if previous, exists := identities[id]; exists {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.duplicate_identity", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("duplicate canonical semantic identity %q (already declared at %s)", id, previous),
-				Path:    path,
-			})
-			return
-		}
-		identities[id] = path
+	v := &semanticValidator{
+		semantic:    semantic,
+		identities:  map[string]string{},
+		elements:    map[string]SemanticElement{},
+		occurrences: map[string]string{},
 	}
+	v.checkDeclarations()
+	v.checkImports()
+	v.checkElements()
+	v.checkRelationships()
+	v.checkMetadata()
+	sortSemanticDiagnostics(v.diagnostics)
+	return v.diagnostics
+}
 
-	for i, element := range semantic.Elements {
-		path := indexPath("semantic.elements", i)
-		addIdentity(element.ID, path)
-		diagnostics = append(diagnostics, validateMetamodelInstance(
-			element.ID, element.Metaclass, element.Properties, path, element.Kind == ElementExtension,
-		)...)
-		if strings.TrimSpace(element.ID) != "" {
-			if _, exists := elements[element.ID]; !exists {
-				elements[element.ID] = element
-			}
-			if !validSemanticElementKind(element.Kind) {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.unsupported_element_kind", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic element %q has unsupported kind %q", element.ID, element.Kind), Path: path + ".kind",
-				})
-			}
-			if element.Conjugated && element.Kind != ElementPortUsage && element.Kind != ElementInterfaceUsage {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_conjugation", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic element %q can only be conjugated when it is a port or interface usage", element.ID),
-					Path:    path + ".conjugated",
-				})
-			}
-			if element.Kind == ElementControlNode && !validControlKind(element.ControlKind) {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_control_node", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("control node %q has unsupported kind %q", element.ID, element.ControlKind),
-					Path:    path + ".controlKind",
-				})
-			}
-			if occurrenceID := strings.TrimSpace(element.OccurrenceID); occurrenceID != "" {
-				if previous, exists := occurrences[occurrenceID]; exists {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.duplicate_occurrence_identity", Severity: SemanticSeverityError,
-						Message: fmt.Sprintf("occurrence identity %q is already used at %s", occurrenceID, previous),
-						Path:    path + ".occurrenceId",
-					})
-				} else {
-					occurrences[occurrenceID] = path + ".occurrenceId"
-				}
-				if !isOccurrenceKind(element.Kind) {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_occurrence_identity", Severity: SemanticSeverityError,
-						Message: fmt.Sprintf("semantic element %q cannot declare occurrence identity", element.ID),
-						Path:    path + ".occurrenceId",
-					})
-				}
-			}
-			if portionOf := strings.TrimSpace(element.PortionOf); portionOf != "" && element.Kind != ElementSnapshot && element.Kind != ElementTimeSlice {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_time_portion", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic element %q can only use portionOf as a snapshot or time slice", element.ID),
-					Path:    path + ".portionOf",
-				})
-			}
-			if element.Kind == ElementExtension {
-				if strings.TrimSpace(element.ExtensionNamespace) == "" || strings.TrimSpace(element.Extension) == "" {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_extension_type", Severity: SemanticSeverityError,
-						Message: fmt.Sprintf("engineering extension %q requires namespace and type identity", element.ID),
-						Path:    path,
-					})
-				}
-				if len(element.Targets) == 0 && element.Authored {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_extension_target", Severity: SemanticSeverityError,
-						Message: fmt.Sprintf("engineering extension %q requires at least one explicit target", element.ID),
-						Path:    path + ".targets",
-					})
-				}
-			}
-			validateMultiplicity := func(multiplicity *Multiplicity, multiplicityPath string) {
-				if multiplicity == nil {
-					return
-				}
-				if multiplicity.Lower != nil && *multiplicity.Lower < 0 {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_multiplicity", Severity: SemanticSeverityError,
-						Message: "multiplicity lower bound must not be negative", Path: multiplicityPath + ".lower",
-					})
-				}
-				if multiplicity.Upper != nil && *multiplicity.Upper < -1 {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_multiplicity", Severity: SemanticSeverityError,
-						Message: "multiplicity upper bound must be -1 (unbounded) or non-negative", Path: multiplicityPath + ".upper",
-					})
-				}
-				if multiplicity.Lower != nil && multiplicity.Upper != nil && *multiplicity.Upper >= 0 && *multiplicity.Lower > *multiplicity.Upper {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_multiplicity", Severity: SemanticSeverityError,
-						Message: "multiplicity lower bound must not exceed upper bound", Path: multiplicityPath,
-					})
-				}
-			}
-			validateMultiplicity(element.Multiplicity, path+".multiplicity")
-			for j, feature := range element.Features {
-				featurePath := indexPath(path+".features", j)
-				if strings.TrimSpace(feature.Name) == "" {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_feature", Severity: SemanticSeverityError,
-						Message: "semantic feature name must not be empty", Path: featurePath + ".name",
-					})
-				}
-				if !validSemanticFeatureKind(feature.Kind) {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_feature", Severity: SemanticSeverityError,
-						Message: fmt.Sprintf("semantic feature %q has unsupported kind %q", feature.Name, feature.Kind), Path: featurePath + ".kind",
-					})
-				}
-				if feature.Kind == FeatureParameter && !validParameterDirection(feature.Direction) {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_parameter_direction", Severity: SemanticSeverityError,
-						Message: fmt.Sprintf("parameter %q has unsupported direction %q", feature.Name, feature.Direction), Path: featurePath + ".direction",
-					})
-				}
-				if feature.Conjugated && feature.Kind != FeaturePort {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.invalid_conjugation", Severity: SemanticSeverityError,
-						Message: fmt.Sprintf("semantic feature %q can only be conjugated when it is a port", feature.Name),
-						Path:    featurePath + ".conjugated",
-					})
-				}
-				validateMultiplicity(feature.Multiplicity, featurePath+".multiplicity")
-				if feature.Value != nil && feature.Multiplicity != nil && feature.Multiplicity.Upper != nil && *feature.Multiplicity.Upper == 0 {
-					diagnostics = append(diagnostics, SemanticDiagnostic{
-						Code: "semantic.value_multiplicity_mismatch", Severity: SemanticSeverityError,
-						Message: fmt.Sprintf("semantic feature %q cannot have a value when multiplicity upper bound is zero", feature.Name),
-						Path:    featurePath + ".value",
-					})
-				}
-			}
-		}
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) fail(code, path, message string) {
+	v.diagnostics = append(v.diagnostics, semanticError(code, path, message))
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) addIdentity(id, path string) {
+	id = strings.TrimSpace(id)
+	if id == "" {
+		v.fail("semantic.missing_identity", path, "canonical semantic identities must not be empty")
+		return
 	}
-	for i, relationship := range semantic.Relationships {
+	if previous, exists := v.identities[id]; exists {
+		v.fail("semantic.duplicate_identity", path,
+			fmt.Sprintf("duplicate canonical semantic identity %q (already declared at %s)", id, previous))
+		return
+	}
+	v.identities[id] = path
+}
+
+// unresolved reports whether ref names neither a projected element nor a
+// qualified reference into a dependency.
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) unresolved(ref string) bool {
+	if strings.Contains(ref, "::") {
+		return false
+	}
+	_, exists := v.elements[ref]
+	return !exists
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkDeclarations() {
+	for i, element := range v.semantic.Elements {
+		v.checkElementDeclaration(indexPath("semantic.elements", i), element)
+	}
+	for i, relationship := range v.semantic.Relationships {
 		path := indexPath("semantic.relationships", i)
-		addIdentity(relationship.ID, path)
-		diagnostics = append(diagnostics, validateMetamodelInstance(
-			relationship.ID, relationship.Metaclass, relationship.Properties, path, relationship.Kind == RelationshipExtension,
-		)...)
+		v.addIdentity(relationship.ID, path)
+		v.diagnostics = append(v.diagnostics, validateMetamodelInstance(metamodelInstance{
+			id: relationship.ID, metaclass: relationship.Metaclass, properties: relationship.Properties,
+			path: path, extension: relationship.Kind == RelationshipExtension,
+		})...)
 		if !validSemanticRelationshipKind(relationship.Kind) {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.unsupported_relationship", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("semantic relationship %q has unsupported kind %q", relationship.ID, relationship.Kind),
-				Path:    indexPath("semantic.relationships", i) + ".kind",
-			})
+			v.fail("semantic.unsupported_relationship", path+".kind",
+				fmt.Sprintf("semantic relationship %q has unsupported kind %q", relationship.ID, relationship.Kind))
 		}
 	}
+}
 
-	for i, imported := range semantic.Imports {
-		path := indexPath("semantic.imports", i)
-		if strings.TrimSpace(imported.Imported) == "" {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.invalid_import", Severity: SemanticSeverityError,
-				Message: "semantic import requires an imported namespace", Path: path + ".imported",
-			})
-		}
-		if visibility := strings.TrimSpace(imported.Visibility); visibility != "" && visibility != "private" && visibility != "public" {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.invalid_import", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("semantic import visibility %q must be private or public", visibility), Path: path + ".visibility",
-			})
-		}
-		if namespace := strings.TrimSpace(imported.Namespace); namespace != "" {
-			element, exists := elements[namespace]
-			if !exists || element.Kind != ElementPackageDefinition {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_import", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic import namespace %q must resolve to a package definition", namespace), Path: path + ".namespace",
-				})
-			}
-		}
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkElementDeclaration(path string, element SemanticElement) {
+	v.addIdentity(element.ID, path)
+	v.diagnostics = append(v.diagnostics, validateMetamodelInstance(metamodelInstance{
+		id: element.ID, metaclass: element.Metaclass, properties: element.Properties,
+		path: path, extension: element.Kind == ElementExtension,
+	})...)
+	if strings.TrimSpace(element.ID) == "" {
+		return
 	}
+	if _, exists := v.elements[element.ID]; !exists {
+		v.elements[element.ID] = element
+	}
+	v.checkElementKind(path, element)
+	v.checkElementRoles(path, element)
+	v.checkOccurrence(path, element)
+	v.checkExtensionIdentity(path, element)
+	v.checkMultiplicity(element.Multiplicity, path+".multiplicity")
+	for j, feature := range element.Features {
+		v.checkFeature(indexPath(path+".features", j), feature)
+	}
+}
 
-	for i, element := range semantic.Elements {
-		path := indexPath("semantic.elements", i)
-		if namespace := strings.TrimSpace(element.Namespace); namespace != "" {
-			if namespace == strings.TrimSpace(element.ID) {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_ownership", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic element %q cannot be its own namespace", element.ID),
-					Path:    path + ".namespace",
-				})
-				continue
-			}
-			namespaceElement, exists := elements[namespace]
-			if !exists || namespaceElement.Kind != ElementPackageDefinition {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_ownership", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic element %q namespace %q must resolve to a package definition", element.ID, namespace),
-					Path:    path + ".namespace",
-				})
-			}
-		}
-		if owner := strings.TrimSpace(element.Owner); owner != "" {
-			if owner == strings.TrimSpace(element.ID) {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_ownership", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic element %q cannot own itself", element.ID),
-					Path:    path + ".owner",
-				})
-			} else if _, exists := elements[owner]; !exists && !isQualifiedSemanticReference(owner) {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_ownership", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic element %q owner %q does not exist", element.ID, owner),
-					Path:    path + ".owner",
-				})
-			}
-		}
-		for j, reference := range element.References {
-			if _, exists := elements[strings.TrimSpace(reference)]; !exists {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.dangling_reference", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic element %q reference %q does not exist", element.ID, reference),
-					Path:    indexPath(path+".references", j),
-				})
-			}
-		}
-		for j := range element.Features {
-			validateExpression(element.Features[j].Value, indexPath(path+".features", j)+".value", identities, &diagnostics)
-		}
-		if portionOf := strings.TrimSpace(element.PortionOf); portionOf != "" {
-			if _, exists := elements[portionOf]; !exists {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.dangling_reference", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("time portion %q source occurrence %q does not exist", element.ID, portionOf),
-					Path:    path + ".portionOf",
-				})
-			}
-		}
-		for j, variant := range element.Variants {
-			target, exists := elements[strings.TrimSpace(variant)]
-			if !exists {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_variant", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("variation %q variant %q does not exist", element.ID, variant),
-					Path:    indexPath(path+".variants", j),
-				})
-			} else if target.ID == element.ID {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_variant", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("variation %q cannot contain itself as a variant", element.ID),
-					Path:    indexPath(path+".variants", j),
-				})
-			}
-		}
-		if len(element.Variants) > 0 && !element.Variation {
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.invalid_variant", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("semantic element %q declares variants without being a variation", element.ID),
-				Path:    path + ".variants",
-			})
-		}
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkElementKind(path string, element SemanticElement) {
+	if !validSemanticElementKind(element.Kind) {
+		v.fail("semantic.unsupported_element_kind", path+".kind",
+			fmt.Sprintf("semantic element %q has unsupported kind %q", element.ID, element.Kind))
 	}
+	if element.Kind == ElementControlNode && !validControlKind(element.ControlKind) {
+		v.fail("semantic.invalid_control_node", path+".controlKind",
+			fmt.Sprintf("control node %q has unsupported kind %q", element.ID, element.ControlKind))
+	}
+}
 
-	for i, relationship := range semantic.Relationships {
-		path := indexPath("semantic.relationships", i)
-		if owner := strings.TrimSpace(relationship.Owner); owner != "" {
-			if _, exists := elements[owner]; !exists && !isQualifiedSemanticReference(owner) {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_ownership", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic relationship %q owner %q does not exist", relationship.ID, owner),
-					Path:    path + ".owner",
-				})
-			}
-		}
-		validateExpression(relationship.Guard, path+".guard", identities, &diagnostics)
-		validateExpression(relationship.Effect, path+".effect", identities, &diagnostics)
-		if semanticRelationshipAllowsExternalEndpoints(relationship) {
-			continue
-		}
-		for endpoint, id := range map[string]string{"source": relationship.Source, "target": relationship.Target} {
-			id = strings.TrimSpace(id)
-			if strings.Contains(id, "::") {
-				continue
-			}
-			if _, exists := elements[id]; exists {
-				continue
-			}
-			diagnostics = append(diagnostics, SemanticDiagnostic{
-				Code: "semantic.dangling_relationship", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("semantic relationship %q %s %q does not exist", relationship.ID, endpoint, id),
-				Path:    path + "." + endpoint,
-			})
-		}
-		for j, trigger := range relationship.Triggers {
-			trigger = strings.TrimSpace(trigger)
-			if strings.Contains(trigger, "::") {
-				continue
-			}
-			if _, exists := elements[trigger]; !exists {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.dangling_relationship", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic transition %q trigger %q does not exist", relationship.ID, trigger),
-					Path:    indexPath(path+".triggers", j),
-				})
-			}
-		}
-		if itemRef := strings.TrimSpace(relationship.ItemRef); itemRef != "" {
-			if strings.Contains(itemRef, "::") {
-				continue
-			}
-			if _, exists := elements[itemRef]; !exists {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.dangling_relationship", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("semantic transfer %q item %q does not exist", relationship.ID, itemRef),
-					Path:    path + ".itemRef",
-				})
-			}
-		}
+// checkElementRoles checks the conjugation and time portion an element declares.
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkElementRoles(path string, element SemanticElement) {
+	if element.Conjugated && !isConjugableKind(element.Kind) {
+		v.fail("semantic.invalid_conjugation", path+".conjugated",
+			fmt.Sprintf("semantic element %q can only be conjugated when it is a port or interface usage", element.ID))
 	}
+	if strings.TrimSpace(element.PortionOf) != "" && !isTimePortionKind(element.Kind) {
+		v.fail("semantic.invalid_time_portion", path+".portionOf",
+			fmt.Sprintf("semantic element %q can only use portionOf as a snapshot or time slice", element.ID))
+	}
+}
 
-	for i, element := range semantic.Elements {
-		path := indexPath("semantic.elements", i)
-		for j, metadata := range element.Metadata {
-			validateMetadata(metadata, element.ID, indexPath(path+".metadata", j), identities, &diagnostics)
-		}
-		for j, target := range element.Targets {
-			target = strings.TrimSpace(target)
-			if strings.Contains(target, "::") {
-				continue
-			}
-			if _, exists := identities[target]; !exists {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_extension_target", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("engineering extension %q target %q does not exist", element.ID, target),
-					Path:    indexPath(path+".targets", j),
-				})
-			}
-		}
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkOccurrence(path string, element SemanticElement) {
+	occurrenceID := strings.TrimSpace(element.OccurrenceID)
+	if occurrenceID == "" {
+		return
 	}
-	for i, relationship := range semantic.Relationships {
-		path := indexPath("semantic.relationships", i)
-		for j, metadata := range relationship.Metadata {
-			validateMetadata(metadata, relationship.ID, indexPath(path+".metadata", j), identities, &diagnostics)
-		}
-		if relationship.Kind == RelationshipVariant {
-			source, sourceExists := elements[strings.TrimSpace(relationship.Source)]
-			if !sourceExists || !source.Variation {
-				diagnostics = append(diagnostics, SemanticDiagnostic{
-					Code: "semantic.invalid_variant", Severity: SemanticSeverityError,
-					Message: fmt.Sprintf("variant relationship %q source must be a variation", relationship.ID),
-					Path:    path + ".source",
-				})
-			}
-		}
+	if previous, exists := v.occurrences[occurrenceID]; exists {
+		v.fail("semantic.duplicate_occurrence_identity", path+".occurrenceId",
+			fmt.Sprintf("occurrence identity %q is already used at %s", occurrenceID, previous))
+	} else {
+		v.occurrences[occurrenceID] = path + ".occurrenceId"
 	}
+	if !isOccurrenceKind(element.Kind) {
+		v.fail("semantic.invalid_occurrence_identity", path+".occurrenceId",
+			fmt.Sprintf("semantic element %q cannot declare occurrence identity", element.ID))
+	}
+}
 
-	sort.Slice(diagnostics, func(i, j int) bool {
-		if diagnostics[i].Path != diagnostics[j].Path {
-			return diagnostics[i].Path < diagnostics[j].Path
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkExtensionIdentity(path string, element SemanticElement) {
+	if element.Kind != ElementExtension {
+		return
+	}
+	if strings.TrimSpace(element.ExtensionNamespace) == "" || strings.TrimSpace(element.Extension) == "" {
+		v.fail("semantic.invalid_extension_type", path,
+			fmt.Sprintf("engineering extension %q requires namespace and type identity", element.ID))
+	}
+	if len(element.Targets) == 0 && element.Authored {
+		v.fail("semantic.invalid_extension_target", path+".targets",
+			fmt.Sprintf("engineering extension %q requires at least one explicit target", element.ID))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkMultiplicity(multiplicity *Multiplicity, path string) {
+	if multiplicity == nil {
+		return
+	}
+	if multiplicity.Lower != nil && *multiplicity.Lower < 0 {
+		v.fail("semantic.invalid_multiplicity", path+".lower", "multiplicity lower bound must not be negative")
+	}
+	if multiplicity.Upper != nil && *multiplicity.Upper < -1 {
+		v.fail("semantic.invalid_multiplicity", path+".upper", "multiplicity upper bound must be -1 (unbounded) or non-negative")
+	}
+	if multiplicityInverted(multiplicity) {
+		v.fail("semantic.invalid_multiplicity", path, "multiplicity lower bound must not exceed upper bound")
+	}
+}
+
+// multiplicityInverted reports a bounded multiplicity whose lower bound exceeds its upper bound.
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+func multiplicityInverted(multiplicity *Multiplicity) bool {
+	if multiplicity.Lower == nil || multiplicity.Upper == nil {
+		return false
+	}
+	return *multiplicity.Upper >= 0 && *multiplicity.Lower > *multiplicity.Upper
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkFeature(path string, feature SemanticFeature) {
+	if strings.TrimSpace(feature.Name) == "" {
+		v.fail("semantic.invalid_feature", path+".name", "semantic feature name must not be empty")
+	}
+	if !validSemanticFeatureKind(feature.Kind) {
+		v.fail("semantic.invalid_feature", path+".kind",
+			fmt.Sprintf("semantic feature %q has unsupported kind %q", feature.Name, feature.Kind))
+	}
+	if feature.Kind == FeatureParameter && !validParameterDirection(feature.Direction) {
+		v.fail("semantic.invalid_parameter_direction", path+".direction",
+			fmt.Sprintf("parameter %q has unsupported direction %q", feature.Name, feature.Direction))
+	}
+	v.checkFeatureShape(path, feature)
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkFeatureShape(path string, feature SemanticFeature) {
+	if feature.Conjugated && feature.Kind != FeaturePort {
+		v.fail("semantic.invalid_conjugation", path+".conjugated",
+			fmt.Sprintf("semantic feature %q can only be conjugated when it is a port", feature.Name))
+	}
+	v.checkMultiplicity(feature.Multiplicity, path+".multiplicity")
+	if featureValueContradictsMultiplicity(feature) {
+		v.fail("semantic.value_multiplicity_mismatch", path+".value",
+			fmt.Sprintf("semantic feature %q cannot have a value when multiplicity upper bound is zero", feature.Name))
+	}
+}
+
+// featureValueContradictsMultiplicity reports a feature that has a value
+// although its multiplicity upper bound is zero.
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+func featureValueContradictsMultiplicity(feature SemanticFeature) bool {
+	if feature.Value == nil || feature.Multiplicity == nil {
+		return false
+	}
+	return feature.Multiplicity.Upper != nil && *feature.Multiplicity.Upper == 0
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkImports() {
+	for i, imported := range v.semantic.Imports {
+		v.checkImport(indexPath("semantic.imports", i), imported)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkImport(path string, imported SemanticImport) {
+	if strings.TrimSpace(imported.Imported) == "" {
+		v.fail("semantic.invalid_import", path+".imported", "semantic import requires an imported namespace")
+	}
+	if visibility := strings.TrimSpace(imported.Visibility); invalidImportVisibility(visibility) {
+		v.fail("semantic.invalid_import", path+".visibility",
+			fmt.Sprintf("semantic import visibility %q must be private or public", visibility))
+	}
+	if namespace := strings.TrimSpace(imported.Namespace); namespace != "" {
+		v.checkImportNamespace(path+".namespace", namespace)
+	}
+}
+
+// invalidImportVisibility reports a non-empty visibility other than private or public.
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+func invalidImportVisibility(visibility string) bool {
+	return visibility != "" && visibility != "private" && visibility != "public"
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkImportNamespace(path, namespace string) {
+	if element, exists := v.elements[namespace]; !exists || element.Kind != ElementPackageDefinition {
+		v.fail("semantic.invalid_import", path,
+			fmt.Sprintf("semantic import namespace %q must resolve to a package definition", namespace))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkElements() {
+	for i, element := range v.semantic.Elements {
+		v.checkElementReferences(indexPath("semantic.elements", i), element)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkElementReferences(path string, element SemanticElement) {
+	if !v.checkNamespace(path, element) {
+		return
+	}
+	v.checkOwner(path, element)
+	for j, reference := range element.References {
+		if _, exists := v.elements[strings.TrimSpace(reference)]; !exists {
+			v.fail("semantic.dangling_reference", indexPath(path+".references", j),
+				fmt.Sprintf("semantic element %q reference %q does not exist", element.ID, reference))
 		}
-		if diagnostics[i].Code != diagnostics[j].Code {
-			return diagnostics[i].Code < diagnostics[j].Code
+	}
+	for j := range element.Features {
+		v.validateExpression(element.Features[j].Value, indexPath(path+".features", j)+".value")
+	}
+	v.checkPortion(path, element)
+	v.checkVariants(path, element)
+}
+
+// checkNamespace validates the namespace of an element and reports whether
+// the remaining reference checks still apply to it.
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkNamespace(path string, element SemanticElement) bool {
+	namespace := strings.TrimSpace(element.Namespace)
+	if namespace == "" {
+		return true
+	}
+	if namespace == strings.TrimSpace(element.ID) {
+		v.fail("semantic.invalid_ownership", path+".namespace",
+			fmt.Sprintf("semantic element %q cannot be its own namespace", element.ID))
+		return false
+	}
+	if namespaceElement, exists := v.elements[namespace]; !exists || namespaceElement.Kind != ElementPackageDefinition {
+		v.fail("semantic.invalid_ownership", path+".namespace",
+			fmt.Sprintf("semantic element %q namespace %q must resolve to a package definition", element.ID, namespace))
+	}
+	return true
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkOwner(path string, element SemanticElement) {
+	owner := strings.TrimSpace(element.Owner)
+	if owner == "" {
+		return
+	}
+	if owner == strings.TrimSpace(element.ID) {
+		v.fail("semantic.invalid_ownership", path+".owner",
+			fmt.Sprintf("semantic element %q cannot own itself", element.ID))
+		return
+	}
+	if _, exists := v.elements[owner]; !exists && !isQualifiedSemanticReference(owner) {
+		v.fail("semantic.invalid_ownership", path+".owner",
+			fmt.Sprintf("semantic element %q owner %q does not exist", element.ID, owner))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkPortion(path string, element SemanticElement) {
+	portionOf := strings.TrimSpace(element.PortionOf)
+	if portionOf == "" {
+		return
+	}
+	if _, exists := v.elements[portionOf]; !exists {
+		v.fail("semantic.dangling_reference", path+".portionOf",
+			fmt.Sprintf("time portion %q source occurrence %q does not exist", element.ID, portionOf))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkVariants(path string, element SemanticElement) {
+	for j, variant := range element.Variants {
+		target, exists := v.elements[strings.TrimSpace(variant)]
+		if !exists {
+			v.fail("semantic.invalid_variant", indexPath(path+".variants", j),
+				fmt.Sprintf("variation %q variant %q does not exist", element.ID, variant))
+		} else if target.ID == element.ID {
+			v.fail("semantic.invalid_variant", indexPath(path+".variants", j),
+				fmt.Sprintf("variation %q cannot contain itself as a variant", element.ID))
 		}
-		return diagnostics[i].Message < diagnostics[j].Message
-	})
-	return diagnostics
+	}
+	if len(element.Variants) > 0 && !element.Variation {
+		v.fail("semantic.invalid_variant", path+".variants",
+			fmt.Sprintf("semantic element %q declares variants without being a variation", element.ID))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkRelationships() {
+	for i, relationship := range v.semantic.Relationships {
+		v.checkRelationship(indexPath("semantic.relationships", i), relationship)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkRelationship(path string, relationship SemanticRelationship) {
+	v.checkRelationshipOwner(path, relationship)
+	v.validateExpression(relationship.Guard, path+".guard")
+	v.validateExpression(relationship.Effect, path+".effect")
+	if semanticRelationshipAllowsExternalEndpoints(relationship) {
+		return
+	}
+	v.checkEndpoints(path, relationship)
+	v.checkTriggers(path, relationship)
+	v.checkItemRef(path, relationship)
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkRelationshipOwner(path string, relationship SemanticRelationship) {
+	owner := strings.TrimSpace(relationship.Owner)
+	if owner == "" {
+		return
+	}
+	if _, exists := v.elements[owner]; !exists && !isQualifiedSemanticReference(owner) {
+		v.fail("semantic.invalid_ownership", path+".owner",
+			fmt.Sprintf("semantic relationship %q owner %q does not exist", relationship.ID, owner))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkTriggers(path string, relationship SemanticRelationship) {
+	for j, trigger := range relationship.Triggers {
+		if trigger = strings.TrimSpace(trigger); v.unresolved(trigger) {
+			v.fail("semantic.dangling_relationship", indexPath(path+".triggers", j),
+				fmt.Sprintf("semantic transition %q trigger %q does not exist", relationship.ID, trigger))
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkItemRef(path string, relationship SemanticRelationship) {
+	itemRef := strings.TrimSpace(relationship.ItemRef)
+	if itemRef != "" && v.unresolved(itemRef) {
+		v.fail("semantic.dangling_relationship", path+".itemRef",
+			fmt.Sprintf("semantic transfer %q item %q does not exist", relationship.ID, itemRef))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkEndpoints(path string, relationship SemanticRelationship) {
+	ends := []struct{ endpoint, id string }{{"source", relationship.Source}, {"target", relationship.Target}}
+	for _, end := range ends {
+		if id := strings.TrimSpace(end.id); v.unresolved(id) {
+			v.fail("semantic.dangling_relationship", path+"."+end.endpoint,
+				fmt.Sprintf("semantic relationship %q %s %q does not exist", relationship.ID, end.endpoint, id))
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkMetadata() {
+	for i, element := range v.semantic.Elements {
+		v.checkElementMetadata(indexPath("semantic.elements", i), element)
+	}
+	for i, relationship := range v.semantic.Relationships {
+		v.checkRelationshipMetadata(indexPath("semantic.relationships", i), relationship)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkElementMetadata(path string, element SemanticElement) {
+	for j, metadata := range element.Metadata {
+		v.validateMetadata(metadata, element.ID, indexPath(path+".metadata", j))
+	}
+	for j, target := range element.Targets {
+		target = strings.TrimSpace(target)
+		if _, exists := v.identities[target]; !exists && !strings.Contains(target, "::") {
+			v.fail("semantic.invalid_extension_target", indexPath(path+".targets", j),
+				fmt.Sprintf("engineering extension %q target %q does not exist", element.ID, target))
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036, REQ-EMG-037
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL, FU-VALIDATION-ENGINE
+func (v *semanticValidator) checkRelationshipMetadata(path string, relationship SemanticRelationship) {
+	for j, metadata := range relationship.Metadata {
+		v.validateMetadata(metadata, relationship.ID, indexPath(path+".metadata", j))
+	}
+	if relationship.Kind != RelationshipVariant {
+		return
+	}
+	if source, exists := v.elements[strings.TrimSpace(relationship.Source)]; !exists || !source.Variation {
+		v.fail("semantic.invalid_variant", path+".source",
+			fmt.Sprintf("variant relationship %q source must be a variation", relationship.ID))
+	}
 }
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func validateMetadata(metadata SemanticMetadata, defaultTarget, path string, identities map[string]string, diagnostics *[]SemanticDiagnostic) {
+func (v *semanticValidator) validateMetadata(metadata SemanticMetadata, defaultTarget, path string) {
 	if strings.TrimSpace(metadata.Namespace) == "" || strings.TrimSpace(metadata.Type) == "" {
-		*diagnostics = append(*diagnostics, SemanticDiagnostic{
-			Code: "semantic.invalid_metadata_type", Severity: SemanticSeverityError,
-			Message: "typed metadata requires namespace and type identity", Path: path,
-		})
+		v.fail("semantic.invalid_metadata_type", path, "typed metadata requires namespace and type identity")
 	}
 	target := strings.TrimSpace(metadata.Target)
 	if target == "" {
 		target = strings.TrimSpace(defaultTarget)
 	}
-	if _, exists := identities[target]; !exists {
-		*diagnostics = append(*diagnostics, SemanticDiagnostic{
-			Code: "semantic.invalid_metadata_target", Severity: SemanticSeverityError,
-			Message: fmt.Sprintf("metadata target %q does not exist", target), Path: path + ".target",
-		})
+	if _, exists := v.identities[target]; !exists {
+		v.fail("semantic.invalid_metadata_target", path+".target", fmt.Sprintf("metadata target %q does not exist", target))
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func validateExpression(expression *SemanticExpression, path string, identities map[string]string, diagnostics *[]SemanticDiagnostic) {
+func (v *semanticValidator) validateExpression(expression *SemanticExpression, path string) {
 	if expression == nil {
 		return
 	}
-	hasOperator := strings.TrimSpace(expression.Operator) != ""
-	hasScalar := strings.TrimSpace(expression.Value) != "" || expression.TypedValue != nil
-	if hasOperator && len(expression.Operands) == 0 {
-		*diagnostics = append(*diagnostics, SemanticDiagnostic{
-			Code: "semantic.invalid_expression", Severity: SemanticSeverityError,
-			Message: "operator expressions require operands", Path: path,
-		})
-	}
-	if len(expression.Operands) > 0 && !hasOperator {
-		*diagnostics = append(*diagnostics, SemanticDiagnostic{
-			Code: "semantic.invalid_expression", Severity: SemanticSeverityError,
-			Message: "expression operands require an operator", Path: path,
-		})
-	}
-	if hasOperator && hasScalar {
-		*diagnostics = append(*diagnostics, SemanticDiagnostic{
-			Code: "semantic.invalid_expression", Severity: SemanticSeverityError,
-			Message: "operator expressions cannot also declare a scalar value", Path: path,
-		})
-	}
+	v.checkExpressionShape(expression, path)
 	if expression.TypedValue != nil {
-		validateSemanticValue(*expression.TypedValue, path+".typedValue", identities, diagnostics)
+		v.validateSemanticValue(*expression.TypedValue, path+".typedValue")
 	}
 	for i := range expression.Operands {
-		validateExpression(&expression.Operands[i], indexPath(path+".operands", i), identities, diagnostics)
+		v.validateExpression(&expression.Operands[i], indexPath(path+".operands", i))
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func validateSemanticValue(value SemanticValue, path string, identities map[string]string, diagnostics *[]SemanticDiagnostic) {
-	count := 0
-	if value.String != "" {
-		count++
+func (v *semanticValidator) checkExpressionShape(expression *SemanticExpression, path string) {
+	hasOperator := strings.TrimSpace(expression.Operator) != ""
+	if hasOperator && len(expression.Operands) == 0 {
+		v.fail("semantic.invalid_expression", path, "operator expressions require operands")
 	}
-	if value.Integer != nil {
-		count++
+	if len(expression.Operands) > 0 && !hasOperator {
+		v.fail("semantic.invalid_expression", path, "expression operands require an operator")
 	}
-	if value.Real != nil {
-		count++
+	if hasOperator && expressionHasScalar(expression) {
+		v.fail("semantic.invalid_expression", path, "operator expressions cannot also declare a scalar value")
 	}
-	if value.Boolean != nil {
-		count++
-	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func expressionHasScalar(expression *SemanticExpression) bool {
+	return strings.TrimSpace(expression.Value) != "" || expression.TypedValue != nil
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func (v *semanticValidator) validateSemanticValue(value SemanticValue, path string) {
 	if value.Reference != "" {
-		count++
-		if _, exists := identities[strings.TrimSpace(value.Reference)]; !exists && !strings.Contains(value.Reference, "::") {
-			*diagnostics = append(*diagnostics, SemanticDiagnostic{
-				Code: "semantic.dangling_reference", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("typed value reference %q does not exist", value.Reference), Path: path + ".reference",
-			})
-		}
+		v.checkValueReference(value.Reference, path+".reference")
 	}
 	if value.Quantity != nil {
-		count++
-		if strings.TrimSpace(value.Quantity.Unit) == "" {
-			*diagnostics = append(*diagnostics, SemanticDiagnostic{
-				Code: "semantic.invalid_quantity", Severity: SemanticSeverityError,
-				Message: "quantity values require a unit reference", Path: path + ".quantity.unit",
-			})
-		} else if _, exists := identities[strings.TrimSpace(value.Quantity.Unit)]; !exists && !strings.Contains(value.Quantity.Unit, "::") {
-			*diagnostics = append(*diagnostics, SemanticDiagnostic{
-				Code: "semantic.dangling_reference", Severity: SemanticSeverityError,
-				Message: fmt.Sprintf("quantity unit %q does not exist", value.Quantity.Unit), Path: path + ".quantity.unit",
-			})
+		v.checkQuantityUnit(value.Quantity.Unit, path+".quantity.unit")
+	}
+	if strings.TrimSpace(value.Kind) == "" || semanticValueRepresentations(value) != 1 {
+		v.fail("semantic.invalid_value", path, "typed values require a kind and exactly one value representation")
+	}
+}
+
+// semanticValueRepresentations counts the value representations a typed value declares.
+//
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func semanticValueRepresentations(value SemanticValue) int {
+	declared := []bool{
+		value.String != "", value.Integer != nil, value.Real != nil,
+		value.Boolean != nil, value.Reference != "", value.Quantity != nil,
+	}
+	count := 0
+	for _, present := range declared {
+		if present {
+			count++
 		}
 	}
-	if strings.TrimSpace(value.Kind) == "" || count != 1 {
-		*diagnostics = append(*diagnostics, SemanticDiagnostic{
-			Code: "semantic.invalid_value", Severity: SemanticSeverityError,
-			Message: "typed values require a kind and exactly one value representation", Path: path,
-		})
+	return count
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func (v *semanticValidator) checkValueReference(reference, path string) {
+	if _, exists := v.identities[strings.TrimSpace(reference)]; !exists && !strings.Contains(reference, "::") {
+		v.fail("semantic.dangling_reference", path, fmt.Sprintf("typed value reference %q does not exist", reference))
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func (v *semanticValidator) checkQuantityUnit(unit, path string) {
+	if strings.TrimSpace(unit) == "" {
+		v.fail("semantic.invalid_quantity", path, "quantity values require a unit reference")
+		return
+	}
+	if _, exists := v.identities[strings.TrimSpace(unit)]; !exists && !strings.Contains(unit, "::") {
+		v.fail("semantic.dangling_reference", path, fmt.Sprintf("quantity unit %q does not exist", unit))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func isConjugableKind(kind SemanticElementKind) bool {
+	return kind == ElementPortUsage || kind == ElementInterfaceUsage
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+func isTimePortionKind(kind SemanticElementKind) bool {
+	return kind == ElementSnapshot || kind == ElementTimeSlice
 }
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
@@ -1437,26 +1942,43 @@ func typedMetamodelValue(value any) MetamodelValue {
 	case bool:
 		return MetamodelValue{Kind: "boolean", Boolean: &value}
 	case float64:
-		if value == float64(int64(value)) {
-			integer := int64(value)
-			return MetamodelValue{Kind: "integer", Integer: &integer}
-		}
-		return MetamodelValue{Kind: "real", Real: &value}
+		return typedNumber(value)
 	case []any:
-		items := make([]MetamodelValue, len(value))
-		for i := range value {
-			items[i] = typedMetamodelValue(value[i])
-		}
-		return MetamodelValue{Kind: "list", List: items}
+		return typedList(value)
 	case map[string]any:
-		object := make(map[string]MetamodelValue, len(value))
-		for key, item := range value {
-			object[key] = typedMetamodelValue(item)
-		}
-		return MetamodelValue{Kind: "object", Object: object}
+		return typedMap(value)
 	default:
 		return MetamodelValue{Kind: "string", String: fmt.Sprint(value)}
 	}
+}
+
+// typedNumber types a decoded JSON number as an integer when it has no fraction.
+//
+// TRLC-LINKS: REQ-EMG-040
+func typedNumber(value float64) MetamodelValue {
+	if value == float64(int64(value)) {
+		integer := int64(value)
+		return MetamodelValue{Kind: "integer", Integer: &integer}
+	}
+	return MetamodelValue{Kind: "real", Real: &value}
+}
+
+// TRLC-LINKS: REQ-EMG-040
+func typedList(value []any) MetamodelValue {
+	items := make([]MetamodelValue, len(value))
+	for i := range value {
+		items[i] = typedMetamodelValue(value[i])
+	}
+	return MetamodelValue{Kind: "list", List: items}
+}
+
+// TRLC-LINKS: REQ-EMG-040
+func typedMap(value map[string]any) MetamodelValue {
+	object := make(map[string]MetamodelValue, len(value))
+	for key, item := range value {
+		object[key] = typedMetamodelValue(item)
+	}
+	return MetamodelValue{Kind: "object", Object: object}
 }
 
 // TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
@@ -1503,52 +2025,82 @@ func derivedSemanticID(prefix string, parts ...string) string {
 
 // TRLC-LINKS: REQ-EMG-035
 func semanticReferences(source any, ownID string) []string {
-	seen := map[string]bool{}
-	var visit func(reflect.Value)
-	visit = func(value reflect.Value) {
-		if !value.IsValid() {
-			return
-		}
-		if value.Kind() == reflect.Pointer {
-			if value.IsNil() {
-				return
-			}
-			visit(value.Elem())
-			return
-		}
-		switch value.Kind() {
-		case reflect.Struct:
-			for i := 0; i < value.NumField(); i++ {
-				visit(value.Field(i))
-			}
-		case reflect.Slice, reflect.Array:
-			for i := 0; i < value.Len(); i++ {
-				visit(value.Index(i))
-			}
-		case reflect.Map:
-			iter := value.MapRange()
-			for iter.Next() {
-				visit(iter.Value())
-			}
-		case reflect.String:
-			ref := strings.TrimSpace(value.String())
-			if ref != ownID && semanticIDPattern.MatchString(ref) {
-				seen[ref] = true
-			}
-		}
-	}
-	visit(reflect.ValueOf(source))
-	refs := make([]string, 0, len(seen))
-	for ref := range seen {
+	collector := referenceCollector{seen: map[string]bool{}, ownID: ownID}
+	collector.visit(reflect.ValueOf(source))
+	refs := make([]string, 0, len(collector.seen))
+	for ref := range collector.seen {
 		refs = append(refs, ref)
 	}
 	sort.Strings(refs)
 	return refs
 }
 
+// referenceCollector gathers the string values reachable from a value that
+// look like model IDs other than its own.
+type referenceCollector struct {
+	seen  map[string]bool
+	ownID string
+}
+
 // TRLC-LINKS: REQ-EMG-035
-func semanticRelationshipID(kind, source, target, owner string) string {
-	sum := sha256.Sum256([]byte(kind + "\x00" + source + "\x00" + target + "\x00" + owner))
+func (c *referenceCollector) visit(value reflect.Value) {
+	if !value.IsValid() {
+		return
+	}
+	switch value.Kind() {
+	case reflect.Pointer:
+		c.visitPointer(value)
+	case reflect.Struct:
+		c.visitStruct(value)
+	case reflect.Slice, reflect.Array:
+		c.visitList(value)
+	case reflect.Map:
+		c.visitMap(value)
+	case reflect.String:
+		c.addString(value.String())
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+func (c *referenceCollector) visitPointer(value reflect.Value) {
+	if !value.IsNil() {
+		c.visit(value.Elem())
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+func (c *referenceCollector) visitStruct(value reflect.Value) {
+	for i := 0; i < value.NumField(); i++ {
+		c.visit(value.Field(i))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+func (c *referenceCollector) visitList(value reflect.Value) {
+	for i := 0; i < value.Len(); i++ {
+		c.visit(value.Index(i))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+func (c *referenceCollector) visitMap(value reflect.Value) {
+	iter := value.MapRange()
+	for iter.Next() {
+		c.visit(iter.Value())
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+func (c *referenceCollector) addString(text string) {
+	ref := strings.TrimSpace(text)
+	if ref != c.ownID && semanticIDPattern.MatchString(ref) {
+		c.seen[ref] = true
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+func semanticRelationshipID(spec relationshipSpec) string {
+	sum := sha256.Sum256([]byte(spec.sourceType + "\x00" + spec.source + "\x00" + spec.target + "\x00" + spec.owner))
 	return "REL-" + strings.ToUpper(hex.EncodeToString(sum[:8]))
 }
 
@@ -1557,28 +2109,33 @@ func semanticRelationshipAliasKey(kind SemanticRelationshipKind, source, target 
 	return string(kind) + "\x00" + strings.TrimSpace(source) + "\x00" + strings.TrimSpace(target)
 }
 
+// semanticMappingKinds maps the engineering mapping types to the canonical
+// relationship kind they project to.
+var semanticMappingKinds = map[string]SemanticRelationshipKind{
+	"contains":       RelationshipContainment,
+	"calls":          RelationshipTransfer,
+	"publishes":      RelationshipTransfer,
+	"subscribes":     RelationshipTransfer,
+	"reads":          RelationshipTransfer,
+	"writes":         RelationshipTransfer,
+	"streams":        RelationshipTransfer,
+	"allocated_to":   RelationshipAllocation,
+	"deployed_to":    RelationshipAllocation,
+	"satisfies":      RelationshipSatisfaction,
+	"verified_by":    RelationshipVerification,
+	"depends_on":     RelationshipDependency,
+	"interacts_with": RelationshipDependency,
+	"targets":        RelationshipDependency,
+	"implements":     RelationshipDependency,
+	"guarded_by":     RelationshipGuard,
+	"mitigated_by":   RelationshipExtension,
+	"bounded_by":     RelationshipExtension,
+}
+
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-139
 func semanticMappingKind(kind string) (SemanticRelationshipKind, bool) {
-	switch strings.TrimSpace(kind) {
-	case "contains":
-		return RelationshipContainment, true
-	case "calls", "publishes", "subscribes", "reads", "writes", "streams":
-		return RelationshipTransfer, true
-	case "allocated_to", "deployed_to":
-		return RelationshipAllocation, true
-	case "satisfies":
-		return RelationshipSatisfaction, true
-	case "verified_by":
-		return RelationshipVerification, true
-	case "depends_on", "interacts_with", "targets", "implements":
-		return RelationshipDependency, true
-	case "guarded_by":
-		return RelationshipGuard, true
-	case "mitigated_by", "bounded_by":
-		return RelationshipExtension, true
-	default:
-		return "", false
-	}
+	relationship, ok := semanticMappingKinds[strings.TrimSpace(kind)]
+	return relationship, ok
 }
 
 // TRLC-LINKS: REQ-EMG-035
@@ -1596,16 +2153,31 @@ func attributeFeature(name, value string) SemanticFeature {
 }
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-func referenceFeature(name string, kind SemanticFeatureKind, direction, ref string) SemanticFeature {
+func referenceFeature(shape featureShape, ref string) SemanticFeature {
 	ref = strings.TrimSpace(ref)
 	if ref == "" {
 		return SemanticFeature{}
 	}
 	return SemanticFeature{
-		Name: name + "_" + strings.NewReplacer("-", "_", "/", "_").Replace(ref),
-		Kind: kind, Type: ref, Direction: direction, References: []string{ref},
+		Name: shape.name + "_" + strings.NewReplacer("-", "_", "/", "_").Replace(ref),
+		Kind: shape.kind, Type: ref, Direction: shape.direction, References: []string{ref},
 	}
 }
+
+// featureShape names the kind and direction of a reference feature.
+type featureShape struct {
+	name      string
+	kind      SemanticFeatureKind
+	direction string
+}
+
+var (
+	flowItemFeature     = featureShape{name: "item", kind: FeatureParameter, direction: "inout"}
+	flowInputFeature    = featureShape{name: "input", kind: FeatureParameter, direction: "in"}
+	flowOutputFeature   = featureShape{name: "output", kind: FeatureParameter, direction: "out"}
+	providedPortFeature = featureShape{name: "provided", kind: FeaturePort, direction: "out"}
+	requiredPortFeature = featureShape{name: "required", kind: FeaturePort, direction: "in"}
+)
 
 // TRLC-LINKS: REQ-EMG-035
 func compactFeatures(features []SemanticFeature) []SemanticFeature {

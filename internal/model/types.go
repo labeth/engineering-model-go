@@ -978,8 +978,19 @@ type NAFProfile struct {
 // Enabled reports whether a NAF profile was authored.
 // TRLC-LINKS: REQ-EMG-041
 func (p NAFProfile) Enabled() bool {
-	return p.Framework != "" || p.Version != "" || p.ArchitectureDescription != "" ||
-		len(p.Stakeholders) > 0 || len(p.Concerns) > 0 || len(p.Products) > 0
+	return p.hasIdentity() || p.hasContent()
+}
+
+// hasIdentity reports an authored framework, version or description.
+// TRLC-LINKS: REQ-EMG-041
+func (p NAFProfile) hasIdentity() bool {
+	return p.Framework != "" || p.Version != "" || p.ArchitectureDescription != ""
+}
+
+// hasContent reports authored stakeholders, concerns or products.
+// TRLC-LINKS: REQ-EMG-041
+func (p NAFProfile) hasContent() bool {
+	return len(p.Stakeholders) > 0 || len(p.Concerns) > 0 || len(p.Products) > 0
 }
 
 // NAFStakeholder binds a NAF stakeholder role to an existing canonical actor.

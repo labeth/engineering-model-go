@@ -94,26 +94,42 @@ func StripLegacyStateVocabulary(source []byte) ([]byte, error) {
 		return source, nil
 	}
 	removeMappingKey(behavior, "states")
-	if relationships := mappingValue(behavior, "relationships"); relationships != nil && relationships.Kind == yaml.SequenceNode {
-		kept := relationships.Content[:0]
-		for _, item := range relationships.Content {
-			if typeNode := mappingValue(item, "type"); typeNode != nil && legacyStateMappingTypes[typeNode.Value] {
-				continue
-			}
-			kept = append(kept, item)
-		}
-		relationships.Content = kept
-	}
+	dropLegacyRelationships(mappingValue(behavior, "relationships"))
+	return encodeYAMLNode(&root)
+}
+
+// encodeYAMLNode renders a YAML document node with two-space indent.
+//
+// TRLC-LINKS: REQ-EMG-139
+func encodeYAMLNode(root *yaml.Node) ([]byte, error) {
 	var out bytes.Buffer
 	encoder := yaml.NewEncoder(&out)
 	encoder.SetIndent(2)
-	if err := encoder.Encode(&root); err != nil {
+	if err := encoder.Encode(root); err != nil {
 		return nil, err
 	}
 	if err := encoder.Close(); err != nil {
 		return nil, err
 	}
 	return out.Bytes(), nil
+}
+
+// dropLegacyRelationships removes the relationships of a retired state mapping
+// type from a relationships sequence node; any other node is left alone.
+//
+// TRLC-LINKS: REQ-EMG-139
+func dropLegacyRelationships(relationships *yaml.Node) {
+	if relationships == nil || relationships.Kind != yaml.SequenceNode {
+		return
+	}
+	kept := relationships.Content[:0]
+	for _, item := range relationships.Content {
+		if typeNode := mappingValue(item, "type"); typeNode != nil && legacyStateMappingTypes[typeNode.Value] {
+			continue
+		}
+		kept = append(kept, item)
+	}
+	relationships.Content = kept
 }
 
 // mappingValue returns the value node of key in a mapping node, or nil.

@@ -152,14 +152,24 @@ behavior:
 		t.Fatalf("legacy vocabulary survived:\n%s", out)
 	}
 	text := string(out)
-	for _, want := range []string{"EVT-X", "guarded_by", "CTRL-Y"} {
-		if !strings.Contains(text, want) {
-			t.Errorf("stripped document lost %q:\n%s", want, text)
-		}
-	}
-	for _, gone := range []string{"name: A", "transitions_to", "triggered_by"} {
-		if strings.Contains(text, gone) {
-			t.Errorf("stripped document still has %q:\n%s", gone, text)
+	requireFragments(t, text, fragmentExpectation{[]string{"EVT-X", "guarded_by", "CTRL-Y"}, true})
+	requireFragments(t, text, fragmentExpectation{[]string{"name: A", "transitions_to", "triggered_by"}, false})
+}
+
+// fragmentExpectation lists fragments that must all be present in a text, or
+// all absent.
+type fragmentExpectation struct {
+	fragments []string
+	present   bool
+}
+
+// requireFragments reports every fragment whose presence in text differs from
+// the expectation.
+func requireFragments(t *testing.T, text string, want fragmentExpectation) {
+	t.Helper()
+	for _, fragment := range want.fragments {
+		if strings.Contains(text, fragment) != want.present {
+			t.Errorf("stripped document has present=%v for %q:\n%s", !want.present, fragment, text)
 		}
 	}
 }

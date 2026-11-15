@@ -6,33 +6,56 @@ import (
 	"testing"
 )
 
-// TRLC-LINKS: REQ-EMG-035
-// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
-func TestProjectSemanticModelStableUniqueElements(t *testing.T) {
+// loadSelfSemanticModel projects the repository's own engineering model.
+func loadSelfSemanticModel(t *testing.T) (SemanticModel, []SemanticDiagnostic) {
+	t.Helper()
 	bundle, err := LoadBundle(filepath.Join("..", "..", "engmod.yml"))
 	if err != nil {
 		t.Fatalf("load bundle: %v", err)
 	}
+	return ProjectSemanticModel(bundle)
+}
 
-	semantic, diagnostics := ProjectSemanticModel(bundle)
+// failOnSemanticError fails the test on the first error diagnostic.
+func failOnSemanticError(t *testing.T, diagnostics []SemanticDiagnostic, label string) {
+	t.Helper()
 	for _, diagnostic := range diagnostics {
 		if diagnostic.Severity == SemanticSeverityError {
-			t.Fatalf("unexpected projection error: %+v", diagnostic)
+			t.Fatalf("%s: %+v", label, diagnostic)
 		}
 	}
+}
 
+// findSemanticElement returns the element with the given ID, or nil.
+func findSemanticElement(elements []SemanticElement, id string) *SemanticElement {
+	for i := range elements {
+		if elements[i].ID == id {
+			return &elements[i]
+		}
+	}
+	return nil
+}
+
+// assertUniqueElementIDs fails the test when two elements share an ID.
+func assertUniqueElementIDs(t *testing.T, elements []SemanticElement) {
+	t.Helper()
 	seen := map[string]bool{}
-	var unit *SemanticElement
-	for i := range semantic.Elements {
-		element := &semantic.Elements[i]
+	for _, element := range elements {
 		if seen[element.ID] {
 			t.Fatalf("duplicate semantic element %q", element.ID)
 		}
 		seen[element.ID] = true
-		if element.ID == "FU-SYSML-EXPORTER" {
-			unit = element
-		}
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-035
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
+func TestProjectSemanticModelStableUniqueElements(t *testing.T) {
+	semantic, diagnostics := loadSelfSemanticModel(t)
+	failOnSemanticError(t, diagnostics, "unexpected projection error")
+
+	assertUniqueElementIDs(t, semantic.Elements)
+	unit := findSemanticElement(semantic.Elements, "FU-SYSML-EXPORTER")
 	if unit == nil {
 		t.Fatal("missing stable ID FU-SYSML-EXPORTER")
 	}
@@ -121,10 +144,8 @@ func TestValidateSemanticModelIdentityRelationshipsAndOwnership(t *testing.T) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
-func TestProjectSemanticModelSeparatesTransfersSuccessionsAndTransitions(t *testing.T) {
-	bundle := Bundle{Architecture: ArchitectureDocument{
+func transferSuccessionFixtureBundle() Bundle {
+	return Bundle{Architecture: ArchitectureDocument{
 		Model: ModelMeta{ID: "MODEL-A"},
 		AuthoredArchitecture: AuthoredArchitecture{
 			FunctionalGroups: []FunctionalGroup{{ID: "FG-A"}},
@@ -150,44 +171,42 @@ func TestProjectSemanticModelSeparatesTransfersSuccessionsAndTransitions(t *test
 			},
 		},
 	}}
+}
 
-	semantic, diagnostics := ProjectSemanticModel(bundle)
-	if !hasRelationshipKind(semantic.Relationships, RelationshipTransfer) {
-		t.Fatalf("flow endpoints were not projected as a transfer: %+v", semantic.Relationships)
-	}
-	if !hasRelationshipKind(semantic.Relationships, RelationshipSuccession) {
-		t.Fatalf("flow step ordering was not projected as succession: %+v", semantic.Relationships)
-	}
-	if !hasRelationshipKind(semantic.Relationships, RelationshipTransition) || !hasRelationshipKind(semantic.Relationships, RelationshipGuard) {
-		t.Fatalf("machine transitions and guarded_by mappings were not projected: %+v", semantic.Relationships)
-	}
-	if hasRelationshipKind(semantic.Relationships, SemanticRelationshipKind("flow")) {
-		t.Fatalf("ambiguous flow relationship remains: %+v", semantic.Relationships)
-	}
-	containmentCount := 0
-	for _, relationship := range semantic.Relationships {
-		if relationship.Kind == RelationshipContainment && relationship.Source == "FG-A" && relationship.Target == "FU-A" {
-			containmentCount++
+// countRelationships counts the relationships with the kind, source and target of want.
+func countRelationships(relationships []SemanticRelationship, want SemanticRelationship) int {
+	count := 0
+	for _, relationship := range relationships {
+		if relationship.Kind == want.Kind && relationship.Source == want.Source && relationship.Target == want.Target {
+			count++
 		}
 	}
-	if containmentCount != 1 {
-		t.Fatalf("legacy ownership aliases produced %d canonical containment relationships", containmentCount)
+	return count
+}
+
+func assertSeparatedRelationshipKinds(t *testing.T, relationships []SemanticRelationship) {
+	t.Helper()
+	if !hasRelationshipKind(relationships, RelationshipTransfer) {
+		t.Fatalf("flow endpoints were not projected as a transfer: %+v", relationships)
 	}
-	if hasSemanticDiagnostic(diagnostics, "semantic.legacy_lifecycle_attachment") || hasSemanticDiagnostic(diagnostics, "semantic.unsupported_relationship") {
-		t.Fatalf("guarded_by from a machine state must project without legacy diagnostics, got %+v", diagnostics)
+	if !hasRelationshipKind(relationships, RelationshipSuccession) {
+		t.Fatalf("flow step ordering was not projected as succession: %+v", relationships)
 	}
-	var flow, step *SemanticElement
-	for i := range semantic.Elements {
-		switch semantic.Elements[i].ID {
-		case "FLOW-A":
-			flow = &semantic.Elements[i]
-		case "STEP-A":
-			step = &semantic.Elements[i]
-		}
+	if !hasRelationshipKind(relationships, RelationshipTransition) || !hasRelationshipKind(relationships, RelationshipGuard) {
+		t.Fatalf("machine transitions and guarded_by mappings were not projected: %+v", relationships)
 	}
+	if hasRelationshipKind(relationships, SemanticRelationshipKind("flow")) {
+		t.Fatalf("ambiguous flow relationship remains: %+v", relationships)
+	}
+}
+
+func assertFlowParameterFeatures(t *testing.T, elements []SemanticElement) {
+	t.Helper()
+	flow := findSemanticElement(elements, "FLOW-A")
 	if flow == nil || len(flow.Features) != 1 || flow.Features[0].Kind != FeatureParameter {
 		t.Fatalf("flow parameters not projected: %+v", flow)
 	}
+	step := findSemanticElement(elements, "STEP-A")
 	if step == nil || len(step.Features) != 1 || step.Features[0].Direction != "out" {
 		t.Fatalf("step output parameter not projected: %+v", step)
 	}
@@ -195,8 +214,20 @@ func TestProjectSemanticModelSeparatesTransfersSuccessionsAndTransitions(t *test
 
 // TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
-func TestProjectSemanticModelPreservesCanonicalStructuralAndBehavioralContent(t *testing.T) {
-	bundle := Bundle{Architecture: ArchitectureDocument{
+func TestProjectSemanticModelSeparatesTransfersSuccessionsAndTransitions(t *testing.T) {
+	semantic, diagnostics := ProjectSemanticModel(transferSuccessionFixtureBundle())
+	assertSeparatedRelationshipKinds(t, semantic.Relationships)
+	if containmentCount := countRelationships(semantic.Relationships, SemanticRelationship{Kind: RelationshipContainment, Source: "FG-A", Target: "FU-A"}); containmentCount != 1 {
+		t.Fatalf("legacy ownership aliases produced %d canonical containment relationships", containmentCount)
+	}
+	if hasSemanticDiagnostic(diagnostics, "semantic.legacy_lifecycle_attachment") || hasSemanticDiagnostic(diagnostics, "semantic.unsupported_relationship") {
+		t.Fatalf("guarded_by from a machine state must project without legacy diagnostics, got %+v", diagnostics)
+	}
+	assertFlowParameterFeatures(t, semantic.Elements)
+}
+
+func canonicalContentFixtureBundle() Bundle {
+	return Bundle{Architecture: ArchitectureDocument{
 		Model: ModelMeta{ID: "MODEL-A"},
 		Semantics: SemanticContent{
 			Imports: []SemanticImport{{Namespace: "MODEL-A", Imported: "Domain", Visibility: "public"}},
@@ -219,22 +250,32 @@ func TestProjectSemanticModelPreservesCanonicalStructuralAndBehavioralContent(t 
 			},
 		},
 	}}
+}
 
-	semantic, diagnostics := ProjectSemanticModel(bundle)
+// partKeepsStructure reports whether part preserved the namespace, type and
+// specialization lists the canonical content declared.
+func partKeepsStructure(part *SemanticElement) bool {
+	if part == nil {
+		return false
+	}
+	if part.Namespace != "PKG-A" || part.TypeRef != "PART-DEF" {
+		return false
+	}
+	return len(part.Specializes) == 1 && len(part.Subsets) == 1 && len(part.Redefines) == 1
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
+func TestProjectSemanticModelPreservesCanonicalStructuralAndBehavioralContent(t *testing.T) {
+	semantic, diagnostics := ProjectSemanticModel(canonicalContentFixtureBundle())
 	if len(diagnostics) != 0 {
 		t.Fatalf("unexpected canonical projection diagnostics: %+v", diagnostics)
 	}
 	if len(semantic.Imports) != 1 || !hasRelationshipKind(semantic.Relationships, RelationshipBinding) || !hasRelationshipKind(semantic.Relationships, RelationshipTransition) {
 		t.Fatalf("canonical semantic content was not preserved: %+v", semantic)
 	}
-	var part *SemanticElement
-	for i := range semantic.Elements {
-		if semantic.Elements[i].ID == "PART-A" {
-			part = &semantic.Elements[i]
-			break
-		}
-	}
-	if part == nil || part.Namespace != "PKG-A" || part.TypeRef != "PART-DEF" || len(part.Specializes) != 1 || len(part.Subsets) != 1 || len(part.Redefines) != 1 {
+	part := findSemanticElement(semantic.Elements, "PART-A")
+	if !partKeepsStructure(part) {
 		t.Fatalf("structural semantics were not preserved: %+v", part)
 	}
 }
@@ -264,21 +305,18 @@ func TestValidateSemanticModelStructuralAndBehavioralInvariants(t *testing.T) {
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
-func TestProjectSemanticModelMapsRequirementsCasesViewsAndExtensions(t *testing.T) {
-	bundle, err := LoadBundle(filepath.Join("..", "..", "engmod.yml"))
-	if err != nil {
-		t.Fatalf("load bundle: %v", err)
-	}
-	semantic, diagnostics := ProjectSemanticModel(bundle)
-	diagnostics = append(diagnostics, ValidateSemanticModel(semantic)...)
-	for _, diagnostic := range diagnostics {
-		if diagnostic.Severity == SemanticSeverityError {
-			t.Fatalf("unexpected semantic error: %+v", diagnostic)
+// anySemanticElement reports whether match holds for any element.
+func anySemanticElement(elements []SemanticElement, match func(SemanticElement) bool) bool {
+	for _, element := range elements {
+		if match(element) {
+			return true
 		}
 	}
+	return false
+}
 
+func assertMappedElementKinds(t *testing.T, elements []SemanticElement) {
+	t.Helper()
 	expectKinds := map[string]SemanticElementKind{
 		"REQ-EMG-035":              ElementRequirementDefinition,
 		"ACT-ARCHITECTURE-AUTHOR":  ElementStakeholderDefinition,
@@ -288,20 +326,27 @@ func TestProjectSemanticModelMapsRequirementsCasesViewsAndExtensions(t *testing.
 		"ADR-EMG-011":              ElementExtension,
 	}
 	seen := map[string]SemanticElement{}
-	hasConcern := false
-	hasEvidence := false
-	hasOwnershipPolicy := false
-	for _, element := range semantic.Elements {
+	for _, element := range elements {
 		seen[element.ID] = element
-		hasConcern = hasConcern || element.Kind == ElementConcernUsage
-		hasEvidence = hasEvidence || element.Extension == "engineering.verification_evidence"
-		hasOwnershipPolicy = hasOwnershipPolicy || element.Extension == "engineering.code_ownership_policy"
 	}
 	for id, kind := range expectKinds {
 		if element, ok := seen[id]; !ok || element.Kind != kind {
 			t.Fatalf("expected %s to map to %s, got %+v", id, kind, element)
 		}
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
+func TestProjectSemanticModelMapsRequirementsCasesViewsAndExtensions(t *testing.T) {
+	semantic, diagnostics := loadSelfSemanticModel(t)
+	diagnostics = append(diagnostics, ValidateSemanticModel(semantic)...)
+	failOnSemanticError(t, diagnostics, "unexpected semantic error")
+
+	assertMappedElementKinds(t, semantic.Elements)
+	hasConcern := anySemanticElement(semantic.Elements, func(e SemanticElement) bool { return e.Kind == ElementConcernUsage })
+	hasEvidence := anySemanticElement(semantic.Elements, func(e SemanticElement) bool { return e.Extension == "engineering.verification_evidence" })
+	hasOwnershipPolicy := anySemanticElement(semantic.Elements, func(e SemanticElement) bool { return e.Extension == "engineering.code_ownership_policy" })
 	if !hasConcern || !hasEvidence || !hasOwnershipPolicy {
 		t.Fatalf("missing mapped concern/evidence/ownership extensions: concern=%t evidence=%t ownership=%t", hasConcern, hasEvidence, hasOwnershipPolicy)
 	}

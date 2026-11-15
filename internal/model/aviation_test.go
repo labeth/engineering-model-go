@@ -55,14 +55,20 @@ func TestValidateAviationBlockingRules(t *testing.T) {
 			document, requirements := validAviationFixture()
 			test.edit(&document)
 			diagnostics := ValidateAviation(document, requirements)
-			for _, diagnostic := range diagnostics {
-				if diagnostic.Code == test.code {
-					return
-				}
+			if !hasAviationDiagnostic(diagnostics, test.code) {
+				t.Fatalf("missing diagnostic %s: %+v", test.code, diagnostics)
 			}
-			t.Fatalf("missing diagnostic %s: %+v", test.code, diagnostics)
 		})
 	}
+}
+
+func hasAviationDiagnostic(diagnostics []AviationDiagnostic, code string) bool {
+	for _, diagnostic := range diagnostics {
+		if diagnostic.Code == code {
+			return true
+		}
+	}
+	return false
 }
 
 // TRLC-LINKS: REQ-EMG-054
@@ -91,6 +97,22 @@ func validAviationFixture() (AviationDocument, RequirementsDocument) {
 // fails in both.
 // TRLC-LINKS: REQ-EMG-132
 func TestAviationLoadSplitWithLifecycle(t *testing.T) {
+	checkAviationStateCodes(t)
+	credit := "creditClaimed: false=>creditClaimed: true"
+	if err := loadAviationSample(t, aviationSampleVariant{edit: credit}); err == nil || !strings.Contains(err.Error(), "aviation") {
+		t.Fatalf("without lifecycle a tool credit gap must fail the load: %v", err)
+	}
+	if err := loadAviationSample(t, aviationSampleVariant{lifecycle: "lifecycle:\n  tier: mvp\n  bundles: [safety]\n", edit: credit}); err != nil {
+		t.Fatalf("with lifecycle the tool credit gap is a tier-keyed diagnostic: %v", err)
+	}
+	broken := "baseline: BASELINE-YD-001, owner: Certification Lead=>baseline: BASELINE-NONE, owner: Certification Lead"
+	if err := loadAviationSample(t, aviationSampleVariant{lifecycle: "lifecycle:\n  tier: mvp\n  bundles: [safety]\n", edit: broken}); err == nil {
+		t.Fatal("with lifecycle a broken reference must still fail the load")
+	}
+}
+
+func checkAviationStateCodes(t *testing.T) {
+	t.Helper()
 	for code, state := range map[string]bool{
 		"aviation.lifecycle.missing_category": true, "aviation.tool.incomplete_credit_assessment": true,
 		"aviation.derived.incomplete_safety_feedback": true, "aviation.reference.baseline": false,
@@ -100,48 +122,55 @@ func TestAviationLoadSplitWithLifecycle(t *testing.T) {
 			t.Errorf("AviationStateCode(%s) = %v, want %v", code, !state, state)
 		}
 	}
-	src := filepath.Join("..", "..", "examples", "dal-c-flight-control-sample")
-	load := func(lifecycle, edit string) error {
-		dir, err := os.MkdirTemp(".", ".aviation-split-test-")
-		if err != nil {
-			t.Fatal(err)
-		}
-		t.Cleanup(func() { _ = os.RemoveAll(dir) })
-		for _, rel := range []string{"engmod.yml", "model/architecture.yml", "model/assurance.yml", "model/aviation.yml", "model/behavior.yml", "model/catalog.yml", "model/compliance.yml", "model/decisions.yml", "model/requirements.yml", "model/views.yml"} {
-			data, err := os.ReadFile(filepath.Join(src, rel))
-			if err != nil {
-				t.Fatal(err)
-			}
-			text := string(data)
-			if rel == "engmod.yml" {
-				// The sample's own lifecycle block is the last key; the case replaces it.
-				text = text[:strings.Index(text, "lifecycle:")] + lifecycle
-			}
-			if rel == "model/aviation.yml" && edit != "" {
-				old, new, _ := strings.Cut(edit, "=>")
-				if !strings.Contains(text, old) {
-					t.Fatalf("aviation.yml lacks %q", old)
-				}
-				text = strings.Replace(text, old, new, 1)
-			}
-			if err := os.MkdirAll(filepath.Dir(filepath.Join(dir, rel)), 0o755); err != nil {
-				t.Fatal(err)
-			}
-			if err := os.WriteFile(filepath.Join(dir, rel), []byte(text), 0o644); err != nil {
-				t.Fatal(err)
-			}
-		}
-		_, err = LoadBundle(filepath.Join(dir, "engmod.yml"))
-		return err
+}
+
+// aviationSampleVariant is a copy of the DAL C sample with its lifecycle block
+// replaced and one "old=>new" edit applied to model/aviation.yml.
+type aviationSampleVariant struct{ lifecycle, edit string }
+
+var aviationSampleFiles = []string{"engmod.yml", "model/architecture.yml", "model/assurance.yml", "model/aviation.yml", "model/behavior.yml", "model/catalog.yml", "model/compliance.yml", "model/decisions.yml", "model/requirements.yml", "model/views.yml"}
+
+func loadAviationSample(t *testing.T, variant aviationSampleVariant) error {
+	t.Helper()
+	dir, err := os.MkdirTemp(".", ".aviation-split-test-")
+	if err != nil {
+		t.Fatal(err)
 	}
-	credit := "creditClaimed: false=>creditClaimed: true"
-	if err := load("", credit); err == nil || !strings.Contains(err.Error(), "aviation") {
-		t.Fatalf("without lifecycle a tool credit gap must fail the load: %v", err)
+	t.Cleanup(func() { _ = os.RemoveAll(dir) })
+	for _, rel := range aviationSampleFiles {
+		variant.writeFile(t, dir, rel)
 	}
-	if err := load("lifecycle:\n  tier: mvp\n  bundles: [safety]\n", credit); err != nil {
-		t.Fatalf("with lifecycle the tool credit gap is a tier-keyed diagnostic: %v", err)
+	_, err = LoadBundle(filepath.Join(dir, "engmod.yml"))
+	return err
+}
+
+func (variant aviationSampleVariant) writeFile(t *testing.T, dir, rel string) {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("..", "..", "examples", "dal-c-flight-control-sample", rel))
+	if err != nil {
+		t.Fatal(err)
 	}
-	if err := load("lifecycle:\n  tier: mvp\n  bundles: [safety]\n", "baseline: BASELINE-YD-001, owner: Certification Lead=>baseline: BASELINE-NONE, owner: Certification Lead"); err == nil {
-		t.Fatal("with lifecycle a broken reference must still fail the load")
+	text := variant.apply(t, rel, string(data))
+	if err := os.MkdirAll(filepath.Dir(filepath.Join(dir, rel)), 0o755); err != nil {
+		t.Fatal(err)
 	}
+	if err := os.WriteFile(filepath.Join(dir, rel), []byte(text), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func (variant aviationSampleVariant) apply(t *testing.T, rel, text string) string {
+	t.Helper()
+	if rel == "engmod.yml" {
+		// The sample's own lifecycle block is the last key; the case replaces it.
+		return text[:strings.Index(text, "lifecycle:")] + variant.lifecycle
+	}
+	if rel != "model/aviation.yml" || variant.edit == "" {
+		return text
+	}
+	old, replacement, _ := strings.Cut(variant.edit, "=>")
+	if !strings.Contains(text, old) {
+		t.Fatalf("aviation.yml lacks %q", old)
+	}
+	return strings.Replace(text, old, replacement, 1)
 }

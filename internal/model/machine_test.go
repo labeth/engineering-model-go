@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 )
@@ -54,24 +55,42 @@ func TestLoadBundleCarriesMachines(t *testing.T) {
 		t.Fatalf("machines were not carried into the architecture: %+v", machines)
 	}
 	m := machines[0]
-	if m.ID != "SM-PAY" || m.Owner != "FU-A" || m.Initial != "STATE-PAY-IDLE" ||
-		len(m.Variables) != 2 || len(m.States) != 3 || len(m.Transitions) != 3 || len(m.Invariants) != 1 {
+	if !machineFixtureShapeOK(m) {
 		t.Fatalf("unexpected machine: %+v", m)
 	}
+	assertDecodedMachineVariables(t, m)
+	assertDecodedMachineParts(t, m)
+	if _, err := NewCanonicalBundle(bundle); err != nil {
+		t.Fatalf("a valid machine must project and validate: %v", err)
+	}
+}
+
+// machineFixtureShapeOK reports whether m has the identity and the part counts of machineBehaviorYAML.
+func machineFixtureShapeOK(m Machine) bool {
+	if m.ID != "SM-PAY" || m.Owner != "FU-A" || m.Initial != "STATE-PAY-IDLE" {
+		return false
+	}
+	counts := []int{len(m.Variables), len(m.States), len(m.Transitions), len(m.Invariants)}
+	return slices.Equal(counts, []int{2, 3, 3, 1})
+}
+
+func assertDecodedMachineVariables(t *testing.T, m Machine) {
+	t.Helper()
 	if got, ok := m.Variables[0].Initial.(int); !ok || got != 0 || m.Variables[0].Type != "Integer" {
 		t.Fatalf("integer variable decoded wrongly: %#v", m.Variables[0])
 	}
 	if got, ok := m.Variables[1].Initial.(bool); !ok || got {
 		t.Fatalf("boolean variable decoded wrongly: %#v", m.Variables[1])
 	}
+}
+
+func assertDecodedMachineParts(t *testing.T, m Machine) {
+	t.Helper()
 	if !m.States[2].Final || m.Transitions[0].On != "EVT-A" || m.Transitions[0].Guard != "attempts < 3" {
 		t.Fatalf("state or transition decoded wrongly: %+v", m)
 	}
 	if m.Invariants[0].Requirements[0] != "REQ-A" || m.Invariants[0].Expr != "attempts <= 3" {
 		t.Fatalf("invariant decoded wrongly: %+v", m.Invariants[0])
-	}
-	if _, err := NewCanonicalBundle(bundle); err != nil {
-		t.Fatalf("a valid machine must project and validate: %v", err)
 	}
 }
 
@@ -158,23 +177,42 @@ func TestProjectSemanticModelMachineGolden(t *testing.T) {
 	if more := ValidateSemanticModel(semantic); len(more) != 0 {
 		t.Fatalf("projected machine must validate: %+v", more)
 	}
-	golden := machineGolden{}
-	for _, element := range semantic.Elements {
-		if strings.HasPrefix(element.ID, "SM-") || strings.HasPrefix(element.ID, "STATE-PAY-") || strings.HasPrefix(element.ID, "INV-") {
-			golden.Elements = append(golden.Elements, element)
-		}
-	}
-	for _, relationship := range semantic.Relationships {
-		if relationship.Owner == "SM-PAY" {
-			golden.Relationships = append(golden.Relationships, relationship)
-		}
+	golden := machineGolden{
+		Elements:      machineGoldenElements(semantic.Elements),
+		Relationships: machineGoldenRelationships(semantic.Relationships),
 	}
 	got, err := json.MarshalIndent(golden, "", "  ")
 	if err != nil {
 		t.Fatal(err)
 	}
 	got = append(got, '\n')
-	path := filepath.Join("testdata", "machine-projection.golden.json")
+	assertMachineGolden(t, filepath.Join("testdata", "machine-projection.golden.json"), got)
+}
+
+func machineGoldenElements(elements []SemanticElement) []SemanticElement {
+	var kept []SemanticElement
+	for _, element := range elements {
+		if strings.HasPrefix(element.ID, "SM-") || strings.HasPrefix(element.ID, "STATE-PAY-") || strings.HasPrefix(element.ID, "INV-") {
+			kept = append(kept, element)
+		}
+	}
+	return kept
+}
+
+func machineGoldenRelationships(relationships []SemanticRelationship) []SemanticRelationship {
+	var kept []SemanticRelationship
+	for _, relationship := range relationships {
+		if relationship.Owner == "SM-PAY" {
+			kept = append(kept, relationship)
+		}
+	}
+	return kept
+}
+
+// assertMachineGolden compares got with the golden file at path;
+// ENGMOD_UPDATE_GOLDEN=1 rewrites the file first.
+func assertMachineGolden(t *testing.T, path string, got []byte) {
+	t.Helper()
 	if os.Getenv("ENGMOD_UPDATE_GOLDEN") == "1" {
 		if err := os.WriteFile(path, got, 0o644); err != nil {
 			t.Fatal(err)
@@ -196,16 +234,38 @@ func TestProjectSemanticModelMachineShape(t *testing.T) {
 	for _, element := range semantic.Elements {
 		elements[element.ID] = element
 	}
-	machine := elements["SM-PAY"]
-	if machine.Kind != ElementStateDefinition || machine.Extension != MachineExtension || machine.Owner != "FU-A" || len(machine.Features) != 3 {
+	t.Run("machine", func(t *testing.T) { assertProjectedMachineElement(t, elements["SM-PAY"]) })
+	t.Run("states", func(t *testing.T) { assertProjectedMachineStates(t, elements) })
+	t.Run("invariant", func(t *testing.T) { assertProjectedMachineInvariant(t, elements["INV-PAY-001"]) })
+	t.Run("relationships", func(t *testing.T) { assertProjectedMachineRelationships(t, semantic.Relationships) })
+}
+
+func assertProjectedMachineElement(t *testing.T, machine SemanticElement) {
+	t.Helper()
+	if machine.Kind != ElementStateDefinition || machine.Extension != MachineExtension {
 		t.Fatalf("unexpected machine element: %+v", machine)
 	}
-	if f := machine.Features[0]; f.Name != "attempts" || f.Type != "Integer" || f.Value == nil || *f.Value.TypedValue.Integer != 0 {
+	if machine.Owner != "FU-A" || len(machine.Features) != 3 {
+		t.Fatalf("unexpected machine element: %+v", machine)
+	}
+	assertProjectedMachineVariables(t, machine.Features)
+}
+
+func assertProjectedMachineVariables(t *testing.T, features []SemanticFeature) {
+	t.Helper()
+	if f := features[0]; f.Name != "attempts" || f.Type != "Integer" {
 		t.Fatalf("unexpected variable feature: %+v", f)
 	}
-	if f := machine.Features[2]; f.Type != "String" || f.Value.TypedValue.String != "none" {
+	if f := features[0]; f.Value == nil || *f.Value.TypedValue.Integer != 0 {
+		t.Fatalf("unexpected variable feature: %+v", f)
+	}
+	if f := features[2]; f.Type != "String" || f.Value.TypedValue.String != "none" {
 		t.Fatalf("unexpected string variable feature: %+v", f)
 	}
+}
+
+func assertProjectedMachineStates(t *testing.T, elements map[string]SemanticElement) {
+	t.Helper()
 	state := elements["STATE-PAY-DONE"]
 	if state.Kind != ElementStateUsage || state.Extension != MachineStateExtension || state.Owner != "SM-PAY" {
 		t.Fatalf("unexpected state element: %+v", state)
@@ -214,21 +274,43 @@ func TestProjectSemanticModelMachineShape(t *testing.T) {
 	if final.Kind != "boolean" || final.Boolean == nil || !*final.Boolean {
 		t.Fatalf("final state must be readable from metadata: %+v", state.Metadata)
 	}
-	if idle := elements["STATE-PAY-IDLE"].Metadata[0].Properties["final"]; idle.Boolean == nil || *idle.Boolean {
+	assertStateIsNotFinal(t, elements["STATE-PAY-IDLE"])
+}
+
+func assertStateIsNotFinal(t *testing.T, state SemanticElement) {
+	t.Helper()
+	if idle := state.Metadata[0].Properties["final"]; idle.Boolean == nil || *idle.Boolean {
 		t.Fatalf("non-final state must carry final=false: %+v", idle)
 	}
-	invariant := elements["INV-PAY-001"]
-	if invariant.Kind != ElementConstraintUsage || invariant.Owner != "SM-PAY" ||
-		len(invariant.References) != 1 || invariant.References[0] != "REQ-A" ||
-		len(invariant.Features) != 1 || invariant.Features[0].Name != "result" ||
-		invariant.Features[0].Type != "Boolean" || invariant.Features[0].Value.Operator != "<=" {
+}
+
+func assertProjectedMachineInvariant(t *testing.T, invariant SemanticElement) {
+	t.Helper()
+	if invariant.Kind != ElementConstraintUsage || invariant.Owner != "SM-PAY" {
+		t.Fatalf("unexpected invariant element: %+v", invariant)
+	}
+	if len(invariant.References) != 1 || invariant.References[0] != "REQ-A" {
+		t.Fatalf("unexpected invariant element: %+v", invariant)
+	}
+	assertProjectedInvariantResult(t, invariant)
+}
+
+func assertProjectedInvariantResult(t *testing.T, invariant SemanticElement) {
+	t.Helper()
+	if len(invariant.Features) != 1 || invariant.Features[0].Name != "result" {
+		t.Fatalf("unexpected invariant element: %+v", invariant)
+	}
+	if invariant.Features[0].Type != "Boolean" || invariant.Features[0].Value.Operator != "<=" {
 		t.Fatalf("unexpected invariant element: %+v", invariant)
 	}
 	if _, ok := invariant.Properties["result"]; ok {
 		t.Fatalf("invariants must not use properties (result is derived in SysML): %+v", invariant.Properties)
 	}
-	var transitions, successions []SemanticRelationship
-	for _, relationship := range semantic.Relationships {
+}
+
+// splitMachineRelationships separates the transitions and the successions.
+func splitMachineRelationships(relationships []SemanticRelationship) (transitions, successions []SemanticRelationship) {
+	for _, relationship := range relationships {
 		switch relationship.Kind {
 		case RelationshipTransition:
 			transitions = append(transitions, relationship)
@@ -236,29 +318,52 @@ func TestProjectSemanticModelMachineShape(t *testing.T) {
 			successions = append(successions, relationship)
 		}
 	}
+	return transitions, successions
+}
+
+func assertProjectedMachineRelationships(t *testing.T, relationships []SemanticRelationship) {
+	t.Helper()
+	transitions, successions := splitMachineRelationships(relationships)
 	if len(transitions) != 2 || len(successions) != 2 {
 		t.Fatalf("expected 2 transitions and 2 successions, got %+v / %+v", transitions, successions)
 	}
-	first := transitions[0]
-	if first.ID != "TR-PAY-001" || first.Source != "STATE-PAY-IDLE" || first.Target != "STATE-PAY-AUTH" ||
-		first.Owner != "SM-PAY" || len(first.Triggers) != 1 || first.Triggers[0] != "EVT-A" ||
-		first.Guard == nil || first.Effect == nil || first.Effect.Operator != "all" {
-		t.Fatalf("unexpected transition: %+v", first)
-	}
+	assertFirstMachineTransition(t, transitions[0])
 	if second := transitions[1]; second.Triggers != nil || second.Effect != nil {
 		t.Fatalf("optional parts must stay absent: %+v", second)
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-135, REQ-EMG-137
-func TestProjectSemanticModelMachineStructuralChecks(t *testing.T) {
-	type mutation func(*Machine)
-	cases := []struct {
-		name string
-		edit mutation
-		code string
-		path string
-	}{
+func assertFirstMachineTransition(t *testing.T, first SemanticRelationship) {
+	t.Helper()
+	if first.ID != "TR-PAY-001" || first.Source != "STATE-PAY-IDLE" {
+		t.Fatalf("unexpected transition: %+v", first)
+	}
+	if first.Target != "STATE-PAY-AUTH" || first.Owner != "SM-PAY" {
+		t.Fatalf("unexpected transition: %+v", first)
+	}
+	assertFirstMachineTransitionParts(t, first)
+}
+
+func assertFirstMachineTransitionParts(t *testing.T, first SemanticRelationship) {
+	t.Helper()
+	if len(first.Triggers) != 1 || first.Triggers[0] != "EVT-A" {
+		t.Fatalf("unexpected transition: %+v", first)
+	}
+	if first.Guard == nil || first.Effect == nil || first.Effect.Operator != "all" {
+		t.Fatalf("unexpected transition: %+v", first)
+	}
+}
+
+// machineStructuralCase edits a valid machine and names the diagnostic the edit must cause.
+type machineStructuralCase struct {
+	name string
+	edit func(*Machine)
+	code string
+	path string
+}
+
+func machineStructuralCases() []machineStructuralCase {
+	return []machineStructuralCase{
 		{"missing owner", func(m *Machine) { m.Owner = "" }, "semantic.invalid_machine", "authoredArchitecture.machines[0].owner"},
 		{"missing initial", func(m *Machine) { m.Initial = "" }, "semantic.invalid_machine", "authoredArchitecture.machines[0].initial"},
 		{"initial not a state", func(m *Machine) { m.Initial = "STATE-NOPE" }, "semantic.invalid_machine", "authoredArchitecture.machines[0].initial"},
@@ -291,20 +396,30 @@ func TestProjectSemanticModelMachineStructuralChecks(t *testing.T) {
 		{"variable without name", func(m *Machine) { m.Variables[0].Name = "" }, "semantic.invalid_machine", "authoredArchitecture.machines[0].variables[0].name"},
 		{"duplicate variable", func(m *Machine) { m.Variables[1].Name = "attempts" }, "semantic.duplicate_identity", "authoredArchitecture.machines[0].variables[1].name"},
 	}
-	for _, c := range cases {
+}
+
+// TRLC-LINKS: REQ-EMG-135, REQ-EMG-137
+func TestProjectSemanticModelMachineStructuralChecks(t *testing.T) {
+	for _, c := range machineStructuralCases() {
 		t.Run(c.name, func(t *testing.T) {
 			machine := validTestMachine()
 			c.edit(&machine)
 			semantic, diagnostics := ProjectSemanticModel(machineTestBundle(machine))
 			diagnostics = append(diagnostics, ValidateSemanticModel(semantic)...)
-			for _, diagnostic := range diagnostics {
-				if diagnostic.Code == c.code && strings.HasPrefix(diagnostic.Path, c.path) && diagnostic.Severity == SemanticSeverityError {
-					return
-				}
+			if !hasStructuralDiagnostic(diagnostics, c.code, c.path) {
+				t.Fatalf("expected %s at %s, got %+v", c.code, c.path, diagnostics)
 			}
-			t.Fatalf("expected %s at %s, got %+v", c.code, c.path, diagnostics)
 		})
 	}
+}
+
+func hasStructuralDiagnostic(diagnostics []SemanticDiagnostic, code, path string) bool {
+	for _, diagnostic := range diagnostics {
+		if diagnostic.Code == code && strings.HasPrefix(diagnostic.Path, path) && diagnostic.Severity == SemanticSeverityError {
+			return true
+		}
+	}
+	return false
 }
 
 // TRLC-LINKS: REQ-EMG-135

@@ -147,7 +147,7 @@ func TestCanonicalCUESchemaMatchesGoRuntimeRepresentations(t *testing.T) {
 		if err != nil {
 			t.Fatalf("load schema for %T: %v", document, err)
 		}
-		assertGoTypeMatchesCUESchema(t, reflect.TypeOf(document), schema, cueSchemaNameForTest(document), map[reflect.Type]bool{})
+		cueSchemaMatcher{t: t, visiting: map[reflect.Type]bool{}}.match(reflect.TypeOf(document), schema, cueSchemaNameForTest(document))
 	}
 }
 
@@ -160,55 +160,89 @@ func cueSchemaNameForTest(document any) string {
 	return "#" + name
 }
 
+// cueSchemaMatcher walks a Go type against its CUE schema, reporting every
+// field present on one side only.
+type cueSchemaMatcher struct {
+	t        *testing.T
+	visiting map[reflect.Type]bool
+}
+
 // TRLC-LINKS: REQ-EMG-035
-func assertGoTypeMatchesCUESchema(t *testing.T, goType reflect.Type, schema cue.Value, path string, visiting map[reflect.Type]bool) {
-	t.Helper()
+func (m cueSchemaMatcher) match(goType reflect.Type, schema cue.Value, path string) {
+	m.t.Helper()
+	goType, schema = unwrapCUEType(goType, schema)
+	if goType.Kind() != reflect.Struct || m.visiting[goType] {
+		return
+	}
+	m.visiting[goType] = true
+	defer delete(m.visiting, goType)
+
+	cueFields := m.cueFields(schema, path)
+	goFields := m.matchStructFields(goType, cueFields, path)
+	for name := range cueFields {
+		if !goFields[name] {
+			m.t.Errorf("%s.%s exists in CUE but not Go", path, name)
+		}
+	}
+}
+
+// matchStructFields matches every YAML-visible field of goType against the
+// CUE fields and returns the names of the Go fields.
+func (m cueSchemaMatcher) matchStructFields(goType reflect.Type, cueFields map[string]cue.Value, path string) map[string]bool {
+	m.t.Helper()
+	goFields := make(map[string]bool)
+	for i := 0; i < goType.NumField(); i++ {
+		field := goType.Field(i)
+		name := yamlFieldName(field)
+		if name != "-" {
+			goFields[name] = true
+			m.matchField(field, cueFields, path)
+		}
+	}
+	return goFields
+}
+
+// unwrapCUEType strips pointers and slices from the Go type, following slices
+// into the schema element.
+func unwrapCUEType(goType reflect.Type, schema cue.Value) (reflect.Type, cue.Value) {
 	for goType.Kind() == reflect.Pointer || goType.Kind() == reflect.Slice {
 		if goType.Kind() == reflect.Slice {
 			schema = schema.LookupPath(cue.MakePath(cue.AnyIndex))
 		}
 		goType = goType.Elem()
 	}
-	if goType.Kind() == reflect.Map || goType.Kind() == reflect.Interface || goType.Kind() != reflect.Struct {
-		return
-	}
-	if visiting[goType] {
-		return
-	}
-	visiting[goType] = true
-	defer delete(visiting, goType)
+	return goType, schema
+}
 
+// yamlFieldName is the YAML key of a struct field, or "-" when it has none.
+func yamlFieldName(field reflect.StructField) string {
+	name := strings.Split(field.Tag.Get("yaml"), ",")[0]
+	if name == "" {
+		return field.Name
+	}
+	return name
+}
+
+func (m cueSchemaMatcher) cueFields(schema cue.Value, path string) map[string]cue.Value {
+	m.t.Helper()
 	cueFields := make(map[string]cue.Value)
 	fields, err := schema.Fields(cue.Optional(true))
 	if err != nil {
-		t.Fatalf("inspect CUE schema %s: %v", path, err)
+		m.t.Fatalf("inspect CUE schema %s: %v", path, err)
 	}
 	for fields.Next() {
 		cueFields[fields.Selector().Unquoted()] = fields.Value()
 	}
+	return cueFields
+}
 
-	goFields := make(map[string]reflect.Type)
-	for i := 0; i < goType.NumField(); i++ {
-		field := goType.Field(i)
-		name := strings.Split(field.Tag.Get("yaml"), ",")[0]
-		if name == "" {
-			name = field.Name
-		}
-		if name == "-" {
-			continue
-		}
-		goFields[name] = field.Type
-		cueField, ok := cueFields[name]
-		if !ok {
-			t.Errorf("%s.%s exists in Go but not CUE", path, name)
-			continue
-		}
-		assertGoTypeMatchesCUESchema(t, field.Type, cueField, path+"."+name, visiting)
+func (m cueSchemaMatcher) matchField(field reflect.StructField, cueFields map[string]cue.Value, path string) {
+	m.t.Helper()
+	name := yamlFieldName(field)
+	cueField, ok := cueFields[name]
+	if !ok {
+		m.t.Errorf("%s.%s exists in Go but not CUE", path, name)
+		return
 	}
-
-	for name := range cueFields {
-		if _, ok := goFields[name]; !ok {
-			t.Errorf("%s.%s exists in CUE but not Go", path, name)
-		}
-	}
+	m.match(field.Type, cueField, path+"."+name)
 }
