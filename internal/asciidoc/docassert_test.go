@@ -2,6 +2,7 @@
 package asciidoc
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -155,4 +156,58 @@ func hasDiagnostic(diags []validate.Diagnostic, code string) bool {
 		}
 	}
 	return false
+}
+
+// requireIn fails the test, with the format filled with the text and the whole
+// diagram, for each text the block lacks.
+func requireIn(t *testing.T, block, whole, format string, wants ...string) {
+	t.Helper()
+	for _, want := range wants {
+		if !strings.Contains(block, want) {
+			t.Fatalf(format, want, whole)
+		}
+	}
+}
+
+// requireNotIn fails the test, with the format filled with the text and the
+// whole diagram, for each text the block has.
+func requireNotIn(t *testing.T, block, whole, format string, unwanted ...string) {
+	t.Helper()
+	for _, text := range unwanted {
+		if strings.Contains(block, text) {
+			t.Fatalf(format, text, whole)
+		}
+	}
+}
+
+// requireCount fails the test, with the format filled with the count and the
+// document, unless the text occurs the number of times.
+func requireCount(t *testing.T, doc, text string, want int, format string) {
+	t.Helper()
+	if got := strings.Count(doc, text); got != want {
+		t.Fatalf(format, got, doc)
+	}
+}
+
+// numberedLabels are the labels of the format for 1 up to count.
+func numberedLabels(format string, count int) []string {
+	labels := make([]string, 0, count)
+	for i := 1; i <= count; i++ {
+		labels = append(labels, fmt.Sprintf(format, i))
+	}
+	return labels
+}
+
+// requireDiagramHas fails the test, with the format filled with the text and
+// the diagram, for each text the diagram lacks.
+func requireDiagramHas(t *testing.T, diagram, format string, wants ...string) {
+	t.Helper()
+	requireIn(t, diagram, diagram, format, wants...)
+}
+
+// requireDiagramLacks fails the test, with the format filled with the text and
+// the diagram, for each text the diagram has.
+func requireDiagramLacks(t *testing.T, diagram, format string, unwanted ...string) {
+	t.Helper()
+	requireNotIn(t, diagram, diagram, format, unwanted...)
 }
