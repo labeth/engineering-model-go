@@ -776,38 +776,41 @@ func (b *flowViewBuilder) existing(ids []string) []string {
 	return out
 }
 
+// reachSet is the nodes reached so far, their depth and the nodes to expand.
+type reachSet struct {
+	included map[string]bool
+	depth    map[string]int
+	queue    []string
+}
+
+// visit includes the node at the depth and queues it, unless it is included.
+// TRLC-LINKS: REQ-EMG-003
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (r *reachSet) visit(id string, depth int) {
+	if r.included[id] {
+		return
+	}
+	r.included[id] = true
+	r.depth[id] = depth
+	r.queue = append(r.queue, id)
+}
+
 // reachable are the roots and the nodes the edges lead to within the depth.
 // TRLC-LINKS: REQ-EMG-003
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func (b *flowViewBuilder) reachable(roots []string) map[string]bool {
-	included := map[string]bool{}
-	depth := map[string]int{}
-	queue := []string{}
-	for _, r := range roots {
-		queue = visitNode(included, queue, r)
+	r := &reachSet{included: map[string]bool{}, depth: map[string]int{}}
+	for _, root := range roots {
+		r.visit(root, 0)
 	}
-	for len(queue) > 0 {
-		cur := queue[0]
-		queue = queue[1:]
-		for _, nxt := range b.in.nextWithin(b.adj[cur], depth[cur]) {
-			if !included[nxt] {
-				depth[nxt] = depth[cur] + 1
-				queue = visitNode(included, queue, nxt)
-			}
+	for len(r.queue) > 0 {
+		cur := r.queue[0]
+		r.queue = r.queue[1:]
+		for _, nxt := range b.in.nextWithin(b.adj[cur], r.depth[cur]) {
+			r.visit(nxt, r.depth[cur]+1)
 		}
 	}
-	return included
-}
-
-// visitNode includes the node and queues it, unless it is included.
-// TRLC-LINKS: REQ-EMG-003
-// ENGMODEL-LINKS: FU-VIEW-PROJECTION
-func visitNode(included map[string]bool, queue []string, id string) []string {
-	if included[id] {
-		return queue
-	}
-	included[id] = true
-	return append(queue, id)
+	return r.included
 }
 
 // nextWithin are the nodes one more step away, when the depth has not reached the limit.
