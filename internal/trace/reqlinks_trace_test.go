@@ -27,32 +27,19 @@ func TestRequirementUnsatisfied(t *testing.T) {
 	code := []codescan.CodeItem{{Element: "c", Source: "a.go:1", Implements: []string{"REQ-CODE"}}}
 	tests := []codescan.VerificationCheck{{ID: "t", Verifies: []string{"REQ-TEST"}}}
 	unsatisfied := func(b model.Bundle) []validate.Diagnostic {
-		var out []validate.Diagnostic
-		for _, d := range ValidateIntegrity(b, reqs, code, tests) {
-			if d.Code == "requirement.unsatisfied" {
-				out = append(out, d)
-			}
-		}
-		return out
+		return diagsOf(ValidateIntegrity(b, Evidence{reqs, code, tests}), "requirement.unsatisfied")
 	}
 	got := unsatisfied(bundle)
-	if len(got) != 1 || got[0].Severity != validate.SeverityError || got[0].Path != "requirements[4]" {
-		t.Fatalf("strict: want one error at REQ-NONE, got %+v", got)
-	}
+	requireEqual(t, len(got), 1) // strict: one error at REQ-NONE
+	requireEqual(t, []string{string(got[0].Severity), got[0].Path}, []string{"error", "requirements[4]"})
 	guided := bundle
 	guided.Manifest.RequirementLinks = ""
-	if got := unsatisfied(guided); len(got) != 1 || got[0].Severity != validate.SeverityWarning {
-		t.Fatalf("guided with links: want one warning, got %+v", got)
-	}
+	requireEqual(t, severitiesByCode(unsatisfied(guided)), map[string]validate.Severity{"requirement.unsatisfied": validate.SeverityWarning})
 	guided.ReqLinks.ReqLinks = nil
-	if got := unsatisfied(guided); len(got) != 0 {
-		t.Fatalf("guided without links or contract: want none, got %+v", got)
-	}
+	requireEqual(t, len(unsatisfied(guided)), 0) // guided without links or contract
 	leaf := bundle
 	leaf.Architecture.Composition.Subsystems = nil
-	if got := unsatisfied(leaf); len(got) != 0 {
-		t.Fatalf("model without subsystems: want none, got %+v", got)
-	}
+	requireEqual(t, len(unsatisfied(leaf)), 0) // model without subsystems
 }
 
 // The trace follows the upward-trace rule (D22): unparented counts the
@@ -72,15 +59,12 @@ func TestUnparentedFollowsUpwardTraceRule(t *testing.T) {
 		{ID: "REQ-REALIZES", Realizes: []string{"CAP-A"}}, {ID: "REQ-LINKED"}, {ID: "REQ-DERIVED", Derived: true, DerivedRationale: "Ops."},
 		{ID: "REQ-SOURCE", SourceRefs: []string{"REF-STAKE"}}, {ID: "REQ-NONE"},
 	}}
-	m := buildTraceMatrix(bundle, reqs, nil, nil)
-	if m.Summary.Unparented != 2 {
-		t.Fatalf("want REQ-SOURCE and REQ-NONE unparented, got %d", m.Summary.Unparented)
-	}
+	m := buildTraceMatrix(bundle, Evidence{reqs, nil, nil})
+	requireEqual(t, m.Summary.Unparented, 2) // REQ-SOURCE and REQ-NONE
 	parents := map[string][]string{}
 	for _, r := range m.Requirements {
 		parents[r.ID] = r.Parents
 	}
-	if len(parents["REQ-REALIZES"]) != 1 || parents["REQ-REALIZES"][0] != "CAP-A" || len(parents["REQ-LINKED"]) != 0 || len(parents["REQ-SOURCE"]) != 0 {
-		t.Fatalf("parents %v", parents)
-	}
+	requireEqual(t, parents["REQ-REALIZES"], []string{"CAP-A"})
+	requireEqual(t, len(parents["REQ-LINKED"])+len(parents["REQ-SOURCE"]), 0)
 }

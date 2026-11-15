@@ -32,7 +32,7 @@ func addChildCode(t *testing.T, dir string, reqs ...string) {
 func systemMatrix(t *testing.T, root, repo string) trace.Matrix {
 	t.Helper()
 	dir := filepath.Join(root, "repos", repo)
-	m, _, err := trace.BuildFromFilesWith(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), "", trace.Options{})
+	m, _, err := trace.BuildFromFilesWith(trace.FileRequest{ModelPath: filepath.Join(dir, "engmod.yml"), RequirementsPath: filepath.Join(dir, "model", "requirements.yml")}, trace.Options{})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -66,7 +66,7 @@ func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (Tr
 // TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
 func BuildTraceMatrixFromFilesWith(modelPath, requirementsPath, codeRoot string, options TraceOptions) (TraceMatrix, []Diagnostic, error) {
-	return trace.BuildFromFilesWith(modelPath, requirementsPath, codeRoot, options)
+	return trace.BuildFromFilesWith(trace.FileRequest{ModelPath: modelPath, RequirementsPath: requirementsPath, CodeRoot: codeRoot}, options)
 }
 
 // TierGapReport lists what a target life-cycle tier requires that the model
@@ -92,12 +92,12 @@ type AviationFloorGap = validate.AviationFloorGap
 // TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
 func TierGapFromFiles(modelPath, requirementsPath, codeRoot, target string) (TierGapReport, error) {
-	return trace.TierGapFromFiles(modelPath, requirementsPath, codeRoot, target, trace.Options{})
+	return trace.TierGapFromFiles(trace.FileRequest{ModelPath: modelPath, RequirementsPath: requirementsPath, CodeRoot: codeRoot}, target, trace.Options{})
 }
 
 // TierGapFromFilesWith is TierGapFromFiles with explicit resolution options.
 // TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
 func TierGapFromFilesWith(modelPath, requirementsPath, codeRoot, target string, options TraceOptions) (TierGapReport, error) {
-	return trace.TierGapFromFiles(modelPath, requirementsPath, codeRoot, target, options)
+	return trace.TierGapFromFiles(trace.FileRequest{ModelPath: modelPath, RequirementsPath: requirementsPath, CodeRoot: codeRoot}, target, options)
 }

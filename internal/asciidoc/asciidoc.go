@@ -407,7 +407,7 @@ func (g *generation) inferRealization() {
 	g.diags = append(g.diags, verificationDiags...)
 	g.evidenceByOwner = buildOwnerEvidence(runtime, code)
 	scopedCode := trace.ScopeCodeToModel(code, trace.EffectiveCodeRoots(g.bundle, g.options.CodeRoot), codescan.ModelRootDir(g.bundle))
-	g.diags = append(g.diags, trace.ValidateIntegrity(g.validated, g.requirements, scopedCode, verification)...)
+	g.diags = append(g.diags, trace.ValidateIntegrity(g.validated, trace.Evidence{Requirements: g.requirements, Code: scopedCode, Verification: verification})...)
 	g.diags = validate.ApplyTierPolicy(g.bundle, g.diags)
 }
 

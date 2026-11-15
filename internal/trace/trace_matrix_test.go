@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/codescan"
@@ -27,18 +26,11 @@ func TestTraceIntegrityFlagsDanglingLinks(t *testing.T) {
 		{Element: "good", Source: "a.go:1", Implements: []string{"REQ-X-001"}, ModelLinks: []string{"FU-REAL"}},
 		{Element: "bad", Source: "b.go:2", Implements: []string{"REQ-X-999"}, ModelLinks: []string{"FU-GHOST"}},
 	}
-	gotReq, gotModel := false, false
-	for _, d := range ValidateIntegrity(bundle, reqs, code, nil) {
-		if d.Code == "code.dangling_requirement_link" && d.Severity == validate.SeverityError {
-			gotReq = true
-		}
-		if d.Code == "code.dangling_model_link" && d.Severity == validate.SeverityError {
-			gotModel = true
-		}
-	}
-	if !gotReq || !gotModel {
-		t.Fatalf("expected dangling requirement and model errors (gotReq=%v gotModel=%v)", gotReq, gotModel)
-	}
+	dangling := diagsOf(ValidateIntegrity(bundle, Evidence{reqs, code, nil}), "code.dangling_requirement_link", "code.dangling_model_link")
+	requireEqual(t, severitiesByCode(dangling), map[string]validate.Severity{
+		"code.dangling_requirement_link": validate.SeverityError,
+		"code.dangling_model_link":       validate.SeverityError,
+	})
 }
 
 // TestTraceIntegrityFlagsOrphan verifies a requirement traced by nothing is an orphan
@@ -48,22 +40,8 @@ func TestTraceIntegrityFlagsDanglingLinks(t *testing.T) {
 func TestTraceIntegrityFlagsOrphan(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}}}
 	code := []codescan.CodeItem{{Element: "c", Source: "a.go:1", Implements: []string{"REQ-X-001"}}}
-	orphan := map[string]bool{}
-	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, code, nil) {
-		if d.Code == "requirement.orphan" {
-			for _, r := range []string{"REQ-X-001", "REQ-X-002"} {
-				if strings.Contains(d.Message, r) {
-					orphan[r] = true
-				}
-			}
-		}
-	}
-	if orphan["REQ-X-001"] {
-		t.Fatal("REQ-X-001 is implemented and must not be orphan")
-	}
-	if !orphan["REQ-X-002"] {
-		t.Fatal("REQ-X-002 has no trace and must be orphan")
-	}
+	orphans := pathsOf(ValidateIntegrity(model.Bundle{}, Evidence{reqs, code, nil}), "requirement.orphan")
+	requireEqual(t, orphans, []string{"requirements[REQ-X-002]"})
 }
 
 // TestBuildTraceMatrixStatus verifies row status in the matrix: code gives
@@ -79,7 +57,7 @@ func TestBuildTraceMatrixStatus(t *testing.T) {
 		{ID: "REQ-X-002"},
 	}}
 	code := []codescan.CodeItem{{Element: "impl", Source: "a.go:5", Implements: []string{"REQ-X-001"}}}
-	m := buildTraceMatrix(model.Bundle{}, reqs, code, nil)
+	m := buildTraceMatrix(model.Bundle{}, Evidence{reqs, code, nil})
 	if got := [4]int{m.Summary.Requirements, m.Summary.Implemented, m.Summary.Orphan, m.Summary.Delegated}; got != [4]int{2, 1, 1, 0} {
 		t.Fatalf("unexpected summary: %+v", m.Summary)
 	}
@@ -126,7 +104,7 @@ func TestScopeCodeExcludesNestedModel(t *testing.T) {
 func TestTraceSummaryJSONReportsTestLinked(t *testing.T) {
 	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-001"}, {ID: "REQ-X-002"}}}
 	checks := []codescan.VerificationCheck{{ID: "VC-X", Name: "TestX", Verifies: []string{"REQ-X-001"}}}
-	m := buildTraceMatrix(model.Bundle{}, reqs, nil, checks)
+	m := buildTraceMatrix(model.Bundle{}, Evidence{reqs, nil, checks})
 	raw, err := json.Marshal(m.Summary)
 	if err != nil {
 		t.Fatal(err)
@@ -163,18 +141,8 @@ func TestTraceTierVerificationRules(t *testing.T) {
 		{ID: "V3", Verifies: []string{"REQ-X-003", "REQ-X-004"}, Results: []codescan.VerificationResult{{Requirement: "REQ-X-003", Status: "pass"}}},
 	}
 	with := model.Bundle{Manifest: model.ManifestDocument{Lifecycle: &model.ManifestLifecycle{Tier: "product"}}}
-	got := map[string]string{}
-	for _, d := range ValidateIntegrity(with, reqs, nil, verification) {
-		if d.Code == "verification.failed" || d.Code == "verification.gated_only" {
-			got[d.Code] += d.Path + ";"
-		}
-	}
-	if got["verification.failed"] != "requirements[0];" || got["verification.gated_only"] != "requirements[1];" {
-		t.Fatalf("got %v", got)
-	}
-	for _, d := range ValidateIntegrity(model.Bundle{}, reqs, nil, verification) {
-		if d.Code == "verification.failed" || d.Code == "verification.gated_only" {
-			t.Fatalf("without lifecycle: %+v", d)
-		}
-	}
+	codes := []string{"verification.failed", "verification.gated_only"}
+	diags := ValidateIntegrity(with, Evidence{reqs, nil, verification})
+	requireEqual(t, [][]string{pathsOf(diags, codes[0]), pathsOf(diags, codes[1])}, [][]string{{"requirements[0]"}, {"requirements[1]"}})
+	requireEqual(t, len(diagsOf(ValidateIntegrity(model.Bundle{}, Evidence{reqs, nil, verification}), codes...)), 0)
 }
