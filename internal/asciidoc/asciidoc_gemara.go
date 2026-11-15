@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"strings"
 
-	gemaraproj "github.com/gemaraproj/go-gemara"
-
 	"github.com/labeth/engineering-model-go/internal/export/gemara"
 	"github.com/labeth/engineering-model-go/internal/model"
 )
@@ -29,9 +27,9 @@ func renderGemaraAsciiDocChapter(bundle model.Bundle) string {
 	b.WriteString("Each artifact is built with the official `go-gemara` SDK types and validated against the published Gemara CUE schemas. ")
 	b.WriteString("Generate the full YAML set with `enggemara`; query it via the `gemara.*` MCP tools.\n\n")
 	writeGemaraLayerSummary(&b, res)
-	writeGemaraControls(&b, res.ControlCatalog.Controls)
-	writeGemaraThreats(&b, res.ThreatCatalog.Threats)
-	writeGemaraRisks(&b, res.RiskCatalog.Risks)
+	writeGemaraControls(&b, res)
+	writeGemaraThreats(&b, res)
+	writeGemaraRisks(&b, res)
 	return b.String()
 }
 
@@ -66,7 +64,8 @@ func writeGemaraLayerSummary(b *strings.Builder, res gemara.Result) {
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // writeGemaraControls writes the controls (L2) with their assessment requirement counts.
-func writeGemaraControls(b *strings.Builder, controls []gemaraproj.Control) {
+func writeGemaraControls(b *strings.Builder, res gemara.Result) {
+	controls := res.ControlCatalog.Controls
 	if len(controls) == 0 {
 		return
 	}
@@ -85,7 +84,8 @@ func writeGemaraControls(b *strings.Builder, controls []gemaraproj.Control) {
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // writeGemaraThreats writes the threats (L2).
-func writeGemaraThreats(b *strings.Builder, threats []gemaraproj.Threat) {
+func writeGemaraThreats(b *strings.Builder, res gemara.Result) {
+	threats := res.ThreatCatalog.Threats
 	if len(threats) == 0 {
 		return
 	}
@@ -103,7 +103,8 @@ func writeGemaraThreats(b *strings.Builder, threats []gemaraproj.Threat) {
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 // writeGemaraRisks writes the risks (L3) with their derived severity.
-func writeGemaraRisks(b *strings.Builder, risks []gemaraproj.Risk) {
+func writeGemaraRisks(b *strings.Builder, res gemara.Result) {
+	risks := res.RiskCatalog.Risks
 	if len(risks) == 0 {
 		return
 	}

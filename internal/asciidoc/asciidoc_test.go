@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -28,44 +29,24 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	if validate.HasErrors(res.Diagnostics) {
 		t.Fatalf("unexpected diagnostics: %+v", res.Diagnostics)
 	}
-	if !strings.Contains(res.Document, "= Sample Payments Layered Design") {
-		t.Fatalf("missing document title")
-	}
-	if !strings.Contains(res.Document, "[source,mermaid]") {
-		t.Fatalf("missing mermaid blocks")
-	}
-	if strings.Contains(res.Document, "MERMAID:") || strings.Contains(res.Document, "INF:") {
-		t.Fatalf("did not expect helper markers in final document")
-	}
-	if strings.Contains(res.Document, "=== View-Scoped Projection") {
-		t.Fatalf("did not expect low-value view-scoped projection section")
-	}
-	if !strings.Contains(res.Document, "=== Functional Groups and Units (View Scoped)") {
-		t.Fatalf("missing view-scoped functional groups/units section")
-	}
-	if !strings.Contains(res.Document, "=== Verification Inventory") {
-		t.Fatalf("missing verification inventory section")
-	}
-	if !strings.Contains(res.Document, "VER-INF-") {
-		t.Fatalf("missing inferred verification check content")
-	}
-	if !strings.Contains(res.Document, "tests/e2e/authorized_checkout_flow.yaml") {
-		t.Fatalf("missing inferred verification evidence path")
-	}
-	if !strings.Contains(res.Document, "=== Verification Result Mapping") {
-		t.Fatalf("missing verification result mapping section")
-	}
-	if !strings.Contains(res.Document, "=== Verification References") {
-		t.Fatalf("missing verification references section")
-	}
-	if !strings.Contains(res.Document, "REQ-PAY-005") || !strings.Contains(res.Document, "partial") {
-		t.Fatalf("missing verification result rows")
-	}
-	for lineNumber, line := range strings.Split(res.Document, "\n") {
-		if line != "" && strings.TrimSpace(line) == "" {
-			t.Fatalf("line %d contains only whitespace", lineNumber+1)
-		}
-	}
+	requireContains(t, res.Document,
+		docCheck{"= Sample Payments Layered Design", "missing document title"},
+		docCheck{"[source,mermaid]", "missing mermaid blocks"},
+		docCheck{"=== Functional Groups and Units (View Scoped)", "missing view-scoped functional groups/units section"},
+		docCheck{"=== Verification Inventory", "missing verification inventory section"},
+		docCheck{"VER-INF-", "missing inferred verification check content"},
+		docCheck{"tests/e2e/authorized_checkout_flow.yaml", "missing inferred verification evidence path"},
+		docCheck{"=== Verification Result Mapping", "missing verification result mapping section"},
+		docCheck{"=== Verification References", "missing verification references section"},
+		docCheck{"REQ-PAY-005", "missing verification result rows"},
+		docCheck{"partial", "missing verification result rows"},
+	)
+	requireNotContains(t, res.Document,
+		docCheck{"MERMAID:", "did not expect helper markers in final document"},
+		docCheck{"INF:", "did not expect helper markers in final document"},
+		docCheck{"=== View-Scoped Projection", "did not expect low-value view-scoped projection section"},
+	)
+	requireNoBlankPaddedLines(t, res.Document)
 }
 
 // TRLC-LINKS: REQ-EMG-014
@@ -88,30 +69,17 @@ func TestGenerateAsciiDoc_DecisionsDocumentAndMainDocLinks(t *testing.T) {
 		Views: []model.View{{ID: "VIEW-A", Kind: "architecture-intent", Roots: []string{"FG-A"}}},
 	}}
 
-	res, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), Options{
-		DecisionsDocPath: "DECISIONS.adoc",
-	})
-	if err != nil {
-		t.Fatalf("generate asciidoc failed: %v", err)
-	}
-	if !strings.Contains(res.Document, "== Architecture Decision Records") {
-		t.Fatalf("main document missing ADR index")
-	}
-	if !strings.Contains(res.Document, "xref:DECISIONS.adoc#ADR-SAMPLE-001[ADR-SAMPLE-001]") {
-		t.Fatalf("main document missing ADR xref: %s", res.Document)
-	}
-	if !strings.Contains(res.DecisionsDocument, "= Architecture Decision Records") {
-		t.Fatalf("missing decisions document title")
-	}
-	if !strings.Contains(res.DecisionsDocument, "[[ADR-SAMPLE-001]]") {
-		t.Fatalf("missing decision anchor")
-	}
-	if !strings.Contains(res.DecisionsDocument, "== ADR-SAMPLE-001: Publish ADRs separately") {
-		t.Fatalf("missing decision section")
-	}
-	if !strings.Contains(res.DecisionsDocument, "=== Consequences") {
-		t.Fatalf("missing consequences section")
-	}
+	res := mustGenerateBundle(t, bundle, Options{DecisionsDocPath: "DECISIONS.adoc"})
+	requireContains(t, res.Document,
+		docCheck{"== Architecture Decision Records", "main document missing ADR index"},
+		docCheck{"xref:DECISIONS.adoc#ADR-SAMPLE-001[ADR-SAMPLE-001]", "main document missing ADR xref: " + res.Document},
+	)
+	requireContains(t, res.DecisionsDocument,
+		docCheck{"= Architecture Decision Records", "missing decisions document title"},
+		docCheck{"[[ADR-SAMPLE-001]]", "missing decision anchor"},
+		docCheck{"== ADR-SAMPLE-001: Publish ADRs separately", "missing decision section"},
+		docCheck{"=== Consequences", "missing consequences section"},
+	)
 }
 
 // TRLC-LINKS: REQ-EMG-014
@@ -178,27 +146,11 @@ func TestEngdocCLI_DecisionsOut(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestGenerateAsciiDoc_EARSLintStrictFailure(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
-	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
-	designPath := filepath.Join("examples", "payments-engineering-sample", "model", "views.yml")
+	sample := loadSample(t, filepath.Join("examples", "payments-engineering-sample"))
+	sample.requirements.LintRun.Mode = "strict"
+	sample.requirements.Requirements[0].Text = "The door control system lock the door."
 
-	bundle, err := model.LoadBundle(modelPath)
-	if err != nil {
-		t.Fatalf("load bundle failed: %v", err)
-	}
-	requirements, err := model.LoadRequirements(requirementsPath)
-	if err != nil {
-		t.Fatalf("load requirements failed: %v", err)
-	}
-	design, err := model.LoadDesign(designPath)
-	if err != nil {
-		t.Fatalf("load design failed: %v", err)
-	}
-
-	requirements.LintRun.Mode = "strict"
-	requirements.Requirements[0].Text = "The door control system lock the door."
-
-	res, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(requirements), schemaV2TestDesign(design), Options{})
+	res, err := sample.generate()
 	if err == nil {
 		t.Fatalf("expected strict EARS lint failure")
 	}
@@ -209,315 +161,232 @@ func TestGenerateAsciiDoc_EARSLintStrictFailure(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-014
 func TestGenerateAsciiDoc_FailsWhenCatalogDescriptionMissing(t *testing.T) {
-	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
-	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
-	designPath := filepath.Join("examples", "payments-engineering-sample", "model", "views.yml")
-
-	bundle, err := model.LoadBundle(modelPath)
-	if err != nil {
-		t.Fatalf("load bundle failed: %v", err)
-	}
-	requirements, err := model.LoadRequirements(requirementsPath)
-	if err != nil {
-		t.Fatalf("load requirements failed: %v", err)
-	}
-	design, err := model.LoadDesign(designPath)
-	if err != nil {
-		t.Fatalf("load design failed: %v", err)
-	}
-
-	if len(bundle.Catalog.Catalog.FunctionalGroups) == 0 {
+	sample := loadSample(t, filepath.Join("examples", "payments-engineering-sample"))
+	if len(sample.bundle.Catalog.Catalog.FunctionalGroups) == 0 {
 		t.Fatalf("expected functionalGroups in sample catalog")
 	}
-	bundle.Catalog.Catalog.FunctionalGroups[0].Definition = ""
+	sample.bundle.Catalog.Catalog.FunctionalGroups[0].Definition = ""
 
-	res, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(requirements), schemaV2TestDesign(design), Options{})
+	res, err := sample.generate()
 	if err == nil {
 		t.Fatalf("expected validation failure for missing catalog description")
 	}
-	found := false
-	for _, d := range res.Diagnostics {
-		if d.Code == "catalog.missing_description" {
-			found = true
-			break
-		}
-	}
-	if !found {
+	if !hasDiagnostic(res.Diagnostics, "catalog.missing_description") {
 		t.Fatalf("expected catalog.missing_description diagnostic, got: %+v", res.Diagnostics)
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-014
 func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatch(t *testing.T) {
-	sample := filepath.Join("examples", "payments-engineering-sample")
-	bundle, err := model.LoadBundle(filepath.Join(sample, "engmod.yml"))
-	if err != nil {
-		t.Fatalf("load bundle failed: %v", err)
-	}
-	requirements, err := model.LoadRequirements(filepath.Join(sample, "model", "requirements.yml"))
-	if err != nil {
-		t.Fatalf("load requirements failed: %v", err)
-	}
-	design, err := model.LoadDesign(filepath.Join(sample, "model", "views.yml"))
-	if err != nil {
-		t.Fatalf("load design failed: %v", err)
-	}
-
+	sample := loadSample(t, filepath.Join("examples", "payments-engineering-sample"))
 	root := t.TempDir()
-	testsDir := filepath.Join(root, "tests")
-	if err := os.MkdirAll(testsDir, 0o755); err != nil {
-		t.Fatalf("create tests dir: %v", err)
-	}
-	resultsDir := filepath.Join(root, "test-results")
-	if err := os.MkdirAll(resultsDir, 0o755); err != nil {
-		t.Fatalf("create test-results dir: %v", err)
-	}
+	writeTree(t, root, map[string]string{
+		"tests/validation.test.js":       "// TRLC-LINKS: REQ-PAY-001\n",
+		"tests/e2e-requirements.test.js": "// TRLC-LINKS: REQ-PAY-001\n",
+		"test-results/validation.json":   `{"results":[{"requirement":"REQ-PAY-001","status":"pass"}]}`,
+	})
+	sample.bundle.ManifestPath = filepath.Join(root, "engmod.yml")
 
-	validationTest := filepath.Join(testsDir, "validation.test.js")
-	if err := os.WriteFile(validationTest, []byte("// TRLC-LINKS: REQ-PAY-001\n"), 0o644); err != nil {
-		t.Fatalf("write validation test fixture: %v", err)
-	}
-	otherTest := filepath.Join(testsDir, "e2e-requirements.test.js")
-	if err := os.WriteFile(otherTest, []byte("// TRLC-LINKS: REQ-PAY-001\n"), 0o644); err != nil {
-		t.Fatalf("write e2e test fixture: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(resultsDir, "validation.json"), []byte(`{"results":[{"requirement":"REQ-PAY-001","status":"pass"}]}`), 0o644); err != nil {
-		t.Fatalf("write validation result fixture: %v", err)
-	}
-
-	bundle.ManifestPath = filepath.Join(root, "engmod.yml")
-
-	checks, _ := codescan.InferVerificationChecks(bundle, requirements, nil, "")
+	checks, _ := codescan.InferVerificationChecks(sample.bundle, sample.requirements, nil, "")
 	validationCheck, ok := findCheckByEvidence(checks, filepath.ToSlash(filepath.Join("tests", "validation.test.js")))
 	if !ok {
 		t.Fatalf("missing validation inferred verification check")
 	}
-
 	if validationCheck.Status != "pass" {
 		t.Fatalf("expected inferred verification status pass for %s, got %q", validationCheck.ID, validationCheck.Status)
 	}
 
-	adocRes, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(requirements), schemaV2TestDesign(design), Options{})
-	if err != nil {
-		t.Fatalf("generate asciidoc failed: %v", err)
-	}
-	if !strings.Contains(adocRes.Document, "=== Verification Inventory") {
-		t.Fatalf("asciidoc output missing verification inventory")
-	}
-	if !strings.Contains(adocRes.Document, "=== Verification Result Mapping") {
-		t.Fatalf("asciidoc output missing verification result mapping")
-	}
-	if !strings.Contains(adocRes.Document, "REQ-PAY-001") {
-		t.Fatalf("asciidoc output missing mapped requirement")
-	}
-	if !strings.Contains(adocRes.Document, "|Status |pass") {
-		t.Fatalf("expected asciidoc verification status pass for %s", validationCheck.ID)
-	}
+	adocRes := sample.mustGenerate(t)
+	requireContains(t, adocRes.Document,
+		docCheck{"=== Verification Inventory", "asciidoc output missing verification inventory"},
+		docCheck{"=== Verification Result Mapping", "asciidoc output missing verification result mapping"},
+		docCheck{"REQ-PAY-001", "asciidoc output missing mapped requirement"},
+		docCheck{"|Status |pass", "expected asciidoc verification status pass for " + validationCheck.ID},
+	)
 }
 
 // TRLC-LINKS: REQ-EMG-003
 func TestGenerateOutputs_DeploymentEvidenceAppearsInRequirementCoverage(t *testing.T) {
-	sample := filepath.Join("examples", "payments-engineering-sample")
-	bundle, err := model.LoadBundle(filepath.Join(sample, "engmod.yml"))
-	if err != nil {
-		t.Fatalf("load bundle failed: %v", err)
-	}
-	requirements, err := model.LoadRequirements(filepath.Join(sample, "model", "requirements.yml"))
-	if err != nil {
-		t.Fatalf("load requirements failed: %v", err)
-	}
-	design, err := model.LoadDesign(filepath.Join(sample, "model", "views.yml"))
-	if err != nil {
-		t.Fatalf("load design failed: %v", err)
-	}
-
+	sample := loadSample(t, filepath.Join("examples", "payments-engineering-sample"))
 	root := t.TempDir()
-	if err := os.MkdirAll(filepath.Join(root, "deploy", "oci"), 0o755); err != nil {
-		t.Fatalf("create deploy/oci: %v", err)
-	}
-	if err := os.MkdirAll(filepath.Join(root, "deploy", "kairos"), 0o755); err != nil {
-		t.Fatalf("create deploy/kairos: %v", err)
-	}
-	if err := os.MkdirAll(filepath.Join(root, "infra", "flux"), 0o755); err != nil {
-		t.Fatalf("create infra/flux: %v", err)
-	}
+	writeTree(t, root, map[string]string{
+		"deploy/oci/checkout-images.lock.json":                `{"images":[{"name":"checkout","digest":"sha256:abc"}]}`,
+		"deploy/oci/compose.yaml":                             "services:\n  checkout:\n    image: checkout@sha256:abc\n",
+		"deploy/kairos/payment-authorization-profile.yaml":    "digestPolicy: immutable-only\nrequireDigestPinning: true\n",
+		"infra/flux/payment-authorization-kustomization.yaml": "imagesLockFile: ../../deploy/oci/checkout-images.lock.json\n",
+	})
+	sample.bundle.ManifestPath = filepath.Join(root, "engmod.yml")
+	sample.bundle.Architecture.InferenceHints.RuntimeSources = []string{"."}
 
-	if err := os.WriteFile(filepath.Join(root, "deploy", "oci", "checkout-images.lock.json"), []byte(`{"images":[{"name":"checkout","digest":"sha256:abc"}]}`), 0o644); err != nil {
-		t.Fatalf("write checkout lock file: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(root, "deploy", "oci", "compose.yaml"), []byte("services:\n  checkout:\n    image: checkout@sha256:abc\n"), 0o644); err != nil {
-		t.Fatalf("write compose file: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(root, "deploy", "kairos", "payment-authorization-profile.yaml"), []byte("digestPolicy: immutable-only\nrequireDigestPinning: true\n"), 0o644); err != nil {
-		t.Fatalf("write kairos profile: %v", err)
-	}
-	if err := os.WriteFile(filepath.Join(root, "infra", "flux", "payment-authorization-kustomization.yaml"), []byte("imagesLockFile: ../../deploy/oci/checkout-images.lock.json\n"), 0o644); err != nil {
-		t.Fatalf("write flux kustomization: %v", err)
-	}
+	adocRes := sample.mustGenerate(t)
+	requireContains(t, adocRes.Document,
+		docCheck{"REQ-PAY-001", "expected requirement section for REQ-PAY-001"},
+		docCheck{"deploy/oci/checkout-images.lock.json", "expected deployment evidence label in requirement coverage graph"},
+		docCheck{"runtime evidence", "expected runtime evidence edge in requirement coverage graph"},
+	)
+}
 
-	bundle.ManifestPath = filepath.Join(root, "engmod.yml")
-	bundle.Architecture.InferenceHints.RuntimeSources = []string{"."}
+// mediaChestStructure is the part of the media chest fixture that its name says.
+func mediaChestStructure() model.AuthoredArchitecture {
+	return model.AuthoredArchitecture{
+		FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-MEDIACHESTV-CORE", Name: "Core"}},
+		FunctionalUnits:    []model.FunctionalUnit{{ID: "FU-MEDIACHESTV-CORE", Name: "Core Unit", Group: "FG-MEDIACHESTV-CORE"}},
+		Actors:             []model.Actor{{ID: "ACT-MEDIACHESTV-OPERATOR", Name: "Operator"}},
+		AttackVectors:      []model.AttackVector{{ID: "AV-MEDIACHESTV-INPUT-SPOOF", Name: "Input spoof"}},
+		ReferencedElements: []model.ReferencedElement{{ID: "REF-MEDIACHESTV-UPSTREAM", Name: "Upstream", Kind: "service", Layer: "external"}},
+		Interfaces: []model.Interface{
+			{ID: "IF-MEDIACHESTV-CONTROL-API", Name: "Control API", Protocol: "https", Endpoint: "/control", SchemaRef: "schemas/control.json", Owner: "FU-MEDIACHESTV-CORE"},
+		},
+		DataObjects: []model.DataObject{
+			{ID: "DO-MEDIACHESTV-OCI-LOCK", Name: "OCI Lock", SchemaRef: "schemas/oci-lock.json", Sensitivity: "internal"},
+		},
+		DeploymentTargets: []model.DeploymentTarget{
+			{ID: "DEP-MEDIACHESTV-KAIROS-NODE", Name: "Kairos Node", Environment: "prod", Cluster: "kairos", Namespace: "mediachest", TrustZone: "device"},
+		},
+		Controls: []model.Control{
+			{ID: "CTRL-MEDIACHESTV-DIGEST-PINNING", Name: "Digest pinning", Category: "supply-chain", Description: "digest only"},
+		},
+		TrustBoundaries: []model.TrustBoundary{
+			{ID: "TB-MEDIACHESTV-DEVICE", Name: "Device", Description: "device trust boundary"},
+		},
+	}
+}
 
-	adocRes, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(requirements), schemaV2TestDesign(design), Options{})
-	if err != nil {
-		t.Fatalf("generate asciidoc failed: %v", err)
+// mediaChestThreats is the part of the media chest fixture that its name says.
+func mediaChestThreats() model.AuthoredArchitecture {
+	return model.AuthoredArchitecture{
+		ThreatAssumptions: []model.ThreatAssumption{
+			{ID: "ASM-MEDIACHESTV-DEVICE-ROOT", Title: "Device root trust", Statement: "Device root of trust is provisioned securely", Status: "accepted", Owner: "ACT-MEDIACHESTV-OPERATOR", AppliesTo: []string{"FU-MEDIACHESTV-CORE"}},
+		},
+		ThreatOutOfScope: []model.ThreatOutOfScope{
+			{ID: "OOS-MEDIACHESTV-HW", Title: "Hardware tamper internals", Reason: "Physical tamper model owned by hardware team", Status: "approved", Owner: "ACT-MEDIACHESTV-OPERATOR", AppliesTo: []string{"DEP-MEDIACHESTV-KAIROS-NODE"}, ExpiresOn: "2027-01-01"},
+		},
+		ThreatScenarios: []model.ThreatScenario{
+			{ID: "TS-MEDIACHESTV-INPUT-SPOOF", Title: "Spoofed update input", AttackVectorRef: "AV-MEDIACHESTV-INPUT-SPOOF", AppliesTo: []string{"FU-MEDIACHESTV-CORE"}, Likelihood: "medium", Impact: "high", Severity: "high", Status: "mitigating", Owner: "ACT-MEDIACHESTV-OPERATOR", RelatedControls: []string{"CTRL-MEDIACHESTV-DIGEST-PINNING"}, AssumptionRefs: []string{"ASM-MEDIACHESTV-DEVICE-ROOT"}, OutOfScopeRefs: []string{"OOS-MEDIACHESTV-HW"}, MitigationRefs: []string{"MIT-MEDIACHESTV-DIGEST"}, VerificationRefs: []string{"CV-MEDIACHESTV-DIGEST"}},
+		},
+		ThreatMitigations: []model.ThreatMitigation{
+			{ID: "MIT-MEDIACHESTV-DIGEST", ThreatScenarioRef: "TS-MEDIACHESTV-INPUT-SPOOF", ControlRef: "CTRL-MEDIACHESTV-DIGEST-PINNING", Status: "implemented", Effectiveness: "high", Owner: "ACT-MEDIACHESTV-OPERATOR", VerificationRefs: []string{"CV-MEDIACHESTV-DIGEST"}},
+		},
+		ControlVerifications: []model.ControlVerification{
+			{ID: "CV-MEDIACHESTV-DIGEST", ControlRef: "CTRL-MEDIACHESTV-DIGEST-PINNING", ThreatScenarioRefs: []string{"TS-MEDIACHESTV-INPUT-SPOOF"}, Method: "test", Status: "pass", Owner: "ACT-MEDIACHESTV-OPERATOR", LastTested: "2026-01-01", Findings: []string{"digest mismatch rejected"}},
+		},
 	}
-	if !strings.Contains(adocRes.Document, "REQ-PAY-001") {
-		t.Fatalf("expected requirement section for REQ-PAY-001")
+}
+
+// mediaChestBehavior is the part of the media chest fixture that its name says.
+func mediaChestBehavior() model.AuthoredArchitecture {
+	return model.AuthoredArchitecture{
+		Flows: []model.Flow{{
+			ID:                  "FLOW-MEDIACHESTV-SECURITY",
+			Title:               "Secure update flow",
+			Kind:                "security",
+			Direction:           "inbound",
+			Frequency:           "on-demand",
+			SourceRef:           "ACT-MEDIACHESTV-OPERATOR",
+			DestinationRef:      "FU-MEDIACHESTV-CORE",
+			Protocol:            "https",
+			Authentication:      "mfa",
+			EncryptionInTransit: "tls1.3",
+			IntegrityProtection: "digest",
+			DataRefs:            []string{"DO-MEDIACHESTV-OCI-LOCK"},
+			Threats:             []string{"TS-MEDIACHESTV-INPUT-SPOOF"},
+			Entry:               []string{"verify"},
+			Steps: []model.FlowStep{{
+				ID:               "verify",
+				Kind:             "security_check",
+				FlowType:         "security",
+				Ref:              "FU-MEDIACHESTV-CORE",
+				BoundaryCrossing: true,
+				TrustBoundaryRef: "TB-MEDIACHESTV-DEVICE",
+			}},
+		}},
+		Machines: []model.Machine{{
+			ID: "SM-MEDIACHESTV-DEPLOY", Owner: "FU-MEDIACHESTV-CORE", Initial: "STATE-MEDIACHESTV-IDLE",
+			States: []model.MachineState{
+				{ID: "STATE-MEDIACHESTV-IDLE", Name: "Idle"},
+				{ID: "STATE-MEDIACHESTV-APPLYING", Name: "Applying"},
+			},
+			Transitions: []model.MachineTransition{{ID: "TR-MEDIACHESTV-APPLY", From: "STATE-MEDIACHESTV-IDLE", To: "STATE-MEDIACHESTV-APPLYING", On: "EVT-MEDIACHESTV-DEPLOY-REQUESTED"}},
+		}},
+		Events: []model.Event{{ID: "EVT-MEDIACHESTV-DEPLOY-REQUESTED", Name: "Deploy Requested"}},
 	}
-	if !strings.Contains(adocRes.Document, "deploy/oci/checkout-images.lock.json") {
-		t.Fatalf("expected deployment evidence label in requirement coverage graph")
+}
+
+// mediaChestMappings is the part of the media chest fixture that its name says.
+func mediaChestMappings() model.AuthoredArchitecture {
+	return model.AuthoredArchitecture{
+		Mappings: []model.Mapping{
+			{Type: "contains", From: "FG-MEDIACHESTV-CORE", To: "FU-MEDIACHESTV-CORE"},
+			{Type: "interacts_with", From: "ACT-MEDIACHESTV-OPERATOR", To: "FU-MEDIACHESTV-CORE"},
+			{Type: "depends_on", From: "FU-MEDIACHESTV-CORE", To: "REF-MEDIACHESTV-UPSTREAM"},
+			{Type: "calls", From: "FU-MEDIACHESTV-CORE", To: "IF-MEDIACHESTV-CONTROL-API"},
+			{Type: "writes", From: "FU-MEDIACHESTV-CORE", To: "DO-MEDIACHESTV-OCI-LOCK"},
+			{Type: "deployed_to", From: "FU-MEDIACHESTV-CORE", To: "DEP-MEDIACHESTV-KAIROS-NODE"},
+			{Type: "targets", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "FU-MEDIACHESTV-CORE"},
+			{Type: "mitigated_by", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
+			{Type: "bounded_by", From: "FU-MEDIACHESTV-CORE", To: "TB-MEDIACHESTV-DEVICE"},
+			{Type: "guarded_by", From: "STATE-MEDIACHESTV-APPLYING", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
+			{Type: "guarded_by", From: "STATE-MEDIACHESTV-IDLE", To: "TB-MEDIACHESTV-DEVICE"},
+		},
 	}
-	if !strings.Contains(adocRes.Document, "runtime evidence") {
-		t.Fatalf("expected runtime evidence edge in requirement coverage graph")
+}
+
+// mediaChestAuthored combines the parts of the media chest fixture.
+func mediaChestAuthored() model.AuthoredArchitecture {
+	a := mediaChestStructure()
+	threats := mediaChestThreats()
+	a.ThreatAssumptions, a.ThreatOutOfScope, a.ThreatScenarios = threats.ThreatAssumptions, threats.ThreatOutOfScope, threats.ThreatScenarios
+	a.ThreatMitigations, a.ControlVerifications = threats.ThreatMitigations, threats.ControlVerifications
+	behavior := mediaChestBehavior()
+	a.Flows, a.Machines, a.Events = behavior.Flows, behavior.Machines, behavior.Events
+	a.Mappings = mediaChestMappings().Mappings
+	return a
+}
+
+// mediaChestViews are the views of the media chest fixture, one of each kind.
+func mediaChestViews() []model.View {
+	return []model.View{
+		{ID: "VIEW-ARCHITECTURE-INTENT", Kind: "architecture-intent", Roots: []string{"FG-MEDIACHESTV-CORE"}},
+		{ID: "VIEW-COMMUNICATION", Kind: "communication", Roots: []string{"FU-MEDIACHESTV-CORE"}, IncludeMappings: []string{"calls", "interacts_with"}},
+		{ID: "VIEW-DEPLOYMENT", Kind: "deployment", Roots: []string{"FU-MEDIACHESTV-CORE"}, IncludeMappings: []string{"deployed_to", "bounded_by"}},
+		{ID: "VIEW-SECURITY", Kind: "security", Roots: []string{"AV-MEDIACHESTV-INPUT-SPOOF"}},
+		{ID: "VIEW-TRACEABILITY", Kind: "traceability", Roots: []string{"FU-MEDIACHESTV-CORE"}},
+		{ID: "VIEW-STATE-LIFECYCLE", Kind: "state-lifecycle", Roots: []string{"STATE-MEDIACHESTV-IDLE"}, IncludeKinds: []string{"state", "event", "control", "trust_boundary"}, IncludeMappings: []string{"transition", "on_event", "guarded_by"}},
 	}
+}
+
+// mediaChestBundle is a model with a view of every kind, a threat model and a state machine.
+func mediaChestBundle(t *testing.T) model.Bundle {
+	return model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "engmod.yml"), Architecture: model.ArchitectureDocument{
+		Model:                model.ModelMeta{ID: "m", Title: "m"},
+		AuthoredArchitecture: mediaChestAuthored(),
+		Views:                mediaChestViews(),
+	}, Catalog: model.CatalogDocument{}}
 }
 
 // TRLC-LINKS: REQ-EMG-003
 func TestGenerateAsciiDoc_RendersStateLifecycleAndNewAuthoredReferenceKinds(t *testing.T) {
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(t.TempDir(), "engmod.yml"), Architecture: model.ArchitectureDocument{
-		Model: model.ModelMeta{ID: "m", Title: "m"},
-		AuthoredArchitecture: model.AuthoredArchitecture{
-			FunctionalGroups:   []model.FunctionalGroup{{ID: "FG-MEDIACHESTV-CORE", Name: "Core"}},
-			FunctionalUnits:    []model.FunctionalUnit{{ID: "FU-MEDIACHESTV-CORE", Name: "Core Unit", Group: "FG-MEDIACHESTV-CORE"}},
-			Actors:             []model.Actor{{ID: "ACT-MEDIACHESTV-OPERATOR", Name: "Operator"}},
-			AttackVectors:      []model.AttackVector{{ID: "AV-MEDIACHESTV-INPUT-SPOOF", Name: "Input spoof"}},
-			ReferencedElements: []model.ReferencedElement{{ID: "REF-MEDIACHESTV-UPSTREAM", Name: "Upstream", Kind: "service", Layer: "external"}},
-			Interfaces: []model.Interface{
-				{ID: "IF-MEDIACHESTV-CONTROL-API", Name: "Control API", Protocol: "https", Endpoint: "/control", SchemaRef: "schemas/control.json", Owner: "FU-MEDIACHESTV-CORE"},
-			},
-			DataObjects: []model.DataObject{
-				{ID: "DO-MEDIACHESTV-OCI-LOCK", Name: "OCI Lock", SchemaRef: "schemas/oci-lock.json", Sensitivity: "internal"},
-			},
-			DeploymentTargets: []model.DeploymentTarget{
-				{ID: "DEP-MEDIACHESTV-KAIROS-NODE", Name: "Kairos Node", Environment: "prod", Cluster: "kairos", Namespace: "mediachest", TrustZone: "device"},
-			},
-			Controls: []model.Control{
-				{ID: "CTRL-MEDIACHESTV-DIGEST-PINNING", Name: "Digest pinning", Category: "supply-chain", Description: "digest only"},
-			},
-			TrustBoundaries: []model.TrustBoundary{
-				{ID: "TB-MEDIACHESTV-DEVICE", Name: "Device", Description: "device trust boundary"},
-			},
-			ThreatAssumptions: []model.ThreatAssumption{
-				{ID: "ASM-MEDIACHESTV-DEVICE-ROOT", Title: "Device root trust", Statement: "Device root of trust is provisioned securely", Status: "accepted", Owner: "ACT-MEDIACHESTV-OPERATOR", AppliesTo: []string{"FU-MEDIACHESTV-CORE"}},
-			},
-			ThreatOutOfScope: []model.ThreatOutOfScope{
-				{ID: "OOS-MEDIACHESTV-HW", Title: "Hardware tamper internals", Reason: "Physical tamper model owned by hardware team", Status: "approved", Owner: "ACT-MEDIACHESTV-OPERATOR", AppliesTo: []string{"DEP-MEDIACHESTV-KAIROS-NODE"}, ExpiresOn: "2027-01-01"},
-			},
-			ThreatScenarios: []model.ThreatScenario{
-				{ID: "TS-MEDIACHESTV-INPUT-SPOOF", Title: "Spoofed update input", AttackVectorRef: "AV-MEDIACHESTV-INPUT-SPOOF", AppliesTo: []string{"FU-MEDIACHESTV-CORE"}, Likelihood: "medium", Impact: "high", Severity: "high", Status: "mitigating", Owner: "ACT-MEDIACHESTV-OPERATOR", RelatedControls: []string{"CTRL-MEDIACHESTV-DIGEST-PINNING"}, AssumptionRefs: []string{"ASM-MEDIACHESTV-DEVICE-ROOT"}, OutOfScopeRefs: []string{"OOS-MEDIACHESTV-HW"}, MitigationRefs: []string{"MIT-MEDIACHESTV-DIGEST"}, VerificationRefs: []string{"CV-MEDIACHESTV-DIGEST"}},
-			},
-			ThreatMitigations: []model.ThreatMitigation{
-				{ID: "MIT-MEDIACHESTV-DIGEST", ThreatScenarioRef: "TS-MEDIACHESTV-INPUT-SPOOF", ControlRef: "CTRL-MEDIACHESTV-DIGEST-PINNING", Status: "implemented", Effectiveness: "high", Owner: "ACT-MEDIACHESTV-OPERATOR", VerificationRefs: []string{"CV-MEDIACHESTV-DIGEST"}},
-			},
-			ControlVerifications: []model.ControlVerification{
-				{ID: "CV-MEDIACHESTV-DIGEST", ControlRef: "CTRL-MEDIACHESTV-DIGEST-PINNING", ThreatScenarioRefs: []string{"TS-MEDIACHESTV-INPUT-SPOOF"}, Method: "test", Status: "pass", Owner: "ACT-MEDIACHESTV-OPERATOR", LastTested: "2026-01-01", Findings: []string{"digest mismatch rejected"}},
-			},
-			Flows: []model.Flow{{
-				ID:                  "FLOW-MEDIACHESTV-SECURITY",
-				Title:               "Secure update flow",
-				Kind:                "security",
-				Direction:           "inbound",
-				Frequency:           "on-demand",
-				SourceRef:           "ACT-MEDIACHESTV-OPERATOR",
-				DestinationRef:      "FU-MEDIACHESTV-CORE",
-				Protocol:            "https",
-				Authentication:      "mfa",
-				EncryptionInTransit: "tls1.3",
-				IntegrityProtection: "digest",
-				DataRefs:            []string{"DO-MEDIACHESTV-OCI-LOCK"},
-				Threats:             []string{"TS-MEDIACHESTV-INPUT-SPOOF"},
-				Entry:               []string{"verify"},
-				Steps: []model.FlowStep{{
-					ID:               "verify",
-					Kind:             "security_check",
-					FlowType:         "security",
-					Ref:              "FU-MEDIACHESTV-CORE",
-					BoundaryCrossing: true,
-					TrustBoundaryRef: "TB-MEDIACHESTV-DEVICE",
-				}},
-			}},
-			Machines: []model.Machine{{
-				ID: "SM-MEDIACHESTV-DEPLOY", Owner: "FU-MEDIACHESTV-CORE", Initial: "STATE-MEDIACHESTV-IDLE",
-				States: []model.MachineState{
-					{ID: "STATE-MEDIACHESTV-IDLE", Name: "Idle"},
-					{ID: "STATE-MEDIACHESTV-APPLYING", Name: "Applying"},
-				},
-				Transitions: []model.MachineTransition{{ID: "TR-MEDIACHESTV-APPLY", From: "STATE-MEDIACHESTV-IDLE", To: "STATE-MEDIACHESTV-APPLYING", On: "EVT-MEDIACHESTV-DEPLOY-REQUESTED"}},
-			}},
-			Events: []model.Event{{ID: "EVT-MEDIACHESTV-DEPLOY-REQUESTED", Name: "Deploy Requested"}},
-			Mappings: []model.Mapping{
-				{Type: "contains", From: "FG-MEDIACHESTV-CORE", To: "FU-MEDIACHESTV-CORE"},
-				{Type: "interacts_with", From: "ACT-MEDIACHESTV-OPERATOR", To: "FU-MEDIACHESTV-CORE"},
-				{Type: "depends_on", From: "FU-MEDIACHESTV-CORE", To: "REF-MEDIACHESTV-UPSTREAM"},
-				{Type: "calls", From: "FU-MEDIACHESTV-CORE", To: "IF-MEDIACHESTV-CONTROL-API"},
-				{Type: "writes", From: "FU-MEDIACHESTV-CORE", To: "DO-MEDIACHESTV-OCI-LOCK"},
-				{Type: "deployed_to", From: "FU-MEDIACHESTV-CORE", To: "DEP-MEDIACHESTV-KAIROS-NODE"},
-				{Type: "targets", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "FU-MEDIACHESTV-CORE"},
-				{Type: "mitigated_by", From: "AV-MEDIACHESTV-INPUT-SPOOF", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
-				{Type: "bounded_by", From: "FU-MEDIACHESTV-CORE", To: "TB-MEDIACHESTV-DEVICE"},
-				{Type: "guarded_by", From: "STATE-MEDIACHESTV-APPLYING", To: "CTRL-MEDIACHESTV-DIGEST-PINNING"},
-				{Type: "guarded_by", From: "STATE-MEDIACHESTV-IDLE", To: "TB-MEDIACHESTV-DEVICE"},
-			},
-		},
-		Views: []model.View{
-			{ID: "VIEW-ARCHITECTURE-INTENT", Kind: "architecture-intent", Roots: []string{"FG-MEDIACHESTV-CORE"}},
-			{ID: "VIEW-COMMUNICATION", Kind: "communication", Roots: []string{"FU-MEDIACHESTV-CORE"}, IncludeMappings: []string{"calls", "interacts_with"}},
-			{ID: "VIEW-DEPLOYMENT", Kind: "deployment", Roots: []string{"FU-MEDIACHESTV-CORE"}, IncludeMappings: []string{"deployed_to", "bounded_by"}},
-			{ID: "VIEW-SECURITY", Kind: "security", Roots: []string{"AV-MEDIACHESTV-INPUT-SPOOF"}},
-			{ID: "VIEW-TRACEABILITY", Kind: "traceability", Roots: []string{"FU-MEDIACHESTV-CORE"}},
-			{ID: "VIEW-STATE-LIFECYCLE", Kind: "state-lifecycle", Roots: []string{"STATE-MEDIACHESTV-IDLE"}, IncludeKinds: []string{"state", "event", "control", "trust_boundary"}, IncludeMappings: []string{"transition", "on_event", "guarded_by"}},
-		},
-	}, Catalog: model.CatalogDocument{}}
-
-	res, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), Options{})
-	if err != nil {
-		t.Fatalf("generate asciidoc failed: %v", err)
-	}
-
-	if !strings.Contains(res.Document, "== State Lifecycle View") {
-		t.Fatalf("missing State Lifecycle View chapter")
-	}
+	res := mustGenerateBundle(t, mediaChestBundle(t), Options{})
+	requireContains(t, res.Document, docCheck{"== State Lifecycle View", "missing State Lifecycle View chapter"})
 
 	stateSection := sectionByHeading(res.Document, "== State Lifecycle View")
-	if !strings.Contains(stateSection, "=== State Lifecycle Diagram") {
-		t.Fatalf("state lifecycle section missing purpose-specific diagram")
-	}
-	if strings.Contains(stateSection, "=== View-Scoped Projection") {
-		t.Fatalf("state lifecycle section should not render generic view-scoped projection")
-	}
-	if strings.Contains(stateSection, "depends_on") {
-		t.Fatalf("state lifecycle section should respect includeMappings and exclude depends_on")
-	}
+	requireContains(t, stateSection, docCheck{"=== State Lifecycle Diagram", "state lifecycle section missing purpose-specific diagram"})
+	requireNotContains(t, stateSection,
+		docCheck{"=== View-Scoped Projection", "state lifecycle section should not render generic view-scoped projection"},
+		docCheck{"depends_on", "state lifecycle section should respect includeMappings and exclude depends_on"},
+	)
 
 	securitySection := sectionByHeading(res.Document, "== Security View")
-	for _, want := range []string{"Threat Scenario Register", "Threat Mitigation Coverage", "Control Verification Status", "Security Flow Semantics", "Threat Assumptions", "Threat Model Out-of-Scope Decisions", "TS-MEDIACHESTV-INPUT-SPOOF", "MIT-MEDIACHESTV-DIGEST", "CV-MEDIACHESTV-DIGEST", "FLOW-MEDIACHESTV-SECURITY"} {
-		if !strings.Contains(securitySection, want) {
-			t.Fatalf("security section missing %s", want)
-		}
-	}
-	if strings.Contains(securitySection, "\n=== Control Verification Status") {
-		t.Fatalf("control verification status should be nested under threat scenarios, not rendered as a standalone security section")
-	}
-	if !strings.Contains(securitySection, "==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)") {
-		t.Fatalf("threat scenario register should render one chapter per scenario")
-	}
+	requireAllContain(t, securitySection, "security section missing %s", "Threat Scenario Register", "Threat Mitigation Coverage", "Control Verification Status", "Security Flow Semantics", "Threat Assumptions", "Threat Model Out-of-Scope Decisions", "TS-MEDIACHESTV-INPUT-SPOOF", "MIT-MEDIACHESTV-DIGEST", "CV-MEDIACHESTV-DIGEST", "FLOW-MEDIACHESTV-SECURITY")
+	requireNotContains(t, securitySection, docCheck{"\n=== Control Verification Status", "control verification status should be nested under threat scenarios, not rendered as a standalone security section"})
+	requireContains(t, securitySection, docCheck{"==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)", "threat scenario register should render one chapter per scenario"})
 	scenarioSection := sectionByHeading(securitySection, "==== Spoofed update input (TS-MEDIACHESTV-INPUT-SPOOF)")
-	if !strings.Contains(scenarioSection, "===== Control Verification Status") || !strings.Contains(scenarioSection, "====== CV-MEDIACHESTV-DIGEST") {
-		t.Fatalf("threat scenario should include nested control verification status")
-	}
-	for _, oldHeader := range []string{"|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity", "|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes"} {
-		if strings.Contains(securitySection, oldHeader) {
-			t.Fatalf("threat scenario register should not use wide table header %q", oldHeader)
-		}
-	}
-
-	for _, id := range []string{"IF-MEDIACHESTV-CONTROL-API", "DO-MEDIACHESTV-OCI-LOCK", "DEP-MEDIACHESTV-KAIROS-NODE", "CTRL-MEDIACHESTV-DIGEST-PINNING", "TB-MEDIACHESTV-DEVICE", "STATE-MEDIACHESTV-IDLE", "EVT-MEDIACHESTV-DEPLOY-REQUESTED"} {
-		block := referenceBlockByID(res.Document, id)
-		if block == "" {
-			t.Fatalf("missing reference index entry for %s", id)
-		}
-	}
+	requireContains(t, scenarioSection,
+		docCheck{"===== Control Verification Status", "threat scenario should include nested control verification status"},
+		docCheck{"====== CV-MEDIACHESTV-DIGEST", "threat scenario should include nested control verification status"},
+	)
+	requireNoneContain(t, securitySection, "threat scenario register should not use wide table header %q", "|ID |Title |Attack Vector |Scope |Flows |Likelihood |Impact |Severity", "|ID |Status |Owner |Risk |Controls |Mitigations |Verifications |Operational Notes")
+	requireReferenceEntries(t, res.Document, "IF-MEDIACHESTV-CONTROL-API", "DO-MEDIACHESTV-OCI-LOCK", "DEP-MEDIACHESTV-KAIROS-NODE", "CTRL-MEDIACHESTV-DIGEST-PINNING", "TB-MEDIACHESTV-DEVICE", "STATE-MEDIACHESTV-IDLE", "EVT-MEDIACHESTV-DEPLOY-REQUESTED")
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -624,10 +493,8 @@ func TestGenerateAsciiDocResolvesCodeReferencesForLoadedBundle(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-010
 func findCheckByEvidence(checks []codescan.VerificationCheck, evidence string) (codescan.VerificationCheck, bool) {
 	for _, check := range checks {
-		for _, ev := range check.Evidence {
-			if ev == evidence {
-				return check, true
-			}
+		if slices.Contains(check.Evidence, evidence) {
+			return check, true
 		}
 	}
 	return codescan.VerificationCheck{}, false
