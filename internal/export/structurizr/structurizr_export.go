@@ -161,125 +161,21 @@ func generateStructurizrDSL(bundle model.Bundle, projection composition.Composit
 	bundle = projection.EnrichBundle(bundle, "architecture", "behavior")
 
 	a := bundle.Architecture.AuthoredArchitecture
-	usedIdentifiers := map[string]bool{}
-	elementIDByModelID := map[string]string{}
-	elementKindByModelID := map[string]string{}
-
-	rootIdentifier := uniqueIdentifier("sys_"+sanitizeIdentifier(bundle.Architecture.Model.ID), usedIdentifiers)
-	if rootIdentifier == "" {
-		rootIdentifier = uniqueIdentifier("sys_main", usedIdentifiers)
-	}
-
-	title := safeDSLText(textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.ID), "Architecture")))
-	description := safeDSLText(strings.TrimSpace(bundle.Architecture.Model.Introduction))
-
-	containers := []structurizrElement{}
-	elements := []structurizrElement{}
-
-	for _, x := range sortedActors(a.Actors) {
-		id := registerIdentifier(x.ID, "person", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "person"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "person", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"Actor"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
-	}
-
-	for _, x := range sortedFunctionalGroups(a.FunctionalGroups) {
-		id := registerIdentifier(x.ID, "group", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"FunctionalGroup"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
-	}
-
-	for _, x := range sortedFunctionalUnits(a.FunctionalUnits) {
-		id := registerIdentifier(x.ID, "fu", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "container"
-		containers = append(containers, structurizrElement{Identifier: id, Keyword: "container", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Prose)), Technology: safeDSLText("Functional Unit"), Tags: []string{"FunctionalUnit"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "functionalGroup", Value: strings.TrimSpace(x.Group)}}})
-	}
-
-	for _, x := range sortedReferencedElements(a.ReferencedElements) {
-		id := registerIdentifier(x.ID, "ref", usedIdentifiers, elementIDByModelID)
-		d := strings.TrimSpace(x.Layer)
-		if d == "" {
-			d = strings.TrimSpace(x.Kind)
-		}
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(d), Tags: []string{"ReferencedElement", sanitizeIdentifier(strings.TrimSpace(x.Kind))}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "layer", Value: strings.TrimSpace(x.Layer)}, {Name: "kind", Value: strings.TrimSpace(x.Kind)}}})
-	}
-
-	for _, x := range sortedInterfaces(a.Interfaces) {
-		id := registerIdentifier(x.ID, "if", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Protocol + " " + x.Endpoint)), Tags: []string{"Interface"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "protocol", Value: strings.TrimSpace(x.Protocol)}, {Name: "endpoint", Value: strings.TrimSpace(x.Endpoint)}, {Name: "owner", Value: strings.TrimSpace(x.Owner)}}})
-	}
-
-	for _, x := range sortedDataObjects(a.DataObjects) {
-		id := registerIdentifier(x.ID, "data", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.SchemaRef)), Tags: []string{"DataObject", strings.TrimSpace(x.Sensitivity)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "classification", Value: strings.TrimSpace(x.Classification)}, {Name: "retention", Value: strings.TrimSpace(x.Retention)}}})
-	}
-
-	for _, x := range sortedDeploymentTargets(a.DeploymentTargets) {
-		id := registerIdentifier(x.ID, "dep", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "deployment_target"
-		_ = id
-	}
-
-	for _, x := range sortedControls(a.Controls) {
-		id := registerIdentifier(x.ID, "ctrl", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"Control", strings.TrimSpace(x.Category)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
-	}
-
-	for _, x := range sortedAttackVectors(a.AttackVectors) {
-		id := registerIdentifier(x.ID, "av", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"AttackVector"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
-	}
-
-	for _, x := range sortedTrustBoundaries(a.TrustBoundaries) {
-		id := registerIdentifier(x.ID, "tb", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"TrustBoundary", strings.TrimSpace(x.BoundaryType)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "parentRef", Value: strings.TrimSpace(x.ParentRef)}}})
-	}
-
-	for _, x := range sortedThreatScenarios(a.ThreatScenarios) {
-		id := registerIdentifier(x.ID, "ts", usedIdentifiers, elementIDByModelID)
-		elementKindByModelID[strings.TrimSpace(x.ID)] = "softwareSystem"
-		elements = append(elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Title), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Summary)), Tags: []string{"ThreatScenario", strings.TrimSpace(x.Stride), strings.TrimSpace(x.Status)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "severity", Value: strings.TrimSpace(x.Severity)}, {Name: "likelihood", Value: strings.TrimSpace(x.Likelihood)}, {Name: "impact", Value: strings.TrimSpace(x.Impact)}}})
-	}
-
-	containerGroups := buildContainerGroups(containers, a.FunctionalUnits, a.FunctionalGroups)
-
-	relationships := []structurizrRelationship{}
-	for _, m := range sortedMappings(a.Mappings) {
-		if strings.TrimSpace(m.Type) == "deployed_to" {
-			continue
-		}
-		from := elementIDByModelID[strings.TrimSpace(m.From)]
-		to := elementIDByModelID[strings.TrimSpace(m.To)]
-		if from == "" || to == "" {
-			continue
-		}
-		label := textutil.NonEmpty(strings.TrimSpace(m.Description), strings.TrimSpace(m.Type))
-		technology := "Model relationship"
-		if mappingType := strings.TrimSpace(m.Type); mappingType != "" {
-			technology = "Model relationship: " + mappingType
-		}
-		relationships = append(relationships, structurizrRelationship{From: from, To: to, Label: safeDSLText(label), Technology: safeDSLText(technology), Tags: []string{"Mapping", strings.TrimSpace(m.Type)}, Properties: []structurizrProperty{{Name: "mappingType", Value: strings.TrimSpace(m.Type)}, {Name: "fromId", Value: strings.TrimSpace(m.From)}, {Name: "toId", Value: strings.TrimSpace(m.To)}}})
-	}
-	relationships = appendFlowRelationships(a, relationships, elementIDByModelID)
-
-	deploymentEnvs, deploymentViews := buildDeploymentModel(a, elementIDByModelID, elementKindByModelID, rootIdentifier, usedIdentifiers)
-	dynamicViews := buildDynamicViews(a, elementIDByModelID, rootIdentifier)
+	b := newStructurizrBuilder()
+	rootIdentifier := b.rootIdentifier(bundle.Architecture.Model.ID)
+	b.addElements(a)
+	deploymentEnvs, deploymentViews := b.buildDeploymentModel(a, rootIdentifier)
 
 	tplData := structurizrTemplateData{
-		Title:                  title,
-		Description:            description,
+		Title:                  safeDSLText(textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.ID), "Architecture"))),
+		Description:            safeDSLText(strings.TrimSpace(bundle.Architecture.Model.Introduction)),
 		RootIdentifier:         rootIdentifier,
-		ContainerGroups:        containerGroups,
-		Containers:             containers,
-		Elements:               elements,
-		Relationships:          relationships,
+		ContainerGroups:        buildContainerGroups(b.containers, a.FunctionalUnits, a.FunctionalGroups),
+		Containers:             b.containers,
+		Elements:               b.elements,
+		Relationships:          b.buildRelationships(a),
 		DeploymentEnvironments: deploymentEnvs,
-		DynamicViews:           dynamicViews,
+		DynamicViews:           buildDynamicViews(a, b.idByModelID, rootIdentifier),
 		DeploymentViews:        deploymentViews,
 	}
 	normalizeStructurizrData(&tplData)
@@ -290,6 +186,199 @@ func generateStructurizrDSL(bundle model.Bundle, projection composition.Composit
 	}
 
 	return Result{DSL: doc, Diagnostics: validate.SortDiagnostics(diags)}, nil
+}
+
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+type structurizrClass struct {
+	prefix string
+	kind   string
+}
+
+var (
+	classPerson           = structurizrClass{prefix: "person", kind: "person"}
+	classGroup            = structurizrClass{prefix: "group", kind: "softwareSystem"}
+	classUnit             = structurizrClass{prefix: "fu", kind: "container"}
+	classReferenced       = structurizrClass{prefix: "ref", kind: "softwareSystem"}
+	classInterface        = structurizrClass{prefix: "if", kind: "softwareSystem"}
+	classData             = structurizrClass{prefix: "data", kind: "softwareSystem"}
+	classDeploymentTarget = structurizrClass{prefix: "dep", kind: "deployment_target"}
+	classControl          = structurizrClass{prefix: "ctrl", kind: "softwareSystem"}
+	classAttackVector     = structurizrClass{prefix: "av", kind: "softwareSystem"}
+	classTrustBoundary    = structurizrClass{prefix: "tb", kind: "softwareSystem"}
+	classThreatScenario   = structurizrClass{prefix: "ts", kind: "softwareSystem"}
+)
+
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+type structurizrBuilder struct {
+	used          map[string]bool
+	idByModelID   map[string]string
+	kindByModelID map[string]string
+	elements      []structurizrElement
+	containers    []structurizrElement
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func newStructurizrBuilder() *structurizrBuilder {
+	return &structurizrBuilder{
+		used:          map[string]bool{},
+		idByModelID:   map[string]string{},
+		kindByModelID: map[string]string{},
+		elements:      []structurizrElement{},
+		containers:    []structurizrElement{},
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) rootIdentifier(modelID string) string {
+	root := uniqueIdentifier("sys_"+sanitizeIdentifier(modelID), b.used)
+	if root == "" {
+		root = uniqueIdentifier("sys_main", b.used)
+	}
+	return root
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) register(modelID string, class structurizrClass) string {
+	id := b.registerIdentifier(modelID, class.prefix)
+	b.kindByModelID[strings.TrimSpace(modelID)] = class.kind
+	return id
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) addElements(a model.AuthoredArchitecture) {
+	b.addActors(a.Actors)
+	b.addFunctionalGroups(a.FunctionalGroups)
+	b.addFunctionalUnits(a.FunctionalUnits)
+	b.addReferencedElements(a.ReferencedElements)
+	b.addInterfaces(a.Interfaces)
+	b.addDataObjects(a.DataObjects)
+	for _, x := range sortedDeploymentTargets(a.DeploymentTargets) {
+		b.register(x.ID, classDeploymentTarget)
+	}
+	b.addControls(a.Controls)
+	b.addAttackVectors(a.AttackVectors)
+	b.addTrustBoundaries(a.TrustBoundaries)
+	b.addThreatScenarios(a.ThreatScenarios)
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) addActors(in []model.Actor) {
+	for _, x := range sortedActors(in) {
+		id := b.register(x.ID, classPerson)
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "person", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"Actor"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) addFunctionalGroups(in []model.FunctionalGroup) {
+	for _, x := range sortedFunctionalGroups(in) {
+		id := b.register(x.ID, classGroup)
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"FunctionalGroup"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) addFunctionalUnits(in []model.FunctionalUnit) {
+	for _, x := range sortedFunctionalUnits(in) {
+		id := b.register(x.ID, classUnit)
+		b.containers = append(b.containers, structurizrElement{Identifier: id, Keyword: "container", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Prose)), Technology: safeDSLText("Functional Unit"), Tags: []string{"FunctionalUnit"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "functionalGroup", Value: strings.TrimSpace(x.Group)}}})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) addReferencedElements(in []model.ReferencedElement) {
+	for _, x := range sortedReferencedElements(in) {
+		id := b.register(x.ID, classReferenced)
+		d := textutil.NonEmpty(strings.TrimSpace(x.Layer), strings.TrimSpace(x.Kind))
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(d), Tags: []string{"ReferencedElement", sanitizeIdentifier(strings.TrimSpace(x.Kind))}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "layer", Value: strings.TrimSpace(x.Layer)}, {Name: "kind", Value: strings.TrimSpace(x.Kind)}}})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) addInterfaces(in []model.Interface) {
+	for _, x := range sortedInterfaces(in) {
+		id := b.register(x.ID, classInterface)
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.Protocol + " " + x.Endpoint)), Tags: []string{"Interface"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "protocol", Value: strings.TrimSpace(x.Protocol)}, {Name: "endpoint", Value: strings.TrimSpace(x.Endpoint)}, {Name: "owner", Value: strings.TrimSpace(x.Owner)}}})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) addDataObjects(in []model.DataObject) {
+	for _, x := range sortedDataObjects(in) {
+		id := b.register(x.ID, classData)
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(projectionDisplayName(x.ID, x.Name)), Description: safeDSLText(strings.TrimSpace(x.SchemaRef)), Tags: []string{"DataObject", strings.TrimSpace(x.Sensitivity)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "classification", Value: strings.TrimSpace(x.Classification)}, {Name: "retention", Value: strings.TrimSpace(x.Retention)}}})
+	}
+}
+
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, CTRL-TRACEABILITY-COVERAGE
+func (b *structurizrBuilder) addControls(in []model.Control) {
+	for _, x := range sortedControls(in) {
+		id := b.register(x.ID, classControl)
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"Control", strings.TrimSpace(x.Category)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
+	}
+}
+
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, FU-THREAT-EXPORTER
+func (b *structurizrBuilder) addAttackVectors(in []model.AttackVector) {
+	for _, x := range sortedAttackVectors(in) {
+		id := b.register(x.ID, classAttackVector)
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"AttackVector"}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}}})
+	}
+}
+
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *structurizrBuilder) addTrustBoundaries(in []model.TrustBoundary) {
+	for _, x := range sortedTrustBoundaries(in) {
+		id := b.register(x.ID, classTrustBoundary)
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Name), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Description)), Tags: []string{"TrustBoundary", strings.TrimSpace(x.BoundaryType)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "parentRef", Value: strings.TrimSpace(x.ParentRef)}}})
+	}
+}
+
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, FU-THREAT-EXPORTER
+func (b *structurizrBuilder) addThreatScenarios(in []model.ThreatScenario) {
+	for _, x := range sortedThreatScenarios(in) {
+		id := b.register(x.ID, classThreatScenario)
+		b.elements = append(b.elements, structurizrElement{Identifier: id, Keyword: "softwareSystem", Name: safeDSLText(textutil.NonEmpty(strings.TrimSpace(x.Title), strings.TrimSpace(x.ID))), Description: safeDSLText(strings.TrimSpace(x.Summary)), Tags: []string{"ThreatScenario", strings.TrimSpace(x.Stride), strings.TrimSpace(x.Status)}, Properties: []structurizrProperty{{Name: "sourceId", Value: strings.TrimSpace(x.ID)}, {Name: "severity", Value: strings.TrimSpace(x.Severity)}, {Name: "likelihood", Value: strings.TrimSpace(x.Likelihood)}, {Name: "impact", Value: strings.TrimSpace(x.Impact)}}})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func (b *structurizrBuilder) buildRelationships(a model.AuthoredArchitecture) []structurizrRelationship {
+	relationships := []structurizrRelationship{}
+	for _, m := range sortedMappings(a.Mappings) {
+		if strings.TrimSpace(m.Type) == "deployed_to" {
+			continue
+		}
+		from := b.idByModelID[strings.TrimSpace(m.From)]
+		to := b.idByModelID[strings.TrimSpace(m.To)]
+		if from == "" || to == "" {
+			continue
+		}
+		relationships = append(relationships, mappingRelationship(m, from, to))
+	}
+	return appendFlowRelationships(a, relationships, b.idByModelID)
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func mappingRelationship(m model.Mapping, from, to string) structurizrRelationship {
+	label := textutil.NonEmpty(strings.TrimSpace(m.Description), strings.TrimSpace(m.Type))
+	technology := "Model relationship"
+	if mappingType := strings.TrimSpace(m.Type); mappingType != "" {
+		technology = "Model relationship: " + mappingType
+	}
+	return structurizrRelationship{From: from, To: to, Label: safeDSLText(label), Technology: safeDSLText(technology), Tags: []string{"Mapping", strings.TrimSpace(m.Type)}, Properties: []structurizrProperty{{Name: "mappingType", Value: strings.TrimSpace(m.Type)}, {Name: "fromId", Value: strings.TrimSpace(m.From)}, {Name: "toId", Value: strings.TrimSpace(m.To)}}}
 }
 
 // TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
@@ -325,6 +414,17 @@ func buildContainerGroups(containers []structurizrElement, units []model.Functio
 		name := textutil.NonEmpty(groupNameByID[groupID], groupID)
 		groupItems[name] = append(groupItems[name], c)
 	}
+	out := sortedContainerGroups(groupItems)
+	if len(ungrouped) > 0 {
+		sort.SliceStable(ungrouped, func(i, j int) bool { return ungrouped[i].Identifier < ungrouped[j].Identifier })
+		out = append(out, structurizrContainerGroup{Name: "Ungrouped", Containers: ungrouped})
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func sortedContainerGroups(groupItems map[string][]structurizrElement) []structurizrContainerGroup {
 	names := make([]string, 0, len(groupItems))
 	for name := range groupItems {
 		names = append(names, name)
@@ -336,70 +436,83 @@ func buildContainerGroups(containers []structurizrElement, units []model.Functio
 		sort.SliceStable(items, func(i, j int) bool { return items[i].Identifier < items[j].Identifier })
 		out = append(out, structurizrContainerGroup{Name: name, Containers: items})
 	}
-	if len(ungrouped) > 0 {
-		sort.SliceStable(ungrouped, func(i, j int) bool { return ungrouped[i].Identifier < ungrouped[j].Identifier })
-		out = append(out, structurizrContainerGroup{Name: "Ungrouped", Containers: ungrouped})
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION
+func (b *structurizrBuilder) buildDeploymentModel(a model.AuthoredArchitecture, scope string) ([]structurizrDeploymentEnvironment, []structurizrDeploymentView) {
+	if len(a.DeploymentTargets) == 0 {
+		return nil, nil
+	}
+	instances := b.collectDeploymentInstances(a.Mappings)
+
+	envNodes := map[string][]structurizrDeploymentNode{}
+	for _, t := range sortedDeploymentTargets(a.DeploymentTargets) {
+		env := textutil.NonEmpty(strings.TrimSpace(t.Environment), "default")
+		envNodes[env] = append(envNodes[env], b.deploymentNode(t, instances))
+	}
+	return deploymentEnvironmentsAndViews(envNodes, scope)
+}
+
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION
+type deploymentInstances struct {
+	containers      map[string][]structurizrInstance
+	softwareSystems map[string][]structurizrInstance
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION
+func (b *structurizrBuilder) collectDeploymentInstances(mappings []model.Mapping) deploymentInstances {
+	out := deploymentInstances{containers: map[string][]structurizrInstance{}, softwareSystems: map[string][]structurizrInstance{}}
+	for _, m := range mappings {
+		if strings.TrimSpace(m.Type) != "deployed_to" {
+			continue
+		}
+		fromID := strings.TrimSpace(m.From)
+		toID := strings.TrimSpace(m.To)
+		fromElem := b.idByModelID[fromID]
+		if fromElem == "" || toID == "" {
+			continue
+		}
+		inst := structurizrInstance{Identifier: fromElem, Tags: []string{"Deployed"}, Properties: []structurizrProperty{{Name: "sourceId", Value: fromID}}}
+		if b.kindByModelID[fromID] == "container" {
+			out.containers[toID] = append(out.containers[toID], inst)
+		} else {
+			out.softwareSystems[toID] = append(out.softwareSystems[toID], inst)
+		}
 	}
 	return out
 }
 
 // TRLC-LINKS: REQ-EMG-005
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION
-func buildDeploymentModel(a model.AuthoredArchitecture, elementIDByModelID map[string]string, elementKindByModelID map[string]string, scope string, usedIdentifiers map[string]bool) ([]structurizrDeploymentEnvironment, []structurizrDeploymentView) {
-	deployMappings := []model.Mapping{}
-	for _, m := range a.Mappings {
-		if strings.TrimSpace(m.Type) == "deployed_to" {
-			deployMappings = append(deployMappings, m)
-		}
+func (b *structurizrBuilder) deploymentNode(t model.DeploymentTarget, instances deploymentInstances) structurizrDeploymentNode {
+	targetID := strings.TrimSpace(t.ID)
+	env := textutil.NonEmpty(strings.TrimSpace(t.Environment), "default")
+	return structurizrDeploymentNode{
+		Identifier:  uniqueIdentifier("dn_"+sanitizeIdentifier(targetID), b.used),
+		Name:        safeDSLText(textutil.NonEmpty(strings.TrimSpace(t.Name), targetID)),
+		Description: safeDSLText(strings.TrimSpace(strings.Join([]string{t.Account, t.Region, t.Namespace}, " "))),
+		Technology:  safeDSLText(textutil.NonEmpty(strings.TrimSpace(t.Cluster), "Deployment Target")),
+		Tags:        []string{"DeploymentTarget", env},
+		Properties: []structurizrProperty{
+			{Name: "sourceId", Value: targetID},
+			{Name: "environment", Value: strings.TrimSpace(t.Environment)},
+			{Name: "region", Value: strings.TrimSpace(t.Region)},
+			{Name: "account", Value: strings.TrimSpace(t.Account)},
+			{Name: "cluster", Value: strings.TrimSpace(t.Cluster)},
+			{Name: "namespace", Value: strings.TrimSpace(t.Namespace)},
+			{Name: "trustZone", Value: strings.TrimSpace(t.TrustZone)},
+		},
+		ContainerInstances:      dedupeInstances(instances.containers[targetID]),
+		SoftwareSystemInstances: dedupeInstances(instances.softwareSystems[targetID]),
 	}
-	if len(a.DeploymentTargets) == 0 {
-		return nil, nil
-	}
+}
 
-	instancesByTarget := map[string][]structurizrInstance{}
-	ssInstancesByTarget := map[string][]structurizrInstance{}
-	for _, m := range deployMappings {
-		fromID := strings.TrimSpace(m.From)
-		toID := strings.TrimSpace(m.To)
-		fromElem := elementIDByModelID[fromID]
-		if fromElem == "" || toID == "" {
-			continue
-		}
-		kind := elementKindByModelID[fromID]
-		inst := structurizrInstance{Identifier: fromElem, Tags: []string{"Deployed"}, Properties: []structurizrProperty{{Name: "sourceId", Value: fromID}}}
-		if kind == "container" {
-			instancesByTarget[toID] = append(instancesByTarget[toID], inst)
-		} else {
-			ssInstancesByTarget[toID] = append(ssInstancesByTarget[toID], inst)
-		}
-	}
-
-	envNodes := map[string][]structurizrDeploymentNode{}
-	for _, t := range sortedDeploymentTargets(a.DeploymentTargets) {
-		targetID := strings.TrimSpace(t.ID)
-		env := textutil.NonEmpty(strings.TrimSpace(t.Environment), "default")
-		nodeID := uniqueIdentifier("dn_"+sanitizeIdentifier(targetID), usedIdentifiers)
-		node := structurizrDeploymentNode{
-			Identifier:  nodeID,
-			Name:        safeDSLText(textutil.NonEmpty(strings.TrimSpace(t.Name), targetID)),
-			Description: safeDSLText(strings.TrimSpace(strings.Join([]string{t.Account, t.Region, t.Namespace}, " "))),
-			Technology:  safeDSLText(textutil.NonEmpty(strings.TrimSpace(t.Cluster), "Deployment Target")),
-			Tags:        []string{"DeploymentTarget", env},
-			Properties: []structurizrProperty{
-				{Name: "sourceId", Value: targetID},
-				{Name: "environment", Value: strings.TrimSpace(t.Environment)},
-				{Name: "region", Value: strings.TrimSpace(t.Region)},
-				{Name: "account", Value: strings.TrimSpace(t.Account)},
-				{Name: "cluster", Value: strings.TrimSpace(t.Cluster)},
-				{Name: "namespace", Value: strings.TrimSpace(t.Namespace)},
-				{Name: "trustZone", Value: strings.TrimSpace(t.TrustZone)},
-			},
-			ContainerInstances:      dedupeInstances(instancesByTarget[targetID]),
-			SoftwareSystemInstances: dedupeInstances(ssInstancesByTarget[targetID]),
-		}
-		envNodes[env] = append(envNodes[env], node)
-	}
-
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL, DEP-LOCAL-WORKSPACE, DEP-CI-PIPELINE, FU-VIEW-PROJECTION
+func deploymentEnvironmentsAndViews(envNodes map[string][]structurizrDeploymentNode, scope string) ([]structurizrDeploymentEnvironment, []structurizrDeploymentView) {
 	envNames := make([]string, 0, len(envNodes))
 	for env := range envNodes {
 		envNames = append(envNames, env)
@@ -521,16 +634,16 @@ func flowTechnology(flow model.Flow) string {
 
 // TRLC-LINKS: REQ-EMG-005
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
-func registerIdentifier(modelID, prefix string, used map[string]bool, byID map[string]string) string {
+func (b *structurizrBuilder) registerIdentifier(modelID, prefix string) string {
 	key := strings.TrimSpace(modelID)
 	if key == "" {
 		return ""
 	}
-	if existing := byID[key]; existing != "" {
+	if existing := b.idByModelID[key]; existing != "" {
 		return existing
 	}
-	id := uniqueIdentifier(prefix+"_"+sanitizeIdentifier(key), used)
-	byID[key] = id
+	id := uniqueIdentifier(prefix+"_"+sanitizeIdentifier(key), b.used)
+	b.idByModelID[key] = id
 	return id
 }
 
@@ -563,17 +676,7 @@ func sanitizeIdentifier(in string) string {
 	}
 	b := strings.Builder{}
 	for i, r := range in {
-		isAlpha := (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z')
-		isNum := r >= '0' && r <= '9'
-		if isAlpha || isNum {
-			if i == 0 && isNum {
-				b.WriteByte('e')
-				b.WriteByte('_')
-			}
-			b.WriteRune(r)
-			continue
-		}
-		b.WriteByte('_')
+		b.WriteString(identifierRune(r, i == 0))
 	}
 	out := b.String()
 	for strings.Contains(out, "__") {
@@ -583,10 +686,35 @@ func sanitizeIdentifier(in string) string {
 	if out == "" {
 		return "e"
 	}
-	if out[0] >= '0' && out[0] <= '9' {
+	if isASCIIDigit(rune(out[0])) {
 		return "e_" + out
 	}
 	return out
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func identifierRune(r rune, first bool) string {
+	switch {
+	case isASCIIDigit(r) && first:
+		return "e_" + string(r)
+	case isASCIIDigit(r), isASCIILetter(r):
+		return string(r)
+	}
+	return "_"
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func isASCIIDigit(r rune) bool {
+	return r >= '0' && r <= '9'
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func isASCIILetter(r rune) bool {
+	lower := r | 0x20
+	return lower >= 'a' && lower <= 'z'
 }
 
 // TRLC-LINKS: REQ-EMG-005
@@ -715,38 +843,46 @@ func safeDSLText(in string) string {
 // TRLC-LINKS: REQ-EMG-005
 // ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
 func normalizeStructurizrData(d *structurizrTemplateData) {
-	for i := range d.Containers {
-		d.Containers[i].Tags = compactTags(d.Containers[i].Tags)
-		d.Containers[i].Properties = compactProperties(d.Containers[i].Properties)
-	}
+	compactElements(d.Containers)
 	for i := range d.ContainerGroups {
-		for j := range d.ContainerGroups[i].Containers {
-			d.ContainerGroups[i].Containers[j].Tags = compactTags(d.ContainerGroups[i].Containers[j].Tags)
-			d.ContainerGroups[i].Containers[j].Properties = compactProperties(d.ContainerGroups[i].Containers[j].Properties)
-		}
+		compactElements(d.ContainerGroups[i].Containers)
 	}
-	for i := range d.Elements {
-		d.Elements[i].Tags = compactTags(d.Elements[i].Tags)
-		d.Elements[i].Properties = compactProperties(d.Elements[i].Properties)
-	}
+	compactElements(d.Elements)
 	for i := range d.Relationships {
 		d.Relationships[i].Tags = compactTags(d.Relationships[i].Tags)
 		d.Relationships[i].Properties = compactProperties(d.Relationships[i].Properties)
 	}
 	for i := range d.DeploymentEnvironments {
-		for j := range d.DeploymentEnvironments[i].Nodes {
-			node := &d.DeploymentEnvironments[i].Nodes[j]
-			node.Tags = compactTags(node.Tags)
-			node.Properties = compactProperties(node.Properties)
-			for k := range node.ContainerInstances {
-				node.ContainerInstances[k].Tags = compactTags(node.ContainerInstances[k].Tags)
-				node.ContainerInstances[k].Properties = compactProperties(node.ContainerInstances[k].Properties)
-			}
-			for k := range node.SoftwareSystemInstances {
-				node.SoftwareSystemInstances[k].Tags = compactTags(node.SoftwareSystemInstances[k].Tags)
-				node.SoftwareSystemInstances[k].Properties = compactProperties(node.SoftwareSystemInstances[k].Properties)
-			}
-		}
+		compactNodes(d.DeploymentEnvironments[i].Nodes)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func compactElements(elements []structurizrElement) {
+	for i := range elements {
+		elements[i].Tags = compactTags(elements[i].Tags)
+		elements[i].Properties = compactProperties(elements[i].Properties)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func compactInstances(instances []structurizrInstance) {
+	for i := range instances {
+		instances[i].Tags = compactTags(instances[i].Tags)
+		instances[i].Properties = compactProperties(instances[i].Properties)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-005
+// ENGMODEL-LINKS: FU-STRUCTURIZR-EXPORTER, DO-STRUCTURIZR-DSL
+func compactNodes(nodes []structurizrDeploymentNode) {
+	for i := range nodes {
+		nodes[i].Tags = compactTags(nodes[i].Tags)
+		nodes[i].Properties = compactProperties(nodes[i].Properties)
+		compactInstances(nodes[i].ContainerInstances)
+		compactInstances(nodes[i].SoftwareSystemInstances)
 	}
 }
 

@@ -20,19 +20,24 @@ func TestGenerateStructurizrDSLFromFile_Examples(t *testing.T) {
 	for _, modelPath := range examples {
 		modelPath := modelPath
 		t.Run(filepath.Base(filepath.Dir(modelPath)), func(t *testing.T) {
-			res, err := GenerateDSLFromFile(modelPath)
-			if err != nil {
-				t.Fatalf("generate structurizr dsl failed: %v", err)
-			}
-			if validate.HasErrors(res.Diagnostics) {
-				t.Fatalf("unexpected diagnostics: %+v", res.Diagnostics)
-			}
-			for _, want := range []string{"workspace ", "model {", "views {", "systemLandscape", "systemContext", "container ", "deploymentEnvironment", "deployment ", "dynamic ", "styles {", "terminology {", " -> "} {
-				if !strings.Contains(res.DSL, want) {
-					t.Fatalf("expected generated dsl to contain %q", want)
-				}
-			}
+			checkStructurizrExample(t, modelPath)
 		})
+	}
+}
+
+func checkStructurizrExample(t *testing.T, modelPath string) {
+	t.Helper()
+	res, err := GenerateDSLFromFile(modelPath)
+	if err != nil {
+		t.Fatalf("generate structurizr dsl failed: %v", err)
+	}
+	if validate.HasErrors(res.Diagnostics) {
+		t.Fatalf("unexpected diagnostics: %+v", res.Diagnostics)
+	}
+	for _, want := range []string{"workspace ", "model {", "views {", "systemLandscape", "systemContext", "container ", "deploymentEnvironment", "deployment ", "dynamic ", "styles {", "terminology {", " -> "} {
+		if !strings.Contains(res.DSL, want) {
+			t.Fatalf("expected generated dsl to contain %q", want)
+		}
 	}
 }
 
