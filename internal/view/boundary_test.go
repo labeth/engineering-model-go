@@ -21,27 +21,18 @@ func TestSecurityViewPreservesBoundaryMembersAndExplicitFilters(t *testing.T) {
 			},
 		}, Views: []model.View{{ID: "VIEW-SEC", Kind: "security", Roots: []string{"TB-DEVICE"}}},
 	}}
-	v, d := Build(b, "VIEW-SEC")
-	if len(d) != 0 {
-		t.Fatalf("diagnostics: %+v", d)
-	}
+	v := mustBuild(t, b, "VIEW-SEC")
 	want := map[string]string{"ACT-HOST": "actor", "HW-FPGA": "hardware_item", "DO-RECORD": "data_object", "TB-DEVICE": "trust_boundary"}
 	if len(v.Nodes) != len(want) || len(v.Edges) != 3 {
 		t.Fatalf("lost boundary graph: %+v", v)
 	}
-	for _, n := range v.Nodes {
-		if n.Kind != want[n.ID] || n.Label == n.ID {
-			t.Fatalf("lost member identity: %+v", n)
-		}
-	}
+	requireMemberIdentity(t, v, want)
 	b.Architecture.Views[0].ExcludeKinds = []string{"actor"}
-	v, d = Build(b, "VIEW-SEC")
-	if len(d) != 0 || len(v.Nodes) != 3 || len(v.Edges) != 2 {
-		t.Fatalf("explicit exclusion ignored: %+v, %+v", v, d)
+	v = mustBuild(t, b, "VIEW-SEC")
+	if len(v.Nodes) != 3 || len(v.Edges) != 2 {
+		t.Fatalf("explicit exclusion ignored: %+v", v)
 	}
-	for _, n := range v.Nodes {
-		if n.ID == "ACT-HOST" {
-			t.Fatal("excluded actor retained")
-		}
+	if hasNodeID(v, "ACT-HOST") {
+		t.Fatal("excluded actor retained")
 	}
 }

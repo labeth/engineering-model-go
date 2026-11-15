@@ -31,20 +31,15 @@ func TestBuild_AppliesViewFiltersAndDepth(t *testing.T) {
 		}},
 	}}
 
-	v, diags := Build(b, "V-COMM")
-	if len(diags) > 0 {
-		t.Fatalf("unexpected diagnostics: %+v", diags)
-	}
+	v := mustBuild(t, b, "V-COMM")
 	if len(v.Edges) != 1 {
 		t.Fatalf("expected 1 edge, got %d (%+v)", len(v.Edges), v.Edges)
 	}
 	if v.Edges[0].Type != "calls" {
 		t.Fatalf("expected calls edge, got %+v", v.Edges[0])
 	}
-	for _, n := range v.Nodes {
-		if n.ID == "FU-B" {
-			t.Fatalf("expected FU-B to be excluded by mapping filter/depth")
-		}
+	if hasNodeID(v, "FU-B") {
+		t.Fatalf("expected FU-B to be excluded by mapping filter/depth")
 	}
 }
 
@@ -76,39 +71,15 @@ func stateLifecycleBundle(roots ...string) model.Bundle {
 // Mutation: dropping the machine mappings from the view leaves no edges.
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-139
 func TestBuild_StateLifecycleDefaults(t *testing.T) {
-	v, diags := Build(stateLifecycleBundle("STATE-A"), "V-STATE")
-	if len(diags) > 0 {
-		t.Fatalf("unexpected diagnostics: %+v", diags)
-	}
-	type edge struct{ from, to, typ string }
-	got := map[edge]string{}
-	for _, e := range v.Edges {
-		got[edge{e.From, e.To, e.Type}] = e.Label
-	}
-	want := map[edge]string{
+	v := mustBuild(t, stateLifecycleBundle("STATE-A"), "V-STATE")
+	requireEdgeLabels(t, v, map[edgeKey]string{
 		{"STATE-A", "STATE-B", "transition"}: "transition: TR-A on EVT-A [tries < 3] / tries := tries + 1",
 		{"STATE-A", "STATE-C", "transition"}: "transition: TR-B on EVT-A [tries >= 3]",
 		{"STATE-A", "EVT-A", "on_event"}:     "on_event",
 		{"STATE-B", "CTRL-A", "guarded_by"}:  "guarded_by",
-	}
-	if len(v.Edges) != len(want) {
-		t.Fatalf("want %d lifecycle edges, got %d: %+v", len(want), len(v.Edges), v.Edges)
-	}
-	for e, label := range want {
-		if got[e] != label {
-			t.Fatalf("edge %+v label = %q, want %q (all: %+v)", e, got[e], label, got)
-		}
-	}
-	kinds := map[string]string{}
-	for _, n := range v.Nodes {
-		kinds[n.ID] = n.Kind
-	}
-	for id, kind := range map[string]string{"STATE-A": "state", "STATE-B": "state", "STATE-C": "state", "EVT-A": "event", "CTRL-A": "control"} {
-		if kinds[id] != kind {
-			t.Fatalf("node %s kind = %q, want %q (all: %+v)", id, kinds[id], kind, kinds)
-		}
-	}
-	if _, ok := kinds["SM-A"]; ok {
+	})
+	requireNodeKinds(t, v, map[string]string{"STATE-A": "state", "STATE-B": "state", "STATE-C": "state", "EVT-A": "event", "CTRL-A": "control"})
+	if hasNodeID(v, "SM-A") {
 		t.Fatalf("the machine itself is not a lifecycle node: %+v", v.Nodes)
 	}
 }
@@ -118,17 +89,8 @@ func TestBuild_StateLifecycleDefaults(t *testing.T) {
 // Mutation: not expanding a machine root yields an empty view.
 // TRLC-LINKS: REQ-EMG-139
 func TestBuild_StateLifecycleMachineRootExpandsToStates(t *testing.T) {
-	v, diags := Build(stateLifecycleBundle("SM-A"), "V-STATE")
-	if len(diags) > 0 {
-		t.Fatalf("unexpected diagnostics: %+v", diags)
-	}
-	states := 0
-	for _, n := range v.Nodes {
-		if n.Kind == "state" {
-			states++
-		}
-	}
-	if states != 3 || len(v.Edges) != 4 {
+	v := mustBuild(t, stateLifecycleBundle("SM-A"), "V-STATE")
+	if states := countNodeKind(v, "state"); states != 3 || len(v.Edges) != 4 {
 		t.Fatalf("machine root must project 3 states and 4 edges, got %d states, edges %+v", states, v.Edges)
 	}
 }
@@ -156,30 +118,11 @@ func TestBuild_InteractionFlowProjection(t *testing.T) {
 		Views: []model.View{{ID: "V-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-A"}}},
 	}}
 
-	v, diags := Build(b, "V-FLOW")
-	if len(diags) > 0 {
-		t.Fatalf("unexpected diagnostics: %+v", diags)
-	}
+	v := mustBuild(t, b, "V-FLOW")
 	if len(v.Nodes) == 0 || len(v.Edges) == 0 {
 		t.Fatalf("expected non-empty interaction-flow projection")
 	}
-	hasFlowStep := false
-	hasAsync := false
-	hasRef := false
-	for _, n := range v.Nodes {
-		if n.Kind == "flow_step" {
-			hasFlowStep = true
-		}
-	}
-	for _, e := range v.Edges {
-		if e.Type == "flow_async" {
-			hasAsync = true
-		}
-		if e.Type == "flow_ref" {
-			hasRef = true
-		}
-	}
-	if !hasFlowStep || !hasAsync || !hasRef {
+	if countNodeKind(v, "flow_step") == 0 || !hasEdgeType(v, "flow_async") || !hasEdgeType(v, "flow_ref") {
 		t.Fatalf("expected flow_step nodes and flow_async/flow_ref edges, got nodes=%+v edges=%+v", v.Nodes, v.Edges)
 	}
 }
@@ -204,15 +147,7 @@ func TestBuild_InteractionFlowRespectsIncludeMappings(t *testing.T) {
 		Views: []model.View{{ID: "V-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-A"}, IncludeMappings: []string{"flow_error"}}},
 	}}
 
-	v, diags := Build(b, "V-FLOW")
-	if len(diags) > 0 {
-		t.Fatalf("unexpected diagnostics: %+v", diags)
-	}
-	for _, e := range v.Edges {
-		if e.Type != "flow_error" {
-			t.Fatalf("expected only flow_error edges with includeMappings filter, got %+v", v.Edges)
-		}
-	}
+	requireOnlyEdgeType(t, mustBuild(t, b, "V-FLOW"), "flow_error")
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -244,21 +179,8 @@ func TestBuild_InteractionFlowIncludesActivityEdgesWhenConfigured(t *testing.T) 
 		}},
 	}}
 
-	v, diags := Build(b, "V-FLOW")
-	if len(diags) > 0 {
-		t.Fatalf("unexpected diagnostics: %+v", diags)
-	}
-	hasCalls := false
-	hasWrites := false
-	for _, e := range v.Edges {
-		if e.Type == "calls" && e.From == "FU-A" && e.To == "IF-A" {
-			hasCalls = true
-		}
-		if e.Type == "writes" && e.From == "FU-A" && e.To == "DO-A" {
-			hasWrites = true
-		}
-	}
-	if !hasCalls || !hasWrites {
+	v := mustBuild(t, b, "V-FLOW")
+	if !hasEdge(v, "calls", "FU-A", "IF-A") || !hasEdge(v, "writes", "FU-A", "DO-A") {
 		t.Fatalf("expected interaction-flow activity edges, got %+v", v.Edges)
 	}
 }
