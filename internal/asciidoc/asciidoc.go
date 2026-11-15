@@ -21,6 +21,22 @@ import (
 	"github.com/labeth/engineering-model-go/internal/view"
 )
 
+// FilePaths are the model files GenerateFromFiles loads.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type FilePaths struct {
+	Architecture string
+	Requirements string
+	Design       string
+}
+
+// Inputs are the loaded model documents Generate renders.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type Inputs struct {
+	Bundle       model.Bundle
+	Requirements model.RequirementsDocument
+	Design       model.DesignDocument
+}
+
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type Options struct {
 	ViewIDs          []string
@@ -48,24 +64,24 @@ type Result struct {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
-func GenerateFromFiles(architecturePath, requirementsPath, designPath string, options Options) (Result, error) {
-	bundle, err := codescan.LoadBundle(architecturePath)
+func GenerateFromFiles(paths FilePaths, options Options) (Result, error) {
+	bundle, err := codescan.LoadBundle(paths.Architecture)
 	if err != nil {
 		return Result{}, err
 	}
-	requirements, err := model.LoadRequirements(requirementsPath)
+	requirements, err := model.LoadRequirements(paths.Requirements)
 	if err != nil {
 		return Result{}, err
 	}
-	design, err := model.LoadDesign(designPath)
+	design, err := model.LoadDesign(paths.Design)
 	if err != nil {
 		return Result{}, err
 	}
 	if strings.TrimSpace(options.CodeRoot) != "" && !filepath.IsAbs(options.CodeRoot) {
-		baseDir := filepath.Dir(architecturePath)
+		baseDir := filepath.Dir(paths.Architecture)
 		options.CodeRoot = filepath.Join(baseDir, options.CodeRoot)
 	}
-	return Generate(bundle, requirements, design, options)
+	return Generate(Inputs{Bundle: bundle, Requirements: requirements, Design: design}, options)
 }
 
 // traceFindingCodes are the requirement link trace findings that strict
@@ -232,8 +248,8 @@ type generation struct {
 // composition error fails the call like any other validation error.
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
-func Generate(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options Options) (Result, error) {
-	g := &generation{bundle: bundle, requirements: requirements, design: design, options: options}
+func Generate(in Inputs, options Options) (Result, error) {
+	g := &generation{bundle: in.Bundle, requirements: in.Requirements, design: in.Design, options: options}
 	if err := g.canonicalize(); err != nil {
 		return Result{}, err
 	}

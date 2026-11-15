@@ -542,26 +542,27 @@ func acceptableStatus(ctx Context, id string) (*reqlinks.LinkStatus, error) {
 // the keys that already hold the value.
 // TRLC-LINKS: REQ-EMG-101
 func applyAcceptEdits(data []byte, status reqlinks.LinkStatus, req AcceptRequest) ([]byte, error) {
-	link := yamledit.FindListItem([]string{"reqLinks"}, "id", req.ID)
-	pinned := yamledit.FindListItem([]string{"reqLinks"}, "id", req.ID, "pinned")
+	item := yamledit.ListItem{Keys: []string{"reqLinks"}, IDKey: "id", ID: req.ID}
+	link := yamledit.FindListItem(item)
+	item.Sub = []string{"pinned"}
+	pinned := yamledit.FindListItem(item)
 	edits := []struct {
-		find  func(*yaml.Node) (*yaml.Node, error)
-		key   string
+		at    yamledit.KeyAt
 		value string
 	}{
-		{pinned, "version", status.Version},
-		{link, "status", model.ReqLinkAccepted},
-		{link, "rationale", OneLine(req.Rationale)},
-		{link, "reviewedBy", req.By},
-		{link, "reviewedOn", req.Date},
+		{yamledit.KeyAt{Find: pinned, Key: "version"}, status.Version},
+		{yamledit.KeyAt{Find: link, Key: "status"}, model.ReqLinkAccepted},
+		{yamledit.KeyAt{Find: link, Key: "rationale"}, OneLine(req.Rationale)},
+		{yamledit.KeyAt{Find: link, Key: "reviewedBy"}, req.By},
+		{yamledit.KeyAt{Find: link, Key: "reviewedOn"}, req.Date},
 	}
 	edited := data
 	var err error
 	for _, e := range edits {
-		if current, ok := scalarAt(edited, e.find, e.key); ok && current == e.value {
+		if current, ok := scalarAt(edited, e.at); ok && current == e.value {
 			continue
 		}
-		if edited, err = yamledit.SetKey(edited, e.find, e.key, yamledit.Scalar(e.value)); err != nil {
+		if edited, err = yamledit.SetKey(edited, e.at, yamledit.Scalar(e.value)); err != nil {
 			return nil, err
 		}
 	}
@@ -587,16 +588,16 @@ func (a Acceptance) Patch(name string) string {
 
 // scalarAt returns the scalar value of key in the mapping found by find.
 // TRLC-LINKS: REQ-EMG-101
-func scalarAt(data []byte, find func(*yaml.Node) (*yaml.Node, error), key string) (string, bool) {
+func scalarAt(data []byte, at yamledit.KeyAt) (string, bool) {
 	root, err := yamledit.Parse(data)
 	if err != nil {
 		return "", false
 	}
-	mapping, err := find(root)
+	mapping, err := at.Find(root)
 	if err != nil {
 		return "", false
 	}
-	value := yamledit.MappingValue(mapping, key)
+	value := yamledit.MappingValue(mapping, at.Key)
 	if value == nil || value.Kind != yaml.ScalarNode {
 		return "", false
 	}

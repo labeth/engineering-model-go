@@ -15,7 +15,7 @@ type AsciiDocResult = asciidoc.Result
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
 func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath string, options AsciiDocOptions) (AsciiDocResult, error) {
-	return asciidoc.GenerateFromFiles(architecturePath, requirementsPath, designPath, options)
+	return asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: architecturePath, Requirements: requirementsPath, Design: designPath}, options)
 }
 
 // GenerateAsciiDoc validates and renders the model. With composition it
@@ -25,5 +25,5 @@ func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath st
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066
 func GenerateAsciiDoc(bundle Bundle, requirements RequirementsDocument, design DesignDocument, options AsciiDocOptions) (AsciiDocResult, error) {
-	return asciidoc.Generate(bundle, requirements, design, options)
+	return asciidoc.Generate(asciidoc.Inputs{Bundle: bundle, Requirements: requirements, Design: design}, options)
 }

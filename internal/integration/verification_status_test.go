@@ -54,7 +54,7 @@ assurance:
 
 	stale := func() (doc, tr int) {
 		t.Helper()
-		result, err := asciidoc.GenerateFromFiles(manifest, requirements, views, asciidoc.Options{})
+		result, err := asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: manifest, Requirements: requirements, Design: views}, asciidoc.Options{})
 		if err != nil {
 			t.Fatalf("generate: %v %+v", err, result.Diagnostics)
 		}

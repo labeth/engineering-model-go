@@ -218,15 +218,16 @@ func applyPatch(data []byte, id string, ops []patchOp) ([]byte, error) {
 // TRLC-LINKS: REQ-EMG-113
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-MODEL-CHANGE
 func applyPatchOp(data []byte, find func(*yaml.Node) (*yaml.Node, error), op patchOp) ([]byte, error) {
+	at := yamledit.FieldAt{Find: find, Path: op.path}
 	switch op.kind {
 	case "set":
-		return yamledit.SetPath(data, find, op.path, op.value)
+		return yamledit.SetPath(data, at, op.value)
 	case "unset":
 		return yamledit.UnsetPath(data, find, op.path)
 	case "append":
-		return yamledit.AppendPath(data, find, op.path, itemsOf(op.value))
+		return yamledit.AppendPath(data, at, itemsOf(op.value))
 	case "remove":
-		return yamledit.RemovePath(data, find, op.path, itemsOf(op.value))
+		return yamledit.RemovePath(data, at, itemsOf(op.value))
 	}
 	return data, nil
 }

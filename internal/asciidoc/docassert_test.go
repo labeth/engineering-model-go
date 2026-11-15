@@ -157,7 +157,7 @@ func loadSample(t *testing.T, dir string) sampleModel {
 
 // generate renders the sample as schema v2 documents.
 func (s sampleModel) generate() (Result, error) {
-	return Generate(schemaV2TestBundle(s.bundle), schemaV2TestRequirements(s.requirements), schemaV2TestDesign(s.design), Options{})
+	return Generate(Inputs{Bundle: schemaV2TestBundle(s.bundle), Requirements: schemaV2TestRequirements(s.requirements), Design: schemaV2TestDesign(s.design)}, Options{})
 }
 
 // mustGenerate renders the sample and fails the test on an error.
@@ -174,7 +174,7 @@ func (s sampleModel) mustGenerate(t *testing.T) Result {
 // v2 documents and fails the test on an error.
 func mustGenerateBundle(t *testing.T, bundle model.Bundle, options Options) Result {
 	t.Helper()
-	res, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), options)
+	res, err := Generate(Inputs{Bundle: schemaV2TestBundle(bundle), Requirements: schemaV2TestRequirements(model.RequirementsDocument{}), Design: schemaV2TestDesign(model.DesignDocument{})}, options)
 	if err != nil {
 		t.Fatalf("generate asciidoc failed: %v", err)
 	}

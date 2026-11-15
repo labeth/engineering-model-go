@@ -20,7 +20,7 @@ func repo(root, name string) fixtureRepo { return fixtureRepo{root: root, name: 
 // generate renders the repository to AsciiDoc.
 func (r fixtureRepo) generate(opts asciidoc.Options) (asciidoc.Result, error) {
 	dir := filepath.Join(r.root, "repos", r.name)
-	return asciidoc.GenerateFromFiles(filepath.Join(dir, "engmod.yml"), filepath.Join(dir, "model", "requirements.yml"), filepath.Join(dir, "model", "views.yml"), opts)
+	return asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: filepath.Join(dir, "engmod.yml"), Requirements: filepath.Join(dir, "model", "requirements.yml"), Design: filepath.Join(dir, "model", "views.yml")}, opts)
 }
 
 // render renders the repository to AsciiDoc with the given workspace mode (""

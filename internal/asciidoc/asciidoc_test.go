@@ -22,7 +22,7 @@ func TestGenerateAsciiDocFromFiles_EndToEnd(t *testing.T) {
 	requirementsPath := filepath.Join("examples", "payments-engineering-sample", "model", "requirements.yml")
 	designPath := filepath.Join("examples", "payments-engineering-sample", "model", "views.yml")
 
-	res, err := GenerateFromFiles(modelPath, requirementsPath, designPath, Options{})
+	res, err := GenerateFromFiles(FilePaths{Architecture: modelPath, Requirements: requirementsPath, Design: designPath}, Options{})
 	if err != nil {
 		t.Fatalf("generate asciidoc failed: %v", err)
 	}
@@ -442,7 +442,7 @@ func TestGenerateAsciiDoc_InteractionFlowViewAndReferences(t *testing.T) {
 		Views: []model.View{{ID: "VIEW-FLOW", Kind: "interaction-flow", Roots: []string{"FLOW-INPUT"}}},
 	}}
 
-	res, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), Options{})
+	res, err := Generate(Inputs{Bundle: schemaV2TestBundle(bundle), Requirements: schemaV2TestRequirements(model.RequirementsDocument{}), Design: schemaV2TestDesign(model.DesignDocument{})}, Options{})
 	if err != nil {
 		t.Fatalf("generate asciidoc failed: %v", err)
 	}
@@ -481,7 +481,7 @@ func TestGenerateAsciiDocResolvesCodeReferencesForLoadedBundle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	result, _ := Generate(bundle, bundle.Requirements, bundle.Design, Options{})
+	result, _ := Generate(Inputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, Options{})
 	testutil.AssertDiag(t, result.Diagnostics, "model.invalid_requirement_source_ref", "CODE-SRC-GONE-GO")
 	for _, d := range result.Diagnostics {
 		if strings.Contains(d.Message, "CODE-SRC-IFACE-GO") {

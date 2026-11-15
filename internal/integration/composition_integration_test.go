@@ -63,7 +63,7 @@ func TestAtlasPublicationEnrichesNativeOutputs(t *testing.T) {
 
 func assertAtlasAsciiDoc(t *testing.T, bundle model.Bundle) {
 	t.Helper()
-	doc, err := asciidoc.Generate(bundle, bundle.Requirements, bundle.Design, asciidoc.Options{})
+	doc, err := asciidoc.Generate(asciidoc.Inputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, asciidoc.Options{})
 	if err != nil {
 		t.Fatal(err)
 	}
