@@ -78,21 +78,39 @@ func FindWorkspaceWith(start, mode string) (WorkspaceDocument, string, error) {
 	}
 	switch mode {
 	case "":
+		return searchWorkspaceUpward(start)
 	case WorkspaceOff:
 		return WorkspaceDocument{}, "", nil
 	default:
-		path, err := filepath.Abs(mode)
-		if err != nil {
-			return WorkspaceDocument{}, "", err
-		}
-		if info, err := os.Stat(path); err != nil {
-			return WorkspaceDocument{}, "", fmt.Errorf("workspace %s (%s): %w", path, WorkspaceEnv, err)
-		} else if info.IsDir() {
-			return WorkspaceDocument{}, "", fmt.Errorf("workspace %s (%s) is a directory, expected a %s file", path, WorkspaceEnv, WorkspaceFileName)
-		}
-		workspace, err := LoadWorkspace(path)
-		return workspace, path, err
+		return loadExplicitWorkspace(mode)
 	}
+}
+
+// loadExplicitWorkspace loads the workspace file the caller named, which must
+// exist and be a file.
+// TRLC-LINKS: REQ-EMG-048, REQ-EMG-063, REQ-EMG-108
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
+func loadExplicitWorkspace(mode string) (WorkspaceDocument, string, error) {
+	path, err := filepath.Abs(mode)
+	if err != nil {
+		return WorkspaceDocument{}, "", err
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		return WorkspaceDocument{}, "", fmt.Errorf("workspace %s (%s): %w", path, WorkspaceEnv, err)
+	}
+	if info.IsDir() {
+		return WorkspaceDocument{}, "", fmt.Errorf("workspace %s (%s) is a directory, expected a %s file", path, WorkspaceEnv, WorkspaceFileName)
+	}
+	workspace, err := LoadWorkspace(path)
+	return workspace, path, err
+}
+
+// searchWorkspaceUpward looks for the workspace file in start and each parent
+// directory and loads the first trusted one found.
+// TRLC-LINKS: REQ-EMG-048, REQ-EMG-063, REQ-EMG-108
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
+func searchWorkspaceUpward(start string) (WorkspaceDocument, string, error) {
 	dir, err := filepath.Abs(start)
 	if err != nil {
 		return WorkspaceDocument{}, "", err
@@ -101,15 +119,9 @@ func FindWorkspaceWith(start, mode string) (WorkspaceDocument, string, error) {
 		dir = filepath.Dir(dir)
 	}
 	for {
-		path := filepath.Join(dir, WorkspaceFileName)
-		if info, err := os.Stat(path); err == nil {
-			if err := trustedWorkspaceFile(path, info); err != nil {
-				return WorkspaceDocument{}, "", err
-			}
-			workspace, err := LoadWorkspace(path)
+		workspace, path, found, err := workspaceIn(dir)
+		if found || err != nil {
 			return workspace, path, err
-		} else if !os.IsNotExist(err) {
-			return WorkspaceDocument{}, "", fmt.Errorf("stat workspace %s: %w", path, err)
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
@@ -117,6 +129,26 @@ func FindWorkspaceWith(start, mode string) (WorkspaceDocument, string, error) {
 		}
 		dir = parent
 	}
+}
+
+// workspaceIn loads the workspace file of one directory: found is false when
+// the directory has none.
+// TRLC-LINKS: REQ-EMG-048, REQ-EMG-063, REQ-EMG-108
+// ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
+func workspaceIn(dir string) (workspace WorkspaceDocument, path string, found bool, err error) {
+	path = filepath.Join(dir, WorkspaceFileName)
+	info, statErr := os.Stat(path)
+	if os.IsNotExist(statErr) {
+		return WorkspaceDocument{}, "", false, nil
+	}
+	if statErr != nil {
+		return WorkspaceDocument{}, "", true, fmt.Errorf("stat workspace %s: %w", path, statErr)
+	}
+	if err := trustedWorkspaceFile(path, info); err != nil {
+		return WorkspaceDocument{}, "", true, err
+	}
+	workspace, err = LoadWorkspace(path)
+	return workspace, path, true, err
 }
 
 // trustedWorkspaceFile refuses a workspace file found by the upward search
@@ -131,10 +163,17 @@ func trustedWorkspaceFile(path string, info os.FileInfo) error {
 	if info.Mode().Perm()&0o002 != 0 {
 		return fmt.Errorf("workspace %s is world-writable; fix its mode or name it explicitly with %s=<path> if you trust it", path, WorkspaceEnv)
 	}
-	if uid, ok := fileOwner(info); ok && ownerCheckSupported && uid != currentUID() && uid != 0 {
+	if uid, ok := fileOwner(info); ok && foreignOwner(uid) {
 		return fmt.Errorf("workspace %s is not owned by the current user or root (uid %d); name it explicitly with %s=<path> if you trust it", path, uid, WorkspaceEnv)
 	}
 	return nil
+}
+
+// foreignOwner reports a file owner that is neither the current user nor root,
+// on a platform that has owners.
+// TRLC-LINKS: REQ-EMG-108
+func foreignOwner(uid int) bool {
+	return ownerCheckSupported && uid != currentUID() && uid != 0
 }
 
 // ReplacementPath returns the authored local path for a CUE module identity.

@@ -94,16 +94,7 @@ func StripLegacyStateVocabulary(source []byte) ([]byte, error) {
 		return source, nil
 	}
 	removeMappingKey(behavior, "states")
-	if relationships := mappingValue(behavior, "relationships"); relationships != nil && relationships.Kind == yaml.SequenceNode {
-		kept := relationships.Content[:0]
-		for _, item := range relationships.Content {
-			if typeNode := mappingValue(item, "type"); typeNode != nil && legacyStateMappingTypes[typeNode.Value] {
-				continue
-			}
-			kept = append(kept, item)
-		}
-		relationships.Content = kept
-	}
+	dropLegacyRelationships(mappingValue(behavior, "relationships"))
 	var out bytes.Buffer
 	encoder := yaml.NewEncoder(&out)
 	encoder.SetIndent(2)
@@ -114,6 +105,24 @@ func StripLegacyStateVocabulary(source []byte) ([]byte, error) {
 		return nil, err
 	}
 	return out.Bytes(), nil
+}
+
+// dropLegacyRelationships removes the relationships of a retired state mapping
+// type from a relationships sequence node; any other node is left alone.
+//
+// TRLC-LINKS: REQ-EMG-139
+func dropLegacyRelationships(relationships *yaml.Node) {
+	if relationships == nil || relationships.Kind != yaml.SequenceNode {
+		return
+	}
+	kept := relationships.Content[:0]
+	for _, item := range relationships.Content {
+		if typeNode := mappingValue(item, "type"); typeNode != nil && legacyStateMappingTypes[typeNode.Value] {
+			continue
+		}
+		kept = append(kept, item)
+	}
+	relationships.Content = kept
 }
 
 // mappingValue returns the value node of key in a mapping node, or nil.

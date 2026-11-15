@@ -70,13 +70,8 @@ var ErrHealthBaseline = errors.New("health baseline")
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
 func HealthBaselinePathProblem(file string) string {
 	file = strings.TrimSpace(file)
-	switch {
-	case file == "":
-		return "is empty"
-	case strings.Contains(file, "\\"):
-		return "contains a backslash; use forward slashes"
-	case strings.HasPrefix(file, "/") || filepath.IsAbs(file):
-		return "is absolute"
+	if problem := healthBaselineFormProblem(file); problem != "" {
+		return problem
 	}
 	clean := path.Clean(file)
 	if clean == ".." || strings.HasPrefix(clean, "../") {
@@ -84,6 +79,21 @@ func HealthBaselinePathProblem(file string) string {
 	}
 	if clean == "." || strings.HasSuffix(file, "/") {
 		return "names a directory, not a file"
+	}
+	return ""
+}
+
+// healthBaselineFormProblem returns why the text of a baseline path is not
+// acceptable before it is cleaned, or "".
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
+func healthBaselineFormProblem(file string) string {
+	switch {
+	case file == "":
+		return "is empty"
+	case strings.Contains(file, "\\"):
+		return "contains a backslash; use forward slashes"
+	case strings.HasPrefix(file, "/") || filepath.IsAbs(file):
+		return "is absolute"
 	}
 	return ""
 }
@@ -158,11 +168,21 @@ func ParseHealthBaseline(data []byte) (HealthBaselineFile, error) {
 	return file, nil
 }
 
+// isCleanRepositoryPath reports a non-empty, relative, already clean path that
+// stays inside the repository and has no backslash.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
+func isCleanRepositoryPath(p string) bool {
+	if p == "" || strings.Contains(p, "\\") || path.Clean(p) != p {
+		return false
+	}
+	return !strings.HasPrefix(p, "/") && p != ".." && !strings.HasPrefix(p, "../")
+}
+
 // healthBaselineEntryProblem returns why an entry is invalid, or "".
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
 func healthBaselineEntryProblem(e HealthBaselineEntry) string {
 	switch {
-	case e.Path == "" || strings.HasPrefix(e.Path, "/") || strings.Contains(e.Path, "\\") || path.Clean(e.Path) != e.Path || e.Path == ".." || strings.HasPrefix(e.Path, "../"):
+	case !isCleanRepositoryPath(e.Path):
 		return fmt.Sprintf("path %q is not a clean repository-relative path", e.Path)
 	case strings.TrimSpace(e.Function) == "":
 		return "has no function"
