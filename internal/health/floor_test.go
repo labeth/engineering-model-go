@@ -98,7 +98,7 @@ func coverCases() []floorCase {
 		{name: "below the floor and uncovered fails", results: []FileResult{warnFile("pkg/warn.go")}, floor: 10.0, want: []string{"pkg/warn.go"}},
 		{name: "a file of the baseline is covered", results: []FileResult{warnFile("pkg/warn.go")}, baseline: entryFor("pkg/warn.go", "Warn", CodeComplexMethod), floor: 10.0, want: []string{}},
 		{name: "an entry the finding outgrew still covers the file", results: []FileResult{warnFile("pkg/warn.go")},
-			baseline: []model.HealthBaselineEntry{entryAt("pkg/warn.go", "Warn", CodeComplexMethod, 3)}, floor: 10.0, want: []string{}},
+			baseline: []model.HealthBaselineEntry{entryAt(baselineKey{"pkg/warn.go", "Warn", CodeComplexMethod}, 3)}, floor: 10.0, want: []string{}},
 		{name: "a stale entry covers nothing", results: []FileResult{warnFile("pkg/warn.go")}, baseline: entryFor("pkg/warn.go", "Gone", CodeComplexMethod), floor: 10.0, want: []string{"pkg/warn.go"}},
 		{name: "an entry of another file covers nothing", results: []FileResult{warnFile("pkg/warn.go")}, baseline: entryFor("pkg/other.go", "Warn", CodeComplexMethod), floor: 10.0, want: []string{"pkg/warn.go"}},
 		{name: "an entry of another code covers nothing", results: []FileResult{warnFile("pkg/warn.go")}, baseline: entryFor("pkg/warn.go", "Warn", CodeLargeMethod), floor: 10.0, want: []string{"pkg/warn.go"}},
