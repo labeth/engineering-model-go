@@ -80,24 +80,54 @@ func (r AcceptanceRefs) Problems(rec *model.AcceptanceRecord) []AcceptanceProble
 		return nil
 	}
 	var out []AcceptanceProblem
-	if actor := strings.TrimSpace(rec.Actor); actor != "" && !r.actors[actor] {
-		out = append(out, AcceptanceProblem{"actor", fmt.Sprintf("acceptedBy actor %q is not an actor", actor)})
-	}
-	if date := strings.TrimSpace(rec.Date); date != "" {
-		if _, err := time.Parse(time.DateOnly, date); err != nil {
-			out = append(out, AcceptanceProblem{"date", fmt.Sprintf("acceptedBy date %q is not a YYYY-MM-DD calendar date", date)})
-		}
-	}
-	if ref := strings.TrimSpace(rec.DecisionRef); ref != "" {
-		status, ok := r.decisions[ref]
-		switch {
-		case !ok:
-			out = append(out, AcceptanceProblem{"decisionRef", fmt.Sprintf("acceptedBy decisionRef %q is not a decision", ref)})
-		case status != "accepted":
-			out = append(out, AcceptanceProblem{"decisionRef", fmt.Sprintf("acceptedBy decisionRef %q is a decision with status %q, not accepted", ref, status)})
+	for _, p := range []*AcceptanceProblem{r.actorProblem(rec), dateProblem(rec), r.decisionProblem(rec)} {
+		if p != nil {
+			out = append(out, *p)
 		}
 	}
 	return out
+}
+
+// actorProblem is the problem of a set actor that is no actor of the model.
+// TRLC-LINKS: REQ-EMG-085
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-GEMARA-EXPORTER
+func (r AcceptanceRefs) actorProblem(rec *model.AcceptanceRecord) *AcceptanceProblem {
+	if actor := strings.TrimSpace(rec.Actor); actor != "" && !r.actors[actor] {
+		return &AcceptanceProblem{"actor", fmt.Sprintf("acceptedBy actor %q is not an actor", actor)}
+	}
+	return nil
+}
+
+// dateProblem is the problem of a set date that is no YYYY-MM-DD calendar date.
+// TRLC-LINKS: REQ-EMG-085
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-GEMARA-EXPORTER
+func dateProblem(rec *model.AcceptanceRecord) *AcceptanceProblem {
+	date := strings.TrimSpace(rec.Date)
+	if date == "" {
+		return nil
+	}
+	if _, err := time.Parse(time.DateOnly, date); err != nil {
+		return &AcceptanceProblem{"date", fmt.Sprintf("acceptedBy date %q is not a YYYY-MM-DD calendar date", date)}
+	}
+	return nil
+}
+
+// decisionProblem is the problem of a set decisionRef that is no decision or a decision not accepted.
+// TRLC-LINKS: REQ-EMG-085
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-GEMARA-EXPORTER
+func (r AcceptanceRefs) decisionProblem(rec *model.AcceptanceRecord) *AcceptanceProblem {
+	ref := strings.TrimSpace(rec.DecisionRef)
+	if ref == "" {
+		return nil
+	}
+	status, ok := r.decisions[ref]
+	switch {
+	case !ok:
+		return &AcceptanceProblem{"decisionRef", fmt.Sprintf("acceptedBy decisionRef %q is not a decision", ref)}
+	case status != "accepted":
+		return &AcceptanceProblem{"decisionRef", fmt.Sprintf("acceptedBy decisionRef %q is a decision with status %q, not accepted", ref, status)}
+	}
+	return nil
 }
 
 // Resolves reports whether a record is complete and every field resolves:
@@ -135,55 +165,86 @@ func acceptanceDiagnostics(b model.Bundle) []Diagnostic {
 	a := b.Architecture.AuthoredArchitecture
 	refs := NewAcceptanceRefs(b)
 	var diags []Diagnostic
-	check := func(kind, id, path string, accepted bool, rec *model.AcceptanceRecord) {
-		if missing := AcceptanceMissing(rec); accepted && len(missing) > 0 {
-			diags = append(diags, Diagnostic{
-				Code: "risk.acceptance_unrecorded", Severity: SeverityError,
-				Message: fmt.Sprintf("%s %s is accepted without an owner acceptance record; add acceptedBy with %s (actor: the ACT-* owner who accepted, date: YYYY-MM-DD, statement: the owner's own words, or decisionRef: an accepted decision quoting the owner), or set the status the risk really has", kind, id, strings.Join(missing, ", ")),
-				Path:    path + ".acceptedBy",
-			})
-		}
-		for _, p := range refs.Problems(rec) {
-			diags = append(diags, Diagnostic{Code: "model.invalid_acceptance", Severity: SeverityError, Message: p.Message, Path: path + ".acceptedBy." + p.Field})
-		}
-		if rec != nil && strings.TrimSpace(rec.DecisionRef) != "" && strings.TrimSpace(rec.Statement) == "" {
-			diags = append(diags, Diagnostic{
-				Code: "risk.acceptance_by_decision_only", Severity: SeverityWarning,
-				Message: fmt.Sprintf("%s %s is accepted through decision %s without a statement; add acceptedBy.statement with the owner's own words accepting this %s (ask the owner about this %s by name, not bundled with other choices)", kind, id, strings.TrimSpace(rec.DecisionRef), kind, kind),
-				Path:    path + ".acceptedBy.statement",
-			})
-		}
-	}
 	for i, r := range a.Risks {
-		id := strings.TrimSpace(r.ID)
-		if strings.Contains(id, "::") {
+		if !isImported(strings.TrimSpace(r.ID)) {
+			diags = append(diags, riskAcceptanceDiagnostics(refs, indexedPath("authoredArchitecture.risks", i), r)...)
+		}
+	}
+	return append(diags, threatAcceptanceDiagnostics(refs, a.ThreatScenarios)...)
+}
+
+// threatAcceptanceDiagnostics checks the acceptance record of each local threat scenario.
+// TRLC-LINKS: REQ-EMG-085, REQ-EMG-116
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func threatAcceptanceDiagnostics(refs AcceptanceRefs, scenarios []model.ThreatScenario) []Diagnostic {
+	var diags []Diagnostic
+	for i, ts := range scenarios {
+		id := strings.TrimSpace(ts.ID)
+		if isImported(id) {
 			continue
 		}
-		path := fmt.Sprintf("authoredArchitecture.risks[%d]", i)
-		check("risk", id, path, riskRecordedAccepted(r), r.AcceptedBy)
-		if owner := strings.TrimSpace(r.Owner); owner != "" && r.AcceptedBy != nil {
-			if actor := strings.TrimSpace(r.AcceptedBy.Actor); actor != "" && actor != owner {
-				diags = append(diags, Diagnostic{
-					Code: "risk.acceptance_not_owner", Severity: SeverityWarning,
-					Message: fmt.Sprintf("risk %s was accepted by %s, but its owner is %s; record the owner's acceptance, or make the accepting actor the owner", id, actor, owner),
-					Path:    path + ".acceptedBy.actor",
-				})
-			}
-		}
-		if strings.EqualFold(strings.TrimSpace(r.Response), "accept") && strings.EqualFold(strings.TrimSpace(r.Status), "open") {
+		record := acceptedRecord{kind: "threat scenario", id: id, path: indexedPath("authoredArchitecture.threatScenarios", i), accepted: strings.EqualFold(strings.TrimSpace(ts.Status), "accepted"), rec: ts.AcceptedBy}
+		diags = append(diags, refs.recordDiagnostics(record)...)
+	}
+	return diags
+}
+
+// acceptedRecord is a risk or threat scenario with its acceptance record.
+type acceptedRecord struct {
+	kind, id, path string
+	accepted       bool
+	rec            *model.AcceptanceRecord
+}
+
+// riskAcceptanceDiagnostics checks the acceptance record of one local risk, its
+// owner and the open risk that is to be accepted.
+// TRLC-LINKS: REQ-EMG-085, REQ-EMG-116
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func riskAcceptanceDiagnostics(refs AcceptanceRefs, path string, r model.Risk) []Diagnostic {
+	id := strings.TrimSpace(r.ID)
+	diags := refs.recordDiagnostics(acceptedRecord{kind: "risk", id: id, path: path, accepted: riskRecordedAccepted(r), rec: r.AcceptedBy})
+	if owner := strings.TrimSpace(r.Owner); owner != "" && r.AcceptedBy != nil {
+		if actor := strings.TrimSpace(r.AcceptedBy.Actor); actor != "" && actor != owner {
 			diags = append(diags, Diagnostic{
-				Code: "risk.accept_while_open", Severity: SeverityWarning,
-				Message: fmt.Sprintf("risk %s has response accept but status open; set status accepted once the owner has accepted it, or the response it is waiting for", id),
-				Path:    path + ".status",
+				Code: "risk.acceptance_not_owner", Severity: SeverityWarning,
+				Message: fmt.Sprintf("risk %s was accepted by %s, but its owner is %s; record the owner's acceptance, or make the accepting actor the owner", id, actor, owner),
+				Path:    path + ".acceptedBy.actor",
 			})
 		}
 	}
-	for i, ts := range a.ThreatScenarios {
-		id := strings.TrimSpace(ts.ID)
-		if strings.Contains(id, "::") {
-			continue
-		}
-		check("threat scenario", id, fmt.Sprintf("authoredArchitecture.threatScenarios[%d]", i), strings.EqualFold(strings.TrimSpace(ts.Status), "accepted"), ts.AcceptedBy)
+	if strings.EqualFold(strings.TrimSpace(r.Response), "accept") && strings.EqualFold(strings.TrimSpace(r.Status), "open") {
+		diags = append(diags, Diagnostic{
+			Code: "risk.accept_while_open", Severity: SeverityWarning,
+			Message: fmt.Sprintf("risk %s has response accept but status open; set status accepted once the owner has accepted it, or the response it is waiting for", id),
+			Path:    path + ".status",
+		})
+	}
+	return diags
+}
+
+// recordDiagnostics reports an accepted record without a complete acceptance
+// record, the fields of its acceptance record that do not resolve and an
+// acceptance by decision alone.
+// TRLC-LINKS: REQ-EMG-085, REQ-EMG-116
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (r AcceptanceRefs) recordDiagnostics(a acceptedRecord) []Diagnostic {
+	var diags []Diagnostic
+	if missing := AcceptanceMissing(a.rec); a.accepted && len(missing) > 0 {
+		diags = append(diags, Diagnostic{
+			Code: "risk.acceptance_unrecorded", Severity: SeverityError,
+			Message: fmt.Sprintf("%s %s is accepted without an owner acceptance record; add acceptedBy with %s (actor: the ACT-* owner who accepted, date: YYYY-MM-DD, statement: the owner's own words, or decisionRef: an accepted decision quoting the owner), or set the status the risk really has", a.kind, a.id, strings.Join(missing, ", ")),
+			Path:    a.path + ".acceptedBy",
+		})
+	}
+	for _, p := range r.Problems(a.rec) {
+		diags = append(diags, Diagnostic{Code: "model.invalid_acceptance", Severity: SeverityError, Message: p.Message, Path: a.path + ".acceptedBy." + p.Field})
+	}
+	if a.rec != nil && strings.TrimSpace(a.rec.DecisionRef) != "" && strings.TrimSpace(a.rec.Statement) == "" {
+		diags = append(diags, Diagnostic{
+			Code: "risk.acceptance_by_decision_only", Severity: SeverityWarning,
+			Message: fmt.Sprintf("%s %s is accepted through decision %s without a statement; add acceptedBy.statement with the owner's own words accepting this %s (ask the owner about this %s by name, not bundled with other choices)", a.kind, a.id, strings.TrimSpace(a.rec.DecisionRef), a.kind, a.kind),
+			Path:    a.path + ".acceptedBy.statement",
+		})
 	}
 	return diags
 }

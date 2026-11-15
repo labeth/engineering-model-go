@@ -19,26 +19,47 @@ const ExcludeAcceptedForms = "dir, dir/, dir/* or dir/** (each leaves the whole 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE
 func ExcludePatternProblem(pattern string) string {
 	p := filepath.ToSlash(strings.TrimSpace(pattern))
-	switch {
-	case p == "" || p == "." || p == "./":
-		return "is empty or names the whole module"
-	case strings.HasPrefix(p, "/") || filepath.IsAbs(pattern):
-		return "is absolute"
+	if problem := excludeFormProblem(p, pattern); problem != "" {
+		return problem
 	}
 	p = strings.TrimPrefix(p, "./")
 	p = strings.TrimSuffix(strings.TrimSuffix(p, "/**"), "/")
-	for _, segment := range strings.Split(p, "/") {
-		if segment == ".." {
-			return "leaves the module root"
-		}
-	}
-	if strings.Contains(p, "**") {
+	switch {
+	case hasParentSegment(p):
+		return "leaves the module root"
+	case strings.Contains(p, "**"):
 		return "uses ** other than as a trailing /**"
 	}
 	if _, err := path.Match(p, ""); err != nil {
 		return "is not a valid glob"
 	}
 	return ""
+}
+
+// excludeFormProblem says why a slashed pattern is empty, names the whole
+// module or is absolute, or returns "".
+// TRLC-LINKS: REQ-EMG-114
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE
+func excludeFormProblem(slashed, pattern string) string {
+	if slashed == "" || slashed == "." || slashed == "./" {
+		return "is empty or names the whole module"
+	}
+	if strings.HasPrefix(slashed, "/") || filepath.IsAbs(pattern) {
+		return "is absolute"
+	}
+	return ""
+}
+
+// hasParentSegment reports whether a slashed path has a .. segment.
+// TRLC-LINKS: REQ-EMG-114
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-CODEMAP-INFERENCE
+func hasParentSegment(p string) bool {
+	for _, segment := range strings.Split(p, "/") {
+		if segment == ".." {
+			return true
+		}
+	}
+	return false
 }
 
 // excludePatternDiagnostics reports model.invalid_exclude_pattern (error) at
