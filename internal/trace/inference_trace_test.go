@@ -104,7 +104,7 @@ func verificationFixture(t *testing.T, files map[string]string, reqIDs ...string
 		reqs.Requirements = append(reqs.Requirements, model.Requirement{ID: id})
 	}
 	code, codeDiags := codescan.InferCodeItems(bundle, root)
-	checks, verDiags := codescan.InferVerificationChecks(bundle, reqs, code, root)
+	checks, verDiags := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: reqs, InferredCode: code, CodeRoot: root})
 	return buildTraceMatrix(bundle, Evidence{reqs, code, checks}), checks, append(codeDiags, verDiags...)
 }
 

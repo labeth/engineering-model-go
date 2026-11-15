@@ -38,7 +38,7 @@ func inferFormal(t *testing.T, root string) ([]VerificationCheck, []validate.Dia
 	t.Helper()
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
 	requirements := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-X-1"}, {ID: "REQ-X-2"}}}
-	return InferVerificationChecks(bundle, requirements, nil, "")
+	return InferVerificationChecks(VerificationScan{Bundle: bundle, Requirements: requirements, InferredCode: nil, CodeRoot: ""})
 }
 
 func formalCheck(t *testing.T, checks []VerificationCheck) VerificationCheck {

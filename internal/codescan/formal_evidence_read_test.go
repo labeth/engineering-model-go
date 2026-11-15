@@ -175,7 +175,7 @@ func TestFormalEvidenceFilesMatchTheVerificationScan(t *testing.T) {
 	}
 	assertCurrentEntriesOrdered(t, ReadFormalEvidence(modelDir, files), want)
 
-	checks, _ := InferVerificationChecks(model2Bundle(modelDir), requirementsX(), nil, "../src")
+	checks, _ := InferVerificationChecks(VerificationScan{Bundle: model2Bundle(modelDir), Requirements: requirementsX(), InferredCode: nil, CodeRoot: "../src"})
 	evidence := formalEvidenceOf(checks)
 	if strings.Join(evidence, ",") != strings.Join(want, ",") {
 		t.Fatalf("the verification inference reads %v, the shared scan %v", evidence, want)

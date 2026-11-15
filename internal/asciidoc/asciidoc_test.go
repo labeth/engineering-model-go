@@ -187,7 +187,7 @@ func TestGenerateOutputs_VerificationStatusConsistentForTestAndResultNameMismatc
 	})
 	sample.bundle.ManifestPath = filepath.Join(root, "engmod.yml")
 
-	checks, _ := codescan.InferVerificationChecks(sample.bundle, sample.requirements, nil, "")
+	checks, _ := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: sample.bundle, Requirements: sample.requirements, InferredCode: nil, CodeRoot: ""})
 	validationCheck, ok := findCheckByEvidence(checks, filepath.ToSlash(filepath.Join("tests", "validation.test.js")))
 	if !ok {
 		t.Fatalf("missing validation inferred verification check")
@@ -482,7 +482,7 @@ func TestGenerateAsciiDocResolvesCodeReferencesForLoadedBundle(t *testing.T) {
 		t.Fatal(err)
 	}
 	result, _ := Generate(Inputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, Options{})
-	testutil.AssertDiag(t, result.Diagnostics, "model.invalid_requirement_source_ref", "CODE-SRC-GONE-GO")
+	testutil.AssertDiag(t, result.Diagnostics, testutil.DiagWant{Code: "model.invalid_requirement_source_ref", Fragment: "CODE-SRC-GONE-GO"})
 	for _, d := range result.Diagnostics {
 		if strings.Contains(d.Message, "CODE-SRC-IFACE-GO") {
 			t.Fatalf("resolvable CODE reference rejected: %+v", d)

@@ -96,9 +96,9 @@ func TestCodeReferencesResolveAgainstModuleFiles(t *testing.T) {
 		{Type: "depends_on", From: "FU-X", To: "AUTO-app/x.go:3"},
 	}
 	diags := validate.Bundle(bundle)
-	testutil.AssertDiag(t, diags, "model.invalid_requirement_source_ref", "CODE-APP-GONE-GO")
-	testutil.AssertDiag(t, diags, "model.ambiguous_code_reference", "CODE-APP-A-B-GO")
-	testutil.AssertDiag(t, diags, "model.inferred_id_not_allowed", "AUTO-")
+	testutil.AssertDiag(t, diags, testutil.DiagWant{Code: "model.invalid_requirement_source_ref", Fragment: "CODE-APP-GONE-GO"})
+	testutil.AssertDiag(t, diags, testutil.DiagWant{Code: "model.ambiguous_code_reference", Fragment: "CODE-APP-A-B-GO"})
+	testutil.AssertDiag(t, diags, testutil.DiagWant{Code: "model.inferred_id_not_allowed", Fragment: "AUTO-"})
 	assertCaptureReferenceAccepted(t, diags)
 }
 
@@ -150,7 +150,7 @@ func assertCaptureReferenceAccepted(t *testing.T, diags []validate.Diagnostic) {
 func TestCodeSourcesIsRejected(t *testing.T) {
 	bundle := model.Bundle{}
 	bundle.Architecture.InferenceHints.CodeSources = []string{"./src"}
-	testutil.AssertDiag(t, validate.Bundle(bundle), "model.code_sources_removed", "exclude")
+	testutil.AssertDiag(t, validate.Bundle(bundle), testutil.DiagWant{Code: "model.code_sources_removed", Fragment: "exclude"})
 }
 
 // TRLC-LINKS: REQ-EMG-060
@@ -167,9 +167,9 @@ func TestReferencedElementURIRules(t *testing.T) {
 	bundle := model.Bundle{}
 	bundle.Architecture.AuthoredArchitecture.ReferencedElements = refs
 	diags := validate.Bundle(bundle)
-	testutil.AssertDiag(t, diags, "model.referenced_element_local_uri", "REF-LOCAL")
-	testutil.AssertDiag(t, diags, "model.referenced_element_local_uri", "REF-FILE")
-	testutil.AssertDiag(t, diags, "model.referenced_element_missing_version", "REF-WEB")
+	testutil.AssertDiag(t, diags, testutil.DiagWant{Code: "model.referenced_element_local_uri", Fragment: "REF-LOCAL"})
+	testutil.AssertDiag(t, diags, testutil.DiagWant{Code: "model.referenced_element_local_uri", Fragment: "REF-FILE"})
+	testutil.AssertDiag(t, diags, testutil.DiagWant{Code: "model.referenced_element_missing_version", Fragment: "REF-WEB"})
 	for _, d := range diags {
 		assertNotNamingValidRef(t, d)
 	}

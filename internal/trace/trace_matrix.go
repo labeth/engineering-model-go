@@ -1064,7 +1064,7 @@ func resolvedCodeRoot(req FileRequest) string {
 func inferEvidence(bundle model.Bundle, req FileRequest) (Evidence, []validate.Diagnostic) {
 	resolvedRoot := resolvedCodeRoot(req)
 	code, codeDiags := codescan.InferCodeItems(bundle, resolvedRoot)
-	verification, verDiags := codescan.InferVerificationChecks(bundle, bundle.Requirements, code, resolvedRoot)
+	verification, verDiags := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: bundle.Requirements, InferredCode: code, CodeRoot: resolvedRoot})
 	// A stale formal result is no evidence: drop it before any roll-up.
 	verification = effectiveVerification(codescan.ModelRootDir(bundle), verification)
 	diags := append([]validate.Diagnostic(nil), codeDiags...)
@@ -1119,7 +1119,7 @@ func dropSatisfiedOrphans(diags []validate.Diagnostic, satisfied map[string]bool
 func dependencyTraceRows(child *composition.ComposedSystem) (map[string]Row, bool) {
 	bundle := child.Bundle
 	code, _ := codescan.InferCodeItems(bundle, "")
-	verification, _ := codescan.InferVerificationChecks(bundle, bundle.Requirements, code, "")
+	verification, _ := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: bundle.Requirements, InferredCode: code, CodeRoot: ""})
 	scoped := ScopeCodeToModel(code, EffectiveCodeRoots(bundle, ""), codescan.ModelRootDir(bundle))
 	if len(scoped) == 0 && len(verification) == 0 {
 		return nil, false

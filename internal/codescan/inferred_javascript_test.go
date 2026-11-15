@@ -49,7 +49,7 @@ func assertCleanInference(t *testing.T, root string, reqIDs ...string) {
 	for _, id := range reqIDs {
 		reqs.Requirements = append(reqs.Requirements, model.Requirement{ID: id})
 	}
-	checks, diags := InferVerificationChecks(bundle, reqs, code, "")
+	checks, diags := InferVerificationChecks(VerificationScan{Bundle: bundle, Requirements: reqs, InferredCode: code, CodeRoot: ""})
 	if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
 		t.Fatalf("checks: %+v %+v", checks, diags)
 	}
