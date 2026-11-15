@@ -2181,13 +2181,3 @@ requirements:
       - EVT-HEALTH-CHECK-REQUESTED
       - FLOW-HEALTH-CHECK
     realizes: [CAP-EMG-CODE-HEALTH]
-  - id: REQ-EMG-211
-    status: proposed
-    text: The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.
-    notes: 'ADR-EMG-087. A requirement of this repository, not of the engine contract, so it is not published. It is met when the baseline model/health-baseline.json is empty (the owner: "get a 10/10 score in all files in model, tool, flow"), and it is verified by the scan with an empty baseline (enghealth scan --model engmod.yml --fail-on-error), which reports no health.file_below_floor and no finding. The baseline lists the files that do not meet it yet; REQ-EMG-209 makes each of them explicit and lets the baseline only shrink. The status stays proposed until the baseline is empty; it is not verified by the rule that reports the gap.'
-    verificationMethods: [inspection, test]
-    verificationCriteria: 'When enghealth scan runs on this repository with the baseline ignored or empty at tier operational, then every file scores 10.0, the summary lists no finding, belowFloor is 0 and enghealth scan --fail-on-error exits 0; model/health-baseline.json has no entry; while it has entries the requirement is not met and summary.floorCovered counts the files left.'
-    appliesTo:
-      - FU-CODE-HEALTH
-    derived: true
-    derivedRationale: 'Owner request of 2026-11-15: "for the 2 higest level i want a requirement on 10/10 score for all files." and the goal "get a 10/10 score in all files in model, tool, flow". REQ-EMG-209 and REQ-EMG-210 are the rule that reports a file below the floor; this requirement is the target the owner set for the repository itself.'

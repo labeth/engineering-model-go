@@ -23888,25 +23888,14 @@
       "verifications": [
         "VER-INF-TEST-CHECK_FLOOR_TEST-EECC31",
         "VER-INF-TEST-FLOOR_CHECK_TEST-9BEA42",
-        "VER-INF-TEST-FLOOR_POLICY_TEST-5B5B1B"
+        "VER-INF-TEST-FLOOR_POLICY_TEST-5B5B1B",
+        "VER-INF-TEST-REPOSITORY_FLOOR_TEST-19C8F7"
       ],
       "result": "not-run",
       "status": "implemented",
       "parents": [
         "CAP-EMG-CODE-HEALTH"
       ]
-    },
-    {
-      "id": "REQ-EMG-211",
-      "text": "The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.",
-      "units": [
-        "FU-CODE-HEALTH"
-      ],
-      "verifications": [
-        "VER-INF-TEST-REPOSITORY_FLOOR_TEST-19C8F7"
-      ],
-      "result": "not-run",
-      "status": "verified"
     }
   ],
   "danglingLinks": null,
@@ -23915,10 +23904,10 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 204,
+    "requirements": 203,
     "implemented": 199,
-    "tested": 189,
-    "testLinked": 189,
+    "tested": 188,
+    "testLinked": 188,
     "passed": 13,
     "delegated": 0,
     "orphan": 2,

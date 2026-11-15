@@ -40,16 +40,16 @@ func requireCovered(t *testing.T, report engmodel.HealthReport) {
 // The repository meets its own floor as far as it says: every file of this
 // repository below 10.0 is covered by model/health-baseline.json, so the scan
 // reports no file below the floor that the baseline does not cover, and the
-// number of covered files is the burn-down that REQ-EMG-211 asks to bring to
-// zero. The test does not ask for an empty baseline: that is the requirement,
-// which is met when the baseline is empty and stays proposed until then. It
-// fails when a file is added or worsened below 10.0 without a baseline entry,
-// which keeps the baseline the shrinking list of exceptions (ADR-EMG-087).
+// number of covered files is the burn-down to zero. The test does not ask for
+// an empty baseline: the requirement of this repository that asks for it is
+// added when the baseline is empty (ADR-EMG-087). It fails when a file is
+// added or worsened below 10.0 without a baseline entry, which keeps the
+// baseline the shrinking list of exceptions (ADR-EMG-087).
 //
 // Mutation: a scan that ignores the baseline reports every covered file and
 // fails; so does a file with a finding that the baseline does not name.
 //
-// TRLC-LINKS: REQ-EMG-211
+// TRLC-LINKS: REQ-EMG-210
 func TestRepositoryFilesAreAtTheFloorOrBaselined(t *testing.T) {
 	report := scanRepository(t)
 	requireCovered(t, report)

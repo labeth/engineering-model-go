@@ -2535,12 +2535,6 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-03758739C61FBDFA';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-0B3CFBC93B76A5B3";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-0B3CFBC93B76A5B3';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-139EC30ED19D5D0E";
         conceptKind = "engineering_extension";
     }
@@ -3795,12 +3789,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'POAM-CONSISTENCY-MODEL-ONLY';
-
-    @EngineeringElement {
-        sourceId = "POAM-HEALTH-FLOOR";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-HEALTH-FLOOR';
 
     @EngineeringElement {
         sourceId = "POAM-MCP-PATH-FUZZING";
@@ -5789,15 +5777,6 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-210' {
         attribute 'text' : 'String' = "While project tier is at least product, when health check is requested, the code health check shall report one error for each changed file below the floor that no baseline entry covers.";
         attribute 'notes' : 'String' = "ADR-EMG-087. enghealth check evaluates health.file_below_floor for the source files changed between the base revision and the head, with the same floor, level and cover as the scan: it reads the baseline of the head manifest for this only (a regression is still never baselined). A file that gets below the floor, a file that is new below it and a changed file that was already below it and is not covered fail the check where the code is an error; the files are listed under belowFloor of the JSON report and as results of the SARIF rule health.file_below_floor. A lowered floor against the base revision is a weakening (health.policy_weakened, aspect floor). A new or worsened warn finding is no regression, so the floor is the gate that holds a changed file to 10.0 at once.";
-    }
-
-    @EngineeringElement {
-        sourceId = "REQ-EMG-211";
-        conceptKind = "requirement_definition";
-    }
-    requirement def 'REQ-EMG-211' {
-        attribute 'text' : 'String' = "The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.";
-        attribute 'notes' : 'String' = "ADR-EMG-087. A requirement of this repository, not of the engine contract, so it is not published. It is met when the baseline model/health-baseline.json is empty (the owner: \"get a 10/10 score in all files in model, tool, flow\"), and it is verified by the scan with an empty baseline (enghealth scan --model engmod.yml --fail-on-error), which reports no health.file_below_floor and no finding. The baseline lists the files that do not meet it yet; REQ-EMG-209 makes each of them explicit and lets the baseline only shrink. The status stays proposed until the baseline is empty; it is not verified by the rule that reports the gap.";
     }
 
     @EngineeringElement {

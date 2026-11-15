@@ -2513,10 +2513,10 @@ decisions:
     is an error: a file that gets below the floor, a file that is new below it, and a changed file that was below it and is not covered.
     The JSON report lists them under belowFloor and the SARIF report as results of the rule. (6) The rule reads the score and the baseline
     entries and nothing else, so the same tree gives the same diagnostics, sorted by path. (7) The engine's own model adds REQ-EMG-209
-    (scan) and REQ-EMG-210 (check) as the rule, and REQ-EMG-211, a requirement of this repository that every source file scores 10.0 at
-    tier operational: it stays proposed and is met when model/health-baseline.json is empty, which the other efforts burn down.
+    (scan) and REQ-EMG-210 (check) as the rule. The requirement of this repository itself, that every source file scores 10.0 at tier
+    operational, is added with the burn-down of model/health-baseline.json, not now: it can be verified only when the baseline is empty,
+    and a proposed requirement at tier operational would need a POA&M defer, which is a policy weakening that the owner decides.
   consequences:
   - 'At product and operational a model with a baseline keeps passing: every file below 10.0 that the baseline covers is counted in summary.floorCovered and is not an error. The rule adds an error only for a file the baseline does not cover, and in the scan that file already carries the error of its own findings, so in the scan the new diagnostic names the file and its score, and in enghealth check it is the gate that holds a changed file to 10.0, because a new or worsened warn finding is no regression.'
   - 'Below product the code is a warning for every file below 10.0 that the baseline does not cover, so a project that has no baseline sees one warning per such file at poc, prototype and mvp; it can lower health.floor, which is reported as a weakening only by enghealth check against a base revision.'
   - 'A change that grows the baseline to cover a new file is health.policy_weakened (BaselineWeakenings), so covering a file is never silent.'
-  - 'REQ-EMG-211 is not verified until the baseline is empty, and at tier operational a proposed requirement needs its lifecycle.requirement_unapproved and lifecycle.requirement_unverified diagnostics deferred by a POA&M item; enghealth check reports the two new defers as a policy weakening that only an accepted policyDecision records (the owner decides; the agent does not write the acceptance).'

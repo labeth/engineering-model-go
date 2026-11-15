@@ -82,16 +82,14 @@ verification or writing an owner decision was not an option, so the evidence was
 - The facade test of REQ-EMG-199 found a defect, fixed here: `CodeDeclarationsOf` listed the defining type of a Go declaration
   (`type Beta int`) as a declaration named `int`.
 
-The draft decision `DEC-HEALTH-GO-API-EVIDENCE-DEBT` of the first version of this note is withdrawn: nothing is deferred, so no
-`health.policyDecision` is needed. The red-check evidence lives in the git-ignored `.engflow/red-checks.jsonl` and is tied to one tree
+Nothing is deferred, so no `health.policyDecision` is needed. The red-check evidence lives in the git-ignored `.engflow/red-checks.jsonl` and is tied to one tree
 (any later change makes `engws status-suggest` report "no RED red-check for this tree" again, as for REQ-EMG-207 and 208); run
 `scripts/red-checks/run.sh` on the tree you want to confirm.
 
 ## OWNER item 3: every file scores 10.0 (ADR-EMG-087, added after the validation table above)
 
 The owner asked for a requirement of 10/10 on all files at the two highest tiers. Implemented as `health.file_below_floor`
-(REQ-EMG-209 scan, REQ-EMG-210 check, published with `CAP-EMG-CODE-HEALTH`) and `REQ-EMG-211` (a requirement of this repository, not
-published, status `proposed`, met when `model/health-baseline.json` is empty). What the owner decides or should know:
+(REQ-EMG-209 scan, REQ-EMG-210 check, published with `CAP-EMG-CODE-HEALTH`). What the owner decides or should know:
 
 - **The baseline is the burn-down.** The scan of this repository reports the number: `summary.belowFloor` files are below 10.0 and
   `summary.floorCovered` of them are covered by the baseline (`enghealth scan` prints "files below the floor of 10.0: N, M covered
@@ -101,13 +99,14 @@ published, status `proposed`, met when `model/health-baseline.json` is empty). W
   findings at product and operational, so the new diagnostic adds the file-level message there, not a new failure. Its new effect is
   in `enghealth check` (a new or worsened warn finding is no regression, so a changed file could stay below 10.0) and below product
   (a warning for every file below 10.0 that no baseline covers).
-- **REQ-EMG-211 needs two more defers.** At tier operational a `proposed` requirement is `lifecycle.requirement_unapproved` and
-  `lifecycle.requirement_unverified`; the agent did not mark it verified. The two diagnostics are deferred by `POAM-HEALTH-FLOOR`
-  (see the model), which `enghealth check` counts as two more defers against the base, the same kind of weakening as OWNER item 1:
-  the decision of item 1 (`health.policyDecision`) covers both, and the draft above would say 20 deferred requirements and 2 more
-  defers. Without the defers `engdoc` reports the two diagnostics as errors at operational. `requirement.orphan` for REQ-EMG-211
-  is cleared by the test `TestRepositoryFilesAreAtTheFloorOrBaselined` (`cmd/enghealth`), which scans this repository at
-  tier operational and fails for a file below 10.0 that the baseline does not cover; it does not ask for an empty baseline.
+- **REQ-EMG-211 is held back until the baseline is empty.** The requirement of this repository itself, "every source file of this
+  repository shall score 10.0 at tier operational", can be verified only when `model/health-baseline.json` is empty, which another
+  branch (`feat/health-floor`) is burning down. As a `proposed` requirement at tier operational it would be
+  `lifecycle.requirement_unapproved` and `lifecycle.requirement_unverified` and would need a POA&M defer, a policy weakening that only
+  the owner decides, so it is not in this release: the release carries the rule (REQ-EMG-209, REQ-EMG-210, both verified), which is
+  the owner's ask. REQ-EMG-211 is added with the burn-down, when it can be verified at once. The test
+  `TestRepositoryFilesAreAtTheFloorOrBaselined` (`cmd/enghealth`, linked to REQ-EMG-210) scans this repository at tier operational
+  and fails for a file below 10.0 that the baseline does not cover; it does not ask for an empty baseline.
 - **REQ-EMG-209 and REQ-EMG-210 are `verified`** on the strength of 25 red-check mutations (every one failed an assertion; three
   more broke the build and were replaced, one passed until a missing test of the gate was added): `red-check.mjs --mutations`,
   commands `go test -count=1 ./internal/health`, `./internal/validate` and `-short ./internal/health/scan ./cmd/enghealth`,
