@@ -2,7 +2,6 @@
 package health
 
 import (
-	"reflect"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/model"
@@ -46,22 +45,16 @@ func TestApplyWaiversMovesOnlyTheMatchingFinding(t *testing.T) {
 	}
 	out, waived, unused := ApplyWaivers(in, waivers)
 
-	if len(waived) != 1 || waived[0].Path != "internal/a.go" || waived[0].Function != "Parser.parse" ||
-		waived[0].Code != CodeComplexMethod || waived[0].Decision != "ADR-OK" || waived[0].Value != 25 {
-		t.Fatalf("waived = %+v", waived)
-	}
-	if got := out[0].Functions[0].Findings; len(got) != 1 || got[0].Code != CodeLargeMethod {
-		t.Errorf("parse findings after waiver = %+v, want only large_method", got)
-	}
-	if len(out[0].Functions[1].Findings) != 1 || len(out[1].Functions[0].Findings) != 1 {
-		t.Error("a finding of another function or file was waived")
-	}
-	if !reflect.DeepEqual(in, waiverResults()) {
-		t.Error("ApplyWaivers modified its input")
-	}
-	if len(unused) != 2 || unused[0].Decision != "ADR-NEVER" || unused[1].Decision != "ADR-GONE" {
-		t.Errorf("unused = %+v, want the two waivers that match nothing, in order", unused)
-	}
+	mustEqual(t, len(waived), 1)
+	w := waived[0]
+	wantEqual(t, [5]any{w.Path, w.Function, w.Code, w.Decision, w.Value}, [5]any{"internal/a.go", "Parser.parse", CodeComplexMethod, "ADR-OK", 25})
+	got := out[0].Functions[0].Findings // only large_method is left
+	mustEqual(t, len(got), 1)
+	wantEqual(t, got[0].Code, CodeLargeMethod)
+	wantEqual(t, [2]int{len(out[0].Functions[1].Findings), len(out[1].Functions[0].Findings)}, [2]int{1, 1}) // no other function or file was waived
+	wantDeepEqual(t, in, waiverResults())                                                                    // the input is not modified
+	mustEqual(t, len(unused), 2)                                                                             // the two waivers that match nothing, in order
+	wantEqual(t, [2]string{unused[0].Decision, unused[1].Decision}, [2]string{"ADR-NEVER", "ADR-GONE"})
 }
 
 // A path glob of the exclude dialect names several files, a waived list is
@@ -72,15 +65,12 @@ func TestApplyWaiversMovesOnlyTheMatchingFinding(t *testing.T) {
 func TestApplyWaiversGlobAndOrder(t *testing.T) {
 	waivers := []model.HealthWaiver{{Code: CodeComplexMethod, Path: "internal/*.go", Function: "Parser.parse", Decision: "ADR-OK"}}
 	out, waived, unused := ApplyWaivers(waiverResults(), waivers)
-	if len(waived) != 2 || waived[0].Path != "internal/a.go" || waived[1].Path != "internal/b.go" || len(unused) != 0 {
-		t.Fatalf("waived = %+v unused = %+v", waived, unused)
-	}
-	if out[1].Functions[0].Findings != nil {
-		t.Errorf("b.go parse still has findings: %+v", out[1].Functions[0].Findings)
-	}
-	if out2, w2, u2 := ApplyWaivers(waiverResults(), nil); len(w2) != 0 || len(u2) != 0 || !reflect.DeepEqual(out2, waiverResults()) {
-		t.Error("no waivers must change nothing")
-	}
+	mustEqual(t, [2]int{len(waived), len(unused)}, [2]int{2, 0})
+	wantEqual(t, [2]string{waived[0].Path, waived[1].Path}, [2]string{"internal/a.go", "internal/b.go"})
+	wantEqual(t, out[1].Functions[0].Findings == nil, true) // the last finding leaves the function without any
+	out2, w2, u2 := ApplyWaivers(waiverResults(), nil)
+	wantEqual(t, [2]int{len(w2), len(u2)}, [2]int{0, 0})
+	wantDeepEqual(t, out2, waiverResults()) // no waivers change nothing
 }
 
 // WaiversForFiles keeps only the waivers for files in the scan, so a scan of
@@ -90,7 +80,6 @@ func TestApplyWaiversGlobAndOrder(t *testing.T) {
 func TestWaiversForFiles(t *testing.T) {
 	ws := []model.HealthWaiver{{Path: "a.go"}, {Path: "b/*.go"}, {Path: "c.go"}}
 	got := WaiversForFiles(ws, []string{"a.go", "b/x.go"})
-	if len(got) != 2 || got[0].Path != "a.go" || got[1].Path != "b/*.go" {
-		t.Fatalf("got %+v", got)
-	}
+	mustEqual(t, len(got), 2)
+	wantEqual(t, [2]string{got[0].Path, got[1].Path}, [2]string{"a.go", "b/*.go"})
 }

@@ -3,6 +3,7 @@ package health
 
 import (
 	"errors"
+	"math"
 	"reflect"
 	"strings"
 	"testing"
@@ -61,5 +62,18 @@ func wantErrorIs(t testing.TB, err, target error) {
 	t.Helper()
 	if !errors.Is(err, target) {
 		t.Errorf("error %v, want %v", err, target)
+	}
+}
+
+// approx is a value that must be within a tolerance of an expected one.
+type approx struct {
+	got, want, tol float64
+}
+
+// wantNear fails the test when the value is not within the tolerance.
+func wantNear(t testing.TB, a approx) {
+	t.Helper()
+	if math.Abs(a.got-a.want) > a.tol {
+		t.Errorf("got %v, want %v within %v", a.got, a.want, a.tol)
 	}
 }

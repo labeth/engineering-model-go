@@ -37,11 +37,3 @@ func wantAll(t testing.TB, text string, wants ...string) {
 		wantContains(t, text, want)
 	}
 }
-
-// wantNone fails the test when text holds unwanted.
-func wantNone(t testing.TB, text, unwanted string) {
-	t.Helper()
-	if strings.Contains(text, unwanted) {
-		t.Errorf("%q holds %q", text, unwanted)
-	}
-}

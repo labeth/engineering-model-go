@@ -39,14 +39,6 @@ func wantAll(t testing.TB, text string, wants ...string) {
 	}
 }
 
-// wantNone fails the test when text holds unwanted.
-func wantNone(t testing.TB, text, unwanted string) {
-	t.Helper()
-	if strings.Contains(text, unwanted) {
-		t.Errorf("%q holds %q", text, unwanted)
-	}
-}
-
 // wantDeepEqual fails the test when got and want are not deeply equal.
 func wantDeepEqual(t testing.TB, got, want any) {
 	t.Helper()
