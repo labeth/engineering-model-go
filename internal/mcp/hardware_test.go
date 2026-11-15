@@ -14,16 +14,28 @@ func TestHardwareEntitiesAreDiscoverable(t *testing.T) {
 		HardwareInterfaces: []model.HardwareInterface{{ID: "HWIF-LANES", Name: "ADC data lanes", From: "HW-ADC", To: "HW-FPGA"}},
 	}}}
 	for id, want := range map[string]string{"HW-ADC": "hardware_item", "HWIF-LANES": "hardware_interface"} {
-		kind, entity, ok := s.modelEntity(id)
-		if !ok || kind != want || entity == nil {
-			t.Fatalf("entity lookup %s: %s, %v, %v", id, kind, entity, ok)
-		}
-		nodes := s.modelEntityNodes(id, want, 10)
-		if len(nodes) != 1 || nodes[0]["id"] != id {
-			t.Fatalf("entity list missing %s: %+v", id, nodes)
-		}
+		assertHardwareLookup(t, s, id, want)
+		assertHardwareListed(t, s, id, want)
 	}
 	if nodes := s.graphNodes("Converter", 10); len(nodes) != 1 || nodes[0]["id"] != "HW-ADC" {
 		t.Fatalf("hardware name search: %+v", nodes)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-050
+func assertHardwareLookup(t *testing.T, s *Server, id, want string) {
+	t.Helper()
+	kind, entity, ok := s.modelEntity(id)
+	if !ok || kind != want || entity == nil {
+		t.Fatalf("entity lookup %s: %s, %v, %v", id, kind, entity, ok)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-007, REQ-EMG-050
+func assertHardwareListed(t *testing.T, s *Server, id, kind string) {
+	t.Helper()
+	nodes := s.modelEntityNodes(id, kind, 10)
+	if len(nodes) != 1 || nodes[0]["id"] != id {
+		t.Fatalf("entity list missing %s: %+v", id, nodes)
 	}
 }

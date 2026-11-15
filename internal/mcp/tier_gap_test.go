@@ -21,32 +21,58 @@ func TestTierGapTool(t *testing.T) {
 	// (the tier decision follows) and leaves child-b without a tier, the kept
 	// library behaviour of a dependency without one.
 	for repo, tier := range map[string]string{"system": "mvp", "child-a": "prototype", "child-b": ""} {
-		dir := filepath.Join(root, "repos", repo)
-		manifest := filepath.Join(dir, "engmod.yml")
-		data, err := os.ReadFile(manifest)
-		if err != nil {
-			t.Fatal(err)
-		}
-		text := string(data)
-		text = text[:strings.Index(text, "lifecycle:")]
-		if tier != "" {
-			text += "lifecycle:\n  tier: " + tier + "\n  bundles: [foundation]\n  tierDecision: DEC-TIER-" + strings.ToUpper(tier) + "\n"
-			decisions := filepath.Join(dir, "model", "decisions.yml")
-			dec, err := os.ReadFile(decisions)
-			if err != nil {
-				t.Fatal(err)
-			}
-			out := strings.NewReplacer("DEC-TIER-MVP", "DEC-TIER-"+strings.ToUpper(tier), "Tier: MVP", "Tier: "+tier).Replace(string(dec))
-			if err := os.WriteFile(decisions, []byte(out), 0o644); err != nil {
-				t.Fatal(err)
-			}
-		}
-		if err := os.WriteFile(manifest, []byte(text), 0o644); err != nil {
-			t.Fatal(err)
-		}
+		setRepoTier(t, filepath.Join(root, "repos", repo), tier)
 	}
 	s := linksServer(t, root, "system")
-	gap := s.callToolPayload(t, "tier.gap", map[string]any{"target": "product"})
+	assertTierGapPayload(t, s.callToolPayload(t, "tier.gap", map[string]any{"target": "product"}))
+	assertTierGapRefusals(t, s)
+	assertTierGapSchema(t)
+	assertMatrixTierFields(t, s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": true}))
+}
+
+// setRepoTier rewrites the lifecycle of the manifest in dir to tier (none when
+// tier is empty) and the tier decision to match.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func setRepoTier(t *testing.T, dir, tier string) {
+	t.Helper()
+	manifest := filepath.Join(dir, "engmod.yml")
+	data, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := string(data)
+	text = text[:strings.Index(text, "lifecycle:")]
+	if tier != "" {
+		text += "lifecycle:\n  tier: " + tier + "\n  bundles: [foundation]\n  tierDecision: DEC-TIER-" + strings.ToUpper(tier) + "\n"
+		rewriteTierDecision(t, filepath.Join(dir, "model", "decisions.yml"), tier)
+	}
+	if err := os.WriteFile(manifest, []byte(text), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// rewriteTierDecision points the MVP tier decision in the file at tier.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func rewriteTierDecision(t *testing.T, decisions, tier string) {
+	t.Helper()
+	dec, err := os.ReadFile(decisions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	out := strings.NewReplacer("DEC-TIER-MVP", "DEC-TIER-"+strings.ToUpper(tier), "Tier: MVP", "Tier: "+tier).Replace(string(dec))
+	if err := os.WriteFile(decisions, []byte(out), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// assertTierGapPayload checks the tiers, dependencies, byCode and blocking
+// list of a tier.gap payload.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertTierGapPayload(t *testing.T, gap map[string]any) {
+	t.Helper()
 	if gap["currentTier"] != "mvp" || gap["targetTier"] != "product" {
 		t.Fatalf("tier.gap: %+v", gap)
 	}
@@ -65,6 +91,14 @@ func TestTierGapTool(t *testing.T) {
 	if _, ok := gap["blocking"].([]any); !ok {
 		t.Fatalf("blocking is not a list: %+v", gap)
 	}
+}
+
+// assertTierGapRefusals checks the refusals of an unknown target, a missing
+// target and an unknown argument.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertTierGapRefusals(t *testing.T, s *Server) {
+	t.Helper()
 	if msg := s.toolError(t, "tier.gap", map[string]any{"target": "beta"}); !strings.Contains(msg, "beta") {
 		t.Fatalf("unknown target: %q", msg)
 	}
@@ -74,13 +108,26 @@ func TestTierGapTool(t *testing.T) {
 	if msg := s.toolError(t, "tier.gap", map[string]any{"target": "product", "x": "1"}); msg == "" {
 		t.Fatal("an unknown argument was accepted")
 	}
+}
+
+// assertTierGapSchema checks that the tier.gap input schema is strict with repo.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertTierGapSchema(t *testing.T) {
+	t.Helper()
 	schema := inputSchemaForTool("tier.gap")
 	props := schema["properties"].(map[string]any)
 	if props["target"] == nil || props["repo"] == nil || schema["additionalProperties"] != false {
 		t.Fatalf("schema %+v", schema)
 	}
+}
 
-	matrix := s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": true})
+// assertMatrixTierFields checks that the trace.matrix tier diagnostic carries
+// requiredFrom and severity.
+// TRLC-LINKS: REQ-EMG-134
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func assertMatrixTierFields(t *testing.T, matrix map[string]any) {
+	t.Helper()
 	found := false
 	for _, d := range matrix["diagnostics"].([]any) {
 		row := d.(map[string]any)
