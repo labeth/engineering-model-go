@@ -33,6 +33,32 @@ func healthCodes(b model.Bundle) []Diagnostic {
 	return out
 }
 
+// floorOf is a health block with health.floor set.
+func floorOf(v float64) model.ManifestHealth { return model.ManifestHealth{Floor: &v} }
+
+// A floor from 1.0 to 10.0 is valid, the default (no floor) too, and a floor
+// outside it is the core error model.invalid_health_floor, never deferred
+// (ADR-EMG-087). The valid values are the bounds and one in between.
+//
+// Mutation: a range check that excludes 1.0 or 10.0, or one that accepts 10.1,
+// fails here and in the cases of TestHealthConfigurationErrors.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-209
+func TestHealthFloorRange(t *testing.T) {
+	for _, v := range []float64{1.0, 5.5, 9.9, 10.0} {
+		h := floorOf(v)
+		if got := healthCodes(healthBundle(&h)); len(got) != 0 {
+			t.Errorf("floor %v got %+v", v, got)
+		}
+	}
+	if got := healthCodes(healthBundle(&model.ManifestHealth{})); len(got) != 0 {
+		t.Errorf("no floor got %+v", got)
+	}
+	if !IsCoreCode("model.invalid_health_floor") {
+		t.Error("model.invalid_health_floor must be core: a broken floor is never deferred")
+	}
+}
+
 func okWaiver() model.HealthWaiver {
 	return model.HealthWaiver{Code: "health.complex_method", Path: "internal/a.go", Function: "parse", Decision: "ADR-OK"}
 }
@@ -91,6 +117,10 @@ func TestHealthConfigurationErrors(t *testing.T) {
 		{"waiver without function", waivers(model.HealthWaiver{Code: "health.large_method", Path: "a.go", Decision: "ADR-OK"}), "model.invalid_health_waiver", "health.waivers[0].function", "needs function"},
 		{"waiver without decision", waivers(model.HealthWaiver{Code: "health.large_method", Path: "a.go", Function: "f"}), "model.invalid_health_waiver", "health.waivers[0].decision", "needs decision"},
 		{"waiver not a smell code", waivers(model.HealthWaiver{Code: "health.regression", Path: "a.go", Function: "f", Decision: "ADR-OK"}), "model.invalid_health_waiver", "health.waivers[0].code", "not a health smell code"},
+		{"floor above the highest score", floorOf(10.1), "model.invalid_health_floor", "health.floor", "outside 1.0 to 10.0"},
+		{"floor below the lowest score", floorOf(0.9), "model.invalid_health_floor", "health.floor", "outside 1.0 to 10.0"},
+		{"floor zero", floorOf(0), "model.invalid_health_floor", "health.floor", "outside 1.0 to 10.0"},
+		{"floor negative", floorOf(-4), "model.invalid_health_floor", "health.floor", "outside 1.0 to 10.0"},
 		{"waiver absolute path", waivers(model.HealthWaiver{Code: "health.large_method", Path: "/a.go", Function: "f", Decision: "ADR-OK"}), "model.invalid_health_waiver", "health.waivers[0].path", "is absolute"},
 	}
 	for _, c := range cases {
@@ -244,7 +274,7 @@ func TestHealthCodesAreInTheTierTable(t *testing.T) {
 	for _, r := range TierPolicy() {
 		keyed[r.Code] = r
 	}
-	for _, code := range append(model.HealthSmellCodes(), "health.waiver_unused", "health.regression", model.HealthPolicyWeakenedCode, model.HealthBaselineStaleCode) {
+	for _, code := range append(model.HealthSmellCodes(), "health.waiver_unused", "health.regression", model.HealthPolicyWeakenedCode, model.HealthBaselineStaleCode, model.HealthFileBelowFloorCode) {
 		r, ok := keyed[code]
 		if !ok || IsCoreCode(code) {
 			t.Errorf("%s: tier keyed=%v core=%v", code, ok, IsCoreCode(code))
@@ -267,6 +297,8 @@ func TestHealthCodesAreInTheTierTable(t *testing.T) {
 		"| `health.policy_weakened` | W | W | W | E | E |",
 		"| `health.policy_weakened` with safety | W | W | E | E | E |",
 		"| `health.waiver_unused` | W | W | W | E | E |",
+		"| `health.file_below_floor` | W | W | W | E | E |",
+		"| `health.file_below_floor` with safety | W | W | E | E | E |",
 	} {
 		if !strings.Contains(md, row) {
 			t.Errorf("table lacks %s", row)
@@ -288,7 +320,7 @@ func TestHealthCodesAreInTheTierTable(t *testing.T) {
 func TestAuthoringRulesDescribeHealth(t *testing.T) {
 	rules := AuthoringRules()
 	for kind, want := range map[string]string{
-		"health":          "exclude,thresholds,overrides,waivers,baseline,policyDecision",
+		"health":          "exclude,thresholds,overrides,waivers,baseline,policyDecision,floor",
 		"healthBaseline":  "file,decision",
 		"healthThreshold": "warn,high",
 		"healthOverride":  "path,thresholds",
@@ -308,7 +340,7 @@ func TestAuthoringRulesDescribeHealth(t *testing.T) {
 		t.Errorf("health.thresholds type = %+v", thresholds)
 	}
 	text := strings.Join(rules.FieldRules, "\n")
-	for _, want := range []string{"Code health: engmod.yml health", "health.block_missing", "health.waiver_unjustified", "model.invalid_health_threshold", "lifecycle.raise: [health.*]", "health.regression", "health.policy_weakened", "policyDecision"} {
+	for _, want := range []string{"Code health: engmod.yml health", "health.block_missing", "health.waiver_unjustified", "model.invalid_health_threshold", "lifecycle.raise: [health.*]", "health.regression", "health.policy_weakened", "policyDecision", "health.file_below_floor", "health.floor", "model.invalid_health_floor"} {
 		if !strings.Contains(text, want) {
 			t.Errorf("field rules lack %q", want)
 		}

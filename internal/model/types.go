@@ -199,6 +199,11 @@ type ManifestHealth struct {
 	// like a waiver decision; without it enghealth check reports the weakening
 	// as health.policy_weakened.
 	PolicyDecision string `yaml:"policyDecision,omitempty"`
+	// Floor is the lowest file score that needs no baseline cover
+	// (ADR-EMG-087); nil means DefaultHealthFloor, the highest score. It is
+	// validated by internal/validate (model.invalid_health_floor) and lowering
+	// it against the base revision is a weakening (health.policy_weakened).
+	Floor *float64 `yaml:"floor,omitempty"`
 }
 
 // HealthBaseline is health.baseline: File is a path relative to the manifest

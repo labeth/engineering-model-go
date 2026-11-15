@@ -51,7 +51,7 @@ func TestHealthCodeVocabularyIsOneList(t *testing.T) {
 	sameSet(t, "the weights table", sortedKeys(Weights()), smells)
 
 	analysis := []string{CodeFileSkipped, CodeFileFailed, CodeSyntaxError, CodeRollupUnavailable}
-	rules := append(append(append([]string(nil), smells...), analysis...), model.HealthWaiverUnusedCode, model.HealthBaselineStaleCode)
+	rules := append(append(append([]string(nil), smells...), analysis...), model.HealthWaiverUnusedCode, model.HealthBaselineStaleCode, CodeFileBelowFloor)
 	sameSet(t, "the SARIF rule descriptions", sortedKeys(ruleDescriptions), rules)
 
 	thresholds := model.HealthThresholdCodes()

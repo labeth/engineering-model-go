@@ -125,6 +125,7 @@ var ruleDescriptions = map[string]string{
 	CodeDuplicatedAssertion:       "Identical assertion blocks in several tests of one file",
 	model.HealthWaiverUnusedCode:  "Health waiver that matches no finding",
 	model.HealthBaselineStaleCode: "Health baseline entry that matches no finding",
+	CodeFileBelowFloor:            "Source file whose score is below the floor and that no baseline entry covers",
 	"health.file_skipped":         "Source file that was not analysed",
 	"health.file_failed":          "Source file whose analysis failed",
 	"health.syntax_error":         "Source file the parser could only partly read",

@@ -150,7 +150,9 @@ const (
 	remedyStateCandidate  = "model the state with the ef-behavior skill (a machine whose states and transitions are in the model) and link the declaration with the ef-code-linking skill (an ENGMODEL-LINKS marker naming the SM-*, STATE-* or TR-* ID on or above the declaration); when the type is not a state, write a comment ENGMODEL-NOT-A-STATE: followed by a reason of at least 20 characters on or within three lines above the declaration"
 	remedyStateUnreasoned = "write after ENGMODEL-NOT-A-STATE: a reason of at least 20 characters that says why the type is not a state; a placeholder such as TODO, TBD or n/a is not a reason"
 	remedyStateUnused     = "remove the ENGMODEL-NOT-A-STATE comment: the declaration under it is not a state-like candidate, or it already links a machine"
-	remedyExemption       = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
+	// remedyFileBelowFloor is the remedy of health.file_below_floor (ADR-EMG-087).
+	remedyFileBelowFloor = "raise the file to 10.0 by fixing the deducting findings (enghealth scan lists every finding with its line); a finding that is a heuristic false positive is waived in health.waivers with an accepted decision, and debt that already existed is listed in the health baseline (enghealth baseline write), which can only shrink: a baseline that grows is health.policy_weakened and needs an accepted policyDecision"
+	remedyExemption      = "run the ef-tier-up skill (engineering-flow) to record or accept the decision that justifies the exemption, then name it in codeCoverage.exempt {id, reason, decision} of engmod.yml; remove an entry that is no longer needed"
 )
 
 // consistencyRemedies maps the codes of the consistency checks to their
@@ -179,6 +181,8 @@ var consistencyRemedies = map[string]string{
 	"model.invalid_code_exemption":      remedyExemption,
 
 	"composition.dependency_tier_unknown": remedyDependencyTier,
+
+	"health.file_below_floor": remedyFileBelowFloor,
 
 	"architecture.dependency_without_interface": remedyDependencyInterface,
 	"architecture.interface_without_data":       remedyInterfaceData,

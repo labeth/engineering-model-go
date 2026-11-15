@@ -21,6 +21,10 @@ Behaviour that is stricter for downstream (all listed in `CHANGELOG.md`):
    `CAP-EMG-GO-API` is new. A dependent that links to a contract item of this model gets `version_mismatch`: run
    `engws review-links`, then `engws bump`, and review each changed item.
 4. Schema relaxations only: `interacts_with` from an actor to an interface, an interface owned by a referenced element.
+5. `health.file_below_floor` (ADR-EMG-087): a source file whose code health score is below 10.0 and that no baseline entry covers
+   is an error at product and operational in `enghealth scan` and, for the changed files, in `enghealth check`, and a warning at
+   poc, prototype and mvp. A repository that has a baseline passes unchanged; one that has none, and a new file, must be clean at
+   once. See OWNER item 3.
 
 ## Validation results (worktree `wt-engine-release`, tree after commit `b3e1100`)
 
@@ -94,6 +98,38 @@ owner's own words and sets `health.policyDecision: DEC-HEALTH-GO-API-EVIDENCE-DE
   - The check passes for this release only because the debt is recorded; the due date still expires through lifecycle.poam_overdue.
   - Reversing the decision makes the 18 diagnostics block again at tier operational.
 ```
+
+## OWNER item 3: every file scores 10.0 (ADR-EMG-087, added after the validation table above)
+
+The owner asked for a requirement of 10/10 on all files at the two highest tiers. Implemented as `health.file_below_floor`
+(REQ-EMG-209 scan, REQ-EMG-210 check, published with `CAP-EMG-CODE-HEALTH`) and `REQ-EMG-211` (a requirement of this repository, not
+published, status `proposed`, met when `model/health-baseline.json` is empty). What the owner decides or should know:
+
+- **The baseline is the burn-down.** The scan of this repository reports the number: `summary.belowFloor` files are below 10.0 and
+  `summary.floorCovered` of them are covered by the baseline (`enghealth scan` prints "files below the floor of 10.0: N, M covered
+  by the baseline"); the engine stays green at operational because every one of them is covered. Each file that reaches 10.0
+  leaves the baseline (`enghealth baseline write`), and a baseline that grows is `health.policy_weakened`.
+- **Honest limit of the scan.** In the scan, a file below 10.0 that the baseline does not cover already carries the error of its own
+  findings at product and operational, so the new diagnostic adds the file-level message there, not a new failure. Its new effect is
+  in `enghealth check` (a new or worsened warn finding is no regression, so a changed file could stay below 10.0) and below product
+  (a warning for every file below 10.0 that no baseline covers).
+- **REQ-EMG-211 needs two more defers.** At tier operational a `proposed` requirement is `lifecycle.requirement_unapproved` and
+  `lifecycle.requirement_unverified`; the agent did not mark it verified. The two diagnostics are deferred by `POAM-HEALTH-FLOOR`
+  (see the model), which `enghealth check` counts as two more defers against the base, the same kind of weakening as OWNER item 1:
+  the decision of item 1 (`health.policyDecision`) covers both, and the draft above would say 20 deferred requirements and 2 more
+  defers. Without the defers `engdoc` reports the two diagnostics as errors at operational. `requirement.orphan` for REQ-EMG-211
+  is cleared by the test `TestRepositoryFilesAreAtTheFloorOrBaselined` (`cmd/enghealth`), which scans this repository at
+  tier operational and fails for a file below 10.0 that the baseline does not cover; it does not ask for an empty baseline.
+- **REQ-EMG-209 and REQ-EMG-210 are `verified`** on the strength of 25 red-check mutations (every one failed an assertion; three
+  more broke the build and were replaced, one passed until a missing test of the gate was added): `red-check.mjs --mutations`,
+  commands `go test -count=1 ./internal/health`, `./internal/validate` and `-short ./internal/health/scan ./cmd/enghealth`,
+  recorded in the git-ignored `.engflow/red-checks.jsonl` of the worktree. Like the evidence of REQ-EMG-207 and 208 it names the
+  tree it ran on; run `red-check.mjs --replay` on the merge commit to renew it.
+- **Downstream.** A repository with a health baseline at product or operational is unaffected; one without a baseline fails
+  `enghealth check` for each changed file below 10.0, and below product it gets one warning for each file below 10.0 that no
+  baseline covers. `health.floor` can lower the floor; lowering it against the base is `health.policy_weakened`.
+- **Authoring contract** stays `engineering-model.authoring.v8` (an optional field and a new code); bump it if the owner wants every
+  new field to be a new version.
 
 ## OWNER item 2: module version of the model
 

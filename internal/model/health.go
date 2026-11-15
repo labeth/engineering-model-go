@@ -33,7 +33,29 @@ const (
 	// health policy (a higher limit, a wider exclude or override, a lower tier)
 	// against the base revision without a policyDecision that records it.
 	HealthPolicyWeakenedCode = "health.policy_weakened"
+	// HealthFileBelowFloorCode is the code for a source file whose score is
+	// below the floor and that no baseline entry covers (ADR-EMG-087); the
+	// health report and the delta check emit it.
+	HealthFileBelowFloorCode = "health.file_below_floor"
 )
+
+// The floor of a file score (ADR-EMG-087): every source file has to score
+// DefaultHealthFloor, the highest score, unless the baseline lists a finding of
+// it. health.floor may lower the floor down to MinHealthFloor, the lowest score.
+const (
+	DefaultHealthFloor = 10.0
+	MinHealthFloor     = 1.0
+)
+
+// EffectiveHealthFloor returns the floor of a health block: health.floor, or
+// DefaultHealthFloor when the block is nil or sets none.
+// TRLC-LINKS: REQ-EMG-153
+func EffectiveHealthFloor(h *ManifestHealth) float64 {
+	if h == nil || h.Floor == nil {
+		return DefaultHealthFloor
+	}
+	return *h.Floor
+}
 
 // HealthThresholdCodes returns the smell codes with numeric limits, the only
 // valid keys of health.thresholds and of health.overrides[].thresholds.

@@ -90,7 +90,8 @@ func findingsOf(r health.Report, path, function string) []health.Finding {
 //
 // TRLC-LINKS: REQ-EMG-150, REQ-EMG-152, REQ-EMG-153, REQ-EMG-155, REQ-EMG-158
 func TestScanProductTierEndToEnd(t *testing.T) {
-	dir, manifest := fixture(t, "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n")
+	// The floor of 8.0 is the score of big.go: the floor is tested in floor_test.go.
+	dir, manifest := fixture(t, "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n  floor: 8.0\n")
 	r, err := Scan(Options{ManifestPath: manifest})
 	if err != nil {
 		t.Fatal(err)
@@ -151,7 +152,7 @@ func TestScanTierOverrideAndManifestThresholds(t *testing.T) {
 		t.Fatal(err)
 	}
 	fs := findingsOf(r, "pkg/big.go", "Big")
-	if r.Tier != "mvp" || len(fs) != 1 || fs[0].Severity != health.SeverityWarn || r.Summary.Errors != 0 || r.Summary.Warnings != 2 {
+	if r.Tier != "mvp" || len(fs) != 1 || fs[0].Severity != health.SeverityWarn || r.Summary.Errors != 0 || r.Summary.Warnings != 4 {
 		t.Fatalf("mvp: tier %q findings %+v summary %+v", r.Tier, fs, r.Summary)
 	}
 
@@ -179,7 +180,7 @@ func TestScanWithoutLifecycleIsWarnings(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if r.Tier != "" || r.Bundles != nil || r.Summary.Errors != 0 || r.Summary.Warnings != 2 {
+	if r.Tier != "" || r.Bundles != nil || r.Summary.Errors != 0 || r.Summary.Warnings != 4 {
 		t.Errorf("tier %q bundles %v summary %+v", r.Tier, r.Bundles, r.Summary)
 	}
 	for _, f := range r.Files {
@@ -197,7 +198,7 @@ func TestScanWithoutLifecycleIsWarnings(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-154
 func TestScanAppliesWaivers(t *testing.T) {
-	extra := "lifecycle:\n  tier: product\nhealth:\n  waivers:\n" +
+	extra := "lifecycle:\n  tier: product\nhealth:\n  floor: 8.0\n  waivers:\n" +
 		"    - {code: health.complex_method, path: pkg/big.go, function: Big, decision: ADR-W}\n" +
 		"    - {code: health.large_method, path: pkg/big.go, function: Big, decision: ADR-W}\n"
 	_, manifest := fixture(t, extra)

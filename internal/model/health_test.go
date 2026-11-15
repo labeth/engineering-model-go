@@ -106,14 +106,14 @@ func TestAuthoringContractV7ListsHealth(t *testing.T) {
 }
 
 // requireCompleteHealthGuide fails unless the guide has its configuration,
-// 16 codes of which 7 carry limits, and the waiver rule.
+// 17 codes of which 7 carry limits, and the waiver rule.
 func requireCompleteHealthGuide(t *testing.T, guide HealthGuide) {
 	t.Helper()
 	thresholds := countDocumentedThresholds(t, guide)
 	if len(guide.Config) == 0 || len(guide.Rules) == 0 {
 		t.Fatalf("incomplete health guide: %+v", guide)
 	}
-	if len(guide.Codes) != 16 || thresholds != 7 {
+	if len(guide.Codes) != 17 || thresholds != 7 {
 		t.Fatalf("incomplete health guide: %+v", guide)
 	}
 	if !strings.Contains(strings.Join(guide.Rules, "\n"), "health.waiver_unjustified") {

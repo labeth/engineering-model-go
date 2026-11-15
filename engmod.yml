@@ -383,6 +383,8 @@ publications:
   - REQ-EMG-206
   - REQ-EMG-207
   - REQ-EMG-208
+  - REQ-EMG-209
+  - REQ-EMG-210
   views:
   - VIEW-ARCHITECTURE-INTENT
   - VIEW-TRACEABILITY

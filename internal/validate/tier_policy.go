@@ -153,6 +153,10 @@ var tierTable = map[string]tierRow{
 	// or accepted.
 	"health.baseline_stale": {base: "WWWWE", note: "a health baseline entry that matches no finding, so it can be removed (only with a health baseline)"},
 	"health.regression":     {base: "WWWEE", safety: "WWEEE", note: "a new or worsened high health finding against the baseline (only with a health block)"},
+	// A source file whose score is below the floor (10.0) and that no baseline
+	// entry covers (ADR-EMG-087): the baseline is the explicit, shrinking list of
+	// exceptions, so a new file or a file with no entry has to be clean at once.
+	"health.file_below_floor": {base: "WWWEE", safety: "WWEEE", note: "a source file whose code health score is below the floor (10.0, health.floor) and that no baseline entry covers; the scan and enghealth check report it (ADR-EMG-087)"},
 	// A change that weakens the policy it is measured by (a higher limit, a
 	// wider exclude or override, a lower tier) is reported against the base
 	// revision by enghealth check; a policyDecision records it.
@@ -195,7 +199,7 @@ func CoreCodes() []string {
 // defers entry that names one, exactly or through a family pattern, is
 // lifecycle.poam_defers_core. The list is closed (TestNonDeferrableCodes...).
 var nonDeferrable = []string{
-	"health.policy_weakened", "health.regression", "health.baseline_stale", "health.waiver_unused",
+	"health.policy_weakened", "health.regression", "health.baseline_stale", "health.waiver_unused", "health.file_below_floor",
 	"verification.failed", "lifecycle.poam_overdue", "lifecycle.poam_defers_unused",
 }
 

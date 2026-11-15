@@ -137,6 +137,15 @@ type checkJSON struct {
 	PolicyWeakened []struct{ Aspect, Message string } `json:"policyWeakened"`
 	PolicyLevel    string                             `json:"policyLevel"`
 	PolicyDecision string                             `json:"policyDecision"`
+	FloorLevel     string                             `json:"floorLevel"`
+	BelowFloor     []struct {
+		Path         string
+		Score, Floor float64
+		Causes       []struct {
+			Code, Function string
+			Line           int
+		}
+	} `json:"belowFloor"`
 }
 
 // jsonCheck runs the check with --format json and decodes the output.
@@ -198,7 +207,7 @@ func TestCheckRegressionFollowsTheTier(t *testing.T) {
 	}
 
 	code, stdout, stderr = r.check("--tier", "poc")
-	if code != exitOK || !strings.Contains(stdout, "regressions (1, warning at tier poc)") || !strings.Contains(stdout, "result: ok, the regressions only warn at this tier") || stderr != "" {
+	if code != exitOK || !strings.Contains(stdout, "regressions (1, warning at tier poc)") || !strings.Contains(stdout, "result: ok, the regressions and the files below the floor only warn at this tier") || stderr != "" {
 		t.Errorf("poc: exit %d\n%s\n%s", code, stdout, stderr)
 	}
 	for tier, want := range map[string]int{"prototype": exitOK, "mvp": exitOK, "product": exitFail, "operational": exitFail} {
@@ -233,7 +242,11 @@ func TestCheckRegressionFollowsTheTier(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-156, REQ-EMG-158
 func TestCheckExistingDebtPassesAndWorsenedFails(t *testing.T) {
-	r := newCheckRepo(t, "lifecycle:\n  tier: product\n", false)
+	// The debt is in the baseline, so the file below the floor is covered
+	// (ADR-EMG-087); without the baseline the same change fails on the floor, see
+	// TestCheckFileBelowFloor.
+	r := newCheckRepo(t, "lifecycle:\n  tier: product\nhealth:\n  baseline: {file: model/health-baseline.json, decision: ADR-DEBT}\n", false)
+	r.write("model/health-baseline.json", svcBaseline)
 	r.write("pkg/svc.go", svcSource(20))
 	r.commit("base with debt")
 	r.write("pkg/svc.go", svcSource(20)+"\n// Other is new and clean.\nfunc Other() int { return 1 }\n")
@@ -464,7 +477,8 @@ func TestCheckJSONIsDeterministic(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
 func TestCheckSARIFHoldsOnlyRegressions(t *testing.T) {
-	r := newCheckRepo(t, "lifecycle:\n  tier: product\n", false)
+	// The baseline covers svc.go, so the floor adds no result (ADR-EMG-087).
+	r := newBaselinedRepo(t, "product")
 	r.write("pkg/old.go", "package pkg\n\n"+strings.TrimPrefix(strings.Replace(svcSource(20), "func Svc", "func Old", 1), "package pkg\n\n"))
 	r.commit("debt")
 	r.write("pkg/svc.go", svcSource(20))
@@ -549,3 +563,7 @@ func TestCheckPathsAndCache(t *testing.T) {
 		t.Errorf("a second cached run changed the result: exit %d %+v", code, doc)
 	}
 }
+
+// svcBaseline is a baseline file that accepts the high complex_method finding of
+// Svc in pkg/svc.go (cyclomatic 21), the debt of svcSource(20).
+const svcBaseline = `{"schema":"engmod-health-baseline/1","entries":[{"path":"pkg/svc.go","function":"Svc","code":"health.complex_method","value":21}]}`

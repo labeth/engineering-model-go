@@ -790,6 +790,14 @@ behavior:
     name: Example Validation Requested
     description: The maintained reference workspaces must be loaded, composed, generated and checked (scripts/validate-all.sh).
     requirements: [REQ-EMG-050, REQ-EMG-056]
+  - id: EVT-HEALTH-SCAN-REQUESTED
+    name: Health Scan Requested
+    description: A caller asked enghealth to scan the source files of a model and report the findings and the score of each file (enghealth scan).
+    requirements: [REQ-EMG-209]
+  - id: EVT-HEALTH-CHECK-REQUESTED
+    name: Health Check Requested
+    description: A caller asked enghealth to compare the changed source files with a base revision and report what fails the gate of the tier (enghealth check).
+    requirements: [REQ-EMG-210]
   flows:
   - id: FLOW-REQUIREMENTS-DELTA-TO-CANONICAL
     title: Requirements Delta to Canonical Requirements Flow
@@ -1680,6 +1688,54 @@ behavior:
       dataRefs:
       - DO-ARCHITECTURE-MODEL
       - DO-TRACE-MATRIX
+  - id: FLOW-HEALTH-SCAN
+    title: Code Health of the Source Files Scanned
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-IMPLEMENTATION-ENGINEER
+    destinationRef: FU-CODE-HEALTH
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-HEALTH-REPORT
+    description: enghealth scan scores every source file of the code scope, applies the waivers and the baseline and reports health.file_below_floor for each file whose score is below the floor of 10.0 and that no baseline entry covers (ADR-EMG-087).
+    entry:
+    - scan-source-files
+    exits:
+    - scan-source-files
+    steps:
+    - id: scan-source-files
+      kind: system_action
+      ref: FU-CODE-HEALTH
+      sourceRef: EVT-HEALTH-SCAN-REQUESTED
+      interfaceRef: IF-CLI-ENGHEALTH
+      action: Score each source file, apply the waivers and the baseline and report one diagnostic for each file below the floor that no baseline entry covers, at the level the tier gives the code.
+      dataOut:
+      - DO-HEALTH-REPORT
+  - id: FLOW-HEALTH-CHECK
+    title: Code Health Gate of the Changed Files
+    kind: data
+    frequency: on-demand
+    sourceRef: ACT-IMPLEMENTATION-ENGINEER
+    destinationRef: FU-CODE-HEALTH
+    protocol: cli
+    channel: local-shell
+    dataRefs:
+    - DO-HEALTH-REPORT
+    description: enghealth check compares the source files changed since a base revision with it and fails the gate on a regression, a skipped file, an unrecorded policy weakening and, since ADR-EMG-087, a changed file below the floor that no baseline entry covers.
+    entry:
+    - check-changed-files
+    exits:
+    - check-changed-files
+    steps:
+    - id: check-changed-files
+      kind: system_action
+      ref: FU-CODE-HEALTH
+      sourceRef: EVT-HEALTH-CHECK-REQUESTED
+      interfaceRef: IF-CLI-ENGHEALTH
+      action: Classify the findings of each changed file against the base revision and report one diagnostic for each changed file below the floor that no baseline entry covers, at the level the tier gives the code.
+      dataOut:
+      - DO-HEALTH-REPORT
   - id: FLOW-ENGINE-INTEGRATIONS
     title: Engine Units and External Tools Exchange Data
     kind: data

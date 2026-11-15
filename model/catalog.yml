@@ -81,6 +81,7 @@ catalog:
       new or worsened findings against a base revision. It is not CodeScene Code Health.
     aliases:
     - enghealth
+    - code health check
   - id: FU-QUINT-EXPORTER
     name: quint exporter
     definition: Generates Quint specifications from behavior machines and runs or verifies them as formal evidence.
@@ -357,6 +358,16 @@ catalog:
     definition: Event indicating the root Go package could not load the model documents of a manifest.
     aliases:
     - bundle load failed
+  - id: EVT-HEALTH-SCAN-REQUESTED
+    name: health scan is requested
+    definition: Event indicating a caller asked enghealth to scan the source files of a model and report the findings and the score of each file.
+    aliases:
+    - enghealth scan requested
+  - id: EVT-HEALTH-CHECK-REQUESTED
+    name: health check is requested
+    definition: Event indicating a caller asked enghealth to compare the changed source files with a base revision and report what fails the gate of the tier.
+    aliases:
+    - enghealth check requested
   states:
   - id: STATE-MODEL-VALID
     name: model is valid
@@ -543,6 +554,11 @@ catalog:
     definition: Automated pipeline mode focused on deterministic checks and artifacts.
     aliases:
     - ci mode
+  - id: MODE-TIER-AT-LEAST-PRODUCT
+    name: project tier is at least product
+    definition: The life-cycle tier of the project is product or operational, the two highest tiers, where the bar for code quality is highest and the findings of the code health scan are errors.
+    aliases:
+    - top two tiers
   - id: MODE-DRY-RUN
     name: dry run mode is active
     definition: Change-planning mode that computes and validates a candidate without writing canonical files.

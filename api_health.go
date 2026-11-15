@@ -171,6 +171,14 @@ type HealthPolicyChange = health.PolicyChange
 // HealthFileDelta is the score of one changed file before and after.
 type HealthFileDelta = health.FileDelta
 
+// HealthFloorFile is a file below the floor of the file score with its
+// largest deductions (ADR-EMG-087): the entries of HealthCheckReport.BelowFloor.
+type HealthFloorFile = health.FloorFile
+
+// HealthFloorCause is one deduction of a HealthFloorFile with the line of its
+// finding.
+type HealthFloorCause = health.FloorCause
+
 // CheckHealth compares the changed files of the model's project with a base
 // revision (HEAD by default: the uncommitted work) and classifies each finding
 // as new, worsened or existing; the report says whether a regression (a new or

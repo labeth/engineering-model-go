@@ -60,11 +60,23 @@ func renderText(r engmodel.HealthReport) string {
 	if s.Baselined > 0 {
 		fmt.Fprintf(&b, ", %d baselined (counted in the findings and the score, not in the errors or warnings)", s.Baselined)
 	}
-	fmt.Fprintln(&b)
+	b.WriteString("\n" + floorLine(r))
 	if p.Files == 0 {
 		fmt.Fprintln(&b, "no production source files were found")
 	}
 	return b.String()
+}
+
+// floorLine is the line of the files below the floor and the ones the baseline
+// covers (the burn-down), or nothing when none is below the floor.
+//
+// TRLC-LINKS: REQ-EMG-209
+func floorLine(r engmodel.HealthReport) string {
+	s := r.Summary
+	if s.BelowFloor == 0 {
+		return ""
+	}
+	return fmt.Sprintf("files below the floor of %.1f: %d, %d covered by the baseline, %d not covered (health.file_below_floor)\n", r.Floor, s.BelowFloor, s.FloorCovered, s.BelowFloor-s.FloorCovered)
 }
 
 // findingLevel is the level shown for a finding: "baselined" when the baseline

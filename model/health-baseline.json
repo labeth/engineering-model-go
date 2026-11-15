@@ -8074,12 +8074,6 @@
     {
       "path": "internal/health/check.go",
       "function": "NewCheckReport",
-      "code": "health.complex_method",
-      "value": 10
-    },
-    {
-      "path": "internal/health/check.go",
-      "function": "NewCheckReport",
       "code": "health.excess_arguments",
       "value": 4
     },
@@ -15575,7 +15569,7 @@
       "path": "internal/validate/validate.go",
       "function": "Bundle",
       "code": "health.brain_method",
-      "value": 398
+      "value": 394
     },
     {
       "path": "internal/validate/validate.go",
@@ -15587,13 +15581,13 @@
       "path": "internal/validate/validate.go",
       "function": "Bundle",
       "code": "health.complex_conditional",
-      "value": 4
+      "value": 3
     },
     {
       "path": "internal/validate/validate.go",
       "function": "Bundle",
       "code": "health.complex_method",
-      "value": 398
+      "value": 394
     },
     {
       "path": "internal/validate/validate.go",

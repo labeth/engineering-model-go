@@ -160,8 +160,8 @@ func TestModelAuthoringContractIsCompactAndActionable(t *testing.T) {
 func assertContractHealthGuide(t *testing.T, contract map[string]any) {
 	t.Helper()
 	health, _ := contract["health"].(map[string]any)
-	if codes, _ := health["codes"].([]any); len(codes) != 16 {
-		t.Fatalf("the v7 contract must carry the health guide with 16 codes: %+v", health)
+	if codes, _ := health["codes"].([]any); len(codes) != 17 {
+		t.Fatalf("the v7 contract must carry the health guide with 17 codes: %+v", health)
 	}
 	if rules, _ := health["rules"].([]any); len(rules) == 0 || !strings.Contains(fmt.Sprint(rules...), "health.waiver_unjustified") {
 		t.Fatalf("the health guide must state the waiver rule: %+v", health)

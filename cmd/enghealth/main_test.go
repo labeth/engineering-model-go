@@ -140,7 +140,8 @@ func TestScanTextSummary(t *testing.T) {
 	}
 	for _, want := range []string{
 		"tier product", "project: 8.2 green (2 production files", "functional units:", "FU-A",
-		"worst 1 functions:", "pkg/big.go:5 Big", "health.complex_method", "[error]", "findings: 1 (1 errors, 0 warnings at tier product), 0 waived",
+		"worst 1 functions:", "pkg/big.go:5 Big", "health.complex_method", "[error]", "findings: 1 (2 errors, 0 warnings at tier product), 0 waived",
+		"files below the floor of 10.0: 1, 0 covered by the baseline, 1 not covered", "health.file_below_floor",
 	} {
 		if !strings.Contains(stdout, want) {
 			t.Errorf("text output lacks %q:\n%s", want, stdout)
@@ -154,7 +155,8 @@ func TestScanTextSummary(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
 func TestScanJSONSARIFAndOut(t *testing.T) {
-	manifest := project(t, "lifecycle:\n  tier: product\n")
+	// The floor of 8.0 is the score of big.go, so the output holds only its finding.
+	manifest := project(t, "lifecycle:\n  tier: product\nhealth:\n  floor: 8.0\n")
 	dir := filepath.Dir(manifest)
 	code, stdout, _ := runCLI("scan", "--model", manifest, "--format", "json")
 	if code != exitOK {
@@ -215,12 +217,12 @@ func TestScanImportRerendersAReport(t *testing.T) {
 		t.Errorf("sarif re-render: exit %d", code)
 	}
 	code, stdout, _ = runCLI("scan", "--import", report)
-	if code != exitOK || !strings.Contains(stdout, "tier mvp") || !strings.Contains(stdout, "0 errors, 1 warnings") {
+	if code != exitOK || !strings.Contains(stdout, "tier mvp") || !strings.Contains(stdout, "0 errors, 2 warnings") {
 		t.Errorf("text re-render: exit %d\n%s", code, stdout)
 	}
 	// Read at product: the same finding is an error.
 	code, stdout, _ = runCLI("scan", "--import", report, "--tier", "product", "--fail-on-error")
-	if code != exitFail || !strings.Contains(stdout, "1 errors, 0 warnings at tier product") {
+	if code != exitFail || !strings.Contains(stdout, "2 errors, 0 warnings at tier product") {
 		t.Errorf("import at product: exit %d\n%s", code, stdout)
 	}
 	if code, _, _ := runCLI("scan", "--import", report, "--model", manifest, "--tier", "operational", "--fail-on-error"); code != exitFail {

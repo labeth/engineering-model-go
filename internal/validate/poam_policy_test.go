@@ -73,6 +73,8 @@ var nonDeferrableEntries = []nonDeferrableEntry{
 	{"regression family", "health.regression", "x.go", model.POAMDefer{Code: "health.r*"}},
 	{"baseline stale", "health.baseline_stale", "b", model.POAMDefer{Code: "health.baseline_stale"}},
 	{"waiver unused", "health.waiver_unused", "w", model.POAMDefer{Code: "health.waiver_unused"}},
+	{"file below floor", "health.file_below_floor", "f.go", model.POAMDefer{Code: "health.file_below_floor"}},
+	{"file below floor family", "health.file_below_floor", "f.go", model.POAMDefer{Code: "health.file_b*"}},
 	{"verification failed", "verification.failed", "v", model.POAMDefer{Code: "verification.failed"}},
 	{"verification family", "verification.failed", "v", model.POAMDefer{Code: "verification.*"}},
 }
@@ -97,7 +99,7 @@ func assertNonDeferrableKinds(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-129
 func assertNonDeferrableListIsClosed(t *testing.T) {
 	t.Helper()
-	const want = "health.policy_weakened,health.regression,health.baseline_stale,health.waiver_unused,verification.failed,lifecycle.poam_overdue,lifecycle.poam_defers_unused"
+	const want = "health.policy_weakened,health.regression,health.baseline_stale,health.waiver_unused,health.file_below_floor,verification.failed,lifecycle.poam_overdue,lifecycle.poam_defers_unused"
 	if got := strings.Join(NonDeferrableCodes(), ","); got != want {
 		t.Fatalf("NonDeferrableCodes() = %s: the list is closed", got)
 	}

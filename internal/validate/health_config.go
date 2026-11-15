@@ -18,6 +18,8 @@ import (
 //   - model.invalid_health_threshold (error) at a threshold, top-level or in
 //     an override, whose key is no smell code with numeric limits, whose warn
 //     is below 1 or whose high is below warn.
+//   - model.invalid_health_floor (error) at a floor outside 1.0 to 10.0
+//     (ADR-EMG-087).
 //   - model.invalid_health_override (error) at an override without a path or
 //     with a path the exclude dialect rejects.
 //   - model.invalid_health_waiver (error) at a waiver without code, path,
@@ -48,7 +50,7 @@ func healthDiagnostics(b model.Bundle) []Diagnostic {
 				"health.exclude pattern %q %s; use %s", pattern, problem, ExcludeAcceptedForms)
 		}
 	}
-	diags = append(diags, healthThresholdDiagnostics("health.thresholds", h.Thresholds)...)
+	diags = append(append(diags, healthFloorDiagnostics(h)...), healthThresholdDiagnostics("health.thresholds", h.Thresholds)...)
 	for i, o := range h.Overrides {
 		path := fmt.Sprintf("health.overrides[%d]", i)
 		switch problem := ExcludePatternProblem(o.Path); {
@@ -133,6 +135,19 @@ func HealthBaselineDecisionProblem(b model.Bundle) string {
 		return "decision " + decision + " " + problem
 	}
 	return ""
+}
+
+// healthFloorDiagnostics checks health.floor: a number from the lowest to the
+// highest file score (ADR-EMG-087), else model.invalid_health_floor.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-209
+func healthFloorDiagnostics(h *model.ManifestHealth) []Diagnostic {
+	if h.Floor == nil || (*h.Floor >= model.MinHealthFloor && *h.Floor <= model.DefaultHealthFloor) {
+		return nil
+	}
+	return []Diagnostic{{Code: "model.invalid_health_floor", Severity: SeverityError, Path: "health.floor",
+		Message: fmt.Sprintf("health.floor %v is outside %.1f to %.1f, the lowest and the highest file score; the floor is %.1f unless the manifest lowers it (a lower floor is a weakening that enghealth check reports as health.policy_weakened)",
+			*h.Floor, model.MinHealthFloor, model.DefaultHealthFloor, model.DefaultHealthFloor)}}
 }
 
 // healthBaselineDiagnostics checks health.baseline (ADR-EMG-059):

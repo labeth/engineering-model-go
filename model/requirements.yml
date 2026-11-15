@@ -2159,3 +2159,35 @@ requirements:
       - EVT-MODEL-CHECK-REQUESTED
       - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
+  - id: REQ-EMG-209
+    status: verified
+    text: While project tier is at least product, when health scan is requested, the code health check shall report one error for each file below the floor that no baseline entry covers.
+    notes: 'ADR-EMG-087, health.file_below_floor, one diagnostic per file in the health report with the path, no function. The floor is the file score 10.0 (health.floor of the manifest may lower it, and a lower floor is reported by enghealth check as health.policy_weakened). A file is below the floor when its score, after the waivers, is below it; every source file counts, tests included. A file is covered when the baseline holds an entry (path, function, code) that names a finding of it that the scan found, whatever the value against the recorded one; a stale entry covers nothing, and a file whose every finding is waived scores 10.0. So a new file, or a file with no entry, has to be clean at once, and with an empty baseline every file has to score 10.0. The tier policy row is WWWEE (WWEEE with the safety bundle): a warning at poc, prototype and mvp, an error at product and operational, a warning without a tier, and no POA&M item defers it, like health.regression. The report carries the floor and summary.belowFloor and summary.floorCovered, the files the baseline still covers: the burn-down.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a scan runs at tier product or operational on a tree with a file that scores 9.0 and no baseline entry names a finding of it, then one health.file_below_floor diagnostic at level error names the file, the score 9.0, the floor 10.0, the three largest deductions with function and line and the fix, and DO-HEALTH-REPORT carries floor 10.0, belowFloor 1 and floorCovered 0; at poc, prototype and mvp the diagnostic is a warning, at mvp with the safety bundle an error, without a tier a warning; a file at 10.0, a file with an entry of the baseline, a file whose every finding is waived and a file at or above a lowered health.floor are not reported (the covered file counts in floorCovered); a file of a new path with the baseline of other files is reported; with an empty baseline every file below 10.0 is reported; two scans of one tree are byte-identical.'
+    appliesTo:
+      - FU-CODE-HEALTH
+      - EVT-HEALTH-SCAN-REQUESTED
+      - FLOW-HEALTH-SCAN
+    realizes: [CAP-EMG-CODE-HEALTH]
+  - id: REQ-EMG-210
+    status: verified
+    text: While project tier is at least product, when health check is requested, the code health check shall report one error for each changed file below the floor that no baseline entry covers.
+    notes: 'ADR-EMG-087. enghealth check evaluates health.file_below_floor for the source files changed between the base revision and the head, with the same floor, level and cover as the scan: it reads the baseline of the head manifest for this only (a regression is still never baselined). A file that gets below the floor, a file that is new below it and a changed file that was already below it and is not covered fail the check where the code is an error; the files are listed under belowFloor of the JSON report and as results of the SARIF rule health.file_below_floor. A lowered floor against the base revision is a weakening (health.policy_weakened, aspect floor). A new or worsened warn finding is no regression, so the floor is the gate that holds a changed file to 10.0 at once.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a check runs at tier product or operational against a base revision and a changed file scores 9.0 with no baseline entry for a finding of it, then the exit code is 1, belowFloor of the JSON report lists the file with score 9.0, floor 10.0 and its causes with their lines, floorLevel is error and the SARIF report has one result of the rule health.file_below_floor; a new file below the floor fails the same way, also over a commit range with --base and --head; at poc, prototype and mvp the file is listed and the exit code is 0, at mvp with the safety bundle and with lifecycle.raise it is 1; a changed file at 10.0 and a changed file covered by an entry of the baseline pass; lowering health.floor against the base fails with health.policy_weakened unless an accepted policyDecision records it.'
+    appliesTo:
+      - FU-CODE-HEALTH
+      - EVT-HEALTH-CHECK-REQUESTED
+      - FLOW-HEALTH-CHECK
+    realizes: [CAP-EMG-CODE-HEALTH]
+  - id: REQ-EMG-211
+    status: proposed
+    text: The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.
+    notes: 'ADR-EMG-087. A requirement of this repository, not of the engine contract, so it is not published. It is met when the baseline model/health-baseline.json is empty (the owner: "get a 10/10 score in all files in model, tool, flow"), and it is verified by the scan with an empty baseline (enghealth scan --model engmod.yml --fail-on-error), which reports no health.file_below_floor and no finding. The baseline lists the files that do not meet it yet; REQ-EMG-209 makes each of them explicit and lets the baseline only shrink. The status stays proposed until the baseline is empty; it is not verified by the rule that reports the gap.'
+    verificationMethods: [inspection, test]
+    verificationCriteria: 'When enghealth scan runs on this repository with the baseline ignored or empty at tier operational, then every file scores 10.0, the summary lists no finding, belowFloor is 0 and enghealth scan --fail-on-error exits 0; model/health-baseline.json has no entry; while it has entries the requirement is not met and summary.floorCovered counts the files left.'
+    appliesTo:
+      - FU-CODE-HEALTH
+    derived: true
+    derivedRationale: 'Owner request of 2026-11-15: "for the 2 higest level i want a requirement on 10/10 score for all files." and the goal "get a 10/10 score in all files in model, tool, flow". REQ-EMG-209 and REQ-EMG-210 are the rule that reports a file below the floor; this requirement is the target the owner set for the repository itself.'

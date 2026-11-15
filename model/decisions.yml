@@ -2485,3 +2485,38 @@ decisions:
   consequences:
   - 'Every interface needs a flow step that names it with a data object, so the data that crosses it is in the model and code.flow_unlinked and code.data_unlinked ask the code to link that flow and data.'
   - 'A step names one interface and several data objects; an interface used by two flows is carried by either.'
+- id: ADR-EMG-087
+  title: 'Every source file scores 10.0 unless the baseline lists it'
+  status: proposed
+  date: 2026-11-15
+  context: |-
+    The owner asked: for the two highest levels (product and operational) there is a requirement on a 10/10 score for all files, and the
+    goal is a 10/10 score in all files of the model, the tool and the flow repositories. The code health scan reports each finding at the
+    level of the tier and the baseline of ADR-EMG-059 accepts the debt that exists, but nothing says that a file has to be clean: a new
+    file with a warn finding is only a warning below product and, at product, an error of its finding that enghealth check does not
+    fail (a regression is a new or worsened high finding), so a changed file can stay below 10.0 with no gate on the file itself.
+  decision: |-
+    (1) The code is health.file_below_floor, reported for each source file, tests included, whose score after the waivers is below the
+    floor and that no baseline entry covers. The floor is 10.0, the highest score; health.floor of the manifest (a number from 1.0 to
+    10.0, model.invalid_health_floor outside it) may lower it, and lowering it against the base revision is a policy weakening reported
+    by enghealth check as health.policy_weakened (aspect floor), recorded only by an accepted policyDecision. Nothing can raise it
+    above 10.0. (2) A file is covered when the baseline holds an entry (path, function, code) that names a finding of the file that the
+    scan found, whatever its value against the recorded one (a finding that grew is its own error); an entry that matches no finding
+    covers nothing and is health.baseline_stale. The baseline is therefore the explicit list of exceptions and it can only shrink
+    (ADR-EMG-059): a new file, or a file with no entry, has to score 10.0 at once, and with an empty baseline every file has to. A waiver
+    covers a file through the score: a waived finding is removed before scoring, so a file whose every finding is waived scores 10.0.
+    (3) The tier row is WWWEE (WWEEE with the safety bundle): a warning at poc, prototype and mvp, an error at product and operational,
+    a warning without a tier. It is a gate code like health.regression, so no POA&M item defers it. (4) The message names the file, its
+    score, the floor, the three largest deductions with function and line, how many more there are and the fix. The report carries the
+    floor and summary.belowFloor and summary.floorCovered, so the number of files left to burn down is a number of the report. (5)
+    enghealth check also evaluates it for the changed files at the head, with the baseline of the head manifest, and fails where the code
+    is an error: a file that gets below the floor, a file that is new below it, and a changed file that was below it and is not covered.
+    The JSON report lists them under belowFloor and the SARIF report as results of the rule. (6) The rule reads the score and the baseline
+    entries and nothing else, so the same tree gives the same diagnostics, sorted by path. (7) The engine's own model adds REQ-EMG-209
+    (scan) and REQ-EMG-210 (check) as the rule, and REQ-EMG-211, a requirement of this repository that every source file scores 10.0 at
+    tier operational: it stays proposed and is met when model/health-baseline.json is empty, which the other efforts burn down.
+  consequences:
+  - 'At product and operational a model with a baseline keeps passing: every file below 10.0 that the baseline covers is counted in summary.floorCovered and is not an error. The rule adds an error only for a file the baseline does not cover, and in the scan that file already carries the error of its own findings, so in the scan the new diagnostic names the file and its score, and in enghealth check it is the gate that holds a changed file to 10.0, because a new or worsened warn finding is no regression.'
+  - 'Below product the code is a warning for every file below 10.0 that the baseline does not cover, so a project that has no baseline sees one warning per such file at poc, prototype and mvp; it can lower health.floor, which is reported as a weakening only by enghealth check against a base revision.'
+  - 'A change that grows the baseline to cover a new file is health.policy_weakened (BaselineWeakenings), so covering a file is never silent.'
+  - 'REQ-EMG-211 is not verified until the baseline is empty, and at tier operational a proposed requirement needs its lifecycle.requirement_unapproved and lifecycle.requirement_unverified diagnostics deferred by a POA&M item; enghealth check reports the two new defers as a policy weakening that only an accepted policyDecision records (the owner decides; the agent does not write the acceptance).'
