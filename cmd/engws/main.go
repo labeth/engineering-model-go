@@ -16,7 +16,7 @@ import (
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION, IF-CLI-ENGWS, FLOW-WORKSPACE-SYNC, EVT-WORKSPACE-SYNC-REQUESTED, EVT-WORKSPACE-STAGING-REQUESTED
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	code := engws.Main(ctx, os.Args[1:], os.Stdout, os.Stderr, engws.NewCUERegistry())
+	code := engws.Main(ctx, os.Args[1:], engws.CLI{Stdout: os.Stdout, Stderr: os.Stderr, Registry: engws.NewCUERegistry()})
 	stop()
 	os.Exit(code)
 }

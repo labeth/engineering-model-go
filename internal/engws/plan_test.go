@@ -18,7 +18,7 @@ import (
 func TestPlanCleanTaggedPublishedResolvesFromOCI(t *testing.T) {
 	root := t.TempDir()
 	checkout(t, root, "if-a")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +35,7 @@ func TestPlanDirtyCheckoutIsLocal(t *testing.T) {
 	root := t.TempDir()
 	dir := checkout(t, root, "if-a")
 	write(t, filepath.Join(dir, "model", "notes.yml"), "x: 1\n")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +54,7 @@ func TestPlanUntaggedCommitIsLocal(t *testing.T) {
 	write(t, filepath.Join(dir, "README.md"), "change\n")
 	runGit(t, dir, "add", ".")
 	runGit(t, dir, "commit", "-q", "-m", "wip")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,7 +79,7 @@ func TestTagForAcceptsVersionWithOrWithoutV(t *testing.T) {
 	write(t, filepath.Join(dir, "engmod.yml"), strings.Replace(string(data), "version: v0.1.0\n  modelId", "version: 0.1.0\n  modelId", 1))
 	runGit(t, dir, "commit", "-q", "-am", "unprefixed")
 	runGit(t, dir, "tag", "-f", "v0.1.0")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestPlanUnpublishedVersionIsLocalAgainstOCIRegistry(t *testing.T) {
 	root := filepath.Join(work, "ws")
 	checkout(t, root, "if-a") // v0.1.0 published
 	checkout(t, root, "if-b") // never published
-	plan, err := BuildPlan(context.Background(), root, NewCUERegistry(), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: NewCUERegistry()})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -159,7 +159,7 @@ func TestCUERegistryRoutingAndOfflineIsUnknown(t *testing.T) {
 
 	root := t.TempDir()
 	checkout(t, root, "if-a")
-	plan, err := BuildPlan(ctx, root, fakeRegistry{unknown: true}, false)
+	plan, err := BuildPlan(ctx, PlanRequest{Root: root, Registry: fakeRegistry{unknown: true}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +176,7 @@ func TestPlanNonGitCheckoutIsLocal(t *testing.T) {
 	root := t.TempDir()
 	runGit(t, root, "init", "-q")
 	writeModel(t, filepath.Join(root, "if-a"), "if-a", "v0.1.0")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -196,7 +196,7 @@ func TestPinAndUnpinForceLocal(t *testing.T) {
 	if code, out, errOut := runMain(t, reg, "--root", root, "pin", "if-a"); code != 0 {
 		t.Fatalf("pin: %d %s %s", code, out, errOut)
 	}
-	plan, _ := BuildPlan(context.Background(), root, reg, false)
+	plan, _ := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: reg})
 	if e := entry(t, plan, "if-a"); !e.Local || e.State != StatePinned {
 		t.Fatalf("pinned: got %s local=%v", e.State, e.Local)
 	}
@@ -207,7 +207,7 @@ func TestPinAndUnpinForceLocal(t *testing.T) {
 	if code, _, errOut := runMain(t, reg, "--root", root, "unpin", "if-a"); code != 0 {
 		t.Fatal(errOut)
 	}
-	plan, _ = BuildPlan(context.Background(), root, reg, false)
+	plan, _ = BuildPlan(context.Background(), PlanRequest{Root: root, Registry: reg})
 	if e := entry(t, plan, "if-a"); e.Local {
 		t.Fatalf("unpinned: still local")
 	}

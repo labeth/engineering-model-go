@@ -139,12 +139,12 @@ func TestWorkFileDriftWarnsWhenNotSynced(t *testing.T) {
 	root := t.TempDir()
 	dir := checkout(t, root, "if-a")
 	reg := allPublished("if-a")
-	plan, _ := BuildPlan(context.Background(), root, reg, false)
+	plan, _ := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: reg})
 	if d := WorkFileDrift(plan); d != "" {
 		t.Fatalf("nothing local, no file: %q", d)
 	}
 	write(t, filepath.Join(dir, "x.txt"), "dirty\n")
-	plan, _ = BuildPlan(context.Background(), root, reg, false)
+	plan, _ = BuildPlan(context.Background(), PlanRequest{Root: root, Registry: reg})
 	if d := WorkFileDrift(plan); !strings.Contains(d, "missing") {
 		t.Fatalf("want missing, got %q", d)
 	}
@@ -155,7 +155,7 @@ func TestWorkFileDriftWarnsWhenNotSynced(t *testing.T) {
 		t.Fatalf("after sync: %q", d)
 	}
 	os.Remove(filepath.Join(dir, "x.txt"))
-	plan, _ = BuildPlan(context.Background(), root, reg, false)
+	plan, _ = BuildPlan(context.Background(), PlanRequest{Root: root, Registry: reg})
 	if d := WorkFileDrift(plan); !strings.Contains(d, "extra ") {
 		t.Fatalf("want extra, got %q", d)
 	}

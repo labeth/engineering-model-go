@@ -110,7 +110,7 @@ func TestStageServesFamilyForCompositionAndGo(t *testing.T) {
 	var stdout, stderr lockedBuffer
 	done := make(chan int, 1)
 	go func() {
-		done <- Main(ctx, []string{"--root", root, "stage", "--serve"}, &stdout, &stderr, fakeRegistry{unknown: true})
+		done <- Main(ctx, []string{"--root", root, "stage", "--serve"}, CLI{Stdout: &stdout, Stderr: &stderr, Registry: fakeRegistry{unknown: true}})
 	}()
 	deadline := time.Now().Add(60 * time.Second)
 	for !strings.Contains(stdout.String(), "engws: serving") {
@@ -243,7 +243,7 @@ func TestStageRefusesDirtyOrUntaggedCheckouts(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	var serveOut, serveErr bytes.Buffer
-	code = Main(ctx, []string{"--root", root, "stage", "--serve"}, &serveOut, &serveErr, fakeRegistry{unknown: true})
+	code = Main(ctx, []string{"--root", root, "stage", "--serve"}, CLI{Stdout: &serveOut, Stderr: &serveErr, Registry: fakeRegistry{unknown: true}})
 	out, errOut = serveOut.String(), serveErr.String()
 	if code != 1 || !strings.Contains(out, "FAIL if-a: working tree has changes") || strings.Contains(out, "engws: serving") {
 		t.Fatalf("dirty: %d\n%s\n%s", code, out, errOut)

@@ -111,7 +111,7 @@ func TestSyncRefusesHandWrittenWorkFiles(t *testing.T) {
 			checkout(t, root, "if-a")
 			hand := "# mine\nschemaVersion: 3\nreplacements: []\n"
 			write(t, filepath.Join(root, name), hand)
-			plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+			plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 			if err != nil {
 				t.Fatal(err)
 			}

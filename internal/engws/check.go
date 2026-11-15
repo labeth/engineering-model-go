@@ -33,23 +33,48 @@ type CheckTarget struct {
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func SelectCheckTargets(plan Plan) []CheckTarget {
+	consumers, dependedOn := checkConsumers(plan)
+	reason := checkReasons(plan, consumers)
+	for i := range plan.Entries {
+		if _, seen := reason[i]; !seen && !dependedOn[i] {
+			reason[i] = "top system"
+		}
+	}
+	out := make([]CheckTarget, 0, len(reason))
+	for i, why := range reason {
+		out = append(out, CheckTarget{Entry: plan.Entries[i], Reason: why})
+	}
+	sort.Slice(out, func(a, b int) bool { return out[a].Entry.Name < out[b].Entry.Name })
+	return out
+}
+
+// checkConsumers returns, per checkout index, the checkouts that depend on it
+// and whether any checkout does.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func checkConsumers(plan Plan) ([][]int, []bool) {
 	byModule := map[string]int{}
 	for i, entry := range plan.Entries {
 		byModule[entry.Manifest.Module.Path] = i
 	}
-	// consumers[i] lists the checkouts that depend on checkout i.
 	consumers := make([][]int, len(plan.Entries))
 	dependedOn := make([]bool, len(plan.Entries))
 	for i, entry := range plan.Entries {
 		for _, dep := range entry.Manifest.Dependencies {
 			j, ok := byModule[strings.TrimSpace(dep.Path)]
-			if !ok || j == i {
-				continue
+			if ok && j != i {
+				consumers[j] = append(consumers[j], i)
+				dependedOn[j] = true
 			}
-			consumers[j] = append(consumers[j], i)
-			dependedOn[j] = true
 		}
 	}
+	return consumers, dependedOn
+}
+
+// checkReasons marks the local checkouts and, breadth first, their consumers.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func checkReasons(plan Plan, consumers [][]int) map[int]string {
 	reason := map[int]string{}
 	var queue []int
 	for i, entry := range plan.Entries {
@@ -68,17 +93,7 @@ func SelectCheckTargets(plan Plan) []CheckTarget {
 			}
 		}
 	}
-	for i := range plan.Entries {
-		if _, seen := reason[i]; !seen && !dependedOn[i] {
-			reason[i] = "top system"
-		}
-	}
-	out := make([]CheckTarget, 0, len(reason))
-	for i, why := range reason {
-		out = append(out, CheckTarget{Entry: plan.Entries[i], Reason: why})
-	}
-	sort.Slice(out, func(a, b int) bool { return out[a].Entry.Name < out[b].Entry.Name })
-	return out
+	return reason
 }
 
 // CheckResult is the outcome of the model check in one checkout.
@@ -103,6 +118,8 @@ func (r CheckResult) Line() string {
 
 // CheckOptions configures RunChecks.
 type CheckOptions struct {
+	// Root is the workspace root the checks run against.
+	Root string
 	// InProcess forces the library check even when a repo pins its own; without
 	// it a repository whose check template cannot take the workspace root is
 	// engine.check_template_stale, not checked by the library (ADR-EMG-072).
@@ -126,42 +143,58 @@ type CheckOptions struct {
 // at a time because they share process state (environment, caches).
 // TRLC-LINKS: REQ-EMG-068, REQ-EMG-180, REQ-EMG-181
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
-func RunChecks(ctx context.Context, root string, targets []CheckTarget, opts CheckOptions) []CheckResult {
+func RunChecks(ctx context.Context, targets []CheckTarget, opts CheckOptions) []CheckResult {
 	results := make([]CheckResult, len(targets))
-	jobs := opts.Jobs
-	if jobs <= 0 {
-		jobs = runtime.GOMAXPROCS(0)
-	}
 	if opts.Refresh {
 		restore := setEnv(engmodel.ModuleCacheEnv, engmodel.ModuleCacheRefresh)
 		defer restore()
 	}
-	sem := make(chan struct{}, jobs)
-	var wg sync.WaitGroup
-	var inProcess []int
-	for i, target := range targets {
-		switch routeOf(target.Entry.Dir, opts) {
-		case routeExec:
-			wg.Add(1)
-			go func(i int, target CheckTarget) {
-				defer wg.Done()
-				sem <- struct{}{}
-				defer func() { <-sem }()
-				results[i] = pinnedExec(ctx, root, target)
-			}(i, target)
-		case routeStale:
-			results[i] = staleResult(target)
-		default:
-			inProcess = append(inProcess, i)
-		}
-	}
-	for _, i := range inProcess {
+	job := &checkJob{ctx: ctx, opts: opts, results: results}
+	for _, i := range job.dispatch(targets) {
 		restore := guardLock(targets[i].Entry.Dir)
 		results[i] = libraryCheck(targets[i])
 		restore(&results[i])
 	}
-	wg.Wait()
+	job.wg.Wait()
 	return results
+}
+
+// checkJob is the shared state of one RunChecks call.
+type checkJob struct {
+	ctx     context.Context
+	opts    CheckOptions
+	results []CheckResult
+	wg      sync.WaitGroup
+}
+
+// dispatch starts the exec checks, records the stale ones and returns the
+// indexes of the targets to check in-process.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-180, REQ-EMG-181
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func (j *checkJob) dispatch(targets []CheckTarget) []int {
+	jobs := j.opts.Jobs
+	if jobs <= 0 {
+		jobs = runtime.GOMAXPROCS(0)
+	}
+	sem := make(chan struct{}, jobs)
+	var inProcess []int
+	for i, target := range targets {
+		switch routeOf(target.Entry.Dir, j.opts) {
+		case routeExec:
+			j.wg.Add(1)
+			go func(i int, target CheckTarget) {
+				defer j.wg.Done()
+				sem <- struct{}{}
+				defer func() { <-sem }()
+				j.results[i] = pinnedExec(j.ctx, j.opts.Root, target)
+			}(i, target)
+		case routeStale:
+			j.results[i] = staleResult(target)
+		default:
+			inProcess = append(inProcess, i)
+		}
+	}
+	return inProcess
 }
 
 // guardLock snapshots dir/engmod.lock.yml and returns a function that puts it
@@ -187,14 +220,26 @@ func guardLockFile(path string) func(*CheckResult) {
 		after, err := os.ReadFile(path)
 		switch {
 		case !existed && err == nil:
-			if os.Remove(path) == nil {
-				result.Lines = append(result.Lines, "note: removed "+filepath.Base(path)+" written by the check")
-			}
+			lockRemoveCreated(path, result)
 		case existed && (err != nil || !bytes.Equal(before, after)):
-			if writeFileAtomic(path, before) == nil {
-				result.Lines = append(result.Lines, "note: restored "+filepath.Base(path)+" changed by the check")
-			}
+			lockRestoreChanged(path, before, result)
 		}
+	}
+}
+
+// lockRemoveCreated removes a lock file the check created.
+// TRLC-LINKS: REQ-EMG-068
+func lockRemoveCreated(path string, result *CheckResult) {
+	if os.Remove(path) == nil {
+		result.Lines = append(result.Lines, "note: removed "+filepath.Base(path)+" written by the check")
+	}
+}
+
+// lockRestoreChanged writes back a lock file the check changed or removed.
+// TRLC-LINKS: REQ-EMG-068
+func lockRestoreChanged(path string, before []byte, result *CheckResult) {
+	if writeFileAtomic(path, before) == nil {
+		result.Lines = append(result.Lines, "note: restored "+filepath.Base(path)+" changed by the check")
 	}
 }
 
@@ -261,6 +306,22 @@ func ToolGoWork(repoDir string) string {
 // ENGMODEL-LINKS: FLOW-ENGINE-INTEGRATIONS
 func execCheck(ctx context.Context, root string, target CheckTarget) CheckResult {
 	result := CheckResult{Target: target, Method: "exec .github/engmod-check"}
+	out, err := execCheckCommand(ctx, root, target).CombinedOutput()
+	execCountLines(&result, string(out))
+	if err != nil {
+		result.Failed = true
+		if result.Errors == 0 {
+			// Build, flag or trace failure without diagnostic lines: show the tail.
+			result.Lines = append(result.Lines, tail(strings.TrimSpace(string(out)), 8)...)
+		}
+	}
+	return result
+}
+
+// execCheckCommand builds the go run command of the repository's own check.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FLOW-ENGINE-INTEGRATIONS
+func execCheckCommand(ctx context.Context, root string, target CheckTarget) *exec.Cmd {
 	args := []string{"-C", ".github/engmod-check", "run", ".",
 		"--model", "../../engmod.yml", "--code-root", ".", "--workspace-root", root}
 	if detectPinnedCheck(target.Entry.Dir).summary {
@@ -274,28 +335,33 @@ func execCheck(ctx context.Context, root string, target CheckTarget) CheckResult
 		// support ignore it and find the same file by parent search.
 		cmd.Env = append(cmd.Env, "ENGMOD_WORK="+work)
 	}
-	out, err := cmd.CombinedOutput()
-	for _, line := range strings.Split(string(out), "\n") {
+	return cmd
+}
+
+// execCountLines counts the error and warning lines of the check output and
+// keeps the error lines.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FLOW-ENGINE-INTEGRATIONS
+func execCountLines(result *CheckResult, out string) {
+	for _, line := range strings.Split(out, "\n") {
 		switch {
 		case errorLine.MatchString(line):
 			result.Errors++
 			result.Lines = append(result.Lines, line)
 		case warningLine.MatchString(line):
-			n := 1
-			if m := warningLine.FindStringSubmatch(line); m[1] != "" {
-				n, _ = strconv.Atoi(m[1])
-			}
-			result.Warnings += n
+			result.Warnings += warningCount(line)
 		}
 	}
-	if err != nil {
-		result.Failed = true
-		if result.Errors == 0 {
-			// Build, flag or trace failure without diagnostic lines: show the tail.
-			result.Lines = append(result.Lines, tail(strings.TrimSpace(string(out)), 8)...)
-		}
+}
+
+// warningCount is the repeat count of a warning line (x<n>), else 1.
+// TRLC-LINKS: REQ-EMG-068
+func warningCount(line string) int {
+	if m := warningLine.FindStringSubmatch(line); m[1] != "" {
+		n, _ := strconv.Atoi(m[1])
+		return n
 	}
-	return result
+	return 1
 }
 
 // checkEnvAllowlist names the variables a repository's own check receives;
@@ -353,39 +419,81 @@ func tail(text string, n int) []string {
 func libraryCheck(target CheckTarget) CheckResult {
 	result := CheckResult{Target: target, Method: "library"}
 	manifest := filepath.Join(target.Entry.Dir, "engmod.yml")
-	fail := func(format string, args ...any) CheckResult {
-		result.Failed = true
-		result.Errors++
-		result.Lines = append(result.Lines, fmt.Sprintf(format, args...))
-		return result
-	}
 	bundle, err := model.LoadBundle(manifest)
 	if err != nil {
-		return fail("load: %v", err)
+		return libraryFail(result, "load: %v", err)
 	}
+	run, failure := libraryGather(bundle, manifest, target.Entry.Dir)
+	if failure != "" {
+		return libraryFail(result, "%s", failure)
+	}
+	libraryTally(&result, engmodel.ApplyTierPolicy(bundle, run.diagnostics))
+	return libraryFinish(result, run)
+}
+
+// libraryFinish adds the generation error and the dangling trace links to the
+// tallied result and decides whether it failed.
+// TRLC-LINKS: REQ-EMG-068
+func libraryFinish(result CheckResult, run libraryRun) CheckResult {
+	if run.genErr != nil && result.Errors == 0 {
+		return libraryFail(result, "generate: %v", run.genErr)
+	}
+	if run.dangling > 0 {
+		result.Lines = append(result.Lines, fmt.Sprintf("trace: %d dangling links", run.dangling))
+	}
+	result.Failed = run.genErr != nil || result.Errors > 0 || run.dangling > 0
+	return result
+}
+
+// libraryFail records one failure line and marks the result failed.
+// TRLC-LINKS: REQ-EMG-068
+func libraryFail(result CheckResult, format string, args ...any) CheckResult {
+	result.Failed = true
+	result.Errors++
+	result.Lines = append(result.Lines, fmt.Sprintf(format, args...))
+	return result
+}
+
+// libraryRun is what the in-process check gathered about one model.
+type libraryRun struct {
+	diagnostics []validate.Diagnostic
+	dangling    int
+	genErr      error // the document generation error, reported after the diagnostics
+}
+
+// libraryGather generates the document, adds the composition diagnostics and
+// builds the trace matrix. A composition or trace error is the failure text.
+// TRLC-LINKS: REQ-EMG-068
+func libraryGather(bundle model.Bundle, manifest, codeRoot string) (libraryRun, string) {
 	// GenerateAsciiDoc validates alias::ID references against the
 	// dependencies' publications (REQ-EMG-065) and returns the composition
 	// diagnostics (REQ-EMG-066).
 	doc, err := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{})
-	diagnostics := doc.Diagnostics
-	if err == nil && engmodel.HasComposition(bundle) {
+	run := libraryRun{diagnostics: doc.Diagnostics, genErr: err}
+	if err != nil {
+		return run, ""
+	}
+	if engmodel.HasComposition(bundle) {
 		comp, cerr := engmodel.GenerateCompositionFromFile(manifest)
 		if cerr != nil {
-			return fail("composition: %v", cerr)
+			return run, fmt.Sprintf("composition: %v", cerr)
 		}
-		diagnostics = append(diagnostics, comp.Diagnostics...)
+		run.diagnostics = append(run.diagnostics, comp.Diagnostics...)
 	}
-	dangling := 0
-	if err == nil {
-		matrix, traceDiags, terr := engmodel.BuildTraceMatrixFromFiles(manifest, bundle.RequirementsPath, target.Entry.Dir)
-		if terr != nil {
-			return fail("trace: %v", terr)
-		}
-		diagnostics = append(diagnostics, traceDiags...)
-		dangling = matrix.Summary.DanglingLinks
+	matrix, traceDiags, terr := engmodel.BuildTraceMatrixFromFiles(manifest, bundle.RequirementsPath, codeRoot)
+	if terr != nil {
+		return run, fmt.Sprintf("trace: %v", terr)
 	}
+	run.diagnostics = append(run.diagnostics, traceDiags...)
+	run.dangling = matrix.Summary.DanglingLinks
+	return run, ""
+}
+
+// libraryTally counts the distinct error and warning diagnostics into result.
+// TRLC-LINKS: REQ-EMG-068
+func libraryTally(result *CheckResult, diagnostics []validate.Diagnostic) {
 	seen := map[string]bool{}
-	for _, d := range validate.SortDiagnostics(engmodel.ApplyTierPolicy(bundle, diagnostics)) {
+	for _, d := range validate.SortDiagnostics(diagnostics) {
 		key := d.Code + "|" + d.Path + "|" + d.Message
 		if seen[key] {
 			continue
@@ -402,14 +510,6 @@ func libraryCheck(target CheckTarget) CheckResult {
 			result.Warnings++
 		}
 	}
-	if err != nil && result.Errors == 0 {
-		return fail("generate: %v", err)
-	}
-	if dangling > 0 {
-		result.Lines = append(result.Lines, fmt.Sprintf("trace: %d dangling links", dangling))
-	}
-	result.Failed = err != nil || result.Errors > 0 || dangling > 0
-	return result
 }
 
 // WorkFileDrift reports how root/engmod.work.yml differs from the plan's
@@ -450,6 +550,18 @@ func workFileDrift(plan Plan, withExtra bool) string {
 	if err != nil {
 		return fmt.Sprintf("%s is invalid: %v", model.WorkspaceFileName, err)
 	}
+	diffs := workFileDiffs(plan, workspace, withExtra)
+	if len(diffs) == 0 {
+		return ""
+	}
+	sort.Strings(diffs)
+	return fmt.Sprintf("%s is out of date (%s); run engws sync", model.WorkspaceFileName, strings.Join(diffs, ", "))
+}
+
+// workFileDiffs lists the local checkouts missing from the work file and, with
+// withExtra, the replacements no local checkout wants.
+// TRLC-LINKS: REQ-EMG-068
+func workFileDiffs(plan Plan, workspace model.WorkspaceDocument, withExtra bool) []string {
 	have := map[string]string{}
 	for _, r := range workspace.Replacements {
 		have[r.Module] = filepath.Clean(r.Path)
@@ -469,9 +581,5 @@ func workFileDrift(plan Plan, withExtra bool) string {
 			diffs = append(diffs, "extra "+path)
 		}
 	}
-	if len(diffs) == 0 {
-		return ""
-	}
-	sort.Strings(diffs)
-	return fmt.Sprintf("%s is out of date (%s); run engws sync", model.WorkspaceFileName, strings.Join(diffs, ", "))
+	return diffs
 }

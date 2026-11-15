@@ -77,14 +77,14 @@ func TestStaleCheckTemplateIsAnErrorNotAFallback(t *testing.T) {
 			root := t.TempDir()
 			dir := checkout(t, root, "if-a")
 			writeTemplate(t, dir, templateFiles{c.gomod, c.source})
-			opts := CheckOptions{InProcess: c.inProcess}
+			opts := CheckOptions{Root: root, InProcess: c.inProcess}
 			if got := routeOf(dir, opts); got != c.route {
 				t.Fatalf("route %d, want %d", got, c.route)
 			}
 			if c.route == routeExec {
 				return // a current template is exec'd; the pin tests run one
 			}
-			result := RunChecks(context.Background(), root, []CheckTarget{{Entry: Entry{Checkout: Checkout{Name: "if-a", Dir: dir}}, Reason: "local"}}, opts)[0]
+			result := RunChecks(context.Background(), []CheckTarget{{Entry: Entry{Checkout: Checkout{Name: "if-a", Dir: dir}}, Reason: "local"}}, opts)[0]
 			if c.stale {
 				assertStaleResult(t, result, dir)
 				return
@@ -235,7 +235,7 @@ func TestRunChecksReportsOutdatedPinOfExecCheck(t *testing.T) {
 			dir := checkout(t, root, "if-a")
 			writeTemplate(t, dir, templateFiles{engineRequire(c.pin), currentSource})
 			target := CheckTarget{Entry: Entry{Checkout: Checkout{Name: "if-a", Dir: dir}}, Reason: "local"}
-			result := RunChecks(context.Background(), root, []CheckTarget{target}, CheckOptions{})[0]
+			result := RunChecks(context.Background(), []CheckTarget{target}, CheckOptions{Root: root})[0]
 			joined := strings.Join(result.Lines, "\n")
 			if got := strings.Contains(joined, "engine.pin_outdated [error]"); got != c.want {
 				t.Fatalf("pin_outdated reported %v, want %v:\n%s", got, c.want, joined)

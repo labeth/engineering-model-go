@@ -152,7 +152,7 @@ func entry(t *testing.T, plan Plan, name string) Entry {
 func runMain(t *testing.T, registry Registry, args ...string) (int, string, string) {
 	t.Helper()
 	var out, errOut bytes.Buffer
-	code := Main(context.Background(), args, &out, &errOut, registry)
+	code := Main(context.Background(), args, CLI{Stdout: &out, Stderr: &errOut, Registry: registry})
 	return code, out.String(), errOut.String()
 }
 
