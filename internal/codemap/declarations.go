@@ -199,12 +199,13 @@ func descendantsOfKind(n *sitter.Node, kinds []string) []*sitter.Node {
 }
 
 // specNames returns the identifiers a spec declares: they come first, and the first other child (a type, a value) ends them.
+// A type spec declares one name, its first child; a later type_identifier is the type it is defined as (type Beta int), not a name.
 // TRLC-LINKS: REQ-EMG-192
 func specNames(spec *sitter.Node) []*sitter.Node {
 	var out []*sitter.Node
 	for i := uint(0); i < spec.NamedChildCount(); i++ {
 		id := spec.NamedChild(i)
-		if id.Kind() != "identifier" && id.Kind() != "type_identifier" {
+		if id.Kind() != "identifier" && (id.Kind() != "type_identifier" || i > 0) {
 			break
 		}
 		out = append(out, id)

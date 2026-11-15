@@ -34,8 +34,12 @@ dependent or a check template must do:
 - `TestDeeplyNestedSourcesDoNotCrashOrStall` no longer fails on a loaded machine: the 4 MiB case sets a parse timeout of three
   minutes, so it tests the depth refusal and not the speed of the machine.
 - `REQ-EMG-207` and `REQ-EMG-208` have status `verified`: 27 mutations of the two rules, their tier rows, the schema relaxations and
-  the remedy registration were run with `red-check.mjs` and every one failed an assertion. The other requirements from `REQ-EMG-189` to
-  `REQ-EMG-206` stay `implemented` and are deferred by `POAM-CONSISTENCY-BATCH1` (see `docs/release-v0.12.0.md`).
+  the remedy registration were run with `red-check.mjs` and every one failed an assertion.
+- `REQ-EMG-189` to `REQ-EMG-206` (entity index, model diff, code lookup, catalog usage and the Go facade over them) have status
+  `verified` and no longer need a POA&M defer: root-package tests (`api_diff_test.go`, `api_trace_test.go`, `api_reqlinks_test.go`,
+  `api_composition_test.go`, `api_catalog_test.go`, `api_validate_test.go`, `api_code_test.go`) call every public function through the
+  facade and assert each criterion of the requirement, and the mutations in `scripts/red-checks/` (about 130, two or more per requirement)
+  were each RED with a failed assertion. `scripts/red-checks/run.sh` reproduces the evidence on any tree.
 
 ### Public Go API added for tools (root package `github.com/labeth/engineering-model-go`)
 
@@ -48,7 +52,8 @@ Used by the engineering tool; all are thin facades over `internal/` packages and
   `EntityEdgeField`, `EntityEdgeMention`, `EntityEdgeContains`, `EntityEdgeRelationship`.
 - Code lookup: `ListCodeDeclarations(Bundle, root string) ([]CodeDeclaration, error)`, `CodeDeclarationsOf(relPath string,
   src []byte) ([]CodeDeclaration, error)`, `FindCodeDefinitions(declarations, fromPath, name) []CodeDeclaration`; type
-  `CodeDeclaration`.
+  `CodeDeclaration`. A Go spec declares its own names only: the type a declaration is defined as (`type Beta int`, `var a, b Beta`)
+  is no declaration (found by the facade test of `REQ-EMG-199`).
 - Catalog: `CatalogUsage(Bundle) ([]CatalogTermUsage, error)`; type `CatalogTermUsage`.
 - No schema field was added and no existing exported function changed its signature.
 - `cue.mod/module.cue` is added so the engine's model module (`github.com/labeth/engineering-model-go/model@v0`) can be composed
@@ -60,8 +65,8 @@ Used by the engineering tool; all are thin facades over `internal/` packages and
   requirement links), eleven data objects, four consumer flows with `ACT-GO-CONSUMER`, the machine `SM-GO-BUNDLE-SESSION` (checked
   with Quint), the published capability `CAP-EMG-GO-API` and the requirements that realize it. A consumer composes the model and
   references `alias::IF-GO-...` instead of a free-text referenced element. ADR-EMG-082 to 084 (the Go interface scope and three
-  language gaps) are recorded as proposed for the owner; none is implemented. The verification debt of the facade is deferred in
-  `POAM-CONSISTENCY-BATCH1`.
+  language gaps) are recorded as proposed for the owner; none is implemented. The facade requirements are verified by the root-package tests
+  and the red checks listed above.
 
 ### A dependency names its interface and an interface carries data (ADR-EMG-085 and 086, REQ-EMG-207 and 208)
 

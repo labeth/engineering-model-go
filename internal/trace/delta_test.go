@@ -95,3 +95,12 @@ func TestDeltaOfEncodesEmptyListsAsArrays(t *testing.T) {
 		}
 	}
 }
+
+// A requirement that only gains a test (no code) is traced now: it gained trace and a test.
+// Mutation: reading a requirement as traced by its code alone fails this test.
+// TRLC-LINKS: REQ-EMG-191
+func TestDeltaOfARequirementThatOnlyGainsATest(t *testing.T) {
+	d := DeltaOf(Matrix{Requirements: rows(rowSpec{"R8", "orphan", 0, 0})}, Matrix{Requirements: rows(rowSpec{"R8", "test-linked", 0, 1})})
+	sameList(t, listCase{"gained", d.Gained, []string{"R8"}})
+	sameList(t, listCase{"testsGained", d.TestsGained, []string{"R8"}})
+}

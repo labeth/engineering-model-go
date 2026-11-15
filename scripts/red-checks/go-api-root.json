@@ -1,0 +1,802 @@
+[
+ {
+  "file": "internal/model/load.go",
+  "find": "if filepath.Base(filepath.Clean(manifestPath)) != \"engmod.yml\" {",
+  "replace": "if filepath.Base(filepath.Clean(manifestPath)) == \"\" {",
+  "req": [
+   "REQ-EMG-194"
+  ]
+ },
+ {
+  "file": "internal/model/load.go",
+  "find": "return Bundle{}, fmt.Errorf(\"decode architecture file: %w\", err)",
+  "replace": "return Bundle{Requirements: requirements}, fmt.Errorf(\"decode architecture file: %w\", err)",
+  "req": [
+   "REQ-EMG-206"
+  ]
+ },
+ {
+  "file": "internal/model/load.go",
+  "find": "if err := decodeYAMLFile(catalogPath, &catalog); err != nil {",
+  "replace": "if err := decodeYAMLFile(catalogPath, &catalog); false && err != nil {",
+  "req": [
+   "REQ-EMG-206"
+  ]
+ },
+ {
+  "file": "internal/model/load.go",
+  "find": "if err := decodeYAMLFile(requirementsPath, &requirements); err != nil {",
+  "replace": "if err := decodeYAMLFile(requirementsPath, &requirements); false && err != nil {",
+  "req": [
+   "REQ-EMG-206"
+  ]
+ },
+ {
+  "file": "internal/validate/validate.go",
+  "find": "Code: \"requirement.invalid_applies_to\", Severity: SeverityError,",
+  "replace": "Code: \"requirement.invalid_applies_to_id\", Severity: SeverityError,",
+  "req": [
+   "REQ-EMG-195"
+  ]
+ },
+ {
+  "file": "internal/validate/validate.go",
+  "find": "Code: \"requirement.invalid_applies_to\", Severity: SeverityError,",
+  "replace": "Code: \"requirement.invalid_applies_to\", Severity: SeverityWarning,",
+  "req": [
+   "REQ-EMG-195"
+  ]
+ },
+ {
+  "file": "internal/validate/validate.go",
+  "find": "if target == \"\" || !(validID(target) || appliesToTargets[target]) {",
+  "replace": "if target == \"\" || (validID(target) || appliesToTargets[target]) {",
+  "req": [
+   "REQ-EMG-195"
+  ]
+ },
+ {
+  "file": "validate_api.go",
+  "find": "return validate.HasErrors(diags)",
+  "replace": "return false",
+  "req": [
+   "REQ-EMG-195"
+  ]
+ },
+ {
+  "file": "api_diff.go",
+  "find": "out.Entities = DiffEntityIndexes(before, after)",
+  "replace": "out.Entities = DiffEntityIndexes(after, before)",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "api_diff.go",
+  "find": "b, err = model.LoadBundle(filepath.Join(repo, \"engmod.yml\"))",
+  "replace": "b, err = LoadBundleAtRef(repo, \"HEAD\")",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "api_diff.go",
+  "find": "if req.Trace {",
+  "replace": "if false {",
+  "req": [
+   "REQ-EMG-191",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "api_diff.go",
+  "find": "after, err := traceAt(req.Repo, req.To)",
+  "replace": "after, err := traceAt(req.Repo, req.From)",
+  "req": [
+   "REQ-EMG-191",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "api_diff.go",
+  "find": "return nil, fmt.Sprintf(\"trace at %s: %v\", labelOf(req.From), err)",
+  "replace": "return nil, \"\"",
+  "req": [
+   "REQ-EMG-191",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "api_diff.go",
+  "find": "after, err := entityIndexAt(req.Repo, req.To)\n\tif err != nil {\n\t\treturn out, err\n\t}",
+  "replace": "after, _ := entityIndexAt(req.Repo, req.To)",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/gitmodel/gitmodel.go",
+  "find": "bundle, err := model.LoadBundle(filepath.Join(tmp, \"engmod.yml\"))",
+  "replace": "bundle, err := model.LoadBundle(filepath.Join(repo, \"engmod.yml\"))",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-194",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/gitmodel/gitmodel.go",
+  "find": "data, err := Output(v.repo, \"show\", v.ref+\":./\"+clean)",
+  "replace": "data, err := Output(v.repo, \"show\", \"HEAD:./\"+clean)",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-194",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "d.Added = append(d.Added, changeOf(e, nil))",
+  "replace": "d.Removed = append(d.Removed, changeOf(e, nil))",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "if _, kept := after[e.ID]; !kept {",
+  "replace": "if _, kept := after[e.ID]; kept {",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "case len(fields) > 0:",
+  "replace": "case len(fields) >= 0:",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "referencesNotIn(to, referenceSet(from), nil)",
+  "replace": "referencesNotIn(from, referenceSet(to), nil)",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "existing == nil || bothExist(existing, r)",
+  "replace": "true",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "sort.Slice(list, func(i, j int) bool { return list[i].ID < list[j].ID })",
+  "replace": "sort.Slice(list, func(i, j int) bool { return list[i].ID > list[j].ID })",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "case old.traced() && !now.traced():",
+  "replace": "case old.traced():",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "if now.tested() && !old.tested() {",
+  "replace": "if now.tested() || !old.tested() {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "if now.orphaned() && !old.orphaned() {",
+  "replace": "if now.orphaned() {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "if old.orphaned() && !now.orphaned() {",
+  "replace": "if old.orphaned() {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "if old.present && old.row.Status != now.row.Status {",
+  "replace": "if old.row.Status != now.row.Status {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "for _, r := range to.Requirements {",
+  "replace": "for _, r := range from.Requirements {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "func traced(r Row) bool { return len(r.Code) > 0 || len(r.Verifications) > 0 }",
+  "replace": "func traced(r Row) bool { return len(r.Code) > 0 }",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "return idx.Entities[i].ID < idx.Entities[j].ID",
+  "replace": "return idx.Entities[i].ID > idx.Entities[j].ID",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "w.edges[EntityReference{From: parent, To: id, Via: EdgeContains, Type: EdgeContains}] = struct{}{}",
+  "replace": "_ = id",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "s.link(via, t, EdgeMention)",
+  "replace": "_ = t",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "if w.known(r.From) && w.known(r.To) {",
+  "replace": "if true {",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "if _, ok := s.known[to]; ok && to != s.from {",
+  "replace": "if to != s.from {",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "s.link(via, x, EdgeField)",
+  "replace": "s.link(via, x, EdgeMention)",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "w.relationships(m[k])",
+  "replace": "_ = k",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "e.Documents = append(e.Documents, w.document)",
+  "replace": "_ = e.Documents",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "case isEntityList(m[k]):",
+  "replace": "case false:",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "\"controlVerifications\": \"control_verification\"",
+  "replace": "\"controlVerifications\": \"control\"",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "\"decisions\", \"reqLinks\", \"aviation\", \"catalog\"}",
+  "replace": "\"decisions\", \"reqLinks\", \"aviation\"}",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "sort.Slice(out, func(i, j int) bool { return referenceLess(out[i], out[j]) })",
+  "replace": "_ = referenceLess",
+  "req": [
+   "REQ-EMG-189",
+   "REQ-EMG-196"
+  ]
+ },
+ {
+  "file": "internal/reqlint/catalog_usage.go",
+  "find": "(r.Type != model.EdgeField && r.Type != model.EdgeMention)",
+  "replace": "(r.Type != model.EdgeField)",
+  "req": [
+   "REQ-EMG-193",
+   "REQ-EMG-201"
+  ]
+ },
+ {
+  "file": "internal/reqlint/catalog_usage.go",
+  "find": "append([]string{e.Name}, e.Aliases...)",
+  "replace": "[]string{e.Name}",
+  "req": [
+   "REQ-EMG-193",
+   "REQ-EMG-201"
+  ]
+ },
+ {
+  "file": "internal/reqlint/catalog_usage.go",
+  "find": "\tout := []string{}\n\tfor i, text := range t.texts {",
+  "replace": "\tvar out []string\n\tfor i, text := range t.texts {",
+  "req": [
+   "REQ-EMG-193",
+   "REQ-EMG-201"
+  ]
+ },
+ {
+  "file": "internal/reqlint/catalog_usage.go",
+  "find": "ReferencedBy: append([]string{}, referencing[e.ID]...)",
+  "replace": "ReferencedBy: referencing[e.ID]",
+  "req": [
+   "REQ-EMG-193",
+   "REQ-EMG-201"
+  ]
+ },
+ {
+  "file": "internal/reqlint/ears_preflight.go",
+  "find": "if !isWord(start-1) && !isWord(end) {",
+  "replace": "if !isWord(start-1) && end > 0 {",
+  "req": [
+   "REQ-EMG-193",
+   "REQ-EMG-201"
+  ]
+ },
+ {
+  "file": "api_code.go",
+  "find": "\tcase d.Path == u.path:\n\t\trank = 0",
+  "replace": "\tcase d.Path == u.path:\n\t\trank = 1",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-200"
+  ]
+ },
+ {
+  "file": "api_code.go",
+  "find": "case declDir == u.dir:\n\t\trank = 1",
+  "replace": "case declDir == u.dir:\n\t\trank = 2",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-200"
+  ]
+ },
+ {
+  "file": "api_code.go",
+  "find": "case strings.HasPrefix(u.dir, declDir+\"/\") || strings.HasPrefix(declDir, u.dir+\"/\"):",
+  "replace": "case strings.HasPrefix(declDir, \"\\x00\"):",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-200"
+  ]
+ },
+ {
+  "file": "api_code.go",
+  "find": "if d.TestOnly && !u.inTest {\n\t\trank += 4",
+  "replace": "if d.TestOnly && !u.inTest {\n\t\trank += 1",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-200"
+  ]
+ },
+ {
+  "file": "api_code.go",
+  "find": "return r.decl.Line < o.decl.Line",
+  "replace": "return r.decl.Line > o.decl.Line",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-200"
+  ]
+ },
+ {
+  "file": "api_code.go",
+  "find": "if d.Name == name && (u.language == \"\" || d.Language == u.language) {",
+  "replace": "if d.Name == name {",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-200"
+  ]
+ },
+ {
+  "file": "api_code.go",
+  "find": "if d.Name == name && (u.language",
+  "replace": "if strings.HasPrefix(d.Name, name) && (u.language",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-200"
+  ]
+ },
+ {
+  "file": "api_code.go",
+  "find": "if d.Path == file && d.TestOnly {",
+  "replace": "if d.Path == file {",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-200"
+  ]
+ },
+ {
+  "file": "internal/codemap/declarations.go",
+  "find": "Line: d.Line, EndLine: d.EndLine,",
+  "replace": "Line: d.Line, EndLine: d.Line,",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-199"
+  ]
+ },
+ {
+  "file": "internal/codemap/declarations.go",
+  "find": "TestOnly: d.TestOnly || d.IsTest,",
+  "replace": "TestOnly: false,",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-199"
+  ]
+ },
+ {
+  "file": "internal/codemap/declarations.go",
+  "find": "if id.Kind() != \"identifier\" && (id.Kind() != \"type_identifier\" || i > 0) {",
+  "replace": "if id.Kind() != \"identifier\" && id.Kind() != \"type_identifier\" {",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-199"
+  ]
+ },
+ {
+  "file": "internal/codemap/declarations.go",
+  "find": "for _, f := range d.Further {",
+  "replace": "for _, f := range d.Further[:0] {",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-199"
+  ]
+ },
+ {
+  "file": "internal/codescan/code_scope.go",
+  "find": "return !isDir && visible != nil && !visible[rel]",
+  "replace": "return !isDir && visible != nil && false",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-199"
+  ]
+ },
+ {
+  "file": "internal/codescan/code_scope.go",
+  "find": "if isDir && p != manifestDir && isRegularFile(filepath.Join(p, \"engmod.yml\")) {\n\t\t\treturn true",
+  "replace": "if isDir && p != manifestDir && isRegularFile(filepath.Join(p, \"engmod.yml\")) {\n\t\t\treturn false",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-199"
+  ]
+ },
+ {
+  "file": "internal/codescan/code_scope.go",
+  "find": "if excludedPath(rel, patterns) {\n\t\t\treturn true",
+  "replace": "if excludedPath(rel, patterns) {\n\t\t\treturn false",
+  "req": [
+   "REQ-EMG-192",
+   "REQ-EMG-199"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/reqlinks.go",
+  "find": "if id == \"\" || !strings.EqualFold(strings.TrimSpace(entry.Kind), string(KindCapability)) {",
+  "replace": "if id == \"\" {",
+  "req": [
+   "REQ-EMG-203"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/reqlinks.go",
+  "find": "items[id] = Item{ID: id, Kind: KindCapability, Text: entry.Note}",
+  "replace": "items[id] = Item{ID: id, Kind: KindCapability}",
+  "req": [
+   "REQ-EMG-203"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/reqlinks.go",
+  "find": "items[id] = Item{ID: id, Kind: KindAssumption, Text: a.Text,",
+  "replace": "items[id] = Item{ID: id, Kind: KindCapability, Text: a.Text,",
+  "req": [
+   "REQ-EMG-203"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/reqlinks.go",
+  "find": "\t\t\t\titem.Realizers = append(item.Realizers, realizer)",
+  "replace": "\t\t\t\titem.Realizers = []Realizer{realizer}",
+  "req": [
+   "REQ-EMG-203"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/reqlinks.go",
+  "find": "\t\t\t\titem.Realizers = append(item.Realizers, realizer)",
+  "replace": "\t\t\t\titem.Realizers = append([]Realizer{realizer}, item.Realizers...)",
+  "req": [
+   "REQ-EMG-203"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/reqlinks.go",
+  "find": "out := append([]Realizer(nil), in...)",
+  "replace": "out := in",
+  "req": [
+   "REQ-EMG-203"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/reqlinks.go",
+  "find": "for _, target := range r.Realizes {",
+  "replace": "for _, target := range r.Realizes[:0] {",
+  "req": [
+   "REQ-EMG-203"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/evaluate.go",
+  "find": "if status.Pinned != pin || (dep.Version != \"\" && status.Pinned != dep.Version) {",
+  "replace": "if status.Pinned != pin {",
+  "req": [
+   "REQ-EMG-204"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/evaluate.go",
+  "find": "if status.Pinned != pin || (dep.Version != \"\" && status.Pinned != dep.Version) {",
+  "replace": "if dep.Version != \"\" && status.Pinned != dep.Version {",
+  "req": [
+   "REQ-EMG-204"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/evaluate.go",
+  "find": "status.State = StateBroken",
+  "replace": "status.State = StateChildUnpublished",
+  "req": [
+   "REQ-EMG-204"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/evaluate.go",
+  "find": "case dep.Local:",
+  "replace": "case false:",
+  "req": [
+   "REQ-EMG-204"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/evaluate.go",
+  "find": "case !resolved:",
+  "replace": "case false:",
+  "req": [
+   "REQ-EMG-204"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/evaluate.go",
+  "find": "case err != nil || !declared:",
+  "replace": "case err != nil || (!declared && false):",
+  "req": [
+   "REQ-EMG-204"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/evaluate.go",
+  "find": "\t\treturn ReasonNotInPublication\n\t}",
+  "replace": "\t\treturn ReasonMissing\n\t}",
+  "req": [
+   "REQ-EMG-204"
+  ]
+ },
+ {
+  "file": "internal/reqlinks/evaluate.go",
+  "find": "out = append(out, status)",
+  "replace": "out = append([]LinkStatus{status}, out...)",
+  "req": [
+   "REQ-EMG-204"
+  ]
+ },
+ {
+  "file": "internal/trace/trace_matrix.go",
+  "find": "CodeRef{Symbol: it.Element, Path: path, Line: line}",
+  "replace": "CodeRef{Symbol: it.Element, Path: path, Line: line * 0}",
+  "req": [
+   "REQ-EMG-198"
+  ]
+ },
+ {
+  "file": "internal/trace/trace_matrix.go",
+  "find": "row.Verifications = textutil.UniqueSorted(verByReq[id])",
+  "replace": "row.Verifications = nil",
+  "req": [
+   "REQ-EMG-198"
+  ]
+ },
+ {
+  "file": "internal/trace/trace_matrix.go",
+  "find": "case len(row.Code) > 0:\n\t\t\trow.Status = \"implemented\"",
+  "replace": "case len(row.Code) > 0:\n\t\t\trow.Status = \"verified\"",
+  "req": [
+   "REQ-EMG-198"
+  ]
+ },
+ {
+  "file": "internal/trace/trace_matrix.go",
+  "find": "matrix.Orphans = append(matrix.Orphans, id)",
+  "replace": "_ = id",
+  "req": [
+   "REQ-EMG-198"
+  ]
+ },
+ {
+  "file": "internal/trace/trace_matrix.go",
+  "find": "dangling = append(dangling, DanglingLink{Kind: \"requirement\", Target: link, From: it.Source})",
+  "replace": "_ = link",
+  "req": [
+   "REQ-EMG-198"
+  ]
+ },
+ {
+  "file": "internal/trace/trace_matrix.go",
+  "find": "if !codescan.IsVerificationCodeItem(it) {",
+  "replace": "if true {",
+  "req": [
+   "REQ-EMG-198"
+  ]
+ },
+ {
+  "file": "internal/trace/trace_matrix.go",
+  "find": "Code: \"code.dangling_requirement_link\", Severity: validate.SeverityError,",
+  "replace": "Code: \"code.dangling_requirement_link\", Severity: validate.SeverityWarning,",
+  "req": [
+   "REQ-EMG-198"
+  ]
+ },
+ {
+  "file": "internal/composition/composition.go",
+  "find": "case options.lockMode() == LockModeCheck:\n\t\tif !replaced {",
+  "replace": "case options.lockMode() == \"never\":\n\t\tif !replaced {",
+  "req": [
+   "REQ-EMG-202"
+  ]
+ },
+ {
+  "file": "internal/composition/composition.go",
+  "find": "Lock:        CompositionLockDocument{SchemaVersion: CompositionLockSchemaVersion, Dependencies: locks},",
+  "replace": "Lock:        CompositionLockDocument{SchemaVersion: CompositionLockSchemaVersion, Dependencies: locks[:0]},",
+  "req": [
+   "REQ-EMG-202"
+  ]
+ },
+ {
+  "file": "internal/composition/composition.go",
+  "find": "Diagnostics: diags,\n",
+  "replace": "Diagnostics: diags[:0],\n",
+  "req": [
+   "REQ-EMG-202"
+  ]
+ },
+ {
+  "file": "internal/composition/composition.go",
+  "find": "composition.module_fetch_failed",
+  "replace": "composition.module_fetch_error",
+  "req": [
+   "REQ-EMG-202"
+  ]
+ },
+ {
+  "file": "internal/composition/composition.go",
+  "find": "replaced := len(workspaceDocument.Replacements) > 0",
+  "replace": "replaced := false",
+  "req": [
+   "REQ-EMG-202"
+  ]
+ },
+ {
+  "file": "internal/composition/composition.go",
+  "find": "child.Local = r.replaced(dependency)",
+  "replace": "child.Local = false",
+  "req": [
+   "REQ-EMG-202"
+  ]
+ },
+ {
+  "file": "internal/composition/composition.go",
+  "find": "sys.Children = append(sys.Children, child)",
+  "replace": "sys.Children = append([]*ComposedSystem{child}, sys.Children...)",
+  "req": [
+   "REQ-EMG-202"
+  ]
+ },
+ {
+  "file": "internal/composition/workspace_users.go",
+  "find": "if _, ok := items[id]; !ok {",
+  "replace": "if false {",
+  "req": [
+   "REQ-EMG-205"
+  ]
+ },
+ {
+  "file": "internal/composition/workspace_users.go",
+  "find": "if a.Item != b.Item {\n\t\t\treturn a.Item < b.Item",
+  "replace": "if a.Item != b.Item {\n\t\t\treturn a.Item > b.Item",
+  "req": [
+   "REQ-EMG-205"
+  ]
+ },
+ {
+  "file": "internal/composition/workspace_users.go",
+  "find": "for _, r := range doc.Replacements {",
+  "replace": "for _, r := range doc.Replacements[:0] {",
+  "req": [
+   "REQ-EMG-205"
+  ]
+ },
+ {
+  "file": "internal/composition/workspace_users.go",
+  "find": "Parent: strings.TrimSpace(l.Parent),",
+  "replace": "Parent: \"\",",
+  "req": [
+   "REQ-EMG-205"
+  ]
+ }
+]

@@ -1,0 +1,49 @@
+[
+ {
+  "file": "api_diff.go",
+  "find": "out.Entities = DiffEntityIndexes(before, after)",
+  "replace": "out.Entities = DiffEntityIndexes(after, before)",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "api_diff.go",
+  "find": "if req.Trace {",
+  "replace": "if false {",
+  "req": [
+   "REQ-EMG-191",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "api_diff.go",
+  "find": "after, err := traceAt(req.Repo, req.To)",
+  "replace": "after, err := traceAt(req.Repo, req.From)",
+  "req": [
+   "REQ-EMG-191",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/gitmodel/gitmodel.go",
+  "find": "bundle, err := model.LoadBundle(filepath.Join(tmp, \"engmod.yml\"))",
+  "replace": "bundle, err := model.LoadBundle(filepath.Join(repo, \"engmod.yml\"))",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-194",
+   "REQ-EMG-197"
+  ]
+ },
+ {
+  "file": "internal/gitmodel/gitmodel.go",
+  "find": "data, err := Output(v.repo, \"show\", v.ref+\":./\"+clean)",
+  "replace": "data, err := Output(v.repo, \"show\", \"HEAD:./\"+clean)",
+  "req": [
+   "REQ-EMG-190",
+   "REQ-EMG-194",
+   "REQ-EMG-197"
+  ]
+ }
+]

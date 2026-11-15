@@ -1,0 +1,42 @@
+[
+ {
+  "file": "internal/reqlint/catalog_usage.go",
+  "find": "(r.Type != model.EdgeField && r.Type != model.EdgeMention)",
+  "replace": "(r.Type != model.EdgeField)",
+  "req": [
+   "REQ-EMG-193"
+  ]
+ },
+ {
+  "file": "internal/reqlint/catalog_usage.go",
+  "find": "append([]string{e.Name}, e.Aliases...)",
+  "replace": "[]string{e.Name}",
+  "req": [
+   "REQ-EMG-193"
+  ]
+ },
+ {
+  "file": "internal/reqlint/catalog_usage.go",
+  "find": "\tout := []string{}\n\tfor i, text := range t.texts {",
+  "replace": "\tvar out []string\n\tfor i, text := range t.texts {",
+  "req": [
+   "REQ-EMG-193"
+  ]
+ },
+ {
+  "file": "internal/reqlint/catalog_usage.go",
+  "find": "ReferencedBy: append([]string{}, referencing[e.ID]...)",
+  "replace": "ReferencedBy: referencing[e.ID]",
+  "req": [
+   "REQ-EMG-193"
+  ]
+ },
+ {
+  "file": "internal/reqlint/ears_preflight.go",
+  "find": "if !isWord(start-1) && !isWord(end) {",
+  "replace": "if !isWord(start-1) && end > 0 {",
+  "req": [
+   "REQ-EMG-193"
+  ]
+ }
+]
