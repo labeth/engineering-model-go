@@ -34,21 +34,30 @@ func ValidateCatalogDescriptions(doc model.CatalogDocument) []validate.Diagnosti
 
 	out := make([]validate.Diagnostic, 0)
 	for _, g := range groups {
-		for i, e := range g.entries {
-			if strings.TrimSpace(e.Definition) != "" {
-				continue
-			}
-			id := strings.TrimSpace(e.ID)
-			if id == "" {
-				id = "<missing-id>"
-			}
-			out = append(out, validate.Diagnostic{
-				Code:     "catalog.missing_description",
-				Severity: validate.SeverityError,
-				Message:  fmt.Sprintf("catalog entry %q must include a non-empty definition/description", id),
-				Path:     fmt.Sprintf("catalog.%s[%d]", g.pathKey, i),
-			})
-		}
+		out = append(out, missingDescriptions(g.pathKey, g.entries)...)
 	}
 	return validate.SortDiagnostics(out)
+}
+
+// missingDescriptions reports each entry of a catalog group without a definition.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009
+func missingDescriptions(pathKey string, entries []model.CatalogEntry) []validate.Diagnostic {
+	var out []validate.Diagnostic
+	for i, e := range entries {
+		if strings.TrimSpace(e.Definition) != "" {
+			continue
+		}
+		id := strings.TrimSpace(e.ID)
+		if id == "" {
+			id = "<missing-id>"
+		}
+		out = append(out, validate.Diagnostic{
+			Code:     "catalog.missing_description",
+			Severity: validate.SeverityError,
+			Message:  fmt.Sprintf("catalog entry %q must include a non-empty definition/description", id),
+			Path:     fmt.Sprintf("catalog.%s[%d]", pathKey, i),
+		})
+	}
+	return out
 }
