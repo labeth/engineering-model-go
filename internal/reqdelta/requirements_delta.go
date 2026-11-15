@@ -90,30 +90,46 @@ func ApplyRequirementsDelta(root, deltaPath string) (result RequirementsDeltaRes
 	if err != nil {
 		return RequirementsDeltaResult{}, err
 	}
-	defer func() {
-		if releaseErr := release(); err == nil && releaseErr != nil {
-			err = fmt.Errorf("requirements applied but lock release failed: %w", releaseErr)
-		}
-	}()
+	defer releaseRequirementsLock(release, &err)
 
 	plan, err := planRequirementsDelta(targetPath, deltaPath)
 	if err != nil {
 		return RequirementsDeltaResult{}, err
 	}
-	if validate.HasErrors(plan.result.Diagnostics) {
-		return plan.result, fmt.Errorf("requirements delta candidate is invalid")
-	}
-	current, err := os.ReadFile(plan.targetPath)
-	if err != nil {
-		return plan.result, fmt.Errorf("re-read requirements before apply: %w", err)
-	}
-	if !bytes.Equal(current, plan.source) {
-		return plan.result, fmt.Errorf("requirements changed while delta was being planned")
+	if err := verifyRequirementsPlanApplicable(plan); err != nil {
+		return plan.result, err
 	}
 	if err := writeFileAtomic(plan.targetPath, plan.result.YAML, plan.mode); err != nil {
 		return plan.result, err
 	}
 	return plan.result, nil
+}
+
+// releaseRequirementsLock releases the apply lock and reports a failed release when no earlier error is set.
+// TRLC-LINKS: REQ-EMG-033, REQ-EMG-185
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DEP-LOCAL-WORKSPACE
+func releaseRequirementsLock(release func() error, err *error) {
+	if releaseErr := release(); *err == nil && releaseErr != nil {
+		*err = fmt.Errorf("requirements applied but lock release failed: %w", releaseErr)
+	}
+}
+
+// verifyRequirementsPlanApplicable refuses an invalid candidate and a requirements file that changed since planning.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033, REQ-EMG-185
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-VALIDATION-ENGINE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+// ENGMODEL-LINKS: STATE-DELTA-REFUSED, TR-DELTA-CANDIDATE-INVALIDATED, TR-DELTA-SOURCE-CHANGES, TR-DELTA-REFUSE-INVALID, TR-DELTA-REFUSE-CHANGED
+func verifyRequirementsPlanApplicable(plan requirementsDeltaPlan) error {
+	if validate.HasErrors(plan.result.Diagnostics) {
+		return fmt.Errorf("requirements delta candidate is invalid")
+	}
+	current, err := os.ReadFile(plan.targetPath)
+	if err != nil {
+		return fmt.Errorf("re-read requirements before apply: %w", err)
+	}
+	if !bytes.Equal(current, plan.source) {
+		return fmt.Errorf("requirements changed while delta was being planned")
+	}
+	return nil
 }
 
 // TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
@@ -122,24 +138,15 @@ func ApplyRequirementsDelta(root, deltaPath string) (result RequirementsDeltaRes
 // ENGMODEL-LINKS: TR-DELTA-RECEIVE-AFTER-REFUSAL
 func planRequirementsDelta(targetPath, deltaPath string) (requirementsDeltaPlan, error) {
 	rootPath := filepath.Dir(targetPath)
-	source, err := os.ReadFile(targetPath)
+	current, err := loadRequirementsSource(targetPath)
 	if err != nil {
-		return requirementsDeltaPlan{}, fmt.Errorf("read requirements: %w", err)
-	}
-	info, err := os.Stat(targetPath)
-	if err != nil {
-		return requirementsDeltaPlan{}, fmt.Errorf("stat requirements: %w", err)
-	}
-
-	var current model.RequirementsDocument
-	if err := decodeStrictYAML(source, &current); err != nil {
-		return requirementsDeltaPlan{}, fmt.Errorf("decode requirements: %w", err)
+		return requirementsDeltaPlan{}, err
 	}
 	delta, err := loadRequirementsDelta(deltaPath)
 	if err != nil {
 		return requirementsDeltaPlan{}, err
 	}
-	candidateYAML, changes, err := mergeRequirementsYAML(source, current, delta)
+	candidateYAML, changes, err := mergeRequirementsYAML(current.source, current.document, delta)
 	if err != nil {
 		return requirementsDeltaPlan{}, err
 	}
@@ -151,7 +158,6 @@ func planRequirementsDelta(targetPath, deltaPath string) (requirementsDeltaPlan,
 	if err != nil {
 		return requirementsDeltaPlan{}, fmt.Errorf("load model bundle: %w", err)
 	}
-	diags := validateRequirementsCandidate(bundle, candidate)
 	result := RequirementsDeltaResult{
 		Candidate:   candidate,
 		YAML:        candidateYAML,
@@ -159,9 +165,37 @@ func planRequirementsDelta(targetPath, deltaPath string) (requirementsDeltaPlan,
 		Added:       sortedRequirementKeys(changes.added),
 		Updated:     sortedRequirementKeys(changes.updated),
 		Removed:     sortedRequirementKeys(changes.removed),
-		Diagnostics: diags,
+		Diagnostics: validateRequirementsCandidate(bundle, candidate),
 	}
-	return requirementsDeltaPlan{result: result, targetPath: targetPath, source: source, mode: info.Mode()}, nil
+	return requirementsDeltaPlan{result: result, targetPath: targetPath, source: current.source, mode: current.mode}, nil
+}
+
+// requirementsSource is the requirements file as read: its bytes, mode and decoded document.
+type requirementsSource struct {
+	source   []byte
+	mode     os.FileMode
+	document model.RequirementsDocument
+}
+
+// loadRequirementsSource reads and strictly decodes the requirements file.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-MODEL-LOADER, FU-VALIDATION-ENGINE
+// ENGMODEL-LINKS: STATE-DELTA-PLANNING, TR-DELTA-RECEIVE, TR-DELTA-REJECT, TR-DELTA-VALIDATED, EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+// ENGMODEL-LINKS: TR-DELTA-RECEIVE-AFTER-REFUSAL
+func loadRequirementsSource(targetPath string) (requirementsSource, error) {
+	source, err := os.ReadFile(targetPath)
+	if err != nil {
+		return requirementsSource{}, fmt.Errorf("read requirements: %w", err)
+	}
+	info, err := os.Stat(targetPath)
+	if err != nil {
+		return requirementsSource{}, fmt.Errorf("stat requirements: %w", err)
+	}
+	var document model.RequirementsDocument
+	if err := decodeStrictYAML(source, &document); err != nil {
+		return requirementsSource{}, fmt.Errorf("decode requirements: %w", err)
+	}
+	return requirementsSource{source: source, mode: info.Mode(), document: document}, nil
 }
 
 // TRLC-LINKS: REQ-EMG-031
@@ -200,100 +234,213 @@ func mergeRequirementsYAML(source []byte, current model.RequirementsDocument, de
 	if err != nil {
 		return nil, requirementChanges{}, err
 	}
+	currentByID, err := indexCurrentRequirements(current)
+	if err != nil {
+		return nil, requirementChanges{}, err
+	}
+	changes, err := planRequirementChanges(operations, currentByID)
+	if err != nil {
+		return nil, requirementChanges{}, err
+	}
+	document, sequence, err := parseRequirementsTree(source)
+	if err != nil {
+		return nil, requirementChanges{}, err
+	}
+	merged, err := mergeRequirementItems(sequence, operations, delta.Requirements.Add)
+	if err != nil {
+		return nil, requirementChanges{}, err
+	}
+	sequence.Content = merged
+	output, err := encodeRequirementsDocument(document)
+	if err != nil {
+		return nil, requirementChanges{}, err
+	}
+	return output, changes, nil
+}
 
+// parseRequirementsTree parses the requirements YAML into a node tree and returns it with its requirements sequence.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func parseRequirementsTree(source []byte) (*yaml.Node, *yaml.Node, error) {
+	var document yaml.Node
+	if err := decodeStrictYAML(source, &document); err != nil {
+		return nil, nil, fmt.Errorf("parse requirements YAML tree: %w", err)
+	}
+	sequence, err := requirementsSequence(&document)
+	if err != nil {
+		return nil, nil, err
+	}
+	return &document, sequence, nil
+}
+
+// indexCurrentRequirements maps the canonical requirements by trimmed id and refuses empty and duplicate ids.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func indexCurrentRequirements(current model.RequirementsDocument) (map[string]model.Requirement, error) {
 	currentByID := make(map[string]model.Requirement, len(current.Requirements))
 	for _, requirement := range current.Requirements {
 		id := strings.TrimSpace(requirement.ID)
 		if id == "" {
-			return nil, requirementChanges{}, fmt.Errorf("canonical requirements contain an empty id")
+			return nil, fmt.Errorf("canonical requirements contain an empty id")
 		}
 		if _, exists := currentByID[id]; exists {
-			return nil, requirementChanges{}, fmt.Errorf("canonical requirements contain duplicate id %q", id)
+			return nil, fmt.Errorf("canonical requirements contain duplicate id %q", id)
 		}
 		currentByID[id] = requirement
 	}
+	return currentByID, nil
+}
 
+// planRequirementChanges checks the operations against the current requirements and records the changes.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func planRequirementChanges(operations validatedRequirementOperations, currentByID map[string]model.Requirement) (requirementChanges, error) {
 	changes := requirementChanges{
 		added:   map[string]model.Requirement{},
 		updated: map[string]requirementUpdate{},
 		removed: map[string]model.Requirement{},
 	}
-	for id, requirement := range operations.add {
+	if err := planAddedRequirements(changes.added, operations.add, currentByID); err != nil {
+		return requirementChanges{}, err
+	}
+	if err := planUpdatedRequirements(changes.updated, operations.update, currentByID); err != nil {
+		return requirementChanges{}, err
+	}
+	if err := planRemovedRequirements(changes.removed, operations.remove, currentByID); err != nil {
+		return requirementChanges{}, err
+	}
+	return changes, nil
+}
+
+// planAddedRequirements records each added requirement and refuses one that already exists.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func planAddedRequirements(into, add, currentByID map[string]model.Requirement) error {
+	for id, requirement := range add {
 		if _, exists := currentByID[id]; exists {
-			return nil, requirementChanges{}, fmt.Errorf("add requirement %q already exists", id)
+			return fmt.Errorf("add requirement %q already exists", id)
 		}
-		changes.added[id] = requirement
+		into[id] = requirement
 	}
-	for id, requirement := range operations.update {
+	return nil
+}
+
+// planUpdatedRequirements records each update with the requirement it replaces and refuses an unknown one.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func planUpdatedRequirements(into map[string]requirementUpdate, update, currentByID map[string]model.Requirement) error {
+	for id, requirement := range update {
 		before, exists := currentByID[id]
 		if !exists {
-			return nil, requirementChanges{}, fmt.Errorf("update requirement %q does not exist", id)
+			return fmt.Errorf("update requirement %q does not exist", id)
 		}
-		changes.updated[id] = requirementUpdate{before: before, after: requirement}
+		into[id] = requirementUpdate{before: before, after: requirement}
 	}
-	for id := range operations.remove {
+	return nil
+}
+
+// planRemovedRequirements records each removed requirement and refuses an unknown one.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func planRemovedRequirements(into map[string]model.Requirement, remove map[string]bool, currentByID map[string]model.Requirement) error {
+	for id := range remove {
 		before, exists := currentByID[id]
 		if !exists {
-			return nil, requirementChanges{}, fmt.Errorf("remove requirement %q does not exist", id)
+			return fmt.Errorf("remove requirement %q does not exist", id)
 		}
-		changes.removed[id] = before
+		into[id] = before
 	}
+	return nil
+}
 
-	var document yaml.Node
-	if err := decodeStrictYAML(source, &document); err != nil {
-		return nil, requirementChanges{}, fmt.Errorf("parse requirements YAML tree: %w", err)
-	}
-	sequence, err := requirementsSequence(&document)
-	if err != nil {
-		return nil, requirementChanges{}, err
-	}
-
-	merged := make([]*yaml.Node, 0, len(sequence.Content)+len(delta.Requirements.Add))
+// mergeRequirementItems drops the removed entries, merges the updated ones into their YAML nodes and appends the added ones.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func mergeRequirementItems(sequence *yaml.Node, operations validatedRequirementOperations, add []model.Requirement) ([]*yaml.Node, error) {
+	merged := make([]*yaml.Node, 0, len(sequence.Content)+len(add))
 	seen := map[string]bool{}
 	for _, item := range sequence.Content {
-		id, err := requirementNodeID(item)
+		id, err := uniqueRequirementNodeID(item, seen)
 		if err != nil {
-			return nil, requirementChanges{}, err
+			return nil, err
 		}
-		if seen[id] {
-			return nil, requirementChanges{}, fmt.Errorf("canonical requirements YAML contains duplicate id %q", id)
-		}
-		seen[id] = true
 		if operations.remove[id] {
 			continue
 		}
-		if replacement, ok := operations.update[id]; ok {
-			node, err := encodeRequirementNode(replacement)
-			if err != nil {
-				return nil, requirementChanges{}, err
-			}
-			if err := mergeRequirementNode(item, node); err != nil {
-				return nil, requirementChanges{}, fmt.Errorf("merge requirement %q: %w", id, err)
-			}
-			merged = append(merged, item)
-			continue
+		if err := applyRequirementUpdate(item, id, operations.update); err != nil {
+			return nil, err
 		}
 		merged = append(merged, item)
 	}
-	for _, requirement := range delta.Requirements.Add {
+	added, err := encodeRequirementNodes(add)
+	if err != nil {
+		return nil, err
+	}
+	return append(merged, added...), nil
+}
+
+// encodeRequirementNodes encodes the added requirements in order.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func encodeRequirementNodes(requirements []model.Requirement) ([]*yaml.Node, error) {
+	nodes := make([]*yaml.Node, 0, len(requirements))
+	for _, requirement := range requirements {
 		node, err := encodeRequirementNode(requirement)
 		if err != nil {
-			return nil, requirementChanges{}, err
+			return nil, err
 		}
-		merged = append(merged, node)
+		nodes = append(nodes, node)
 	}
-	sequence.Content = merged
+	return nodes, nil
+}
 
+// uniqueRequirementNodeID returns the id of a requirement node and records it, refusing a duplicate.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func uniqueRequirementNodeID(item *yaml.Node, seen map[string]bool) (string, error) {
+	id, err := requirementNodeID(item)
+	if err != nil {
+		return "", err
+	}
+	if seen[id] {
+		return "", fmt.Errorf("canonical requirements YAML contains duplicate id %q", id)
+	}
+	seen[id] = true
+	return id, nil
+}
+
+// applyRequirementUpdate merges the replacement of requirement id into its YAML node, if there is one.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func applyRequirementUpdate(item *yaml.Node, id string, updates map[string]model.Requirement) error {
+	replacement, ok := updates[id]
+	if !ok {
+		return nil
+	}
+	node, err := encodeRequirementNode(replacement)
+	if err != nil {
+		return err
+	}
+	if err := mergeRequirementNode(item, node); err != nil {
+		return fmt.Errorf("merge requirement %q: %w", id, err)
+	}
+	return nil
+}
+
+// encodeRequirementsDocument encodes the merged YAML tree with two-space indentation.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DOCUMENT
+func encodeRequirementsDocument(document *yaml.Node) ([]byte, error) {
 	var output bytes.Buffer
 	encoder := yaml.NewEncoder(&output)
 	encoder.SetIndent(2)
-	if err := encoder.Encode(&document); err != nil {
-		return nil, requirementChanges{}, fmt.Errorf("encode merged requirements: %w", err)
+	if err := encoder.Encode(document); err != nil {
+		return nil, fmt.Errorf("encode merged requirements: %w", err)
 	}
 	if err := encoder.Close(); err != nil {
-		return nil, requirementChanges{}, fmt.Errorf("close merged requirements encoder: %w", err)
+		return nil, fmt.Errorf("close merged requirements encoder: %w", err)
 	}
-	return output.Bytes(), changes, nil
+	return output.Bytes(), nil
 }
 
 type validatedRequirementOperations struct {
@@ -310,46 +457,60 @@ func validateRequirementsDeltaOperations(operations RequirementsDeltaOperations)
 		update: map[string]model.Requirement{},
 		remove: map[string]bool{},
 	}
-	seen := map[string]string{}
-	register := func(id, operation string) error {
-		trimmed := strings.TrimSpace(id)
-		if trimmed == "" {
-			return fmt.Errorf("%s operation has an empty requirement id", operation)
-		}
-		if trimmed != id {
-			return fmt.Errorf("%s requirement id %q contains surrounding whitespace", operation, id)
-		}
-		if previous, exists := seen[trimmed]; exists {
-			return fmt.Errorf("requirement %q appears in both %s and %s operations", trimmed, previous, operation)
-		}
-		seen[trimmed] = operation
-		return nil
+	registry := requirementOperationRegistry{seen: map[string]string{}}
+	if err := registry.registerRequirements(operations.Add, "add", out.add); err != nil {
+		return validatedRequirementOperations{}, err
 	}
-	for _, requirement := range operations.Add {
-		if err := register(requirement.ID, "add"); err != nil {
-			return validatedRequirementOperations{}, err
-		}
-		requirement.ID = strings.TrimSpace(requirement.ID)
-		out.add[requirement.ID] = requirement
-	}
-	for _, requirement := range operations.Update {
-		if err := register(requirement.ID, "update"); err != nil {
-			return validatedRequirementOperations{}, err
-		}
-		requirement.ID = strings.TrimSpace(requirement.ID)
-		out.update[requirement.ID] = requirement
+	if err := registry.registerRequirements(operations.Update, "update", out.update); err != nil {
+		return validatedRequirementOperations{}, err
 	}
 	for _, rawID := range operations.Remove {
-		if err := register(rawID, "remove"); err != nil {
+		if err := registry.register(rawID, "remove"); err != nil {
 			return validatedRequirementOperations{}, err
 		}
-		id := strings.TrimSpace(rawID)
-		out.remove[id] = true
+		out.remove[strings.TrimSpace(rawID)] = true
 	}
-	if len(seen) == 0 {
+	if len(registry.seen) == 0 {
 		return validatedRequirementOperations{}, fmt.Errorf("requirements delta has no operations")
 	}
 	return out, nil
+}
+
+// requirementOperationRegistry remembers which operation named each requirement id.
+type requirementOperationRegistry struct {
+	seen map[string]string
+}
+
+// register refuses an empty id, an id with surrounding whitespace and an id named by two operations.
+// TRLC-LINKS: REQ-EMG-031
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA
+func (r requirementOperationRegistry) register(id, operation string) error {
+	trimmed := strings.TrimSpace(id)
+	if trimmed == "" {
+		return fmt.Errorf("%s operation has an empty requirement id", operation)
+	}
+	if trimmed != id {
+		return fmt.Errorf("%s requirement id %q contains surrounding whitespace", operation, id)
+	}
+	if previous, exists := r.seen[trimmed]; exists {
+		return fmt.Errorf("requirement %q appears in both %s and %s operations", trimmed, previous, operation)
+	}
+	r.seen[trimmed] = operation
+	return nil
+}
+
+// registerRequirements registers each requirement of one operation and stores it by trimmed id in into.
+// TRLC-LINKS: REQ-EMG-031
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA
+func (r requirementOperationRegistry) registerRequirements(requirements []model.Requirement, operation string, into map[string]model.Requirement) error {
+	for _, requirement := range requirements {
+		if err := r.register(requirement.ID, operation); err != nil {
+			return err
+		}
+		requirement.ID = strings.TrimSpace(requirement.ID)
+		into[requirement.ID] = requirement
+	}
+	return nil
 }
 
 // TRLC-LINKS: REQ-EMG-032
@@ -361,35 +522,66 @@ func validateRequirementsCandidate(bundle model.Bundle, requirements model.Requi
 	diags = append(diags, reqlint.LintModelRequirementsEARS(bundle, requirements)...)
 	diags = append(diags, reqlint.LintRequirementInternalLinks(requirements)...)
 
-	seen := map[string]bool{}
-	validTargets := trace.KnownModelIDs(bundle, model.RequirementsDocument{})
+	checker := requirementCandidateChecker{seen: map[string]bool{}, validTargets: trace.KnownModelIDs(bundle, model.RequirementsDocument{})}
 	for i, requirement := range requirements.Requirements {
-		path := fmt.Sprintf("requirements[%d]", i)
-		id := strings.TrimSpace(requirement.ID)
-		switch {
-		case id == "":
-			diags = append(diags, validate.Diagnostic{Code: "requirement.missing_id", Severity: validate.SeverityError, Message: "requirement id is required", Path: path})
-		case seen[id]:
-			diags = append(diags, validate.Diagnostic{Code: "requirement.duplicate_id", Severity: validate.SeverityError, Message: fmt.Sprintf("duplicate requirement id %q", id), Path: path})
-		default:
-			seen[id] = true
-		}
-		if strings.TrimSpace(requirement.Text) == "" {
-			diags = append(diags, validate.Diagnostic{Code: "requirement.missing_text", Severity: validate.SeverityError, Message: "requirement text is required", Path: path})
-		}
-		for j, rawTarget := range requirement.AppliesTo {
-			target := strings.TrimSpace(rawTarget)
-			if target == "" || !validTargets[target] {
-				diags = append(diags, validate.Diagnostic{
-					Code:     "requirement.invalid_applies_to",
-					Severity: validate.SeverityError,
-					Message:  fmt.Sprintf("unknown appliesTo id %q", target),
-					Path:     fmt.Sprintf("%s.appliesTo[%d]", path, j),
-				})
-			}
-		}
+		diags = append(diags, checker.check(i, requirement)...)
 	}
 	return validate.SortDiagnostics(diags)
+}
+
+// requirementCandidateChecker checks the entries of a candidate requirements document one by one.
+type requirementCandidateChecker struct {
+	seen         map[string]bool
+	validTargets map[string]bool
+}
+
+// check reports the diagnostics of the requirement at index i.
+// TRLC-LINKS: REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-VALIDATION-ENGINE, DO-ARCHITECTURE-MODEL
+// ENGMODEL-LINKS: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+func (c requirementCandidateChecker) check(i int, requirement model.Requirement) []validate.Diagnostic {
+	path := fmt.Sprintf("requirements[%d]", i)
+	diags := c.idDiagnostics(path, strings.TrimSpace(requirement.ID))
+	if strings.TrimSpace(requirement.Text) == "" {
+		diags = append(diags, validate.Diagnostic{Code: "requirement.missing_text", Severity: validate.SeverityError, Message: "requirement text is required", Path: path})
+	}
+	return append(diags, c.appliesToDiagnostics(path, requirement.AppliesTo)...)
+}
+
+// idDiagnostics reports a missing or duplicate id and records a new one.
+// TRLC-LINKS: REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-VALIDATION-ENGINE, DO-ARCHITECTURE-MODEL
+// ENGMODEL-LINKS: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+func (c requirementCandidateChecker) idDiagnostics(path, id string) []validate.Diagnostic {
+	switch {
+	case id == "":
+		return []validate.Diagnostic{{Code: "requirement.missing_id", Severity: validate.SeverityError, Message: "requirement id is required", Path: path}}
+	case c.seen[id]:
+		return []validate.Diagnostic{{Code: "requirement.duplicate_id", Severity: validate.SeverityError, Message: fmt.Sprintf("duplicate requirement id %q", id), Path: path}}
+	}
+	c.seen[id] = true
+	return nil
+}
+
+// appliesToDiagnostics reports each appliesTo id that is empty or not a known model id.
+// TRLC-LINKS: REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-VALIDATION-ENGINE, DO-ARCHITECTURE-MODEL
+// ENGMODEL-LINKS: EVT-REQUIREMENTS-CANDIDATE-VALIDATED
+func (c requirementCandidateChecker) appliesToDiagnostics(path string, appliesTo []string) []validate.Diagnostic {
+	var diags []validate.Diagnostic
+	for j, rawTarget := range appliesTo {
+		target := strings.TrimSpace(rawTarget)
+		if target != "" && c.validTargets[target] {
+			continue
+		}
+		diags = append(diags, validate.Diagnostic{
+			Code:     "requirement.invalid_applies_to",
+			Severity: validate.SeverityError,
+			Message:  fmt.Sprintf("unknown appliesTo id %q", target),
+			Path:     fmt.Sprintf("%s.appliesTo[%d]", path, j),
+		})
+	}
+	return diags
 }
 
 // TRLC-LINKS: REQ-EMG-032
@@ -420,14 +612,21 @@ func requirementNodeID(node *yaml.Node) (string, error) {
 	}
 	for i := 0; i+1 < len(node.Content); i += 2 {
 		if node.Content[i].Value == "id" {
-			id := strings.TrimSpace(node.Content[i+1].Value)
-			if id == "" {
-				return "", fmt.Errorf("requirement entry has an empty id")
-			}
-			return id, nil
+			return trimmedRequirementNodeID(node.Content[i+1])
 		}
 	}
 	return "", fmt.Errorf("requirement entry is missing id")
+}
+
+// trimmedRequirementNodeID returns the trimmed id of an id value node and refuses an empty one.
+// TRLC-LINKS: REQ-EMG-032
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func trimmedRequirementNodeID(value *yaml.Node) (string, error) {
+	id := strings.TrimSpace(value.Value)
+	if id == "" {
+		return "", fmt.Errorf("requirement entry has an empty id")
+	}
+	return id, nil
 }
 
 // TRLC-LINKS: REQ-EMG-032
@@ -446,19 +645,25 @@ func mergeRequirementNode(existing, replacement *yaml.Node) error {
 	if existing.Kind != yaml.MappingNode || replacement.Kind != yaml.MappingNode {
 		return fmt.Errorf("requirement entry must be a mapping")
 	}
-	replacementValues := map[string]*yaml.Node{}
-	replacementKeys := map[string]*yaml.Node{}
-	replacementOrder := make([]string, 0, len(replacement.Content)/2)
-	for i := 0; i+1 < len(replacement.Content); i += 2 {
-		key := replacement.Content[i].Value
-		replacementKeys[key] = replacement.Content[i]
-		replacementValues[key] = replacement.Content[i+1]
-		replacementOrder = append(replacementOrder, key)
+	index := indexMappingNode(replacement)
+	seen := replaceMappingValues(existing, index)
+	for _, key := range index.order {
+		if !seen[key] {
+			existing.Content = append(existing.Content, index.keys[key], index.values[key])
+		}
 	}
+	return nil
+}
+
+// replaceMappingValues replaces the values of existing keys by the indexed ones, keeping the old presentation, and
+// returns the keys it replaced.
+// TRLC-LINKS: REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func replaceMappingValues(existing *yaml.Node, index mappingNodeIndex) map[string]bool {
 	seen := map[string]bool{}
 	for i := 0; i+1 < len(existing.Content); i += 2 {
 		key := existing.Content[i].Value
-		value, ok := replacementValues[key]
+		value, ok := index.values[key]
 		if !ok {
 			continue
 		}
@@ -466,13 +671,28 @@ func mergeRequirementNode(existing, replacement *yaml.Node) error {
 		existing.Content[i+1] = value
 		seen[key] = true
 	}
-	for _, key := range replacementOrder {
-		if seen[key] {
-			continue
-		}
-		existing.Content = append(existing.Content, replacementKeys[key], replacementValues[key])
+	return seen
+}
+
+// mappingNodeIndex is a mapping node's key and value nodes by key, and the key order.
+type mappingNodeIndex struct {
+	keys   map[string]*yaml.Node
+	values map[string]*yaml.Node
+	order  []string
+}
+
+// indexMappingNode indexes the key and value nodes of a mapping node.
+// TRLC-LINKS: REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func indexMappingNode(node *yaml.Node) mappingNodeIndex {
+	index := mappingNodeIndex{keys: map[string]*yaml.Node{}, values: map[string]*yaml.Node{}, order: make([]string, 0, len(node.Content)/2)}
+	for i := 0; i+1 < len(node.Content); i += 2 {
+		key := node.Content[i].Value
+		index.keys[key] = node.Content[i]
+		index.values[key] = node.Content[i+1]
+		index.order = append(index.order, key)
 	}
-	return nil
+	return index
 }
 
 // TRLC-LINKS: REQ-EMG-033
@@ -487,33 +707,53 @@ func copyNodePresentation(target, source *yaml.Node) {
 	target.Style = source.Style
 	switch target.Kind {
 	case yaml.MappingNode:
-		sourceValues := map[string]int{}
-		for i := 0; i+1 < len(source.Content); i += 2 {
-			sourceValues[source.Content[i].Value] = i
-		}
-		for i := 0; i+1 < len(target.Content); i += 2 {
-			sourceIndex, ok := sourceValues[target.Content[i].Value]
-			if !ok {
-				continue
-			}
-			copyNodePresentation(target.Content[i], source.Content[sourceIndex])
-			copyNodePresentation(target.Content[i+1], source.Content[sourceIndex+1])
-		}
+		copyMappingPresentation(target, source)
 	case yaml.SequenceNode:
-		used := make([]bool, len(source.Content))
-		for _, targetChild := range target.Content {
-			for sourceIndex, sourceChild := range source.Content {
-				if used[sourceIndex] {
-					continue
-				}
-				if targetChild.Kind == sourceChild.Kind && targetChild.Value == sourceChild.Value {
-					copyNodePresentation(targetChild, sourceChild)
-					used[sourceIndex] = true
-					break
-				}
-			}
+		copySequencePresentation(target, source)
+	}
+}
+
+// copyMappingPresentation copies the presentation of each source entry onto the target entry with the same key.
+// TRLC-LINKS: REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func copyMappingPresentation(target, source *yaml.Node) {
+	sourceValues := map[string]int{}
+	for i := 0; i+1 < len(source.Content); i += 2 {
+		sourceValues[source.Content[i].Value] = i
+	}
+	for i := 0; i+1 < len(target.Content); i += 2 {
+		sourceIndex, ok := sourceValues[target.Content[i].Value]
+		if !ok {
+			continue
+		}
+		copyNodePresentation(target.Content[i], source.Content[sourceIndex])
+		copyNodePresentation(target.Content[i+1], source.Content[sourceIndex+1])
+	}
+}
+
+// copySequencePresentation pairs each target item with the first unused source item of the same kind and value.
+// TRLC-LINKS: REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func copySequencePresentation(target, source *yaml.Node) {
+	used := make([]bool, len(source.Content))
+	for _, targetChild := range target.Content {
+		if sourceIndex := firstUnusedSameNode(targetChild, source.Content, used); sourceIndex >= 0 {
+			copyNodePresentation(targetChild, source.Content[sourceIndex])
+			used[sourceIndex] = true
 		}
 	}
+}
+
+// firstUnusedSameNode returns the index of the first unused node in candidates with the kind and value of child, or -1.
+// TRLC-LINKS: REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func firstUnusedSameNode(child *yaml.Node, candidates []*yaml.Node, used []bool) int {
+	for i, candidate := range candidates {
+		if !used[i] && child.Kind == candidate.Kind && child.Value == candidate.Value {
+			return i
+		}
+	}
+	return -1
 }
 
 // TRLC-LINKS: REQ-EMG-031, REQ-EMG-032
@@ -544,25 +784,10 @@ func renderRequirementsDiff(changes requirementChanges) string {
 		fmt.Fprintf(&output, "+ %s: %s\n", id, strconv.Quote(changes.added[id].Text))
 	}
 	for _, id := range sortedRequirementKeys(changes.updated) {
-		change := changes.updated[id]
 		fmt.Fprintf(&output, "~ %s\n", id)
-		renderRequirementFieldDiff(&output, "title", change.before.Title, change.after.Title)
-		renderRequirementFieldDiff(&output, "text", change.before.Text, change.after.Text)
-		renderRequirementFieldDiff(&output, "notes", change.before.Notes, change.after.Notes)
-		renderRequirementFieldDiff(&output, "category", change.before.Category, change.after.Category)
-		renderRequirementFieldDiff(&output, "rationale", change.before.Rationale, change.after.Rationale)
-		renderRequirementFieldDiff(&output, "sourceRefs", strings.Join(change.before.SourceRefs, ", "), strings.Join(change.after.SourceRefs, ", "))
-		renderRequirementFieldDiff(&output, "verificationMethods", strings.Join(change.before.VerificationMethods, ", "), strings.Join(change.after.VerificationMethods, ", "))
-		renderRequirementFieldDiff(&output, "verificationCriteria", change.before.VerificationCriteria, change.after.VerificationCriteria)
-		renderRequirementFieldDiff(&output, "priority", change.before.Priority, change.after.Priority)
-		renderRequirementFieldDiff(&output, "criticality", change.before.Criticality, change.after.Criticality)
-		renderRequirementFieldDiff(&output, "status", change.before.Status, change.after.Status)
-		renderRequirementFieldDiff(&output, "derived", strconv.FormatBool(change.before.Derived), strconv.FormatBool(change.after.Derived))
-		renderRequirementFieldDiff(&output, "derivedRationale", change.before.DerivedRationale, change.after.DerivedRationale)
-		renderRequirementFieldDiff(&output, "tags", strings.Join(change.before.Tags, ", "), strings.Join(change.after.Tags, ", "))
-		beforeAppliesTo := strings.Join(change.before.AppliesTo, ", ")
-		afterAppliesTo := strings.Join(change.after.AppliesTo, ", ")
-		renderRequirementFieldDiff(&output, "appliesTo", beforeAppliesTo, afterAppliesTo)
+		for _, diff := range requirementFieldDiffs(changes.updated[id]) {
+			diff.render(&output)
+		}
 	}
 	for _, id := range sortedRequirementKeys(changes.removed) {
 		fmt.Fprintf(&output, "- %s: %s\n", id, strconv.Quote(changes.removed[id].Text))
@@ -570,13 +795,45 @@ func renderRequirementsDiff(changes requirementChanges) string {
 	return output.String()
 }
 
+// requirementFieldDiff is one field of an updated requirement with its text before and after.
+type requirementFieldDiff struct {
+	field  string
+	before string
+	after  string
+}
+
+// requirementFieldDiffs lists the fields of an update in diff order.
+// TRLC-LINKS: REQ-EMG-032, REQ-EMG-034
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DELTA, DO-REQUIREMENTS-DIFF
+func requirementFieldDiffs(change requirementUpdate) []requirementFieldDiff {
+	before, after := change.before, change.after
+	join := func(values []string) string { return strings.Join(values, ", ") }
+	return []requirementFieldDiff{
+		{"title", before.Title, after.Title},
+		{"text", before.Text, after.Text},
+		{"notes", before.Notes, after.Notes},
+		{"category", before.Category, after.Category},
+		{"rationale", before.Rationale, after.Rationale},
+		{"sourceRefs", join(before.SourceRefs), join(after.SourceRefs)},
+		{"verificationMethods", join(before.VerificationMethods), join(after.VerificationMethods)},
+		{"verificationCriteria", before.VerificationCriteria, after.VerificationCriteria},
+		{"priority", before.Priority, after.Priority},
+		{"criticality", before.Criticality, after.Criticality},
+		{"status", before.Status, after.Status},
+		{"derived", strconv.FormatBool(before.Derived), strconv.FormatBool(after.Derived)},
+		{"derivedRationale", before.DerivedRationale, after.DerivedRationale},
+		{"tags", join(before.Tags), join(after.Tags)},
+		{"appliesTo", join(before.AppliesTo), join(after.AppliesTo)},
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-034
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DIFF
-func renderRequirementFieldDiff(output *strings.Builder, field, before, after string) {
-	if before == after {
+func (d requirementFieldDiff) render(output *strings.Builder) {
+	if d.before == d.after {
 		return
 	}
-	fmt.Fprintf(output, "  %s: %s -> %s\n", field, strconv.Quote(before), strconv.Quote(after))
+	fmt.Fprintf(output, "  %s: %s -> %s\n", d.field, strconv.Quote(d.before), strconv.Quote(d.after))
 }
 
 // TRLC-LINKS: REQ-EMG-034
@@ -645,35 +902,58 @@ func acquireRequirementsLock(targetPath string) (func() error, error) {
 // ENGMODEL-LINKS: FU-MODEL-CHANGE, DEP-LOCAL-WORKSPACE
 func writeFileAtomic(path string, content []byte, mode os.FileMode) error {
 	dir := filepath.Dir(path)
-	temp, err := os.CreateTemp(dir, ".requirements-*.tmp")
+	tempPath, err := writeTempRequirements(dir, content, mode)
 	if err != nil {
-		return fmt.Errorf("create temporary requirements file: %w", err)
-	}
-	tempPath := temp.Name()
-	cleanup := func() {
-		_ = temp.Close()
-		_ = os.Remove(tempPath)
-	}
-	if err := temp.Chmod(mode.Perm()); err != nil {
-		cleanup()
-		return fmt.Errorf("set temporary requirements permissions: %w", err)
-	}
-	if _, err := temp.Write(content); err != nil {
-		cleanup()
-		return fmt.Errorf("write temporary requirements: %w", err)
-	}
-	if err := temp.Sync(); err != nil {
-		cleanup()
-		return fmt.Errorf("sync temporary requirements: %w", err)
-	}
-	if err := temp.Close(); err != nil {
-		_ = os.Remove(tempPath)
-		return fmt.Errorf("close temporary requirements: %w", err)
+		return err
 	}
 	if err := os.Rename(tempPath, path); err != nil {
 		_ = os.Remove(tempPath)
 		return fmt.Errorf("replace requirements atomically: %w", err)
 	}
+	return syncRequirementsDir(dir)
+}
+
+// writeTempRequirements writes content to a new temporary file in dir and returns its path.
+// TRLC-LINKS: REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DEP-LOCAL-WORKSPACE
+func writeTempRequirements(dir string, content []byte, mode os.FileMode) (string, error) {
+	temp, err := os.CreateTemp(dir, ".requirements-*.tmp")
+	if err != nil {
+		return "", fmt.Errorf("create temporary requirements file: %w", err)
+	}
+	tempPath := temp.Name()
+	if err := fillTempRequirements(temp, content, mode); err != nil {
+		_ = temp.Close()
+		_ = os.Remove(tempPath)
+		return "", err
+	}
+	if err := temp.Close(); err != nil {
+		_ = os.Remove(tempPath)
+		return "", fmt.Errorf("close temporary requirements: %w", err)
+	}
+	return tempPath, nil
+}
+
+// fillTempRequirements sets the permissions, writes the content and syncs the temporary file.
+// TRLC-LINKS: REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DEP-LOCAL-WORKSPACE
+func fillTempRequirements(temp *os.File, content []byte, mode os.FileMode) error {
+	if err := temp.Chmod(mode.Perm()); err != nil {
+		return fmt.Errorf("set temporary requirements permissions: %w", err)
+	}
+	if _, err := temp.Write(content); err != nil {
+		return fmt.Errorf("write temporary requirements: %w", err)
+	}
+	if err := temp.Sync(); err != nil {
+		return fmt.Errorf("sync temporary requirements: %w", err)
+	}
+	return nil
+}
+
+// syncRequirementsDir syncs the directory after the replace, except on Windows.
+// TRLC-LINKS: REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DEP-LOCAL-WORKSPACE
+func syncRequirementsDir(dir string) error {
 	if runtime.GOOS == "windows" {
 		return nil
 	}

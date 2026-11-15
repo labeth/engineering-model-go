@@ -122,6 +122,28 @@ func (s LinkStatus) NeedsReview() bool {
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 // ENGMODEL-LINKS: TR-LINK-BREAK
 func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
+	ev := newLinkEvaluator(system, deps)
+	out := make([]LinkStatus, 0, len(system.ReqLinks.ReqLinks))
+	for _, link := range system.ReqLinks.ReqLinks {
+		out = append(out, ev.evaluate(link))
+	}
+	return out
+}
+
+// linkEvaluator holds what EvaluateLinks shares between links: the
+// manifest pins, the resolved dependencies by alias and the published items
+// computed once per alias.
+type linkEvaluator struct {
+	pins      map[string]string
+	byAlias   map[string]Dependency
+	published map[string]map[string]Item
+}
+
+// newLinkEvaluator indexes the manifest pins and the dependencies (a
+// repeated alias merges its publications).
+// TRLC-LINKS: REQ-EMG-097
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func newLinkEvaluator(system model.Bundle, deps []Dependency) *linkEvaluator {
 	pins := map[string]string{}
 	for _, d := range system.Manifest.Dependencies {
 		pins[strings.TrimSpace(d.Alias)] = strings.TrimSpace(d.Version)
@@ -135,53 +157,71 @@ func EvaluateLinks(system model.Bundle, deps []Dependency) []LinkStatus {
 		}
 		byAlias[d.Alias] = d
 	}
-	published := map[string]map[string]Item{}
-	out := make([]LinkStatus, 0, len(system.ReqLinks.ReqLinks))
-	for _, link := range system.ReqLinks.ReqLinks {
-		status := LinkStatus{
-			ID: strings.TrimSpace(link.ID), Parent: strings.TrimSpace(link.Parent), Child: strings.TrimSpace(link.Child),
-			Status: strings.TrimSpace(link.Status), Pinned: strings.TrimSpace(link.Pinned.Version),
-		}
-		alias, itemID, err := model.ParseQualifiedReference(status.Child)
-		status.Alias, status.ItemID = alias, itemID
-		pin, declared := pins[alias]
-		status.Version = pin
-		dep, resolved := byAlias[alias]
-		status.Local = resolved && dep.Local
-		switch {
-		case err != nil || !declared:
-			status.State, status.Reason, status.Detail = StateChildUnpublished, ReasonUndeclaredAlias, fmt.Sprintf("%q is not alias::ID of a declared dependency", status.Child)
-		case !resolved:
-			status.State, status.Reason, status.Detail = StateUnresolved, ReasonUnresolved, fmt.Sprintf("dependency %q was not resolved", alias)
-		default:
-			if published[alias] == nil {
-				published[alias] = PublishedItems(dep.Bundle, dep.Publications...)
-			}
-			item, exists := published[alias][itemID]
-			switch {
-			case exists:
-				status.Item = &item
-				status.State = StateUnchanged
-				if status.Pinned != pin || (dep.Version != "" && status.Pinned != dep.Version) {
-					status.State = StateVersionMismatch
-				}
-			case dep.Local:
-				status.Reason = NonItemReason(dep.Bundle, itemID)
-				status.State, status.Detail = StateLocal, fmt.Sprintf("%s is not a published contract item of the workspace checkout of %s; links are checked against published versions only", status.Child, alias)
-			default:
-				switch status.Reason = NonItemReason(dep.Bundle, itemID); status.Reason {
-				case ReasonMissing:
-					status.State = StateBroken
-				case ReasonNotInPublication:
-					status.State, status.Detail = StateChildUnpublished, "the item is not in a selected publication"
-				default:
-					status.State, status.Detail = StateChildUnpublished, "the item is not a capability or assumption of use"
-				}
-			}
-		}
-		out = append(out, status)
+	return &linkEvaluator{pins: pins, byAlias: byAlias, published: map[string]map[string]Item{}}
+}
+
+// evaluate evaluates one reqLinks entry.
+// TRLC-LINKS: REQ-EMG-097
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+// ENGMODEL-LINKS: TR-LINK-BREAK
+func (ev *linkEvaluator) evaluate(link model.ReqLink) LinkStatus {
+	status := LinkStatus{
+		ID: strings.TrimSpace(link.ID), Parent: strings.TrimSpace(link.Parent), Child: strings.TrimSpace(link.Child),
+		Status: strings.TrimSpace(link.Status), Pinned: strings.TrimSpace(link.Pinned.Version),
 	}
-	return out
+	alias, itemID, err := model.ParseQualifiedReference(status.Child)
+	status.Alias, status.ItemID = alias, itemID
+	pin, declared := ev.pins[alias]
+	status.Version = pin
+	dep, resolved := ev.byAlias[alias]
+	status.Local = resolved && dep.Local
+	switch {
+	case err != nil || !declared:
+		status.State, status.Reason, status.Detail = StateChildUnpublished, ReasonUndeclaredAlias, fmt.Sprintf("%q is not alias::ID of a declared dependency", status.Child)
+	case !resolved:
+		status.State, status.Reason, status.Detail = StateUnresolved, ReasonUnresolved, fmt.Sprintf("dependency %q was not resolved", alias)
+	default:
+		ev.classifyResolved(&status, dep)
+	}
+	return status
+}
+
+// classifyResolved sets the state of a link whose dependency resolved.
+// TRLC-LINKS: REQ-EMG-097
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func (ev *linkEvaluator) classifyResolved(status *LinkStatus, dep Dependency) {
+	if ev.published[status.Alias] == nil {
+		ev.published[status.Alias] = PublishedItems(dep.Bundle, dep.Publications...)
+	}
+	item, exists := ev.published[status.Alias][status.ItemID]
+	switch {
+	case exists:
+		status.Item = &item
+		status.State = StateUnchanged
+		if status.Pinned != status.Version || (dep.Version != "" && status.Pinned != dep.Version) {
+			status.State = StateVersionMismatch
+		}
+	case dep.Local:
+		status.Reason = NonItemReason(dep.Bundle, status.ItemID)
+		status.State, status.Detail = StateLocal, fmt.Sprintf("%s is not a published contract item of the workspace checkout of %s; links are checked against published versions only", status.Child, status.Alias)
+	default:
+		classifyNonItem(status, dep)
+	}
+}
+
+// classifyNonItem sets the state of a link to an item the published
+// dependency does not expose.
+// TRLC-LINKS: REQ-EMG-097
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func classifyNonItem(status *LinkStatus, dep Dependency) {
+	switch status.Reason = NonItemReason(dep.Bundle, status.ItemID); status.Reason {
+	case ReasonMissing:
+		status.State = StateBroken
+	case ReasonNotInPublication:
+		status.State, status.Detail = StateChildUnpublished, "the item is not in a selected publication"
+	default:
+		status.State, status.Detail = StateChildUnpublished, "the item is not a capability or assumption of use"
+	}
 }
 
 // NonItemReason says why id is no published contract item of a resolved
@@ -197,12 +237,19 @@ func NonItemReason(dep model.Bundle, id string) Reason {
 	if _, ok := ItemsFromBundle(dep)[id]; ok {
 		return ReasonNotInPublication
 	}
-	for _, entries := range [][]model.ContractEntry{dep.Architecture.Contract.Provides, dep.Architecture.Contract.Requires} {
-		for _, e := range entries {
-			if strings.TrimSpace(e.ID) == id {
-				return ReasonNotContractItem
-			}
-		}
+	if hasContractEntry(dep.Architecture.Contract.Provides, id) || hasContractEntry(dep.Architecture.Contract.Requires, id) {
+		return ReasonNotContractItem
 	}
 	return ReasonMissing
+}
+
+// hasContractEntry reports whether entries has an entry with the ID.
+// TRLC-LINKS: REQ-EMG-097, REQ-EMG-104
+func hasContractEntry(entries []model.ContractEntry, id string) bool {
+	for _, e := range entries {
+		if strings.TrimSpace(e.ID) == id {
+			return true
+		}
+	}
+	return false
 }

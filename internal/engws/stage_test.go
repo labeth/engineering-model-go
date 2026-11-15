@@ -35,24 +35,35 @@ func (b *lockedBuffer) String() string {
 	return b.buf.String()
 }
 
+// stageSpec describes a checkout written by stageCheckout.
+type stageSpec struct {
+	Root, Name, GoModule string
+	Deps                 []dep
+}
+
 // stageCheckout writes a model whose CUE module has source kind git, an
 // optional Go module, a git-ignored scratch file, commits and tags v0.1.0.
-func stageCheckout(t *testing.T, root, name, goModule string, deps ...dep) string {
+func stageCheckout(t *testing.T, spec stageSpec) string {
 	t.Helper()
-	dir := filepath.Join(root, name)
-	writeModel(t, dir, name, "v0.1.0", deps...)
-	write(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePathOf(name)+"\"\nlanguage: version: \"v0.17.0\"\nsource: kind: \"git\"\n")
+	dir := filepath.Join(spec.Root, spec.Name)
+	writeModel(t, modelSpec{Dir: dir, Name: spec.Name, Version: "v0.1.0"}, spec.Deps...)
+	write(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePathOf(spec.Name)+"\"\nlanguage: version: \"v0.17.0\"\nsource: kind: \"git\"\n")
 	write(t, filepath.Join(dir, ".gitignore"), ".engmod/\nengmod.lock.local.yml\nscratch.txt\n")
 	write(t, filepath.Join(dir, "scratch.txt"), "not committed\n")
-	if goModule != "" {
-		write(t, filepath.Join(dir, "go.mod"), "module "+goModule+"\n\ngo 1.21\n")
-		write(t, filepath.Join(dir, "name.go"), "package lib\n\n// Name names the module.\nfunc Name() string { return \""+name+"\" }\n")
+	if spec.GoModule != "" {
+		write(t, filepath.Join(dir, "go.mod"), "module "+spec.GoModule+"\n\ngo 1.21\n")
+		write(t, filepath.Join(dir, "name.go"), "package lib\n\n// Name names the module.\nfunc Name() string { return \""+spec.Name+"\" }\n")
 	}
 	runGit(t, dir, "init", "-q")
 	runGit(t, dir, "add", ".")
 	runGit(t, dir, "commit", "-q", "-m", "init")
 	runGit(t, dir, "tag", "v0.1.0")
 	return dir
+}
+
+// envKey reports whether a printed key is an environment variable name.
+func envKey(key string) bool {
+	return key != "" && key == strings.ToUpper(key) && !strings.ContainsAny(key, " :")
 }
 
 // envLines parses the KEY=value lines engws prints.
@@ -62,7 +73,7 @@ func envLines(out string) map[string]string {
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		key, value, ok := strings.Cut(line, "=")
-		if ok && key != "" && key == strings.ToUpper(key) && !strings.ContainsAny(key, " :") {
+		if ok && envKey(key) {
 			env[key] = strings.Trim(value, "'")
 		}
 	}
@@ -78,63 +89,114 @@ func noErrors(t *testing.T, what string, diags []validate.Diagnostic) {
 	}
 }
 
-// stage publishes a family of three (interface <- service <- system) in
-// dependency order into <root>/.engmod/staging without touching any
-// checkout; with --serve the printed CUE_REGISTRY lets the system compose
-// with the workspace off from the staged registry alone (no replacements)
-// and its committed lock check pass, and the printed GOPROXY lets an outside
-// consumer go get and build the staged Go module offline. The staged CUE
-// module holds committed files only.
-// Mutation: dropping the dependency sort, writing no Go proxy list, routing
-// CUE_REGISTRY to a wrong host, or zipping ignored files fails this test.
-// TRLC-LINKS: REQ-EMG-080
-func TestStageServesFamilyForCompositionAndGo(t *testing.T) {
+// stageFamily is the three checkouts interface <- service <- system.
+type stageFamily struct{ root, ifZ, svc, sys string }
+
+// newStageFamily writes the family and a workspace that replaces every
+// checkout; ENGMOD_WORK=off must ignore it.
+func newStageFamily(t *testing.T) stageFamily {
+	t.Helper()
 	root := t.TempDir()
-	ifZ := stageCheckout(t, root, "z-if", "example.com/go/z-if")
-	svc := stageCheckout(t, root, "m-svc", "", dep{"ia", "z-if", "v0.1.0"})
-	sys := stageCheckout(t, root, "a-sys", "", dep{"sv", "m-svc", "v0.1.0"})
-	// A workspace that replaces every checkout; ENGMOD_WORK=off must ignore it.
+	fam := stageFamily{root: root}
+	fam.ifZ = stageCheckout(t, stageSpec{Root: root, Name: "z-if", GoModule: "example.com/go/z-if"})
+	fam.svc = stageCheckout(t, stageSpec{Root: root, Name: "m-svc", Deps: []dep{{"ia", "z-if", "v0.1.0"}}})
+	fam.sys = stageCheckout(t, stageSpec{Root: root, Name: "a-sys", Deps: []dep{{"sv", "m-svc", "v0.1.0"}}})
 	if code, out, errOut := runMain(t, allPublished("z-if", "m-svc", "a-sys"), "--root", root, "sync", "--all"); code != 0 {
 		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
 	}
-	before := map[string]string{}
-	for _, dir := range []string{ifZ, svc, sys} {
-		before[dir] = runGit(t, dir, "status", "--porcelain", "--ignored")
-	}
-	t.Setenv("CUE_REGISTRY", "")
-	t.Setenv("GONOSUMDB", "")
-	t.Setenv("GOPRIVATE", "")
+	return fam
+}
 
+// gitStatuses records the porcelain status, ignored files included, of
+// every checkout.
+func (f stageFamily) gitStatuses(t *testing.T) map[string]string {
+	t.Helper()
+	statuses := map[string]string{}
+	for _, dir := range []string{f.ifZ, f.svc, f.sys} {
+		statuses[dir] = runGit(t, dir, "status", "--porcelain", "--ignored")
+	}
+	return statuses
+}
+
+// stageServe is a foreground engws stage --serve run.
+type stageServe struct {
+	cancel         context.CancelFunc
+	done           chan int
+	stdout, stderr lockedBuffer
+}
+
+// startStageServe runs stage --serve on root and waits until it serves.
+func startStageServe(t *testing.T, root string) *stageServe {
+	t.Helper()
 	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	var stdout, stderr lockedBuffer
-	done := make(chan int, 1)
+	s := &stageServe{cancel: cancel, done: make(chan int, 1)}
 	go func() {
-		done <- Main(ctx, []string{"--root", root, "stage", "--serve"}, &stdout, &stderr, fakeRegistry{unknown: true})
+		s.done <- Main(ctx, []string{"--root", root, "stage", "--serve"}, CLI{Stdout: &s.stdout, Stderr: &s.stderr, Registry: fakeRegistry{unknown: true}})
 	}()
 	deadline := time.Now().Add(60 * time.Second)
-	for !strings.Contains(stdout.String(), "engws: serving") {
-		select {
-		case code := <-done:
-			t.Fatalf("stage exited %d before serving\n%s\n%s", code, stdout.String(), stderr.String())
-		default:
-		}
+	for !strings.Contains(s.stdout.String(), "engws: serving") {
+		s.failIfExited(t)
 		if time.Now().After(deadline) {
-			t.Fatalf("stage --serve did not start\n%s\n%s", stdout.String(), stderr.String())
+			t.Fatalf("stage --serve did not start\n%s\n%s", s.stdout.String(), s.stderr.String())
 		}
 		time.Sleep(20 * time.Millisecond)
 	}
-	out := stdout.String()
+	return s
+}
+
+// failIfExited fails the test when the run ended before serving.
+func (s *stageServe) failIfExited(t *testing.T) {
+	t.Helper()
+	select {
+	case code := <-s.done:
+		t.Fatalf("stage exited %d before serving\n%s\n%s", code, s.stdout.String(), s.stderr.String())
+	default:
+	}
+}
+
+// stop cancels the run and requires a clean, timely exit.
+func (s *stageServe) stop(t *testing.T) {
+	t.Helper()
+	s.cancel()
+	select {
+	case code := <-s.done:
+		if code != 0 {
+			t.Fatalf("serve exit %d\n%s", code, s.stderr.String())
+		}
+	case <-time.After(10 * time.Second):
+		t.Fatal("serve did not stop on cancel")
+	}
+}
+
+// requireStagedInOrder requires the staged lines in dependency order.
+func requireStagedInOrder(t *testing.T, out string) {
+	t.Helper()
 	iA, iS, iY := strings.Index(out, "staged z-if "), strings.Index(out, "staged m-svc "), strings.Index(out, "staged a-sys ")
-	if iA < 0 || iS < 0 || iY < 0 || !(iA < iS && iS < iY) {
+	if !(iA >= 0 && iA < iS && iS < iY) {
 		t.Fatalf("not staged in dependency order:\n%s", out)
 	}
+}
+
+// requireUnchanged requires every checkout status to be as recorded.
+func requireUnchanged(t *testing.T, before map[string]string) {
+	t.Helper()
 	for dir, status := range before {
 		if got := runGit(t, dir, "status", "--porcelain", "--ignored"); got != status {
 			t.Fatalf("stage wrote inside %s:\n%s", dir, got)
 		}
 	}
-	staging := filepath.Join(root, ".engmod", "staging")
+}
+
+// stagePrinted is what a stage --serve run printed and where it staged.
+type stagePrinted struct {
+	out, staging string
+	env          map[string]string
+}
+
+// requireLayout requires the registry and Go proxy files in staging.
+func (p stagePrinted) requireLayout(t *testing.T) {
+	t.Helper()
+	staging, out := p.staging, p.out
 	for _, path := range []string{
 		filepath.Join(staging, "registry", "example.com", "fam", "z-if", "oci-layout"),
 		filepath.Join(staging, "registry", "example.com", "fam", "a-sys", "index.json"),
@@ -145,41 +207,70 @@ func TestStageServesFamilyForCompositionAndGo(t *testing.T) {
 			t.Fatalf("staging layout: %v\n%s", err, out)
 		}
 	}
-	env := envLines(out)
-	if !strings.Contains(env["CUE_REGISTRY"], testFamily+"/z-if=127.0.0.1:") || !strings.Contains(env["CUE_REGISTRY"], testFamily+"/a-sys=") {
+}
+
+// requireEnv requires the printed CUE and Go environment.
+func (p stagePrinted) requireEnv(t *testing.T) {
+	t.Helper()
+	env, staging, out := p.env, p.staging, p.out
+	if reg := env["CUE_REGISTRY"]; !strings.Contains(reg, testFamily+"/z-if=127.0.0.1:") || !strings.Contains(reg, testFamily+"/a-sys=") {
 		t.Fatalf("CUE_REGISTRY: %q\n%s", env["CUE_REGISTRY"], out)
 	}
 	if env["GOPROXY"] != "file://"+filepath.ToSlash(filepath.Join(staging, "goproxy"))+",off" || env["GONOPROXY"] != "none" || !strings.Contains(env["GONOSUMDB"], "example.com/go/z-if") {
 		t.Fatalf("Go env: %v\n%s", env, out)
 	}
+}
 
-	// Composition from the staged registry alone.
-	t.Setenv("CUE_REGISTRY", env["CUE_REGISTRY"])
-	manifest := filepath.Join(sys, "engmod.yml")
-	res, err := composition.GenerateCompositionFromFileWith(manifest, composition.ResolutionOptions{Workspace: "off"})
+// composeOffline composes the model with the workspace off and the given
+// lock mode ("" composes, "check" also checks the committed lock).
+func composeOffline(t *testing.T, manifest, lock string) composition.CompositionResult {
+	t.Helper()
+	res, err := composition.GenerateCompositionFromFileWith(manifest, composition.ResolutionOptions{Workspace: "off", Lock: lock})
 	if err != nil {
 		t.Fatal(err)
 	}
-	noErrors(t, "compose", res.Diagnostics)
+	what := "compose"
+	if lock != "" {
+		what = "lock check"
+	}
+	noErrors(t, what, res.Diagnostics)
+	return res
+}
+
+// requireComposeFromStaging requires the system to compose from the staged
+// registry alone, every dependency from the module cache without an
+// uncommitted file, and its committed lock check to pass.
+func requireComposeFromStaging(t *testing.T, sys string, env map[string]string) {
+	t.Helper()
+	t.Setenv("CUE_REGISTRY", env["CUE_REGISTRY"])
+	manifest := filepath.Join(sys, "engmod.yml")
+	res := composeOffline(t, manifest, "")
 	if res.Root == nil || len(res.Root.Children) != 1 || len(res.Root.Children[0].Children) != 1 {
 		t.Fatalf("composition tree: %#v", res.Root)
 	}
 	cache := filepath.Join(sys, ".engmod", "modules")
 	for _, child := range []string{res.Root.Children[0].Dir, res.Root.Children[0].Children[0].Dir} {
-		if !strings.HasPrefix(child, cache) {
-			t.Fatalf("dependency resolved from %s, not the staged registry", child)
-		}
-		if _, err := os.Stat(filepath.Join(child, "scratch.txt")); err == nil {
-			t.Fatalf("staged module %s holds an uncommitted file", child)
-		}
+		requireStagedDependency(t, child, cache)
 	}
-	res, err = composition.GenerateCompositionFromFileWith(manifest, composition.ResolutionOptions{Workspace: "off", Lock: "check"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	noErrors(t, "lock check", res.Diagnostics)
+	composeOffline(t, manifest, "check")
+}
 
-	// Go: an outside consumer resolves the staged module through GOPROXY.
+// requireStagedDependency requires a dependency from the module cache that
+// holds no uncommitted file.
+func requireStagedDependency(t *testing.T, child, cache string) {
+	t.Helper()
+	if !strings.HasPrefix(child, cache) {
+		t.Fatalf("dependency resolved from %s, not the staged registry", child)
+	}
+	if _, err := os.Stat(filepath.Join(child, "scratch.txt")); err == nil {
+		t.Fatalf("staged module %s holds an uncommitted file", child)
+	}
+}
+
+// requireGoConsumer requires an outside consumer to resolve the staged Go
+// module through GOPROXY.
+func requireGoConsumer(t *testing.T, env map[string]string) {
+	t.Helper()
 	consumer := filepath.Join(t.TempDir(), "consumer")
 	write(t, filepath.Join(consumer, "go.mod"), "module example.com/consumer\n\ngo 1.21\n\nrequire example.com/go/z-if v0.1.0\n")
 	write(t, filepath.Join(consumer, "main.go"), "package main\n\nimport (\n\t\"fmt\"\n\n\tlib \"example.com/go/z-if\"\n)\n\nfunc main() { fmt.Print(lib.Name()) }\n")
@@ -201,15 +292,73 @@ func TestStageServesFamilyForCompositionAndGo(t *testing.T) {
 	if b, err := exec.Command(filepath.Join(consumer, "consumer")).Output(); err != nil || string(b) != "z-if" {
 		t.Fatalf("consumer: %q %v", b, err)
 	}
+}
 
-	cancel()
-	select {
-	case code := <-done:
-		if code != 0 {
-			t.Fatalf("serve exit %d\n%s", code, stderr.String())
-		}
-	case <-time.After(10 * time.Second):
-		t.Fatal("serve did not stop on cancel")
+// stage publishes a family of three (interface <- service <- system) in
+// dependency order into <root>/.engmod/staging without touching any
+// checkout; with --serve the printed CUE_REGISTRY lets the system compose
+// with the workspace off from the staged registry alone (no replacements)
+// and its committed lock check pass, and the printed GOPROXY lets an outside
+// consumer go get and build the staged Go module offline. The staged CUE
+// module holds committed files only.
+// Mutation: dropping the dependency sort, writing no Go proxy list, routing
+// CUE_REGISTRY to a wrong host, or zipping ignored files fails this test.
+// TRLC-LINKS: REQ-EMG-080
+func TestStageServesFamilyForCompositionAndGo(t *testing.T) {
+	fam := newStageFamily(t)
+	before := fam.gitStatuses(t)
+	t.Setenv("CUE_REGISTRY", "")
+	t.Setenv("GONOSUMDB", "")
+	t.Setenv("GOPRIVATE", "")
+
+	serve := startStageServe(t, fam.root)
+	defer serve.cancel()
+	out := serve.stdout.String()
+	requireStagedInOrder(t, out)
+	requireUnchanged(t, before)
+	printed := stagePrinted{out: out, staging: filepath.Join(fam.root, ".engmod", "staging"), env: envLines(out)}
+	printed.requireLayout(t)
+	printed.requireEnv(t)
+	requireComposeFromStaging(t, fam.sys, printed.env)
+	requireGoConsumer(t, printed.env)
+	serve.stop(t)
+}
+
+// requireStageSkewWarning requires a plain stage to succeed, warn about the
+// consumer pinning another version and print the Go env only.
+func requireStageSkewWarning(t *testing.T, root string) {
+	t.Helper()
+	code, out, errOut := runMain(t, fakeRegistry{unknown: true}, "--root", root, "stage")
+	if code != 0 || !strings.Contains(out, "warning: svc pins ia ("+modulePathOf("if-a")+") at v0.0.9 but if-a stages v0.1.0") {
+		t.Fatalf("stage: %d\n%s\n%s", code, out, errOut)
+	}
+	if !strings.Contains(out, "engws stage --serve") || strings.Contains(out, "CUE_REGISTRY=") {
+		t.Fatalf("without --serve the CUE env needs the server:\n%s", out)
+	}
+}
+
+// requireStageRefusesUntagged requires --version-from tag to refuse a
+// checkout whose HEAD lacks the tag.
+func requireStageRefusesUntagged(t *testing.T, root string) {
+	t.Helper()
+	code, out, errOut := runMain(t, fakeRegistry{unknown: true}, "--root", root, "stage", "--version-from", "tag")
+	if code != 1 || !strings.Contains(out, "FAIL if-a: HEAD is not at tag v0.1.0") {
+		t.Fatalf("untagged: %d\n%s\n%s", code, out, errOut)
+	}
+}
+
+// requireStageRefusesDirty requires stage --serve to refuse a dirty
+// checkout and serve nothing.
+func requireStageRefusesDirty(t *testing.T, root string) {
+	t.Helper()
+	// --serve would block if staging went ahead; the deadline stops it.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	var serveOut, serveErr bytes.Buffer
+	code := Main(ctx, []string{"--root", root, "stage", "--serve"}, CLI{Stdout: &serveOut, Stderr: &serveErr, Registry: fakeRegistry{unknown: true}})
+	out, errOut := serveOut.String(), serveErr.String()
+	if code != 1 || !strings.Contains(out, "FAIL if-a: working tree has changes") || strings.Contains(out, "engws: serving") {
+		t.Fatalf("dirty: %d\n%s\n%s", code, out, errOut)
 	}
 }
 
@@ -222,32 +371,15 @@ func TestStageServesFamilyForCompositionAndGo(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-080
 func TestStageRefusesDirtyOrUntaggedCheckouts(t *testing.T) {
 	root := t.TempDir()
-	ifA := stageCheckout(t, root, "if-a", "")
-	stageCheckout(t, root, "svc", "", dep{"ia", "if-a", "v0.0.9"})
-	code, out, errOut := runMain(t, fakeRegistry{unknown: true}, "--root", root, "stage")
-	if code != 0 || !strings.Contains(out, "warning: svc pins ia ("+modulePathOf("if-a")+") at v0.0.9 but if-a stages v0.1.0") {
-		t.Fatalf("stage: %d\n%s\n%s", code, out, errOut)
-	}
-	if !strings.Contains(out, "engws stage --serve") || strings.Contains(out, "CUE_REGISTRY=") {
-		t.Fatalf("without --serve the CUE env needs the server:\n%s", out)
-	}
+	ifA := stageCheckout(t, stageSpec{Root: root, Name: "if-a"})
+	stageCheckout(t, stageSpec{Root: root, Name: "svc", Deps: []dep{{"ia", "if-a", "v0.0.9"}}})
+	requireStageSkewWarning(t, root)
 
 	runGit(t, ifA, "commit", "-q", "--allow-empty", "-m", "after tag")
-	code, out, errOut = runMain(t, fakeRegistry{unknown: true}, "--root", root, "stage", "--version-from", "tag")
-	if code != 1 || !strings.Contains(out, "FAIL if-a: HEAD is not at tag v0.1.0") {
-		t.Fatalf("untagged: %d\n%s\n%s", code, out, errOut)
-	}
+	requireStageRefusesUntagged(t, root)
 
 	write(t, filepath.Join(ifA, "model", "notes.txt"), "uncommitted\n")
-	// --serve would block if staging went ahead; the deadline stops it.
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	var serveOut, serveErr bytes.Buffer
-	code = Main(ctx, []string{"--root", root, "stage", "--serve"}, &serveOut, &serveErr, fakeRegistry{unknown: true})
-	out, errOut = serveOut.String(), serveErr.String()
-	if code != 1 || !strings.Contains(out, "FAIL if-a: working tree has changes") || strings.Contains(out, "engws: serving") {
-		t.Fatalf("dirty: %d\n%s\n%s", code, out, errOut)
-	}
+	requireStageRefusesDirty(t, root)
 	if code, _, errOut := runMain(t, fakeRegistry{unknown: true}, "--root", root, "stage", "--version-from", "branch"); code != 2 || !strings.Contains(errOut, "--version-from") {
 		t.Fatalf("bad --version-from: %d %s", code, errOut)
 	}
@@ -297,7 +429,7 @@ func TestServeStagingLoopbackOnly(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	started := false
-	err := ServeStaging(ctx, StageResult{}, "0.0.0.0:0", func(string) { started = true })
+	err := ServeStaging(ctx, StageResult{}, ServeOptions{Addr: "0.0.0.0:0", Ready: func(string) { started = true }})
 	if err == nil || started || !strings.Contains(err.Error(), "loopback") {
 		t.Fatalf("non-loopback address: started=%v err=%v", started, err)
 	}

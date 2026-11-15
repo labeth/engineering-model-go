@@ -93,23 +93,41 @@ func isHomeOrAncestor(dir string) bool {
 	}
 	// Compare given and symlink-resolved forms, so a symlinked home (or a
 	// project reached through its real path) still stops the search.
-	homes := []string{home}
-	if real, err := filepath.EvalSymlinks(home); err == nil && real != home {
-		homes = append(homes, real)
-	}
-	dirs := []string{dir}
-	if real, err := filepath.EvalSymlinks(dir); err == nil && real != dir {
-		dirs = append(dirs, real)
-	}
-	for _, h := range homes {
-		for _, d := range dirs {
-			rel, err := filepath.Rel(d, h)
-			if err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && !filepath.IsAbs(rel) {
-				return true
-			}
+	dirs := pathForms(dir)
+	for _, h := range pathForms(home) {
+		if anyContains(dirs, h) {
+			return true
 		}
 	}
 	return false
+}
+
+// pathForms is path and, when different, its symlink-resolved form.
+// TRLC-LINKS: REQ-EMG-068
+func pathForms(path string) []string {
+	forms := []string{path}
+	if real, err := filepath.EvalSymlinks(path); err == nil && real != path {
+		forms = append(forms, real)
+	}
+	return forms
+}
+
+// anyContains reports whether h lies at or below any of dirs.
+// TRLC-LINKS: REQ-EMG-068
+func anyContains(dirs []string, h string) bool {
+	for _, d := range dirs {
+		rel, err := filepath.Rel(d, h)
+		if err == nil && isInside(rel) {
+			return true
+		}
+	}
+	return false
+}
+
+// isInside reports whether a relative path stays inside its base.
+// TRLC-LINKS: REQ-EMG-068
+func isInside(rel string) bool {
+	return rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && !filepath.IsAbs(rel)
 }
 
 // Scan lists the direct children of root that hold an engmod.yml, sorted by
@@ -141,40 +159,67 @@ func ScanWithWarnings(root string) ([]Checkout, []string, error) {
 	var warnings []string
 	var errs []error
 	for _, entry := range entries {
-		name := entry.Name()
-		if strings.HasPrefix(name, ".") {
-			continue
+		checkout, warning, err := scanEntry(root, entry.Name())
+		switch {
+		case err != nil:
+			errs = append(errs, err)
+		case warning != "":
+			warnings = append(warnings, warning)
+		case checkout != nil:
+			out = append(out, *checkout)
 		}
-		dir := filepath.Join(root, name)
-		if info, err := os.Stat(dir); err != nil || !info.IsDir() {
-			continue
-		}
-		manifestPath := filepath.Join(dir, "engmod.yml")
-		if _, err := os.Stat(manifestPath); err != nil {
-			continue
-		}
-		if !safeDirName.MatchString(name) {
-			warnings = append(warnings, fmt.Sprintf("skipping %q: directory name must match %s", name, safeDirName))
-			continue
-		}
-		manifest, err := readManifest(manifestPath)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("%s: %w", name, err))
-			continue
-		}
-		if err := cuemodule.CheckPath(manifest.Module.Path); err != nil || !strings.Contains(manifest.Module.Path, "@v") {
-			warnings = append(warnings, fmt.Sprintf("%s: module.path %q is not a valid major-qualified module path; skipped", name, manifest.Module.Path))
-			continue
-		}
-		goModule, goRequires, err := readGoModule(dir)
-		if err != nil {
-			errs = append(errs, fmt.Errorf("%s: %w", name, err))
-			continue
-		}
-		out = append(out, Checkout{Name: name, Dir: dir, Manifest: manifest, GoModule: goModule, GoRequires: goRequires})
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	return out, warnings, errors.Join(errs...)
+}
+
+// scanEntry reads one child of the root: a checkout, a warning for a skipped
+// one, an error, or none of them for a directory that is not a checkout.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func scanEntry(root, name string) (*Checkout, string, error) {
+	dir, ok := checkoutDir(root, name)
+	if !ok {
+		return nil, "", nil
+	}
+	if !safeDirName.MatchString(name) {
+		return nil, fmt.Sprintf("skipping %q: directory name must match %s", name, safeDirName), nil
+	}
+	return loadCheckout(dir, name)
+}
+
+// checkoutDir is the directory of a child of the root that holds an
+// engmod.yml; dot directories and other entries are not checkouts.
+// TRLC-LINKS: REQ-EMG-068
+func checkoutDir(root, name string) (string, bool) {
+	if strings.HasPrefix(name, ".") {
+		return "", false
+	}
+	dir := filepath.Join(root, name)
+	if info, err := os.Stat(dir); err != nil || !info.IsDir() {
+		return "", false
+	}
+	_, err := os.Stat(filepath.Join(dir, "engmod.yml"))
+	return dir, err == nil
+}
+
+// loadCheckout reads the manifest and go.mod of the checkout in dir; a
+// manifest with an invalid module path is a warning, not an error.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
+func loadCheckout(dir, name string) (*Checkout, string, error) {
+	manifest, err := readManifest(filepath.Join(dir, "engmod.yml"))
+	if err != nil {
+		return nil, "", fmt.Errorf("%s: %w", name, err)
+	}
+	if err := cuemodule.CheckPath(manifest.Module.Path); err != nil || !strings.Contains(manifest.Module.Path, "@v") {
+		return nil, fmt.Sprintf("%s: module.path %q is not a valid major-qualified module path; skipped", name, manifest.Module.Path), nil
+	}
+	goModule, goRequires, err := readGoModule(dir)
+	if err != nil {
+		return nil, "", fmt.Errorf("%s: %w", name, err)
+	}
+	return &Checkout{Name: name, Dir: dir, Manifest: manifest, GoModule: goModule, GoRequires: goRequires}, "", nil
 }
 
 // readManifest decodes only the manifest into the library's manifest type;

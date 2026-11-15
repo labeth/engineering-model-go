@@ -54,9 +54,33 @@ func Sync(plan Plan, goVersion string, force bool) (SyncResult, error) {
 	if err := writeFileAtomic(workPath, []byte(renderWorkFile(local))); err != nil {
 		return SyncResult{}, err
 	}
-	result := SyncResult{WorkFile: workPath}
+	return syncGoWork(plan, goVersion, SyncResult{WorkFile: workPath})
+}
+
+// syncGoWork writes go.work for the checkouts with a Go module, or removes it
+// when there is none.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION, CTRL-GO-WORK-INPUT-VALIDATION
+func syncGoWork(plan Plan, goVersion string, result SyncResult) (SyncResult, error) {
+	goWorkPath := filepath.Join(plan.Root, GoWorkFileName)
 	entries, warnings := goWorkModules(plan.Entries)
 	result.Warnings = warnings
+	goDirs, dirByModule := goWorkDirs(entries)
+	if len(goDirs) == 0 {
+		return removeGoWork(goWorkPath, result)
+	}
+	if err := writeFileAtomic(goWorkPath, []byte(renderGoWork(goVersion, goDirs, goReplaces(entries, dirByModule)))); err != nil {
+		return result, err
+	}
+	result.GoWork = goWorkPath
+	return result, nil
+}
+
+// goWorkDirs returns the checkout directories with a Go module and the
+// directory of each module path.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION, CTRL-GO-WORK-INPUT-VALIDATION
+func goWorkDirs(entries []Entry) ([]string, map[string]string) {
 	var goDirs []string
 	dirByModule := map[string]string{}
 	for _, entry := range entries {
@@ -65,18 +89,20 @@ func Sync(plan Plan, goVersion string, force bool) (SyncResult, error) {
 			dirByModule[entry.GoModule] = entry.Name
 		}
 	}
-	if len(goDirs) == 0 {
-		if err := os.Remove(goWorkPath); err == nil {
-			result.GoWorkRemoved = true
-		} else if !errors.Is(err, os.ErrNotExist) {
-			return result, err
-		}
-		return result, nil
-	}
-	if err := writeFileAtomic(goWorkPath, []byte(renderGoWork(goVersion, goDirs, goReplaces(entries, dirByModule)))); err != nil {
+	return goDirs, dirByModule
+}
+
+// removeGoWork removes go.work, recording the removal in result; a missing
+// file is not an error.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION, CTRL-GO-WORK-INPUT-VALIDATION
+func removeGoWork(goWorkPath string, result SyncResult) (SyncResult, error) {
+	err := os.Remove(goWorkPath)
+	if err == nil {
+		result.GoWorkRemoved = true
+	} else if !errors.Is(err, os.ErrNotExist) {
 		return result, err
 	}
-	result.GoWork = goWorkPath
 	return result, nil
 }
 
@@ -91,27 +117,37 @@ func goWorkModules(entries []Entry) ([]Entry, []string) {
 	out := make([]Entry, len(entries))
 	var warnings []string
 	for i, entry := range entries {
-		out[i] = entry
-		if entry.GoModule == "" {
-			continue
-		}
-		if err := gomodule.CheckPath(entry.GoModule); err != nil {
-			warnings = append(warnings, fmt.Sprintf("%s: go.mod module path %q is not a valid Go module path; left out of go.work", entry.Name, entry.GoModule))
-			out[i].GoModule, out[i].GoRequires = "", nil
-			continue
-		}
-		requires := map[string]string{}
-		for path, version := range entry.GoRequires {
-			if err := gomodule.Check(path, version); err != nil {
-				warnings = append(warnings, fmt.Sprintf("%s: go.mod require %q %q is not a valid Go module version; left out of go.work", entry.Name, path, version))
-				continue
-			}
-			requires[path] = version
-		}
-		out[i].GoRequires = requires
+		var more []string
+		out[i], more = goWorkModule(entry)
+		warnings = append(warnings, more...)
 	}
 	sort.Strings(warnings)
 	return out, warnings
+}
+
+// goWorkModule is goWorkModules for one entry.
+// TRLC-LINKS: REQ-EMG-068, REQ-EMG-086
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, CTRL-GO-WORK-INPUT-VALIDATION
+func goWorkModule(entry Entry) (Entry, []string) {
+	if entry.GoModule == "" {
+		return entry, nil
+	}
+	if err := gomodule.CheckPath(entry.GoModule); err != nil {
+		warning := fmt.Sprintf("%s: go.mod module path %q is not a valid Go module path; left out of go.work", entry.Name, entry.GoModule)
+		entry.GoModule, entry.GoRequires = "", nil
+		return entry, []string{warning}
+	}
+	var warnings []string
+	requires := map[string]string{}
+	for path, version := range entry.GoRequires {
+		if err := gomodule.Check(path, version); err != nil {
+			warnings = append(warnings, fmt.Sprintf("%s: go.mod require %q %q is not a valid Go module version; left out of go.work", entry.Name, path, version))
+			continue
+		}
+		requires[path] = version
+	}
+	entry.GoRequires = requires
+	return entry, warnings
 }
 
 // checkOwned refuses to replace an existing file that lacks the engws header.
@@ -164,25 +200,54 @@ type goReplace struct{ module, version, dir string }
 // TRLC-LINKS: REQ-EMG-086
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
 func goReplaces(entries []Entry, dirByModule map[string]string) []goReplace {
-	seen := map[string]bool{}
+	set := goReplaceSet{dirByModule: dirByModule, seen: map[string]bool{}}
 	var out []goReplace
 	for _, entry := range entries {
-		for module, version := range entry.GoRequires {
-			dir, ok := dirByModule[module]
-			if !ok || version == "" || seen[module+" "+version] {
-				continue
-			}
-			seen[module+" "+version] = true
-			out = append(out, goReplace{module: module, version: version, dir: dir})
+		out = append(out, set.addEntry(entry)...)
+	}
+	sortGoReplaces(out)
+	return out
+}
+
+// goReplaceSet remembers the replaces already made.
+type goReplaceSet struct {
+	dirByModule map[string]string
+	seen        map[string]bool
+}
+
+// addEntry returns the new replaces for the requires of one entry.
+// TRLC-LINKS: REQ-EMG-086
+func (g goReplaceSet) addEntry(entry Entry) []goReplace {
+	var out []goReplace
+	for module, version := range entry.GoRequires {
+		if r, ok := g.add(module, version); ok {
+			out = append(out, r)
 		}
 	}
+	return out
+}
+
+// add is the replace for a required version of a workspace module, unless it
+// has no version or was already seen.
+// TRLC-LINKS: REQ-EMG-086
+func (g goReplaceSet) add(module, version string) (goReplace, bool) {
+	dir, ok := g.dirByModule[module]
+	if !ok || version == "" || g.seen[module+" "+version] {
+		return goReplace{}, false
+	}
+	g.seen[module+" "+version] = true
+	return goReplace{module: module, version: version, dir: dir}, true
+}
+
+// sortGoReplaces sorts by module, then version.
+// TRLC-LINKS: REQ-EMG-086
+func sortGoReplaces(out []goReplace) {
 	sort.Slice(out, func(i, j int) bool {
 		if out[i].module != out[j].module {
 			return out[i].module < out[j].module
 		}
 		return out[i].version < out[j].version
 	})
-	return out
 }
 
 // renderGoWork renders go.work using each listed directory and replacing each

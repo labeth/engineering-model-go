@@ -62,50 +62,78 @@ func RenderSpecDelta(requirements []model.Requirement, options SpecDeltaOptions)
 	if err != nil {
 		return SpecDeltaResult{}, err
 	}
-	operation := options.Operation
-	if operation == "" {
-		operation = SpecDeltaAdded
+	operation, err := specDeltaOperation(options.Operation)
+	if err != nil {
+		return SpecDeltaResult{}, err
 	}
-	if operation != SpecDeltaAdded && operation != SpecDeltaModified {
-		return SpecDeltaResult{}, fmt.Errorf("unsupported spec delta operation %q (want ADDED or MODIFIED)", operation)
-	}
-	var b strings.Builder
-	var result SpecDeltaResult
+	renderer := specDeltaRenderer{seen: map[string]bool{}}
 	if capability := strings.TrimSpace(options.Capability); capability != "" {
-		fmt.Fprintf(&b, "# %s spec delta\n\n", capability)
+		fmt.Fprintf(&renderer.b, "# %s spec delta\n\n", capability)
 	}
-	fmt.Fprintf(&b, "## %s Requirements\n", operation)
-	// OpenSpec needs unique headings: a repeated title names its ID.
-	seen := map[string]bool{}
+	fmt.Fprintf(&renderer.b, "## %s Requirements\n", operation)
 	for _, r := range selected {
-		id := strings.TrimSpace(r.ID)
-		heading := requirementHeading(r)
-		if seen[heading] && heading != id {
-			heading += " (" + id + ")"
-		}
-		seen[requirementHeading(r)] = true
-		text := shallWord.ReplaceAllStringFunc(collapse(r.Text), strings.ToUpper)
-		if !strings.Contains(text, "SHALL") && !strings.Contains(text, "MUST") {
-			result.Warnings = append(result.Warnings, fmt.Sprintf("%s has no shall or must; openspec validate --strict rejects the requirement", id))
-		}
-		fmt.Fprintf(&b, "\n### Requirement: %s\n%s: %s\n\n#### Scenario: Verify %s\n", heading, id, text, id)
-		criteria := collapse(r.VerificationCriteria)
-		switch m := whenThen.FindStringSubmatch(criteria); {
-		case criteria == "":
-			result.Warnings = append(result.Warnings, fmt.Sprintf("%s has no verificationCriteria; the scenario is a placeholder", id))
-			fmt.Fprintf(&b, "- **WHEN** the requirement is verified\n- **THEN** %s holds\n", id)
-		case m != nil:
-			if m[1] != "" {
-				fmt.Fprintf(&b, "- **GIVEN** %s\n", m[1])
-			}
-			fmt.Fprintf(&b, "- **WHEN** %s\n- **THEN** %s\n", m[2], m[3])
-		default:
-			fmt.Fprintf(&b, "- **WHEN** the requirement is verified\n- **THEN** %s\n", lowerFirst(criteria))
-		}
-		result.IDs = append(result.IDs, id)
+		renderer.render(r)
 	}
-	result.Markdown = b.String()
-	return result, nil
+	renderer.result.Markdown = renderer.b.String()
+	return renderer.result, nil
+}
+
+// specDeltaOperation defaults an empty operation to ADDED and refuses an unknown one.
+// TRLC-LINKS: REQ-EMG-081
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func specDeltaOperation(operation SpecDeltaOperation) (SpecDeltaOperation, error) {
+	switch operation {
+	case "":
+		return SpecDeltaAdded, nil
+	case SpecDeltaAdded, SpecDeltaModified:
+		return operation, nil
+	}
+	return "", fmt.Errorf("unsupported spec delta operation %q (want ADDED or MODIFIED)", operation)
+}
+
+// specDeltaRenderer accumulates the markdown, the rendered IDs and the warnings of one delta.
+type specDeltaRenderer struct {
+	b      strings.Builder
+	result SpecDeltaResult
+	// OpenSpec needs unique headings: a repeated title names its ID.
+	seen map[string]bool
+}
+
+// render appends the heading, requirement line and scenario of r.
+// TRLC-LINKS: REQ-EMG-081
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func (g *specDeltaRenderer) render(r model.Requirement) {
+	id := strings.TrimSpace(r.ID)
+	heading := requirementHeading(r)
+	if g.seen[heading] && heading != id {
+		heading += " (" + id + ")"
+	}
+	g.seen[requirementHeading(r)] = true
+	text := shallWord.ReplaceAllStringFunc(collapse(r.Text), strings.ToUpper)
+	if !strings.Contains(text, "SHALL") && !strings.Contains(text, "MUST") {
+		g.result.Warnings = append(g.result.Warnings, fmt.Sprintf("%s has no shall or must; openspec validate --strict rejects the requirement", id))
+	}
+	fmt.Fprintf(&g.b, "\n### Requirement: %s\n%s: %s\n\n#### Scenario: Verify %s\n", heading, id, text, id)
+	g.scenario(id, collapse(r.VerificationCriteria))
+	g.result.IDs = append(g.result.IDs, id)
+}
+
+// scenario appends the WHEN/THEN lines built from the verification criteria.
+// TRLC-LINKS: REQ-EMG-081
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, DO-REQUIREMENTS-DOCUMENT
+func (g *specDeltaRenderer) scenario(id, criteria string) {
+	switch m := whenThen.FindStringSubmatch(criteria); {
+	case criteria == "":
+		g.result.Warnings = append(g.result.Warnings, fmt.Sprintf("%s has no verificationCriteria; the scenario is a placeholder", id))
+		fmt.Fprintf(&g.b, "- **WHEN** the requirement is verified\n- **THEN** %s holds\n", id)
+	case m != nil:
+		if m[1] != "" {
+			fmt.Fprintf(&g.b, "- **GIVEN** %s\n", m[1])
+		}
+		fmt.Fprintf(&g.b, "- **WHEN** %s\n- **THEN** %s\n", m[2], m[3])
+	default:
+		fmt.Fprintf(&g.b, "- **WHEN** the requirement is verified\n- **THEN** %s\n", lowerFirst(criteria))
+	}
 }
 
 // RenderSpecDeltaFromModel loads the requirements of the model at manifestPath
@@ -124,15 +152,28 @@ func RenderSpecDeltaFromModel(manifestPath string, options SpecDeltaOptions) (Sp
 // model order; an ID the model does not define is an error.
 // TRLC-LINKS: REQ-EMG-081
 func selectRequirements(requirements []model.Requirement, options SpecDeltaOptions) ([]model.Requirement, error) {
-	want := map[string]bool{}
-	for _, id := range options.IDs {
-		if id = strings.TrimSpace(id); id != "" {
-			want[id] = true
-		}
-	}
+	ids := trimmedSpecIDs(options.IDs)
 	prefix := strings.TrimSpace(options.Prefix)
-	if len(want) == 0 && prefix == "" {
+	if len(ids) == 0 && prefix == "" {
 		return nil, fmt.Errorf("select requirements with IDs or a prefix")
+	}
+	out, found := matchSpecRequirements(requirements, ids, prefix)
+	if missing := missingSpecIDs(ids, found); len(missing) > 0 {
+		return nil, fmt.Errorf("the model defines no requirement %s", strings.Join(missing, ", "))
+	}
+	if len(out) == 0 {
+		return nil, fmt.Errorf("no requirement ID starts with %q", prefix)
+	}
+	return out, nil
+}
+
+// matchSpecRequirements returns, in model order, the requirements named by ids or starting with prefix, and the
+// set of their IDs.
+// TRLC-LINKS: REQ-EMG-081
+func matchSpecRequirements(requirements []model.Requirement, ids []string, prefix string) ([]model.Requirement, map[string]bool) {
+	want := make(map[string]bool, len(ids))
+	for _, id := range ids {
+		want[id] = true
 	}
 	var out []model.Requirement
 	found := map[string]bool{}
@@ -143,19 +184,31 @@ func selectRequirements(requirements []model.Requirement, options SpecDeltaOptio
 			found[id] = true
 		}
 	}
+	return out, found
+}
+
+// trimmedSpecIDs returns the non-empty trimmed IDs in order (duplicates kept).
+// TRLC-LINKS: REQ-EMG-081
+func trimmedSpecIDs(ids []string) []string {
+	var out []string
+	for _, id := range ids {
+		if id = strings.TrimSpace(id); id != "" {
+			out = append(out, id)
+		}
+	}
+	return out
+}
+
+// missingSpecIDs returns the IDs that were not found, in order.
+// TRLC-LINKS: REQ-EMG-081
+func missingSpecIDs(ids []string, found map[string]bool) []string {
 	var missing []string
-	for _, id := range options.IDs {
-		if id = strings.TrimSpace(id); id != "" && !found[id] {
+	for _, id := range ids {
+		if !found[id] {
 			missing = append(missing, id)
 		}
 	}
-	if len(missing) > 0 {
-		return nil, fmt.Errorf("the model defines no requirement %s", strings.Join(missing, ", "))
-	}
-	if len(out) == 0 {
-		return nil, fmt.Errorf("no requirement ID starts with %q", prefix)
-	}
-	return out, nil
+	return missing
 }
 
 // requirementHeading is the title, else the ID.

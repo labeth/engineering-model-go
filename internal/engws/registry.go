@@ -82,24 +82,7 @@ func (r *cueRegistry) Published(ctx context.Context, modulePath, version string)
 	if _, ok := r.resolver.ResolveToLocation(base, ""); !ok {
 		return PublicationUnknown, fmt.Sprintf("CUE_REGISTRY routes %s to no registry (none/offline)", base)
 	}
-	r.mu.Lock()
-	versions, cached := r.versions[modulePath]
-	failure := r.failures[modulePath]
-	r.mu.Unlock()
-	if !cached && failure == "" {
-		ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
-		defer cancel()
-		list, err := r.client.ModuleVersions(ctx, modulePath)
-		r.mu.Lock()
-		if err != nil {
-			failure = fmt.Sprintf("registry query for %s failed: %v", modulePath, err)
-			r.failures[modulePath] = failure
-		} else {
-			versions = list
-			r.versions[modulePath] = list
-		}
-		r.mu.Unlock()
-	}
+	versions, failure := r.moduleVersions(ctx, modulePath)
 	if failure != "" {
 		return PublicationUnknown, failure
 	}
@@ -107,4 +90,30 @@ func (r *cueRegistry) Published(ctx context.Context, modulePath, version string)
 		return PublicationPublished, ""
 	}
 	return PublicationMissing, ""
+}
+
+// moduleVersions returns the registry tags of the module, queried once per
+// module path (a failure is cached too), or the failure text.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func (r *cueRegistry) moduleVersions(ctx context.Context, modulePath string) ([]string, string) {
+	r.mu.Lock()
+	versions, cached := r.versions[modulePath]
+	failure := r.failures[modulePath]
+	r.mu.Unlock()
+	if cached || failure != "" {
+		return versions, failure
+	}
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	list, err := r.client.ModuleVersions(ctx, modulePath)
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if err != nil {
+		failure = fmt.Sprintf("registry query for %s failed: %v", modulePath, err)
+		r.failures[modulePath] = failure
+		return versions, failure
+	}
+	r.versions[modulePath] = list
+	return list, ""
 }

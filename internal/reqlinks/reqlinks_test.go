@@ -48,6 +48,14 @@ func TestItemMeaningGolden(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-095, REQ-EMG-100
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
 func TestSameMeaning(t *testing.T) {
+	checkSameMeaningEdits(t)
+	checkDifferentMeaningEdits(t)
+	checkUncountedRequirementFields(t)
+}
+
+// checkSameMeaningEdits checks the edits that keep the meaning.
+func checkSameMeaningEdits(t *testing.T) {
+	t.Helper()
 	base := goldenItem()
 	same := map[string]func(*Item){
 		"realizer order": func(i *Item) { i.Realizers[0], i.Realizers[1] = i.Realizers[1], i.Realizers[0] },
@@ -67,6 +75,13 @@ func TestSameMeaning(t *testing.T) {
 			t.Errorf("%s changed the meaning: %v", name, MeaningChanges(base, changed))
 		}
 	}
+}
+
+// checkDifferentMeaningEdits checks the edits that change the meaning and
+// the change each is named by.
+func checkDifferentMeaningEdits(t *testing.T) {
+	t.Helper()
+	base := goldenItem()
 	differ := map[string]struct {
 		edit func(*Item)
 		want string
@@ -87,7 +102,12 @@ func TestSameMeaning(t *testing.T) {
 			t.Errorf("%s: same %v, changes %v, want [%s]", name, SameMeaning(base, changed), got, tc.want)
 		}
 	}
-	// Uncounted requirement fields do not reach the item at all.
+}
+
+// checkUncountedRequirementFields checks that uncounted requirement fields
+// do not reach the item at all, while the criteria do.
+func checkUncountedRequirementFields(t *testing.T) {
+	t.Helper()
 	child := childBundle()
 	before := ItemsFromBundle(child)["CAP-A"]
 	r := &child.Requirements.Requirements[0]
@@ -145,16 +165,29 @@ func TestItemsFromBundle(t *testing.T) {
 	if got := realizerIDs(items["CAP-A"]); got != "REQ-A1,REQ-A2,REQ-A3" {
 		t.Fatalf("CAP-A realizers = %s", got)
 	}
+	checkItemsCapabilityAndAssumption(t, items)
+	b := childBundle()
+	published := PublishedItems(b, b.Manifest.Publications[0])
+	if len(published) != 2 || published["CAP-B"].ID != "" {
+		t.Fatalf("published items = %+v", published)
+	}
+	if got := realizerIDs(published["CAP-A"]); got != "REQ-A1,REQ-A2" {
+		t.Fatalf("published CAP-A realizers = %s", got)
+	}
+}
+
+// checkItemsCapabilityAndAssumption checks CAP-B and AOU-A of ItemsFromBundle.
+func checkItemsCapabilityAndAssumption(t *testing.T, items map[string]Item) {
+	t.Helper()
 	if got := realizerIDs(items["CAP-B"]); got != "REQ-B" || items["CAP-B"].Text != "Deliver B." {
 		t.Fatalf("CAP-B = %+v", items["CAP-B"])
 	}
-	if a := items["AOU-A"]; a.Kind != KindAssumption || a.VerificationCriteria != "Shown by user." || realizerIDs(a) != "REQ-A2" {
+	a := items["AOU-A"]
+	if a.Kind != KindAssumption || a.VerificationCriteria != "Shown by user." {
 		t.Fatalf("AOU-A = %+v", a)
 	}
-	b := childBundle()
-	published := PublishedItems(b, b.Manifest.Publications[0])
-	if len(published) != 2 || published["CAP-B"].ID != "" || realizerIDs(published["CAP-A"]) != "REQ-A1,REQ-A2" {
-		t.Fatalf("published items = %+v", published)
+	if realizerIDs(a) != "REQ-A2" {
+		t.Fatalf("AOU-A = %+v", a)
 	}
 }
 
@@ -231,18 +264,36 @@ func TestEvaluateLinksStates(t *testing.T) {
 			t.Errorf("%s state = %q, want %q (%+v)", id, got[id].State, state, got[id])
 		}
 	}
-	if got["LNK-CLAIMED"].Status != "claimed" || got["LNK-OK"].Status != "accepted" {
-		t.Fatalf("review status not carried: %+v %+v", got["LNK-CLAIMED"], got["LNK-OK"])
-	}
+	checkEvaluatedStatusDetails(t, got)
 	resolvedElsewhere := dependency(child)
 	resolvedElsewhere.Version = "v0.1.1"
 	if s := EvaluateLinks(system, []Dependency{resolvedElsewhere}); s[0].State != StateVersionMismatch {
 		t.Fatalf("a pin other than the resolved version must be version_mismatch: %+v", s[0])
 	}
+}
+
+// checkEvaluatedStatusDetails checks the review status, the detail and the
+// item the evaluation carries.
+func checkEvaluatedStatusDetails(t *testing.T, got map[string]LinkStatus) {
+	t.Helper()
+	if got["LNK-CLAIMED"].Status != "claimed" || got["LNK-OK"].Status != "accepted" {
+		t.Fatalf("review status not carried: %+v %+v", got["LNK-CLAIMED"], got["LNK-OK"])
+	}
+	checkEvaluatedHiddenAndVersion(t, got)
+}
+
+// checkEvaluatedHiddenAndVersion checks the detail of the hidden link and the
+// item and versions of the version-mismatched one.
+func checkEvaluatedHiddenAndVersion(t *testing.T, got map[string]LinkStatus) {
+	t.Helper()
 	if d := got["LNK-HIDDEN"].Detail; !strings.Contains(d, "not in a selected publication") {
 		t.Fatalf("LNK-HIDDEN detail = %q", d)
 	}
-	if s := got["LNK-VERSION"]; s.Item == nil || s.Item.ID != "CAP-A" || s.Pinned != "v0.0.9" || s.Version != "v0.1.0" {
+	s := got["LNK-VERSION"]
+	if s.Item == nil || s.Item.ID != "CAP-A" {
+		t.Fatalf("version_mismatch status = %+v", s)
+	}
+	if s.Pinned != "v0.0.9" || s.Version != "v0.1.0" {
 		t.Fatalf("version_mismatch status = %+v", s)
 	}
 }

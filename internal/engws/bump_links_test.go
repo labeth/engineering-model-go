@@ -20,13 +20,13 @@ func publishEncoderReleases(t *testing.T) *linksRegistry {
 	registry.publish("child-a", "v0.1.0", nil)
 	v2 := func(dir string) {
 		reqs := filepath.Join(dir, "model", "requirements.yml")
-		replaceIn(t, reqs, "shall write one log line.", "shall write one structured log line.")
-		replaceIn(t, reqs, "  realizes: [CAP-A-1]\n- id: REQ-A-002", "  realizes: [CAP-A-1]\n  status: verified\n  notes: Measured on the bench.\n- id: REQ-A-002")
+		replaceIn(t, reqs, textEdit{Old: "shall write one log line.", New: "shall write one structured log line."})
+		replaceIn(t, reqs, textEdit{Old: "  realizes: [CAP-A-1]\n- id: REQ-A-002", New: "  realizes: [CAP-A-1]\n  status: verified\n  notes: Measured on the bench.\n- id: REQ-A-002"})
 	}
 	registry.publish("child-a", "v0.2.0", v2)
 	registry.publish("child-a", "v0.3.0", func(dir string) {
 		v2(dir)
-		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "shall publish one position sentence.", "shall publish two position sentences.")
+		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: "shall publish one position sentence.", New: "shall publish two position sentences."})
 	})
 	registry.serve()
 	return registry
@@ -49,6 +49,90 @@ func pinOf(t *testing.T, path, id string) (string, bool) {
 	return "", false
 }
 
+// encoderBump is the system workspace the encoder releases are bumped in.
+type encoderBump struct{ root, system string }
+
+// bump runs engws bump system encoder version with flags.
+func (b encoderBump) bump(t *testing.T, version string, flags ...string) (int, string, string) {
+	t.Helper()
+	args := append([]string{"--root", b.root, "bump", "system", "encoder", version}, flags...)
+	return runMain(t, NewCUERegistry(), args...)
+}
+
+// requirePin requires the link to be pinned at want.
+func (b encoderBump) requirePin(t *testing.T, id, want string) {
+	t.Helper()
+	if v, _ := pinOf(t, filepath.Join(b.system, "model", "req-links.yml"), id); v != want {
+		t.Fatalf("link %s pinned %s, want %s", id, v, want)
+	}
+}
+
+// outputHasAll reports whether out contains every part.
+func outputHasAll(out string, parts ...string) bool {
+	for _, part := range parts {
+		if !strings.Contains(out, part) {
+			return false
+		}
+	}
+	return true
+}
+
+// requireUnchangedMeaningBump bumps to v0.2.0, where no linked item changed
+// in meaning: every link on the alias moves, one on another dependency does
+// not, and the system check passes.
+func (b encoderBump) requireUnchangedMeaningBump(t *testing.T) {
+	t.Helper()
+	code, out, errOut := b.bump(t, "v0.2.0")
+	if code != 0 {
+		t.Fatalf("bump v0.2.0: %d\n%s\n%s", code, out, errOut)
+	}
+	for _, id := range []string{"LNK-SYS-001-ENCODER", "LNK-SYS-002-ENCODER"} {
+		if !strings.Contains(out, "moved "+id+" ") {
+			t.Fatalf("bump does not print %s moved:\n%s", id, out)
+		}
+		b.requirePin(t, id, "v0.2.0")
+	}
+	b.requirePin(t, "LNK-SYS-001-BRIDGE", "v0.1.0")
+	if errs := checkErrors(t, b.system); len(errs) > 0 {
+		t.Fatalf("system check after an unchanged bump:\n%s", strings.Join(errs, "\n"))
+	}
+}
+
+// requireChangedRealizerBump bumps to v0.3.0, where a realizer's text
+// changed: the changed link keeps its pin and is printed for review by ID
+// only, the bump is written and the system check fails with
+// link.version_mismatch only.
+func (b encoderBump) requireChangedRealizerBump(t *testing.T) {
+	t.Helper()
+	manifest := filepath.Join(b.system, "engmod.yml")
+	code, out, errOut := b.bump(t, "v0.3.0")
+	if code != 1 || !outputHasAll(out, "review LNK-SYS-001-ENCODER (encoder::CAP-A-1: REQ-A-001 text)", "moved LNK-SYS-002-ENCODER") || strings.Contains(out, "two position sentences") {
+		t.Fatalf("bump with a changed realizer: %d\n%s\n%s", code, out, errOut)
+	}
+	if !strings.Contains(read(t, manifest), "  version: v0.3.0\n") {
+		t.Fatalf("bump not written:\n%s", read(t, manifest))
+	}
+	b.requirePin(t, "LNK-SYS-001-ENCODER", "v0.2.0")
+	b.requirePin(t, "LNK-SYS-002-ENCODER", "v0.3.0")
+	errs := checkErrors(t, b.system)
+	if !hasLine(errs, "link.version_mismatch", "LNK-SYS-001-ENCODER") || len(errs) != 1 {
+		t.Fatalf("system check must fail with link.version_mismatch only:\n%s", strings.Join(errs, "\n"))
+	}
+}
+
+// requireShowAllowReviewBump bumps again with --show, which prints the text
+// before and after, and --allow-review, which exits 0.
+func (b encoderBump) requireShowAllowReviewBump(t *testing.T) {
+	t.Helper()
+	replaceIn(t, filepath.Join(b.system, "engmod.yml"), textEdit{Old: "  version: v0.3.0\n", New: "  version: v0.2.0\n"})
+	code, out, errOut := b.bump(t, "v0.3.0", "--allow-review", "--show")
+	if code != 0 || !outputHasAll(out, "review LNK-SYS-001-ENCODER",
+		"- REQ-A-001: When epoch period elapses, the position encoder shall publish one position sentence.",
+		"+ REQ-A-001: When epoch period elapses, the position encoder shall publish two position sentences.") {
+		t.Fatalf("bump --allow-review --show: %d\n%s\n%s", code, out, errOut)
+	}
+}
+
 // bump compares each link on the bumped alias between its pinned version
 // and the new one by meaning (D23): a release that changes only an
 // unrelated requirement and a realizer's status and notes moves every pin;
@@ -65,54 +149,10 @@ func pinOf(t *testing.T, path, id string) (string, bool) {
 func TestBumpEvaluatesRequirementLinks(t *testing.T) {
 	publishEncoderReleases(t)
 	root, system := systemWorkspace(t)
-	links := filepath.Join(system, "model", "req-links.yml")
-	manifest := filepath.Join(system, "engmod.yml")
-
-	code, out, errOut := runMain(t, NewCUERegistry(), "--root", root, "bump", "system", "encoder", "v0.2.0")
-	if code != 0 {
-		t.Fatalf("bump v0.2.0: %d\n%s\n%s", code, out, errOut)
-	}
-	for _, id := range []string{"LNK-SYS-001-ENCODER", "LNK-SYS-002-ENCODER"} {
-		if !strings.Contains(out, "moved "+id+" ") {
-			t.Fatalf("bump does not print %s moved:\n%s", id, out)
-		}
-		if v, _ := pinOf(t, links, id); v != "v0.2.0" {
-			t.Fatalf("%s pinned %s after a bump without a change in meaning", id, v)
-		}
-	}
-	if v, _ := pinOf(t, links, "LNK-SYS-001-BRIDGE"); v != "v0.1.0" {
-		t.Fatalf("a link on another dependency moved to %s", v)
-	}
-	if errs := checkErrors(t, system); len(errs) > 0 {
-		t.Fatalf("system check after an unchanged bump:\n%s", strings.Join(errs, "\n"))
-	}
-
-	code, out, errOut = runMain(t, NewCUERegistry(), "--root", root, "bump", "system", "encoder", "v0.3.0")
-	if code != 1 || !strings.Contains(out, "review LNK-SYS-001-ENCODER (encoder::CAP-A-1: REQ-A-001 text)") ||
-		!strings.Contains(out, "moved LNK-SYS-002-ENCODER") || strings.Contains(out, "two position sentences") {
-		t.Fatalf("bump with a changed realizer: %d\n%s\n%s", code, out, errOut)
-	}
-	if !strings.Contains(read(t, manifest), "  version: v0.3.0\n") {
-		t.Fatalf("bump not written:\n%s", read(t, manifest))
-	}
-	if v, _ := pinOf(t, links, "LNK-SYS-001-ENCODER"); v != "v0.2.0" {
-		t.Fatalf("a changed link moved to %s", v)
-	}
-	if v, _ := pinOf(t, links, "LNK-SYS-002-ENCODER"); v != "v0.3.0" {
-		t.Fatalf("an unchanged link stayed at %s", v)
-	}
-	errs := checkErrors(t, system)
-	if !hasLine(errs, "link.version_mismatch", "LNK-SYS-001-ENCODER") || len(errs) != 1 {
-		t.Fatalf("system check must fail with link.version_mismatch only:\n%s", strings.Join(errs, "\n"))
-	}
-
-	// --show prints the text before and after; --allow-review exits 0.
-	replaceIn(t, manifest, "  version: v0.3.0\n", "  version: v0.2.0\n")
-	code, out, errOut = runMain(t, NewCUERegistry(), "--root", root, "bump", "system", "encoder", "v0.3.0", "--allow-review", "--show")
-	if code != 0 || !strings.Contains(out, "review LNK-SYS-001-ENCODER") || !strings.Contains(out, "- REQ-A-001: When epoch period elapses, the position encoder shall publish one position sentence.") ||
-		!strings.Contains(out, "+ REQ-A-001: When epoch period elapses, the position encoder shall publish two position sentences.") {
-		t.Fatalf("bump --allow-review --show: %d\n%s\n%s", code, out, errOut)
-	}
+	b := encoderBump{root: root, system: system}
+	b.requireUnchangedMeaningBump(t)
+	b.requireChangedRealizerBump(t)
+	b.requireShowAllowReviewBump(t)
 }
 
 // When the pinned version of a link cannot be resolved (not published), bump
@@ -126,9 +166,9 @@ func TestBumpUnresolvedAndRemovedItems(t *testing.T) {
 	registry := newLinksRegistry(t)
 	registry.publish("child-b", "v0.1.0", nil)
 	registry.publish("child-a", "v0.2.0", func(dir string) {
-		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", "")
-		replaceIn(t, filepath.Join(dir, "engmod.yml"), "  - CAP-A-2\n", "")
-		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), "  realizes: [CAP-A-2]\n", "  derived: true\n  derivedRationale: Integrity of the encoder output.\n")
+		replaceIn(t, filepath.Join(dir, "model", "architecture.yml"), textEdit{Old: "    - id: CAP-A-2\n      kind: capability\n      note: Protect each position sentence with a checksum.\n", New: ""})
+		replaceIn(t, filepath.Join(dir, "engmod.yml"), textEdit{Old: "  - CAP-A-2\n", New: ""})
+		replaceIn(t, filepath.Join(dir, "model", "requirements.yml"), textEdit{Old: "  realizes: [CAP-A-2]\n", New: "  derived: true\n  derivedRationale: Integrity of the encoder output.\n"})
 	})
 	registry.serve()
 	root, system := systemWorkspace(t)
