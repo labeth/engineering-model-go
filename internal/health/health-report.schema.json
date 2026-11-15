@@ -14,6 +14,10 @@
       "enum": ["poc", "prototype", "mvp", "product", "operational"]
     },
     "bundles": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "floor": {
+      "description": "The lowest file score that needs no baseline cover (ADR-EMG-087): a file below it that no baseline entry covers is a health.file_below_floor diagnostic. Absent when the report was made without a floor.",
+      "$ref": "#/$defs/score"
+    },
     "levels": {
       "description": "The level of each code at the tier, from the tier policy of the model. A code that is missing is a warning.",
       "type": "object",
@@ -223,6 +227,8 @@
         "findings": {"$ref": "#/$defs/count"},
         "waived": {"$ref": "#/$defs/count"},
         "baselined": {"$ref": "#/$defs/count"},
+        "belowFloor": {"description": "Files whose score is below the floor, covered by the baseline or not.", "$ref": "#/$defs/count"},
+        "floorCovered": {"description": "The files below the floor that the baseline covers: the burn-down target.", "$ref": "#/$defs/count"},
         "errors": {"$ref": "#/$defs/count"},
         "warnings": {"$ref": "#/$defs/count"}
       }

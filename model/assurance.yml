@@ -838,6 +838,20 @@ assurance:
       path: authoredArchitecture.controls[4]
     - code: gemara.control_needs_review
       path: authoredArchitecture.controls[7]
+  - id: POAM-HEALTH-FLOOR
+    riskRef: RISK-TRACEABILITY-DRIFT
+    milestone: tier:operational
+    dueDate: '2027-06-30'
+    status: planned
+    responsibleRole: ACT-COMPLIANCE-ENGINEER
+    artifacts:
+    - path: model/health-baseline.json
+      description: 'REQ-EMG-211 (every source file of this repository scores 10.0 in the code health scan at tier operational, ADR-EMG-087) is a proposed requirement of the owner that is met when the baseline is empty. While the baseline lists files, REQ-EMG-211 stays proposed (lifecycle.requirement_unapproved) and unverified (lifecycle.requirement_unverified); both diagnostics are deferred until the baseline is empty, and the burn-down is the number of files below 10.0 that the baseline covers (summary.floorCovered of enghealth scan). The item defers nothing else and no health code: health.file_below_floor is not deferrable.'
+    defers:
+    - code: lifecycle.requirement_unapproved
+      ref: REQ-EMG-211
+    - code: lifecycle.requirement_unverified
+      ref: REQ-EMG-211
   trustBoundaries:
   - id: TB-REPO-WORKSPACE
     name: Repository Workspace Boundary

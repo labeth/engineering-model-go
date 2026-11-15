@@ -155,7 +155,7 @@ func TestScanBaselineFileProblemsAreSetupErrors(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-155
 func TestScanBaselineNeedsAnAcceptedDecision(t *testing.T) {
 	for name, decision := range map[string]string{"missing decision": "ADR-NOPE", "proposed decision": "ADR-DRAFT"} {
-		manifest := "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n  baseline: {file: model/health-baseline.json, decision: " + decision + "}\n"
+		manifest := "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n  floor: 8.0\n  baseline: {file: model/health-baseline.json, decision: " + decision + "}\n"
 		dir, path := fixture(t, manifest)
 		writeBaseline(t, dir, bigEntry())
 		r, err := Scan(Options{ManifestPath: path})

@@ -108,6 +108,9 @@ package model
 	// policyDecision is the accepted decision that records a weakening of
 	// this block against the base revision (ADR-EMG-051, amended by the review).
 	policyDecision?: #NonEmpty
+	// floor is the lowest file score that needs no baseline cover (ADR-EMG-087);
+	// the range 1.0 to 10.0 is reported by internal/validate with a path.
+	floor?: number
 }
 
 // #CodeExemption exempts one model element from the element to code coverage

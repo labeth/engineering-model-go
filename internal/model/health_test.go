@@ -120,7 +120,7 @@ func TestAuthoringContractV7ListsHealth(t *testing.T) {
 			t.Errorf("%s has no meaning", c.Code)
 		}
 	}
-	if len(guide.Config) == 0 || len(guide.Codes) != 16 || thresholds != 7 || len(guide.Rules) == 0 {
+	if len(guide.Config) == 0 || len(guide.Codes) != 17 || thresholds != 7 || len(guide.Rules) == 0 {
 		t.Fatalf("incomplete health guide: %+v", guide)
 	}
 	if !strings.Contains(strings.Join(guide.Rules, "\n"), "health.waiver_unjustified") {

@@ -590,6 +590,12 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-086';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-087";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-087';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -2529,6 +2535,12 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-03758739C61FBDFA';
 
     @EngineeringElement {
+        sourceId = "EVIDENCE-0B3CFBC93B76A5B3";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVIDENCE-0B3CFBC93B76A5B3';
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-139EC30ED19D5D0E";
         conceptKind = "engineering_extension";
     }
@@ -2737,6 +2749,18 @@ package 'engineering-model-go' {
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-GO-BUNDLE-LOADED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-HEALTH-CHECK-REQUESTED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-HEALTH-CHECK-REQUESTED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-HEALTH-SCAN-REQUESTED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-HEALTH-SCAN-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-LINK-ADD-REQUESTED";
@@ -3055,6 +3079,22 @@ package 'engineering-model-go' {
         inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
         inout item 'item_DO_TRACE_MATRIX' : 'DO-TRACE-MATRIX';
         inout item 'item_DO_CATALOG_USAGE' : 'DO-CATALOG-USAGE';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-HEALTH-CHECK";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-HEALTH-CHECK' {
+        inout item 'item_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-HEALTH-SCAN";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-HEALTH-SCAN' {
+        inout item 'item_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
     }
 
     @EngineeringElement {
@@ -3727,6 +3767,12 @@ package 'engineering-model-go' {
     attribute 'MODE-LOCAL-DEVELOPMENT';
 
     @EngineeringElement {
+        sourceId = "MODE-TIER-AT-LEAST-PRODUCT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'MODE-TIER-AT-LEAST-PRODUCT';
+
+    @EngineeringElement {
         sourceId = "POAM-CONSISTENCY-BATCH1";
         conceptKind = "engineering_extension";
     }
@@ -3749,6 +3795,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'POAM-CONSISTENCY-MODEL-ONLY';
+
+    @EngineeringElement {
+        sourceId = "POAM-HEALTH-FLOOR";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'POAM-HEALTH-FLOOR';
 
     @EngineeringElement {
         sourceId = "POAM-MCP-PATH-FUZZING";
@@ -5722,6 +5774,33 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "REQ-EMG-209";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-209' {
+        attribute 'text' : 'String' = "While project tier is at least product, when health scan is requested, the code health check shall report one error for each file below the floor that no baseline entry covers.";
+        attribute 'notes' : 'String' = "ADR-EMG-087, health.file_below_floor, one diagnostic per file in the health report with the path, no function. The floor is the file score 10.0 (health.floor of the manifest may lower it, and a lower floor is reported by enghealth check as health.policy_weakened). A file is below the floor when its score, after the waivers, is below it; every source file counts, tests included. A file is covered when the baseline holds an entry (path, function, code) that names a finding of it that the scan found, whatever the value against the recorded one; a stale entry covers nothing, and a file whose every finding is waived scores 10.0. So a new file, or a file with no entry, has to be clean at once, and with an empty baseline every file has to score 10.0. The tier policy row is WWWEE (WWEEE with the safety bundle): a warning at poc, prototype and mvp, an error at product and operational, a warning without a tier, and no POA&M item defers it, like health.regression. The report carries the floor and summary.belowFloor and summary.floorCovered, the files the baseline still covers: the burn-down.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-210";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-210' {
+        attribute 'text' : 'String' = "While project tier is at least product, when health check is requested, the code health check shall report one error for each changed file below the floor that no baseline entry covers.";
+        attribute 'notes' : 'String' = "ADR-EMG-087. enghealth check evaluates health.file_below_floor for the source files changed between the base revision and the head, with the same floor, level and cover as the scan: it reads the baseline of the head manifest for this only (a regression is still never baselined). A file that gets below the floor, a file that is new below it and a changed file that was already below it and is not covered fail the check where the code is an error; the files are listed under belowFloor of the JSON report and as results of the SARIF rule health.file_below_floor. A lowered floor against the base revision is a weakening (health.policy_weakened, aspect floor). A new or worsened warn finding is no regression, so the floor is the gate that holds a changed file to 10.0 at once.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-211";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-211' {
+        attribute 'text' : 'String' = "The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.";
+        attribute 'notes' : 'String' = "ADR-EMG-087. A requirement of this repository, not of the engine contract, so it is not published. It is met when the baseline model/health-baseline.json is empty (the owner: \"get a 10/10 score in all files in model, tool, flow\"), and it is verified by the scan with an empty baseline (enghealth scan --model engmod.yml --fail-on-error), which reports no health.file_below_floor and no finding. The baseline lists the files that do not meet it yet; REQ-EMG-209 makes each of them explicit and lets the baseline only shrink. The status stays proposed until the baseline is empty; it is not verified by the rule that reports the gap.";
+    }
+
+    @EngineeringElement {
         sourceId = "RISK-MCP-PATH-ESCAPE";
         conceptKind = "engineering_extension";
     }
@@ -6844,6 +6923,14 @@ package 'engineering-model-go' {
     action 'check-arguments' : EngineeringAction;
 
     @EngineeringElement {
+        sourceId = "check-changed-files";
+        conceptKind = "action_usage";
+    }
+    action 'check-changed-files' : EngineeringAction {
+        out item 'output_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+    }
+
+    @EngineeringElement {
         sourceId = "check-model";
         conceptKind = "action_usage";
     }
@@ -7268,6 +7355,14 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "scan-source-files";
+        conceptKind = "action_usage";
+    }
+    action 'scan-source-files' : EngineeringAction {
+        out item 'output_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+    }
+
+    @EngineeringElement {
         sourceId = "show-links";
         conceptKind = "action_usage";
     }
@@ -7544,6 +7639,17 @@ package 'engineering-model-go' {
         relationshipKind = "flow_next";
     }
     succession 'REL-0893DE78A51F8BA1' first 'show-links' then 'check-acceptance';
+
+    @EngineeringRelationship {
+        sourceId = "REL-08B2B67BC984176C";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-08B2B67BC984176C-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODE-HEALTH' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-08B2B67BC984176C' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CODE-HEALTH'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-0BC01C9171549ED5";
@@ -8285,6 +8391,17 @@ package 'engineering-model-go' {
     succession 'REL-533FBA1058B9E95C' first 'check-acceptance' then 'record-acceptance';
 
     @EngineeringRelationship {
+        sourceId = "REL-55210F3A44A05C37";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-55210F3A44A05C37-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODE-HEALTH' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-55210F3A44A05C37' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CODE-HEALTH'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-55A11120E221CC32";
         conceptKind = "transfer";
         relationshipKind = "step_transfer";
@@ -8959,6 +9076,13 @@ package 'engineering-model-go' {
     dependency 'REL-9D94DC74E173ED32' from 'FU-MCP-SERVER' to 'IF-GO-PKG-MODEL';
 
     @EngineeringRelationship {
+        sourceId = "REL-9F5AB27C35C483CA";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-9F5AB27C35C483CA' from 'scan-source-files' to 'FU-CODE-HEALTH';
+
+    @EngineeringRelationship {
         sourceId = "REL-9F9D0BFE4684AB66";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -9490,6 +9614,13 @@ package 'engineering-model-go' {
         relationshipKind = "flow_ref";
     }
     dependency 'REL-DC6460FC5BE9218B' from 'report-compare-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-DF94F9A8117C885D";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-DF94F9A8117C885D' from 'check-changed-files' to 'FU-CODE-HEALTH';
 
     @EngineeringRelationship {
         sourceId = "REL-E2206AEE7E2B4601";

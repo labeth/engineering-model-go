@@ -100,8 +100,8 @@ func checkEngine(opts CheckOptions, bundle model.Bundle, root string) *health.Wa
 // outside the project, no git work tree, an invalid or unavailable revision) is
 // an error and never a result: the caller must not treat it as a pass.
 //
-// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158, REQ-EMG-159
-// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158, REQ-EMG-159, REQ-EMG-210
+// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH, FLOW-HEALTH-CHECK, EVT-HEALTH-CHECK-REQUESTED
 func Check(opts CheckOptions) (health.CheckReport, error) {
 	bundle, tier, root, scope, err := checkSetup(opts)
 	if err != nil {
@@ -113,6 +113,10 @@ func Check(opts CheckOptions) (health.CheckReport, error) {
 	}
 	h := bundle.Manifest.Health
 	waiving := checkEngine(opts, bundle, root)
+	baseline, _, err := loadBaseline(bundle, nil, false)
+	if err != nil {
+		return health.CheckReport{}, err
+	}
 	delta, err := health.Check(health.CheckOptions{
 		Repo: repo, Base: opts.Base, Head: opts.Head, Paths: scope,
 		Engine:    waiving,
@@ -120,6 +124,8 @@ func Check(opts CheckOptions) (health.CheckReport, error) {
 		Scorer:    health.ScoreFile,
 		Exclude:   outOfScope(bundle, root),
 		Tier:      tier,
+		Floor:     model.EffectiveHealthFloor(h),
+		Baseline:  baseline,
 	})
 	if err != nil {
 		return health.CheckReport{}, err

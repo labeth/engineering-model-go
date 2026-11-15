@@ -64,6 +64,13 @@ type Summary struct {
 	Baselined int `json:"baselined,omitempty"`
 	Errors    int `json:"errors"`
 	Warnings  int `json:"warnings"`
+	// BelowFloor counts the files whose score is below the floor of the
+	// report and FloorCovered those of them that the baseline covers
+	// (ADR-EMG-087); the others are health.file_below_floor diagnostics. Both
+	// are absent without a floor, and FloorCovered is the number of baselined
+	// files that can still be burned down to the floor.
+	BelowFloor   int `json:"belowFloor,omitempty"`
+	FloorCovered int `json:"floorCovered,omitempty"`
 }
 
 // Report is the code health report.
@@ -74,6 +81,9 @@ type Report struct {
 	// absent for a project without one. Bundles are its assurance bundles.
 	Tier    string   `json:"tier,omitempty"`
 	Bundles []string `json:"bundles,omitempty"`
+	// Floor is the lowest file score that needs no baseline cover
+	// (ADR-EMG-087); absent when the report was made without one.
+	Floor float64 `json:"floor,omitempty"`
 	// Levels is the level ("error" or "warning") of each code at Tier, from
 	// the tier policy of the model. A code missing from it is a warning.
 	Levels map[string]string `json:"levels,omitempty"`
@@ -96,6 +106,10 @@ type Options struct {
 	Bundles       []string
 	// Levels is the level of each code at the tier (see Levels).
 	Levels map[string]string
+	// Floor is the score every file needs unless the baseline covers it
+	// (ADR-EMG-087); 0 asks for no floor, which a caller that builds a report
+	// by hand may want and the scan never does (see model.EffectiveHealthFloor).
+	Floor float64
 	// Waivers are applied to the results before scoring.
 	Waivers []model.HealthWaiver
 	// Baseline are the entries of the baseline file, already limited to the
@@ -126,7 +140,7 @@ func (r Report) LevelOf(code string) string {
 // marks the baselined findings, rolls the scores up and counts the findings by
 // their level. The result is sorted by path and holds no timestamp.
 //
-// TRLC-LINKS: REQ-EMG-151, REQ-EMG-152, REQ-EMG-154, REQ-EMG-155, REQ-EMG-157, REQ-EMG-159
+// TRLC-LINKS: REQ-EMG-151, REQ-EMG-152, REQ-EMG-154, REQ-EMG-155, REQ-EMG-157, REQ-EMG-159, REQ-EMG-209
 // ENGMODEL-LINKS: FU-CODE-HEALTH
 func BuildReport(results []FileResult, opts Options) Report {
 	scorer := opts.Scorer
@@ -139,7 +153,7 @@ func BuildReport(results []FileResult, opts Options) Report {
 	r := Report{
 		Schema: ReportSchema,
 		Engine: EngineInfo{Name: opts.EngineName, Version: opts.EngineVersion, ScoringVersion: ScoringVersion, Weights: Weights()},
-		Tier:   opts.Tier, Bundles: opts.Bundles, Levels: opts.Levels,
+		Tier:   opts.Tier, Bundles: opts.Bundles, Floor: opts.Floor, Levels: opts.Levels,
 		Files: make([]FileReport, 0, len(kept)), Waived: waived, Diagnostics: []Diagnostic{},
 	}
 	if r.Waived == nil {
@@ -161,7 +175,7 @@ func BuildReport(results []FileResult, opts Options) Report {
 	r.Baselined = applied.baselined
 	staleEntries := applied.stale
 	annotateGrown(r.Files, applied.grown)
-	r.Diagnostics = append(r.Diagnostics, opts.Diagnostics...)
+	r.Diagnostics = append(append(r.Diagnostics, opts.Diagnostics...), floorDiagnostics(r.Files, floorPolicy{opts.Floor, BaselineCovered(kept, opts.Baseline), r.LevelOf(CodeFileBelowFloor)})...)
 	for _, res := range kept {
 		if res.SyntaxErrors > 0 {
 			r.Diagnostics = append(r.Diagnostics, syntaxDiagnostic(res, r.LevelOf(CodeSyntaxError)))
@@ -242,6 +256,7 @@ func (r Report) Summarize() Summary {
 			s.Warnings++
 		}
 	}
+	s.BelowFloor, s.FloorCovered = r.floorCounts()
 	return s
 }
 

@@ -118,7 +118,7 @@ func checkVerdict(report engmodel.HealthCheckReport, textOnStdout bool, stderr i
 		return exitOK
 	}
 	if !textOnStdout {
-		fmt.Fprint(stderr, regressionLines(report), failureLines(report))
+		fmt.Fprint(stderr, regressionLines(report), floorLines(report), failureLines(report))
 	}
 	fmt.Fprintf(stderr, "enghealth check: %s\n", failureSummary(report))
 	return exitFail
@@ -135,6 +135,9 @@ func failureSummary(r engmodel.HealthCheckReport) string {
 	}
 	if n := skippedErrors(r); n > 0 {
 		parts = append(parts, fmt.Sprintf("%d changed file(s) were skipped and were not analysed", n))
+	}
+	if n := floorErrors(r); n > 0 {
+		parts = append(parts, fmt.Sprintf("%d changed file(s) are below the floor and no baseline entry covers them", n))
 	}
 	if n := policyErrors(r); n > 0 {
 		parts = append(parts, fmt.Sprintf("%d weakening(s) of the health policy against the base revision are not recorded by a policyDecision", n))
@@ -153,6 +156,17 @@ func skippedErrors(r engmodel.HealthCheckReport) int {
 	return len(r.Skipped)
 }
 
+// floorErrors counts the changed files below the floor that no baseline entry
+// covers when that is an error at the tier.
+//
+// TRLC-LINKS: REQ-EMG-210
+func floorErrors(r engmodel.HealthCheckReport) int {
+	if r.FloorLevel != "error" {
+		return 0
+	}
+	return len(r.BelowFloor)
+}
+
 // policyErrors counts the weakenings of the health policy that fail the report.
 //
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-158
@@ -161,6 +175,28 @@ func policyErrors(r engmodel.HealthCheckReport) int {
 		return 0
 	}
 	return len(r.Policy)
+}
+
+// floorLines lists the changed files below the floor, one per line.
+//
+// TRLC-LINKS: REQ-EMG-210
+func floorLines(r engmodel.HealthCheckReport) string {
+	var b strings.Builder
+	for _, f := range r.BelowFloor {
+		fmt.Fprintf(&b, "  %s\n", safeText(f.Message()))
+	}
+	return b.String()
+}
+
+// floorSection is the text section of the changed files below the floor, or
+// nothing when there is none.
+//
+// TRLC-LINKS: REQ-EMG-210
+func floorSection(r engmodel.HealthCheckReport) string {
+	if len(r.BelowFloor) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("\nfiles below the floor (%d, %s at tier %s):\n%s", len(r.BelowFloor), r.FloorLevel, tierName(r.Tier), floorLines(r))
 }
 
 // failureLines lists the skipped files and the policy weakenings, one per line.
@@ -248,6 +284,9 @@ func findingKinds(r engmodel.HealthCheckReport) []string {
 	if len(r.Skipped) > 0 {
 		kinds = append(kinds, "skipped files")
 	}
+	if len(r.BelowFloor) > 0 {
+		kinds = append(kinds, "files below the floor")
+	}
 	if len(r.Policy) > 0 {
 		kinds = append(kinds, "policy weakenings")
 	}
@@ -260,8 +299,8 @@ func findingKinds(r engmodel.HealthCheckReport) []string {
 func verdictText(r engmodel.HealthCheckReport) string {
 	switch {
 	case r.Failed:
-		return "result: FAIL, a regression, a skipped file or an unrecorded policy weakening is an error at this tier\n"
-	case len(r.Blocking) > 0 || len(r.Skipped) > 0 || len(r.Policy) > 0:
+		return "result: FAIL, a regression, a skipped file, a file below the floor or an unrecorded policy weakening is an error at this tier\n"
+	case len(findingKinds(r)) > 0:
 		return "result: ok, the " + strings.Join(findingKinds(r), " and the ") + " only warn at this tier or are recorded by a decision\n"
 	}
 	return "result: ok, no regressions\n"
@@ -288,6 +327,7 @@ func renderCheckText(r engmodel.HealthCheckReport) string {
 		fmt.Fprintf(&b, "\nregressions (%d, %s at tier %s):\n", len(r.Blocking), r.RegressionLevel, tierName(r.Tier))
 		b.WriteString(regressionLines(r))
 	}
+	b.WriteString(floorSection(r))
 	if len(r.Skipped) > 0 || len(r.Policy) > 0 {
 		fmt.Fprintf(&b, "\nskipped files (%s at tier %s) and policy weakenings (%s):\n", r.RegressionLevel, tierName(r.Tier), r.PolicyLevel)
 		b.WriteString(failureLines(r))

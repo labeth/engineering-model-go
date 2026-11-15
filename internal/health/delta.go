@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // DeltaSchema is the schema string of the delta report.
@@ -113,6 +114,10 @@ type DeltaReport struct {
 	// Skipped are the changed files at head that were not analysed because
 	// they are too large or not regular files.
 	Skipped []SkippedFile `json:"skipped"`
+	// BelowFloor are the changed files at head whose score is below the floor
+	// and that no baseline entry covers (health.file_below_floor, ADR-EMG-087);
+	// absent when there is none, or when the check was given no floor.
+	BelowFloor []FloorFile `json:"belowFloor,omitempty"`
 }
 
 // CheckOptions configures Check.
@@ -140,6 +145,12 @@ type CheckOptions struct {
 	// Tier is the life-cycle tier; it selects the default thresholds when
 	// ConfigFor is nil and is echoed in the report.
 	Tier string
+	// Floor is the score every changed file at head needs unless the baseline
+	// covers it (ADR-EMG-087); 0 or a nil Scorer asks for no floor. Baseline
+	// holds the entries that cover a file; a regression is still never
+	// baselined.
+	Floor    float64
+	Baseline []model.HealthBaselineEntry
 }
 
 // LanguageOf returns the language of a path by its extension (the mapping of
@@ -249,11 +260,45 @@ func Check(opts CheckOptions) (DeltaReport, error) {
 	rep.Entries = compareFiles(files)
 	rep.Files = c.fileDeltas(files)
 	rep.Blocking = Regressions(DeltaReport{Entries: rep.Entries})
+	rep.BelowFloor = c.belowFloor(files)
 	sort.Strings(c.notes)
 	rep.Notes = append([]string{}, c.notes...)
 	sort.Slice(c.skipped, func(i, j int) bool { return c.skipped[i].Path < c.skipped[j].Path })
 	rep.Skipped = append([]SkippedFile{}, c.skipped...)
 	return rep, nil
+}
+
+// belowFloor lists the head files whose score is below the floor and that the
+// baseline does not cover, sorted by path (the files are).
+//
+// TRLC-LINKS: REQ-EMG-210
+func (c *checker) belowFloor(files []*deltaFile) []FloorFile {
+	if c.opts.Scorer == nil || c.opts.Floor <= 0 {
+		return nil
+	}
+	var out []FloorFile
+	for _, f := range files {
+		if f.head == nil {
+			continue
+		}
+		if file, below := c.floorFile(f.head); below {
+			out = append(out, file)
+		}
+	}
+	return out
+}
+
+// floorFile describes a head file whose score is below the floor and that the
+// baseline does not cover; false for any other file.
+//
+// TRLC-LINKS: REQ-EMG-210
+func (c *checker) floorFile(head *FileResult) (FloorFile, bool) {
+	score := c.opts.Scorer(*head)
+	if !BelowFloor(score.Score, c.opts.Floor) || BaselineCovered([]FileResult{*head}, c.opts.Baseline)[head.Path] {
+		return FloorFile{}, false
+	}
+	report := FileReport{Path: head.Path, Score: score.Score, Deductions: score.Deductions, Functions: head.Functions}
+	return NewFloorFile(report, c.opts.Floor), true
 }
 
 // listNewSyntaxErrors lists a head file the parser only partly read, when the

@@ -1029,6 +1029,8 @@ with `requirementLinks: strict`):
 | `health.duplicated_assertion_block` with safety | W | W | E | E | E |
 | `health.excess_arguments` | W | W | W | E | E |
 | `health.excess_arguments` with safety | W | W | E | E | E |
+| `health.file_below_floor` | W | W | W | E | E |
+| `health.file_below_floor` with safety | W | W | E | E | E |
 | `health.large_assertion_block` | W | W | W | E | E |
 | `health.large_assertion_block` with safety | W | W | E | E | E |
 | `health.large_method` | W | W | W | E | E |
@@ -1077,6 +1079,7 @@ health:
   baseline:                                    # accept all existing debt on an accepted decision
     {file: model/health-baseline.json, decision: ADR-DEBT-BASELINE}
   policyDecision: ADR-RAISE-LIMITS             # records a weakening of this very block (see below)
+  floor: 10.0                                  # the file score that needs no baseline cover (default 10.0, see below)
 ```
 
 Every key is optional. `thresholds` and `overrides[].thresholds` accept only the smell codes with
@@ -1131,6 +1134,25 @@ decision of a baseline is missing or not accepted; untiered, as for a waiver), `
 (the file is missing, not valid JSON, not `engmod-health-baseline/1` or holds an invalid entry; untiered,
 read by validation through the format of `internal/model`) and `model.invalid_health_baseline` (an empty or
 unclean file path, or no decision). A missing or malformed file is a setup error (exit 2) for `enghealth`.
+
+**The floor: every file scores 10.0.** The owner's rule for the two highest tiers is that every source file scores
+10.0, the highest score, in the scan (ADR-EMG-087). `health.file_below_floor` is reported for each file, tests
+included, whose score is below the floor and that no baseline entry covers; it is a warning at poc, prototype and
+mvp and an error at product and operational (row `WWWEE`, `WWEEE` with the safety bundle, a warning without a tier).
+The baseline is therefore the explicit, shrinking list of exceptions: a *new* file, or a file with no baseline
+entry, has to be clean at once, and with an empty baseline every file has to score 10.0. A file is *covered* when
+at least one baseline entry (path, function and code) names a finding of it that the scan found, whatever its value
+is against the recorded one; an entry that matches no finding covers nothing (it is `health.baseline_stale`). A
+waiver covers a file through the score: a waived finding is removed before scoring, so a file whose every finding
+is waived scores 10.0. The message names the file, its score, the floor, the three largest deductions with
+function and line (`and N more` for the rest) and the fix; the report (`floor` and `summary.belowFloor`,
+`summary.floorCovered`) says how many files are below the floor and how many of them the baseline covers, which is
+the number left to burn down. `health.floor` (a number from 1.0 to 10.0, `model.invalid_health_floor` outside it)
+lowers the floor; it is a policy weakening like a raised limit (`health.policy_weakened` against the base revision,
+a warning below product, an error from product unless a `policyDecision` records it), and a floor above 10.0 does
+not exist. No POA&M item can defer `health.file_below_floor`. The rule adds to the findings of the scan the one
+thing they lack: a named gate on the whole file, which `enghealth check` also applies to the changed files (below),
+where a new or worsened *warn* finding is no regression.
 
 **The policy is defined by the pull request.** A change can raise a threshold, widen `health.exclude` or an
 override, or lower the tier, and the weakened configuration then applies to both sides of a delta. So
@@ -1264,7 +1286,7 @@ does not conform), which is never a pass. `enghealth check` has its own rules (b
 **Tiers.** Severity follows the tier policy of `engdoc` (`ValidateBundle` uses the same table): every
 smell code is a warning up to mvp and an error at product and operational (from mvp with the safety
 bundle), `lifecycle.raise: [health.*]` makes them errors at any tier, and a project without a tier gets
-warnings. At product and operational the scan also applies stricter default limits (complex_method 8 and
+warnings. `health.file_below_floor` (a file below 10.0 that no baseline entry covers) has the same row. At product and operational the scan also applies stricter default limits (complex_method 8 and
 15, large_method 50 and 100, deep_nesting 3 and 4, bumpy_road 2 and 3, complex_conditional 3 and 5,
 excess_arguments 4 and 6, large_assertion_block 5 and 8; ADR-EMG-059); below product the defaults apply
 (10 and 20, 70 and 120, 4 and 5, 2 and 3, 3 and 5, 5 and 7, 6 and 10). A `health.thresholds` entry or an
@@ -1309,6 +1331,13 @@ unless `--cache`, refused while `.engmod` is tracked, off with `--no-cache`). Th
 reads only the model, git and the changed files; it does not build the roll-ups, so it takes about 0.3 s
 on a one-file change with a warm cache.
 
+**The floor in the check.** `enghealth check` also evaluates `health.file_below_floor` for the changed source files
+at the head: a file that gets below the floor, or is new below it, with no baseline entry covering it (the baseline
+of the head manifest is read for this only; a regression is still never baselined) is listed under `belowFloor` in
+the JSON report, as a SARIF result of the rule `health.file_below_floor`, and fails the check where the code is an
+error (product and operational; from mvp with the safety bundle). A changed file that was already below the floor at
+the base and is not covered fails like a new one.
+
 **Level and exit codes.** Whether a regression fails the gate follows the tier policy like any other code:
 `health.regression` is a warning below product and an error from product (from mvp with the safety bundle;
 `lifecycle.raise` is honoured). Exit 0: no regression, or only regressions that are warnings at the
@@ -1317,7 +1346,8 @@ tier. Exit 1: at least one regression that is an error at the tier; each is prin
 a *changed* source file was skipped (above 4 MiB, the same cap for the work tree and for `--head REV`, or
 not a regular file) or has syntax errors the change brought in (the parser lost functions) at a tier where a regression is an error, since its findings are unknown, and when the
 policy is weakened against the base revision without a recorded `policyDecision` where
-`health.policy_weakened` is an error (see above). Exit 2: a setup
+`health.policy_weakened` is an error (see above), and when a changed file is below the floor with no baseline
+cover where `health.file_below_floor` is an error. Exit 2: a setup
 error, never a pass: the model does not load, an unknown tier, a path outside the project or a bad
 flag or format, the project is not in a git work tree, an invalid revision, or a base revision that is not
 available (an unknown name, or a shallow clone that lacks it; the message says to fetch more history, for
@@ -1332,12 +1362,13 @@ control character is refused (exit 2).
 regressions, the counts of new, worsened, existing and waived findings, the verdict). `json` is the delta
 report `engmod-health-delta/1` (base and head commits, notes, files, all entries, the blocking entries and
 the skipped files) plus `levels`, `regressionLevel`, `counts`, `waived`, `policyWeakened`, `policyLevel`,
-`policyDecision` and `failed`; it is sorted, canonical and without
+`policyDecision`, `belowFloor`, `floorLevel` and `failed`; it is sorted, canonical and without
 timestamps or absolute paths, so two runs are byte-identical. `sarif` is SARIF 2.1.0 with the regressions
 as its results (rule `health.regression`, the level it has at the tier, the smell code in the
 `properties` of the result; the artifact `uri` is the repository-relative path with each segment
 percent-encoded, for example `app/%5Bid%5D.tsx`; plus `health.file_skipped` for each skipped changed file and
-`health.policy_weakened` for each unrecorded weakening, their rules present only when there are results). With `--out` the failure is still printed on stderr.
+`health.policy_weakened` for each unrecorded weakening and `health.file_below_floor` for each changed file below the floor
+that no baseline entry covers, their rules present only when there are results). With `--out` the failure is still printed on stderr.
 
 The same engine is available in Go as `ScanHealth`, `CheckHealth`, `ImportHealthReport`,
 `EncodeHealthReport`, `EncodeHealthCheck`, `HealthSARIF` and `HealthCheckSARIF`.

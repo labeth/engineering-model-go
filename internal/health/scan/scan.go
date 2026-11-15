@@ -76,8 +76,8 @@ type Options struct {
 // excludes. The report is deterministic: sorted by path, no timestamp and no
 // absolute path.
 //
-// TRLC-LINKS: REQ-EMG-150, REQ-EMG-151, REQ-EMG-152, REQ-EMG-153, REQ-EMG-154, REQ-EMG-155, REQ-EMG-157, REQ-EMG-158, REQ-EMG-159, REQ-EMG-160
-// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-151, REQ-EMG-152, REQ-EMG-153, REQ-EMG-154, REQ-EMG-155, REQ-EMG-157, REQ-EMG-158, REQ-EMG-159, REQ-EMG-160, REQ-EMG-209
+// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH, FLOW-HEALTH-SCAN, EVT-HEALTH-SCAN-REQUESTED
 func Scan(opts Options) (health.Report, error) {
 	bundle, err := model.LoadBundle(opts.ManifestPath)
 	if err != nil {
@@ -138,7 +138,7 @@ func Scan(opts Options) (health.Report, error) {
 	}
 	return health.BuildReport(results, health.Options{
 		EngineName: engine.Name(), EngineVersion: engine.Version(),
-		Tier: tier, Bundles: bundles, Levels: levels,
+		Tier: tier, Bundles: bundles, Levels: levels, Floor: model.EffectiveHealthFloor(h),
 		Waivers: waivers, Baseline: baseline, Owners: owners, Links: links, Diagnostics: diags,
 	}), nil
 }

@@ -121,12 +121,13 @@ func WithTier(b model.Bundle, tier string) model.Bundle {
 // without a lifecycle tier gets "warning" for every code. The codes
 // health.file_skipped, health.file_failed, health.syntax_error and
 // health.rollup_unavailable (what the analysis could not see) have the level
-// of health.regression.
+// of health.regression. health.file_below_floor (ADR-EMG-087) has a row of its
+// own, like the waiver and baseline codes.
 //
 // TRLC-LINKS: REQ-EMG-155
 // ENGMODEL-LINKS: FU-CODE-HEALTH
 func Levels(b model.Bundle) map[string]string {
-	codes := append(Codes(), model.HealthWaiverUnusedCode, model.HealthBaselineStaleCode)
+	codes := append(Codes(), model.HealthWaiverUnusedCode, model.HealthBaselineStaleCode, CodeFileBelowFloor)
 	diags := make([]validate.Diagnostic, len(codes))
 	for i, code := range codes {
 		diags[i] = validate.Diagnostic{Code: code, Severity: validate.SeverityWarning}

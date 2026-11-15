@@ -7346,27 +7346,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ENABLED",
           "path": "internal/model/types.go",
-          "line": 980
+          "line": 985
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFCONCERN",
           "path": "internal/model/types.go",
-          "line": 994
+          "line": 999
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 1003
+          "line": 1008
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPROFILE",
           "path": "internal/model/types.go",
-          "line": 969
+          "line": 974
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFSTAKEHOLDER",
           "path": "internal/model/types.go",
-          "line": 987
+          "line": 992
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -7448,7 +7448,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--NAFPRODUCT",
           "path": "internal/model/types.go",
-          "line": 1003
+          "line": 1008
         }
       ],
       "verifications": [
@@ -7619,32 +7619,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 777
+          "line": 782
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 875
+          "line": 880
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 854
+          "line": 859
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 882
+          "line": 887
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 926
+          "line": 931
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 952
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7654,12 +7654,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 943
+          "line": 948
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 266
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MODULEIDENTITY",
@@ -7669,7 +7669,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 889
+          "line": 894
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--AVIATIONSCHEMAVERSION",
@@ -7852,32 +7852,32 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ARCHITECTUREINPUTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 777
+          "line": 782
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ASSURANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 875
+          "line": 880
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--BEHAVIORDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 854
+          "line": 859
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--COMPLIANCEDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 882
+          "line": 887
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTCONTROL",
           "path": "internal/model/types.go",
-          "line": 926
+          "line": 931
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTDEFINITION",
           "path": "internal/model/types.go",
-          "line": 952
+          "line": 957
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTREFERENCES",
@@ -7887,17 +7887,17 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--DOCUMENTSECTION",
           "path": "internal/model/types.go",
-          "line": 943
+          "line": 948
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 266
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--VIEWSDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 889
+          "line": 894
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-SCHEMA-V2-BUNDLE-GO--SCHEMAV2BUNDLE",
@@ -8119,7 +8119,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 266
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTPUBLICATION",
@@ -8134,7 +8134,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1095
+          "line": 1100
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--READCUEMODULEPATH",
@@ -8551,7 +8551,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1123
+          "line": 1128
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -8561,7 +8561,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 266
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTPUBLICATION",
@@ -8571,12 +8571,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 1134
+          "line": 1139
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1095
+          "line": 1100
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-WORKSPACE-GO--LOADWORKSPACE",
@@ -9212,7 +9212,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1123
+          "line": 1128
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDEPENDENCY",
@@ -9222,7 +9222,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTDOCUMENT",
           "path": "internal/model/types.go",
-          "line": 266
+          "line": 271
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTPUBLICATION",
@@ -9232,12 +9232,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SATISFACTION",
           "path": "internal/model/types.go",
-          "line": 1134
+          "line": 1139
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--SUBSYSTEM",
           "path": "internal/model/types.go",
-          "line": 1095
+          "line": 1100
         },
         {
           "symbol": "CODE-INTERNAL-TESTUTIL-FILES-GO--WRITEFILE",
@@ -12346,7 +12346,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CONTRACTASSUMPTION",
           "path": "internal/model/types.go",
-          "line": 1066
+          "line": 1071
         },
         {
           "symbol": "CODE-INTERNAL-REQLINKS-REQLINKS-GO--ITEMSFROMBUNDLE",
@@ -14794,7 +14794,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVETIER",
           "path": "internal/validate/tier_policy.go",
-          "line": 340
+          "line": 344
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -14927,7 +14927,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--CONSISTENCYREMEDY",
           "path": "internal/validate/remedies.go",
-          "line": 199
+          "line": 203
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--REMEDYFOR",
@@ -14957,82 +14957,82 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLY",
           "path": "internal/validate/tier_policy.go",
-          "line": 490
+          "line": 494
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYROW",
           "path": "internal/validate/tier_policy.go",
-          "line": 504
+          "line": 508
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 440
+          "line": 444
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICYAT",
           "path": "internal/validate/tier_policy.go",
-          "line": 458
+          "line": 462
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--CORECODES",
           "path": "internal/validate/tier_policy.go",
-          "line": 184
+          "line": 188
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVETIER",
           "path": "internal/validate/tier_policy.go",
-          "line": 340
+          "line": 344
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ISCORECODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 225
+          "line": 229
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--LETTERSEVERITY",
           "path": "internal/validate/tier_policy.go",
-          "line": 247
+          "line": 251
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--LINE",
           "path": "internal/validate/tier_policy.go",
-          "line": 525
+          "line": 529
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--MATCHCODEPATTERN",
           "path": "internal/validate/tier_policy.go",
-          "line": 237
+          "line": 241
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--RAISED",
           "path": "internal/validate/tier_policy.go",
-          "line": 366
+          "line": 370
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--REQUIREDFROM",
           "path": "internal/validate/tier_policy.go",
-          "line": 269
+          "line": 273
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ROWSEVERITIES",
           "path": "internal/validate/tier_policy.go",
-          "line": 259
+          "line": 263
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERKEYED",
           "path": "internal/validate/tier_policy.go",
-          "line": 330
+          "line": 334
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 283
+          "line": 287
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERPOLICYMARKDOWN",
           "path": "internal/validate/tier_policy.go",
-          "line": 303
+          "line": 307
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--AVIATIONSCHEMAVERSION",
@@ -15158,17 +15158,17 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLY",
           "path": "internal/validate/tier_policy.go",
-          "line": 490
+          "line": 494
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 440
+          "line": 444
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICYAT",
           "path": "internal/validate/tier_policy.go",
-          "line": 458
+          "line": 462
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -15219,27 +15219,27 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLY",
           "path": "internal/validate/tier_policy.go",
-          "line": 490
+          "line": 494
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYROW",
           "path": "internal/validate/tier_policy.go",
-          "line": 504
+          "line": 508
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 440
+          "line": 444
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICYAT",
           "path": "internal/validate/tier_policy.go",
-          "line": 458
+          "line": 462
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--EFFECTIVEREQUIREMENTLINKMODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 356
+          "line": 360
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--EFFECTIVEREQUIREMENTLINKMODE",
@@ -15386,87 +15386,87 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ACTIVEPOAMITEMS",
           "path": "internal/validate/tier_policy.go",
-          "line": 566
+          "line": 570
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLY",
           "path": "internal/validate/tier_policy.go",
-          "line": 490
+          "line": 494
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYDEFER",
           "path": "internal/validate/tier_policy.go",
-          "line": 538
+          "line": 542
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICY",
           "path": "internal/validate/tier_policy.go",
-          "line": 440
+          "line": 444
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--APPLYTIERPOLICYAT",
           "path": "internal/validate/tier_policy.go",
-          "line": 458
+          "line": 462
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ASOF",
           "path": "internal/validate/tier_policy.go",
-          "line": 420
+          "line": 424
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--DEFERMATCHES",
           "path": "internal/validate/tier_policy.go",
-          "line": 618
+          "line": 622
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--DEFERRABLE",
           "path": "internal/validate/tier_policy.go",
-          "line": 550
+          "line": 554
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--HONOURSDEFERS",
           "path": "internal/validate/tier_policy.go",
-          "line": 581
+          "line": 585
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ISCORECODE",
           "path": "internal/validate/tier_policy.go",
-          "line": 225
+          "line": 229
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--ISNONDEFERRABLE",
           "path": "internal/validate/tier_policy.go",
-          "line": 213
+          "line": 217
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--NONDEFERRABLECODES",
           "path": "internal/validate/tier_policy.go",
-          "line": 206
+          "line": 210
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--PATHUNDERREQUIREMENT",
           "path": "internal/validate/tier_policy.go",
-          "line": 636
+          "line": 640
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--POAMCOMPLETED",
           "path": "internal/validate/tier_policy.go",
-          "line": 590
+          "line": 594
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--POAMDEFERS",
           "path": "internal/validate/tier_policy.go",
-          "line": 655
+          "line": 659
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--POAMOVERDUE",
           "path": "internal/validate/tier_policy.go",
-          "line": 598
+          "line": 602
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--SETASOF",
           "path": "internal/validate/tier_policy.go",
-          "line": 406
+          "line": 410
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--APPLYTIERPOLICY",
@@ -15507,12 +15507,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--RENDERSDESPITE",
           "path": "internal/validate/tier_policy.go",
-          "line": 385
+          "line": 389
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-TIER-POLICY-GO--TIERKEYED",
           "path": "internal/validate/tier_policy.go",
-          "line": 330
+          "line": 334
         },
         {
           "symbol": "CODE-VALIDATE-API-GO--RENDERSDESPITE",
@@ -15774,27 +15774,27 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINE",
           "path": "internal/model/types.go",
-          "line": 796
+          "line": 801
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINEINVARIANT",
           "path": "internal/model/types.go",
-          "line": 845
+          "line": 850
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINESTATE",
           "path": "internal/model/types.go",
-          "line": 818
+          "line": 823
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINETRANSITION",
           "path": "internal/model/types.go",
-          "line": 830
+          "line": 835
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MACHINEVARIABLE",
           "path": "internal/model/types.go",
-          "line": 810
+          "line": 815
         }
       ],
       "verifications": [
@@ -16380,7 +16380,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--STATE",
           "path": "internal/model/types.go",
-          "line": 534
+          "line": 539
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-VALIDATE-GO--BUNDLE",
@@ -18162,7 +18162,7 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--SYNTAXDIAGNOSTIC",
           "path": "internal/health/report.go",
-          "line": 203
+          "line": 217
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--FILEDIAGNOSTIC",
@@ -18253,7 +18253,7 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
           "path": "internal/health/report.go",
-          "line": 131
+          "line": 145
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
@@ -18361,7 +18361,7 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
           "path": "internal/health/report.go",
-          "line": 131
+          "line": 145
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-ROLLUP-GO--AGGREGATE",
@@ -18504,7 +18504,7 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--OUTOFSCOPE",
           "path": "internal/health/scan/check.go",
-          "line": 297
+          "line": 303
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--LISTSOURCES",
@@ -18587,44 +18587,49 @@
           "line": 182
         },
         {
+          "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--EFFECTIVEHEALTHFLOOR",
+          "path": "internal/model/health.go",
+          "line": 53
+        },
+        {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHPOLICY",
           "path": "internal/model/health.go",
-          "line": 75
+          "line": 97
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHSMELLCODES",
           "path": "internal/model/health.go",
-          "line": 51
+          "line": 73
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHTHRESHOLDCODES",
           "path": "internal/model/health.go",
-          "line": 41
+          "line": 63
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--ISHEALTHTHRESHOLDCODE",
           "path": "internal/model/health.go",
-          "line": 61
+          "line": 83
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--PARSEHEALTHPOLICY",
           "path": "internal/model/health.go",
-          "line": 86
+          "line": 108
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHBASELINE",
           "path": "internal/model/types.go",
-          "line": 209
+          "line": 214
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHOVERRIDE",
           "path": "internal/model/types.go",
-          "line": 224
+          "line": 229
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHTHRESHOLD",
           "path": "internal/model/types.go",
-          "line": 217
+          "line": 222
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTHEALTH",
@@ -18634,27 +18639,32 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--ACCEPTEDHEALTHPOLICYDECISION",
           "path": "internal/validate/health_config.go",
-          "line": 104
+          "line": 106
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDECISIONPROBLEM",
           "path": "internal/validate/health_config.go",
-          "line": 123
+          "line": 125
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDIAGNOSTICS",
           "path": "internal/validate/health_config.go",
-          "line": 156
+          "line": 171
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHDIAGNOSTICS",
           "path": "internal/validate/health_config.go",
-          "line": 36
+          "line": 38
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHFLOORDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 144
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHTHRESHOLDDIAGNOSTICS",
           "path": "internal/validate/health_config.go",
-          "line": 201
+          "line": 216
         }
       ],
       "verifications": [
@@ -18663,6 +18673,7 @@
         "VER-INF-TEST-BASELINE_TEST-FD5D93",
         "VER-INF-TEST-CHECK_TEST-C6CAB5",
         "VER-INF-TEST-CONFIG_TEST-B6646E",
+        "VER-INF-TEST-FLOOR_TEST-76F951",
         "VER-INF-TEST-HEALTH_BASELINE_TEST-6C7156",
         "VER-INF-TEST-HEALTH_BASELINE_TEST-DE6BE9",
         "VER-INF-TEST-HEALTH_CONFIG_TEST-AF362C",
@@ -18689,27 +18700,27 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ANALYZE",
           "path": "internal/health/check.go",
-          "line": 297
+          "line": 347
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--NAME",
           "path": "internal/health/check.go",
-          "line": 287
+          "line": 337
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--VERSION",
           "path": "internal/health/check.go",
-          "line": 292
+          "line": 342
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--WAIVED",
           "path": "internal/health/check.go",
-          "line": 321
+          "line": 371
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
           "path": "internal/health/report.go",
-          "line": 131
+          "line": 145
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECKENGINE",
@@ -18764,22 +18775,22 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHSMELLCODES",
           "path": "internal/model/health.go",
-          "line": 51
+          "line": 73
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--ISHEALTHSMELLCODE",
           "path": "internal/model/health.go",
-          "line": 67
+          "line": 89
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHBASELINE",
           "path": "internal/model/types.go",
-          "line": 209
+          "line": 214
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--HEALTHWAIVER",
           "path": "internal/model/types.go",
-          "line": 232
+          "line": 237
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--MANIFESTHEALTH",
@@ -18789,27 +18800,27 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--ACCEPTEDHEALTHWAIVERS",
           "path": "internal/validate/health_config.go",
-          "line": 234
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDECISIONPROBLEM",
           "path": "internal/validate/health_config.go",
-          "line": 123
+          "line": 125
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDIAGNOSTICS",
           "path": "internal/validate/health_config.go",
-          "line": 156
+          "line": 171
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHDIAGNOSTICS",
           "path": "internal/validate/health_config.go",
-          "line": 36
+          "line": 38
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--WAIVERDECISIONPROBLEM",
           "path": "internal/validate/health_config.go",
-          "line": 188
+          "line": 203
         }
       ],
       "verifications": [
@@ -18843,7 +18854,7 @@
         {
           "symbol": "CODE-API-HEALTH-GO--CHECKHEALTH",
           "path": "api_health.go",
-          "line": 187
+          "line": 195
         },
         {
           "symbol": "CODE-API-HEALTH-GO--RELEVELHEALTHREPORT",
@@ -18853,7 +18864,7 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURELINES",
           "path": "cmd/enghealth/check.go",
-          "line": 169
+          "line": 205
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURESUMMARY",
@@ -18863,12 +18874,12 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--POLICYERRORS",
           "path": "cmd/enghealth/check.go",
-          "line": 159
+          "line": 173
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-TEXT-GO--FINDINGLEVEL",
           "path": "cmd/enghealth/text.go",
-          "line": 74
+          "line": 86
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-BASELINE-GO--ANNOTATEGROWN",
@@ -18903,22 +18914,22 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDPOLICYRESULTS",
           "path": "internal/health/check.go",
-          "line": 251
+          "line": 274
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--BLOCKS",
           "path": "internal/health/check.go",
-          "line": 122
+          "line": 127
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--CHECKLEVELS",
           "path": "internal/health/check.go",
-          "line": 81
+          "line": 86
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REGRESSIONLEVELOF",
           "path": "internal/health/check.go",
-          "line": 72
+          "line": 77
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--CONFIGFOR",
@@ -18928,12 +18939,12 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--LEVELS",
           "path": "internal/health/config.go",
-          "line": 128
+          "line": 129
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--RELEVEL",
           "path": "internal/health/config.go",
-          "line": 162
+          "line": 163
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--WITHTIER",
@@ -18943,7 +18954,7 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--LISTNEWSYNTAXERRORS",
           "path": "internal/health/delta.go",
-          "line": 266
+          "line": 311
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--SYNTAXERRORS",
@@ -19118,107 +19129,107 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--BASEOVERRIDELIMIT",
           "path": "internal/health/policy.go",
-          "line": 230
+          "line": 245
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--EFFECTIVELIMIT",
           "path": "internal/health/policy.go",
-          "line": 76
+          "line": 77
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--EXCLUDEWEAKENINGS",
           "path": "internal/health/policy.go",
-          "line": 165
+          "line": 180
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--LEVELOFCODE",
           "path": "internal/health/policy.go",
-          "line": 268
+          "line": 283
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--NORMALIZEPATTERN",
           "path": "internal/health/policy.go",
-          "line": 190
+          "line": 205
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--OVERRIDEWEAKENINGS",
           "path": "internal/health/policy.go",
-          "line": 199
+          "line": 214
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYFROMMANIFEST",
           "path": "internal/health/policy.go",
-          "line": 60
+          "line": 61
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYLEVELOF",
           "path": "internal/health/policy.go",
-          "line": 252
+          "line": 267
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYOF",
           "path": "internal/health/policy.go",
-          "line": 50
+          "line": 51
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYWEAKENINGS",
           "path": "internal/health/policy.go",
-          "line": 104
+          "line": 105
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--RAISES",
           "path": "internal/health/policy.go",
-          "line": 88
+          "line": 89
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--SETSTHRESHOLD",
           "path": "internal/health/policy.go",
-          "line": 153
+          "line": 168
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--STRING",
           "path": "internal/health/policy.go",
-          "line": 95
+          "line": 96
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--THRESHOLDWEAKENINGS",
           "path": "internal/health/policy.go",
-          "line": 135
+          "line": 150
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--TIERLABEL",
           "path": "internal/health/policy.go",
-          "line": 124
+          "line": 126
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
           "path": "internal/health/report.go",
-          "line": 131
+          "line": 145
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--LEVELOF",
           "path": "internal/health/report.go",
-          "line": 118
+          "line": 132
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--SUMMARIZE",
           "path": "internal/health/report.go",
-          "line": 221
+          "line": 235
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--SYNTAXDIAGNOSTIC",
           "path": "internal/health/report.go",
-          "line": 203
+          "line": 217
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--BASELIFECYCLE",
           "path": "internal/health/scan/check.go",
-          "line": 169
+          "line": 175
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--BASEMANIFESTPOLICY",
           "path": "internal/health/scan/check.go",
-          "line": 200
+          "line": 206
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
@@ -19233,27 +19244,27 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--MODELPOLICYCHANGES",
           "path": "internal/health/scan/check.go",
-          "line": 232
+          "line": 238
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--POLICYATREVISION",
           "path": "internal/health/scan/check.go",
-          "line": 256
+          "line": 262
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--POLICYTOCHECK",
           "path": "internal/health/scan/check.go",
-          "line": 275
+          "line": 281
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--POLICYVERDICT",
           "path": "internal/health/scan/check.go",
-          "line": 143
+          "line": 149
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--RECORDINGDECISION",
           "path": "internal/health/scan/check.go",
-          "line": 184
+          "line": 190
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--ATTRIBUTION",
@@ -19288,28 +19299,30 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--HEALTHPOLICY",
           "path": "internal/model/health.go",
-          "line": 75
+          "line": 97
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-HEALTH-GO--PARSEHEALTHPOLICY",
           "path": "internal/model/health.go",
-          "line": 86
+          "line": 108
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--ACCEPTEDHEALTHPOLICYDECISION",
           "path": "internal/validate/health_config.go",
-          "line": 104
+          "line": 106
         }
       ],
       "verifications": [
         "VER-INF-TEST-BASELINE_TEST-160260",
         "VER-INF-TEST-BASELINE_TEST-6E1D38",
         "VER-INF-TEST-BASELINE_TEST-FD5D93",
+        "VER-INF-TEST-CHECK_FLOOR_TEST-EECC31",
         "VER-INF-TEST-CHECK_TEST-C6CAB5",
         "VER-INF-TEST-CHECK_TEST-E247CD",
         "VER-INF-TEST-CONFIG_TEST-B6646E",
         "VER-INF-TEST-DELTA_ENGINE_TEST-CB74C7",
         "VER-INF-TEST-ENGINE_TEST-DBE450",
+        "VER-INF-TEST-FLOOR_TEST-76F951",
         "VER-INF-TEST-HARDENING_TEST-D353C6",
         "VER-INF-TEST-HEALTH_BASELINE_TEST-DE6BE9",
         "VER-INF-TEST-HEALTH_CONFIG_TEST-AF362C",
@@ -19342,7 +19355,7 @@
         {
           "symbol": "CODE-API-HEALTH-GO--CHECKHEALTH",
           "path": "api_health.go",
-          "line": 187
+          "line": 195
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--CHECKVERDICT",
@@ -19352,7 +19365,7 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURELINES",
           "path": "cmd/enghealth/check.go",
-          "line": 169
+          "line": 205
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURESUMMARY",
@@ -19362,7 +19375,7 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--REGRESSIONLINES",
           "path": "cmd/enghealth/check.go",
-          "line": 216
+          "line": 252
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RUNCHECK",
@@ -19372,182 +19385,192 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--SKIPPEDERRORS",
           "path": "cmd/enghealth/check.go",
-          "line": 149
+          "line": 152
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ANALYZE",
           "path": "internal/health/check.go",
-          "line": 297
+          "line": 347
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDSKIPPEDRESULTS",
           "path": "internal/health/check.go",
-          "line": 225
+          "line": 248
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--BLOCKS",
           "path": "internal/health/check.go",
-          "line": 122
+          "line": 127
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--COUNTENTRIES",
           "path": "internal/health/check.go",
-          "line": 91
+          "line": 96
         },
         {
-          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--NEWCHECKREPORT",
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--GATEFAILS",
           "path": "internal/health/check.go",
-          "line": 132
+          "line": 176
         },
         {
-          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REQUIREWORKTREE",
-          "path": "internal/health/check.go",
-          "line": 349
-        },
-        {
-          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--TRANSITION",
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--LEVELIN",
           "path": "internal/health/check.go",
           "line": 164
         },
         {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--NEWCHECKREPORT",
+          "path": "internal/health/check.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REQUIREWORKTREE",
+          "path": "internal/health/check.go",
+          "line": 399
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--TRANSITION",
+          "path": "internal/health/check.go",
+          "line": 186
+        },
+        {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--ANALYZE",
           "path": "internal/health/delta.go",
-          "line": 576
+          "line": 621
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--BASEERROR",
           "path": "internal/health/delta.go",
-          "line": 378
+          "line": 423
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--BODYHASH",
           "path": "internal/health/delta.go",
-          "line": 644
+          "line": 689
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--CHECK",
           "path": "internal/health/delta.go",
-          "line": 225
+          "line": 236
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--CLASSIFY",
           "path": "internal/health/delta.go",
-          "line": 182
+          "line": 193
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--COMPAREFILES",
           "path": "internal/health/delta.go",
-          "line": 661
+          "line": 706
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--CONFIG",
           "path": "internal/health/delta.go",
-          "line": 449
+          "line": 494
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FILEDELTAS",
           "path": "internal/health/delta.go",
-          "line": 590
+          "line": 635
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FINDINGOF",
           "path": "internal/health/delta.go",
-          "line": 771
+          "line": 816
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FUNCTIONENTRIES",
           "path": "internal/health/delta.go",
-          "line": 746
+          "line": 791
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FUNCTIONREFS",
           "path": "internal/health/delta.go",
-          "line": 626
+          "line": 671
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--LANGUAGEOF",
           "path": "internal/health/delta.go",
-          "line": 150
+          "line": 161
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--LISTNEWSYNTAXERRORS",
           "path": "internal/health/delta.go",
-          "line": 266
+          "line": 311
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--LOAD",
           "path": "internal/health/delta.go",
-          "line": 459
+          "line": 504
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--MATCHBYHASH",
           "path": "internal/health/delta.go",
-          "line": 706
+          "line": 751
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--MOVEDENTRIES",
           "path": "internal/health/delta.go",
-          "line": 730
+          "line": 775
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--NEWENTRY",
           "path": "internal/health/delta.go",
-          "line": 761
+          "line": 806
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--PATH",
           "path": "internal/health/delta.go",
-          "line": 205
+          "line": 216
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--PLAN",
           "path": "internal/health/delta.go",
-          "line": 300
+          "line": 345
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--READBASE",
           "path": "internal/health/delta.go",
-          "line": 558
+          "line": 603
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--READHEAD",
           "path": "internal/health/delta.go",
-          "line": 517
+          "line": 562
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--REGRESSIONS",
           "path": "internal/health/delta.go",
-          "line": 156
+          "line": 167
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SELECTFILES",
           "path": "internal/health/delta.go",
-          "line": 392
+          "line": 437
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SEVERITYRANK",
           "path": "internal/health/delta.go",
-          "line": 169
+          "line": 180
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SHORTSHA",
           "path": "internal/health/delta.go",
-          "line": 367
+          "line": 412
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SKIP",
           "path": "internal/health/delta.go",
-          "line": 549
+          "line": 594
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SPLITRANGE",
           "path": "internal/health/delta.go",
-          "line": 278
+          "line": 323
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--USEMERGEBASEWITHHEAD",
           "path": "internal/health/delta.go",
-          "line": 345
+          "line": 390
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-FINGERPRINT-GO--BODYHASH",
@@ -19697,17 +19720,17 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYWEAKENINGS",
           "path": "internal/health/policy.go",
-          "line": 104
+          "line": 105
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--ANCESTORS",
           "path": "internal/health/scan/check.go",
-          "line": 318
+          "line": 324
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--BASEMANIFESTPOLICY",
           "path": "internal/health/scan/check.go",
-          "line": 200
+          "line": 206
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
@@ -19717,35 +19740,37 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--MODELPOLICYCHANGES",
           "path": "internal/health/scan/check.go",
-          "line": 232
+          "line": 238
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--OUTOFSCOPE",
           "path": "internal/health/scan/check.go",
-          "line": 297
+          "line": 303
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--POLICYATREVISION",
           "path": "internal/health/scan/check.go",
-          "line": 256
+          "line": 262
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--POLICYTOCHECK",
           "path": "internal/health/scan/check.go",
-          "line": 275
+          "line": 281
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--POLICYVERDICT",
           "path": "internal/health/scan/check.go",
-          "line": 143
+          "line": 149
         }
       ],
       "verifications": [
+        "VER-INF-TEST-CHECK_FLOOR_TEST-EECC31",
         "VER-INF-TEST-CHECK_TEST-C6CAB5",
         "VER-INF-TEST-CHECK_TEST-E247CD",
         "VER-INF-TEST-DELTA_ENGINE_TEST-CB74C7",
         "VER-INF-TEST-DELTA_TEST-198F82",
         "VER-INF-TEST-FINGERPRINT_TEST-B206E0",
+        "VER-INF-TEST-FLOOR_CHECK_TEST-9BEA42",
         "VER-INF-TEST-GIT_TEST-A0E0F9",
         "VER-INF-TEST-HARDENING_TEST-D353C6",
         "VER-INF-TEST-MODELPOLICY_TEST-157120",
@@ -19769,7 +19794,7 @@
         {
           "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHCHECK",
           "path": "api_health.go",
-          "line": 209
+          "line": 217
         },
         {
           "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHREPORT",
@@ -19779,7 +19804,7 @@
         {
           "symbol": "CODE-API-HEALTH-GO--HEALTHCHECKSARIF",
           "path": "api_health.go",
-          "line": 218
+          "line": 226
         },
         {
           "symbol": "CODE-API-HEALTH-GO--HEALTHREPORTSCHEMAJSON",
@@ -19822,29 +19847,34 @@
           "line": 93
         },
         {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDFLOORRESULTS",
+          "path": "internal/health/check.go",
+          "line": 298
+        },
+        {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDPOLICYRESULTS",
           "path": "internal/health/check.go",
-          "line": 251
+          "line": 274
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDSKIPPEDRESULTS",
           "path": "internal/health/check.go",
-          "line": 225
+          "line": 248
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--CHECKSARIF",
           "path": "internal/health/check.go",
-          "line": 188
+          "line": 210
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ENCODECHECK",
           "path": "internal/health/check.go",
-          "line": 176
+          "line": 198
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CONFIG-GO--RELEVEL",
           "path": "internal/health/config.go",
-          "line": 162
+          "line": 163
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-IMPORT-GO--CANONICALIZE",
@@ -19879,37 +19909,37 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
           "path": "internal/health/report.go",
-          "line": 131
+          "line": 145
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--ENCODE",
           "path": "internal/health/report.go",
-          "line": 253
+          "line": 268
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--ENCODEJSON",
           "path": "internal/health/report.go",
-          "line": 260
+          "line": 275
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--FINDINGFINGERPRINT",
           "path": "internal/health/sarif.go",
-          "line": 149
+          "line": 150
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--RESULTKEY",
           "path": "internal/health/sarif.go",
-          "line": 256
+          "line": 257
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--SARIF",
           "path": "internal/health/sarif.go",
-          "line": 163
+          "line": 164
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--SARIFLEVEL",
           "path": "internal/health/sarif.go",
-          "line": 137
+          "line": 138
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--SARIFURI",
@@ -19944,6 +19974,7 @@
       ],
       "verifications": [
         "VER-INF-TEST-BASELINE_TEST-6E1D38",
+        "VER-INF-TEST-CHECK_FLOOR_TEST-EECC31",
         "VER-INF-TEST-CHECK_TEST-C6CAB5",
         "VER-INF-TEST-CHECK_TEST-E247CD",
         "VER-INF-TEST-CONFIG_TEST-B6646E",
@@ -19973,17 +20004,17 @@
         {
           "symbol": "CODE-API-HEALTH-GO--CHECKHEALTH",
           "path": "api_health.go",
-          "line": 187
+          "line": 195
         },
         {
           "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHCHECK",
           "path": "api_health.go",
-          "line": 209
+          "line": 217
         },
         {
           "symbol": "CODE-API-HEALTH-GO--HEALTHCHECKSARIF",
           "path": "api_health.go",
-          "line": 218
+          "line": 226
         },
         {
           "symbol": "CODE-API-HEALTH-GO--SCANHEALTH",
@@ -20033,7 +20064,7 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--CHANGEDFILESTEXT",
           "path": "cmd/enghealth/check.go",
-          "line": 228
+          "line": 264
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--CHECKVERDICT",
@@ -20043,7 +20074,7 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURELINES",
           "path": "cmd/enghealth/check.go",
-          "line": 169
+          "line": 205
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FAILURESUMMARY",
@@ -20053,7 +20084,7 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FINDINGKINDS",
           "path": "cmd/enghealth/check.go",
-          "line": 243
+          "line": 279
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--PARSECHECKARGS",
@@ -20063,12 +20094,12 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--POLICYERRORS",
           "path": "cmd/enghealth/check.go",
-          "line": 159
+          "line": 173
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--REGRESSIONLINES",
           "path": "cmd/enghealth/check.go",
-          "line": 216
+          "line": 252
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RENDERCHECK",
@@ -20078,7 +20109,7 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RENDERCHECKTEXT",
           "path": "cmd/enghealth/check.go",
-          "line": 276
+          "line": 315
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--RUNCHECK",
@@ -20088,27 +20119,27 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--SCORETEXT",
           "path": "cmd/enghealth/check.go",
-          "line": 205
+          "line": 241
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--SHORTREV",
           "path": "cmd/enghealth/check.go",
-          "line": 195
+          "line": 231
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--SKIPPEDERRORS",
           "path": "cmd/enghealth/check.go",
-          "line": 149
+          "line": 152
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--VERDICTTEXT",
           "path": "cmd/enghealth/check.go",
-          "line": 260
+          "line": 299
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--WRITEOUTPUT",
           "path": "cmd/enghealth/check.go",
-          "line": 184
+          "line": 220
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-MAIN-GO--IMPORTREPORT",
@@ -20158,7 +20189,7 @@
         {
           "symbol": "CODE-CMD-ENGHEALTH-TEXT-GO--FINDINGLEVEL",
           "path": "cmd/enghealth/text.go",
-          "line": 74
+          "line": 86
         },
         {
           "symbol": "CODE-CMD-ENGHEALTH-TEXT-GO--RENDERTEXT",
@@ -20168,47 +20199,47 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--CHECKLEVELS",
           "path": "internal/health/check.go",
-          "line": 81
+          "line": 86
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--CHECKSARIF",
           "path": "internal/health/check.go",
-          "line": 188
+          "line": 210
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ENCODECHECK",
           "path": "internal/health/check.go",
-          "line": 176
+          "line": 198
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--NEWCHECKREPORT",
           "path": "internal/health/check.go",
-          "line": 132
+          "line": 137
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REGRESSIONLEVELOF",
           "path": "internal/health/check.go",
-          "line": 72
+          "line": 77
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--REQUIREWORKTREE",
           "path": "internal/health/check.go",
-          "line": 349
+          "line": 399
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--TRANSITION",
           "path": "internal/health/check.go",
-          "line": 164
+          "line": 186
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--LEVELOFCODE",
           "path": "internal/health/policy.go",
-          "line": 268
+          "line": 283
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--POLICYLEVELOF",
           "path": "internal/health/policy.go",
-          "line": 252
+          "line": 267
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
@@ -20249,8 +20280,10 @@
       "verifications": [
         "VER-INF-TEST-BASELINE_TEST-160260",
         "VER-INF-TEST-BASELINE_TEST-FD5D93",
+        "VER-INF-TEST-CHECK_FLOOR_TEST-EECC31",
         "VER-INF-TEST-CHECK_TEST-C6CAB5",
         "VER-INF-TEST-CHECK_TEST-E247CD",
+        "VER-INF-TEST-FLOOR_TEST-76F951",
         "VER-INF-TEST-HARDENING_TEST-D353C6",
         "VER-INF-TEST-MAIN_TEST-7EC1C0",
         "VER-INF-TEST-MODELPOLICY_TEST-157120",
@@ -20275,7 +20308,7 @@
         {
           "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHCHECK",
           "path": "api_health.go",
-          "line": 209
+          "line": 217
         },
         {
           "symbol": "CODE-API-HEALTH-GO--ENCODEHEALTHREPORT",
@@ -20355,17 +20388,17 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--ENCODECHECK",
           "path": "internal/health/check.go",
-          "line": 176
+          "line": 198
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--CHECK",
           "path": "internal/health/delta.go",
-          "line": 225
+          "line": 236
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--SORTENTRIES",
           "path": "internal/health/delta.go",
-          "line": 786
+          "line": 831
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-ENGINE-TREESITTER-ENGINE-GO--ANALYZE",
@@ -20405,22 +20438,22 @@
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
           "path": "internal/health/report.go",
-          "line": 131
+          "line": 145
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--ENCODE",
           "path": "internal/health/report.go",
-          "line": 253
+          "line": 268
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--ENCODEJSON",
           "path": "internal/health/report.go",
-          "line": 260
+          "line": 275
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SARIF-GO--FINDINGFINGERPRINT",
           "path": "internal/health/sarif.go",
-          "line": 149
+          "line": 150
         },
         {
           "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
@@ -20487,7 +20520,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHDIAGNOSTICS",
           "path": "internal/validate/health_config.go",
-          "line": 36
+          "line": 38
         }
       ],
       "verifications": [
@@ -20688,12 +20721,12 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDECISIONPROBLEM",
           "path": "internal/validate/health_config.go",
-          "line": 123
+          "line": 125
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHBASELINEDIAGNOSTICS",
           "path": "internal/validate/health_config.go",
-          "line": 156
+          "line": 171
         }
       ],
       "verifications": [
@@ -21641,12 +21674,12 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CODECOVERAGE",
           "path": "internal/model/types.go",
-          "line": 244
+          "line": 249
         },
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--CODEEXEMPTION",
           "path": "internal/model/types.go",
-          "line": 254
+          "line": 259
         },
         {
           "symbol": "CODE-INTERNAL-TRACE-CONSISTENCY-GO--INTEGRITYTAIL",
@@ -21681,7 +21714,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--CODEEXEMPTIONDECISIONPROBLEM",
           "path": "internal/validate/health_config.go",
-          "line": 252
+          "line": 267
         }
       ],
       "verifications": [
@@ -22015,7 +22048,7 @@
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMEDIES-GO--CONSISTENCYREMEDY",
           "path": "internal/validate/remedies.go",
-          "line": 199
+          "line": 203
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMOVED-FIELDS-GO--FINGERPRINTREMOVEDDIAGNOSTICS",
@@ -22237,7 +22270,7 @@
         {
           "symbol": "CODE-INTERNAL-MODEL-TYPES-GO--ALLOCATION",
           "path": "internal/model/types.go",
-          "line": 1123
+          "line": 1128
         },
         {
           "symbol": "CODE-INTERNAL-VALIDATE-REMOVED-FIELDS-GO--ALLOCATIONSREMOVEDDIAGNOSTICS",
@@ -23633,6 +23666,206 @@
       "parents": [
         "CAP-EMG-MODEL-VALIDATION"
       ]
+    },
+    {
+      "id": "REQ-EMG-209",
+      "text": "While project tier is at least product, when health scan is requested, the code health check shall report one error for each file below the floor that no baseline entry covers.",
+      "units": [
+        "EVT-HEALTH-SCAN-REQUESTED",
+        "FLOW-HEALTH-SCAN",
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-TEXT-GO--FLOORLINE",
+          "path": "cmd/enghealth/text.go",
+          "line": 74
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--BASELINECOVERED",
+          "path": "internal/health/floor.go",
+          "line": 159
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--BELOWFLOOR",
+          "path": "internal/health/floor.go",
+          "line": 62
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--CAUSEBEFORE",
+          "path": "internal/health/floor.go",
+          "line": 90
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--CODELINE",
+          "path": "internal/health/floor.go",
+          "line": 119
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--FILESBELOWFLOOR",
+          "path": "internal/health/floor.go",
+          "line": 233
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--FINDINGLINE",
+          "path": "internal/health/floor.go",
+          "line": 106
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--FLOORCOUNTS",
+          "path": "internal/health/floor.go",
+          "line": 225
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--FLOORDIAGNOSTICCOUNT",
+          "path": "internal/health/floor.go",
+          "line": 246
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--FLOORDIAGNOSTICS",
+          "path": "internal/health/floor.go",
+          "line": 210
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--FUNCTIONLISTED",
+          "path": "internal/health/floor.go",
+          "line": 188
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--HASLISTEDFINDING",
+          "path": "internal/health/floor.go",
+          "line": 176
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--MESSAGE",
+          "path": "internal/health/floor.go",
+          "line": 136
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--NEWFLOORFILE",
+          "path": "internal/health/floor.go",
+          "line": 72
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-REPORT-GO--BUILDREPORT",
+          "path": "internal/health/report.go",
+          "line": 145
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-SCAN-GO--SCAN",
+          "path": "internal/health/scan/scan.go",
+          "line": 81
+        },
+        {
+          "symbol": "CODE-INTERNAL-VALIDATE-HEALTH-CONFIG-GO--HEALTHFLOORDIAGNOSTICS",
+          "path": "internal/validate/health_config.go",
+          "line": 144
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-FLOOR_TEST-3B71BF",
+        "VER-INF-TEST-FLOOR_TEST-76F951",
+        "VER-INF-TEST-HEALTH_CONFIG_TEST-AF362C",
+        "VER-INF-TEST-HEALTH_FLOOR_TEST-AF7634"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
+    },
+    {
+      "id": "REQ-EMG-210",
+      "text": "While project tier is at least product, when health check is requested, the code health check shall report one error for each changed file below the floor that no baseline entry covers.",
+      "units": [
+        "EVT-HEALTH-CHECK-REQUESTED",
+        "FLOW-HEALTH-CHECK",
+        "FU-CODE-HEALTH"
+      ],
+      "code": [
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FLOORERRORS",
+          "path": "cmd/enghealth/check.go",
+          "line": 163
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FLOORLINES",
+          "path": "cmd/enghealth/check.go",
+          "line": 183
+        },
+        {
+          "symbol": "CODE-CMD-ENGHEALTH-CHECK-GO--FLOORSECTION",
+          "path": "cmd/enghealth/check.go",
+          "line": 195
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--APPENDFLOORRESULTS",
+          "path": "internal/health/check.go",
+          "line": 298
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--GATEFAILS",
+          "path": "internal/health/check.go",
+          "line": 176
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--LEVELIN",
+          "path": "internal/health/check.go",
+          "line": 164
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-CHECK-GO--NEWCHECKREPORT",
+          "path": "internal/health/check.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--BELOWFLOOR",
+          "path": "internal/health/delta.go",
+          "line": 275
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-DELTA-GO--FLOORFILE",
+          "path": "internal/health/delta.go",
+          "line": 295
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-FLOOR-GO--BASELINECOVERED",
+          "path": "internal/health/floor.go",
+          "line": 159
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-POLICY-GO--FLOORWEAKENINGS",
+          "path": "internal/health/policy.go",
+          "line": 137
+        },
+        {
+          "symbol": "CODE-INTERNAL-HEALTH-SCAN-CHECK-GO--CHECK",
+          "path": "internal/health/scan/check.go",
+          "line": 105
+        }
+      ],
+      "verifications": [
+        "VER-INF-TEST-CHECK_FLOOR_TEST-EECC31",
+        "VER-INF-TEST-FLOOR_CHECK_TEST-9BEA42",
+        "VER-INF-TEST-FLOOR_POLICY_TEST-5B5B1B"
+      ],
+      "result": "not-run",
+      "status": "implemented",
+      "parents": [
+        "CAP-EMG-CODE-HEALTH"
+      ]
+    },
+    {
+      "id": "REQ-EMG-211",
+      "text": "The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.",
+      "units": [
+        "FU-CODE-HEALTH"
+      ],
+      "verifications": [
+        "VER-INF-TEST-REPOSITORY_FLOOR_TEST-19C8F7"
+      ],
+      "result": "not-run",
+      "status": "verified"
     }
   ],
   "danglingLinks": null,
@@ -23641,10 +23874,10 @@
     "REQ-EMG-109"
   ],
   "summary": {
-    "requirements": 201,
-    "implemented": 197,
-    "tested": 178,
-    "testLinked": 178,
+    "requirements": 204,
+    "implemented": 199,
+    "tested": 181,
+    "testLinked": 181,
     "passed": 13,
     "delegated": 0,
     "orphan": 2,

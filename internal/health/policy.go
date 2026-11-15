@@ -26,6 +26,7 @@ const (
 	PolicyThreshold = "threshold"
 	PolicyExclude   = "exclude"
 	PolicyOverride  = "override"
+	PolicyFloor     = "floor"
 )
 
 // PolicyChange is one way in which the head policy is weaker than the base.
@@ -107,6 +108,7 @@ func PolicyWeakenings(base, head Policy) []PolicyChange {
 		changes = append(changes, PolicyChange{Aspect: PolicyTier,
 			Message: fmt.Sprintf("the tier is lowered from %s to %s", tierLabel(base.Tier), tierLabel(head.Tier))})
 	}
+	changes = append(changes, floorWeakenings(base, head)...)
 	changes = append(changes, thresholdWeakenings(base, head)...)
 	changes = append(changes, excludeWeakenings(base, head)...)
 	changes = append(changes, overrideWeakenings(base, head)...)
@@ -126,6 +128,19 @@ func tierLabel(tier string) string {
 		return "none"
 	}
 	return tier
+}
+
+// floorWeakenings lists a lower floor of the file score (ADR-EMG-087): the
+// effective floor of a policy is health.floor, else the highest score.
+//
+// TRLC-LINKS: REQ-EMG-210
+func floorWeakenings(base, head Policy) []PolicyChange {
+	b, h := model.EffectiveHealthFloor(base.Health), model.EffectiveHealthFloor(head.Health)
+	if h >= b {
+		return nil
+	}
+	return []PolicyChange{{Aspect: PolicyFloor,
+		Message: fmt.Sprintf("the floor of the file score is lowered from %.1f to %.1f", b, h)}}
 }
 
 // thresholdWeakenings lists the codes whose effective limit is higher at head,
