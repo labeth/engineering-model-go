@@ -43,13 +43,20 @@ type backlinkScan struct {
 func referenceAnchorSet(ref asciidocReferenceIndex) map[string]bool {
 	anchors := map[string]bool{}
 	for _, entries := range [][]asciidocReferenceEntry{ref.Authored, ref.Catalog, ref.Runtime, ref.Code, ref.Verification} {
-		for _, e := range entries {
-			if anchor := strings.TrimSpace(e.Anchor); anchor != "" {
-				anchors[anchor] = true
-			}
-		}
+		addEntryAnchors(anchors, entries)
 	}
 	return anchors
+}
+
+// addEntryAnchors adds the non-blank anchors of the entries to the set.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-014
+func addEntryAnchors(anchors map[string]bool, entries []asciidocReferenceEntry) {
+	for _, e := range entries {
+		if anchor := strings.TrimSpace(e.Anchor); anchor != "" {
+			anchors[anchor] = true
+		}
+	}
 }
 
 // scan reads the document down to the Reference Index.

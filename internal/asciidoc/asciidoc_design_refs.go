@@ -163,10 +163,16 @@ func labelBehavior(out map[string]string, a model.AuthoredArchitecture) {
 func labelFlows(out map[string]string, flows []model.Flow) {
 	for _, f := range flows {
 		out[f.ID] = textutil.NonEmpty(f.Title, f.ID)
-		for _, s := range f.Steps {
-			if sid := strings.TrimSpace(s.ID); sid != "" {
-				out[strings.TrimSpace(f.ID)+"::"+sid] = trimmedOr(s.Action, sid)
-			}
+		labelFlowSteps(out, f)
+	}
+}
+
+// labelFlowSteps labels the steps of a flow that have an ID, under flowID::stepID.
+// TRLC-LINKS: REQ-EMG-003
+func labelFlowSteps(out map[string]string, f model.Flow) {
+	for _, s := range f.Steps {
+		if sid := strings.TrimSpace(s.ID); sid != "" {
+			out[strings.TrimSpace(f.ID)+"::"+sid] = trimmedOr(s.Action, sid)
 		}
 	}
 }
@@ -453,13 +459,19 @@ func (r *catalogReferences) addAliases(e model.CatalogEntry, canonical string) {
 func catalogEntryIDSet(doc model.CatalogDocument) map[string]bool {
 	out := map[string]bool{}
 	for _, entries := range catalogEntryLists(doc) {
-		for _, e := range entries {
-			if id := strings.ToUpper(strings.TrimSpace(e.ID)); id != "" {
-				out[id] = true
-			}
-		}
+		addCatalogIDs(out, entries)
 	}
 	return out
+}
+
+// addCatalogIDs adds the upper-cased non-blank IDs of the entries to the set.
+// TRLC-LINKS: REQ-EMG-003
+func addCatalogIDs(set map[string]bool, entries []model.CatalogEntry) {
+	for _, e := range entries {
+		if id := strings.ToUpper(strings.TrimSpace(e.ID)); id != "" {
+			set[id] = true
+		}
+	}
 }
 
 // catalogEntryLists is every list of catalog entries, in catalog order.

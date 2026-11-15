@@ -41,11 +41,15 @@ func buildRequirementAlignmentMermaid(reqs []model.Requirement, labels map[strin
 type mermaidLines []string
 
 // add appends a line.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
 func (m *mermaidLines) add(line string) {
 	*m = append(*m, line)
 }
 
 // addf appends a formatted line.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
 func (m *mermaidLines) addf(format string, args ...any) {
 	*m = append(*m, fmt.Sprintf(format, args...))
 }
@@ -60,25 +64,37 @@ type requirementTargets struct {
 // TRLC-LINKS: REQ-EMG-003
 func buildRequirementAlignmentCompactTable(reqs []model.Requirement) string {
 	byReq := requirementTargetSets(reqs)
+	fuIDs := targetUnitIDs(byReq)
+	if len(byReq) == 0 || len(fuIDs) == 0 {
+		return "No authored requirement-to-unit mappings were found."
+	}
+	rows := [][]string{append([]string{"Requirement"}, fuIDs...)}
+	for _, r := range byReq {
+		rows = append(rows, r.matrixRow(fuIDs))
+	}
+	return publicationMatrixSVG(rows, false)
+}
+
+// targetUnitIDs is the sorted union of the units the requirements apply to.
+// TRLC-LINKS: REQ-EMG-003
+func targetUnitIDs(byReq []requirementTargets) []string {
 	fuSet := map[string]bool{}
 	for _, r := range byReq {
 		for fu := range r.Targets {
 			fuSet[fu] = true
 		}
 	}
-	fuIDs := textutil.UniqueSorted(keysFromSet(fuSet))
-	if len(byReq) == 0 || len(fuIDs) == 0 {
-		return "No authored requirement-to-unit mappings were found."
+	return textutil.UniqueSorted(keysFromSet(fuSet))
+}
+
+// matrixRow is the requirement ID followed by a mark for each unit it applies to.
+// TRLC-LINKS: REQ-EMG-003
+func (r requirementTargets) matrixRow(fuIDs []string) []string {
+	row := []string{r.ID}
+	for _, fu := range fuIDs {
+		row = append(row, markIf(r.Targets[fu], "X"))
 	}
-	rows := [][]string{append([]string{"Requirement"}, fuIDs...)}
-	for _, r := range byReq {
-		row := []string{r.ID}
-		for _, fu := range fuIDs {
-			row = append(row, markIf(r.Targets[fu], "X"))
-		}
-		rows = append(rows, row)
-	}
-	return publicationMatrixSVG(rows, false)
+	return row
 }
 
 // markIf is the mark when the condition holds, else empty.
@@ -772,26 +788,41 @@ func codeByOwnerAndRequirement(code []codescan.CodeItem) map[string]map[string][
 	allRaw := []string{}
 	for _, c := range code {
 		owner, elem, ok := implementingCodeElement(c)
-		if !ok {
-			continue
-		}
-		for _, reqID := range textutil.UniqueSorted(c.Implements) {
-			if rawByOwnerReq[owner] == nil {
-				rawByOwnerReq[owner] = map[string][]string{}
-			}
-			rawByOwnerReq[owner][reqID] = append(rawByOwnerReq[owner][reqID], elem)
-			allRaw = append(allRaw, elem)
+		if ok {
+			allRaw = append(allRaw, addImplementingElement(rawByOwnerReq, owner, elem, c.Implements)...)
 		}
 	}
-	byOwnerReq := map[string]map[string][]string{}
 	globalLookup := codescan.EvidenceLabelLookup(allRaw)
+	byOwnerReq := map[string]map[string][]string{}
 	for owner, byReq := range rawByOwnerReq {
-		byOwnerReq[owner] = map[string][]string{}
-		for reqID, items := range byReq {
-			byOwnerReq[owner][reqID] = codescan.GroupedEvidenceLabels(items, requirementLabelLookup(items, globalLookup))
-		}
+		byOwnerReq[owner] = labelRequirementCode(byReq, globalLookup)
 	}
 	return byOwnerReq
+}
+
+// addImplementingElement adds the element under each requirement it implements
+// and returns it once per requirement.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
+func addImplementingElement(rawByOwnerReq map[string]map[string][]string, owner, elem string, implements []string) []string {
+	added := []string{}
+	for _, reqID := range textutil.UniqueSorted(implements) {
+		if rawByOwnerReq[owner] == nil {
+			rawByOwnerReq[owner] = map[string][]string{}
+		}
+		rawByOwnerReq[owner][reqID] = append(rawByOwnerReq[owner][reqID], elem)
+		added = append(added, elem)
+	}
+	return added
+}
+
+// labelRequirementCode labels the code elements of each requirement.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-026
+func labelRequirementCode(byReq map[string][]string, globalLookup map[string]string) map[string][]string {
+	labeled := map[string][]string{}
+	for reqID, items := range byReq {
+		labeled[reqID] = codescan.GroupedEvidenceLabels(items, requirementLabelLookup(items, globalLookup))
+	}
+	return labeled
 }
 
 // implementingCodeElement is the owner and evidence element of a code symbol
@@ -953,7 +984,7 @@ func buildCodeOwnershipRows(in []codescan.CodeItem) []asciidocInferredRow {
 	libraryRows := []asciidocInferredRow{}
 	librarySeen := map[string]bool{}
 	for _, c := range in {
-		if c.Kind == "source_file" || c.Kind == "symbol" {
+		if isModuleItem(c) {
 			addToModuleBucket(moduleBuckets, c)
 		} else if row, ok := libraryRow(c); ok && !librarySeen[libraryRowKey(row)] {
 			librarySeen[libraryRowKey(row)] = true
@@ -972,6 +1003,12 @@ func buildCodeOwnershipRows(in []codescan.CodeItem) []asciidocInferredRow {
 		return rows[:28]
 	}
 	return rows
+}
+
+// isModuleItem reports whether the item is a source file or a symbol.
+// TRLC-LINKS: REQ-EMG-003
+func isModuleItem(c codescan.CodeItem) bool {
+	return c.Kind == "source_file" || c.Kind == "symbol"
 }
 
 // addToModuleBucket adds the file of a source file or symbol to the bucket of
