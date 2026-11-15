@@ -25,6 +25,23 @@ func initializeMCPAt(t *testing.T, base string) *Server {
 	return s
 }
 
+// initializeModelAt starts the MCP server on the model and repository in base,
+// without a requirements path.
+// TRLC-LINKS: REQ-EMG-067
+func initializeModelAt(t *testing.T, base string) *Server {
+	t.Helper()
+	s := NewServer()
+	if resp := rpcCall(t, s, map[string]any{
+		"jsonrpc": "2.0", "id": 1, "method": "initialize",
+		"params": map[string]any{"initializationOptions": map[string]any{
+			"modelPath": filepath.Join(base, "engmod.yml"), "repoRoot": base,
+		}},
+	}); resp["error"] != nil {
+		t.Fatalf("initialize: %+v", resp["error"])
+	}
+	return s
+}
+
 // traceRowsByID returns the requirement rows of a trace.matrix payload by id.
 // TRLC-LINKS: REQ-EMG-067
 func traceRowsByID(payload map[string]any) map[string]map[string]any {
@@ -112,16 +129,7 @@ func gatedSoloServer(t *testing.T) *Server {
 	dir := filepath.Join(t.TempDir(), "solo")
 	writeMCPModule(t, dir, mcpModule{"example.com/solo@v1", "v1.0.0", "SOLO", "", "  contract: {}\n"})
 	writeMCPFile(t, filepath.Join(dir, "e2e_test.go"), "package solo\n\nimport (\n\t\"os\"\n\t\"testing\"\n)\n\n// TRLC-LINKS: REQ-PARENT\nfunc TestE2E(t *testing.T) {\n\tif os.Getenv(\"SOLO_E2E\") == \"\" {\n\t\tt.Skip(\"set SOLO_E2E\")\n\t}\n}\n\n// TRLC-LINKS: REQ-CHILD\nfunc TestUnit(t *testing.T) {}\n")
-	s := NewServer()
-	if resp := rpcCall(t, s, map[string]any{
-		"jsonrpc": "2.0", "id": 1, "method": "initialize",
-		"params": map[string]any{"initializationOptions": map[string]any{
-			"modelPath": filepath.Join(dir, "engmod.yml"), "repoRoot": dir,
-		}},
-	}); resp["error"] != nil {
-		t.Fatalf("initialize: %+v", resp["error"])
-	}
-	return s
+	return initializeModelAt(t, dir)
 }
 
 // assertGatedSummary checks the gatedOnly counters of one trace.matrix summary.
