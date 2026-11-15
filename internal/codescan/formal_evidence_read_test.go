@@ -173,18 +173,36 @@ func TestFormalEvidenceFilesMatchTheVerificationScan(t *testing.T) {
 	if got := FormalEvidenceFiles(modelDir, ""); len(got) != 2 {
 		t.Fatalf("without a code root only the model's test-results is read: %v", got)
 	}
-	entries := ReadFormalEvidence(modelDir, files)
-	if len(entries) != 3 || entries[0].Evidence != want[0] || entries[1].Evidence != want[1] || entries[2].Evidence != want[2] {
+	assertCurrentEntriesOrdered(t, ReadFormalEvidence(modelDir, files), want)
+
+	checks, _ := InferVerificationChecks(model2Bundle(modelDir), requirementsX(), nil, "../src")
+	evidence := formalEvidenceOf(checks)
+	if strings.Join(evidence, ",") != strings.Join(want, ",") {
+		t.Fatalf("the verification inference reads %v, the shared scan %v", evidence, want)
+	}
+}
+
+// assertCurrentEntriesOrdered checks that the entries are current passes ordered
+// by evidence file.
+func assertCurrentEntriesOrdered(t *testing.T, entries []FormalEntry, evidence []string) {
+	t.Helper()
+	if len(entries) != len(evidence) {
 		t.Fatalf("entries are ordered by evidence file on ties: %+v", entries)
 	}
-	for _, e := range entries {
-		if e.Result != FormalPass || e.StaleReason != "" || e.Status != "pass" {
+	for i, e := range entries {
+		if e.Evidence != evidence[i] || !isCurrentPass(e) {
 			t.Fatalf("entry %+v", e)
 		}
 	}
+}
 
-	bundle := model2Bundle(modelDir)
-	checks, _ := InferVerificationChecks(bundle, requirementsX(), nil, "../src")
+// isCurrentPass reports whether the entry is a current, passing result.
+func isCurrentPass(e FormalEntry) bool {
+	return e.Result == FormalPass && e.StaleReason == "" && e.Status == "pass"
+}
+
+// formalEvidenceOf is the sorted evidence files of the formal checks.
+func formalEvidenceOf(checks []VerificationCheck) []string {
 	var evidence []string
 	for _, c := range checks {
 		if c.Kind == "formal" {
@@ -192,9 +210,7 @@ func TestFormalEvidenceFilesMatchTheVerificationScan(t *testing.T) {
 		}
 	}
 	sort.Strings(evidence)
-	if strings.Join(evidence, ",") != strings.Join(want, ",") {
-		t.Fatalf("the verification inference reads %v, the shared scan %v", evidence, want)
-	}
+	return evidence
 }
 
 // A crafted evidence file naming a file outside the root reaches the
