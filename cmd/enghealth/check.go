@@ -44,21 +44,31 @@ func parseCheckArgs(args []string, stderr io.Writer) (checkArgs, int) {
 		}
 		return a, exitUsage
 	}
-	if a.format != "text" && a.format != "json" && a.format != "sarif" {
-		fmt.Fprintf(stderr, "enghealth check: unknown format %q; use text, json or sarif\n", a.format)
-		return a, exitUsage
-	}
-	if strings.TrimSpace(a.options.ManifestPath) == "" {
-		flags.Usage()
-		return a, exitUsage
-	}
-	if a.options.UseCache && a.options.NoCache {
-		fmt.Fprintln(stderr, "enghealth check: --cache and --no-cache cannot be combined")
-		return a, exitUsage
+	if code := a.validate(flags.Usage, stderr); code >= 0 {
+		return a, code
 	}
 	a.options.Paths = flags.Args()
 	a.options.Notes = stderr
 	return a, -1
+}
+
+// validate checks the parsed flags: the exit code is -1 when they are fine.
+//
+// TRLC-LINKS: REQ-EMG-158
+func (a checkArgs) validate(usage func(), stderr io.Writer) int {
+	if !validFormat(a.format) {
+		fmt.Fprintf(stderr, "enghealth check: unknown format %q; use text, json or sarif\n", a.format)
+		return exitUsage
+	}
+	if strings.TrimSpace(a.options.ManifestPath) == "" {
+		usage()
+		return exitUsage
+	}
+	if a.options.UseCache && a.options.NoCache {
+		fmt.Fprintln(stderr, "enghealth check: --cache and --no-cache cannot be combined")
+		return exitUsage
+	}
+	return -1
 }
 
 // renderCheck renders a report in a format.
@@ -323,20 +333,37 @@ func renderCheckText(r engmodel.HealthCheckReport) string {
 		fmt.Fprintf(&b, "note: %s\n", safeText(n))
 	}
 	b.WriteString(changedFilesText(r))
-	if len(r.Blocking) > 0 {
-		fmt.Fprintf(&b, "\nregressions (%d, %s at tier %s):\n", len(r.Blocking), r.RegressionLevel, tierName(r.Tier))
-		b.WriteString(regressionLines(r))
-	}
+	b.WriteString(regressionSection(r))
 	b.WriteString(floorSection(r))
-	if len(r.Skipped) > 0 || len(r.Policy) > 0 {
-		fmt.Fprintf(&b, "\nskipped files (%s at tier %s) and policy weakenings (%s):\n", r.RegressionLevel, tierName(r.Tier), r.PolicyLevel)
-		b.WriteString(failureLines(r))
-		if r.PolicyDecision != "" && len(r.Policy) > 0 {
-			fmt.Fprintf(&b, "  the weakening is recorded by decision %s\n", safeText(r.PolicyDecision))
-		}
-	}
+	b.WriteString(failureSection(r))
 	c := r.Counts
 	fmt.Fprintf(&b, "\nfindings in the changed files: %d new, %d worsened, %d existing, %d waived\n", c.New, c.Worsened, c.Existing, len(r.Waived))
 	b.WriteString(verdictText(r))
 	return b.String()
+}
+
+// regressionSection is the text section of the regressions, or nothing when
+// there is none.
+//
+// TRLC-LINKS: REQ-EMG-158
+func regressionSection(r engmodel.HealthCheckReport) string {
+	if len(r.Blocking) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("\nregressions (%d, %s at tier %s):\n%s", len(r.Blocking), r.RegressionLevel, tierName(r.Tier), regressionLines(r))
+}
+
+// failureSection is the text section of the skipped files and the policy
+// weakenings, or nothing when there is none.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158
+func failureSection(r engmodel.HealthCheckReport) string {
+	if len(r.Skipped) == 0 && len(r.Policy) == 0 {
+		return ""
+	}
+	section := fmt.Sprintf("\nskipped files (%s at tier %s) and policy weakenings (%s):\n%s", r.RegressionLevel, tierName(r.Tier), r.PolicyLevel, failureLines(r))
+	if r.PolicyDecision != "" && len(r.Policy) > 0 {
+		section += fmt.Sprintf("  the weakening is recorded by decision %s\n", safeText(r.PolicyDecision))
+	}
+	return section
 }

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -67,59 +66,65 @@ func at(t *testing.T, doc any, keys ...any) any {
 //
 // TRLC-LINKS: REQ-EMG-157
 func TestReportSchemaAcceptsGeneratedAndRejectsBroken(t *testing.T) {
-	doc := sampleDocument(t)
-	if empty, _ := Encode(BuildReport(nil, Options{EngineName: "x", EngineVersion: "1"})); ValidateReportJSON(empty) != nil {
-		t.Errorf("an empty report is rejected: %v", ValidateReportJSON(empty))
+	empty, _ := Encode(BuildReport(nil, Options{EngineName: "x", EngineVersion: "1"}))
+	wantEqual(t, ValidateReportJSON(empty), nil) // an empty report validates
+	for _, c := range schemaMutations(t) {
+		doc := sampleDocument(t)
+		c.mutate(doc)
+		data, err := json.Marshal(doc)
+		mustEqual(t, err, nil)
+		err = ValidateReportJSON(data)
+		mustEqual(t, [2]any{c.name, err != nil}, [2]any{c.name, true}) // the broken report is rejected
+		wantContains(t, err.Error(), "engmod-health/1")                // with the schema as the reason
 	}
+	wantEqual(t, ValidateReportJSON([]byte("[1,2")) != nil, true) // a document that is not JSON
+}
 
-	file := func() map[string]any { return at(t, doc, "files", 1).(map[string]any) }
-	cases := []struct {
-		name   string
-		mutate func()
-	}{
-		{"another schema string", func() { doc["schema"] = "engmod-health/2" }},
-		{"missing engine", func() { delete(doc, "engine") }},
-		{"missing rollups", func() { delete(doc, "rollups") }},
-		{"missing files", func() { delete(doc, "files") }},
-		{"unknown top-level field", func() { doc["generatedAt"] = "2026-01-01" }},
-		{"score above 10", func() { file()["score"] = 10.5 }},
-		{"score below 1", func() { file()["score"] = 0.5 }},
-		{"unknown band", func() { file()["band"] = "purple" }},
-		{"absolute path", func() { file()["path"] = "/etc/passwd" }},
-		{"backslash path", func() { file()["path"] = `a\b.go` }},
-		{"missing functions", func() { delete(file(), "functions") }},
-		{"unknown code", func() {
+// fileOf is the second file of a document.
+func fileOf(t *testing.T, doc map[string]any) map[string]any {
+	return at(t, doc, "files", 1).(map[string]any)
+}
+
+// schemaMutation is a change of the sample document that the schema rejects.
+type schemaMutation struct {
+	name   string
+	mutate func(doc map[string]any)
+}
+
+// schemaMutations are the broken variants of the sample document.
+func schemaMutations(t *testing.T) []schemaMutation {
+	return []schemaMutation{
+		{"another schema string", func(doc map[string]any) { doc["schema"] = "engmod-health/2" }},
+		{"missing engine", func(doc map[string]any) { delete(doc, "engine") }},
+		{"missing rollups", func(doc map[string]any) { delete(doc, "rollups") }},
+		{"missing files", func(doc map[string]any) { delete(doc, "files") }},
+		{"unknown top-level field", func(doc map[string]any) { doc["generatedAt"] = "2026-01-01" }},
+		{"score above 10", func(doc map[string]any) { fileOf(t, doc)["score"] = 10.5 }},
+		{"score below 1", func(doc map[string]any) { fileOf(t, doc)["score"] = 0.5 }},
+		{"unknown band", func(doc map[string]any) { fileOf(t, doc)["band"] = "purple" }},
+		{"absolute path", func(doc map[string]any) { fileOf(t, doc)["path"] = "/etc/passwd" }},
+		{"backslash path", func(doc map[string]any) { fileOf(t, doc)["path"] = `a\b.go` }},
+		{"missing functions", func(doc map[string]any) { delete(fileOf(t, doc), "functions") }},
+		{"unknown code", func(doc map[string]any) {
 			at(t, doc, "files", 1, "functions", 0, "findings", 0).(map[string]any)["code"] = "health.other"
 		}},
-		{"unknown severity", func() {
+		{"unknown severity", func(doc map[string]any) {
 			at(t, doc, "files", 1, "functions", 0, "findings", 0).(map[string]any)["severity"] = "fatal"
 		}},
-		{"finding without metric", func() { delete(at(t, doc, "files", 1, "functions", 0, "findings", 0).(map[string]any), "metric") }},
-		{"unknown finding field", func() { at(t, doc, "files", 1, "functions", 0, "findings", 0).(map[string]any)["extra"] = 1 }},
-		{"negative loc", func() { file()["loc"] = -1 }},
-		{"negative syntax errors", func() { file()["syntaxErrors"] = -1 }},
-		{"unknown tier", func() { doc["tier"] = "gold" }},
-		{"unknown level", func() { doc["levels"].(map[string]any)[CodeBumpyRoad] = "fatal" }},
-		{"project band", func() { at(t, doc, "rollups", "project").(map[string]any)["band"] = "blue" }},
-		{"unknown project field", func() { at(t, doc, "rollups", "project").(map[string]any)["median"] = 5 }},
-		{"waived without decision", func() { delete(at(t, doc, "waived", 0).(map[string]any), "decision") }},
-		{"waived with unknown field", func() { at(t, doc, "waived", 0).(map[string]any)["extra"] = true }},
-		{"diagnostic level", func() { at(t, doc, "diagnostics", 0).(map[string]any)["level"] = "info" }},
-	}
-	for _, c := range cases {
-		doc = sampleDocument(t)
-		c.mutate()
-		data, err := json.Marshal(doc)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if err := ValidateReportJSON(data); err == nil {
-			t.Errorf("%s: the broken report validates", c.name)
-		} else if !strings.Contains(err.Error(), "engmod-health/1") {
-			t.Errorf("%s: error %q does not name the schema", c.name, err)
-		}
-	}
-	if err := ValidateReportJSON([]byte("[1,2")); err == nil {
-		t.Error("a document that is not JSON validates")
+		{"finding without metric", func(doc map[string]any) {
+			delete(at(t, doc, "files", 1, "functions", 0, "findings", 0).(map[string]any), "metric")
+		}},
+		{"unknown finding field", func(doc map[string]any) {
+			at(t, doc, "files", 1, "functions", 0, "findings", 0).(map[string]any)["extra"] = 1
+		}},
+		{"negative loc", func(doc map[string]any) { fileOf(t, doc)["loc"] = -1 }},
+		{"negative syntax errors", func(doc map[string]any) { fileOf(t, doc)["syntaxErrors"] = -1 }},
+		{"unknown tier", func(doc map[string]any) { doc["tier"] = "gold" }},
+		{"unknown level", func(doc map[string]any) { doc["levels"].(map[string]any)[CodeBumpyRoad] = "fatal" }},
+		{"project band", func(doc map[string]any) { at(t, doc, "rollups", "project").(map[string]any)["band"] = "blue" }},
+		{"unknown project field", func(doc map[string]any) { at(t, doc, "rollups", "project").(map[string]any)["median"] = 5 }},
+		{"waived without decision", func(doc map[string]any) { delete(at(t, doc, "waived", 0).(map[string]any), "decision") }},
+		{"waived with unknown field", func(doc map[string]any) { at(t, doc, "waived", 0).(map[string]any)["extra"] = true }},
+		{"diagnostic level", func(doc map[string]any) { at(t, doc, "diagnostics", 0).(map[string]any)["level"] = "info" }},
 	}
 }

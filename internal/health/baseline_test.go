@@ -12,12 +12,12 @@ import (
 
 // entry is a baseline entry that accepts any value up to 1000.
 func entry(path, function, code string) model.HealthBaselineEntry {
-	return entryAt(path, function, code, 1000)
+	return entryAt(baselineKey{path, function, code}, 1000)
 }
 
 // entryAt is a baseline entry that recorded a value.
-func entryAt(path, function, code string, value int) model.HealthBaselineEntry {
-	return model.HealthBaselineEntry{Path: path, Function: function, Code: code, Value: value}
+func entryAt(k baselineKey, value int) model.HealthBaselineEntry {
+	return model.HealthBaselineEntry{Path: k.path, Function: k.function, Code: k.code, Value: value}
 }
 
 // baselineOptions are the sample options without waivers and with the given
@@ -45,20 +45,13 @@ func TestApplyBaselineMatchesPathFunctionAndCode(t *testing.T) {
 		entry("internal/a.go", "Parser.parse", CodeBumpyRoad),
 	}
 	baselined, stale := ApplyBaseline(in, entries)
-	if len(baselined) != 1 || baselined[0].Path != "internal/a.go" || baselined[0].Function != "Parser.parse" ||
-		baselined[0].Code != CodeComplexMethod || baselined[0].Value != 25 {
-		t.Fatalf("baselined = %+v", baselined)
-	}
+	mustEqual(t, len(baselined), 1)
+	wantEqual(t, [4]any{baselined[0].Path, baselined[0].Function, baselined[0].Code, baselined[0].Value}, [4]any{"internal/a.go", "Parser.parse", CodeComplexMethod, 25})
 	wantStale := []model.HealthBaselineEntry{entry("internal/a.go", "Parser.parse", CodeBumpyRoad), entry("internal/zzz.go", "gone", CodeLargeMethod)}
-	if !reflect.DeepEqual(stale, wantStale) {
-		t.Errorf("stale = %+v, want %+v", stale, wantStale)
-	}
-	if !reflect.DeepEqual(in, waiverResults()) {
-		t.Error("ApplyBaseline modified its input")
-	}
-	if b, s := ApplyBaseline(in, nil); b != nil || s != nil {
-		t.Errorf("an empty baseline marked %+v / %+v", b, s)
-	}
+	wantDeepEqual(t, stale, wantStale)
+	wantDeepEqual(t, in, waiverResults()) // the input is not modified
+	b, s := ApplyBaseline(in, nil)
+	wantEqual(t, [2]bool{b != nil, s != nil}, [2]bool{false, false}) // an empty baseline marks nothing
 }
 
 // A baselined finding stays in the report and counts toward the score, but it
@@ -80,25 +73,16 @@ func TestBaselinedFindingsCountTowardTheScoreButNotTheErrors(t *testing.T) {
 	plain := BuildReport(sampleResults(), baselineOptions("product"))
 	based := BuildReport(sampleResults(), baselineOptions("product", entry("pkg/b.go", "Big", CodeComplexMethod)))
 
-	if !reflect.DeepEqual(plain.Files, based.Files) || !reflect.DeepEqual(plain.Rollups, based.Rollups) {
-		t.Fatal("a baseline changed the files, the scores or the roll-ups")
-	}
-	if len(based.Baselined) != 1 || based.Baselined[0].Code != CodeComplexMethod || !based.IsBaselined("pkg/b.go", "Big", CodeComplexMethod) ||
-		based.IsBaselined("pkg/b.go", "Big", CodeExcessArguments) {
-		t.Fatalf("baselined = %+v", based.Baselined)
-	}
-	if plain.Summary.Baselined != 0 || based.Summary.Baselined != 1 || based.Summary.Findings != plain.Summary.Findings {
-		t.Errorf("summaries: plain %+v baselined %+v", plain.Summary, based.Summary)
-	}
-	if based.Summary.Errors != plain.Summary.Errors-1 {
-		t.Errorf("errors = %d, want %d (one baselined error)", based.Summary.Errors, plain.Summary.Errors-1)
-	}
-	if got := based.Summary.Errors + based.Summary.Warnings + based.Summary.Baselined; got != based.Summary.Findings+len(based.Diagnostics) {
-		t.Errorf("errors + warnings + baselined = %d, want findings %d + diagnostics %d", got, based.Summary.Findings, len(based.Diagnostics))
-	}
-	if len(based.Diagnostics) != len(plain.Diagnostics) {
-		t.Errorf("an entry that matched must not add a diagnostic: %+v", based.Diagnostics)
-	}
+	wantDeepEqual(t, based.Files, plain.Files)
+	wantDeepEqual(t, based.Rollups, plain.Rollups)
+	mustEqual(t, len(based.Baselined), 1)
+	wantEqual(t, based.Baselined[0].Code, CodeComplexMethod)
+	wantEqual(t, [2]bool{based.IsBaselined("pkg/b.go", "Big", CodeComplexMethod), based.IsBaselined("pkg/b.go", "Big", CodeExcessArguments)}, [2]bool{true, false})
+	wantEqual(t, [3]int{plain.Summary.Baselined, based.Summary.Baselined, based.Summary.Findings}, [3]int{0, 1, plain.Summary.Findings})
+	wantEqual(t, based.Summary.Errors, plain.Summary.Errors-1) // one baselined error
+	total := based.Summary.Errors + based.Summary.Warnings + based.Summary.Baselined
+	wantEqual(t, total, based.Summary.Findings+len(based.Diagnostics))
+	wantEqual(t, len(based.Diagnostics), len(plain.Diagnostics)) // a matching entry adds no diagnostic
 }
 
 // An entry that matches no finding is health.baseline_stale, at the level of
@@ -115,20 +99,23 @@ func TestStaleBaselineEntryFollowsTheTierRow(t *testing.T) {
 	for tier, level := range want {
 		o := baselineOptions(tier, entry("pkg/b.go", "Big", CodeComplexMethod), stale)
 		r := BuildReport(sampleResults(), o)
-		var found []Diagnostic
-		for _, d := range r.Diagnostics {
-			if d.Code == model.HealthBaselineStaleCode {
-				found = append(found, d)
-			}
-		}
-		if len(found) != 1 || found[0].Level != level || found[0].Path != "pkg/b.go" || found[0].Function != "Gone" ||
-			!strings.Contains(found[0].Message, CodeLargeMethod) {
-			t.Errorf("%s: stale diagnostics = %+v, want one %s", tier, found, level)
-		}
-		if r.Levels[model.HealthBaselineStaleCode] != level {
-			t.Errorf("%s: levels[baseline_stale] = %q", tier, r.Levels[model.HealthBaselineStaleCode])
+		found := diagnosticsOfCode(r, model.HealthBaselineStaleCode)
+		mustEqual(t, [2]any{tier, len(found)}, [2]any{tier, 1})
+		wantEqual(t, [4]string{tier, found[0].Level, found[0].Path, found[0].Function}, [4]string{tier, level, "pkg/b.go", "Gone"})
+		wantContains(t, found[0].Message, CodeLargeMethod)
+		wantEqual(t, [2]string{tier, r.Levels[model.HealthBaselineStaleCode]}, [2]string{tier, level})
+	}
+}
+
+// diagnosticsOfCode lists the diagnostics of a report with a code.
+func diagnosticsOfCode(r Report, code string) []Diagnostic {
+	var found []Diagnostic
+	for _, d := range r.Diagnostics {
+		if d.Code == code {
+			found = append(found, d)
 		}
 	}
+	return found
 }
 
 // A manifest without a baseline gives the report it gave before the feature: an
@@ -138,20 +125,14 @@ func TestStaleBaselineEntryFollowsTheTierRow(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-160, REQ-EMG-157
 func TestNoBaselineLeavesTheReportUnchanged(t *testing.T) {
 	plain, err := Encode(BuildReport(sampleResults(), baselineOptions("product")))
-	if err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, err, nil)
 	empty, err := Encode(BuildReport(sampleResults(), baselineOptions("product", []model.HealthBaselineEntry{}...)))
-	if err != nil || !bytes.Equal(plain, empty) {
-		t.Fatal("an empty baseline changed the report")
-	}
-	if bytes.Contains(plain, []byte("baselined")) {
-		t.Errorf("a report without baseline must not mention baselined:\n%s", plain)
-	}
+	mustEqual(t, err, nil)
+	mustEqual(t, bytes.Equal(plain, empty), true) // an empty baseline changes nothing
+	wantNone(t, string(plain), "baselined")
 	based, err := Encode(BuildReport(sampleResults(), baselineOptions("product", entry("pkg/b.go", "Big", CodeComplexMethod))))
-	if err != nil || !bytes.Contains(based, []byte(`"baselined": [`)) || !bytes.Contains(based, []byte(`"baselined": 1`)) {
-		t.Fatalf("a baselined report must list and count them: %v", err)
-	}
+	mustEqual(t, err, nil)
+	wantAll(t, string(based), `"baselined": [`, `"baselined": 1`) // a baselined report lists and counts them
 }
 
 // The schema describes the baselined list: a report with one validates, imports
@@ -162,29 +143,20 @@ func TestNoBaselineLeavesTheReportUnchanged(t *testing.T) {
 func TestBaselinedReportConformsToTheSchemaAndImports(t *testing.T) {
 	r := BuildReport(sampleResults(), baselineOptions("product", entry("pkg/b.go", "Big", CodeComplexMethod), entry("pkg/b.go", "Gone", CodeLargeMethod)))
 	data, err := Encode(r)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := ValidateReportJSON(data); err != nil {
-		t.Fatalf("schema: %v", err)
-	}
+	mustEqual(t, err, nil)
+	mustEqual(t, ValidateReportJSON(data), nil)
 	back, err := Import(bytes.NewReader(data))
-	if err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, err, nil)
 	again, err := Encode(back)
-	if err != nil || !bytes.Equal(data, again) {
-		t.Fatalf("import does not round-trip: %v", err)
-	}
-	if relevel := Relevel(back, bundleAt("operational", nil, nil)); relevel.Summary.Baselined != 1 || len(relevel.Baselined) != 1 {
-		t.Errorf("relevel lost the baselined findings: %+v", relevel.Summary)
-	}
+	mustEqual(t, err, nil)
+	wantEqual(t, bytes.Equal(data, again), true) // import round-trips
+	relevel := Relevel(back, bundleAt("operational", nil, nil))
+	wantEqual(t, [2]int{relevel.Summary.Baselined, len(relevel.Baselined)}, [2]int{1, 1})
 	bad := bytes.Replace(data, []byte(`"path": "pkg/b.go",
       "function": "Big"`), []byte(`"path": "../b.go",
       "function": "Big"`), 1)
-	if _, err := Import(bytes.NewReader(bad)); err == nil {
-		t.Error("an unclean baselined path was imported")
-	}
+	_, err = Import(bytes.NewReader(bad))
+	wantEqual(t, err != nil, true) // an unclean baselined path is refused
 }
 
 // SARIF marks a baselined finding as externally suppressed, so an upload does
@@ -194,12 +166,8 @@ func TestBaselinedReportConformsToTheSchemaAndImports(t *testing.T) {
 func TestSARIFSuppressesBaselinedFindings(t *testing.T) {
 	r := BuildReport(sampleResults(), baselineOptions("product", entry("pkg/b.go", "Big", CodeComplexMethod)))
 	data, err := SARIF(r)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if n := strings.Count(string(data), "accepted in the health baseline"); n != 1 {
-		t.Fatalf("suppressions = %d, want 1:\n%s", n, data)
-	}
+	mustEqual(t, err, nil)
+	wantEqual(t, strings.Count(string(data), "accepted in the health baseline"), 1)
 }
 
 // BaselineEntries lists one entry per distinct finding, sorted, and honours the
@@ -210,27 +178,22 @@ func TestBaselineEntriesAndDiff(t *testing.T) {
 	r := BuildReport(sampleResults(), baselineOptions("product"))
 	all := BaselineEntries(r, nil)
 	want := []model.HealthBaselineEntry{
-		entryAt("pkg/b.go", "Big", CodeComplexMethod, 25), entryAt("pkg/b.go", "Big", CodeExcessArguments, 6),
-		entryAt("pkg/z_test.go", "TestZ", CodeLargeAssertionBlock, 7),
+		entryAt(baselineKey{"pkg/b.go", "Big", CodeComplexMethod}, 25), entryAt(baselineKey{"pkg/b.go", "Big", CodeExcessArguments}, 6),
+		entryAt(baselineKey{"pkg/z_test.go", "TestZ", CodeLargeAssertionBlock}, 7),
 	}
-	if !reflect.DeepEqual(all, want) {
-		t.Fatalf("entries = %+v, want %+v", all, want)
-	}
+	mustEqual(t, reflect.DeepEqual(all, want), true)
 	only := BaselineEntries(r, func(code string) bool { return code == CodeComplexMethod })
-	if len(only) != 1 || only[0].Code != CodeComplexMethod {
-		t.Errorf("filtered = %+v", only)
-	}
-	have := []model.HealthBaselineEntry{entryAt("pkg/b.go", "Big", CodeComplexMethod, 25), entry("pkg/old.go", "Old", CodeLargeMethod)}
+	mustEqual(t, len(only), 1)
+	wantEqual(t, only[0].Code, CodeComplexMethod)
+	have := []model.HealthBaselineEntry{entryAt(baselineKey{"pkg/b.go", "Big", CodeComplexMethod}, 25), entry("pkg/old.go", "Old", CodeLargeMethod)}
 	stale, missing := BaselineDiff(have, all)
-	if !reflect.DeepEqual(stale, []model.HealthBaselineEntry{entry("pkg/old.go", "Old", CodeLargeMethod)}) || len(missing) != 2 {
-		t.Errorf("stale %+v missing %+v", stale, missing)
-	}
+	wantDeepEqual(t, stale, []model.HealthBaselineEntry{entry("pkg/old.go", "Old", CodeLargeMethod)})
+	wantEqual(t, len(missing), 2)
 	// An entry whose recorded value differs from the current one is both stale
 	// and missing, so baseline write --check fails until it is rewritten.
-	stale, missing = BaselineDiff([]model.HealthBaselineEntry{entryAt("pkg/b.go", "Big", CodeComplexMethod, 30)}, only)
-	if len(stale) != 1 || stale[0].Value != 30 || len(missing) != 1 || missing[0].Value != 25 {
-		t.Errorf("a changed value: stale %+v missing %+v", stale, missing)
-	}
+	stale, missing = BaselineDiff([]model.HealthBaselineEntry{entryAt(baselineKey{"pkg/b.go", "Big", CodeComplexMethod}, 30)}, only)
+	mustEqual(t, [2]int{len(stale), len(missing)}, [2]int{1, 1})
+	wantEqual(t, [2]int{stale[0].Value, missing[0].Value}, [2]int{30, 25})
 }
 
 // The baseline records the metric value of each finding and accepts it only
@@ -251,32 +214,26 @@ func TestBaselinedFindingMustNotGrowPastItsRecordedValue(t *testing.T) {
 		baselined bool
 	}{{26, true}, {25, true}, {24, false}, {1, false}}
 	for _, c := range cases {
-		r := BuildReport(sampleResults(), baselineOptions("product", entryAt("pkg/b.go", "Big", CodeComplexMethod, c.recorded)))
-		if got := r.IsBaselined("pkg/b.go", "Big", CodeComplexMethod); got != c.baselined {
-			t.Errorf("recorded %d: baselined = %v, want %v", c.recorded, got, c.baselined)
-		}
-		wantErrors := 3
-		if c.baselined {
-			wantErrors = 2
-		}
-		if r.Summary.Errors != wantErrors {
-			t.Errorf("recorded %d: errors = %d, want %d", c.recorded, r.Summary.Errors, wantErrors)
-		}
-		for _, d := range r.Diagnostics {
-			if d.Code == model.HealthBaselineStaleCode {
-				t.Errorf("recorded %d: an entry that matched a finding must not be stale: %+v", c.recorded, d)
-			}
-		}
-		message := r.Files[1].Functions[0].Findings[0].Message
-		if grew := strings.Contains(message, "the baseline accepts cyclomatic"); grew == c.baselined {
-			t.Errorf("recorded %d: message %q", c.recorded, message)
-		}
+		requireRecordedValue(t, c.recorded, c.baselined)
 	}
-	grown := BuildReport(sampleResults(), baselineOptions("product", entryAt("pkg/b.go", "Big", CodeComplexMethod, 24)))
-	if want := "cyclomatic 25 in Big (the baseline accepts cyclomatic 24, now 25: debt that grows is not baselined)"; grown.Files[1].Functions[0].Findings[0].Message != want {
-		t.Errorf("message = %q, want %q", grown.Files[1].Functions[0].Findings[0].Message, want)
+	grown := BuildReport(sampleResults(), baselineOptions("product", entryAt(baselineKey{"pkg/b.go", "Big", CodeComplexMethod}, 24)))
+	wantEqual(t, grown.Files[1].Functions[0].Findings[0].Message, "cyclomatic 25 in Big (the baseline accepts cyclomatic 24, now 25: debt that grows is not baselined)")
+	wantEqual(t, sampleResults()[1].Functions[0].Findings[0].Message, "cyclomatic 25 in Big") // the input is not modified
+}
+
+// requireRecordedValue checks the report of a baseline entry with a recorded
+// value: whether the finding is baselined, the errors, no stale entry and the
+// message of a grown finding.
+func requireRecordedValue(t *testing.T, recorded int, baselined bool) {
+	t.Helper()
+	r := BuildReport(sampleResults(), baselineOptions("product", entryAt(baselineKey{"pkg/b.go", "Big", CodeComplexMethod}, recorded)))
+	wantEqual(t, [2]any{recorded, r.IsBaselined("pkg/b.go", "Big", CodeComplexMethod)}, [2]any{recorded, baselined})
+	wantErrors := 3
+	if baselined {
+		wantErrors = 2
 	}
-	if sampleResults()[1].Functions[0].Findings[0].Message != "cyclomatic 25 in Big" {
-		t.Error("annotating a grown finding modified the input results")
-	}
+	wantEqual(t, [2]int{recorded, r.Summary.Errors}, [2]int{recorded, wantErrors})
+	wantEqual(t, len(diagnosticsOfCode(r, model.HealthBaselineStaleCode)), 0) // a matching entry is not stale
+	message := r.Files[1].Functions[0].Findings[0].Message
+	wantEqual(t, [2]any{recorded, strings.Contains(message, "the baseline accepts cyclomatic")}, [2]any{recorded, !baselined})
 }

@@ -128,13 +128,22 @@ func (v PolicyVerdict) Blocks() bool {
 	return len(v.Changes) > 0 && v.Decision == "" && v.Level == LevelError
 }
 
+// CheckInput is what NewCheckReport adds to a delta report: the levels of the
+// codes at the tier, the waived findings and the verdict on the policy.
+type CheckInput struct {
+	Levels map[string]string
+	Waived []WaivedFinding
+	Policy PolicyVerdict
+}
+
 // NewCheckReport adds the levels, the counts and the verdict to a delta
-// report. levels must hold health.regression (see CheckLevels); a missing level
-// is a warning, so a missing level never fails a gate. A changed file that was
-// skipped fails the report where a regression does.
+// report. in.Levels must hold health.regression (see CheckLevels); a missing
+// level is a warning, so a missing level never fails a gate. A changed file
+// that was skipped fails the report where a regression does.
 //
 // TRLC-LINKS: REQ-EMG-156, REQ-EMG-158, REQ-EMG-210
-func NewCheckReport(d DeltaReport, levels map[string]string, waived []WaivedFinding, policy PolicyVerdict) CheckReport {
+func NewCheckReport(d DeltaReport, in CheckInput) CheckReport {
+	levels, waived, policy := in.Levels, in.Waived, in.Policy
 	if levels == nil {
 		levels = map[string]string{}
 	}

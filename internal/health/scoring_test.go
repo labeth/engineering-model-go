@@ -34,22 +34,16 @@ func TestWeightsTableIsScoringVersion2(t *testing.T) {
 		"health.primitive_obsession": 0.3, "health.brain_method": 1.5,
 		"health.large_assertion_block": 0.3, "health.duplicated_assertion_block": 0.3,
 	}
-	if ScoringVersion != 2 || TailCap != 2.0 || !reflect.DeepEqual(Weights(), want) {
-		t.Fatalf("weights = %v (version %d, tail cap %v), want %v at version 2 with cap 2.0", Weights(), ScoringVersion, TailCap, want)
-	}
+	wantEqual(t, [2]float64{float64(ScoringVersion), TailCap}, [2]float64{2, 2.0})
+	wantDeepEqual(t, Weights(), want)
 	for _, code := range Codes() {
-		if _, ok := want[code]; !ok {
-			t.Errorf("code %s has no weight", code)
-		}
+		_, ok := want[code]
+		wantEqual(t, [2]any{code, ok}, [2]any{code, true}) // every code has a weight
 	}
 	w := Weights()
 	w[CodeComplexMethod] = 99
-	if Weights()[CodeComplexMethod] != 1.0 {
-		t.Error("Weights returned the shared table")
-	}
-	if SeverityFactor(SeverityWarn) != 1 || SeverityFactor(SeverityHigh) != 2 || SeverityFactor("other") != 0 {
-		t.Error("severity factors are not warn 1, high 2")
-	}
+	wantEqual(t, Weights()[CodeComplexMethod], 1.0) // Weights is not the shared table
+	wantEqual(t, [3]float64{SeverityFactor(SeverityWarn), SeverityFactor(SeverityHigh), SeverityFactor("other")}, [3]float64{1, 2, 0})
 }
 
 // A file without findings is 10.0 and green with no deductions.
@@ -235,37 +229,28 @@ func countedSum(s FileScore) float64 {
 // TRLC-LINKS: REQ-EMG-151
 func TestScoreFileTailCapBoundary(t *testing.T) {
 	at := ScoreFile(tailFile(10))
-	if at.Score != 6.5 || at.Band != BandYellow {
-		t.Fatalf("ten functions: %v %s, want 6.5 yellow", at.Score, at.Band)
-	}
+	mustEqual(t, [2]any{at.Score, at.Band}, [2]any{6.5, BandYellow})
 	for i, d := range at.Deductions {
-		want := 0.25
-		switch i {
-		case 0:
-			want = 1.0
-		case 1:
-			want = 0.5
-		}
-		if d.Counted != want {
-			t.Errorf("ten functions: deduction %d (%s) counted %v, want %v", i, d.Function, d.Counted, want)
-		}
+		wantEqual(t, [2]any{i, d.Counted}, [2]any{i, tailCounted(i, 0.25)})
 	}
 	over := ScoreFile(tailFile(11))
-	if over.Score != 6.5 {
-		t.Fatalf("eleven functions: %v, want the same 6.5", over.Score)
-	}
+	mustEqual(t, over.Score, 6.5) // the same score
 	for i, d := range over.Deductions {
-		want := 2.0 / 9
-		switch i {
-		case 0:
-			want = 1.0
-		case 1:
-			want = 0.5
-		}
-		if math.Abs(d.Counted-want) > 5e-5 {
-			t.Errorf("eleven functions: deduction %d counted %v, want %.4f", i, d.Counted, want)
-		}
+		wantNear(t, approx{d.Counted, tailCounted(i, 2.0/9), 5e-5})
 	}
+}
+
+// tailCounted is the counted amount expected of the i-th deduction of a file of
+// warn functions: 1.0 for the worst, 0.5 for the second and the tail amount for
+// the others.
+func tailCounted(i int, tail float64) float64 {
+	switch i {
+	case 0:
+		return 1.0
+	case 1:
+		return 0.5
+	}
+	return tail
 }
 
 // Monotone and bounded: adding mediocre functions never raises the score, five
@@ -282,18 +267,12 @@ func TestScoreFileTailCapIsMonotoneAndBounded(t *testing.T) {
 	prev := MaxScore
 	for n := 1; n <= 60; n++ {
 		got := ScoreFile(tailFile(n)).Score
-		if got > prev {
-			t.Fatalf("%d functions score %v, more than %d functions (%v)", n, got, n-1, prev)
-		}
-		if floor := MaxScore - 1.0 - 0.5 - TailCap; got < floor {
-			t.Fatalf("%d functions score %v, below the bound %v", n, got, floor)
-		}
+		mustEqual(t, [2]any{n, got <= prev}, [2]any{n, true}) // adding functions never raises the score
+		mustEqual(t, [2]any{n, got >= MaxScore-1.0-0.5-TailCap}, [2]any{n, true})
 		prev = got
 	}
 	five, ten, thirty := ScoreFile(tailFile(5)), ScoreFile(tailFile(10)), ScoreFile(tailFile(30))
-	if five.Score != 7.8 || ten.Score != 6.5 || thirty.Score != 6.5 || thirty.Score > five.Score {
-		t.Errorf("scores of 5, 10 and 30 functions = %v, %v, %v; want 7.8, 6.5, 6.5", five.Score, ten.Score, thirty.Score)
-	}
+	wantEqual(t, [3]float64{five.Score, ten.Score, thirty.Score}, [3]float64{7.8, 6.5, 6.5})
 }
 
 // The counted amounts stay honest when the cap bites: the worst function and
@@ -319,31 +298,22 @@ func TestScoreFileCappedTailKeepsCountedHonest(t *testing.T) {
 		fnWith("T4", 100, finding(CodeBrainMethod, SeverityWarn)),
 	}}
 	got := ScoreFile(r)
-	if got.Score != 3.5 || got.Band != BandRed {
-		t.Fatalf("score = %v %s, want 3.5 red", got.Score, got.Band)
-	}
+	mustEqual(t, [2]any{got.Score, got.Band}, [2]any{3.5, BandRed})
 	counted := map[string]float64{}
 	for _, d := range got.Deductions {
 		counted[d.Function] = d.Counted
 	}
-	if counted["A"] != 3.0 || counted["B"] != 1.5 {
-		t.Errorf("A and B count %v and %v, want 3.0 and 1.5", counted["A"], counted["B"])
-	}
+	wantEqual(t, [2]float64{counted["A"], counted["B"]}, [2]float64{3.0, 1.5})
 	for _, name := range []string{"T1", "T2", "T3"} {
-		if math.Abs(counted[name]-0.5714) > 1e-4 {
-			t.Errorf("%s counts %v, want 0.5714", name, counted[name])
-		}
+		wantNear(t, approx{counted[name], 0.5714, 1e-4})
 	}
-	if math.Abs(counted["T4"]-0.2857) > 1e-4 || math.Abs(counted["T1"]/counted["T4"]-2) > 1e-3 {
-		t.Errorf("T4 counts %v against %v for T1, want half", counted["T4"], counted["T1"])
-	}
-	if sum := countedSum(got); math.Abs(sum-6.5) > 5e-4 || !near(RoundTo(10.0-sum, 1), got.Score) {
-		t.Errorf("counted amounts add up to %v, want 6.5", sum)
-	}
+	wantNear(t, approx{counted["T4"], 0.2857, 1e-4})
+	wantNear(t, approx{counted["T1"] / counted["T4"], 2, 1e-3}) // T4 counts half of T1
+	sum := countedSum(got)
+	wantNear(t, approx{sum, 6.5, 5e-4})
+	wantEqual(t, near(RoundTo(10.0-sum, 1), got.Score), true)
 	for _, d := range got.Deductions {
-		if d.Counted > d.Points {
-			t.Errorf("%s counts %v, more than its %v points", d.Function, d.Counted, d.Points)
-		}
+		wantEqual(t, [2]any{d.Function, d.Counted > d.Points}, [2]any{d.Function, false})
 	}
 }
 

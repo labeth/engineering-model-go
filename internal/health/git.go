@@ -101,15 +101,32 @@ func gitEnvFor(goos string, environ []string) []string {
 	}
 	env := make([]string, 0, len(names)+3)
 	for _, name := range names {
-		for _, kv := range environ {
-			key, _, ok := strings.Cut(kv, "=")
-			if ok && (key == name || (windows && strings.EqualFold(key, name))) {
-				env = append(env, kv)
-				break
-			}
+		if kv, ok := lookupEnvEntry(environ, name, windows); ok {
+			env = append(env, kv)
 		}
 	}
 	return append(env, "GIT_OPTIONAL_LOCKS=0", "GIT_CONFIG_GLOBAL=/dev/null", "GIT_CONFIG_NOSYSTEM=1")
+}
+
+// lookupEnvEntry returns the first KEY=value entry of environ whose key is
+// name, compared without regard to case when fold is set.
+//
+// TRLC-LINKS: REQ-EMG-156
+func lookupEnvEntry(environ []string, name string, fold bool) (string, bool) {
+	for _, kv := range environ {
+		key, _, ok := strings.Cut(kv, "=")
+		if ok && envKeyMatches(key, name, fold) {
+			return kv, true
+		}
+	}
+	return "", false
+}
+
+// envKeyMatches compares an environment key with a wanted name.
+//
+// TRLC-LINKS: REQ-EMG-156
+func envKeyMatches(key, name string, fold bool) bool {
+	return key == name || (fold && strings.EqualFold(key, name))
 }
 
 // limitedBuffer fails a write that would grow it past its limit.
@@ -218,13 +235,31 @@ func HasControlChar(s string) bool {
 //
 // TRLC-LINKS: REQ-EMG-156
 func normalizeRepoPath(p string) (string, error) {
-	slashed := filepath.ToSlash(p)
-	clean := path.Clean(slashed)
-	if slashed == "" || HasControlChar(p) || clean == "." || clean == ".." ||
-		strings.HasPrefix(clean, "../") || path.IsAbs(clean) || filepath.IsAbs(p) || filepath.VolumeName(p) != "" {
+	clean := path.Clean(filepath.ToSlash(p))
+	if malformedPath(p) || escapingPath(clean) || absolutePath(p, clean) {
 		return "", fmt.Errorf("%w %q", ErrInvalidPath, p)
 	}
 	return clean, nil
+}
+
+// malformedPath reports an empty path or one with a control character.
+//
+// TRLC-LINKS: REQ-EMG-156
+func malformedPath(p string) bool { return p == "" || HasControlChar(p) }
+
+// escapingPath reports a cleaned path that is the root or leaves it.
+//
+// TRLC-LINKS: REQ-EMG-156
+func escapingPath(clean string) bool {
+	return clean == "." || clean == ".." || strings.HasPrefix(clean, "../")
+}
+
+// absolutePath reports a path that is absolute in any notation or names a
+// volume.
+//
+// TRLC-LINKS: REQ-EMG-156
+func absolutePath(p, clean string) bool {
+	return path.IsAbs(clean) || filepath.IsAbs(p) || filepath.VolumeName(p) != ""
 }
 
 // gitPath checks a path that git printed: it must already be clean.
@@ -260,10 +295,8 @@ func (g GitRepo) Resolve(rev string) (string, error) {
 //
 // TRLC-LINKS: REQ-EMG-156
 func (g GitRepo) MergeBase(a, b string) (string, error) {
-	for _, rev := range []string{a, b} {
-		if err := checkRev(rev); err != nil {
-			return "", err
-		}
+	if err := checkRevs(a, b); err != nil {
+		return "", err
 	}
 	out, code, err := g.run("merge-base", a, b)
 	if err != nil {
@@ -340,12 +373,32 @@ func (g GitRepo) TrackedFiles(prefix string) ([]string, error) {
 	}
 	out, code, err := g.run("ls-files", "-z", "--", clean)
 	if err != nil {
-		if code == 128 && strings.Contains(err.Error(), "not a git repository") {
-			return nil, ErrNotInWorkTree
-		}
+		return nil, notInWorkTree(code, err)
+	}
+	files, err := splitGitPaths(out)
+	if err != nil {
 		return nil, err
 	}
-	var files []string
+	sort.Strings(files)
+	return files, nil
+}
+
+// notInWorkTree maps the failure of git outside a work tree to
+// ErrNotInWorkTree and leaves any other failure as it is.
+//
+// TRLC-LINKS: REQ-EMG-156
+func notInWorkTree(code int, err error) error {
+	if code == 128 && strings.Contains(err.Error(), "not a git repository") {
+		return ErrNotInWorkTree
+	}
+	return err
+}
+
+// splitGitPaths reads the clean paths of a NUL-separated git listing.
+//
+// TRLC-LINKS: REQ-EMG-156
+func splitGitPaths(out []byte) ([]string, error) {
+	var paths []string
 	for _, raw := range bytes.Split(out, []byte{0}) {
 		if len(raw) == 0 {
 			continue
@@ -354,10 +407,9 @@ func (g GitRepo) TrackedFiles(prefix string) ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		files = append(files, p)
+		paths = append(paths, p)
 	}
-	sort.Strings(files)
-	return files, nil
+	return paths, nil
 }
 
 // ChangedFiles lists what changed. With head set it is the diff of
@@ -369,49 +421,9 @@ func (g GitRepo) TrackedFiles(prefix string) ([]string, error) {
 //
 // TRLC-LINKS: REQ-EMG-156
 func (g GitRepo) ChangedFiles(base, head string) ([]ChangedFile, error) {
-	var files []ChangedFile
-	switch {
-	case base == "" && head == "":
-		out, _, err := g.run("ls-files", "-z", "--cached", "--others", "--exclude-standard")
-		if err != nil {
-			return nil, err
-		}
-		if files, err = addedFiles(out, nil); err != nil {
-			return nil, err
-		}
-	case base == "":
-		return nil, fmt.Errorf("%w: a head revision needs a base", ErrInvalidRev)
-	case head != "":
-		for _, rev := range []string{base, head} {
-			if err := checkRev(rev); err != nil {
-				return nil, err
-			}
-		}
-		out, _, err := g.run("diff", "-M", "--name-status", "-z", "--no-ext-diff", "--no-textconv", "--no-color", "--relative", base+"..."+head, "--")
-		if err != nil {
-			return nil, err
-		}
-		if files, err = parseNameStatus(out); err != nil {
-			return nil, err
-		}
-	default:
-		if err := checkRev(base); err != nil {
-			return nil, err
-		}
-		out, _, err := g.run("diff", "-M", "--name-status", "-z", "--no-ext-diff", "--no-textconv", "--no-color", "--relative", base, "--")
-		if err != nil {
-			return nil, err
-		}
-		if files, err = parseNameStatus(out); err != nil {
-			return nil, err
-		}
-		untracked, _, err := g.run("ls-files", "-z", "--others", "--exclude-standard")
-		if err != nil {
-			return nil, err
-		}
-		if files, err = addedFiles(untracked, files); err != nil {
-			return nil, err
-		}
+	files, err := g.collectChanged(base, head)
+	if err != nil {
+		return nil, err
 	}
 	sort.Slice(files, func(i, j int) bool {
 		if files[i].Path != files[j].Path {
@@ -422,23 +434,100 @@ func (g GitRepo) ChangedFiles(base, head string) ([]ChangedFile, error) {
 	return files, nil
 }
 
+// collectChanged picks the listing ChangedFiles describes for the two
+// revisions, before it is sorted.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (g GitRepo) collectChanged(base, head string) ([]ChangedFile, error) {
+	switch {
+	case base == "" && head == "":
+		return g.changedAll()
+	case base == "":
+		return nil, fmt.Errorf("%w: a head revision needs a base", ErrInvalidRev)
+	case head != "":
+		return g.changedRange(base, head)
+	}
+	return g.changedWorkTree(base)
+}
+
+// changedAll lists every tracked and untracked file as A.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (g GitRepo) changedAll() ([]ChangedFile, error) {
+	out, _, err := g.run("ls-files", "-z", "--cached", "--others", "--exclude-standard")
+	if err != nil {
+		return nil, err
+	}
+	return addedFiles(out, nil)
+}
+
+// changedRange lists the diff of base...head.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (g GitRepo) changedRange(base, head string) ([]ChangedFile, error) {
+	if err := checkRevs(base, head); err != nil {
+		return nil, err
+	}
+	return g.nameStatus(base + "..." + head)
+}
+
+// changedWorkTree lists base against the working tree: the tracked changes
+// plus the untracked files that are not ignored.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (g GitRepo) changedWorkTree(base string) ([]ChangedFile, error) {
+	if err := checkRev(base); err != nil {
+		return nil, err
+	}
+	files, err := g.nameStatus(base)
+	if err != nil {
+		return nil, err
+	}
+	untracked, _, err := g.run("ls-files", "-z", "--others", "--exclude-standard")
+	if err != nil {
+		return nil, err
+	}
+	return addedFiles(untracked, files)
+}
+
+// nameStatus runs git diff --name-status for one revision argument and parses
+// its output.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (g GitRepo) nameStatus(revArg string) ([]ChangedFile, error) {
+	out, _, err := g.run("diff", "-M", "--name-status", "-z", "--no-ext-diff", "--no-textconv", "--no-color", "--relative", revArg, "--")
+	if err != nil {
+		return nil, err
+	}
+	return parseNameStatus(out)
+}
+
+// checkRevs checks each revision in turn.
+//
+// TRLC-LINKS: REQ-EMG-156
+func checkRevs(revs ...string) error {
+	for _, rev := range revs {
+		if err := checkRev(rev); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // addedFiles appends one A entry per NUL-separated path that is not already
 // listed.
 //
 // TRLC-LINKS: REQ-EMG-156
 func addedFiles(out []byte, files []ChangedFile) ([]ChangedFile, error) {
+	paths, err := splitGitPaths(out)
+	if err != nil {
+		return nil, err
+	}
 	seen := map[string]bool{}
 	for _, f := range files {
 		seen[f.Path] = true
 	}
-	for _, raw := range bytes.Split(out, []byte{0}) {
-		if len(raw) == 0 {
-			continue
-		}
-		p, err := gitPath(string(raw))
-		if err != nil {
-			return nil, err
-		}
+	for _, p := range paths {
 		if !seen[p] {
 			seen[p] = true
 			files = append(files, ChangedFile{Status: "A", Path: p})
@@ -457,40 +546,66 @@ func parseNameStatus(out []byte) ([]ChangedFile, error) {
 	}
 	var files []ChangedFile
 	for i := 0; i < len(fields); {
-		status := fields[i]
-		i++
-		if status == "" {
-			return nil, fmt.Errorf("git diff: empty status field")
-		}
-		kind := status[:1]
-		paths := 1
-		if kind == "R" || kind == "C" {
-			paths = 2
-		}
-		if i+paths > len(fields) {
-			return nil, fmt.Errorf("git diff: truncated entry for status %q", status)
-		}
-		cf := ChangedFile{Status: kind}
-		var err error
-		if paths == 2 {
-			if cf.OldPath, err = gitPath(fields[i]); err != nil {
-				return nil, err
-			}
-			i++
-			cf.Score, _ = strconv.Atoi(status[1:])
-		}
-		if cf.Path, err = gitPath(fields[i]); err != nil {
+		cf, used, err := parseStatusEntry(fields[i:])
+		if err != nil {
 			return nil, err
 		}
-		i++
-		switch kind {
-		case "A", "D", "M", "R":
-		case "C":
-			cf.Status, cf.OldPath = "A", ""
-		default: // T (type change), U (unmerged), X: the file is there and differs
-			cf.Status = "M"
-		}
 		files = append(files, cf)
+		i += used
 	}
 	return files, nil
+}
+
+// parseStatusEntry reads the first entry of the fields of a name-status
+// listing and returns it with the number of fields it used.
+//
+// TRLC-LINKS: REQ-EMG-156
+func parseStatusEntry(fields []string) (ChangedFile, int, error) {
+	status := fields[0]
+	if status == "" {
+		return ChangedFile{}, 0, fmt.Errorf("git diff: empty status field")
+	}
+	kind := status[:1]
+	paths := 1
+	if kind == "R" || kind == "C" {
+		paths = 2
+	}
+	if 1+paths > len(fields) {
+		return ChangedFile{}, 0, fmt.Errorf("git diff: truncated entry for status %q", status)
+	}
+	cf := ChangedFile{Status: kind}
+	if err := readEntryPaths(&cf, status, fields[1:1+paths]); err != nil {
+		return ChangedFile{}, 0, err
+	}
+	normalizeStatus(&cf)
+	return cf, 1 + paths, nil
+}
+
+// readEntryPaths fills the paths (and the similarity score of a rename or
+// copy) of an entry from its path fields.
+//
+// TRLC-LINKS: REQ-EMG-156
+func readEntryPaths(cf *ChangedFile, status string, paths []string) error {
+	var err error
+	if len(paths) == 2 {
+		if cf.OldPath, err = gitPath(paths[0]); err != nil {
+			return err
+		}
+		cf.Score, _ = strconv.Atoi(status[1:])
+	}
+	cf.Path, err = gitPath(paths[len(paths)-1])
+	return err
+}
+
+// normalizeStatus reduces a git status letter to A, D, M or R.
+//
+// TRLC-LINKS: REQ-EMG-156
+func normalizeStatus(cf *ChangedFile) {
+	switch cf.Status {
+	case "A", "D", "M", "R":
+	case "C":
+		cf.Status, cf.OldPath = "A", ""
+	default: // T (type change), U (unmerged), X: the file is there and differs
+		cf.Status = "M"
+	}
 }

@@ -84,16 +84,11 @@ func TestRealEngineSyntaxError(t *testing.T) {
 	r.Write("p.go", "package p\n\n"+goFunc("Big", 9)+"func broken( {\n\tif x {\n")
 
 	rep, err := health.Check(realOptions(r))
-	if err != nil {
-		t.Fatalf("a syntax error must not fail the check: %v", err)
-	}
+	mustEqual(t, err, nil) // a syntax error does not fail the check
 	big, ok := complexOnly(rep)["p.go Big"]
-	if !ok || big.Change != health.ChangeNew || big.Severity != health.SeverityHigh || big.ValueAfter != 10 {
-		t.Fatalf("entries = %+v", rep.Entries)
-	}
-	if len(rep.Blocking) != 1 {
-		t.Errorf("Blocking = %+v", rep.Blocking)
-	}
+	mustEqual(t, ok, true)
+	wantEqual(t, [3]any{big.Change, big.Severity, big.ValueAfter}, [3]any{health.ChangeNew, health.SeverityHigh, 10})
+	wantEqual(t, len(rep.Blocking), 1)
 }
 
 // A head file the parser only partly reads is listed in Skipped when the change
@@ -176,30 +171,28 @@ func TestRealEngineWithCache(t *testing.T) {
 	opts := realOptions(r)
 	opts.Engine = health.CachedEngine{Engine: treesitter.New(), Cache: cache}
 
-	first, err := health.Check(opts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if hits, misses := cache.Stats(); hits != 0 || misses != 2 {
-		t.Errorf("first run Stats = %d, %d; want 0 hits and 2 misses", hits, misses)
-	}
-	second, err := health.Check(opts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if hits, misses := cache.Stats(); hits != 2 || misses != 2 {
-		t.Errorf("second run Stats = %d, %d; want 2 hits and 2 misses in total", hits, misses)
-	}
+	first := mustCheck(t, opts)
+	hits, misses := cache.Stats()
+	wantEqual(t, [2]int{hits, misses}, [2]int{0, 2}) // the first run misses
+	second := mustCheck(t, opts)
+	hits, misses = cache.Stats()
+	wantEqual(t, [2]int{hits, misses}, [2]int{2, 2}) // the second run hits
 	a, _ := json.Marshal(first)
 	b, _ := json.Marshal(second)
-	if string(a) != string(b) {
-		t.Errorf("cached run differs:\n%s\n%s", a, b)
+	wantEqual(t, string(b), string(a))
+	third := mustCheck(t, realOptions(r))
+	c, _ := json.Marshal(third)
+	wantEqual(t, string(c), string(a)) // a run without the cache agrees
+}
+
+// mustCheck runs the check or stops the test.
+func mustCheck(t *testing.T, opts health.CheckOptions) health.DeltaReport {
+	t.Helper()
+	rep, err := health.Check(opts)
+	if err != nil {
+		t.Fatal(err)
 	}
-	plain := realOptions(r)
-	third, err := health.Check(plain)
-	if c, _ := json.Marshal(third); err != nil || string(c) != string(a) {
-		t.Errorf("a run without the cache differs: %v", err)
-	}
+	return rep
 }
 
 // The warm check of a single changed file with the real engine and the cache

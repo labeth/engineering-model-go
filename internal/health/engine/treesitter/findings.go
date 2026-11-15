@@ -46,48 +46,94 @@ func severityOf(value int, t health.Threshold) (health.Severity, bool) {
 	return "", false
 }
 
+// findingContext is what the findings of a function depend on besides the
+// function: whether primitive obsession is computable for the file, the
+// duplicated assertion blocks found at file level and the thresholds.
+type findingContext struct {
+	primitiveOK bool
+	duplicates  []health.Finding
+	thresholds  map[string]health.Threshold
+}
+
 // functionFindings returns the findings of one function in the order of
-// health.Codes(). duplicates are the duplicated assertion blocks found at file
-// level; primitiveOK says whether primitive obsession is computable for the file.
+// health.Codes().
 // TRLC-LINKS: REQ-EMG-150
-func functionFindings(u *unitRecord, primitiveOK bool, duplicates []health.Finding, thresholds map[string]health.Threshold) []health.Finding {
+func functionFindings(u *unitRecord, fc findingContext) []health.Finding {
 	f := &u.fn
+	out, over := numericFindings(f, fc.thresholds)
+	if fc.primitiveOK && primitiveObsessed(u) {
+		out = append(out, primitiveFinding(u))
+	}
+	if over[health.CodeLargeMethod] && over[health.CodeComplexMethod] && over[health.CodeDeepNesting] {
+		out = append(out, brainFinding(f))
+	}
+	out = append(out, fc.duplicates...)
+	sort.SliceStable(out, func(i, j int) bool { return codeRank[out[i].Code] < codeRank[out[j].Code] })
+	return out
+}
+
+// numericFindings returns the findings decided by one number, and the set of
+// codes that were found.
+// TRLC-LINKS: REQ-EMG-150
+func numericFindings(f *health.Function, thresholds map[string]health.Threshold) ([]health.Finding, map[string]bool) {
 	var out []health.Finding
 	over := map[string]bool{}
 	for _, s := range numericSmells {
-		t, ok := thresholds[s.code]
-		if !ok || (s.testOnly && !f.IsTest) {
-			continue
+		if finding, ok := smellFinding(s, f, thresholds); ok {
+			over[s.code] = true
+			out = append(out, finding)
 		}
-		value := s.value(f)
-		severity, found := severityOf(value, t)
-		if !found {
-			continue
-		}
-		over[s.code] = true
-		out = append(out, health.Finding{
-			Code: s.code, Severity: severity, StartLine: f.StartLine, EndLine: f.EndLine,
-			Metric: s.metric, Value: value,
-			Message: fmt.Sprintf("%s %d in %s (warn at %d, high at %d)", s.metric, value, f.Name, t.Warn, t.High),
-		})
 	}
-	if primitiveOK && f.Parameters >= primitiveMinParameters && u.params.primitive*100 >= primitiveShare*f.Parameters {
-		out = append(out, health.Finding{
-			Code: health.CodePrimitiveObsession, Severity: health.SeverityWarn, StartLine: f.StartLine, EndLine: f.EndLine,
-			Metric: "primitive_parameters", Value: u.params.primitive,
-			Message: fmt.Sprintf("%d of %d parameters of %s are primitive types", u.params.primitive, f.Parameters, f.Name),
-		})
+	return out, over
+}
+
+// smellFinding is the finding of one numeric smell of a function, if its value
+// reaches the threshold.
+// TRLC-LINKS: REQ-EMG-150
+func smellFinding(s numericSmell, f *health.Function, thresholds map[string]health.Threshold) (health.Finding, bool) {
+	t, ok := thresholds[s.code]
+	if !ok || (s.testOnly && !f.IsTest) {
+		return health.Finding{}, false
 	}
-	if over[health.CodeLargeMethod] && over[health.CodeComplexMethod] && over[health.CodeDeepNesting] {
-		out = append(out, health.Finding{
-			Code: health.CodeBrainMethod, Severity: health.SeverityHigh, StartLine: f.StartLine, EndLine: f.EndLine,
-			Metric: "cyclomatic", Value: f.Cyclomatic,
-			Message: fmt.Sprintf("%s is large (%d lines), complex (cyclomatic %d) and deeply nested (%d)", f.Name, f.LOC, f.Cyclomatic, f.MaxNesting),
-		})
+	value := s.value(f)
+	severity, found := severityOf(value, t)
+	if !found {
+		return health.Finding{}, false
 	}
-	out = append(out, duplicates...)
-	sort.SliceStable(out, func(i, j int) bool { return codeRank[out[i].Code] < codeRank[out[j].Code] })
-	return out
+	return health.Finding{
+		Code: s.code, Severity: severity, StartLine: f.StartLine, EndLine: f.EndLine,
+		Metric: s.metric, Value: value,
+		Message: fmt.Sprintf("%s %d in %s (warn at %d, high at %d)", s.metric, value, f.Name, t.Warn, t.High),
+	}, true
+}
+
+// primitiveObsessed reports whether the parameters of a function are mostly
+// primitive types.
+// TRLC-LINKS: REQ-EMG-150
+func primitiveObsessed(u *unitRecord) bool {
+	return u.fn.Parameters >= primitiveMinParameters && u.params.primitive*100 >= primitiveShare*u.fn.Parameters
+}
+
+// primitiveFinding is the primitive obsession finding of a function.
+// TRLC-LINKS: REQ-EMG-150
+func primitiveFinding(u *unitRecord) health.Finding {
+	f := &u.fn
+	return health.Finding{
+		Code: health.CodePrimitiveObsession, Severity: health.SeverityWarn, StartLine: f.StartLine, EndLine: f.EndLine,
+		Metric: "primitive_parameters", Value: u.params.primitive,
+		Message: fmt.Sprintf("%d of %d parameters of %s are primitive types", u.params.primitive, f.Parameters, f.Name),
+	}
+}
+
+// brainFinding is the brain method finding of a function that is large,
+// complex and deeply nested.
+// TRLC-LINKS: REQ-EMG-150
+func brainFinding(f *health.Function) health.Finding {
+	return health.Finding{
+		Code: health.CodeBrainMethod, Severity: health.SeverityHigh, StartLine: f.StartLine, EndLine: f.EndLine,
+		Metric: "cyclomatic", Value: f.Cyclomatic,
+		Message: fmt.Sprintf("%s is large (%d lines), complex (cyclomatic %d) and deeply nested (%d)", f.Name, f.LOC, f.Cyclomatic, f.MaxNesting),
+	}
 }
 
 // codeRank maps a finding code to its position in health.Codes(); it is only

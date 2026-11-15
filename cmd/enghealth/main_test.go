@@ -60,19 +60,11 @@ func runCLI(args ...string) (int, string, string) {
 //
 // TRLC-LINKS: REQ-EMG-158
 func TestRunDispatch(t *testing.T) {
-	if code, _, stderr := runCLI(); code != exitUsage || !strings.Contains(stderr, "usage: enghealth") {
-		t.Errorf("no args: %d %q", code, stderr)
-	}
-	if code, stdout, _ := runCLI("help"); code != exitOK || !strings.Contains(stdout, "scan") {
-		t.Errorf("help: %d %q", code, stdout)
-	}
-	if code, _, stderr := runCLI("frobnicate"); code != exitUsage || !strings.Contains(stderr, "unknown command") {
-		t.Errorf("unknown: %d %q", code, stderr)
-	}
+	requireCLI(t, cliCase{code: exitUsage, stderr: "usage: enghealth"})
+	requireCLI(t, cliCase{args: []string{"help"}, code: exitOK, stdout: "scan"})
+	requireCLI(t, cliCase{args: []string{"frobnicate"}, code: exitUsage, stderr: "unknown command"})
 	for _, name := range []string{"scan", "check", "baseline"} {
-		if commands[name].run == nil {
-			t.Errorf("commands = %v, want %s", commands, name)
-		}
+		wantEqual(t, [2]any{name, commands[name].run != nil}, [2]any{name, true})
 	}
 }
 
@@ -157,27 +149,21 @@ func TestScanTextSummary(t *testing.T) {
 func TestScanJSONSARIFAndOut(t *testing.T) {
 	// The floor of 8.0 is the score of big.go, so the output holds only its finding.
 	manifest := project(t, "lifecycle:\n  tier: product\nhealth:\n  floor: 8.0\n")
-	dir := filepath.Dir(manifest)
-	code, stdout, _ := runCLI("scan", "--model", manifest, "--format", "json")
-	if code != exitOK {
-		t.Fatalf("json exit %d", code)
-	}
-	if _, err := engmodel.ImportHealthReport(strings.NewReader(stdout)); err != nil {
-		t.Errorf("the json output is not a conforming report: %v", err)
-	}
-	if strings.Contains(stdout, dir) {
-		t.Error("the report holds an absolute path")
-	}
+	stdout, _ := requireCLI(t, cliCase{args: []string{"scan", "--model", manifest, "--format", "json"}, code: exitOK})
+	_, err := engmodel.ImportHealthReport(strings.NewReader(stdout))
+	wantEqual(t, err, nil) // the json output is a conforming report
+	wantNone(t, stdout, filepath.Dir(manifest))
+	requireSARIFOut(t, manifest)
+	requireCLI(t, cliCase{args: []string{"scan", "--model", manifest, "--out", filepath.Join(t.TempDir(), "no", "dir", "x.txt")}, code: exitUsage})
+}
 
+// requireSARIFOut checks that scan --format sarif --out writes SARIF 2.1.0 with
+// the one finding to the file and nothing to stdout.
+func requireSARIFOut(t *testing.T, manifest string) {
+	t.Helper()
 	out := filepath.Join(t.TempDir(), "report.sarif")
-	code, stdout, _ = runCLI("scan", "--model", manifest, "--format", "sarif", "--out", out)
-	if code != exitOK || stdout != "" {
-		t.Fatalf("sarif --out: exit %d stdout %q", code, stdout)
-	}
-	data, err := os.ReadFile(out)
-	if err != nil {
-		t.Fatal(err)
-	}
+	stdout, _ := requireCLI(t, cliCase{args: []string{"scan", "--model", manifest, "--format", "sarif", "--out", out}, code: exitOK})
+	wantEqual(t, stdout, "")
 	var doc struct {
 		Version string `json:"version"`
 		Runs    []struct {
@@ -187,13 +173,10 @@ func TestScanJSONSARIFAndOut(t *testing.T) {
 			} `json:"results"`
 		} `json:"runs"`
 	}
-	if err := json.Unmarshal(data, &doc); err != nil || doc.Version != "2.1.0" || len(doc.Runs) != 1 || len(doc.Runs[0].Results) != 1 ||
-		doc.Runs[0].Results[0].RuleID != "health.complex_method" || doc.Runs[0].Results[0].Level != "error" {
-		t.Errorf("sarif = %s (%v)", data, err)
-	}
-	if code, _, _ := runCLI("scan", "--model", manifest, "--out", filepath.Join(t.TempDir(), "no", "dir", "x.txt")); code != exitUsage {
-		t.Errorf("unwritable --out: exit %d, want 2", code)
-	}
+	mustEqual(t, json.Unmarshal(mustRead(t, out), &doc), nil)
+	mustEqual(t, [2]any{doc.Version, len(doc.Runs)}, [2]any{"2.1.0", 1})
+	mustEqual(t, len(doc.Runs[0].Results), 1)
+	wantEqual(t, [2]string{doc.Runs[0].Results[0].RuleID, doc.Runs[0].Results[0].Level}, [2]string{"health.complex_method", "error"})
 }
 
 // --import re-renders a conforming report of another engine in any format, can
@@ -204,48 +187,34 @@ func TestScanJSONSARIFAndOut(t *testing.T) {
 func TestScanImportRerendersAReport(t *testing.T) {
 	manifest := project(t, "lifecycle:\n  tier: mvp\n")
 	report := filepath.Join(t.TempDir(), "report.json")
-	if code, _, stderr := runCLI("scan", "--model", manifest, "--format", "json", "--out", report); code != exitOK {
-		t.Fatal(stderr)
-	}
-	original, _ := os.ReadFile(report)
+	requireCLI(t, cliCase{args: []string{"scan", "--model", manifest, "--format", "json", "--out", report}, code: exitOK})
+	original := string(mustRead(t, report))
 
-	code, stdout, _ := runCLI("scan", "--import", report, "--format", "json")
-	if code != exitOK || stdout != string(original) {
-		t.Errorf("json re-render: exit %d, identical %v", code, stdout == string(original))
-	}
-	if code, stdout, _ := runCLI("scan", "--import", report, "--format", "sarif"); code != exitOK || !strings.Contains(stdout, `"version": "2.1.0"`) {
-		t.Errorf("sarif re-render: exit %d", code)
-	}
-	code, stdout, _ = runCLI("scan", "--import", report)
-	if code != exitOK || !strings.Contains(stdout, "tier mvp") || !strings.Contains(stdout, "0 errors, 2 warnings") {
-		t.Errorf("text re-render: exit %d\n%s", code, stdout)
-	}
+	stdout, _ := requireCLI(t, cliCase{args: []string{"scan", "--import", report, "--format", "json"}, code: exitOK})
+	wantEqual(t, stdout, original)
+	requireCLI(t, cliCase{args: []string{"scan", "--import", report, "--format", "sarif"}, code: exitOK, stdout: `"version": "2.1.0"`})
+	stdout, _ = requireCLI(t, cliCase{args: []string{"scan", "--import", report}, code: exitOK, stdout: "tier mvp"})
+	wantContains(t, stdout, "0 errors, 2 warnings")
 	// Read at product: the same finding is an error.
-	code, stdout, _ = runCLI("scan", "--import", report, "--tier", "product", "--fail-on-error")
-	if code != exitFail || !strings.Contains(stdout, "2 errors, 0 warnings at tier product") {
-		t.Errorf("import at product: exit %d\n%s", code, stdout)
-	}
-	if code, _, _ := runCLI("scan", "--import", report, "--model", manifest, "--tier", "operational", "--fail-on-error"); code != exitFail {
-		t.Errorf("import with model and tier: exit %d, want 1", code)
-	}
-	if code, _, _ := runCLI("scan", "--import", report, "--tier", "gold"); code != exitUsage {
-		t.Errorf("import with a bad tier: exit %d, want 2", code)
-	}
-	if code, _, _ := runCLI("scan", "--import", report, "pkg"); code != exitUsage {
-		t.Errorf("import with paths: exit %d, want 2", code)
-	}
+	requireCLI(t, cliCase{args: []string{"scan", "--import", report, "--tier", "product", "--fail-on-error"}, code: exitFail, stdout: "2 errors, 0 warnings at tier product"})
+	requireCLI(t, cliCase{args: []string{"scan", "--import", report, "--model", manifest, "--tier", "operational", "--fail-on-error"}, code: exitFail})
+	requireCLI(t, cliCase{args: []string{"scan", "--import", report, "--tier", "gold"}, code: exitUsage})
+	requireCLI(t, cliCase{args: []string{"scan", "--import", report, "pkg"}, code: exitUsage})
+	requireBrokenReportsRejected(t, original)
+}
 
+// requireBrokenReportsRejected checks that a report with another schema, a
+// missing body or no JSON at all is rejected with exit 2 and the reason.
+func requireBrokenReportsRejected(t *testing.T, original string) {
+	t.Helper()
 	broken := filepath.Join(t.TempDir(), "broken.json")
 	for name, content := range map[string]string{
-		"schema":  strings.Replace(string(original), "engmod-health/1", "engmod-health/9", 1),
+		"schema":  strings.Replace(original, "engmod-health/1", "engmod-health/9", 1),
 		"missing": `{"schema": "engmod-health/1"}`,
 		"junk":    "not json",
 	} {
-		if err := os.WriteFile(broken, []byte(content), 0o644); err != nil {
-			t.Fatal(err)
-		}
-		if code, _, stderr := runCLI("scan", "--import", broken); code != exitUsage || !strings.Contains(stderr, "invalid health report") {
-			t.Errorf("%s: exit %d %q, want 2 with the reason", name, code, stderr)
-		}
+		writeFileOrFail(t, broken, content)
+		_, stderr := requireCLI(t, cliCase{args: []string{"scan", "--import", broken}, code: exitUsage})
+		wantEqual(t, [2]any{name, strings.Contains(stderr, "invalid health report")}, [2]any{name, true})
 	}
 }

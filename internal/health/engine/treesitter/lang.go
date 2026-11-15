@@ -8,6 +8,7 @@ package treesitter
 
 import (
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -169,6 +170,44 @@ func namedChildren(n *sitter.Node) []*sitter.Node {
 	return out
 }
 
+// lastIndexOf returns the index of the last node of nodes that is n, or -1.
+// TRLC-LINKS: REQ-EMG-150
+func lastIndexOf(nodes []*sitter.Node, n *sitter.Node) int {
+	index := -1
+	for i, node := range nodes {
+		if sameNode(node, n) {
+			index = i
+		}
+	}
+	return index
+}
+
+// childrenByField lists the children of n that are the field of n with the
+// given name.
+// TRLC-LINKS: REQ-EMG-150
+func childrenByField(n *sitter.Node, field string) []*sitter.Node {
+	var out []*sitter.Node
+	for i := uint(0); i < n.ChildCount(); i++ {
+		if n.FieldNameForChild(uint32(i)) == field {
+			out = append(out, n.Child(i))
+		}
+	}
+	return out
+}
+
+// countFieldName counts the children of n that are the field of n with the
+// given name.
+// TRLC-LINKS: REQ-EMG-150
+func countFieldName(n *sitter.Node, field string) int {
+	total := 0
+	for i := uint(0); i < n.ChildCount(); i++ {
+		if n.FieldNameForChild(uint32(i)) == field {
+			total++
+		}
+	}
+	return total
+}
+
 // operatorOf returns the operator kind of a binary-like node.
 // TRLC-LINKS: REQ-EMG-150
 func operatorOf(n *sitter.Node) string {
@@ -195,10 +234,19 @@ func countChildKind(n *sitter.Node, kind string) int {
 func pathHasDir(path string, names ...string) bool {
 	parts := strings.Split(filepath.ToSlash(path), "/")
 	for _, part := range parts[:max(len(parts)-1, 0)] {
-		for _, name := range names {
-			if strings.EqualFold(part, name) {
-				return true
-			}
+		if equalFoldAny(part, names) {
+			return true
+		}
+	}
+	return false
+}
+
+// equalFoldAny reports whether s equals one of names, ignoring case.
+// TRLC-LINKS: REQ-EMG-150
+func equalFoldAny(s string, names []string) bool {
+	for _, name := range names {
+		if strings.EqualFold(s, name) {
+			return true
 		}
 	}
 	return false
@@ -210,26 +258,30 @@ func pathHasDir(path string, names ...string) bool {
 // TRLC-LINKS: REQ-EMG-150
 func callRoot(n *sitter.Node, src []byte) (string, []string) {
 	var props []string
-	for cur := n; cur != nil; {
-		switch cur.Kind() {
-		case "identifier":
-			for i, j := 0, len(props)-1; i < j; i, j = i+1, j-1 {
-				props[i], props[j] = props[j], props[i]
-			}
+	for cur := n; cur != nil; cur = callStep(cur, src, &props) {
+		if cur.Kind() == "identifier" {
+			slices.Reverse(props)
 			return text(cur, src), props
-		case "call_expression":
-			cur = cur.ChildByFieldName("function")
-		case "member_expression":
-			props = append(props, text(cur.ChildByFieldName("property"), src))
-			cur = cur.ChildByFieldName("object")
-		case "await_expression", "parenthesized_expression", "non_null_expression":
-			if cur.NamedChildCount() == 0 {
-				return "", nil
-			}
-			cur = cur.NamedChild(0)
-		default:
-			return "", nil
 		}
 	}
 	return "", nil
+}
+
+// callStep moves from a node of a call chain to the node it continues in,
+// collecting the property names it passes; nil when the chain ends.
+// TRLC-LINKS: REQ-EMG-150
+func callStep(cur *sitter.Node, src []byte, props *[]string) *sitter.Node {
+	switch cur.Kind() {
+	case "call_expression":
+		return cur.ChildByFieldName("function")
+	case "member_expression":
+		*props = append(*props, text(cur.ChildByFieldName("property"), src))
+		return cur.ChildByFieldName("object")
+	case "await_expression", "parenthesized_expression", "non_null_expression":
+		if cur.NamedChildCount() == 0 {
+			return nil
+		}
+		return cur.NamedChild(0)
+	}
+	return nil
 }

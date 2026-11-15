@@ -162,8 +162,26 @@ func FindingFingerprint(code, filePath, function string) string {
 // TRLC-LINKS: REQ-EMG-157
 // ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
 func SARIF(r Report) ([]byte, error) {
+	rules, index := sarifRules(r)
+	b := &sarifBuilder{report: r, baselined: r.baselinedSet(), index: index, results: []sarifResult{}}
+	b.addFindings()
+	b.addWaived()
+	b.addDiagnostics()
+	sort.SliceStable(b.results, func(i, j int) bool { return lessSarifResult(b.results[i], b.results[j]) })
+
+	log := sarifLog{Schema: SARIFSchemaURI, Version: SARIFVersion, Runs: []sarifRun{{
+		Tool:    sarifTool{Driver: sarifDriver{Name: "enghealth", Version: r.Engine.Version, Rules: rules}},
+		Results: b.results,
+	}}}
+	return encodeJSON(log)
+}
+
+// sarifRuleCodes lists the codes that are rules: the health codes, the unused
+// waiver code and the codes of the diagnostics present, in report order.
+//
+// TRLC-LINKS: REQ-EMG-157
+func sarifRuleCodes(r Report) []string {
 	codes := append(Codes(), model.HealthWaiverUnusedCode)
-	baselined := r.baselinedSet()
 	seen := map[string]bool{}
 	for _, c := range codes {
 		seen[c] = true
@@ -176,7 +194,15 @@ func SARIF(r Report) ([]byte, error) {
 		}
 	}
 	sort.Strings(extra)
-	codes = append(codes, extra...)
+	return append(codes, extra...)
+}
+
+// sarifRules builds the rule descriptors of the report and the index of each
+// code among them.
+//
+// TRLC-LINKS: REQ-EMG-157
+func sarifRules(r Report) ([]sarifRule, map[string]int) {
+	codes := sarifRuleCodes(r)
 	index := map[string]int{}
 	rules := make([]sarifRule, len(codes))
 	for i, c := range codes {
@@ -187,63 +213,119 @@ func SARIF(r Report) ([]byte, error) {
 		}
 		rules[i] = sarifRule{ID: c, Name: c, ShortDescription: sarifText{Text: desc}, DefaultConfig: sarifConfig{Level: sarifLevel(r.LevelOf(c))}}
 	}
+	return rules, index
+}
 
-	results := []sarifResult{}
-	add := func(code, path, function, message string, level string, region *sarifRegion, props map[string]any, sup []sarifSuppress) {
-		res := sarifResult{
-			RuleID: code, RuleIndex: index[code], Level: level, Message: sarifText{Text: message},
-			PartialFingerprints: map[string]string{FingerprintKey: FindingFingerprint(code, path, function)},
-			Suppressions:        sup, Properties: props,
-		}
-		if path != "" {
-			res.Locations = []sarifLocation{{PhysicalLocation: sarifPhysical{
-				ArtifactLocation: sarifArtifact{URI: sarifURI(path), URIBaseID: "%SRCROOT%"}, Region: region,
-			}}}
-		}
-		results = append(results, res)
-	}
-	for _, f := range r.Files {
-		for _, fn := range f.Functions {
-			for _, finding := range fn.Findings {
-				var sup []sarifSuppress
-				if baselined[baselineKey{f.Path, fn.Name, finding.Code}] {
-					sup = []sarifSuppress{{Kind: "external", Status: "accepted", Justification: "accepted in the health baseline"}}
-				}
-				add(finding.Code, f.Path, fn.Name, finding.Message, sarifLevel(r.LevelOf(finding.Code)),
-					&sarifRegion{StartLine: finding.StartLine, EndLine: finding.EndLine},
-					map[string]any{"function": fn.Name, "metric": finding.Metric, "value": finding.Value, "severity": string(finding.Severity)}, sup)
-			}
-		}
-	}
-	for _, w := range r.Waived {
-		add(w.Code, w.Path, w.Function, w.Message, sarifLevel(r.LevelOf(w.Code)),
-			&sarifRegion{StartLine: w.StartLine, EndLine: w.EndLine},
-			map[string]any{"function": w.Function, "metric": w.Metric, "value": w.Value, "severity": string(w.Severity)},
-			[]sarifSuppress{{Kind: "external", Status: "accepted", Justification: "waived by decision " + w.Decision}})
-	}
-	for _, d := range r.Diagnostics {
-		add(d.Code, d.Path, d.Function, d.Message, sarifLevel(d.Level), nil, nil, nil)
-	}
-	sort.SliceStable(results, func(i, j int) bool {
-		a, b := results[i], results[j]
-		pa, pb := resultKey(a), resultKey(b)
-		if pa.path != pb.path {
-			return pa.path < pb.path
-		}
-		if pa.line != pb.line {
-			return pa.line < pb.line
-		}
-		if a.RuleIndex != b.RuleIndex {
-			return a.RuleIndex < b.RuleIndex
-		}
-		return a.PartialFingerprints[FingerprintKey] < b.PartialFingerprints[FingerprintKey]
-	})
+// sarifBuilder collects the results of one report.
+type sarifBuilder struct {
+	report    Report
+	baselined map[baselineKey]bool
+	index     map[string]int
+	results   []sarifResult
+}
 
-	log := sarifLog{Schema: SARIFSchemaURI, Version: SARIFVersion, Runs: []sarifRun{{
-		Tool:    sarifTool{Driver: sarifDriver{Name: "enghealth", Version: r.Engine.Version, Rules: rules}},
-		Results: results,
-	}}}
-	return encodeJSON(log)
+// sarifInput is one result before it is added: the finding, the place it is
+// in and its suppressions.
+type sarifInput struct {
+	code, path, function, message, level string
+	region                               *sarifRegion
+	props                                map[string]any
+	suppressions                         []sarifSuppress
+}
+
+// add appends the result of one input.
+//
+// TRLC-LINKS: REQ-EMG-157
+func (b *sarifBuilder) add(in sarifInput) {
+	res := sarifResult{
+		RuleID: in.code, RuleIndex: b.index[in.code], Level: in.level, Message: sarifText{Text: in.message},
+		PartialFingerprints: map[string]string{FingerprintKey: FindingFingerprint(in.code, in.path, in.function)},
+		Suppressions:        in.suppressions, Properties: in.props,
+	}
+	if in.path != "" {
+		res.Locations = []sarifLocation{{PhysicalLocation: sarifPhysical{
+			ArtifactLocation: sarifArtifact{URI: sarifURI(in.path), URIBaseID: "%SRCROOT%"}, Region: in.region,
+		}}}
+	}
+	b.results = append(b.results, res)
+}
+
+// addFindings adds the findings of every function, with the baseline as a
+// suppression.
+//
+// TRLC-LINKS: REQ-EMG-157
+func (b *sarifBuilder) addFindings() {
+	for _, f := range b.report.Files {
+		b.addFileFindings(f)
+	}
+}
+
+// addFileFindings adds the findings of the functions of one file.
+//
+// TRLC-LINKS: REQ-EMG-157
+func (b *sarifBuilder) addFileFindings(f FileReport) {
+	for _, fn := range f.Functions {
+		for _, finding := range fn.Findings {
+			b.add(b.findingInput(f.Path, fn.Name, finding))
+		}
+	}
+}
+
+// findingInput describes a finding of a function, suppressed when the
+// baseline accepts it.
+//
+// TRLC-LINKS: REQ-EMG-157
+func (b *sarifBuilder) findingInput(path, function string, finding Finding) sarifInput {
+	var sup []sarifSuppress
+	if b.baselined[baselineKey{path, function, finding.Code}] {
+		sup = []sarifSuppress{{Kind: "external", Status: "accepted", Justification: "accepted in the health baseline"}}
+	}
+	return sarifInput{
+		code: finding.Code, path: path, function: function, message: finding.Message, level: sarifLevel(b.report.LevelOf(finding.Code)),
+		region:       &sarifRegion{StartLine: finding.StartLine, EndLine: finding.EndLine},
+		props:        map[string]any{"function": function, "metric": finding.Metric, "value": finding.Value, "severity": string(finding.Severity)},
+		suppressions: sup,
+	}
+}
+
+// addWaived adds the waived findings with their external suppression.
+//
+// TRLC-LINKS: REQ-EMG-157
+func (b *sarifBuilder) addWaived() {
+	for _, w := range b.report.Waived {
+		b.add(sarifInput{
+			code: w.Code, path: w.Path, function: w.Function, message: w.Message, level: sarifLevel(b.report.LevelOf(w.Code)),
+			region:       &sarifRegion{StartLine: w.StartLine, EndLine: w.EndLine},
+			props:        map[string]any{"function": w.Function, "metric": w.Metric, "value": w.Value, "severity": string(w.Severity)},
+			suppressions: []sarifSuppress{{Kind: "external", Status: "accepted", Justification: "waived by decision " + w.Decision}},
+		})
+	}
+}
+
+// addDiagnostics adds the diagnostics, which have no region.
+//
+// TRLC-LINKS: REQ-EMG-157
+func (b *sarifBuilder) addDiagnostics() {
+	for _, d := range b.report.Diagnostics {
+		b.add(sarifInput{code: d.Code, path: d.Path, function: d.Function, message: d.Message, level: sarifLevel(d.Level)})
+	}
+}
+
+// lessSarifResult orders results by path, line, rule and fingerprint.
+//
+// TRLC-LINKS: REQ-EMG-157
+func lessSarifResult(a, b sarifResult) bool {
+	pa, pb := resultKey(a), resultKey(b)
+	if pa.path != pb.path {
+		return pa.path < pb.path
+	}
+	if pa.line != pb.line {
+		return pa.line < pb.line
+	}
+	if a.RuleIndex != b.RuleIndex {
+		return a.RuleIndex < b.RuleIndex
+	}
+	return a.PartialFingerprints[FingerprintKey] < b.PartialFingerprints[FingerprintKey]
 }
 
 type resultSortKey struct {

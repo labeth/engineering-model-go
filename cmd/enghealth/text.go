@@ -20,51 +20,90 @@ const worstFunctionCount = 10
 // ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
 func renderText(r engmodel.HealthReport) string {
 	var b strings.Builder
+	writeProject(&b, r)
+	writeUnits(&b, r)
+	writeWorstFunctions(&b, r)
+	writeDiagnostics(&b, r)
+	writeSummary(&b, r)
+	return b.String()
+}
+
+// writeProject writes the lines of the project and of the tests.
+//
+// TRLC-LINKS: REQ-EMG-158
+func writeProject(b *strings.Builder, r engmodel.HealthReport) {
 	p := r.Rollups.Project
-	fmt.Fprintf(&b, "enghealth: code health, engine %s %s, scoring version %d, tier %s\n", safeText(r.Engine.Name), safeText(r.Engine.Version), r.Engine.ScoringVersion, tierName(r.Tier))
-	fmt.Fprintf(&b, "project: %.1f %s (%d production files, %d lines; %d green, %d yellow, %d red)\n",
+	fmt.Fprintf(b, "enghealth: code health, engine %s %s, scoring version %d, tier %s\n", safeText(r.Engine.Name), safeText(r.Engine.Version), r.Engine.ScoringVersion, tierName(r.Tier))
+	fmt.Fprintf(b, "project: %.1f %s (%d production files, %d lines; %d green, %d yellow, %d red)\n",
 		p.Score, p.Band, p.Files, p.LOC, p.Bands.Green, p.Bands.Yellow, p.Bands.Red)
 	if p.Worst != nil {
-		fmt.Fprintf(&b, "worst file: %s (%.1f)\n", safeText(p.Worst.Path), p.Worst.Score)
+		fmt.Fprintf(b, "worst file: %s (%.1f)\n", safeText(p.Worst.Path), p.Worst.Score)
 	}
 	if t := r.Rollups.Tests; t != nil {
-		fmt.Fprintf(&b, "tests: %.1f %s (%d test files; %d green, %d yellow, %d red)\n", t.Score, t.Band, t.Files, t.Bands.Green, t.Bands.Yellow, t.Bands.Red)
+		fmt.Fprintf(b, "tests: %.1f %s (%d test files; %d green, %d yellow, %d red)\n", t.Score, t.Band, t.Files, t.Bands.Green, t.Bands.Yellow, t.Bands.Red)
 	}
-	if len(r.Rollups.Units) > 0 {
-		fmt.Fprintln(&b, "\nfunctional units:")
-		for _, u := range r.Rollups.Units {
-			fmt.Fprintf(&b, "  %-32s %4.1f %-6s %3d files", safeText(u.Unit), u.Score, u.Band, u.Files)
-			if u.Worst != nil {
-				fmt.Fprintf(&b, ", worst %s (%.1f)", safeText(u.Worst.Path), u.Worst.Score)
-			}
-			fmt.Fprintln(&b)
+}
+
+// writeUnits writes the score of each functional unit.
+//
+// TRLC-LINKS: REQ-EMG-158
+func writeUnits(b *strings.Builder, r engmodel.HealthReport) {
+	if len(r.Rollups.Units) == 0 {
+		return
+	}
+	fmt.Fprintln(b, "\nfunctional units:")
+	for _, u := range r.Rollups.Units {
+		fmt.Fprintf(b, "  %-32s %4.1f %-6s %3d files", safeText(u.Unit), u.Score, u.Band, u.Files)
+		if u.Worst != nil {
+			fmt.Fprintf(b, ", worst %s (%.1f)", safeText(u.Worst.Path), u.Worst.Score)
+		}
+		fmt.Fprintln(b)
+	}
+}
+
+// writeWorstFunctions writes the worst functions with their findings.
+//
+// TRLC-LINKS: REQ-EMG-158
+func writeWorstFunctions(b *strings.Builder, r engmodel.HealthReport) {
+	worst := engmodel.WorstHealthFunctions(r, worstFunctionCount)
+	if len(worst) == 0 {
+		return
+	}
+	fmt.Fprintf(b, "\nworst %d functions:\n", len(worst))
+	for _, w := range worst {
+		fmt.Fprintf(b, "  %s:%d %s (%.1f points)\n", safeText(w.Path), w.Function.StartLine, safeText(w.Function.Name), w.Points)
+		for _, f := range w.Function.Findings {
+			fmt.Fprintf(b, "      %-33s %-4s %s [%s]\n", f.Code, f.Severity, safeText(f.Message), findingLevel(r, w, f))
 		}
 	}
-	if worst := engmodel.WorstHealthFunctions(r, worstFunctionCount); len(worst) > 0 {
-		fmt.Fprintf(&b, "\nworst %d functions:\n", len(worst))
-		for _, w := range worst {
-			fmt.Fprintf(&b, "  %s:%d %s (%.1f points)\n", safeText(w.Path), w.Function.StartLine, safeText(w.Function.Name), w.Points)
-			for _, f := range w.Function.Findings {
-				fmt.Fprintf(&b, "      %-33s %-4s %s [%s]\n", f.Code, f.Severity, safeText(f.Message), findingLevel(r, w.Path, w.Function.Name, f.Code))
-			}
-		}
+}
+
+// writeDiagnostics writes the diagnostics of the report.
+//
+// TRLC-LINKS: REQ-EMG-158
+func writeDiagnostics(b *strings.Builder, r engmodel.HealthReport) {
+	if len(r.Diagnostics) == 0 {
+		return
 	}
-	if len(r.Diagnostics) > 0 {
-		fmt.Fprintln(&b, "\ndiagnostics:")
-		for _, d := range r.Diagnostics {
-			fmt.Fprintf(&b, "  %s [%s] %s\n", safeText(d.Code), safeText(d.Level), safeText(d.Message))
-		}
+	fmt.Fprintln(b, "\ndiagnostics:")
+	for _, d := range r.Diagnostics {
+		fmt.Fprintf(b, "  %s [%s] %s\n", safeText(d.Code), safeText(d.Level), safeText(d.Message))
 	}
+}
+
+// writeSummary writes the counts of the findings and the floor line.
+//
+// TRLC-LINKS: REQ-EMG-158
+func writeSummary(b *strings.Builder, r engmodel.HealthReport) {
 	s := r.Summary
-	fmt.Fprintf(&b, "\nfindings: %d (%d errors, %d warnings at tier %s), %d waived", s.Findings, s.Errors, s.Warnings, tierName(r.Tier), s.Waived)
+	fmt.Fprintf(b, "\nfindings: %d (%d errors, %d warnings at tier %s), %d waived", s.Findings, s.Errors, s.Warnings, tierName(r.Tier), s.Waived)
 	if s.Baselined > 0 {
-		fmt.Fprintf(&b, ", %d baselined (counted in the findings and the score, not in the errors or warnings)", s.Baselined)
+		fmt.Fprintf(b, ", %d baselined (counted in the findings and the score, not in the errors or warnings)", s.Baselined)
 	}
 	b.WriteString("\n" + floorLine(r))
-	if p.Files == 0 {
-		fmt.Fprintln(&b, "no production source files were found")
+	if r.Rollups.Project.Files == 0 {
+		fmt.Fprintln(b, "no production source files were found")
 	}
-	return b.String()
 }
 
 // floorLine is the line of the files below the floor and the ones the baseline
@@ -79,13 +118,13 @@ func floorLine(r engmodel.HealthReport) string {
 	return fmt.Sprintf("files below the floor of %.1f: %d, %d covered by the baseline, %d not covered (health.file_below_floor)\n", r.Floor, s.BelowFloor, s.FloorCovered, s.BelowFloor-s.FloorCovered)
 }
 
-// findingLevel is the level shown for a finding: "baselined" when the baseline
-// accepts it, otherwise its level at the tier.
+// findingLevel is the level shown for a finding of a ranked function:
+// "baselined" when the baseline accepts it, otherwise its level at the tier.
 //
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-158
-func findingLevel(r engmodel.HealthReport, path, function, code string) string {
-	if r.IsBaselined(path, function, code) {
+func findingLevel(r engmodel.HealthReport, w engmodel.HealthRankedFunction, f engmodel.HealthFinding) string {
+	if r.IsBaselined(w.Path, w.Function.Name, f.Code) {
 		return "baselined"
 	}
-	return r.LevelOf(code)
+	return r.LevelOf(f.Code)
 }

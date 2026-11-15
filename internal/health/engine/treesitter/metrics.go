@@ -34,11 +34,12 @@ func measure(l *language, c *fileCtx, body *sitter.Node) measurer {
 // isUnit reports whether a node starts a nested function unit of its own.
 // TRLC-LINKS: REQ-EMG-150
 func isUnit(l *language, c *fileCtx, n *sitter.Node) bool {
-	return isUnitKind(l, c, n, n.Kind())
+	return l.isUnitKind(c, n, n.Kind())
 }
 
+// isUnitKind is isUnit for a node whose kind is already known.
 // TRLC-LINKS: REQ-EMG-150
-func isUnitKind(l *language, c *fileCtx, n *sitter.Node, kind string) bool {
+func (l *language) isUnitKind(c *fileCtx, n *sitter.Node, kind string) bool {
 	if !l.unitKinds[kind] {
 		return false
 	}
@@ -52,10 +53,25 @@ func (m *measurer) walk(n *sitter.Node, depth int, top bool) {
 		return
 	}
 	kind := n.Kind()
-	if !top && isUnitKind(m.l, m.c, n, kind) {
+	if !top && m.l.isUnitKind(m.c, n, kind) {
 		return
 	}
 	r := m.l.rules[kind]
+	m.count(n, r)
+	enter := m.nests(n, r)
+	if enter {
+		depth = m.enterBlock(depth)
+	}
+	m.walkChildren(n, depth)
+	if enter && depth == 1 {
+		m.closeTopLevel()
+	}
+}
+
+// count adds the decision points of a node to the cyclomatic complexity and
+// records the boolean expression it heads.
+// TRLC-LINKS: REQ-EMG-150
+func (m *measurer) count(n *sitter.Node, r rule) {
 	if r.decision {
 		m.cyc++
 	}
@@ -68,21 +84,42 @@ func (m *measurer) walk(n *sitter.Node, depth int, top bool) {
 			m.boolChain(n)
 		}
 	}
-	enter := r.nest && (m.l.chained == nil || !m.l.chained(n))
-	if enter {
-		depth++
-		m.maxDepth = max(m.maxDepth, depth)
-		m.blockMax = max(m.blockMax, depth)
-		if depth == 1 {
-			m.blockMax = 1
-		}
+}
+
+// nests reports whether a node opens a nesting level: a chained else-if does
+// not.
+// TRLC-LINKS: REQ-EMG-150
+func (m *measurer) nests(n *sitter.Node, r rule) bool {
+	return r.nest && (m.l.chained == nil || !m.l.chained(n))
+}
+
+// enterBlock goes one level deeper and returns the new depth.
+// TRLC-LINKS: REQ-EMG-150
+func (m *measurer) enterBlock(depth int) int {
+	depth++
+	m.maxDepth = max(m.maxDepth, depth)
+	m.blockMax = max(m.blockMax, depth)
+	if depth == 1 {
+		m.blockMax = 1
 	}
+	return depth
+}
+
+// walkChildren walks the named children of a node at a depth.
+// TRLC-LINKS: REQ-EMG-150
+func (m *measurer) walkChildren(n *sitter.Node, depth int) {
 	for i, count := uint(0), n.NamedChildCount(); i < count; i++ {
 		if child := n.NamedChild(i); child != nil {
 			m.walk(child, depth, false)
 		}
 	}
-	if enter && depth == 1 && m.blockMax >= 2 {
+}
+
+// closeTopLevel ends a top-level control structure: it is a bump when it
+// held another one.
+// TRLC-LINKS: REQ-EMG-150
+func (m *measurer) closeTopLevel() {
+	if m.blockMax >= 2 {
 		m.bumps++
 	}
 }

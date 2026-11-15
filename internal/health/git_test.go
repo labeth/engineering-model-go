@@ -62,26 +62,19 @@ func TestGitEnvForWindowsAndOthers(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-156
 func TestRevAndPathValidation(t *testing.T) {
 	for _, rev := range []string{"", "-p", "--output=x", "a b", "a\nb", "HEAD:file", "a\x00b"} {
-		if err := checkRev(rev); !errors.Is(err, ErrInvalidRev) {
-			t.Errorf("checkRev(%q) = %v, want ErrInvalidRev", rev, err)
-		}
+		wantErrorIs(t, checkRev(rev), ErrInvalidRev)
 	}
 	for _, rev := range []string{"HEAD", "HEAD~1", "HEAD^", "main", "origin/main", "v1.0", "abc123", "main@{1}"} {
-		if err := checkRev(rev); err != nil {
-			t.Errorf("checkRev(%q) = %v", rev, err)
-		}
+		wantEqual(t, checkRev(rev), nil)
 	}
 	for _, p := range []string{"", ".", "..", "../x", "a/../../x", "/etc/passwd", "a\x00b", "a\nb.go", "::error::x\n.go", "a\x1b[2Jb.go", "a\x7fb", "a\u009bb"} {
-		if _, err := normalizeRepoPath(p); !errors.Is(err, ErrInvalidPath) {
-			t.Errorf("normalizeRepoPath(%q) = %v, want ErrInvalidPath", p, err)
-		}
+		_, err := normalizeRepoPath(p)
+		wantErrorIs(t, err, ErrInvalidPath)
 	}
-	if got, err := normalizeRepoPath("./a//b/../c.go"); err != nil || got != "a/c.go" {
-		t.Errorf("normalizeRepoPath = %q, %v", got, err)
-	}
-	if _, err := gitPath("a/./b"); err == nil {
-		t.Error("gitPath accepted an unclean path from git")
-	}
+	got, err := normalizeRepoPath("./a//b/../c.go")
+	wantEqual(t, [2]any{got, err}, [2]any{"a/c.go", nil})
+	_, err = gitPath("a/./b")
+	wantEqual(t, err != nil, true) // an unclean path from git is refused
 }
 
 // ShowFile returns the raw bytes (no trimming, CRLF kept), tells a missing
@@ -97,27 +90,23 @@ func TestShowFile(t *testing.T) {
 	repo := r.Repo()
 
 	got, err := repo.ShowFile("HEAD", "pkg/a.go")
-	if err != nil || string(got) != raw {
-		t.Fatalf("ShowFile = %q, %v; want the raw bytes", got, err)
+	mustEqual(t, [2]any{string(got), err}, [2]any{raw, nil}) // the raw bytes
+	got, err = repo.ShowFile(sha, "./pkg//a.go")
+	mustEqual(t, [2]any{string(got), err}, [2]any{raw, nil})
+	for _, c := range []struct {
+		rev, path string
+		want      error
+	}{
+		{"HEAD", "pkg/missing.go", ErrNotInRev},
+		{"nosuchbranch", "pkg/a.go", ErrUnknownRev},
+		{"--output=x", "pkg/a.go", ErrInvalidRev},
+		{"HEAD", "../outside", ErrInvalidPath},
+	} {
+		_, err = repo.ShowFile(c.rev, c.path)
+		wantErrorIs(t, err, c.want)
 	}
-	if got, err = repo.ShowFile(sha, "./pkg//a.go"); err != nil || string(got) != raw {
-		t.Fatalf("ShowFile by sha = %q, %v", got, err)
-	}
-	if _, err = repo.ShowFile("HEAD", "pkg/missing.go"); !errors.Is(err, ErrNotInRev) {
-		t.Errorf("missing path: %v, want ErrNotInRev", err)
-	}
-	if _, err = repo.ShowFile("nosuchbranch", "pkg/a.go"); !errors.Is(err, ErrUnknownRev) {
-		t.Errorf("unknown rev: %v, want ErrUnknownRev", err)
-	}
-	if _, err = repo.ShowFile("--output=x", "pkg/a.go"); !errors.Is(err, ErrInvalidRev) {
-		t.Errorf("option-like rev: %v, want ErrInvalidRev", err)
-	}
-	if _, err = repo.ShowFile("HEAD", "../outside"); !errors.Is(err, ErrInvalidPath) {
-		t.Errorf("traversal: %v, want ErrInvalidPath", err)
-	}
-	if _, err = repo.ShowFile("HEAD", "pkg"); err == nil || errors.Is(err, ErrNotInRev) {
-		t.Errorf("a directory is not a file at the revision: %v", err)
-	}
+	_, err = repo.ShowFile("HEAD", "pkg")
+	wantEqual(t, [2]bool{err != nil, errors.Is(err, ErrNotInRev)}, [2]bool{true, false}) // a directory is not a file
 }
 
 // ChangedFiles against the working tree lists added, modified, deleted and
@@ -138,9 +127,7 @@ func TestChangedFilesWorkingTree(t *testing.T) {
 
 	r.Write("mod.go", "package mod // changed\n")
 	r.Remove("gone.go")
-	if err := os.MkdirAll(r.Dir+"/dir", 0o755); err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, os.MkdirAll(r.Dir+"/dir", 0o755), nil)
 	r.Git("mv", "old name.go", "dir/new name.go")
 	r.Write("dir/new name.go", body+"one more line\n")
 	r.Write("staged.go", "package staged\n")
@@ -149,9 +136,7 @@ func TestChangedFilesWorkingTree(t *testing.T) {
 	r.Write("ignored.go", "package ignored\n")
 
 	got, err := r.Repo().ChangedFiles("HEAD", "")
-	if err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, err, nil)
 	want := []ChangedFile{
 		{Status: "R", Score: 95, OldPath: "old name.go", Path: "dir/new name.go"},
 		{Status: "D", Path: "gone.go"},
@@ -159,17 +144,11 @@ func TestChangedFilesWorkingTree(t *testing.T) {
 		{Status: "A", Path: "new.go"},
 		{Status: "A", Path: "staged.go"},
 	}
-	if len(got) != len(want) {
-		t.Fatalf("ChangedFiles = %+v, want %d entries", got, len(want))
-	}
+	mustEqual(t, len(got), len(want))
 	for i := range want {
-		if got[i].Status != want[i].Status || got[i].Path != want[i].Path || got[i].OldPath != want[i].OldPath {
-			t.Errorf("entry %d = %+v, want %+v", i, got[i], want[i])
-		}
+		wantEqual(t, [3]string{got[i].Status, got[i].Path, got[i].OldPath}, [3]string{want[i].Status, want[i].Path, want[i].OldPath})
 	}
-	if got[0].Score < 50 || got[0].Score > 100 {
-		t.Errorf("rename score %d out of range", got[0].Score)
-	}
+	wantEqual(t, got[0].Score >= 50 && got[0].Score <= 100, true) // the rename score is in range
 }
 
 // Against a revision range the diff is base...head, so a change that landed
@@ -191,22 +170,14 @@ func TestChangedFilesRange(t *testing.T) {
 
 	repo := r.Repo()
 	got, err := repo.ChangedFiles("main", "feature")
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(got) != 2 || got[0].Path != "a.go" || got[0].Status != "M" || got[1].Path != "feature.go" || got[1].Status != "A" {
-		t.Fatalf("ChangedFiles(main, feature) = %+v", got)
-	}
+	mustEqual(t, [2]any{err, len(got)}, [2]any{nil, 2})
+	wantEqual(t, [4]string{got[0].Path, got[0].Status, got[1].Path, got[1].Status}, [4]string{"a.go", "M", "feature.go", "A"})
 	mb, err := repo.MergeBase("main", "feature")
-	if err != nil || mb != fork {
-		t.Fatalf("MergeBase = %q, %v; want %q", mb, err, fork)
-	}
-	if _, err = repo.ChangedFiles("main", "--bad"); !errors.Is(err, ErrInvalidRev) {
-		t.Errorf("option-like head: %v", err)
-	}
-	if _, err = repo.ChangedFiles("", "feature"); !errors.Is(err, ErrInvalidRev) {
-		t.Errorf("head without base: %v", err)
-	}
+	mustEqual(t, [2]any{mb, err}, [2]any{fork, nil})
+	_, err = repo.ChangedFiles("main", "--bad")
+	wantErrorIs(t, err, ErrInvalidRev) // an option-like head
+	_, err = repo.ChangedFiles("", "feature")
+	wantErrorIs(t, err, ErrInvalidRev) // a head without a base
 }
 
 // Paths are relative to the directory the reader runs in, for the diff, the
@@ -242,29 +213,23 @@ func TestPathsAreRelativeToDir(t *testing.T) {
 func TestHasCommitsAndEmptyListing(t *testing.T) {
 	r := NewFixtureRepo(t)
 	repo := r.Repo()
-	if has, err := repo.HasCommits(); err != nil || has {
-		t.Fatalf("HasCommits on an empty repository = %v, %v", has, err)
-	}
+	has, err := repo.HasCommits()
+	mustEqual(t, [2]any{has, err}, [2]any{false, nil})
 	r.Write("a.go", "package a\n")
 	r.Git("add", "a.go")
 	r.Write("b.go", "package b\n")
 	got, err := repo.ChangedFiles("", "")
-	if err != nil || len(got) != 2 || got[0].Status != "A" || got[1].Path != "b.go" {
-		t.Fatalf("ChangedFiles on an empty repository = %+v, %v", got, err)
-	}
-	if _, err = repo.Resolve("HEAD"); !errors.Is(err, ErrUnknownRev) {
-		t.Errorf("Resolve(HEAD) before the first commit: %v", err)
-	}
+	mustEqual(t, [2]any{err, len(got)}, [2]any{nil, 2})
+	wantEqual(t, [2]string{got[0].Status, got[1].Path}, [2]string{"A", "b.go"})
+	_, err = repo.Resolve("HEAD")
+	wantErrorIs(t, err, ErrUnknownRev) // before the first commit
 	r.Commit("first")
-	if has, err := repo.HasCommits(); err != nil || !has {
-		t.Fatalf("HasCommits = %v, %v", has, err)
-	}
-	if sha, err := repo.Resolve("HEAD"); err != nil || len(sha) != 40 {
-		t.Fatalf("Resolve = %q, %v", sha, err)
-	}
-	if _, err := NewGitRepo(t.TempDir()).HasCommits(); err == nil {
-		t.Error("HasCommits outside a repository must be an error")
-	}
+	has, err = repo.HasCommits()
+	mustEqual(t, [2]any{has, err}, [2]any{true, nil})
+	sha, err := repo.Resolve("HEAD")
+	mustEqual(t, [2]any{len(sha), err}, [2]any{40, nil})
+	_, err = NewGitRepo(t.TempDir()).HasCommits()
+	wantEqual(t, err != nil, true) // outside a repository
 }
 
 // A clone made with --depth 1 is shallow and does not know the earlier commit.
@@ -326,32 +291,27 @@ func TestParseNameStatus(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-156
 func TestControlCharactersInPathsAreRefused(t *testing.T) {
-	if !HasControlChar("a\nb") || !HasControlChar("\x1b[31m") || !HasControlChar("a\x7f") || !HasControlChar("\u0085") {
-		t.Error("HasControlChar missed a control character")
+	for _, s := range []string{"a\nb", "\x1b[31m", "a\x7f", "\u0085"} {
+		wantEqual(t, [2]any{s, HasControlChar(s)}, [2]any{s, true})
 	}
-	if HasControlChar("pkg/ünï/main.go") || HasControlChar("a b.go") {
-		t.Error("HasControlChar refused an ordinary name")
+	for _, s := range []string{"pkg/ünï/main.go", "a b.go"} {
+		wantEqual(t, [2]any{s, HasControlChar(s)}, [2]any{s, false})
 	}
-	if _, err := gitPath("evil\n::error::x.go"); !errors.Is(err, ErrInvalidPath) {
-		t.Errorf("gitPath = %v, want ErrInvalidPath", err)
-	}
-	if got, err := normalizeRepoPath("pkg/ünï.go"); err != nil || got != "pkg/ünï.go" {
-		t.Errorf("a non-ASCII name = %q, %v", got, err)
-	}
+	_, err := gitPath("evil\n::error::x.go")
+	wantErrorIs(t, err, ErrInvalidPath)
+	got, err := normalizeRepoPath("pkg/ünï.go")
+	wantEqual(t, [2]any{got, err}, [2]any{"pkg/ünï.go", nil}) // a non-ASCII name
 	r := NewFixtureRepo(t)
 	r.Write("ok.go", "package p\n")
 	r.Write("bad\nname.go", "package p\n")
 	r.Commit("one")
 	r.Write("ok.go", "package p\n// changed\n")
-	if _, err := r.Repo().ChangedFiles("", ""); !errors.Is(err, ErrInvalidPath) {
-		t.Errorf("a listing with a newline in a name: %v, want ErrInvalidPath", err)
-	}
-	if _, err := r.Repo().ChangedFiles("HEAD", ""); err != nil {
-		t.Errorf("a change that does not touch the odd name is fine: %v", err)
-	}
-	if _, err := r.Repo().ShowFile("HEAD", "bad\nname.go"); !errors.Is(err, ErrInvalidPath) {
-		t.Errorf("ShowFile = %v, want ErrInvalidPath", err)
-	}
+	_, err = r.Repo().ChangedFiles("", "")
+	wantErrorIs(t, err, ErrInvalidPath) // a listing with a newline in a name
+	_, err = r.Repo().ChangedFiles("HEAD", "")
+	wantEqual(t, err, nil) // a change that does not touch the odd name is fine
+	_, err = r.Repo().ShowFile("HEAD", "bad\nname.go")
+	wantErrorIs(t, err, ErrInvalidPath)
 }
 
 // The stderr of git is kept up to 64 KiB, the rest is dropped without an error,
@@ -403,21 +363,16 @@ func TestTrackedFiles(t *testing.T) {
 	r.Write("a.go", "package p\n")
 	r.Commit("one")
 	got, err := r.Repo().TrackedFiles(".engmod")
-	if err != nil || len(got) != 0 {
-		t.Fatalf("nothing tracked: %v, %v", got, err)
-	}
+	mustEqual(t, [2]any{len(got), err}, [2]any{0, nil}) // nothing tracked
 	r.Write(".engmod/cache/health/x.json", "{}")
-	if got, err = r.Repo().TrackedFiles(".engmod"); err != nil || len(got) != 0 {
-		t.Fatalf("an untracked file is not tracked: %v, %v", got, err)
-	}
+	got, err = r.Repo().TrackedFiles(".engmod")
+	mustEqual(t, [2]any{len(got), err}, [2]any{0, nil}) // an untracked file is not tracked
 	r.Commit("two")
-	if got, err = r.Repo().TrackedFiles(".engmod"); err != nil || !reflect.DeepEqual(got, []string{".engmod/cache/health/x.json"}) {
-		t.Fatalf("tracked = %v, %v", got, err)
-	}
-	if _, err = NewGitRepo(t.TempDir()).TrackedFiles(".engmod"); !errors.Is(err, ErrNotInWorkTree) {
-		t.Errorf("outside a work tree: %v, want ErrNotInWorkTree", err)
-	}
-	if _, err = r.Repo().TrackedFiles("../x"); !errors.Is(err, ErrInvalidPath) {
-		t.Errorf("an escaping prefix: %v, want ErrInvalidPath", err)
-	}
+	got, err = r.Repo().TrackedFiles(".engmod")
+	mustEqual(t, err, nil)
+	wantDeepEqual(t, got, []string{".engmod/cache/health/x.json"})
+	_, err = NewGitRepo(t.TempDir()).TrackedFiles(".engmod")
+	wantErrorIs(t, err, ErrNotInWorkTree)
+	_, err = r.Repo().TrackedFiles("../x")
+	wantErrorIs(t, err, ErrInvalidPath)
 }

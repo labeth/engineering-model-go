@@ -79,68 +79,126 @@ type Options struct {
 // TRLC-LINKS: REQ-EMG-150, REQ-EMG-151, REQ-EMG-152, REQ-EMG-153, REQ-EMG-154, REQ-EMG-155, REQ-EMG-157, REQ-EMG-158, REQ-EMG-159, REQ-EMG-160, REQ-EMG-209
 // ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH, FLOW-HEALTH-SCAN, EVT-HEALTH-SCAN-REQUESTED
 func Scan(opts Options) (health.Report, error) {
-	bundle, err := model.LoadBundle(opts.ManifestPath)
+	run, err := setupRun(opts.ManifestPath, opts.Tier, opts.Paths)
 	if err != nil {
-		return health.Report{}, fmt.Errorf("%w: load model: %v", ErrSetup, err)
+		return health.Report{}, err
 	}
-	if tier := strings.ToLower(strings.TrimSpace(opts.Tier)); tier != "" {
-		if model.TierRank(tier) == 0 {
-			return health.Report{}, fmt.Errorf("%w: unknown tier %q; use one of %s", ErrSetup, opts.Tier, strings.Join(model.Tiers, ", "))
+	engine := cachedEngine(opts, run.root)
+	levels := health.Levels(run.bundle)
+	sc := run.analyzeSources(engine, levels)
+	rollups := run.attribution(len(sc.results) > 0, levels[health.CodeRollupUnavailable])
+	baseline, baselineDiags, err := loadBaseline(run.bundle, run.scope, opts.IgnoreBaseline)
+	if err != nil {
+		return health.Report{}, err
+	}
+	h := run.bundle.Manifest.Health
+	var bundles []string
+	if run.bundle.Manifest.Lifecycle != nil {
+		bundles = run.bundle.Manifest.Lifecycle.EffectiveBundles()
+	}
+	return health.BuildReport(sc.results, health.Options{
+		EngineName: engine.Name(), EngineVersion: engine.Version(),
+		Tier: run.tier, Bundles: bundles, Levels: levels, Floor: model.EffectiveHealthFloor(h),
+		Waivers: run.waivers(sc.files), Baseline: baseline, Owners: rollups.owners, Links: rollups.links,
+		Diagnostics: append(append(sc.diags, rollups.diags...), baselineDiags...),
+	}), nil
+}
+
+// projectRun is what a scan or a check resolves before it reads any source:
+// the model at its tier, the project root and the scope of the paths.
+type projectRun struct {
+	bundle model.Bundle
+	tier   string
+	root   string
+	scope  []string
+}
+
+// setupRun loads the model, applies the tier override and resolves the root
+// and the scope of the paths; every failure is a setup error.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-158
+func setupRun(manifestPath, tierOverride string, paths []string) (projectRun, error) {
+	bundle, err := model.LoadBundle(manifestPath)
+	if err != nil {
+		return projectRun{}, fmt.Errorf("%w: load model: %v", ErrSetup, err)
+	}
+	if t := strings.ToLower(strings.TrimSpace(tierOverride)); t != "" {
+		if model.TierRank(t) == 0 {
+			return projectRun{}, fmt.Errorf("%w: unknown tier %q; use one of %s", ErrSetup, tierOverride, strings.Join(model.Tiers, ", "))
 		}
-		bundle = health.WithTier(bundle, tier)
+		bundle = health.WithTier(bundle, t)
 	}
 	tier, _, _ := validate.EffectiveTier(bundle)
 	root, err := filepath.Abs(codescan.WithDefaultCodeRoot(bundle, nil)[0])
 	if err != nil {
-		return health.Report{}, fmt.Errorf("%w: resolve project root: %v", ErrSetup, err)
+		return projectRun{}, fmt.Errorf("%w: resolve project root: %v", ErrSetup, err)
 	}
-	scope, err := resolveScope(root, opts.Paths)
+	scope, err := resolveScope(root, paths)
 	if err != nil {
-		return health.Report{}, err
+		return projectRun{}, err
 	}
-	engine := cachedEngine(opts, root)
+	return projectRun{bundle: bundle, tier: tier, root: root, scope: scope}, nil
+}
 
-	h := bundle.Manifest.Health
-	levels := health.Levels(bundle)
-	files, diags := listSources(bundle, root, scope, levels[CodeFileSkipped])
-	inputs, readDiags := readSources(root, files, levels[CodeFileSkipped])
-	diags = append(diags, readDiags...)
-	results := make([]health.FileResult, 0, len(inputs))
+// scanned is what the sources of a scan yield: the files listed, the results
+// of the ones analysed and the diagnostics of the ones that were not.
+type scanned struct {
+	files   []string
+	results []health.FileResult
+	diags   []health.Diagnostic
+}
+
+// analyzeSources lists, reads and analyses the sources of the scope.
+//
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-153
+func (r projectRun) analyzeSources(engine health.Engine, levels map[string]string) scanned {
+	files, diags := listSources(r, levels[CodeFileSkipped])
+	inputs, readDiags := readSources(r.root, files, levels[CodeFileSkipped])
+	sc := scanned{files: files, diags: append(diags, readDiags...), results: make([]health.FileResult, 0, len(inputs))}
+	h := r.bundle.Manifest.Health
 	for _, in := range inputs {
-		res, err := engine.Analyze([]health.FileInput{in}, health.ConfigFor(tier, h, in.Path))
-		if err != nil || len(res) != 1 {
-			if err == nil {
-				err = fmt.Errorf("engine returned %d results for one file", len(res))
-			}
-			diags = append(diags, fileDiagnostic(CodeFileFailed, levels[CodeFileFailed], in.Path, fmt.Sprintf("%s was not analysed: %v", shownPath(in.Path), err)))
+		res, err := analyzeFile(engine, in, health.ConfigFor(r.tier, h, in.Path))
+		if err != nil {
+			sc.diags = append(sc.diags, fileDiagnostic(health.Diagnostic{
+				Code: CodeFileFailed, Level: levels[CodeFileFailed], Path: in.Path,
+				Message: fmt.Sprintf("%s was not analysed: %v", shownPath(in.Path), err),
+			}))
 			continue
 		}
-		results = append(results, res[0])
+		sc.results = append(sc.results, res)
 	}
+	return sc
+}
 
-	owners, links, rollupDiags := attribution(bundle, root, len(results) > 0, levels[health.CodeRollupUnavailable])
-	diags = append(diags, rollupDiags...)
-	var waivers []model.HealthWaiver
-	if h != nil {
-		waivers = validate.AcceptedHealthWaivers(bundle, h.Waivers)
-		if scope != nil {
-			waivers = health.WaiversForFiles(waivers, files)
-		}
-	}
-	baseline, baselineDiags, err := loadBaseline(bundle, scope, opts.IgnoreBaseline)
+// analyzeFile runs the engine on one file; an engine that does not return one
+// result for it is an error.
+//
+// TRLC-LINKS: REQ-EMG-150
+func analyzeFile(engine health.Engine, in health.FileInput, cfg health.Config) (health.FileResult, error) {
+	res, err := engine.Analyze([]health.FileInput{in}, cfg)
 	if err != nil {
-		return health.Report{}, err
+		return health.FileResult{}, err
 	}
-	diags = append(diags, baselineDiags...)
-	var bundles []string
-	if bundle.Manifest.Lifecycle != nil {
-		bundles = bundle.Manifest.Lifecycle.EffectiveBundles()
+	if len(res) != 1 {
+		return health.FileResult{}, fmt.Errorf("engine returned %d results for one file", len(res))
 	}
-	return health.BuildReport(results, health.Options{
-		EngineName: engine.Name(), EngineVersion: engine.Version(),
-		Tier: tier, Bundles: bundles, Levels: levels, Floor: model.EffectiveHealthFloor(h),
-		Waivers: waivers, Baseline: baseline, Owners: owners, Links: links, Diagnostics: diags,
-	}), nil
+	return res[0], nil
+}
+
+// waivers are the accepted waivers of the manifest, limited to the files of a
+// scan restricted to some paths.
+//
+// TRLC-LINKS: REQ-EMG-154
+func (r projectRun) waivers(files []string) []model.HealthWaiver {
+	h := r.bundle.Manifest.Health
+	if h == nil {
+		return nil
+	}
+	waivers := validate.AcceptedHealthWaivers(r.bundle, h.Waivers)
+	if r.scope != nil {
+		waivers = health.WaiversForFiles(waivers, files)
+	}
+	return waivers
 }
 
 // loadBaseline reads the baseline file of the manifest (ADR-EMG-059). It
@@ -168,16 +226,23 @@ func loadBaseline(bundle model.Bundle, scope []string, ignore bool) ([]model.Hea
 	if err != nil {
 		return nil, nil, fmt.Errorf("%w: %v", ErrSetup, err)
 	}
+	return entriesInScope(file.Entries, scope), nil, nil
+}
+
+// entriesInScope keeps the baseline entries of the files inside the scope.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-158
+func entriesInScope(entries []model.HealthBaselineEntry, scope []string) []model.HealthBaselineEntry {
 	if scope == nil {
-		return file.Entries, nil, nil
+		return entries
 	}
 	var kept []model.HealthBaselineEntry
-	for _, e := range file.Entries {
+	for _, e := range entries {
 		if inScope(scope, e.Path) {
 			kept = append(kept, e)
 		}
 	}
-	return kept, nil, nil
+	return kept
 }
 
 // cachedEngine returns the engine of a run: the tree-sitter engine (or the one
@@ -210,14 +275,15 @@ func shownPath(rel string) string {
 	return rel
 }
 
-// fileDiagnostic is the diagnostic of a file that was not analysed.
+// fileDiagnostic is the diagnostic of a file that was not analysed: the one
+// given, at the level of a warning when it names none.
 //
 // TRLC-LINKS: REQ-EMG-150, REQ-EMG-155
-func fileDiagnostic(code, level, rel, message string) health.Diagnostic {
-	if level == "" {
-		level = health.LevelWarning
+func fileDiagnostic(d health.Diagnostic) health.Diagnostic {
+	if d.Level == "" {
+		d.Level = health.LevelWarning
 	}
-	return health.Diagnostic{Code: code, Level: level, Path: rel, Message: message}
+	return d
 }
 
 // resolveScope turns the Paths option into root-relative path prefixes. It
@@ -231,26 +297,58 @@ func resolveScope(root string, paths []string) ([]string, error) {
 	}
 	scope := make([]string, 0, len(paths))
 	for _, p := range paths {
-		abs, err := filepath.Abs(p)
+		rel, err := scopeEntry(root, p)
 		if err != nil {
-			return nil, fmt.Errorf("%w: path %q: %v", ErrSetup, p, err)
+			return nil, err
 		}
-		rel, err := filepath.Rel(root, abs)
-		if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-			return nil, fmt.Errorf("%w: path %q is outside the project root", ErrSetup, p)
-		}
-		info, err := os.Stat(abs)
-		if err != nil {
-			return nil, fmt.Errorf("%w: path %q: %v", ErrSetup, p, err)
-		}
-		if info.Mode().IsRegular() {
-			if _, ok := codemap.LanguageForPath(abs); !ok {
-				return nil, fmt.Errorf("%w: path %q is not a supported source file", ErrSetup, p)
-			}
-		}
-		scope = append(scope, filepath.ToSlash(rel))
+		scope = append(scope, rel)
 	}
 	return scope, nil
+}
+
+// scopeEntry is the root-relative, slash-separated form of one path option.
+//
+// TRLC-LINKS: REQ-EMG-158
+func scopeEntry(root, p string) (string, error) {
+	abs, err := filepath.Abs(p)
+	if err != nil {
+		return "", fmt.Errorf("%w: path %q: %v", ErrSetup, p, err)
+	}
+	rel, err := filepath.Rel(root, abs)
+	if outsideRoot(rel, err) {
+		return "", fmt.Errorf("%w: path %q is outside the project root", ErrSetup, p)
+	}
+	info, err := os.Stat(abs)
+	if err != nil {
+		return "", fmt.Errorf("%w: path %q: %v", ErrSetup, p, err)
+	}
+	if info.Mode().IsRegular() && !supportedSource(abs) {
+		return "", fmt.Errorf("%w: path %q is not a supported source file", ErrSetup, p)
+	}
+	return filepath.ToSlash(rel), nil
+}
+
+// outsideRoot reports a relative path that could not be made or leaves the
+// root.
+//
+// TRLC-LINKS: REQ-EMG-158
+func outsideRoot(rel string, err error) bool {
+	return err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator))
+}
+
+// supportedSource reports whether the file is in a language the scan reads.
+//
+// TRLC-LINKS: REQ-EMG-158
+func supportedSource(p string) bool {
+	_, ok := codemap.LanguageForPath(p)
+	return ok
+}
+
+// underScope reports whether a root-relative path lies under one scope prefix.
+//
+// TRLC-LINKS: REQ-EMG-158
+func underScope(rel, prefix string) bool {
+	return prefix == "." || rel == prefix || strings.HasPrefix(rel, prefix+"/")
 }
 
 // inScope reports whether a root-relative file path lies under one of the
@@ -262,11 +360,23 @@ func inScope(scope []string, rel string) bool {
 		return true
 	}
 	for _, s := range scope {
-		if s == "." || rel == s || strings.HasPrefix(rel, s+"/") {
+		if underScope(rel, s) {
 			return true
 		}
 	}
 	return false
+}
+
+// sourceWalk collects the source files of the code scope while the tree is
+// walked.
+type sourceWalk struct {
+	skip  func(path string, isDir bool) bool
+	h     *model.ManifestHealth
+	root  string
+	scope []string
+	level string
+	files []string
+	diags []health.Diagnostic
 }
 
 // listSources lists the root-relative paths (sorted) of the source files of
@@ -279,44 +389,85 @@ func inScope(scope []string, rel string) bool {
 // same way, so the files in it never read as clean.
 //
 // TRLC-LINKS: REQ-EMG-150, REQ-EMG-153
-func listSources(bundle model.Bundle, root string, scope []string, skippedLevel string) ([]string, []health.Diagnostic) {
-	skip := codescan.CodeScopeSkip(bundle)
-	h := bundle.Manifest.Health
-	var files []string
-	var diags []health.Diagnostic
-	_ = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
-		rel, relErr := filepath.Rel(root, p)
-		if relErr != nil {
-			return nil
-		}
-		rel = filepath.ToSlash(rel)
-		if err != nil {
-			if scopeTouches(scope, rel) {
-				diags = append(diags, fileDiagnostic(CodeFileSkipped, skippedLevel, rel, fmt.Sprintf("%s was not analysed: %s", shownPath(rel), walkProblem(err))))
-			}
-			return nil
-		}
-		if d.IsDir() {
-			if p != root && (codescan.SkipScanDir(d.Name()) || skip(p, true) || health.Excluded(h, rel)) {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		if !d.Type().IsRegular() || skip(p, false) || health.Excluded(h, rel) || !inScope(scope, rel) {
-			return nil
-		}
-		if _, ok := codemap.LanguageForPath(rel); !ok {
-			return nil
-		}
-		if health.HasControlChar(rel) {
-			diags = append(diags, fileDiagnostic(CodeFileSkipped, skippedLevel, rel, fmt.Sprintf("%s was not analysed: the path holds a control character", shownPath(rel))))
-			return nil
-		}
-		files = append(files, rel)
+func listSources(r projectRun, skippedLevel string) ([]string, []health.Diagnostic) {
+	w := &sourceWalk{skip: codescan.CodeScopeSkip(r.bundle), h: r.bundle.Manifest.Health, root: r.root, scope: r.scope, level: skippedLevel}
+	_ = filepath.WalkDir(r.root, w.visit)
+	sort.Strings(w.files)
+	return w.files, w.diags
+}
+
+// visit handles one entry of the walk.
+//
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-153
+func (w *sourceWalk) visit(p string, d fs.DirEntry, err error) error {
+	rel, relErr := filepath.Rel(w.root, p)
+	if relErr != nil {
 		return nil
-	})
-	sort.Strings(files)
-	return files, diags
+	}
+	rel = filepath.ToSlash(rel)
+	if err != nil {
+		w.unreadable(rel, err)
+		return nil
+	}
+	if d.IsDir() {
+		if p != w.root && w.skipDir(p, d, rel) {
+			return filepath.SkipDir
+		}
+		return nil
+	}
+	w.addFile(p, d, rel)
+	return nil
+}
+
+// unreadable reports a path the walk could not read, when the scope touches it.
+//
+// TRLC-LINKS: REQ-EMG-150
+func (w *sourceWalk) unreadable(rel string, err error) {
+	if scopeTouches(w.scope, rel) {
+		w.diags = append(w.diags, fileDiagnostic(health.Diagnostic{
+			Code: CodeFileSkipped, Level: w.level, Path: rel,
+			Message: fmt.Sprintf("%s was not analysed: %s", shownPath(rel), walkProblem(err)),
+		}))
+	}
+}
+
+// skipDir reports a directory that is left out of the walk.
+//
+// TRLC-LINKS: REQ-EMG-153
+func (w *sourceWalk) skipDir(p string, d fs.DirEntry, rel string) bool {
+	return codescan.SkipScanDir(d.Name()) || w.skip(p, true) || health.Excluded(w.h, rel)
+}
+
+// wantFile reports a regular source file of a supported language that is in
+// scope and not excluded.
+//
+// TRLC-LINKS: REQ-EMG-153
+func (w *sourceWalk) wantFile(p string, d fs.DirEntry, rel string) bool {
+	if !d.Type().IsRegular() || w.skip(p, false) {
+		return false
+	}
+	if health.Excluded(w.h, rel) || !inScope(w.scope, rel) {
+		return false
+	}
+	return supportedSource(rel)
+}
+
+// addFile lists a source file, or reports it when its path holds a control
+// character.
+//
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-153
+func (w *sourceWalk) addFile(p string, d fs.DirEntry, rel string) {
+	if !w.wantFile(p, d, rel) {
+		return
+	}
+	if health.HasControlChar(rel) {
+		w.diags = append(w.diags, fileDiagnostic(health.Diagnostic{
+			Code: CodeFileSkipped, Level: w.level, Path: rel,
+			Message: fmt.Sprintf("%s was not analysed: the path holds a control character", shownPath(rel)),
+		}))
+		return
+	}
+	w.files = append(w.files, rel)
 }
 
 // scopeTouches reports whether a directory or file lies under a scope prefix or
@@ -328,7 +479,7 @@ func scopeTouches(scope []string, rel string) bool {
 		return true
 	}
 	for _, s := range scope {
-		if s == "." || rel == s || strings.HasPrefix(rel, s+"/") || strings.HasPrefix(s, rel+"/") {
+		if underScope(rel, s) || strings.HasPrefix(s, rel+"/") {
 			return true
 		}
 	}
@@ -355,7 +506,10 @@ func readSources(root string, files []string, skippedLevel string) ([]health.Fil
 	inputs := make([]health.FileInput, 0, len(files))
 	var diags []health.Diagnostic
 	skipped := func(rel, why string) {
-		diags = append(diags, fileDiagnostic(CodeFileSkipped, skippedLevel, rel, fmt.Sprintf("%s was not analysed: %s", shownPath(rel), why)))
+		diags = append(diags, fileDiagnostic(health.Diagnostic{
+			Code: CodeFileSkipped, Level: skippedLevel, Path: rel,
+			Message: fmt.Sprintf("%s was not analysed: %s", shownPath(rel), why),
+		}))
 	}
 	for _, rel := range files {
 		abs := filepath.Join(root, filepath.FromSlash(rel))
@@ -416,31 +570,70 @@ var inferCodeItems = codescan.InferCodeItems
 // without ownership.
 //
 // TRLC-LINKS: REQ-EMG-152, REQ-EMG-155
-func attribution(bundle model.Bundle, root string, have bool, level string) (map[string]string, []health.SymbolLink, []health.Diagnostic) {
+func (r projectRun) attribution(have bool, level string) attributed {
 	if !have {
-		return nil, nil, nil
+		return attributed{}
 	}
-	items, scanDiags := inferCodeItems(bundle, "")
+	items, scanDiags := inferCodeItems(r.bundle, "")
+	owners, links := ownersAndLinks(items)
+	return attributed{owners: owners, links: links, diags: rollupDiagnostics(scanDiags, r.root, level)}
+}
+
+// attributed is what the code scan says about ownership: the owner unit of
+// each file, the marker-linked symbols, and the diagnostics of a scan that
+// failed.
+type attributed struct {
+	owners map[string]string
+	links  []health.SymbolLink
+	diags  []health.Diagnostic
+}
+
+// rollupDiagnostics turns a failure of the code scan into a diagnostic of the
+// given level, with the project root made relative.
+//
+// TRLC-LINKS: REQ-EMG-152, REQ-EMG-155
+func rollupDiagnostics(scanDiags []validate.Diagnostic, root, level string) []health.Diagnostic {
 	var diags []health.Diagnostic
 	for _, d := range scanDiags {
 		if d.Code == "code.scan_failed" || d.Code == "code.relative_path_failed" {
 			msg := strings.ReplaceAll(d.Message, root, ".")
-			diags = append(diags, fileDiagnostic(health.CodeRollupUnavailable, level, "", fmt.Sprintf("the unit and requirement roll-ups are unavailable or incomplete: %s: %s", d.Code, msg)))
+			diags = append(diags, fileDiagnostic(health.Diagnostic{
+				Code: health.CodeRollupUnavailable, Level: level,
+				Message: fmt.Sprintf("the unit and requirement roll-ups are unavailable or incomplete: %s: %s", d.Code, msg),
+			}))
 		}
 	}
+	return diags
+}
+
+// ownersAndLinks reads the owner unit of each source file and the linked
+// symbols of production code from the items of the code scan.
+//
+// TRLC-LINKS: REQ-EMG-152
+func ownersAndLinks(items []codescan.CodeItem) (map[string]string, []health.SymbolLink) {
 	owners := map[string]string{}
 	var links []health.SymbolLink
 	for _, item := range items {
-		switch item.Kind {
-		case "source_file":
+		if item.Kind == "source_file" {
 			owners[filepath.ToSlash(item.Element)] = item.Owner
-		case "symbol":
-			if len(item.Implements) == 0 || codescan.IsVerificationCodeItem(item) {
-				continue
-			}
-			p, line := codescan.SplitSourceLine(item.Source)
-			links = append(links, health.SymbolLink{Path: filepath.ToSlash(p), Line: line, Requirements: item.Implements})
+			continue
+		}
+		if link, ok := symbolLink(item); ok {
+			links = append(links, link)
 		}
 	}
-	return owners, links, diags
+	return owners, links
+}
+
+// symbolLink is the marker-linked symbol of an item; false for any other item
+// and for a symbol of test code, which verifies requirements and does not
+// implement them.
+//
+// TRLC-LINKS: REQ-EMG-152
+func symbolLink(item codescan.CodeItem) (health.SymbolLink, bool) {
+	if item.Kind != "symbol" || len(item.Implements) == 0 || codescan.IsVerificationCodeItem(item) {
+		return health.SymbolLink{}, false
+	}
+	p, line := codescan.SplitSourceLine(item.Source)
+	return health.SymbolLink{Path: filepath.ToSlash(p), Line: line, Requirements: item.Implements}, true
 }

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"reflect"
-	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/health"
@@ -36,26 +35,14 @@ func regressionAt(tier string, bundles, raise []string) string {
 func TestRegressionLevelFollowsTheTierPolicy(t *testing.T) {
 	want := map[string]string{"poc": "warning", "prototype": "warning", "mvp": "warning", "product": "error", "operational": "error"}
 	for tier, level := range want {
-		if got := regressionAt(tier, nil, nil); got != level {
-			t.Errorf("%s: %s, want %s", tier, got, level)
-		}
+		wantEqual(t, [2]string{tier, regressionAt(tier, nil, nil)}, [2]string{tier, level})
 	}
-	if got := regressionAt("mvp", []string{"safety"}, nil); got != "error" {
-		t.Errorf("mvp with the safety bundle: %s, want error", got)
-	}
-	if got := regressionAt("prototype", []string{"safety"}, nil); got != "warning" {
-		t.Errorf("prototype with the safety bundle: %s, want warning", got)
-	}
-	if got := regressionAt("poc", nil, []string{"health.regression"}); got != "error" {
-		t.Errorf("poc with lifecycle.raise: %s, want error", got)
-	}
-	if got := health.RegressionLevelOf(model.Bundle{}); got != "warning" {
-		t.Errorf("no tier: %s, want warning", got)
-	}
+	wantEqual(t, regressionAt("mvp", []string{"safety"}, nil), "error")
+	wantEqual(t, regressionAt("prototype", []string{"safety"}, nil), "warning")
+	wantEqual(t, regressionAt("poc", nil, []string{"health.regression"}), "error") // lifecycle.raise
+	wantEqual(t, health.RegressionLevelOf(model.Bundle{}), "warning")              // no tier
 	levels := health.CheckLevels(health.WithTier(model.Bundle{}, "product"))
-	if levels["health.regression"] != "error" || levels[health.CodeBumpyRoad] != "error" {
-		t.Errorf("levels = %v", levels)
-	}
+	wantEqual(t, [2]string{levels["health.regression"], levels[health.CodeBumpyRoad]}, [2]string{"error", "error"})
 }
 
 // entry builds a delta entry.
@@ -89,20 +76,16 @@ func TestNewCheckReportVerdict(t *testing.T) {
 	}
 	delta.Blocking = health.Regressions(delta)
 	errLevels := map[string]string{"health.regression": "error"}
-	got := health.NewCheckReport(delta, errLevels, nil, health.PolicyVerdict{})
-	if got.Counts != (health.CheckCounts{New: 2, Worsened: 1, Existing: 1}) || !got.Failed || got.RegressionLevel != "error" || got.Waived == nil {
-		t.Errorf("error level: %+v", got)
-	}
-	if warn := health.NewCheckReport(delta, map[string]string{"health.regression": "warning"}, nil, health.PolicyVerdict{}); warn.Failed || warn.RegressionLevel != "warning" {
-		t.Errorf("warning level must not fail: %+v", warn)
-	}
-	if missing := health.NewCheckReport(delta, nil, nil, health.PolicyVerdict{}); missing.Failed || missing.Levels == nil {
-		t.Errorf("a missing level is a warning: %+v", missing)
-	}
+	got := health.NewCheckReport(delta, health.CheckInput{Levels: errLevels})
+	wantEqual(t, got.Counts, health.CheckCounts{New: 2, Worsened: 1, Existing: 1})
+	wantEqual(t, [3]any{got.Failed, got.RegressionLevel, got.Waived != nil}, [3]any{true, "error", true})
+	warn := health.NewCheckReport(delta, health.CheckInput{Levels: map[string]string{"health.regression": "warning"}})
+	wantEqual(t, [2]any{warn.Failed, warn.RegressionLevel}, [2]any{false, "warning"}) // a warning does not fail
+	missing := health.NewCheckReport(delta, health.CheckInput{})
+	wantEqual(t, [2]bool{missing.Failed, missing.Levels != nil}, [2]bool{false, true}) // a missing level is a warning
 	clean := health.DeltaReport{Entries: []health.DeltaEntry{entry(health.ChangeExisting, health.SeverityHigh, "Old")}, Blocking: []health.DeltaEntry{}}
-	if c := health.NewCheckReport(clean, errLevels, nil, health.PolicyVerdict{}); c.Failed || c.Counts.Existing != 1 {
-		t.Errorf("existing debt must not fail: %+v", c)
-	}
+	c := health.NewCheckReport(clean, health.CheckInput{Levels: errLevels})
+	wantEqual(t, [2]any{c.Failed, c.Counts.Existing}, [2]any{false, 1}) // existing debt does not fail
 }
 
 // Transition reads "(none) -> ..." for a new finding and the old and new
@@ -110,12 +93,8 @@ func TestNewCheckReportVerdict(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-156
 func TestTransitionText(t *testing.T) {
-	if got := entry(health.ChangeNew, health.SeverityHigh, "F").Transition(); got != "(none) -> cyclomatic 21 high" {
-		t.Errorf("new: %q", got)
-	}
-	if got := entry(health.ChangeWorsened, health.SeverityHigh, "F").Transition(); got != "cyclomatic 12 warn -> cyclomatic 21 high" {
-		t.Errorf("worsened: %q", got)
-	}
+	wantEqual(t, entry(health.ChangeNew, health.SeverityHigh, "F").Transition(), "(none) -> cyclomatic 21 high")
+	wantEqual(t, entry(health.ChangeWorsened, health.SeverityHigh, "F").Transition(), "cyclomatic 12 warn -> cyclomatic 21 high")
 }
 
 // The JSON of a check is the delta report object with the levels, the counts,
@@ -127,27 +106,18 @@ func TestEncodeCheckExtendsTheDeltaReport(t *testing.T) {
 	delta := health.DeltaReport{Schema: health.DeltaSchema, Tier: "product", Base: "abc", Head: health.WorkingTree,
 		Notes: []string{}, Files: []health.FileDelta{}, Entries: []health.DeltaEntry{entry(health.ChangeNew, health.SeverityHigh, "Big")}}
 	delta.Blocking = health.Regressions(delta)
-	rep := health.NewCheckReport(delta, health.CheckLevels(health.WithTier(model.Bundle{}, "product")), nil, health.PolicyVerdict{})
+	rep := health.NewCheckReport(delta, health.CheckInput{Levels: health.CheckLevels(health.WithTier(model.Bundle{}, "product"))})
 	data, err := health.EncodeCheck(rep)
-	if err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, err, nil)
 	again, _ := health.EncodeCheck(rep)
-	if !bytes.Equal(data, again) {
-		t.Error("two encodings differ")
-	}
+	wantEqual(t, bytes.Equal(data, again), true)
 	var doc map[string]any
-	if err := json.Unmarshal(data, &doc); err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, json.Unmarshal(data, &doc), nil)
 	for _, key := range []string{"schema", "tier", "base", "head", "notes", "files", "entries", "blocking", "levels", "regressionLevel", "counts", "waived", "failed"} {
-		if _, ok := doc[key]; !ok {
-			t.Errorf("the JSON lacks %q:\n%s", key, data)
-		}
+		_, ok := doc[key]
+		wantEqual(t, [2]any{key, ok}, [2]any{key, true})
 	}
-	if doc["schema"] != health.DeltaSchema || doc["failed"] != true || doc["regressionLevel"] != "error" {
-		t.Errorf("doc = %v", doc)
-	}
+	wantEqual(t, [3]any{doc["schema"], doc["failed"], doc["regressionLevel"]}, [3]any{health.DeltaSchema, true, "error"})
 }
 
 // The SARIF of a check has one rule, health.regression, and one result per
@@ -159,10 +129,8 @@ func TestEncodeCheckExtendsTheDeltaReport(t *testing.T) {
 func TestCheckSARIF(t *testing.T) {
 	delta := health.DeltaReport{Entries: []health.DeltaEntry{entry(health.ChangeNew, health.SeverityHigh, "Big"), entry(health.ChangeExisting, health.SeverityHigh, "Old")}}
 	delta.Blocking = health.Regressions(delta)
-	data, err := health.CheckSARIF(health.NewCheckReport(delta, map[string]string{"health.regression": "error"}, nil, health.PolicyVerdict{}))
-	if err != nil {
-		t.Fatal(err)
-	}
+	data, err := health.CheckSARIF(health.NewCheckReport(delta, health.CheckInput{Levels: map[string]string{"health.regression": "error"}}))
+	mustEqual(t, err, nil)
 	var doc struct {
 		Runs []struct {
 			Tool struct {
@@ -176,22 +144,16 @@ func TestCheckSARIF(t *testing.T) {
 			}
 		}
 	}
-	if err := json.Unmarshal(data, &doc); err != nil || len(doc.Runs) != 1 {
-		t.Fatalf("%v\n%s", err, data)
-	}
+	mustEqual(t, json.Unmarshal(data, &doc), nil)
+	mustEqual(t, len(doc.Runs), 1)
 	run := doc.Runs[0]
-	if len(run.Tool.Driver.Rules) != 1 || run.Tool.Driver.Rules[0].ID != "health.regression" || len(run.Results) != 1 {
-		t.Fatalf("sarif = %s", data)
-	}
+	mustEqual(t, [2]int{len(run.Tool.Driver.Rules), len(run.Results)}, [2]int{1, 1})
+	wantEqual(t, run.Tool.Driver.Rules[0].ID, "health.regression")
 	res := run.Results[0]
-	if res.RuleID != "health.regression" || res.Level != "error" || res.Properties["code"] != health.CodeComplexMethod ||
-		res.PartialFingerprints[health.FingerprintKey] != health.FindingFingerprint(health.CodeComplexMethod, "pkg/a.go", "Big") {
-		t.Errorf("result = %+v", res)
-	}
-	empty, _ := health.CheckSARIF(health.NewCheckReport(health.DeltaReport{Blocking: []health.DeltaEntry{}}, nil, nil, health.PolicyVerdict{}))
-	if !strings.Contains(string(empty), `"results": []`) || !strings.Contains(string(empty), `"level": "warning"`) {
-		t.Errorf("empty sarif = %s", empty)
-	}
+	wantEqual(t, [4]any{res.RuleID, res.Level, res.Properties["code"], res.PartialFingerprints[health.FingerprintKey]},
+		[4]any{"health.regression", "error", health.CodeComplexMethod, health.FindingFingerprint(health.CodeComplexMethod, "pkg/a.go", "Big")})
+	empty, _ := health.CheckSARIF(health.NewCheckReport(health.DeltaReport{Blocking: []health.DeltaEntry{}}, health.CheckInput{}))
+	wantAll(t, string(empty), `"results": []`, `"level": "warning"`) // an empty list, not null
 }
 
 // fakeEngine returns one function with findings of the given codes.
@@ -232,30 +194,22 @@ func TestWaivingEngineRemovesAndRecordsWaivedFindings(t *testing.T) {
 		{Code: health.CodeComplexMethod, Path: "pkg/a.go", Function: "Big", Decision: "ADR-X"},
 		{Code: health.CodeLargeMethod, Path: "pkg/a.go", Function: "Other", Decision: "ADR-X"},
 	}}
-	if e.Name() != "fake" || e.Version() != "7" {
-		t.Errorf("identity = %s %s", e.Name(), e.Version())
-	}
+	wantEqual(t, [2]string{e.Name(), e.Version()}, [2]string{"fake", "7"})
 	for i := 0; i < 2; i++ {
 		res, err := e.Analyze([]health.FileInput{{Path: "pkg/a.go", Language: "go"}, {Path: "pkg/b.go", Language: "go"}}, health.Config{})
-		if err != nil || len(res) != 2 {
-			t.Fatal(err, res)
-		}
-		if got := res[0].Functions[0].Findings; len(got) != 1 || got[0].Code != health.CodeLargeMethod {
-			t.Errorf("a.go findings = %+v, want only large_method", got)
-		}
-		if got := res[1].Functions[0].Findings; len(got) != 2 {
-			t.Errorf("b.go findings = %+v, want both (no waiver for that path)", got)
-		}
+		mustEqual(t, [2]any{err, len(res)}, [2]any{nil, 2})
+		got := res[0].Functions[0].Findings // only large_method
+		mustEqual(t, len(got), 1)
+		wantEqual(t, got[0].Code, health.CodeLargeMethod)
+		wantEqual(t, len(res[1].Functions[0].Findings), 2) // no waiver for that path
 	}
 	waived := e.Waived()
-	if len(waived) != 1 || waived[0].Path != "pkg/a.go" || waived[0].Code != health.CodeComplexMethod || waived[0].Decision != "ADR-X" {
-		t.Errorf("waived = %+v, want one finding recorded once", waived)
-	}
+	mustEqual(t, len(waived), 1) // recorded once
+	wantEqual(t, [3]string{waived[0].Path, waived[0].Code, waived[0].Decision}, [3]string{"pkg/a.go", health.CodeComplexMethod, "ADR-X"})
 	none := &health.WaivingEngine{Engine: inner}
 	res, _ := none.Analyze([]health.FileInput{{Path: "pkg/a.go", Language: "go"}}, health.Config{})
-	if len(res[0].Functions[0].Findings) != 2 || len(none.Waived()) != 0 || !reflect.DeepEqual(none.Waived(), []health.WaivedFinding{}) {
-		t.Error("an engine without waivers must pass the results through")
-	}
+	wantEqual(t, len(res[0].Functions[0].Findings), 2) // an engine without waivers passes the results through
+	wantDeepEqual(t, none.Waived(), []health.WaivedFinding{})
 }
 
 // RequireWorkTree accepts a git work tree, also one without commits, and names
@@ -289,16 +243,19 @@ func TestCheckReportFailsOnSkippedFilesAndUnrecordedPolicyWeakening(t *testing.T
 	errLevels := map[string]string{"health.regression": "error"}
 	warnLevels := map[string]string{"health.regression": "warning"}
 
-	if r := health.NewCheckReport(skipped, errLevels, nil, health.PolicyVerdict{}); !r.Failed || len(r.Skipped) != 1 {
-		t.Errorf("a skipped file where regression is an error must fail: %+v", r)
-	}
-	if r := health.NewCheckReport(skipped, warnLevels, nil, health.PolicyVerdict{}); r.Failed {
-		t.Errorf("a skipped file where regression is a warning must not fail: %+v", r)
-	}
-	if r := health.NewCheckReport(clean, errLevels, nil, health.PolicyVerdict{}); r.Failed || r.Skipped == nil || r.Policy == nil {
-		t.Errorf("a clean report: %+v", r)
-	}
+	r := health.NewCheckReport(skipped, health.CheckInput{Levels: errLevels})
+	wantEqual(t, [2]any{r.Failed, len(r.Skipped)}, [2]any{true, 1}) // a skipped file where regression is an error fails
+	r = health.NewCheckReport(skipped, health.CheckInput{Levels: warnLevels})
+	wantEqual(t, r.Failed, false)
+	r = health.NewCheckReport(clean, health.CheckInput{Levels: errLevels})
+	wantEqual(t, [3]bool{r.Failed, r.Skipped != nil, r.Policy != nil}, [3]bool{false, true, true})
+	requirePolicyVerdicts(t, clean, warnLevels)
+}
 
+// requirePolicyVerdicts checks the failure and the carried verdict for each
+// way a policy weakening can be recorded.
+func requirePolicyVerdicts(t *testing.T, clean health.DeltaReport, levels map[string]string) {
+	t.Helper()
 	weak := []health.PolicyChange{{Aspect: health.PolicyThreshold, Message: "the limit of health.complex_method is raised"}}
 	cases := []struct {
 		name    string
@@ -311,13 +268,9 @@ func TestCheckReportFailsOnSkippedFilesAndUnrecordedPolicyWeakening(t *testing.T
 		{"no change", health.PolicyVerdict{Level: "error"}, false},
 	}
 	for _, c := range cases {
-		r := health.NewCheckReport(clean, warnLevels, nil, c.verdict)
-		if r.Failed != c.failed {
-			t.Errorf("%s: failed = %v, want %v (%+v)", c.name, r.Failed, c.failed, r)
-		}
-		if r.PolicyDecision != c.verdict.Decision || len(r.Policy) != len(c.verdict.Changes) {
-			t.Errorf("%s: the report must carry the verdict: %+v", c.name, r)
-		}
+		r := health.NewCheckReport(clean, health.CheckInput{Levels: levels, Policy: c.verdict})
+		wantEqual(t, [2]any{c.name, r.Failed}, [2]any{c.name, c.failed})
+		wantEqual(t, [3]any{c.name, r.PolicyDecision, len(r.Policy)}, [3]any{c.name, c.verdict.Decision, len(c.verdict.Changes)})
 	}
 }
 
@@ -390,16 +343,16 @@ func TestCheckSARIFCarriesSkippedFilesAndPolicyWeakenings(t *testing.T) {
 		}
 		return rules, results
 	}
-	rules, results := read(health.NewCheckReport(delta, levels, nil, health.PolicyVerdict{Changes: weak, Level: "error"}))
+	rules, results := read(health.NewCheckReport(delta, health.CheckInput{Levels: levels, Policy: health.PolicyVerdict{Changes: weak, Level: "error"}}))
 	if !reflect.DeepEqual(rules, []string{"health.regression", "health.file_skipped", "health.policy_weakened"}) ||
 		!reflect.DeepEqual(results, []string{"health.file_skipped:error", "health.policy_weakened:error"}) {
 		t.Errorf("rules %v results %v", rules, results)
 	}
-	rules, results = read(health.NewCheckReport(delta, levels, nil, health.PolicyVerdict{Changes: weak, Level: "error", Decision: "ADR-POLICY"}))
+	rules, results = read(health.NewCheckReport(delta, health.CheckInput{Levels: levels, Policy: health.PolicyVerdict{Changes: weak, Level: "error", Decision: "ADR-POLICY"}}))
 	if !reflect.DeepEqual(rules, []string{"health.regression", "health.file_skipped"}) || !reflect.DeepEqual(results, []string{"health.file_skipped:error"}) {
 		t.Errorf("a recorded weakening: rules %v results %v", rules, results)
 	}
-	rules, results = read(health.NewCheckReport(health.DeltaReport{}, levels, nil, health.PolicyVerdict{}))
+	rules, results = read(health.NewCheckReport(health.DeltaReport{}, health.CheckInput{Levels: levels}))
 	if !reflect.DeepEqual(rules, []string{"health.regression"}) || len(results) != 0 {
 		t.Errorf("a clean check: rules %v results %v", rules, results)
 	}

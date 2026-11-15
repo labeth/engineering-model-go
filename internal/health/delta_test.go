@@ -30,39 +30,50 @@ func (fakeEngine) Analyze(inputs []FileInput, cfg Config) ([]FileResult, error) 
 	}
 	var out []FileResult
 	for _, in := range inputs {
-		lines := strings.Split(strings.ReplaceAll(string(in.Source), "\r\n", "\n"), "\n")
-		if lines[len(lines)-1] == "" {
-			lines = lines[:len(lines)-1]
-		}
-		res := FileResult{Path: in.Path, Language: in.Language, LOC: len(lines), Functions: []Function{}}
-		for i := 0; i < len(lines); i++ {
-			name, ok := strings.CutPrefix(lines[i], "fn ")
-			if !ok {
-				continue
-			}
-			end, cyc := i+1, 1
-			for end < len(lines) && !strings.HasPrefix(lines[end], "fn ") {
-				if strings.HasPrefix(lines[end], "if") {
-					cyc++
-				}
-				end++
-			}
-			f := Function{Name: name, Kind: "function", StartLine: i + 1, EndLine: end, Cyclomatic: cyc}
-			if cyc >= limit.Warn {
-				sev := SeverityWarn
-				if cyc >= limit.High {
-					sev = SeverityHigh
-				}
-				f.Findings = []Finding{{
-					Code: CodeComplexMethod, Severity: sev, StartLine: f.StartLine, EndLine: f.EndLine,
-					Metric: "cyclomatic", Value: cyc, Message: fmt.Sprintf("%s has complexity %d", name, cyc),
-				}}
-			}
-			res.Functions = append(res.Functions, f)
-		}
-		out = append(out, res)
+		out = append(out, analyzeToy(in, limit))
 	}
 	return out, nil
+}
+
+// analyzeToy analyses one file of the toy format.
+func analyzeToy(in FileInput, limit Threshold) FileResult {
+	lines := strings.Split(strings.ReplaceAll(string(in.Source), "\r\n", "\n"), "\n")
+	if lines[len(lines)-1] == "" {
+		lines = lines[:len(lines)-1]
+	}
+	res := FileResult{Path: in.Path, Language: in.Language, LOC: len(lines), Functions: []Function{}}
+	for i := 0; i < len(lines); i++ {
+		if strings.HasPrefix(lines[i], "fn ") {
+			res.Functions = append(res.Functions, toyFunction(lines, i, limit))
+		}
+	}
+	return res
+}
+
+// toyFunction is the function that starts at line i of the toy format, with a
+// complex_method finding when it reaches the limit.
+func toyFunction(lines []string, i int, limit Threshold) Function {
+	name := strings.TrimPrefix(lines[i], "fn ")
+	end, cyc := i+1, 1
+	for end < len(lines) && !strings.HasPrefix(lines[end], "fn ") {
+		if strings.HasPrefix(lines[end], "if") {
+			cyc++
+		}
+		end++
+	}
+	f := Function{Name: name, Kind: "function", StartLine: i + 1, EndLine: end, Cyclomatic: cyc}
+	if cyc < limit.Warn {
+		return f
+	}
+	sev := SeverityWarn
+	if cyc >= limit.High {
+		sev = SeverityHigh
+	}
+	f.Findings = []Finding{{
+		Code: CodeComplexMethod, Severity: sev, StartLine: f.StartLine, EndLine: f.EndLine,
+		Metric: "cyclomatic", Value: cyc, Message: fmt.Sprintf("%s has complexity %d", name, cyc),
+	}}
+	return f
 }
 
 // toyFunc renders a function of the toy format with the given cyclomatic complexity.
@@ -118,19 +129,31 @@ func byFunction(t *testing.T, rep DeltaReport, path string) map[string]DeltaEntr
 	return out
 }
 
+// entryWant is the expected change class, severity and values of one entry.
+type entryWant struct {
+	name, change  string
+	sev           Severity
+	before, after int
+}
+
 // wantEntry checks the change class, severity and values of one entry.
 //
 // TRLC-LINKS: REQ-EMG-156
-func wantEntry(t *testing.T, got map[string]DeltaEntry, name, change string, sev Severity, before, after int) {
+func wantEntry(t *testing.T, got map[string]DeltaEntry, w entryWant) {
 	t.Helper()
-	e, ok := got[name]
-	if !ok {
-		t.Errorf("%s: no entry", name)
-		return
+	e, ok := got[w.name]
+	mustEqual(t, [2]any{w.name, ok}, [2]any{w.name, true})
+	wantEqual(t, [5]any{w.name, e.Change, e.Severity, e.ValueBefore, e.ValueAfter}, [5]any{w.name, w.change, w.sev, w.before, w.after})
+}
+
+// mustCheck runs the check or stops the test.
+func mustCheck(t *testing.T, opts CheckOptions) DeltaReport {
+	t.Helper()
+	rep, err := Check(opts)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if e.Change != change || e.Severity != sev || e.ValueBefore != before || e.ValueAfter != after {
-		t.Errorf("%s = %s/%s %d->%d, want %s/%s %d->%d", name, e.Change, e.Severity, e.ValueBefore, e.ValueAfter, change, sev, before, after)
-	}
+	return rep
 }
 
 // The worked example: one function got worse, one better, one is unchanged,
@@ -146,39 +169,38 @@ func TestCheckClassifiesModifiedFile(t *testing.T) {
 	baseSha := r.Commit("base")
 	r.Write("a.go", toyFunc("worse", 8)+toyFunc("better", 5)+toyFunc("same", 5)+toyFunc("grow", 5)+toyFunc("fresh", 10)+toyFunc("freshWarn", 5)+toyFunc("plain", 3))
 
-	rep, err := Check(deltaOptions(r))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if rep.Schema != DeltaSchema || rep.Base != baseSha || rep.Head != WorkingTree {
-		t.Errorf("header = %q %q %q", rep.Schema, rep.Base, rep.Head)
-	}
+	rep := mustCheck(t, deltaOptions(r))
+	wantEqual(t, [3]string{rep.Schema, rep.Base, rep.Head}, [3]string{DeltaSchema, baseSha, WorkingTree})
 	got := byFunction(t, rep, "a.go")
-	wantEntry(t, got, "worse", ChangeWorsened, SeverityHigh, 5, 8)
-	wantEntry(t, got, "better", ChangeExisting, SeverityWarn, 8, 5)
-	wantEntry(t, got, "same", ChangeExisting, SeverityWarn, 5, 5)
-	wantEntry(t, got, "grow", ChangeWorsened, SeverityWarn, 4, 5)
-	wantEntry(t, got, "fresh", ChangeNew, SeverityHigh, 0, 10)
-	wantEntry(t, got, "freshWarn", ChangeNew, SeverityWarn, 0, 5)
-	if len(got) != 6 {
-		t.Errorf("entries = %v; deleted and clean functions must produce none", got)
-	}
-	if got["worse"].SeverityBefore != SeverityWarn || got["fresh"].SeverityBefore != "" {
-		t.Errorf("severityBefore: worse %q, fresh %q", got["worse"].SeverityBefore, got["fresh"].SeverityBefore)
-	}
+	wantEntry(t, got, entryWant{"worse", ChangeWorsened, SeverityHigh, 5, 8})
+	wantEntry(t, got, entryWant{"better", ChangeExisting, SeverityWarn, 8, 5})
+	wantEntry(t, got, entryWant{"same", ChangeExisting, SeverityWarn, 5, 5})
+	wantEntry(t, got, entryWant{"grow", ChangeWorsened, SeverityWarn, 4, 5})
+	wantEntry(t, got, entryWant{"fresh", ChangeNew, SeverityHigh, 0, 10})
+	wantEntry(t, got, entryWant{"freshWarn", ChangeNew, SeverityWarn, 0, 5})
+	wantEqual(t, len(got), 6) // deleted and clean functions produce no entry
+	wantEqual(t, [2]Severity{got["worse"].SeverityBefore, got["fresh"].SeverityBefore}, [2]Severity{SeverityWarn, ""})
+	requireBlocking(t, rep)
+	requireFileDelta(t, rep)
+}
+
+// requireBlocking checks that the regressions of the worked example are the
+// high new and worsened entries, sorted, and the Blocking list of the report.
+func requireBlocking(t *testing.T, rep DeltaReport) {
+	t.Helper()
 	blocking := Regressions(rep)
-	if len(blocking) != 2 || blocking[0].Function != "fresh" || blocking[1].Function != "worse" {
-		t.Errorf("Regressions = %+v, want fresh and worse", blocking)
-	}
-	if fmt.Sprint(blocking) != fmt.Sprint(rep.Blocking) {
-		t.Errorf("Blocking %+v differs from Regressions %+v", rep.Blocking, blocking)
-	}
-	if len(rep.Files) != 1 || rep.Files[0].Path != "a.go" || rep.Files[0].ScoreBefore == nil || rep.Files[0].ScoreAfter == nil {
-		t.Fatalf("Files = %+v", rep.Files)
-	}
-	if *rep.Files[0].ScoreBefore != 5 || *rep.Files[0].ScoreAfter != 4 || rep.Files[0].BandBefore != BandYellow {
-		t.Errorf("file delta = %+v", rep.Files[0])
-	}
+	mustEqual(t, len(blocking), 2)
+	wantEqual(t, [2]string{blocking[0].Function, blocking[1].Function}, [2]string{"fresh", "worse"})
+	wantEqual(t, fmt.Sprint(rep.Blocking), fmt.Sprint(blocking))
+}
+
+// requireFileDelta checks the one file delta of the worked example.
+func requireFileDelta(t *testing.T, rep DeltaReport) {
+	t.Helper()
+	mustEqual(t, len(rep.Files), 1)
+	f := rep.Files[0]
+	mustEqual(t, [3]bool{f.Path == "a.go", f.ScoreBefore != nil, f.ScoreAfter != nil}, [3]bool{true, true, true})
+	wantEqual(t, [3]any{*f.ScoreBefore, *f.ScoreAfter, f.BandBefore}, [3]any{5.0, 4.0, BandYellow})
 }
 
 // The 20 percent rule: value >= ceil(base * 1.2) is worsened, anything less
@@ -228,33 +250,24 @@ func TestCheckNewFileAndSkips(t *testing.T) {
 	opts := deltaOptions(r)
 	opts.Exclude = func(p string) bool { return strings.HasPrefix(p, "gen/") }
 
-	rep, err := Check(opts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(rep.Entries) != 2 {
-		t.Fatalf("entries = %+v, want big and mid", rep.Entries)
-	}
+	rep := mustCheck(t, opts)
+	mustEqual(t, len(rep.Entries), 2) // big and mid
 	got := byFunction(t, rep, "added.go")
-	wantEntry(t, got, "big", ChangeNew, SeverityHigh, 0, 9)
-	wantEntry(t, got, "mid", ChangeNew, SeverityWarn, 0, 5)
-	if len(rep.Files) != 1 || rep.Files[0].Status != "A" || rep.Files[0].ScoreBefore != nil || rep.Files[0].BandBefore != "" || rep.Files[0].ScoreAfter == nil {
-		t.Errorf("Files = %+v", rep.Files)
-	}
-	if len(Regressions(rep)) != 1 {
-		t.Errorf("Regressions = %+v", Regressions(rep))
-	}
+	wantEntry(t, got, entryWant{"big", ChangeNew, SeverityHigh, 0, 9})
+	wantEntry(t, got, entryWant{"mid", ChangeNew, SeverityWarn, 0, 5})
+	mustEqual(t, len(rep.Files), 1)
+	f := rep.Files[0]
+	wantEqual(t, [4]any{f.Status, f.ScoreBefore == nil, f.BandBefore, f.ScoreAfter != nil}, [4]any{"A", true, "", true})
+	wantEqual(t, len(Regressions(rep)), 1)
 
 	opts.Exclude = nil
 	opts.Paths = []string{"./gen"}
-	rep, err = Check(opts)
-	if err != nil || len(rep.Entries) != 1 || rep.Entries[0].Path != "gen/skip.go" {
-		t.Errorf("Paths restricted to gen: %+v, %v", rep.Entries, err)
-	}
+	rep = mustCheck(t, opts)
+	mustEqual(t, len(rep.Entries), 1) // restricted to gen
+	wantEqual(t, rep.Entries[0].Path, "gen/skip.go")
 	opts.Paths = []string{"../outside"}
-	if _, err = Check(opts); !errors.Is(err, ErrInvalidPath) {
-		t.Errorf("a Paths entry outside the repository: %v", err)
-	}
+	_, err := Check(opts)
+	wantEqual(t, errors.Is(err, ErrInvalidPath), true) // a Paths entry outside the repository
 }
 
 // A renamed file with edits is compared with its old self: the unchanged
@@ -270,22 +283,14 @@ func TestCheckRenameWithEdits(t *testing.T) {
 	r.Git("mv", "old.go", "new.go")
 	r.Write("new.go", stable+toyFunc("keep", 6)+toyFunc("edit", 8)+toyFunc("added", 8))
 
-	rep, err := Check(deltaOptions(r))
-	if err != nil {
-		t.Fatal(err)
-	}
+	rep := mustCheck(t, deltaOptions(r))
 	got := byFunction(t, rep, "new.go")
-	wantEntry(t, got, "keep", ChangeExisting, SeverityWarn, 6, 6)
-	wantEntry(t, got, "edit", ChangeWorsened, SeverityHigh, 5, 8)
-	wantEntry(t, got, "added", ChangeNew, SeverityHigh, 0, 8)
-	if len(rep.Files) != 1 || rep.Files[0].Status != "R" || rep.Files[0].OldPath != "old.go" || rep.Files[0].ScoreBefore == nil {
-		t.Errorf("Files = %+v", rep.Files)
-	}
-	for _, e := range rep.Entries {
-		if e.Path == "old.go" {
-			t.Errorf("entry for the old path: %+v", e)
-		}
-	}
+	wantEntry(t, got, entryWant{"keep", ChangeExisting, SeverityWarn, 6, 6})
+	wantEntry(t, got, entryWant{"edit", ChangeWorsened, SeverityHigh, 5, 8})
+	wantEntry(t, got, entryWant{"added", ChangeNew, SeverityHigh, 0, 8})
+	mustEqual(t, len(rep.Files), 1)
+	wantEqual(t, [3]any{rep.Files[0].Status, rep.Files[0].OldPath, rep.Files[0].ScoreBefore != nil}, [3]any{"R", "old.go", true})
+	wantEqual(t, len(byFunction(t, rep, "old.go")), 0) // no entry for the old path
 }
 
 // A function moved to another file, or renamed in place, with the same body
@@ -315,12 +320,12 @@ func TestCheckMovedAndRenamedFunctions(t *testing.T) {
 		t.Fatal(err)
 	}
 	a, b := byFunction(t, rep, "a.go"), byFunction(t, rep, "b.go")
-	wantEntry(t, a, "renamedNow", ChangeExisting, SeverityHigh, 8, 8)
-	wantEntry(t, a, "copied", ChangeExisting, SeverityHigh, 8, 8)
-	wantEntry(t, b, "moved", ChangeExisting, SeverityHigh, 8, 8)
-	wantEntry(t, b, "copied2", ChangeNew, SeverityHigh, 0, 8)
+	wantEntry(t, a, entryWant{"renamedNow", ChangeExisting, SeverityHigh, 8, 8})
+	wantEntry(t, a, entryWant{"copied", ChangeExisting, SeverityHigh, 8, 8})
+	wantEntry(t, b, entryWant{"moved", ChangeExisting, SeverityHigh, 8, 8})
+	wantEntry(t, b, entryWant{"copied2", ChangeNew, SeverityHigh, 0, 8})
 	// "edited" moved to b.go and its body changed, so the hash differs: new.
-	wantEntry(t, b, "edited", ChangeNew, SeverityHigh, 0, 8)
+	wantEntry(t, b, entryWant{"edited", ChangeNew, SeverityHigh, 0, 8})
 	if got := Regressions(rep); len(got) != 2 {
 		t.Errorf("Regressions = %+v, want copied2 and edited", got)
 	}
@@ -337,29 +342,18 @@ func TestCheckRepositoryWithoutCommits(t *testing.T) {
 	r.Git("add", "a.go")
 	r.Write("untracked.go", toyFunc("more", 8))
 
-	rep, err := Check(deltaOptions(r))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if rep.Base != "" || len(rep.Notes) != 1 || !strings.Contains(rep.Notes[0], "no commits") {
-		t.Errorf("Base %q, Notes %v", rep.Base, rep.Notes)
-	}
-	if len(rep.Entries) != 3 {
-		t.Fatalf("entries = %+v", rep.Entries)
-	}
+	rep := mustCheck(t, deltaOptions(r))
+	wantEqual(t, [2]any{rep.Base, len(rep.Notes)}, [2]any{"", 1})
+	wantContains(t, rep.Notes[0], "no commits")
+	mustEqual(t, len(rep.Entries), 3)
 	for _, e := range rep.Entries {
-		if e.Change != ChangeNew {
-			t.Errorf("%s is %s, want new", e.Function, e.Change)
-		}
+		wantEqual(t, [2]string{e.Function, e.Change}, [2]string{e.Function, ChangeNew})
 	}
-	if len(rep.Blocking) != 2 {
-		t.Errorf("Blocking = %+v", rep.Blocking)
-	}
+	wantEqual(t, len(rep.Blocking), 2)
 	opts := deltaOptions(r)
 	opts.Base = "origin/main"
-	if _, err := Check(opts); !errors.Is(err, ErrBaseUnavailable) {
-		t.Errorf("explicit base without commits: %v", err)
-	}
+	_, err := Check(opts)
+	wantEqual(t, errors.Is(err, ErrBaseUnavailable), true) // an explicit base without commits
 }
 
 // In a shallow clone that lacks the base the check is a setup error that names
@@ -380,32 +374,21 @@ func TestCheckShallowCloneWithoutBase(t *testing.T) {
 	opts.Repo = NewGitRepo(dst)
 	opts.Base = "HEAD~1"
 	_, err := Check(opts)
-	if !errors.Is(err, ErrBaseUnavailable) {
-		t.Fatalf("err = %v, want ErrBaseUnavailable", err)
-	}
-	for _, want := range []string{"HEAD~1", "shallow", "fetch"} {
-		if !strings.Contains(err.Error(), want) {
-			t.Errorf("message %q does not mention %q", err.Error(), want)
-		}
-	}
+	mustEqual(t, errors.Is(err, ErrBaseUnavailable), true)
+	wantAll(t, err.Error(), "HEAD~1", "shallow", "fetch")
 	opts.Base = "HEAD...origin/gone"
-	if _, err = Check(opts); err == nil {
-		t.Error("an unknown head must be an error")
-	}
+	_, err = Check(opts)
+	wantEqual(t, err != nil, true) // an unknown head is an error
 	opts.Base = ""
-	if rep, err := Check(opts); err != nil || len(rep.Entries) != 0 {
-		t.Errorf("clean shallow clone against HEAD: %+v, %v", rep.Entries, err)
-	}
+	wantEqual(t, len(mustCheck(t, opts).Entries), 0) // a clean shallow clone against HEAD
 	// In a full repository an unknown base is also a setup error.
 	opts = deltaOptions(r)
 	opts.Base = "nosuchbranch"
-	if _, err = Check(opts); !errors.Is(err, ErrBaseUnavailable) || strings.Contains(err.Error(), "shallow") {
-		t.Errorf("unknown base in a full repository: %v", err)
-	}
+	_, err = Check(opts)
+	wantEqual(t, [2]bool{errors.Is(err, ErrBaseUnavailable), strings.Contains(err.Error(), "shallow")}, [2]bool{true, false})
 	opts.Base = "--output=x"
-	if _, err = Check(opts); !errors.Is(err, ErrInvalidRev) {
-		t.Errorf("option-like base: %v", err)
-	}
+	_, err = Check(opts)
+	wantEqual(t, errors.Is(err, ErrInvalidRev), true) // an option-like base
 }
 
 // A base that equals the head, and a clean working tree, give no entries and no
@@ -423,16 +406,13 @@ func TestCheckBaseEqualsHead(t *testing.T) {
 	} {
 		opts := deltaOptions(r)
 		mod(&opts)
-		rep, err := Check(opts)
-		if err != nil || len(rep.Entries) != 0 || len(rep.Files) != 0 || len(rep.Blocking) != 0 {
-			t.Errorf("%s: %+v, %v", name, rep, err)
-		}
+		rep := mustCheck(t, opts)
+		wantEqual(t, [4]any{name, len(rep.Entries), len(rep.Files), len(rep.Blocking)}, [4]any{name, 0, 0, 0})
 	}
 	opts := deltaOptions(r)
 	opts.Base, opts.Head = "HEAD...HEAD", "HEAD"
-	if _, err := Check(opts); !errors.Is(err, ErrInvalidRev) {
-		t.Errorf("range plus head: %v", err)
-	}
+	_, err := Check(opts)
+	wantEqual(t, errors.Is(err, ErrInvalidRev), true) // range plus head
 }
 
 // jsonEqual compares two values by their JSON.
@@ -474,8 +454,8 @@ func TestCheckRevisionRange(t *testing.T) {
 		t.Errorf("Base %q Head %q; want the merge base and the feature head", rep.Base, rep.Head)
 	}
 	got := byFunction(t, rep, "a.go")
-	wantEntry(t, got, "f", ChangeWorsened, SeverityHigh, 5, 9)
-	wantEntry(t, got, "g", ChangeExisting, SeverityWarn, 5, 5)
+	wantEntry(t, got, entryWant{"f", ChangeWorsened, SeverityHigh, 5, 9})
+	wantEntry(t, got, entryWant{"g", ChangeExisting, SeverityWarn, 5, 5})
 
 	opts.Base, opts.Head = "main", "feature"
 	again, err := Check(opts)
@@ -506,36 +486,30 @@ func TestCheckWorkingTreeUsesMergeBaseOfDivergedBranch(t *testing.T) {
 
 	opts := deltaOptions(r)
 	opts.Base = "main"
-	rep, err := Check(opts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if rep.Base != fork {
-		t.Errorf("Base %q, want the merge base %q", rep.Base, fork)
-	}
-	if len(rep.Blocking) != 0 {
-		t.Errorf("a fixed smell of main must not block the stale branch: %+v", rep.Blocking)
-	}
-	wantEntry(t, byFunction(t, rep, "a.go"), "f", ChangeExisting, SeverityHigh, 9, 9)
-	found := false
-	for _, n := range rep.Notes {
-		found = found || (strings.Contains(n, "merge base") && strings.Contains(n, tip[:12]))
-	}
-	if !found {
-		t.Errorf("notes %q do not say that the merge base differs from the tip", rep.Notes)
-	}
+	rep := mustCheck(t, opts)
+	wantEqual(t, rep.Base, fork)       // the merge base
+	wantEqual(t, len(rep.Blocking), 0) // a fixed smell of main must not block the stale branch
+	wantEntry(t, byFunction(t, rep, "a.go"), entryWant{"f", ChangeExisting, SeverityHigh, 9, 9})
+	wantEqual(t, noteSaysMergeBase(rep.Notes, tip), true)
 
 	// With the tip itself (the base equals the merge base) there is no note.
 	r.Git("checkout", "-q", "-f", "-b", "fresh", "main")
 	r.Write("a.go", toyFunc("f", 9)+toyFunc("g", 2))
-	opts.Base = "main"
-	rep, err = Check(opts)
-	if err != nil || rep.Base != tip || len(rep.Notes) != 0 {
-		t.Errorf("up-to-date branch: base %q notes %q err %v", rep.Base, rep.Notes, err)
+	rep = mustCheck(t, opts)
+	wantEqual(t, [2]any{rep.Base, len(rep.Notes)}, [2]any{tip, 0})
+	mustEqual(t, len(rep.Blocking), 1) // a real regression still blocks
+	wantEqual(t, rep.Blocking[0].Function, "f")
+}
+
+// noteSaysMergeBase reports whether a note says that the merge base, not the tip
+// of the target, was compared.
+func noteSaysMergeBase(notes []string, tip string) bool {
+	for _, n := range notes {
+		if strings.Contains(n, "merge base") && strings.Contains(n, tip[:12]) {
+			return true
+		}
 	}
-	if len(rep.Blocking) != 1 || rep.Blocking[0].Function != "f" {
-		t.Errorf("a real regression must still block: %+v", rep.Blocking)
-	}
+	return false
 }
 
 // Without a common ancestor the resolved base is kept and a note says so.
@@ -594,27 +568,15 @@ func TestCheckIsDeterministic(t *testing.T) {
 		r.Write(n, toyFunc("x", 5+i)+toyFunc("y", 8)+toyFunc("fresh", 9)+toyFunc("dup", 8)+toyFunc("dup", 9)+toyFunc("w", 5))
 	}
 	opts := deltaOptions(r)
-	first, err := Check(opts)
-	if err != nil {
-		t.Fatal(err)
-	}
+	first := mustCheck(t, opts)
 	for i := 0; i < 5; i++ {
 		opts.Paths = []string{names[(i+1)%5], names[(i+2)%5], names[(i+3)%5], names[(i+4)%5], names[i%5]}
-		again, err := Check(opts)
-		if err != nil || !jsonEqual(t, first, again) {
-			t.Fatalf("run %d differs (%v)", i, err)
-		}
+		wantEqual(t, jsonEqual(t, first, mustCheck(t, opts)), true)
 	}
 	data, _ := json.Marshal(first)
-	if strings.Contains(string(data), r.Dir) || strings.Contains(strings.ToLower(string(data)), "time") {
-		t.Error("report holds an absolute path or a timestamp")
-	}
-	for i := 1; i < len(first.Entries); i++ {
-		p, q := first.Entries[i-1], first.Entries[i]
-		if p.Path > q.Path || (p.Path == q.Path && p.Function > q.Function) {
-			t.Errorf("entries out of order: %+v before %+v", p, q)
-		}
-	}
+	wantNone(t, string(data), r.Dir)
+	wantNone(t, strings.ToLower(string(data)), "time") // no absolute path and no timestamp
+	wantEqual(t, entriesAreSorted(first.Entries), true)
 	// Functions that share a name pair in order: the first dup was 5, now 8.
 	var dups []DeltaEntry
 	for _, e := range first.Entries {
@@ -622,9 +584,20 @@ func TestCheckIsDeterministic(t *testing.T) {
 			dups = append(dups, e)
 		}
 	}
-	if len(dups) != 2 || dups[0].Change != ChangeWorsened || dups[1].Change != ChangeWorsened {
-		t.Errorf("dup entries = %+v", dups)
+	mustEqual(t, len(dups), 2)
+	wantEqual(t, [2]string{dups[0].Change, dups[1].Change}, [2]string{ChangeWorsened, ChangeWorsened})
+}
+
+// entriesAreSorted reports whether the entries are in the order of path and
+// function.
+func entriesAreSorted(entries []DeltaEntry) bool {
+	for i := 1; i < len(entries); i++ {
+		p, q := entries[i-1], entries[i]
+		if p.Path > q.Path || (p.Path == q.Path && p.Function > q.Function) {
+			return false
+		}
 	}
+	return true
 }
 
 // The config of the head path is used for both sides, and the tier selects the
@@ -642,27 +615,21 @@ func TestCheckConfigAndTier(t *testing.T) {
 		seen = append(seen, p)
 		return Config{Thresholds: map[string]Threshold{CodeComplexMethod: {Warn: 3, High: 99}}}
 	}
-	rep, err := Check(opts)
-	if err != nil || len(rep.Entries) != 1 || rep.Entries[0].Change != ChangeExisting || rep.Entries[0].Severity != SeverityWarn {
-		t.Fatalf("%+v, %v", rep.Entries, err)
-	}
-	if fmt.Sprint(seen) != "[a.go]" {
-		t.Errorf("ConfigFor called for %v", seen)
-	}
+	rep := mustCheck(t, opts)
+	mustEqual(t, len(rep.Entries), 1)
+	wantEqual(t, [2]string{rep.Entries[0].Change, string(rep.Entries[0].Severity)}, [2]string{ChangeExisting, string(SeverityWarn)})
+	wantEqual(t, fmt.Sprint(seen), "[a.go]")
 
 	opts.ConfigFor = nil
 	opts.Tier = "product" // complex_method 7 / 12 applies
-	if rep, err = Check(opts); err != nil || len(rep.Entries) != 1 || rep.Tier != "product" || rep.Entries[0].Severity != SeverityWarn {
-		t.Errorf("tier product: %+v, %v", rep.Entries, err)
-	}
+	rep = mustCheck(t, opts)
+	mustEqual(t, len(rep.Entries), 1)
+	wantEqual(t, [2]string{rep.Tier, string(rep.Entries[0].Severity)}, [2]string{"product", string(SeverityWarn)})
 	opts.Tier = ""
-	if rep, err = Check(opts); err != nil || len(rep.Entries) != 0 {
-		t.Errorf("default thresholds (warn 10): %+v, %v", rep.Entries, err)
-	}
+	wantEqual(t, len(mustCheck(t, opts).Entries), 0) // default thresholds: warn 10
 	opts.Engine = nil
-	if _, err = Check(opts); err == nil {
-		t.Error("a missing engine must be an error")
-	}
+	_, err := Check(opts)
+	wantEqual(t, err != nil, true) // a missing engine is an error
 }
 
 // A CRLF working-tree copy of an LF base is the same code for the fake engine
@@ -701,66 +668,63 @@ func TestCheckCRLFWorkingTree(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-156
 func TestCheckSkipsOversizedAndIrregularHeadFiles(t *testing.T) {
-	pad := func(n int) string {
-		return toyFunc("big", 9) + "#" + strings.Repeat("x", n-len(toyFunc("big", 9))-2) + "\n"
-	}
 	const limit = 4 << 20
 	r := NewFixtureRepo(t)
 	r.Write("keep.go", toyFunc("k", 1))
 	base := r.Commit("base")
-	r.Write("huge.go", pad(limit+1))
-	r.Write("edge.go", pad(limit))
+	r.Write("huge.go", padToy(limit+1))
+	r.Write("edge.go", padToy(limit))
 	r.Write("small.go", toyFunc("s", 9))
 	r.Commit("head")
-
-	check := func(t *testing.T, headRev bool) DeltaReport {
-		t.Helper()
+	for name, headRev := range map[string]bool{"revision head": true, "working tree": false} {
 		opts := deltaOptions(r)
 		opts.Base = base
 		if headRev {
 			opts.Head = "HEAD"
 		}
-		rep, err := Check(opts)
-		if err != nil {
-			t.Fatal(err)
-		}
-		return rep
+		t.Run(name, func(t *testing.T) { requireOnlyHugeSkipped(t, opts) })
 	}
-	for name, headRev := range map[string]bool{"revision head": true, "working tree": false} {
-		rep := check(t, headRev)
-		if len(rep.Skipped) != 1 || rep.Skipped[0].Path != "huge.go" || !strings.Contains(rep.Skipped[0].Reason, "larger than 4194304") {
-			t.Errorf("%s: Skipped = %+v, want huge.go only", name, rep.Skipped)
-		}
-		if !strings.Contains(strings.Join(rep.Notes, "\n"), "skipped huge.go") {
-			t.Errorf("%s: notes = %v", name, rep.Notes)
-		}
-		paths := map[string]bool{}
-		for _, e := range rep.Entries {
-			paths[e.Path] = true
-		}
-		if paths["huge.go"] || !paths["edge.go"] || !paths["small.go"] {
-			t.Errorf("%s: entries for %v, want edge.go and small.go but not huge.go", name, paths)
-		}
-	}
+	requireSymlinkSkipped(t)
+}
 
-	// Not a regular file: a symbolic link at head (working tree).
-	r2 := NewFixtureRepo(t)
-	r2.Write("keep.go", toyFunc("k", 1))
-	r2.Commit("base")
-	if err := os.Symlink("keep.go", r2.Dir+"/link.go"); err != nil {
+// padToy is a toy file of n bytes with a high function and a comment.
+func padToy(n int) string {
+	return toyFunc("big", 9) + "#" + strings.Repeat("x", n-len(toyFunc("big", 9))-2) + "\n"
+}
+
+// requireOnlyHugeSkipped checks that the file above the limit is the only one
+// skipped, with its reason and a note, and that the file at the limit is
+// analysed.
+func requireOnlyHugeSkipped(t *testing.T, opts CheckOptions) {
+	t.Helper()
+	rep := mustCheck(t, opts)
+	mustEqual(t, len(rep.Skipped), 1)
+	wantEqual(t, rep.Skipped[0].Path, "huge.go")
+	wantContains(t, rep.Skipped[0].Reason, "larger than 4194304")
+	wantContains(t, strings.Join(rep.Notes, "\n"), "skipped huge.go")
+	paths := map[string]bool{}
+	for _, e := range rep.Entries {
+		paths[e.Path] = true
+	}
+	wantEqual(t, [3]bool{paths["huge.go"], paths["edge.go"], paths["small.go"]}, [3]bool{false, true, true})
+}
+
+// requireSymlinkSkipped checks that a symbolic link at head is skipped as not a
+// regular file and that a check without skips reports an empty list.
+func requireSymlinkSkipped(t *testing.T) {
+	t.Helper()
+	r := NewFixtureRepo(t)
+	r.Write("keep.go", toyFunc("k", 1))
+	r.Commit("base")
+	if err := os.Symlink("keep.go", r.Dir+"/link.go"); err != nil {
 		t.Skip("symbolic links are not available")
 	}
-	rep, err := Check(deltaOptions(r2))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(rep.Skipped) != 1 || rep.Skipped[0].Path != "link.go" || rep.Skipped[0].Reason != "not a regular file" {
-		t.Errorf("Skipped = %+v, want link.go as not a regular file", rep.Skipped)
-	}
-	r2.Remove("link.go")
-	if clean, err := Check(deltaOptions(r2)); err != nil || clean.Skipped == nil || len(clean.Skipped) != 0 {
-		t.Errorf("a check without skips must report an empty list: %+v, %v", clean.Skipped, err)
-	}
+	rep := mustCheck(t, deltaOptions(r))
+	mustEqual(t, len(rep.Skipped), 1)
+	wantEqual(t, [2]string{rep.Skipped[0].Path, rep.Skipped[0].Reason}, [2]string{"link.go", "not a regular file"})
+	r.Remove("link.go")
+	clean := mustCheck(t, deltaOptions(r))
+	wantEqual(t, [2]bool{clean.Skipped != nil, len(clean.Skipped) == 0}, [2]bool{true, true})
 }
 
 // failingFake fails the analysis of the files whose path contains "bad" or
@@ -792,29 +756,26 @@ func TestCheckListsFilesTheEngineCannotAnalyse(t *testing.T) {
 	r.Write("bad_new.go", toyFunc("n", 9))
 	opts := deltaOptions(r)
 	opts.Engine = failingFake{}
-	rep, err := Check(opts)
-	if err != nil {
-		t.Fatalf("an engine failure on one file must not end the check: %v", err)
-	}
-	if len(rep.Skipped) != 1 || rep.Skipped[0].Path != "bad_new.go" || !strings.Contains(rep.Skipped[0].Reason, "the analysis failed:") || !strings.Contains(rep.Skipped[0].Reason, "boom") {
-		t.Errorf("Skipped = %+v", rep.Skipped)
-	}
-	if got := byFunction(t, rep, "good.go"); len(got) != 1 {
-		t.Errorf("the other file was not compared: %+v", rep.Entries)
-	}
-	// The base side fails: the head is compared with nothing, every finding is
-	// new, and a note says so.
-	r2 := NewFixtureRepo(t)
-	r2.Write("a.go", "FAILME\n"+toyFunc("f", 9))
-	r2.Commit("base")
-	r2.Write("a.go", toyFunc("f", 9))
-	opts = deltaOptions(r2)
+	rep := mustCheck(t, opts) // an engine failure on one file must not end the check
+	mustEqual(t, len(rep.Skipped), 1)
+	wantEqual(t, rep.Skipped[0].Path, "bad_new.go")
+	wantAll(t, rep.Skipped[0].Reason, "the analysis failed:", "boom")
+	wantEqual(t, len(byFunction(t, rep, "good.go")), 1) // the other file was compared
+	requireFailingBaseIsNew(t)
+}
+
+// requireFailingBaseIsNew checks that a base side that cannot be analysed
+// leaves a note and makes every finding of the file new.
+func requireFailingBaseIsNew(t *testing.T) {
+	t.Helper()
+	r := NewFixtureRepo(t)
+	r.Write("a.go", "FAILME\n"+toyFunc("f", 9))
+	r.Commit("base")
+	r.Write("a.go", toyFunc("f", 9))
+	opts := deltaOptions(r)
 	opts.Engine = failingFake{}
-	if rep, err = Check(opts); err != nil || len(rep.Skipped) != 0 {
-		t.Fatalf("base failure: %+v, %v", rep.Skipped, err)
-	}
-	wantEntry(t, byFunction(t, rep, "a.go"), "f", ChangeNew, SeverityHigh, 0, 9)
-	if !strings.Contains(strings.Join(rep.Notes, "\n"), "could not analyse the base of a.go") {
-		t.Errorf("notes = %v", rep.Notes)
-	}
+	rep := mustCheck(t, opts)
+	wantEqual(t, len(rep.Skipped), 0)
+	wantEntry(t, byFunction(t, rep, "a.go"), entryWant{"f", ChangeNew, SeverityHigh, 0, 9})
+	wantContains(t, strings.Join(rep.Notes, "\n"), "could not analyse the base of a.go")
 }

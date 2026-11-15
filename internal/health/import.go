@@ -41,12 +41,9 @@ var ErrInvalidReport = errors.New("invalid health report")
 // TRLC-LINKS: REQ-EMG-157
 // ENGMODEL-LINKS: FU-CODE-HEALTH
 func Import(r io.Reader) (Report, error) {
-	data, err := io.ReadAll(io.LimitReader(r, maxReportBytes+1))
+	data, err := readReportBytes(r)
 	if err != nil {
-		return Report{}, fmt.Errorf("%w: read: %v", ErrInvalidReport, err)
-	}
-	if len(data) > maxReportBytes {
-		return Report{}, fmt.Errorf("%w: larger than %d bytes", ErrInvalidReport, maxReportBytes)
+		return Report{}, err
 	}
 	// The document is decoded generically once; the header checks and the schema
 	// validation read that value, and only the typed model needs a second decode.
@@ -54,17 +51,67 @@ func Import(r io.Reader) (Report, error) {
 	if err := json.Unmarshal(data, &doc); err != nil {
 		return Report{}, fmt.Errorf("%w: not a JSON object: %v", ErrInvalidReport, err)
 	}
-	if schema, _ := doc["schema"].(string); schema != ReportSchema {
-		return Report{}, fmt.Errorf("%w: schema %q is not %q", ErrInvalidReport, fmt.Sprint(doc["schema"]), ReportSchema)
-	}
-	if engine, ok := doc["engine"].(map[string]any); ok {
-		if v, ok := engine["scoringVersion"].(float64); ok && (v != float64(int(v)) || !ReadableScoringVersion(int(v))) {
-			return Report{}, fmt.Errorf("%w: scoringVersion %v is not readable; this engine reads scoring versions 1 and 2 and does not rescore imported reports", ErrInvalidReport, v)
-		}
+	if err := checkReportHeader(doc); err != nil {
+		return Report{}, err
 	}
 	if err := validateReportDocument(doc); err != nil {
 		return Report{}, fmt.Errorf("%w: %v", ErrInvalidReport, err)
 	}
+	rep, err := decodeReport(data)
+	if err != nil {
+		return Report{}, err
+	}
+	canonicalize(&rep)
+	rep.Summary = rep.Summarize()
+	return rep, nil
+}
+
+// readReportBytes reads the document, bounded by maxReportBytes.
+//
+// TRLC-LINKS: REQ-EMG-157
+func readReportBytes(r io.Reader) ([]byte, error) {
+	data, err := io.ReadAll(io.LimitReader(r, maxReportBytes+1))
+	if err != nil {
+		return nil, fmt.Errorf("%w: read: %v", ErrInvalidReport, err)
+	}
+	if len(data) > maxReportBytes {
+		return nil, fmt.Errorf("%w: larger than %d bytes", ErrInvalidReport, maxReportBytes)
+	}
+	return data, nil
+}
+
+// checkReportHeader checks the schema string and the scoring version of a
+// decoded document.
+//
+// TRLC-LINKS: REQ-EMG-157
+func checkReportHeader(doc map[string]any) error {
+	if schema, _ := doc["schema"].(string); schema != ReportSchema {
+		return fmt.Errorf("%w: schema %q is not %q", ErrInvalidReport, fmt.Sprint(doc["schema"]), ReportSchema)
+	}
+	if v, unreadable := unreadableScoringVersion(doc); unreadable {
+		return fmt.Errorf("%w: scoringVersion %v is not readable; this engine reads scoring versions 1 and 2 and does not rescore imported reports", ErrInvalidReport, v)
+	}
+	return nil
+}
+
+// unreadableScoringVersion returns the scoring version of the document when
+// it is present and is not one ReadableScoringVersion accepts.
+//
+// TRLC-LINKS: REQ-EMG-157
+func unreadableScoringVersion(doc map[string]any) (float64, bool) {
+	engine, ok := doc["engine"].(map[string]any)
+	if !ok {
+		return 0, false
+	}
+	v, ok := engine["scoringVersion"].(float64)
+	return v, ok && (v != float64(int(v)) || !ReadableScoringVersion(int(v)))
+}
+
+// decodeReport decodes the typed report from the validated document, refusing
+// unknown fields and the rules the JSON Schema cannot express.
+//
+// TRLC-LINKS: REQ-EMG-157
+func decodeReport(data []byte) (Report, error) {
 	var rep Report
 	dec := json.NewDecoder(bytes.NewReader(data))
 	dec.DisallowUnknownFields()
@@ -74,8 +121,6 @@ func Import(r io.Reader) (Report, error) {
 	if err := checkImported(rep); err != nil {
 		return Report{}, fmt.Errorf("%w: %v", ErrInvalidReport, err)
 	}
-	canonicalize(&rep)
-	rep.Summary = rep.Summarize()
 	return rep, nil
 }
 
@@ -83,8 +128,28 @@ func Import(r io.Reader) (Report, error) {
 //
 // TRLC-LINKS: REQ-EMG-157
 func checkImported(r Report) error {
+	if err := checkFiles(r.Files); err != nil {
+		return err
+	}
+	if err := checkWaivedPaths(r.Waived); err != nil {
+		return err
+	}
+	if err := checkBaselinedPaths(r.Baselined); err != nil {
+		return err
+	}
+	if err := checkAggregateBands(r.Rollups); err != nil {
+		return err
+	}
+	return checkRequirementBands(r.Rollups.Requirements)
+}
+
+// checkFiles checks the paths, the uniqueness, the bands and the line ranges
+// of the files.
+//
+// TRLC-LINKS: REQ-EMG-157
+func checkFiles(files []FileReport) error {
 	seen := map[string]bool{}
-	for _, f := range r.Files {
+	for _, f := range files {
 		if err := checkPath(f.Path); err != nil {
 			return err
 		}
@@ -92,32 +157,73 @@ func checkImported(r Report) error {
 			return fmt.Errorf("file %q is listed twice", f.Path)
 		}
 		seen[f.Path] = true
-		if BandOf(f.Score) != f.Band {
-			return fmt.Errorf("file %q has score %.1f but band %q (expected %q)", f.Path, f.Score, f.Band, BandOf(f.Score))
-		}
-		for _, fn := range f.Functions {
-			if fn.EndLine < fn.StartLine {
-				return fmt.Errorf("function %q of %q ends on line %d before it starts on line %d", fn.Name, f.Path, fn.EndLine, fn.StartLine)
-			}
+		if err := checkFileEntry(f); err != nil {
+			return err
 		}
 	}
-	for _, w := range r.Waived {
+	return nil
+}
+
+// checkFileEntry checks the band of a file and the line range of each of its
+// functions.
+//
+// TRLC-LINKS: REQ-EMG-157
+func checkFileEntry(f FileReport) error {
+	if BandOf(f.Score) != f.Band {
+		return fmt.Errorf("file %q has score %.1f but band %q (expected %q)", f.Path, f.Score, f.Band, BandOf(f.Score))
+	}
+	for _, fn := range f.Functions {
+		if fn.EndLine < fn.StartLine {
+			return fmt.Errorf("function %q of %q ends on line %d before it starts on line %d", fn.Name, f.Path, fn.EndLine, fn.StartLine)
+		}
+	}
+	return nil
+}
+
+// checkWaivedPaths checks the path of each waived finding.
+//
+// TRLC-LINKS: REQ-EMG-157
+func checkWaivedPaths(waived []WaivedFinding) error {
+	for _, w := range waived {
 		if err := checkPath(w.Path); err != nil {
 			return err
 		}
 	}
-	for _, b := range r.Baselined {
+	return nil
+}
+
+// checkBaselinedPaths checks the path of each baselined finding.
+//
+// TRLC-LINKS: REQ-EMG-157
+func checkBaselinedPaths(baselined []BaselinedFinding) error {
+	for _, b := range baselined {
 		if err := checkPath(b.Path); err != nil {
 			return err
 		}
 	}
-	aggregates := map[string]Aggregate{"rollups.project": r.Rollups.Project}
-	if r.Rollups.Tests != nil {
-		aggregates["rollups.tests"] = *r.Rollups.Tests
+	return nil
+}
+
+// namedAggregates names every aggregate of the roll-ups for the band check.
+//
+// TRLC-LINKS: REQ-EMG-157
+func namedAggregates(ro Rollups) map[string]Aggregate {
+	aggregates := map[string]Aggregate{"rollups.project": ro.Project}
+	if ro.Tests != nil {
+		aggregates["rollups.tests"] = *ro.Tests
 	}
-	for i, u := range r.Rollups.Units {
+	for i, u := range ro.Units {
 		aggregates[fmt.Sprintf("rollups.units[%d]", i)] = u.Aggregate
 	}
+	return aggregates
+}
+
+// checkAggregateBands checks that every aggregate has the band of its score,
+// in the order of the names.
+//
+// TRLC-LINKS: REQ-EMG-157
+func checkAggregateBands(ro Rollups) error {
+	aggregates := namedAggregates(ro)
 	names := make([]string, 0, len(aggregates))
 	for name := range aggregates {
 		names = append(names, name)
@@ -128,7 +234,15 @@ func checkImported(r Report) error {
 			return fmt.Errorf("%s has score %.1f but band %q (expected %q)", name, a.Score, a.Band, BandOf(a.Score))
 		}
 	}
-	for _, q := range r.Rollups.Requirements {
+	return nil
+}
+
+// checkRequirementBands checks that every requirement roll-up has the band of
+// its score.
+//
+// TRLC-LINKS: REQ-EMG-157
+func checkRequirementBands(rollups []RequirementRollup) error {
+	for _, q := range rollups {
 		if BandOf(q.Score) != q.Band {
 			return fmt.Errorf("requirement roll-up %s has score %.1f but band %q (expected %q)", q.Requirement, q.Score, q.Band, BandOf(q.Score))
 		}
@@ -141,17 +255,79 @@ func checkImported(r Report) error {
 //
 // TRLC-LINKS: REQ-EMG-157
 func checkPath(p string) error {
-	if p == "" || strings.HasPrefix(p, "/") || strings.Contains(p, "\\") || hasDriveLetter(p) || path.Clean(p) != p || p == ".." || strings.HasPrefix(p, "../") {
+	if unusablePath(p) || path.Clean(p) != p || escapesRoot(p) {
 		return fmt.Errorf("path %q is not a clean repository-relative path", p)
 	}
 	return nil
 }
 
+// unusablePath reports an empty path, an absolute one, or one holding a
+// backslash or a drive letter.
+//
+// TRLC-LINKS: REQ-EMG-157
+func unusablePath(p string) bool {
+	return p == "" || rootedPath(p) || hasDriveLetter(p)
+}
+
+// rootedPath reports a path that starts at the root or holds a backslash.
+//
+// TRLC-LINKS: REQ-EMG-157
+func rootedPath(p string) bool { return strings.HasPrefix(p, "/") || strings.Contains(p, "\\") }
+
+// escapesRoot reports a path that is .. or starts with ../.
+//
+// TRLC-LINKS: REQ-EMG-157
+func escapesRoot(p string) bool { return p == ".." || strings.HasPrefix(p, "../") }
+
 // hasDriveLetter reports a leading Windows drive designator such as "C:".
 //
 // TRLC-LINKS: REQ-EMG-157
 func hasDriveLetter(p string) bool {
-	return len(p) >= 2 && p[1] == ':' && (p[0] >= 'a' && p[0] <= 'z' || p[0] >= 'A' && p[0] <= 'Z')
+	return len(p) >= 2 && p[1] == ':' && isASCIILetter(p[0])
+}
+
+// isASCIILetter reports a byte in a-z or A-Z.
+//
+// TRLC-LINKS: REQ-EMG-157
+func isASCIILetter(b byte) bool {
+	lower := b | 0x20
+	return lower >= 'a' && lower <= 'z'
+}
+
+// findingKey orders the findings of a report: by path, line, function and the
+// position of the code.
+type findingKey struct {
+	path, function string
+	line, code     int
+}
+
+// lessFindingKey reports whether a sorts before b.
+//
+// TRLC-LINKS: REQ-EMG-157
+func lessFindingKey(a, b findingKey) bool {
+	if a.path != b.path {
+		return a.path < b.path
+	}
+	if a.line != b.line {
+		return a.line < b.line
+	}
+	if a.function != b.function {
+		return a.function < b.function
+	}
+	return a.code < b.code
+}
+
+// lessDiagnostic orders diagnostics by path, code and function.
+//
+// TRLC-LINKS: REQ-EMG-157
+func lessDiagnostic(a, b Diagnostic) bool {
+	if a.Path != b.Path {
+		return a.Path < b.Path
+	}
+	if a.Code != b.Code {
+		return a.Code < b.Code
+	}
+	return a.Function < b.Function
 }
 
 // canonicalize sorts every list of a report and replaces nil lists by empty
@@ -159,62 +335,58 @@ func hasDriveLetter(p string) bool {
 //
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-159
 func canonicalize(r *Report) {
+	canonicalizeFiles(r)
+	canonicalizeFindings(r)
+	canonicalizeRollups(&r.Rollups)
+}
+
+// canonicalizeFiles sorts the files and gives each an empty function list
+// instead of none.
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-159
+func canonicalizeFiles(r *Report) {
 	sort.SliceStable(r.Files, func(i, j int) bool { return r.Files[i].Path < r.Files[j].Path })
 	for i := range r.Files {
 		if r.Files[i].Functions == nil {
 			r.Files[i].Functions = []Function{}
 		}
 	}
+}
+
+// canonicalizeFindings sorts the waived and baselined findings and the
+// diagnostics.
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-159
+func canonicalizeFindings(r *Report) {
 	if r.Waived == nil {
 		r.Waived = []WaivedFinding{}
 	}
-	sort.SliceStable(r.Waived, func(i, j int) bool {
-		a, b := r.Waived[i], r.Waived[j]
-		if a.Path != b.Path {
-			return a.Path < b.Path
-		}
-		if a.StartLine != b.StartLine {
-			return a.StartLine < b.StartLine
-		}
-		if a.Function != b.Function {
-			return a.Function < b.Function
-		}
-		return codeOrder(a.Code) < codeOrder(b.Code)
-	})
-	sort.SliceStable(r.Baselined, func(i, j int) bool {
-		a, b := r.Baselined[i], r.Baselined[j]
-		if a.Path != b.Path {
-			return a.Path < b.Path
-		}
-		if a.StartLine != b.StartLine {
-			return a.StartLine < b.StartLine
-		}
-		if a.Function != b.Function {
-			return a.Function < b.Function
-		}
-		return codeOrder(a.Code) < codeOrder(b.Code)
-	})
+	waived := r.Waived
+	sort.SliceStable(waived, func(i, j int) bool { return lessFindingKey(waived[i].sortKey(), waived[j].sortKey()) })
+	baselined := r.Baselined
+	sort.SliceStable(baselined, func(i, j int) bool { return lessFindingKey(baselined[i].sortKey(), baselined[j].sortKey()) })
 	if r.Diagnostics == nil {
 		r.Diagnostics = []Diagnostic{}
 	}
-	sort.SliceStable(r.Diagnostics, func(i, j int) bool {
-		a, b := r.Diagnostics[i], r.Diagnostics[j]
-		if a.Path != b.Path {
-			return a.Path < b.Path
-		}
-		if a.Code != b.Code {
-			return a.Code < b.Code
-		}
-		return a.Function < b.Function
+	diagnostics := r.Diagnostics
+	sort.SliceStable(diagnostics, func(i, j int) bool {
+		a, b := diagnostics[i], diagnostics[j]
+		return lessDiagnostic(a, b)
 	})
-	if r.Rollups.Units == nil {
-		r.Rollups.Units = []UnitRollup{}
+}
+
+// canonicalizeRollups sorts the unit and requirement roll-ups.
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-159
+func canonicalizeRollups(ro *Rollups) {
+	if ro.Units == nil {
+		ro.Units = []UnitRollup{}
 	}
-	sort.SliceStable(r.Rollups.Units, func(i, j int) bool { return r.Rollups.Units[i].Unit < r.Rollups.Units[j].Unit })
-	if r.Rollups.Requirements == nil {
-		r.Rollups.Requirements = []RequirementRollup{}
+	sort.SliceStable(ro.Units, func(i, j int) bool { return ro.Units[i].Unit < ro.Units[j].Unit })
+	if ro.Requirements == nil {
+		ro.Requirements = []RequirementRollup{}
 	}
-	sort.SliceStable(r.Rollups.Requirements, func(i, j int) bool {
-		return r.Rollups.Requirements[i].Requirement < r.Rollups.Requirements[j].Requirement
+	sort.SliceStable(ro.Requirements, func(i, j int) bool {
+		return ro.Requirements[i].Requirement < ro.Requirements[j].Requirement
 	})
 }

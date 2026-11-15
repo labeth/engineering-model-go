@@ -108,15 +108,11 @@ func TestExcludedUsesTheExcludeDialect(t *testing.T) {
 		"legacy.go":               false,
 	}
 	for p, want := range cases {
-		if got := Excluded(h, p); got != want {
-			t.Errorf("Excluded(%q) = %v, want %v", p, got, want)
-		}
+		wantEqual(t, [2]any{p, Excluded(h, p)}, [2]any{p, want})
 	}
-	if Excluded(nil, "generated/a.go") != true || Excluded(nil, "a.gen.go") != false {
-		t.Error("a nil health block must still apply the default excludes only")
-	}
-	if PathMatches("../up", "a.go") || PathMatches("/abs", "abs") || PathMatches("", "a.go") {
-		t.Error("a refused pattern must match nothing")
+	wantEqual(t, [2]bool{Excluded(nil, "generated/a.go"), Excluded(nil, "a.gen.go")}, [2]bool{true, false}) // a nil health block applies the default excludes only
+	for _, refused := range []string{"../up", "/abs", ""} {
+		wantEqual(t, [2]any{refused, PathMatches(refused, "a.go") || PathMatches(refused, "abs")}, [2]any{refused, false}) // a refused pattern matches nothing
 	}
 }
 
@@ -154,20 +150,21 @@ func TestLevelsFollowTheTierPolicy(t *testing.T) {
 		{"poc raised", bundleAt("poc", nil, []string{"health.*"}), true},
 	}
 	for _, c := range cases {
-		levels := Levels(c.b)
 		want := LevelWarning
 		if c.error {
 			want = LevelError
 		}
-		for _, code := range append(Codes(), model.HealthWaiverUnusedCode) {
-			if levels[code] != want {
-				t.Errorf("%s: level of %s = %q, want %q", c.name, code, levels[code], want)
-			}
-		}
+		t.Run(c.name, func(t *testing.T) { requireLevelsAre(t, Levels(c.b), want) })
 	}
 	raised := Levels(bundleAt("poc", nil, []string{"health.complex_method"}))
-	if raised[CodeComplexMethod] != LevelError || raised[CodeLargeMethod] != LevelWarning {
-		t.Errorf("raise of one code: %v", raised)
+	wantEqual(t, [2]string{raised[CodeComplexMethod], raised[CodeLargeMethod]}, [2]string{LevelError, LevelWarning}) // the raise of one code
+}
+
+// requireLevelsAre checks that every code has the level.
+func requireLevelsAre(t *testing.T, levels map[string]string, want string) {
+	t.Helper()
+	for _, code := range append(Codes(), model.HealthWaiverUnusedCode) {
+		wantEqual(t, [2]string{code, levels[code]}, [2]string{code, want})
 	}
 }
 
@@ -203,11 +200,14 @@ func TestRelevelMovesFileDiagnosticsWithTheTier(t *testing.T) {
 		{Code: model.HealthWaiverUnjustifiedCode, Level: LevelError, Path: "model/b.json"},
 	}}
 	product := Relevel(r, bundleAt("product", nil, nil))
-	if product.Diagnostics[0].Level != LevelError || product.Diagnostics[1].Level != LevelError || product.Summary.Errors != 3 {
-		t.Errorf("product: %+v %+v", product.Diagnostics, product.Summary)
-	}
+	wantEqual(t, diagnosticLevels(product), [3]string{LevelError, LevelError, LevelError})
+	wantEqual(t, product.Summary.Errors, 3)
 	poc := Relevel(product, bundleAt("poc", nil, nil))
-	if poc.Diagnostics[0].Level != LevelWarning || poc.Diagnostics[1].Level != LevelWarning || poc.Diagnostics[2].Level != LevelError || poc.Summary.Errors != 1 || poc.Summary.Warnings != 2 {
-		t.Errorf("poc: %+v %+v", poc.Diagnostics, poc.Summary)
-	}
+	wantEqual(t, diagnosticLevels(poc), [3]string{LevelWarning, LevelWarning, LevelError})
+	wantEqual(t, [2]int{poc.Summary.Errors, poc.Summary.Warnings}, [2]int{1, 2})
+}
+
+// diagnosticLevels is the level of each of the three diagnostics of a report.
+func diagnosticLevels(r Report) [3]string {
+	return [3]string{r.Diagnostics[0].Level, r.Diagnostics[1].Level, r.Diagnostics[2].Level}
 }
