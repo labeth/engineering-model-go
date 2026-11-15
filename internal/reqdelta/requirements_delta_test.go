@@ -38,6 +38,20 @@ requirements:
 	if validate.HasErrors(result.Diagnostics) {
 		t.Fatalf("unexpected diagnostics: %+v", result.Diagnostics)
 	}
+	assertPlannedLists(t, result)
+	assertPlannedYAML(t, result)
+	assertPlannedDiff(t, result)
+	original, err := os.ReadFile(filepath.Join(root, "model", "requirements.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(original), "REQ-TST-003") {
+		t.Fatal("plan modified canonical requirements")
+	}
+}
+
+func assertPlannedLists(t *testing.T, result RequirementsDeltaResult) {
+	t.Helper()
 	if got, want := strings.Join(result.Added, ","), "REQ-TST-003"; got != want {
 		t.Fatalf("added = %q, want %q", got, want)
 	}
@@ -47,6 +61,10 @@ requirements:
 	if got, want := strings.Join(result.Removed, ","), "REQ-TST-002"; got != want {
 		t.Fatalf("removed = %q, want %q", got, want)
 	}
+}
+
+func assertPlannedYAML(t *testing.T, result RequirementsDeltaResult) {
+	t.Helper()
 	if !strings.Contains(string(result.YAML), "# keep this requirement comment") {
 		t.Fatalf("expected updated requirement comment to be preserved:\n%s", result.YAML)
 	}
@@ -62,18 +80,14 @@ requirements:
 	if strings.Contains(string(result.YAML), "REQ-TST-002") {
 		t.Fatalf("removed requirement remains in candidate:\n%s", result.YAML)
 	}
+}
+
+func assertPlannedDiff(t *testing.T, result RequirementsDeltaResult) {
+	t.Helper()
 	if !strings.Contains(result.Diff, `+ REQ-TST-003:`) ||
 		!strings.Contains(result.Diff, `~ REQ-TST-001`) ||
 		!strings.Contains(result.Diff, `- REQ-TST-002:`) {
 		t.Fatalf("unexpected diff:\n%s", result.Diff)
-	}
-
-	original, err := os.ReadFile(filepath.Join(root, "model", "requirements.yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if strings.Contains(string(original), "REQ-TST-003") {
-		t.Fatal("plan modified canonical requirements")
 	}
 }
 
@@ -244,19 +258,24 @@ requirements:
 	if validate.HasErrors(result.Diagnostics) {
 		t.Fatalf("unexpected diagnostics: %+v", result.Diagnostics)
 	}
-	after, err := model.LoadRequirements(target)
-	if err != nil {
-		t.Fatalf("load applied requirements: %v", err)
-	}
-	if got := after.Requirements[0].Notes; got != "Applied." {
-		t.Fatalf("notes = %q, want Applied.", got)
-	}
+	assertAppliedNotes(t, target)
 	info, err := os.Stat(target)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if info.Mode().Perm() != before.Mode().Perm() {
 		t.Fatalf("mode changed from %v to %v", before.Mode().Perm(), info.Mode().Perm())
+	}
+}
+
+func assertAppliedNotes(t *testing.T, target string) {
+	t.Helper()
+	after, err := model.LoadRequirements(target)
+	if err != nil {
+		t.Fatalf("load applied requirements: %v", err)
+	}
+	if got := after.Requirements[0].Notes; got != "Applied." {
+		t.Fatalf("notes = %q, want Applied.", got)
 	}
 }
 
@@ -332,13 +351,7 @@ requirements:
 	if err == nil {
 		t.Fatal("expected invalid candidate error")
 	}
-	found := false
-	for _, diagnostic := range result.Diagnostics {
-		if diagnostic.Code == "requirement.invalid_applies_to" {
-			found = true
-		}
-	}
-	if !found {
+	if !hasDiagnosticCode(result.Diagnostics, "requirement.invalid_applies_to") {
 		t.Fatalf("expected invalid appliesTo diagnostic, got %+v", result.Diagnostics)
 	}
 	after, readErr := os.ReadFile(target)
@@ -366,11 +379,7 @@ requirements:
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
-func writeRequirementsDeltaFixture(t *testing.T) string {
-	t.Helper()
-	root := t.TempDir()
-	writeFixtureFile(t, filepath.Join(root, "engmod.yml"), `
+var fixtureManifest = `
 schemaVersion: 3
 module:
   path: example.com/test-model@v0
@@ -391,8 +400,9 @@ documents:
 dependencies: []
 publications: []
 inferenceHints: {}
-`+testutil.CompleteSwitches)
-	writeFixtureFile(t, filepath.Join(root, "model", "architecture.yml"), `
+` + testutil.CompleteSwitches
+
+const fixtureArchitecture = `
 schemaVersion: 3
 architecture:
   functionalGroups:
@@ -403,16 +413,18 @@ architecture:
     - id: FU-STORE
       name: Store
       group: FG-TEST
-`)
-	writeFixtureFile(t, filepath.Join(root, "model", "behavior.yml"), `
+`
+
+const fixtureBehavior = `
 schemaVersion: 3
 behavior:
   relationships:
     - type: contains
       from: FG-TEST
       to: FU-STORE
-`)
-	writeFixtureFile(t, filepath.Join(root, "model", "catalog.yml"), `
+`
+
+const fixtureCatalog = `
 schemaVersion: 3
 catalog:
   systems:
@@ -435,8 +447,9 @@ catalog:
     - id: DATA-AUDIT
       name: audit record
       definition: Record retained for audit.
-`)
-	writeFixtureFile(t, filepath.Join(root, "model", "requirements.yml"), `
+`
+
+const fixtureRequirements = `
 schemaVersion: 3
 lintRun:
   id: test-lint
@@ -457,11 +470,33 @@ requirements:
     appliesTo: [FU-STORE]
 
 expected: []
-`)
-	writeFixtureFile(t, filepath.Join(root, "model", "assurance.yml"), "schemaVersion: 3\nassurance: {}\n")
-	writeFixtureFile(t, filepath.Join(root, "model", "compliance.yml"), "schemaVersion: 3\ncompliance: {}\n")
-	writeFixtureFile(t, filepath.Join(root, "model", "views.yml"), "schemaVersion: 3\nviews: []\n")
-	writeFixtureFile(t, filepath.Join(root, "model", "decisions.yml"), testutil.TierDecisionPoC)
+`
+
+const fixtureAssurance = "schemaVersion: 3\nassurance: {}\n"
+
+const fixtureCompliance = "schemaVersion: 3\ncompliance: {}\n"
+
+const fixtureViews = "schemaVersion: 3\nviews: []\n"
+
+var fixtureDecisions = testutil.TierDecisionPoC
+
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
+func writeRequirementsDeltaFixture(t *testing.T) string {
+	t.Helper()
+	root := t.TempDir()
+	for path, content := range map[string]string{
+		"engmod.yml": fixtureManifest,
+		filepath.Join("model", "architecture.yml"): fixtureArchitecture,
+		filepath.Join("model", "behavior.yml"):     fixtureBehavior,
+		filepath.Join("model", "catalog.yml"):      fixtureCatalog,
+		filepath.Join("model", "requirements.yml"): fixtureRequirements,
+		filepath.Join("model", "assurance.yml"):    fixtureAssurance,
+		filepath.Join("model", "compliance.yml"):   fixtureCompliance,
+		filepath.Join("model", "views.yml"):        fixtureViews,
+		filepath.Join("model", "decisions.yml"):    fixtureDecisions,
+	} {
+		writeFixtureFile(t, filepath.Join(root, path), content)
+	}
 	return root
 }
 
@@ -482,4 +517,13 @@ func writeFixtureFile(t *testing.T, path, content string) {
 	if err := os.WriteFile(path, []byte(strings.TrimLeft(content, "\n")), 0o640); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func hasDiagnosticCode(diagnostics []validate.Diagnostic, code string) bool {
+	for _, diagnostic := range diagnostics {
+		if diagnostic.Code == code {
+			return true
+		}
+	}
+	return false
 }

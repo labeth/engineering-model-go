@@ -95,6 +95,12 @@ func TestRenderSpecDeltaShallCapitalization(t *testing.T) {
 // unknown ID, fails this test.
 // TRLC-LINKS: REQ-EMG-081
 func TestRenderSpecDeltaCriteriaShaping(t *testing.T) {
+	t.Run("shapes", testSpecDeltaCriteriaShapes)
+	t.Run("modified without criteria", testSpecDeltaModifiedWithoutCriteria)
+	t.Run("selection errors", testSpecDeltaSelectionErrors)
+}
+
+func testSpecDeltaCriteriaShapes(t *testing.T) {
 	cases := []struct{ criteria, want string }{
 		{"WHEN the cache is full THEN the oldest entry is evicted", "- **WHEN** the cache is full\n- **THEN** the oldest entry is evicted\n"},
 		{"when a b, then c d.", "- **WHEN** a b\n- **THEN** c d.\n"},
@@ -110,6 +116,9 @@ func TestRenderSpecDeltaCriteriaShaping(t *testing.T) {
 			t.Fatalf("criteria %q:\n%s", c.criteria, got.Markdown)
 		}
 	}
+}
+
+func testSpecDeltaModifiedWithoutCriteria(t *testing.T) {
 	got, err := RenderSpecDelta([]model.Requirement{{ID: "REQ-B-002", Text: "B shall d."}}, SpecDeltaOptions{IDs: []string{"REQ-B-002"}, Operation: SpecDeltaModified})
 	if err != nil {
 		t.Fatal(err)
@@ -118,6 +127,9 @@ func TestRenderSpecDeltaCriteriaShaping(t *testing.T) {
 		len(got.Warnings) != 1 || !strings.Contains(got.Warnings[0], "no verificationCriteria") {
 		t.Fatalf("modified/no criteria: %v\n%s", got.Warnings, got.Markdown)
 	}
+}
+
+func testSpecDeltaSelectionErrors(t *testing.T) {
 	if _, err := RenderSpecDelta(specFixture(), SpecDeltaOptions{IDs: []string{"REQ-SIM-001", "REQ-NOPE-001"}}); err == nil || !strings.Contains(err.Error(), "REQ-NOPE-001") {
 		t.Fatalf("unknown id: %v", err)
 	}
