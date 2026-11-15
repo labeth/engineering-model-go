@@ -19614,8 +19614,18 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5,VER-INF-TEST-API_DIFF_TEST-C8F2C5>>
+|<<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_ENTITIES_TEST_A339C3,VER-INF-TEST-ENTITIES_TEST-A339C3>>
 |<<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5,VER-INF-TEST-API_DIFF_TEST-C8F2C5>>
+|<<REF_IDX-REQ_REQ_EMG_190,REQ-EMG-190>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
@@ -19631,6 +19641,16 @@ What this section shows: per-requirement result mapping inferred from test-resul
 
 |<<REF_IDX-VER_VER_INF_TEST_MODELDIFF_TEST_F84E56,VER-INF-TEST-MODELDIFF_TEST-F84E56>>
 |<<REF_IDX-REQ_REQ_EMG_190,REQ-EMG-190>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5,VER-INF-TEST-API_DIFF_TEST-C8F2C5>>
+|<<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_TRACE_TEST_47FD14,VER-INF-TEST-API_TRACE_TEST-47FD14>>
+|<<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
@@ -19654,6 +19674,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_API_CATALOG_TEST_9DB207,VER-INF-TEST-API_CATALOG_TEST-9DB207>>
+|<<REF_IDX-REQ_REQ_EMG_193,REQ-EMG-193>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE,VER-INF-TEST-CATALOG_USAGE_TEST-C82EFE>>
 |<<REF_IDX-REQ_REQ_EMG_193,REQ-EMG-193>>
 |not-run
@@ -19663,6 +19688,11 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |<<REF_IDX-REQ_REQ_EMG_194,REQ-EMG-194>>
 |pass
 |test-results/quint-formal.json; INV-GO-HELD-BUNDLE-WAS-LOADED of <<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
+
+|<<REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5,VER-INF-TEST-API_DIFF_TEST-C8F2C5>>
+|<<REF_IDX-REQ_REQ_EMG_194,REQ-EMG-194>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_FACADE_TEST_E17700,VER-INF-TEST-FACADE_TEST-E17700>>
 |<<REF_IDX-REQ_REQ_EMG_194,REQ-EMG-194>>
@@ -19674,8 +19704,28 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |pass
 |test-results/quint-formal.json; INV-GO-REJECTED-HAS-ERROR of <<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
 
+|<<REF_IDX-VER_VER_INF_TEST_API_VALIDATE_TEST_935546,VER-INF-TEST-API_VALIDATE_TEST-935546>>
+|<<REF_IDX-REQ_REQ_EMG_195,REQ-EMG-195>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_TEST_FACADE_TEST_E17700,VER-INF-TEST-FACADE_TEST-E17700>>
 |<<REF_IDX-REQ_REQ_EMG_195,REQ-EMG-195>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5,VER-INF-TEST-API_DIFF_TEST-C8F2C5>>
+|<<REF_IDX-REQ_REQ_EMG_196,REQ-EMG-196>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5,VER-INF-TEST-API_DIFF_TEST-C8F2C5>>
+|<<REF_IDX-REQ_REQ_EMG_197,REQ-EMG-197>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_TRACE_TEST_47FD14,VER-INF-TEST-API_TRACE_TEST-47FD14>>
+|<<REF_IDX-REQ_REQ_EMG_198,REQ-EMG-198>>
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
@@ -19689,10 +19739,40 @@ What this section shows: per-requirement result mapping inferred from test-resul
 |not-run
 |none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
+|<<REF_IDX-VER_VER_INF_TEST_API_CATALOG_TEST_9DB207,VER-INF-TEST-API_CATALOG_TEST-9DB207>>
+|<<REF_IDX-REQ_REQ_EMG_201,REQ-EMG-201>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29,VER-INF-TEST-API_COMPOSITION_TEST-7B9B29>>
+|<<REF_IDX-REQ_REQ_EMG_202,REQ-EMG-202>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_REQLINKS_TEST_6F0E73,VER-INF-TEST-API_REQLINKS_TEST-6F0E73>>
+|<<REF_IDX-REQ_REQ_EMG_203,REQ-EMG-203>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_REQLINKS_TEST_6F0E73,VER-INF-TEST-API_REQLINKS_TEST-6F0E73>>
+|<<REF_IDX-REQ_REQ_EMG_204,REQ-EMG-204>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
+|<<REF_IDX-VER_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29,VER-INF-TEST-API_COMPOSITION_TEST-7B9B29>>
+|<<REF_IDX-REQ_REQ_EMG_205,REQ-EMG-205>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
+
 |<<REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F,VER-INF-FORMAL-QUINT_FORMAL-5B471F>>
 |<<REF_IDX-REQ_REQ_EMG_206,REQ-EMG-206>>
 |pass
 |test-results/quint-formal.json; INV-GO-ABSENT-HOLDS-NO-BUNDLE of <<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>> holds: quint run, typescript backend, max-steps 20, max-samples 10000, seed 1; quint verify, apalache 0.62.4, max-steps 10; quint 0.33.1
+
+|<<REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5,VER-INF-TEST-API_DIFF_TEST-C8F2C5>>
+|<<REF_IDX-REQ_REQ_EMG_206,REQ-EMG-206>>
+|not-run
+|none; No parsed test-result artifact for this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> yet.
 
 |<<REF_IDX-VER_VER_INF_TEST_DEPENDENCY_INTERFACE_TEST_867C5F,VER-INF-TEST-DEPENDENCY_INTERFACE_TEST-867C5F>>
 |<<REF_IDX-REQ_REQ_EMG_207,REQ-EMG-207>>
@@ -20631,7 +20711,7 @@ flowchart TB
   CODE_REQ_EMG_010_CODEMAP_SCAN_GO["codemap/scan.go: 116, 122, 201, 234, 382, 408, 471, 538, 590, 602, 611, 636, 646, 651, 660, 666, 686"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_010_CODEMAP_SCAN_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_REQ_EMG_010_CODEMAP_SCAN_GO
-  CODE_REQ_EMG_010_DECLARATIONS_GO["declarations.go: 241, 252, 261, 279, 290, 315"]:::code_element
+  CODE_REQ_EMG_010_DECLARATIONS_GO["declarations.go: 242, 253, 262, 280, 291, 316"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_010_DECLARATIONS_GO
   REQC_REQ_EMG_010 -->|code trace| CODE_REQ_EMG_010_DECLARATIONS_GO
   CODE_REQ_EMG_010_GENERATED_SOURCE_GO["generated_source.go: 22, 39"]:::code_element
@@ -33588,9 +33668,13 @@ flowchart TB
   CODE_REQ_EMG_189_ENTITIES_GO["entities.go: 67, 104, 146, 156, 168, 183, 199, 206, 217, 232, 253, 269, 280, 295, 305, 314, 323, 329, 339, 356, 363, 381, 392, 406, 417, 430, 441"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_189_ENTITIES_GO
   REQC_REQ_EMG_189 -->|code trace| CODE_REQ_EMG_189_ENTITIES_GO
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5["VER-INF-TEST-API_DIFF_TEST-C8F2C5 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 -->|verifies| REQC_REQ_EMG_189
+  VERCODE_REQ_EMG_189_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO["api_diff_test.go: 51, 104, 121, 138, 175, 187, 197, 214, 225, 242, 261, 276, 306, 328, 373"]:::code_element
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 --->|implemented_by| VERCODE_REQ_EMG_189_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO
   VERC_VER_INF_TEST_ENTITIES_TEST_A339C3["VER-INF-TEST-ENTITIES_TEST-A339C3 (not-run)"]:::verification
   VERC_VER_INF_TEST_ENTITIES_TEST_A339C3 -->|verifies| REQC_REQ_EMG_189
-  VERCODE_REQ_EMG_189_VER_INF_TEST_ENTITIES_TEST_A339C3_ENTITIES_TEST_GO["entities_test.go: 45, 66, 77, 98, 108, 130, 139"]:::code_element
+  VERCODE_REQ_EMG_189_VER_INF_TEST_ENTITIES_TEST_A339C3_ENTITIES_TEST_GO["entities_test.go: 45, 71, 82, 103, 113, 135, 144"]:::code_element
   VERC_VER_INF_TEST_ENTITIES_TEST_A339C3 --->|implemented_by| VERCODE_REQ_EMG_189_VER_INF_TEST_ENTITIES_TEST_A339C3_ENTITIES_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -33655,9 +33739,13 @@ flowchart TB
   CODE_REQ_EMG_190_GITMODEL_GO["gitmodel.go: 23, 36, 52, 83, 100, 109, 117, 130, 161, 183, 207, 232, 248"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_190_GITMODEL_GO
   REQC_REQ_EMG_190 -->|code trace| CODE_REQ_EMG_190_GITMODEL_GO
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5["VER-INF-TEST-API_DIFF_TEST-C8F2C5 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 -->|verifies| REQC_REQ_EMG_190
+  VERCODE_REQ_EMG_190_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO["api_diff_test.go: 51, 104, 121, 138, 175, 187, 197, 214, 225, 242, 261, 276, 306, 328, 373"]:::code_element
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 --->|implemented_by| VERCODE_REQ_EMG_190_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO
   VERC_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0["VER-INF-TEST-ENTITY_DIFF_TEST-72BDA0 (not-run)"]:::verification
   VERC_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0 -->|verifies| REQC_REQ_EMG_190
-  VERCODE_REQ_EMG_190_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0_ENTITY_DIFF_TEST_GO["entity_diff_test.go: 52, 60, 68, 75, 89, 98"]:::code_element
+  VERCODE_REQ_EMG_190_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0_ENTITY_DIFF_TEST_GO["entity_diff_test.go: 52, 60, 68, 75, 89, 98, 108"]:::code_element
   VERC_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0 --->|implemented_by| VERCODE_REQ_EMG_190_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0_ENTITY_DIFF_TEST_GO
   VERC_VER_INF_TEST_GITMODEL_TEST_E396FE["VER-INF-TEST-GITMODEL_TEST-E396FE (not-run)"]:::verification
   VERC_VER_INF_TEST_GITMODEL_TEST_E396FE -->|verifies| REQC_REQ_EMG_190
@@ -33724,9 +33812,17 @@ flowchart TB
   CODE_REQ_EMG_191_MODELDIFF_GO["modeldiff.go: 47, 58, 76"]:::code_element
   RTC_FU_CLI_ORCHESTRATION_RUNTIME --->|implemented_by| CODE_REQ_EMG_191_MODELDIFF_GO
   REQC_REQ_EMG_191 -->|code trace| CODE_REQ_EMG_191_MODELDIFF_GO
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5["VER-INF-TEST-API_DIFF_TEST-C8F2C5 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 -->|verifies| REQC_REQ_EMG_191
+  VERCODE_REQ_EMG_191_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO["api_diff_test.go: 51, 104, 121, 138, 175, 187, 197, 214, 225, 242, 261, 276, 306, 328, 373"]:::code_element
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 --->|implemented_by| VERCODE_REQ_EMG_191_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO
+  VERC_VER_INF_TEST_API_TRACE_TEST_47FD14["VER-INF-TEST-API_TRACE_TEST-47FD14 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_TRACE_TEST_47FD14 -->|verifies| REQC_REQ_EMG_191
+  VERCODE_REQ_EMG_191_VER_INF_TEST_API_TRACE_TEST_47FD14_API_TRACE_TEST_GO["api_trace_test.go: 52, 102"]:::code_element
+  VERC_VER_INF_TEST_API_TRACE_TEST_47FD14 --->|implemented_by| VERCODE_REQ_EMG_191_VER_INF_TEST_API_TRACE_TEST_47FD14_API_TRACE_TEST_GO
   VERC_VER_INF_TEST_DELTA_TEST_111675["VER-INF-TEST-DELTA_TEST-111675 (not-run)"]:::verification
   VERC_VER_INF_TEST_DELTA_TEST_111675 -->|verifies| REQC_REQ_EMG_191
-  VERCODE_REQ_EMG_191_VER_INF_TEST_DELTA_TEST_111675_DELTA_TEST_GO["delta_test.go: 56, 64, 71, 80, 90"]:::code_element
+  VERCODE_REQ_EMG_191_VER_INF_TEST_DELTA_TEST_111675_DELTA_TEST_GO["delta_test.go: 56, 64, 71, 80, 90, 102"]:::code_element
   VERC_VER_INF_TEST_DELTA_TEST_111675 --->|implemented_by| VERCODE_REQ_EMG_191_VER_INF_TEST_DELTA_TEST_111675_DELTA_TEST_GO
   VERC_VER_INF_TEST_MODELDIFF_TEST_F84E56["VER-INF-TEST-MODELDIFF_TEST-F84E56 (not-run)"]:::verification
   VERC_VER_INF_TEST_MODELDIFF_TEST_F84E56 -->|verifies| REQC_REQ_EMG_191
@@ -33785,16 +33881,16 @@ flowchart TB
   CODE_REQ_EMG_192_CODE_SCOPE_GO["code_scope.go: 192"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_192_CODE_SCOPE_GO
   REQC_REQ_EMG_192 -->|code trace| CODE_REQ_EMG_192_CODE_SCOPE_GO
-  CODE_REQ_EMG_192_DECLARATIONS_GO["declarations.go: 38, 61, 78, 87, 96, 112, 133, 149, 165, 175, 188, 203, 225, 261, 315"]:::code_element
+  CODE_REQ_EMG_192_DECLARATIONS_GO["declarations.go: 38, 61, 78, 87, 96, 112, 133, 149, 165, 175, 188, 204, 226, 262, 316"]:::code_element
   RTC_FU_CODEMAP_INFERENCE_RUNTIME --->|implemented_by| CODE_REQ_EMG_192_DECLARATIONS_GO
   REQC_REQ_EMG_192 -->|code trace| CODE_REQ_EMG_192_DECLARATIONS_GO
   VERC_VER_INF_TEST_API_CODE_TEST_F84229["VER-INF-TEST-API_CODE_TEST-F84229 (not-run)"]:::verification
   VERC_VER_INF_TEST_API_CODE_TEST_F84229 -->|verifies| REQC_REQ_EMG_192
-  VERCODE_REQ_EMG_192_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO["api_code_test.go: 9, 40"]:::code_element
+  VERCODE_REQ_EMG_192_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO["api_code_test.go: 18, 51, 133, 158, 212"]:::code_element
   VERC_VER_INF_TEST_API_CODE_TEST_F84229 --->|implemented_by| VERCODE_REQ_EMG_192_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO
   VERC_VER_INF_TEST_DECLARATIONS_TEST_900E84["VER-INF-TEST-DECLARATIONS_TEST-900E84 (not-run)"]:::verification
   VERC_VER_INF_TEST_DECLARATIONS_TEST_900E84 -->|verifies| REQC_REQ_EMG_192
-  VERCODE_REQ_EMG_192_VER_INF_TEST_DECLARATIONS_TEST_900E84_DECLARATIONS_TEST_GO["declarations_test.go: 56, 68, 111, 124, 135, 145"]:::code_element
+  VERCODE_REQ_EMG_192_VER_INF_TEST_DECLARATIONS_TEST_900E84_DECLARATIONS_TEST_GO["declarations_test.go: 56, 68, 80, 128, 141, 152, 162"]:::code_element
   VERC_VER_INF_TEST_DECLARATIONS_TEST_900E84 --->|implemented_by| VERCODE_REQ_EMG_192_VER_INF_TEST_DECLARATIONS_TEST_900E84_DECLARATIONS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -33846,6 +33942,10 @@ flowchart TB
   CODE_REQ_EMG_193_CATALOG_USAGE_GO["catalog_usage.go: 32, 55, 65, 80, 96, 108, 121, 137"]:::code_element
   RTC_FU_VALIDATION_ENGINE_RUNTIME --->|implemented_by| CODE_REQ_EMG_193_CATALOG_USAGE_GO
   REQC_REQ_EMG_193 -->|code trace| CODE_REQ_EMG_193_CATALOG_USAGE_GO
+  VERC_VER_INF_TEST_API_CATALOG_TEST_9DB207["VER-INF-TEST-API_CATALOG_TEST-9DB207 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_CATALOG_TEST_9DB207 -->|verifies| REQC_REQ_EMG_193
+  VERCODE_REQ_EMG_193_VER_INF_TEST_API_CATALOG_TEST_9DB207_API_CATALOG_TEST_GO["api_catalog_test.go: 49, 73"]:::code_element
+  VERC_VER_INF_TEST_API_CATALOG_TEST_9DB207 --->|implemented_by| VERCODE_REQ_EMG_193_VER_INF_TEST_API_CATALOG_TEST_9DB207_API_CATALOG_TEST_GO
   VERC_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE["VER-INF-TEST-CATALOG_USAGE_TEST-C82EFE (not-run)"]:::verification
   VERC_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE -->|verifies| REQC_REQ_EMG_193
   VERCODE_REQ_EMG_193_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE_CATALOG_USAGE_TEST_GO["catalog_usage_test.go: 36, 49, 77"]:::code_element
@@ -33909,6 +34009,10 @@ flowchart TB
   REQC_REQ_EMG_194 -->|applies_to| FU_SM_GO_BUNDLE_SESSION
   VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
   VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_EMG_194
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5["VER-INF-TEST-API_DIFF_TEST-C8F2C5 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 -->|verifies| REQC_REQ_EMG_194
+  VERCODE_REQ_EMG_194_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO["api_diff_test.go: 51, 104, 121, 138, 175, 187, 197, 214, 225, 242, 261, 276, 306, 328, 373"]:::code_element
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 --->|implemented_by| VERCODE_REQ_EMG_194_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO
   VERC_VER_INF_TEST_FACADE_TEST_E17700["VER-INF-TEST-FACADE_TEST-E17700 (not-run)"]:::verification
   VERC_VER_INF_TEST_FACADE_TEST_E17700 -->|verifies| REQC_REQ_EMG_194
   VERCODE_REQ_EMG_194_VER_INF_TEST_FACADE_TEST_E17700_FACADE_TEST_GO["facade_test.go: 19, 274"]:::code_element
@@ -33967,6 +34071,10 @@ flowchart TB
   REQC_REQ_EMG_195 -->|applies_to| FU_SM_GO_BUNDLE_SESSION
   VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
   VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_EMG_195
+  VERC_VER_INF_TEST_API_VALIDATE_TEST_935546["VER-INF-TEST-API_VALIDATE_TEST-935546 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_VALIDATE_TEST_935546 -->|verifies| REQC_REQ_EMG_195
+  VERCODE_REQ_EMG_195_VER_INF_TEST_API_VALIDATE_TEST_935546_API_VALIDATE_TEST_GO["api_validate_test.go: 35, 63"]:::code_element
+  VERC_VER_INF_TEST_API_VALIDATE_TEST_935546 --->|implemented_by| VERCODE_REQ_EMG_195_VER_INF_TEST_API_VALIDATE_TEST_935546_API_VALIDATE_TEST_GO
   VERC_VER_INF_TEST_FACADE_TEST_E17700["VER-INF-TEST-FACADE_TEST-E17700 (not-run)"]:::verification
   VERC_VER_INF_TEST_FACADE_TEST_E17700 -->|verifies| REQC_REQ_EMG_195
   VERCODE_REQ_EMG_195_VER_INF_TEST_FACADE_TEST_E17700_FACADE_TEST_GO["facade_test.go: 19, 274"]:::code_element
@@ -33999,7 +34107,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-DO_DO_ENTITY_INDEX,entity index>> of a bundle with the kind, document, parent and fields of each entity and each reference between entities.
 
 
-NOTE: ADR-EMG-081. BuildEntityIndex is the Go API of the behavior <<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>> <<REF_IDX-ENGMODEL_TERM_STATE,states>>; it reads the bundle only and writes nothing. No test calls the function through the root package: the tests of <<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>> call the internal function it delegates to, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. BuildEntityIndex is the Go API of the behavior <<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>> <<REF_IDX-ENGMODEL_TERM_STATE,states>>; it reads the bundle only and writes nothing. The root-package tests TestBuildEntityIndex* (api_diff_test.go) call it through the facade.
 
 
 
@@ -34023,6 +34131,10 @@ flowchart TB
   CODE_REQ_EMG_196_API_DIFF_GO["api_diff.go: 53"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_196_API_DIFF_GO
   REQC_REQ_EMG_196 -->|code trace| CODE_REQ_EMG_196_API_DIFF_GO
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5["VER-INF-TEST-API_DIFF_TEST-C8F2C5 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 -->|verifies| REQC_REQ_EMG_196
+  VERCODE_REQ_EMG_196_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO["api_diff_test.go: 51, 104, 121, 138, 175, 187, 197, 214, 225, 242, 261, 276, 306, 328, 373"]:::code_element
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 --->|implemented_by| VERCODE_REQ_EMG_196_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -34051,7 +34163,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the difference of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> between two revisions with the entities added, removed and changed.
 
 
-NOTE: ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is <<REF_IDX-REQ_REQ_EMG_190,REQ-EMG-190>> and <<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>; no test calls these functions through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is <<REF_IDX-REQ_REQ_EMG_190,REQ-EMG-190>> and <<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>; the root-package tests TestDiffModels*, TestDiffEntityIndexesThroughTheFacade and TestDiffTraceMatricesThroughTheFacade (api_diff_test.go, api_trace_test.go) call them through the facade.
 
 
 
@@ -34075,6 +34187,10 @@ flowchart TB
   CODE_REQ_EMG_197_API_DIFF_GO["api_diff.go: 58, 102"]:::code_element
   RTC_FU_MODEL_LOADER_RUNTIME --->|implemented_by| CODE_REQ_EMG_197_API_DIFF_GO
   REQC_REQ_EMG_197 -->|code trace| CODE_REQ_EMG_197_API_DIFF_GO
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5["VER-INF-TEST-API_DIFF_TEST-C8F2C5 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 -->|verifies| REQC_REQ_EMG_197
+  VERCODE_REQ_EMG_197_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO["api_diff_test.go: 51, 104, 121, 138, 175, 187, 197, 214, 225, 242, 261, 276, 306, 328, 373"]:::code_element
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 --->|implemented_by| VERCODE_REQ_EMG_197_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -34103,7 +34219,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-DO_DO_TRACE_MATRIX,trace matrix>> of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> with the code, tests and verifications of each <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>>.
 
 
-NOTE: ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> path and the code root, scans the code and returns the matrix with the findings of the scan. <<REF_IDX-VER_VER_INF_TEST_INTEGRATION_TEST_5AE068,Integration tests>> call it through the root package but carry no <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> path and the code root, scans the code and returns the matrix with the findings of the scan. The root-package test TestBuildTraceMatrixFromFilesRowsOrphansAndFindings (api_trace_test.go) calls it through the facade.
 
 
 
@@ -34125,6 +34241,10 @@ flowchart TB
   CODE_REQ_EMG_198_API_TRACE_GO["api_trace.go: 57"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_198_API_TRACE_GO
   REQC_REQ_EMG_198 -->|code trace| CODE_REQ_EMG_198_API_TRACE_GO
+  VERC_VER_INF_TEST_API_TRACE_TEST_47FD14["VER-INF-TEST-API_TRACE_TEST-47FD14 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_TRACE_TEST_47FD14 -->|verifies| REQC_REQ_EMG_198
+  VERCODE_REQ_EMG_198_VER_INF_TEST_API_TRACE_TEST_47FD14_API_TRACE_TEST_GO["api_trace_test.go: 52, 102"]:::code_element
+  VERC_VER_INF_TEST_API_TRACE_TEST_47FD14 --->|implemented_by| VERCODE_REQ_EMG_198_VER_INF_TEST_API_TRACE_TEST_47FD14_API_TRACE_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -34177,7 +34297,7 @@ flowchart TB
   REQC_REQ_EMG_199 -->|code trace| CODE_REQ_EMG_199_API_CODE_GO
   VERC_VER_INF_TEST_API_CODE_TEST_F84229["VER-INF-TEST-API_CODE_TEST-F84229 (not-run)"]:::verification
   VERC_VER_INF_TEST_API_CODE_TEST_F84229 -->|verifies| REQC_REQ_EMG_199
-  VERCODE_REQ_EMG_199_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO["api_code_test.go: 9, 40"]:::code_element
+  VERCODE_REQ_EMG_199_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO["api_code_test.go: 18, 51, 133, 158, 212"]:::code_element
   VERC_VER_INF_TEST_API_CODE_TEST_F84229 --->|implemented_by| VERCODE_REQ_EMG_199_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -34231,7 +34351,7 @@ flowchart TB
   REQC_REQ_EMG_200 -->|code trace| CODE_REQ_EMG_200_API_CODE_GO
   VERC_VER_INF_TEST_API_CODE_TEST_F84229["VER-INF-TEST-API_CODE_TEST-F84229 (not-run)"]:::verification
   VERC_VER_INF_TEST_API_CODE_TEST_F84229 -->|verifies| REQC_REQ_EMG_200
-  VERCODE_REQ_EMG_200_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO["api_code_test.go: 9, 40"]:::code_element
+  VERCODE_REQ_EMG_200_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO["api_code_test.go: 18, 51, 133, 158, 212"]:::code_element
   VERC_VER_INF_TEST_API_CODE_TEST_F84229 --->|implemented_by| VERCODE_REQ_EMG_200_VER_INF_TEST_API_CODE_TEST_F84229_API_CODE_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
@@ -34261,7 +34381,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return every <<REF_IDX-ENGMODEL_TERM_CATALOG,catalog>> term of a bundle with the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> that name it and the entities that reference it.
 
 
-NOTE: ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is <<REF_IDX-REQ_REQ_EMG_193,REQ-EMG-193>>; no test calls the function through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is <<REF_IDX-REQ_REQ_EMG_193,REQ-EMG-193>>; the root-package tests TestCatalogUsage* (api_catalog_test.go) call it through the facade.
 
 
 
@@ -34278,6 +34398,10 @@ flowchart TB
   REQC_REQ_EMG_201 -->|applies_to| FU_FLOW_GO_READ_MODEL
   FU_FU_VALIDATION_ENGINE["Validation Engine"]:::functional_unit
   REQC_REQ_EMG_201 -->|applies_to| FU_FU_VALIDATION_ENGINE
+  VERC_VER_INF_TEST_API_CATALOG_TEST_9DB207["VER-INF-TEST-API_CATALOG_TEST-9DB207 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_CATALOG_TEST_9DB207 -->|verifies| REQC_REQ_EMG_201
+  VERCODE_REQ_EMG_201_VER_INF_TEST_API_CATALOG_TEST_9DB207_API_CATALOG_TEST_GO["api_catalog_test.go: 49, 73"]:::code_element
+  VERC_VER_INF_TEST_API_CATALOG_TEST_9DB207 --->|implemented_by| VERCODE_REQ_EMG_201_VER_INF_TEST_API_CATALOG_TEST_9DB207_API_CATALOG_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -34306,7 +34430,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-CATALOG_COMPOSED_SYSTEM,composed system>> of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> with its resolved dependencies and the diagnostics of the <<REF_IDX-CATALOG_COMPOSITION,composition>>.
 
 
-NOTE: ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The tests of <<REF_IDX-CATALOG_COMPOSITION,composition>> call the internal function, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The root-package tests TestGenerateCompositionFromFileWith* (api_composition_test.go) call the first through the facade.
 
 
 
@@ -34328,6 +34452,10 @@ flowchart TB
   CODE_REQ_EMG_202_API_COMPOSITION_GO["api_composition.go: 83, 104, 142"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_202_API_COMPOSITION_GO
   REQC_REQ_EMG_202 -->|code trace| CODE_REQ_EMG_202_API_COMPOSITION_GO
+  VERC_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29["VER-INF-TEST-API_COMPOSITION_TEST-7B9B29 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29 -->|verifies| REQC_REQ_EMG_202
+  VERCODE_REQ_EMG_202_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29_API_COMPOSITION_TEST_GO["api_composition_test.go: 54, 114, 137"]:::code_element
+  VERC_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29 --->|implemented_by| VERCODE_REQ_EMG_202_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29_API_COMPOSITION_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -34356,7 +34484,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-DO_DO_CONTRACT_ITEMS,contract items>> of a bundle with the realizing <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirements>> of each item.
 
 
-NOTE: ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. No test calls them through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. The root-package tests TestContractItemsFromBundle* and TestSortedContractItemRealizersReturnsASortedCopy (api_reqlinks_test.go) call them through the facade.
 
 
 
@@ -34378,6 +34506,10 @@ flowchart TB
   CODE_REQ_EMG_203_API_REQLINKS_GO["api_reqlinks.go: 63, 97"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_203_API_REQLINKS_GO
   REQC_REQ_EMG_203 -->|code trace| CODE_REQ_EMG_203_API_REQLINKS_GO
+  VERC_VER_INF_TEST_API_REQLINKS_TEST_6F0E73["VER-INF-TEST-API_REQLINKS_TEST-6F0E73 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_REQLINKS_TEST_6F0E73 -->|verifies| REQC_REQ_EMG_203
+  VERCODE_REQ_EMG_203_VER_INF_TEST_API_REQLINKS_TEST_6F0E73_API_REQLINKS_TEST_GO["api_reqlinks_test.go: 42, 69, 87, 146, 166"]:::code_element
+  VERC_VER_INF_TEST_API_REQLINKS_TEST_6F0E73 --->|implemented_by| VERCODE_REQ_EMG_203_VER_INF_TEST_API_REQLINKS_TEST_6F0E73_API_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -34406,7 +34538,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the status of each <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> link of a bundle against the <<REF_IDX-DO_DO_CONTRACT_ITEMS,contract items>> of its dependencies.
 
 
-NOTE: ADR-EMG-081. LinkDependencies turns a <<REF_IDX-CATALOG_COMPOSED_SYSTEM,composed system>> into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> links of <<REF_IDX-REQ_REQ_EMG_097,REQ-EMG-097>>; the <<REF_IDX-VER_VER_INF_TEST_INTEGRATION_TEST_5AE068,integration tests>> call the internal evaluation, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. LinkDependencies turns a <<REF_IDX-CATALOG_COMPOSED_SYSTEM,composed system>> into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> links of <<REF_IDX-REQ_REQ_EMG_097,REQ-EMG-097>>; the root-package tests TestEvaluateRequirementLinks* (api_reqlinks_test.go) call the evaluation through the facade.
 
 
 
@@ -34428,6 +34560,10 @@ flowchart TB
   CODE_REQ_EMG_204_API_REQLINKS_GO["api_reqlinks.go: 119, 133"]:::code_element
   RTC_FU_ALLOCATION_TRACE_RUNTIME --->|implemented_by| CODE_REQ_EMG_204_API_REQLINKS_GO
   REQC_REQ_EMG_204 -->|code trace| CODE_REQ_EMG_204_API_REQLINKS_GO
+  VERC_VER_INF_TEST_API_REQLINKS_TEST_6F0E73["VER-INF-TEST-API_REQLINKS_TEST-6F0E73 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_REQLINKS_TEST_6F0E73 -->|verifies| REQC_REQ_EMG_204
+  VERCODE_REQ_EMG_204_VER_INF_TEST_API_REQLINKS_TEST_6F0E73_API_REQLINKS_TEST_GO["api_reqlinks_test.go: 42, 69, 87, 146, 166"]:::code_element
+  VERC_VER_INF_TEST_API_REQLINKS_TEST_6F0E73 --->|implemented_by| VERCODE_REQ_EMG_204_VER_INF_TEST_API_REQLINKS_TEST_6F0E73_API_REQLINKS_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -34456,7 +34592,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_API_CALL_RECEIVED,go api call is received>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> links that the other checkouts of a workspace hold on the <<REF_IDX-DO_DO_CONTRACT_ITEMS,contract items>> of a bundle.
 
 
-NOTE: ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is <<REF_IDX-REQ_REQ_EMG_107,REQ-EMG-107>>; no test calls it through the root package, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is <<REF_IDX-REQ_REQ_EMG_107,REQ-EMG-107>>; the root-package test TestWorkspaceLinkUsersReturnsTheLinksOfTheSiblings (api_composition_test.go) calls it through the facade.
 
 
 
@@ -34478,6 +34614,10 @@ flowchart TB
   CODE_REQ_EMG_205_API_COMPOSITION_GO["api_composition.go: 169"]:::code_element
   RTC_FU_SYSTEM_COMPOSITION_RUNTIME --->|implemented_by| CODE_REQ_EMG_205_API_COMPOSITION_GO
   REQC_REQ_EMG_205 -->|code trace| CODE_REQ_EMG_205_API_COMPOSITION_GO
+  VERC_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29["VER-INF-TEST-API_COMPOSITION_TEST-7B9B29 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29 -->|verifies| REQC_REQ_EMG_205
+  VERCODE_REQ_EMG_205_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29_API_COMPOSITION_TEST_GO["api_composition_test.go: 54, 114, 137"]:::code_element
+  VERC_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29 --->|implemented_by| VERCODE_REQ_EMG_205_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29_API_COMPOSITION_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -34506,7 +34646,7 @@ classDef unknown fill:#ffffff,stroke:#adb5bd,stroke-width:1px,color:#4f5b62;
 When <<REF_IDX-CATALOG_EVT_GO_BUNDLE_LOAD_FAILED,go bundle load failed event is raised>>, the <<REF_IDX-CATALOG_SYS_ENGINEERING_MODEL_GO,engineering model go>> shall return the error of the load and an empty bundle.
 
 
-NOTE: ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> (<<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>>). The tests of the loader check the errors through the internal function, so this <<REF_IDX-ENGMODEL_TERM_REQUIREMENT,requirement>> has no linked test and its verification is recorded as <<REF_IDX-ENGMODEL_TERM_EVIDENCE,evidence>> debt (POAM-CONSISTENCY-BATCH1).
+NOTE: ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a <<REF_IDX-ENGMODEL_TERM_MODEL,model>> (<<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>>). The root-package test TestLoadBundleFailureReturnsAnErrorAndAnEmptyBundle (api_diff_test.go) checks the errors and the empty bundle through the facade.
 
 
 
@@ -34533,6 +34673,10 @@ flowchart TB
   REQC_REQ_EMG_206 -->|applies_to| FU_SM_GO_BUNDLE_SESSION
   VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F["VER-INF-FORMAL-QUINT_FORMAL-5B471F (pass)"]:::verification
   VERC_VER_INF_FORMAL_QUINT_FORMAL_5B471F -->|verifies| REQC_REQ_EMG_206
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5["VER-INF-TEST-API_DIFF_TEST-C8F2C5 (not-run)"]:::verification
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 -->|verifies| REQC_REQ_EMG_206
+  VERCODE_REQ_EMG_206_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO["api_diff_test.go: 51, 104, 121, 138, 175, 187, 197, 214, 225, 242, 261, 276, 306, 328, 373"]:::code_element
+  VERC_VER_INF_TEST_API_DIFF_TEST_C8F2C5 --->|implemented_by| VERCODE_REQ_EMG_206_VER_INF_TEST_API_DIFF_TEST_C8F2C5_API_DIFF_TEST_GO
 classDef system_boundary fill:#f5f5f5,stroke:#424242,stroke-width:2px,color:#212121;
 classDef functional_group fill:#e8f5e9,stroke:#1b5e20,stroke-width:1px,color:#1b5e20;
 classDef functional_unit fill:#e3f2fd,stroke:#0d47a1,stroke-width:1px,color:#0d47a1;
@@ -35242,6 +35386,26 @@ What this section shows: verification checks inferred from test artifacts, linke
 |===
 
 
+[[REF_VERIFY_VER_INF_TEST_API_CATALOG_TEST_9DB207]]
+==== Api Catalog Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_API_CATALOG_TEST_9DB207,VER-INF-TEST-API_CATALOG_TEST-9DB207>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_193,REQ-EMG-193>>, <<REF_IDX-REQ_REQ_EMG_201,REQ-EMG-201>>
+|Test Code Elements |api_catalog_test.go:49, 73
+|Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_READ_MODEL,FLOW-GO-READ-MODEL>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>
+|Result Summary |not-run:2
+|Evidence |api_catalog_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
 [[REF_VERIFY_VER_INF_TEST_API_CODE_TEST_F84229]]
 ==== Api Code Test
 
@@ -35252,10 +35416,110 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_192,REQ-EMG-192>>, <<REF_IDX-REQ_REQ_EMG_199,REQ-EMG-199>>, <<REF_IDX-REQ_REQ_EMG_200,REQ-EMG-200>>
-|Test Code Elements |api_code_test.go:9, 40
+|Test Code Elements |api_code_test.go:18, 51, 133, 158, 212
 |Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_LOOK_UP_CODE,FLOW-GO-LOOK-UP-CODE>>, <<REF_IDX-CATALOG_FU_CODEMAP_INFERENCE,FU-CODEMAP-INFERENCE>>
 |Result Summary |not-run:3
 |Evidence |api_code_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29]]
+==== Api Composition Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29,VER-INF-TEST-API_COMPOSITION_TEST-7B9B29>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_202,REQ-EMG-202>>, <<REF_IDX-REQ_REQ_EMG_205,REQ-EMG-205>>
+|Test Code Elements |api_composition_test.go:54, 114, 137
+|Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_COMPOSE_AND_LINK,FLOW-GO-COMPOSE-AND-LINK>>, <<REF_IDX-CATALOG_FU_SYSTEM_COMPOSITION,FU-SYSTEM-COMPOSITION>>
+|Result Summary |not-run:2
+|Evidence |api_composition_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5]]
+==== Api Diff Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5,VER-INF-TEST-API_DIFF_TEST-C8F2C5>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>>, <<REF_IDX-REQ_REQ_EMG_190,REQ-EMG-190>>, <<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>, <<REF_IDX-REQ_REQ_EMG_194,REQ-EMG-194>>, <<REF_IDX-REQ_REQ_EMG_196,REQ-EMG-196>>, <<REF_IDX-REQ_REQ_EMG_197,REQ-EMG-197>>, <<REF_IDX-REQ_REQ_EMG_206,REQ-EMG-206>>
+|Test Code Elements |api_diff_test.go:51, 104, 121, 138, 175, 187, 197, 214, 225, 242, 261, 276, 306, 328, 373
+|Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_COMPARE_REVISIONS,FLOW-GO-COMPARE-REVISIONS>>, <<REF_IDX-FLOW_FLOW_GO_READ_MODEL,FLOW-GO-READ-MODEL>>, <<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>, <<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>>
+|Result Summary |not-run:7
+|Evidence |api_diff_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_API_REQLINKS_TEST_6F0E73]]
+==== Api Reqlinks Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_API_REQLINKS_TEST_6F0E73,VER-INF-TEST-API_REQLINKS_TEST-6F0E73>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_203,REQ-EMG-203>>, <<REF_IDX-REQ_REQ_EMG_204,REQ-EMG-204>>
+|Test Code Elements |api_reqlinks_test.go:42, 69, 87, 146, 166
+|Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_COMPOSE_AND_LINK,FLOW-GO-COMPOSE-AND-LINK>>, <<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>
+|Result Summary |not-run:2
+|Evidence |api_reqlinks_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_API_TRACE_TEST_47FD14]]
+==== Api Trace Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_API_TRACE_TEST_47FD14,VER-INF-TEST-API_TRACE_TEST-47FD14>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>, <<REF_IDX-REQ_REQ_EMG_198,REQ-EMG-198>>
+|Test Code Elements |api_trace_test.go:52, 102
+|Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_COMPARE_REVISIONS,FLOW-GO-COMPARE-REVISIONS>>, <<REF_IDX-FLOW_FLOW_GO_READ_MODEL,FLOW-GO-READ-MODEL>>, <<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
+|Result Summary |not-run:2
+|Evidence |api_trace_test.go
+
+|Notes |Inferred from test source artifact.
+
+|===
+
+
+[[REF_VERIFY_VER_INF_TEST_API_VALIDATE_TEST_935546]]
+==== Api Validate Test
+
+[cols="1,4",options="header"]
+|===
+|Field |Value
+|ID |<<REF_IDX-VER_VER_INF_TEST_API_VALIDATE_TEST_935546,VER-INF-TEST-API_VALIDATE_TEST-935546>>
+|Kind |test
+|Status |not-run
+|Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_195,REQ-EMG-195>>
+|Test Code Elements |api_validate_test.go:35, 63
+|Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_READ_MODEL,FLOW-GO-READ-MODEL>>, <<REF_IDX-CATALOG_FU_VALIDATION_ENGINE,FU-VALIDATION-ENGINE>>, <<REF_IDX-MACHINE_SM_GO_BUNDLE_SESSION,SM-GO-BUNDLE-SESSION>>
+|Result Summary |not-run:1
+|Evidence |api_validate_test.go
 
 |Notes |Inferred from test source artifact.
 
@@ -36452,7 +36716,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_192,REQ-EMG-192>>
-|Test Code Elements |declarations_test.go:56, 68, 111, 124, 135, 145
+|Test Code Elements |declarations_test.go:56, 68, 80, 128, 141, 152, 162
 |Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_LOOK_UP_CODE,FLOW-GO-LOOK-UP-CODE>>, <<REF_IDX-CATALOG_FU_CODEMAP_INFERENCE,FU-CODEMAP-INFERENCE>>
 |Result Summary |not-run:1
 |Evidence |internal/codemap/declarations_test.go
@@ -36512,7 +36776,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_191,REQ-EMG-191>>
-|Test Code Elements |delta_test.go:56, 64, 71, 80, 90
+|Test Code Elements |delta_test.go:56, 64, 71, 80, 90, 102
 |Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_COMPARE_REVISIONS,FLOW-GO-COMPARE-REVISIONS>>, <<REF_IDX-CATALOG_FU_ALLOCATION_TRACE,FU-ALLOCATION-TRACE>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>
 |Result Summary |not-run:1
 |Evidence |internal/trace/delta_test.go
@@ -36672,7 +36936,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_189,REQ-EMG-189>>
-|Test Code Elements |entities_test.go:45, 66, 77, 98, 108, 130, 139
+|Test Code Elements |entities_test.go:45, 71, 82, 103, 113, 135, 144
 |Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_READ_MODEL,FLOW-GO-READ-MODEL>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>
 |Result Summary |not-run:1
 |Evidence |internal/<<REF_IDX-ENGMODEL_TERM_MODEL,model>>/entities_test.go
@@ -36692,7 +36956,7 @@ What this section shows: verification checks inferred from test artifacts, linke
 |Kind |test
 |Status |not-run
 |Verifies Requirements |<<REF_IDX-REQ_REQ_EMG_190,REQ-EMG-190>>
-|Test Code Elements |entity_diff_test.go:52, 60, 68, 75, 89, 98
+|Test Code Elements |entity_diff_test.go:52, 60, 68, 75, 89, 98, 108
 |Derived Functional Owners |<<REF_IDX-FLOW_FLOW_GO_COMPARE_REVISIONS,FLOW-GO-COMPARE-REVISIONS>>, <<REF_IDX-CATALOG_FU_CLI_ORCHESTRATION,FU-CLI-ORCHESTRATION>>, <<REF_IDX-CATALOG_FU_MODEL_LOADER,FU-MODEL-LOADER>>
 |Result Summary |not-run:1
 |Evidence |internal/<<REF_IDX-ENGMODEL_TERM_MODEL,model>>/entity_diff_test.go
@@ -41116,7 +41380,7 @@ entry=load-revision-bundle, diff-models; exits=build-revision-index, diff-models
 |Key |Value
 |Kind |Flow
 |Name |Go Consumer Compares Revisions of a Model
-|Mentioned In |<<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_DELTA_TEST_111675,Delta Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0,Entity Diff Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>
+|Mentioned In |<<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_API_TRACE_TEST_47FD14,Api Trace Test>>, <<REF_VERIFY_VER_INF_TEST_DELTA_TEST_111675,Delta Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0,Entity Diff Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>
 |===
 [[REF_IDX-FLOW_FLOW_GO_COMPOSE_AND_LINK]]
 [discrete]
@@ -41129,7 +41393,7 @@ entry=resolve-composition; exits=evaluate-links, read-link-users; steps=6
 |Key |Value
 |Kind |Flow
 |Name |Go Consumer Composes a Model and Reads its Requirement Links
-|Mentioned In |<<REF_REQ_REQ_EMG_195,REQ-EMG-195>>
+|Mentioned In |<<REF_REQ_REQ_EMG_195,REQ-EMG-195>>, <<REF_VERIFY_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29,Api Composition Test>>, <<REF_VERIFY_VER_INF_TEST_API_REQLINKS_TEST_6F0E73,Api Reqlinks Test>>
 |===
 [[REF_IDX-FLOW_FLOW_GO_LOOK_UP_CODE]]
 [discrete]
@@ -41155,7 +41419,7 @@ entry=load-bundle; exits=build-entity-index, build-trace-matrix, read-catalog-us
 |Key |Value
 |Kind |Flow
 |Name |Go Consumer Reads a Model
-|Mentioned In |<<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE,Catalog Usage Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITIES_TEST_A339C3,Entities Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>
+|Mentioned In |<<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_API_CATALOG_TEST_9DB207,Api Catalog Test>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_API_TRACE_TEST_47FD14,Api Trace Test>>, <<REF_VERIFY_VER_INF_TEST_API_VALIDATE_TEST_935546,Api Validate Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE,Catalog Usage Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITIES_TEST_A339C3,Entities Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>
 |===
 [[REF_IDX-FLOW_FLOW_HEALTH_CHECK]]
 [discrete]
@@ -42858,7 +43122,7 @@ owner=FU-MODEL-LOADER; initial=STATE-GO-BUNDLE-ABSENT; states=4; transitions=4
 |Key |Value
 |Kind |Machine
 |Name |Go Bundle Session
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_194,REQ-EMG-194>>, <<REF_REQ_REQ_EMG_206,REQ-EMG-206>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_194,REQ-EMG-194>>, <<REF_REQ_REQ_EMG_206,REQ-EMG-206>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_API_VALIDATE_TEST_935546,Api Validate Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>
 |===
 [[REF_IDX-MACHINE_SM_LINK_LIFECYCLE]]
 [discrete]
@@ -45276,7 +45540,7 @@ When go api call is received, the engineering model go shall list every authored
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-189
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_196,REQ-EMG-196>>, <<REF_VERIFY_VER_INF_TEST_ENTITIES_TEST_A339C3,Entities Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_196,REQ-EMG-196>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITIES_TEST_A339C3,Entities Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_190]]
 [discrete]
@@ -45289,7 +45553,7 @@ When go api call is received, the engineering model go shall report the differen
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-190
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_197,REQ-EMG-197>>, <<REF_VERIFY_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0,Entity Diff Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_197,REQ-EMG-197>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0,Entity Diff Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_191]]
 [discrete]
@@ -45302,7 +45566,7 @@ When go api call is received, the engineering model go shall report the trace ch
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-191
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_197,REQ-EMG-197>>, <<REF_VERIFY_VER_INF_TEST_DELTA_TEST_111675,Delta Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_197,REQ-EMG-197>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_API_TRACE_TEST_47FD14,Api Trace Test>>, <<REF_VERIFY_VER_INF_TEST_DELTA_TEST_111675,Delta Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_192]]
 [discrete]
@@ -45328,7 +45592,7 @@ When go api call is received, the engineering model go shall list every catalog 
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-193
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_201,REQ-EMG-201>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE,Catalog Usage Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_201,REQ-EMG-201>>, <<REF_VERIFY_VER_INF_TEST_API_CATALOG_TEST_9DB207,Api Catalog Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE,Catalog Usage Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_194]]
 [discrete]
@@ -45341,7 +45605,7 @@ When go api call is received, the engineering model go shall return one bundle w
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-194
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_195]]
 [discrete]
@@ -45354,7 +45618,7 @@ When go api call is received, the engineering model go shall return the diagnost
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-195
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_API_VALIDATE_TEST_935546,Api Validate Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_196]]
 [discrete]
@@ -45367,7 +45631,7 @@ When go api call is received, the engineering model go shall return the entity i
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-196
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_197]]
 [discrete]
@@ -45380,7 +45644,7 @@ When go api call is received, the engineering model go shall return the differen
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-197
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_198]]
 [discrete]
@@ -45393,7 +45657,7 @@ When go api call is received, the engineering model go shall return the trace ma
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-198
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_TRACE_TEST_47FD14,Api Trace Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_199]]
 [discrete]
@@ -45432,7 +45696,7 @@ When go api call is received, the engineering model go shall return every catalo
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-201
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_CATALOG_TEST_9DB207,Api Catalog Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_202]]
 [discrete]
@@ -45445,7 +45709,7 @@ When go api call is received, the engineering model go shall return the composed
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-202
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29,Api Composition Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_203]]
 [discrete]
@@ -45458,7 +45722,7 @@ When go api call is received, the engineering model go shall return the contract
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-203
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_REQLINKS_TEST_6F0E73,Api Reqlinks Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_204]]
 [discrete]
@@ -45471,7 +45735,7 @@ When go api call is received, the engineering model go shall return the status o
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-204
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_REQLINKS_TEST_6F0E73,Api Reqlinks Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_205]]
 [discrete]
@@ -45484,7 +45748,7 @@ When go api call is received, the engineering model go shall return the requirem
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-205
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29,Api Composition Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_206]]
 [discrete]
@@ -45497,7 +45761,7 @@ When go bundle load failed event is raised, the engineering model go shall retur
 |Key |Value
 |Kind |Requirement
 |Name |REQ-EMG-206
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>
 |===
 [[REF_IDX-REQ_REQ_EMG_207]]
 [discrete]
@@ -49178,7 +49442,7 @@ Materializes parent-to-subsystem allocation and bidirectional traceability acros
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |allocation trace
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_CODE_COVERAGE_TEST_63A621,Code Coverage Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_MULTIREPO_TEST_B91E21,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_COMPANY_TEST_31D77E,Examples Company Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_LIFECYCLE_TEST_B69CC9,Lifecycle Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_DISCLOSURE_TEST_D57A96,Requirement Links Disclosure Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TRACE_TEST_344A0D,Requirement Links Trace Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_TIER_GAP_TEST_761F1C,Tier Gap Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_VERIFICATION_STATUS_TEST_910746,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_ARTIFACT_TEST_852239,Artifact Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_4EBD51,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_TEST_948115,Behavior Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_38470F,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_B63115,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_COVERAGE_TEST_C1AF3A,Code Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_SCOPE_TEST_2A4254,Code Scope Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_BBD437,Composition Lock Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_CONSISTENCY_TEST_2717DD,Consistency Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_COVERAGE_TEST_D2C486,Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_DELTA_TEST_111675,Delta Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_FORMAL_EVIDENCE_READ_TEST_D02FF3,Formal Evidence Read Test>>, <<REF_VERIFY_VER_INF_TEST_FORMAL_EVIDENCE_TEST_CCD862,Formal Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_FORMAL_EVIDENCE_TEST_EC770F,Formal Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_FORMAL_TEST_BFD398,Formal Test>>, <<REF_VERIFY_VER_INF_TEST_GATE_TEST_FE8D6A,Gate Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GENERATION_TIME_TEST_3A974F,Generation Time Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_HARDEN_TEST_5DA9FE,Harden Test>>, <<REF_VERIFY_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6,Inference Trace Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_JAVASCRIPT_TEST_9BD52A,Inferred Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_PYTHON_TEST_69DB0E,Inferred Python Test>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_TEST_5AE068,Integration Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_26CB47,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_TEST_785E0D,Lifecycle Test>>, <<REF_VERIFY_VER_INF_TEST_LINKADD_TEST_F6472F,Linkadd Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LINKWRITE_TEST_DBC0CA,Linkwrite Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>, <<REF_VERIFY_VER_INF_TEST_ORPHAN_STATUS_TEST_A2F2DB,Orphan Status Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_POAM_POLICY_TEST_C32AEA,Poam Policy Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_REMOVED_FIELDS_TEST_F1B8F4,Removed Fields Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_98C2BD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,Reqlinks Trace Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIRED_SWITCHES_TEST_397B98,Required Switches Test>>, <<REF_VERIFY_VER_INF_TEST_REVIEWLINKS_TEST_39A109,Reviewlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSIONS_TEST_BCA3F3,Schema Versions Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSION_REQUIRED_TEST_AC7296,Schema Version Required Test>>, <<REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,Statussuggest Test>>, <<REF_VERIFY_VER_INF_TEST_TESTFUNC_TEST_612CDF,Testfunc Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_GAP_TEST_6789F6,Tier Gap Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_POLICY_TEST_D12B71,Tier Policy Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_5F315E,Trace Delegated Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_VERIFICATION_STATUS_TEST_CC7606,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_CODE_COVERAGE_TEST_63A621,Code Coverage Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_MULTIREPO_TEST_B91E21,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_COMPANY_TEST_31D77E,Examples Company Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_LIFECYCLE_TEST_B69CC9,Lifecycle Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_DISCLOSURE_TEST_D57A96,Requirement Links Disclosure Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TRACE_TEST_344A0D,Requirement Links Trace Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_TIER_GAP_TEST_761F1C,Tier Gap Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_VERIFICATION_STATUS_TEST_910746,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_API_REQLINKS_TEST_6F0E73,Api Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_API_TRACE_TEST_47FD14,Api Trace Test>>, <<REF_VERIFY_VER_INF_TEST_ARTIFACT_TEST_852239,Artifact Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_4EBD51,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_TEST_948115,Behavior Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_38470F,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_B63115,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_COVERAGE_TEST_C1AF3A,Code Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_SCOPE_TEST_2A4254,Code Scope Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_BBD437,Composition Lock Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_CONSISTENCY_TEST_2717DD,Consistency Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_COVERAGE_TEST_D2C486,Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_DELTA_TEST_111675,Delta Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_FORMAL_EVIDENCE_READ_TEST_D02FF3,Formal Evidence Read Test>>, <<REF_VERIFY_VER_INF_TEST_FORMAL_EVIDENCE_TEST_CCD862,Formal Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_FORMAL_EVIDENCE_TEST_EC770F,Formal Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_FORMAL_TEST_BFD398,Formal Test>>, <<REF_VERIFY_VER_INF_TEST_GATE_TEST_FE8D6A,Gate Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GENERATION_TIME_TEST_3A974F,Generation Time Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_HARDEN_TEST_5DA9FE,Harden Test>>, <<REF_VERIFY_VER_INF_TEST_INFERENCE_TRACE_TEST_B704D6,Inference Trace Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_JAVASCRIPT_TEST_9BD52A,Inferred Javascript Test>>, <<REF_VERIFY_VER_INF_TEST_INFERRED_PYTHON_TEST_69DB0E,Inferred Python Test>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_TEST_5AE068,Integration Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_26CB47,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_TEST_785E0D,Lifecycle Test>>, <<REF_VERIFY_VER_INF_TEST_LINKADD_TEST_F6472F,Linkadd Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LINKWRITE_TEST_DBC0CA,Linkwrite Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>, <<REF_VERIFY_VER_INF_TEST_ORPHAN_STATUS_TEST_A2F2DB,Orphan Status Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_POAM_POLICY_TEST_C32AEA,Poam Policy Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_REMOVED_FIELDS_TEST_F1B8F4,Removed Fields Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_98C2BD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,Reqlinks Trace Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIRED_SWITCHES_TEST_397B98,Required Switches Test>>, <<REF_VERIFY_VER_INF_TEST_REVIEWLINKS_TEST_39A109,Reviewlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSIONS_TEST_BCA3F3,Schema Versions Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSION_REQUIRED_TEST_AC7296,Schema Version Required Test>>, <<REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,Statussuggest Test>>, <<REF_VERIFY_VER_INF_TEST_TESTFUNC_TEST_612CDF,Testfunc Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_GAP_TEST_6789F6,Tier Gap Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_POLICY_TEST_D12B71,Tier Policy Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_5F315E,Trace Delegated Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_VERIFICATION_STATUS_TEST_CC7606,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
 |===
 [[REF_IDX-CATALOG_FU_ASCIIDOC_GENERATOR]]
 [discrete]
@@ -49204,7 +49468,7 @@ Command entrypoints that orchestrate loading, validation, generation, and export
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |cli orchestration
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_LIFECYCLE_TEST_B69CC9,Lifecycle Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_ACCEPTANCE_TEST_71CB24,Acceptance Test>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_COMPLETE_DIAGRAM_TEST_A7A14C,Asciidoc Complete Diagram Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_8725B5,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_BE9EA0,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EDGE_KEY_TEST_2D771F,Asciidoc Edge Key Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EVIDENCE_TABLE_TEST_C2189B,Asciidoc Evidence Table Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_GEMARA_TEST_22D5DA,Asciidoc Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_3FE432,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_PUBLICATION_SCOPE_TEST_AA5D4F,Asciidoc Publication Scope Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_4EBD51,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_FBF8BC,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_CD8716,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_B91E95,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_FCC559,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_LABELS_TEST_DB8E6F,Code Labels Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_A17396,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_A0BAF9,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_DELTA_TEST_111675,Delta Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_EDDCF4,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_ENGINECHECK_TEST_21D337,Enginecheck Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0,Entity Diff Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_FORMER_ARGS_TEST_6243EA,Former Args Test>>, <<REF_VERIFY_VER_INF_TEST_GATE_TEST_FE8D6A,Gate Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_DD5C1F,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_3EE34B,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LAYERING_TEST_CCD168,Layering Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_1B3B2F,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_26CB47,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_3F47C1,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_435C36,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_46BAB3,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_9B5FA0,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_A57A98,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_B1F21D,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_B1F41A,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_C71DC9,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_D442E0,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_DEB753,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_EBA950,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LINKADD_TEST_F6472F,Linkadd Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LINKWRITE_TEST_DBC0CA,Linkwrite Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_A32B0B,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_PROFILE_TEST_61E10F,Oscal Profile Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_POAM_POLICY_TEST_C32AEA,Poam Policy Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_65BD53,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_REMEDY_TEST_EB5E84,Remedy Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_54E12D,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENT_MODELING_TEST_74F22A,Requirement Modeling Test>>, <<REF_VERIFY_VER_INF_TEST_REVIEWLINKS_TEST_39A109,Reviewlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMAVERSION_TEST_E61F25,Schemaversion Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSIONS_TEST_BCA3F3,Schema Versions Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSION_REQUIRED_TEST_AC7296,Schema Version Required Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_79BF84,Server Test>>, <<REF_VERIFY_VER_INF_TEST_STAGE_TEST_4E9FDB,Stage Test>>, <<REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,Statussuggest Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_36AE65,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_969162,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_280926,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_MACHINE_TEST_8BCE64,Sysml Machine Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_B0F5F9,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_LIFECYCLE_TEST_B69CC9,Lifecycle Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_ACCEPTANCE_TEST_71CB24,Acceptance Test>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_API_TRACE_TEST_47FD14,Api Trace Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_COMPLETE_DIAGRAM_TEST_A7A14C,Asciidoc Complete Diagram Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_CORE_TEST_8725B5,Asciidoc Diagrams Core Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_DIAGRAMS_RUNTIME_TEST_BE9EA0,Asciidoc Diagrams Runtime Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EDGE_KEY_TEST_2D771F,Asciidoc Edge Key Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_EVIDENCE_TABLE_TEST_C2189B,Asciidoc Evidence Table Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_GEMARA_TEST_22D5DA,Asciidoc Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_LINKING_UNITS_TEST_3FE432,Asciidoc Linking Units Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_PUBLICATION_SCOPE_TEST_AA5D4F,Asciidoc Publication Scope Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_EVIDENCE_TEST_4EBD51,Asciidoc Test Evidence Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_VIEWS_TEST_FBF8BC,Asciidoc Views Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_CD8716,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_B91E95,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_FCC559,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_LABELS_TEST_DB8E6F,Code Labels Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_A17396,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_A0BAF9,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_DELTA_TEST_111675,Delta Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_EDDCF4,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_ENGINECHECK_TEST_21D337,Enginecheck Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0,Entity Diff Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_FORMER_ARGS_TEST_6243EA,Former Args Test>>, <<REF_VERIFY_VER_INF_TEST_GATE_TEST_FE8D6A,Gate Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TEST_DD5C1F,Gemara Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_3EE34B,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LAYERING_TEST_CCD168,Layering Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_1B3B2F,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_26CB47,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_3F47C1,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_435C36,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_46BAB3,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_9B5FA0,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_A57A98,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_B1F21D,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_B1F41A,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_C71DC9,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_D442E0,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_DEB753,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_EBA950,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LINKADD_TEST_F6472F,Linkadd Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LINKWRITE_TEST_DBC0CA,Linkwrite Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_A32B0B,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_PROFILE_TEST_61E10F,Oscal Profile Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_POAM_POLICY_TEST_C32AEA,Poam Policy Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_65BD53,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_REMEDY_TEST_EB5E84,Remedy Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_54E12D,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENT_MODELING_TEST_74F22A,Requirement Modeling Test>>, <<REF_VERIFY_VER_INF_TEST_REVIEWLINKS_TEST_39A109,Reviewlinks Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMAVERSION_TEST_E61F25,Schemaversion Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSIONS_TEST_BCA3F3,Schema Versions Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSION_REQUIRED_TEST_AC7296,Schema Version Required Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_79BF84,Server Test>>, <<REF_VERIFY_VER_INF_TEST_STAGE_TEST_4E9FDB,Stage Test>>, <<REF_VERIFY_VER_INF_TEST_STATUSSUGGEST_TEST_7D4089,Statussuggest Test>>, <<REF_VERIFY_VER_INF_TEST_STRUCTURIZR_EXPORT_TEST_36AE65,Structurizr Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_969162,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_280926,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_MACHINE_TEST_8BCE64,Sysml Machine Test>>, <<REF_VERIFY_VER_INF_TEST_TEXTUTIL_TEST_33792B,Textutil Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_TRLC_EXPORT_TEST_B0F5F9,Trlc Export Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
 |===
 [[REF_IDX-CATALOG_FU_CODE_HEALTH]]
 [discrete]
@@ -49295,7 +49559,7 @@ Validates canonical YAML documents against embedded CUE schemas, strictly decode
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |model loader
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_GOLDEN_TEST_6E21D7,Examples Golden Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REPOSITORY_MODEL_GATE_TEST_5C5BA0,Repository Model Gate Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_DISCLOSURE_TEST_D57A96,Requirement Links Disclosure Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_ED811A,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TIER_TEST_B2B68E,Aviation Tier Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_160260,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_6E1D38,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_FD5D93,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_LINKS_LOAD_TEST_5252D7,Behavior Links Load Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_LINKS_TEST_94D5B9,Behavior Links Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_TEST_948115,Behavior Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_B91E95,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_FCC559,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_C6CAB5,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_COVERAGE_TEST_C1AF3A,Code Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_CONFIG_TEST_B6646E,Config Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_COVERAGE_TEST_D2C486,Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_A0BAF9,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_EDDCF4,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITIES_TEST_A339C3,Entities Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0,Entity Diff Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_1C4F5F,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_FLOOR_TEST_76F951,Floor Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_BASELINE_TEST_6C7156,Health Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_BASELINE_TEST_DE6BE9,Health Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_CONFIG_TEST_AF362C,Health Config Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_TEST_73229A,Health Test>>, <<REF_VERIFY_VER_INF_TEST_LAYERING_TEST_CCD168,Layering Test>>, <<REF_VERIFY_VER_INF_TEST_LEGACY_STATE_TEST_DD6946,Legacy State Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_TEST_785E0D,Lifecycle Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_MACHINE_EXPR_TEST_369B14,Machine Expr Test>>, <<REF_VERIFY_VER_INF_TEST_MACHINE_TEST_A54F9F,Machine Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_A32B0B,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_65BD53,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_REMEDY_TEST_EB5E84,Remedy Test>>, <<REF_VERIFY_VER_INF_TEST_REMOVED_FIELDS_TEST_F1B8F4,Removed Fields Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIRED_SWITCHES_TEST_397B98,Required Switches Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_54E12D,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_EFDB41,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMAVERSION_TEST_E61F25,Schemaversion Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSIONS_TEST_BCA3F3,Schema Versions Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSION_REQUIRED_TEST_AC7296,Schema Version Required Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_79BF84,Server Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_MACHINE_TEST_8BCE64,Sysml Machine Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_POLICY_TEST_D12B71,Tier Policy Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_VOCABULARY_TEST_A9F27B,Vocabulary Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_GOLDEN_TEST_6E21D7,Examples Golden Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REPOSITORY_MODEL_GATE_TEST_5C5BA0,Repository Model Gate Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_DISCLOSURE_TEST_D57A96,Requirement Links Disclosure Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_ED811A,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TIER_TEST_B2B68E,Aviation Tier Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_160260,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_6E1D38,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_FD5D93,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_LINKS_LOAD_TEST_5252D7,Behavior Links Load Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_LINKS_TEST_94D5B9,Behavior Links Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_TEST_948115,Behavior Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_B91E95,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_FCC559,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_C6CAB5,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_COVERAGE_TEST_C1AF3A,Code Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_CONFIG_TEST_B6646E,Config Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_COVERAGE_TEST_D2C486,Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_A0BAF9,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_EDDCF4,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITIES_TEST_A339C3,Entities Test>>, <<REF_VERIFY_VER_INF_TEST_ENTITY_DIFF_TEST_72BDA0,Entity Diff Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_1C4F5F,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_FLOOR_TEST_76F951,Floor Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GITMODEL_TEST_E396FE,Gitmodel Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_BASELINE_TEST_6C7156,Health Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_BASELINE_TEST_DE6BE9,Health Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_CONFIG_TEST_AF362C,Health Config Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_TEST_73229A,Health Test>>, <<REF_VERIFY_VER_INF_TEST_LAYERING_TEST_CCD168,Layering Test>>, <<REF_VERIFY_VER_INF_TEST_LEGACY_STATE_TEST_DD6946,Legacy State Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_TEST_785E0D,Lifecycle Test>>, <<REF_VERIFY_VER_INF_TEST_LINKREVIEW_TEST_4DF152,Linkreview Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_MACHINE_EXPR_TEST_369B14,Machine Expr Test>>, <<REF_VERIFY_VER_INF_TEST_MACHINE_TEST_A54F9F,Machine Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELDIFF_TEST_F84E56,Modeldiff Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_A32B0B,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_65BD53,Project Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_REMEDY_TEST_EB5E84,Remedy Test>>, <<REF_VERIFY_VER_INF_TEST_REMOVED_FIELDS_TEST_F1B8F4,Removed Fields Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIRED_SWITCHES_TEST_397B98,Required Switches Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_54E12D,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_EFDB41,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMAVERSION_TEST_E61F25,Schemaversion Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSIONS_TEST_BCA3F3,Schema Versions Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSION_REQUIRED_TEST_AC7296,Schema Version Required Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_79BF84,Server Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_MACHINE_TEST_8BCE64,Sysml Machine Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_POLICY_TEST_D12B71,Tier Policy Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_VOCABULARY_TEST_A9F27B,Vocabulary Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>
 |===
 [[REF_IDX-CATALOG_FU_NAF_EXPORTER]]
 [discrete]
@@ -49373,7 +49637,7 @@ Resolves downward subsystem references from local paths, workspace replacements,
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |system composition
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_MULTIREPO_TEST_B91E21,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_COMPANY_TEST_31D77E,Examples Company Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_LIFECYCLE_TEST_B69CC9,Lifecycle Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_DISCLOSURE_TEST_D57A96,Requirement Links Disclosure Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_TIER_GAP_TEST_761F1C,Tier Gap Test>>, <<REF_VERIFY_VER_INF_TEST_ACCEPTANCE_TEST_71CB24,Acceptance Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_CD8716,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_A17396,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_GENERATION_TEST_F36487,Composition Generation Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_BBD437,Composition Lock Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_661068,Composition Offline Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_3EE34B,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_5CDAFE,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LINKWRITE_TEST_DBC0CA,Linkwrite Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_REMEDY_TEST_EB5E84,Remedy Test>>, <<REF_VERIFY_VER_INF_TEST_REMOVED_FIELDS_TEST_F1B8F4,Removed Fields Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,Reqlinks Trace Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_79BF84,Server Test>>, <<REF_VERIFY_VER_INF_TEST_STAGE_TEST_4E9FDB,Stage Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_GAP_TEST_6789F6,Tier Gap Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_POLICY_TEST_D12B71,Tier Policy Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_5F315E,Trace Delegated Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_MULTIREPO_TEST_B91E21,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_COMPANY_TEST_31D77E,Examples Company Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_LIFECYCLE_TEST_B69CC9,Lifecycle Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_DISCLOSURE_TEST_D57A96,Requirement Links Disclosure Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_TIER_GAP_TEST_761F1C,Tier Gap Test>>, <<REF_VERIFY_VER_INF_TEST_ACCEPTANCE_TEST_71CB24,Acceptance Test>>, <<REF_VERIFY_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29,Api Composition Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_CD8716,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_LINKS_TEST_FEBA3E,Bump Links Test>>, <<REF_VERIFY_VER_INF_TEST_BUMP_TEST_638DBA,Bump Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_72E628,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CLIFLAGS_TEST_DE9738,Cliflags Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_A17396,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_GENERATION_TEST_F36487,Composition Generation Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_LOCK_TEST_BBD437,Composition Lock Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OFFLINE_TEST_661068,Composition Offline Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_312837,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_3EE34B,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_5CDAFE,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_LINKWRITE_TEST_DBC0CA,Linkwrite Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_PLAN_TEST_2CD695,Plan Test>>, <<REF_VERIFY_VER_INF_TEST_RELEASECHECK_TEST_A300F7,Releasecheck Test>>, <<REF_VERIFY_VER_INF_TEST_REMEDY_TEST_EB5E84,Remedy Test>>, <<REF_VERIFY_VER_INF_TEST_REMOVED_FIELDS_TEST_F1B8F4,Removed Fields Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TRACE_TEST_82F62C,Reqlinks Trace Test>>, <<REF_VERIFY_VER_INF_TEST_SERVER_TEST_79BF84,Server Test>>, <<REF_VERIFY_VER_INF_TEST_STAGE_TEST_4E9FDB,Stage Test>>, <<REF_VERIFY_VER_INF_TEST_SYNC_TEST_864483,Sync Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_GAP_TEST_6789F6,Tier Gap Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_POLICY_TEST_D12B71,Tier Policy Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_DELEGATED_TEST_5F315E,Trace Delegated Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_WORKSPACE_TEST_F6AA18,Workspace Test>>, <<REF_VERIFY_VER_INF_TEST_WRITEFILE_TEST_7BF459,Writefile Test>>, <<REF_VERIFY_VER_INF_TEST_YAMLEDIT_TEST_8FA671,Yamledit Test>>
 |===
 [[REF_IDX-CATALOG_FU_THREAT_EXPORTER]]
 [discrete]
@@ -49412,7 +49676,7 @@ Validates IDs, references, and model consistency across authored entities and ma
 |Key |Value
 |Kind |Catalog Functional Unit
 |Name |validation engine
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_MULTIREPO_TEST_B91E21,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_COMPANY_TEST_31D77E,Examples Company Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_GOLDEN_TEST_6E21D7,Examples Golden Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_LIFECYCLE_TEST_B69CC9,Lifecycle Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REPOSITORY_MODEL_GATE_TEST_5C5BA0,Repository Model Gate Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_VERIFICATION_STATUS_TEST_910746,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_ACCEPTANCE_TEST_71CB24,Acceptance Test>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASSURANCE_TEST_EE1618,Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_ED811A,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TIER_TEST_B2B68E,Aviation Tier Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_160260,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_6E1D38,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_FD5D93,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_LINKS_TEST_94D5B9,Behavior Links Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_TEST_948115,Behavior Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_CD8716,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_NAMES_TEST_9DFC7E,Catalog Names Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_B91E95,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_FCC559,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE,Catalog Usage Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_FLOOR_TEST_EECC31,Check Floor Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_C6CAB5,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_E247CD,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_SCOPE_TEST_2A4254,Code Scope Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_A17396,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_CONFIG_TEST_B6646E,Config Test>>, <<REF_VERIFY_VER_INF_TEST_CONSISTENCY_TEST_2717DD,Consistency Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_A0BAF9,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_DELTA_ENGINE_TEST_CB74C7,Delta Engine Test>>, <<REF_VERIFY_VER_INF_TEST_DEPENDENCY_INTERFACE_TEST_867C5F,Dependency Interface Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_EDDCF4,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_ENGINE_TEST_DBE450,Engine Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_1C4F5F,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_FIXTURES_TEST_7A96D9,Fixtures Test>>, <<REF_VERIFY_VER_INF_TEST_FLOOR_TEST_76F951,Floor Test>>, <<REF_VERIFY_VER_INF_TEST_GATE_TEST_FE8D6A,Gate Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_GENERATION_TIME_TEST_3A974F,Generation Time Test>>, <<REF_VERIFY_VER_INF_TEST_HARDENING_TEST_D353C6,Hardening Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_3EE34B,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_5CDAFE,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_BASELINE_TEST_6C7156,Health Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_BASELINE_TEST_DE6BE9,Health Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_CONFIG_TEST_AF362C,Health Config Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_TEST_73229A,Health Test>>, <<REF_VERIFY_VER_INF_TEST_LAYERING_TEST_CCD168,Layering Test>>, <<REF_VERIFY_VER_INF_TEST_LEGACY_STATE_TEST_DD6946,Legacy State Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_1B3B2F,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_26CB47,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_3F47C1,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_435C36,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_46BAB3,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_9B5FA0,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_A57A98,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_B1F21D,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_B1F41A,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_C71DC9,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_D442E0,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_DEB753,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_EBA950,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_TEST_785E0D,Lifecycle Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MACHINE_EXPR_TEST_369B14,Machine Expr Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_7EC1C0,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELPOLICY_TEST_157120,Modelpolicy Test>>, <<REF_VERIFY_VER_INF_TEST_MODELPOLICY_TEST_852B3D,Modelpolicy Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_A32B0B,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_ORPHAN_STATUS_TEST_A2F2DB,Orphan Status Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_POAM_POLICY_TEST_C32AEA,Poam Policy Test>>, <<REF_VERIFY_VER_INF_TEST_POLICY_TEST_A3CC9E,Policy Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_65BD53,Project Test>>, <<REF_VERIFY_VER_INF_TEST_REMEDY_TEST_EB5E84,Remedy Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REPORT_TEST_3EF4FF,Report Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIRED_SWITCHES_TEST_397B98,Required Switches Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_54E12D,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENT_MODELING_TEST_74F22A,Requirement Modeling Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_HARDENING_TEST_BFB136,Scan Hardening Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_SECOND_PASS_TEST_1C9D1B,Scan Second Pass Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_EFDB41,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSIONS_TEST_BCA3F3,Schema Versions Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSION_REQUIRED_TEST_AC7296,Schema Version Required Test>>, <<REF_VERIFY_VER_INF_TEST_SCOPE_TEST_F45215,Scope Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_969162,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_280926,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_MACHINE_TEST_8BCE64,Sysml Machine Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_POLICY_TEST_D12B71,Tier Policy Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_TYPES_TEST_EF2B08,Types Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_VERIFICATION_STATUS_TEST_CC7606,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_VOCABULARY_TEST_A9F27B,Vocabulary Test>>, <<REF_VERIFY_VER_INF_TEST_WAIVER_TEST_E71CAE,Waiver Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<REF_VERIFY_VER_INF_FORMAL_QUINT_FORMAL_5B471F,Quint Formal>>, <<REF_VERIFY_VER_INF_INTEGRATION_COFFEE_SIX_VIEW_TEST_223808,Coffee Six View Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_INTEGRATION_TEST_61916A,Composition Integration Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_COMPOSITION_MULTIREPO_TEST_B91E21,Composition Multirepo Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_COMPANY_TEST_31D77E,Examples Company Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_EXAMPLES_GOLDEN_TEST_6E21D7,Examples Golden Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_LIFECYCLE_TEST_B69CC9,Lifecycle Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REPOSITORY_MODEL_GATE_TEST_5C5BA0,Repository Model Gate Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_RENDER_TEST_BB7550,Requirement Links Render Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_REQUIREMENT_LINKS_TEST_C095F7,Requirement Links Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_SCHEMA_V2_PROJECTION_TEST_FBFA05,Schema V2 Projection Test>>, <<REF_VERIFY_VER_INF_INTEGRATION_VERIFICATION_STATUS_TEST_910746,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_ACCEPTANCE_TEST_71CB24,Acceptance Test>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_API_CATALOG_TEST_9DB207,Api Catalog Test>>, <<REF_VERIFY_VER_INF_TEST_API_VALIDATE_TEST_935546,Api Validate Test>>, <<REF_VERIFY_VER_INF_TEST_ASCIIDOC_TEST_FBEE21,Asciidoc Test>>, <<REF_VERIFY_VER_INF_TEST_ASSURANCE_TEST_EE1618,Assurance Test>>, <<REF_VERIFY_VER_INF_TEST_AUTHORING_RULES_TEST_1EA88F,Authoring Rules Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TEST_ED811A,Aviation Test>>, <<REF_VERIFY_VER_INF_TEST_AVIATION_TIER_TEST_B2B68E,Aviation Tier Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_160260,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_6E1D38,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BASELINE_TEST_FD5D93,Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_LINKS_TEST_94D5B9,Behavior Links Test>>, <<REF_VERIFY_VER_INF_TEST_BEHAVIOR_TEST_948115,Behavior Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_62768B,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_BOUNDARY_TEST_CD8716,Boundary Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_NAMES_TEST_9DFC7E,Catalog Names Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_B91E95,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_SYSTEMS_TEST_FCC559,Catalog Systems Test>>, <<REF_VERIFY_VER_INF_TEST_CATALOG_USAGE_TEST_C82EFE,Catalog Usage Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_FLOOR_TEST_EECC31,Check Floor Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_C6CAB5,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CHECK_TEST_E247CD,Check Test>>, <<REF_VERIFY_VER_INF_TEST_CODE_SCOPE_TEST_2A4254,Code Scope Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_CONFINEMENT_TEST_A17396,Composition Confinement Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_OCI_TEST_CBF9E2,Composition Oci Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_PROJECTION_TEST_980A62,Composition Projection Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_REQLINKS_TEST_749C5F,Composition Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_TEST_96C07F,Composition Test>>, <<REF_VERIFY_VER_INF_TEST_COMPOSITION_ZIP_SAFETY_TEST_5473B0,Composition Zip Safety Test>>, <<REF_VERIFY_VER_INF_TEST_CONFIG_TEST_B6646E,Config Test>>, <<REF_VERIFY_VER_INF_TEST_CONSISTENCY_TEST_2717DD,Consistency Test>>, <<REF_VERIFY_VER_INF_TEST_CONTRACTDIFF_TEST_1D9C3E,Contractdiff Test>>, <<REF_VERIFY_VER_INF_TEST_DEDUPE_TEST_A0BAF9,Dedupe Test>>, <<REF_VERIFY_VER_INF_TEST_DELTA_ENGINE_TEST_CB74C7,Delta Engine Test>>, <<REF_VERIFY_VER_INF_TEST_DEPENDENCY_INTERFACE_TEST_867C5F,Dependency Interface Test>>, <<REF_VERIFY_VER_INF_TEST_DIAGNOSE_COMPOSITION_TEST_BBA37F,Diagnose Composition Test>>, <<REF_VERIFY_VER_INF_TEST_E2E_TEST_EDDCF4,E2e Test>>, <<REF_VERIFY_VER_INF_TEST_EARS_PREFLIGHT_TEST_F8DE08,Ears Preflight Test>>, <<REF_VERIFY_VER_INF_TEST_ENGINE_TEST_DBE450,Engine Test>>, <<REF_VERIFY_VER_INF_TEST_FACADE_TEST_E17700,Facade Test>>, <<REF_VERIFY_VER_INF_TEST_FILES_OWNER_TEST_1C4F5F,Files Owner Test>>, <<REF_VERIFY_VER_INF_TEST_FIXTURES_TEST_7A96D9,Fixtures Test>>, <<REF_VERIFY_VER_INF_TEST_FLOOR_TEST_76F951,Floor Test>>, <<REF_VERIFY_VER_INF_TEST_GATE_TEST_FE8D6A,Gate Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_EXPORT_TEST_2DDFAB,Gemara Export Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_OSCAL_TEST_72A3A1,Gemara Oscal Test>>, <<REF_VERIFY_VER_INF_TEST_GEMARA_TRUTHFULNESS_TEST_F6F279,Gemara Truthfulness Test>>, <<REF_VERIFY_VER_INF_TEST_GENERATION_TIME_TEST_3A974F,Generation Time Test>>, <<REF_VERIFY_VER_INF_TEST_HARDENING_TEST_D353C6,Hardening Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_3EE34B,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_5CDAFE,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HARDWARE_TEST_61BFD1,Hardware Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_BASELINE_TEST_6C7156,Health Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_BASELINE_TEST_DE6BE9,Health Baseline Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_CONFIG_TEST_AF362C,Health Config Test>>, <<REF_VERIFY_VER_INF_TEST_HEALTH_TEST_73229A,Health Test>>, <<REF_VERIFY_VER_INF_TEST_LAYERING_TEST_CCD168,Layering Test>>, <<REF_VERIFY_VER_INF_TEST_LEGACY_STATE_TEST_DD6946,Legacy State Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_1B3B2F,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_26CB47,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_3F47C1,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_435C36,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_46BAB3,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_9B5FA0,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_A57A98,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_B1F21D,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_B1F41A,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_C71DC9,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_D442E0,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_DEB753,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_GATE_TEST_EBA950,Lifecycle Gate Test>>, <<REF_VERIFY_VER_INF_TEST_LIFECYCLE_TEST_785E0D,Lifecycle Test>>, <<REF_VERIFY_VER_INF_TEST_LOAD_TEST_E1FF39,Load Test>>, <<REF_VERIFY_VER_INF_TEST_LOBSTER_EXPORT_TEST_A19CE1,Lobster Export Test>>, <<REF_VERIFY_VER_INF_TEST_MACHINE_EXPR_TEST_369B14,Machine Expr Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_7EC1C0,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_AAEB3C,Main Test>>, <<REF_VERIFY_VER_INF_TEST_MAIN_TEST_C71B6B,Main Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_INSTANCE_TEST_B31CD0,Metamodel Instance Test>>, <<REF_VERIFY_VER_INF_TEST_METAMODEL_TEST_81AF9A,Metamodel Test>>, <<REF_VERIFY_VER_INF_TEST_MODELPOLICY_TEST_157120,Modelpolicy Test>>, <<REF_VERIFY_VER_INF_TEST_MODELPOLICY_TEST_852B3D,Modelpolicy Test>>, <<REF_VERIFY_VER_INF_TEST_NAF_EXPORT_TEST_A32B0B,Naf Export Test>>, <<REF_VERIFY_VER_INF_TEST_ORPHAN_STATUS_TEST_A2F2DB,Orphan Status Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_CHAIN_TEST_78C2AE,Oscal Chain Test>>, <<REF_VERIFY_VER_INF_TEST_OSCAL_SSP_TEST_69639B,Oscal Ssp Test>>, <<REF_VERIFY_VER_INF_TEST_POAM_POLICY_TEST_C32AEA,Poam Policy Test>>, <<REF_VERIFY_VER_INF_TEST_POLICY_TEST_A3CC9E,Policy Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECTION_TEST_56667B,Projection Test>>, <<REF_VERIFY_VER_INF_TEST_PROJECT_TEST_65BD53,Project Test>>, <<REF_VERIFY_VER_INF_TEST_REMEDY_TEST_EB5E84,Remedy Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_644703,Render Test>>, <<REF_VERIFY_VER_INF_TEST_RENDER_TEST_E71E8D,Render Test>>, <<REF_VERIFY_VER_INF_TEST_REPORT_TEST_3EF4FF,Report Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_493BCD,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_76AA55,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQLINKS_TEST_EB8F67,Reqlinks Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIRED_SWITCHES_TEST_397B98,Required Switches Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENTS_DELTA_TEST_54E12D,Requirements Delta Test>>, <<REF_VERIFY_VER_INF_TEST_REQUIREMENT_MODELING_TEST_74F22A,Requirement Modeling Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_HARDENING_TEST_BFB136,Scan Hardening Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_SECOND_PASS_TEST_1C9D1B,Scan Second Pass Test>>, <<REF_VERIFY_VER_INF_TEST_SCAN_TEST_EFDB41,Scan Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_TEST_21FC79,Schema Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSIONS_TEST_BCA3F3,Schema Versions Test>>, <<REF_VERIFY_VER_INF_TEST_SCHEMA_VERSION_REQUIRED_TEST_AC7296,Schema Version Required Test>>, <<REF_VERIFY_VER_INF_TEST_SCOPE_TEST_F45215,Scope Test>>, <<REF_VERIFY_VER_INF_TEST_SEMANTIC_TEST_3E2CC0,Semantic Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_COVERAGE_TEST_969162,Sysml Coverage Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_EXPORT_TEST_819D9B,Sysml Export Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_INTERCHANGE_TEST_280926,Sysml Interchange Test>>, <<REF_VERIFY_VER_INF_TEST_SYSML_MACHINE_TEST_8BCE64,Sysml Machine Test>>, <<REF_VERIFY_VER_INF_TEST_THREAT_MODEL_EXPORT_TEST_ED4975,Threat Model Export Test>>, <<REF_VERIFY_VER_INF_TEST_TIER_POLICY_TEST_D12B71,Tier Policy Test>>, <<REF_VERIFY_VER_INF_TEST_TRACE_MATRIX_TEST_315E77,Trace Matrix Test>>, <<REF_VERIFY_VER_INF_TEST_TYPES_TEST_EF2B08,Types Test>>, <<REF_VERIFY_VER_INF_TEST_VALIDATE_TEST_4C11F0,Validate Test>>, <<REF_VERIFY_VER_INF_TEST_VERIFICATION_STATUS_TEST_CC7606,Verification Status Test>>, <<REF_VERIFY_VER_INF_TEST_VOCABULARY_TEST_A9F27B,Vocabulary Test>>, <<REF_VERIFY_VER_INF_TEST_WAIVER_TEST_E71CAE,Waiver Test>>
 |===
 [[REF_IDX-CATALOG_FU_VIEW_PROJECTION]]
 [discrete]
@@ -50140,7 +50404,7 @@ A file, artifact, or observation used to support control, risk, threat, or verif
 |Key |Value
 |Kind |Engineering Model Term
 |Name |evidence
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>, <<REF_REQ_REQ_EMG_125,REQ-EMG-125>>, <<REF_REQ_REQ_EMG_132,REQ-EMG-132>>, <<REF_REQ_REQ_EMG_134,REQ-EMG-134>>, <<REF_REQ_REQ_EMG_145,REQ-EMG-145>>, <<REF_REQ_REQ_EMG_146,REQ-EMG-146>>, <<REF_REQ_REQ_EMG_173,REQ-EMG-173>>, <<REF_REQ_REQ_EMG_196,REQ-EMG-196>>, <<REF_REQ_REQ_EMG_197,REQ-EMG-197>>, <<REF_REQ_REQ_EMG_198,REQ-EMG-198>>, <<REF_REQ_REQ_EMG_201,REQ-EMG-201>>, <<REF_REQ_REQ_EMG_202,REQ-EMG-202>>, <<REF_REQ_REQ_EMG_203,REQ-EMG-203>>, <<REF_REQ_REQ_EMG_204,REQ-EMG-204>>, <<REF_REQ_REQ_EMG_205,REQ-EMG-205>>, <<REF_REQ_REQ_EMG_206,REQ-EMG-206>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-STATE-LIFECYCLE,State Lifecycle View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_039,REQ-EMG-039>>, <<REF_REQ_REQ_EMG_053,REQ-EMG-053>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>, <<REF_REQ_REQ_EMG_125,REQ-EMG-125>>, <<REF_REQ_REQ_EMG_132,REQ-EMG-132>>, <<REF_REQ_REQ_EMG_134,REQ-EMG-134>>, <<REF_REQ_REQ_EMG_145,REQ-EMG-145>>, <<REF_REQ_REQ_EMG_146,REQ-EMG-146>>, <<REF_REQ_REQ_EMG_173,REQ-EMG-173>>
 |===
 [[REF_IDX-ENGMODEL_TERM_FLOW]]
 [discrete]
@@ -50452,7 +50716,7 @@ A structured requirement statement that defines expected system behavior and map
 |Key |Value
 |Kind |Engineering Model Term
 |Name |requirement
-|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_041,REQ-EMG-041>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_050,REQ-EMG-050>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_061,REQ-EMG-061>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-065>>, <<REF_REQ_REQ_EMG_067,REQ-EMG-067>>, <<REF_REQ_REQ_EMG_071,REQ-EMG-071>>, <<REF_REQ_REQ_EMG_072,REQ-EMG-072>>, <<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_081,REQ-EMG-081>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_084,REQ-EMG-084>>, <<REF_REQ_REQ_EMG_087,REQ-EMG-087>>, <<REF_REQ_REQ_EMG_088,REQ-EMG-088>>, <<REF_REQ_REQ_EMG_089,REQ-EMG-089>>, <<REF_REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_REQ_REQ_EMG_091,REQ-EMG-091>>, <<REF_REQ_REQ_EMG_092,REQ-EMG-092>>, <<REF_REQ_REQ_EMG_093,REQ-EMG-093>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_095,REQ-EMG-095>>, <<REF_REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_099,REQ-EMG-099>>, <<REF_REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_109,REQ-EMG-109>>, <<REF_REQ_REQ_EMG_110,REQ-EMG-110>>, <<REF_REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_113,REQ-EMG-113>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_118,REQ-EMG-118>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_120,REQ-EMG-120>>, <<REF_REQ_REQ_EMG_121,REQ-EMG-121>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>, <<REF_REQ_REQ_EMG_123,REQ-EMG-123>>, <<REF_REQ_REQ_EMG_125,REQ-EMG-125>>, <<REF_REQ_REQ_EMG_126,REQ-EMG-126>>, <<REF_REQ_REQ_EMG_127,REQ-EMG-127>>, <<REF_REQ_REQ_EMG_128,REQ-EMG-128>>, <<REF_REQ_REQ_EMG_140,REQ-EMG-140>>, <<REF_REQ_REQ_EMG_141,REQ-EMG-141>>, <<REF_REQ_REQ_EMG_146,REQ-EMG-146>>, <<REF_REQ_REQ_EMG_147,REQ-EMG-147>>, <<REF_REQ_REQ_EMG_149,REQ-EMG-149>>, <<REF_REQ_REQ_EMG_152,REQ-EMG-152>>, <<REF_REQ_REQ_EMG_157,REQ-EMG-157>>, <<REF_REQ_REQ_EMG_171,REQ-EMG-171>>, <<REF_REQ_REQ_EMG_172,REQ-EMG-172>>, <<REF_REQ_REQ_EMG_177,REQ-EMG-177>>, <<REF_REQ_REQ_EMG_178,REQ-EMG-178>>, <<REF_REQ_REQ_EMG_184,REQ-EMG-184>>, <<REF_REQ_REQ_EMG_185,REQ-EMG-185>>, <<REF_REQ_REQ_EMG_187,REQ-EMG-187>>, <<REF_REQ_REQ_EMG_191,REQ-EMG-191>>, <<REF_REQ_REQ_EMG_193,REQ-EMG-193>>, <<REF_REQ_REQ_EMG_196,REQ-EMG-196>>, <<REF_REQ_REQ_EMG_197,REQ-EMG-197>>, <<REF_REQ_REQ_EMG_198,REQ-EMG-198>>, <<REF_REQ_REQ_EMG_201,REQ-EMG-201>>, <<REF_REQ_REQ_EMG_202,REQ-EMG-202>>, <<REF_REQ_REQ_EMG_203,REQ-EMG-203>>, <<REF_REQ_REQ_EMG_204,REQ-EMG-204>>, <<REF_REQ_REQ_EMG_205,REQ-EMG-205>>, <<REF_REQ_REQ_EMG_206,REQ-EMG-206>>, <<REF_REQ_REQ_EMG_211,REQ-EMG-211>>
+|Mentioned In |<<SEC_VIEW_VIEW-ARCHITECTURE-INTENT,Architecture Intent View>>, <<SEC_VIEW_VIEW-SECURITY,Security View>>, <<SEC_VIEW_VIEW-TRACEABILITY,Traceability View>>, <<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_007,REQ-EMG-007>>, <<REF_REQ_REQ_EMG_010,REQ-EMG-010>>, <<REF_REQ_REQ_EMG_020,REQ-EMG-020>>, <<REF_REQ_REQ_EMG_023,REQ-EMG-023>>, <<REF_REQ_REQ_EMG_025,REQ-EMG-025>>, <<REF_REQ_REQ_EMG_026,REQ-EMG-026>>, <<REF_REQ_REQ_EMG_028,REQ-EMG-028>>, <<REF_REQ_REQ_EMG_029,REQ-EMG-029>>, <<REF_REQ_REQ_EMG_030,REQ-EMG-030>>, <<REF_REQ_REQ_EMG_035,REQ-EMG-035>>, <<REF_REQ_REQ_EMG_041,REQ-EMG-041>>, <<REF_REQ_REQ_EMG_044,REQ-EMG-044>>, <<REF_REQ_REQ_EMG_046,REQ-EMG-046>>, <<REF_REQ_REQ_EMG_050,REQ-EMG-050>>, <<REF_REQ_REQ_EMG_051,REQ-EMG-051>>, <<REF_REQ_REQ_EMG_054,REQ-EMG-054>>, <<REF_REQ_REQ_EMG_055,REQ-EMG-055>>, <<REF_REQ_REQ_EMG_056,REQ-EMG-056>>, <<REF_REQ_REQ_EMG_061,REQ-EMG-061>>, <<REF_REQ_REQ_EMG_065,REQ-EMG-065>>, <<REF_REQ_REQ_EMG_067,REQ-EMG-067>>, <<REF_REQ_REQ_EMG_071,REQ-EMG-071>>, <<REF_REQ_REQ_EMG_072,REQ-EMG-072>>, <<REF_REQ_REQ_EMG_073,REQ-EMG-073>>, <<REF_REQ_REQ_EMG_081,REQ-EMG-081>>, <<REF_REQ_REQ_EMG_082,REQ-EMG-082>>, <<REF_REQ_REQ_EMG_084,REQ-EMG-084>>, <<REF_REQ_REQ_EMG_087,REQ-EMG-087>>, <<REF_REQ_REQ_EMG_088,REQ-EMG-088>>, <<REF_REQ_REQ_EMG_089,REQ-EMG-089>>, <<REF_REQ_REQ_EMG_090,REQ-EMG-090>>, <<REF_REQ_REQ_EMG_091,REQ-EMG-091>>, <<REF_REQ_REQ_EMG_092,REQ-EMG-092>>, <<REF_REQ_REQ_EMG_093,REQ-EMG-093>>, <<REF_REQ_REQ_EMG_094,REQ-EMG-094>>, <<REF_REQ_REQ_EMG_095,REQ-EMG-095>>, <<REF_REQ_REQ_EMG_097,REQ-EMG-097>>, <<REF_REQ_REQ_EMG_098,REQ-EMG-098>>, <<REF_REQ_REQ_EMG_099,REQ-EMG-099>>, <<REF_REQ_REQ_EMG_100,REQ-EMG-100>>, <<REF_REQ_REQ_EMG_101,REQ-EMG-101>>, <<REF_REQ_REQ_EMG_102,REQ-EMG-102>>, <<REF_REQ_REQ_EMG_104,REQ-EMG-104>>, <<REF_REQ_REQ_EMG_105,REQ-EMG-105>>, <<REF_REQ_REQ_EMG_106,REQ-EMG-106>>, <<REF_REQ_REQ_EMG_107,REQ-EMG-107>>, <<REF_REQ_REQ_EMG_109,REQ-EMG-109>>, <<REF_REQ_REQ_EMG_110,REQ-EMG-110>>, <<REF_REQ_REQ_EMG_111,REQ-EMG-111>>, <<REF_REQ_REQ_EMG_112,REQ-EMG-112>>, <<REF_REQ_REQ_EMG_113,REQ-EMG-113>>, <<REF_REQ_REQ_EMG_115,REQ-EMG-115>>, <<REF_REQ_REQ_EMG_118,REQ-EMG-118>>, <<REF_REQ_REQ_EMG_119,REQ-EMG-119>>, <<REF_REQ_REQ_EMG_120,REQ-EMG-120>>, <<REF_REQ_REQ_EMG_121,REQ-EMG-121>>, <<REF_REQ_REQ_EMG_122,REQ-EMG-122>>, <<REF_REQ_REQ_EMG_123,REQ-EMG-123>>, <<REF_REQ_REQ_EMG_125,REQ-EMG-125>>, <<REF_REQ_REQ_EMG_126,REQ-EMG-126>>, <<REF_REQ_REQ_EMG_127,REQ-EMG-127>>, <<REF_REQ_REQ_EMG_128,REQ-EMG-128>>, <<REF_REQ_REQ_EMG_140,REQ-EMG-140>>, <<REF_REQ_REQ_EMG_141,REQ-EMG-141>>, <<REF_REQ_REQ_EMG_146,REQ-EMG-146>>, <<REF_REQ_REQ_EMG_147,REQ-EMG-147>>, <<REF_REQ_REQ_EMG_149,REQ-EMG-149>>, <<REF_REQ_REQ_EMG_152,REQ-EMG-152>>, <<REF_REQ_REQ_EMG_157,REQ-EMG-157>>, <<REF_REQ_REQ_EMG_171,REQ-EMG-171>>, <<REF_REQ_REQ_EMG_172,REQ-EMG-172>>, <<REF_REQ_REQ_EMG_177,REQ-EMG-177>>, <<REF_REQ_REQ_EMG_178,REQ-EMG-178>>, <<REF_REQ_REQ_EMG_184,REQ-EMG-184>>, <<REF_REQ_REQ_EMG_185,REQ-EMG-185>>, <<REF_REQ_REQ_EMG_187,REQ-EMG-187>>, <<REF_REQ_REQ_EMG_191,REQ-EMG-191>>, <<REF_REQ_REQ_EMG_193,REQ-EMG-193>>, <<REF_REQ_REQ_EMG_198,REQ-EMG-198>>, <<REF_REQ_REQ_EMG_201,REQ-EMG-201>>, <<REF_REQ_REQ_EMG_203,REQ-EMG-203>>, <<REF_REQ_REQ_EMG_204,REQ-EMG-204>>, <<REF_REQ_REQ_EMG_205,REQ-EMG-205>>, <<REF_REQ_REQ_EMG_211,REQ-EMG-211>>
 |===
 [[REF_IDX-ENGMODEL_TERM_RISK]]
 [discrete]
@@ -51558,6 +51822,90 @@ Inferred library_external dependency owned by FU-VALIDATION-ENGINE from internal
 |Source |internal/reqlint/requirement_modeling.go
 |Mentioned In |n/a
 |===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__API_CATALOG_TEST_GO__API_CATALOG_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (api_catalog_test.go)
+
+Inferred library_external dependency owned by FU-VALIDATION-ENGINE from api_catalog_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-VALIDATION-ENGINE
+|Source |api_catalog_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__API_COMPOSITION_TEST_GO__API_COMPOSITION_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (api_composition_test.go)
+
+Inferred library_external dependency owned by FU-SYSTEM-COMPOSITION from api_composition_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-SYSTEM-COMPOSITION
+|Source |api_composition_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__API_DIFF_TEST_GO__API_DIFF_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (api_diff_test.go)
+
+Inferred library_external dependency owned by FU-MODEL-LOADER from api_diff_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-MODEL-LOADER
+|Source |api_diff_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__API_REQLINKS_TEST_GO__API_REQLINKS_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (api_reqlinks_test.go)
+
+Inferred library_external dependency owned by FU-ALLOCATION-TRACE from api_reqlinks_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-ALLOCATION-TRACE
+|Source |api_reqlinks_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__API_TRACE_TEST_GO__API_TRACE_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (api_trace_test.go)
+
+Inferred library_external dependency owned by FU-ALLOCATION-TRACE from api_trace_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-ALLOCATION-TRACE
+|Source |api_trace_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__API_VALIDATE_TEST_GO__API_VALIDATE_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (api_validate_test.go)
+
+Inferred library_external dependency owned by FU-VALIDATION-ENGINE from api_validate_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-VALIDATION-ENGINE
+|Source |api_validate_test.go
+|Mentioned In |n/a
+|===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__AUTHORING_GO__INTERNAL_MCP_AUTHORING_GO]]
 [discrete]
 ==== github.com/labeth/engineering-model-go (authoring.go)
@@ -51696,6 +52044,20 @@ Inferred library_external dependency owned by FU-VALIDATION-ENGINE from internal
 |Kind |Code library_external
 |Owner |FU-VALIDATION-ENGINE
 |Source |internal/integration/examples_golden_test.go
+|Mentioned In |n/a
+|===
+[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__FACADE_FIXTURES_TEST_GO__FACADE_FIXTURES_TEST_GO]]
+[discrete]
+==== github.com/labeth/engineering-model-go (facade_fixtures_test.go)
+
+Inferred library_external dependency owned by FU-MODEL-LOADER from facade_fixtures_test.go.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |Code library_external
+|Owner |FU-MODEL-LOADER
+|Source |facade_fixtures_test.go
 |Mentioned In |n/a
 |===
 [[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_LABETH_ENGINEERING_MODEL_GO__FACADE_TEST_GO__FACADE_TEST_GO]]
@@ -52300,104 +52662,6 @@ Inferred library_external dependency owned by FU-CODE-HEALTH from internal/healt
 |Source |internal/health/engine/treesitter/lang.go
 |Mentioned In |n/a
 |===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_TREE_SITTER_GO_TREE_SITTER__LANG_ECMA_GO__INTERNAL_HEALTH_ENGINE_TREESITTER_LANG_ECMA_GO]]
-[discrete]
-==== github.com/tree-sitter/go-tree-sitter (lang_ecma.go)
-
-Inferred library_external dependency owned by FU-CODE-HEALTH from internal/health/engine/treesitter/lang_ecma.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |FU-CODE-HEALTH
-|Source |internal/health/engine/treesitter/lang_ecma.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_TREE_SITTER_GO_TREE_SITTER__LANG_GO_GO__INTERNAL_HEALTH_ENGINE_TREESITTER_LANG_GO_GO]]
-[discrete]
-==== github.com/tree-sitter/go-tree-sitter (lang_go.go)
-
-Inferred library_external dependency owned by FU-CODE-HEALTH from internal/health/engine/treesitter/lang_go.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |FU-CODE-HEALTH
-|Source |internal/health/engine/treesitter/lang_go.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_TREE_SITTER_GO_TREE_SITTER__LANG_PYTHON_GO__INTERNAL_HEALTH_ENGINE_TREESITTER_LANG_PYTHON_GO]]
-[discrete]
-==== github.com/tree-sitter/go-tree-sitter (lang_python.go)
-
-Inferred library_external dependency owned by FU-CODE-HEALTH from internal/health/engine/treesitter/lang_python.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |FU-CODE-HEALTH
-|Source |internal/health/engine/treesitter/lang_python.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_TREE_SITTER_GO_TREE_SITTER__LANG_RUST_GO__INTERNAL_HEALTH_ENGINE_TREESITTER_LANG_RUST_GO]]
-[discrete]
-==== github.com/tree-sitter/go-tree-sitter (lang_rust.go)
-
-Inferred library_external dependency owned by FU-CODE-HEALTH from internal/health/engine/treesitter/lang_rust.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |FU-CODE-HEALTH
-|Source |internal/health/engine/treesitter/lang_rust.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_TREE_SITTER_GO_TREE_SITTER__LOC_GO__INTERNAL_HEALTH_ENGINE_TREESITTER_LOC_GO]]
-[discrete]
-==== github.com/tree-sitter/go-tree-sitter (loc.go)
-
-Inferred library_external dependency owned by FU-CODE-HEALTH from internal/health/engine/treesitter/loc.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |FU-CODE-HEALTH
-|Source |internal/health/engine/treesitter/loc.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_TREE_SITTER_GO_TREE_SITTER__METRICS_GO__INTERNAL_HEALTH_ENGINE_TREESITTER_METRICS_GO]]
-[discrete]
-==== github.com/tree-sitter/go-tree-sitter (metrics.go)
-
-Inferred library_external dependency owned by FU-CODE-HEALTH from internal/health/engine/treesitter/metrics.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |FU-CODE-HEALTH
-|Source |internal/health/engine/treesitter/metrics.go
-|Mentioned In |n/a
-|===
-[[REF_CODE_LIBRARY_EXTERNAL_GITHUB_COM_TREE_SITTER_GO_TREE_SITTER__PARSE_GO__INTERNAL_CODEMAP_PARSE_GO]]
-[discrete]
-==== github.com/tree-sitter/go-tree-sitter (parse.go)
-
-Inferred library_external dependency owned by FU-CODEMAP-INFERENCE from internal/codemap/parse.go.
-
-[cols="1,4",options="header"]
-|===
-|Key |Value
-|Kind |Code library_external
-|Owner |FU-CODEMAP-INFERENCE
-|Source |internal/codemap/parse.go
-|Mentioned In |n/a
-|===
 
 === Verification References
 [[REF_IDX-VER_VER_INF_FORMAL_QUINT_FORMAL_5B471F]]
@@ -52670,6 +52934,21 @@ Inferred from test source artifact.
 |Name |Airborne Assurance Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_AIRBORNE_ASSURANCE_TEST_398C8C,Airborne Assurance Test>>
 |===
+[[REF_IDX-VER_VER_INF_TEST_API_CATALOG_TEST_9DB207]]
+[discrete]
+==== VER-INF-TEST-API_CATALOG_TEST-9DB207
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |api_catalog_test.go
+|Name |Api Catalog Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_CATALOG_TEST_9DB207,Api Catalog Test>>
+|===
 [[REF_IDX-VER_VER_INF_TEST_API_CODE_TEST_F84229]]
 [discrete]
 ==== VER-INF-TEST-API_CODE_TEST-F84229
@@ -52684,6 +52963,81 @@ Inferred from test source artifact.
 |Source |api_code_test.go
 |Name |Api Code Test
 |Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_CODE_TEST_F84229,Api Code Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29]]
+[discrete]
+==== VER-INF-TEST-API_COMPOSITION_TEST-7B9B29
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |api_composition_test.go
+|Name |Api Composition Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_COMPOSITION_TEST_7B9B29,Api Composition Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_API_DIFF_TEST_C8F2C5]]
+[discrete]
+==== VER-INF-TEST-API_DIFF_TEST-C8F2C5
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |api_diff_test.go
+|Name |Api Diff Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_DIFF_TEST_C8F2C5,Api Diff Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_API_REQLINKS_TEST_6F0E73]]
+[discrete]
+==== VER-INF-TEST-API_REQLINKS_TEST-6F0E73
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |api_reqlinks_test.go
+|Name |Api Reqlinks Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_REQLINKS_TEST_6F0E73,Api Reqlinks Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_API_TRACE_TEST_47FD14]]
+[discrete]
+==== VER-INF-TEST-API_TRACE_TEST-47FD14
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |api_trace_test.go
+|Name |Api Trace Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_TRACE_TEST_47FD14,Api Trace Test>>
+|===
+[[REF_IDX-VER_VER_INF_TEST_API_VALIDATE_TEST_935546]]
+[discrete]
+==== VER-INF-TEST-API_VALIDATE_TEST-935546
+
+Inferred from test source artifact.
+
+[cols="1,4",options="header"]
+|===
+|Key |Value
+|Kind |test
+|Status |not-run
+|Source |api_validate_test.go
+|Name |Api Validate Test
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_API_VALIDATE_TEST_935546,Api Validate Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_ARTIFACT_TEST_852239]]
 [discrete]
@@ -54483,7 +54837,7 @@ Inferred from test source artifact.
 |Status |not-run
 |Source |internal/export/quint/check/integration_test.go
 |Name |Integration Test
-|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_REQ_REQ_EMG_198,REQ-EMG-198>>, <<REF_REQ_REQ_EMG_204,REQ-EMG-204>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_TEST_5AE068,Integration Test>>
+|Mentioned In |<<SEC_VIEW_VIEW-INTERACTION-FLOW,Interaction Flow View>>, <<REF_VERIFY_VER_INF_TEST_INTEGRATION_TEST_5AE068,Integration Test>>
 |===
 [[REF_IDX-VER_VER_INF_TEST_JAVASCRIPT_TEST_A0A69C]]
 [discrete]
