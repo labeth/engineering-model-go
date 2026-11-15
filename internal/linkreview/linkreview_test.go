@@ -56,7 +56,7 @@ func TestAccept(t *testing.T) {
 	checkAcceptClaimed(t, mismatch)
 	// An accepted link at a stale pin: only the pin moves.
 	repin := reqlinks.LinkStatus{ID: "LNK-B", Child: "dep::CAP-B", State: reqlinks.StateVersionMismatch, Status: "accepted", Pinned: "v0.1.0", Version: "v0.2.0", Item: item}
-	got, err := Accept(acceptContext(repin), []byte(acceptLinks), "LNK-B", "ACT-OWNER", "Old.", "2026-01-01")
+	got, err := AcceptReview(acceptContext(repin), []byte(acceptLinks), AcceptRequest{ID: "LNK-B", By: "ACT-OWNER", Rationale: "Old.", Date: "2026-01-01"})
 	if want := strings.Replace(acceptLinks, "    version: v0.1.0\n  status: accepted", "    version: v0.2.0\n  status: accepted", 1); err != nil || string(got.After) != want {
 		t.Fatalf("Accept of a version_mismatch link:\n%s (%v)", got.After, err)
 	}
@@ -76,7 +76,7 @@ type acceptRefusal struct {
 // its patch.
 func checkAcceptClaimed(t *testing.T, mismatch reqlinks.LinkStatus) {
 	t.Helper()
-	got, err := Accept(acceptContext(mismatch), []byte(acceptLinks), "LNK-A", "ACT-OWNER", " Still  fine. ", "2026-11-03")
+	got, err := AcceptReview(acceptContext(mismatch), []byte(acceptLinks), AcceptRequest{ID: "LNK-A", By: "ACT-OWNER", Rationale: " Still  fine. ", Date: "2026-11-03"})
 	want := strings.Replace(acceptLinks, `    version: v0.1.0
     fingerprint: sha256:v1:aaaa
   status: claimed
@@ -112,7 +112,7 @@ func checkAcceptRefusals(t *testing.T, mismatch reqlinks.LinkStatus) {
 		"unresolved":    {acceptContext(unresolved), "LNK-A", "ACT-OWNER", "link LNK-A cannot be accepted: unresolved (dependency \"dep\" was not resolved)", false},
 		"no link file":  {noFile, "LNK-A", "ACT-OWNER", "engmod.yml names no documents.reqLinks", true},
 	} {
-		got, err := Accept(tc.ctx, []byte(acceptLinks), tc.id, tc.by, "x", "2026-11-03")
+		got, err := AcceptReview(tc.ctx, []byte(acceptLinks), AcceptRequest{ID: tc.id, By: tc.by, Rationale: "x", Date: "2026-11-03"})
 		if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
 			t.Errorf("%s: err %v, result %+v", name, err, got)
 		}

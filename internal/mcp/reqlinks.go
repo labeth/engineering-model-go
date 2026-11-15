@@ -106,7 +106,7 @@ func (s *Server) linksReview(id, by, rationale string) (map[string]any, error) {
 		return nil, err
 	}
 	date := s.now().Format("2006-01-02")
-	acceptance, err := linkreview.Accept(ctx, data, id, by, rationale, date)
+	acceptance, err := linkreview.AcceptReview(ctx, data, linkreview.AcceptRequest{ID: id, By: by, Rationale: rationale, Date: date})
 	if err != nil {
 		return nil, err
 	}

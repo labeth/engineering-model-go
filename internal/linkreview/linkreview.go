@@ -468,13 +468,6 @@ type AcceptRequest struct {
 	Date      string
 }
 
-// Accept is AcceptReview with the request spread over arguments.
-// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func Accept(ctx Context, data []byte, id, by, rationale, date string) (Acceptance, error) {
-	return AcceptReview(ctx, data, AcceptRequest{ID: id, By: by, Rationale: rationale, Date: date})
-}
-
 // AcceptReview prepares the review of link req.ID in ctx: pinned.version set
 // to the dependency pin (the version reviewed), reviewedBy, reviewedOn
 // (date, YYYY-MM-DD), the rationale and status accepted, editing only the
