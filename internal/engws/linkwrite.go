@@ -67,7 +67,7 @@ func (f *linkFiles) linksDocument(b model.Bundle) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	manifest, err = yamledit.SetKey(manifest, yamledit.FindPath("documents"), "reqLinks", yamledit.Scalar(defaultReqLinksPath))
+	manifest, err = yamledit.SetKey(manifest, yamledit.KeyAt{Find: yamledit.FindPath("documents"), Key: "reqLinks"}, yamledit.Scalar(defaultReqLinksPath))
 	if err != nil {
 		return "", fmt.Errorf("%s: %w", f.manifest, err)
 	}
@@ -88,7 +88,7 @@ func (f *linkFiles) appendBlocks(path string, blocks []string) error {
 	if err != nil {
 		return err
 	}
-	if existing, err = yamledit.AppendSequenceItems(existing, yamledit.FindPath(), "reqLinks", blocks); err != nil {
+	if existing, err = yamledit.AppendSequenceItems(existing, yamledit.KeyAt{Find: yamledit.FindPath(), Key: "reqLinks"}, blocks); err != nil {
 		return fmt.Errorf("%s: %w", path, err)
 	}
 	f.writes[path] = existing

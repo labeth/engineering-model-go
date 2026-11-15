@@ -105,25 +105,25 @@ type entityCase struct {
 func entitySetCases() []entityCase {
 	riskA, riskB := FindByID("RISK-A"), FindByID("RISK-B")
 	return []entityCase{
-		{"scalar in place keeps comment", func(d []byte) ([]byte, error) { return SetPath(d, riskA, []string{"title"}, "Renamed: risk") },
+		{"scalar in place keeps comment", func(d []byte) ([]byte, error) { return SetPath(d, FieldAt{riskA, []string{"title"}}, "Renamed: risk") },
 			"      title: First risk   # keep this comment\n", "      title: 'Renamed: risk'   # keep this comment\n"},
-		{"missing key added", func(d []byte) ([]byte, error) { return SetPath(d, riskA, []string{"owner"}, "ACT-OWNER") },
+		{"missing key added", func(d []byte) ([]byte, error) { return SetPath(d, FieldAt{riskA, []string{"owner"}}, "ACT-OWNER") },
 			"        - CTRL-A\n", "        - CTRL-A\n      owner: ACT-OWNER\n"},
 		{"nested key in existing mapping", func(d []byte) ([]byte, error) {
-			return SetPath(d, riskB, []string{"acceptedBy", "statement"}, "I accept this risk.")
+			return SetPath(d, FieldAt{riskB, []string{"acceptedBy", "statement"}}, "I accept this risk.")
 		}, "        date: \"2026-11-03\"\n", "        date: \"2026-11-03\"\n        statement: I accept this risk.\n"},
 		{"nested mapping created", func(d []byte) ([]byte, error) {
-			return SetPath(d, riskA, []string{"acceptedBy", "statement"}, "Owner words.")
+			return SetPath(d, FieldAt{riskA, []string{"acceptedBy", "statement"}}, "Owner words.")
 		}, "        - CTRL-A\n", "        - CTRL-A\n      acceptedBy:\n        statement: Owner words.\n"},
 		{"bool and string true", func(d []byte) ([]byte, error) {
-			d, err := SetPath(d, FindByID("STEP-1"), []string{"boundaryCrossing"}, true)
+			d, err := SetPath(d, FieldAt{FindByID("STEP-1"), []string{"boundaryCrossing"}}, true)
 			if err != nil {
 				return nil, err
 			}
-			return SetPath(d, FindByID("STEP-1"), []string{"action"}, "true")
+			return SetPath(d, FieldAt{FindByID("STEP-1"), []string{"action"}}, "true")
 		}, "          ref: FU-A\n", "          ref: FU-A\n          boundaryCrossing: true\n          action: \"true\"\n"},
 		{"list value as block", func(d []byte) ([]byte, error) {
-			return SetPath(d, riskA, []string{"relatedControls"}, []any{"CTRL-B", "CTRL-C"})
+			return SetPath(d, FieldAt{riskA, []string{"relatedControls"}}, []any{"CTRL-B", "CTRL-C"})
 		}, "        - CTRL-A\n", "        - CTRL-B\n        - CTRL-C\n"},
 		{"unset removes lines", func(d []byte) ([]byte, error) { return UnsetPath(d, riskB, []string{"acceptedBy"}) },
 			"      acceptedBy:\n        actor: ACT-OWNER\n        date: \"2026-11-03\"\n", ""},
@@ -135,23 +135,29 @@ func entityListCases() []entityCase {
 	riskA, riskB := FindByID("RISK-A"), FindByID("RISK-B")
 	return []entityCase{
 		{"append block", func(d []byte) ([]byte, error) {
-			return AppendPath(d, riskA, []string{"relatedControls"}, []any{"CTRL-B"})
+			return AppendPath(d, FieldAt{riskA, []string{"relatedControls"}}, []any{"CTRL-B"})
 		},
 			"        - CTRL-A\n", "        - CTRL-A\n        - CTRL-B\n"},
-		{"append flow stays flow", func(d []byte) ([]byte, error) { return AppendPath(d, riskA, []string{"appliesTo"}, []any{"FU-C"}) },
+		{"append flow stays flow", func(d []byte) ([]byte, error) {
+			return AppendPath(d, FieldAt{riskA, []string{"appliesTo"}}, []any{"FU-C"})
+		},
 			"appliesTo: [FU-A, FU-B]\n", "appliesTo: [FU-A, FU-B, FU-C]\n"},
 		{"append object to nested list", func(d []byte) ([]byte, error) {
-			return AppendPath(d, FindByID("FLOW-X"), []string{"steps"}, []any{map[string]any{"ref": "FU-B", "id": "STEP-2"}})
+			return AppendPath(d, FieldAt{FindByID("FLOW-X"), []string{"steps"}}, []any{map[string]any{"ref": "FU-B", "id": "STEP-2"}})
 		}, "          ref: FU-A\n", "          ref: FU-A\n        - id: STEP-2\n          ref: FU-B\n"},
-		{"append creates list", func(d []byte) ([]byte, error) { return AppendPath(d, riskB, []string{"appliesTo"}, []any{"FU-A"}) },
+		{"append creates list", func(d []byte) ([]byte, error) {
+			return AppendPath(d, FieldAt{riskB, []string{"appliesTo"}}, []any{"FU-A"})
+		},
 			"        date: \"2026-11-03\"\n", "        date: \"2026-11-03\"\n      appliesTo:\n        - FU-A\n"},
-		{"remove from flow", func(d []byte) ([]byte, error) { return RemovePath(d, riskA, []string{"appliesTo"}, []any{"FU-A"}) },
+		{"remove from flow", func(d []byte) ([]byte, error) {
+			return RemovePath(d, FieldAt{riskA, []string{"appliesTo"}}, []any{"FU-A"})
+		},
 			"appliesTo: [FU-A, FU-B]\n", "appliesTo: [FU-B]\n"},
 		{"remove last block item leaves empty list", func(d []byte) ([]byte, error) {
-			return RemovePath(d, riskA, []string{"relatedControls"}, []any{"CTRL-A"})
+			return RemovePath(d, FieldAt{riskA, []string{"relatedControls"}}, []any{"CTRL-A"})
 		}, "      relatedControls:\n        - CTRL-A\n", "      relatedControls: []\n"},
 		{"remove object by id", func(d []byte) ([]byte, error) {
-			return RemovePath(d, FindByID("FLOW-X"), []string{"steps"}, []any{"STEP-1"})
+			return RemovePath(d, FieldAt{FindByID("FLOW-X"), []string{"steps"}}, []any{"STEP-1"})
 		},
 			"      steps:\n        - id: STEP-1\n          ref: FU-A\n", "      steps: []\n"},
 	}
@@ -164,15 +170,15 @@ func entityErrorCases() map[string]func() error {
 	return map[string]func() error{
 		"unset missing": func() error { _, err := UnsetPath(data, riskA, []string{"owner"}); return err },
 		"remove missing item": func() error {
-			_, err := RemovePath(data, riskA, []string{"appliesTo"}, []any{"FU-Z"})
+			_, err := RemovePath(data, FieldAt{riskA, []string{"appliesTo"}}, []any{"FU-Z"})
 			return err
 		},
 		"append to scalar": func() error {
-			_, err := AppendPath(data, riskA, []string{"title"}, []any{"x"})
+			_, err := AppendPath(data, FieldAt{riskA, []string{"title"}}, []any{"x"})
 			return err
 		},
-		"set through scalar": func() error { _, err := SetPath(data, riskA, []string{"title", "x"}, "y"); return err },
-		"set null":           func() error { _, err := SetPath(data, riskA, []string{"title"}, nil); return err },
+		"set through scalar": func() error { _, err := SetPath(data, FieldAt{riskA, []string{"title", "x"}}, "y"); return err },
+		"set null":           func() error { _, err := SetPath(data, FieldAt{riskA, []string{"title"}}, nil); return err },
 	}
 }
 

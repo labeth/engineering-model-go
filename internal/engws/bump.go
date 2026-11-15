@@ -432,7 +432,7 @@ func (r *bumpRun) writeRepins(linksPath string) error {
 	}
 	edited := data
 	for _, id := range r.result.Repinned {
-		if edited, err = yamledit.SetKey(edited, yamledit.FindListItem([]string{"reqLinks"}, "id", id, "pinned"), "version", yamledit.Scalar(r.target.Version)); err != nil {
+		if edited, err = yamledit.SetKey(edited, yamledit.KeyAt{Find: yamledit.FindListItem(yamledit.ListItem{Keys: []string{"reqLinks"}, IDKey: "id", ID: id, Sub: []string{"pinned"}}), Key: "version"}, yamledit.Scalar(r.target.Version)); err != nil {
 			return fmt.Errorf("%s: link %s: %w", linksPath, id, err)
 		}
 	}
@@ -620,7 +620,7 @@ func setEnv(key, value string) func() {
 // another line than its key.
 // TRLC-LINKS: REQ-EMG-068
 func setDependencyVersion(data []byte, alias, version string) ([]byte, error) {
-	out, err := yamledit.SetScalarInPlace(data, yamledit.FindListItem([]string{"dependencies"}, "alias", alias), "version", version)
+	out, err := yamledit.SetScalarInPlace(data, yamledit.KeyAt{Find: yamledit.FindListItem(yamledit.ListItem{Keys: []string{"dependencies"}, IDKey: "alias", ID: alias}), Key: "version"}, version)
 	if err != nil {
 		return nil, fmt.Errorf("dependency %q version: %w", alias, err)
 	}

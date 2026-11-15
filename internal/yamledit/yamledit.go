@@ -95,9 +95,37 @@ func SplitLines(data []byte) []string {
 	return out
 }
 
-// SpliceLines replaces lines [start, end) with replacement lines.
+// Span is the line range [Start, End) of a document.
+type Span struct{ Start, End int }
+
+// Finder selects a node of a parsed document.
+type Finder func(root *yaml.Node) (*yaml.Node, error)
+
+// KeyAt names Key of the mapping Find selects.
+type KeyAt struct {
+	Find Finder
+	Key  string
+}
+
+// FieldAt names the field at Path: keys below the entity Find selects.
+type FieldAt struct {
+	Find Finder
+	Path []string
+}
+
+// ListItem names the mapping item with ID under IDKey in the sequence at
+// Keys; Sub are keys to walk inside the item.
+type ListItem struct {
+	Keys  []string
+	IDKey string
+	ID    string
+	Sub   []string
+}
+
+// SpliceLines replaces the lines of span with replacement lines.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-104
-func SpliceLines(lines []string, start, end int, replacement ...string) []byte {
+func SpliceLines(lines []string, span Span, replacement ...string) []byte {
+	start, end := span.Start, span.End
 	var b strings.Builder
 	b.WriteString(strings.Join(lines[:start], ""))
 	if start > 0 && !strings.HasSuffix(lines[start-1], "\n") {
@@ -223,7 +251,7 @@ func (e keyEdit) apply() ([]byte, error) {
 	if e.keyNode == nil {
 		lastKey := e.mapping.Content[len(e.mapping.Content)-2]
 		_, end := KeyRange(e.lines, lastKey, e.mapping.Content[len(e.mapping.Content)-1])
-		return SpliceLines(e.lines, end, end, e.entry()...), nil
+		return SpliceLines(e.lines, Span{end, end}, e.entry()...), nil
 	}
 	if out, ok := e.inPlace(); ok {
 		return out, nil
@@ -232,7 +260,7 @@ func (e keyEdit) apply() ([]byte, error) {
 		return nil, fmt.Errorf("line %d: %s cannot be set in place in a flow mapping", e.mapping.Line, e.key)
 	}
 	start, end := KeyRange(e.lines, e.keyNode, e.value)
-	return SpliceLines(e.lines, start, end, e.entry()...), nil
+	return SpliceLines(e.lines, Span{start, end}, e.entry()...), nil
 }
 
 // SetKey sets key of the block mapping found by find to the encoded YAML
@@ -241,8 +269,9 @@ func (e keyEdit) apply() ([]byte, error) {
 // keeping a trailing comment; any other existing value is replaced with its
 // lines; a missing key is added after the mapping's last key.
 // TRLC-LINKS: REQ-EMG-100, REQ-EMG-101, REQ-EMG-104
-func SetKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, raw string) ([]byte, error) {
-	mapping, err := locate(data, find)
+func SetKey(data []byte, at KeyAt, raw string) ([]byte, error) {
+	key := at.Key
+	mapping, err := locate(data, at.Find)
 	if err != nil {
 		return nil, err
 	}
@@ -259,8 +288,9 @@ func SetKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, ra
 // (a block or multi-line scalar), and a value that its quote style cannot
 // hold unescaped.
 // TRLC-LINKS: REQ-EMG-068
-func SetScalarInPlace(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key, value string) ([]byte, error) {
-	keyNode, node, err := entryOf(data, find, key)
+func SetScalarInPlace(data []byte, at KeyAt, value string) ([]byte, error) {
+	key := at.Key
+	keyNode, node, err := entryOf(data, at.Find, key)
 	if err != nil {
 		return nil, err
 	}
@@ -376,7 +406,7 @@ func RemoveKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key 
 		return nil, false, fmt.Errorf("line %d: %s is the first key of a list item; move it below another key first", keyNode.Line, key)
 	}
 	start, end := KeyRange(lines, keyNode, value)
-	return SpliceLines(lines, start, end), true, nil
+	return SpliceLines(lines, Span{start, end}), true, nil
 }
 
 // AppendSequenceItems appends the block lines items (each item already
@@ -385,8 +415,9 @@ func RemoveKey(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key 
 // find, at the indentation of its existing items. An empty or flow sequence
 // is replaced by a block sequence.
 // TRLC-LINKS: REQ-EMG-104
-func AppendSequenceItems(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key string, items []string) ([]byte, error) {
-	keyNode, value, err := entryOf(data, find, key)
+func AppendSequenceItems(data []byte, at KeyAt, items []string) ([]byte, error) {
+	key := at.Key
+	keyNode, value, err := entryOf(data, at.Find, key)
 	if err != nil {
 		return nil, err
 	}
@@ -401,9 +432,9 @@ func AppendSequenceItems(data []byte, find func(root *yaml.Node) (*yaml.Node, er
 	start, end := KeyRange(lines, keyNode, value)
 	if len(value.Content) == 0 {
 		header := strings.Repeat(" ", keyNode.Column-1) + key + ":"
-		return SpliceLines(lines, start, end, append([]string{header}, block...)...), nil
+		return SpliceLines(lines, Span{start, end}, append([]string{header}, block...)...), nil
 	}
-	return SpliceLines(lines, end, end, block...), nil
+	return SpliceLines(lines, Span{end, end}, block...), nil
 }
 
 // itemIndent returns the indentation of the items of the sequence value of
@@ -433,13 +464,13 @@ func indentItems(items []string, pad string) []string {
 // the block sequence under key of the mapping found by find, each with its
 // lines up to the next item; the other items keep their lines.
 // TRLC-LINKS: REQ-EMG-104
-func RemoveSequenceItems(data []byte, find func(root *yaml.Node) (*yaml.Node, error), key string, indexes []int) ([]byte, error) {
-	keyNode, value, err := entryOf(data, find, key)
+func RemoveSequenceItems(data []byte, at KeyAt, indexes []int) ([]byte, error) {
+	keyNode, value, err := entryOf(data, at.Find, at.Key)
 	if err != nil {
 		return nil, err
 	}
 	if keyNode == nil || !isBlockSequence(value) {
-		return nil, fmt.Errorf("no %s block sequence", key)
+		return nil, fmt.Errorf("no %s block sequence", at.Key)
 	}
 	lines := SplitLines(data)
 	_, end := KeyRange(lines, keyNode, value)
@@ -503,7 +534,8 @@ func FindPath(keys ...string) func(*yaml.Node) (*yaml.Node, error) {
 // FindListItem returns a function that finds the mapping item with id in
 // the sequence at keys, then walks sub keys inside it.
 // TRLC-LINKS: REQ-EMG-100, REQ-EMG-101, REQ-EMG-104
-func FindListItem(keys []string, idKey, id string, sub ...string) func(*yaml.Node) (*yaml.Node, error) {
+func FindListItem(at ListItem) Finder {
+	keys, idKey, id, sub := at.Keys, at.IDKey, at.ID, at.Sub
 	return func(root *yaml.Node) (*yaml.Node, error) {
 		seq, err := FindPath(keys...)(root)
 		if err != nil {
@@ -773,7 +805,8 @@ func keyIndent(mapping *yaml.Node) int {
 // missing key is added after the last key of its mapping; a missing
 // intermediate mapping is created with the rest of the path.
 // TRLC-LINKS: REQ-EMG-113
-func SetPath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []string, value any) ([]byte, error) {
+func SetPath(data []byte, at FieldAt, value any) ([]byte, error) {
+	find, path := at.Find, at.Path
 	if len(path) == 0 {
 		return nil, fmt.Errorf("empty field path")
 	}
@@ -793,7 +826,7 @@ func SetPath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []stri
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", strings.Join(path, "."), err)
 	}
-	return SetKey(data, within(find, path[:depth]), path[depth], raw)
+	return SetKey(data, KeyAt{within(find, path[:depth]), path[depth]}, raw)
 }
 
 // existingPrefix walks the mappings of path below node as far as they exist
@@ -979,7 +1012,8 @@ func (r listRef) raw() ([]string, error) {
 // field is missing. A block list gets block items at the indentation of its
 // items; a one-line flow list of scalars stays a flow list.
 // TRLC-LINKS: REQ-EMG-113
-func AppendPath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []string, items []any) ([]byte, error) {
+func AppendPath(data []byte, at FieldAt, items []any) ([]byte, error) {
+	find, path := at.Find, at.Path
 	if len(items) == 0 {
 		return data, nil
 	}
@@ -988,7 +1022,7 @@ func AppendPath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []s
 		return nil, err
 	}
 	if key == nil || value.Kind != yaml.SequenceNode {
-		return SetPath(data, find, path, items)
+		return SetPath(data, at, items)
 	}
 	if isFlowList(value) {
 		return appendFlow(listRef{data: data, value: value, name: strings.Join(path, ".")}, items)
@@ -997,7 +1031,7 @@ func AppendPath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []s
 	if err != nil {
 		return nil, err
 	}
-	return AppendSequenceItems(data, within(find, path[:len(path)-1]), path[len(path)-1], block)
+	return AppendSequenceItems(data, KeyAt{within(find, path[:len(path)-1]), path[len(path)-1]}, block)
 }
 
 // isFlowList reports whether value is a non-empty flow sequence.
@@ -1077,7 +1111,8 @@ func itemMatches(item *yaml.Node, value string) bool {
 // values (a scalar item, or an object item by its id). A value no item
 // matches is an error; a list left empty is written as [].
 // TRLC-LINKS: REQ-EMG-113
-func RemovePath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []string, values []any) ([]byte, error) {
+func RemovePath(data []byte, at FieldAt, values []any) ([]byte, error) {
+	find, path := at.Find, at.Path
 	value, err := existingList(data, find, path)
 	if err != nil {
 		return nil, err
@@ -1087,14 +1122,14 @@ func RemovePath(data []byte, find func(*yaml.Node) (*yaml.Node, error), path []s
 	if err != nil {
 		return nil, err
 	}
-	parent, last := within(find, path[:len(path)-1]), path[len(path)-1]
+	parent := KeyAt{within(find, path[:len(path)-1]), path[len(path)-1]}
 	if len(remove) == len(value.Content) {
-		return SetKey(data, parent, last, "[]")
+		return SetKey(data, parent, "[]")
 	}
 	if value.Style&yaml.FlowStyle != 0 {
 		return removeFlow(listRef{data: data, value: value, name: name}, remove)
 	}
-	return RemoveSequenceItems(data, parent, last, indexesOf(remove))
+	return RemoveSequenceItems(data, parent, indexesOf(remove))
 }
 
 // existingList returns the sequence node at path; a missing field or a null
