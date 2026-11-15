@@ -143,28 +143,41 @@ func TestCUERegistryRoutingAndOfflineIsUnknown(t *testing.T) {
 		{"", PublicationUnknown},
 	}
 	for _, c := range cases {
-		t.Setenv("CUE_REGISTRY", c.env)
-		got, why := NewCUERegistry().Published(ctx, modulePathOf("if-a"), "v0.1.0")
-		if got != c.want {
-			t.Fatalf("CUE_REGISTRY=%q: got %v (%s), want %v", c.env, got, why, c.want)
-		}
-		if got == PublicationUnknown && why == "" {
-			t.Fatalf("CUE_REGISTRY=%q: unknown without a reason", c.env)
-		}
+		assertRegistryRouting(t, c.env, c.want)
 	}
 	t.Setenv("CUE_REGISTRY", registry.Host()+"+insecure")
 	if got, _ := NewCUERegistry().Published(ctx, modulePathOf("if-a"), "v0.9.0"); got != PublicationMissing {
 		t.Fatalf("unpublished version: got %v", got)
 	}
+	assertOfflinePlanIsUnknown(t)
+}
 
+// assertOfflinePlanIsUnknown checks that an offline registry leaves a clean
+// checkout non-local with state unknown and a note.
+func assertOfflinePlanIsUnknown(t *testing.T) {
+	t.Helper()
 	root := t.TempDir()
 	checkout(t, root, "if-a")
-	plan, err := BuildPlan(ctx, PlanRequest{Root: root, Registry: fakeRegistry{unknown: true}})
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: fakeRegistry{unknown: true}})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if e := entry(t, plan, "if-a"); e.Local || e.State != StateUnknown || len(plan.Notes) == 0 {
 		t.Fatalf("offline: want oci/unknown with a note, got %s local=%v notes=%v", e.State, e.Local, plan.Notes)
+	}
+}
+
+// assertRegistryRouting sets CUE_REGISTRY to env and checks the publication of
+// if-a v0.1.0, and that an unknown answer says why.
+func assertRegistryRouting(t *testing.T, env string, want Publication) {
+	t.Helper()
+	t.Setenv("CUE_REGISTRY", env)
+	got, why := NewCUERegistry().Published(context.Background(), modulePathOf("if-a"), "v0.1.0")
+	if got != want {
+		t.Fatalf("CUE_REGISTRY=%q: got %v (%s), want %v", env, got, why, want)
+	}
+	if got == PublicationUnknown && why == "" {
+		t.Fatalf("CUE_REGISTRY=%q: unknown without a reason", env)
 	}
 }
 
@@ -200,10 +213,7 @@ func TestPinAndUnpinForceLocal(t *testing.T) {
 	if e := entry(t, plan, "if-a"); !e.Local || e.State != StatePinned {
 		t.Fatalf("pinned: got %s local=%v", e.State, e.Local)
 	}
-	work, _ := os.ReadFile(filepath.Join(root, "engmod.work.yml"))
-	if !strings.Contains(string(work), "path: ./if-a") {
-		t.Fatalf("pin did not sync:\n%s", work)
-	}
+	assertAllIn(t, "work file after pin", read(t, filepath.Join(root, "engmod.work.yml")), "path: ./if-a")
 	if code, _, errOut := runMain(t, reg, "--root", root, "unpin", "if-a"); code != 0 {
 		t.Fatal(errOut)
 	}
@@ -250,13 +260,9 @@ func TestFindRootStopsAtHome(t *testing.T) {
 	t.Setenv("HOME", home)
 	write(t, filepath.Join(home, ".engws.yml"), "pins: []\n")
 	write(t, filepath.Join(top, model.WorkspaceFileName), "schemaVersion: 3\nreplacements: []\n")
-	if got, err := FindRoot(deep); err != nil || got != deep {
-		t.Fatalf("marker in $HOME and above it: got %s, %v; want %s", got, err, deep)
-	}
+	assertFoundRoot(t, deep, deep, "marker in $HOME and above it")
 	write(t, filepath.Join(home, "src", "ws", ".engws.yml"), "pins: []\n")
-	if got, err := FindRoot(deep); err != nil || got != filepath.Join(home, "src", "ws") {
-		t.Fatalf("marker below $HOME: got %s, %v", got, err)
-	}
+	assertFoundRoot(t, deep, filepath.Join(home, "src", "ws"), "marker below $HOME")
 	// $HOME given as a symlink to the real home: the search from the real
 	// path still stops at the home directory.
 	if err := os.Remove(filepath.Join(home, "src", "ws", ".engws.yml")); err != nil {
@@ -267,8 +273,14 @@ func TestFindRootStopsAtHome(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Setenv("HOME", link)
-	if got, err := FindRoot(deep); err != nil || got != deep {
-		t.Fatalf("symlinked $HOME: got %s, %v; want %s", got, err, deep)
+	assertFoundRoot(t, deep, deep, "symlinked $HOME")
+}
+
+// assertFoundRoot fails unless FindRoot(start) is want without an error.
+func assertFoundRoot(t *testing.T, start, want, what string) {
+	t.Helper()
+	if got, err := FindRoot(start); err != nil || got != want {
+		t.Fatalf("%s: got %s, %v; want %s", what, got, err, want)
 	}
 }
 

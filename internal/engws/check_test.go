@@ -51,16 +51,28 @@ func TestSelectCheckTargetsReverseDependenciesAndTop(t *testing.T) {
 		spec{"top", false, []string{"sys-1", "sys-2"}},
 		spec{"lone", false, []string{"external"}},
 	)
-	got := map[string]string{}
-	for _, target := range SelectCheckTargets(plan) {
-		got[target.Entry.Name] = target.Reason
-	}
-	want := map[string]string{
+	assertTargetReasons(t, SelectCheckTargets(plan), map[string]string{
 		"if-1":  "local",
 		"svc-1": "depends on if-1",
 		"sys-1": "depends on svc-1",
 		"top":   "depends on sys-1",
 		"lone":  "top system",
+	})
+
+	none := planOf(spec{"if-2", false, nil}, spec{"svc-2", false, []string{"if-2"}})
+	targets := SelectCheckTargets(none)
+	if len(targets) != 1 || targets[0].Entry.Name != "svc-2" || targets[0].Reason != "top system" {
+		t.Fatalf("no local set: want only the top system, got %+v", targets)
+	}
+}
+
+// assertTargetReasons fails unless the targets are exactly the wanted names
+// with their reasons.
+func assertTargetReasons(t *testing.T, targets []CheckTarget, want map[string]string) {
+	t.Helper()
+	got := map[string]string{}
+	for _, target := range targets {
+		got[target.Entry.Name] = target.Reason
 	}
 	if len(got) != len(want) {
 		t.Fatalf("got %v, want %v", got, want)
@@ -69,12 +81,6 @@ func TestSelectCheckTargetsReverseDependenciesAndTop(t *testing.T) {
 		if got[name] != reason {
 			t.Fatalf("%s: got %q want %q (all %v)", name, got[name], reason, got)
 		}
-	}
-
-	none := planOf(spec{"if-2", false, nil}, spec{"svc-2", false, []string{"if-2"}})
-	targets := SelectCheckTargets(none)
-	if len(targets) != 1 || targets[0].Entry.Name != "svc-2" || targets[0].Reason != "top system" {
-		t.Fatalf("no local set: want only the top system, got %+v", targets)
 	}
 }
 
@@ -88,22 +94,23 @@ func TestCheckRunsLibraryCheckAndFailsOnErrors(t *testing.T) {
 	bad := checkout(t, root, "if-b")
 	reg := allPublished("if-a", "if-b")
 	code, out, errOut := runMain(t, reg, "--root", root, "check", "--in-process")
-	if code != 0 || !strings.Contains(out, "ok   if-a (0 errors") || !strings.Contains(out, "ok   if-b") {
+	if code != 0 {
 		t.Fatalf("clean check: %d\n%s\n%s", code, out, errOut)
 	}
+	assertAllIn(t, "clean check", out, "ok   if-a (0 errors", "ok   if-b")
 	// A dangling trace link in if-b makes it local (dirty) and failing.
 	write(t, filepath.Join(bad, "src", "x.go"), "// ENGMODEL-OWNER-UNIT: FU-X\npackage x\n\n// TRLC-LINKS: REQ-NOPE-404\nfunc X() {}\n")
 	code, out, _ = runMain(t, reg, "--root", root, "check", "--in-process")
-	if code != 1 || !strings.Contains(out, "FAIL if-b (") || !strings.Contains(out, "[error]") {
+	if code != 1 {
 		t.Fatalf("broken check: %d\n%s", code, out)
 	}
-	if !strings.Contains(out, "ok   if-a (0 errors, 2 warnings) [library; top system]") {
-		t.Fatalf("if-a is a top system and must still pass:\n%s", out)
-	}
+	assertAllIn(t, "broken check", out, "FAIL if-b (", "[error]")
+	assertAllIn(t, "if-a is a top system and must still pass", out, "ok   if-a (0 errors, 2 warnings) [library; top system]")
 	code, out, _ = runMain(t, reg, "--root", root, "check", "--in-process", "--summary")
-	if code != 1 || strings.Contains(out, "[error]") {
-		t.Fatalf("--summary prints only lines: %d\n%s", code, out)
+	if code != 1 {
+		t.Fatalf("--summary exit: %d\n%s", code, out)
 	}
+	assertNoneIn(t, "--summary prints only lines", out, "[error]")
 	assertClean(t, good)
 }
 

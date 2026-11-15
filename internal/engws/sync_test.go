@@ -32,34 +32,58 @@ func TestSyncWritesRootFilesOnlyForLocalCheckouts(t *testing.T) {
 	write(t, filepath.Join(b, "go.mod"), "module example.com/go/svc-b\n\ngo 1.25\n")
 	runGit(t, b, "add", "go.mod")
 	runGit(t, b, "commit", "-q", "-m", "go") // untagged -> local
-	code, out, errOut := runMain(t, allPublished("if-a", "svc-b"), "--root", root, "sync")
+	out, _ := syncOK(t, allPublished("if-a", "svc-b"), root)
+	assertSyncedWorkFile(t, root)
+	assertAllIn(t, "go.work", read(t, filepath.Join(root, GoWorkFileName)), "\t./svc-b\n", "\t./if-a\n", "\ngo 1.")
+	assertAllIn(t, "sync output", out, "1 local of 2")
+	assertClean(t, a)
+	assertClean(t, b)
+}
+
+// syncOK runs engws sync with extra arguments and fails the test unless it exits 0.
+func syncOK(t *testing.T, registry Registry, root string, extra ...string) (out, errOut string) {
+	t.Helper()
+	code, out, errOut := runMain(t, registry, append([]string{"--root", root, "sync"}, extra...)...)
 	if code != 0 {
 		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
 	}
-	work, err := os.ReadFile(filepath.Join(root, model.WorkspaceFileName))
-	if err != nil {
-		t.Fatal(err)
+	return out, errOut
+}
+
+// assertAllIn fails unless text contains every part.
+func assertAllIn(t *testing.T, what, text string, parts ...string) {
+	t.Helper()
+	for _, part := range parts {
+		if !strings.Contains(text, part) {
+			t.Fatalf("%s lacks %q:\n%s", what, part, text)
+		}
 	}
-	if !strings.HasPrefix(string(work), "# "+generatedHeader+"\nschemaVersion: 3\n") ||
-		!strings.Contains(string(work), "module: "+modulePathOf("svc-b")+"\n    path: ./svc-b") ||
-		strings.Contains(string(work), "if-a") {
-		t.Fatalf("work file:\n%s", work)
+}
+
+// assertNoneIn fails when text contains any part.
+func assertNoneIn(t *testing.T, what, text string, parts ...string) {
+	t.Helper()
+	for _, part := range parts {
+		if strings.Contains(text, part) {
+			t.Fatalf("%s has %q:\n%s", what, part, text)
+		}
 	}
-	if _, err := model.LoadWorkspace(filepath.Join(root, model.WorkspaceFileName)); err != nil {
+}
+
+// assertSyncedWorkFile checks the work file of the local-only sync test: the
+// generated header, the local checkout and not the published one.
+func assertSyncedWorkFile(t *testing.T, root string) {
+	t.Helper()
+	path := filepath.Join(root, model.WorkspaceFileName)
+	work := read(t, path)
+	if !strings.HasPrefix(work, "# "+generatedHeader+"\nschemaVersion: 3\n") {
+		t.Fatalf("work file header:\n%s", work)
+	}
+	assertAllIn(t, "work file", work, "module: "+modulePathOf("svc-b")+"\n    path: ./svc-b")
+	assertNoneIn(t, "work file", work, "if-a")
+	if _, err := model.LoadWorkspace(path); err != nil {
 		t.Fatalf("library rejects work file: %v", err)
 	}
-	goWork, err := os.ReadFile(filepath.Join(root, GoWorkFileName))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(goWork), "\t./svc-b\n") || !strings.Contains(string(goWork), "\t./if-a\n") || !strings.Contains(string(goWork), "\ngo 1.") {
-		t.Fatalf("go.work:\n%s", goWork)
-	}
-	if !strings.Contains(out, "1 local of 2") {
-		t.Fatalf("sync output:\n%s", out)
-	}
-	assertClean(t, a)
-	assertClean(t, b)
 }
 
 // go.work is removed when no checkout has go.mod, and the work file then
@@ -107,18 +131,11 @@ func TestSyncAllListsEveryCheckout(t *testing.T) {
 func TestSyncRefusesHandWrittenWorkFiles(t *testing.T) {
 	for _, name := range []string{model.WorkspaceFileName, GoWorkFileName} {
 		t.Run(name, func(t *testing.T) {
-			root := t.TempDir()
-			checkout(t, root, "if-a")
-			hand := "# mine\nschemaVersion: 3\nreplacements: []\n"
-			write(t, filepath.Join(root, name), hand)
-			plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
-			if err != nil {
-				t.Fatal(err)
-			}
+			root, plan := handWrittenRoot(t, name)
 			if _, err := Sync(plan, "1.25.0", false); !errors.Is(err, ErrHandWritten) {
 				t.Fatalf("want ErrHandWritten, got %v", err)
 			}
-			if data, _ := os.ReadFile(filepath.Join(root, name)); string(data) != hand {
+			if got := read(t, filepath.Join(root, name)); got != handWrittenContent {
 				t.Fatalf("%s overwritten", name)
 			}
 			if code, _, _ := runMain(t, allPublished("if-a"), "--root", root, "sync"); code != 1 {
@@ -129,6 +146,21 @@ func TestSyncRefusesHandWrittenWorkFiles(t *testing.T) {
 			}
 		})
 	}
+}
+
+const handWrittenContent = "# mine\nschemaVersion: 3\nreplacements: []\n"
+
+// handWrittenRoot is a root with one checkout and a hand-written file name.
+func handWrittenRoot(t *testing.T, name string) (string, Plan) {
+	t.Helper()
+	root := t.TempDir()
+	checkout(t, root, "if-a")
+	write(t, filepath.Join(root, name), handWrittenContent)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return root, plan
 }
 
 // A local checkout at another version than a consumer pins is SKEW; status
@@ -150,14 +182,32 @@ func TestSkewReportsConsumerAliasPinnedLocal(t *testing.T) {
 		t.Fatal(errOut)
 	}
 	code, out, _ := runMain(t, reg, "--root", root, "skew")
-	if code != 1 || !strings.HasPrefix(out, "SKEW svc-b ia v0.2.1 v0.1.0 ") || strings.Contains(out, "svc-c") {
+	if code != 1 || !strings.HasPrefix(out, "SKEW svc-b ia v0.2.1 v0.1.0 ") {
 		t.Fatalf("skew: %d\n%s", code, out)
 	}
-	if code, out, _ := runMain(t, reg, "--root", root, "status"); code != 1 || !strings.Contains(out, "SKEW svc-b") {
-		t.Fatalf("status: %d\n%s", code, out)
-	}
-	if code, out, _ := runMain(t, reg, "--root", root, "sync"); code != 0 || !strings.Contains(out, "SKEW svc-b") {
-		t.Fatalf("sync: %d\n%s", code, out)
+	assertNoneIn(t, "skew", out, "svc-c")
+	assertExitAndOutput(t, runMainResult(t, reg, "--root", root, "status"), 1, "SKEW svc-b")
+	assertExitAndOutput(t, runMainResult(t, reg, "--root", root, "sync"), 0, "SKEW svc-b")
+}
+
+// mainResult is the exit code and standard output of one CLI run.
+type mainResult struct {
+	code int
+	out  string
+}
+
+// runMainResult runs the CLI and keeps the exit code and standard output.
+func runMainResult(t *testing.T, registry Registry, args ...string) mainResult {
+	t.Helper()
+	code, out, _ := runMain(t, registry, args...)
+	return mainResult{code: code, out: out}
+}
+
+// assertExitAndOutput fails unless the run exited with code and printed want.
+func assertExitAndOutput(t *testing.T, got mainResult, code int, want string) {
+	t.Helper()
+	if got.code != code || !strings.Contains(got.out, want) {
+		t.Fatalf("want exit %d with %q, got %d\n%s", code, want, got.code, got.out)
 	}
 }
 
@@ -231,26 +281,21 @@ func TestSyncSkipsUnsafeModulePathsAndDirectoryNames(t *testing.T) {
 	write(t, filepath.Join(good, "go.mod"), "module example.com/go/if-a\n\ngo 1.25\n")
 	badPath := filepath.Join(root, "if-b")
 	writeModel(t, badPath, "if-b", "v0.1.0")
-	manifest, _ := os.ReadFile(filepath.Join(badPath, "engmod.yml"))
-	write(t, filepath.Join(badPath, "engmod.yml"), strings.Replace(string(manifest), "  path: "+modulePathOf("if-b")+"\n", "  path: \"x@v0\\n    path: /etc\"\n", 1))
+	manifest := read(t, filepath.Join(badPath, "engmod.yml"))
+	write(t, filepath.Join(badPath, "engmod.yml"), strings.Replace(manifest, "  path: "+modulePathOf("if-b")+"\n", "  path: \"x@v0\\n    path: /etc\"\n", 1))
 	badDir := filepath.Join(root, "if c")
 	writeModel(t, badDir, "if-c", "v0.1.0")
 	write(t, filepath.Join(badDir, "go.mod"), "module example.com/go/if-c\n\ngo 1.25\n")
-	code, out, errOut := runMain(t, allPublished(), "--root", root, "sync", "--all")
-	if code != 0 {
-		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
-	}
-	work, _ := os.ReadFile(filepath.Join(root, model.WorkspaceFileName))
-	goWork, _ := os.ReadFile(filepath.Join(root, GoWorkFileName))
-	if strings.Contains(string(work), "/etc") || strings.Contains(string(work), "if c") || strings.Contains(string(goWork), "if c") || !strings.Contains(string(work), "./if-a") {
-		t.Fatalf("unsafe checkout written:\n%s\n%s", work, goWork)
-	}
+	out, errOut := syncOK(t, allPublished(), root, "--all")
+	work := read(t, filepath.Join(root, model.WorkspaceFileName))
+	goWork := read(t, filepath.Join(root, GoWorkFileName))
+	assertNoneIn(t, "work file", work, "/etc", "if c")
+	assertNoneIn(t, "go.work", goWork, "if c")
+	assertAllIn(t, "work file", work, "./if-a")
 	if _, err := model.LoadWorkspace(filepath.Join(root, model.WorkspaceFileName)); err != nil {
 		t.Fatalf("work file invalid: %v", err)
 	}
-	if !strings.Contains(out+errOut, "warning: if-b: module.path") || !strings.Contains(out+errOut, `warning: skipping "if c"`) {
-		t.Fatalf("missing warnings:\n%s\n%s", out, errOut)
-	}
+	assertAllIn(t, "warnings", out+errOut, "warning: if-b: module.path", `warning: skipping "if c"`)
 }
 
 // go.work replaces every workspace Go module at each version a checkout
@@ -264,6 +309,26 @@ func TestSyncSkipsUnsafeModulePathsAndDirectoryNames(t *testing.T) {
 func TestSyncReplacesRequiredVersionsOfWorkspaceModules(t *testing.T) {
 	goProxy(t, "example.com/third@v1.0.0")
 	root := t.TempDir()
+	svcB := writeReplaceFamily(t, root)
+	syncOK(t, allPublished("if-a", "svc-b", "svc-c"), root)
+	text := read(t, filepath.Join(root, GoWorkFileName))
+	if !strings.HasPrefix(text, "// "+generatedHeader+"\n") || strings.Count(text, "=>") != 1 {
+		t.Fatalf("go.work:\n%s", text)
+	}
+	assertAllIn(t, "go.work", text, "replace example.com/go/if-a v0.1.0 => ./if-a\n")
+	t.Setenv("GOWORK", filepath.Join(root, GoWorkFileName))
+	build := exec.Command("go", "build", "-o", os.DevNull, ".")
+	build.Dir = svcB
+	if out, err := build.CombinedOutput(); err != nil {
+		t.Fatalf("go build under the generated go.work: %v\n%s\ngo.work:\n%s", err, out, text)
+	}
+}
+
+// writeReplaceFamily writes if-a (requires a third-party module), svc-b (uses
+// if-a) and svc-c (requires if-a at the same version), commits them and returns
+// the directory of svc-b.
+func writeReplaceFamily(t *testing.T, root string) string {
+	t.Helper()
 	ifA := checkout(t, root, "if-a")
 	write(t, filepath.Join(ifA, "go.mod"), "module example.com/go/if-a\n\ngo 1.25\n\nrequire example.com/third v1.0.0\n")
 	write(t, filepath.Join(ifA, "a.go"), "package a\n\nimport _ \"example.com/third\"\n\nfunc A() string { return \"a\" }\n")
@@ -278,24 +343,7 @@ func TestSyncReplacesRequiredVersionsOfWorkspaceModules(t *testing.T) {
 		runGit(t, dir, "add", ".")
 		runGit(t, dir, "commit", "-q", "-m", "go")
 	}
-	if code, out, errOut := runMain(t, allPublished("if-a", "svc-b", "svc-c"), "--root", root, "sync"); code != 0 {
-		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
-	}
-	goWork, err := os.ReadFile(filepath.Join(root, GoWorkFileName))
-	if err != nil {
-		t.Fatal(err)
-	}
-	text := string(goWork)
-	if !strings.HasPrefix(text, "// "+generatedHeader+"\n") || strings.Count(text, "=>") != 1 ||
-		!strings.Contains(text, "replace example.com/go/if-a v0.1.0 => ./if-a\n") {
-		t.Fatalf("go.work:\n%s", text)
-	}
-	t.Setenv("GOWORK", filepath.Join(root, GoWorkFileName))
-	build := exec.Command("go", "build", "-o", os.DevNull, ".")
-	build.Dir = svcB
-	if out, err := build.CombinedOutput(); err != nil {
-		t.Fatalf("go build under the generated go.work: %v\n%s\ngo.work:\n%s", err, out, text)
-	}
+	return svcB
 }
 
 // go.work gets one replace per distinct required version: two consumers
@@ -338,18 +386,9 @@ func TestSyncRejectsGoModPathsWithLineBreaks(t *testing.T) {
 	write(t, filepath.Join(ifA, "go.mod"), "module \"example.com/go/if-a\\nuse /etc\"\n\ngo 1.25\n")
 	svcB := checkout(t, root, "svc-b", dep{"ia", "if-a", "v0.1.0"})
 	write(t, filepath.Join(svcB, "go.mod"), "module example.com/go/svc-b\n\ngo 1.25\n\nrequire \"example.com/go/svc-b\\nuse /etc\" v0.1.0\n")
-	code, out, errOut := runMain(t, allPublished("if-a", "svc-b"), "--root", root, "sync", "--all")
-	if code != 0 {
-		t.Fatalf("sync: %d\n%s\n%s", code, out, errOut)
-	}
-	goWork, err := os.ReadFile(filepath.Join(root, GoWorkFileName))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if strings.Contains(string(goWork), "/etc") || strings.Contains(string(goWork), "./if-a") || !strings.Contains(string(goWork), "\t./svc-b\n") {
-		t.Fatalf("go.work carries an unsafe go.mod path:\n%s", goWork)
-	}
-	if !strings.Contains(out+errOut, "warning: if-a: go.mod module path") || !strings.Contains(out+errOut, "warning: svc-b: go.mod require") {
-		t.Fatalf("missing warnings:\n%s\n%s", out, errOut)
-	}
+	out, errOut := syncOK(t, allPublished("if-a", "svc-b"), root, "--all")
+	goWork := read(t, filepath.Join(root, GoWorkFileName))
+	assertNoneIn(t, "go.work", goWork, "/etc", "./if-a")
+	assertAllIn(t, "go.work", goWork, "\t./svc-b\n")
+	assertAllIn(t, "warnings", out+errOut, "warning: if-a: go.mod module path", "warning: svc-b: go.mod require")
 }
