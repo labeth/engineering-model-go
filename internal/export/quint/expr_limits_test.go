@@ -119,11 +119,22 @@ func TestRenderingDeepChainKeepsErrorsPrecise(t *testing.T) {
 	if _, _, p := r.expr(e); p == nil || p.code != codeUnresolved || !strings.Contains(p.msg, `"zz"`) {
 		t.Fatalf("problem = %v", p)
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-141
+func TestRenderingTypeMismatchNamesTheOperatorAndOperand(t *testing.T) {
+	r := limitsRenderer()
 	// A type mismatch is found at the operator that sees it, with its operand text.
 	bad := opNode("+", leftChain(10), opNode("<", leafVar("a"), leafVar("a")))
 	if _, _, p := r.expr(bad); p == nil || p.code != codeType || !strings.Contains(p.msg, "needs Integer for operand 2") {
 		t.Fatalf("problem = %v", p)
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-141
+func TestRenderingFailureDiscardsThePartialResult(t *testing.T) {
+	r := limitsRenderer()
+	bad := opNode("+", leftChain(10), opNode("<", leafVar("a"), leafVar("a")))
 	// The result of a failed render is discarded, never partially returned.
 	if text, typ, p := r.expr(bad); p == nil || text != "" || typ != "" {
 		t.Fatalf("partial result %q %q", text, typ)

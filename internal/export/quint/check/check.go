@@ -245,71 +245,124 @@ type checker struct {
 // ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
 func Check(opts CheckOptions) (CheckReport, error) {
 	var report CheckReport
+	err := runCheck(opts, &report)
+	return report, err
+}
+
+// plannedModules are the freshly generated modules to check and the drift of
+// each committed module file by name.
+type plannedModules struct {
+	files []quint.File
+	drift map[string]string
+}
+
+// runCheck is Check on a report the caller keeps even when the check fails.
+//
+// TRLC-LINKS: REQ-EMG-142, REQ-EMG-143, REQ-EMG-144, REQ-EMG-145, REQ-EMG-146
+func runCheck(opts CheckOptions, report *CheckReport) error {
 	opts, err := withDefaults(opts)
 	if err != nil {
-		return report, err
+		return err
 	}
+	plan, proceed, err := planCheck(opts, report)
+	if err != nil || !proceed {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(opts.Context, opts.Timeout)
+	defer cancel()
+	c := newChecker(ctx, opts)
+	if err := c.prepare(); err != nil {
+		return err
+	}
+	defer os.RemoveAll(c.scratch)
+	report.QuintVersion = c.version
+	for _, file := range plan.files {
+		module, err := c.checkModule(file, plan.drift[file.Name])
+		if err != nil {
+			return err
+		}
+		report.Modules = append(report.Modules, module)
+	}
+	return c.writeOutputs(report)
+}
+
+// planCheck generates the modules in memory and compares them with the
+// committed ones. proceed is false when the check ends here: the model does
+// not generate, it has no machines, or an error occurred.
+//
+// TRLC-LINKS: REQ-EMG-142, REQ-EMG-145, REQ-EMG-146
+func planCheck(opts CheckOptions, report *CheckReport) (plan plannedModules, proceed bool, err error) {
 	bundle, err := model.LoadBundle(opts.ModelPath)
 	if err != nil {
-		return report, setupError(err, "load model %s", opts.ModelPath)
+		return plan, false, setupError(err, "load model %s", opts.ModelPath)
 	}
 	generated, genErr := quint.Generate(bundle)
 	if genErr != nil {
-		for _, d := range generated.Diagnostics {
-			if d.Severity == model.SemanticSeverityError {
-				report.GenerationErrors = append(report.GenerationErrors, fmt.Sprintf("%s: %s (%s)", d.Code, d.Message, d.Path))
-			}
-		}
-		if len(report.GenerationErrors) == 0 {
-			report.GenerationErrors = []string{genErr.Error()}
-		}
-		return report, dropEvidence(opts, &report)
+		report.GenerationErrors = generationErrors(generated, genErr)
+		return plan, false, dropEvidence(opts, report)
 	}
-
 	drifts, moduleDrift, err := compareWithCommitted(opts.OutDir, generated.Files)
 	if err != nil {
-		return report, setupError(err, "read generated modules in %s", opts.OutDir)
+		return plan, false, setupError(err, "read generated modules in %s", opts.OutDir)
 	}
 	report.Drift = drifts
 	if len(generated.Files) == 0 {
 		report.NoMachines = len(drifts) == 0
-		return report, dropEvidence(opts, &report)
+		return plan, false, dropEvidence(opts, report)
 	}
+	return plannedModules{files: generated.Files, drift: moduleDrift}, true, nil
+}
 
-	ctx, cancel := context.WithTimeout(opts.Context, opts.Timeout)
-	defer cancel()
-	c := &checker{ctx: ctx, opts: opts, run: opts.Runner, modelDir: filepath.Dir(opts.ModelPath)}
-	c.running = opts.Mode == ModeRun || opts.Mode == ModeBoth
-	c.verifying = opts.Mode == ModeVerify || opts.Mode == ModeBoth
-	c.env = allowEnv(os.Environ(), opts.PassEnv, false)
-	c.verifyBaseEnv = allowEnv(os.Environ(), opts.PassEnv, true)
-	if err := c.prepare(); err != nil {
-		return report, err
-	}
-	defer os.RemoveAll(c.scratch)
-	report.QuintVersion = c.version
-
-	for _, file := range generated.Files {
-		module, err := c.checkModule(file, moduleDrift[file.Name])
-		if err != nil {
-			return report, err
+// generationErrors lists the error diagnostics of a failed generation, or the
+// generation error itself when it has none.
+//
+// TRLC-LINKS: REQ-EMG-142
+func generationErrors(generated quint.Result, genErr error) []string {
+	var errs []string
+	for _, d := range generated.Diagnostics {
+		if d.Severity == model.SemanticSeverityError {
+			errs = append(errs, fmt.Sprintf("%s: %s (%s)", d.Code, d.Message, d.Path))
 		}
-		report.Modules = append(report.Modules, module)
 	}
+	if len(errs) == 0 {
+		errs = []string{genErr.Error()}
+	}
+	return errs
+}
 
-	if err := writeResults(opts.ResultsPath, report.Modules); err != nil {
-		return report, fmt.Errorf("write results: %w", err)
+// newChecker creates the checker of one check run with its allow-listed
+// environments.
+//
+// TRLC-LINKS: REQ-EMG-142, REQ-EMG-144
+func newChecker(ctx context.Context, opts CheckOptions) *checker {
+	return &checker{
+		ctx: ctx, opts: opts, run: opts.Runner, modelDir: filepath.Dir(opts.ModelPath),
+		running:       opts.Mode == ModeRun || opts.Mode == ModeBoth,
+		verifying:     opts.Mode == ModeVerify || opts.Mode == ModeBoth,
+		env:           allowEnv(os.Environ(), opts.PassEnv, false),
+		verifyBaseEnv: allowEnv(os.Environ(), opts.PassEnv, true),
 	}
-	report.ResultsPath = opts.ResultsPath
-	if !opts.NoEvidence {
-		entries := evidenceEntries(report.Modules)
-		if err := writeEvidence(opts.EvidencePath, c.version, entries); err != nil {
-			return report, fmt.Errorf("write evidence: %w", err)
-		}
-		report.EvidencePath = opts.EvidencePath
-		report.EvidenceEntries = len(entries)
+}
+
+// writeOutputs writes the results file and, unless suppressed, the evidence
+// file, and records them in the report.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func (c *checker) writeOutputs(report *CheckReport) error {
+	if err := writeResults(c.opts.ResultsPath, report.Modules); err != nil {
+		return fmt.Errorf("write results: %w", err)
 	}
-	return report, nil
+	report.ResultsPath = c.opts.ResultsPath
+	if c.opts.NoEvidence {
+		return nil
+	}
+	entries := evidenceEntries(report.Modules)
+	if err := writeEvidence(c.opts.EvidencePath, c.version, entries); err != nil {
+		return fmt.Errorf("write evidence: %w", err)
+	}
+	report.EvidencePath = c.opts.EvidencePath
+	report.EvidenceEntries = len(entries)
+	return nil
 }
 
 // dropEvidence is the evidence rule of a check that ends before any module is
@@ -345,14 +398,39 @@ func withDefaults(opts CheckOptions) (CheckOptions, error) {
 		return opts, setupError(err, "resolve model path")
 	}
 	opts.ModelPath = abs
-	modelDir := filepath.Dir(abs)
+	for _, step := range []func(*CheckOptions) error{defaultMode, defaultBounds, defaultPaths, defaultQuintHome, defaultRuntime} {
+		if err := step(&opts); err != nil {
+			return opts, err
+		}
+	}
+	return opts, nil
+}
+
+// defaultMode selects run when no mode is given and rejects an unknown one.
+//
+// TRLC-LINKS: REQ-EMG-142
+func defaultMode(opts *CheckOptions) error {
 	switch opts.Mode {
 	case "":
 		opts.Mode = ModeRun
 	case ModeRun, ModeVerify, ModeBoth:
 	default:
-		return opts, setupError(nil, "unknown mode %q (run, verify or both)", opts.Mode)
+		return setupError(nil, "unknown mode %q (run, verify or both)", opts.Mode)
 	}
+	return nil
+}
+
+// searchBound is one search bound with its largest allowed value.
+type searchBound struct {
+	name         string
+	value, limit int
+}
+
+// defaultBounds fills the search bounds and the seed and rejects a bound above
+// its limit.
+//
+// TRLC-LINKS: REQ-EMG-142
+func defaultBounds(opts *CheckOptions) error {
 	if opts.MaxSteps <= 0 {
 		opts.MaxSteps = DefaultMaxSteps
 	}
@@ -362,22 +440,28 @@ func withDefaults(opts CheckOptions) (CheckOptions, error) {
 	if opts.VerifySteps <= 0 {
 		opts.VerifySteps = DefaultVerifySteps
 	}
-	for _, bound := range []struct {
-		name         string
-		value, limit int
-	}{{"max-steps", opts.MaxSteps, MaxStepsLimit}, {"max-samples", opts.MaxSamples, MaxSamplesLimit}, {"verify-steps", opts.VerifySteps, MaxVerifyStepsLimit}} {
+	for _, bound := range []searchBound{{"max-steps", opts.MaxSteps, MaxStepsLimit}, {"max-samples", opts.MaxSamples, MaxSamplesLimit}, {"verify-steps", opts.VerifySteps, MaxVerifyStepsLimit}} {
 		if bound.value > bound.limit {
-			return opts, setupError(nil, "%s %d is above the maximum %d", bound.name, bound.value, bound.limit)
+			return setupError(nil, "%s %d is above the maximum %d", bound.name, bound.value, bound.limit)
 		}
 	}
 	if strings.TrimSpace(opts.Seed) == "" {
 		opts.Seed = DefaultSeed
 	}
+	return nil
+}
+
+// defaultPaths fills the output directory and the results and evidence paths.
+//
+// TRLC-LINKS: REQ-EMG-142
+func defaultPaths(opts *CheckOptions) error {
+	modelDir := filepath.Dir(opts.ModelPath)
 	if opts.OutDir == "" {
 		opts.OutDir = filepath.Join(modelDir, "generated", "quint")
 	}
+	var err error
 	if opts.OutDir, err = filepath.Abs(opts.OutDir); err != nil {
-		return opts, setupError(err, "resolve output directory")
+		return setupError(err, "resolve output directory")
 	}
 	if opts.ResultsPath == "" {
 		opts.ResultsPath = filepath.Join(opts.OutDir, "results.json")
@@ -385,22 +469,46 @@ func withDefaults(opts CheckOptions) (CheckOptions, error) {
 	if opts.EvidencePath == "" {
 		opts.EvidencePath = filepath.Join(modelDir, "test-results", "quint-formal.json")
 	}
+	return nil
+}
+
+// defaultQuintHome takes the Quint home from the environment and makes it
+// absolute.
+//
+// TRLC-LINKS: REQ-EMG-142
+func defaultQuintHome(opts *CheckOptions) error {
 	if opts.QuintHome == "" {
 		opts.QuintHome = os.Getenv(QuintHomeEnv)
 	}
-	if opts.QuintHome != "" {
-		if opts.QuintHome, err = filepath.Abs(opts.QuintHome); err != nil {
-			return opts, setupError(err, "resolve Quint home")
-		}
+	if opts.QuintHome == "" {
+		return nil
 	}
+	var err error
+	if opts.QuintHome, err = filepath.Abs(opts.QuintHome); err != nil {
+		return setupError(err, "resolve Quint home")
+	}
+	return nil
+}
+
+// defaultRuntime fills the runner, the context and the time and output limits.
+//
+// TRLC-LINKS: REQ-EMG-142
+func defaultRuntime(opts *CheckOptions) error {
 	if opts.Runner == nil {
 		opts.Runner = ExecRunner
 	}
 	if opts.Context == nil {
 		opts.Context = context.Background()
 	}
+	return defaultLimits(opts)
+}
+
+// defaultLimits fills the time and output limits and rejects a negative one.
+//
+// TRLC-LINKS: REQ-EMG-142
+func defaultLimits(opts *CheckOptions) error {
 	if opts.Timeout < 0 || opts.CallTimeout < 0 || opts.MaxOutput < 0 {
-		return opts, setupError(nil, "timeouts and the output limit must not be negative")
+		return setupError(nil, "timeouts and the output limit must not be negative")
 	}
 	if opts.Timeout == 0 {
 		opts.Timeout = DefaultTimeout
@@ -411,7 +519,7 @@ func withDefaults(opts CheckOptions) (CheckOptions, error) {
 	if opts.MaxOutput == 0 {
 		opts.MaxOutput = DefaultMaxOutput
 	}
-	return opts, nil
+	return nil
 }
 
 // prepare resolves the tools, checks the verify prerequisites and creates the
@@ -425,35 +533,67 @@ func (c *checker) prepare() error {
 	}
 	c.quint = path
 	if c.verifying {
-		if strings.TrimSpace(c.opts.QuintHome) == "" {
-			return setupError(nil, "verify mode needs the pre-provisioned Apalache: set %s or pass --quint-home (%s)", QuintHomeEnv, installHint)
-		}
-		c.apalache = apalacheMC(c.opts.QuintHome)
-		if info, statErr := os.Stat(c.apalache); statErr != nil || info.IsDir() {
-			return setupError(statErr, "Apalache %s is not provisioned under %s (%s); engquint never downloads it", ApalacheVersion, c.opts.QuintHome, installHint)
-		}
-		if c.javaDir, err = resolveJava(c.ctx, c.run); err != nil {
+		if err := c.locateApalache(); err != nil {
 			return err
 		}
 	}
+	if err := c.makeScratch(); err != nil {
+		return err
+	}
+	if err := c.readVersion(); err != nil {
+		os.RemoveAll(c.scratch)
+		return err
+	}
+	return nil
+}
+
+// locateApalache checks the pre-provisioned Apalache and Java that verify
+// mode needs.
+//
+// TRLC-LINKS: REQ-EMG-142, REQ-EMG-144
+func (c *checker) locateApalache() error {
+	if strings.TrimSpace(c.opts.QuintHome) == "" {
+		return setupError(nil, "verify mode needs the pre-provisioned Apalache: set %s or pass --quint-home (%s)", QuintHomeEnv, installHint)
+	}
+	c.apalache = apalacheMC(c.opts.QuintHome)
+	if info, statErr := os.Stat(c.apalache); statErr != nil || info.IsDir() {
+		return setupError(statErr, "Apalache %s is not provisioned under %s (%s); engquint never downloads it", ApalacheVersion, c.opts.QuintHome, installHint)
+	}
+	var err error
+	c.javaDir, err = resolveJava(c.ctx, c.run)
+	return err
+}
+
+// makeScratch creates the scratch directory and, in verify mode, writes the
+// Apalache configuration into it.
+//
+// TRLC-LINKS: REQ-EMG-142, REQ-EMG-144
+func (c *checker) makeScratch() error {
+	var err error
 	if c.scratch, err = os.MkdirTemp("", "engquint-"); err != nil {
 		return setupError(err, "create scratch directory")
 	}
-	if c.verifying {
-		c.apalacheConfig = filepath.Join(c.scratch, "apalache.json")
-		if err := os.WriteFile(c.apalacheConfig, []byte(apalacheConfigJSON), 0o644); err != nil {
-			os.RemoveAll(c.scratch)
-			return setupError(err, "write the Apalache configuration")
-		}
+	if !c.verifying {
+		return nil
 	}
+	c.apalacheConfig = filepath.Join(c.scratch, "apalache.json")
+	if err := os.WriteFile(c.apalacheConfig, []byte(apalacheConfigJSON), 0o644); err != nil {
+		os.RemoveAll(c.scratch)
+		return setupError(err, "write the Apalache configuration")
+	}
+	return nil
+}
+
+// readVersion records the version the quint executable reports.
+//
+// TRLC-LINKS: REQ-EMG-142
+func (c *checker) readVersion() error {
 	out, err := c.call(Command{Path: c.quint, Args: []string{"--version"}, Dir: c.scratch, Env: c.env})
 	if err != nil {
-		os.RemoveAll(c.scratch)
 		return err
 	}
 	c.version = strings.TrimSpace(firstLine(out.Stdout))
 	if out.ExitCode != 0 || c.version == "" {
-		os.RemoveAll(c.scratch)
 		return setupError(nil, "%s --version failed (exit %d)", c.quint, out.ExitCode)
 	}
 	return nil
@@ -487,6 +627,31 @@ func (c *checker) bounds() Bounds {
 // TRLC-LINKS: REQ-EMG-143, REQ-EMG-144, REQ-EMG-145
 func (c *checker) checkModule(file quint.File, drift string) (ModuleResult, error) {
 	path := filepath.Join(c.opts.OutDir, file.Name)
+	m := c.newModuleResult(file, path, drift)
+	if drift != "" {
+		m.setAllStatus(StatusStale)
+		return m, nil
+	}
+	ok, err := c.typecheck(&m, path)
+	if err != nil {
+		return m, err
+	}
+	if !ok {
+		m.setAllStatus(StatusError)
+		return m, nil
+	}
+	if err := c.runSteps(&m, file, path); err != nil {
+		return m, err
+	}
+	finishModule(&m)
+	return m, nil
+}
+
+// newModuleResult starts the result of a module with its identity, the hash of
+// the committed text and an unjudged result per invariant.
+//
+// TRLC-LINKS: REQ-EMG-143, REQ-EMG-144, REQ-EMG-145
+func (c *checker) newModuleResult(file quint.File, path, drift string) ModuleResult {
 	rel, err := filepath.Rel(c.modelDir, path)
 	if err != nil {
 		rel = path
@@ -502,37 +667,32 @@ func (c *checker) checkModule(file quint.File, drift string) (ModuleResult, erro
 	for _, inv := range file.Invariants {
 		m.Invariants = append(m.Invariants, InvariantResult{Name: inv.Name, ID: inv.ID, Requirements: inv.Requirements})
 	}
-	if drift != "" {
-		m.Status = StatusStale
-		for i := range m.Invariants {
-			m.Invariants[i].Status = StatusStale
-		}
-		return m, nil
-	}
+	return m
+}
 
-	ok, err := c.typecheck(&m, path)
-	if err != nil {
-		return m, err
+// setAllStatus gives the module and every invariant one status.
+//
+// TRLC-LINKS: REQ-EMG-145
+func (m *ModuleResult) setAllStatus(status string) {
+	m.Status = status
+	for i := range m.Invariants {
+		m.Invariants[i].Status = status
 	}
-	if !ok {
-		m.Status = StatusError
-		for i := range m.Invariants {
-			m.Invariants[i].Status = StatusError
-		}
-		return m, nil
-	}
+}
+
+// runSteps runs the simulation and the verification the mode asks for.
+//
+// TRLC-LINKS: REQ-EMG-143, REQ-EMG-144
+func (c *checker) runSteps(m *ModuleResult, file quint.File, path string) error {
 	if c.running {
-		if err := c.runModule(&m, file, path); err != nil {
-			return m, err
+		if err := c.runModule(m, file, path); err != nil {
+			return err
 		}
 	}
 	if c.verifying {
-		if err := c.verifyModule(&m, path); err != nil {
-			return m, err
-		}
+		return c.verifyModule(m, path)
 	}
-	finishModule(&m)
-	return m, nil
+	return nil
 }
 
 // finishModule derives the invariant and module statuses from the step

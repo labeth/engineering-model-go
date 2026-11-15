@@ -82,7 +82,7 @@ func GenerateSysMLV2Projection(semantic SemanticModel) (string, []SemanticDiagno
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, IF-CLI-ENGSYSML, DO-SYSML-V2-MODEL, REF-SYSML-V2-TOOLCHAIN
 func ExportSysMLV2Project(architecturePath, projectDir, kparPath, sysandPath string) (SysMLExportResult, error) {
-	return sysml.ExportV2Project(architecturePath, projectDir, kparPath, sysandPath)
+	return sysml.ExportV2Project(architecturePath, sysml.InterchangePaths{Directory: projectDir, KPAR: kparPath, Sysand: sysandPath})
 }
 
 // ReopenSysMLV2Project clones a KPAR with Sysand and returns its native SysML
@@ -90,7 +90,7 @@ func ExportSysMLV2Project(architecturePath, projectDir, kparPath, sysandPath str
 //
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 func ReopenSysMLV2Project(kparPath, reopenedDir, sysandPath string) (SysMLRoundTripResult, error) {
-	return sysml.ReopenV2Project(kparPath, reopenedDir, sysandPath)
+	return sysml.ReopenV2Project(sysml.InterchangePaths{Directory: reopenedDir, KPAR: kparPath, Sysand: sysandPath})
 }
 
 // VerifySysMLV2RoundTrip compares the reopened KPAR source to a fresh native
@@ -98,7 +98,7 @@ func ReopenSysMLV2Project(kparPath, reopenedDir, sysandPath string) (SysMLRoundT
 //
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 func VerifySysMLV2RoundTrip(architecturePath, kparPath, reopenedDir, sysandPath string) (SysMLRoundTripResult, error) {
-	return sysml.VerifyV2RoundTrip(architecturePath, kparPath, reopenedDir, sysandPath)
+	return sysml.VerifyV2RoundTrip(architecturePath, sysml.InterchangePaths{Directory: reopenedDir, KPAR: kparPath, Sysand: sysandPath})
 }
 
 // ImportSysMLV2Project reconstructs the canonical semantic model from legacy

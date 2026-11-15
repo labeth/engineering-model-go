@@ -20,7 +20,14 @@ func TestGemaraOSCALBridge(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load bundle: %v", err)
 	}
+	assertOSCALCatalogBridge(t, bundle, opts)
+	assertOSCALAssessmentResultsBridge(t, bundle, opts)
+}
 
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func assertOSCALCatalogBridge(t *testing.T, bundle model.Bundle, opts Options) {
+	t.Helper()
 	catJSON, err := GenerateOSCALCatalog(bundle, opts)
 	if err != nil {
 		t.Fatalf("oscal catalog: %v", err)
@@ -39,29 +46,45 @@ func TestGemaraOSCALBridge(t *testing.T) {
 	if _, ok := cat["catalog"]; !ok {
 		t.Fatalf("oscal catalog missing 'catalog' root: keys=%v", keysOf(cat))
 	}
+}
 
-	arJSON, err := GenerateOSCALAssessmentResults(bundle, bundle.Requirements, "", opts)
+// generateDeterministicAR renders the OSCAL assessment results twice and
+// requires the same document.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func generateDeterministicAR(t *testing.T, bundle model.Bundle, opts Options) string {
+	t.Helper()
+	arJSON, err := GenerateOSCALAssessmentResults(bundle, bundle.Requirements, EvalRun{CodeRoot: "", Options: opts})
 	if err != nil {
 		t.Fatalf("oscal assessment results: %v", err)
 	}
-	repeatedAR, err := GenerateOSCALAssessmentResults(bundle, bundle.Requirements, "", opts)
+	repeatedAR, err := GenerateOSCALAssessmentResults(bundle, bundle.Requirements, EvalRun{CodeRoot: "", Options: opts})
 	if err != nil {
 		t.Fatalf("repeat OSCAL assessment results: %v", err)
 	}
 	if repeatedAR != arJSON {
 		t.Fatal("Gemara OSCAL assessment-results generation is not deterministic")
 	}
-	if arJSON != "" {
-		var ar map[string]json.RawMessage
-		if err := json.Unmarshal([]byte(arJSON), &ar); err != nil {
-			t.Fatalf("oscal AR not valid JSON: %v", err)
-		}
-		if _, ok := ar["assessment-results"]; !ok {
-			t.Fatalf("oscal AR missing 'assessment-results' root: keys=%v", keysOf(ar))
-		}
-		if strings.Contains(arJSON, `"reason": "Needs Review"`) {
-			t.Fatalf("expected token-normalized finding reason, got: %s", arJSON)
-		}
+	return arJSON
+}
+
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func assertOSCALAssessmentResultsBridge(t *testing.T, bundle model.Bundle, opts Options) {
+	t.Helper()
+	arJSON := generateDeterministicAR(t, bundle, opts)
+	if arJSON == "" {
+		return
+	}
+	var ar map[string]json.RawMessage
+	if err := json.Unmarshal([]byte(arJSON), &ar); err != nil {
+		t.Fatalf("oscal AR not valid JSON: %v", err)
+	}
+	if _, ok := ar["assessment-results"]; !ok {
+		t.Fatalf("oscal AR missing 'assessment-results' root: keys=%v", keysOf(ar))
+	}
+	if strings.Contains(arJSON, `"reason": "Needs Review"`) {
+		t.Fatalf("expected token-normalized finding reason, got: %s", arJSON)
 	}
 }
 

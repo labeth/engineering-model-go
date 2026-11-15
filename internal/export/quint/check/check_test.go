@@ -49,7 +49,7 @@ func newEnv(t *testing.T) env {
 		t.Fatal(err)
 	}
 	e.quint = filepath.Join(dir, "bin", "quint")
-	writeFile(t, e.quint, string(script), 0o755)
+	writeExecutable(t, e.quint, string(script))
 	e.log = filepath.Join(dir, "fake-quint.log")
 	t.Setenv("FAKE_QUINT_LOG", e.log)
 	for _, name := range fakeEnvNames[1:] {
@@ -82,13 +82,47 @@ func (e env) calls(t *testing.T, sub string) []string {
 	return out
 }
 
-func writeFile(t *testing.T, path, content string, mode os.FileMode) {
+func writeFile(t *testing.T, path, content string) {
+	t.Helper()
+	makeParentDir(t, path)
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// writeExecutable writes an executable script.
+func writeExecutable(t *testing.T, path, content string) {
+	t.Helper()
+	makeParentDir(t, path)
+	if err := os.WriteFile(path, []byte(content), 0o755); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func makeParentDir(t *testing.T, path string) {
 	t.Helper()
 	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(path, []byte(content), mode); err != nil {
-		t.Fatal(err)
+}
+
+// requireAll reports every wanted fragment that text lacks.
+func requireAll(t *testing.T, text string, wants ...string) {
+	t.Helper()
+	for _, want := range wants {
+		if !strings.Contains(text, want) {
+			t.Errorf("lacks %s in:\n%s", want, text)
+		}
+	}
+}
+
+// requireNone reports every banned fragment that text holds.
+func requireNone(t *testing.T, text string, banned ...string) {
+	t.Helper()
+	for _, b := range banned {
+		if strings.Contains(text, b) {
+			t.Errorf("holds %q in:\n%s", b, text)
+		}
 	}
 }
 
@@ -136,7 +170,7 @@ func generateInto(t *testing.T, manifest, dir string) quint.Result {
 		t.Fatalf("generate: %v %+v", err, result.Diagnostics)
 	}
 	for _, f := range result.Files {
-		writeFile(t, filepath.Join(dir, f.Name), f.Text, 0o644)
+		writeFile(t, filepath.Join(dir, f.Name), f.Text)
 	}
 	return result
 }
@@ -177,53 +211,63 @@ func TestCheckRunModePassesAndRecordsResults(t *testing.T) {
 	if report.Failed() || report.NoMachines || report.QuintVersion != "0.33.1" {
 		t.Fatalf("report %+v", report)
 	}
+	checkRunCalls(t, e)
+	checkPassingModule(t, report.Modules[0])
+	checkResultsFile(t, readFile(t, report.ResultsPath))
+	if report.EvidenceEntries != 3 || !strings.Contains(evidenceOf(t, e), `"status": "pass"`) {
+		t.Errorf("evidence: %d entries\n%s", report.EvidenceEntries, evidenceOf(t, e))
+	}
+}
+
+// checkRunCalls checks the quint calls of a run mode check: one witnesses run,
+// one run per invariant and no verify.
+func checkRunCalls(t *testing.T, e env) {
+	t.Helper()
 	runs := e.calls(t, "run")
 	if len(runs) != 3 {
 		t.Fatalf("want 1 witnesses run + 2 invariant runs, got %d: %v", len(runs), runs)
 	}
 	for _, run := range runs {
-		for _, want := range []string{"backend=typescript", "main=sm_payments_auth", "seed=1", "samples=10000", "steps=20"} {
-			if !strings.Contains(run, want) {
-				t.Errorf("run lacks %s: %s", want, run)
-			}
-		}
+		requireAll(t, run, "backend=typescript", "main=sm_payments_auth", "seed=1", "samples=10000", "steps=20")
 	}
-	if !strings.Contains(runs[0], "wits=[wit_state_payments_idle wit_state_payments_authorizing wit_state_payments_authorized wit_state_payments_declined]") {
-		t.Errorf("first run is not the witnesses run: %s", runs[0])
-	}
-	if !strings.Contains(runs[1], "inv=inv_payments_001") || !strings.Contains(runs[2], "inv=inv_payments_002") {
-		t.Errorf("invariant runs: %v", runs[1:])
-	}
+	requireAll(t, runs[0], "wits=[wit_state_payments_idle wit_state_payments_authorizing wit_state_payments_authorized wit_state_payments_declined]")
+	requireAll(t, runs[1], "inv=inv_payments_001")
+	requireAll(t, runs[2], "inv=inv_payments_002")
 	if len(e.calls(t, "verify")) != 0 {
 		t.Error("verify ran in run mode")
 	}
+}
 
-	m := report.Modules[0]
-	if m.Status != StatusPass || m.Machine != "SM-PAYMENTS-AUTH" || m.Backend != "typescript" || m.QntSha256 == "" || len(m.Witnesses) != 4 {
+func checkPassingModule(t *testing.T, m ModuleResult) {
+	t.Helper()
+	if m.Status != StatusPass || m.Machine != "SM-PAYMENTS-AUTH" || m.Backend != "typescript" {
 		t.Fatalf("module %+v", m)
 	}
-	inv := invariant(t, m, "INV-PAYMENTS-002")
-	if inv.Run == nil || inv.Run.Status != StatusPass || *inv.Run.TraceMax != 7 || inv.Verify != nil || len(inv.Requirements) != 2 {
+	if m.QntSha256 == "" || len(m.Witnesses) != 4 {
+		t.Fatalf("module %+v", m)
+	}
+	checkPassingInvariant(t, invariant(t, m, "INV-PAYMENTS-002"))
+}
+
+func checkPassingInvariant(t *testing.T, inv InvariantResult) {
+	t.Helper()
+	if inv.Run == nil || inv.Run.Status != StatusPass || *inv.Run.TraceMax != 7 {
 		t.Fatalf("invariant %+v", inv)
 	}
-
-	results := readFile(t, report.ResultsPath)
-	for _, want := range []string{`"schema": "engmod-quint-results/1"`, `"quintVersion": "0.33.1"`, `"backend": "typescript"`, `"maxSteps": 20`, `"seed": "1"`, `"qntSha256"`, `"witnessed": 17`} {
-		if !strings.Contains(results, want) {
-			t.Errorf("results.json lacks %s", want)
-		}
+	if inv.Verify != nil || len(inv.Requirements) != 2 {
+		t.Fatalf("invariant %+v", inv)
 	}
+}
+
+// checkResultsFile checks the content of results.json: its fields, and no
+// timing, timestamp or duration.
+func checkResultsFile(t *testing.T, results string) {
+	t.Helper()
+	requireAll(t, results, `"schema": "engmod-quint-results/1"`, `"quintVersion": "0.33.1"`, `"backend": "typescript"`, `"maxSteps": 20`, `"seed": "1"`, `"qntSha256"`, `"witnessed": 17`)
 	if timing := regexp.MustCompile(`\d+ms`).FindString(results); timing != "" {
 		t.Errorf("results.json contains the timing %q:\n%s", timing, results)
 	}
-	for _, banned := range []string{"timestamp", "duration"} {
-		if strings.Contains(results, banned) {
-			t.Errorf("results.json contains %q:\n%s", banned, results)
-		}
-	}
-	if report.EvidenceEntries != 3 || !strings.Contains(evidenceOf(t, e), `"status": "pass"`) {
-		t.Errorf("evidence: %d entries\n%s", report.EvidenceEntries, evidenceOf(t, e))
-	}
+	requireNone(t, results, "timestamp", "duration")
 }
 
 // TRLC-LINKS: REQ-EMG-145
@@ -250,25 +294,29 @@ func TestCheckViolationMapsCounterexampleToOrderedTransitionIDs(t *testing.T) {
 	if m.Status != StatusViolated {
 		t.Fatalf("module status %q", m.Status)
 	}
-	bad := invariant(t, m, "INV-PAYMENTS-001")
-	want := []string{"TR-PAYMENTS-001", "TR-PAYMENTS-003", "TR-PAYMENTS-001"}
-	if bad.Status != StatusViolated || strings.Join(bad.Run.Counterexample, ",") != strings.Join(want, ",") || bad.Run.ExitCode != 1 {
-		t.Fatalf("violated invariant %+v run %+v", bad, bad.Run)
-	}
-	if got := FormatCounterexample(*bad.Run); got != "TR-PAYMENTS-001 -> TR-PAYMENTS-003 -> TR-PAYMENTS-001" {
-		t.Errorf("formatted %q", got)
-	}
+	checkViolatedInvariant(t, invariant(t, m, "INV-PAYMENTS-001"))
 	if good := invariant(t, m, "INV-PAYMENTS-002"); good.Status != StatusPass {
 		t.Errorf("the other invariant must be attributed separately: %+v", good)
 	}
 	// The violation is evidence: a fail entry for its requirement and pass
 	// entries for the passing invariant.
 	evidence := evidenceOf(t, e)
-	if !strings.Contains(evidence, `"status": "fail"`) || !strings.Contains(evidence, "TR-PAYMENTS-001 -> TR-PAYMENTS-003 -> TR-PAYMENTS-001") {
-		t.Errorf("evidence lacks the fail entry:\n%s", evidence)
-	}
+	requireAll(t, evidence, `"status": "fail"`, "TR-PAYMENTS-001 -> TR-PAYMENTS-003 -> TR-PAYMENTS-001")
 	if strings.Count(evidence, `"status": "pass"`) != 2 {
 		t.Errorf("evidence should hold two pass entries:\n%s", evidence)
+	}
+}
+
+func checkViolatedInvariant(t *testing.T, bad InvariantResult) {
+	t.Helper()
+	if bad.Status != StatusViolated || bad.Run.ExitCode != 1 {
+		t.Fatalf("violated invariant %+v run %+v", bad, bad.Run)
+	}
+	if got := strings.Join(bad.Run.Counterexample, ","); got != "TR-PAYMENTS-001,TR-PAYMENTS-003,TR-PAYMENTS-001" {
+		t.Fatalf("counterexample %q", got)
+	}
+	if got := FormatCounterexample(*bad.Run); got != "TR-PAYMENTS-001 -> TR-PAYMENTS-003 -> TR-PAYMENTS-001" {
+		t.Errorf("formatted %q", got)
 	}
 }
 
@@ -337,9 +385,11 @@ func TestCheckRuntimeErrorIsAnErrorWithoutTimings(t *testing.T) {
 	e := newEnv(t)
 	t.Setenv("FAKE_QUINT_RUNTIME_ERR", "inv_payments_002")
 	report := mustCheck(t, e.opts())
-	m := report.Modules[0]
-	inv := invariant(t, m, "INV-PAYMENTS-002")
-	if !report.Failed() || inv.Status != StatusError || !strings.Contains(inv.Run.Message, "QNT502") || strings.Contains(inv.Run.Message, "12ms") {
+	inv := invariant(t, report.Modules[0], "INV-PAYMENTS-002")
+	if !report.Failed() || inv.Status != StatusError {
+		t.Fatalf("invariant %+v run %+v", inv, inv.Run)
+	}
+	if !strings.Contains(inv.Run.Message, "QNT502") || strings.Contains(inv.Run.Message, "12ms") {
 		t.Fatalf("invariant %+v run %+v", inv, inv.Run)
 	}
 	if report.EvidenceEntries != 0 {
@@ -409,7 +459,7 @@ func TestCheckUnloadableModelIsASetupError(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-142
 func TestCheckModelWithoutMachinesWritesNothingAndNeedsNoTool(t *testing.T) {
 	e := newEnv(t)
-	writeFile(t, filepath.Join(filepath.Dir(e.manifest), "model", "behavior.yml"), "schemaVersion: 3\nbehavior:\n  machines: []\n", 0o644)
+	writeFile(t, filepath.Join(filepath.Dir(e.manifest), "model", "behavior.yml"), "schemaVersion: 3\nbehavior:\n  machines: []\n")
 	out := filepath.Join(t.TempDir(), "q")
 	evidence := filepath.Join(t.TempDir(), "quint-formal.json")
 	report := mustCheck(t, CheckOptions{ModelPath: e.manifest, QuintPath: "/nonexistent/quint", OutDir: out, EvidencePath: evidence})
@@ -430,15 +480,15 @@ func TestCheckModelWithoutMachinesWritesNothingAndNeedsNoTool(t *testing.T) {
 func TestCheckDriftIsStaleRunsNothingAndWritesNoEvidence(t *testing.T) {
 	e := newEnv(t)
 	module := filepath.Join(e.outDir, "sm_payments_auth.qnt")
-	writeFile(t, module, readFile(t, module)+"// hand edit\n", 0o644)
+	writeFile(t, module, readFile(t, module)+"// hand edit\n")
 	report := mustCheck(t, e.opts())
-	if !report.Failed() || len(report.Drift) != 1 || report.Drift[0] != (Drift{File: "sm_payments_auth.qnt", Kind: "changed"}) {
+	if !report.Failed() || len(report.Drift) != 1 {
 		t.Fatalf("drift %+v", report.Drift)
 	}
-	m := report.Modules[0]
-	if m.Status != StatusStale || m.Drift != "changed" || invariant(t, m, "INV-PAYMENTS-001").Status != StatusStale {
-		t.Fatalf("module %+v", m)
+	if report.Drift[0] != (Drift{File: "sm_payments_auth.qnt", Kind: "changed"}) {
+		t.Fatalf("drift %+v", report.Drift)
 	}
+	checkStaleModule(t, report.Modules[0])
 	if len(e.calls(t, "run"))+len(e.calls(t, "typecheck")) != 0 {
 		t.Error("a drifted module was typechecked or run")
 	}
@@ -447,25 +497,49 @@ func TestCheckDriftIsStaleRunsNothingAndWritesNoEvidence(t *testing.T) {
 	}
 }
 
+func checkStaleModule(t *testing.T, m ModuleResult) {
+	t.Helper()
+	if m.Status != StatusStale || m.Drift != "changed" || invariant(t, m, "INV-PAYMENTS-001").Status != StatusStale {
+		t.Fatalf("module %+v", m)
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-145, REQ-EMG-149
 func TestCheckMissingAndExtraGeneratedModulesAreDrift(t *testing.T) {
 	e := newEnv(t)
 	extra := filepath.Join(e.outDir, "sm_gone.qnt")
-	writeFile(t, extra, quint.GeneratedHeader+"SM-GONE; do not edit.\nmodule sm_gone {}\n", 0o644)
-	writeFile(t, filepath.Join(e.outDir, "notes.qnt"), "// hand written\nmodule notes {}\n", 0o644)
-	report := mustCheck(t, e.opts())
-	if len(report.Drift) != 1 || report.Drift[0] != (Drift{File: "sm_gone.qnt", Kind: "extra"}) || !report.Failed() {
+	writeFile(t, extra, quint.GeneratedHeader+"SM-GONE; do not edit.\nmodule sm_gone {}\n")
+	writeFile(t, filepath.Join(e.outDir, "notes.qnt"), "// hand written\nmodule notes {}\n")
+	checkExtraModuleIsDrift(t, mustCheck(t, e.opts()))
+	removeFile(t, extra)
+	removeFile(t, filepath.Join(e.outDir, "sm_payments_auth.qnt"))
+	checkMissingModuleIsDrift(t, mustCheck(t, e.opts()))
+}
+
+func checkExtraModuleIsDrift(t *testing.T, report CheckReport) {
+	t.Helper()
+	if len(report.Drift) != 1 || !report.Failed() {
 		t.Fatalf("extra: %+v", report.Drift)
 	}
-	if err := os.Remove(extra); err != nil {
-		t.Fatal(err)
+	if report.Drift[0] != (Drift{File: "sm_gone.qnt", Kind: "extra"}) {
+		t.Fatalf("extra: %+v", report.Drift)
 	}
-	if err := os.Remove(filepath.Join(e.outDir, "sm_payments_auth.qnt")); err != nil {
-		t.Fatal(err)
+}
+
+func checkMissingModuleIsDrift(t *testing.T, report CheckReport) {
+	t.Helper()
+	if len(report.Drift) != 1 || report.Drift[0].Kind != "missing" {
+		t.Fatalf("missing: %+v", report.Drift)
 	}
-	report = mustCheck(t, e.opts())
-	if len(report.Drift) != 1 || report.Drift[0].Kind != "missing" || report.Modules[0].Status != StatusStale || report.Modules[0].QntSha256 != "" {
-		t.Fatalf("missing: %+v %+v", report.Drift, report.Modules[0])
+	if report.Modules[0].Status != StatusStale || report.Modules[0].QntSha256 != "" {
+		t.Fatalf("missing: %+v", report.Modules[0])
+	}
+}
+
+func removeFile(t *testing.T, path string) {
+	t.Helper()
+	if err := os.Remove(path); err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -480,7 +554,7 @@ func TestCheckRewritesEvidenceAndHonoursNoEvidence(t *testing.T) {
 		t.Fatal("first check wrote no evidence")
 	}
 	module := filepath.Join(e.outDir, "sm_payments_auth.qnt")
-	writeFile(t, module, readFile(t, module)+"\n", 0o644)
+	writeFile(t, module, readFile(t, module)+"\n")
 	mustCheck(t, e.opts())
 	if strings.Contains(evidenceOf(t, e), "REQ-PAYMENTS-002") {
 		t.Fatalf("stale evidence survived a drift:\n%s", evidenceOf(t, e))
@@ -559,7 +633,7 @@ func TestCheckFailedRunnerStartIsASetupError(t *testing.T) {
 func TestGenerationErrorIsReportedNotRun(t *testing.T) {
 	e := newEnv(t)
 	behavior := filepath.Join(filepath.Dir(e.manifest), "model", "behavior.yml")
-	writeFile(t, behavior, strings.Replace(readFile(t, behavior), "guard: attempts < 3\n      effect", "guard: attempts <\n      effect", 1), 0o644)
+	writeFile(t, behavior, strings.Replace(readFile(t, behavior), "guard: attempts < 3\n      effect", "guard: attempts <\n      effect", 1))
 	report := mustCheck(t, e.opts())
 	if !report.Failed() || len(report.GenerationErrors) == 0 || !strings.Contains(report.GenerationErrors[0], "semantic.invalid_expression") {
 		t.Fatalf("report %+v", report)

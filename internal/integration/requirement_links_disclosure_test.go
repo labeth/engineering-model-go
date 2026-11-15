@@ -81,7 +81,7 @@ func TestRequirementLinksChildDisclosesNoUser(t *testing.T) {
 	for kind, doc := range res.YAML {
 		assertNoDisclosure(t, "Gemara "+kind+" of child-a", doc, markers)
 	}
-	eval, err := gemara.GenerateEvaluationLog(bundle, bundle.Requirements, childDir, gemara.Options{})
+	eval, err := gemara.GenerateEvaluationLog(bundle, bundle.Requirements, gemara.EvalRun{CodeRoot: childDir})
 	if err != nil {
 		t.Fatal(err)
 	}

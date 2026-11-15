@@ -32,28 +32,51 @@ type EvaluationResult struct {
 	HasContent    bool // false when there is nothing to evaluate (no controls)
 }
 
+// FileInputs names the files a *FromFiles generator loads and the code root
+// that locates the test-results directory beside the code.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type FileInputs struct {
+	ArchitecturePath string
+	RequirementsPath string
+	CodeRoot         string
+}
+
+// EvalRun configures one evaluation run: codeRoot locates the test-results
+// directory beside the code for formal evidence, options stamp the metadata.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type EvalRun struct {
+	CodeRoot string
+	Options  Options
+}
+
 // GenerateEvaluationLogFromFiles loads inputs and renders the Evaluation Log.
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func GenerateEvaluationLogFromFiles(architecturePath, requirementsPath, codeRoot string, options Options) (EvaluationResult, error) {
-	bundle, err := codescan.LoadBundle(architecturePath)
+func GenerateEvaluationLogFromFiles(in FileInputs, options Options) (EvaluationResult, error) {
+	bundle, err := loadEvaluationBundle(in)
 	if err != nil {
 		return EvaluationResult{}, err
 	}
-	var requirements model.RequirementsDocument
-	if strings.TrimSpace(requirementsPath) != "" {
-		requirements, err = model.LoadRequirements(requirementsPath)
+	return GenerateEvaluationLog(bundle, bundle.Requirements, EvalRun{CodeRoot: in.CodeRoot, Options: options})
+}
+
+// loadEvaluationBundle loads the architecture, the optional requirements file
+// and the composition-enriched bundle of a *FromFiles generator.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func loadEvaluationBundle(in FileInputs) (model.Bundle, error) {
+	bundle, err := codescan.LoadBundle(in.ArchitecturePath)
+	if err != nil {
+		return model.Bundle{}, err
+	}
+	if strings.TrimSpace(in.RequirementsPath) != "" {
+		requirements, err := model.LoadRequirements(in.RequirementsPath)
 		if err != nil {
-			return EvaluationResult{}, err
+			return model.Bundle{}, err
 		}
 		bundle.Requirements = requirements
 	}
-	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
-	if err != nil {
-		return EvaluationResult{}, err
-	}
-	requirements = bundle.Requirements
-	return GenerateEvaluationLog(bundle, requirements, codeRoot, options)
+	return composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
 }
 
 // gemaraInferredStep is a record-only assessment step. Its name is serialized as
@@ -65,25 +88,21 @@ func gemaraInferredStep(payload interface{}) (gemaraproj.Result, string, gemarap
 }
 
 // GenerateEvaluationLog builds an L5 Evaluation Log from the model bundle.
-// requirements is reserved for inferred-verification augmentation; codeRoot
+// requirements is reserved for inferred-verification augmentation; run.CodeRoot
 // locates the test-results directory beside the code for formal evidence. A
 // requirement with a formal (Quint) result adds a requirement-keyed entry
 // (gemara_formal.go); a model without formal evidence adds none.
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036, REQ-EMG-147
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func GenerateEvaluationLog(bundle model.Bundle, requirements model.RequirementsDocument, codeRoot string, options Options) (EvaluationResult, error) {
+func GenerateEvaluationLog(bundle model.Bundle, requirements model.RequirementsDocument, run EvalRun) (EvaluationResult, error) {
 	bundle.Requirements = requirements
-	modelRoot := ""
-	if bundle.ManifestPath != "" || bundle.ArchitecturePath != "" {
-		modelRoot = codescan.ModelRootDir(bundle)
-	}
+	modelRoot := evaluationModelRoot(bundle)
 	canonical, err := model.NewCanonicalBundle(bundle)
 	if err != nil {
 		return EvaluationResult{}, err
 	}
 	bundle = canonical.Documents()
-	requirements = bundle.Requirements
-	options, err = resolveGemaraOptions(bundle, options)
+	options, err := resolveGemaraOptions(bundle, run.Options)
 	if err != nil {
 		return EvaluationResult{}, err
 	}
@@ -94,13 +113,56 @@ func GenerateEvaluationLog(bundle model.Bundle, requirements model.RequirementsD
 	if d := normalizeDatetime(options.Date); d != "" {
 		start = d
 	}
-
-	// Group control verifications by control id.
-	verifsByControl := map[string][]model.ControlVerification{}
-	for _, cv := range a.ControlVerifications {
-		verifsByControl[cv.ControlRef] = append(verifsByControl[cv.ControlRef], cv)
+	verifsByControl := groupVerificationsByControl(a.ControlVerifications)
+	log := newEvaluationLog(cfg)
+	aggregate := gemaraproj.NotRun
+	for _, ctrl := range a.Controls {
+		ce := buildControlEvaluation(ctrl, verifsByControl[ctrl.ID], start)
+		log.Evaluations = append(log.Evaluations, ce)
+		aggregate = gemaraproj.UpdateAggregateResult(aggregate, ce.Result)
 	}
 
+	// Requirement-keyed formal (Quint) entries; none without formal evidence.
+	aggregate = appendFormalEvaluations(&log, aggregate, formalScope{ModelRoot: modelRoot, CodeRoot: run.CodeRoot, Start: start})
+	log.Result = aggregate
+
+	if len(log.Evaluations) == 0 {
+		return EvaluationResult{HasContent: false}, nil
+	}
+	out, err := marshalGemara(log)
+	if err != nil {
+		return EvaluationResult{}, fmt.Errorf("marshal gemara evaluation log: %w", err)
+	}
+	return EvaluationResult{EvaluationLog: log, YAML: out, HasContent: true}, nil
+}
+
+// evaluationModelRoot is the directory of the model's documents, empty for a
+// bundle that was not loaded from files.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func evaluationModelRoot(bundle model.Bundle) string {
+	if bundle.ManifestPath == "" && bundle.ArchitecturePath == "" {
+		return ""
+	}
+	return codescan.ModelRootDir(bundle)
+}
+
+// groupVerificationsByControl groups control verifications by control id.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func groupVerificationsByControl(verifications []model.ControlVerification) map[string][]model.ControlVerification {
+	byControl := map[string][]model.ControlVerification{}
+	for _, cv := range verifications {
+		byControl[cv.ControlRef] = append(byControl[cv.ControlRef], cv)
+	}
+	return byControl
+}
+
+// newEvaluationLog is the empty log that references the control catalog the
+// assessment requirements live in.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func newEvaluationLog(cfg gemaraConfig) gemaraproj.EvaluationLog {
 	log := gemaraproj.EvaluationLog{
 		Metadata: cfg.newMetadata(cfg.evaluationLogID(), "Control evaluation results for "+cfg.modelTitle, gemaraproj.EvaluationLogArtifact),
 		Target: gemaraproj.Resource{
@@ -110,91 +172,84 @@ func GenerateEvaluationLog(bundle model.Bundle, requirements model.RequirementsD
 			Description: "Evaluation target: " + cfg.modelTitle,
 		},
 	}
-	// Reference the control catalog the assessment requirements live in.
 	log.Metadata.MappingReferences = []gemaraproj.MappingReference{
 		{Id: gemaraRefControlCatalog, Title: "Control Catalog", Version: Version},
 	}
+	return log
+}
 
-	aggregate := gemaraproj.NotRun
-	for _, ctrl := range a.Controls {
-		verifs := verifsByControl[ctrl.ID]
-		name := textutil.Fallback(ctrl.Name, ctrl.ID)
-
-		var logs []*gemaraproj.AssessmentLog
-		ceResult := gemaraproj.NotRun
-
-		if len(verifs) == 0 {
-			// Synthesize a single not-run assessment for the default requirement.
-			res := gemaraproj.NeedsReview
-			logs = append(logs, &gemaraproj.AssessmentLog{
-				Requirement:   gemaraproj.EntryMapping{ReferenceId: gemaraRefControlCatalog, EntryId: ctrl.ID + "-AR-1"},
-				Description:   "No authored verification for control " + name + "; manual review required.",
-				Result:        res,
-				Message:       "No control verification recorded.",
-				Applicability: []string{"all-systems"},
-				Steps:         []gemaraproj.AssessmentStep{gemaraInferredStep},
-				Start:         gemaraproj.Datetime(start),
-			})
-			ceResult = gemaraproj.UpdateAggregateResult(ceResult, res)
-		} else {
-			for _, cv := range verifs {
-				res := mapVerificationResult(cv.Status)
-				msg := strings.TrimSpace(strings.Join(cv.Findings, "; "))
-				if msg == "" {
-					msg = "Status: " + textutil.Fallback(cv.Status, "unknown")
-				}
-				al := &gemaraproj.AssessmentLog{
-					Requirement:     gemaraproj.EntryMapping{ReferenceId: gemaraRefControlCatalog, EntryId: cv.ID},
-					Description:     fmt.Sprintf("Assessment of %q via %s.", name, textutil.Fallback(cv.Method, "verification")),
-					Result:          res,
-					Message:         msg,
-					Applicability:   []string{"all-systems"},
-					Steps:           []gemaraproj.AssessmentStep{gemaraInferredStep},
-					Start:           gemaraproj.Datetime(start),
-					ConfidenceLevel: confidenceForResult(res),
-				}
-				if res == gemaraproj.Failed && len(cv.Findings) > 0 {
-					al.Recommendation = "Address findings: " + strings.Join(cv.Findings, "; ")
-				}
-				for i, ev := range cv.Evidence {
-					al.Evidence = append(al.Evidence, controlVerificationEvidence(
-						fmt.Sprintf("%s-EV-%d", cv.ID, i+1),
-						start,
-						ev,
-					))
-				}
-				if lt := normalizeDatetime(cv.LastTested); lt != "" {
-					al.End = gemaraproj.Datetime(lt)
-				}
-				logs = append(logs, al)
-				ceResult = gemaraproj.UpdateAggregateResult(ceResult, res)
-			}
-		}
-
-		ce := &gemaraproj.ControlEvaluation{
-			Name:           name,
-			Result:         ceResult,
-			Message:        fmt.Sprintf("%d assessment(s) recorded for control %s.", len(logs), ctrl.ID),
-			Control:        gemaraproj.EntryMapping{ReferenceId: gemaraRefControlCatalog, EntryId: ctrl.ID},
-			AssessmentLogs: logs,
-		}
-		log.Evaluations = append(log.Evaluations, ce)
-		aggregate = gemaraproj.UpdateAggregateResult(aggregate, ceResult)
+// buildControlEvaluation turns the verifications of one control into its
+// ControlEvaluation; a control without verifications gets one needs-review log.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func buildControlEvaluation(ctrl model.Control, verifs []model.ControlVerification, start string) *gemaraproj.ControlEvaluation {
+	name := textutil.Fallback(ctrl.Name, ctrl.ID)
+	var logs []*gemaraproj.AssessmentLog
+	if len(verifs) == 0 {
+		logs = append(logs, unverifiedAssessment(ctrl.ID, name, start))
 	}
-
-	// Requirement-keyed formal (Quint) entries; none without formal evidence.
-	aggregate = appendFormalEvaluations(&log, aggregate, modelRoot, codeRoot, start)
-	log.Result = aggregate
-
-	if len(log.Evaluations) == 0 {
-		return EvaluationResult{HasContent: false}, nil
+	for _, cv := range verifs {
+		logs = append(logs, verificationAssessment(cv, name, start))
 	}
-
-	out, err := marshalGemara(log)
-	if err != nil {
-		return EvaluationResult{}, fmt.Errorf("marshal gemara evaluation log: %w", err)
+	ceResult := gemaraproj.NotRun
+	for _, al := range logs {
+		ceResult = gemaraproj.UpdateAggregateResult(ceResult, al.Result)
 	}
-	return EvaluationResult{EvaluationLog: log, YAML: out, HasContent: true}, nil
+	return &gemaraproj.ControlEvaluation{
+		Name:           name,
+		Result:         ceResult,
+		Message:        fmt.Sprintf("%d assessment(s) recorded for control %s.", len(logs), ctrl.ID),
+		Control:        gemaraproj.EntryMapping{ReferenceId: gemaraRefControlCatalog, EntryId: ctrl.ID},
+		AssessmentLogs: logs,
+	}
+}
+
+// unverifiedAssessment synthesizes the single needs-review assessment of a
+// control without an authored verification.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func unverifiedAssessment(controlID, name, start string) *gemaraproj.AssessmentLog {
+	return &gemaraproj.AssessmentLog{
+		Requirement:   gemaraproj.EntryMapping{ReferenceId: gemaraRefControlCatalog, EntryId: controlID + "-AR-1"},
+		Description:   "No authored verification for control " + name + "; manual review required.",
+		Result:        gemaraproj.NeedsReview,
+		Message:       "No control verification recorded.",
+		Applicability: []string{"all-systems"},
+		Steps:         []gemaraproj.AssessmentStep{gemaraInferredStep},
+		Start:         gemaraproj.Datetime(start),
+	}
+}
+
+// verificationAssessment turns one authored control verification into an
+// assessment log with its evidence.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func verificationAssessment(cv model.ControlVerification, name, start string) *gemaraproj.AssessmentLog {
+	res := mapVerificationResult(cv.Status)
+	msg := strings.TrimSpace(strings.Join(cv.Findings, "; "))
+	if msg == "" {
+		msg = "Status: " + textutil.Fallback(cv.Status, "unknown")
+	}
+	al := &gemaraproj.AssessmentLog{
+		Requirement:     gemaraproj.EntryMapping{ReferenceId: gemaraRefControlCatalog, EntryId: cv.ID},
+		Description:     fmt.Sprintf("Assessment of %q via %s.", name, textutil.Fallback(cv.Method, "verification")),
+		Result:          res,
+		Message:         msg,
+		Applicability:   []string{"all-systems"},
+		Steps:           []gemaraproj.AssessmentStep{gemaraInferredStep},
+		Start:           gemaraproj.Datetime(start),
+		ConfidenceLevel: confidenceForResult(res),
+	}
+	if res == gemaraproj.Failed && len(cv.Findings) > 0 {
+		al.Recommendation = "Address findings: " + strings.Join(cv.Findings, "; ")
+	}
+	for i, ev := range cv.Evidence {
+		al.Evidence = append(al.Evidence, controlVerificationEvidence(fmt.Sprintf("%s-EV-%d", cv.ID, i+1), start, ev))
+	}
+	if lt := normalizeDatetime(cv.LastTested); lt != "" {
+		al.End = gemaraproj.Datetime(lt)
+	}
+	return al
 }
 
 // confidenceForResult maps an assessment result to an evaluator confidence level.

@@ -39,7 +39,7 @@ func breakInvariant(t *testing.T, e env) {
 	if broken == text {
 		t.Fatal("fixture invariant not found")
 	}
-	writeFile(t, behavior, broken, 0o644)
+	writeFile(t, behavior, broken)
 	generateInto(t, e.manifest, e.outDir)
 }
 
@@ -68,23 +68,38 @@ func TestRealQuintRunModeOnTheFixture(t *testing.T) {
 	if report.Failed() {
 		t.Fatalf("the fixture must pass: %+v", report.Modules)
 	}
+	checkRealFixtureModule(t, report)
+	again := mustCheck(t, opts)
+	if readFile(t, report.ResultsPath) != readFile(t, again.ResultsPath) {
+		t.Error("results.json differs between two identical runs")
+	}
+}
+
+func checkRealFixtureModule(t *testing.T, report CheckReport) {
+	t.Helper()
 	m := report.Modules[0]
 	if m.QuintVersion == "" || len(m.Witnesses) != 4 || report.EvidenceEntries != 3 {
 		t.Fatalf("module %+v entries %d", m, report.EvidenceEntries)
 	}
-	for _, w := range m.Witnesses {
+	requireWitnessesReached(t, m.Witnesses)
+	requireRunsPass(t, m.Invariants)
+}
+
+func requireWitnessesReached(t *testing.T, witnesses []WitnessResult) {
+	t.Helper()
+	for _, w := range witnesses {
 		if w.Witnessed == 0 {
 			t.Errorf("state %s is not reached", w.State)
 		}
 	}
-	for _, inv := range m.Invariants {
+}
+
+func requireRunsPass(t *testing.T, invariants []InvariantResult) {
+	t.Helper()
+	for _, inv := range invariants {
 		if inv.Run.Status != StatusPass || inv.Run.TraceMax == nil || *inv.Run.TraceMax < 2 {
 			t.Errorf("%s: %+v", inv.ID, inv.Run)
 		}
-	}
-	again := mustCheck(t, opts)
-	if readFile(t, report.ResultsPath) != readFile(t, again.ResultsPath) {
-		t.Error("results.json differs between two identical runs")
 	}
 }
 
@@ -101,16 +116,23 @@ func TestRealQuintRunModeReportsABrokenInvariantWithItsTransitions(t *testing.T)
 	if bad.Status != StatusViolated || len(bad.Run.Counterexample) == 0 {
 		t.Fatalf("invariant %+v run %+v", bad, bad.Run)
 	}
-	for _, id := range bad.Run.Counterexample {
-		if !strings.HasPrefix(id, "TR-PAYMENTS-00") {
-			t.Errorf("counterexample step %q is not a transition ID", id)
-		}
-	}
+	requireTransitionIDs(t, bad.Run.Counterexample)
 	if bad.Run.Counterexample[0] != "TR-PAYMENTS-001" {
 		t.Errorf("the first step must leave the initial state: %v", bad.Run.Counterexample)
 	}
 	if good := invariant(t, m, "INV-PAYMENTS-002"); good.Status != StatusPass {
 		t.Errorf("the intact invariant must still pass: %+v", good)
+	}
+}
+
+// requireTransitionIDs checks that every step of a counterexample is a
+// transition ID of the fixture.
+func requireTransitionIDs(t *testing.T, ids []string) {
+	t.Helper()
+	for _, id := range ids {
+		if !strings.HasPrefix(id, "TR-PAYMENTS-00") {
+			t.Errorf("counterexample step %q is not a transition ID", id)
+		}
 	}
 }
 
@@ -137,11 +159,7 @@ func TestRealQuintVerifyModeFindsTheCounterexample(t *testing.T) {
 	if !report.Failed() || bad.Verify.Status != StatusViolated || len(bad.Verify.Counterexample) == 0 {
 		t.Fatalf("invariant %+v verify %+v", bad, bad.Verify)
 	}
-	for _, id := range bad.Verify.Counterexample {
-		if !strings.HasPrefix(id, "TR-PAYMENTS-00") {
-			t.Errorf("counterexample step %q is not a transition ID", id)
-		}
-	}
+	requireTransitionIDs(t, bad.Verify.Counterexample)
 	if good := invariant(t, report.Modules[0], "INV-PAYMENTS-002"); good.Status != StatusPass {
 		t.Errorf("the intact invariant must pass (a terminal state is not a deadlock violation): %+v", good)
 	}
@@ -158,38 +176,21 @@ func TestEvidenceFileIsReadByTheCodescanAndTurnsStaleWhenTheModuleChanges(t *tes
 	if err != nil {
 		t.Fatal(err)
 	}
-	formal := func() (codescan.VerificationCheck, bool) {
-		checks, diags := codescan.InferVerificationChecks(bundle, bundle.Requirements, nil, "")
-		stale := false
-		for _, d := range diags {
-			stale = stale || d.Code == "verification.formal_stale"
-		}
-		for _, c := range checks {
-			if c.Kind == "formal" {
-				return c, stale
-			}
-		}
-		t.Fatalf("no formal check in %+v", checks)
-		return codescan.VerificationCheck{}, false
-	}
-
-	c, stale := formal()
+	c, stale := formalCheck(t, bundle)
 	if stale || c.Method != "analysis" || c.Status != "pass" {
 		t.Fatalf("fresh evidence: stale=%v check %+v", stale, c)
 	}
-	passed := 0
-	for _, r := range c.Results {
-		if r.Status == "pass" && strings.HasPrefix(r.Requirement, "REQ-PAYMENTS-00") {
-			passed++
-		}
-	}
-	if passed != 2 {
+	if passed := countPassedPaymentsRequirements(c); passed != 2 {
 		t.Fatalf("want evidence for both requirements: %+v", c.Results)
 	}
-
 	module := filepath.Join(e.outDir, "sm_payments_auth.qnt")
-	writeFile(t, module, readFile(t, module)+"// changed after the check\n", 0o644)
-	c, stale = formal()
+	writeFile(t, module, readFile(t, module)+"// changed after the check\n")
+	checkEvidenceIsStale(t, bundle)
+}
+
+func checkEvidenceIsStale(t *testing.T, bundle model.Bundle) {
+	t.Helper()
+	c, stale := formalCheck(t, bundle)
 	if !stale || c.Status == "pass" {
 		t.Fatalf("a changed module must make the result stale: stale=%v check %+v", stale, c)
 	}
@@ -198,4 +199,32 @@ func TestEvidenceFileIsReadByTheCodescanAndTurnsStaleWhenTheModuleChanges(t *tes
 			t.Errorf("stale result counted as a pass: %+v", r)
 		}
 	}
+}
+
+// formalCheck returns the formal verification check the code scan infers from
+// the evidence file and whether it reported the evidence as stale.
+func formalCheck(t *testing.T, bundle model.Bundle) (codescan.VerificationCheck, bool) {
+	t.Helper()
+	checks, diags := codescan.InferVerificationChecks(bundle, bundle.Requirements, nil, "")
+	stale := false
+	for _, d := range diags {
+		stale = stale || d.Code == "verification.formal_stale"
+	}
+	for _, c := range checks {
+		if c.Kind == "formal" {
+			return c, stale
+		}
+	}
+	t.Fatalf("no formal check in %+v", checks)
+	return codescan.VerificationCheck{}, false
+}
+
+func countPassedPaymentsRequirements(c codescan.VerificationCheck) int {
+	passed := 0
+	for _, r := range c.Results {
+		if r.Status == "pass" && strings.HasPrefix(r.Requirement, "REQ-PAYMENTS-00") {
+			passed++
+		}
+	}
+	return passed
 }

@@ -13,6 +13,23 @@ import (
 	"github.com/labeth/engineering-model-go/internal/testutil"
 )
 
+// expectedSnippet is a substring a generated document must contain and the
+// message reported when it does not.
+type expectedSnippet struct {
+	snippet string
+	message string
+}
+
+// requireContains fails the test at the first expected snippet got lacks.
+func requireContains(t *testing.T, got string, wants []expectedSnippet) {
+	t.Helper()
+	for _, want := range wants {
+		if !strings.Contains(got, want.snippet) {
+			t.Fatal(want.message)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-013, REQ-EMG-050
 func TestGenerateOSCALSSP_FromBundle(t *testing.T) {
 	const lastModified = "2026-09-19T00:00:00Z"
@@ -45,18 +62,12 @@ func TestGenerateOSCALSSP_FromBundle(t *testing.T) {
 	if strings.TrimSpace(res.JSON) == "" {
 		t.Fatalf("expected non-empty ssp json")
 	}
-	if !strings.Contains(res.JSON, "\"system-security-plan\"") {
-		t.Fatalf("expected system-security-plan root in ssp json")
-	}
-	if !strings.Contains(res.JSON, "\"control-id\": \"ac-2\"") {
-		t.Fatalf("expected allocated control id in ssp json")
-	}
-	if !strings.Contains(res.JSON, "\"component-uuid\"") {
-		t.Fatalf("expected component references in ssp json")
-	}
-	if !strings.Contains(res.JSON, "\"last-modified\": \""+lastModified+"\"") {
-		t.Fatalf("expected deterministic last-modified timestamp")
-	}
+	requireContains(t, res.JSON, []expectedSnippet{
+		{"\"system-security-plan\"", "expected system-security-plan root in ssp json"},
+		{"\"control-id\": \"ac-2\"", "expected allocated control id in ssp json"},
+		{"\"component-uuid\"", "expected component references in ssp json"},
+		{"\"last-modified\": \"" + lastModified + "\"", "expected deterministic last-modified timestamp"},
+	})
 
 	var decoded SSPDocument
 	if err := json.Unmarshal([]byte(res.JSON), &decoded); err != nil {

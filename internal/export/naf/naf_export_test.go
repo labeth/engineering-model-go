@@ -40,6 +40,25 @@ func TestGenerateNAFV41UsesCanonicalViews(t *testing.T) {
 	}
 }
 
+// hasMetadata reports whether the element with the given ID carries metadata of the type.
+func hasMetadata(elements []model.SemanticElement, id, metadataType string) bool {
+	for _, element := range elements {
+		if element.ID == id && carriesMetadata(element, metadataType) {
+			return true
+		}
+	}
+	return false
+}
+
+func carriesMetadata(element model.SemanticElement, metadataType string) bool {
+	for _, metadata := range element.Metadata {
+		if metadata.Type == metadataType {
+			return true
+		}
+	}
+	return false
+}
+
 // TRLC-LINKS: REQ-EMG-041
 func TestNAFProfileIsCanonicalMetadata(t *testing.T) {
 	bundle, err := model.LoadBundle("engmod.yml")
@@ -50,18 +69,8 @@ func TestNAFProfileIsCanonicalMetadata(t *testing.T) {
 	if model.HasSemanticErrors(diagnostics) {
 		t.Fatalf("project semantic model: %+v", diagnostics)
 	}
-	foundProfile := false
-	foundViewpoint := false
-	for _, element := range semantic.Elements {
-		for _, metadata := range element.Metadata {
-			if metadata.Type == "naf.profile.v4_1" && element.ID == semantic.ID {
-				foundProfile = true
-			}
-			if metadata.Type == "naf.viewpoint.A2" && element.ID == "VIEW-ARCHITECTURE-INTENT" {
-				foundViewpoint = true
-			}
-		}
-	}
+	foundProfile := hasMetadata(semantic.Elements, semantic.ID, "naf.profile.v4_1")
+	foundViewpoint := hasMetadata(semantic.Elements, "VIEW-ARCHITECTURE-INTENT", "naf.viewpoint.A2")
 	if !foundProfile || !foundViewpoint {
 		t.Fatalf("NAF profile was not projected as metadata: profile=%v viewpoint=%v", foundProfile, foundViewpoint)
 	}
@@ -108,12 +117,18 @@ func TestNAFValidationRejectsInvalidProfile(t *testing.T) {
 			}
 			test.edit(&bundle)
 			diagnostics := validate.Bundle(bundle)
-			for _, diagnostic := range diagnostics {
-				if diagnostic.Code == test.code {
-					return
-				}
+			if !hasDiagnosticCode(diagnostics, test.code) {
+				t.Fatalf("expected diagnostic %q, got %+v", test.code, diagnostics)
 			}
-			t.Fatalf("expected diagnostic %q, got %+v", test.code, diagnostics)
 		})
 	}
+}
+
+func hasDiagnosticCode(diagnostics []validate.Diagnostic, code string) bool {
+	for _, diagnostic := range diagnostics {
+		if diagnostic.Code == code {
+			return true
+		}
+	}
+	return false
 }

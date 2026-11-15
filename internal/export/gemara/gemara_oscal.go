@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	oscalTypes "github.com/defenseunicorns/go-oscal/src/types/oscal-1-1-3"
+	gemaraproj "github.com/gemaraproj/go-gemara"
 	"github.com/gemaraproj/go-gemara/gemaraconv"
 
 	"github.com/labeth/engineering-model-go/internal/codescan"
@@ -85,25 +86,12 @@ func GenerateOSCALCatalog(bundle model.Bundle, options Options) (string, error) 
 // Assessment Results derived from the Gemara evaluation log.
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func GenerateOSCALAssessmentResultsFromFiles(architecturePath, requirementsPath, codeRoot string, options Options) (string, error) {
-	bundle, err := codescan.LoadBundle(architecturePath)
+func GenerateOSCALAssessmentResultsFromFiles(in FileInputs, options Options) (string, error) {
+	bundle, err := loadEvaluationBundle(in)
 	if err != nil {
 		return "", err
 	}
-	var requirements model.RequirementsDocument
-	if requirementsPath != "" {
-		requirements, err = model.LoadRequirements(requirementsPath)
-		if err != nil {
-			return "", err
-		}
-		bundle.Requirements = requirements
-	}
-	bundle, err = composition.EnrichBundleFromComposition(bundle, "architecture", "assurance", "compliance", "requirements")
-	if err != nil {
-		return "", err
-	}
-	requirements = bundle.Requirements
-	return GenerateOSCALAssessmentResults(bundle, requirements, codeRoot, options)
+	return GenerateOSCALAssessmentResults(bundle, bundle.Requirements, EvalRun{CodeRoot: in.CodeRoot, Options: options})
 }
 
 // GenerateOSCALAssessmentResults converts the Gemara Evaluation Log to OSCAL
@@ -111,26 +99,33 @@ func GenerateOSCALAssessmentResultsFromFiles(architecturePath, requirementsPath,
 // to evaluate.
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.RequirementsDocument, codeRoot string, options Options) (string, error) {
+func GenerateOSCALAssessmentResults(bundle model.Bundle, requirements model.RequirementsDocument, run EvalRun) (string, error) {
 	bundle.Requirements = requirements
 	canonical, err := model.NewCanonicalBundle(bundle)
 	if err != nil {
 		return "", err
 	}
 	bundle = canonical.Documents()
-	requirements = bundle.Requirements
-	evalRes, err := GenerateEvaluationLog(bundle, requirements, codeRoot, options)
+	evalRes, err := GenerateEvaluationLog(bundle, bundle.Requirements, run)
 	if err != nil {
 		return "", err
 	}
 	if !evalRes.HasContent {
 		return "", nil
 	}
+	return renderOSCALAssessmentResults(bundle, evalRes.EvaluationLog, run.Options)
+}
+
+// renderOSCALAssessmentResults converts an evaluation log to deterministic OSCAL
+// Assessment Results JSON.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func renderOSCALAssessmentResults(bundle model.Bundle, evalLog gemaraproj.EvaluationLog, options Options) (string, error) {
 	assessmentPlanHref := options.AssessmentPlanHref
 	if assessmentPlanHref == "" {
 		assessmentPlanHref = "#"
 	}
-	ar, err := gemaraconv.EvaluationLogToOSCALAssessmentResults(evalRes.EvaluationLog, gemaraconv.WithImportApHref(assessmentPlanHref))
+	ar, err := gemaraconv.EvaluationLogToOSCALAssessmentResults(evalLog, gemaraconv.WithImportApHref(assessmentPlanHref))
 	if err != nil {
 		return "", err
 	}
@@ -155,39 +150,66 @@ func normalizeGemaraOSCALAssessmentResults(ar *oscalTypes.AssessmentResults) {
 	if ar == nil {
 		return
 	}
-	if ar.BackMatter != nil && ar.BackMatter.Resources != nil {
-		for resourceIndex := range *ar.BackMatter.Resources {
-			resource := &(*ar.BackMatter.Resources)[resourceIndex]
-			resource.Props = nil
-			if resource.Rlinks != nil {
-				links := (*resource.Rlinks)[:0]
-				for _, link := range *resource.Rlinks {
-					if strings.TrimSpace(link.Href) != "" {
-						links = append(links, link)
-					}
-				}
-				if len(links) == 0 {
-					resource.Rlinks = nil
-				} else {
-					resource.Rlinks = &links
-				}
-			}
+	normalizeGemaraOSCALBackMatter(ar.BackMatter)
+	for resultIndex := range ar.Results {
+		normalizeGemaraOSCALResult(&ar.Results[resultIndex])
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-015
+func normalizeGemaraOSCALBackMatter(backMatter *oscalTypes.BackMatter) {
+	if backMatter == nil || backMatter.Resources == nil {
+		return
+	}
+	for resourceIndex := range *backMatter.Resources {
+		normalizeGemaraOSCALResource(&(*backMatter.Resources)[resourceIndex])
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-015
+func normalizeGemaraOSCALResource(resource *oscalTypes.Resource) {
+	resource.Props = nil
+	if resource.Rlinks == nil {
+		return
+	}
+	links := (*resource.Rlinks)[:0]
+	for _, link := range *resource.Rlinks {
+		if strings.TrimSpace(link.Href) != "" {
+			links = append(links, link)
 		}
 	}
-	for resultIndex := range ar.Results {
-		result := &ar.Results[resultIndex]
-		if result.Findings != nil {
-			for findingIndex := range *result.Findings {
-				finding := &(*result.Findings)[findingIndex]
-				normalizeGemaraOSCALOrigins(finding.Origins)
-				finding.Target.Status.Reason = normalizeOSCALToken(finding.Target.Status.Reason)
-			}
-		}
-		if result.Observations != nil {
-			for observationIndex := range *result.Observations {
-				normalizeGemaraOSCALOrigins((*result.Observations)[observationIndex].Origins)
-			}
-		}
+	if len(links) == 0 {
+		resource.Rlinks = nil
+		return
+	}
+	resource.Rlinks = &links
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-015
+func normalizeGemaraOSCALResult(result *oscalTypes.Result) {
+	normalizeGemaraOSCALFindings(result.Findings)
+	normalizeGemaraOSCALObservations(result.Observations)
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-015
+func normalizeGemaraOSCALFindings(findings *[]oscalTypes.Finding) {
+	if findings == nil {
+		return
+	}
+	for findingIndex := range *findings {
+		finding := &(*findings)[findingIndex]
+		normalizeGemaraOSCALOrigins(finding.Origins)
+		finding.Target.Status.Reason = normalizeOSCALToken(finding.Target.Status.Reason)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-015
+func normalizeGemaraOSCALObservations(observations *[]oscalTypes.Observation) {
+	if observations == nil {
+		return
+	}
+	for observationIndex := range *observations {
+		normalizeGemaraOSCALOrigins((*observations)[observationIndex].Origins)
 	}
 }
 
@@ -197,14 +219,19 @@ func normalizeGemaraOSCALOrigins(origins *[]oscalTypes.Origin) {
 		return
 	}
 	for originIndex := range *origins {
-		for actorIndex := range (*origins)[originIndex].Actors {
-			actor := &(*origins)[originIndex].Actors[actorIndex]
-			switch actor.Type {
-			case "assessment-platform", "party", "tool":
-			default:
-				actor.Type = "party"
-			}
+		origin := &(*origins)[originIndex]
+		for actorIndex := range origin.Actors {
+			normalizeGemaraOSCALActorType(&origin.Actors[actorIndex])
 		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-015
+func normalizeGemaraOSCALActorType(actor *oscalTypes.OriginActor) {
+	switch actor.Type {
+	case "assessment-platform", "party", "tool":
+	default:
+		actor.Type = "party"
 	}
 }
 
@@ -214,8 +241,7 @@ func normalizeOSCALToken(value string) string {
 	var token strings.Builder
 	previousDash := false
 	for _, r := range value {
-		valid := r >= 'a' && r <= 'z' || r >= '0' && r <= '9' || r == '.' || r == '_' || r == '-'
-		if valid {
+		if isOSCALTokenRune(r) {
 			token.WriteRune(r)
 			previousDash = r == '-'
 		} else if token.Len() > 0 && !previousDash {
@@ -224,10 +250,20 @@ func normalizeOSCALToken(value string) string {
 		}
 	}
 	normalized := strings.Trim(token.String(), "-")
-	if normalized != "" && normalized[0] >= '0' && normalized[0] <= '9' {
+	if startsWithDigit(normalized) {
 		return "id-" + normalized
 	}
 	return normalized
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-015
+func isOSCALTokenRune(r rune) bool {
+	return isASCIILower(r) || isASCIIDigit(r) || strings.ContainsRune("._-", r)
+}
+
+// TRLC-LINKS: REQ-EMG-013, REQ-EMG-015
+func startsWithDigit(text string) bool {
+	return text != "" && isASCIIDigit(rune(text[0]))
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
@@ -241,125 +277,211 @@ func marshalDeterministicGemaraOSCAL(document any, seed, timestamp string) ([]by
 		return nil, err
 	}
 
-	replacements := map[string]string{}
-	collectGemaraOSCALUUIDs(root, "$", seed, replacements)
-	normalizeGemaraOSCALValues(root, replacements, timestamp)
-	normalizeGemaraOSCALPartyReferences(root, firstGemaraOSCALPartyUUID(root))
+	collector := oscalUUIDCollector{seed: seed, replacements: map[string]string{}}
+	collector.collect(root, "$")
+	oscalValueNormalizer{replacements: collector.replacements, timestamp: timestamp}.normalize(root)
+	oscalPartyRewriter{partyUUID: firstGemaraOSCALPartyUUID(root)}.rewrite(root)
 	return json.MarshalIndent(root, "", "  ")
 }
 
+// oscalUUIDCollector maps every uuid of a document to a deterministic one.
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
-func collectGemaraOSCALUUIDs(value any, path, seed string, replacements map[string]string) {
+type oscalUUIDCollector struct {
+	seed         string
+	replacements map[string]string
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func (c oscalUUIDCollector) collect(value any, path string) {
 	switch typed := value.(type) {
 	case map[string]any:
-		keys := make([]string, 0, len(typed))
-		for key := range typed {
-			keys = append(keys, key)
-		}
-		sort.Strings(keys)
-		for _, key := range keys {
-			childPath := path + "." + key
-			if key == "uuid" {
-				if old, ok := typed[key].(string); ok && old != "" {
-					replacements[old] = textutil.DeterministicUUID("gemara-oscal|" + seed + "|" + path)
-				}
-				continue
-			}
-			collectGemaraOSCALUUIDs(typed[key], childPath, seed, replacements)
-		}
+		c.collectMap(typed, path)
 	case []any:
 		for index, child := range typed {
-			collectGemaraOSCALUUIDs(child, fmt.Sprintf("%s[%d]", path, index), seed, replacements)
+			c.collect(child, fmt.Sprintf("%s[%d]", path, index))
 		}
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
-func normalizeGemaraOSCALValues(value any, replacements map[string]string, timestamp string) {
-	switch typed := value.(type) {
-	case map[string]any:
-		for key, child := range typed {
-			if key == "last-modified" {
-				typed[key] = timestamp
-				continue
-			}
-			if text, ok := child.(string); ok {
-				if replacement, exists := replacements[text]; exists {
-					typed[key] = replacement
-				} else if strings.HasPrefix(text, "#") {
-					if replacement, exists := replacements[strings.TrimPrefix(text, "#")]; exists {
-						typed[key] = "#" + replacement
-					}
-				} else if key == "id" || key == "control-id" || key == "target-id" {
-					typed[key] = normalizeOSCALToken(text)
-				}
-				continue
-			}
-			normalizeGemaraOSCALValues(child, replacements, timestamp)
+func (c oscalUUIDCollector) collectMap(typed map[string]any, path string) {
+	keys := make([]string, 0, len(typed))
+	for key := range typed {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		if key != "uuid" {
+			c.collect(typed[key], path+"."+key)
+			continue
 		}
-	case []any:
-		for index, child := range typed {
-			if text, ok := child.(string); ok {
-				if replacement, exists := replacements[text]; exists {
-					typed[index] = replacement
-				}
-				continue
-			}
-			normalizeGemaraOSCALValues(child, replacements, timestamp)
+		if old, ok := typed[key].(string); ok && old != "" {
+			c.replacements[old] = textutil.DeterministicUUID("gemara-oscal|" + c.seed + "|" + path)
 		}
 	}
+}
+
+// oscalIDKeys are the keys whose string values are normalized to OSCAL tokens.
+var oscalIDKeys = map[string]bool{"id": true, "control-id": true, "target-id": true}
+
+// oscalValueNormalizer replaces uuids and stamps last-modified.
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+type oscalValueNormalizer struct {
+	replacements map[string]string
+	timestamp    string
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func (n oscalValueNormalizer) normalize(value any) {
+	switch typed := value.(type) {
+	case map[string]any:
+		n.normalizeMap(typed)
+	case []any:
+		n.normalizeSlice(typed)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func (n oscalValueNormalizer) normalizeMap(typed map[string]any) {
+	for key, child := range typed {
+		if key == "last-modified" {
+			typed[key] = n.timestamp
+			continue
+		}
+		if text, ok := child.(string); ok {
+			typed[key] = n.normalizeText(key, text)
+			continue
+		}
+		n.normalize(child)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func (n oscalValueNormalizer) normalizeSlice(typed []any) {
+	for index, child := range typed {
+		text, ok := child.(string)
+		if !ok {
+			n.normalize(child)
+			continue
+		}
+		if replacement, exists := n.replacements[text]; exists {
+			typed[index] = replacement
+		}
+	}
+}
+
+// normalizeText is the replacement of one string value, the value itself when
+// nothing applies.
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func (n oscalValueNormalizer) normalizeText(key, text string) string {
+	if replacement, exists := n.replacements[text]; exists {
+		return replacement
+	}
+	if strings.HasPrefix(text, "#") {
+		if replacement, exists := n.replacements[strings.TrimPrefix(text, "#")]; exists {
+			return "#" + replacement
+		}
+		return text
+	}
+	if oscalIDKeys[key] {
+		return normalizeOSCALToken(text)
+	}
+	return text
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
 func firstGemaraOSCALPartyUUID(value any) string {
 	switch typed := value.(type) {
 	case map[string]any:
-		if parties, ok := typed["parties"].([]any); ok && len(parties) > 0 {
-			if party, ok := parties[0].(map[string]any); ok {
-				if id, ok := party["uuid"].(string); ok {
-					return id
-				}
-			}
+		if id, ok := directPartyUUID(typed); ok {
+			return id
 		}
-		for _, child := range typed {
-			if id := firstGemaraOSCALPartyUUID(child); id != "" {
-				return id
-			}
-		}
+		return firstPartyUUIDInMap(typed)
 	case []any:
-		for _, child := range typed {
-			if id := firstGemaraOSCALPartyUUID(child); id != "" {
-				return id
-			}
+		return firstPartyUUIDInSlice(typed)
+	}
+	return ""
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func firstPartyUUIDInMap(children map[string]any) string {
+	for _, child := range children {
+		if id := firstGemaraOSCALPartyUUID(child); id != "" {
+			return id
 		}
 	}
 	return ""
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
-func normalizeGemaraOSCALPartyReferences(value any, partyUUID string) {
-	if partyUUID == "" {
+func firstPartyUUIDInSlice(children []any) string {
+	for _, child := range children {
+		if id := firstGemaraOSCALPartyUUID(child); id != "" {
+			return id
+		}
+	}
+	return ""
+}
+
+// directPartyUUID is the uuid of the first party of a "parties" list, when the
+// object has one.
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func directPartyUUID(object map[string]any) (string, bool) {
+	parties, ok := object["parties"].([]any)
+	if !ok || len(parties) == 0 {
+		return "", false
+	}
+	party, ok := parties[0].(map[string]any)
+	if !ok {
+		return "", false
+	}
+	id, ok := party["uuid"].(string)
+	return id, ok
+}
+
+// oscalPartyRewriter points every party reference at one party.
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+type oscalPartyRewriter struct {
+	partyUUID string
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func (r oscalPartyRewriter) rewrite(value any) {
+	if r.partyUUID == "" {
 		return
 	}
 	switch typed := value.(type) {
 	case map[string]any:
 		for key, child := range typed {
-			switch key {
-			case "actor-uuid", "party-uuid":
-				typed[key] = partyUUID
-			case "party-uuids":
-				if ids, ok := child.([]any); ok {
-					for index := range ids {
-						ids[index] = partyUUID
-					}
-				}
-			default:
-				normalizeGemaraOSCALPartyReferences(child, partyUUID)
-			}
+			r.rewriteKey(typed, key, child)
 		}
 	case []any:
 		for _, child := range typed {
-			normalizeGemaraOSCALPartyReferences(child, partyUUID)
+			r.rewrite(child)
 		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func (r oscalPartyRewriter) rewriteKey(object map[string]any, key string, child any) {
+	switch key {
+	case "actor-uuid", "party-uuid":
+		object[key] = r.partyUUID
+	case "party-uuids":
+		r.setAll(child)
+	default:
+		r.rewrite(child)
+	}
+}
+
+// setAll points every id of a list at the party.
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-015
+func (r oscalPartyRewriter) setAll(list any) {
+	ids, ok := list.([]any)
+	if !ok {
+		return
+	}
+	for index := range ids {
+		ids[index] = r.partyUUID
 	}
 }

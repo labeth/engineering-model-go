@@ -161,6 +161,10 @@ func facadePackages3() []implPackage {
 			"GenerateOSCALAssessmentResultsFromFiles": "GenerateGemaraOSCALAssessmentResultsFromFiles",
 			"CheckCrossReferences":                    "CheckGemaraCrossReferences",
 			"CheckModelConsistency":                   "CheckGemaraModelConsistency",
+		}, internalOnly: []string{
+			// parameter structs of the internal generators; the facade keeps its
+			// positional signatures and builds them.
+			"FileInputs", "EvalRun",
 		}},
 		{dir: filepath.Join("internal", "export", "oscal"), rootName: map[string]string{
 			"SSPOptions": "OSCALSSPOptions", "SSPResult": "OSCALSSPResult",
@@ -203,6 +207,10 @@ func facadePackages4() []implPackage {
 			"VerifyV2RoundTrip":  "VerifySysMLV2RoundTrip",
 			"ImportV2Project":    "ImportSysMLV2Project",
 			"CompareV2RoundTrip": "CompareSysMLV2RoundTrip",
+		}, internalOnly: []string{
+			// the parameter group of the export, reopen and verify functions;
+			// the root functions keep their positional parameters.
+			"InterchangePaths",
 		}},
 		{dir: filepath.Join("internal", "export", "structurizr"), rootName: map[string]string{
 			"Result": "StructurizrExportResult", "GenerateDSL": "GenerateStructurizrDSL",

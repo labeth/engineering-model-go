@@ -52,26 +52,14 @@ func CheckCrossReferences(docs map[string]string) []CrossReferenceError {
 	byID := map[string]*gemaraXrefDoc{}
 	var parsed []*gemaraXrefDoc
 	for _, name := range textutil.SortedKeys(docs) {
-		content := docs[name]
-		if strings.TrimSpace(content) == "" {
-			continue
-		}
-		var root map[string]any
-		if err := goyaml.Unmarshal([]byte(content), &root); err != nil {
+		d, err := parseXrefDoc(name, docs[name])
+		if err != nil {
 			errs = append(errs, CrossReferenceError{Artifact: name, Message: "parse: " + err.Error()})
 			continue
 		}
-		d := &gemaraXrefDoc{name: name, root: root, declared: map[string]bool{}, entries: map[string]bool{}}
-		meta, _ := root["metadata"].(map[string]any)
-		d.id = xrefString(meta["id"])
-		d.typ = xrefString(meta["type"])
-		refs, _ := meta["mapping-references"].([]any)
-		for _, r := range refs {
-			if m, ok := r.(map[string]any); ok {
-				d.declared[xrefString(m["id"])] = true
-			}
+		if d == nil {
+			continue
 		}
-		collectXrefEntries(d)
 		parsed = append(parsed, d)
 		if d.id != "" {
 			byID[d.id] = d
@@ -83,6 +71,31 @@ func CheckCrossReferences(docs map[string]string) []CrossReferenceError {
 	return errs
 }
 
+// parseXrefDoc parses one artifact; a blank document yields nil.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func parseXrefDoc(name, content string) (*gemaraXrefDoc, error) {
+	if strings.TrimSpace(content) == "" {
+		return nil, nil
+	}
+	var root map[string]any
+	if err := goyaml.Unmarshal([]byte(content), &root); err != nil {
+		return nil, err
+	}
+	d := &gemaraXrefDoc{name: name, root: root, declared: map[string]bool{}, entries: map[string]bool{}}
+	meta, _ := root["metadata"].(map[string]any)
+	d.id = xrefString(meta["id"])
+	d.typ = xrefString(meta["type"])
+	refs, _ := meta["mapping-references"].([]any)
+	for _, r := range refs {
+		if m, ok := r.(map[string]any); ok {
+			d.declared[xrefString(m["id"])] = true
+		}
+	}
+	collectXrefEntries(d)
+	return d, nil
+}
+
 // collectXrefEntries gathers the ids other artifacts may cite in d: every `id`
 // outside metadata, and for an Evaluation Log the control and requirement
 // entry ids that key its assessment logs.
@@ -90,43 +103,79 @@ func CheckCrossReferences(docs map[string]string) []CrossReferenceError {
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func collectXrefEntries(d *gemaraXrefDoc) {
 	if d.typ == "EvaluationLog" {
-		evals, _ := d.root["evaluations"].([]any)
-		for _, e := range evals {
-			ce, _ := e.(map[string]any)
-			if c, ok := ce["control"].(map[string]any); ok {
-				d.entries[xrefString(c["entry-id"])] = true
-			}
-			logs, _ := ce["assessment-logs"].([]any)
-			for _, l := range logs {
-				al, _ := l.(map[string]any)
-				if r, ok := al["requirement"].(map[string]any); ok {
-					d.entries[xrefString(r["entry-id"])] = true
-				}
-			}
-		}
+		d.collectEvaluationEntries()
 		return
-	}
-	var walk func(v any)
-	walk = func(v any) {
-		switch t := v.(type) {
-		case map[string]any:
-			if id := xrefString(t["id"]); id != "" {
-				d.entries[id] = true
-			}
-			for _, child := range t {
-				walk(child)
-			}
-		case []any:
-			for _, child := range t {
-				walk(child)
-			}
-		}
 	}
 	for k, v := range d.root {
 		if k != "metadata" {
-			walk(v)
+			d.walkEntries(v)
 		}
 	}
+}
+
+// collectEvaluationEntries cites the entries of every control evaluation.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (d *gemaraXrefDoc) collectEvaluationEntries() {
+	evals, _ := d.root["evaluations"].([]any)
+	for _, e := range evals {
+		d.addEvaluationEntries(xrefMap(e))
+	}
+}
+
+// addEvaluationEntries cites the control and the requirement entry ids of one
+// control evaluation.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (d *gemaraXrefDoc) addEvaluationEntries(ce map[string]any) {
+	d.addEntryOf(ce, "control")
+	logs, _ := ce["assessment-logs"].([]any)
+	for _, l := range logs {
+		d.addEntryOf(xrefMap(l), "requirement")
+	}
+}
+
+// addEntryOf cites the entry-id of the mapping stored under key.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (d *gemaraXrefDoc) addEntryOf(parent map[string]any, key string) {
+	if m, ok := parent[key].(map[string]any); ok {
+		d.entries[xrefString(m["entry-id"])] = true
+	}
+}
+
+// walkEntries cites every `id` below v.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (d *gemaraXrefDoc) walkEntries(v any) {
+	switch t := v.(type) {
+	case map[string]any:
+		if id := xrefString(t["id"]); id != "" {
+			d.entries[id] = true
+		}
+		for _, child := range t {
+			d.walkEntries(child)
+		}
+	case []any:
+		for _, child := range t {
+			d.walkEntries(child)
+		}
+	}
+}
+
+// xrefChecker resolves the references of one artifact against the rendered set.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type xrefChecker struct {
+	d    *gemaraXrefDoc
+	byID map[string]*gemaraXrefDoc
+	errs []CrossReferenceError
+}
+
+// xrefLoc is a reference-id at a path of the artifact.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type xrefLoc struct {
+	Path string
+	Ref  string
 }
 
 // checkXrefDoc walks d's body and resolves each reference it makes. The
@@ -135,93 +184,141 @@ func collectXrefEntries(d *gemaraXrefDoc) {
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-147
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func checkXrefDoc(d *gemaraXrefDoc, byID map[string]*gemaraXrefDoc) []CrossReferenceError {
-	var errs []CrossReferenceError
-	fail := func(path, ref, entry, msg string) {
-		errs = append(errs, CrossReferenceError{Artifact: d.name, Path: path, ReferenceId: ref, EntryId: entry, Message: msg})
-	}
-	// target resolves a reference-id to a rendered artifact, reporting why not.
-	target := func(path, ref string) *gemaraXrefDoc {
-		if ref == d.id {
-			return d
-		}
-		if !d.declared[ref] {
-			fail(path, ref, "", fmt.Sprintf("reference-id %q is not a declared mapping reference", ref))
-			return nil
-		}
-		t := byID[ref]
-		if t == nil {
-			fail(path, ref, "", fmt.Sprintf("reference-id %q names no artifact in the rendered set", ref))
-		}
-		return t
-	}
-	entry := func(path, ref, id string, t *gemaraXrefDoc) {
-		if t != nil && !t.entries[id] {
-			fail(path, ref, id, fmt.Sprintf("entry %q does not exist in %s", id, t.name))
-		}
-	}
-
+	c := &xrefChecker{d: d, byID: byID}
 	if d.typ == "MappingDocument" {
-		src := target("source-reference", xrefString(xrefMap(d.root["source-reference"])["reference-id"]))
-		dst := target("target-reference", xrefString(xrefMap(d.root["target-reference"])["reference-id"]))
-		mappings, _ := d.root["mappings"].([]any)
-		for i, m := range mappings {
-			mm := xrefMap(m)
-			p := fmt.Sprintf("mappings[%d]", i)
-			if src != nil {
-				entry(p+".source", src.id, xrefString(mm["source"]), src)
-			}
-			targets, _ := mm["targets"].([]any)
-			for j, tg := range targets {
-				if dst != nil {
-					entry(fmt.Sprintf("%s.targets[%d]", p, j), dst.id, xrefString(xrefMap(tg)["entry-id"]), dst)
-				}
-			}
-		}
-		return errs
-	}
-
-	var walk func(path string, v any)
-	walk = func(path string, v any) {
-		switch t := v.(type) {
-		case map[string]any:
-			ref := xrefString(t["reference-id"])
-			_, hasEntry := t["entry-id"]
-			entries, hasEntries := t["entries"].([]any)
-			switch {
-			case ref == gemaraRefRequirements && d.declared[ref]:
-				// The requirement-keyed formal entries of the Evaluation Log
-				// name the model's requirements, which are not a rendered
-				// Gemara artifact (gemara_formal.go): a declared external
-				// reference, resolved by the model, not by the set.
-			case ref != "" && hasEntry:
-				entry(path, ref, xrefString(t["entry-id"]), target(path, ref))
-			case ref != "" && hasEntries:
-				tg := target(path, ref)
-				for i, e := range entries {
-					entry(fmt.Sprintf("%s.entries[%d]", path, i), ref, xrefString(xrefMap(e)["reference-id"]), tg)
-				}
-			case ref != "":
-				// A bare artifact mapping (import, criteria) names an artifact.
-				target(path, ref)
-			}
-			for _, k := range textutil.SortedKeys(t) {
-				if k == "entries" && hasEntries {
-					continue
-				}
-				walk(path+"."+k, t[k])
-			}
-		case []any:
-			for i, child := range t {
-				walk(fmt.Sprintf("%s[%d]", path, i), child)
-			}
-		}
+		c.checkMappingDocument()
+		return c.errs
 	}
 	for _, k := range textutil.SortedKeys(d.root) {
 		if k != "metadata" {
-			walk(k, d.root[k])
+			c.walk(k, d.root[k])
 		}
 	}
-	return errs
+	return c.errs
+}
+
+// fail records one unresolved reference of the artifact.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c *xrefChecker) fail(e CrossReferenceError) {
+	e.Artifact = c.d.name
+	c.errs = append(c.errs, e)
+}
+
+// target resolves a reference-id to a rendered artifact, reporting why not.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c *xrefChecker) target(path, ref string) *gemaraXrefDoc {
+	if ref == c.d.id {
+		return c.d
+	}
+	if !c.d.declared[ref] {
+		c.fail(CrossReferenceError{Path: path, ReferenceId: ref, Message: fmt.Sprintf("reference-id %q is not a declared mapping reference", ref)})
+		return nil
+	}
+	t := c.byID[ref]
+	if t == nil {
+		c.fail(CrossReferenceError{Path: path, ReferenceId: ref, Message: fmt.Sprintf("reference-id %q names no artifact in the rendered set", ref)})
+	}
+	return t
+}
+
+// entry reports an entry id that does not exist in the resolved artifact.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c *xrefChecker) entry(loc xrefLoc, id string, t *gemaraXrefDoc) {
+	if t != nil && !t.entries[id] {
+		c.fail(CrossReferenceError{Path: loc.Path, ReferenceId: loc.Ref, EntryId: id, Message: fmt.Sprintf("entry %q does not exist in %s", id, t.name)})
+	}
+}
+
+// checkMappingDocument resolves the source and target entries of a mapping document.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c *xrefChecker) checkMappingDocument() {
+	root := c.d.root
+	src := c.target("source-reference", xrefString(xrefMap(root["source-reference"])["reference-id"]))
+	dst := c.target("target-reference", xrefString(xrefMap(root["target-reference"])["reference-id"]))
+	mappings, _ := root["mappings"].([]any)
+	for i, m := range mappings {
+		mm := xrefMap(m)
+		p := fmt.Sprintf("mappings[%d]", i)
+		if src != nil {
+			c.entry(xrefLoc{Path: p + ".source", Ref: src.id}, xrefString(mm["source"]), src)
+		}
+		targets, _ := mm["targets"].([]any)
+		if dst != nil {
+			c.checkMappingTargets(p, targets, dst)
+		}
+	}
+}
+
+// checkMappingTargets resolves the target entries of one mapping.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c *xrefChecker) checkMappingTargets(path string, targets []any, dst *gemaraXrefDoc) {
+	for j, tg := range targets {
+		c.entry(xrefLoc{Path: fmt.Sprintf("%s.targets[%d]", path, j), Ref: dst.id}, xrefString(xrefMap(tg)["entry-id"]), dst)
+	}
+}
+
+// walk resolves the references of every mapping below v.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-147
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c *xrefChecker) walk(path string, v any) {
+	switch t := v.(type) {
+	case map[string]any:
+		c.checkReference(path, t)
+		c.walkChildren(path, t)
+	case []any:
+		for i, child := range t {
+			c.walk(fmt.Sprintf("%s[%d]", path, i), child)
+		}
+	}
+}
+
+// checkReference resolves the reference-id of one mapping object, with its
+// entry-id or entries.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-147
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c *xrefChecker) checkReference(path string, t map[string]any) {
+	ref := xrefString(t["reference-id"])
+	if ref == "" {
+		return
+	}
+	_, hasEntry := t["entry-id"]
+	entries, hasEntries := t["entries"].([]any)
+	switch {
+	case ref == gemaraRefRequirements && c.d.declared[ref]:
+		// The requirement-keyed formal entries of the Evaluation Log
+		// name the model's requirements, which are not a rendered
+		// Gemara artifact (gemara_formal.go): a declared external
+		// reference, resolved by the model, not by the set.
+	case hasEntry:
+		c.entry(xrefLoc{Path: path, Ref: ref}, xrefString(t["entry-id"]), c.target(path, ref))
+	case hasEntries:
+		tg := c.target(path, ref)
+		for i, e := range entries {
+			c.entry(xrefLoc{Path: fmt.Sprintf("%s.entries[%d]", path, i), Ref: ref}, xrefString(xrefMap(e)["reference-id"]), tg)
+		}
+	default:
+		// A bare artifact mapping (import, criteria) names an artifact.
+		c.target(path, ref)
+	}
+}
+
+// walkChildren walks the members of a mapping object in key order; the entries
+// of a mapping were resolved by checkReference.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-147
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func (c *xrefChecker) walkChildren(path string, t map[string]any) {
+	_, hasEntries := t["entries"].([]any)
+	for _, k := range textutil.SortedKeys(t) {
+		if k == "entries" && hasEntries {
+			continue
+		}
+		c.walk(path+"."+k, t[k])
+	}
 }
 
 // TRLC-LINKS: REQ-EMG-015
@@ -251,69 +348,129 @@ func xrefString(v any) string {
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
 func CheckModelConsistency(bundle model.Bundle, docs map[string]string) []CrossReferenceError {
-	a := bundle.Architecture.AuthoredArchitecture
+	checks := []struct {
+		name  string
+		check func(model.Bundle, map[string]any) []CrossReferenceError
+	}{
+		{"enforcement-log", checkEnforcementConsistency},
+		{"policy", checkPolicyConsistency},
+	}
 	var errs []CrossReferenceError
-	fail := func(artifact, path, entry, msg string) {
-		errs = append(errs, CrossReferenceError{Artifact: artifact, Path: path, EntryId: entry, Message: msg})
-	}
-	parse := func(name string) map[string]any {
-		var root map[string]any
-		if content := strings.TrimSpace(docs[name]); content != "" {
-			if err := goyaml.Unmarshal([]byte(content), &root); err != nil {
-				fail(name, "", "", "parse: "+err.Error())
-				return nil
-			}
+	for _, c := range checks {
+		root, parseErrs := parseConsistencyDoc(c.name, docs[c.name])
+		errs = append(errs, parseErrs...)
+		if root != nil {
+			errs = append(errs, c.check(bundle, root)...)
 		}
-		return root
 	}
+	return errs
+}
 
-	if root := parse("enforcement-log"); root != nil {
-		actions, _ := root["actions"].([]any)
-		items := justifiedPOAMItems(a, evaluationFindingsByRisk(a))
-		if len(actions) != len(items) {
-			fail("enforcement-log", "actions", "", fmt.Sprintf("%d actions for %d POA&M items with an evaluated risk in the model", len(actions), len(items)))
-		} else {
-			want := make([]gemaraproj.Disposition, 0, len(items))
-			for i, p := range items {
-				expected := poamDisposition(p.Status)
-				want = append(want, expected)
-				got := xrefString(xrefMap(actions[i])["disposition"])
-				if got != expected.String() {
-					fail("enforcement-log", fmt.Sprintf("actions[%d].disposition", i), p.ID,
-						fmt.Sprintf("POA&M item %s has status %q, which supports disposition %s, not %s", p.ID, textutil.Fallback(p.Status, "not set"), expected, got))
-				}
-			}
-			if got, expected := xrefString(root["disposition"]), aggregateDisposition(want); got != expected.String() {
-				fail("enforcement-log", "disposition", "", fmt.Sprintf("aggregate disposition %s is not supported by the actions; expected %s", got, expected))
-			}
+// parseConsistencyDoc parses one artifact; a blank one yields no document and
+// no error, a parse failure yields the error.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func parseConsistencyDoc(name, content string) (map[string]any, []CrossReferenceError) {
+	var root map[string]any
+	if strings.TrimSpace(content) == "" {
+		return nil, nil
+	}
+	if err := goyaml.Unmarshal([]byte(content), &root); err != nil {
+		return nil, []CrossReferenceError{{Artifact: name, Message: "parse: " + err.Error()}}
+	}
+	return root, nil
+}
+
+// checkEnforcementConsistency checks the action dispositions and the log
+// aggregate against the POA&M items of the model.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func checkEnforcementConsistency(bundle model.Bundle, root map[string]any) []CrossReferenceError {
+	a := bundle.Architecture.AuthoredArchitecture
+	actions, _ := root["actions"].([]any)
+	items := justifiedPOAMItems(a, evaluationFindingsByRisk(a))
+	if len(actions) != len(items) {
+		return []CrossReferenceError{{Artifact: "enforcement-log", Path: "actions", Message: fmt.Sprintf("%d actions for %d POA&M items with an evaluated risk in the model", len(actions), len(items))}}
+	}
+	var errs []CrossReferenceError
+	want := make([]gemaraproj.Disposition, 0, len(items))
+	for i, p := range items {
+		want = append(want, poamDisposition(p.Status))
+		if e := actionDispositionMismatch(i, actions[i], p); e != nil {
+			errs = append(errs, *e)
 		}
 	}
+	if got, expected := xrefString(root["disposition"]), aggregateDisposition(want); got != expected.String() {
+		errs = append(errs, CrossReferenceError{Artifact: "enforcement-log", Path: "disposition", Message: fmt.Sprintf("aggregate disposition %s is not supported by the actions; expected %s", got, expected)})
+	}
+	return errs
+}
 
-	if root := parse("policy"); root != nil {
-		refs := validate.NewAcceptanceRefs(bundle)
-		accepted := func(r model.Risk) bool { return riskAccepted(r, refs) }
-		risksByID := map[string]model.Risk{}
-		for _, r := range a.Risks {
-			risksByID[strings.TrimSpace(r.ID)] = r
-		}
-		risks := xrefMap(root["risks"])
-		for _, bucket := range []struct {
-			key   string
-			ok    func(model.Risk) bool
-			claim string
-		}{
-			{"mitigated", riskMitigated, "mitigated, but its status is not closed"},
-			{"accepted", accepted, "accepted, but it has no complete, resolving acceptedBy record (existing actor, calendar date, accepted decisionRef if set) with status accepted (or response accept while not open)"},
-		} {
-			entries, _ := risks[bucket.key].([]any)
-			for i, e := range entries {
-				id := xrefString(xrefMap(xrefMap(e)["risk"])["entry-id"])
-				r, known := risksByID[id]
-				if known && !bucket.ok(r) {
-					fail("policy", fmt.Sprintf("risks.%s[%d]", bucket.key, i), id,
-						fmt.Sprintf("risk %s (status %q) is listed as %s", id, textutil.Fallback(r.Status, "not set"), bucket.claim))
-				}
-			}
+// actionDispositionMismatch reports an action whose disposition its POA&M item
+// status does not support.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func actionDispositionMismatch(i int, action any, p model.POAMItem) *CrossReferenceError {
+	expected := poamDisposition(p.Status)
+	got := xrefString(xrefMap(action)["disposition"])
+	if got == expected.String() {
+		return nil
+	}
+	return &CrossReferenceError{
+		Artifact: "enforcement-log",
+		Path:     fmt.Sprintf("actions[%d].disposition", i),
+		EntryId:  p.ID,
+		Message:  fmt.Sprintf("POA&M item %s has status %q, which supports disposition %s, not %s", p.ID, textutil.Fallback(p.Status, "not set"), expected, got),
+	}
+}
+
+// policyBucket is a risk list of the policy and the claim listing a risk in it makes.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type policyBucket struct {
+	key   string
+	ok    func(model.Risk) bool
+	claim string
+}
+
+// checkPolicyConsistency checks that every risk the policy lists as mitigated
+// or accepted is supported by the model.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func checkPolicyConsistency(bundle model.Bundle, root map[string]any) []CrossReferenceError {
+	refs := validate.NewAcceptanceRefs(bundle)
+	risksByID := map[string]model.Risk{}
+	for _, r := range bundle.Architecture.AuthoredArchitecture.Risks {
+		risksByID[strings.TrimSpace(r.ID)] = r
+	}
+	risks := xrefMap(root["risks"])
+	buckets := []policyBucket{
+		{"mitigated", riskMitigated, "mitigated, but its status is not closed"},
+		{"accepted", func(r model.Risk) bool { return riskAccepted(r, refs) }, "accepted, but it has no complete, resolving acceptedBy record (existing actor, calendar date, accepted decisionRef if set) with status accepted (or response accept while not open)"},
+	}
+	var errs []CrossReferenceError
+	for _, bucket := range buckets {
+		entries, _ := risks[bucket.key].([]any)
+		errs = append(errs, unsupportedPolicyRisks(bucket, entries, risksByID)...)
+	}
+	return errs
+}
+
+// unsupportedPolicyRisks reports the listed risks of a bucket the model does
+// not support.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062, REQ-EMG-085
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func unsupportedPolicyRisks(bucket policyBucket, entries []any, risksByID map[string]model.Risk) []CrossReferenceError {
+	var errs []CrossReferenceError
+	for i, e := range entries {
+		id := xrefString(xrefMap(xrefMap(e)["risk"])["entry-id"])
+		r, known := risksByID[id]
+		if known && !bucket.ok(r) {
+			errs = append(errs, CrossReferenceError{
+				Artifact: "policy",
+				Path:     fmt.Sprintf("risks.%s[%d]", bucket.key, i),
+				EntryId:  id,
+				Message:  fmt.Sprintf("risk %s (status %q) is listed as %s", id, textutil.Fallback(r.Status, "not set"), bucket.claim),
+			})
 		}
 	}
 	return errs

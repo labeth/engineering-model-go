@@ -83,7 +83,11 @@ func TestCompareSysMLV2RoundTripNormalizesDerivedAndImpliedProperties(t *testing
 
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 func TestExportSysMLV2ProjectRequiresSysand(t *testing.T) {
-	_, err := ExportV2Project("engmod.yml", filepath.Join(t.TempDir(), "project"), filepath.Join(t.TempDir(), "model.kpar"), filepath.Join(t.TempDir(), "missing-sysand"))
+	_, err := ExportV2Project("engmod.yml", InterchangePaths{
+		Directory: filepath.Join(t.TempDir(), "project"),
+		KPAR:      filepath.Join(t.TempDir(), "model.kpar"),
+		Sysand:    filepath.Join(t.TempDir(), "missing-sysand"),
+	})
 	if err == nil || !strings.Contains(err.Error(), "sysand is unavailable") {
 		t.Fatalf("expected clear unavailable tool error, got %v", err)
 	}

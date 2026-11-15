@@ -9,6 +9,22 @@ import (
 	"testing"
 )
 
+// expectation names a generated document and the fragments it must contain.
+type expectation struct {
+	name  string
+	text  string
+	wants []string
+}
+
+func assertContainsAll(t *testing.T, e expectation) {
+	t.Helper()
+	for _, want := range e.wants {
+		if !strings.Contains(e.text, want) {
+			t.Fatalf("%s missing %q", e.name, want)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-006
 func TestGenerateTRLCRequirementsFromFile_Examples(t *testing.T) {
 	paths := []string{
@@ -26,16 +42,8 @@ func TestGenerateTRLCRequirementsFromFile_Examples(t *testing.T) {
 			if strings.TrimSpace(res.PackageName) == "" {
 				t.Fatalf("expected non-empty package name")
 			}
-			for _, want := range []string{"package ", "type Requirement", "applies_to String [0 .. *]"} {
-				if !strings.Contains(res.ModelRSL, want) {
-					t.Fatalf("model.rsl missing %q", want)
-				}
-			}
-			for _, want := range []string{"package ", "Requirement ", "id         = \"REQ-"} {
-				if !strings.Contains(res.RequirementsTRLC, want) {
-					t.Fatalf("requirements.trlc missing %q", want)
-				}
-			}
+			assertContainsAll(t, expectation{"model.rsl", res.ModelRSL, []string{"package ", "type Requirement", "applies_to String [0 .. *]"}})
+			assertContainsAll(t, expectation{"requirements.trlc", res.RequirementsTRLC, []string{"package ", "Requirement ", "id         = \"REQ-"}})
 		})
 	}
 }
