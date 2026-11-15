@@ -5,7 +5,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -39,6 +38,15 @@ func snapshot(t *testing.T, root string) map[string]string {
 	return files
 }
 
+// lockedAliases lists the aliases of the dependencies in a lock, and whether each has a digest.
+func lockedAliases(lock engmodel.CompositionLockDocument) map[string]bool {
+	out := map[string]bool{}
+	for _, d := range lock.Dependencies {
+		out[d.Alias] = d.Digest != ""
+	}
+	return out
+}
+
 // A manifest whose dependencies a workspace file replaces is composed in lock check mode: the result lists each
 // dependency and the lock, and no file is written.
 // Mutation: dropping a dependency, writing a lock in check mode or losing the diagnostics fails this test.
@@ -50,25 +58,18 @@ func TestGenerateCompositionFromFileWithReplacedDependenciesWritesNothing(t *tes
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.Root == nil || !engmodel.HasComposition(result.Root.Bundle) {
-		t.Fatalf("no composed system: %+v", result.Root)
+	if result.Root == nil {
+		t.Fatal("no composed system")
 	}
-	want := []composedChild{
+	expect(t, engmodel.HasComposition(result.Root.Bundle), "the root declares no composition")
+	check{t}.equal("dependencies", composedChildren(result), []composedChild{
 		{"SUB-ENCODER", "encoder", "public", "models.example/reqlinks/child-a@v0", "v0.1.0", true},
 		{"SUB-BRIDGE", "bridge", "public", "models.example/reqlinks/child-b@v0", "v0.1.0", true},
-	}
-	if got := composedChildren(result); !reflect.DeepEqual(got, want) {
-		t.Errorf("dependencies %+v, want %+v", got, want)
-	}
-	if len(result.Lock.Dependencies) != 2 || result.Lock.Dependencies[0].Alias != "encoder" || result.Lock.Dependencies[1].Alias != "bridge" || result.Lock.Dependencies[0].Digest == "" {
-		t.Errorf("lock %+v lists each dependency with its digest", result.Lock)
-	}
-	if engmodel.HasErrors(result.Diagnostics) || len(result.Diagnostics) != 1 || result.Diagnostics[0].Code != "composition.lock_check_skipped" {
-		t.Errorf("diagnostics %+v, want the one note that the committed lock is not checked under replacements", result.Diagnostics)
-	}
-	if after := snapshot(t, root); !reflect.DeepEqual(before, after) {
-		t.Errorf("the check wrote a file: %d files before, %d after", len(before), len(after))
-	}
+	})
+	check{t}.equal("locked dependencies with a digest", lockedAliases(result.Lock), map[string]bool{"encoder": true, "bridge": true})
+	check{t}.equal("the one note that the committed lock is not checked under replacements", diagnosticCodes(result.Diagnostics), []string{"composition.lock_check_skipped"})
+	expect(t, !engmodel.HasErrors(result.Diagnostics), "diagnostics %+v", result.Diagnostics)
+	check{t}.equal("the files of the workspace after the check", snapshot(t, root), before)
 }
 
 // composedChild is one resolved dependency of a composed system.
@@ -86,6 +87,27 @@ func composedChildren(result engmodel.CompositionResult) []composedChild {
 	return out
 }
 
+// diagnosticCodes lists the codes of diagnostics.
+func diagnosticCodes(diagnostics []engmodel.Diagnostic) []string {
+	var out []string
+	for _, d := range diagnostics {
+		out = append(out, d.Code)
+	}
+	return out
+}
+
+// fetchErrors are the aliases of the dependencies a composition could not fetch.
+func fetchErrors(diagnostics []engmodel.Diagnostic) map[string]bool {
+	out := map[string]bool{}
+	for _, d := range diagnostics {
+		if d.Severity == engmodel.SeverityError && d.Code == "composition.module_fetch_failed" {
+			alias, _, _ := strings.Cut(strings.TrimPrefix(d.Message, `dependency "`), `"`)
+			out[alias] = true
+		}
+	}
+	return out
+}
+
 // A dependency that cannot be resolved is an error of the composition and is not listed as a resolved child.
 // Mutation: dropping the error diagnostic or listing the unresolved dependency fails this test.
 // TRLC-LINKS: REQ-EMG-202
@@ -95,24 +117,17 @@ func TestGenerateCompositionFromFileWithAnUnresolvableDependencyIsAnError(t *tes
 	dir := filepath.Join(t.TempDir(), "system")
 	copyModel(t, filepath.Join("examples", "requirement-links", "repos", "system"), dir)
 	result, err := engmodel.GenerateCompositionFromFileWith(filepath.Join(dir, "engmod.yml"), engmodel.ResolutionOptions{Workspace: engmodel.WorkspaceOff, Lock: engmodel.LockModeCheck, ModuleCache: engmodel.ModuleCacheReuse})
-	if err != nil {
-		t.Fatalf("the failure is reported as diagnostics of the result: %v", err)
+	expect(t, err == nil, "the failure is reported as diagnostics of the result: %v", err)
+	expect(t, engmodel.HasErrors(result.Diagnostics), "the composition of unresolvable dependencies has no error diagnostic")
+	check{t}.equal("dependencies reported as not fetched", fetchErrors(result.Diagnostics), map[string]bool{"encoder": true, "bridge": true})
+	if result.Root != nil {
+		check{t}.equal("resolved children", len(result.Root.Children), 0)
 	}
-	if !engmodel.HasErrors(result.Diagnostics) {
-		t.Fatal("the composition of unresolvable dependencies has no error diagnostic")
-	}
-	for _, alias := range []string{"encoder", "bridge"} {
-		found := false
-		for _, d := range result.Diagnostics {
-			found = found || (d.Severity == engmodel.SeverityError && d.Code == "composition.module_fetch_failed" && strings.HasPrefix(d.Message, `dependency "`+alias+`" `))
-		}
-		if !found {
-			t.Errorf("no error for the dependency %s: %+v", alias, result.Diagnostics)
-		}
-	}
-	if result.Root != nil && len(result.Root.Children) != 0 {
-		t.Errorf("unresolved dependencies are listed as children: %d", len(result.Root.Children))
-	}
+}
+
+// siblingUse is the use a sibling checkout of the system makes of one of the encoder's or the bridge's items.
+func siblingUse(link, parent, item string) engmodel.LinkUse {
+	return engmodel.LinkUse{Model: "REQLINKS-SYSTEM", Link: link, Parent: parent, Item: item, Status: "accepted"}
 }
 
 // A model in a workspace whose sibling links one of its capabilities gets that link: the model that holds it, its ID,
@@ -121,35 +136,21 @@ func TestGenerateCompositionFromFileWithAnUnresolvableDependencyIsAnError(t *tes
 // TRLC-LINKS: REQ-EMG-205
 func TestWorkspaceLinkUsersReturnsTheLinksOfTheSiblings(t *testing.T) {
 	root := linksWorkspace(t)
-	workspace := filepath.Join(root, "engmod.work.yml")
 	// A link onto an item that the encoder does not publish is no use of one of its contract items.
 	links := filepath.Join(root, "repos", "system", "model", "req-links.yml")
-	replaceInFile(t, links, "reqLinks:\n", "reqLinks:\n- id: LNK-SYS-009-ENCODER\n  parent: REQ-SYS-001\n  child: encoder::CAP-A-9\n  pinned:\n    version: v0.1.0\n  status: claimed\n")
-	cases := []struct {
-		child string
-		want  []engmodel.LinkUse
-	}{
-		{"child-a", []engmodel.LinkUse{
-			{Model: "REQLINKS-SYSTEM", Link: "LNK-SYS-001-ENCODER", Parent: "REQ-SYS-001", Item: "CAP-A-1", Status: "accepted"},
-			{Model: "REQLINKS-SYSTEM", Link: "LNK-SYS-002-ENCODER", Parent: "REQ-SYS-002", Item: "CAP-A-2", Status: "accepted"},
-		}},
-		{"child-b", []engmodel.LinkUse{
-			{Model: "REQLINKS-SYSTEM", Link: "LNK-AOU-B-1", Parent: "", Item: "AOU-B-1", Status: "accepted"},
-			{Model: "REQLINKS-SYSTEM", Link: "LNK-SYS-001-BRIDGE", Parent: "REQ-SYS-001", Item: "CAP-B-1", Status: "accepted"},
-		}},
+	inFile(links).replace(t, "reqLinks:\n", "reqLinks:\n- id: LNK-SYS-009-ENCODER\n  parent: REQ-SYS-001\n  child: encoder::CAP-A-9\n  pinned:\n    version: v0.1.0\n  status: claimed\n")
+	cases := map[string][]engmodel.LinkUse{
+		"child-a": {siblingUse("LNK-SYS-001-ENCODER", "REQ-SYS-001", "CAP-A-1"), siblingUse("LNK-SYS-002-ENCODER", "REQ-SYS-002", "CAP-A-2")},
+		"child-b": {siblingUse("LNK-AOU-B-1", "", "AOU-B-1"), siblingUse("LNK-SYS-001-BRIDGE", "REQ-SYS-001", "CAP-B-1")},
 	}
-	for _, c := range cases {
-		t.Run(c.child, func(t *testing.T) {
-			bundle, err := engmodel.LoadBundle(filepath.Join(root, "repos", c.child, "engmod.yml"))
+	for child, want := range cases {
+		t.Run(child, func(t *testing.T) {
+			bundle, err := engmodel.LoadBundle(filepath.Join(root, "repos", child, "engmod.yml"))
 			if err != nil {
 				t.Fatal(err)
 			}
-			if got := engmodel.WorkspaceLinkUsers(bundle, workspace); !reflect.DeepEqual(got, c.want) {
-				t.Errorf("uses %+v, want %+v", got, c.want)
-			}
-			if got := engmodel.WorkspaceLinkUsers(bundle, engmodel.WorkspaceOff); len(got) != 0 {
-				t.Errorf("a workspace that is off returned %+v", got)
-			}
+			check{t}.equal("uses", engmodel.WorkspaceLinkUsers(bundle, filepath.Join(root, "engmod.work.yml")), want)
+			check{t}.equal("uses with the workspace off", len(engmodel.WorkspaceLinkUsers(bundle, engmodel.WorkspaceOff)), 0)
 		})
 	}
 	alone := filepath.Join(t.TempDir(), "child-a")
@@ -158,7 +159,5 @@ func TestWorkspaceLinkUsersReturnsTheLinksOfTheSiblings(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if got := engmodel.WorkspaceLinkUsers(bundle, ""); len(got) != 0 {
-		t.Errorf("a model outside every workspace returned %+v", got)
-	}
+	check{t}.equal("uses of a model outside every workspace", len(engmodel.WorkspaceLinkUsers(bundle, "")), 0)
 }

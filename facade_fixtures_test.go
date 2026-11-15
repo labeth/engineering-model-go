@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -36,23 +37,33 @@ func copyModel(t *testing.T, src, dst string) {
 		}
 		rel, _ := filepath.Rel(src, path)
 		if d.IsDir() {
-			if d.Name() == "generated" || d.Name() == ".engmod" {
-				return filepath.SkipDir
-			}
-			return os.MkdirAll(filepath.Join(dst, rel), 0o755)
+			return copyDir(d.Name(), filepath.Join(dst, rel))
 		}
-		if strings.HasPrefix(d.Name(), "engmod.lock") {
-			return nil
-		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		return os.WriteFile(filepath.Join(dst, rel), data, 0o644)
+		return copyFile(path, filepath.Join(dst, rel))
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+// copyDir creates a directory of the copy, or skips the directory when it holds generated output or a module cache.
+func copyDir(name, dst string) error {
+	if name == "generated" || name == ".engmod" {
+		return filepath.SkipDir
+	}
+	return os.MkdirAll(dst, 0o755)
+}
+
+// copyFile copies one file of a model, except a lock file.
+func copyFile(src, dst string) error {
+	if strings.HasPrefix(filepath.Base(src), "engmod.lock") {
+		return nil
+	}
+	data, err := os.ReadFile(src)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(dst, data, 0o644)
 }
 
 // writeFile writes content to path, creating its directory.
@@ -66,17 +77,39 @@ func writeFile(t *testing.T, path, content string) {
 	}
 }
 
-// replaceInFile replaces the first occurrence of old with new in a file that must contain it.
-func replaceInFile(t *testing.T, path, old, new string) {
+// inFile is a file of a fixture that a test edits.
+type inFile string
+
+// replace replaces the first occurrence of old with new in the file, which must contain it.
+func (f inFile) replace(t *testing.T, old, new string) {
 	t.Helper()
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(string(f))
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !strings.Contains(string(data), old) {
-		t.Fatalf("%s does not contain %q", path, old)
+		t.Fatalf("%s does not contain %q", f, old)
 	}
-	writeFile(t, path, strings.Replace(string(data), old, new, 1))
+	writeFile(t, string(f), strings.Replace(string(data), old, new, 1))
+}
+
+// expect fails the test when ok is false; what is a format string and its arguments.
+func expect(t *testing.T, ok bool, what ...any) {
+	t.Helper()
+	if !ok {
+		t.Errorf(what[0].(string), what[1:]...)
+	}
+}
+
+// check is the test an equality is checked in.
+type check struct{ t *testing.T }
+
+// equal fails the test when got is not deeply equal to want.
+func (c check) equal(what string, got, want any) {
+	c.t.Helper()
+	if !reflect.DeepEqual(got, want) {
+		c.t.Errorf("%s: got %+v, want %+v", what, got, want)
+	}
 }
 
 // git runs git in dir with a fixed identity and fails the test on error.
@@ -125,7 +158,7 @@ func childAReleased(t *testing.T) string {
 		t.Fatal("the fixture has no REQ-A-004")
 	}
 	writeFile(t, reqs, text[:last]+"- id: REQ-A-005\n  text: The sentence encoder shall append a checksum to each position sentence.\n  verificationMethods: [test]\n  verificationCriteria: The checksum matches.\n  appliesTo: [FU-ENCODER]\n  realizes: [CAP-A-2]\n")
-	replaceInFile(t, reqs, "verificationCriteria: A published sentence carries latitude and longitude.", "verificationCriteria: A published sentence carries latitude and longitude, both in degrees.")
+	inFile(reqs).replace(t, "verificationCriteria: A published sentence carries latitude and longitude.", "verificationCriteria: A published sentence carries latitude and longitude, both in degrees.")
 	writeFile(t, filepath.Join(dir, "src", "encoder.go"), "// ENGMODEL-OWNER-UNIT: FU-ENCODER\npackage src\n\n// TRLC-LINKS: REQ-A-001\nfunc Publish() {}\n")
 	writeFile(t, filepath.Join(dir, "src", "encoder_test.go"), "// ENGMODEL-OWNER-UNIT: FU-ENCODER\npackage src\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-A-001\nfunc TestPublish(t *testing.T) {}\n")
 	commitAll(t, dir, "v1.1.0")

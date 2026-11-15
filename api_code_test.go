@@ -79,29 +79,51 @@ type declarationCase struct {
 	want                      map[string]declarationWant
 }
 
-// problems lists what is wrong with the declarations of a case: an unexpected name, a name listed other than once, and a
-// wrong kind, line, language, path or test-only mark.
+// problem says what is wrong with a declaration of the case, or "".
+func (c declarationCase) problem(d CodeDeclaration) string {
+	w, ok := c.want[d.Name]
+	if !ok {
+		return fmt.Sprintf("unexpected declaration %+v", d)
+	}
+	if got := (declarationWant{d.Kind, d.Line, d.EndLine}); got.kind != w.kind || !w.matchesLines(got) {
+		return fmt.Sprintf("%s: %+v, want %+v", d.Name, got, w)
+	}
+	if got := [3]any{d.Language, d.Path, d.TestOnly}; got != [3]any{c.language, c.path, c.testOnly} {
+		return fmt.Sprintf("%s: language, path and test-only mark %v, want %v", d.Name, got, [3]any{c.language, c.path, c.testOnly})
+	}
+	return ""
+}
+
+// matchesLines reports whether the lines of got are the wanted ones; a first line of 0 is not checked.
+func (w declarationWant) matchesLines(got declarationWant) bool {
+	return lineMatches(w.line, got.line) && lineMatches(w.last, got.last)
+}
+
+// lineMatches reports whether a line is the wanted one, or the want is 0 or the first line of a one-line declaration.
+func lineMatches(want, got int) bool {
+	return want == 0 || got == want
+}
+
+// problems lists what is wrong with the declarations of a case: a wrong declaration, and a name listed other than once.
 func (c declarationCase) problems(decls []CodeDeclaration) []string {
 	var out []string
 	seen := map[string]int{}
 	for _, d := range decls {
 		seen[d.Name]++
-		w, ok := c.want[d.Name]
-		switch {
-		case !ok:
-			out = append(out, fmt.Sprintf("unexpected declaration %+v", d))
-		case d.Kind != w.kind || (w.line != 0 && d.Line != w.line) || (w.last != w.line && d.EndLine != w.last):
-			out = append(out, fmt.Sprintf("%s: %+v, want %+v", d.Name, d, w))
-		case d.Language != c.language || d.Path != c.path || d.TestOnly != c.testOnly:
-			out = append(out, fmt.Sprintf("%s: %+v, want %s %s test-only %v", d.Name, d, c.language, c.path, c.testOnly))
-		}
+		out = append(out, c.problem(d))
 	}
 	for name := range c.want {
-		if seen[name] != 1 {
-			out = append(out, fmt.Sprintf("%s is listed %d times, want once", name, seen[name]))
-		}
+		out = append(out, onceProblem(name, seen[name]))
 	}
-	return out
+	return slices.DeleteFunc(out, func(p string) bool { return p == "" })
+}
+
+// onceProblem says what is wrong when a name is listed n times instead of once, or "".
+func onceProblem(name string, n int) string {
+	if n == 1 {
+		return ""
+	}
+	return fmt.Sprintf("%s is listed %d times, want once", name, n)
 }
 
 // CodeDeclarationsOf lists every named declaration of one source text once, with kind, language, path and lines, and
@@ -139,36 +161,21 @@ func TestCodeDeclarationsOfAFileOfNoKnownLanguageIsEmpty(t *testing.T) {
 	}
 }
 
-// ListCodeDeclarations lists the declarations of Go files with kind and line in path and line order and leaves out what
-// the code scope leaves out: git-ignored files, paths the model excludes and nested modules.
-// Mutation: ignoring the git ignore rules, the exclude list or the nested module, or an unsorted result, fails this test.
-// TRLC-LINKS: REQ-EMG-199
-func TestListCodeDeclarationsFollowsTheCodeScope(t *testing.T) {
+// codeScopeModel is child-a as a git repository whose manifest excludes gen/** and that holds Go files in and outside
+// the code scope: one git-ignored, one under an excluded path and one in a nested module.
+func codeScopeModel(t *testing.T) string {
+	t.Helper()
 	dir := filepath.Join(t.TempDir(), "model")
-	for _, name := range []string{"src", "vendor/x", "nested", "gen"} {
-		if err := os.MkdirAll(filepath.Join(dir, filepath.FromSlash(name)), 0o755); err != nil {
-			t.Fatal(err)
-		}
+	if err := os.CopyFS(dir, os.DirFS(filepath.Join("examples", "requirement-links", "repos", "child-a"))); err != nil {
+		t.Fatal(err)
 	}
-	copyChildA := func() {
-		for _, name := range []string{"engmod.yml", "model/requirements.yml", "model/catalog.yml", "model/architecture.yml", "model/behavior.yml", "model/assurance.yml", "model/compliance.yml", "model/views.yml", "model/decisions.yml", "cue.mod/module.cue"} {
-			data, err := os.ReadFile(filepath.Join("examples", "requirement-links", "repos", "child-a", filepath.FromSlash(name)))
-			if err != nil {
-				t.Fatal(err)
-			}
-			if err := os.MkdirAll(filepath.Dir(filepath.Join(dir, filepath.FromSlash(name))), 0o755); err != nil {
-				t.Fatal(err)
-			}
-			if name == "engmod.yml" {
-				data = []byte(strings.Replace(string(data), "inferenceHints: {}", "inferenceHints:\n  exclude:\n  - gen/**", 1))
-			}
-			if err := os.WriteFile(filepath.Join(dir, filepath.FromSlash(name)), data, 0o644); err != nil {
-				t.Fatal(err)
-			}
-		}
+	manifest := filepath.Join(dir, "engmod.yml")
+	data, err := os.ReadFile(manifest)
+	if err != nil {
+		t.Fatal(err)
 	}
-	copyChildA()
 	files := map[string]string{
+		"engmod.yml":        strings.Replace(string(data), "inferenceHints: {}", "inferenceHints:\n  exclude:\n  - gen/**", 1),
 		"src/b.go":          "package src\n\nfunc Second() {}\n\nfunc First() {}\n",
 		"src/a.go":          "package src\n\ntype Thing struct{}\n",
 		"src/ignored.go":    "package src\n\nfunc Ignored() {}\n",
@@ -178,13 +185,32 @@ func TestListCodeDeclarationsFollowsTheCodeScope(t *testing.T) {
 		".gitignore":        "src/ignored.go\n",
 	}
 	for name, text := range files {
-		if err := os.WriteFile(filepath.Join(dir, filepath.FromSlash(name)), []byte(text), 0o644); err != nil {
+		path := filepath.Join(dir, filepath.FromSlash(name))
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
 	if out, err := exec.Command("git", "-C", dir, "init", "-q").CombinedOutput(); err != nil {
 		t.Fatalf("git init: %v\n%s", err, out)
 	}
+	return dir
+}
+
+// declaredAt is where a declaration is: its path, name, kind and line.
+type declaredAt struct {
+	path, name, kind string
+	line             int
+}
+
+// ListCodeDeclarations lists the declarations of Go files with kind and line in path and line order and leaves out what
+// the code scope leaves out: git-ignored files, paths the model excludes and nested modules.
+// Mutation: ignoring the git ignore rules, the exclude list or the nested module, or an unsorted result, fails this test.
+// TRLC-LINKS: REQ-EMG-199
+func TestListCodeDeclarationsFollowsTheCodeScope(t *testing.T) {
+	dir := codeScopeModel(t)
 	t.Setenv(WorkspaceEnv, WorkspaceOff)
 	bundle, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
 	if err != nil {
@@ -194,21 +220,12 @@ func TestListCodeDeclarationsFollowsTheCodeScope(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	type at struct {
-		path, name, kind string
-		line             int
-	}
-	var got []at
+	var got []declaredAt
 	for _, d := range decls {
-		got = append(got, at{d.Path, d.Name, d.Kind, d.Line})
+		got = append(got, declaredAt{d.Path, d.Name, d.Kind, d.Line})
 	}
-	want := []at{{"src/a.go", "Thing", "type", 3}, {"src/b.go", "Second", "function", 3}, {"src/b.go", "First", "function", 5}}
+	want := []declaredAt{{"src/a.go", "Thing", "type", 3}, {"src/b.go", "Second", "function", 3}, {"src/b.go", "First", "function", 5}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("declarations %+v, want %+v", got, want)
-	}
-	if slices.ContainsFunc(decls, func(d CodeDeclaration) bool {
-		return d.Name == "Ignored" || d.Name == "Generated" || d.Name == "Nested"
-	}) {
-		t.Errorf("code outside the code scope was listed: %+v", decls)
 	}
 }

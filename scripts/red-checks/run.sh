@@ -22,7 +22,7 @@ check() { # check <mutations file> <go test arguments...>
   node "$RED_CHECK" --mutations "scripts/red-checks/$file" -- go test -count=1 -p 1 "$@" || status=1
 }
 # The facade tests of the root package (api_*_test.go, facade_test.go) and the code lookup tests.
-check go-api-root.json . -run 'TestBuildEntityIndex|TestDiff|TestLoadBundle|TestBuildTraceMatrix|TestContractItems|TestSortedContract|TestEvaluateRequirementLinks|TestGenerateComposition|TestWorkspaceLinkUsers|TestCatalogUsage|TestValidateBundleReturns|TestFindCodeDefinitions|TestListCodeDeclarations|TestCodeDeclarationsOf|TestFacadeLoadsAndValidates'
+check go-api-root.json . -run 'TestBuildEntityIndex|TestDiff|TestLoadBundle|TestBuildTraceMatrix|TestContractItems|TestSortedContract|TestEvaluateRequirementLinks|TestGenerateComposition|TestWorkspaceLinkUsers|TestCatalogUsage|TestValidateBundle|TestFindCodeDefinitions|TestListCodeDeclarations|TestCodeDeclarationsOf|TestFacadeLoadsAndValidates'
 # The tests of the internal functions the facade delegates to, which carry REQ-EMG-189 to REQ-EMG-193 too.
 check internal-model.json ./internal/model -run 'TestEntityIndex|TestDiffEntityIndexes|TestDiffOf|TestDiffLists'
 check internal-trace.json ./internal/trace -run 'TestDeltaOf'
