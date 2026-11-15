@@ -74,6 +74,8 @@ func applyRequirementLinks(matrix *Matrix, composed composition.CompositionResul
 type rollUp struct{ implemented, testLinked, resolved, reviewed bool }
 
 // rolledUp reports whether the links could satisfy the requirement.
+// TRLC-LINKS: REQ-EMG-105
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
 func (r rollUp) rolledUp() bool {
 	return r.resolved && (r.implemented || r.testLinked)
 }
@@ -173,6 +175,8 @@ func (a *linkApplier) rollOf(parent string) *rollUp {
 }
 
 // fold narrows the roll-up by the status of one realizing requirement.
+// TRLC-LINKS: REQ-EMG-105
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-SYSTEM-COMPOSITION
 func (r *rollUp) fold(status *DelegatedStatus) {
 	r.implemented = r.implemented && status != nil && status.Implemented
 	r.testLinked = r.testLinked && status != nil && status.TestLinked
