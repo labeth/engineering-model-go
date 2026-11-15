@@ -14,6 +14,35 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
+// exportCase names one example model and the format exported from it.
+type exportCase struct {
+	modelPath string
+	format    Format
+}
+
+// checkExportOutput exports the case and checks the diagnostics, the claims
+// and that the output is JSON.
+func checkExportOutput(t *testing.T, c exportCase) {
+	t.Helper()
+	res, err := GenerateFromFile(c.modelPath, Options{Format: c.format})
+	if err != nil {
+		t.Fatalf("export failed: %v", err)
+	}
+	if validate.HasErrors(res.Diagnostics) {
+		t.Fatalf("unexpected diagnostics: %+v", res.Diagnostics)
+	}
+	if len(res.JSON) == 0 {
+		t.Fatalf("expected non-empty json output")
+	}
+	if c.format == FormatThreatDragonV2 && strings.Contains(res.JSON, "See mapped control mitigations and verification evidence.") {
+		t.Fatalf("threat model contains a generic mitigation claim")
+	}
+	var parsed any
+	if err := json.Unmarshal([]byte(res.JSON), &parsed); err != nil {
+		t.Fatalf("output is not valid json: %v", err)
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 func TestThreatModelExport_EndToEnd(t *testing.T) {
 	examples := []string{
@@ -21,32 +50,35 @@ func TestThreatModelExport_EndToEnd(t *testing.T) {
 		filepath.Join("examples", "bedrock-pr-review-github-app-sample", "engmod.yml"),
 		filepath.Join("examples", "coffee-fleet-ota-cloud-sample", "engmod.yml"),
 	}
-	formats := []Format{FormatThreatDragonV2, FormatOpenOTM}
-
 	for _, modelPath := range examples {
-		for _, format := range formats {
-			modelPath := modelPath
-			format := format
+		for _, format := range []Format{FormatThreatDragonV2, FormatOpenOTM} {
+			c := exportCase{modelPath: modelPath, format: format}
 			t.Run(filepath.Base(filepath.Dir(modelPath))+"-"+string(format), func(t *testing.T) {
-				res, err := GenerateFromFile(modelPath, Options{Format: format})
-				if err != nil {
-					t.Fatalf("export failed: %v", err)
-				}
-				if validate.HasErrors(res.Diagnostics) {
-					t.Fatalf("unexpected diagnostics: %+v", res.Diagnostics)
-				}
-				if len(res.JSON) == 0 {
-					t.Fatalf("expected non-empty json output")
-				}
-				if string(format) == string(FormatThreatDragonV2) &&
-					strings.Contains(res.JSON, "See mapped control mitigations and verification evidence.") {
-					t.Fatalf("threat model contains a generic mitigation claim")
-				}
-				var parsed any
-				if err := json.Unmarshal([]byte(res.JSON), &parsed); err != nil {
-					t.Fatalf("output is not valid json: %v", err)
-				}
+				checkExportOutput(t, c)
 			})
+		}
+	}
+}
+
+// requireSchemaFile fails when a committed schema is missing: that is a broken
+// checkout or a stale path, not a reason to skip.
+func requireSchemaFile(t *testing.T, path string) {
+	t.Helper()
+	if _, err := os.Stat(path); err != nil {
+		t.Fatalf("schema missing: %s", path)
+	}
+}
+
+// assertComponentZonesExist fails for a component whose trust zone is not in the document.
+func assertComponentZonesExist(t *testing.T, doc otmDocument) {
+	t.Helper()
+	zones := map[string]bool{}
+	for _, zone := range doc.TrustZones {
+		zones[zone.ID] = true
+	}
+	for _, component := range doc.Components {
+		if !zones[component.Parent.TrustZone] {
+			t.Errorf("component %s references missing trust zone %s", component.ID, component.Parent.TrustZone)
 		}
 	}
 }
@@ -55,14 +87,8 @@ func TestThreatModelExport_EndToEnd(t *testing.T) {
 func TestThreatModelExport_SchemaValidation(t *testing.T) {
 	tdSchemaPath := filepath.Join("internal", "export", "threatmodel", "testdata", "threat-dragon-schemas", "threat-dragon-v2.schema.json")
 	otmSchemaPath := filepath.Join("internal", "export", "threatmodel", "testdata", "threat-dragon-schemas", "open-threat-model.schema.json")
-	// The schemas are committed next to this package; a missing one is a
-	// broken checkout or a stale path, not a reason to skip.
-	if _, err := os.Stat(tdSchemaPath); err != nil {
-		t.Fatalf("schema missing: %s", tdSchemaPath)
-	}
-	if _, err := os.Stat(otmSchemaPath); err != nil {
-		t.Fatalf("schema missing: %s", otmSchemaPath)
-	}
+	requireSchemaFile(t, tdSchemaPath)
+	requireSchemaFile(t, otmSchemaPath)
 
 	modelPath := filepath.Join("examples", "payments-engineering-sample", "engmod.yml")
 
@@ -84,15 +110,7 @@ func TestThreatModelExport_SchemaValidation(t *testing.T) {
 		if err := json.Unmarshal([]byte(res.JSON), &doc); err != nil {
 			t.Fatalf("decode open otm: %v", err)
 		}
-		zones := map[string]bool{}
-		for _, zone := range doc.TrustZones {
-			zones[zone.ID] = true
-		}
-		for _, component := range doc.Components {
-			if !zones[component.Parent.TrustZone] {
-				t.Errorf("component %s references missing trust zone %s", component.ID, component.Parent.TrustZone)
-			}
-		}
+		assertComponentZonesExist(t, doc)
 	})
 }
 
