@@ -61,35 +61,67 @@ type oscalResolveOptions struct {
 // TRLC-LINKS: REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DO-ARCHITECTURE-MODEL
 func resolveOSCALCompliance(bundle model.Bundle, options oscalResolveOptions) (oscalComplianceContext, []validate.Diagnostic) {
-	ctx := oscalComplianceContext{Profiles: map[string]oscalComplianceProfile{}}
-	diags := []validate.Diagnostic{}
+	r := &complianceResolver{
+		bundle: bundle,
+		ctx:    oscalComplianceContext{Profiles: map[string]oscalComplianceProfile{}},
+		diags:  []validate.Diagnostic{},
+	}
+	r.addDeclaredProfiles()
+	r.addCLIProfile(options)
+	r.addMappings()
+	r.checkMappedControls()
+	sort.SliceStable(r.ctx.Mappings, func(i, j int) bool { return r.ctx.Mappings[i].ID < r.ctx.Mappings[j].ID })
+	return r.ctx, validate.SortDiagnostics(r.diags)
+}
 
-	for _, p := range bundle.Architecture.Compliance.Profiles {
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DO-ARCHITECTURE-MODEL
+type complianceResolver struct {
+	bundle model.Bundle
+	ctx    oscalComplianceContext
+	diags  []validate.Diagnostic
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DO-ARCHITECTURE-MODEL
+func (r *complianceResolver) addDeclaredProfiles() {
+	for _, p := range r.bundle.Architecture.Compliance.Profiles {
 		profile := oscalComplianceProfile{
 			ID:          strings.TrimSpace(p.ID),
 			Href:        strings.TrimSpace(p.Href),
 			CatalogHref: strings.TrimSpace(p.CatalogHref),
 			Controls:    map[string]oscalCatalogControl{},
 		}
-		loadComplianceProfile(bundle, &profile, &diags)
+		r.loadProfile(&profile)
 		if profile.ID != "" {
-			ctx.Profiles[profile.ID] = profile
+			r.ctx.Profiles[profile.ID] = profile
 		}
 	}
+}
 
-	if len(ctx.Profiles) == 0 && (strings.TrimSpace(options.ProfileHref) != "" || strings.TrimSpace(options.CatalogHref) != "") {
-		profile := oscalComplianceProfile{
-			ID:          "PROFILE-CLI",
-			Href:        strings.TrimSpace(options.ProfileHref),
-			CatalogHref: strings.TrimSpace(options.CatalogHref),
-			Controls:    map[string]oscalCatalogControl{},
-		}
-		loadComplianceProfile(bundle, &profile, &diags)
-		ctx.Profiles[profile.ID] = profile
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DO-ARCHITECTURE-MODEL
+func (r *complianceResolver) addCLIProfile(options oscalResolveOptions) {
+	if len(r.ctx.Profiles) != 0 {
+		return
 	}
+	if strings.TrimSpace(options.ProfileHref) == "" && strings.TrimSpace(options.CatalogHref) == "" {
+		return
+	}
+	profile := oscalComplianceProfile{
+		ID:          "PROFILE-CLI",
+		Href:        strings.TrimSpace(options.ProfileHref),
+		CatalogHref: strings.TrimSpace(options.CatalogHref),
+		Controls:    map[string]oscalCatalogControl{},
+	}
+	r.loadProfile(&profile)
+	r.ctx.Profiles[profile.ID] = profile
+}
 
-	for _, m := range bundle.Architecture.Compliance.Mappings {
-		ctx.Mappings = append(ctx.Mappings, oscalComplianceMapping{
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DO-ARCHITECTURE-MODEL
+func (r *complianceResolver) addMappings() {
+	for _, m := range r.bundle.Architecture.Compliance.Mappings {
+		r.ctx.Mappings = append(r.ctx.Mappings, oscalComplianceMapping{
 			ID:                   strings.TrimSpace(m.ID),
 			ProfileRef:           strings.TrimSpace(m.ProfileRef),
 			ControlIDs:           normalizeControlIDs(m.ControlIDs),
@@ -105,53 +137,72 @@ func resolveOSCALCompliance(bundle model.Bundle, options oscalResolveOptions) (o
 			Source:               "compliance.mapping",
 		})
 	}
+}
 
-	for _, m := range ctx.Mappings {
-		profile := ctx.Profiles[m.ProfileRef]
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DO-ARCHITECTURE-MODEL
+func (r *complianceResolver) checkMappedControls() {
+	for _, m := range r.ctx.Mappings {
+		profile := r.ctx.Profiles[m.ProfileRef]
 		if !profile.Loaded || len(profile.Controls) == 0 {
 			continue
 		}
-		for _, cid := range m.ControlIDs {
-			if _, ok := profile.Controls[cid]; !ok {
-				diags = append(diags, validate.Diagnostic{
-					Code:     "oscal.control_not_in_profile",
-					Severity: validate.SeverityError,
-					Message:  fmt.Sprintf("mapped OSCAL control %q is not selected by compliance profile %q", cid, m.ProfileRef),
-					Path:     "compliance.mappings." + m.ID,
-				})
-			}
-		}
+		r.diags = append(r.diags, unselectedControlDiagnostics(m, profile)...)
 	}
+}
 
-	sort.SliceStable(ctx.Mappings, func(i, j int) bool { return ctx.Mappings[i].ID < ctx.Mappings[j].ID })
-	return ctx, validate.SortDiagnostics(diags)
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DO-ARCHITECTURE-MODEL
+func unselectedControlDiagnostics(m oscalComplianceMapping, profile oscalComplianceProfile) []validate.Diagnostic {
+	var diags []validate.Diagnostic
+	for _, cid := range m.ControlIDs {
+		if _, ok := profile.Controls[cid]; ok {
+			continue
+		}
+		diags = append(diags, validate.Diagnostic{
+			Code:     "oscal.control_not_in_profile",
+			Severity: validate.SeverityError,
+			Message:  fmt.Sprintf("mapped OSCAL control %q is not selected by compliance profile %q", cid, m.ProfileRef),
+			Path:     "compliance.mappings." + m.ID,
+		})
+	}
+	return diags
 }
 
 // TRLC-LINKS: REQ-EMG-013
 // ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
-func loadComplianceProfile(bundle model.Bundle, profile *oscalComplianceProfile, diags *[]validate.Diagnostic) {
-	if profile == nil {
-		return
-	}
+func (r *complianceResolver) loadProfile(profile *oscalComplianceProfile) {
 	if strings.TrimSpace(profile.Href) != "" && !isRemoteHref(profile.Href) {
-		selected, err := loadOSCALProfileControls(bundle, profile.Href, profile.CatalogHref)
-		if err != nil {
-			*diags = append(*diags, validate.Diagnostic{Code: "oscal.profile_load_failed", Severity: validate.SeverityWarning, Message: err.Error(), Path: profile.Href})
-			return
-		}
-		profile.Controls = selected
-		profile.Loaded = true
+		r.loadProfileFromHref(profile)
 		return
 	}
 	if strings.TrimSpace(profile.CatalogHref) != "" {
-		controls, err := loadOSCALCatalogControls(bundle, profile.CatalogHref, "")
-		if err != nil {
-			*diags = append(*diags, validate.Diagnostic{Code: "oscal.catalog_load_failed", Severity: validate.SeverityWarning, Message: err.Error(), Path: profile.CatalogHref})
-		} else {
-			profile.Controls = controls
-			profile.Loaded = true
-		}
+		r.loadProfileFromCatalog(profile)
 	}
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (r *complianceResolver) loadProfileFromHref(profile *oscalComplianceProfile) {
+	selected, err := loadOSCALProfileControls(r.bundle, profile.Href, profile.CatalogHref)
+	if err != nil {
+		r.diags = append(r.diags, validate.Diagnostic{Code: "oscal.profile_load_failed", Severity: validate.SeverityWarning, Message: err.Error(), Path: profile.Href})
+		return
+	}
+	profile.Controls = selected
+	profile.Loaded = true
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func (r *complianceResolver) loadProfileFromCatalog(profile *oscalComplianceProfile) {
+	controls, err := loadOSCALCatalogControls(r.bundle, profile.CatalogHref, "")
+	if err != nil {
+		r.diags = append(r.diags, validate.Diagnostic{Code: "oscal.catalog_load_failed", Severity: validate.SeverityWarning, Message: err.Error(), Path: profile.CatalogHref})
+		return
+	}
+	profile.Controls = controls
+	profile.Loaded = true
 }
 
 // TRLC-LINKS: REQ-EMG-013
@@ -170,33 +221,47 @@ func loadOSCALProfileControls(bundle model.Bundle, profileHref, defaultCatalogHr
 	out := map[string]oscalCatalogControl{}
 	for _, rawImport := range imports {
 		imp, _ := rawImport.(map[string]any)
-		href := strings.TrimSpace(toStringAny(imp["href"]))
-		if href == "" {
-			href = strings.TrimSpace(defaultCatalogHref)
-		}
-		catalog, err := loadOSCALCatalogControls(bundle, href, filepath.Dir(profilePath))
-		if err != nil {
+		if err := applyProfileImport(bundle, profileImport{Object: imp, DefaultCatalogHref: defaultCatalogHref, BaseDir: filepath.Dir(profilePath)}, out); err != nil {
 			return nil, err
-		}
-		selected := includeControlIDs(imp)
-		excluded := excludeControlIDs(imp)
-		if len(selected) == 0 {
-			out = mergeCatalogControls(out, catalog)
-		} else {
-			for _, id := range selected {
-				if c, ok := catalog[id]; ok {
-					out[id] = c
-				}
-			}
-		}
-		for _, id := range excluded {
-			delete(out, id)
 		}
 	}
 	if len(imports) == 0 && strings.TrimSpace(defaultCatalogHref) != "" {
 		return loadOSCALCatalogControls(bundle, defaultCatalogHref, filepath.Dir(profilePath))
 	}
 	return out, nil
+}
+
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type profileImport struct {
+	Object             map[string]any
+	DefaultCatalogHref string
+	BaseDir            string
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+func applyProfileImport(bundle model.Bundle, imp profileImport, out map[string]oscalCatalogControl) error {
+	href := strings.TrimSpace(toStringAny(imp.Object["href"]))
+	if href == "" {
+		href = strings.TrimSpace(imp.DefaultCatalogHref)
+	}
+	catalog, err := loadOSCALCatalogControls(bundle, href, imp.BaseDir)
+	if err != nil {
+		return err
+	}
+	selected := includeControlIDs(imp.Object)
+	if len(selected) == 0 {
+		mergeCatalogControls(out, catalog)
+	}
+	for _, id := range selected {
+		if c, ok := catalog[id]; ok {
+			out[id] = c
+		}
+	}
+	for _, id := range excludeControlIDs(imp.Object) {
+		delete(out, id)
+	}
+	return nil
 }
 
 // TRLC-LINKS: REQ-EMG-013
@@ -223,12 +288,18 @@ func collectCatalogControls(node map[string]any, out map[string]oscalCatalogCont
 		items, _ := node[key].([]any)
 		for _, raw := range items {
 			item, _ := raw.(map[string]any)
-			id := normalizeOSCALControlID(toStringAny(item["id"]))
-			if id != "" {
-				out[id] = oscalCatalogControl{ID: id, Title: strings.TrimSpace(toStringAny(item["title"]))}
-			}
+			recordCatalogControl(item, out)
 			collectCatalogControls(item, out)
 		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func recordCatalogControl(item map[string]any, out map[string]oscalCatalogControl) {
+	id := normalizeOSCALControlID(toStringAny(item["id"]))
+	if id != "" {
+		out[id] = oscalCatalogControl{ID: id, Title: strings.TrimSpace(toStringAny(item["title"]))}
 	}
 }
 

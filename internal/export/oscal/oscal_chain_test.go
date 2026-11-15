@@ -57,18 +57,12 @@ func TestGenerateOSCALPOAMFromFile_PaymentsSample(t *testing.T) {
 	if err != nil {
 		t.Fatalf("generate poam failed: %v", err)
 	}
-	if !strings.Contains(res.JSON, "\"plan-of-action-and-milestones\"") {
-		t.Fatalf("expected poam root")
-	}
-	if !strings.Contains(res.JSON, "\"poam-items\"") {
-		t.Fatalf("expected poam-items in poam output")
-	}
-	if !strings.Contains(res.JSON, "\"last-modified\": \""+lastModified+"\"") {
-		t.Fatalf("expected deterministic last-modified timestamp")
-	}
-	if !strings.Contains(res.JSON, "\"ns\": \""+engineeringModelOSCALNamespace+"\"") {
-		t.Fatalf("expected custom POA&M properties to use the engineering-model namespace")
-	}
+	requireContains(t, res.JSON, []expectedSnippet{
+		{"\"plan-of-action-and-milestones\"", "expected poam root"},
+		{"\"poam-items\"", "expected poam-items in poam output"},
+		{"\"last-modified\": \"" + lastModified + "\"", "expected deterministic last-modified timestamp"},
+		{"\"ns\": \"" + engineeringModelOSCALNamespace + "\"", "expected custom POA&M properties to use the engineering-model namespace"},
+	})
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-013, REQ-EMG-050

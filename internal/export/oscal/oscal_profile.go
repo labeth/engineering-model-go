@@ -65,18 +65,7 @@ func GenerateProfile(bundle model.Bundle, options ProfileOptions) (string, error
 	}
 	bundle = canonical.Documents()
 
-	hrefs := make([]string, 0, len(bundle.Architecture.Compliance.Profiles))
-	for _, profile := range bundle.Architecture.Compliance.Profiles {
-		href := strings.TrimSpace(profile.Href)
-		if href == "" {
-			href = strings.TrimSpace(profile.CatalogHref)
-		}
-		if href != "" {
-			hrefs = append(hrefs, href)
-		}
-	}
-	hrefs = cleanStrings(hrefs)
-	sort.Strings(hrefs)
+	hrefs := aggregateProfileHrefs(bundle)
 	if len(hrefs) == 0 {
 		return "", ErrNoProfiles
 	}
@@ -85,31 +74,64 @@ func GenerateProfile(bundle model.Bundle, options ProfileOptions) (string, error
 	if err != nil {
 		return "", err
 	}
-	title := strings.TrimSpace(options.Title)
-	if title == "" {
-		title = strings.TrimSpace(bundle.Architecture.Model.Title) + " Compliance Profile"
-	}
-	version := strings.TrimSpace(options.Version)
-	if version == "" {
-		version = "0.1.0"
-	}
-	imports := make([]oscalAggregateImport, 0, len(hrefs))
-	for _, href := range hrefs {
-		imports = append(imports, oscalAggregateImport{Href: href})
-	}
 	doc := oscalAggregateProfileDocument{Profile: oscalAggregateProfile{
 		UUID: textutil.DeterministicUUID("oscal-profile|" + bundle.Architecture.Model.ID + "|" + strings.Join(hrefs, "|")),
 		Metadata: oscalMetadata{
-			Title:        title,
+			Title:        aggregateProfileTitle(bundle, options),
 			LastModified: lastModified,
-			Version:      version,
+			Version:      aggregateProfileVersion(options),
 			OSCALVersion: "1.1.2",
 		},
-		Imports: imports,
+		Imports: aggregateImports(hrefs),
 	}}
 	out, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil {
 		return "", err
 	}
 	return string(out), nil
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func aggregateProfileHrefs(bundle model.Bundle) []string {
+	hrefs := make([]string, 0, len(bundle.Architecture.Compliance.Profiles))
+	for _, profile := range bundle.Architecture.Compliance.Profiles {
+		href := firstNonEmptyString(strings.TrimSpace(profile.Href), strings.TrimSpace(profile.CatalogHref))
+		if href != "" {
+			hrefs = append(hrefs, strings.TrimSpace(href))
+		}
+	}
+	hrefs = cleanStrings(hrefs)
+	sort.Strings(hrefs)
+	return hrefs
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func aggregateProfileTitle(bundle model.Bundle, options ProfileOptions) string {
+	title := strings.TrimSpace(options.Title)
+	if title == "" {
+		title = strings.TrimSpace(bundle.Architecture.Model.Title) + " Compliance Profile"
+	}
+	return title
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func aggregateProfileVersion(options ProfileOptions) string {
+	version := strings.TrimSpace(options.Version)
+	if version == "" {
+		version = "0.1.0"
+	}
+	return version
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func aggregateImports(hrefs []string) []oscalAggregateImport {
+	imports := make([]oscalAggregateImport, 0, len(hrefs))
+	for _, href := range hrefs {
+		imports = append(imports, oscalAggregateImport{Href: href})
+	}
+	return imports
 }

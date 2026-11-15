@@ -100,10 +100,63 @@ func GeneratePOAM(bundle model.Bundle, options POAMOptions) (POAMResult, error) 
 	if validate.HasErrors(diags) {
 		return POAMResult{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
 	}
+	risks, riskUUIDByID := poamRisks(bundle)
+	items := poamItems(bundle, riskUUIDByID)
+	if len(items) == 0 {
+		return POAMResult{Diagnostics: validate.SortDiagnostics(diags)}, ErrNoPOAMItems
+	}
+
+	now, err := resolveOSCALTimestamp(bundle, options.LastModified)
+	if err != nil {
+		return POAMResult{Diagnostics: validate.SortDiagnostics(diags)}, err
+	}
+	doc := POAMDocument{PlanOfActionAndMilestones: buildPOAMRoot(bundle, poamHeader{Now: now, SSPHref: poamSSPHref(options), Items: items, Risks: risks})}
+
+	b, err := json.MarshalIndent(doc, "", "  ")
+	if err != nil {
+		return POAMResult{Diagnostics: validate.SortDiagnostics(diags)}, err
+	}
+	return POAMResult{JSON: string(b), Document: doc, Diagnostics: validate.SortDiagnostics(diags)}, nil
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func poamSSPHref(options POAMOptions) string {
 	sspHref := strings.TrimSpace(options.SSPHref)
 	if sspHref == "" {
 		sspHref = "./ARCHITECTURE.ssp.json"
 	}
+	return sspHref
+}
+
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type poamHeader struct {
+	Now     string
+	SSPHref string
+	Items   []oscalPOAMItem
+	Risks   []oscalPOAMRisk
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func buildPOAMRoot(bundle model.Bundle, header poamHeader) oscalPOAMRoot {
+	return oscalPOAMRoot{
+		UUID: textutil.DeterministicUUID("poam|" + bundle.Architecture.Model.ID),
+		Metadata: oscalMetadata{
+			Title:        textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " POA&M",
+			LastModified: header.Now,
+			Version:      "0.1.0",
+			OSCALVersion: "1.1.2",
+		},
+		ImportSSP: oscalImportSSP{Href: header.SSPHref},
+		POAMItems: header.Items,
+		Risks:     header.Risks,
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func poamRisks(bundle model.Bundle) ([]oscalPOAMRisk, map[string]string) {
 	riskUUIDByID := map[string]string{}
 	risks := []oscalPOAMRisk{}
 	for _, r := range bundle.Architecture.AuthoredArchitecture.Risks {
@@ -122,68 +175,58 @@ func GeneratePOAM(bundle model.Bundle, options POAMOptions) (POAMResult, error) 
 		})
 	}
 	sort.SliceStable(risks, func(i, j int) bool { return risks[i].UUID < risks[j].UUID })
+	return risks, riskUUIDByID
+}
 
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func poamItems(bundle model.Bundle, riskUUIDByID map[string]string) []oscalPOAMItem {
 	items := []oscalPOAMItem{}
 	for _, p := range bundle.Architecture.AuthoredArchitecture.POAMItems {
-		riskID := strings.TrimSpace(p.RiskRef)
 		related := []oscalRelatedRiskRef{}
-		if riskUUID := riskUUIDByID[riskID]; riskUUID != "" {
+		if riskUUID := riskUUIDByID[strings.TrimSpace(p.RiskRef)]; riskUUID != "" {
 			related = append(related, oscalRelatedRiskRef{RiskUUID: riskUUID})
-		}
-		props := []oscalProperty{engineeringModelOSCALProperty("model-poam-id", strings.TrimSpace(p.ID))}
-		if due := strings.TrimSpace(p.DueDate); due != "" {
-			props = append(props, engineeringModelOSCALProperty("due-date", due))
-		}
-		if st := strings.TrimSpace(p.Status); st != "" {
-			props = append(props, engineeringModelOSCALProperty("status", st))
-		}
-		if role := strings.TrimSpace(p.ResponsibleRole); role != "" {
-			props = append(props, engineeringModelOSCALProperty("responsible-role", role))
-		}
-		artifacts := []string{}
-		for _, a := range p.Artifacts {
-			if x := strings.TrimSpace(a.Path); x != "" {
-				artifacts = append(artifacts, x)
-			}
-		}
-		remarks := ""
-		if len(artifacts) > 0 {
-			remarks = "Artifacts: " + strings.Join(artifacts, ", ")
 		}
 		items = append(items, oscalPOAMItem{
 			UUID:         textutil.DeterministicUUID("poam-item|" + bundle.Architecture.Model.ID + "|" + strings.TrimSpace(p.ID)),
 			Title:        textutil.NonEmpty(strings.TrimSpace(p.Milestone), strings.TrimSpace(p.ID)),
 			Description:  textutil.NonEmpty(strings.TrimSpace(p.Milestone), "POA&M action item."),
-			Props:        props,
+			Props:        poamItemProps(p),
 			RelatedRisks: related,
-			Remarks:      remarks,
+			Remarks:      poamArtifactsRemark(p),
 		})
 	}
 	sort.SliceStable(items, func(i, j int) bool { return items[i].UUID < items[j].UUID })
-	if len(items) == 0 {
-		return POAMResult{Diagnostics: validate.SortDiagnostics(diags)}, ErrNoPOAMItems
-	}
+	return items
+}
 
-	now, err := resolveOSCALTimestamp(bundle, options.LastModified)
-	if err != nil {
-		return POAMResult{Diagnostics: validate.SortDiagnostics(diags)}, err
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func poamItemProps(p model.POAMItem) []oscalProperty {
+	props := []oscalProperty{engineeringModelOSCALProperty("model-poam-id", strings.TrimSpace(p.ID))}
+	for _, f := range []struct{ name, value string }{
+		{"due-date", p.DueDate},
+		{"status", p.Status},
+		{"responsible-role", p.ResponsibleRole},
+	} {
+		if v := strings.TrimSpace(f.value); v != "" {
+			props = append(props, engineeringModelOSCALProperty(f.name, v))
+		}
 	}
-	doc := POAMDocument{PlanOfActionAndMilestones: oscalPOAMRoot{
-		UUID: textutil.DeterministicUUID("poam|" + bundle.Architecture.Model.ID),
-		Metadata: oscalMetadata{
-			Title:        textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " POA&M",
-			LastModified: now,
-			Version:      "0.1.0",
-			OSCALVersion: "1.1.2",
-		},
-		ImportSSP: oscalImportSSP{Href: sspHref},
-		POAMItems: items,
-		Risks:     risks,
-	}}
+	return props
+}
 
-	b, err := json.MarshalIndent(doc, "", "  ")
-	if err != nil {
-		return POAMResult{Diagnostics: validate.SortDiagnostics(diags)}, err
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func poamArtifactsRemark(p model.POAMItem) string {
+	artifacts := []string{}
+	for _, a := range p.Artifacts {
+		if x := strings.TrimSpace(a.Path); x != "" {
+			artifacts = append(artifacts, x)
+		}
 	}
-	return POAMResult{JSON: string(b), Document: doc, Diagnostics: validate.SortDiagnostics(diags)}, nil
+	if len(artifacts) == 0 {
+		return ""
+	}
+	return "Artifacts: " + strings.Join(artifacts, ", ")
 }
