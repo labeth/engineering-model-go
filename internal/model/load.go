@@ -78,21 +78,9 @@ func EffectiveSchemaVersion(version int) (int, error) {
 // ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, IF-GO-PKG-MODEL, FLOW-ENGINE-INTEGRATIONS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054, REQ-EMG-094, REQ-EMG-132
 func LoadBundle(manifestPath string) (Bundle, error) {
-	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
-		return Bundle{}, fmt.Errorf("engmod.yml is the only supported model entry point")
-	}
-	manifestPath, err := filepath.Abs(manifestPath)
+	manifestPath, manifest, err := loadManifest(manifestPath)
 	if err != nil {
-		return Bundle{}, fmt.Errorf("resolve manifest path: %w", err)
-	}
-
-	var manifest ManifestDocument
-	if err := decodeYAMLFile(manifestPath, &manifest); err != nil {
-		return Bundle{}, fmt.Errorf("decode manifest file: %w", err)
-	}
-	manifest.SchemaVersion, err = EffectiveSchemaVersion(manifest.SchemaVersion)
-	if err != nil {
-		return Bundle{}, fmt.Errorf("manifest schema: %w", err)
+		return Bundle{}, err
 	}
 
 	bundle := Bundle{ManifestPath: manifestPath, Manifest: manifest}
@@ -111,6 +99,29 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 	bundle.Design = DesignDocument{SchemaVersion: CurrentSchemaVersion, Design: bundle.Views.Design}
 	bundle.DesignPath = bundle.ViewsPath
 	return bundle, nil
+}
+
+// loadManifest resolves the manifest path and decodes the manifest at the
+// current schema version.
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046
+func loadManifest(manifestPath string) (string, ManifestDocument, error) {
+	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
+		return "", ManifestDocument{}, fmt.Errorf("engmod.yml is the only supported model entry point")
+	}
+	manifestPath, err := filepath.Abs(manifestPath)
+	if err != nil {
+		return "", ManifestDocument{}, fmt.Errorf("resolve manifest path: %w", err)
+	}
+
+	var manifest ManifestDocument
+	if err := decodeYAMLFile(manifestPath, &manifest); err != nil {
+		return "", ManifestDocument{}, fmt.Errorf("decode manifest file: %w", err)
+	}
+	manifest.SchemaVersion, err = EffectiveSchemaVersion(manifest.SchemaVersion)
+	if err != nil {
+		return "", ManifestDocument{}, fmt.Errorf("manifest schema: %w", err)
+	}
+	return manifestPath, manifest, nil
 }
 
 // documentLoader decodes the documents a manifest references, relative to the

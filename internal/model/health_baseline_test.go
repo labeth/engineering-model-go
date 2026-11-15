@@ -129,6 +129,13 @@ func TestHealthBaselineEncodeIsCanonicalAndRoundTrips(t *testing.T) {
 	if err != nil || string(again) != canonicalBaselineJSON {
 		t.Fatalf("re-encoding differs: %v\n%s", err, again)
 	}
+	requireEmptyBaselineEncodesList(t)
+}
+
+// requireEmptyBaselineEncodesList fails unless an empty baseline encodes its
+// entries as [].
+func requireEmptyBaselineEncodesList(t *testing.T) {
+	t.Helper()
 	empty, err := EncodeHealthBaseline(nil)
 	if err != nil || !strings.Contains(string(empty), `"entries": []`) {
 		t.Fatalf("an empty baseline must encode entries as []: %v %s", err, empty)
@@ -203,8 +210,9 @@ func TestLoadHealthBaselineResolvesAgainstTheManifest(t *testing.T) {
 
 	dir := t.TempDir()
 	manifest := filepath.Join(dir, "engmod.yml")
-	requireBaselineRefused(t, manifest, "model/b.json", "model/b.json")
-	requireBaselineRefused(t, manifest, "../b.json", "")
+	refuse := baselineRefusal{t: t, manifest: manifest}
+	refuse.file("model/b.json", "model/b.json")
+	refuse.file("../b.json", "")
 	data, _ := EncodeHealthBaseline([]HealthBaselineEntry{{Path: "a.go", Function: "f", Code: "health.large_method", Value: 5}})
 	writeBaselineFile(t, filepath.Join(dir, "model", "b.json"), data)
 	got, err := LoadHealthBaseline(manifest, "model/b.json")
@@ -212,16 +220,22 @@ func TestLoadHealthBaselineResolvesAgainstTheManifest(t *testing.T) {
 		t.Fatalf("load: %v %+v", err, got)
 	}
 	writeBaselineFile(t, filepath.Join(dir, "model", "bad.json"), []byte("{"))
-	requireBaselineRefused(t, manifest, "model/bad.json", "model/bad.json")
+	refuse.file("model/bad.json", "model/bad.json")
 }
 
-// requireBaselineRefused fails unless loading file is an ErrHealthBaseline
-// error that names the fragment (any error when the fragment is empty).
-func requireBaselineRefused(t *testing.T, manifest, file, fragment string) {
-	t.Helper()
-	_, err := LoadHealthBaseline(manifest, file)
+// baselineRefusal checks that baseline files of one manifest are refused.
+type baselineRefusal struct {
+	t        *testing.T
+	manifest string
+}
+
+// file fails unless loading file is an ErrHealthBaseline error that names the
+// fragment (any such error when the fragment is empty).
+func (r baselineRefusal) file(file, fragment string) {
+	r.t.Helper()
+	_, err := LoadHealthBaseline(r.manifest, file)
 	if !errors.Is(err, ErrHealthBaseline) || !strings.Contains(err.Error(), fragment) {
-		t.Fatalf("baseline %s: %v", file, err)
+		r.t.Fatalf("baseline %s: %v", file, err)
 	}
 }
 

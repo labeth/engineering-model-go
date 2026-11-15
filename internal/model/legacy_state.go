@@ -95,10 +95,17 @@ func StripLegacyStateVocabulary(source []byte) ([]byte, error) {
 	}
 	removeMappingKey(behavior, "states")
 	dropLegacyRelationships(mappingValue(behavior, "relationships"))
+	return encodeYAMLNode(&root)
+}
+
+// encodeYAMLNode renders a YAML document node with two-space indent.
+//
+// TRLC-LINKS: REQ-EMG-139
+func encodeYAMLNode(root *yaml.Node) ([]byte, error) {
 	var out bytes.Buffer
 	encoder := yaml.NewEncoder(&out)
 	encoder.SetIndent(2)
-	if err := encoder.Encode(&root); err != nil {
+	if err := encoder.Encode(root); err != nil {
 		return nil, err
 	}
 	if err := encoder.Close(); err != nil {

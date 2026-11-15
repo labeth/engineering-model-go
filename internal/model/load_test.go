@@ -203,13 +203,20 @@ func TestSchemaRejectsQualifiedLocalRiskAndThreatIDs(t *testing.T) {
 		"threatScenario": "  threatScenarios:\n    - id: %s\n      title: T\n      status: accepted\n      appliesTo: [FU-A]\n",
 	} {
 		t.Run(name, func(t *testing.T) {
-			for _, id := range []string{"dep::RISK-X", "RISK-X"} {
-				err := loadWithAssuranceEntry(t, fmt.Sprintf(entry, id))
-				if qualified := strings.Contains(id, "::"); qualified != (err != nil) {
-					t.Fatalf("%s id %q: load error %v, want rejected only for alias::ID", name, id, err)
-				}
-			}
+			requireRejectedOnlyWhenQualified(t, entry, "dep::RISK-X")
+			requireRejectedOnlyWhenQualified(t, entry, "RISK-X")
 		})
+	}
+}
+
+// requireRejectedOnlyWhenQualified loads the fixture with the entry format
+// filled with id and fails unless the load is rejected exactly when the id is
+// an alias::ID.
+func requireRejectedOnlyWhenQualified(t *testing.T, entry, id string) {
+	t.Helper()
+	err := loadWithAssuranceEntry(t, fmt.Sprintf(entry, id))
+	if qualified := strings.Contains(id, "::"); qualified != (err != nil) {
+		t.Fatalf("id %q: load error %v, want rejected only for alias::ID", id, err)
 	}
 }
 
@@ -239,12 +246,19 @@ func TestBuildAuthoringContractDescribesSchemaV2(t *testing.T) {
 	}
 
 	for _, document := range contract.Documents {
-		if !document.Required || document.SchemaVersion != CurrentSchemaVersion {
-			t.Fatalf("incomplete document contract: %+v", document)
-		}
-		if document.Path == "" || document.SchemaPath == "" {
-			t.Fatalf("incomplete document contract: %+v", document)
-		}
+		requireCompleteDocumentContract(t, document)
+	}
+}
+
+// requireCompleteDocumentContract fails unless the document is required, at
+// the current schema version and names its path and schema path.
+func requireCompleteDocumentContract(t *testing.T, document AuthoringDocument) {
+	t.Helper()
+	if !document.Required || document.SchemaVersion != CurrentSchemaVersion {
+		t.Fatalf("incomplete document contract: %+v", document)
+	}
+	if document.Path == "" || document.SchemaPath == "" {
+		t.Fatalf("incomplete document contract: %+v", document)
 	}
 }
 
@@ -261,16 +275,16 @@ func TestLoadBundleIncludesOptionalAviationDocument(t *testing.T) {
 	if len(contract.Documents) != 10 {
 		t.Fatalf("expected optional aviation authoring document, got %+v", contract.Documents)
 	}
-	requireLastOptionalDocument(t, contract, "aviation", "internal/model/schema/aviation.cue")
+	requireLastOptionalDocument(t, contract, AuthoringDocument{Kind: "aviation", SchemaPath: "internal/model/schema/aviation.cue"})
 }
 
 // requireLastOptionalDocument fails unless the last document of the contract is
-// the optional document of the given kind and schema path.
-func requireLastOptionalDocument(t *testing.T, contract AuthoringContract, kind, schemaPath string) {
+// an optional one with the kind and schema path of want.
+func requireLastOptionalDocument(t *testing.T, contract AuthoringContract, want AuthoringDocument) {
 	t.Helper()
 	last := contract.Documents[len(contract.Documents)-1]
-	if last.Kind != kind || last.Required || last.SchemaPath != schemaPath {
-		t.Fatalf("unexpected %s authoring contract document: %+v", kind, last)
+	if last.Kind != want.Kind || last.Required || last.SchemaPath != want.SchemaPath {
+		t.Fatalf("unexpected %s authoring contract document: %+v", want.Kind, last)
 	}
 }
 
@@ -434,14 +448,26 @@ func TestArchitectureYAMLDecodesCanonicalStructuralAndBehavioralSemantics(t *tes
 	if len(semantics.Imports) != 1 || len(semantics.Elements) != 3 || len(semantics.Relationships) != 1 {
 		t.Fatalf("unexpected semantic content: %+v", semantics)
 	}
-	part := semantics.Elements[1]
+	requireStructuralModifiers(t, semantics.Elements[1])
+	requireBehavioralTransition(t, semantics.Relationships[0])
+}
+
+// requireStructuralModifiers fails unless the part decoded with multiplicity
+// upper bound 4 and unique set to false.
+func requireStructuralModifiers(t *testing.T, part SemanticElement) {
+	t.Helper()
 	if part.Multiplicity == nil || part.Multiplicity.Upper == nil || *part.Multiplicity.Upper != 4 {
 		t.Fatalf("structural modifiers were not decoded: %+v", part)
 	}
 	if part.Unique == nil || *part.Unique {
 		t.Fatalf("structural modifiers were not decoded: %+v", part)
 	}
-	transition := semantics.Relationships[0]
+}
+
+// requireBehavioralTransition fails unless the relationship decoded as a
+// transition with one trigger, a guard and an effect.
+func requireBehavioralTransition(t *testing.T, transition SemanticRelationship) {
+	t.Helper()
 	if transition.Kind != RelationshipTransition || len(transition.Triggers) != 1 {
 		t.Fatalf("behavioral semantics were not decoded: %+v", transition)
 	}

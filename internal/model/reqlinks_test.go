@@ -62,7 +62,7 @@ func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
 	requireContractAssumption(t, bundle)
 	requireLoadedReqLinks(t, bundle)
 	contract := BuildAuthoringContract(bundle)
-	requireLastOptionalDocument(t, contract, "reqLinks", "internal/model/schema/reqlinks.cue")
+	requireLastOptionalDocument(t, contract, AuthoringDocument{Kind: "reqLinks", SchemaPath: "internal/model/schema/reqlinks.cue"})
 }
 
 // requireContractAssumption fails unless the bundle carries the one assumption
@@ -80,15 +80,28 @@ func requireContractAssumption(t *testing.T, bundle Bundle) {
 func requireLoadedReqLinks(t *testing.T, bundle Bundle) {
 	t.Helper()
 	links := bundle.ReqLinks.ReqLinks
-	fail := func() { t.Fatalf("reqLinks = %+v (%s)", links, bundle.ReqLinksPath) }
-	if len(links) != 2 || links[0].Parent != "REQ-A" || links[0].Pinned.Version != "v1.2.4-0.20261102103400-abcdef123456" {
-		fail()
+	if len(links) != 2 || filepath.Base(bundle.ReqLinksPath) != "req-links.yml" {
+		t.Fatalf("reqLinks = %+v (%s)", links, bundle.ReqLinksPath)
 	}
-	if links[1].Evidence[0] != "REQ-A" || links[1].Status != "claimed" || filepath.Base(bundle.ReqLinksPath) != "req-links.yml" {
-		fail()
+	requirePinnedParentLink(t, links[0])
+	requireClaimedEvidenceLink(t, links[1])
+}
+
+// requirePinnedParentLink fails unless the link is the fixture link to REQ-A
+// with a pseudo-version pin and no fingerprint.
+func requirePinnedParentLink(t *testing.T, link ReqLink) {
+	t.Helper()
+	if link.Parent != "REQ-A" || link.Pinned.Version != "v1.2.4-0.20261102103400-abcdef123456" || link.Pinned.Fingerprint != "" {
+		t.Fatalf("reqLinks[0] = %+v", link)
 	}
-	if links[0].Pinned.Fingerprint != "" || !strings.HasPrefix(links[1].Pinned.Fingerprint, "sha256:") {
-		fail()
+}
+
+// requireClaimedEvidenceLink fails unless the link is the claimed fixture link
+// with evidence REQ-A and a sha256 fingerprint.
+func requireClaimedEvidenceLink(t *testing.T, link ReqLink) {
+	t.Helper()
+	if link.Evidence[0] != "REQ-A" || link.Status != "claimed" || !strings.HasPrefix(link.Pinned.Fingerprint, "sha256:") {
+		t.Fatalf("reqLinks[1] = %+v", link)
 	}
 }
 

@@ -111,12 +111,9 @@ func loadExplicitWorkspace(mode string) (WorkspaceDocument, string, error) {
 // TRLC-LINKS: REQ-EMG-048, REQ-EMG-063, REQ-EMG-108
 // ENGMODEL-LINKS: FU-MODEL-LOADER, FU-SYSTEM-COMPOSITION
 func searchWorkspaceUpward(start string) (WorkspaceDocument, string, error) {
-	dir, err := filepath.Abs(start)
+	dir, err := searchStartDir(start)
 	if err != nil {
 		return WorkspaceDocument{}, "", err
-	}
-	if info, statErr := os.Stat(dir); statErr == nil && !info.IsDir() {
-		dir = filepath.Dir(dir)
 	}
 	for {
 		workspace, path, found, err := workspaceIn(dir)
@@ -129,6 +126,20 @@ func searchWorkspaceUpward(start string) (WorkspaceDocument, string, error) {
 		}
 		dir = parent
 	}
+}
+
+// searchStartDir returns the absolute directory the upward search starts in:
+// start itself, or its directory when start is a file.
+// TRLC-LINKS: REQ-EMG-048, REQ-EMG-063
+func searchStartDir(start string) (string, error) {
+	dir, err := filepath.Abs(start)
+	if err != nil {
+		return "", err
+	}
+	if info, statErr := os.Stat(dir); statErr == nil && !info.IsDir() {
+		dir = filepath.Dir(dir)
+	}
+	return dir, nil
 }
 
 // workspaceIn loads the workspace file of one directory: found is false when
