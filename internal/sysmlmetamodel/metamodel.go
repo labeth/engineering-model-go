@@ -235,6 +235,7 @@ type loadedPackages struct {
 type originMap map[string]string
 
 // addFirst records origin for name unless a first declaration is known.
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
 func (m originMap) addFirst(name, origin string) {
 	if _, exists := m[name]; !exists {
 		m[name] = origin
@@ -316,6 +317,7 @@ func (l loadedPackages) recordOrigins(origin string, pkg ePackage) {
 }
 
 // eachClassifier calls visit for every classifier of every package.
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
 func (l loadedPackages) eachClassifier(visit func(pkg parsedPackage, classifier eClassifier)) {
 	for _, pkg := range l.packages {
 		for _, classifier := range pkg.raw.Classifiers {
@@ -325,6 +327,7 @@ func (l loadedPackages) eachClassifier(visit func(pkg parsedPackage, classifier 
 }
 
 // resolver returns the reference resolver of the packages of origin.
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
 func (l loadedPackages) resolver(origin string) resolver {
 	return resolver{classes: l.classOrigin, enums: l.enumOrigin, origin: origin}
 }
@@ -365,6 +368,7 @@ func (l loadedPackages) newClass(pkg parsedPackage, classifier eClassifier) *Met
 }
 
 // sortOwnedProperties orders the owned properties of class by name.
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
 func sortOwnedProperties(class *Metaclass) {
 	sort.Slice(class.OwnedProperties, func(i, j int) bool { return class.OwnedProperties[i].Name < class.OwnedProperties[j].Name })
 }
