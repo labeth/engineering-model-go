@@ -3,6 +3,7 @@ package mcp
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -179,11 +180,7 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 	s := initializedPaymentsServer(t)
 	full := s.callToolPayload(t, "trace.matrix", map[string]any{})
 	summary, _ := full["summary"].(map[string]any)
-	for _, key := range []string{"requirements", "implemented", "tested", "testLinked", "passed", "delegated", "orphan", "dangling"} {
-		if _, ok := summary[key]; !ok {
-			t.Fatalf("trace.matrix summary missing %q: %+v", key, summary)
-		}
-	}
+	check(t, "trace.matrix summary").keysPresent(summary, "requirements", "implemented", "tested", "testLinked", "passed", "delegated", "orphan", "dangling")
 	if summary["testLinked"] != summary["tested"] {
 		t.Fatalf("testLinked must equal tested: %+v", summary)
 	}
@@ -191,26 +188,27 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 		t.Fatalf("full trace.matrix must list requirement rows")
 	}
 	for _, arg := range []any{true, "true"} {
-		short := s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": arg})
-		for _, key := range []string{"requirements", "orphans", "danglingLinks"} {
-			if _, ok := short[key]; ok {
-				t.Fatalf("summaryOnly=%v must omit %q: %+v", arg, key, short)
-			}
-		}
-		if _, ok := short["diagnostics"]; !ok {
-			t.Fatalf("summaryOnly=%v must keep diagnostics", arg)
-		}
-		if got, _ := short["summary"].(map[string]any); got["requirements"] != summary["requirements"] {
-			t.Fatalf("summaryOnly=%v summary differs: %+v vs %+v", arg, got, summary)
-		}
+		s.requireSummaryOnly(t, arg, summary)
 	}
 	if rows, _ := s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": "false"})["requirements"].([]any); len(rows) == 0 {
 		t.Fatalf("summaryOnly=false must keep requirement rows")
 	}
 	schema := inputSchemaForTool("trace.matrix")
 	props, _ := schema["properties"].(map[string]any)
-	if _, ok := props["summaryOnly"]; !ok {
-		t.Fatalf("trace.matrix inputSchema must declare summaryOnly: %+v", schema)
+	check(t, "trace.matrix inputSchema properties").keysPresent(props, "summaryOnly")
+}
+
+// requireSummaryOnly requires summaryOnly=arg to drop the rows, keep the
+// diagnostics and report the same summary requirements count.
+// TRLC-LINKS: REQ-EMG-030, REQ-EMG-061, REQ-EMG-008
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func (s *Server) requireSummaryOnly(t *testing.T, arg any, summary map[string]any) {
+	t.Helper()
+	short := s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": arg})
+	check(t, fmt.Sprintf("summaryOnly=%v", arg)).keysAbsent(short, "requirements", "orphans", "danglingLinks")
+	check(t, fmt.Sprintf("summaryOnly=%v", arg)).keysPresent(short, "diagnostics")
+	if got, _ := short["summary"].(map[string]any); got["requirements"] != summary["requirements"] {
+		t.Fatalf("summaryOnly=%v summary differs: %+v vs %+v", arg, got, summary)
 	}
 }
 
