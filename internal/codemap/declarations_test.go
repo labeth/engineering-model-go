@@ -74,6 +74,23 @@ func TestDeclarationsOfGoReportsLines(t *testing.T) {
 	}
 }
 
+// A type declares one name: the type it is defined as is no declaration, and neither is the type of a var.
+// Mutation: reading every leading identifier of a spec as a name fails this test.
+// TRLC-LINKS: REQ-EMG-192
+func TestDeclarationsOfGoTypeSpecDeclaresOneName(t *testing.T) {
+	decls, err := DeclarationsOf("p/q.go", []byte("package p\n\ntype Beta int\n\ntype Gamma = Beta\n\nvar a, b Beta\n\nconst C Beta = 1\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := []string{}
+	for _, d := range decls {
+		got = append(got, d.Name)
+	}
+	if !reflect.DeepEqual(got, []string{"Beta", "Gamma", "a", "b", "C"}) {
+		t.Errorf("declared names %v, want Beta, Gamma, a, b, C once each", got)
+	}
+}
+
 func writeTree(t *testing.T, files map[string]string) string {
 	t.Helper()
 	root := t.TempDir()

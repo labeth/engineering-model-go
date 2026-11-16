@@ -1,0 +1,58 @@
+[
+ {
+  "file": "internal/trace/delta.go",
+  "find": "case old.traced() && !now.traced():",
+  "replace": "case old.traced():",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "if now.tested() && !old.tested() {",
+  "replace": "if now.tested() || !old.tested() {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "if now.orphaned() && !old.orphaned() {",
+  "replace": "if now.orphaned() {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "if old.orphaned() && !now.orphaned() {",
+  "replace": "if old.orphaned() {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "if old.present && old.row.Status != now.row.Status {",
+  "replace": "if old.row.Status != now.row.Status {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "for _, r := range to.Requirements {",
+  "replace": "for _, r := range from.Requirements {",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ },
+ {
+  "file": "internal/trace/delta.go",
+  "find": "func traced(r Row) bool { return len(r.Code) > 0 || len(r.Verifications) > 0 }",
+  "replace": "func traced(r Row) bool { return len(r.Code) > 0 }",
+  "req": [
+   "REQ-EMG-191"
+  ]
+ }
+]

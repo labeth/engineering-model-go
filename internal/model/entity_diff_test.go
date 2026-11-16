@@ -101,3 +101,13 @@ func TestDiffListsAreNeverNil(t *testing.T) {
 		expect(t, nonNil, "%s is nil", name)
 	}
 }
+
+// Every list of the diff is sorted by ID, whatever the order of the indexes.
+// Mutation: sorting descending or not sorting fails this test.
+// TRLC-LINKS: REQ-EMG-190
+func TestDiffEntityIndexesListsAreSortedByID(t *testing.T) {
+	d := DiffEntityIndexes(EntityIndex{}, EntityIndex{Entities: entities(req("REQ-9", nil), req("REQ-2", nil), req("REQ-5", nil))})
+	expect(t, reflect.DeepEqual(changeIDs(d.Added), []string{"REQ-2", "REQ-5", "REQ-9"}), "added %v", changeIDs(d.Added))
+	r := DiffEntityIndexes(EntityIndex{Entities: entities(req("REQ-9", nil), req("REQ-2", nil), req("REQ-5", nil))}, EntityIndex{})
+	expect(t, reflect.DeepEqual(changeIDs(r.Removed), []string{"REQ-2", "REQ-5", "REQ-9"}), "removed %v", changeIDs(r.Removed))
+}

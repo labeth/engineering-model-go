@@ -52,6 +52,11 @@ func TestEntityIndexKindsAndTitles(t *testing.T) {
 		"SM-MODEL-VALIDATION":     "machine",
 		"STATE-MODEL-VALID":       "state",
 		"ADR-EMG-001":             "decision",
+
+		"TS-ARTIFACT-PARSE-ABUSE":         "threat_scenario",
+		"VER-ARTIFACT-FRESHNESS-GATE":     "control_verification",
+		"POAM-CONSISTENCY-BATCH1":         "poam_item",
+		"COND-CATALOG-REFERENCES-RESOLVE": "catalog_term",
 	}
 	for id, kind := range cases {
 		e := requireEntity(t, idx, id)

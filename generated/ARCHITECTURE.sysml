@@ -2535,12 +2535,6 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-03758739C61FBDFA';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-0B3CFBC93B76A5B3";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-0B3CFBC93B76A5B3';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-139EC30ED19D5D0E";
         conceptKind = "engineering_extension";
     }
@@ -3795,12 +3789,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'POAM-CONSISTENCY-MODEL-ONLY';
-
-    @EngineeringElement {
-        sourceId = "POAM-HEALTH-FLOOR";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-HEALTH-FLOOR';
 
     @EngineeringElement {
         sourceId = "POAM-MCP-PATH-FUZZING";
@@ -5662,7 +5650,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-196' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the entity index of a bundle with the kind, document, parent and fields of each entity and each reference between entities.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. BuildEntityIndex is the Go API of the behavior REQ-EMG-189 states; it reads the bundle only and writes nothing. No test calls the function through the root package: the tests of REQ-EMG-189 call the internal function it delegates to, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. BuildEntityIndex is the Go API of the behavior REQ-EMG-189 states; it reads the bundle only and writes nothing. The root-package tests TestBuildEntityIndex* (api_diff_test.go) call it through the facade.";
     }
 
     @EngineeringElement {
@@ -5671,7 +5659,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-197' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the difference of a model between two revisions with the entities added, removed and changed.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is REQ-EMG-190 and REQ-EMG-191; no test calls these functions through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is REQ-EMG-190 and REQ-EMG-191; the root-package tests TestDiffModels*, TestDiffEntityIndexesThroughTheFacade and TestDiffTraceMatricesThroughTheFacade (api_diff_test.go, api_trace_test.go) call them through the facade.";
     }
 
     @EngineeringElement {
@@ -5680,7 +5668,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-198' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the trace matrix of a model with the code, tests and verifications of each requirement.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the requirements path and the code root, scans the code and returns the matrix with the findings of the scan. Integration tests call it through the root package but carry no requirement link, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the requirements path and the code root, scans the code and returns the matrix with the findings of the scan. The root-package test TestBuildTraceMatrixFromFilesRowsOrphansAndFindings (api_trace_test.go) calls it through the facade.";
     }
 
     @EngineeringElement {
@@ -5707,7 +5695,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-201' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return every catalog term of a bundle with the requirements that name it and the entities that reference it.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is REQ-EMG-193; no test calls the function through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is REQ-EMG-193; the root-package tests TestCatalogUsage* (api_catalog_test.go) call it through the facade.";
     }
 
     @EngineeringElement {
@@ -5716,7 +5704,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-202' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the composed system of a model with its resolved dependencies and the diagnostics of the composition.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The tests of composition call the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The root-package tests TestGenerateCompositionFromFileWith* (api_composition_test.go) call the first through the facade.";
     }
 
     @EngineeringElement {
@@ -5725,7 +5713,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-203' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the contract items of a bundle with the realizing requirements of each item.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. No test calls them through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. The root-package tests TestContractItemsFromBundle* and TestSortedContractItemRealizersReturnsASortedCopy (api_reqlinks_test.go) call them through the facade.";
     }
 
     @EngineeringElement {
@@ -5734,7 +5722,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-204' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the status of each requirement link of a bundle against the contract items of its dependencies.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. LinkDependencies turns a composed system into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the requirement links of REQ-EMG-097; the integration tests call the internal evaluation, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LinkDependencies turns a composed system into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the requirement links of REQ-EMG-097; the root-package tests TestEvaluateRequirementLinks* (api_reqlinks_test.go) call the evaluation through the facade.";
     }
 
     @EngineeringElement {
@@ -5743,7 +5731,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-205' {
         attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the requirement links that the other checkouts of a workspace hold on the contract items of a bundle.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is REQ-EMG-107; no test calls it through the root package, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is REQ-EMG-107; the root-package test TestWorkspaceLinkUsersReturnsTheLinksOfTheSiblings (api_composition_test.go) calls it through the facade.";
     }
 
     @EngineeringElement {
@@ -5752,7 +5740,7 @@ package 'engineering-model-go' {
     }
     requirement def 'REQ-EMG-206' {
         attribute 'text' : 'String' = "When go bundle load failed event is raised, the engineering model go shall return the error of the load and an empty bundle.";
-        attribute 'notes' : 'String' = "ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a model (SM-GO-BUNDLE-SESSION). The tests of the loader check the errors through the internal function, so this requirement has no linked test and its verification is recorded as evidence debt (POAM-CONSISTENCY-BATCH1).";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a model (SM-GO-BUNDLE-SESSION). The root-package test TestLoadBundleFailureReturnsAnErrorAndAnEmptyBundle (api_diff_test.go) checks the errors and the empty bundle through the facade.";
     }
 
     @EngineeringElement {
@@ -5789,15 +5777,6 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-210' {
         attribute 'text' : 'String' = "While project tier is at least product, when health check is requested, the code health check shall report one error for each changed file below the floor that no baseline entry covers.";
         attribute 'notes' : 'String' = "ADR-EMG-087. enghealth check evaluates health.file_below_floor for the source files changed between the base revision and the head, with the same floor, level and cover as the scan: it reads the baseline of the head manifest for this only (a regression is still never baselined). A file that gets below the floor, a file that is new below it and a changed file that was already below it and is not covered fail the check where the code is an error; the files are listed under belowFloor of the JSON report and as results of the SARIF rule health.file_below_floor. A lowered floor against the base revision is a weakening (health.policy_weakened, aspect floor). A new or worsened warn finding is no regression, so the floor is the gate that holds a changed file to 10.0 at once.";
-    }
-
-    @EngineeringElement {
-        sourceId = "REQ-EMG-211";
-        conceptKind = "requirement_definition";
-    }
-    requirement def 'REQ-EMG-211' {
-        attribute 'text' : 'String' = "The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.";
-        attribute 'notes' : 'String' = "ADR-EMG-087. A requirement of this repository, not of the engine contract, so it is not published. It is met when the baseline model/health-baseline.json is empty (the owner: \"get a 10/10 score in all files in model, tool, flow\"), and it is verified by the scan with an empty baseline (enghealth scan --model engmod.yml --fail-on-error), which reports no health.file_below_floor and no finding. The baseline lists the files that do not meet it yet; REQ-EMG-209 makes each of them explicit and lets the baseline only shrink. The status stays proposed until the baseline is empty; it is not verified by the rule that reports the gap.";
     }
 
     @EngineeringElement {

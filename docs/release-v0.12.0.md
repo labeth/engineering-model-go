@@ -62,9 +62,7 @@ Behaviour that is stricter for downstream (all listed in `CHANGELOG.md`):
 | `TestDeeplyNestedSourcesDoNotCrashOrStall` alone | pass 3 of 3 (8 s each); with 8 busy loops running next to it, pass (22 s) |
 | `scripts/validate-all.sh` (12 min 40 s) | build, enghealth scan, example generation, engdoc/engtrace/engnaf on 5 models, engquint generate and check `--mode both` on 5 models, SysML official parser and KPAR round trip: pass. Artifact freshness: only `generated/ARCHITECTURE.adoc` changed (line numbers of the edited test file); committed in `b3e1100`. Generated format conformance: skipped (needs Docker, see below) |
 | `enghealth scan --fail-on-error` | pass (no finding is an error at tier operational) |
-| `enghealth check --base v0.11.0` and `--base master` | FAIL: `policy weakened (poam)`, POAM-CONSISTENCY-BATCH1 defers 18 diagnostics more than at the base (REQ-EMG-189 to REQ-EMG-206); no regression, 0 new findings. See the owner item below |
-| `enghealth check --base feat/tool-support` | the run before `b3e1100` reported the 2 defers of REQ-EMG-207 and 208; those two requirements are now verified and their defers are removed |
-| `engws release-check --tag v0.12.0` | ok |
+| `enghealth check --base v0.11.0`, `--base master` and `--base origin/master` (the base of the CI `health` job) | ok, no regressions: the POA&M weakening is gone because REQ-EMG-189 to REQ-EMG-206 are verified and their defers removed (see OWNER item 1); the new test files add 41 findings below the thresholds that fail |
 | Red checks for REQ-EMG-207 and 208 | 27 of 27 RED (`red-check.mjs --mutations`, command `go test -count=1 ./internal/validate`, every failure an assertion, none a build failure); recorded in the git-ignored `.engflow/red-checks.jsonl` of the worktree |
 
 Not run, with the reason:
@@ -92,45 +90,33 @@ repository whose trunk is `master`; `master` and `origin/master` are now default
 or Docker: the installers (`scripts/install-*.sh`), `validate-gemara.sh`, `fetch-threat-dragon-schemas.sh` and the external
 format validators; none is in the default path except the format validators (Docker).
 
-## OWNER item 1: the POA&M weakening against the release base
+## OWNER item 1: the POA&M weakening against the release base (resolved by evidence, no decision needed)
 
-`enghealth check --base v0.11.0` (and `--base master`, which is the base of the pull request) fails on `health.policy_weakened`:
-`POAM-CONSISTENCY-BATCH1` defers `lifecycle.requirement_unverified` for 18 new requirements, REQ-EMG-189 to REQ-EMG-206, the
-entity index, model diff, code lookup and the Go API of the facade. REQ-EMG-207 and 208 no longer need a defer: they are
-verified from the recorded red checks. The 18 cannot be verified honestly today: eight (REQ-EMG-196, 197, 198, 201 to 205) have no
-linked test (`engws status-suggest` says "no test link"), and the other ten have a linked test but no recorded red check (nine
-of the 18 have no test that calls the function through the root package, as POAM-CONSISTENCY-BATCH1 says).
-The weakening is allowed only with an accepted `health.policyDecision` in `engmod.yml` that names a decision in
-`model/decisions.yml`; the agent must not write the acceptance. The route that needs no decision is to write the nine facade tests
-and record red checks for all 18 (about a day of work), then remove the defers.
+`enghealth check` failed on `health.policy_weakened`: `POAM-CONSISTENCY-BATCH1` deferred `lifecycle.requirement_unverified` for 18 new
+requirements, REQ-EMG-189 to REQ-EMG-206, the entity index, model diff, code lookup and the Go API of the facade. Fabricating a
+verification or writing an owner decision was not an option, so the evidence was produced instead:
 
-DRAFT text for a decision (not accepted, not in the model; it records nothing until the owner writes the acceptance in the
-owner's own words and sets `health.policyDecision: DEC-HEALTH-GO-API-EVIDENCE-DEBT` in `engmod.yml`):
+- Root-package facade tests call every public function through the facade and assert each criterion of the requirement
+  (`api_diff_test.go`, `api_trace_test.go`, `api_reqlinks_test.go`, `api_composition_test.go`, `api_catalog_test.go`,
+  `api_validate_test.go`, `api_code_test.go`, `facade_test.go`); the tests of the internal functions were strengthened where a
+  criterion was not asserted (kinds of the entity index, sorted lists, a trace gained by a test alone, the reading of a Go type spec).
+- `scripts/red-checks/` holds the mutations (two or more per requirement, in the function the requirement describes: wrong order,
+  dropped field, swapped diff direction, missing error path) and `run.sh`, which runs them with `red-check.mjs`. Every one is RED with
+  a failed assertion (no build failure). `engws status-suggest` suggests `verified` for all 18 on the tree they ran on, and the 18 are now
+  `verified` with their defers removed from `POAM-CONSISTENCY-BATCH1`.
+- REQ-EMG-189 to REQ-EMG-193 (the behavior) and REQ-EMG-196 to REQ-EMG-201 (its Go API) describe the same functions twice; both sets are
+  kept, each linked to the tests that call the function.
+- The facade test of REQ-EMG-199 found a defect, fixed here: `CodeDeclarationsOf` listed the defining type of a Go declaration
+  (`type Beta int`) as a declaration named `int`.
 
-```yaml
-- id: DEC-HEALTH-GO-API-EVIDENCE-DEBT
-  title: The verification of the Go API and the entity index requirements is deferred by POA&M to tier operational
-  status: proposed        # the owner changes this to accepted
-  date: 2026-11-15
-  context: |-
-    DRAFT written by the release agent. Release v0.12.0 adds REQ-EMG-189 to REQ-EMG-206 (entity index, model diff, code
-    lookup, catalog usage, Go facade). POAM-CONSISTENCY-BATCH1 defers their lifecycle.requirement_unverified diagnostics,
-    which enghealth check reports as a policy weakening against v0.11.0 (18 more defers). Eight have no linked test and ten
-    have a test but no red check. REQ-EMG-207 and 208 are verified and not part of this.
-    Owner statement (the owner writes this, verbatim): "<the owner's own words>"
-  decision: |-
-    Accept the 18 deferred requirements as evidence debt until the due date of POAM-CONSISTENCY-BATCH1 (2027-06-30); no
-    requirement among them is marked verified until a facade test and a recorded red check exist.
-  consequences:
-  - The check passes for this release only because the debt is recorded; the due date still expires through lifecycle.poam_overdue.
-  - Reversing the decision makes the 18 diagnostics block again at tier operational.
-```
+Nothing is deferred, so no `health.policyDecision` is needed. The red-check evidence lives in the git-ignored `.engflow/red-checks.jsonl` and is tied to one tree
+(any later change makes `engws status-suggest` report "no RED red-check for this tree" again, as for REQ-EMG-207 and 208); run
+`scripts/red-checks/run.sh` on the tree you want to confirm.
 
 ## OWNER item 3: every file scores 10.0 (ADR-EMG-087, added after the validation table above)
 
 The owner asked for a requirement of 10/10 on all files at the two highest tiers. Implemented as `health.file_below_floor`
-(REQ-EMG-209 scan, REQ-EMG-210 check, published with `CAP-EMG-CODE-HEALTH`) and `REQ-EMG-211` (a requirement of this repository, not
-published, status `proposed`, met when `model/health-baseline.json` is empty). What the owner decides or should know:
+(REQ-EMG-209 scan, REQ-EMG-210 check, published with `CAP-EMG-CODE-HEALTH`). What the owner decides or should know:
 
 - **The baseline is the burn-down.** The scan of this repository reports the number: `summary.belowFloor` files are below 10.0 and
   `summary.floorCovered` of them are covered by the baseline (`enghealth scan` prints "files below the floor of 10.0: N, M covered
@@ -140,13 +126,14 @@ published, status `proposed`, met when `model/health-baseline.json` is empty). W
   findings at product and operational, so the new diagnostic adds the file-level message there, not a new failure. Its new effect is
   in `enghealth check` (a new or worsened warn finding is no regression, so a changed file could stay below 10.0) and below product
   (a warning for every file below 10.0 that no baseline covers).
-- **REQ-EMG-211 needs two more defers.** At tier operational a `proposed` requirement is `lifecycle.requirement_unapproved` and
-  `lifecycle.requirement_unverified`; the agent did not mark it verified. The two diagnostics are deferred by `POAM-HEALTH-FLOOR`
-  (see the model), which `enghealth check` counts as two more defers against the base, the same kind of weakening as OWNER item 1:
-  the decision of item 1 (`health.policyDecision`) covers both, and the draft above would say 20 deferred requirements and 2 more
-  defers. Without the defers `engdoc` reports the two diagnostics as errors at operational. `requirement.orphan` for REQ-EMG-211
-  is cleared by the test `TestRepositoryFilesAreAtTheFloorOrBaselined` (`cmd/enghealth`), which scans this repository at
-  tier operational and fails for a file below 10.0 that the baseline does not cover; it does not ask for an empty baseline.
+- **REQ-EMG-211 is held back until the baseline is empty.** The requirement of this repository itself, "every source file of this
+  repository shall score 10.0 at tier operational", can be verified only when `model/health-baseline.json` is empty, which another
+  branch (`feat/health-floor`) is burning down. As a `proposed` requirement at tier operational it would be
+  `lifecycle.requirement_unapproved` and `lifecycle.requirement_unverified` and would need a POA&M defer, a policy weakening that only
+  the owner decides, so it is not in this release: the release carries the rule (REQ-EMG-209, REQ-EMG-210, both verified), which is
+  the owner's ask. REQ-EMG-211 is added with the burn-down, when it can be verified at once. The test
+  `TestRepositoryFilesAreAtTheFloorOrBaselined` (`cmd/enghealth`, linked to REQ-EMG-210) scans this repository at tier operational
+  and fails for a file below 10.0 that the baseline does not cover; it does not ask for an empty baseline.
 - **REQ-EMG-209 and REQ-EMG-210 are `verified`** on the strength of 25 red-check mutations (every one failed an assertion; three
   more broke the build and were replaced, one passed until a missing test of the gate was added): `red-check.mjs --mutations`,
   commands `go test -count=1 ./internal/health`, `./internal/validate` and `-short ./internal/health/scan ./cmd/enghealth`,

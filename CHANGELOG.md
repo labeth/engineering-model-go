@@ -57,8 +57,12 @@ dependent or a check template must do:
 - `TestDeeplyNestedSourcesDoNotCrashOrStall` no longer fails on a loaded machine: the 4 MiB case sets a parse timeout of three
   minutes, so it tests the depth refusal and not the speed of the machine.
 - `REQ-EMG-207` and `REQ-EMG-208` have status `verified`: 27 mutations of the two rules, their tier rows, the schema relaxations and
-  the remedy registration were run with `red-check.mjs` and every one failed an assertion. The other requirements from `REQ-EMG-189` to
-  `REQ-EMG-206` stay `implemented` and are deferred by `POAM-CONSISTENCY-BATCH1` (see `docs/release-v0.12.0.md`).
+  the remedy registration were run with `red-check.mjs` and every one failed an assertion.
+- `REQ-EMG-189` to `REQ-EMG-206` (entity index, model diff, code lookup, catalog usage and the Go facade over them) have status
+  `verified` and no longer need a POA&M defer: root-package tests (`api_diff_test.go`, `api_trace_test.go`, `api_reqlinks_test.go`,
+  `api_composition_test.go`, `api_catalog_test.go`, `api_validate_test.go`, `api_code_test.go`) call every public function through the
+  facade and assert each criterion of the requirement, and the mutations in `scripts/red-checks/` (about 130, two or more per requirement)
+  were each RED with a failed assertion. `scripts/red-checks/run.sh` reproduces the evidence on any tree.
 
 ### Public Go API added for tools (root package `github.com/labeth/engineering-model-go`)
 
@@ -71,7 +75,8 @@ Used by the engineering tool; all are thin facades over `internal/` packages and
   `EntityEdgeField`, `EntityEdgeMention`, `EntityEdgeContains`, `EntityEdgeRelationship`.
 - Code lookup: `ListCodeDeclarations(Bundle, root string) ([]CodeDeclaration, error)`, `CodeDeclarationsOf(relPath string,
   src []byte) ([]CodeDeclaration, error)`, `FindCodeDefinitions(declarations, fromPath, name) []CodeDeclaration`; type
-  `CodeDeclaration`.
+  `CodeDeclaration`. A Go spec declares its own names only: the type a declaration is defined as (`type Beta int`, `var a, b Beta`)
+  is no declaration (found by the facade test of `REQ-EMG-199`).
 - Catalog: `CatalogUsage(Bundle) ([]CatalogTermUsage, error)`; type `CatalogTermUsage`.
 - No schema field was added; the signature changes of eleven existing functions are listed under Breaking at the top of this entry.
 - `cue.mod/module.cue` is added so the engine's model module (`github.com/labeth/engineering-model-go/model@v0`) can be composed
@@ -83,8 +88,8 @@ Used by the engineering tool; all are thin facades over `internal/` packages and
   requirement links), eleven data objects, four consumer flows with `ACT-GO-CONSUMER`, the machine `SM-GO-BUNDLE-SESSION` (checked
   with Quint), the published capability `CAP-EMG-GO-API` and the requirements that realize it. A consumer composes the model and
   references `alias::IF-GO-...` instead of a free-text referenced element. ADR-EMG-082 to 084 (the Go interface scope and three
-  language gaps) are recorded as proposed for the owner; none is implemented. The verification debt of the facade is deferred in
-  `POAM-CONSISTENCY-BATCH1`.
+  language gaps) are recorded as proposed for the owner; none is implemented. The facade requirements are verified by the root-package tests
+  and the red checks listed above.
 
 ### A dependency names its interface and an interface carries data (ADR-EMG-085 and 086, REQ-EMG-207 and 208)
 
@@ -95,7 +100,7 @@ Used by the engineering tool; all are thin facades over `internal/` packages and
 - The asciidoc functional collaboration and group dependency diagrams draw a `depends_on` that ends at an interface to the interface's owner, so the diagrams keep their edges.
 - The engine's own model now meets both rules: 28 dependencies go through an interface (five Go package interfaces `IF-GO-PKG-*` and nine interfaces of external tools and specifications), 14 command line interfaces and the new ones carry data in `FLOW-ARTIFACT-EXPORT` and `FLOW-ENGINE-INTEGRATIONS`, with 12 new data objects. The dependency of `FU-VALIDATION-ENGINE` on the Go toolchain is now the dependency of `FU-CLI-ORCHESTRATION` (engws is the code that runs `go`).
 
-### Every source file scores 10.0 unless the baseline lists it (ADR-EMG-087, REQ-EMG-209 to 211)
+### Every source file scores 10.0 unless the baseline lists it (ADR-EMG-087, REQ-EMG-209 and 210)
 
 Added to this release (`[0.12.0]`, not `[Unreleased]`) because it ships in the same release pull request.
 
@@ -103,7 +108,7 @@ Added to this release (`[0.12.0]`, not `[Unreleased]`) because it ships in the s
 - A file is covered when a baseline entry names a finding of it that the scan found; a stale entry covers nothing and a file whose every finding is waived scores 10.0. The baseline is the explicit list of exceptions and can only shrink (`health.baseline_stale`), so a new file, or a file with no entry, has to be clean at once, and with an empty baseline every file does. The report carries `floor`, `summary.belowFloor` and `summary.floorCovered` (the files left to burn down); the text summary prints the three numbers. `docs/health-report.schema.json` knows the new fields.
 - `health.floor` in the manifest (a number from 1.0 to 10.0, `model.invalid_health_floor` outside it, default 10.0) lowers the floor; lowering it against the base revision is `health.policy_weakened` (aspect `floor`), recorded only by an accepted `policyDecision`. The authoring contract stays `engineering-model.authoring.v8` (an optional field and a new code, no removal).
 - `enghealth check` lists the files under `belowFloor` (JSON), as results of the rule `health.file_below_floor` (SARIF) and in the text summary, adds `floorLevel`, and fails where the code is an error. Downstream effect: a repository at product or operational that has a baseline passes unchanged (every file below 10.0 that the baseline covers is only counted); one with no baseline fails for each changed file below 10.0, and at poc, prototype and mvp every file below 10.0 that the baseline does not cover is a warning.
-- Requirements of the engine's model: `REQ-EMG-209` (scan) and `REQ-EMG-210` (check) are published with `CAP-EMG-CODE-HEALTH`; `REQ-EMG-211` is a requirement of this repository (every source file scores 10.0 at tier operational), status `proposed` until `model/health-baseline.json` is empty, not published.
+- Requirements of the engine's model: `REQ-EMG-209` (scan) and `REQ-EMG-210` (check) are published with `CAP-EMG-CODE-HEALTH`; the requirement of this repository itself (every source file scores 10.0 at tier operational) is held back and added with the burn-down of `model/health-baseline.json`, when the baseline is empty.
 
 ### Requirement structure of the engine's own model
 

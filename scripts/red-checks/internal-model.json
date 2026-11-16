@@ -1,0 +1,138 @@
+[
+ {
+  "file": "internal/model/entities.go",
+  "find": "return idx.Entities[i].ID < idx.Entities[j].ID",
+  "replace": "return idx.Entities[i].ID > idx.Entities[j].ID",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "w.edges[EntityReference{From: parent, To: id, Via: EdgeContains, Type: EdgeContains}] = struct{}{}",
+  "replace": "_ = id",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "s.link(via, t, EdgeMention)",
+  "replace": "_ = t",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "if _, ok := s.known[to]; ok && to != s.from {",
+  "replace": "if to != s.from {",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "s.link(via, x, EdgeField)",
+  "replace": "s.link(via, x, EdgeMention)",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "w.relationships(m[k])",
+  "replace": "_ = k",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "e.Documents = append(e.Documents, w.document)",
+  "replace": "_ = e.Documents",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "case isEntityList(m[k]):",
+  "replace": "case false:",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "\"controlVerifications\": \"control_verification\"",
+  "replace": "\"controlVerifications\": \"control\"",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "\"decisions\", \"reqLinks\", \"aviation\", \"catalog\"}",
+  "replace": "\"decisions\", \"reqLinks\", \"aviation\"}",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entities.go",
+  "find": "sort.Slice(out, func(i, j int) bool { return referenceLess(out[i], out[j]) })",
+  "replace": "_ = referenceLess",
+  "req": [
+   "REQ-EMG-189"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "d.Added = append(d.Added, changeOf(e, nil))",
+  "replace": "d.Removed = append(d.Removed, changeOf(e, nil))",
+  "req": [
+   "REQ-EMG-190"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "if _, kept := after[e.ID]; !kept {",
+  "replace": "if _, kept := after[e.ID]; kept {",
+  "req": [
+   "REQ-EMG-190"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "case len(fields) > 0:",
+  "replace": "case len(fields) >= 0:",
+  "req": [
+   "REQ-EMG-190"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "referencesNotIn(to, referenceSet(from), nil)",
+  "replace": "referencesNotIn(from, referenceSet(to), nil)",
+  "req": [
+   "REQ-EMG-190"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "existing == nil || bothExist(existing, r)",
+  "replace": "true",
+  "req": [
+   "REQ-EMG-190"
+  ]
+ },
+ {
+  "file": "internal/model/entity_diff.go",
+  "find": "sort.Slice(list, func(i, j int) bool { return list[i].ID < list[j].ID })",
+  "replace": "sort.Slice(list, func(i, j int) bool { return list[i].ID > list[j].ID })",
+  "req": [
+   "REQ-EMG-190"
+  ]
+ }
+]
