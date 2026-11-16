@@ -2520,3 +2520,41 @@ decisions:
   - 'Below product the code is a warning for every file below 10.0 that the baseline does not cover, so a project that has no baseline sees one warning per such file at poc, prototype and mvp; it can lower health.floor, which is reported as a weakening only by enghealth check against a base revision.'
   - 'A change that grows the baseline to cover a new file is health.policy_weakened (BaselineWeakenings), so covering a file is never silent.'
   - 'REQ-EMG-211 is not verified until the baseline is empty, and at tier operational a proposed requirement needs its lifecycle.requirement_unapproved and lifecycle.requirement_unverified diagnostics deferred by a POA&M item; enghealth check reports the two new defers as a policy weakening that only an accepted policyDecision records (the owner decides; the agent does not write the acceptance).'
+- id: ADR-EMG-088
+  title: 'The public Go facade takes request structs, so every file of the root package scores 10.0'
+  status: proposed
+  date: 2026-11-16
+  context: |-
+    The owner asked: "get a 10/10 score in all files in model, tool, flow" and "for the 2 higest level i want a requirement on 10/10 score
+    for all files" (ADR-EMG-087, REQ-EMG-211). Eleven exported functions of the root package take four or five parameters, most of them
+    strings: GenerateAsciiDoc, GenerateAsciiDocFromFiles, GenerateGemaraEvaluationLog, GenerateGemaraEvaluationLogFromFiles,
+    GenerateGemaraOSCALAssessmentResults, GenerateGemaraOSCALAssessmentResultsFromFiles, ExportSysMLV2Project, VerifySysMLV2RoundTrip,
+    BuildTraceMatrixFromFilesWith, TierGapFromFiles and TierGapFromFilesWith. They carry health.excess_arguments (four or more
+    parameters) and, with three or more string parameters, health.primitive_obsession, so api_asciidoc.go (9.0), api_gemara.go (8.6),
+    api_sysml.go (8.8) and api_trace.go (8.6) cannot reach 10.0 while the signature stays. The facade is a thin layer over internal
+    functions that already take a request struct, so the positional form only repeats a conversion. The engine is below v1 and v0.12.0
+    is not released, so a contract change is allowed in a minor release. Recommended by the implementing agent, to be accepted by the owner.
+  decision: |-
+    (1) Each of the eleven functions is replaced, not kept beside a new one (an old four-parameter function would stay a finding and a
+    second entry point for the same capability). (2) The request structs are the internal ones, exported through type aliases like the
+    other root types: AsciiDocInputs (asciidoc.Inputs: Bundle, Requirements, Design), AsciiDocFiles (asciidoc.FilePaths), GemaraFiles
+    (gemara.FileInputs: ArchitecturePath, RequirementsPath, CodeRoot), GemaraEvalRun (gemara.EvalRun: CodeRoot, Options),
+    SysMLInterchangePaths (sysml.InterchangePaths: Directory, KPAR, Sysand) and TraceFiles (trace.FileRequest: ModelPath,
+    RequirementsPath, CodeRoot). (3) A function that takes loaded documents keeps the bundle and the requirements as parameters and adds
+    the run struct (GenerateGemaraEvaluationLog(bundle, requirements, GemaraEvalRun)); a ...FromFiles function takes the files struct
+    and the options. (4) TestFacadeReexportsEngine lists the aliases as the public names of the internal structs, which are no longer
+    internal-only. (5) Behavior is unchanged; only the shape of the call changes. The three-string functions BuildTraceMatrixFromFiles
+    and ReopenSysMLV2Project stay: they have three parameters and the scan does not flag them.
+    Migration (old call -> new call), as in the CHANGELOG of v0.12.0: GenerateAsciiDocFromFiles(a, r, d, o) -> (AsciiDocFiles{Architecture: a,
+    Requirements: r, Design: d}, o); GenerateAsciiDoc(b, r, d, o) -> (AsciiDocInputs{Bundle: b, Requirements: r, Design: d}, o);
+    GenerateGemaraEvaluationLogFromFiles(a, r, c, o) -> (GemaraFiles{ArchitecturePath: a, RequirementsPath: r, CodeRoot: c}, o), the same for
+    GenerateGemaraOSCALAssessmentResultsFromFiles; GenerateGemaraEvaluationLog(b, r, c, o) -> (b, r, GemaraEvalRun{CodeRoot: c, Options: o}), the
+    same for GenerateGemaraOSCALAssessmentResults; ExportSysMLV2Project(a, dir, kpar, sysand) -> (a, SysMLInterchangePaths{Directory: dir, KPAR:
+    kpar, Sysand: sysand}); VerifySysMLV2RoundTrip(a, kpar, dir, sysand) -> (a, SysMLInterchangePaths{Directory: dir, KPAR: kpar, Sysand: sysand});
+    BuildTraceMatrixFromFilesWith(m, r, c, o) -> (TraceFiles{ModelPath: m, RequirementsPath: r, CodeRoot: c}, o); TierGapFromFiles(m, r, c, t) ->
+    (TraceFiles{...}, t); TierGapFromFilesWith(m, r, c, t, o) -> (TraceFiles{...}, t, o).
+  consequences:
+  - 'BREAKING public API change of the root package, allowed because the engine is below v1 and v0.12.0 is unreleased; it is recorded in the CHANGELOG of v0.12.0 and in docs/release-v0.12.0.md. engws contract-diff compares published model items, not Go symbols, so it reports no extra impact and the minor bump is what carries the change.'
+  - 'Affected: every caller of the eleven functions. In this repository cmd/engdoc, cmd/enggemara, cmd/engsysml, cmd/engtrace, internal/mcp, internal/engws and the integration tests were adapted. Outside it, the check tool of the flow (cicd/engmod-check main.go and docs.go in engineering-flow, which call GenerateAsciiDoc, BuildTraceMatrixFromFilesWith and TierGapFromFilesWith) and the engineering tool (internal/server/api_flow.go, which calls TierGapFromFiles, and the .github/engmod-check template, a copy of the flow tool) do not compile against v0.12.0 until they adapt; they have to move their engine pin to v0.12.0 anyway (engine.pin_outdated).'
+  - 'The four api files, the callers in this repository and facade_test.go score 10.0; the baseline entries of the eleven functions in model/health-baseline.json no longer match a finding and are health.baseline_stale until the owner shrinks the baseline (enghealth baseline write); this change does not edit the baseline.'
+  - 'The facade is no longer positional for these eleven functions while BuildTraceMatrixFromFiles and ReopenSysMLV2Project still are; a later change can give them the same structs for consistency, at the price of another break.'

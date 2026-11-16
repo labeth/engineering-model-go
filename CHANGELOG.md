@@ -25,6 +25,29 @@ dependent or a check template must do:
   review each changed item before accepting.
 - **Moved internals.** The loader that reads a model at a git ref moved from `internal/engws` to `internal/gitmodel`; nothing
   under `internal/` is public, the root package is.
+- **Breaking: the Go facade takes request structs (ADR-EMG-088).** Eleven exported functions of the root package with four or five
+  parameters were replaced, not duplicated, by forms with at most three parameters (no old signature remains). Every caller must
+  change; a build error names the call. New root types: `AsciiDocInputs`, `AsciiDocFiles`, `GemaraFiles`, `GemaraEvalRun`,
+  `SysMLInterchangePaths`, `TraceFiles` (aliases of the internal request structs). `engws contract-diff` compares published model
+  items, not Go symbols, so it reports no extra impact; the minor bump below v1 is what carries the change.
+
+  | Old call | New call |
+  | --- | --- |
+  | `GenerateAsciiDocFromFiles(arch, req, design, opts)` | `GenerateAsciiDocFromFiles(AsciiDocFiles{Architecture: arch, Requirements: req, Design: design}, opts)` |
+  | `GenerateAsciiDoc(bundle, req, design, opts)` | `GenerateAsciiDoc(AsciiDocInputs{Bundle: bundle, Requirements: req, Design: design}, opts)` |
+  | `GenerateGemaraEvaluationLogFromFiles(arch, req, codeRoot, opts)` | `GenerateGemaraEvaluationLogFromFiles(GemaraFiles{ArchitecturePath: arch, RequirementsPath: req, CodeRoot: codeRoot}, opts)` |
+  | `GenerateGemaraEvaluationLog(bundle, req, codeRoot, opts)` | `GenerateGemaraEvaluationLog(bundle, req, GemaraEvalRun{CodeRoot: codeRoot, Options: opts})` |
+  | `GenerateGemaraOSCALAssessmentResultsFromFiles(arch, req, codeRoot, opts)` | `GenerateGemaraOSCALAssessmentResultsFromFiles(GemaraFiles{ArchitecturePath: arch, RequirementsPath: req, CodeRoot: codeRoot}, opts)` |
+  | `GenerateGemaraOSCALAssessmentResults(bundle, req, codeRoot, opts)` | `GenerateGemaraOSCALAssessmentResults(bundle, req, GemaraEvalRun{CodeRoot: codeRoot, Options: opts})` |
+  | `ExportSysMLV2Project(arch, projectDir, kpar, sysand)` | `ExportSysMLV2Project(arch, SysMLInterchangePaths{Directory: projectDir, KPAR: kpar, Sysand: sysand})` |
+  | `VerifySysMLV2RoundTrip(arch, kpar, reopenedDir, sysand)` | `VerifySysMLV2RoundTrip(arch, SysMLInterchangePaths{Directory: reopenedDir, KPAR: kpar, Sysand: sysand})` |
+  | `BuildTraceMatrixFromFilesWith(model, req, codeRoot, opts)` | `BuildTraceMatrixFromFilesWith(TraceFiles{ModelPath: model, RequirementsPath: req, CodeRoot: codeRoot}, opts)` |
+  | `TierGapFromFiles(model, req, codeRoot, target)` | `TierGapFromFiles(TraceFiles{ModelPath: model, RequirementsPath: req, CodeRoot: codeRoot}, target)` |
+  | `TierGapFromFilesWith(model, req, codeRoot, target, opts)` | `TierGapFromFilesWith(TraceFiles{ModelPath: model, RequirementsPath: req, CodeRoot: codeRoot}, target, opts)` |
+
+  Known callers outside this repository: `cicd/engmod-check` (`main.go`, `docs.go`) of engineering-flow, `internal/server/api_flow.go`
+  of the engineering tool and the `.github/engmod-check` template call `GenerateAsciiDoc`, `BuildTraceMatrixFromFilesWith` and `TierGapFromFiles(With)`; each adapts when
+  its engine pin moves to `v0.12.0` (the pin check `engine.pin_outdated` already requires that move).
 
 ### Release tooling and evidence
 
@@ -50,7 +73,7 @@ Used by the engineering tool; all are thin facades over `internal/` packages and
   src []byte) ([]CodeDeclaration, error)`, `FindCodeDefinitions(declarations, fromPath, name) []CodeDeclaration`; type
   `CodeDeclaration`.
 - Catalog: `CatalogUsage(Bundle) ([]CatalogTermUsage, error)`; type `CatalogTermUsage`.
-- No schema field was added and no existing exported function changed its signature.
+- No schema field was added; the signature changes of eleven existing functions are listed under Breaking at the top of this entry.
 - `cue.mod/module.cue` is added so the engine's model module (`github.com/labeth/engineering-model-go/model@v0`) can be composed
   from a workspace checkout (without it a consumer reported `composition.module_identity`).
 

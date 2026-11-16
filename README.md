@@ -155,7 +155,7 @@ Model: `LoadBundle`, `LoadCanonicalBundle`, `NewCanonicalBundle`,
 Primary entry points:
 - `GenerateFromFile(architecturePath, viewID)`
 - `Generate(bundle, viewID)`
-- `GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath, options)`
+- `GenerateAsciiDocFromFiles(AsciiDocFiles{Architecture, Requirements, Design}, options)`
 - `GenerateStructurizrDSLFromFile(architecturePath)`
 - `ProjectSemanticModel(bundle)`
 - `GenerateSysMLV2FromFile(architecturePath)`
