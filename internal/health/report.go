@@ -64,6 +64,13 @@ type Summary struct {
 	Baselined int `json:"baselined,omitempty"`
 	Errors    int `json:"errors"`
 	Warnings  int `json:"warnings"`
+	// BelowFloor counts the files whose score is below the floor of the
+	// report and FloorCovered those of them that the baseline covers
+	// (ADR-EMG-087); the others are health.file_below_floor diagnostics. Both
+	// are absent without a floor, and FloorCovered is the number of baselined
+	// files that can still be burned down to the floor.
+	BelowFloor   int `json:"belowFloor,omitempty"`
+	FloorCovered int `json:"floorCovered,omitempty"`
 }
 
 // Report is the code health report.
@@ -74,6 +81,9 @@ type Report struct {
 	// absent for a project without one. Bundles are its assurance bundles.
 	Tier    string   `json:"tier,omitempty"`
 	Bundles []string `json:"bundles,omitempty"`
+	// Floor is the lowest file score that needs no baseline cover
+	// (ADR-EMG-087); absent when the report was made without one.
+	Floor float64 `json:"floor,omitempty"`
 	// Levels is the level ("error" or "warning") of each code at Tier, from
 	// the tier policy of the model. A code missing from it is a warning.
 	Levels map[string]string `json:"levels,omitempty"`
@@ -96,6 +106,10 @@ type Options struct {
 	Bundles       []string
 	// Levels is the level of each code at the tier (see Levels).
 	Levels map[string]string
+	// Floor is the score every file needs unless the baseline covers it
+	// (ADR-EMG-087); 0 asks for no floor, which a caller that builds a report
+	// by hand may want and the scan never does (see model.EffectiveHealthFloor).
+	Floor float64
 	// Waivers are applied to the results before scoring.
 	Waivers []model.HealthWaiver
 	// Baseline are the entries of the baseline file, already limited to the
@@ -126,74 +140,108 @@ func (r Report) LevelOf(code string) string {
 // marks the baselined findings, rolls the scores up and counts the findings by
 // their level. The result is sorted by path and holds no timestamp.
 //
-// TRLC-LINKS: REQ-EMG-151, REQ-EMG-152, REQ-EMG-154, REQ-EMG-155, REQ-EMG-157, REQ-EMG-159
+// TRLC-LINKS: REQ-EMG-151, REQ-EMG-152, REQ-EMG-154, REQ-EMG-155, REQ-EMG-157, REQ-EMG-159, REQ-EMG-209
 // ENGMODEL-LINKS: FU-CODE-HEALTH
 func BuildReport(results []FileResult, opts Options) Report {
-	scorer := opts.Scorer
-	if scorer == nil {
-		scorer = ScoreFile
-	}
 	kept, waived, unused := ApplyWaivers(results, opts.Waivers)
 	sort.SliceStable(kept, func(i, j int) bool { return kept[i].Path < kept[j].Path })
 
+	r := newReport(opts, waived, fileReports(kept, opts.Scorer))
+	applied := applyBaseline(kept, opts.Baseline)
+	r.Baselined = applied.baselined
+	annotateGrown(r.Files, applied.grown)
+	r.Diagnostics = append(append(r.Diagnostics, opts.Diagnostics...), floorDiagnostics(r.Files, floorPolicy{opts.Floor, BaselineCovered(kept, opts.Baseline), r.LevelOf(CodeFileBelowFloor)})...)
+	r.Diagnostics = append(r.Diagnostics, r.syntaxDiagnostics(kept)...)
+	r.Diagnostics = append(r.Diagnostics, r.staleDiagnostics(applied.stale)...)
+	r.Diagnostics = append(r.Diagnostics, r.unusedWaiverDiagnostics(unused)...)
+	sort.SliceStable(r.Diagnostics, func(i, j int) bool { return lessDiagnostic(r.Diagnostics[i], r.Diagnostics[j]) })
+	r.Rollups = BuildRollups(r.Files, opts.Owners, opts.Links)
+	r.Summary = r.Summarize()
+	return r
+}
+
+// newReport is the report of the options with its files and waived findings
+// and no diagnostics yet.
+//
+// TRLC-LINKS: REQ-EMG-151, REQ-EMG-155, REQ-EMG-159
+func newReport(opts Options, waived []WaivedFinding, files []FileReport) Report {
 	r := Report{
 		Schema: ReportSchema,
 		Engine: EngineInfo{Name: opts.EngineName, Version: opts.EngineVersion, ScoringVersion: ScoringVersion, Weights: Weights()},
-		Tier:   opts.Tier, Bundles: opts.Bundles, Levels: opts.Levels,
-		Files: make([]FileReport, 0, len(kept)), Waived: waived, Diagnostics: []Diagnostic{},
+		Tier:   opts.Tier, Bundles: opts.Bundles, Floor: opts.Floor, Levels: opts.Levels,
+		Files: files, Waived: waived, Diagnostics: []Diagnostic{},
 	}
 	if r.Waived == nil {
 		r.Waived = []WaivedFinding{}
 	}
+	return r
+}
+
+// fileReports scores every file; the default scorer is ScoreFile.
+//
+// TRLC-LINKS: REQ-EMG-151
+func fileReports(kept []FileResult, scorer Scorer) []FileReport {
+	if scorer == nil {
+		scorer = ScoreFile
+	}
+	files := make([]FileReport, 0, len(kept))
 	for _, res := range kept {
 		score := scorer(res)
 		fns := res.Functions
 		if fns == nil {
 			fns = []Function{}
 		}
-		r.Files = append(r.Files, FileReport{
+		files = append(files, FileReport{
 			Path: res.Path, Language: res.Language, LOC: res.LOC, IsTest: res.IsTest,
 			Score: score.Score, Band: score.Band, Deductions: score.Deductions,
 			Functions: fns, Unsupported: res.Unsupported, SyntaxErrors: res.SyntaxErrors,
 		})
 	}
-	applied := applyBaseline(kept, opts.Baseline)
-	r.Baselined = applied.baselined
-	staleEntries := applied.stale
-	annotateGrown(r.Files, applied.grown)
-	r.Diagnostics = append(r.Diagnostics, opts.Diagnostics...)
+	return files
+}
+
+// syntaxDiagnostics lists the diagnostic of each file the parser only partly
+// read.
+//
+// TRLC-LINKS: REQ-EMG-150, REQ-EMG-155
+func (r Report) syntaxDiagnostics(kept []FileResult) []Diagnostic {
+	var out []Diagnostic
 	for _, res := range kept {
 		if res.SyntaxErrors > 0 {
-			r.Diagnostics = append(r.Diagnostics, syntaxDiagnostic(res, r.LevelOf(CodeSyntaxError)))
+			out = append(out, syntaxDiagnostic(res, r.LevelOf(CodeSyntaxError)))
 		}
 	}
-	for _, e := range staleEntries {
-		r.Diagnostics = append(r.Diagnostics, Diagnostic{
+	return out
+}
+
+// staleDiagnostics lists the baseline entries that match no finding.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-159
+func (r Report) staleDiagnostics(stale []model.HealthBaselineEntry) []Diagnostic {
+	var out []Diagnostic
+	for _, e := range stale {
+		out = append(out, Diagnostic{
 			Code: model.HealthBaselineStaleCode, Level: r.LevelOf(model.HealthBaselineStaleCode),
 			Message: "baseline entry for " + e.Code + " in " + e.Function + " of " + e.Path + " matches no finding and can be removed",
 			Path:    e.Path, Function: e.Function,
 		})
 	}
+	return out
+}
+
+// unusedWaiverDiagnostics lists the waivers that match no finding.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-159
+func (r Report) unusedWaiverDiagnostics(unused []model.HealthWaiver) []Diagnostic {
+	var out []Diagnostic
 	for _, w := range unused {
-		r.Diagnostics = append(r.Diagnostics, Diagnostic{
+		out = append(out, Diagnostic{
 			Code: model.HealthWaiverUnusedCode, Level: r.LevelOf(model.HealthWaiverUnusedCode),
 			Message: "waiver for " + w.Code + " in " + w.Function + " of " + w.Path + " (" + w.Decision + ") matches no finding and can be removed",
 			Path:    w.Path, Function: w.Function,
 		})
 	}
-	sort.SliceStable(r.Diagnostics, func(i, j int) bool {
-		a, b := r.Diagnostics[i], r.Diagnostics[j]
-		if a.Path != b.Path {
-			return a.Path < b.Path
-		}
-		if a.Code != b.Code {
-			return a.Code < b.Code
-		}
-		return a.Function < b.Function
-	})
-	r.Rollups = BuildRollups(r.Files, opts.Owners, opts.Links)
-	r.Summary = r.Summarize()
-	return r
+	return out
 }
 
 // syntaxDiagnostic is the diagnostic of a file the parser only partly read: the
@@ -219,37 +267,59 @@ func syntaxDiagnostic(res FileResult, level string) Diagnostic {
 //
 // TRLC-LINKS: REQ-EMG-155
 func (r Report) Summarize() Summary {
-	s := Summary{Files: len(r.Files), Waived: len(r.Waived)}
-	baselined := r.baselinedSet()
+	z := summarizer{r: r, baselined: r.baselinedSet(), s: Summary{Files: len(r.Files), Waived: len(r.Waived)}}
 	for _, f := range r.Files {
-		for _, fn := range f.Functions {
-			for _, finding := range fn.Findings {
-				s.Findings++
-				if baselined[baselineKey{f.Path, fn.Name, finding.Code}] {
-					s.Baselined++
-				} else if r.LevelOf(finding.Code) == LevelError {
-					s.Errors++
-				} else {
-					s.Warnings++
-				}
-			}
-		}
+		z.addFile(f)
 	}
 	for _, d := range r.Diagnostics {
 		if d.Level == LevelError {
-			s.Errors++
+			z.s.Errors++
 		} else {
-			s.Warnings++
+			z.s.Warnings++
 		}
 	}
-	return s
+	z.s.BelowFloor, z.s.FloorCovered = r.floorCounts()
+	return z.s
+}
+
+// summarizer counts the findings of a report.
+type summarizer struct {
+	r         Report
+	baselined map[baselineKey]bool
+	s         Summary
+}
+
+// addFile counts the findings of the functions of one file.
+//
+// TRLC-LINKS: REQ-EMG-155
+func (z *summarizer) addFile(f FileReport) {
+	for _, fn := range f.Functions {
+		for _, finding := range fn.Findings {
+			z.add(baselineKey{f.Path, fn.Name, finding.Code})
+		}
+	}
+}
+
+// add counts one finding by whether it is baselined or its level.
+//
+// TRLC-LINKS: REQ-EMG-155
+func (z *summarizer) add(k baselineKey) {
+	z.s.Findings++
+	switch {
+	case z.baselined[k]:
+		z.s.Baselined++
+	case z.r.LevelOf(k.code) == LevelError:
+		z.s.Errors++
+	default:
+		z.s.Warnings++
+	}
 }
 
 // Encode renders the report as canonical JSON: two-space indent, keys in
 // struct order (maps sorted), no HTML escaping and a trailing newline.
 //
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-159
-// ENGMODEL-LINKS: FU-CODE-HEALTH
+// ENGMODEL-LINKS: FU-CODE-HEALTH, DO-HEALTH-REPORT
 func Encode(r Report) ([]byte, error) {
 	return encodeJSON(r)
 }

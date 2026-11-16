@@ -43,7 +43,7 @@ func bigGo(owner string) string {
 func fixture(t *testing.T, extra string) (dir, manifest string) {
 	t.Helper()
 	dir = t.TempDir()
-	testutil.WriteV2ModuleFiles(t, dir, "example.com/hs@v0", "v0.1.0", "hs", extra, architecture)
+	testutil.WriteV2ModuleFiles(t, dir, testutil.V2Module{Path: "example.com/hs@v0", Version: "v0.1.0", ModelID: "hs", ManifestExtra: extra, Architecture: architecture})
 	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun: {}\nrequirements:\n  - id: REQ-X\n    text: The unit shall decide.\n")
 	// Accepted decisions that the waivers, the baseline and the policy decision
 	// of the tests refer to: a waiver (ADR-EMG-051, ADR-EMG-052), a baseline or a
@@ -68,13 +68,18 @@ func fixture(t *testing.T, extra string) (dir, manifest string) {
 // findingsOf returns the codes found in a function of a file report.
 func findingsOf(r health.Report, path, function string) []health.Finding {
 	for _, f := range r.Files {
-		if f.Path != path {
-			continue
+		if f.Path == path {
+			return functionFindingsIn(f, function)
 		}
-		for _, fn := range f.Functions {
-			if fn.Name == function {
-				return fn.Findings
-			}
+	}
+	return nil
+}
+
+// functionFindingsIn returns the findings of a function of a file report.
+func functionFindingsIn(f health.FileReport, function string) []health.Finding {
+	for _, fn := range f.Functions {
+		if fn.Name == function {
+			return fn.Findings
 		}
 	}
 	return nil
@@ -90,53 +95,47 @@ func findingsOf(r health.Report, path, function string) []health.Finding {
 //
 // TRLC-LINKS: REQ-EMG-150, REQ-EMG-152, REQ-EMG-153, REQ-EMG-155, REQ-EMG-158
 func TestScanProductTierEndToEnd(t *testing.T) {
-	dir, manifest := fixture(t, "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n")
-	r, err := Scan(Options{ManifestPath: manifest})
-	if err != nil {
-		t.Fatal(err)
-	}
+	// The floor of 8.0 is the score of big.go: the floor is tested in floor_test.go.
+	dir, manifest := fixture(t, "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n  floor: 8.0\n")
+	r := mustScan(t, Options{ManifestPath: manifest})
 	var paths []string
 	for _, f := range r.Files {
 		paths = append(paths, f.Path)
 	}
-	if got := strings.Join(paths, ","); got != "pkg/big.go,pkg/big_test.go,pkg/clean.go" {
-		t.Fatalf("files = %s, want only the three source files of pkg", got)
-	}
-	if r.Tier != "product" || r.Levels[health.CodeComplexMethod] != health.LevelError || r.Engine.Name != "treesitter" {
-		t.Errorf("tier %q levels %v engine %+v", r.Tier, r.Levels, r.Engine)
-	}
+	mustEqual(t, strings.Join(paths, ","), "pkg/big.go,pkg/big_test.go,pkg/clean.go") // only the three source files of pkg
+	wantEqual(t, [3]any{r.Tier, r.Levels[health.CodeComplexMethod], r.Engine.Name}, [3]any{"product", health.LevelError, "treesitter"})
+	requireBigFinding(t, r)
+	requireProductRollups(t, r)
+	data := mustEncode(t, r)
+	wantEqual(t, health.ValidateReportJSON(data), nil)
+	wantNone(t, string(data), dir)
+}
+
+// requireBigFinding checks the finding, the score and the counts of big.go at
+// product.
+func requireBigFinding(t *testing.T, r health.Report) {
+	t.Helper()
 	fs := findingsOf(r, "pkg/big.go", "Big")
-	if len(fs) != 1 || fs[0].Code != health.CodeComplexMethod || fs[0].Severity != health.SeverityHigh || fs[0].Value != 17 {
-		t.Fatalf("Big findings = %+v, want complex_method high 17", fs)
-	}
+	mustEqual(t, len(fs), 1)
+	wantEqual(t, [3]any{fs[0].Code, fs[0].Severity, fs[0].Value}, [3]any{health.CodeComplexMethod, health.SeverityHigh, 17})
 	// 17 >= 15 (high at product): the deduction is 1.0 x 2 = 2.0, score 8.0.
-	if r.Files[0].Score != 8.0 || r.Files[0].Band != health.BandGreen {
-		t.Errorf("big.go = %v %s, want 8.0 green", r.Files[0].Score, r.Files[0].Band)
-	}
-	if r.Summary.Errors != 1 || r.Summary.Warnings != 0 {
-		t.Errorf("summary = %+v, want one error", r.Summary)
-	}
-	if r.Rollups.Project.Files != 2 || r.Rollups.Tests == nil || r.Rollups.Tests.Files != 1 {
-		t.Errorf("rollups = %+v", r.Rollups)
-	}
-	if len(r.Rollups.Units) != 2 || r.Rollups.Units[0].Unit != "FU-A" || r.Rollups.Units[0].Files != 1 || r.Rollups.Units[1].Unit != "FU-B" {
-		t.Errorf("units = %+v, want FU-A with the production file big.go and FU-B", r.Rollups.Units)
-	}
+	wantEqual(t, [2]any{r.Files[0].Score, r.Files[0].Band}, [2]any{8.0, health.BandGreen})
+	wantEqual(t, [2]int{r.Summary.Errors, r.Summary.Warnings}, [2]int{1, 0})
+}
+
+// requireProductRollups checks the roll-ups of the product fixture: the files,
+// the tests, the units and the requirement.
+func requireProductRollups(t *testing.T, r health.Report) {
+	t.Helper()
+	wantEqual(t, r.Rollups.Project.Files, 2)
+	mustEqual(t, r.Rollups.Tests != nil, true)
+	wantEqual(t, r.Rollups.Tests.Files, 1)
+	mustEqual(t, len(r.Rollups.Units), 2)
+	wantEqual(t, [3]any{r.Rollups.Units[0].Unit, r.Rollups.Units[0].Files, r.Rollups.Units[1].Unit}, [3]any{"FU-A", 1, "FU-B"})
 	// REQ-X is linked on Big and Clean (production); the test's link does not count.
-	if len(r.Rollups.Requirements) != 1 || r.Rollups.Requirements[0].Requirement != "REQ-X" ||
-		r.Rollups.Requirements[0].Functions != 2 || r.Rollups.Requirements[0].Findings != 1 {
-		t.Errorf("requirements = %+v", r.Rollups.Requirements)
-	}
-	data, err := health.Encode(r)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := health.ValidateReportJSON(data); err != nil {
-		t.Errorf("the scan report does not validate: %v", err)
-	}
-	if strings.Contains(string(data), dir) {
-		t.Error("the report holds an absolute path")
-	}
+	mustEqual(t, len(r.Rollups.Requirements), 1)
+	q := r.Rollups.Requirements[0]
+	wantEqual(t, [3]any{q.Requirement, q.Functions, q.Findings}, [3]any{"REQ-X", 2, 1})
 }
 
 // The tier flag replaces the manifest tier: at mvp the default limits apply, so
@@ -146,23 +145,14 @@ func TestScanProductTierEndToEnd(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-155
 func TestScanTierOverrideAndManifestThresholds(t *testing.T) {
 	_, manifest := fixture(t, "lifecycle:\n  tier: product\n")
-	r, err := Scan(Options{ManifestPath: manifest, Tier: "MVP"})
-	if err != nil {
-		t.Fatal(err)
-	}
+	r := mustScan(t, Options{ManifestPath: manifest, Tier: "MVP"})
 	fs := findingsOf(r, "pkg/big.go", "Big")
-	if r.Tier != "mvp" || len(fs) != 1 || fs[0].Severity != health.SeverityWarn || r.Summary.Errors != 0 || r.Summary.Warnings != 2 {
-		t.Fatalf("mvp: tier %q findings %+v summary %+v", r.Tier, fs, r.Summary)
-	}
+	mustEqual(t, len(fs), 1)
+	wantEqual(t, [4]any{r.Tier, fs[0].Severity, r.Summary.Errors, r.Summary.Warnings}, [4]any{"mvp", health.SeverityWarn, 0, 4})
 
 	_, manifest = fixture(t, "lifecycle:\n  tier: product\nhealth:\n  thresholds:\n    health.complex_method: {warn: 14, high: 15}\n  overrides:\n    - path: pkg/big.go\n      thresholds:\n        health.complex_method: {warn: 20, high: 30}\n")
-	r, err = Scan(Options{ManifestPath: manifest})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if fs := findingsOf(r, "pkg/big.go", "Big"); len(fs) != 0 {
-		t.Errorf("the override should lift the limit to 20/30, got %+v", fs)
-	}
+	r = mustScan(t, Options{ManifestPath: manifest})
+	wantEqual(t, len(findingsOf(r, "pkg/big.go", "Big")), 0) // the override lifts the limit to 20/30
 }
 
 // A model without a lifecycle tier is scanned with the default limits and every
@@ -175,21 +165,12 @@ func TestScanTierOverrideAndManifestThresholds(t *testing.T) {
 func TestScanWithoutLifecycleIsWarnings(t *testing.T) {
 	_, manifest := fixture(t, "")
 	testutil.WithoutSwitches(t, manifest)
-	r, err := Scan(Options{ManifestPath: manifest})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if r.Tier != "" || r.Bundles != nil || r.Summary.Errors != 0 || r.Summary.Warnings != 2 {
-		t.Errorf("tier %q bundles %v summary %+v", r.Tier, r.Bundles, r.Summary)
-	}
+	r := mustScan(t, Options{ManifestPath: manifest})
+	wantEqual(t, [4]any{r.Tier, r.Bundles == nil, r.Summary.Errors, r.Summary.Warnings}, [4]any{"", true, 0, 4})
 	for _, f := range r.Files {
-		if strings.HasPrefix(f.Path, "generated/") || strings.HasPrefix(f.Path, "vendor/") {
-			t.Errorf("default excludes did not apply to %s", f.Path)
-		}
+		wantEqual(t, strings.HasPrefix(f.Path, "generated/") || strings.HasPrefix(f.Path, "vendor/"), false) // default excludes
 	}
-	if len(r.Files) != 4 {
-		t.Errorf("%d files, want pkg/* (3) and skipme/x.go", len(r.Files))
-	}
+	wantEqual(t, len(r.Files), 4) // pkg/* (3) and skipme/x.go
 }
 
 // A waiver with an accepted decision moves its finding to the waived list and
@@ -197,32 +178,22 @@ func TestScanWithoutLifecycleIsWarnings(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-154
 func TestScanAppliesWaivers(t *testing.T) {
-	extra := "lifecycle:\n  tier: product\nhealth:\n  waivers:\n" +
+	extra := "lifecycle:\n  tier: product\nhealth:\n  floor: 8.0\n  waivers:\n" +
 		"    - {code: health.complex_method, path: pkg/big.go, function: Big, decision: ADR-W}\n" +
 		"    - {code: health.large_method, path: pkg/big.go, function: Big, decision: ADR-W}\n"
 	_, manifest := fixture(t, extra)
-	r, err := Scan(Options{ManifestPath: manifest})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(r.Waived) != 1 || r.Waived[0].Decision != "ADR-W" || r.Waived[0].Function != "Big" {
-		t.Fatalf("waived = %+v", r.Waived)
-	}
-	if r.Files[0].Score != 10.0 || len(findingsOf(r, "pkg/big.go", "Big")) != 0 {
-		t.Errorf("big.go = %v, want 10.0 without findings", r.Files[0].Score)
-	}
-	if len(r.Diagnostics) != 1 || r.Diagnostics[0].Code != "health.waiver_unused" || r.Diagnostics[0].Level != health.LevelError {
-		t.Errorf("diagnostics = %+v, want the unused large_method waiver as an error at product", r.Diagnostics)
-	}
+	r := mustScan(t, Options{ManifestPath: manifest})
+	mustEqual(t, len(r.Waived), 1)
+	wantEqual(t, [2]string{r.Waived[0].Decision, r.Waived[0].Function}, [2]string{"ADR-W", "Big"})
+	wantEqual(t, [2]int{int(r.Files[0].Score), len(findingsOf(r, "pkg/big.go", "Big"))}, [2]int{10, 0})
+	// The unused large_method waiver is an error at product.
+	mustEqual(t, len(r.Diagnostics), 1)
+	wantEqual(t, [2]string{r.Diagnostics[0].Code, r.Diagnostics[0].Level}, [2]string{"health.waiver_unused", health.LevelError})
 
 	// A scan restricted to another file does not call the waivers unused.
-	r, err = Scan(Options{ManifestPath: manifest, Paths: []string{filepath.Join(filepath.Dir(manifest), "pkg", "clean.go")}})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(r.Files) != 1 || r.Files[0].Path != "pkg/clean.go" || len(r.Diagnostics) != 0 {
-		t.Errorf("restricted scan: files %+v diagnostics %+v", r.Files, r.Diagnostics)
-	}
+	r = mustScan(t, Options{ManifestPath: manifest, Paths: []string{filepath.Join(filepath.Dir(manifest), "pkg", "clean.go")}})
+	mustEqual(t, len(r.Files), 1)
+	wantEqual(t, [2]any{r.Files[0].Path, len(r.Diagnostics)}, [2]any{"pkg/clean.go", 0})
 }
 
 // Paths limit the scan to files and directories inside the project root; a
@@ -296,20 +267,13 @@ func TestScanReportsFilesItCouldNotAnalyse(t *testing.T) {
 	dir, manifest := fixture(t, "")
 	huge := "package pkg\n\n// " + strings.Repeat("x", MaxFileBytes) + "\nfunc Huge() {}\n"
 	testutil.WriteFile(t, filepath.Join(dir, "pkg", "huge.go"), huge)
-	r, err := Scan(Options{ManifestPath: manifest, Paths: []string{filepath.Join(dir, "pkg")}, Engine: failingEngine{Engine: realEngine()}})
-	if err != nil {
-		t.Fatal(err)
-	}
+	r := mustScan(t, Options{ManifestPath: manifest, Paths: []string{filepath.Join(dir, "pkg")}, Engine: failingEngine{Engine: realEngine()}})
 	codes := map[string]string{}
 	for _, d := range r.Diagnostics {
 		codes[d.Path] = d.Code
-		if d.Level != health.LevelWarning || strings.Contains(d.Message, dir) {
-			t.Errorf("diagnostic %+v", d)
-		}
+		wantEqual(t, [2]any{d.Level, strings.Contains(d.Message, dir)}, [2]any{health.LevelWarning, false})
 	}
-	if codes["pkg/big.go"] != CodeFileFailed || codes["pkg/huge.go"] != CodeFileSkipped || len(r.Files) != 2 {
-		t.Errorf("diagnostics = %v, files = %d", codes, len(r.Files))
-	}
+	wantEqual(t, [3]any{codes["pkg/big.go"], codes["pkg/huge.go"], len(r.Files)}, [3]any{CodeFileFailed, CodeFileSkipped, 2})
 }
 
 // A waiver whose decision is proposed, not accepted, waives nothing: the

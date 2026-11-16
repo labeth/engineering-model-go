@@ -2,7 +2,6 @@
 package health
 
 import (
-	"reflect"
 	"strings"
 	"testing"
 
@@ -36,12 +35,34 @@ func aspects(changes []PolicyChange) []string {
 //
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-156
 func TestPolicyWeakenings(t *testing.T) {
+	for _, c := range policyWeakeningCases() {
+		requireWeakenings(t, c)
+	}
+}
+
+// policyCase is a pair of policies and the aspects of the weakenings from base
+// to head.
+type policyCase struct {
+	name       string
+	base, head Policy
+	want       []string
+}
+
+// requireWeakenings checks the aspects of the weakenings of a case, and that
+// each has a message.
+func requireWeakenings(t *testing.T, c policyCase) {
+	t.Helper()
+	got := PolicyWeakenings(c.base, c.head)
+	wantDeepEqual(t, aspects(got), c.want)
+	for _, change := range got {
+		wantEqual(t, [2]any{c.name, strings.TrimSpace(change.Message) == ""}, [2]any{c.name, false})
+	}
+}
+
+// policyWeakeningCases are the cases of TestPolicyWeakenings.
+func policyWeakeningCases() []policyCase {
 	cm := model.HealthThreshold{Warn: 8, High: 15} // the product default of complex_method
-	cases := []struct {
-		name       string
-		base, head Policy
-		want       []string
-	}{
+	return []policyCase{
 		{"identical", Policy{Tier: "product"}, Policy{Tier: "product"}, []string{}},
 		{"tier lowered", Policy{Tier: "product"}, Policy{Tier: "mvp"}, []string{PolicyTier}},
 		{"tier removed", Policy{Tier: "product"}, Policy{}, []string{PolicyTier}},
@@ -73,17 +94,6 @@ func TestPolicyWeakenings(t *testing.T) {
 		{"everything at once", Policy{Tier: "operational"},
 			Policy{Tier: "mvp", Health: &model.ManifestHealth{Exclude: []string{"x/**"}, Thresholds: map[string]model.HealthThreshold{CodeBumpyRoad: {Warn: 5, High: 9}}}},
 			[]string{PolicyExclude, PolicyThreshold, PolicyTier}},
-	}
-	for _, c := range cases {
-		got := PolicyWeakenings(c.base, c.head)
-		if !reflect.DeepEqual(aspects(got), c.want) {
-			t.Errorf("%s: aspects = %v (%+v), want %v", c.name, aspects(got), got, c.want)
-		}
-		for _, change := range got {
-			if strings.TrimSpace(change.Message) == "" {
-				t.Errorf("%s: a change without a message: %+v", c.name, change)
-			}
-		}
 	}
 }
 

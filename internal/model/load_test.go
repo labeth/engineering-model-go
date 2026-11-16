@@ -41,32 +41,54 @@ func TestLoadBundleAggregatesSchemaV2Domains(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if bundle.Architecture.Model.ID != "TEST-MODEL" ||
-		len(bundle.Architecture.AuthoredArchitecture.FunctionalUnits) != 1 ||
-		len(bundle.Architecture.AuthoredArchitecture.MachineStates()) != 2 ||
-		len(bundle.Architecture.AuthoredArchitecture.Controls) != 1 ||
-		len(bundle.Architecture.Compliance.Profiles) != 1 {
-		t.Fatalf("domain documents were not aggregated: %+v", bundle.Architecture)
-	}
+	requireAggregatedDomains(t, bundle)
 	if got := bundle.Architecture.AuthoredArchitecture.Mappings; len(got) != 1 || got[0].Type != "writes" {
 		t.Fatalf("relationships were not aggregated as mappings: %+v", got)
 	}
 	if got := bundle.Design.Design.FunctionalUnits; len(got) != 1 || got[0].Views["intent"].Narrative != "Narrative" {
 		t.Fatalf("view narratives were not aggregated into design: %+v", got)
 	}
-	if got := bundle.Requirements.Requirements; len(got) != 1 ||
-		got[0].Title != "Qualified requirement" ||
-		got[0].VerificationMethods[0] != "test" ||
-		!got[0].Derived {
-		t.Fatalf("requirement qualification metadata was not loaded: %+v", got)
-	}
-	if got := bundle.Views.Documents; len(got) != 1 ||
-		got[0].Control.Identifier != "DOC-001" ||
-		got[0].ContentRefs[0] != "REQ-A" {
-		t.Fatalf("document definitions were not loaded: %+v", got)
-	}
+	requireQualifiedRequirement(t, bundle)
+	requireDocumentDefinitions(t, bundle)
 	if _, err := LoadCanonicalBundle(filepath.Join(dir, "engmod.yml")); err != nil {
 		t.Fatalf("load canonical bundle from manifest: %v", err)
+	}
+}
+
+// requireAggregatedDomains fails unless the architecture of the fixture bundle
+// carries its model id, unit, machine states, control and compliance profile.
+func requireAggregatedDomains(t *testing.T, bundle Bundle) {
+	t.Helper()
+	architecture := bundle.Architecture
+	authored := architecture.AuthoredArchitecture
+	if architecture.Model.ID != "TEST-MODEL" || len(authored.FunctionalUnits) != 1 || len(authored.MachineStates()) != 2 {
+		t.Fatalf("domain documents were not aggregated: %+v", architecture)
+	}
+	if len(authored.Controls) != 1 || len(architecture.Compliance.Profiles) != 1 {
+		t.Fatalf("domain documents were not aggregated: %+v", architecture)
+	}
+}
+
+// requireQualifiedRequirement fails unless the fixture requirement loaded with
+// its qualification metadata.
+func requireQualifiedRequirement(t *testing.T, bundle Bundle) {
+	t.Helper()
+	got := bundle.Requirements.Requirements
+	if len(got) != 1 || got[0].Title != "Qualified requirement" {
+		t.Fatalf("requirement qualification metadata was not loaded: %+v", got)
+	}
+	if got[0].VerificationMethods[0] != "test" || !got[0].Derived {
+		t.Fatalf("requirement qualification metadata was not loaded: %+v", got)
+	}
+}
+
+// requireDocumentDefinitions fails unless the fixture document definition
+// loaded with its control identifier and content references.
+func requireDocumentDefinitions(t *testing.T, bundle Bundle) {
+	t.Helper()
+	got := bundle.Views.Documents
+	if len(got) != 1 || got[0].Control.Identifier != "DOC-001" || got[0].ContentRefs[0] != "REQ-A" {
+		t.Fatalf("document definitions were not loaded: %+v", got)
 	}
 }
 
@@ -181,17 +203,32 @@ func TestSchemaRejectsQualifiedLocalRiskAndThreatIDs(t *testing.T) {
 		"threatScenario": "  threatScenarios:\n    - id: %s\n      title: T\n      status: accepted\n      appliesTo: [FU-A]\n",
 	} {
 		t.Run(name, func(t *testing.T) {
-			for _, id := range []string{"dep::RISK-X", "RISK-X"} {
-				dir := writeV2Fixture(t, validManifest)
-				path := filepath.Join(dir, "model", "assurance.yml")
-				writeTestFile(t, path, readTestFile(t, path)+fmt.Sprintf(entry, id))
-				_, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
-				if qualified := strings.Contains(id, "::"); qualified != (err != nil) {
-					t.Fatalf("%s id %q: load error %v, want rejected only for alias::ID", name, id, err)
-				}
-			}
+			requireRejectedOnlyWhenQualified(t, entry, "dep::RISK-X")
+			requireRejectedOnlyWhenQualified(t, entry, "RISK-X")
 		})
 	}
+}
+
+// requireRejectedOnlyWhenQualified loads the fixture with the entry format
+// filled with id and fails unless the load is rejected exactly when the id is
+// an alias::ID.
+func requireRejectedOnlyWhenQualified(t *testing.T, entry, id string) {
+	t.Helper()
+	err := loadWithAssuranceEntry(t, fmt.Sprintf(entry, id))
+	if qualified := strings.Contains(id, "::"); qualified != (err != nil) {
+		t.Fatalf("id %q: load error %v, want rejected only for alias::ID", id, err)
+	}
+}
+
+// loadWithAssuranceEntry loads the fixture bundle with entry appended to its
+// assurance document and returns the load error.
+func loadWithAssuranceEntry(t *testing.T, entry string) error {
+	t.Helper()
+	dir := writeV2Fixture(t, validManifest)
+	path := filepath.Join(dir, "model", "assurance.yml")
+	writeTestFile(t, path, readTestFile(t, path)+entry)
+	_, err := LoadBundle(filepath.Join(dir, "engmod.yml"))
+	return err
 }
 
 // TRLC-LINKS: REQ-EMG-045
@@ -209,9 +246,19 @@ func TestBuildAuthoringContractDescribesSchemaV2(t *testing.T) {
 	}
 
 	for _, document := range contract.Documents {
-		if !document.Required || document.SchemaVersion != CurrentSchemaVersion || document.Path == "" || document.SchemaPath == "" {
-			t.Fatalf("incomplete document contract: %+v", document)
-		}
+		requireCompleteDocumentContract(t, document)
+	}
+}
+
+// requireCompleteDocumentContract fails unless the document is required, at
+// the current schema version and names its path and schema path.
+func requireCompleteDocumentContract(t *testing.T, document AuthoringDocument) {
+	t.Helper()
+	if !document.Required || document.SchemaVersion != CurrentSchemaVersion {
+		t.Fatalf("incomplete document contract: %+v", document)
+	}
+	if document.Path == "" || document.SchemaPath == "" {
+		t.Fatalf("incomplete document contract: %+v", document)
 	}
 }
 
@@ -228,9 +275,16 @@ func TestLoadBundleIncludesOptionalAviationDocument(t *testing.T) {
 	if len(contract.Documents) != 10 {
 		t.Fatalf("expected optional aviation authoring document, got %+v", contract.Documents)
 	}
+	requireLastOptionalDocument(t, contract, AuthoringDocument{Kind: "aviation", SchemaPath: "internal/model/schema/aviation.cue"})
+}
+
+// requireLastOptionalDocument fails unless the last document of the contract is
+// an optional one with the kind and schema path of want.
+func requireLastOptionalDocument(t *testing.T, contract AuthoringContract, want AuthoringDocument) {
+	t.Helper()
 	last := contract.Documents[len(contract.Documents)-1]
-	if last.Kind != "aviation" || last.Required || last.SchemaPath != "internal/model/schema/aviation.cue" {
-		t.Fatalf("unexpected aviation authoring contract: %+v", last)
+	if last.Kind != want.Kind || last.Required || last.SchemaPath != want.SchemaPath {
+		t.Fatalf("unexpected %s authoring contract document: %+v", want.Kind, last)
 	}
 }
 
@@ -280,10 +334,7 @@ func readTestFile(t *testing.T, path string) string {
 	return string(content)
 }
 
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
-func TestArchitectureYAMLDecodesCanonicalStructuralAndBehavioralSemantics(t *testing.T) {
-	input := []byte(`
+const canonicalSemanticsYAML = `
 model:
   id: MODEL-A
 semantics:
@@ -327,31 +378,9 @@ semantics:
       triggers: [EVENT-A]
       guard: {language: expression, value: ready}
       effect: {language: expression, value: notify}
-`)
-	var document ArchitectureDocument
-	decoder := yaml.NewDecoder(bytes.NewReader(input))
-	decoder.KnownFields(true)
-	if err := decoder.Decode(&document); err != nil {
-		t.Fatalf("decode canonical semantics: %v", err)
-	}
+`
 
-	if len(document.Semantics.Imports) != 1 || len(document.Semantics.Elements) != 3 || len(document.Semantics.Relationships) != 1 {
-		t.Fatalf("unexpected semantic content: %+v", document.Semantics)
-	}
-	part := document.Semantics.Elements[1]
-	if part.Multiplicity == nil || part.Multiplicity.Upper == nil || *part.Multiplicity.Upper != 4 || part.Unique == nil || *part.Unique {
-		t.Fatalf("structural modifiers were not decoded: %+v", part)
-	}
-	transition := document.Semantics.Relationships[0]
-	if transition.Kind != RelationshipTransition || len(transition.Triggers) != 1 || transition.Guard == nil || transition.Effect == nil {
-		t.Fatalf("behavioral semantics were not decoded: %+v", transition)
-	}
-}
-
-// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
-// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
-func TestArchitectureYAMLDecodesAdvancedCanonicalSemanticsStrictly(t *testing.T) {
-	input := []byte(`
+const advancedSemanticsYAML = `
 model:
   id: MODEL-A
 semantics:
@@ -395,11 +424,64 @@ semantics:
       kind: verification
       source: OCC-B
       target: REQ-A
-`)
+`
+
+// decodeStrictArchitecture decodes input as an architecture document with
+// unknown fields refused.
+func decodeStrictArchitecture(input []byte) (ArchitectureDocument, error) {
 	var document ArchitectureDocument
 	decoder := yaml.NewDecoder(bytes.NewReader(input))
 	decoder.KnownFields(true)
-	if err := decoder.Decode(&document); err != nil {
+	err := decoder.Decode(&document)
+	return document, err
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
+func TestArchitectureYAMLDecodesCanonicalStructuralAndBehavioralSemantics(t *testing.T) {
+	document, err := decodeStrictArchitecture([]byte(canonicalSemanticsYAML))
+	if err != nil {
+		t.Fatalf("decode canonical semantics: %v", err)
+	}
+
+	semantics := document.Semantics
+	if len(semantics.Imports) != 1 || len(semantics.Elements) != 3 || len(semantics.Relationships) != 1 {
+		t.Fatalf("unexpected semantic content: %+v", semantics)
+	}
+	requireStructuralModifiers(t, semantics.Elements[1])
+	requireBehavioralTransition(t, semantics.Relationships[0])
+}
+
+// requireStructuralModifiers fails unless the part decoded with multiplicity
+// upper bound 4 and unique set to false.
+func requireStructuralModifiers(t *testing.T, part SemanticElement) {
+	t.Helper()
+	if part.Multiplicity == nil || part.Multiplicity.Upper == nil || *part.Multiplicity.Upper != 4 {
+		t.Fatalf("structural modifiers were not decoded: %+v", part)
+	}
+	if part.Unique == nil || *part.Unique {
+		t.Fatalf("structural modifiers were not decoded: %+v", part)
+	}
+}
+
+// requireBehavioralTransition fails unless the relationship decoded as a
+// transition with one trigger, a guard and an effect.
+func requireBehavioralTransition(t *testing.T, transition SemanticRelationship) {
+	t.Helper()
+	if transition.Kind != RelationshipTransition || len(transition.Triggers) != 1 {
+		t.Fatalf("behavioral semantics were not decoded: %+v", transition)
+	}
+	if transition.Guard == nil || transition.Effect == nil {
+		t.Fatalf("behavioral semantics were not decoded: %+v", transition)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-035, REQ-EMG-036
+// ENGMODEL-LINKS: DO-CANONICAL-SEMANTIC-MODEL
+func TestArchitectureYAMLDecodesAdvancedCanonicalSemanticsStrictly(t *testing.T) {
+	input := []byte(advancedSemanticsYAML)
+	document, err := decodeStrictArchitecture(input)
+	if err != nil {
 		t.Fatalf("decode advanced semantics: %v", err)
 	}
 
@@ -408,9 +490,7 @@ semantics:
 	}
 
 	unknown := bytes.Replace(input, []byte("quantity: {value: 12.5, unit: UNIT-M}"), []byte("quantity: {value: 12.5, unit: UNIT-M, unknown: true}"), 1)
-	decoder = yaml.NewDecoder(bytes.NewReader(unknown))
-	decoder.KnownFields(true)
-	if err := decoder.Decode(&document); err == nil {
+	if _, err := decodeStrictArchitecture(unknown); err == nil {
 		t.Fatal("strict decoding accepted an unknown typed quantity field")
 	}
 }

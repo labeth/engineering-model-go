@@ -26,6 +26,7 @@ const (
 	PolicyThreshold = "threshold"
 	PolicyExclude   = "exclude"
 	PolicyOverride  = "override"
+	PolicyFloor     = "floor"
 )
 
 // PolicyChange is one way in which the head policy is weaker than the base.
@@ -107,6 +108,7 @@ func PolicyWeakenings(base, head Policy) []PolicyChange {
 		changes = append(changes, PolicyChange{Aspect: PolicyTier,
 			Message: fmt.Sprintf("the tier is lowered from %s to %s", tierLabel(base.Tier), tierLabel(head.Tier))})
 	}
+	changes = append(changes, floorWeakenings(base, head)...)
 	changes = append(changes, thresholdWeakenings(base, head)...)
 	changes = append(changes, excludeWeakenings(base, head)...)
 	changes = append(changes, overrideWeakenings(base, head)...)
@@ -126,6 +128,19 @@ func tierLabel(tier string) string {
 		return "none"
 	}
 	return tier
+}
+
+// floorWeakenings lists a lower floor of the file score (ADR-EMG-087): the
+// effective floor of a policy is health.floor, else the highest score.
+//
+// TRLC-LINKS: REQ-EMG-210
+func floorWeakenings(base, head Policy) []PolicyChange {
+	b, h := model.EffectiveHealthFloor(base.Health), model.EffectiveHealthFloor(head.Health)
+	if h >= b {
+		return nil
+	}
+	return []PolicyChange{{Aspect: PolicyFloor,
+		Message: fmt.Sprintf("the floor of the file score is lowered from %.1f to %.1f", b, h)}}
 }
 
 // thresholdWeakenings lists the codes whose effective limit is higher at head,
@@ -166,12 +181,7 @@ func excludeWeakenings(base, head Policy) []PolicyChange {
 	if head.Health == nil {
 		return nil
 	}
-	have := map[string]bool{}
-	if base.Health != nil {
-		for _, pattern := range base.Health.Exclude {
-			have[normalizePattern(pattern)] = true
-		}
-	}
+	have := excludeSet(base)
 	var out []PolicyChange
 	seen := map[string]bool{}
 	for _, pattern := range head.Health.Exclude {
@@ -183,6 +193,20 @@ func excludeWeakenings(base, head Policy) []PolicyChange {
 		out = append(out, PolicyChange{Aspect: PolicyExclude, Message: fmt.Sprintf("health.exclude has a new pattern %q", strings.TrimSpace(pattern))})
 	}
 	return out
+}
+
+// excludeSet is the set of the normalized exclude patterns of a policy.
+//
+// TRLC-LINKS: REQ-EMG-155
+func excludeSet(p Policy) map[string]bool {
+	set := map[string]bool{}
+	if p.Health == nil {
+		return set
+	}
+	for _, pattern := range p.Health.Exclude {
+		set[normalizePattern(pattern)] = true
+	}
+	return set
 }
 
 // normalizePattern is the form in which two exclude patterns are compared.
@@ -202,23 +226,32 @@ func overrideWeakenings(base, head Policy) []PolicyChange {
 	}
 	var out []PolicyChange
 	for _, o := range head.Health.Overrides {
-		path := normalizePattern(o.Path)
-		codes := make([]string, 0, len(o.Thresholds))
-		for code := range o.Thresholds {
-			codes = append(codes, code)
+		out = append(out, overrideChanges(base, o)...)
+	}
+	return out
+}
+
+// overrideChanges lists the limits one override raises against the base.
+//
+// TRLC-LINKS: REQ-EMG-155
+func overrideChanges(base Policy, o model.HealthOverride) []PolicyChange {
+	var out []PolicyChange
+	path := normalizePattern(o.Path)
+	codes := make([]string, 0, len(o.Thresholds))
+	for code := range o.Thresholds {
+		codes = append(codes, code)
+	}
+	sort.Strings(codes)
+	for _, code := range codes {
+		t := o.Thresholds[code]
+		h := Threshold{Warn: t.Warn, High: t.High}
+		b, ok := baseOverrideLimit(base, path, code)
+		if !ok {
+			b, ok = base.effectiveLimit(code)
 		}
-		sort.Strings(codes)
-		for _, code := range codes {
-			t := o.Thresholds[code]
-			h := Threshold{Warn: t.Warn, High: t.High}
-			b, ok := baseOverrideLimit(base, path, code)
-			if !ok {
-				b, ok = base.effectiveLimit(code)
-			}
-			if ok && raises(h, b) {
-				out = append(out, PolicyChange{Aspect: PolicyOverride,
-					Message: fmt.Sprintf("the override for %q raises the limit of %s from %s to %s", path, code, b, h)})
-			}
+		if ok && raises(h, b) {
+			out = append(out, PolicyChange{Aspect: PolicyOverride,
+				Message: fmt.Sprintf("the override for %q raises the limit of %s from %s to %s", path, code, b, h)})
 		}
 	}
 	return out

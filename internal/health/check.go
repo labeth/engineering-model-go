@@ -55,10 +55,15 @@ type CheckReport struct {
 	Policy         []PolicyChange `json:"policyWeakened"`
 	PolicyLevel    string         `json:"policyLevel"`
 	PolicyDecision string         `json:"policyDecision,omitempty"`
+	// FloorLevel is the level of health.file_below_floor at the tier; the
+	// files in BelowFloor fail the check where it is an error.
+	FloorLevel string `json:"floorLevel"`
 	// Failed is true when there is a regression and it is an error at the tier,
 	// when a changed file was skipped and that is an error at the tier (the
-	// level of health.regression), or when the policy is weakened without a
-	// recorded decision and that is an error at the tier.
+	// level of health.regression), when the policy is weakened without a
+	// recorded decision and that is an error at the tier, or when a changed
+	// file is below the floor with no baseline cover and that is an error at the
+	// tier (the level of health.file_below_floor).
 	Failed bool `json:"failed"`
 }
 
@@ -123,13 +128,22 @@ func (v PolicyVerdict) Blocks() bool {
 	return len(v.Changes) > 0 && v.Decision == "" && v.Level == LevelError
 }
 
+// CheckInput is what NewCheckReport adds to a delta report: the levels of the
+// codes at the tier, the waived findings and the verdict on the policy.
+type CheckInput struct {
+	Levels map[string]string
+	Waived []WaivedFinding
+	Policy PolicyVerdict
+}
+
 // NewCheckReport adds the levels, the counts and the verdict to a delta
-// report. levels must hold health.regression (see CheckLevels); a missing level
-// is a warning, so a missing level never fails a gate. A changed file that was
-// skipped fails the report where a regression does.
+// report. in.Levels must hold health.regression (see CheckLevels); a missing
+// level is a warning, so a missing level never fails a gate. A changed file
+// that was skipped fails the report where a regression does.
 //
-// TRLC-LINKS: REQ-EMG-156, REQ-EMG-158
-func NewCheckReport(d DeltaReport, levels map[string]string, waived []WaivedFinding, policy PolicyVerdict) CheckReport {
+// TRLC-LINKS: REQ-EMG-156, REQ-EMG-158, REQ-EMG-210
+func NewCheckReport(d DeltaReport, in CheckInput) CheckReport {
+	levels, waived, policy := in.Levels, in.Waived, in.Policy
 	if levels == nil {
 		levels = map[string]string{}
 	}
@@ -139,22 +153,39 @@ func NewCheckReport(d DeltaReport, levels map[string]string, waived []WaivedFind
 	if d.Skipped == nil {
 		d.Skipped = []SkippedFile{}
 	}
-	level := LevelWarning
-	if levels[model.HealthRegressionCode] == LevelError {
-		level = LevelError
-	}
 	if policy.Changes == nil {
 		policy.Changes = []PolicyChange{}
 	}
 	if policy.Level == "" {
 		policy.Level = LevelWarning
 	}
-	failed := (len(d.Blocking) > 0 || len(d.Skipped) > 0) && level == LevelError
 	return CheckReport{
-		DeltaReport: d, Levels: levels, RegressionLevel: level, Counts: countEntries(d.Entries), Waived: waived,
-		Policy: policy.Changes, PolicyLevel: policy.Level, PolicyDecision: policy.Decision,
-		Failed: failed || policy.Blocks(),
+		DeltaReport: d, Levels: levels, RegressionLevel: levelIn(levels, model.HealthRegressionCode), Counts: countEntries(d.Entries), Waived: waived,
+		Policy: policy.Changes, PolicyLevel: policy.Level, PolicyDecision: policy.Decision, FloorLevel: levelIn(levels, CodeFileBelowFloor),
+		Failed: gateFails(d, levels) || policy.Blocks(),
 	}
+}
+
+// levelIn is the level of a code in a levels map: an error only when the map
+// says so, so a missing level never fails a gate.
+//
+// TRLC-LINKS: REQ-EMG-156, REQ-EMG-210
+func levelIn(levels map[string]string, code string) string {
+	if levels[code] == LevelError {
+		return LevelError
+	}
+	return LevelWarning
+}
+
+// gateFails reports whether the delta report fails the gate at the levels: a
+// regression or a skipped file where health.regression is an error, or a changed
+// file below the floor where health.file_below_floor is.
+//
+// TRLC-LINKS: REQ-EMG-156, REQ-EMG-210
+func gateFails(d DeltaReport, levels map[string]string) bool {
+	regression := (len(d.Blocking) > 0 || len(d.Skipped) > 0) && levelIn(levels, model.HealthRegressionCode) == LevelError
+	floor := len(d.BelowFloor) > 0 && levelIn(levels, CodeFileBelowFloor) == LevelError
+	return regression || floor
 }
 
 // Transition describes the change of a finding: "(none) -> cyclomatic 21 high"
@@ -210,6 +241,7 @@ func CheckSARIF(c CheckReport) ([]byte, error) {
 	}}
 	results, rules = appendSkippedResults(results, rules, c)
 	results, rules = appendPolicyResults(results, rules, c)
+	results, rules = appendFloorResults(results, rules, c)
 	run := sarifRun{
 		Tool:    sarifTool{Driver: sarifDriver{Name: "enghealth", Rules: rules}},
 		Results: results,
@@ -262,6 +294,33 @@ func appendPolicyResults(results []sarifResult, rules []sarifRule, c CheckReport
 			Message:             sarifText{Text: p.Message},
 			PartialFingerprints: map[string]string{FingerprintKey: FindingFingerprint(model.HealthPolicyWeakenedCode, p.Aspect, p.Message)},
 			Properties:          map[string]any{"aspect": p.Aspect},
+		})
+	}
+	return results, rules
+}
+
+// appendFloorResults adds the rule health.file_below_floor and one result per
+// changed file below the floor that no baseline entry covers. The rule is added
+// only when there is such a file.
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-210
+func appendFloorResults(results []sarifResult, rules []sarifRule, c CheckReport) ([]sarifResult, []sarifRule) {
+	if len(c.BelowFloor) == 0 {
+		return results, rules
+	}
+	level := sarifLevel(c.FloorLevel)
+	index := len(rules)
+	rules = append(rules, sarifRule{ID: CodeFileBelowFloor, Name: CodeFileBelowFloor,
+		ShortDescription: sarifText{Text: ruleDescriptions[CodeFileBelowFloor]}, DefaultConfig: sarifConfig{Level: level}})
+	for _, f := range c.BelowFloor {
+		results = append(results, sarifResult{
+			RuleID: CodeFileBelowFloor, RuleIndex: index, Level: level,
+			Message: sarifText{Text: f.Message()},
+			Locations: []sarifLocation{{PhysicalLocation: sarifPhysical{
+				ArtifactLocation: sarifArtifact{URI: sarifURI(f.Path), URIBaseID: "%SRCROOT%"},
+			}}},
+			PartialFingerprints: map[string]string{FingerprintKey: FindingFingerprint(CodeFileBelowFloor, f.Path, "")},
+			Properties:          map[string]any{"score": f.Score, "floor": f.Floor},
 		})
 	}
 	return results, rules

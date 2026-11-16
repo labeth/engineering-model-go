@@ -62,6 +62,12 @@ package 'engineering-model-go' {
     item def 'ACT-COMPLIANCE-ENGINEER';
 
     @EngineeringElement {
+        sourceId = "ACT-GO-CONSUMER";
+        conceptKind = "stakeholder_definition";
+    }
+    item def 'ACT-GO-CONSUMER';
+
+    @EngineeringElement {
         sourceId = "ACT-IMPLEMENTATION-ENGINEER";
         conceptKind = "stakeholder_definition";
     }
@@ -536,6 +542,66 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-078';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-079";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-079';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-080";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-080';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-081";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-081';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-082";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-082';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-083";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-083';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-084";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-084';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-085";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-085';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-086";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-086';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-087";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-087';
+
+    @EngineeringElement {
+        sourceId = "ADR-EMG-088";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-088';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -622,6 +688,14 @@ package 'engineering-model-go' {
         conceptKind = "port_usage";
     }
     port 'CAP-EMG-GENERATION-PIPELINE' : 'EngineeringPort' {
+        out port 'provided_EngineeringPort' : 'EngineeringPort';
+    }
+
+    @EngineeringElement {
+        sourceId = "CAP-EMG-GO-API";
+        conceptKind = "port_usage";
+    }
+    port 'CAP-EMG-GO-API' : 'EngineeringPort' {
         out port 'provided_EngineeringPort' : 'EngineeringPort';
     }
 
@@ -1698,10 +1772,22 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "COND-BEHAVIOR-STATE-FREE-FLOATING";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-BEHAVIOR-STATE-FREE-FLOATING';
+
+    @EngineeringElement {
         sourceId = "COND-CATALOG-REFERENCES-RESOLVE";
         conceptKind = "engineering_extension";
     }
     attribute 'COND-CATALOG-REFERENCES-RESOLVE';
+
+    @EngineeringElement {
+        sourceId = "COND-CODE-TRACE-LINK-DANGLING";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-CODE-TRACE-LINK-DANGLING';
 
     @EngineeringElement {
         sourceId = "COND-EXTERNAL-SCHEMA-AVAILABLE";
@@ -1710,10 +1796,76 @@ package 'engineering-model-go' {
     attribute 'COND-EXTERNAL-SCHEMA-AVAILABLE';
 
     @EngineeringElement {
+        sourceId = "COND-LIFECYCLE-BLOCK-INCOMPLETE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-LIFECYCLE-BLOCK-INCOMPLETE';
+
+    @EngineeringElement {
+        sourceId = "COND-PATH-ARGUMENT-OUTSIDE-WORKSPACE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-PATH-ARGUMENT-OUTSIDE-WORKSPACE';
+
+    @EngineeringElement {
+        sourceId = "COND-REFERENCED-URI-LOCAL";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-REFERENCED-URI-LOCAL';
+
+    @EngineeringElement {
+        sourceId = "COND-REMOVED-FIELD-AUTHORED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-REMOVED-FIELD-AUTHORED';
+
+    @EngineeringElement {
+        sourceId = "COND-REQUIRED-SWITCH-WRONG";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-REQUIRED-SWITCH-WRONG';
+
+    @EngineeringElement {
         sourceId = "COND-REQUIREMENT-TRACE-COMPLETE";
         conceptKind = "engineering_extension";
     }
     attribute 'COND-REQUIREMENT-TRACE-COMPLETE';
+
+    @EngineeringElement {
+        sourceId = "COND-REQUIREMENTS-APPLY-UNSAFE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-REQUIREMENTS-APPLY-UNSAFE';
+
+    @EngineeringElement {
+        sourceId = "COND-SCHEMA-CHECKS-MISMATCH";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-SCHEMA-CHECKS-MISMATCH';
+
+    @EngineeringElement {
+        sourceId = "COND-SUBSYSTEM-REF-CYCLE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-SUBSYSTEM-REF-CYCLE';
+
+    @EngineeringElement {
+        sourceId = "COND-SUBSYSTEM-REF-OUTSIDE-WORKSPACE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-SUBSYSTEM-REF-OUTSIDE-WORKSPACE';
+
+    @EngineeringElement {
+        sourceId = "COND-SYSML-COVERAGE-INCOMPLETE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-SYSML-COVERAGE-INCOMPLETE';
+
+    @EngineeringElement {
+        sourceId = "COND-TIER-ONLY-ERRORS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'COND-TIER-ONLY-ERRORS';
 
     @EngineeringElement {
         sourceId = "CTRL-ACCEPTANCE-RECORD-CHECK";
@@ -1794,10 +1946,22 @@ package 'engineering-model-go' {
     attribute 'CTRL-TRACEABILITY-COVERAGE';
 
     @EngineeringElement {
+        sourceId = "DATA-AIRBORNE-READINESS-PACKAGE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-AIRBORNE-READINESS-PACKAGE';
+
+    @EngineeringElement {
         sourceId = "DATA-ARCHITECTURE-DECISION-RECORDS";
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-ARCHITECTURE-DECISION-RECORDS';
+
+    @EngineeringElement {
+        sourceId = "DATA-ARCHITECTURE-DOCUMENT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-ARCHITECTURE-DOCUMENT';
 
     @EngineeringElement {
         sourceId = "DATA-ARCHITECTURE-MODEL";
@@ -1812,10 +1976,64 @@ package 'engineering-model-go' {
     attribute 'DATA-CANONICAL-SEMANTIC-MODEL';
 
     @EngineeringElement {
+        sourceId = "DATA-CATALOG-USAGE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-CATALOG-USAGE';
+
+    @EngineeringElement {
+        sourceId = "DATA-CODE-DECLARATIONS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-CODE-DECLARATIONS';
+
+    @EngineeringElement {
+        sourceId = "DATA-COMPOSITION-RESULT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-COMPOSITION-RESULT';
+
+    @EngineeringElement {
+        sourceId = "DATA-CONTRACT-ITEMS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-CONTRACT-ITEMS';
+
+    @EngineeringElement {
         sourceId = "DATA-DECISIONS-DOCUMENT";
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-DECISIONS-DOCUMENT';
+
+    @EngineeringElement {
+        sourceId = "DATA-ENTITY-INDEX";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-ENTITY-INDEX';
+
+    @EngineeringElement {
+        sourceId = "DATA-GEMARA-DOCUMENTS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-GEMARA-DOCUMENTS';
+
+    @EngineeringElement {
+        sourceId = "DATA-HEALTH-REPORT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-HEALTH-REPORT';
+
+    @EngineeringElement {
+        sourceId = "DATA-LINK-USE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-LINK-USE';
+
+    @EngineeringElement {
+        sourceId = "DATA-LOBSTER-ACTIVITY";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-LOBSTER-ACTIVITY';
 
     @EngineeringElement {
         sourceId = "DATA-LOBSTER-TRACE-REPORT";
@@ -1836,10 +2054,58 @@ package 'engineering-model-go' {
     attribute 'DATA-MODEL-AUTHORING-CONTRACT';
 
     @EngineeringElement {
+        sourceId = "DATA-MODEL-BUNDLE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-MODEL-BUNDLE';
+
+    @EngineeringElement {
+        sourceId = "DATA-MODEL-DIAGNOSTICS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-MODEL-DIAGNOSTICS';
+
+    @EngineeringElement {
+        sourceId = "DATA-MODEL-DIFF";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-MODEL-DIFF';
+
+    @EngineeringElement {
+        sourceId = "DATA-MODEL-MODULE-ARCHIVE";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-MODEL-MODULE-ARCHIVE';
+
+    @EngineeringElement {
         sourceId = "DATA-NAF-V4-ARCHITECTURE";
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-NAF-V4-ARCHITECTURE';
+
+    @EngineeringElement {
+        sourceId = "DATA-OPEN-OTM-JSON";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-OPEN-OTM-JSON';
+
+    @EngineeringElement {
+        sourceId = "DATA-OSCAL-DOCUMENTS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-OSCAL-DOCUMENTS';
+
+    @EngineeringElement {
+        sourceId = "DATA-QUINT-SPECIFICATION";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-QUINT-SPECIFICATION';
+
+    @EngineeringElement {
+        sourceId = "DATA-REQUIREMENT-LINK-STATUS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-REQUIREMENT-LINK-STATUS';
 
     @EngineeringElement {
         sourceId = "DATA-REQUIREMENTS-DELTA";
@@ -1884,10 +2150,34 @@ package 'engineering-model-go' {
     attribute 'DATA-THREAT-DRAGON-JSON';
 
     @EngineeringElement {
+        sourceId = "DATA-TRACE-MATRIX";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-TRACE-MATRIX';
+
+    @EngineeringElement {
         sourceId = "DATA-TRLC-PACKAGE";
         conceptKind = "engineering_extension";
     }
     attribute 'DATA-TRLC-PACKAGE';
+
+    @EngineeringElement {
+        sourceId = "DATA-TRLC-REQUIREMENTS";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-TRLC-REQUIREMENTS';
+
+    @EngineeringElement {
+        sourceId = "DATA-VIEW-DIAGRAM";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-VIEW-DIAGRAM';
+
+    @EngineeringElement {
+        sourceId = "DATA-VIEW-PROJECTION";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'DATA-VIEW-PROJECTION';
 
     @EngineeringElement {
         sourceId = "DEC-CODE-EXEMPT-MODEL-ONLY";
@@ -1930,6 +2220,24 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "DO-AIRBORNE-READINESS-PACKAGE";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-AIRBORNE-READINESS-PACKAGE' {
+        attribute 'schemaRef' : 'String' = "internal/export/airborne/airborne_assurance.go";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-ARCHITECTURE-DOCUMENT";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-ARCHITECTURE-DOCUMENT' {
+        attribute 'schemaRef' : 'String' = "generated/ARCHITECTURE.adoc";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
         sourceId = "DO-ARCHITECTURE-MODEL";
         conceptKind = "item_definition";
     }
@@ -1945,6 +2253,87 @@ package 'engineering-model-go' {
     item def 'DO-CANONICAL-SEMANTIC-MODEL' {
         attribute 'schemaRef' : 'String' = "internal/model/semantic.go";
         attribute 'classification' : 'String' = "design-source";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-CATALOG-USAGE";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-CATALOG-USAGE' {
+        attribute 'schemaRef' : 'String' = "internal/reqlint/catalog_usage.go";
+        attribute 'classification' : 'String' = "design-index";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-CODE-DECLARATIONS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-CODE-DECLARATIONS' {
+        attribute 'schemaRef' : 'String' = "internal/codemap/declarations.go";
+        attribute 'classification' : 'String' = "code-index";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-COMPOSITION-RESULT";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-COMPOSITION-RESULT' {
+        attribute 'schemaRef' : 'String' = "internal/composition/composition.go";
+        attribute 'classification' : 'String' = "design-source";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-CONTRACT-ITEMS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-CONTRACT-ITEMS' {
+        attribute 'schemaRef' : 'String' = "internal/reqlinks/reqlinks.go";
+        attribute 'classification' : 'String' = "published-contract";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-ENTITY-INDEX";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-ENTITY-INDEX' {
+        attribute 'schemaRef' : 'String' = "internal/model/entities.go";
+        attribute 'classification' : 'String' = "design-index";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-GEMARA-DOCUMENTS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-GEMARA-DOCUMENTS' {
+        attribute 'schemaRef' : 'String' = "internal/export/gemara/gemara_export.go";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-HEALTH-REPORT";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-HEALTH-REPORT' {
+        attribute 'schemaRef' : 'String' = "docs/health-report.schema.json";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-LINK-USE";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-LINK-USE' {
+        attribute 'schemaRef' : 'String' = "internal/composition/workspace_users.go";
+        attribute 'classification' : 'String' = "traceability-evidence";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-LOBSTER-ACTIVITY";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-LOBSTER-ACTIVITY' {
+        attribute 'schemaRef' : 'String' = "internal/export/lobster/lobster_export.go";
+        attribute 'classification' : 'String' = "exchange-artifact";
     }
 
     @EngineeringElement {
@@ -1966,12 +2355,84 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "DO-MODEL-BUNDLE";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-MODEL-BUNDLE' {
+        attribute 'schemaRef' : 'String' = "internal/model/types.go";
+        attribute 'classification' : 'String' = "design-source";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-MODEL-DIAGNOSTICS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-MODEL-DIAGNOSTICS' {
+        attribute 'schemaRef' : 'String' = "internal/validate/diagnostic.go";
+        attribute 'classification' : 'String' = "validation-result";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-MODEL-DIFF";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-MODEL-DIFF' {
+        attribute 'schemaRef' : 'String' = "api_diff.go";
+        attribute 'classification' : 'String' = "model-change-preview";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-MODEL-MODULE-ARCHIVE";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-MODEL-MODULE-ARCHIVE' {
+        attribute 'schemaRef' : 'String' = "internal/composition/composition.go";
+        attribute 'classification' : 'String' = "dependency-source";
+    }
+
+    @EngineeringElement {
         sourceId = "DO-NAF-V4-ARCHITECTURE";
         conceptKind = "item_definition";
     }
     item def 'DO-NAF-V4-ARCHITECTURE' {
         attribute 'schemaRef' : 'String' = "generated/ARCHITECTURE.naf.adoc";
         attribute 'classification' : 'String' = "architecture-product";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-OPEN-OTM-JSON";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-OPEN-OTM-JSON' {
+        attribute 'schemaRef' : 'String' = "internal/export/threatmodel/threat_model_export.go";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-OSCAL-DOCUMENTS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-OSCAL-DOCUMENTS' {
+        attribute 'schemaRef' : 'String' = "internal/export/oscal/oscal_ssp.go";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-QUINT-SPECIFICATION";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-QUINT-SPECIFICATION' {
+        attribute 'schemaRef' : 'String' = "internal/export/quint/quint_export.go";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-REQUIREMENT-LINK-STATUS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-REQUIREMENT-LINK-STATUS' {
+        attribute 'schemaRef' : 'String' = "internal/reqlinks/evaluate.go";
+        attribute 'classification' : 'String' = "traceability-evidence";
     }
 
     @EngineeringElement {
@@ -2038,16 +2499,46 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "DO-TRACE-MATRIX";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-TRACE-MATRIX' {
+        attribute 'schemaRef' : 'String' = "internal/trace/trace_matrix.go";
+        attribute 'classification' : 'String' = "traceability-evidence";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-TRLC-REQUIREMENTS";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-TRLC-REQUIREMENTS' {
+        attribute 'schemaRef' : 'String' = "generated/requirements/requirements.trlc";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-VIEW-DIAGRAM";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-VIEW-DIAGRAM' {
+        attribute 'schemaRef' : 'String' = "generated/VIEW-ARCHITECTURE-INTENT.mmd";
+        attribute 'classification' : 'String' = "exchange-artifact";
+    }
+
+    @EngineeringElement {
+        sourceId = "DO-VIEW-PROJECTION";
+        conceptKind = "item_definition";
+    }
+    item def 'DO-VIEW-PROJECTION' {
+        attribute 'schemaRef' : 'String' = "internal/view/project.go";
+        attribute 'classification' : 'String' = "derived-model";
+    }
+
+    @EngineeringElement {
         sourceId = "EVIDENCE-03758739C61FBDFA";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-03758739C61FBDFA';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-039AFE93F999C5A3";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-039AFE93F999C5A3';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-139EC30ED19D5D0E";
@@ -2062,12 +2553,6 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-1F759AEA9CF11C3A';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-23C045EBA1477F66";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-23C045EBA1477F66';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-40EB3F8D004E3DF8";
         conceptKind = "engineering_extension";
     }
@@ -2078,24 +2563,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-43B6184BF8DE5E9F';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-4B3DDCC5B0B41D8E";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-4B3DDCC5B0B41D8E';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-4E4BFE79877C82EF";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-4E4BFE79877C82EF';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-503DC005C15715B7";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-503DC005C15715B7';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-5EE38555C003B5C1";
@@ -2146,28 +2613,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-7BCB58B049112FF6';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-80E6FEC2A77A59C5";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-80E6FEC2A77A59C5';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-818DFA02E6A5039F";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-818DFA02E6A5039F';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-86534EAF0B866FF8";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-86534EAF0B866FF8';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-88EA6811C334AD4E";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-88EA6811C334AD4E';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-94C1E990F59187C8";
@@ -2182,40 +2631,10 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-95186CA263D4A74D';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-9626B625C038ECBE";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-9626B625C038ECBE';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-9D67CC51D8C146A5";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-9D67CC51D8C146A5';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-A755D795A790DDDB";
         conceptKind = "engineering_extension";
     }
     attribute 'EVIDENCE-A755D795A790DDDB';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-A97EFA82CF771A58";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-A97EFA82CF771A58';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-AA3DC00FE963C522";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-AA3DC00FE963C522';
-
-    @EngineeringElement {
-        sourceId = "EVIDENCE-AB740132F2975383";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-AB740132F2975383';
 
     @EngineeringElement {
         sourceId = "EVIDENCE-BB4E54DC3575C2A8";
@@ -2266,12 +2685,6 @@ package 'engineering-model-go' {
     attribute 'EVIDENCE-EF5710F27BBD8EC7';
 
     @EngineeringElement {
-        sourceId = "EVIDENCE-F068977A71DAEE36";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'EVIDENCE-F068977A71DAEE36';
-
-    @EngineeringElement {
         sourceId = "EVIDENCE-FA3941B5C5E1E07C";
         conceptKind = "engineering_extension";
     }
@@ -2309,15 +2722,45 @@ package 'engineering-model-go' {
 
     @EngineeringElement {
         sourceId = "EVT-EXAMPLE-VALIDATION-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-EXAMPLE-VALIDATION-REQUESTED';
+    event occurrence 'EVT-EXAMPLE-VALIDATION-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-GENERATION-RUN-REQUESTED";
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-GENERATION-RUN-REQUESTED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-GO-API-CALL-RECEIVED";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'EVT-GO-API-CALL-RECEIVED';
+
+    @EngineeringElement {
+        sourceId = "EVT-GO-BUNDLE-LOAD-FAILED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-GO-BUNDLE-LOAD-FAILED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-GO-BUNDLE-LOADED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-GO-BUNDLE-LOADED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-HEALTH-CHECK-REQUESTED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-HEALTH-CHECK-REQUESTED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-HEALTH-SCAN-REQUESTED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-HEALTH-SCAN-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-LINK-ADD-REQUESTED";
@@ -2336,6 +2779,12 @@ package 'engineering-model-go' {
         conceptKind = "event_definition";
     }
     event occurrence 'EVT-MCP-TOOL-CALL-RECEIVED' : EngineeringEvent;
+
+    @EngineeringElement {
+        sourceId = "EVT-MODEL-CHECK-REQUESTED";
+        conceptKind = "event_definition";
+    }
+    event occurrence 'EVT-MODEL-CHECK-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-MODEL-UPDATED";
@@ -2375,9 +2824,9 @@ package 'engineering-model-go' {
 
     @EngineeringElement {
         sourceId = "EVT-SPEC-DELTA-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-SPEC-DELTA-REQUESTED';
+    event occurrence 'EVT-SPEC-DELTA-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-STATUS-SUGGEST-REQUESTED";
@@ -2399,15 +2848,15 @@ package 'engineering-model-go' {
 
     @EngineeringElement {
         sourceId = "EVT-WORKSPACE-STAGING-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-WORKSPACE-STAGING-REQUESTED';
+    event occurrence 'EVT-WORKSPACE-STAGING-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EVT-WORKSPACE-SYNC-REQUESTED";
-        conceptKind = "engineering_extension";
+        conceptKind = "event_definition";
     }
-    attribute 'EVT-WORKSPACE-SYNC-REQUESTED';
+    event occurrence 'EVT-WORKSPACE-SYNC-REQUESTED' : EngineeringEvent;
 
     @EngineeringElement {
         sourceId = "EXTENSION-9AF6071DD4978062";
@@ -2530,6 +2979,30 @@ package 'engineering-model-go' {
     part def 'FG-VALIDATION-ANALYSIS';
 
     @EngineeringElement {
+        sourceId = "FLOW-ARTIFACT-EXPORT";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-ARTIFACT-EXPORT' {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_GEMARA_DOCUMENTS' : 'DO-GEMARA-DOCUMENTS';
+        inout item 'item_DO_LOBSTER_ACTIVITY' : 'DO-LOBSTER-ACTIVITY';
+        inout item 'item_DO_OSCAL_DOCUMENTS' : 'DO-OSCAL-DOCUMENTS';
+        inout item 'item_DO_AIRBORNE_READINESS_PACKAGE' : 'DO-AIRBORNE-READINESS-PACKAGE';
+        inout item 'item_DO_VIEW_DIAGRAM' : 'DO-VIEW-DIAGRAM';
+        inout item 'item_DO_REQUIREMENTS_DELTA' : 'DO-REQUIREMENTS-DELTA';
+        inout item 'item_DO_REQUIREMENTS_DOCUMENT' : 'DO-REQUIREMENTS-DOCUMENT';
+        inout item 'item_DO_THREAT_DRAGON_JSON' : 'DO-THREAT-DRAGON-JSON';
+        inout item 'item_DO_OPEN_OTM_JSON' : 'DO-OPEN-OTM-JSON';
+        inout item 'item_DO_STRUCTURIZR_DSL' : 'DO-STRUCTURIZR-DSL';
+        inout item 'item_DO_SYSML_V2_MODEL' : 'DO-SYSML-V2-MODEL';
+        inout item 'item_DO_QUINT_SPECIFICATION' : 'DO-QUINT-SPECIFICATION';
+        inout item 'item_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+        inout item 'item_DO_NAF_V4_ARCHITECTURE' : 'DO-NAF-V4-ARCHITECTURE';
+        inout item 'item_DO_TRLC_REQUIREMENTS' : 'DO-TRLC-REQUIREMENTS';
+        inout item 'item_DO_TRACE_MATRIX' : 'DO-TRACE-MATRIX';
+    }
+
+    @EngineeringElement {
         sourceId = "FLOW-DEPENDENCY-BUMP";
         conceptKind = "action_definition";
     }
@@ -2538,11 +3011,108 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "FLOW-ENGINE-INTEGRATIONS";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-ENGINE-INTEGRATIONS' {
+        inout item 'item_DO_ARCHITECTURE_DOCUMENT' : 'DO-ARCHITECTURE-DOCUMENT';
+        inout item 'item_DO_CODE_DECLARATIONS' : 'DO-CODE-DECLARATIONS';
+        inout item 'item_DO_LOBSTER_ACTIVITY' : 'DO-LOBSTER-ACTIVITY';
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+        inout item 'item_DO_MODEL_MODULE_ARCHIVE' : 'DO-MODEL-MODULE-ARCHIVE';
+        inout item 'item_DO_NAF_V4_ARCHITECTURE' : 'DO-NAF-V4-ARCHITECTURE';
+        inout item 'item_DO_OPEN_OTM_JSON' : 'DO-OPEN-OTM-JSON';
+        inout item 'item_DO_STRUCTURIZR_DSL' : 'DO-STRUCTURIZR-DSL';
+        inout item 'item_DO_SYSML_V2_MODEL' : 'DO-SYSML-V2-MODEL';
+        inout item 'item_DO_THREAT_DRAGON_JSON' : 'DO-THREAT-DRAGON-JSON';
+        inout item 'item_DO_TRLC_REQUIREMENTS' : 'DO-TRLC-REQUIREMENTS';
+        inout item 'item_DO_VIEW_PROJECTION' : 'DO-VIEW-PROJECTION';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-EXAMPLE-VALIDATION";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-EXAMPLE-VALIDATION' {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-GO-COMPARE-REVISIONS";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-GO-COMPARE-REVISIONS' {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+        inout item 'item_DO_MODEL_DIFF' : 'DO-MODEL-DIFF';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-GO-COMPOSE-AND-LINK";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-GO-COMPOSE-AND-LINK' {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_COMPOSITION_RESULT' : 'DO-COMPOSITION-RESULT';
+        inout item 'item_DO_CONTRACT_ITEMS' : 'DO-CONTRACT-ITEMS';
+        inout item 'item_DO_REQUIREMENT_LINK_STATUS' : 'DO-REQUIREMENT-LINK-STATUS';
+        inout item 'item_DO_LINK_USE' : 'DO-LINK-USE';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-GO-LOOK-UP-CODE";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-GO-LOOK-UP-CODE' {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CODE_DECLARATIONS' : 'DO-CODE-DECLARATIONS';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-GO-READ-MODEL";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-GO-READ-MODEL' {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+        inout item 'item_DO_TRACE_MATRIX' : 'DO-TRACE-MATRIX';
+        inout item 'item_DO_CATALOG_USAGE' : 'DO-CATALOG-USAGE';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-HEALTH-CHECK";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-HEALTH-CHECK' {
+        inout item 'item_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-HEALTH-SCAN";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-HEALTH-SCAN' {
+        inout item 'item_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+    }
+
+    @EngineeringElement {
         sourceId = "FLOW-LINK-REVIEW";
         conceptKind = "action_definition";
     }
     action def 'FLOW-LINK-REVIEW' {
         inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-MCP-TOOL-CALL";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-MCP-TOOL-CALL' {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_MODEL_AUTHORING_CONTRACT' : 'DO-MODEL-AUTHORING-CONTRACT';
+        inout item 'item_DO_MCP_TOOL_RESULT' : 'DO-MCP-TOOL-RESULT';
     }
 
     @EngineeringElement {
@@ -2557,6 +3127,16 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "FLOW-MODEL-CHECK";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-MODEL-CHECK' {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_CANONICAL_SEMANTIC_MODEL' : 'DO-CANONICAL-SEMANTIC-MODEL';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
+
+    @EngineeringElement {
         sourceId = "FLOW-REQUIREMENTS-DELTA-TO-CANONICAL";
         conceptKind = "action_definition";
     }
@@ -2565,6 +3145,22 @@ package 'engineering-model-go' {
         inout item 'item_DO_REQUIREMENTS_DOCUMENT' : 'DO-REQUIREMENTS-DOCUMENT';
         inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
         inout item 'item_DO_REQUIREMENTS_DIFF' : 'DO-REQUIREMENTS-DIFF';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-SPEC-DELTA";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-SPEC-DELTA' {
+        inout item 'item_DO_REQUIREMENTS_DOCUMENT' : 'DO-REQUIREMENTS-DOCUMENT';
+    }
+
+    @EngineeringElement {
+        sourceId = "FLOW-WORKSPACE-SYNC";
+        conceptKind = "action_definition";
+    }
+    action def 'FLOW-WORKSPACE-SYNC' {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
     }
 
     @EngineeringElement {
@@ -2898,6 +3494,261 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "IF-CLI-ENGWS";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-CLI-ENGWS' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "cmd/engws";
+        attribute 'schemaRef' : 'String' = "internal/engws/cli.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-CUE-OCI-REGISTRY-API";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-CUE-OCI-REGISTRY-API' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "oci";
+        attribute 'endpoint' : 'String' = "the registry named by the CUE registry configuration";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-CODE-LOOKUP";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-CODE-LOOKUP' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_code.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-COMPOSITION";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-COMPOSITION' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_composition.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-ENTITY-INDEX-DIFF";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-ENTITY-INDEX-DIFF' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_diff.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-MODEL-LOADING";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-MODEL-LOADING' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "model_api.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-MODEL-VALIDATION";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-MODEL-VALIDATION' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "validate_api.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-PKG-ASCIIDOC";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-PKG-ASCIIDOC' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-package";
+        attribute 'endpoint' : 'String' = "internal/asciidoc";
+        attribute 'schemaRef' : 'String' = "internal/asciidoc/asciidoc.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-PKG-CODEMAP";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-PKG-CODEMAP' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-package";
+        attribute 'endpoint' : 'String' = "internal/codemap";
+        attribute 'schemaRef' : 'String' = "internal/codemap/declarations.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-PKG-MODEL";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-PKG-MODEL' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-package";
+        attribute 'endpoint' : 'String' = "internal/model";
+        attribute 'schemaRef' : 'String' = "internal/model/load.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-PKG-VALIDATE";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-PKG-VALIDATE' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-package";
+        attribute 'endpoint' : 'String' = "internal/validate";
+        attribute 'schemaRef' : 'String' = "internal/validate/validate.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-PKG-VIEW";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-PKG-VIEW' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-package";
+        attribute 'endpoint' : 'String' = "internal/view";
+        attribute 'schemaRef' : 'String' = "internal/view/project.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-REQUIREMENT-LINKS";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-REQUIREMENT-LINKS' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_reqlinks.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-TOOLCHAIN-CLI";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-TOOLCHAIN-CLI' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "go run, go env and go get";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-GO-TRACE";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-GO-TRACE' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "go-library";
+        attribute 'endpoint' : 'String' = "github.com/labeth/engineering-model-go";
+        attribute 'schemaRef' : 'String' = "api_trace.go";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-LOBSTER-CLI";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-LOBSTER-CLI' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "lobster tools";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-NAF-V4-1-SPECIFICATION";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-NAF-V4-1-SPECIFICATION' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "specification";
+        attribute 'endpoint' : 'String' = "NATO Architecture Framework v4.1 viewpoints and products";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-OPEN-OTM-SCHEMA";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-OPEN-OTM-SCHEMA' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "json-schema";
+        attribute 'endpoint' : 'String' = "Open Threat Model JSON";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-STRUCTURIZR-VALIDATOR-CLI";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-STRUCTURIZR-VALIDATOR-CLI' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "structurizr validate";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-SYSML-V2-TOOLCHAIN-CLI";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-SYSML-V2-TOOLCHAIN-CLI' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "the pinned SysML v2 validator and KPAR packaging tools";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-THREAT-DRAGON-SCHEMA";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-THREAT-DRAGON-SCHEMA' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "json-schema";
+        attribute 'endpoint' : 'String' = "Threat Dragon v2 threat model JSON";
+    }
+
+    @EngineeringElement {
+        sourceId = "IF-TRLC-CLI";
+        conceptKind = "interface_definition";
+    }
+    interface def 'IF-TRLC-CLI' {
+        end port 'source' : EngineeringPort;
+        end port 'target' : EngineeringPort;
+        attribute 'protocol' : 'String' = "cli";
+        attribute 'endpoint' : 'String' = "trlc";
+    }
+
+    @EngineeringElement {
         sourceId = "MODE-CI-VALIDATION";
         conceptKind = "engineering_extension";
     }
@@ -2914,6 +3765,12 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'MODE-LOCAL-DEVELOPMENT';
+
+    @EngineeringElement {
+        sourceId = "MODE-TIER-AT-LEAST-PRODUCT";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'MODE-TIER-AT-LEAST-PRODUCT';
 
     @EngineeringElement {
         sourceId = "POAM-CONSISTENCY-BATCH1";
@@ -2938,90 +3795,6 @@ package 'engineering-model-go' {
         conceptKind = "engineering_extension";
     }
     attribute 'POAM-CONSISTENCY-MODEL-ONLY';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-01";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-01';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-02";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-02';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-03";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-03';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-04";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-04';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-05";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-05';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-06";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-06';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-07";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-07';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-08";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-08';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-09";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-09';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-10";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-10';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-11";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-11';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-12";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-12';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-13";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-13';
-
-    @EngineeringElement {
-        sourceId = "POAM-CONSISTENCY-MODELING-14";
-        conceptKind = "engineering_extension";
-    }
-    attribute 'POAM-CONSISTENCY-MODELING-14';
 
     @EngineeringElement {
         sourceId = "POAM-MCP-PATH-FUZZING";
@@ -3226,7 +3999,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-006' {
-        attribute 'text' : 'String' = "Where traceability export is enabled, when generation run is requested, the engineering model go shall produce trlc package and lobster trace report artifacts.";
+        attribute 'text' : 'String' = "Where traceability export is enabled, when generation run is requested, the engineering model go shall produce trlc package plus lobster trace report artifacts.";
         attribute 'notes' : 'String' = "Traceability outputs required for assurance workflows.";
     }
 
@@ -3244,7 +4017,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-008' {
-        attribute 'text' : 'String' = "When mcp tool call is received, the engineering model go shall reject path arguments outside repository workspace boundary.";
+        attribute 'text' : 'String' = "If path argument is outside repository workspace boundary, then the engineering model go shall reject the path argument with a structured error.";
         attribute 'notes' : 'String' = "Filesystem trust boundary guardrail.";
     }
 
@@ -3262,7 +4035,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-010' {
-        attribute 'text' : 'String' = "Where requirement trace is complete, when model updated event is received, the engineering model go shall infer traceability coverage from trace markers.";
+        attribute 'text' : 'String' = "Where requirement trace is complete, when model check is requested, the engineering model go shall infer traceability coverage from trace markers.";
         attribute 'notes' : 'String' = "Links runtime, code, and test markers to modeled requirement coverage. Python and JavaScript declarations and lexical Verilog modules support explicit source links. Python decorators preserve definition coordinates; strings cannot create trace or ownership markers, and syntax errors are diagnosed; Verilog extraction does not elaborate HDL or expand macros. Individual source files and overlapping source directories preserve distinct file identities without double counting. Code and metadata scanning excludes dependency caches (node_modules, vendor) and dot-directories (.git, .engmod, tool caches) so coverage reflects only committed first-party source and stays reproducible.";
     }
 
@@ -3271,7 +4044,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-011' {
-        attribute 'text' : 'String' = "Where external schema dependencies are available, when generation run is requested, the engineering model go shall fail validation if schema checks do not match expected constraints.";
+        attribute 'text' : 'String' = "Where external schema dependencies are available, if schema checks mismatch expected constraints, then the engineering model go shall fail validation.";
         attribute 'notes' : 'String' = "Protect export integrity when schema trust fails.";
     }
 
@@ -3280,7 +4053,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-012' {
-        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall generate artifacts deterministically so that regeneration is reproducible.";
+        attribute 'text' : 'String' = "The engineering model go shall generate artifacts deterministically so that regeneration is reproducible.";
         attribute 'notes' : 'String' = "Generation uses stable ordering and controlled metadata so maintained artifacts are bit-for-bit reproducible. The validation gauntlet regenerates every maintained example and applies authoritative parsers or schemas where available plus semantic and idiomatic checks for each published format.";
     }
 
@@ -3289,7 +4062,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-013' {
-        attribute 'text' : 'String' = "Where traceability export is enabled, when generation run is requested, the engineering model go shall export an OSCAL aggregate profile plus SSP plus assessment plan plus assessment results plus POA&M artifacts when the corresponding compliance and remediation content is applicable.";
+        attribute 'text' : 'String' = "Where traceability export is enabled, when generation run is requested, the engineering model go shall export an OSCAL aggregate profile plus SSP plus assessment plan plus assessment results plus POA&M artifacts when the corresponding compliance plus remediation content is applicable.";
         attribute 'notes' : 'String' = "OSCAL documents use version 1.1.2 structures, deterministic metadata, resolvable sibling import links, aggregate every implemented compliance framework, and omit inapplicable documents rather than emitting schema-invalid empty artifacts.";
     }
 
@@ -3325,7 +4098,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-017' {
-        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall reject any subsystem reference that resolves outside the repository workspace boundary.";
+        attribute 'text' : 'String' = "Where system composition is enabled, if subsystem reference resolves outside repository workspace boundary, then the engineering model go shall reject the subsystem reference.";
         attribute 'notes' : 'String' = "Downward-only references remain within the workspace; mirrors the MCP path-boundary guardrail.";
     }
 
@@ -3334,7 +4107,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-018' {
-        attribute 'text' : 'String' = "Where system composition is enabled, when generation run is requested, the engineering model go shall reject a subsystem reference graph that contains a cycle.";
+        attribute 'text' : 'String' = "Where system composition is enabled, if subsystem reference graph contains a cycle, then the engineering model go shall reject the subsystem reference graph.";
         attribute 'notes' : 'String' = "Subsystem references must form a directed acyclic graph (ADR-EMG-009).";
     }
 
@@ -3424,7 +4197,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-028' {
-        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall reject a code trace link that resolves to no requirement or model element.";
+        attribute 'text' : 'String' = "If code trace link names no model target, then the engineering model go shall reject the code trace link.";
         attribute 'notes' : 'String' = "Code markers (TRLC-LINKS to a requirement, ENGMODEL-LINKS to a model element) are existence-checked against the model, not only shape-checked, so a link to a deleted or mistyped id is a dangling link and fails the build. A trace link is only checked for the model that owns its code (see REQ-EMG-030 scoping).";
     }
 
@@ -3442,7 +4215,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-030' {
-        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall export a machine-readable traceability matrix that links each requirement to its implementing code and verification and delegated subsystem requirement.";
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall export a machine-readable traceability matrix that links each requirement to its implementing code plus verification plus delegated subsystem requirement.";
         attribute 'notes' : 'String' = "One consolidated matrix (JSON) replaces having to read it out of prose and diagrams. Test-only source links count as verification, not production implementation. Code is attributed to the model whose engmod.yml is its nearest enclosing root, so a parent model never validates or counts a child model's trace links (monorepo scoping).";
     }
 
@@ -3487,7 +4260,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-035' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall normalize architecture model plus requirements document into canonical semantic model.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall normalize architecture model plus requirements document into canonical semantic model.";
         attribute 'notes' : 'String' = "The canonical semantic model is SysML v2 and KerML aligned. Existing Engineering Model concepts map into that model once; the authored YAML is the single input and no legacy adapter exists (ADR-EMG-061); it must not create a parallel set of parts, interfaces, flows, requirements, allocations, or views.";
     }
 
@@ -3523,7 +4296,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-039' {
-        attribute 'text' : 'String' = "While ci validation mode is active, when generation run is requested, the engineering model go shall reject incomplete sysml v2 metamodel coverage.";
+        attribute 'text' : 'String' = "While ci validation mode is active, if sysml v2 metamodel coverage is incomplete, then the engineering model go shall fail validation.";
         attribute 'notes' : 'String' = "Coverage is complete only when every normative metaclass and property in the pinned formal release is represented, explicitly excluded as derived, or implemented as a typed Engineering Model extension with executable evidence.";
     }
 
@@ -3541,7 +4314,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-041' {
-        attribute 'text' : 'String' = "Where naf profile authoring is enabled, when model updated event is received, the engineering model go shall validate naf v4.1 stakeholder plus concern plus viewpoint metadata against canonical model references.";
+        attribute 'text' : 'String' = "Where naf profile authoring is enabled, when model check is requested, the engineering model go shall validate naf v4.1 stakeholder plus concern plus viewpoint metadata against canonical model references.";
         attribute 'notes' : 'String' = "NAF-specific YAML contains profile metadata only. Capability, service, logical, resource, behavior, interface, and requirement concepts remain represented once in the canonical SysML and KerML aligned semantic graph.";
     }
 
@@ -3568,7 +4341,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-044' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall load schema version 2 engmod manifest plus catalog plus requirements plus architecture plus behavior plus assurance plus compliance plus views plus decisions documents into one canonical semantic model.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall load schema version 2 engmod manifest plus catalog plus requirements plus architecture plus behavior plus assurance plus compliance plus views plus decisions documents into one canonical semantic model.";
         attribute 'notes' : 'String' = "engmod.yml is the only model entry point and every document path is explicit. YAML is the authoring format and CUE is the schema authority. Requirements may carry format-neutral qualification metadata such as title, category, rationale, source references, verification methods and criteria, priority, criticality, status, derived disposition, and tags. Views own design narratives plus generic document definitions, document-control metadata, content selections, authored sections, and external references; architecture does not contain behavior, assurance, compliance, dependency source, NAF, or projection-specific declarations.";
     }
 
@@ -3640,7 +4413,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-052' {
-        attribute 'text' : 'String' = "Where six-view example output is enabled, when generation run is requested, the engineering model go shall generate deterministic use-case plus logical plus process plus physical plus implementation plus deployment view artifacts and native SysML from one schema version 2 YAML bundle.";
+        attribute 'text' : 'String' = "Where six-view example output is enabled, when generation run is requested, the engineering model go shall generate deterministic use-case plus logical plus process plus physical plus implementation plus deployment view artifacts plus native SysML from one schema version 2 YAML bundle.";
         attribute 'notes' : 'String' = "The acceptance example preserves viewpoint separation, hierarchical capabilities, ordered typed interactions, nested hardware and software structures, ports, connections, engineering values, and software-to-hardware allocations. Mermaid sources and SVG renderings are generated without depending on authored SysML source files.";
     }
 
@@ -3649,7 +4422,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-053' {
-        attribute 'text' : 'String' = "Where do-178c dal c readiness output is enabled, when model updated event is received, the engineering model go shall load a strict aviation assurance profile plus lifecycle data plus verification evidence plus configuration baselines plus tool assessments plus structural coverage summaries.";
+        attribute 'text' : 'String' = "Where do-178c dal c readiness output is enabled, when model check is requested, the engineering model go shall load a strict aviation assurance profile plus lifecycle data plus verification evidence plus configuration baselines plus tool assessments plus structural coverage summaries.";
         attribute 'notes' : 'String' = "The model references DO-178C or ED-12C and customer-controlled licensed objective identifiers without reproducing normative objective text. It distinguishes declared, planned, executed, reviewed, accepted, not-applicable, and authority-accepted evidence states.";
     }
 
@@ -3685,7 +4458,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-057' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall derive the default code scan root from the enclosing module boundary.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall derive the default code scan root from the enclosing module boundary.";
         attribute 'notes' : 'String' = "Without codeSources or an explicit code root, the scan root is the git working tree root, unless another engmod.yml exists between the manifest directory and that root, in which case it is the manifest directory. Directories holding another engmod.yml belong to that module and are skipped. Files ignored by git and paths matching inferenceHints.exclude glob patterns (relative to the module root, with dir/** for whole subtrees) are skipped. Explicit codeSources and code roots still override the default root.";
     }
 
@@ -3694,7 +4467,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-058' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.";
         attribute 'notes' : 'String' = "A file identifier is CODE- followed by its module-root-relative path, upper-cased with runs of non-alphanumeric characters folded to one hyphen (app/internal/capture.go becomes CODE-APP-INTERNAL-CAPTURE-GO). A declaration identifier appends two hyphens and the folded declaration name, so same-named declarations in different files stay distinct. Explicit TRACE-ID markers keep their authored value. Identifiers do not carry commit or blob versions because the model and the code are versioned together.";
     }
 
@@ -3703,7 +4476,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-059' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.";
         attribute 'notes' : 'String' = "An unknown CODE identifier is a broken reference, an identifier produced by more than one file or declaration is rejected as ambiguous, and inferred RT- and AUTO- identifiers remain unreferenceable. The code index is built only when the model references a CODE identifier, so models without such references pay no scanning cost.";
     }
 
@@ -3712,7 +4485,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-060' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall reject referenced elements whose uri addresses a local path.";
+        attribute 'text' : 'String' = "If referenced element uri addresses a local path, then the engineering model go shall reject the referenced element.";
         attribute 'notes' : 'String' = "Referenced elements describe artifacts outside the repository. A uri without a scheme or with the file scheme is rejected with a hint to reference the CODE identifier instead. A referenced element with a uri must declare a version unless the uri itself is immutable (a doi, or a uri carrying a full 40-hex commit id). Referenced elements without a uri remain valid for offline documents identified by number and edition.";
     }
 
@@ -3721,7 +4494,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-061' {
-        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall count a requirement as tested only through test entry points.";
+        attribute 'text' : 'String' = "The engineering model go shall count a requirement as tested only through test entry points.";
         attribute 'notes' : 'String' = "Test entry points are Go Test/Benchmark/Fuzz/Example functions, Rust";
     }
 
@@ -3802,7 +4575,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-070' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn about every unconnected behavior element.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall warn about every unconnected behavior element.";
         attribute 'notes' : 'String' = "Three warnings. behavior.event_unused names an authored behavior event that no machine transition names in on, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references (catalog-only events are covered by catalog.term_unreferenced). behavior.state_unreachable names a machine state that no path of transitions leads to from the initial state of the machine (v0.11.0, ADR-EMG-038; the first-declared-state heuristic and the transitions_to relationship are gone), and a machine without transitions reports its other states. behavior.flow_step_no_onerror names a flow step with boundaryCrossing true and no onError step, at its onError path. Imported alias::ID entities are skipped.";
     }
 
@@ -3811,7 +4584,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-071' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.";
         attribute 'notes' : 'String' = "catalog.name_has_operator is reported once at the catalog name or alias field (catalog.<group>[i].name or .aliases[j]) of an actor, event, state, feature, mode, condition or data term that contains a standalone and, or, not, a comma or a parenthesis. Such a term cannot match in a requirement clause, because the EARS expression parser splits it at the operator, and the requirement otherwise shows only unresolved-term diagnostics. System, functional group and unit names are matched whole by EARS and are not checked.";
     }
 
@@ -3820,7 +4593,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-072' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.";
         attribute 'notes' : 'String' = "lint.multiple_responses from ears-lint-go is dropped when the text has one shall and no semicolon, no and, or or comma comes before the first with, including or of in the response, that field list holds no then, and no list item after the first reads as a verb with its object (its second word is the, a, an, its, their, each, every or all). \"publish one world state message with UTC time, latitude, longitude and altitude\" is not reported; \"log the event and notify the operator\", \"log the event with the timestamp and notify the operator\" and \"stop all of the motors and close the valve\" still are.";
     }
 
@@ -3856,7 +4629,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-082' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each assurance record whose verification links disagree.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each assurance record whose verification links disagree.";
         attribute 'notes' : 'String' = "threat.verification_missing is a warning at a threat scenario's verificationRefs when it omits a control verification that one of its threat mitigations (threatScenarioRef) lists in verificationRefs or that names the threat in threatScenarioRefs. mitigation.verification_control_mismatch is an error at a threat mitigation verificationRefs entry naming a control verification whose controlRef is another control than the mitigation's controlRef. verification.unlinked is a warning at the verificationRefs of a control verification with method test and status pass or partial that has no verificationRefs, so no test declaration or requirement evidences it; analysis, inspection and other methods are evidenced by their evidence entries and are not reported. Imported alias::ID records are skipped. The AsciiDoc generation, the trace and model.diagnose report them through validation.";
     }
 
@@ -3865,7 +4638,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-083' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.";
         attribute 'notes' : 'String' = "gemara.control_needs_review is a warning at a control that the Gemara L5 evaluation log gives the result Needs Review: no control verification names it in controlRef, or at least one of its control verifications has a status that needs review (partial, planned, in-progress, review, needs-review) and none failed or has an unrecognized status, since Failed and Unknown outrank Needs Review in the log's aggregate. validate.ClassifyVerificationStatus and validate.ControlNeedsReview are the one status mapping the evaluation log and the warning share. When a control without verification has a threat mitigation that references another control's verification, the message names it (\"<CV> verifies <other control>\"); for a control whose verifications need review it names them with their status. Validation emits it, so the check path (engdoc, the trace, model.diagnose) reports it without rendering Gemara.";
     }
 
@@ -3874,7 +4647,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-084' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts.";
         attribute 'notes' : 'String' = "The code scanner reads TRLC-LINKS, ENGMODEL-LINKS and ENGMODEL-OWNER-UNIT in # comment lines of files named Dockerfile or Containerfile or ending in .Dockerfile or .Containerfile, and in HTML comments (<!-- TRLC-LINKS: REQ-… -->, also spanning lines) that start a line outside fenced code blocks of .md and .markdown files. The markers apply to the whole file: it becomes one symbol with its file CODE identifier (CODE-<PATH>) that implements the linked requirements, never verifies them, also under tests/. Markers are optional: such a file without them yields no item and no code.missing_trlc_link. The module code scope applies, including git-ignored files and inferenceHints.exclude; an invalid requirement ID is code.invalid_trlc_link.";
     }
 
@@ -3883,7 +4656,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-085' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record.";
         attribute 'notes' : 'String' = "A risk with status accepted or response accept, and a threat scenario with status accepted, must carry acceptedBy with actor (an existing ACT-* actor), date (a YYYY-MM-DD calendar date, parsed, so 2026-13-45 is rejected) and statement (the owner's own words) or decisionRef (an existing decision with status accepted whose context quotes the owner); otherwise risk.acceptance_unrecorded is an error at its acceptedBy field naming the missing parts. An acceptedBy actor, date or decisionRef that does not resolve, or a decisionRef to a decision that is not accepted, is model.invalid_acceptance (error). risk.acceptance_not_owner is a warning at the acceptedBy actor of a risk whose owner is set and differs from the actor. risk.accept_while_open is a warning at a risk status when response is accept and status is open, since the Gemara policy would otherwise list it as accepted while it is open. The Gemara policy lists a risk under risks.accepted only when its acceptance record is complete and resolves (validate.AcceptanceRefs, shared with validation) and its status is accepted, or its response is accept and its status is not open; gemara.validate (CheckGemaraModelConsistency) reports an accepted entry that does not meet this. Imported alias::ID records are skipped; the schema rejects :: in authored risk and threat scenario IDs, so a local ID cannot pose as imported. The record is an authored claim: these checks make it complete and consistent, and human review of the diff that adds it is the actual control that the owner gave it.";
     }
 
@@ -3910,7 +4683,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-088' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement whose linked tests are all environment gated.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each requirement whose linked tests are all environment gated.";
         attribute 'notes' : 'String' = "A Go test entry point whose first statements include an if whose condition calls os.Getenv, os.LookupEnv or testing.Short and whose body calls t.Skip, t.Skipf or t.SkipNow is gated (the variable name, or testing.Short). A requirement linked from a test file only by gated tests carries that gate in the verification check; a trace row whose every verification is gated for it has gated true and its gates, and the summary counts it in gatedOnly and lists it in gatedOnlyRequirements. testLinked still counts it. The MCP trace.matrix summary returns gatedOnly and gatedOnlyRequirements and its rows gated.";
     }
 
@@ -3928,7 +4701,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-090' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement without an upward trace.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each requirement without an upward trace.";
         attribute 'notes' : 'String' = "No model can know it is top level, because any system may later be used by one above (decision D22, ADR-EMG-028), so every requirement traces through a capability. A requirement traces upward iff (a) it realizes a local capability or assumption of use (or is named by a deprecated capability ref), (b) it is the parent of a reqLinks entry whose child is a dependency capability (alias::CAP-*), or (c) it is derived: true with derivedRationale. Stakeholder sourceRefs do not count, and no model is exempt (inferenceHints.topLevel does not exist; the strict schema rejects it). Otherwise requirement.no_parent is reported at the requirement with a message naming exactly these three options: an error with requirementLinks strict in every model; a warning with guided (the default) only in a model that publishes a contract item or has reqLinks; nothing in a guided standalone model. A realizes target that is a requirement, an imported alias::ID, an interface entry or unknown is requirement.realizes_unknown (error). requirementLinks other than strict or guided is model.invalid_requirement_links (error). The rule needs only the child repository.";
     }
 
@@ -3937,7 +4710,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-091' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall load assumptions of use as contract items with their realizing requirements.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall load assumptions of use as contract items with their realizing requirements.";
         attribute 'notes' : 'String' = "contract.assumptions entries have id (AOU-*), text and optional verificationCriteria. They are published in a publication architecture list like capabilities, imported as alias::AOU-* by a composing bundle, and count as contract items: a requirement may realize them and engws bump compares their meaning between versions. Contract items are contract.provides entries of kind capability and the assumptions; interface entries are not link targets.";
     }
 
@@ -3946,7 +4719,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-092' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement that realizes a published contract item without being published itself.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each requirement that realizes a published contract item without being published itself.";
         attribute 'notes' : 'String' = "contract.realizer_unpublished is an error at a requirement that realizes (through realizes or a deprecated ref) a contract item that a publication exposes, when that publication does not list the requirement under requirements. A using system compares the item with its realizers from the published content alone, so every realizer must be visible to it.";
     }
 
@@ -3955,7 +4728,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-093' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each published capability without a realizing requirement.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall warn at each published capability without a realizing requirement.";
         attribute 'notes' : 'String' = "contract.unrealized (warning) names a published capability with no realizing requirement. A contract.provides entry that carries ref is the error model.provides_ref_removed (REQ-EMG-184) and the ref counts as no realizer; the realizing requirement names the capability with realizes.";
     }
 
@@ -3964,7 +4737,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-094' {
-        attribute 'text' : 'String' = "Where system composition is enabled, when model updated event is received, the engineering model go shall validate each requirement link against the manifest dependency pins.";
+        attribute 'text' : 'String' = "Where system composition is enabled, when model check is requested, the engineering model go shall validate each requirement link against the manifest dependency pins.";
         attribute 'notes' : 'String' = "The optional document documents.reqLinks (model/req-links.yml) holds reqLinks entries {id, parent, child, evidence, pinned {version}, status claimed|accepted, rationale, reviewedBy, reviewedOn}, strictly decoded and checked by the CUE schema (pinned.fingerprint is deprecated: still accepted for one release and ignored, REQ-EMG-118). A parent that is no local requirement, a link with neither parent nor evidence, or evidence that is no local ID is link.parent_unknown; a child that is not alias::ID of a declared dependency selected by a composition subsystem is link.child_unpublished; pinned.version other than the dependency version is link.version_mismatch (errors; the link was reviewed at another version and needs review at this one, decision D23); status claimed is link.claimed_only (warning). A dependency version may be a Go-style pseudo-version.";
     }
 
@@ -4090,7 +4863,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-108' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall ignore each workspace file and sibling checkout that another user could have written or that leaves the workspace.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall ignore each workspace entry that leaves the workspace plus each workspace entry that another user could have written.";
         attribute 'notes' : 'String' = "The upward search for engmod.work.yml (FindWorkspaceWith with an empty mode and ENGMOD_WORK unset) refuses a world-writable file and, where the platform has file owners, a file owned by neither the current user nor root, with an error naming ENGMOD_WORK=<path> as the way to use it anyway; an explicit path is used as given. The Used By scan (composition.WorkspaceLinkUsers) reads only replacement directories inside the workspace directory (composition.PathWithin) whose manifest names no path outside its own directory (the dependency confinement, composition.dependency_path_escape), so a crafted workspace or sibling manifest cannot make a render read files elsewhere. The upward search does not stop at a git top-level: a workspace sits above sibling repositories by design.";
     }
 
@@ -4108,7 +4881,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-110' {
-        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall render requirement link and contract item text without AsciiDoc passthrough.";
+        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall render requirement link plus contract item text without AsciiDoc passthrough.";
         attribute 'notes' : 'String' = "Text in the Requirement Links, Assumptions of Use, Contract Items and Used By sections comes partly from dependency models (another repository). Every such string is whitespace-collapsed and its passthrough forms (+++...+++, ++...++, $$...$$, pass:[...] and other pass macros) are broken with {empty}, so it renders literally and cannot emit raw HTML into the document.";
     }
 
@@ -4117,7 +4890,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-111' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each accepted requirement link without a resolving reviewer and review date.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each accepted requirement link without a resolving reviewer plus review date.";
         attribute 'notes' : 'String' = "A reqLinks entry with status accepted and no reviewedBy or no reviewedOn is link.review_unrecorded (error); a reviewedBy that is not an actor of the model and a reviewedOn that is not a YYYY-MM-DD calendar date are link.review_unrecorded too, at that field. A claimed link may carry neither. engws review-links --accept writes both; the check shows only that a modeled role and a date are recorded, review of the diff shows that the role gave it.";
     }
 
@@ -4126,7 +4899,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-112' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement link to a capability without a parent requirement.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each requirement link to a capability without a parent requirement.";
         attribute 'notes' : 'String' = "A link whose child is alias::CAP-* says that the capability satisfies a local requirement, so it needs parent: link.parent_missing (error) otherwise, also when it carries evidence. A link to an assumption of use (alias::AOU-*) may have evidence instead of a parent.";
     }
 
@@ -4162,7 +4935,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-116' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.";
         attribute 'notes' : 'String' = "risk.acceptance_by_decision_only (warning) at acceptedBy.statement of a risk or threat scenario whose acceptedBy has a decisionRef but no statement. A decision can bundle an acceptance with other choices, so the owner's own words accepting this risk belong on the risk; the message asks for acceptedBy.statement and for asking the owner about the risk by name. The record stays complete (no risk.acceptance_unrecorded) and the Gemara policy still lists the risk as accepted. Imported alias::ID records are skipped.";
     }
 
@@ -4171,7 +4944,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-117' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model.";
         attribute 'notes' : 'String' = "Three warnings (validate.assuranceConsistencyDiagnostics). risk.severity_inconsistent at the severity of each threat scenario whose (likelihood, impact) pair, compared case-insensitively, maps to more than one severity among the model's threat scenarios; the message names the other severities and their scenarios and asks for one scoring method recorded as a decision. Only threat scenarios carry likelihood, impact and severity together: a risk has likelihood, impact and residualRisk but no severity, so risks are not compared. controlVerification.risk_control_unlinked at a riskRefs entry of a control verification that names a local risk whose relatedControls omit the verification's controlRef (risk-to-control trace in both directions). threat.attack_vector_missing at the attackVectorRef of a threat scenario without one when another local threat scenario names its attack vector. Imported alias::ID records and unknown risks (reported elsewhere) are skipped.";
     }
 
@@ -4189,7 +4962,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-119' {
-        attribute 'text' : 'String' = "When link add is requested, the engineering model go shall write a claimed requirement link pinned to the dependency version after checking its parent and child.";
+        attribute 'text' : 'String' = "When link add is requested, the engineering model go shall write a claimed requirement link with its parent, child and a pin at the dependency version.";
         attribute 'notes' : 'String' = "engws link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-...|alias::AOU-...> [--rationale TEXT] (decision D23): the link id is LNK-<REQ>-<ALIAS> made unique; pinned.version is the dependency pin of the alias in engmod.yml; status claimed. Before writing it validates the model with the link added (parent requirement, evidence IDs, declared and composed alias, a capability link needs a parent) and composes with the workspace off to check the child is a published capability or assumption of use at the pinned version (an assumption needs evidence); it refuses a link that joins the same parent and evidence to the same child. The link is appended to the link file with every other line kept; a model without one gets model/req-links.yml and documents.reqLinks in engmod.yml. Nothing is written on refusal (exit 1).";
     }
 
@@ -4207,7 +4980,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-121' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.";
         attribute 'notes' : 'String' = "Retro 1104 item 6. The code scanner marks a test entry point that is a benchmark (codemap.Symbol.Benchmark: Go Benchmark* in _test.go, Rust #[bench], now also detected as a test entry point); Criterion benchmarks are plain functions and JS bench files have no test entry-point detection, so neither is classified. A requirement whose every linking test entry point, across all test files, is a benchmark has a trace row with benchmarkOnly; when its verificationCriteria contain a digit, the trace integrity check reports verification.benchmark_only (warning) at requirements[i]: a benchmark measures but asserts nothing, so add a Test that checks the value. A Test* or Fuzz* link in any file clears it. The requirement stays test linked.";
     }
 
@@ -4216,7 +4989,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-122' {
-        attribute 'text' : 'String' = "When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree.";
+        attribute 'text' : 'String' = "When status suggestion is requested, the engineering model go shall print the status each requirement plus control verification earns from the evidence of the tree.";
         attribute 'notes' : 'String' = "Retro 1104 item 7. engws status-suggest [--repo DIR] [--tree HASH] [--json] writes nothing. The tree is the working-tree hash as engineering-flow tree-hash.mjs computes it (git add -A into a temporary copy of the index, git write-tree; the real index is unchanged), or --tree. Evidence is the trace matrix of the model (lock check, module cache reuse) and the lines of <git top level>/.engflow/red-checks.jsonl with that tree, verdict RED, failure not build and the requirement in reqs (lines without reqs are not attributed). A local requirement earns implemented when code links it (or reviewed links roll it up as implemented); verified when also a test links it that is not environment gated (Row.Gated) and not only benchmarks (Row.BenchmarkOnly) and a RED line names it, or reviewed links roll it up as implemented and test linked; else nothing. A control verification earns pass when it names at least one requirement in verificationRefs and every requirement it names earns verified; a CODE-* reference is not judged and keeps the current status. The table prints current, suggested and why per row; --json the same. Exit 0, 1 on a model or git error.";
     }
 
@@ -4225,7 +4998,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-123' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall name the term plus the catalog section of each unknown term in a requirement expression.";
         attribute 'notes' : 'String' = "Retro 1104 model findings. ears-lint reports catalog.<role>_unresolved at the same span as expr.unknown_term, the role coming from the clause position (When: event, While: state, the system term: system, and so on). Both diagnostics then say unknown term \"<term>\" in expression (or unresolved catalog term \"<term>\") and add it to catalog.<section> (or an alias of an existing entry), the section from the role (systems, actors, events, states, features, modes, conditions, dataTerms). A diagnostic without a paired role keeps its message.";
     }
 
@@ -4234,7 +5007,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-124' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.";
         attribute 'notes' : 'String' = "ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; foundation always included, bundles must be written), tierDecision, raise} is required (lifecycle.missing, ADR-EMG-061 and ADR-EMG-066; CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; required) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle is the error lifecycle.missing (REQ-EMG-162); the golden test over every example model (TestExamplesGolden) records each example's diagnostics and document hashes at its declared tier, and the script that compared the repository's own model with v0.9.0 was retired in v0.11.0.";
     }
 
@@ -4243,7 +5016,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-125' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each tier-keyed diagnostic with the severity of the project tier.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each tier-keyed diagnostic with the severity of the project tier.";
         attribute 'notes' : 'String' = "ADR-EMG-031, internal/validate/tier_policy.go. TierPolicy() is the table of tier-keyed codes with a severity per tier: D deferred (a warning with deferred true: evidence debt, reported, never failing a check), W warning or E error, a row for the safety bundle, and requiredFrom (the first tier where it is an error). ApplyTierPolicy(bundle, diags) runs at each public entry on the merged list: ValidateBundle, GenerateAsciiDoc (before the render gate and after the trace integrity check), BuildTraceMatrixFromFiles(With), engws check and the MCP diagnose, patch, trace.matrix and composition.resolve answers. It sets each tier-keyed code's severity and requiredFrom, then an open POA&M defer (REQ-EMG-129), then lifecycle.raise (exact codes or family.* patterns made errors; it never lowers). Rank-0 core codes (CoreCodes(), a closed list: model.duplicate_id, model.broken_reference, model.invalid_*, model.missing_*, code.dangling_*, composition.cycle, composition.lock_*, link.version_mismatch, link.broken, link.parent_unknown, link.parent_missing, link.child_unpublished, link.review_unrecorded, link.invalid_status, contract.realizer_unpublished, requirement.realizes_unknown, risk.acceptance_unrecorded, the structural lifecycle.* codes and aviation.ai_actor_as_credit and aviation.authority_state_unevidenced) and every code the table does not key keep their severity. Strict code linking (code.missing_trlc_link, code.invalid_trlc_link, code.scan_failed: what coverage.strictStatus reports) is W below product and E from product. It is idempotent, does not modify its input and returns the input unchanged without lifecycle. Every row is non-decreasing from poc to operational and the safety row is never lower than the base row (TestTierPolicyMonotonic). The README Life-cycle tier section holds TierPolicyMarkdown().";
     }
 
@@ -4252,7 +5025,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-126' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a composed dependency whose life-cycle tier is below or unknown to the tier of the system.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a composed dependency whose life-cycle tier is below or unknown to the tier of the system.";
         attribute 'notes' : 'String' = "ADR-EMG-034. With lifecycle in the composing system, each composed dependency (a composition subsystem resolved at its pin) is compared with its own manifest lifecycle: a child tier below the parent tier is composition.dependency_below_tier (tier keyed: D D W E E) unless a local risk recorded as accepted with a complete, resolving acceptedBy names the dependency alias in its dependencies field (preferred; each entry must be an engmod.yml dependency alias, else model.invalid_risk_dependency, error) or the composition subsystem that composes the dependency in appliesTo (older form, still honoured); the finding names both forms, the alias first; the one finding per dependency names the alias, the child and parent tiers and the system requirements whose links point into the child, in place of a requirement.unsatisfied per requirement (a linked requirement is never requirement.unsatisfied); a child without lifecycle is composition.dependency_tier_unknown (W at every tier; E from product with the safety bundle). A system without lifecycle gets neither. engws bump warns when the dependency at the new version declares lifecycle and the consumer pins an engine older than v0.10.0 in its .github/engmod-check go.mod (that engine rejects the key: composition.load_failed).";
     }
 
@@ -4261,7 +5034,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-127' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall apply strict requirement links from life-cycle tier mvp.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall apply strict requirement links from life-cycle tier mvp.";
         attribute 'notes' : 'String' = "ADR-EMG-031 amends ADR-EMG-022. The effective requirement link mode is the maximum of requirementLinks and the tier default (guided below mvp, strict from mvp): from mvp the rules requirement.no_parent, requirement.unsatisfied and link.aou_unverified apply in every model and the tier policy makes them errors (row D D E E E); with requirementLinks: strict declared they are errors at every tier, as in v0.9.0. requirementLinks: guided at mvp or above is lifecycle.requirement_links_conflict (error, rank 0) at requirementLinks; strict at poc is allowed. EffectiveRequirementLinkMode is exported.";
     }
 
@@ -4270,7 +5043,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-128' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier.";
         attribute 'notes' : 'String' = "ADR-EMG-031. With lifecycle only: lifecycle.requirement_unapproved at requirements[i].status for status draft or proposed (row D D W E E); lifecycle.requirement_unverified for a status other than verified, rejected or retired, unset included (D D D W E); the trace integrity check reports verification.failed at requirements[i] when the linked test results roll up to failed (fail, blocked, partial or flaky) and verification.gated_only when every linked test is environment gated (both D D D W E); the safety bundle needs documents.aviation (lifecycle.aviation_profile_missing) and aviation.profile.softwareLevel (lifecycle.software_level_missing), both D D E E E. Imported alias::REQ requirements are skipped.";
     }
 
@@ -4279,7 +5052,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-129' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a diagnostic that an open POA&M item of the project tier defers as a deferred warning naming the item.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a diagnostic that an open POA&M item of the project tier defers as a deferred warning naming the item.";
         attribute 'notes' : 'String' = "ADR-EMG-033. #POAMItem gains defers [{code, path?}]. A tier-keyed diagnostic or a warning is deferred (warning, deferred true, poamRef the item ID; an untiered error is never deferred) when a POA&M item with milestone tier:<project tier> (case-insensitive), status other than completed and a defers entry whose code matches (exact or family.*) and whose path is empty or equal names it; another tier's item, a completed item and another path do not. lifecycle.raise overrides a deferral. A defers entry naming a rank-0 code (or a pattern covering one) is lifecycle.poam_defers_core (error, rank 0) at poamItems[i].defers[j].code, and a rank-0 diagnostic is never deferred. The engine has no clock: an overdue item is raised by engineering-flow (tier.debt_open).";
     }
 
@@ -4288,7 +5061,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-130' {
-        attribute 'text' : 'String' = "When generation run is requested, the engineering model go shall render the document despite errors that only the life-cycle tier raises.";
+        attribute 'text' : 'String' = "If errors are raised only by the life-cycle tier, then the engineering model go shall render the document.";
         attribute 'notes' : 'String' = "ADR-EMG-032 extends D15 (REQ-EMG-107). In a model with lifecycle, an error whose code the tier policy keys or lifecycle.raise names (validate.RendersDespite) fails the check (HasErrors) but does not stop GenerateAsciiDoc: the document is produced for reviewers. Rank-0 codes and every other untiered error still stop the render, and link.* and the D15 trace findings keep not stopping it.";
     }
 
@@ -4306,7 +5079,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-132' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each aviation evidence record below the evidence floor of the life-cycle tier.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each aviation evidence record below the evidence floor of the life-cycle tier.";
         attribute 'notes' : 'String' = "ADR-EMG-035. Only with lifecycle: the load splits ValidateAviation into structural codes (references, duplicates, hashes, arithmetic, mismatches, aviation.authority.acceptance_missing; still load-fatal) and the state and completeness codes aviation.lifecycle.missing_category, aviation.tool.incomplete_credit_assessment and aviation.derived.incomplete_safety_feedback (model.AviationStateCode), which validation reports as tier-keyed diagnostics; without lifecycle all stay load-fatal as in v0.9.0. With the safety bundle, aviation.state_below_tier (D D E E E) names each record below the floor of the tier on the order declared < planned < executed < reviewed < accepted < authority-accepted: none below mvp; the five plans (PSAC, SDP, SVP, SCMP, SQAP) planned at mvp and reviewed from product; executions executed from product; every record accepted at operational; from product a software level A, B or C needs a coverage record of its metric (mcdc, decision, statement). not-applicable satisfies a floor only with lifecycleData rationale (new optional field). Applicability and independence stay those of the level's objectives. aviation.authority_state_unevidenced (error, rank 0) names a record in state authority-accepted with no liaison entry in authorityState authority-accepted with an authorityRecord that covers it.";
     }
 
@@ -4315,7 +5088,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-133' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each aviation assurance record that names an AI agent as the person holding the credit.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each aviation assurance record that names an AI agent as the person holding the credit.";
         attribute 'notes' : 'String' = "ADR-EMG-035. With lifecycle and the safety bundle, aviation.ai_actor_as_credit (error, rank 0, every tier) at aviation.reviews.<id>.reviewer, aviation.independence.<id>.producer and .verifier, aviation.executions.<id>.producer and .verifier and aviation.approvals.<id>.approver when the value, trimmed and lowercased, is a registered engineering-flow agent (validate.AIAgentNames: architecture-review, classification-review, ef-experimenter, ef-implementer, ef-modeler, export-control-review, governance-review, operability-review, performance-review, quality-review, safety-review, security-review, verification-review; the init/installer.mjs reviewers and workers). The message says AI output is input to people, asks for the person who directed and accepted the output, and to record the agent as a tool with creditClaimed false. Generic words such as ai or agent are not matched: they can be part of a person's role name.";
     }
 
@@ -4333,7 +5106,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-135' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall load each machine authored in a behavior document with its variables, states, initial state, final states, transitions and invariants.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall load each machine authored in a behavior document with its variables, states, initial state, final states, transitions and invariants.";
         attribute 'notes' : 'String' = "ADR-EMG-037. behavior.yml gains a first-class machines block: each machine has an id SM-*, an owner functional unit, variables (type Integer, Boolean or String, each with an initial value), states that keep their STATE-* IDs (optional final true), exactly one machine-level initial, transitions TR-* with from, to and an optional on event of behavior.events, an optional guard and an optional effect as short strings, and invariants INV-* linked to one or more REQ-* with a Boolean expression string. Strict decoding rejects unknown fields. Schema and loader land in v0.11.0 (ADR-EMG-044).";
     }
 
@@ -4342,7 +5115,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-136' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error.";
         attribute 'notes' : 'String' = "ADR-EMG-039. One small built-in parser reads the operators and, or, not, implies, ==, !=, <, <=, >, >=, +, -, *, the assignment :=, effect lists separated by ; and the predicate in_state(STATE-ID). The result is a stored expression tree, not text. The operator table is one shared Go table used by the parser, the validator and the Quint generator. A syntax error is a diagnostic at the field with the line and column. A unary minus is the operator neg. A source over 8192 bytes or nested deeper than 64 levels is a diagnostic, not a crash (ADR-EMG-045 item 38).";
     }
 
@@ -4351,7 +5124,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-137' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall project each loaded machine into elements of the canonical semantic model.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall project each loaded machine into elements of the canonical semantic model.";
         attribute 'notes' : 'String' = "ADR-EMG-037 and ADR-EMG-040. A machine becomes a state_definition, its states state_usage elements, its transitions transition relationships carrying triggers, guard and effect, and its invariants constraint_usage elements with a Boolean result feature, because the generated SysML binding gives constraint_usage no authorable expression property. The initial state and each final state are projected as succession relationships (machine_initial, machine_final). Stable model IDs are preserved, so the views need no machine-specific code; the SysML exporter renders machines with its own writer (REQ-EMG-137, ADR-EMG-045 item 18).";
     }
 
@@ -4360,7 +5133,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-138' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall validate each machine against the machine rules.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall validate each machine against the machine rules.";
         attribute 'notes' : 'String' = "ADR-EMG-039 and ADR-EMG-043. Structural errors are always errors: a machine whose initial state is missing or is not one of its states (initial is a single field, so two initial states cannot be written), a final state with an outgoing transition (behavior.final_state_has_transitions), a transition whose from or to is not a state of the same machine, an on that is not a behavior event, an undeclared variable, a type mismatch, an operator not in the table, in_state naming a state of another machine, and a duplicate state, transition or invariant ID. Advisory codes follow the tier policy: behavior.machine_deadlock (a non-final state without outgoing transition), behavior.transition_nondeterministic (two transitions from one state on the same event, or both without an event, that have no guard or the same guard text), behavior.transition_no_trigger (a transition without on and without guard), behavior.invariant_unlinked (an invariant without a REQ-*).";
     }
 
@@ -4369,7 +5142,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-139' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall reject free-floating behavior states with a diagnostic that names the machines block.";
+        attribute 'text' : 'String' = "If behavior state is free-floating, then the engineering model go shall reject the state with a diagnostic that names the machines block.";
         attribute 'notes' : 'String' = "ADR-EMG-038. Every state belongs to exactly one machine and STATE-* IDs are kept. The free-floating list and the transitions_to and triggered_by relationship types are removed in v0.11.0 (ADR-EMG-044): the loader rejects a document that still uses them, with no opt-in mode and no automatic migration; the diagnostic message names machines: and the owner rewrites the model by hand. The own model/behavior.yml of this repository is rewritten to machines (SM-MODEL-VALIDATION, SM-ARTIFACT-FRESHNESS, SM-LINK-LIFECYCLE).";
     }
 
@@ -4378,7 +5151,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-140' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier.";
         attribute 'notes' : 'String' = "ADR-EMG-043 (OWNER decision). behavior.machine_deadlock, behavior.transition_nondeterministic, behavior.transition_no_trigger and behavior.invariant_unlinked are keyed in TierPolicy with the hygiene row DDWWE: deferred at poc and prototype (a warning with the deferred flag, the off of the owner decision), warning at mvp and product, error at operational. Structural machine errors (REQ-EMG-138) are never keyed and stay errors at every tier. The Quint requirements by tier of ADR-EMG-043 (mvp: the generated modules are fresh; product: engquint check in run mode when machines exist; operational: verify mode for machines in safety or mission flows) are enforced by the gate steps of engineering-flow, not by the engine; this repository CI runs both modes for every model with machines whatever the tier (ADR-EMG-045 item 26).";
     }
 
@@ -4432,7 +5205,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-146' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix.";
         attribute 'notes' : 'String' = "ADR-EMG-042. engquint check writes a sha-verified result into test-results/ with kind formal; internal/trace and the codescan inferred verification read it. A pass whose sha256 matches the module is analysis evidence for each REQ-* the invariant is linked to; a stale result is not evidence, and a failed result is recorded as failed, so the requirement is failed and never unverified (ADR-EMG-045 item 20). The tier policy and the verification status roll-up treat it like any other verification entry. A result is current only if the named module is a generated Quint module of that machine inside the model root (ADR-EMG-045 items 42 to 44).";
     }
 
@@ -4495,7 +5268,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-153' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.";
         attribute 'notes' : 'String' = "ADR-EMG-051. The health block is optional below product and required at product and operational (REQ-EMG-165). exclude uses the dialect of inferenceHints.exclude (path.Match per segment, only a trailing /**), not gitignore semantics. thresholds name known codes with warn and high values that are ordered; overrides apply thresholds by path; a waiver is {code, path, function, decision}. Unknown keys and malformed shapes are rejected by the CUE contract and the loader; unknown codes, unordered thresholds and exclude patterns outside the dialect are the errors model.invalid_health_exclude, model.invalid_health_threshold, model.invalid_health_override and model.invalid_health_waiver of validation, each naming the field.";
     }
 
@@ -4504,7 +5277,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-154' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall require each code health waiver to cite an existing accepted decision.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall require each code health waiver to cite an existing accepted decision.";
         attribute 'notes' : 'String' = "ADR-EMG-051 and ADR-EMG-052. health.waiver_unjustified is an error at every tier and is untiered: the cited decision is missing or its status is not accepted (the acceptance reference check of the model is reused). health.waiver_unused follows the debt row (a warning up to mvp, an error from product): the waiver matches no finding, so it can be removed. A waiver whose decision is not accepted waives nothing in scan and check. A waiver suppresses one code for one function in one file and is listed in the report as waived, never silently dropped.";
     }
 
@@ -4513,7 +5286,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-155' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report code health findings in enghealth reports with the severity of the project life-cycle tier.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report code health findings in enghealth reports with the severity of the project life-cycle tier.";
         attribute 'notes' : 'String' = "ADR-EMG-052 (OWNER decision). Debt findings (every health smell code) are warnings up to mvp and errors at product and operational, the row WWWEE (WWEEE with the safety bundle; ADR-EMG-057). health.regression, a new or worsened high finding against the base revision, is keyed in TierPolicy with the row WWWEE: a warning below product, an error from product, and from mvp with the safety bundle (row WWEEE). health.waiver_unjustified is an untiered error and health.waiver_unused follows the debt row. lifecycle.raise with health.* stays the owner escape hatch that makes debt blocking at a lower tier. Smell findings, regressions, unused waivers and stale baseline entries exist only in enghealth reports (internal/health imports internal/validate, so validation cannot emit them); validation reports only the configuration and waiver diagnostics of the health block.";
     }
 
@@ -4558,7 +5331,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-160' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block at the tiers below product.";
+        attribute 'text' : 'String' = "The engineering model go shall produce byte-identical validation diagnostics plus generated documents for a model without a health block at the tiers below product.";
         attribute 'notes' : 'String' = "ADR-EMG-046 and ADR-EMG-052, narrowed by ADR-EMG-066. Code health is opt-in through the manifest health block below product; at product and operational the block is required (REQ-EMG-165) and its absence is the error health.block_missing. Below product and without the block, validation reports no health.* diagnostic and the generated documents carry no health section; the tier policy table and the authoring contract are the same for every model.";
     }
 
@@ -4576,7 +5349,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-162' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report the error lifecycle.missing for a model without a lifecycle block.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report the error lifecycle.missing for a model without a lifecycle block.";
         attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. lifecycle.missing is a rank-0 code: no tier, raise entry or POA&M defers entry changes it. The library functions that load a model stay lenient so that embedding tools can report; validation and every command line tool error. Remedy: run the ef-tier-up skill.";
     }
 
@@ -4585,7 +5358,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-163' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an error when the lifecycle has no bundles, no tier decision, or a tier decision without a Bundles line.";
+        attribute 'text' : 'String' = "If lifecycle block is incomplete, then the engineering model go shall report an error.";
         attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. lifecycle.bundles_missing, lifecycle.tier_decision_missing and lifecycle.tier_decision_mismatch. The default of Foundation for a missing Bundles line is removed. Each error carries the remedy of the ef-tier-up skill.";
     }
 
@@ -4594,7 +5367,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-164' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an error when requirementLinks or lintRun.mode is missing, invalid or guided at mvp or above.";
+        attribute 'text' : 'String' = "If required switch has a wrong value, then the engineering model go shall report an error.";
         attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. model.requirement_links_missing, lint.mode_missing, lint.mode_invalid and lint.mode_guided_at_tier. Guided is allowed only below mvp. The mode is read case-insensitively.";
     }
 
@@ -4603,7 +5376,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-165' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report health.block_missing at the tiers product and operational for a manifest without a health block.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report health.block_missing at the tiers product plus operational for a manifest without a health block.";
         attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. The baseline file stays optional because a model without debt needs none. Remedy: the ef-tier-up skill writes the block with its debt list, then enghealth baseline write.";
     }
 
@@ -4612,7 +5385,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-166' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.";
         attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. The loader error and the diagnostic both carry the remedy: set schemaVersion 2 at the top of the file (an upgrade command is planned in engineering-flow and is not named until it exists). The loader checks schemaVersion in Go before the CUE contract for every document type, so a missing version and a version other than 2 get the remedy, not a CUE conflict message.";
     }
 
@@ -4621,7 +5394,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-167' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report model.id_missing for an empty model identifier.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report model.id_missing for an empty model identifier.";
         attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. The projection helper keeps its deterministic default for library use; validation errors. Remedy: set module.modelId.";
     }
 
@@ -4639,7 +5412,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-169' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall keep a remedy for every required-switch code in one table that an inventory test compares with the codes in both directions.";
+        attribute 'text' : 'String' = "The engineering model go shall keep a remedy for every required-switch code in one table that an inventory test compares with the codes in both directions.";
         attribute 'notes' : 'String' = "ADR-EMG-061 and ADR-EMG-066. TestRequiredSwitchesHaveRemedies triggers each required code from a complete bundle with one switch removed and compares the codes with the remedy table in both directions.";
     }
 
@@ -4648,7 +5421,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-170' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a source file whose owner unit marker is missing or names no functional unit.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a source file whose owner unit marker is missing or names no functional unit.";
         attribute 'notes' : 'String' = "ADR-EMG-069. code.owner_unresolved is reported once per file, row WWWEE. Test files, generated files (a Code generated header or an at-generated tag in the first 10 lines) and files owned by an alias are left out. The remedy names the ef-code-linking skill.";
     }
 
@@ -4657,7 +5430,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-171' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a model link marker that names a requirement or a catalog term instead of a model element.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a model link marker that names a requirement or a catalog term instead of a model element.";
         attribute 'notes' : 'String' = "ADR-EMG-069. code.model_link_kind_mismatch, row WWWEE. KnownModelIDs stays as it is and a second view maps each identifier to its kind. A requirement belongs in the trace link marker of the requirement, not in the model link marker.";
     }
 
@@ -4666,7 +5439,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-172' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an event-driven or state-driven requirement that no machine invariant or applies-to element models.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report an event-driven or state-driven requirement that no machine invariant or applies-to element models.";
         attribute 'notes' : 'String' = "ADR-EMG-069. behavior.requirement_unmodeled, row DDWWE. The requirement pattern comes from the EARS lint. Only a model that declares at least one machine is asked, and retired, rejected and derived requirements are exempt.";
     }
 
@@ -4675,7 +5448,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-173' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a machine without an invariant and an invariant without a current formal result.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a machine without an invariant and an invariant without a current formal result.";
         attribute 'notes' : 'String' = "ADR-EMG-069. behavior.machine_unverified, row DDWWE. A pass or fail result counts as current and a stale or not-run result does not. Without an evidence file only the missing invariant is reported.";
     }
 
@@ -4684,7 +5457,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-174' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall keep every model link marker stacked above one declaration.";
+        attribute 'text' : 'String' = "The engineering model go shall keep every model link marker stacked above one declaration.";
         attribute 'notes' : 'String' = "ADR-EMG-069. The scanner accumulated stacked trace link lines and overwrote stacked model link lines, so a second line hid the first and element to code coverage would have missed links. Both now accumulate, in the order written, without duplicates.";
     }
 
@@ -4693,7 +5466,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-175' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a functional unit, machine or software interface that no source code names.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each functional unit plus machine plus software interface that no source code names.";
         attribute 'notes' : 'String' = "ADR-EMG-069. code.unit_unlinked, code.machine_unlinked and code.interface_unlinked, row DDWEE. An element counts as named when an owner marker, a model link marker or a trace part marker in scanned non-test source carries its identifier. Actors, attack vectors, trust boundaries, threat scenarios, assumptions, out-of-scope entries, risks, POA&M items, deployment targets, decisions, catalog terms, views and imported alias elements are never asked. A model without a code root is not asked.";
     }
 
@@ -4702,7 +5475,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-176' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.";
         attribute 'notes' : 'String' = "ADR-EMG-069. codeCoverage.exempt in engmod.yml is a list of an element identifier, a reason and an accepted decision, shaped like a health waiver. A missing or unaccepted decision is the untiered error code.exemption_unjustified, and an exemption that matches no unlinked element is code.exemption_unused (a warning, an error at operational).";
     }
 
@@ -4711,7 +5484,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-177' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall accept a list of requirements on every machine state, transition and event.";
+        attribute 'text' : 'String' = "The engineering model go shall accept a list of requirements on every machine state, transition and event.";
         attribute 'notes' : 'String' = "ADR-EMG-069. The optional requirements field on a machine state, a machine transition and an event names the requirements the element exists for, like the requirements field of an invariant. An unknown requirement identifier is the same dangling reference error an invariant gets, and an unknown key is still rejected.";
     }
 
@@ -4720,7 +5493,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-178' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a machine state, transition or event that lists no requirement.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each machine state plus transition plus event that lists no requirement.";
         attribute 'notes' : 'String' = "ADR-EMG-069. behavior.state_unlinked, behavior.transition_unlinked and behavior.event_unlinked, row DDWWE. Only a model that declares at least one machine is asked, only events that a machine transition uses are asked, and an imported alias machine is skipped. The element is linked only by its own requirements list; an invariant of the machine does not link it. The remedy names the ef-behavior skill.";
     }
 
@@ -4729,7 +5502,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-179' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a composition lock whose schema version is not the current one.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a composition lock whose schema version is not the current one.";
         attribute 'notes' : 'String' = "ADR-EMG-072, removal plan phase 1. composition.lock_schema_outdated is a core error: the lock file schema version is read and compared with the version the engine writes, and an older or missing version is an error whose remedy names engws bump and engws sync instead of a mode that still works. Before this the version was never checked.";
     }
 
@@ -4738,7 +5511,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-180' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a repository check template that cannot take the workspace root instead of checking the repository with the library.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a repository check template that cannot take the workspace root instead of checking the repository with the library.";
         attribute 'notes' : 'String' = "ADR-EMG-072, removal plan phase 1. engine.check_template_stale replaces the silent fallback of engws check to the in-process library: a repository whose .github/engmod-check lacks workspace root support is reported with the remedy to upgrade the check template with engflow upgrade, and it is not checked by another route. A repository with no .github/engmod-check at all is checked by the library only when the caller names the in-process option.";
     }
 
@@ -4747,7 +5520,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-181' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.";
         attribute 'notes' : 'String' = "ADR-EMG-072, removal plan phase 1. engine.pin_outdated compares the engineering-model-go version in the go.mod of the repository check template with the engine version of the running binary and reports an older pin with the remedy to bump the pin. An unparsable version or a local replacement is not compared.";
     }
 
@@ -4756,7 +5529,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-182' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall provide one name for every argument of every tool and command.";
+        attribute 'text' : 'String' = "The engineering model go shall provide one name for every argument of every tool and command.";
         attribute 'notes' : 'String' = "ADR-EMG-073, removal plan phase 3. The aliases of the tool arguments (id for the typed identifier arguments, reqId, name, q, file, env, left, right, task, leftSchemaRef, rightSchemaRef, leftInterfaceId, rightInterfaceId, path for document), the duplicate tool entities.list, the deprecated flag --allow-suspect of engws and the flag --out of engoscal are removed. An old name is rejected by the strict argument check like any unknown argument. The model fields BaseCatalogRef and Compatibility, the trace summary counters Verified and LinksSuspect and the unused inert code source literals are removed.";
     }
 
@@ -4765,7 +5538,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-183' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a dependency without a declared tier as an error and report an incomplete aviation assessment and an unreferenced catalog term by tier.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a dependency without a declared tier as an error and report an incomplete aviation assessment and an unreferenced catalog term by tier.";
         attribute 'notes' : 'String' = "ADR-EMG-074, removal plan phase 5. composition.dependency_tier_unknown is a core error at every tier (a dependency that declares no life-cycle tier cannot be compared with this system). The aviation codes incomplete_credit_assessment and incomplete_safety_feedback are errors from mvp, like the other aviation floors. catalog.term_unreferenced is a warning below product and an error from product, so a strict catalog is not left with unused vocabulary at the tiers that require clean models.";
     }
 
@@ -4774,7 +5547,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-184' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall reject a deprecated pinned fingerprint and a deprecated provides reference with an error that names the remedy.";
+        attribute 'text' : 'String' = "If model declares a removed field, then the engineering model go shall reject the removed field with an error that names the remedy.";
         attribute 'notes' : 'String' = "ADR-EMG-075, removal plan phase 4. A requirement link that carries pinned.fingerprint is the error model.pinned_fingerprint_removed and a contract provides entry that carries ref is the error model.provides_ref_removed. Each is an untiered error whose message names the field to delete, instead of the warning pinned.fingerprint was or a bare strict-decoding error. The two requires ref lines of the Atlas examples are deleted because nothing reads them.";
     }
 
@@ -4783,7 +5556,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-185' {
-        attribute 'text' : 'String' = "When requirements delta apply is requested, the engineering model go shall refuse to write when another apply holds the lock, when the candidate is invalid or when the requirements document changed while the delta was planned.";
+        attribute 'text' : 'String' = "If requirements apply is unsafe, then the engineering model go shall refuse to write the requirements document.";
         attribute 'notes' : 'String' = "The apply takes an exclusive lock on the requirements document before it plans, refuses a candidate with blocking diagnostics and re-reads the document immediately before the atomic write, so no change is lost and a refused run writes nothing. The re-read refusal (requirements changed while delta was being planned) has no test: the lock already excludes every other run of this tool, so only an editor changing the file between planning and the write can reach it, and a test needs a seam in the code that was not added. It is defence in depth that the machine models and the verification debt of this requirement records. SM-REQUIREMENTS-DELTA models these guards and its invariants (written implies a valid candidate and an unchanged source) fail when a guard is removed.";
     }
 
@@ -4792,7 +5565,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-186' {
-        attribute 'text' : 'String' = "When release check is requested, the engineering model go shall reject a release whose changelog entry declares a breaking release and whose model schema version is not greater than the schema version at the previous release.";
+        attribute 'text' : 'String' = "When release check is requested, the engineering model go shall reject a release whose changelog entry declares a breaking release without a greater model schema version than the previous release.";
         attribute 'notes' : 'String' = "ADR-EMG-077. engws release-check reads the CHANGELOG section of the tag, and when it contains the words Breaking release it loads the manifest at the previous tag and reports release.schema_version_not_bumped (error, untiered) unless the schemaVersion of the head manifest is greater. A model whose schemaVersion is older than the engine supports is model.unsupported_schema_version with the remedy, so a model written for an earlier release fails on its version first. Reading the previous tag is the only place an older schema version is accepted: the copy read for the contract diff is stamped with the current version in a temporary directory.";
     }
 
@@ -4801,7 +5574,7 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-187' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.";
+        attribute 'text' : 'String' = "The engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.";
         attribute 'notes' : 'String' = "ADR-EMG-078, removal plan phase 4. composition.allocations and the delegation built on them, and engws migrate-links, are removed. A model that carries composition.allocations is the untiered error model.allocations_removed with the remedy to write requirement links (reqLinks) instead. The trace summary keeps the delegated count that links produce; hardware allocation relationships of the semantic model are not touched.";
     }
 
@@ -4810,8 +5583,215 @@ package 'engineering-model-go' {
         conceptKind = "requirement_definition";
     }
     requirement def 'REQ-EMG-188' {
-        attribute 'text' : 'String' = "When model updated event is received, the engineering model go shall report a Go state-like type that no machine models and no comment explains.";
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report a Go state-like type that no machine models without a comment that explains it.";
         attribute 'notes' : 'String' = "ADR-EMG-070. code.state_candidate_unlinked, row DDWWE with the error at operational only for the narrow rule. A candidate is a Go named type with three or more constants of that type, a struct field of that type and an assignment to that field in non-test code. Names ending in Kind, Severity, Format, Type, Reason, Mode and Option are never reported. A candidate is cleared by naming a machine or one of its states or transitions in a model link marker on or within three lines above the declaration, or by the comment ENGMODEL-NOT-A-STATE: followed by a reason of at least 20 characters that is not a placeholder. A suppression with no reason is the untiered error code.state_suppression_unreasoned and a suppression on a declaration that is not a candidate, or that is linked, is code.state_suppression_unused (row WWWWE). Go is the only language.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-189";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-189' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall list every authored entity of the model with its kind, document, parent and fields and every reference between entities.";
+        attribute 'notes' : 'String' = "ADR-EMG-079. BuildEntityIndex reads the bundle documents generically, so a kind that a later schema adds is listed without a code change. A reference is a field that holds exactly another entity ID, an ID inside prose, containment (a machine contains its states) or a typed behavior relationship. The order is deterministic.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-190";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-190' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall report the difference of a model between two revisions with the entities added, removed and changed.";
+        attribute 'notes' : 'String' = "ADR-EMG-079. engws model-diff FROM [TO] reads each side with the loader that tolerates earlier schemas, compares fields by stable ID, and never writes to the repository. A ref that git could read as an option and an unknown ref are usage errors (exit 2).";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-191";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-191' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall report the trace change of each requirement between two revisions.";
+        attribute 'notes' : 'String' = "ADR-EMG-079. A requirement is traced when code or a verification links it. A requirement removed in the later revision is not reported. A trace that cannot be computed on one side is recorded as the trace error of the diff and does not fail the entity diff; engws model-diff --no-trace skips the code scan.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-192";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-192' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall list every named declaration of the code scope with its kind, language, path and lines.";
+        attribute 'notes' : 'String' = "ADR-EMG-080. ListCodeDeclarations reads the files of the model code scope (git-ignored files, inferenceHints.exclude and nested modules left out) with the tree-sitter readers of the trace scan, whether or not a trace marker is attached, and FindCodeDefinitions ranks the candidates a use may refer to by closeness. Names are matched exactly; scopes, imports and overloads are not resolved, so a result is a candidate.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-193";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-193' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall list every catalog term with the requirements that name it and the entities that reference it.";
+        attribute 'notes' : 'String' = "ADR-EMG-080. A requirement names a term when the term name or an alias occurs in its text on word boundaries, the rule of the EARS lint; an entity references a term when a field holds its ID or its prose mentions the ID.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-194";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-194' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return one bundle with the manifest and every model document that a manifest path or a git revision names.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LoadBundle reads engmod.yml and each document it names; LoadBundleAtRef reads the committed documents of a revision of a repository with the loader that tolerates earlier schemas. The bundle is a snapshot: the engine never refreshes it (SM-GO-BUNDLE-SESSION). The manifest file must be named engmod.yml.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-195";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-195' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the diagnostics of a bundle with a stable code, a severity, a message and a model path for each finding.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. ValidateBundle does not fail: a model with errors still returns its diagnostics and the consumer reads the severity. A bundle of a model with dependencies is validated after the published entities of the dependencies are merged into it (FLOW-GO-COMPOSE-AND-LINK); without them every alias::ID reference is reported.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-196";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-196' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the entity index of a bundle with the kind, document, parent and fields of each entity and each reference between entities.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. BuildEntityIndex is the Go API of the behavior REQ-EMG-189 states; it reads the bundle only and writes nothing. The root-package tests TestBuildEntityIndex* (api_diff_test.go) call it through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-197";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-197' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the difference of a model between two revisions with the entities added, removed and changed.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is REQ-EMG-190 and REQ-EMG-191; the root-package tests TestDiffModels*, TestDiffEntityIndexesThroughTheFacade and TestDiffTraceMatricesThroughTheFacade (api_diff_test.go, api_trace_test.go) call them through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-198";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-198' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the trace matrix of a model with the code, tests and verifications of each requirement.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the requirements path and the code root, scans the code and returns the matrix with the findings of the scan. The root-package test TestBuildTraceMatrixFromFilesRowsOrphansAndFindings (api_trace_test.go) calls it through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-199";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-199' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return every named declaration of the code scope of a bundle with its kind, language, path and lines.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. ListCodeDeclarations applies the code scope of the model under a root directory; CodeDeclarationsOf reads one source text. The behavior is REQ-EMG-192.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-200";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-200' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the candidate declarations of a name used in a file ranked by closeness to that file.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. FindCodeDefinitions reads a declaration list and resolves no scope, import or overload, so a result is a candidate. The behavior is REQ-EMG-192.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-201";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-201' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return every catalog term of a bundle with the requirements that name it and the entities that reference it.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is REQ-EMG-193; the root-package tests TestCatalogUsage* (api_catalog_test.go) call it through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-202";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-202' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the composed system of a model with its resolved dependencies and the diagnostics of the composition.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The root-package tests TestGenerateCompositionFromFileWith* (api_composition_test.go) call the first through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-203";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-203' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the contract items of a bundle with the realizing requirements of each item.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. The root-package tests TestContractItemsFromBundle* and TestSortedContractItemRealizersReturnsASortedCopy (api_reqlinks_test.go) call them through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-204";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-204' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the status of each requirement link of a bundle against the contract items of its dependencies.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LinkDependencies turns a composed system into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the requirement links of REQ-EMG-097; the root-package tests TestEvaluateRequirementLinks* (api_reqlinks_test.go) call the evaluation through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-205";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-205' {
+        attribute 'text' : 'String' = "When go api call is received, the engineering model go shall return the requirement links that the other checkouts of a workspace hold on the contract items of a bundle.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is REQ-EMG-107; the root-package test TestWorkspaceLinkUsersReturnsTheLinksOfTheSiblings (api_composition_test.go) calls it through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-206";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-206' {
+        attribute 'text' : 'String' = "When go bundle load failed event is raised, the engineering model go shall return the error of the load and an empty bundle.";
+        attribute 'notes' : 'String' = "ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a model (SM-GO-BUNDLE-SESSION). The root-package test TestLoadBundleFailureReturnsAnErrorAndAnEmptyBundle (api_diff_test.go) checks the errors and the empty bundle through the facade.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-207";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-207' {
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each architectural dependency that names no interface.";
+        attribute 'notes' : 'String' = "ADR-EMG-085, architecture.dependency_without_interface, one diagnostic at authoredArchitecture.mappings[i] naming the type, both ends and the fix. A dependency is a relationship of type depends_on, calls, publishes, subscribes, reads, writes, streams, implements or interacts_with between functional units, functional groups, actors, referenced elements, hardware items or alias::ID elements of a composed dependency; it names an interface when an end is an interface that has an owner or is a published alias::IF-*, or when a hardware interface connects two hardware items. Containment, self dependencies, other relationship types and data object or deployment target ends are not asked. The tier policy row is WWWEE: a warning at poc, prototype and mvp, an error at product and operational, and the warning without a tier decision.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-208";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-208' {
+        attribute 'text' : 'String' = "When model check is requested, the engineering model go shall report each interface that no data object is sent over.";
+        attribute 'notes' : 'String' = "ADR-EMG-086, architecture.interface_without_data, one diagnostic at authoredArchitecture.interfaces[i] naming the interface and the fix. A local software interface has data when a flow step names it in interfaceRef and lists a data object in its dataRefs, dataIn or dataOut; the flow dataRefs, relationships, schemaRef and names do not count, an unused interface is asked, and a composed alias::IF-* interface is checked in its own model. The tier policy row is WWWEE, as for REQ-EMG-207.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-209";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-209' {
+        attribute 'text' : 'String' = "While project tier is at least product, when health scan is requested, the code health check shall report one error for each file below the floor that no baseline entry covers.";
+        attribute 'notes' : 'String' = "ADR-EMG-087, health.file_below_floor, one diagnostic per file in the health report with the path, no function. The floor is the file score 10.0 (health.floor of the manifest may lower it, and a lower floor is reported by enghealth check as health.policy_weakened). A file is below the floor when its score, after the waivers, is below it; every source file counts, tests included. A file is covered when the baseline holds an entry (path, function, code) that names a finding of it that the scan found, whatever the value against the recorded one; a stale entry covers nothing, and a file whose every finding is waived scores 10.0. So a new file, or a file with no entry, has to be clean at once, and with an empty baseline every file has to score 10.0. The tier policy row is WWWEE (WWEEE with the safety bundle): a warning at poc, prototype and mvp, an error at product and operational, a warning without a tier, and no POA&M item defers it, like health.regression. The report carries the floor and summary.belowFloor and summary.floorCovered, the files the baseline still covers: the burn-down.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-210";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-210' {
+        attribute 'text' : 'String' = "While project tier is at least product, when health check is requested, the code health check shall report one error for each changed file below the floor that no baseline entry covers.";
+        attribute 'notes' : 'String' = "ADR-EMG-087. enghealth check evaluates health.file_below_floor for the source files changed between the base revision and the head, with the same floor, level and cover as the scan: it reads the baseline of the head manifest for this only (a regression is still never baselined). A file that gets below the floor, a file that is new below it and a changed file that was already below it and is not covered fail the check where the code is an error; the files are listed under belowFloor of the JSON report and as results of the SARIF rule health.file_below_floor. A lowered floor against the base revision is a weakening (health.policy_weakened, aspect floor). A new or worsened warn finding is no regression, so the floor is the gate that holds a changed file to 10.0 at once.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-211";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-211' {
+        attribute 'text' : 'String' = "The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.";
+        attribute 'notes' : 'String' = "ADR-EMG-087, ADR-EMG-088. A requirement of this repository, not of the engine contract, so it is not published. It is met: model/health-baseline.json has no entry (the owner: \"get a 10/10 score in all files in model, tool, flow\"), and the scan of this repository at tier operational reports no finding, no waived finding, no file below the floor and no file a baseline covers. It is verified by TestEveryRepositoryFileScoresTen (cmd/enghealth), which reads the score of every file of the report, tests included, and fails for a file below 10.0, for a diagnostic, a finding, a waiver or a covered file, and for a baseline entry; the floor itself is held at 10.0 by the tests of REQ-EMG-209 and REQ-EMG-210. REQ-EMG-209 and REQ-EMG-210 are the rule that reports a file below the floor; this requirement is the target the owner set for the repository itself.";
     }
 
     @EngineeringElement {
@@ -4919,6 +5899,105 @@ package 'engineering-model-go' {
         //     authored: in_state(STATE-ARTIFACTS-FRESH) implies validated
         // invariant INV-ARTIFACTS-STALE-NOT-VALIDATED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
         //     authored: in_state(STATE-ARTIFACTS-STALE) implies not validated
+    }
+
+    @EngineeringElement {
+        sourceId = "SM-GO-BUNDLE-SESSION";
+        conceptKind = "state_definition";
+    }
+    state def 'SM-GO-BUNDLE-SESSION' {
+        doc /* What a Go consumer of the root package holds while it works with one model - nothing, a loaded bundle, a bundle whose diagnostics hold no error or a bundle whose diagnostics hold an error. A bundle is a snapshot that the engine never refreshes; when a model file changes the consumer loads again, which starts a new session, so the machine ends in valid or rejected. Implemented by FU-MODEL-LOADER. */
+        attribute bundleHeld : Boolean := false;
+        attribute errorsFound : Boolean := false;
+        entry;
+        then 'STATE-GO-BUNDLE-ABSENT';
+        state 'STATE-GO-BUNDLE-ABSENT';
+        @EngineeringElement about 'STATE-GO-BUNDLE-ABSENT' {
+            sourceId = "STATE-GO-BUNDLE-ABSENT";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-GO-BUNDLE-LOADED';
+        @EngineeringElement about 'STATE-GO-BUNDLE-LOADED' {
+            sourceId = "STATE-GO-BUNDLE-LOADED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-GO-BUNDLE-REJECTED';
+        @EngineeringElement about 'STATE-GO-BUNDLE-REJECTED' {
+            sourceId = "STATE-GO-BUNDLE-REJECTED";
+            conceptKind = "state_usage";
+        }
+        state 'STATE-GO-BUNDLE-VALID';
+        @EngineeringElement about 'STATE-GO-BUNDLE-VALID' {
+            sourceId = "STATE-GO-BUNDLE-VALID";
+            conceptKind = "state_usage";
+        }
+        succession 'REL-1EFE19CA04451480' first 'STATE-GO-BUNDLE-REJECTED' then done;
+        @EngineeringRelationship about 'REL-1EFE19CA04451480' {
+            sourceId = "REL-1EFE19CA04451480";
+            conceptKind = "succession";
+            relationshipKind = "machine_final";
+        }
+        succession 'REL-232A93C77C2A83C4' first 'STATE-GO-BUNDLE-VALID' then done;
+        @EngineeringRelationship about 'REL-232A93C77C2A83C4' {
+            sourceId = "REL-232A93C77C2A83C4";
+            conceptKind = "succession";
+            relationshipKind = "machine_final";
+        }
+        transition 'TR-GO-BUNDLE-LOAD-FAILS'
+            first 'STATE-GO-BUNDLE-ABSENT'
+            accept 'on-EVT-GO-BUNDLE-LOAD-FAILED' :> 'EVT-GO-BUNDLE-LOAD-FAILED'
+            then 'STATE-GO-BUNDLE-ABSENT' {
+                doc /* A document does not load, so the call returns the error and the empty bundle and the consumer still holds none. */
+            }
+        @EngineeringRelationship about 'TR-GO-BUNDLE-LOAD-FAILS' {
+            sourceId = "TR-GO-BUNDLE-LOAD-FAILS";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-GO-BUNDLE-LOADS'
+            first 'STATE-GO-BUNDLE-ABSENT'
+            accept 'on-EVT-GO-BUNDLE-LOADED' :> 'EVT-GO-BUNDLE-LOADED'
+            do assign bundleHeld := true
+            then 'STATE-GO-BUNDLE-LOADED' {
+                doc /* LoadBundle or LoadBundleAtRef read every document of the model and return the bundle. */
+            }
+        @EngineeringRelationship about 'TR-GO-BUNDLE-LOADS' {
+            sourceId = "TR-GO-BUNDLE-LOADS";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-GO-BUNDLE-REJECTED'
+            first 'STATE-GO-BUNDLE-LOADED'
+            accept 'on-EVT-VALIDATION-FAILED' :> 'EVT-VALIDATION-FAILED'
+            do assign errorsFound := true
+            then 'STATE-GO-BUNDLE-REJECTED' {
+                doc /* ValidateBundle returns diagnostics that hold one or more errors. */
+            }
+        @EngineeringRelationship about 'TR-GO-BUNDLE-REJECTED' {
+            sourceId = "TR-GO-BUNDLE-REJECTED";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-GO-BUNDLE-VALIDATES'
+            first 'STATE-GO-BUNDLE-LOADED'
+            accept 'on-EVT-VALIDATION-PASSED' :> 'EVT-VALIDATION-PASSED'
+            do assign errorsFound := false
+            then 'STATE-GO-BUNDLE-VALID' {
+                doc /* ValidateBundle returns diagnostics that hold no error. */
+            }
+        @EngineeringRelationship about 'TR-GO-BUNDLE-VALIDATES' {
+            sourceId = "TR-GO-BUNDLE-VALIDATES";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        // invariant INV-GO-ABSENT-HOLDS-NO-BUNDLE is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-GO-BUNDLE-ABSENT) implies not bundleHeld
+        // invariant INV-GO-HELD-BUNDLE-WAS-LOADED is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: bundleHeld or in_state(STATE-GO-BUNDLE-ABSENT)
+        // invariant INV-GO-REJECTED-HAS-ERROR is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-GO-BUNDLE-REJECTED) implies errorsFound
+        // invariant INV-GO-VALID-HAS-NO-ERROR is not expressible in SysML v2: in_state(...) has no SysML v2 expression: SysML has no state-test operator
+        //     authored: in_state(STATE-GO-BUNDLE-VALID) implies not errorsFound
     }
 
     @EngineeringElement {
@@ -5166,6 +6245,28 @@ package 'engineering-model-go' {
         @EngineeringElement about 'STATE-MODEL-VALID' {
             sourceId = "STATE-MODEL-VALID";
             conceptKind = "state_usage";
+        }
+        transition 'TR-MODEL-CHECK-INVALID'
+            first 'STATE-MODEL-INVALID'
+            accept 'on-EVT-MODEL-CHECK-REQUESTED' :> 'EVT-MODEL-CHECK-REQUESTED'
+            then 'STATE-MODEL-INVALID' {
+                doc /* A model check reads an invalid model and reports its diagnostics, among them the errors that block; it writes nothing, so the model stays invalid until a model update resolves them. */
+            }
+        @EngineeringRelationship about 'TR-MODEL-CHECK-INVALID' {
+            sourceId = "TR-MODEL-CHECK-INVALID";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
+        }
+        transition 'TR-MODEL-CHECK-VALID'
+            first 'STATE-MODEL-VALID'
+            accept 'on-EVT-MODEL-CHECK-REQUESTED' :> 'EVT-MODEL-CHECK-REQUESTED'
+            then 'STATE-MODEL-VALID' {
+                doc /* A model check reads a valid model and reports its diagnostics (none that block); it writes nothing, so the model stays valid. */
+            }
+        @EngineeringRelationship about 'TR-MODEL-CHECK-VALID' {
+            sourceId = "TR-MODEL-CHECK-VALID";
+            conceptKind = "transition";
+            relationshipKind = "machine_transition";
         }
         transition 'TR-MODEL-STATUS-SUGGEST'
             first 'STATE-MODEL-VALID'
@@ -5758,10 +6859,88 @@ package 'engineering-model-go' {
     view 'VIEW-TRACEABILITY' : EngineeringView;
 
     @EngineeringElement {
+        sourceId = "answer-tool-call";
+        conceptKind = "action_usage";
+    }
+    action 'answer-tool-call' : EngineeringAction {
+        in item 'input_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        out item 'output_DO_MCP_TOOL_RESULT' : 'DO-MCP-TOOL-RESULT';
+        out item 'output_DO_MODEL_AUTHORING_CONTRACT' : 'DO-MODEL-AUTHORING-CONTRACT';
+    }
+
+    @EngineeringElement {
+        sourceId = "build-entity-index";
+        conceptKind = "action_usage";
+    }
+    action 'build-entity-index' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+    }
+
+    @EngineeringElement {
+        sourceId = "build-revision-index";
+        conceptKind = "action_usage";
+    }
+    action 'build-revision-index' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+    }
+
+    @EngineeringElement {
+        sourceId = "build-trace-matrix";
+        conceptKind = "action_usage";
+    }
+    action 'build-trace-matrix' : EngineeringAction {
+        inout item 'item_DO_TRACE_MATRIX' : 'DO-TRACE-MATRIX';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
+
+    @EngineeringElement {
+        sourceId = "change-requirements";
+        conceptKind = "action_usage";
+    }
+    action 'change-requirements' : EngineeringAction {
+        inout item 'item_DO_REQUIREMENTS_DELTA' : 'DO-REQUIREMENTS-DELTA';
+        inout item 'item_DO_REQUIREMENTS_DOCUMENT' : 'DO-REQUIREMENTS-DOCUMENT';
+    }
+
+    @EngineeringElement {
         sourceId = "check-acceptance";
         conceptKind = "action_usage";
     }
     action 'check-acceptance' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "check-arguments";
+        conceptKind = "action_usage";
+    }
+    action 'check-arguments' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "check-changed-files";
+        conceptKind = "action_usage";
+    }
+    action 'check-changed-files' : EngineeringAction {
+        out item 'output_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+    }
+
+    @EngineeringElement {
+        sourceId = "check-model";
+        conceptKind = "action_usage";
+    }
+    action 'check-model' : EngineeringAction {
+        in item 'input_DO_CANONICAL_SEMANTIC_MODEL' : 'DO-CANONICAL-SEMANTIC-MODEL';
+        out item 'output_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
+
+    @EngineeringElement {
+        sourceId = "diff-models";
+        conceptKind = "action_usage";
+    }
+    action 'diff-models' : EngineeringAction {
+        inout item 'item_DO_ENTITY_INDEX' : 'DO-ENTITY-INDEX';
+        inout item 'item_DO_MODEL_DIFF' : 'DO-MODEL-DIFF';
+    }
 
     @EngineeringElement {
         sourceId = "edit-model";
@@ -5778,10 +6957,125 @@ package 'engineering-model-go' {
     action 'evaluate-bumped-links' : EngineeringAction;
 
     @EngineeringElement {
+        sourceId = "evaluate-links";
+        conceptKind = "action_usage";
+    }
+    action 'evaluate-links' : EngineeringAction {
+        inout item 'item_DO_COMPOSITION_RESULT' : 'DO-COMPOSITION-RESULT';
+        inout item 'item_DO_REQUIREMENT_LINK_STATUS' : 'DO-REQUIREMENT-LINK-STATUS';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-airborne";
+        conceptKind = "action_usage";
+    }
+    action 'export-airborne' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_AIRBORNE_READINESS_PACKAGE' : 'DO-AIRBORNE-READINESS-PACKAGE';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-gemara";
+        conceptKind = "action_usage";
+    }
+    action 'export-gemara' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_GEMARA_DOCUMENTS' : 'DO-GEMARA-DOCUMENTS';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-lobster";
+        conceptKind = "action_usage";
+    }
+    action 'export-lobster' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_LOBSTER_ACTIVITY' : 'DO-LOBSTER-ACTIVITY';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-naf";
+        conceptKind = "action_usage";
+    }
+    action 'export-naf' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_NAF_V4_ARCHITECTURE' : 'DO-NAF-V4-ARCHITECTURE';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-oscal";
+        conceptKind = "action_usage";
+    }
+    action 'export-oscal' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_OSCAL_DOCUMENTS' : 'DO-OSCAL-DOCUMENTS';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-structurizr";
+        conceptKind = "action_usage";
+    }
+    action 'export-structurizr' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_STRUCTURIZR_DSL' : 'DO-STRUCTURIZR-DSL';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-sysml";
+        conceptKind = "action_usage";
+    }
+    action 'export-sysml' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_SYSML_V2_MODEL' : 'DO-SYSML-V2-MODEL';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-threat-model";
+        conceptKind = "action_usage";
+    }
+    action 'export-threat-model' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_THREAT_DRAGON_JSON' : 'DO-THREAT-DRAGON-JSON';
+        inout item 'item_DO_OPEN_OTM_JSON' : 'DO-OPEN-OTM-JSON';
+    }
+
+    @EngineeringElement {
+        sourceId = "export-trlc";
+        conceptKind = "action_usage";
+    }
+    action 'export-trlc' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_TRLC_REQUIREMENTS' : 'DO-TRLC-REQUIREMENTS';
+    }
+
+    @EngineeringElement {
         sourceId = "fail-validation";
         conceptKind = "action_usage";
     }
     action 'fail-validation' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "fetch-model-module";
+        conceptKind = "action_usage";
+    }
+    action 'fetch-model-module' : EngineeringAction {
+        inout item 'item_DO_MODEL_MODULE_ARCHIVE' : 'DO-MODEL-MODULE-ARCHIVE';
+    }
+
+    @EngineeringElement {
+        sourceId = "find-code-definitions";
+        conceptKind = "action_usage";
+    }
+    action 'find-code-definitions' : EngineeringAction {
+        inout item 'item_DO_CODE_DECLARATIONS' : 'DO-CODE-DECLARATIONS';
+    }
+
+    @EngineeringElement {
+        sourceId = "follow-naf-specification";
+        conceptKind = "action_usage";
+    }
+    action 'follow-naf-specification' : EngineeringAction {
+        inout item 'item_DO_NAF_V4_ARCHITECTURE' : 'DO-NAF-V4-ARCHITECTURE';
+    }
 
     @EngineeringElement {
         sourceId = "generate-artifacts";
@@ -5792,11 +7086,54 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "generate-quint";
+        conceptKind = "action_usage";
+    }
+    action 'generate-quint' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_QUINT_SPECIFICATION' : 'DO-QUINT-SPECIFICATION';
+    }
+
+    @EngineeringElement {
+        sourceId = "list-code-declarations";
+        conceptKind = "action_usage";
+    }
+    action 'list-code-declarations' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CODE_DECLARATIONS' : 'DO-CODE-DECLARATIONS';
+    }
+
+    @EngineeringElement {
+        sourceId = "load-bundle";
+        conceptKind = "action_usage";
+    }
+    action 'load-bundle' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+    }
+
+    @EngineeringElement {
+        sourceId = "load-model-documents";
+        conceptKind = "action_usage";
+    }
+    action 'load-model-documents' : EngineeringAction {
+        in item 'input_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        out item 'output_DO_CANONICAL_SEMANTIC_MODEL' : 'DO-CANONICAL-SEMANTIC-MODEL';
+    }
+
+    @EngineeringElement {
         sourceId = "load-requirements-delta";
         conceptKind = "action_usage";
     }
     action 'load-requirements-delta' : EngineeringAction {
         in item 'input_DO_REQUIREMENTS_DELTA' : 'DO-REQUIREMENTS-DELTA';
+    }
+
+    @EngineeringElement {
+        sourceId = "load-revision-bundle";
+        conceptKind = "action_usage";
+    }
+    action 'load-revision-bundle' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
     }
 
     @EngineeringElement {
@@ -5816,10 +7153,60 @@ package 'engineering-model-go' {
     action 'pin-version' : EngineeringAction;
 
     @EngineeringElement {
+        sourceId = "project-composition";
+        conceptKind = "action_usage";
+    }
+    action 'project-composition' : EngineeringAction {
+        inout item 'item_DO_COMPOSITION_RESULT' : 'DO-COMPOSITION-RESULT';
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+    }
+
+    @EngineeringElement {
         sourceId = "publish-artifacts";
         conceptKind = "action_usage";
     }
     action 'publish-artifacts' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "read-catalog-usage";
+        conceptKind = "action_usage";
+    }
+    action 'read-catalog-usage' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CATALOG_USAGE' : 'DO-CATALOG-USAGE';
+    }
+
+    @EngineeringElement {
+        sourceId = "read-contract-items";
+        conceptKind = "action_usage";
+    }
+    action 'read-contract-items' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CONTRACT_ITEMS' : 'DO-CONTRACT-ITEMS';
+    }
+
+    @EngineeringElement {
+        sourceId = "read-link-users";
+        conceptKind = "action_usage";
+    }
+    action 'read-link-users' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_LINK_USE' : 'DO-LINK-USE';
+    }
+
+    @EngineeringElement {
+        sourceId = "read-lobster-activity";
+        conceptKind = "action_usage";
+    }
+    action 'read-lobster-activity' : EngineeringAction {
+        inout item 'item_DO_LOBSTER_ACTIVITY' : 'DO-LOBSTER-ACTIVITY';
+    }
+
+    @EngineeringElement {
+        sourceId = "receive-tool-call";
+        conceptKind = "action_usage";
+    }
+    action 'receive-tool-call' : EngineeringAction;
 
     @EngineeringElement {
         sourceId = "record-acceptance";
@@ -5848,6 +7235,29 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "reject-tool-call";
+        conceptKind = "action_usage";
+    }
+    action 'reject-tool-call' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "render-spec-delta";
+        conceptKind = "action_usage";
+    }
+    action 'render-spec-delta' : EngineeringAction {
+        in item 'input_DO_REQUIREMENTS_DOCUMENT' : 'DO-REQUIREMENTS-DOCUMENT';
+    }
+
+    @EngineeringElement {
+        sourceId = "render-view";
+        conceptKind = "action_usage";
+    }
+    action 'render-view' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_VIEW_DIAGRAM' : 'DO-VIEW-DIAGRAM';
+    }
+
+    @EngineeringElement {
         sourceId = "repin-unchanged-links";
         conceptKind = "action_usage";
     }
@@ -5862,10 +7272,89 @@ package 'engineering-model-go' {
     }
 
     @EngineeringElement {
+        sourceId = "report-compare-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-compare-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "report-compose-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-compose-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "report-diagnostics";
+        conceptKind = "action_usage";
+    }
+    action 'report-diagnostics' : EngineeringAction {
+        in item 'input_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
+
+    @EngineeringElement {
+        sourceId = "report-load-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-load-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "report-lookup-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-lookup-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "report-read-error";
+        conceptKind = "action_usage";
+    }
+    action 'report-read-error' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "resolve-composition";
+        conceptKind = "action_usage";
+    }
+    action 'resolve-composition' : EngineeringAction {
+        inout item 'item_DO_COMPOSITION_RESULT' : 'DO-COMPOSITION-RESULT';
+    }
+
+    @EngineeringElement {
         sourceId = "restore-bump-files";
         conceptKind = "action_usage";
     }
     action 'restore-bump-files' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "run-go-toolchain";
+        conceptKind = "action_usage";
+    }
+    action 'run-go-toolchain' : EngineeringAction {
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
+
+    @EngineeringElement {
+        sourceId = "run-sysml-toolchain";
+        conceptKind = "action_usage";
+    }
+    action 'run-sysml-toolchain' : EngineeringAction {
+        inout item 'item_DO_SYSML_V2_MODEL' : 'DO-SYSML-V2-MODEL';
+    }
+
+    @EngineeringElement {
+        sourceId = "scan-health";
+        conceptKind = "action_usage";
+    }
+    action 'scan-health' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+    }
+
+    @EngineeringElement {
+        sourceId = "scan-source-files";
+        conceptKind = "action_usage";
+    }
+    action 'scan-source-files' : EngineeringAction {
+        out item 'output_DO_HEALTH_REPORT' : 'DO-HEALTH-REPORT';
+    }
 
     @EngineeringElement {
         sourceId = "show-links";
@@ -5874,11 +7363,94 @@ package 'engineering-model-go' {
     action 'show-links' : EngineeringAction;
 
     @EngineeringElement {
+        sourceId = "stage-workspace";
+        conceptKind = "action_usage";
+    }
+    action 'stage-workspace' : EngineeringAction;
+
+    @EngineeringElement {
+        sourceId = "sync-workspace";
+        conceptKind = "action_usage";
+    }
+    action 'sync-workspace' : EngineeringAction {
+        in item 'input_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+    }
+
+    @EngineeringElement {
+        sourceId = "use-asciidoc-package";
+        conceptKind = "action_usage";
+    }
+    action 'use-asciidoc-package' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_ARCHITECTURE_DOCUMENT' : 'DO-ARCHITECTURE-DOCUMENT';
+    }
+
+    @EngineeringElement {
+        sourceId = "use-codemap-package";
+        conceptKind = "action_usage";
+    }
+    action 'use-codemap-package' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_CODE_DECLARATIONS' : 'DO-CODE-DECLARATIONS';
+    }
+
+    @EngineeringElement {
+        sourceId = "use-model-package";
+        conceptKind = "action_usage";
+    }
+    action 'use-model-package' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+    }
+
+    @EngineeringElement {
+        sourceId = "use-validate-package";
+        conceptKind = "action_usage";
+    }
+    action 'use-validate-package' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
+
+    @EngineeringElement {
+        sourceId = "use-view-package";
+        conceptKind = "action_usage";
+    }
+    action 'use-view-package' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_VIEW_PROJECTION' : 'DO-VIEW-PROJECTION';
+    }
+
+    @EngineeringElement {
+        sourceId = "validate-bundle";
+        conceptKind = "action_usage";
+    }
+    action 'validate-bundle' : EngineeringAction {
+        inout item 'item_DO_MODEL_BUNDLE' : 'DO-MODEL-BUNDLE';
+        inout item 'item_DO_MODEL_DIAGNOSTICS' : 'DO-MODEL-DIAGNOSTICS';
+    }
+
+    @EngineeringElement {
+        sourceId = "validate-examples";
+        conceptKind = "action_usage";
+    }
+    action 'validate-examples' : EngineeringAction {
+        in item 'input_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+    }
+
+    @EngineeringElement {
         sourceId = "validate-model";
         conceptKind = "action_usage";
     }
     action 'validate-model' : EngineeringAction {
         in item 'input_architecture_update' : EngineeringItem;
+    }
+
+    @EngineeringElement {
+        sourceId = "validate-open-otm-json";
+        conceptKind = "action_usage";
+    }
+    action 'validate-open-otm-json' : EngineeringAction {
+        inout item 'item_DO_OPEN_OTM_JSON' : 'DO-OPEN-OTM-JSON';
     }
 
     @EngineeringElement {
@@ -5890,12 +7462,49 @@ package 'engineering-model-go' {
         in item 'input_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
     }
 
-    @EngineeringRelationship {
-        sourceId = "REL-016B944849F917F9";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+    @EngineeringElement {
+        sourceId = "validate-structurizr-dsl";
+        conceptKind = "action_usage";
     }
-    dependency 'REL-016B944849F917F9' from 'FU-STRUCTURIZR-EXPORTER' to 'REF-STRUCTURIZR-VALIDATOR';
+    action 'validate-structurizr-dsl' : EngineeringAction {
+        inout item 'item_DO_STRUCTURIZR_DSL' : 'DO-STRUCTURIZR-DSL';
+    }
+
+    @EngineeringElement {
+        sourceId = "validate-threat-dragon-json";
+        conceptKind = "action_usage";
+    }
+    action 'validate-threat-dragon-json' : EngineeringAction {
+        inout item 'item_DO_THREAT_DRAGON_JSON' : 'DO-THREAT-DRAGON-JSON';
+    }
+
+    @EngineeringElement {
+        sourceId = "validate-trlc-requirements";
+        conceptKind = "action_usage";
+    }
+    action 'validate-trlc-requirements' : EngineeringAction {
+        inout item 'item_DO_TRLC_REQUIREMENTS' : 'DO-TRLC-REQUIREMENTS';
+    }
+
+    @EngineeringElement {
+        sourceId = "write-trace-matrix";
+        conceptKind = "action_usage";
+    }
+    action 'write-trace-matrix' : EngineeringAction {
+        inout item 'item_DO_ARCHITECTURE_MODEL' : 'DO-ARCHITECTURE-MODEL';
+        inout item 'item_DO_TRACE_MATRIX' : 'DO-TRACE-MATRIX';
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-009014C891006544";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-009014C891006544-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-LOBSTER-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-009014C891006544' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-LOBSTER-EXPORTER'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-01A907C5186262EC";
@@ -5908,6 +7517,78 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-03073F9F7200FA20";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-03073F9F7200FA20-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-NAF-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-03073F9F7200FA20' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-NAF-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-03226B4671F53490";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-03226B4671F53490-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-OPEN-OTM-SCHEMA' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-03226B4671F53490' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-OPEN-OTM-SCHEMA'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-039B5449714DB902";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-039B5449714DB902-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-QUINT-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-039B5449714DB902' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-QUINT-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-045CC32FBF47B199";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-045CC32FBF47B199' first 'list-code-declarations' then 'report-lookup-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-0496C49FE2EC209E";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-0496C49FE2EC209E' from 'FU-SYSML-EXPORTER' to 'IF-SYSML-V2-TOOLCHAIN-CLI';
+
+    @EngineeringRelationship {
+        sourceId = "REL-04AC4DD563B4B4FC";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-04AC4DD563B4B4FC-context' {
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-MODEL-DIFF' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-04AC4DD563B4B4FC' from 'FU-MODEL-LOADER'.pOut to 'DO-MODEL-DIFF'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-04BC8561B0A5601C";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-04BC8561B0A5601C' from 'use-view-package' to 'FU-VIEW-PROJECTION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-04DA474F700F1375";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-04DA474F700F1375' from 'find-code-definitions' to 'FU-CODEMAP-INFERENCE';
+
+    @EngineeringRelationship {
         sourceId = "REL-04F4A20F9A87A948";
         conceptKind = "engineering_extension";
         relationshipKind = "mitigated_by";
@@ -5915,11 +7596,36 @@ package 'engineering-model-go' {
     dependency 'REL-04F4A20F9A87A948' from 'AV-PATH-TRAVERSAL-IN-MCP' to 'CTRL-STRICT-MCP-INPUT-SCHEMA';
 
     @EngineeringRelationship {
-        sourceId = "REL-080A42488B0FD5AB";
+        sourceId = "REL-05AE0B6BDDB7D980";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-05AE0B6BDDB7D980' first 'sync-workspace' then 'stage-workspace';
+
+    @EngineeringRelationship {
+        sourceId = "REL-062767D070A73B8B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-062767D070A73B8B' from 'build-trace-matrix' to 'FU-ALLOCATION-TRACE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-06906B645E55644A";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-06906B645E55644A-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-AIRBORNE-ASSURANCE-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-06906B645E55644A' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-AIRBORNE-ASSURANCE-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-0730347434A15A3C";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
     }
-    dependency 'REL-080A42488B0FD5AB' from 'FU-TRLC-EXPORTER' to 'REF-TRLC-TOOLCHAIN';
+    dependency 'REL-0730347434A15A3C' from 'FU-NAF-EXPORTER' to 'IF-GO-PKG-VIEW';
 
     @EngineeringRelationship {
         sourceId = "REL-0893DE78A51F8BA1";
@@ -5929,18 +7635,15 @@ package 'engineering-model-go' {
     succession 'REL-0893DE78A51F8BA1' first 'show-links' then 'check-acceptance';
 
     @EngineeringRelationship {
-        sourceId = "REL-08C0901D437E8849";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-08B2B67BC984176C";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
     }
-    dependency 'REL-08C0901D437E8849' from 'FU-QUINT-EXPORTER' to 'FU-MODEL-LOADER';
-
-    @EngineeringRelationship {
-        sourceId = "REL-09DA914374D48456";
-        conceptKind = "dependency";
-        relationshipKind = "interacts_with";
+    part def 'REL-08B2B67BC984176C-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODE-HEALTH' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-08B2B67BC984176C' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CODE-HEALTH'.pIn;
     }
-    dependency 'REL-09DA914374D48456' from 'ACT-CI-PIPELINE' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
         sourceId = "REL-0BC01C9171549ED5";
@@ -5950,6 +7653,27 @@ package 'engineering-model-go' {
     succession 'REL-0BC01C9171549ED5' first 'regenerate-lock' then 'evaluate-bumped-links';
 
     @EngineeringRelationship {
+        sourceId = "REL-0C4628AB30776F77";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-0C4628AB30776F77' first 'receive-tool-call' then 'check-arguments';
+
+    @EngineeringRelationship {
+        sourceId = "REL-0C6062165CCCA01A";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-0C6062165CCCA01A' first 'receive-tool-call' then 'reject-tool-call';
+
+    @EngineeringRelationship {
+        sourceId = "REL-0CF55DF1BD2B0584";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-0CF55DF1BD2B0584' from 'export-gemara' to 'FU-GEMARA-EXPORTER';
+
+    @EngineeringRelationship {
         sourceId = "REL-0E9AC4B59A88F112";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -5957,11 +7681,25 @@ package 'engineering-model-go' {
     dependency 'REL-0E9AC4B59A88F112' from 'fail-validation' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
-        sourceId = "REL-110FD6978371D25B";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-0EC356B29F38C879";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
     }
-    dependency 'REL-110FD6978371D25B' from 'FU-THREAT-EXPORTER' to 'REF-OPEN-OTM-SCHEMA';
+    succession 'REL-0EC356B29F38C879' first 'load-model-documents' then 'report-load-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-0EF5E18BFDDA3F67";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-0EF5E18BFDDA3F67' from 'scan-health' to 'FU-CODE-HEALTH';
+
+    @EngineeringRelationship {
+        sourceId = "REL-105B50F10426F2E1";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-105B50F10426F2E1' from 'export-airborne' to 'FU-AIRBORNE-ASSURANCE-EXPORTER';
 
     @EngineeringRelationship {
         sourceId = "REL-14A8527C3C1658DF";
@@ -5975,6 +7713,27 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-16497D7DAC509EA9";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-16497D7DAC509EA9' first 'read-contract-items' then 'evaluate-links';
+
+    @EngineeringRelationship {
+        sourceId = "REL-1784BA4DB4090CCA";
+        conceptKind = "dependency";
+        relationshipKind = "interacts_with";
+    }
+    dependency 'REL-1784BA4DB4090CCA' from 'ACT-ARCHITECTURE-AUTHOR' to 'IF-CLI-ENGWS';
+
+    @EngineeringRelationship {
+        sourceId = "REL-18E0EF8A1F282A63";
+        conceptKind = "dependency";
+        relationshipKind = "interacts_with";
+    }
+    dependency 'REL-18E0EF8A1F282A63' from 'ACT-IMPLEMENTATION-ENGINEER' to 'IF-CLI-ENGWS';
+
+    @EngineeringRelationship {
         sourceId = "REL-19523EB810526624";
         conceptKind = "transfer";
         relationshipKind = "flow_transfer";
@@ -5983,6 +7742,35 @@ package 'engineering-model-go' {
         part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
         part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-19523EB810526624' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CLI-ORCHESTRATION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-19CBAAE2BAFF9C19";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-19CBAAE2BAFF9C19' from 'FU-QUINT-EXPORTER' to 'IF-GO-PKG-MODEL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-1A28462E36D65240";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-1A28462E36D65240-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-1A28462E36D65240' from 'FU-CLI-ORCHESTRATION'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-1A5AEBDD1C324C91";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-1A5AEBDD1C324C91-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-1A5AEBDD1C324C91' from 'ACT-GO-CONSUMER'.pOut to 'FU-SYSTEM-COMPOSITION'.pIn;
     }
 
     @EngineeringRelationship {
@@ -6010,11 +7798,33 @@ package 'engineering-model-go' {
     dependency 'REL-1B448352F7DFCECA' from 'refuse-acceptance' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
-        sourceId = "REL-1D6B10631D0F5925";
+        sourceId = "REL-1BDAB82D529565DF";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-1BDAB82D529565DF-context' {
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-LINK-USE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-1BDAB82D529565DF' from 'FU-SYSTEM-COMPOSITION'.pOut to 'DO-LINK-USE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-1BDD57779D613CA0";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
     }
-    dependency 'REL-1D6B10631D0F5925' from 'FU-MODEL-CHANGE' to 'FU-VALIDATION-ENGINE';
+    dependency 'REL-1BDD57779D613CA0' from 'FU-SYSTEM-COMPOSITION' to 'IF-CUE-OCI-REGISTRY-API';
+
+    @EngineeringRelationship {
+        sourceId = "REL-1BFFB46403BCFBF9";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-1BFFB46403BCFBF9-context' {
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-TRACE-MATRIX' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-1BFFB46403BCFBF9' from 'FU-ALLOCATION-TRACE'.pOut to 'DO-TRACE-MATRIX'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-1DF7B8675269FA1B";
@@ -6031,6 +7841,38 @@ package 'engineering-model-go' {
     dependency 'REL-1F66CE721C2ED103' from 'record-acceptance' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
+        sourceId = "REL-1F8102BCF3928B36";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-1F8102BCF3928B36' from 'use-codemap-package' to 'FU-CODEMAP-INFERENCE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-1F8E3D9EAE57C380";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-1F8E3D9EAE57C380' from 'read-lobster-activity' to 'REF-LOBSTER-TOOLCHAIN';
+
+    @EngineeringRelationship {
+        sourceId = "REL-20134F85C55B3B32";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-20134F85C55B3B32-context' {
+        part 'ACT-CI-PIPELINE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-20134F85C55B3B32' from 'ACT-CI-PIPELINE'.pOut to 'FU-CLI-ORCHESTRATION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-213C9AC1C9F619CF";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-213C9AC1C9F619CF' from 'export-sysml' to 'FU-SYSML-EXPORTER';
+
+    @EngineeringRelationship {
         sourceId = "REL-2180C452E7CCA478";
         conceptKind = "transfer";
         relationshipKind = "writes";
@@ -6040,6 +7882,49 @@ package 'engineering-model-go' {
         part 'DO-NAF-V4-ARCHITECTURE' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-2180C452E7CCA478' from 'FU-NAF-EXPORTER'.pOut to 'DO-NAF-V4-ARCHITECTURE'.pIn;
     }
+
+    @EngineeringRelationship {
+        sourceId = "REL-234DA607E76F9887";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-234DA607E76F9887-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-VIEW-PROJECTION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-234DA607E76F9887' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-VIEW-PROJECTION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-235F37D6BCA7B768";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-235F37D6BCA7B768-context' {
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-ENTITY-INDEX' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-235F37D6BCA7B768' from 'FU-MODEL-LOADER'.pOut to 'DO-ENTITY-INDEX'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-23C8B50E1C1F5341";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-23C8B50E1C1F5341' from 'load-model-documents' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-23CD0FEB44C09585";
+        conceptKind = "dependency";
+        relationshipKind = "interacts_with";
+    }
+    dependency 'REL-23CD0FEB44C09585' from 'ACT-COMPLIANCE-ENGINEER' to 'IF-CLI-ENGOSCAL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-24FE6A95688598D4";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-24FE6A95688598D4' from 'FU-MODEL-CHANGE' to 'IF-GO-PKG-VALIDATE';
 
     @EngineeringRelationship {
         sourceId = "REL-258C0AF7BCCCE854";
@@ -6056,11 +7941,43 @@ package 'engineering-model-go' {
     succession 'REL-25F0590AC1010192' first 'edit-model' then 'validate-model';
 
     @EngineeringRelationship {
-        sourceId = "REL-2A230B0018684311";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-27AEE062C77A66EF";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
     }
-    dependency 'REL-2A230B0018684311' from 'FU-LOBSTER-EXPORTER' to 'REF-LOBSTER-TOOLCHAIN';
+    succession 'REL-27AEE062C77A66EF' first 'check-model' then 'report-diagnostics';
+
+    @EngineeringRelationship {
+        sourceId = "REL-27C2DBE1A2CE963F";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-27C2DBE1A2CE963F' from 'use-model-package' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-283401A597880F01";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-283401A597880F01' first 'list-code-declarations' then 'find-code-definitions';
+
+    @EngineeringRelationship {
+        sourceId = "REL-29ABE04028602533";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-29ABE04028602533' from 'diff-models' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-29AF460CA9DCB353";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-29AF460CA9DCB353-context' {
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-CONTRACT-ITEMS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-29AF460CA9DCB353' from 'FU-ALLOCATION-TRACE'.pOut to 'DO-CONTRACT-ITEMS'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-2A5510B6345D819F";
@@ -6084,6 +8001,17 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-2C1233E92CA89E3D";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-2C1233E92CA89E3D-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-2C1233E92CA89E3D' from 'ACT-GO-CONSUMER'.pOut to 'FU-SYSTEM-COMPOSITION'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-2EAD296790C31C25";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -6098,18 +8026,15 @@ package 'engineering-model-go' {
     succession 'REL-2FA99E391022B5E4' first 'pin-version' then 'restore-bump-files';
 
     @EngineeringRelationship {
-        sourceId = "REL-2FBD45E16902772F";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-2FFB98E425EDD389";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
     }
-    dependency 'REL-2FBD45E16902772F' from 'FU-MODEL-CHANGE' to 'FU-MODEL-LOADER';
-
-    @EngineeringRelationship {
-        sourceId = "REL-30E5FCA45681E4F3";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+    part def 'REL-2FFB98E425EDD389-context' {
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-CODE-DECLARATIONS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-2FFB98E425EDD389' from 'FU-CODEMAP-INFERENCE'.pOut to 'DO-CODE-DECLARATIONS'.pIn;
     }
-    dependency 'REL-30E5FCA45681E4F3' from 'FU-VALIDATION-ENGINE' to 'REF-GO-TOOLCHAIN';
 
     @EngineeringRelationship {
         sourceId = "REL-33A257E5FF509B55";
@@ -6123,13 +8048,6 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-343AF74C5DAFF4EC";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
-    }
-    dependency 'REL-343AF74C5DAFF4EC' from 'FU-QUINT-EXPORTER' to 'FU-VALIDATION-ENGINE';
-
-    @EngineeringRelationship {
         sourceId = "REL-3605D7D6ACD767E9";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -6137,11 +8055,22 @@ package 'engineering-model-go' {
     dependency 'REL-3605D7D6ACD767E9' from 'regenerate-lock' to 'FU-SYSTEM-COMPOSITION';
 
     @EngineeringRelationship {
-        sourceId = "REL-368CF829865A81D5";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-37841F779720279A";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
     }
-    dependency 'REL-368CF829865A81D5' from 'FU-SYSTEM-COMPOSITION' to 'REF-CUE-OCI-MODULE-REGISTRY';
+    part def 'REL-37841F779720279A-context' {
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-CATALOG-USAGE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-37841F779720279A' from 'FU-VALIDATION-ENGINE'.pOut to 'DO-CATALOG-USAGE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-384F26F2610A28FA";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-384F26F2610A28FA' first 'build-revision-index' then 'report-compare-error';
 
     @EngineeringRelationship {
         sourceId = "REL-38D2B6208B0DBBA9";
@@ -6149,6 +8078,20 @@ package 'engineering-model-go' {
         relationshipKind = "flow_ref";
     }
     dependency 'REL-38D2B6208B0DBBA9' from 'pin-version' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-398D64E02C0AAA33";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-398D64E02C0AAA33' first 'validate-bundle' then 'build-entity-index';
+
+    @EngineeringRelationship {
+        sourceId = "REL-39998605A12C2B2A";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-39998605A12C2B2A' from 'read-catalog-usage' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
         sourceId = "REL-3A30D7C94E6939CE";
@@ -6168,6 +8111,46 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-3ABE07789F9FF7EB";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-3ABE07789F9FF7EB' from 'report-read-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-3B83B5944AAEED5B";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-3B83B5944AAEED5B-context' {
+        part 'FU-MCP-SERVER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'ACT-AI-AGENT' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-3B83B5944AAEED5B' from 'FU-MCP-SERVER'.pOut to 'ACT-AI-AGENT'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-3BF7E97CEC16B15C";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-3BF7E97CEC16B15C-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-3BF7E97CEC16B15C' from 'ACT-GO-CONSUMER'.pOut to 'FU-SYSTEM-COMPOSITION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-3C616E2F830F96D0";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-3C616E2F830F96D0-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-3C616E2F830F96D0' from 'ACT-GO-CONSUMER'.pOut to 'FU-ALLOCATION-TRACE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-3E33EA7E80D13835";
         conceptKind = "succession";
         relationshipKind = "flow_next";
@@ -6175,11 +8158,32 @@ package 'engineering-model-go' {
     succession 'REL-3E33EA7E80D13835' first 'validate-requirements-candidate' then 'replace-requirements';
 
     @EngineeringRelationship {
+        sourceId = "REL-3E61C48482B21FDD";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-3E61C48482B21FDD' first 'load-bundle' then 'report-read-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-3F491E923AE40286";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-3F491E923AE40286' from 'FU-CLI-ORCHESTRATION' to 'IF-GO-PKG-MODEL';
+
+    @EngineeringRelationship {
         sourceId = "REL-41611DCF8363B2A8";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
     }
     dependency 'REL-41611DCF8363B2A8' from 'check-acceptance' to 'FU-ALLOCATION-TRACE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-4193FF7666525853";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-4193FF7666525853' from 'validate-trlc-requirements' to 'REF-TRLC-TOOLCHAIN';
 
     @EngineeringRelationship {
         sourceId = "REL-421CC0B05DC0502A";
@@ -6191,6 +8195,31 @@ package 'engineering-model-go' {
         part 'DO-MODEL-AUTHORING-CONTRACT' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-421CC0B05DC0502A' from 'FU-MCP-SERVER'.pOut to 'DO-MODEL-AUTHORING-CONTRACT'.pIn;
     }
+
+    @EngineeringRelationship {
+        sourceId = "REL-4222DFE5DE836EBA";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-4222DFE5DE836EBA-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-CUE-OCI-MODULE-REGISTRY' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-4222DFE5DE836EBA' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-CUE-OCI-MODULE-REGISTRY'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-430D193FBCBE3DF6";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-430D193FBCBE3DF6' from 'report-diagnostics' to 'ACT-IMPLEMENTATION-ENGINEER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-4369AB7B3F8A8623";
+        conceptKind = "dependency";
+        relationshipKind = "interacts_with";
+    }
+    dependency 'REL-4369AB7B3F8A8623' from 'ACT-CI-PIPELINE' to 'IF-CLI-ENGWS';
 
     @EngineeringRelationship {
         sourceId = "REL-43718C28B6D7F647";
@@ -6214,13 +8243,6 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-44F9EB024D1E3000";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
-    }
-    dependency 'REL-44F9EB024D1E3000' from 'FU-CODE-HEALTH' to 'FU-MODEL-LOADER';
-
-    @EngineeringRelationship {
         sourceId = "REL-4672CF188E6130EB";
         conceptKind = "succession";
         relationshipKind = "flow_next";
@@ -6228,11 +8250,43 @@ package 'engineering-model-go' {
     succession 'REL-4672CF188E6130EB' first 'generate-artifacts' then 'publish-artifacts';
 
     @EngineeringRelationship {
+        sourceId = "REL-46D9FA69B5CC6293";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-46D9FA69B5CC6293' from 'load-bundle' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
         sourceId = "REL-48089B20C8B08D3E";
         conceptKind = "succession";
         relationshipKind = "flow_next";
     }
     succession 'REL-48089B20C8B08D3E' first 'validate-model' then 'generate-artifacts';
+
+    @EngineeringRelationship {
+        sourceId = "REL-481EF666C80CE1FD";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-481EF666C80CE1FD-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-ASCIIDOC-GENERATOR' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-481EF666C80CE1FD' from 'FU-CLI-ORCHESTRATION'.pOut to 'FU-ASCIIDOC-GENERATOR'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-4950A3CAF0CD530C";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-4950A3CAF0CD530C' from 'render-view' to 'FU-VIEW-PROJECTION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-498D726E0596A60E";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-498D726E0596A60E' from 'export-trlc' to 'FU-TRLC-EXPORTER';
 
     @EngineeringRelationship {
         sourceId = "REL-49A4B6D2D8B373AD";
@@ -6278,11 +8332,25 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-4F88E063D8AB0F45";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-4F88E063D8AB0F45' from 'FU-CLI-ORCHESTRATION' to 'IF-GO-TOOLCHAIN-CLI';
+
+    @EngineeringRelationship {
         sourceId = "REL-4FF77277CA72D599";
         conceptKind = "engineering_extension";
         relationshipKind = "bounded_by";
     }
     dependency 'REL-4FF77277CA72D599' from 'FU-CODEMAP-INFERENCE' to 'TB-REPO-WORKSPACE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-50717B80A3DC822B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-50717B80A3DC822B' from 'evaluate-links' to 'FU-ALLOCATION-TRACE';
 
     @EngineeringRelationship {
         sourceId = "REL-51B543A60F0122B0";
@@ -6303,6 +8371,13 @@ package 'engineering-model-go' {
     succession 'REL-52FC381077B14D5A' first 'validate-requirements-candidate' then 'reject-requirements-delta';
 
     @EngineeringRelationship {
+        sourceId = "REL-532E71B5F81D0808";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-532E71B5F81D0808' from 'export-threat-model' to 'FU-THREAT-EXPORTER';
+
+    @EngineeringRelationship {
         sourceId = "REL-533FBA1058B9E95C";
         conceptKind = "succession";
         relationshipKind = "flow_next";
@@ -6310,11 +8385,26 @@ package 'engineering-model-go' {
     succession 'REL-533FBA1058B9E95C' first 'check-acceptance' then 'record-acceptance';
 
     @EngineeringRelationship {
-        sourceId = "REL-53DF7944D31ADC40";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-55210F3A44A05C37";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
     }
-    dependency 'REL-53DF7944D31ADC40' from 'FU-NAF-EXPORTER' to 'REF-NAF-V4-1-SPECIFICATION';
+    part def 'REL-55210F3A44A05C37-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODE-HEALTH' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-55210F3A44A05C37' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CODE-HEALTH'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-55A11120E221CC32";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-55A11120E221CC32-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-55A11120E221CC32' from 'ACT-GO-CONSUMER'.pOut to 'FU-ALLOCATION-TRACE'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-55FCE3068F28156D";
@@ -6337,11 +8427,44 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-582D7DDAB1367C4D";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-5798E86F25BE11B0";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
     }
-    dependency 'REL-582D7DDAB1367C4D' from 'FU-SYSML-EXPORTER' to 'REF-SYSML-V2-TOOLCHAIN';
+    part def 'REL-5798E86F25BE11B0-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-NAF-V4-1-SPECIFICATION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-5798E86F25BE11B0' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-NAF-V4-1-SPECIFICATION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-58C483036497E0AA";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-58C483036497E0AA-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-LOBSTER-TOOLCHAIN' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-58C483036497E0AA' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-LOBSTER-TOOLCHAIN'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-5A5165690C6C09E7";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-5A5165690C6C09E7' first 'check-arguments' then 'answer-tool-call';
+
+    @EngineeringRelationship {
+        sourceId = "REL-5AA1BFBF2B743DFF";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-5AA1BFBF2B743DFF-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-5AA1BFBF2B743DFF' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-5AB925CA4BCA07AA";
@@ -6351,11 +8474,36 @@ package 'engineering-model-go' {
     dependency 'REL-5AB925CA4BCA07AA' from 'publish-artifacts' to 'FU-ASCIIDOC-GENERATOR';
 
     @EngineeringRelationship {
+        sourceId = "REL-5BC7DB8B7D4B6554";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-5BC7DB8B7D4B6554-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-SYSML-V2-TOOLCHAIN' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-5BC7DB8B7D4B6554' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-SYSML-V2-TOOLCHAIN'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-5C9C6EE212E4FD1D";
         conceptKind = "engineering_extension";
         relationshipKind = "mitigated_by";
     }
     dependency 'REL-5C9C6EE212E4FD1D' from 'AV-TRACEABILITY-GAP-DRIFT' to 'CTRL-TRACEABILITY-COVERAGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-5CDA342C5A721510";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-5CDA342C5A721510' from 'generate-quint' to 'FU-QUINT-EXPORTER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-5FACB84907792A6D";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-5FACB84907792A6D' first 'resolve-composition' then 'report-compose-error';
 
     @EngineeringRelationship {
         sourceId = "REL-6088122D54F9887C";
@@ -6365,18 +8513,62 @@ package 'engineering-model-go' {
     dependency 'REL-6088122D54F9887C' from 'AV-PATH-TRAVERSAL-IN-MCP' to 'FU-MCP-SERVER';
 
     @EngineeringRelationship {
-        sourceId = "REL-615C9FA64AC3816A";
-        conceptKind = "dependency";
-        relationshipKind = "interacts_with";
+        sourceId = "REL-6266E1D7DEA7407C";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
     }
-    dependency 'REL-615C9FA64AC3816A' from 'ACT-IMPLEMENTATION-ENGINEER' to 'FU-CLI-ORCHESTRATION';
+    part def 'REL-6266E1D7DEA7407C-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-6266E1D7DEA7407C' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
 
     @EngineeringRelationship {
-        sourceId = "REL-66C2DF83054D88C8";
-        conceptKind = "dependency";
-        relationshipKind = "interacts_with";
+        sourceId = "REL-634546C0F4B7F3E2";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
     }
-    dependency 'REL-66C2DF83054D88C8' from 'ACT-COMPLIANCE-ENGINEER' to 'FU-OSCAL-EXPORTER';
+    part def 'REL-634546C0F4B7F3E2-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-STRUCTURIZR-VALIDATOR' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-634546C0F4B7F3E2' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-STRUCTURIZR-VALIDATOR'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-63548E120F521F86";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-63548E120F521F86' from 'FU-STRUCTURIZR-EXPORTER' to 'IF-STRUCTURIZR-VALIDATOR-CLI';
+
+    @EngineeringRelationship {
+        sourceId = "REL-6397B7893EDBF37A";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-6397B7893EDBF37A' from 'FU-CODE-HEALTH' to 'IF-GO-PKG-VALIDATE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-65A619BB6D50001B";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-65A619BB6D50001B-context' {
+        part 'ACT-AI-AGENT' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MCP-SERVER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-65A619BB6D50001B' from 'ACT-AI-AGENT'.pOut to 'FU-MCP-SERVER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-6767D40D828449DC";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-6767D40D828449DC-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-6767D40D828449DC' from 'ACT-GO-CONSUMER'.pOut to 'FU-VALIDATION-ENGINE'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-67DABE324CA82BF6";
@@ -6397,11 +8589,51 @@ package 'engineering-model-go' {
     dependency 'REL-68040CE5FF37711F' from 'generate-artifacts' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
-        sourceId = "REL-6B0FD95359778099";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-69700BF9D662FF2B";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
     }
-    dependency 'REL-6B0FD95359778099' from 'FU-CLI-ORCHESTRATION' to 'FU-ASCIIDOC-GENERATOR';
+    part def 'REL-69700BF9D662FF2B-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-69700BF9D662FF2B' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CLI-ORCHESTRATION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-6A3EAD185E8D8B8D";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-6A3EAD185E8D8B8D' from 'export-structurizr' to 'FU-STRUCTURIZR-EXPORTER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-6A98364424CCC18B";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-6A98364424CCC18B-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-6A98364424CCC18B' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-6BB08983CB2D26BE";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-6BB08983CB2D26BE-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-GEMARA-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-6BB08983CB2D26BE' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-GEMARA-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-6DC3124981EB6EC3";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-6DC3124981EB6EC3' from 'read-link-users' to 'FU-SYSTEM-COMPOSITION';
 
     @EngineeringRelationship {
         sourceId = "REL-6E736D47074A3CEA";
@@ -6411,6 +8643,52 @@ package 'engineering-model-go' {
     dependency 'REL-6E736D47074A3CEA' from 'FU-TRLC-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
 
     @EngineeringRelationship {
+        sourceId = "REL-6FB8A1A277A4226F";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-6FB8A1A277A4226F' from 'answer-tool-call' to 'FU-MCP-SERVER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-70E825830E52EB2D";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-70E825830E52EB2D' from 'validate-structurizr-dsl' to 'REF-STRUCTURIZR-VALIDATOR';
+
+    @EngineeringRelationship {
+        sourceId = "REL-70F91974FAD54ECD";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-70F91974FAD54ECD' from 'render-spec-delta' to 'FU-MODEL-CHANGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-713E0CF28CD1FFDE";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-713E0CF28CD1FFDE-context' {
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-MODEL-DIAGNOSTICS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-713E0CF28CD1FFDE' from 'FU-VALIDATION-ENGINE'.pOut to 'DO-MODEL-DIAGNOSTICS'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-738E6C1177C2768B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-738E6C1177C2768B' from 'list-code-declarations' to 'FU-CODEMAP-INFERENCE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-75A662BE19BB539C";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-75A662BE19BB539C' from 'use-validate-package' to 'FU-VALIDATION-ENGINE';
+
+    @EngineeringRelationship {
         sourceId = "REL-7AA33DA291EB7A90";
         conceptKind = "succession";
         relationshipKind = "flow_error";
@@ -6418,11 +8696,22 @@ package 'engineering-model-go' {
     succession 'REL-7AA33DA291EB7A90' first 'check-acceptance' then 'refuse-acceptance';
 
     @EngineeringRelationship {
-        sourceId = "REL-7C6B59DFA5F97922";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-7B08FBE9D1D21732";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
     }
-    dependency 'REL-7C6B59DFA5F97922' from 'FU-CLI-ORCHESTRATION' to 'FU-VALIDATION-ENGINE';
+    part def 'REL-7B08FBE9D1D21732-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-7B08FBE9D1D21732' from 'FU-CLI-ORCHESTRATION'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-7BBF8236DF9DBC62";
+        conceptKind = "dependency";
+        relationshipKind = "interacts_with";
+    }
+    dependency 'REL-7BBF8236DF9DBC62' from 'ACT-AI-AGENT' to 'IF-CLI-ENGMCP';
 
     @EngineeringRelationship {
         sourceId = "REL-7CF609209E449D9B";
@@ -6436,6 +8725,13 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-7D44D94B6EF6762F";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-7D44D94B6EF6762F' from 'change-requirements' to 'FU-MODEL-CHANGE';
+
+    @EngineeringRelationship {
         sourceId = "REL-7E42BC15F9A9B753";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -6443,11 +8739,40 @@ package 'engineering-model-go' {
     dependency 'REL-7E42BC15F9A9B753' from 'validate-requirements-candidate' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
-        sourceId = "REL-7F0E9B510AB315EA";
-        conceptKind = "dependency";
-        relationshipKind = "interacts_with";
+        sourceId = "REL-7E90D37FDE60B6B3";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
     }
-    dependency 'REL-7F0E9B510AB315EA' from 'ACT-AI-AGENT' to 'FU-MCP-SERVER';
+    part def 'REL-7E90D37FDE60B6B3-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-7E90D37FDE60B6B3' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-7F2ACBFC5DD96F41";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-7F2ACBFC5DD96F41' from 'FU-CLI-ORCHESTRATION' to 'IF-GO-PKG-VALIDATE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-7F4FF33B8F2A48D4";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-7F4FF33B8F2A48D4-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-OSCAL-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-7F4FF33B8F2A48D4' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-OSCAL-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-7FC6ACA34A1D4B0B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-7FC6ACA34A1D4B0B' from 'load-revision-bundle' to 'FU-MODEL-LOADER';
 
     @EngineeringRelationship {
         sourceId = "REL-804292F70AB37E87";
@@ -6458,6 +8783,24 @@ package 'engineering-model-go' {
         part 'FU-STRUCTURIZR-EXPORTER' : EngineeringPart { port pOut : EngineeringPort; }
         part 'DO-STRUCTURIZR-DSL' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-804292F70AB37E87' from 'FU-STRUCTURIZR-EXPORTER'.pOut to 'DO-STRUCTURIZR-DSL'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-8191215394AB99FE";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-8191215394AB99FE' from 'FU-CODE-HEALTH' to 'IF-GO-PKG-MODEL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-820C914F7AC0A052";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-820C914F7AC0A052-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-820C914F7AC0A052' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
     }
 
     @EngineeringRelationship {
@@ -6472,11 +8815,11 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-8359402B3B322449";
+        sourceId = "REL-856D81FC0978FCFE";
         conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        relationshipKind = "flow_ref";
     }
-    dependency 'REL-8359402B3B322449' from 'FU-CLI-ORCHESTRATION' to 'FU-MODEL-LOADER';
+    dependency 'REL-856D81FC0978FCFE' from 'resolve-composition' to 'FU-SYSTEM-COMPOSITION';
 
     @EngineeringRelationship {
         sourceId = "REL-85CEE36056EB8CFE";
@@ -6496,11 +8839,65 @@ package 'engineering-model-go' {
     dependency 'REL-85EF5D66A73D662E' from 'evaluate-bumped-links' to 'FU-ALLOCATION-TRACE';
 
     @EngineeringRelationship {
+        sourceId = "REL-87B33A684571DE03";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-87B33A684571DE03-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-THREAT-DRAGON-SCHEMAS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-87B33A684571DE03' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-THREAT-DRAGON-SCHEMAS'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-87FACDBCF0AE0B59";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-87FACDBCF0AE0B59-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-TRLC-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-87FACDBCF0AE0B59' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-TRLC-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-897E676167BD1BFC";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-897E676167BD1BFC' from 'run-go-toolchain' to 'REF-GO-TOOLCHAIN';
+
+    @EngineeringRelationship {
         sourceId = "REL-8AAA646D9D1CF563";
         conceptKind = "succession";
         relationshipKind = "flow_error";
     }
     succession 'REL-8AAA646D9D1CF563' first 'repin-unchanged-links' then 'restore-bump-files';
+
+    @EngineeringRelationship {
+        sourceId = "REL-8AAE559505304059";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-8AAE559505304059-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-THREAT-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-8AAE559505304059' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-THREAT-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-8AB7D2169599E20D";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-8AB7D2169599E20D' from 'report-lookup-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-8BB29CF5893C4459";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-8BB29CF5893C4459' from 'read-contract-items' to 'FU-ALLOCATION-TRACE';
 
     @EngineeringRelationship {
         sourceId = "REL-8DBF533D769DA3FA";
@@ -6513,6 +8910,45 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-8F1D0CB2372B14FE";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-8F1D0CB2372B14FE' from 'FU-TRLC-EXPORTER' to 'IF-TRLC-CLI';
+
+    @EngineeringRelationship {
+        sourceId = "REL-8F3FA3AC53ADA030";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-8F3FA3AC53ADA030' from 'build-entity-index' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-8F5B9168F505B35E";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-8F5B9168F505B35E' first 'load-bundle' then 'validate-bundle';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9077B99D34261DD7";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-9077B99D34261DD7-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-CHANGE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-9077B99D34261DD7' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-MODEL-CHANGE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-90BB8B99F802EF26";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-90BB8B99F802EF26' first 'build-trace-matrix' then 'read-catalog-usage';
+
+    @EngineeringRelationship {
         sourceId = "REL-91335AEB5E1C9FD0";
         conceptKind = "verification";
         relationshipKind = "verifies";
@@ -6523,11 +8959,76 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-9193754A0A36B23E";
+        sourceId = "REL-920398A2D7C83CDF";
         conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        relationshipKind = "flow_ref";
     }
-    dependency 'REL-9193754A0A36B23E' from 'FU-CODE-HEALTH' to 'FU-VALIDATION-ENGINE';
+    dependency 'REL-920398A2D7C83CDF' from 'run-sysml-toolchain' to 'REF-SYSML-V2-TOOLCHAIN';
+
+    @EngineeringRelationship {
+        sourceId = "REL-922DA5C0DAAED471";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-922DA5C0DAAED471' from 'build-revision-index' to 'FU-MODEL-LOADER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9324F12C9D8897B5";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-9324F12C9D8897B5' from 'check-arguments' to 'FU-MCP-SERVER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-94C863DC9C8E6F36";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-94C863DC9C8E6F36-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-94C863DC9C8E6F36' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CLI-ORCHESTRATION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-963A91E39B44808C";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-963A91E39B44808C-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-963A91E39B44808C' from 'ACT-GO-CONSUMER'.pOut to 'FU-VALIDATION-ENGINE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-9697284A30CD5C9D";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-9697284A30CD5C9D-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSML-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-9697284A30CD5C9D' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-SYSML-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-96AC4B4024486D41";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-96AC4B4024486D41-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-STRUCTURIZR-EXPORTER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-96AC4B4024486D41' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-STRUCTURIZR-EXPORTER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-96DDBB628BF50A2D";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-96DDBB628BF50A2D' from 'stage-workspace' to 'FU-SYSTEM-COMPOSITION';
 
     @EngineeringRelationship {
         sourceId = "REL-99640AD91A774667";
@@ -6537,6 +9038,45 @@ package 'engineering-model-go' {
     dependency 'REL-99640AD91A774667' from 'AV-SCHEMA-SUPPLY-CHAIN-TAMPER' to 'REF-OPEN-OTM-SCHEMA';
 
     @EngineeringRelationship {
+        sourceId = "REL-9C5C86A2F8E38C86";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-9C5C86A2F8E38C86' first 'load-revision-bundle' then 'build-revision-index';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9C6D0D0EED80D75E";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-9C6D0D0EED80D75E-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-CHANGE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-9C6D0D0EED80D75E' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-MODEL-CHANGE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-9CD349998835F2C0";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-9CD349998835F2C0' first 'build-entity-index' then 'report-read-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9D94DC74E173ED32";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-9D94DC74E173ED32' from 'FU-MCP-SERVER' to 'IF-GO-PKG-MODEL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-9F5AB27C35C483CA";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-9F5AB27C35C483CA' from 'scan-source-files' to 'FU-CODE-HEALTH';
+
+    @EngineeringRelationship {
         sourceId = "REL-9F9D0BFE4684AB66";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -6544,11 +9084,18 @@ package 'engineering-model-go' {
     dependency 'REL-9F9D0BFE4684AB66' from 'repin-unchanged-links' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
-        sourceId = "REL-A02740CF7074A233";
+        sourceId = "REL-9FDCC2E669977EAB";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
     }
-    dependency 'REL-A02740CF7074A233' from 'FU-THREAT-EXPORTER' to 'REF-THREAT-DRAGON-SCHEMAS';
+    dependency 'REL-9FDCC2E669977EAB' from 'FU-QUINT-EXPORTER' to 'IF-GO-PKG-VALIDATE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-A1D6C65D0413236F";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-A1D6C65D0413236F' first 'project-composition' then 'read-contract-items';
 
     @EngineeringRelationship {
         sourceId = "REL-A37383B5AD1D4C19";
@@ -6559,6 +9106,17 @@ package 'engineering-model-go' {
         part 'FU-MCP-SERVER' : EngineeringPart;
         part 'DEP-LOCAL-WORKSPACE' : EngineeringPart;
         allocation 'REL-A37383B5AD1D4C19' allocate 'FU-MCP-SERVER' to 'DEP-LOCAL-WORKSPACE';
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-A3E2C2D0AF9F72E2";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-A3E2C2D0AF9F72E2-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-A3E2C2D0AF9F72E2' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-VALIDATION-ENGINE'.pIn;
     }
 
     @EngineeringRelationship {
@@ -6579,6 +9137,20 @@ package 'engineering-model-go' {
     dependency 'REL-A6BE9BBEB4A2E9CD' from 'AV-TRACEABILITY-GAP-DRIFT' to 'FU-CODEMAP-INFERENCE';
 
     @EngineeringRelationship {
+        sourceId = "REL-A75632CE26B6E82D";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-A75632CE26B6E82D' from 'validate-open-otm-json' to 'REF-OPEN-OTM-SCHEMA';
+
+    @EngineeringRelationship {
+        sourceId = "REL-A9950AEF3A8475F5";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-A9950AEF3A8475F5' from 'export-naf' to 'FU-NAF-EXPORTER';
+
+    @EngineeringRelationship {
         sourceId = "REL-A9A59951D996EDE9";
         conceptKind = "verification";
         relationshipKind = "verifies";
@@ -6589,18 +9161,79 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
-        sourceId = "REL-A9A6ADD0BC7DA4E2";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
+        sourceId = "REL-AA8248FE3ADE9920";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
     }
-    dependency 'REL-A9A6ADD0BC7DA4E2' from 'FU-MCP-SERVER' to 'FU-VALIDATION-ENGINE';
+    part def 'REL-AA8248FE3ADE9920-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-AA8248FE3ADE9920' from 'ACT-GO-CONSUMER'.pOut to 'FU-CODEMAP-INFERENCE'.pIn;
+    }
 
     @EngineeringRelationship {
-        sourceId = "REL-B1CEFDE3267D1A07";
+        sourceId = "REL-AAD03EA37A7B64B4";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-AAD03EA37A7B64B4' first 'load-model-documents' then 'check-model';
+
+    @EngineeringRelationship {
+        sourceId = "REL-AC00E9E54AAFA629";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-AC00E9E54AAFA629-context' {
+        part 'ACT-AI-AGENT' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MCP-SERVER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-AC00E9E54AAFA629' from 'ACT-AI-AGENT'.pOut to 'FU-MCP-SERVER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-ADF6383D960E165F";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-ADF6383D960E165F' first 'check-arguments' then 'reject-tool-call';
+
+    @EngineeringRelationship {
+        sourceId = "REL-AE954CD892426D4C";
         conceptKind = "dependency";
         relationshipKind = "depends_on";
     }
-    dependency 'REL-B1CEFDE3267D1A07' from 'FU-MCP-SERVER' to 'FU-MODEL-LOADER';
+    dependency 'REL-AE954CD892426D4C' from 'FU-LOBSTER-EXPORTER' to 'IF-LOBSTER-CLI';
+
+    @EngineeringRelationship {
+        sourceId = "REL-AF3CD7EE3815A978";
+        conceptKind = "dependency";
+        relationshipKind = "interacts_with";
+    }
+    dependency 'REL-AF3CD7EE3815A978' from 'ACT-GO-CONSUMER' to 'IF-GO-MODEL-LOADING';
+
+    @EngineeringRelationship {
+        sourceId = "REL-B0B7B4867073E4C4";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-B0B7B4867073E4C4' from 'sync-workspace' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-B11D3E9513DA103C";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-B11D3E9513DA103C-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-GO-TOOLCHAIN' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-B11D3E9513DA103C' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-GO-TOOLCHAIN'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-B16372E0B582D851";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-B16372E0B582D851' from 'FU-THREAT-EXPORTER' to 'IF-THREAT-DRAGON-SCHEMA';
 
     @EngineeringRelationship {
         sourceId = "REL-B2CC49678F3F7718";
@@ -6608,6 +9241,31 @@ package 'engineering-model-go' {
         relationshipKind = "targets";
     }
     dependency 'REL-B2CC49678F3F7718' from 'AV-SCHEMA-SUPPLY-CHAIN-TAMPER' to 'REF-THREAT-DRAGON-SCHEMAS';
+
+    @EngineeringRelationship {
+        sourceId = "REL-B2EFDF38C57C2F73";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-B2EFDF38C57C2F73' from 'FU-MODEL-CHANGE' to 'IF-GO-PKG-MODEL';
+
+    @EngineeringRelationship {
+        sourceId = "REL-B3891C1C3E8D43C6";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-B3891C1C3E8D43C6' from 'reject-tool-call' to 'ACT-AI-AGENT';
+
+    @EngineeringRelationship {
+        sourceId = "REL-B494764EAB82A9A6";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-B494764EAB82A9A6-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'REF-TRLC-TOOLCHAIN' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-B494764EAB82A9A6' from 'FU-CLI-ORCHESTRATION'.pOut to 'REF-TRLC-TOOLCHAIN'.pIn;
+    }
 
     @EngineeringRelationship {
         sourceId = "REL-B5AC617E2209835F";
@@ -6624,11 +9282,90 @@ package 'engineering-model-go' {
     succession 'REL-B83795AEC231AF42' first 'load-requirements-delta' then 'merge-requirements-candidate';
 
     @EngineeringRelationship {
+        sourceId = "REL-BBA33199A4C8CFB7";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-BBA33199A4C8CFB7' from 'follow-naf-specification' to 'REF-NAF-V4-1-SPECIFICATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-BCC37ED62AFC61C9";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-BCC37ED62AFC61C9' from 'report-load-error' to 'ACT-IMPLEMENTATION-ENGINEER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-BDC19F87FD2E2059";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-BDC19F87FD2E2059-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-VIEW-PROJECTION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-BDC19F87FD2E2059' from 'FU-CLI-ORCHESTRATION'.pOut to 'FU-VIEW-PROJECTION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-BDF284DD6BA15598";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-BDF284DD6BA15598' from 'receive-tool-call' to 'FU-MCP-SERVER';
+
+    @EngineeringRelationship {
         sourceId = "REL-BDFCE1037DF5E841";
         conceptKind = "engineering_extension";
         relationshipKind = "mitigated_by";
     }
     dependency 'REL-BDFCE1037DF5E841' from 'AV-PATH-TRAVERSAL-IN-MCP' to 'CTRL-MCP-PATH-BOUNDARY';
+
+    @EngineeringRelationship {
+        sourceId = "REL-BE1A0668BDFA5864";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-BE1A0668BDFA5864' from 'FU-CODE-HEALTH' to 'IF-GO-PKG-CODEMAP';
+
+    @EngineeringRelationship {
+        sourceId = "REL-BE85E2DD5CCC7ACC";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-BE85E2DD5CCC7ACC-context' {
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-MODEL-BUNDLE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-BE85E2DD5CCC7ACC' from 'FU-MODEL-LOADER'.pOut to 'DO-MODEL-BUNDLE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-BEFDBFFB53DAE33C";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-BEFDBFFB53DAE33C-context' {
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-COMPOSITION-RESULT' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-BEFDBFFB53DAE33C' from 'FU-SYSTEM-COMPOSITION'.pOut to 'DO-COMPOSITION-RESULT'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-C03B4C6D659C65D8";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-C03B4C6D659C65D8-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-SYSTEM-COMPOSITION' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-C03B4C6D659C65D8' from 'ACT-GO-CONSUMER'.pOut to 'FU-SYSTEM-COMPOSITION'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-C0CF33F1533EABD9";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C0CF33F1533EABD9' from 'validate-bundle' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
         sourceId = "REL-C139691071B5EBB7";
@@ -6648,6 +9385,13 @@ package 'engineering-model-go' {
     dependency 'REL-C14D1E0A5A7D260D' from 'FU-THREAT-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
 
     @EngineeringRelationship {
+        sourceId = "REL-C48A8A24A12E264C";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C48A8A24A12E264C' from 'write-trace-matrix' to 'FU-ALLOCATION-TRACE';
+
+    @EngineeringRelationship {
         sourceId = "REL-C5462A84B5B762E0";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
@@ -6655,11 +9399,64 @@ package 'engineering-model-go' {
     dependency 'REL-C5462A84B5B762E0' from 'restore-bump-files' to 'FU-CLI-ORCHESTRATION';
 
     @EngineeringRelationship {
-        sourceId = "REL-C9FD7D7F73C1C297";
+        sourceId = "REL-C5498672EF1DE974";
         conceptKind = "dependency";
-        relationshipKind = "interacts_with";
+        relationshipKind = "flow_ref";
     }
-    dependency 'REL-C9FD7D7F73C1C297' from 'ACT-ARCHITECTURE-AUTHOR' to 'FU-CLI-ORCHESTRATION';
+    dependency 'REL-C5498672EF1DE974' from 'fetch-model-module' to 'REF-CUE-OCI-MODULE-REGISTRY';
+
+    @EngineeringRelationship {
+        sourceId = "REL-C5AC35827043841F";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C5AC35827043841F' from 'use-asciidoc-package' to 'FU-ASCIIDOC-GENERATOR';
+
+    @EngineeringRelationship {
+        sourceId = "REL-C62A85D540883BE3";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C62A85D540883BE3' from 'project-composition' to 'FU-SYSTEM-COMPOSITION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-C636B2A21252BAC9";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-C636B2A21252BAC9' from 'FU-MCP-SERVER' to 'IF-GO-PKG-VALIDATE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-C65835E800D67BB5";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-C65835E800D67BB5' first 'diff-models' then 'report-compare-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-C6ED2BB9761294BD";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-C6ED2BB9761294BD-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-C6ED2BB9761294BD' from 'ACT-GO-CONSUMER'.pOut to 'FU-CODEMAP-INFERENCE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-C8097D73FB3EBA31";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C8097D73FB3EBA31' from 'validate-examples' to 'FU-CLI-ORCHESTRATION';
+
+    @EngineeringRelationship {
+        sourceId = "REL-C8874D6A54D3D0F7";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-C8874D6A54D3D0F7' from 'check-model' to 'FU-VALIDATION-ENGINE';
 
     @EngineeringRelationship {
         sourceId = "REL-CBB97983472F3FF7";
@@ -6680,6 +9477,24 @@ package 'engineering-model-go' {
     dependency 'REL-CC26ADB229638ACA' from 'FU-STRUCTURIZR-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
 
     @EngineeringRelationship {
+        sourceId = "REL-CD3ACF2E912142F1";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-CD3ACF2E912142F1-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-CD3ACF2E912142F1' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-CDECA2ECF33FC75F";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-CDECA2ECF33FC75F' first 'evaluate-links' then 'read-link-users';
+
+    @EngineeringRelationship {
         sourceId = "REL-CDF33573A9ECBCE7";
         conceptKind = "succession";
         relationshipKind = "flow_next";
@@ -6698,6 +9513,31 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-CE8DE4F1FA36CA71";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-CE8DE4F1FA36CA71' from 'validate-threat-dragon-json' to 'REF-THREAT-DRAGON-SCHEMAS';
+
+    @EngineeringRelationship {
+        sourceId = "REL-CF490754BA1ECD75";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-CF490754BA1ECD75' from 'export-oscal' to 'FU-OSCAL-EXPORTER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-D275B775291609BD";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-D275B775291609BD-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-VALIDATION-ENGINE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-D275B775291609BD' from 'FU-CLI-ORCHESTRATION'.pOut to 'FU-VALIDATION-ENGINE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-D2DF2108EF6F792E";
         conceptKind = "transfer";
         relationshipKind = "writes";
@@ -6709,6 +9549,49 @@ package 'engineering-model-go' {
     }
 
     @EngineeringRelationship {
+        sourceId = "REL-D4C17022C0A374CC";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-D4C17022C0A374CC-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-D4C17022C0A374CC' from 'ACT-GO-CONSUMER'.pOut to 'FU-ALLOCATION-TRACE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-D55F6D5C9FA6F5C2";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-D55F6D5C9FA6F5C2' from 'export-lobster' to 'FU-LOBSTER-EXPORTER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-D6630064D6DB8AB4";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-D6630064D6DB8AB4' first 'load-revision-bundle' then 'report-compare-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-D7BE133C49C26EBF";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-D7BE133C49C26EBF' from 'report-compose-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-D9322F70BF03059A";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-D9322F70BF03059A-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-D9322F70BF03059A' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-ALLOCATION-TRACE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-DA53286A42297199";
         conceptKind = "transfer";
         relationshipKind = "writes";
@@ -6717,6 +9600,31 @@ package 'engineering-model-go' {
         part 'FU-MODEL-CHANGE' : EngineeringPart { port pOut : EngineeringPort; }
         part 'DO-REQUIREMENTS-DOCUMENT' : EngineeringPart { port pIn : EngineeringPort; }
         flow 'REL-DA53286A42297199' from 'FU-MODEL-CHANGE'.pOut to 'DO-REQUIREMENTS-DOCUMENT'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-DC6460FC5BE9218B";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-DC6460FC5BE9218B' from 'report-compare-error' to 'ACT-GO-CONSUMER';
+
+    @EngineeringRelationship {
+        sourceId = "REL-DF94F9A8117C885D";
+        conceptKind = "dependency";
+        relationshipKind = "flow_ref";
+    }
+    dependency 'REL-DF94F9A8117C885D' from 'check-changed-files' to 'FU-CODE-HEALTH';
+
+    @EngineeringRelationship {
+        sourceId = "REL-E2206AEE7E2B4601";
+        conceptKind = "transfer";
+        relationshipKind = "writes";
+    }
+    part def 'REL-E2206AEE7E2B4601-context' {
+        part 'FU-ALLOCATION-TRACE' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'DO-REQUIREMENT-LINK-STATUS' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-E2206AEE7E2B4601' from 'FU-ALLOCATION-TRACE'.pOut to 'DO-REQUIREMENT-LINK-STATUS'.pIn;
     }
 
     @EngineeringRelationship {
@@ -6734,13 +9642,6 @@ package 'engineering-model-go' {
     dependency 'REL-E75B93B894A74F66' from 'show-links' to 'FU-ALLOCATION-TRACE';
 
     @EngineeringRelationship {
-        sourceId = "REL-E842157F9969B70A";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
-    }
-    dependency 'REL-E842157F9969B70A' from 'FU-CODE-HEALTH' to 'FU-CODEMAP-INFERENCE';
-
-    @EngineeringRelationship {
         sourceId = "REL-EC073BE26257DD9C";
         conceptKind = "dependency";
         relationshipKind = "targets";
@@ -6755,11 +9656,90 @@ package 'engineering-model-go' {
     dependency 'REL-EC535616F6927588' from 'reject-requirements-delta' to 'FU-MODEL-CHANGE';
 
     @EngineeringRelationship {
+        sourceId = "REL-ED50DCDD2CDDA4CC";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-ED50DCDD2CDDA4CC' first 'resolve-composition' then 'project-composition';
+
+    @EngineeringRelationship {
+        sourceId = "REL-EEB2310398E1F6F2";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-EEB2310398E1F6F2' from 'FU-THREAT-EXPORTER' to 'IF-OPEN-OTM-SCHEMA';
+
+    @EngineeringRelationship {
+        sourceId = "REL-F07739924C16D681";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-F07739924C16D681-context' {
+        part 'ACT-IMPLEMENTATION-ENGINEER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODE-HEALTH' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-F07739924C16D681' from 'ACT-IMPLEMENTATION-ENGINEER'.pOut to 'FU-CODE-HEALTH'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-F0949ABAE71087CA";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-F0949ABAE71087CA-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-F0949ABAE71087CA' from 'ACT-GO-CONSUMER'.pOut to 'FU-CODEMAP-INFERENCE'.pIn;
+    }
+
+    @EngineeringRelationship {
         sourceId = "REL-F0B53FC843714C96";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
     }
     dependency 'REL-F0B53FC843714C96' from 'replace-requirements' to 'FU-MODEL-CHANGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-F1CF1EDC0DE83F95";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-F1CF1EDC0DE83F95' from 'FU-CLI-ORCHESTRATION' to 'IF-GO-PKG-ASCIIDOC';
+
+    @EngineeringRelationship {
+        sourceId = "REL-F2CDDDE95F7FA7A4";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-F2CDDDE95F7FA7A4' first 'read-catalog-usage' then 'report-read-error';
+
+    @EngineeringRelationship {
+        sourceId = "REL-F65E45C55B502A3B";
+        conceptKind = "transfer";
+        relationshipKind = "step_transfer";
+    }
+    part def 'REL-F65E45C55B502A3B-context' {
+        part 'FU-CLI-ORCHESTRATION' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-CODEMAP-INFERENCE' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-F65E45C55B502A3B' from 'FU-CLI-ORCHESTRATION'.pOut to 'FU-CODEMAP-INFERENCE'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-F6755F20C9C373AD";
+        conceptKind = "transfer";
+        relationshipKind = "flow_transfer";
+    }
+    part def 'REL-F6755F20C9C373AD-context' {
+        part 'ACT-GO-CONSUMER' : EngineeringPart { port pOut : EngineeringPort; }
+        part 'FU-MODEL-LOADER' : EngineeringPart { port pIn : EngineeringPort; }
+        flow 'REL-F6755F20C9C373AD' from 'ACT-GO-CONSUMER'.pOut to 'FU-MODEL-LOADER'.pIn;
+    }
+
+    @EngineeringRelationship {
+        sourceId = "REL-F72B93D004A28E74";
+        conceptKind = "dependency";
+        relationshipKind = "depends_on";
+    }
+    dependency 'REL-F72B93D004A28E74' from 'FU-NAF-EXPORTER' to 'IF-NAF-V4-1-SPECIFICATION';
 
     @EngineeringRelationship {
         sourceId = "REL-F808BADA7946F75D";
@@ -6776,18 +9756,25 @@ package 'engineering-model-go' {
     dependency 'REL-FB6988A6DDD6C7A0' from 'FU-SYSML-EXPORTER' to 'TB-EXTERNAL-VALIDATION-TOOLS';
 
     @EngineeringRelationship {
-        sourceId = "REL-FCE9D28483B45994";
-        conceptKind = "dependency";
-        relationshipKind = "depends_on";
-    }
-    dependency 'REL-FCE9D28483B45994' from 'FU-NAF-EXPORTER' to 'FU-VIEW-PROJECTION';
-
-    @EngineeringRelationship {
         sourceId = "REL-FE0645A36FB72976";
         conceptKind = "dependency";
         relationshipKind = "flow_ref";
     }
     dependency 'REL-FE0645A36FB72976' from 'merge-requirements-candidate' to 'FU-MODEL-CHANGE';
+
+    @EngineeringRelationship {
+        sourceId = "REL-FEA11A0D9DA02EC2";
+        conceptKind = "succession";
+        relationshipKind = "flow_next";
+    }
+    succession 'REL-FEA11A0D9DA02EC2' first 'build-entity-index' then 'build-trace-matrix';
+
+    @EngineeringRelationship {
+        sourceId = "REL-FF1F7D29C3448C73";
+        conceptKind = "succession";
+        relationshipKind = "flow_error";
+    }
+    succession 'REL-FF1F7D29C3448C73' first 'build-trace-matrix' then 'report-read-error';
 
     @EngineeringRelationship {
         sourceId = "REL-FFE6760421FF8D31";

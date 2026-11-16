@@ -60,15 +60,7 @@ func pythonUnit(c *fileCtx, n *sitter.Node) (unitInfo, bool) {
 		return unitInfo{}, false
 	}
 	if n.Kind() == "lambda" {
-		parent := n.Parent()
-		if parent == nil || parent.Kind() != "assignment" || !isFieldOf(n, "right") {
-			return unitInfo{}, false
-		}
-		left := parent.ChildByFieldName("left")
-		if left == nil || left.Kind() != "identifier" {
-			return unitInfo{}, false
-		}
-		return unitInfo{name: text(left, c.src), kind: "function", body: body}, true
+		return pythonLambdaUnit(c, n, body)
 	}
 	kind := "function"
 	if pythonInClass(n) {
@@ -80,6 +72,21 @@ func pythonUnit(c *fileCtx, n *sitter.Node) (unitInfo, bool) {
 	}, true
 }
 
+// pythonLambdaUnit names a lambda that is assigned to a variable; any other
+// lambda counts toward its enclosing function.
+// TRLC-LINKS: REQ-EMG-150
+func pythonLambdaUnit(c *fileCtx, n, body *sitter.Node) (unitInfo, bool) {
+	parent := n.Parent()
+	if parent == nil || parent.Kind() != "assignment" || !isFieldOf(n, "right") {
+		return unitInfo{}, false
+	}
+	left := parent.ChildByFieldName("left")
+	if left == nil || left.Kind() != "identifier" {
+		return unitInfo{}, false
+	}
+	return unitInfo{name: text(left, c.src), kind: "function", body: body}, true
+}
+
 // pythonInClass reports whether a function is defined directly in a class body.
 // TRLC-LINKS: REQ-EMG-150
 func pythonInClass(n *sitter.Node) bool {
@@ -87,7 +94,11 @@ func pythonInClass(n *sitter.Node) bool {
 	if parent != nil && parent.Kind() == "decorated_definition" {
 		parent = parent.Parent()
 	}
-	return parent != nil && parent.Kind() == "block" && parent.Parent() != nil && parent.Parent().Kind() == "class_definition"
+	if parent == nil || parent.Kind() != "block" {
+		return false
+	}
+	owner := parent.Parent()
+	return owner != nil && owner.Kind() == "class_definition"
 }
 
 var pythonComprehensions = map[string]bool{
@@ -114,11 +125,12 @@ func pythonWildcardCase(c *fileCtx, n *sitter.Node) bool {
 	}
 	patterns := 0
 	for _, child := range namedChildren(n) {
-		if child.Kind() == "case_pattern" {
-			patterns++
-			if strings.TrimSpace(text(child, c.src)) != "_" {
-				return false
-			}
+		if child.Kind() != "case_pattern" {
+			continue
+		}
+		patterns++
+		if strings.TrimSpace(text(child, c.src)) != "_" {
+			return false
 		}
 	}
 	return patterns == 1
@@ -137,42 +149,67 @@ func pythonParams(c *fileCtx, n *sitter.Node, method bool) paramStats {
 		return ps
 	}
 	for i, param := range namedChildren(list) {
-		kind := param.Kind()
-		if kind == "keyword_separator" || kind == "positional_separator" {
+		if isPythonSeparator(param) {
 			continue
 		}
 		if i == 0 && method && pythonReceiver(c, param) {
 			continue
 		}
-		ps.count++
-		if kind != "typed_parameter" && kind != "typed_default_parameter" {
-			continue
-		}
-		ps.annotated = true
-		if param.NamedChild(0) != nil && (param.NamedChild(0).Kind() == "list_splat_pattern" || param.NamedChild(0).Kind() == "dictionary_splat_pattern") {
-			continue
-		}
-		if pythonPrimitiveTypes[strings.TrimSpace(text(param.ChildByFieldName("type"), c.src))] {
-			ps.primitive++
-		}
+		ps.addPythonParam(c, param)
 	}
 	return ps
 }
 
+// isPythonSeparator reports the separators * and / of a parameter list.
+// TRLC-LINKS: REQ-EMG-150
+func isPythonSeparator(param *sitter.Node) bool {
+	kind := param.Kind()
+	return kind == "keyword_separator" || kind == "positional_separator"
+}
+
+// addPythonParam counts one parameter and what its annotation says.
+// TRLC-LINKS: REQ-EMG-150
+func (ps *paramStats) addPythonParam(c *fileCtx, param *sitter.Node) {
+	ps.count++
+	kind := param.Kind()
+	if kind != "typed_parameter" && kind != "typed_default_parameter" {
+		return
+	}
+	ps.annotated = true
+	if isSplatPattern(param.NamedChild(0)) {
+		return
+	}
+	if pythonPrimitiveTypes[strings.TrimSpace(text(param.ChildByFieldName("type"), c.src))] {
+		ps.primitive++
+	}
+}
+
+// isSplatPattern reports a *args or **kwargs pattern.
+// TRLC-LINKS: REQ-EMG-150
+func isSplatPattern(n *sitter.Node) bool {
+	return n != nil && (n.Kind() == "list_splat_pattern" || n.Kind() == "dictionary_splat_pattern")
+}
+
 // TRLC-LINKS: REQ-EMG-150
 func pythonReceiver(c *fileCtx, param *sitter.Node) bool {
-	name := param
-	if param.Kind() == "typed_parameter" || param.Kind() == "default_parameter" || param.Kind() == "typed_default_parameter" {
-		name = param.NamedChild(0)
-		if param.Kind() != "typed_parameter" {
-			name = param.ChildByFieldName("name")
-		}
-	}
+	name := pythonParamName(param)
 	if name == nil || name.Kind() != "identifier" {
 		return false
 	}
 	id := text(name, c.src)
 	return id == "self" || id == "cls"
+}
+
+// pythonParamName is the node that names a parameter.
+// TRLC-LINKS: REQ-EMG-150
+func pythonParamName(param *sitter.Node) *sitter.Node {
+	switch param.Kind() {
+	case "typed_parameter":
+		return param.NamedChild(0)
+	case "default_parameter", "typed_default_parameter":
+		return param.ChildByFieldName("name")
+	}
+	return param
 }
 
 // pythonAssertion: an assert statement, a self.assert* call, pytest.raises as a
@@ -185,14 +222,22 @@ func pythonAssertion(c *fileCtx, n *sitter.Node) bool {
 	case "expression_statement":
 		return n.NamedChildCount() == 1 && pythonAssertCall(c, n.NamedChild(0))
 	case "with_statement":
-		clause := n.NamedChild(0)
-		if clause == nil || clause.Kind() != "with_clause" {
-			return false
-		}
-		for _, item := range namedChildren(clause) {
-			if item.Kind() == "with_item" && pythonAssertCall(c, item.ChildByFieldName("value")) {
-				return true
-			}
+		return pythonWithAssertion(c, n)
+	}
+	return false
+}
+
+// pythonWithAssertion reports a with statement whose context manager is an
+// assertion call.
+// TRLC-LINKS: REQ-EMG-150
+func pythonWithAssertion(c *fileCtx, n *sitter.Node) bool {
+	clause := n.NamedChild(0)
+	if clause == nil || clause.Kind() != "with_clause" {
+		return false
+	}
+	for _, item := range namedChildren(clause) {
+		if item.Kind() == "with_item" && pythonAssertCall(c, item.ChildByFieldName("value")) {
+			return true
 		}
 	}
 	return false
@@ -207,7 +252,12 @@ func pythonAssertCall(c *fileCtx, call *sitter.Node) bool {
 	if fn == nil || fn.Kind() != "attribute" {
 		return false
 	}
-	object := text(fn.ChildByFieldName("object"), c.src)
 	attr := text(fn.ChildByFieldName("attribute"), c.src)
-	return (object == "self" && strings.HasPrefix(attr, "assert")) || (object == "pytest" && attr == "raises")
+	switch text(fn.ChildByFieldName("object"), c.src) {
+	case "self":
+		return strings.HasPrefix(attr, "assert")
+	case "pytest":
+		return attr == "raises"
+	}
+	return false
 }

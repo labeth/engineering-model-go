@@ -5,8 +5,10 @@ package trace
 // symbols count as implementation, which as verification.
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -19,104 +21,49 @@ import (
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func TestJavaScriptTestOnlyLinksDoNotImplement(t *testing.T) {
 	for _, ext := range []string{"js", "mjs", "cjs"} {
-		t.Run(ext, func(t *testing.T) {
-			root := t.TempDir()
-			impl := "browser." + ext
-			test := "browser.test." + ext
-			for name, text := range map[string]string{
-				impl: "// ENGMODEL-OWNER-UNIT: FU-WEB\n// TRLC-LINKS: REQ-WEB-001\nconst poll = () => 1;\n",
-				test: "// ENGMODEL-OWNER-UNIT: FU-TEST\n// TRLC-LINKS: REQ-WEB-001, REQ-WEB-002\nfunction check() {}\n",
-			} {
-				if err := os.WriteFile(filepath.Join(root, name), []byte(text), 0600); err != nil {
-					t.Fatal(err)
-				}
-			}
-			bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
-			code, diags := codescan.InferCodeItems(bundle, "")
-			if len(diags) != 0 || len(code) != 4 {
-				t.Fatalf("code inference: %+v %+v", code, diags)
-			}
-			reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-WEB-001"}, {ID: "REQ-WEB-002"}}}
-			checks, diags := codescan.InferVerificationChecks(bundle, reqs, code, "")
-			if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
-				t.Fatalf("checks: %+v %+v", checks, diags)
-			}
-			matrix := buildTraceMatrix(bundle, reqs, code, checks)
-			if matrix.Summary.Implemented != 1 {
-				t.Fatalf("test-only links counted as implementation: %+v", matrix)
-			}
-		})
+		t.Run(ext, func(t *testing.T) { checkJavaScriptTestOnly(t, ext) })
 	}
+}
+
+// checkJavaScriptTestOnly checks that a test file's links do not count as
+// implementation of the requirements it links.
+func checkJavaScriptTestOnly(t *testing.T, ext string) {
+	f := newTraceFixture(t, map[string]string{
+		"browser." + ext:      "// ENGMODEL-OWNER-UNIT: FU-WEB\n// TRLC-LINKS: REQ-WEB-001\nconst poll = () => 1;\n",
+		"browser.test." + ext: "// ENGMODEL-OWNER-UNIT: FU-TEST\n// TRLC-LINKS: REQ-WEB-001, REQ-WEB-002\nfunction check() {}\n",
+	})
+	f.infer("REQ-WEB-001", "REQ-WEB-002")
+	f.requireInferred(4, 1)
+	requireEqual(t, f.checks[0].Status, "not-run")
+	requireEqual(t, f.matrix().Summary.Implemented, 1)
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func TestPythonTestOnlyLinksDoNotImplement(t *testing.T) {
-	root := t.TempDir()
-	for name, source := range map[string]string{
+	f := newTraceFixture(t, map[string]string{
 		"worker.py":      "# ENGMODEL-OWNER-UNIT: FU-PY\ntext = '''\n# ENGMODEL-OWNER-UNIT: FU-FAKE''' # real trailing comment\n# TRLC-LINKS: REQ-PY-001\ndef run(): return 1\n",
 		"test_worker.py": "# ENGMODEL-OWNER-UNIT: FU-TEST\n# TRLC-LINKS: REQ-PY-001, REQ-PY-002\ndef test_run(): pass\ntext = '''\n# TRLC-LINKS: REQ-PY-003\n'''\n",
-	} {
-		if err := os.WriteFile(filepath.Join(root, name), []byte(source), 0600); err != nil {
-			t.Fatal(err)
-		}
-	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
-	code, diags := codescan.InferCodeItems(bundle, "")
-	if len(diags) != 0 || len(code) != 4 {
-		t.Fatalf("code: %+v diagnostics: %+v", code, diags)
-	}
-	requirements := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-PY-001"}, {ID: "REQ-PY-002"}, {ID: "REQ-PY-003"}}}
-	checks, diags := codescan.InferVerificationChecks(bundle, requirements, code, "")
-	if len(diags) != 0 || len(checks) != 1 || checks[0].Status != "not-run" {
-		t.Fatalf("checks: %+v %+v", checks, diags)
-	}
-	matrix := buildTraceMatrix(bundle, requirements, code, checks)
-	if matrix.Summary.Implemented != 1 {
-		t.Fatalf("test-only code credited: %+v", matrix)
-	}
+	})
+	f.infer("REQ-PY-001", "REQ-PY-002", "REQ-PY-003")
+	f.requireInferred(4, 1)
+	requireEqual(t, f.checks[0].Status, "not-run")
+	requireEqual(t, f.matrix().Summary.Implemented, 1)
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func TestVerilogExcludedSourcesAndVerification(t *testing.T) {
-	root := t.TempDir()
-	fixtures := map[string]string{
+	f := newTraceFixture(t, map[string]string{
 		"capture.v":    "// ENGMODEL-OWNER-UNIT: FU-CAPTURE\n// TRLC-LINKS: REQ-CAP-001\nmodule capture; endmodule\n",
 		"tb_capture.v": "// ENGMODEL-OWNER-UNIT: FU-TEST\n// TRLC-LINKS: REQ-CAP-001, REQ-CAP-002\nmodule tb; endmodule\n",
 		"unselected.v": "module missing_link; endmodule\n",
-	}
-	for name, text := range fixtures {
-		if err := os.WriteFile(filepath.Join(root, name), []byte(text), 0600); err != nil {
-			t.Fatal(err)
-		}
-	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Architecture: model.ArchitectureDocument{InferenceHints: model.InferenceHints{Exclude: []string{"unselected.v"}}}}
-	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-CAP-001"}, {ID: "REQ-CAP-002"}}}
-	code, diags := codescan.InferCodeItems(bundle, "")
-	if len(diags) != 0 {
-		t.Fatalf("unexpected source diagnostics: %+v", diags)
-	}
-	if len(code) != 4 {
-		t.Fatalf("expected two files and modules: %+v", code)
-	}
-	for _, item := range code {
-		if item.Kind == "symbol" {
-			if _, err := os.Stat(item.AbsPath); err != nil {
-				t.Fatalf("bad absolute source path: %+v", item)
-			}
-		}
-	}
-	checks, diags := codescan.InferVerificationChecks(bundle, reqs, code, "")
-	if len(diags) != 0 || len(checks) != 1 || len(checks[0].Verifies) != 2 || checks[0].Status != "not-run" {
-		t.Fatalf("bad verification inference: %+v %+v", checks, diags)
-	}
-	matrix := buildTraceMatrix(bundle, reqs, code, checks)
-	if matrix.Summary.Implemented != 1 {
-		t.Fatalf("test-only links must not imply implementation: %+v", matrix)
-	}
-	roots := EffectiveCodeRoots(bundle, "")
-	if len(roots) != 1 || roots[0] != root {
-		t.Fatalf("module root not used for scoping: %+v", roots)
-	}
+	})
+	f.bundle.Architecture.InferenceHints.Exclude = []string{"unselected.v"}
+	f.infer("REQ-CAP-001", "REQ-CAP-002")
+	f.requireInferred(4, 1)
+	requireFilesExist(t, f.code)
+	requireEqual(t, []any{len(f.checks[0].Verifies), f.checks[0].Status}, []any{2, "not-run"})
+	requireEqual(t, f.matrix().Summary.Implemented, 1)
+	requireEqual(t, EffectiveCodeRoots(f.bundle, ""), []string{f.root})
 }
 
 // TRLC-LINKS: REQ-EMG-030
@@ -157,8 +104,8 @@ func verificationFixture(t *testing.T, files map[string]string, reqIDs ...string
 		reqs.Requirements = append(reqs.Requirements, model.Requirement{ID: id})
 	}
 	code, codeDiags := codescan.InferCodeItems(bundle, root)
-	checks, verDiags := codescan.InferVerificationChecks(bundle, reqs, code, root)
-	return buildTraceMatrix(bundle, reqs, code, checks), checks, append(codeDiags, verDiags...)
+	checks, verDiags := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: reqs, InferredCode: code, CodeRoot: root})
+	return buildTraceMatrix(bundle, Evidence{reqs, code, checks}), checks, append(codeDiags, verDiags...)
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
@@ -173,54 +120,47 @@ func rowsByID(m Matrix) map[string]Row {
 // TRLC-LINKS: REQ-EMG-010
 func helperLinkPaths(t *testing.T, diags []validate.Diagnostic) map[string]bool {
 	t.Helper()
+	helpers := diagsOf(diags, "verification.helper_link")
+	requireEqual(t, len(diagsOfSeverity(helpers, validate.SeverityWarning)), len(helpers))
 	out := map[string]bool{}
-	for _, d := range diags {
-		if d.Code == "verification.helper_link" {
-			if d.Severity != validate.SeverityWarning {
-				t.Fatalf("helper_link must be a warning: %+v", d)
-			}
-			out[d.Path] = true
-		}
+	for _, d := range helpers {
+		out[d.Path] = true
 	}
 	return out
 }
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func TestVerification_RustCfgTestHelpersDoNotVerifyOrImplement(t *testing.T) {
-	src := "// ENGMODEL-OWNER-UNIT: FU-SIM\n" +
-		"// TRLC-LINKS: REQ-SIM-001\n" +
-		"pub fn now_ms() -> u64 { 0 }\n" +
-		"\n" +
-		"#[cfg(test)]\n" +
-		"mod tests {\n" +
-		"    struct FakeClock;\n" +
-		"    impl FakeClock {\n" +
-		"        // TRLC-LINKS: REQ-SIM-009\n" +
-		"        fn now(&self) -> u64 { 1 }\n" +
-		"    }\n" +
-		"\n" +
-		"    // TRLC-LINKS: REQ-SIM-001\n" +
-		"    #[test]\n" +
-		"    fn reads_clock() {}\n" +
-		"}\n"
-	m, checks, diags := verificationFixture(t, map[string]string{"src/x.rs": src}, "REQ-SIM-001", "REQ-SIM-009")
+	m, _, diags := verificationFixture(t, map[string]string{"src/x.rs": rustCfgTestSource}, "REQ-SIM-001", "REQ-SIM-009")
 	rows := rowsByID(m)
-	if r := rows["REQ-SIM-001"]; len(r.Code) != 1 || r.Code[0].Line != 3 || len(r.Verifications) != 1 {
-		t.Fatalf("REQ-SIM-001 must be implemented by now_ms only and verified by reads_clock: %+v (checks %+v)", r, checks)
-	}
-	if r := rows["REQ-SIM-009"]; len(r.Code) != 0 || len(r.Verifications) != 0 || r.Status != "orphan" {
-		t.Fatalf("FakeClock::now must neither implement nor verify REQ-SIM-009: %+v", r)
-	}
-	if got := helperLinkPaths(t, diags); !got["src/x.rs:10"] || len(got) != 1 {
-		t.Fatalf("expected one helper_link at src/x.rs:10, got %v (all %+v)", got, diags)
-	}
-	if m.Summary.Implemented != 1 || m.Summary.Tested != 1 || m.Summary.Passed != 0 {
-		t.Fatalf("summary: %+v", m.Summary)
-	}
-	if r := rows["REQ-SIM-001"]; r.Result != "not-run" {
-		t.Fatalf("no result artifact: want not-run, got %q", r.Result)
-	}
+	// REQ-SIM-001 is implemented by now_ms only and verified by reads_clock.
+	requireEqual(t, [][]int{{len(rows["REQ-SIM-001"].Code), len(rows["REQ-SIM-001"].Verifications)}, {rows["REQ-SIM-001"].Code[0].Line}}, [][]int{{1, 1}, {3}})
+	// FakeClock::now neither implements nor verifies REQ-SIM-009.
+	requireEqual(t, rowFacts(rows["REQ-SIM-009"]), []string{"orphan", "", "0", ""})
+	requireEqual(t, len(rows["REQ-SIM-009"].Code), 0)
+	requireEqual(t, helperLinkPaths(t, diags), map[string]bool{"src/x.rs:10": true})
+	requireEqual(t, []int{m.Summary.Implemented, m.Summary.Tested, m.Summary.Passed}, []int{1, 1, 0})
+	requireEqual(t, rows["REQ-SIM-001"].Result, "not-run") // no result artifact
 }
+
+// rustCfgTestSource is a Rust file with a production function and test-only
+// helpers.
+const rustCfgTestSource = "// ENGMODEL-OWNER-UNIT: FU-SIM\n" +
+	"// TRLC-LINKS: REQ-SIM-001\n" +
+	"pub fn now_ms() -> u64 { 0 }\n" +
+	"\n" +
+	"#[cfg(test)]\n" +
+	"mod tests {\n" +
+	"    struct FakeClock;\n" +
+	"    impl FakeClock {\n" +
+	"        // TRLC-LINKS: REQ-SIM-009\n" +
+	"        fn now(&self) -> u64 { 1 }\n" +
+	"    }\n" +
+	"\n" +
+	"    // TRLC-LINKS: REQ-SIM-001\n" +
+	"    #[test]\n" +
+	"    fn reads_clock() {}\n" +
+	"}\n"
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func TestVerification_GoHelperInTestFileDoesNotVerify(t *testing.T) {
@@ -338,35 +278,15 @@ func TestVerification_GoUnmarkedTestHelpersNeedNoLinks(t *testing.T) {
 
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-030
 func TestVerificationCodeUsesAbsoluteSourceContext(t *testing.T) {
-	if !codescan.IsVerificationCodeItem(codescan.CodeItem{Source: "helper.go:3", AbsPath: "/workspace/tests/helper.go"}) {
-		t.Fatal("test source root context lost")
+	requireEqual(t, codescan.IsVerificationCodeItem(codescan.CodeItem{Source: "helper.go:3", AbsPath: "/workspace/tests/helper.go"}), true)
+	requireEqual(t, codescan.IsVerificationCodeItem(codescan.CodeItem{Source: "contest.go:3", AbsPath: "/workspace/src/contest.go"}), false)
+	f := newTraceFixture(t, map[string]string{"tests/helper.go": "// ENGMODEL-OWNER-UNIT: FU-A\npackage fixture\n// TRLC-LINKS: REQ-TEST-001\nfunc helper() {}\n"})
+	f.infer("REQ-TEST-001")
+	requireEqual(t, []int{len(f.codeDiag), len(f.code)}, []int{0, 2})
+	for _, item := range f.code {
+		requireEqual(t, []any{item.AbsPath, codescan.IsVerificationCodeItem(item)}, []any{filepath.Join(f.root, "tests", "helper.go"), true})
 	}
-	if codescan.IsVerificationCodeItem(codescan.CodeItem{Source: "contest.go:3", AbsPath: "/workspace/src/contest.go"}) {
-		t.Fatal("production path classified as test")
-	}
-	root := t.TempDir()
-	dir := filepath.Join(root, "tests")
-	if err := os.Mkdir(dir, 0700); err != nil {
-		t.Fatal(err)
-	}
-	path := filepath.Join(dir, "helper.go")
-	if err := os.WriteFile(path, []byte("// ENGMODEL-OWNER-UNIT: FU-A\npackage fixture\n// TRLC-LINKS: REQ-TEST-001\nfunc helper() {}\n"), 0600); err != nil {
-		t.Fatal(err)
-	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
-	code, diags := codescan.InferCodeItems(bundle, "")
-	if len(diags) != 0 || len(code) != 2 {
-		t.Fatalf("inference failed: %+v %+v", code, diags)
-	}
-	for _, item := range code {
-		if item.AbsPath != path || !codescan.IsVerificationCodeItem(item) {
-			t.Fatalf("test file root context lost: %+v", item)
-		}
-	}
-	matrix := buildTraceMatrix(bundle, model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-TEST-001"}}}, code, nil)
-	if matrix.Summary.Implemented != 0 {
-		t.Fatalf("test-root helper credited as production: %+v", matrix)
-	}
+	requireEqual(t, f.matrix().Summary.Implemented, 0)
 }
 
 // A requirement linked only from a Dockerfile comment or a Markdown HTML
@@ -385,27 +305,27 @@ func TestArtifactTraceMarkersImplementRequirements(t *testing.T) {
 		"src/app.go":           "package app\n\n// TRLC-LINKS: REQ-IMG-001\nfunc Run() {}\n",
 	}, "REQ-IMG-001", "REQ-IMG-002", "REQ-DOC-001")
 	rows := rowsByID(m)
-	codeOf := func(id string) string {
-		var out []string
-		for _, c := range rows[id].Code {
-			out = append(out, c.Symbol+"@"+c.Path)
-		}
-		return strings.Join(out, " ")
+	requireEqual(t, codeRefsOf(rows["REQ-IMG-001"]), "CODE-DOCKERFILE@Dockerfile CODE-SRC-APP-GO--RUN@src/app.go")
+	requireEqual(t, rows["REQ-IMG-001"].Status, "implemented")
+	requireEqual(t, codeRefsOf(rows["REQ-IMG-002"]), "CODE-TESTS-E2E-DOCKERFILE@tests/e2e/Dockerfile")
+	requireEqual(t, len(rows["REQ-IMG-002"].Verifications), 0)
+	requireEqual(t, codeRefsOf(rows["REQ-DOC-001"]), "CODE-README-MD@README.md")
+	requireEqual(t, len(diagsOfSeverity(diags, validate.SeverityError)), 0)
+	requireEqual(t, len(diagsOf(diags, "code.trace_unattached")), 0)
+}
+
+// codeRefsOf lists the code of a row as symbol@path.
+func codeRefsOf(r Row) string {
+	var out []string
+	for _, c := range r.Code {
+		out = append(out, c.Symbol+"@"+c.Path)
 	}
-	if got := codeOf("REQ-IMG-001"); got != "CODE-DOCKERFILE@Dockerfile CODE-SRC-APP-GO--RUN@src/app.go" || rows["REQ-IMG-001"].Status != "implemented" {
-		t.Fatalf("REQ-IMG-001 must be implemented by the Dockerfile and app.go: %q %+v", got, rows["REQ-IMG-001"])
-	}
-	if got := codeOf("REQ-IMG-002"); got != "CODE-TESTS-E2E-DOCKERFILE@tests/e2e/Dockerfile" || len(rows["REQ-IMG-002"].Verifications) != 0 {
-		t.Fatalf("a Dockerfile under tests/ implements and does not verify: %q %+v", got, rows["REQ-IMG-002"])
-	}
-	if got := codeOf("REQ-DOC-001"); got != "CODE-README-MD@README.md" {
-		t.Fatalf("REQ-DOC-001 must be implemented by README.md: %q", got)
-	}
-	for _, d := range diags {
-		if d.Severity == validate.SeverityError || d.Code == "code.trace_unattached" {
-			t.Fatalf("artifacts must raise no errors: %+v", d)
-		}
-	}
+	return strings.Join(out, " ")
+}
+
+// diagsOfSeverity returns the diagnostics of a severity.
+func diagsOfSeverity(diags []validate.Diagnostic, severity validate.Severity) []validate.Diagnostic {
+	return slices.DeleteFunc(slices.Clone(diags), func(d validate.Diagnostic) bool { return d.Severity != severity })
 }
 
 // A Go test whose first statements skip unless an environment variable is set
@@ -418,10 +338,29 @@ func TestArtifactTraceMarkersImplementRequirements(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-088
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE
 func TestGatedOnlyRequirementsReportedSeparately(t *testing.T) {
-	root := t.TempDir()
-	src := `package sim
+	f := newTraceFixture(t, map[string]string{
+		"sim_test.go":   gatedSimSource,
+		"other_test.go": "package sim\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-G-004\nfunc TestOther(t *testing.T) {}\n",
+	})
+	f.infer("REQ-G-001", "REQ-G-002", "REQ-G-003", "REQ-G-004")
+	matrix := f.matrix()
+	requireEqual(t, matrix.Summary.TestLinked, 4) // gated tests stay test linked
+	requireEqual(t, matrix.Summary.GatedOnlyRequirements, []string{"REQ-G-001", "REQ-G-003"})
+	rows := rowsByID(matrix)
+	requireEqual(t, []string{gateFacts(rows["REQ-G-001"]), gateFacts(rows["REQ-G-002"]), gateFacts(rows["REQ-G-003"]), gateFacts(rows["REQ-G-004"])},
+		[]string{"true:SIMFAM_COMPOSE_TEST", "false:", "true:testing.Short", "false:"})
+}
+
+// gateFacts renders whether a row is gated and by which variables.
+func gateFacts(r Row) string {
+	return fmt.Sprintf("%v:%s", r.Gated, strings.Join(r.Gates, ","))
+}
+
+// gatedSimSource is a Go test file with gated and ungated tests.
+const gatedSimSource = `package sim
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -448,41 +387,6 @@ func TestLong(t *testing.T) {
 	}
 }
 `
-	if err := os.WriteFile(filepath.Join(root, "sim_test.go"), []byte(src), 0600); err != nil {
-		t.Fatal(err)
-	}
-	other := "package sim\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-G-004\nfunc TestOther(t *testing.T) {}\n"
-	if err := os.WriteFile(filepath.Join(root, "other_test.go"), []byte(other), 0600); err != nil {
-		t.Fatal(err)
-	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
-	code, _ := codescan.InferCodeItems(bundle, "")
-	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-G-001"}, {ID: "REQ-G-002"}, {ID: "REQ-G-003"}, {ID: "REQ-G-004"}}}
-	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
-	matrix := buildTraceMatrix(bundle, reqs, code, checks)
-	if matrix.Summary.TestLinked != 4 {
-		t.Fatalf("testLinked = %d, want 4 (gated tests stay test linked)", matrix.Summary.TestLinked)
-	}
-	if matrix.Summary.GatedOnly != 2 || strings.Join(matrix.Summary.GatedOnlyRequirements, ",") != "REQ-G-001,REQ-G-003" {
-		t.Fatalf("gatedOnly = %d %v, want 2 [REQ-G-001 REQ-G-003]", matrix.Summary.GatedOnly, matrix.Summary.GatedOnlyRequirements)
-	}
-	rows := map[string]Row{}
-	for _, r := range matrix.Requirements {
-		rows[r.ID] = r
-	}
-	if r := rows["REQ-G-001"]; !r.Gated || strings.Join(r.Gates, ",") != "SIMFAM_COMPOSE_TEST" {
-		t.Fatalf("REQ-G-001 row = %+v, want gated by SIMFAM_COMPOSE_TEST", r)
-	}
-	if r := rows["REQ-G-003"]; !r.Gated || strings.Join(r.Gates, ",") != "testing.Short" {
-		t.Fatalf("REQ-G-003 row = %+v, want gated by testing.Short", r)
-	}
-	if r := rows["REQ-G-002"]; r.Gated || len(r.Gates) != 0 {
-		t.Fatalf("REQ-G-002 also has an ungated test: %+v", r)
-	}
-	if r := rows["REQ-G-004"]; r.Gated || len(r.Gates) != 0 {
-		t.Fatalf("REQ-G-004 also has an ungated test in other_test.go: %+v", r)
-	}
-}
 
 // A requirement whose only linked tests are benchmarks (Go Benchmark*, Rust
 // #[bench]) has a benchmarkOnly row; when its verification criteria name a
@@ -496,8 +400,33 @@ func TestLong(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-121
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-ALLOCATION-TRACE
 func TestBenchmarkOnlyVerification(t *testing.T) {
-	root := t.TempDir()
-	goSrc := `package sim
+	f := newTraceFixture(t, map[string]string{
+		"sim_test.go":   benchmarkGoSource,
+		"lib.rs":        "// TRLC-LINKS: REQ-B-004, REQ-B-006\n#[bench]\nfn bench_parse(b: &mut Bencher) {}\n",
+		"other_test.go": "package sim\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-B-006\nfunc TestParse(t *testing.T) {}\n",
+	})
+	f.reqs = model.RequirementsDocument{Requirements: []model.Requirement{
+		{ID: "REQ-B-001", VerificationCriteria: "One sentence is encoded in under 50 microseconds."},
+		{ID: "REQ-B-002", VerificationCriteria: "One sentence is encoded in under 50 microseconds."},
+		{ID: "REQ-B-003", VerificationCriteria: "The encoder output is well formed."},
+		{ID: "REQ-B-004", VerificationCriteria: "Parsing takes at most 2 ms."},
+		{ID: "REQ-B-005", VerificationCriteria: "Decoding takes at most 2 ms."},
+		{ID: "REQ-B-006", VerificationCriteria: "Parsing takes at most 2 ms."},
+	}}
+	f.inferred()
+	benchmarkOnly := map[string]bool{}
+	for id, row := range rowsByID(f.matrix()) {
+		benchmarkOnly[id] = row.BenchmarkOnly && len(row.Verifications) > 0
+	}
+	requireEqual(t, benchmarkOnly, map[string]bool{"REQ-B-001": true, "REQ-B-002": false, "REQ-B-003": true, "REQ-B-004": true, "REQ-B-005": false, "REQ-B-006": false})
+	warnings := diagsOf(f.diagnostics(), "verification.benchmark_only")
+	requireEqual(t, severitiesByCode(warnings), map[string]validate.Severity{"verification.benchmark_only": validate.SeverityWarning})
+	requireEqual(t, pathsOf(warnings, "verification.benchmark_only"), []string{"requirements[0]", "requirements[3]"})
+}
+
+// benchmarkGoSource is a Go test file whose benchmarks and tests link
+// requirements.
+const benchmarkGoSource = `package sim
 
 import "testing"
 
@@ -513,44 +442,3 @@ func BenchmarkDecode(b *testing.B) {}
 // TRLC-LINKS: REQ-B-005
 func FuzzDecode(f *testing.F) {}
 `
-	rustSrc := "// TRLC-LINKS: REQ-B-004, REQ-B-006\n#[bench]\nfn bench_parse(b: &mut Bencher) {}\n"
-	otherSrc := "package sim\n\nimport \"testing\"\n\n// TRLC-LINKS: REQ-B-006\nfunc TestParse(t *testing.T) {}\n"
-	for name, src := range map[string]string{"sim_test.go": goSrc, "lib.rs": rustSrc, "other_test.go": otherSrc} {
-		if err := os.WriteFile(filepath.Join(root, name), []byte(src), 0600); err != nil {
-			t.Fatal(err)
-		}
-	}
-	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml")}
-	code, _ := codescan.InferCodeItems(bundle, "")
-	reqs := model.RequirementsDocument{Requirements: []model.Requirement{
-		{ID: "REQ-B-001", VerificationCriteria: "One sentence is encoded in under 50 microseconds."},
-		{ID: "REQ-B-002", VerificationCriteria: "One sentence is encoded in under 50 microseconds."},
-		{ID: "REQ-B-003", VerificationCriteria: "The encoder output is well formed."},
-		{ID: "REQ-B-004", VerificationCriteria: "Parsing takes at most 2 ms."},
-		{ID: "REQ-B-005", VerificationCriteria: "Decoding takes at most 2 ms."},
-		{ID: "REQ-B-006", VerificationCriteria: "Parsing takes at most 2 ms."},
-	}}
-	checks, _ := codescan.InferVerificationChecks(bundle, reqs, code, "")
-	matrix := buildTraceMatrix(bundle, reqs, code, checks)
-	rows := map[string]Row{}
-	for _, r := range matrix.Requirements {
-		rows[r.ID] = r
-	}
-	for id, want := range map[string]bool{"REQ-B-001": true, "REQ-B-002": false, "REQ-B-003": true, "REQ-B-004": true, "REQ-B-005": false, "REQ-B-006": false} {
-		if rows[id].BenchmarkOnly != want || len(rows[id].Verifications) == 0 {
-			t.Errorf("%s benchmarkOnly = %v, want %v (%+v)", id, rows[id].BenchmarkOnly, want, rows[id])
-		}
-	}
-	var got []string
-	for _, d := range ValidateIntegrity(bundle, reqs, code, checks) {
-		if d.Code == "verification.benchmark_only" {
-			if d.Severity != validate.SeverityWarning || !strings.Contains(d.Message, "Test") {
-				t.Fatalf("diagnostic %+v", d)
-			}
-			got = append(got, d.Path)
-		}
-	}
-	if strings.Join(got, ",") != "requirements[0],requirements[3]" {
-		t.Fatalf("verification.benchmark_only at %v, want requirements[0] and [3]", got)
-	}
-}

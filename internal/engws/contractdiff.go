@@ -2,21 +2,15 @@
 package engws
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
-	"os/exec"
-	"path"
-	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 
+	"github.com/labeth/engineering-model-go/internal/gitmodel"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/reqlinks"
-	"gopkg.in/yaml.v3"
 )
 
 // Impact is a semantic version impact.
@@ -88,6 +82,20 @@ type ContractDiffResult struct {
 func DiffContracts(from, to model.Bundle) ContractDiffResult {
 	before := reqlinks.PublishedItems(from, from.Manifest.Publications...)
 	after := reqlinks.PublishedItems(to, to.Manifest.Publications...)
+	result := ContractDiffResult{Items: []ItemChange{}, Impact: ImpactPatch}
+	for _, id := range contractItemIDs(before, after) {
+		c := diffContractItem(id, before, after)
+		if c.Impact.rank() > result.Impact.rank() {
+			result.Impact = c.Impact
+		}
+		result.Items = append(result.Items, c)
+	}
+	return result
+}
+
+// contractItemIDs is the sorted union of the item IDs of both versions.
+// TRLC-LINKS: REQ-EMG-102
+func contractItemIDs(before, after map[string]reqlinks.Item) []string {
 	ids := map[string]bool{}
 	for id := range before {
 		ids[id] = true
@@ -100,32 +108,42 @@ func DiffContracts(from, to model.Bundle) ContractDiffResult {
 		sorted = append(sorted, id)
 	}
 	sort.Strings(sorted)
-	result := ContractDiffResult{Items: []ItemChange{}, Impact: ImpactPatch}
-	for _, id := range sorted {
-		b, inBefore := before[id]
-		a, inAfter := after[id]
-		var c ItemChange
-		switch {
-		case !inBefore:
-			c = ItemChange{ID: id, Kind: string(a.Kind), Change: ChangeAdded, Text: oneLine(a.Text), Impact: ImpactMinor}
-			if a.Kind == reqlinks.KindAssumption {
-				c.Impact = ImpactMajor
-				c.Notes = append(c.Notes, "a new assumption of use binds every user")
-			}
-		case !inAfter:
-			c = ItemChange{ID: id, Kind: string(b.Kind), Change: ChangeRemoved, Text: oneLine(b.Text), Impact: ImpactMajor}
-			if b.Kind == reqlinks.KindAssumption {
-				c.Impact = ImpactMinor
-			}
-		default:
-			c = diffItem(b, a)
-		}
-		if c.Impact.rank() > result.Impact.rank() {
-			result.Impact = c.Impact
-		}
-		result.Items = append(result.Items, c)
+	return sorted
+}
+
+// diffContractItem classifies item id as added, removed or compared.
+// TRLC-LINKS: REQ-EMG-102
+func diffContractItem(id string, before, after map[string]reqlinks.Item) ItemChange {
+	b, inBefore := before[id]
+	a, inAfter := after[id]
+	switch {
+	case !inBefore:
+		return addedItemChange(id, a)
+	case !inAfter:
+		return removedItemChange(id, b)
 	}
-	return result
+	return diffItem(b, a)
+}
+
+// addedItemChange is the change of an item new in the second version: minor, major for an assumption of use.
+// TRLC-LINKS: REQ-EMG-102
+func addedItemChange(id string, a reqlinks.Item) ItemChange {
+	c := ItemChange{ID: id, Kind: string(a.Kind), Change: ChangeAdded, Text: oneLine(a.Text), Impact: ImpactMinor}
+	if a.Kind == reqlinks.KindAssumption {
+		c.Impact = ImpactMajor
+		c.Notes = append(c.Notes, "a new assumption of use binds every user")
+	}
+	return c
+}
+
+// removedItemChange is the change of an item gone from the second version: major, minor for an assumption of use.
+// TRLC-LINKS: REQ-EMG-102
+func removedItemChange(id string, b reqlinks.Item) ItemChange {
+	c := ItemChange{ID: id, Kind: string(b.Kind), Change: ChangeRemoved, Text: oneLine(b.Text), Impact: ImpactMajor}
+	if b.Kind == reqlinks.KindAssumption {
+		c.Impact = ImpactMinor
+	}
+	return c
 }
 
 // diffItem compares one item present in both versions.
@@ -165,29 +183,51 @@ func diffItem(b, a reqlinks.Item) ItemChange {
 // when they did not.
 // TRLC-LINKS: REQ-EMG-102
 func diffRealizers(before, after []reqlinks.Realizer) string {
-	canonical := func(r reqlinks.Realizer) string {
-		return oneLine(r.Text) + "\x00" + oneLine(r.VerificationCriteria) + "\x00" + strings.TrimSpace(r.Status)
-	}
-	b, a := map[string]string{}, map[string]string{}
-	for _, r := range before {
-		b[r.ID] = canonical(r)
-	}
-	for _, r := range after {
-		a[r.ID] = canonical(r)
-	}
-	var added, removed, changed []string
+	b, a := realizerDigests(before), realizerDigests(after)
+	added, changed := addedAndChangedRealizers(b, a)
+	return realizerParts(added, removedRealizers(b, a), changed)
+}
+
+// addedAndChangedRealizers lists the realizer IDs only in a, and those in both with another digest.
+// TRLC-LINKS: REQ-EMG-102
+func addedAndChangedRealizers(b, a map[string]string) (added, changed []string) {
 	for id, v := range a {
-		if old, ok := b[id]; !ok {
+		old, ok := b[id]
+		switch {
+		case !ok:
 			added = append(added, id)
-		} else if old != v {
+		case old != v:
 			changed = append(changed, id)
 		}
 	}
+	return added, changed
+}
+
+// removedRealizers lists the realizer IDs only in b.
+// TRLC-LINKS: REQ-EMG-102
+func removedRealizers(b, a map[string]string) []string {
+	var removed []string
 	for id := range b {
 		if _, ok := a[id]; !ok {
 			removed = append(removed, id)
 		}
 	}
+	return removed
+}
+
+// realizerDigests maps each realizer ID to its canonical text, criteria and status.
+// TRLC-LINKS: REQ-EMG-102
+func realizerDigests(realizers []reqlinks.Realizer) map[string]string {
+	digests := map[string]string{}
+	for _, r := range realizers {
+		digests[r.ID] = oneLine(r.Text) + "\x00" + oneLine(r.VerificationCriteria) + "\x00" + strings.TrimSpace(r.Status)
+	}
+	return digests
+}
+
+// realizerParts joins the non-empty added, removed and changed ID lists, each sorted, into one description.
+// TRLC-LINKS: REQ-EMG-102
+func realizerParts(added, removed, changed []string) string {
 	var parts []string
 	for _, p := range []struct {
 		label string
@@ -203,132 +243,18 @@ func diffRealizers(before, after []reqlinks.Realizer) string {
 
 // gitOutput runs git in dir and returns its stdout.
 // TRLC-LINKS: REQ-EMG-102, REQ-EMG-103
-func gitOutput(dir string, args ...string) ([]byte, error) {
-	cmd := exec.Command("git", append([]string{"-C", dir}, args...)...)
-	var stderr bytes.Buffer
-	cmd.Stderr = &stderr
-	out, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("git %s: %v: %s", strings.Join(args, " "), err, strings.TrimSpace(stderr.String()))
-	}
-	return out, nil
-}
+func gitOutput(dir string, args ...string) ([]byte, error) { return gitmodel.Output(dir, args...) }
 
-// LoadBundleAtRef loads the model in repo as committed at a git ref: it
-// reads engmod.yml and every document the manifest names with git show into
-// a temporary directory (0700, files 0600, removed afterwards) and loads it
-// with the model loader. A ref starting with "-" is refused, so it is never
-// read as a git option.
-//
-// This is the single place where a model of an older schema version is
-// accepted (ADR-EMG-077): the model at a ref is read only for the contract
-// diff, so the temporary copy of the manifest and of every document is
-// stamped with the current schemaVersion (stampCurrentVersion) and the
-// retired state vocabulary is stripped. No mode of the loader, and no command
-// that reads the working tree, accepts an older version.
+// LoadBundleAtRef loads the model in repo as committed at a git ref (internal/gitmodel).
 // TRLC-LINKS: REQ-EMG-102, REQ-EMG-103, REQ-EMG-186
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-MODEL-LOADER
 func LoadBundleAtRef(repo, ref string) (model.Bundle, error) {
-	if strings.HasPrefix(ref, "-") || strings.TrimSpace(ref) == "" {
-		return model.Bundle{}, fmt.Errorf("invalid git ref %q", ref)
-	}
-	if _, err := gitOutput(repo, "rev-parse", "--verify", "--quiet", ref+"^{commit}"); err != nil {
-		return model.Bundle{}, fmt.Errorf("unknown git ref %q in %s", ref, repo)
-	}
-	show := func(rel string) ([]byte, error) {
-		return gitOutput(repo, "show", ref+":./"+rel)
-	}
-	manifest, err := show("engmod.yml")
-	if err != nil {
-		return model.Bundle{}, fmt.Errorf("%s has no engmod.yml at %s: %w", repo, ref, err)
-	}
-	var meta struct {
-		Documents map[string]string `yaml:"documents"`
-	}
-	if err := yaml.Unmarshal(manifest, &meta); err != nil {
-		return model.Bundle{}, fmt.Errorf("engmod.yml at %s: %w", ref, err)
-	}
-	manifest = stampCurrentVersion(manifest)
-	// The committed model may be private: only the current user reads the
-	// copy (MkdirTemp creates the directory 0700).
-	tmp, err := os.MkdirTemp("", "engws-contract-")
-	if err != nil {
-		return model.Bundle{}, err
-	}
-	defer os.RemoveAll(tmp)
-	if err := os.WriteFile(filepath.Join(tmp, "engmod.yml"), manifest, 0o600); err != nil {
-		return model.Bundle{}, err
-	}
-	keys := make([]string, 0, len(meta.Documents))
-	for key := range meta.Documents {
-		keys = append(keys, key)
-	}
-	sort.Strings(keys)
-	for _, key := range keys {
-		rel := meta.Documents[key]
-		clean := path.Clean(filepath.ToSlash(strings.TrimSpace(rel)))
-		if clean == "." || path.IsAbs(clean) || clean == ".." || strings.HasPrefix(clean, "../") {
-			return model.Bundle{}, fmt.Errorf("engmod.yml at %s: documents.%s %q leaves the model directory", ref, key, rel)
-		}
-		data, err := show(clean)
-		if err != nil {
-			return model.Bundle{}, fmt.Errorf("documents.%s at %s: %w", key, ref, err)
-		}
-		if data, err = historicDocument(key, data); err != nil {
-			return model.Bundle{}, fmt.Errorf("documents.%s at %s: %w", key, ref, err)
-		}
-		dest := filepath.Join(tmp, filepath.FromSlash(clean))
-		if err := os.MkdirAll(filepath.Dir(dest), 0o700); err != nil {
-			return model.Bundle{}, err
-		}
-		if err := os.WriteFile(dest, data, 0o600); err != nil {
-			return model.Bundle{}, err
-		}
-	}
-	bundle, err := model.LoadBundle(filepath.Join(tmp, "engmod.yml"))
-	if err != nil {
-		return model.Bundle{}, fmt.Errorf("model at %s: %w", ref, err)
-	}
-	return bundle, nil
+	return gitmodel.LoadBundleAtRef(repo, ref)
 }
 
-// topLevelSchemaVersion matches the top-level schemaVersion line of a
-// document: the key at the start of a line, so a nested key is never matched.
-var topLevelSchemaVersion = regexp.MustCompile(`(?m)^schemaVersion:[ \t]*[0-9]+`)
-
-// historicDocument prepares one document read at an older ref for the loader.
-// A model committed before this release was written for an older schema
-// version, which the loader refuses (ADR-EMG-077), so the copy is stamped with
-// the current version, like the manifest. A model committed before v0.11.0
-// models state behavior with the retired behavior.states vocabulary, which
-// the loader also refuses; only the contract is read at a ref, and the
-// contract has no states, so the behavior document is stripped of it.
-// TRLC-LINKS: REQ-EMG-102, REQ-EMG-186
-// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-MODEL-LOADER
-func historicDocument(key string, data []byte) ([]byte, error) {
-	data = stampCurrentVersion(data)
-	if key != "behavior" {
-		return data, nil
-	}
-	return model.StripLegacyStateVocabulary(data)
-}
-
-// stampCurrentVersion replaces the value of the top-level schemaVersion line
-// of a document with model.CurrentSchemaVersion and leaves every other byte,
-// including comments and the order of keys, as it was (a YAML round trip
-// would not). A document without the line is returned unchanged. Only
-// LoadBundleAtRef calls it, on its temporary copy (ADR-EMG-077).
+// stampCurrentVersion stamps a document copy with the current schema version (internal/gitmodel).
 // TRLC-LINKS: REQ-EMG-186
-// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION
-func stampCurrentVersion(data []byte) []byte {
-	loc := topLevelSchemaVersion.FindIndex(data)
-	if loc == nil {
-		return data
-	}
-	stamped := append([]byte{}, data[:loc[0]]...)
-	stamped = append(stamped, model.SchemaVersionLine...)
-	return append(stamped, data[loc[1]:]...)
-}
+func stampCurrentVersion(data []byte) []byte { return gitmodel.StampCurrentVersion(data) }
 
 // ContractDiff diffs the contract of the model in repo between two refs.
 // TRLC-LINKS: REQ-EMG-102
@@ -353,38 +279,54 @@ func ContractDiff(repo, fromRef, toRef string) (ContractDiffResult, error) {
 func printContractDiff(w io.Writer, d ContractDiffResult) {
 	fmt.Fprintf(w, "contract %s..%s\n", d.From, d.To)
 	for _, c := range d.Items {
-		line := fmt.Sprintf("  %-9s %s %s", c.Change, c.Kind, c.ID)
-		switch c.Change {
-		case ChangeChanged:
-			line += " (" + strings.Join(c.Aspects, ", ") + "): " + strings.Join(c.Notes, "; ")
-		default:
-			line += ": " + c.Text
-			if len(c.Notes) > 0 {
-				line += " (" + strings.Join(c.Notes, "; ") + ")"
-			}
-		}
-		if c.Impact != "" {
-			line += " [" + string(c.Impact) + "]"
-		}
-		fmt.Fprintln(w, line)
+		fmt.Fprintln(w, contractDiffLine(c))
 	}
 	fmt.Fprintf(w, "impact: %s\n", d.Impact)
+}
+
+// contractDiffLine is the text line of one item change.
+// TRLC-LINKS: REQ-EMG-102
+func contractDiffLine(c ItemChange) string {
+	line := fmt.Sprintf("  %-9s %s %s", c.Change, c.Kind, c.ID)
+	switch c.Change {
+	case ChangeChanged:
+		line += " (" + strings.Join(c.Aspects, ", ") + "): " + strings.Join(c.Notes, "; ")
+	default:
+		line += ": " + c.Text
+		if len(c.Notes) > 0 {
+			line += " (" + strings.Join(c.Notes, "; ") + ")"
+		}
+	}
+	if c.Impact != "" {
+		line += " [" + string(c.Impact) + "]"
+	}
+	return line
 }
 
 // runContractDiff prints the contract diff (text or JSON); IO and git
 // errors exit 2.
 // TRLC-LINKS: REQ-EMG-102
 // ENGMODEL-LINKS: EVT-CONTRACT-DIFF-REQUESTED
-func runContractDiff(repo, fromRef, toRef string, asJSON bool, w io.Writer) (int, error) {
-	d, err := ContractDiff(repo, fromRef, toRef)
+func runContractDiff(options ContractDiffOptions, w io.Writer) (int, error) {
+	d, err := ContractDiff(options.Repo, options.From, options.To)
 	if err != nil {
 		return 2, err
 	}
-	if asJSON {
+	if options.JSON {
 		enc := json.NewEncoder(w)
 		enc.SetIndent("", "  ")
 		return 0, enc.Encode(d)
 	}
 	printContractDiff(w, d)
 	return 0, nil
+}
+
+// ContractDiffOptions are the arguments of engws contract-diff: the model directory, the two refs and whether to
+// print JSON.
+// TRLC-LINKS: REQ-EMG-102
+type ContractDiffOptions struct {
+	Repo string
+	From string
+	To   string
+	JSON bool
 }

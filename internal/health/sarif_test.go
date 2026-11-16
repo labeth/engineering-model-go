@@ -37,79 +37,95 @@ func sarifDoc(t *testing.T, r Report) (map[string]any, []byte) {
 // TRLC-LINKS: REQ-EMG-157
 func TestSARIFStructure(t *testing.T) {
 	doc, data := sarifDoc(t, BuildReport(sampleResults(), sampleOptions()))
-	if doc["version"] != "2.1.0" || !strings.Contains(doc["$schema"].(string), "sarif") {
-		t.Fatalf("version/schema = %v %v", doc["version"], doc["$schema"])
-	}
-	runs := doc["runs"].([]any)
-	if len(runs) != 1 {
-		t.Fatalf("%d runs, want one", len(runs))
-	}
-	run := runs[0].(map[string]any)
-	driver := run["tool"].(map[string]any)["driver"].(map[string]any)
-	if driver["name"] != "enghealth" {
-		t.Errorf("driver name = %v", driver["name"])
-	}
-	rules := driver["rules"].([]any)
-	if len(rules) != len(Codes())+1 {
-		t.Errorf("%d rules, want %d (the codes and the unused waiver)", len(rules), len(Codes())+1)
-	}
-	ruleIDs := map[string]int{}
-	for i, r := range rules {
-		rule := r.(map[string]any)
-		id := rule["id"].(string)
-		ruleIDs[id] = i
-		if rule["shortDescription"].(map[string]any)["text"] == "" || rule["defaultConfiguration"].(map[string]any)["level"] != "error" {
-			t.Errorf("rule %s is incomplete: %v", id, rule)
-		}
-	}
-	for _, code := range Codes() {
-		if _, ok := ruleIDs[code]; !ok {
-			t.Errorf("no rule for %s", code)
-		}
-	}
+	wantEqual(t, doc["version"], "2.1.0")
+	wantContains(t, doc["$schema"].(string), "sarif")
+	runs := list(doc["runs"])
+	mustEqual(t, len(runs), 1)
+	run := obj(runs[0])
+	driver := obj(obj(run["tool"])["driver"])
+	wantEqual(t, driver["name"], "enghealth")
+	ruleIDs := requireRules(t, list(driver["rules"]))
 
 	// Findings in the sample after the waiver: complex_method, the test's
 	// large_assertion_block; plus the waived excess_arguments and the unused-waiver diagnostic.
-	results := run["results"].([]any)
-	if len(results) != 4 {
-		t.Fatalf("%d results, want 4", len(results))
-	}
-	var suppressed, withRegion int
+	results := list(run["results"])
+	mustEqual(t, len(results), 4)
+	var counts [2]int // suppressed results and results with a region
 	for _, r := range results {
-		res := r.(map[string]any)
-		id := res["ruleId"].(string)
-		if int(res["ruleIndex"].(float64)) != ruleIDs[id] || res["level"] != "error" || res["message"].(map[string]any)["text"] == "" {
-			t.Errorf("result %v: bad rule index, level or message", res)
-		}
-		if res["partialFingerprints"].(map[string]any)[FingerprintKey] == "" {
-			t.Errorf("result %v has no fingerprint", res)
-		}
-		phys := res["locations"].([]any)[0].(map[string]any)["physicalLocation"].(map[string]any)
-		uri := phys["artifactLocation"].(map[string]any)["uri"].(string)
-		if strings.HasPrefix(uri, "/") || strings.Contains(uri, "..") || strings.Contains(uri, ":") {
-			t.Errorf("uri %q is not relative", uri)
-		}
-		if region, ok := phys["region"].(map[string]any); ok {
-			withRegion++
-			if region["startLine"].(float64) < 1 || region["endLine"].(float64) < region["startLine"].(float64) {
-				t.Errorf("bad region %v", region)
-			}
-		}
-		if sup, ok := res["suppressions"].([]any); ok {
-			suppressed++
-			if sup[0].(map[string]any)["kind"] != "external" || !strings.Contains(sup[0].(map[string]any)["justification"].(string), "ADR-OK") {
-				t.Errorf("bad suppression %v", sup)
-			}
-		}
+		c := requireResult(t, obj(r), ruleIDs)
+		counts[0] += c[0]
+		counts[1] += c[1]
 	}
-	if suppressed != 1 || withRegion != 3 {
-		t.Errorf("suppressed = %d, with region = %d; want 1 and 3", suppressed, withRegion)
-	}
+	wantEqual(t, counts, [2]int{1, 3})
 	for _, banned := range []string{"/home/", "/tmp/", "timestamp", "startTimeUtc"} {
-		if strings.Contains(string(data), banned) {
-			t.Errorf("SARIF contains %q", banned)
-		}
+		wantNone(t, string(data), banned)
 	}
+}
+
+// obj reads a decoded JSON object.
+func obj(v any) map[string]any { return v.(map[string]any) }
+
+// list reads a decoded JSON array.
+func list(v any) []any { return v.([]any) }
+
+// requireRules checks that every health code and the unused waiver is a
+// complete rule, and returns the index of each rule by its id.
+func requireRules(t *testing.T, rules []any) map[string]int {
+	t.Helper()
+	wantEqual(t, len(rules), len(Codes())+1) // the codes and the unused waiver
+	ids := map[string]int{}
+	for i, r := range rules {
+		rule := obj(r)
+		id := rule["id"].(string)
+		ids[id] = i
+		wantEqual(t, [3]any{id, obj(rule["shortDescription"])["text"] != "", obj(rule["defaultConfiguration"])["level"]}, [3]any{id, true, "error"})
+	}
+	for _, code := range Codes() {
+		_, ok := ids[code]
+		wantEqual(t, [2]any{code, ok}, [2]any{code, true})
+	}
+	return ids
+}
+
+// requireResult checks one result: the rule index, the level, the message, the
+// fingerprint and the relative uri of its location; it returns whether it is
+// suppressed and whether it has a region, as 0 or 1.
+func requireResult(t *testing.T, res map[string]any, ruleIDs map[string]int) [2]int {
+	t.Helper()
+	id := res["ruleId"].(string)
+	wantEqual(t, [4]any{id, int(res["ruleIndex"].(float64)), res["level"], obj(res["message"])["text"] != ""}, [4]any{id, ruleIDs[id], "error", true})
+	wantEqual(t, obj(res["partialFingerprints"])[FingerprintKey] != "", true)
+	phys := obj(obj(list(res["locations"])[0])["physicalLocation"])
+	uri := obj(phys["artifactLocation"])["uri"].(string)
+	wantEqual(t, [2]any{uri, strings.HasPrefix(uri, "/") || strings.Contains(uri, "..") || strings.Contains(uri, ":")}, [2]any{uri, false})
+	return [2]int{requireSuppression(t, res), requireRegion(t, phys)}
+}
+
+// requireRegion checks the region of a location, when it has one, and returns
+// 1 for a region and 0 for none.
+func requireRegion(t *testing.T, phys map[string]any) int {
+	t.Helper()
+	region, ok := phys["region"].(map[string]any)
+	if !ok {
+		return 0
+	}
+	start, end := region["startLine"].(float64), region["endLine"].(float64)
+	wantEqual(t, [2]bool{start >= 1, end >= start}, [2]bool{true, true})
+	return 1
+}
+
+// requireSuppression checks the suppression of a result, when it has one, and
+// returns 1 for a suppression and 0 for none.
+func requireSuppression(t *testing.T, res map[string]any) int {
+	t.Helper()
+	sup, ok := res["suppressions"].([]any)
+	if !ok {
+		return 0
+	}
+	first := obj(sup[0])
+	wantEqual(t, first["kind"], "external")
+	wantContains(t, first["justification"].(string), "ADR-OK")
+	return 1
 }
 
 // At a tier where debt is a warning the results are warnings, and the SARIF
@@ -178,31 +194,25 @@ func TestSARIFURIsArePercentEncoded(t *testing.T) {
 		"q?/\u00e4.go": "q%3F/%C3%A4.go",
 	}
 	for raw, want := range cases {
-		if got := sarifURI(raw); got != want {
-			t.Errorf("sarifURI(%q) = %q, want %q", raw, got, want)
-		}
+		wantEqual(t, sarifURI(raw), want)
 	}
 	report := BuildReport([]FileResult{{Path: "app/[id].tsx", Language: "tsx", Functions: []Function{{
 		Name: "Page", Findings: []Finding{{Code: CodeComplexMethod, Severity: SeverityHigh, StartLine: 1, EndLine: 2, Metric: "cyclomatic", Value: 30, Message: "m"}},
 	}}}}, sampleOptions())
 	data, err := SARIF(report)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(data), `"uri": "app/%5Bid%5D.tsx"`) || strings.Contains(string(data), "[id]") {
-		t.Errorf("SARIF uri not encoded:\n%s", data)
-	}
-	if !strings.Contains(string(data), FindingFingerprint(CodeComplexMethod, "app/[id].tsx", "Page")) {
-		t.Errorf("the fingerprint must hash the raw path:\n%s", data)
-	}
+	mustEqual(t, err, nil)
+	wantContains(t, string(data), `"uri": "app/%5Bid%5D.tsx"`)
+	wantNone(t, string(data), "[id]")
+	wantContains(t, string(data), FindingFingerprint(CodeComplexMethod, "app/[id].tsx", "Page")) // the fingerprint hashes the raw path
+}
 
+// The uri of a check result and of a skipped file is percent-encoded too.
+//
+// TRLC-LINKS: REQ-EMG-157
+func TestCheckSARIFURIsArePercentEncoded(t *testing.T) {
 	delta := DeltaReport{Blocking: []DeltaEntry{{Path: "a b/c#d.go", Function: "F", Code: CodeComplexMethod, Change: ChangeNew, Severity: SeverityHigh}},
 		Skipped: []SkippedFile{{Path: "100%.go", Reason: "too large"}}}
-	data, err = CheckSARIF(NewCheckReport(delta, map[string]string{"health.regression": "error", CodeFileSkipped: "error"}, nil, PolicyVerdict{}))
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(data), `"uri": "a%20b/c%23d.go"`) || !strings.Contains(string(data), `"uri": "100%25.go"`) {
-		t.Errorf("CheckSARIF uri not encoded:\n%s", data)
-	}
+	data, err := CheckSARIF(NewCheckReport(delta, CheckInput{Levels: map[string]string{"health.regression": "error", CodeFileSkipped: "error"}}))
+	mustEqual(t, err, nil)
+	wantAll(t, string(data), `"uri": "a%20b/c%23d.go"`, `"uri": "100%25.go"`)
 }

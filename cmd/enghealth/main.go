@@ -38,7 +38,7 @@ var commands = map[string]command{
 }
 
 // TRLC-LINKS: REQ-EMG-158
-// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
+// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH, FLOW-ARTIFACT-EXPORT
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
 }
@@ -91,95 +91,165 @@ func usage(w io.Writer) {
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
 // ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
 func runScan(args []string, stdout, stderr io.Writer) int {
+	a, code := parseScanArgs(args, stderr)
+	if code >= 0 {
+		return code
+	}
+	report, code := a.report(stderr)
+	if code >= 0 {
+		return code
+	}
+	return finishScan(a, report, streams{stdout, stderr})
+}
+
+// scanArgs are the parsed arguments of enghealth scan.
+type scanArgs struct {
+	modelPath, format, out, tier, importPath string
+	failOnError, useCache, noCache           bool
+	paths                                    []string
+	usage                                    func()
+}
+
+// parseScanArgs parses and checks the flags of enghealth scan. The exit code is
+// -1 when the arguments are fine and the scan should run.
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
+func parseScanArgs(args []string, stderr io.Writer) (scanArgs, int) {
 	flags := flag.NewFlagSet("enghealth scan", flag.ContinueOnError)
 	flags.SetOutput(stderr)
-	modelPath := flags.String("model", "", "path to the engmod.yml manifest")
-	format := flags.String("format", "text", "output format: text, json or sarif")
-	out := flags.String("out", "", "write the output to this file instead of stdout")
-	tier := flags.String("tier", "", "scan at this life-cycle tier instead of the one the manifest declares")
-	failOnError := flags.Bool("fail-on-error", false, "exit 1 when a finding is an error at the tier")
-	importPath := flags.String("import", "", "re-render this engmod-health/1 report (from another engine) instead of scanning")
-	useCache := flags.Bool("cache", false, "use the result cache under .engmod/cache/health although CI is set (it is off in CI by default)")
-	noCache := flags.Bool("no-cache", false, "do not read or write the result cache")
+	var a scanArgs
+	flags.StringVar(&a.modelPath, "model", "", "path to the engmod.yml manifest")
+	flags.StringVar(&a.format, "format", "text", "output format: text, json or sarif")
+	flags.StringVar(&a.out, "out", "", "write the output to this file instead of stdout")
+	flags.StringVar(&a.tier, "tier", "", "scan at this life-cycle tier instead of the one the manifest declares")
+	flags.BoolVar(&a.failOnError, "fail-on-error", false, "exit 1 when a finding is an error at the tier")
+	flags.StringVar(&a.importPath, "import", "", "re-render this engmod-health/1 report (from another engine) instead of scanning")
+	flags.BoolVar(&a.useCache, "cache", false, "use the result cache under .engmod/cache/health although CI is set (it is off in CI by default)")
+	flags.BoolVar(&a.noCache, "no-cache", false, "do not read or write the result cache")
 	flags.Usage = func() {
 		fmt.Fprintln(stderr, "usage: enghealth scan --model <engmod.yml> [--format text|json|sarif] [--out file] [--tier t] [--fail-on-error] [--cache] [--no-cache] [paths...]")
 		fmt.Fprintln(stderr, "       enghealth scan --import <report.json> [--model <engmod.yml>] [--tier t] [--format text|json|sarif] [--out file] [--fail-on-error]")
 		flags.PrintDefaults()
 	}
+	a.usage = flags.Usage
 	if err := flags.Parse(args); err != nil {
 		if errors.Is(err, flag.ErrHelp) {
-			return exitOK
+			return a, exitOK
 		}
-		return exitUsage
+		return a, exitUsage
 	}
-	switch *format {
-	case "text", "json", "sarif":
-	default:
-		fmt.Fprintf(stderr, "enghealth scan: unknown format %q; use text, json or sarif\n", *format)
-		return exitUsage
+	a.paths = flags.Args()
+	if code := a.validate(stderr); code >= 0 {
+		return a, code
 	}
+	return a, -1
+}
 
-	if *useCache && *noCache {
+// validFormat reports an output format of the commands.
+//
+// TRLC-LINKS: REQ-EMG-158
+func validFormat(format string) bool {
+	return format == "text" || format == "json" || format == "sarif"
+}
+
+// validate checks the parsed flags: the exit code is -1 when they are fine.
+//
+// TRLC-LINKS: REQ-EMG-158
+func (a scanArgs) validate(stderr io.Writer) int {
+	if !validFormat(a.format) {
+		fmt.Fprintf(stderr, "enghealth scan: unknown format %q; use text, json or sarif\n", a.format)
+		return exitUsage
+	}
+	if a.useCache && a.noCache {
 		fmt.Fprintln(stderr, "enghealth scan: --cache and --no-cache cannot be combined")
 		return exitUsage
 	}
+	return -1
+}
 
-	var report engmodel.HealthReport
-	var err error
-	switch {
-	case strings.TrimSpace(*importPath) != "":
-		if flags.NArg() > 0 {
-			fmt.Fprintln(stderr, "enghealth scan: paths cannot be combined with --import")
-			return exitUsage
-		}
-		if *failOnError && strings.TrimSpace(*modelPath) == "" && strings.TrimSpace(*tier) == "" {
-			fmt.Fprintln(stderr, "enghealth scan: --fail-on-error with --import needs --model or --tier: the levels of the imported report are not trusted")
-			return exitUsage
-		}
-		report, err = importReport(*importPath, *modelPath, *tier)
-		if err == nil {
-			fmt.Fprintf(stderr, "enghealth scan: read a report of scoring version %d; its scores are taken as they are and not recomputed\n", report.Engine.ScoringVersion)
-		}
-	case strings.TrimSpace(*modelPath) == "":
-		flags.Usage()
-		return exitUsage
-	default:
-		report, err = engmodel.ScanHealth(engmodel.HealthScanOptions{
-			ManifestPath: *modelPath, Tier: *tier, Paths: flags.Args(),
-			NoCache: *noCache, UseCache: *useCache, Notes: stderr,
-		})
+// report scans the model, or reads the imported report. The exit code is -1
+// when there is a report.
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
+func (a scanArgs) report(stderr io.Writer) (engmodel.HealthReport, int) {
+	if strings.TrimSpace(a.importPath) != "" {
+		return a.importedReport(stderr)
 	}
+	if strings.TrimSpace(a.modelPath) == "" {
+		a.usage()
+		return engmodel.HealthReport{}, exitUsage
+	}
+	report, err := engmodel.ScanHealth(engmodel.HealthScanOptions{
+		ManifestPath: a.modelPath, Tier: a.tier, Paths: a.paths,
+		NoCache: a.noCache, UseCache: a.useCache, Notes: stderr,
+	})
 	if err != nil {
 		fmt.Fprintln(stderr, "enghealth scan:", safeText(err.Error()))
-		return exitUsage
+		return engmodel.HealthReport{}, exitUsage
 	}
-	if *failOnError && len(report.Levels) == 0 {
-		fmt.Fprintln(stderr, "enghealth scan: --fail-on-error needs the levels of the codes, and the report has none")
-		return exitUsage
-	}
+	return report, -1
+}
 
-	var data []byte
-	switch *format {
-	case "json":
-		data, err = engmodel.EncodeHealthReport(report)
-	case "sarif":
-		data, err = engmodel.HealthSARIF(report)
-	default:
-		data = []byte(renderText(report))
+// importedReport reads the report of --import. The exit code is -1 when there
+// is a report.
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
+func (a scanArgs) importedReport(stderr io.Writer) (engmodel.HealthReport, int) {
+	if len(a.paths) > 0 {
+		fmt.Fprintln(stderr, "enghealth scan: paths cannot be combined with --import")
+		return engmodel.HealthReport{}, exitUsage
 	}
+	if a.failOnError && strings.TrimSpace(a.modelPath) == "" && strings.TrimSpace(a.tier) == "" {
+		fmt.Fprintln(stderr, "enghealth scan: --fail-on-error with --import needs --model or --tier: the levels of the imported report are not trusted")
+		return engmodel.HealthReport{}, exitUsage
+	}
+	report, err := importReport(a.importPath, a.modelPath, a.tier)
 	if err != nil {
-		fmt.Fprintln(stderr, "enghealth scan: render:", err)
+		fmt.Fprintln(stderr, "enghealth scan:", safeText(err.Error()))
+		return engmodel.HealthReport{}, exitUsage
+	}
+	fmt.Fprintf(stderr, "enghealth scan: read a report of scoring version %d; its scores are taken as they are and not recomputed\n", report.Engine.ScoringVersion)
+	return report, -1
+}
+
+// finishScan renders the report, writes it and sets the exit code; with
+// --fail-on-error a finding, a file below the floor or a stale baseline entry
+// at the tier is exit 1, which is how this repository is held at 10.0 for
+// every file (REQ-EMG-211).
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-158, REQ-EMG-211
+func finishScan(a scanArgs, report engmodel.HealthReport, s streams) int {
+	if a.failOnError && len(report.Levels) == 0 {
+		fmt.Fprintln(s.stderr, "enghealth scan: --fail-on-error needs the levels of the codes, and the report has none")
 		return exitUsage
 	}
-	if err := writeOutput(data, *out, stdout); err != nil {
-		fmt.Fprintln(stderr, "enghealth scan: write output:", safeText(err.Error()))
+	data, err := renderScan(report, a.format)
+	if err != nil {
+		fmt.Fprintln(s.stderr, "enghealth scan: render:", err)
 		return exitUsage
 	}
-	if *failOnError && report.Summary.Errors > 0 {
-		fmt.Fprintf(stderr, "enghealth scan: %d finding(s) and diagnostic(s) are errors at tier %s\n", report.Summary.Errors, safeText(tierName(report.Tier)))
+	if err := writeOutput(data, a.out, s.stdout); err != nil {
+		fmt.Fprintln(s.stderr, "enghealth scan: write output:", safeText(err.Error()))
+		return exitUsage
+	}
+	if a.failOnError && report.Summary.Errors > 0 {
+		fmt.Fprintf(s.stderr, "enghealth scan: %d finding(s) and diagnostic(s) are errors at tier %s\n", report.Summary.Errors, safeText(tierName(report.Tier)))
 		return exitFail
 	}
 	return exitOK
+}
+
+// renderScan renders a report in a format.
+//
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
+func renderScan(report engmodel.HealthReport, format string) ([]byte, error) {
+	switch format {
+	case "json":
+		return engmodel.EncodeHealthReport(report)
+	case "sarif":
+		return engmodel.HealthSARIF(report)
+	}
+	return []byte(renderText(report)), nil
 }
 
 // importReport reads a report from another engine. With a model or a tier the

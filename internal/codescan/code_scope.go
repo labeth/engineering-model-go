@@ -56,28 +56,43 @@ func WithCodeIndex(bundle model.Bundle) model.Bundle {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
 func moduleCodeRoot(bundle model.Bundle) string {
 	if root := strings.TrimSpace(bundle.CodeScopeRoot); root != "" {
-		if abs, err := filepath.Abs(root); err == nil {
-			return abs
-		}
-		return root
+		return absOrSelf(root)
 	}
 	manifestDir, err := filepath.Abs(ModelRootDir(bundle))
 	if err != nil {
 		return ModelRootDir(bundle)
 	}
 	gitRoot := gitWorkTreeRoot(manifestDir)
-	if gitRoot == "" {
+	if gitRoot == "" || hasEnclosingModule(manifestDir, gitRoot) {
 		return manifestDir
 	}
+	return gitRoot
+}
+
+// absOrSelf is the absolute form of a path, or the path itself when that fails.
+// TRLC-LINKS: REQ-EMG-057, REQ-EMG-067
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
+func absOrSelf(p string) string {
+	if abs, err := filepath.Abs(p); err == nil {
+		return abs
+	}
+	return p
+}
+
+// hasEnclosingModule reports whether another engmod.yml sits in a directory
+// above manifestDir, up to the git root.
+// TRLC-LINKS: REQ-EMG-057, REQ-EMG-067
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
+func hasEnclosingModule(manifestDir, gitRoot string) bool {
 	for dir := filepath.Dir(manifestDir); composition.PathWithin(gitRoot, dir); dir = filepath.Dir(dir) {
 		if isRegularFile(filepath.Join(dir, "engmod.yml")) {
-			return manifestDir
+			return true
 		}
 		if dir == gitRoot || filepath.Dir(dir) == dir {
 			break
 		}
 	}
-	return gitRoot
+	return false
 }
 
 // gitWorkTreeRoot returns the nearest ancestor holding a .git entry (a directory, or a
@@ -114,22 +129,57 @@ func WithDefaultCodeRoot(bundle model.Bundle, roots []string) []string {
 func codeScanSkipper(bundle model.Bundle) func(path string, isDir bool) bool {
 	moduleRoot := moduleCodeRoot(bundle)
 	manifestDir, _ := filepath.Abs(ModelRootDir(bundle))
-	patterns := bundle.Architecture.InferenceHints.Exclude
-	visible := gitVisibleFiles(moduleRoot)
-	return func(p string, isDir bool) bool {
-		if isDir && p != manifestDir && isRegularFile(filepath.Join(p, "engmod.yml")) {
-			return true
-		}
-		rel, err := filepath.Rel(moduleRoot, p)
-		if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-			return false
-		}
-		rel = filepath.ToSlash(rel)
-		if excludedPath(rel, patterns) {
-			return true
-		}
-		return !isDir && visible != nil && !visible[rel]
+	scope := codeScope{
+		moduleRoot:  moduleRoot,
+		manifestDir: manifestDir,
+		patterns:    bundle.Architecture.InferenceHints.Exclude,
+		visible:     gitVisibleFiles(moduleRoot),
 	}
+	return scope.skip
+}
+
+// codeScope holds what decides whether a path is outside the model's code scope.
+type codeScope struct {
+	moduleRoot  string
+	manifestDir string
+	patterns    []string
+	visible     map[string]bool
+}
+
+// skip reports whether the path is outside the code scope.
+// TRLC-LINKS: REQ-EMG-057
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
+func (c codeScope) skip(p string, isDir bool) bool {
+	if isDir && c.isNestedModule(p) {
+		return true
+	}
+	rel, ok := c.relativePath(p)
+	if !ok {
+		return false
+	}
+	if excludedPath(rel, c.patterns) {
+		return true
+	}
+	return !isDir && c.visible != nil && !c.visible[rel]
+}
+
+// isNestedModule reports whether a directory other than the model's own holds an engmod.yml.
+// TRLC-LINKS: REQ-EMG-057
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
+func (c codeScope) isNestedModule(p string) bool {
+	return p != c.manifestDir && isRegularFile(filepath.Join(p, "engmod.yml"))
+}
+
+// relativePath is the slashed path relative to the module root; false when
+// the path lies outside it.
+// TRLC-LINKS: REQ-EMG-057
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, DEP-LOCAL-WORKSPACE
+func (c codeScope) relativePath(p string) (string, bool) {
+	rel, err := filepath.Rel(c.moduleRoot, p)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return "", false
+	}
+	return filepath.ToSlash(rel), true
 }
 
 // excludedPath matches a module-relative path against exclude globs. A
@@ -141,13 +191,19 @@ func codeScanSkipper(bundle model.Bundle) func(path string, isDir bool) bool {
 func excludedPath(rel string, patterns []string) bool {
 	for _, pattern := range patterns {
 		pattern, ok := normalizeExcludePattern(pattern)
-		if !ok {
-			continue
+		if ok && matchesSelfOrAncestor(pattern, rel) {
+			return true
 		}
-		for prefix := rel; prefix != "." && prefix != "/" && prefix != ""; prefix = path.Dir(prefix) {
-			if matched, _ := path.Match(pattern, prefix); matched {
-				return true
-			}
+	}
+	return false
+}
+
+// matchesSelfOrAncestor reports whether the glob matches the path or one of its ancestors.
+// TRLC-LINKS: REQ-EMG-057, REQ-EMG-114
+func matchesSelfOrAncestor(pattern, rel string) bool {
+	for prefix := rel; prefix != "." && prefix != "/" && prefix != ""; prefix = path.Dir(prefix) {
+		if matched, _ := path.Match(pattern, prefix); matched {
+			return true
 		}
 	}
 	return false
@@ -185,6 +241,14 @@ func ScanCodeScope(bundle model.Bundle, root string) ([]codemap.Symbol, []valida
 	return codemap.ScanWithOptions(root, codemap.ScanOptions{IDBase: moduleCodeRoot(bundle), Skip: codeScanSkipper(bundle)})
 }
 
+// ListDeclarations lists every named declaration under root with the model's code scope (see ScanCodeScope), marked
+// or not, for tools that jump from a use to its definition.
+// TRLC-LINKS: REQ-EMG-192
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
+func ListDeclarations(bundle model.Bundle, root string) ([]codemap.Declaration, error) {
+	return codemap.ListDeclarations(root, codemap.ScanOptions{IDBase: moduleCodeRoot(bundle), Skip: codeScanSkipper(bundle)})
+}
+
 // gitVisibleFiles lists files git tracks or would track (not ignored) under root, relative to
 // root. It returns nil when root is not in a git repository, git is unavailable, or root
 // itself is ignored (a dependency in a consumer's git-ignored module cache), which disables
@@ -217,56 +281,102 @@ func gitVisibleFiles(root string) map[string]bool {
 // TRLC-LINKS: REQ-EMG-058, REQ-EMG-059, REQ-EMG-084
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
 func buildCodeIndex(bundle model.Bundle) map[string]int {
-	moduleRoot := moduleCodeRoot(bundle)
-	skip := codeScanSkipper(bundle)
-	roots := UniqueExistingSources(WithDefaultCodeRoot(bundle, nil))
-
-	locations := map[string]map[string]bool{}
-	add := func(id, location string) {
-		if locations[id] == nil {
-			locations[id] = map[string]bool{}
-		}
-		locations[id][location] = true
+	b := &codeIndexBuilder{
+		moduleRoot: moduleCodeRoot(bundle),
+		skip:       codeScanSkipper(bundle),
+		locations:  map[string]map[string]bool{},
 	}
-	for _, root := range roots {
-		_ = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return nil
-			}
-			if d.IsDir() {
-				if p != root && (SkipScanDir(d.Name()) || skip(p, true)) {
-					return filepath.SkipDir
-				}
-				return nil
-			}
-			if skip(p, false) {
-				return nil
-			}
-			if rel, err := filepath.Rel(moduleRoot, p); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
-				add(codemap.FileID(rel), p)
-			}
-			return nil
-		})
-		symbols, _, err := codemap.ScanWithOptions(root, codemap.ScanOptions{IDBase: moduleRoot, Skip: skip})
-		if err != nil {
-			continue
-		}
-		for _, s := range symbols {
-			if strings.HasPrefix(s.TraceID, "CODE-") {
-				location := filepath.Join(sourceRootDir(root), filepath.FromSlash(s.Path))
-				// An artifact's symbol is the file itself, not a second declaration.
-				if !codemap.IsArtifactFile(s.Path) {
-					location += ":" + strconv.Itoa(s.Line)
-				}
-				add(s.TraceID, location)
-			}
-		}
+	for _, root := range UniqueExistingSources(WithDefaultCodeRoot(bundle, nil)) {
+		_ = filepath.WalkDir(root, b.walker(root))
+		b.addSymbols(root)
 	}
-	index := make(map[string]int, len(locations))
-	for id, locs := range locations {
+	index := make(map[string]int, len(b.locations))
+	for id, locs := range b.locations {
 		index[id] = len(locs)
 	}
 	return index
+}
+
+// codeIndexBuilder collects the locations producing each CODE identifier.
+type codeIndexBuilder struct {
+	moduleRoot string
+	skip       func(path string, isDir bool) bool
+	locations  map[string]map[string]bool
+}
+
+// add records one location of an identifier.
+// TRLC-LINKS: REQ-EMG-058, REQ-EMG-059, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
+func (b *codeIndexBuilder) add(id, location string) {
+	if b.locations[id] == nil {
+		b.locations[id] = map[string]bool{}
+	}
+	b.locations[id][location] = true
+}
+
+// walker is the WalkDir callback of one root: it skips unreadable entries.
+// TRLC-LINKS: REQ-EMG-058, REQ-EMG-059, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
+func (b *codeIndexBuilder) walker(root string) fs.WalkDirFunc {
+	return func(p string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		return b.visit(root, p, d)
+	}
+}
+
+// visit prunes skipped directories and gives every other in-scope file inside
+// the module root its file identifier.
+// TRLC-LINKS: REQ-EMG-058, REQ-EMG-059, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
+func (b *codeIndexBuilder) visit(root, p string, d fs.DirEntry) error {
+	if d.IsDir() {
+		if p != root && (SkipScanDir(d.Name()) || b.skip(p, true)) {
+			return filepath.SkipDir
+		}
+		return nil
+	}
+	if !b.skip(p, false) {
+		b.addFile(p)
+	}
+	return nil
+}
+
+// addFile gives a file inside the module root its file identifier.
+// TRLC-LINKS: REQ-EMG-058, REQ-EMG-059, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
+func (b *codeIndexBuilder) addFile(p string) {
+	if rel, err := filepath.Rel(b.moduleRoot, p); err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		b.add(codemap.FileID(rel), p)
+	}
+}
+
+// addSymbols records the CODE identifiers of the trace-marked symbols under root.
+// TRLC-LINKS: REQ-EMG-058, REQ-EMG-059, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
+func (b *codeIndexBuilder) addSymbols(root string) {
+	symbols, _, err := codemap.ScanWithOptions(root, codemap.ScanOptions{IDBase: b.moduleRoot, Skip: b.skip})
+	if err != nil {
+		return
+	}
+	for _, s := range symbols {
+		if strings.HasPrefix(s.TraceID, "CODE-") {
+			b.add(s.TraceID, symbolLocation(root, s))
+		}
+	}
+}
+
+// symbolLocation is the file of a symbol, plus its line unless the symbol is
+// an artifact (the file itself, not a second declaration).
+// TRLC-LINKS: REQ-EMG-058, REQ-EMG-059, REQ-EMG-084
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, FU-VALIDATION-ENGINE
+func symbolLocation(root string, s codemap.Symbol) string {
+	location := filepath.Join(sourceRootDir(root), filepath.FromSlash(s.Path))
+	if !codemap.IsArtifactFile(s.Path) {
+		location += ":" + strconv.Itoa(s.Line)
+	}
+	return location
 }
 
 // TRLC-LINKS: REQ-EMG-057

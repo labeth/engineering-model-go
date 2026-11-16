@@ -30,7 +30,7 @@ func TestBuildSecurityAttackChapters_IncludesMitigationsAndBoundaries(t *testing
 		"TB-A":   "Boundary A",
 	}
 
-	got := buildSecurityAttackChapters(a, units, nodeSet, rows, labels, nil, nil)
+	got := buildSecurityAttackChapters(a, attackChapterScope{units: units, nodeSet: nodeSet, securityRows: rows, labels: labels})
 
 	if len(got) != 1 {
 		t.Fatalf("expected one attack chapter, got %d", len(got))

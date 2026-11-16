@@ -73,6 +73,8 @@ var nonDeferrableEntries = []nonDeferrableEntry{
 	{"regression family", "health.regression", "x.go", model.POAMDefer{Code: "health.r*"}},
 	{"baseline stale", "health.baseline_stale", "b", model.POAMDefer{Code: "health.baseline_stale"}},
 	{"waiver unused", "health.waiver_unused", "w", model.POAMDefer{Code: "health.waiver_unused"}},
+	{"file below floor", "health.file_below_floor", "f.go", model.POAMDefer{Code: "health.file_below_floor"}},
+	{"file below floor family", "health.file_below_floor", "f.go", model.POAMDefer{Code: "health.file_b*"}},
 	{"verification failed", "verification.failed", "v", model.POAMDefer{Code: "verification.failed"}},
 	{"verification family", "verification.failed", "v", model.POAMDefer{Code: "verification.*"}},
 }
@@ -97,7 +99,7 @@ func assertNonDeferrableKinds(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-129
 func assertNonDeferrableListIsClosed(t *testing.T) {
 	t.Helper()
-	const want = "health.policy_weakened,health.regression,health.baseline_stale,health.waiver_unused,verification.failed,lifecycle.poam_overdue,lifecycle.poam_defers_unused"
+	const want = "health.policy_weakened,health.regression,health.baseline_stale,health.waiver_unused,health.file_below_floor,verification.failed,lifecycle.poam_overdue,lifecycle.poam_defers_unused"
 	if got := strings.Join(NonDeferrableCodes(), ","); got != want {
 		t.Fatalf("NonDeferrableCodes() = %s: the list is closed", got)
 	}
@@ -109,8 +111,8 @@ func assertNonDeferrableListIsClosed(t *testing.T) {
 func assertDeferKeepsTierSeverity(t *testing.T, tier string, e nonDeferrableEntry) {
 	t.Helper()
 	b := poamBundle(tier, e.entry)
-	want := severityAt(t, tierBundle(tier), e.code, e.path, SeverityWarning)
-	got := severityAt(t, b, e.code, e.path, SeverityWarning)
+	want := severityAt(t, tierBundle(tier), probe(e.code, e.path, SeverityWarning))
+	got := severityAt(t, b, probe(e.code, e.path, SeverityWarning))
 	if got.Severity != want.Severity || got.Deferred != want.Deferred || got.PoamRef != "" {
 		t.Errorf("%s at %s: defer changed %s: %+v, want the tier severity %+v", e.name, tier, e.code, got, want)
 	}
@@ -158,7 +160,7 @@ func assertExactDeferAccepted(t *testing.T, code string) {
 	if got := codesOf(Bundle(b), "lifecycle.poam_defers_core"); len(got) != 0 {
 		t.Errorf("exact defer of %s rejected: %+v", code, got)
 	}
-	if got := severityAt(t, b, code, "p", SeverityWarning); got.PoamRef != "POAM-T" || !got.Deferred {
+	if got := severityAt(t, b, probe(code, "p", SeverityWarning)); got.PoamRef != "POAM-T" || !got.Deferred {
 		t.Errorf("exact defer of %s did not defer: %+v", code, got)
 	}
 }
@@ -365,11 +367,11 @@ func TestDeferByRefFollowsTheRequirement(t *testing.T) {
 	}
 	// A ref also covers the by-ID path form and paths below the requirement.
 	for _, path := range []string{"requirements[REQ-B]", "requirements[2]", "requirements[2].status"} {
-		if got := severityAt(t, b, "lifecycle.requirement_unverified", path, SeverityWarning); got.PoamRef != "POAM-T" {
+		if got := severityAt(t, b, probe("lifecycle.requirement_unverified", path, SeverityWarning)); got.PoamRef != "POAM-T" {
 			t.Errorf("ref did not cover %s: %+v", path, got)
 		}
 	}
-	if got := severityAt(t, b, "lifecycle.requirement_unverified", "requirements[20].status", SeverityWarning); got.PoamRef != "" {
+	if got := severityAt(t, b, probe("lifecycle.requirement_unverified", "requirements[20].status", SeverityWarning)); got.PoamRef != "" {
 		t.Errorf("ref covered requirements[20]: %+v", got)
 	}
 }

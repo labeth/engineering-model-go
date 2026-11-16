@@ -3,6 +3,7 @@ package mcp
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -61,7 +62,7 @@ func writeMCPCompositionFixture(t *testing.T) string {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
 	parent := filepath.Join(root, "parent")
-	writeMCPModule(t, child, "example.com/child@v1", "v1.0.0", "CHILD", `publications:
+	writeMCPModule(t, child, mcpModule{"example.com/child@v1", "v1.0.0", "CHILD", `publications:
   - id: public
     architecture: [CAP-CHILD]
     requirements: [REQ-CHILD]
@@ -69,8 +70,8 @@ func writeMCPCompositionFixture(t *testing.T) string {
     provides:
       - id: CAP-CHILD
         kind: capability
-`)
-	writeMCPModule(t, parent, "example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
+`})
+	writeMCPModule(t, parent, mcpModule{"example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
   - alias: child
     path: example.com/child@v1
     version: v1.0.0
@@ -80,7 +81,7 @@ func writeMCPCompositionFixture(t *testing.T) string {
       - id: SUB-CHILD
         dependency: child
         publication: public
-`)
+`})
 	// REQ-PARENT traces to the capability of the child with a requirement link.
 	manifest := filepath.Join(parent, "engmod.yml")
 	data, err := os.ReadFile(manifest)
@@ -93,9 +94,12 @@ func writeMCPCompositionFixture(t *testing.T) string {
 	return parent
 }
 
+type mcpModule struct{ modulePath, version, modelID, manifestExtra, architecture string }
+
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
-func writeMCPModule(t *testing.T, dir, modulePath, version, modelID, manifestExtra, architecture string) {
+func writeMCPModule(t *testing.T, dir string, m mcpModule) {
 	t.Helper()
+	modulePath, version, modelID, manifestExtra, architecture := m.modulePath, m.version, m.modelID, m.manifestExtra, m.architecture
 	writeMCPFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \""+modulePath+"\"\nlanguage: version: \"v0.17.0\"\n")
 	writeMCPFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: 3
 module:
@@ -174,13 +178,9 @@ func callToolData(t *testing.T, s *Server, name string) map[string]any {
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	full := callToolPayload(t, s, "trace.matrix", map[string]any{})
+	full := s.callToolPayload(t, "trace.matrix", map[string]any{})
 	summary, _ := full["summary"].(map[string]any)
-	for _, key := range []string{"requirements", "implemented", "tested", "testLinked", "passed", "delegated", "orphan", "dangling"} {
-		if _, ok := summary[key]; !ok {
-			t.Fatalf("trace.matrix summary missing %q: %+v", key, summary)
-		}
-	}
+	check(t, "trace.matrix summary").keysPresent(summary, "requirements", "implemented", "tested", "testLinked", "passed", "delegated", "orphan", "dangling")
 	if summary["testLinked"] != summary["tested"] {
 		t.Fatalf("testLinked must equal tested: %+v", summary)
 	}
@@ -188,26 +188,26 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 		t.Fatalf("full trace.matrix must list requirement rows")
 	}
 	for _, arg := range []any{true, "true"} {
-		short := callToolPayload(t, s, "trace.matrix", map[string]any{"summaryOnly": arg})
-		for _, key := range []string{"requirements", "orphans", "danglingLinks"} {
-			if _, ok := short[key]; ok {
-				t.Fatalf("summaryOnly=%v must omit %q: %+v", arg, key, short)
-			}
-		}
-		if _, ok := short["diagnostics"]; !ok {
-			t.Fatalf("summaryOnly=%v must keep diagnostics", arg)
-		}
-		if got, _ := short["summary"].(map[string]any); got["requirements"] != summary["requirements"] {
-			t.Fatalf("summaryOnly=%v summary differs: %+v vs %+v", arg, got, summary)
-		}
+		s.requireSummaryOnly(t, arg, summary)
 	}
-	if rows, _ := callToolPayload(t, s, "trace.matrix", map[string]any{"summaryOnly": "false"})["requirements"].([]any); len(rows) == 0 {
+	if rows, _ := s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": "false"})["requirements"].([]any); len(rows) == 0 {
 		t.Fatalf("summaryOnly=false must keep requirement rows")
 	}
 	schema := inputSchemaForTool("trace.matrix")
 	props, _ := schema["properties"].(map[string]any)
-	if _, ok := props["summaryOnly"]; !ok {
-		t.Fatalf("trace.matrix inputSchema must declare summaryOnly: %+v", schema)
+	check(t, "trace.matrix inputSchema properties").keysPresent(props, "summaryOnly")
+}
+
+// requireSummaryOnly requires summaryOnly=arg to drop the rows, keep the
+// diagnostics and report the same summary requirements count.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func (s *Server) requireSummaryOnly(t *testing.T, arg any, summary map[string]any) {
+	t.Helper()
+	short := s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": arg})
+	check(t, fmt.Sprintf("summaryOnly=%v", arg)).keysAbsent(short, "requirements", "orphans", "danglingLinks")
+	check(t, fmt.Sprintf("summaryOnly=%v", arg)).keysPresent(short, "diagnostics")
+	if got, _ := short["summary"].(map[string]any); got["requirements"] != summary["requirements"] {
+		t.Fatalf("summaryOnly=%v summary differs: %+v vs %+v", arg, got, summary)
 	}
 }
 
@@ -217,7 +217,7 @@ func TestTraceMatrixToolSummaryAndSummaryOnly(t *testing.T) {
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func TestTraceMatrixToolSummaryHasNoRemovedCounters(t *testing.T) {
 	s := initializedPaymentsServer(t)
-	summary, _ := callToolPayload(t, s, "trace.matrix", map[string]any{"summaryOnly": true})["summary"].(map[string]any)
+	summary, _ := s.callToolPayload(t, "trace.matrix", map[string]any{"summaryOnly": true})["summary"].(map[string]any)
 	if _, present := summary["verified"]; present {
 		t.Fatalf("summary carries the removed counter verified: %+v", summary)
 	}

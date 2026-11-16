@@ -10,20 +10,23 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// baselineFile is the baseline file path, its content ("" writes no file) and the decision.
+type baselineFile struct{ file, content, decision string }
+
 // baselineBundle is a health bundle whose manifest lives in a temp directory
-// holding the given baseline file content ("" writes no file).
-func baselineBundle(t *testing.T, file, content string, decision string) model.Bundle {
+// holding the baseline file content ("" writes no file).
+func baselineBundle(t *testing.T, f baselineFile) model.Bundle {
 	t.Helper()
 	dir := t.TempDir()
-	if content != "" {
+	if f.content != "" {
 		if err := os.MkdirAll(filepath.Join(dir, "model"), 0o755); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.WriteFile(filepath.Join(dir, "model", "baseline.json"), []byte(content), 0o644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "model", "baseline.json"), []byte(f.content), 0o644); err != nil {
 			t.Fatal(err)
 		}
 	}
-	b := healthBundle(&model.ManifestHealth{Baseline: &model.HealthBaseline{File: file, Decision: decision}})
+	b := healthBundle(&model.ManifestHealth{Baseline: &model.HealthBaseline{File: f.file, Decision: f.decision}})
 	b.ManifestPath = filepath.Join(dir, "engmod.yml")
 	return b
 }
@@ -34,7 +37,7 @@ const validBaselineJSON = `{"schema":"engmod-health-baseline/1","entries":[{"pat
 // a model without a baseline is untouched by the rules (REQ-EMG-160).
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
 func TestHealthBaselineValidIsSilent(t *testing.T) {
-	b := baselineBundle(t, "model/baseline.json", validBaselineJSON, "ADR-OK")
+	b := baselineBundle(t, baselineFile{"model/baseline.json", validBaselineJSON, "ADR-OK"})
 	if got := healthCodes(b); len(got) != 0 {
 		t.Fatalf("a valid baseline got %+v", got)
 	}
@@ -55,36 +58,44 @@ func TestHealthBaselineValidIsSilent(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-154
 func TestHealthBaselineErrors(t *testing.T) {
-	cases := []struct {
-		name, file, content, decision string
-		code, path, in                string
-	}{
-		{"decision missing", "model/baseline.json", validBaselineJSON, "ADR-NOPE", model.HealthWaiverUnjustifiedCode, "health.baseline.decision", "does not exist"},
-		{"decision proposed", "model/baseline.json", validBaselineJSON, "ADR-DRAFT", model.HealthWaiverUnjustifiedCode, "health.baseline.decision", "not accepted"},
-		{"decision empty", "model/baseline.json", validBaselineJSON, "", "model.invalid_health_baseline", "health.baseline.decision", "needs a decision"},
-		{"file absolute", "/etc/baseline.json", validBaselineJSON, "ADR-OK", "model.invalid_health_baseline", "health.baseline.file", "is absolute"},
-		{"file parent", "../baseline.json", validBaselineJSON, "ADR-OK", "model.invalid_health_baseline", "health.baseline.file", "leaves the manifest directory"},
-		{"file empty", "", validBaselineJSON, "ADR-OK", "model.invalid_health_baseline", "health.baseline.file", "is empty"},
-		{"file missing", "model/other.json", validBaselineJSON, "ADR-OK", model.HealthBaselineUnreadableCode, "health.baseline.file", "cannot be read"},
-		{"file not json", "model/baseline.json", "entries: []", "ADR-OK", model.HealthBaselineUnreadableCode, "health.baseline.file", "not a valid baseline"},
-		{"file other schema", "model/baseline.json", `{"schema":"engmod-health/1","entries":[]}`, "ADR-OK", model.HealthBaselineUnreadableCode, "health.baseline.file", "engmod-health-baseline/1"},
-		{"file bad entry", "model/baseline.json", `{"schema":"engmod-health-baseline/1","entries":[{"path":"a.go","function":"f","code":"health.nope","value":5}]}`, "ADR-OK", model.HealthBaselineUnreadableCode, "health.baseline.file", "not a health smell code"},
-		{"file entry without value", "model/baseline.json", `{"schema":"engmod-health-baseline/1","entries":[{"path":"a.go","function":"f","code":"health.large_method"}]}`, "ADR-OK", model.HealthBaselineUnreadableCode, "health.baseline.file", "value 0 must be at least 1"},
+	cases := []baselineCase{
+		{"decision missing", baselineFile{"model/baseline.json", validBaselineJSON, "ADR-NOPE"}, model.HealthWaiverUnjustifiedCode, "health.baseline.decision", "does not exist"},
+		{"decision proposed", baselineFile{"model/baseline.json", validBaselineJSON, "ADR-DRAFT"}, model.HealthWaiverUnjustifiedCode, "health.baseline.decision", "not accepted"},
+		{"decision empty", baselineFile{"model/baseline.json", validBaselineJSON, ""}, "model.invalid_health_baseline", "health.baseline.decision", "needs a decision"},
+		{"file absolute", baselineFile{"/etc/baseline.json", validBaselineJSON, "ADR-OK"}, "model.invalid_health_baseline", "health.baseline.file", "is absolute"},
+		{"file parent", baselineFile{"../baseline.json", validBaselineJSON, "ADR-OK"}, "model.invalid_health_baseline", "health.baseline.file", "leaves the manifest directory"},
+		{"file empty", baselineFile{"", validBaselineJSON, "ADR-OK"}, "model.invalid_health_baseline", "health.baseline.file", "is empty"},
+		{"file missing", baselineFile{"model/other.json", validBaselineJSON, "ADR-OK"}, model.HealthBaselineUnreadableCode, "health.baseline.file", "cannot be read"},
+		{"file not json", baselineFile{"model/baseline.json", "entries: []", "ADR-OK"}, model.HealthBaselineUnreadableCode, "health.baseline.file", "not a valid baseline"},
+		{"file other schema", baselineFile{"model/baseline.json", `{"schema":"engmod-health/1","entries":[]}`, "ADR-OK"}, model.HealthBaselineUnreadableCode, "health.baseline.file", "engmod-health-baseline/1"},
+		{"file bad entry", baselineFile{"model/baseline.json", `{"schema":"engmod-health-baseline/1","entries":[{"path":"a.go","function":"f","code":"health.nope","value":5}]}`, "ADR-OK"}, model.HealthBaselineUnreadableCode, "health.baseline.file", "not a health smell code"},
+		{"file entry without value", baselineFile{"model/baseline.json", `{"schema":"engmod-health-baseline/1","entries":[{"path":"a.go","function":"f","code":"health.large_method"}]}`, "ADR-OK"}, model.HealthBaselineUnreadableCode, "health.baseline.file", "value 0 must be at least 1"},
 	}
 	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			got := healthCodes(baselineBundle(t, c.file, c.content, c.decision))
-			if len(got) != 1 {
-				t.Fatalf("got %+v, want exactly one diagnostic", got)
-			}
-			d := got[0]
-			if d.Code != c.code || d.Path != c.path || d.Severity != SeverityError || !strings.Contains(d.Message, c.in) {
-				t.Fatalf("got %+v, want %s at %s containing %q", d, c.code, c.path, c.in)
-			}
-			if c.code == model.HealthWaiverUnjustifiedCode && !strings.Contains(d.Message, "baseline") {
-				t.Errorf("the message must name the baseline: %s", d.Message)
-			}
-		})
+		t.Run(c.name, func(t *testing.T) { assertBaselineCase(t, c) })
+	}
+}
+
+// baselineCase is a baseline with the one diagnostic it must report.
+type baselineCase struct {
+	name           string
+	baseline       baselineFile
+	code, path, in string
+}
+
+// assertBaselineCase checks that the baseline reports exactly its code at its path.
+func assertBaselineCase(t *testing.T, c baselineCase) {
+	t.Helper()
+	got := healthCodes(baselineBundle(t, c.baseline))
+	if len(got) != 1 {
+		t.Fatalf("got %+v, want exactly one diagnostic", got)
+	}
+	d := got[0]
+	if !isErrorAt(d, c.code, c.path) || !strings.Contains(d.Message, c.in) {
+		t.Fatalf("got %+v, want %s at %s containing %q", d, c.code, c.path, c.in)
+	}
+	if c.code == model.HealthWaiverUnjustifiedCode && !strings.Contains(d.Message, "baseline") {
+		t.Errorf("the message must name the baseline: %s", d.Message)
 	}
 }
 
@@ -92,7 +103,7 @@ func TestHealthBaselineErrors(t *testing.T) {
 // and only the manifest fields are checked.
 // TRLC-LINKS: REQ-EMG-153
 func TestHealthBaselineWithoutManifestPathSkipsTheFile(t *testing.T) {
-	b := baselineBundle(t, "model/missing.json", "", "ADR-OK")
+	b := baselineBundle(t, baselineFile{"model/missing.json", "", "ADR-OK"})
 	b.ManifestPath = ""
 	if got := healthCodes(b); len(got) != 0 {
 		t.Fatalf("got %+v", got)
@@ -103,26 +114,40 @@ func TestHealthBaselineWithoutManifestPathSkipsTheFile(t *testing.T) {
 // untiered errors: no tier, bundle or POA&M item deferral changes them.
 // TRLC-LINKS: REQ-EMG-154, REQ-EMG-155
 func TestHealthBaselineErrorsAreUntiered(t *testing.T) {
+	assertHealthCodesUntiered(t, model.HealthWaiverUnjustifiedCode, model.HealthBaselineUnreadableCode)
 	for _, code := range []string{model.HealthWaiverUnjustifiedCode, model.HealthBaselineUnreadableCode} {
-		if TierKeyed(code) || IsCoreCode(code) {
-			t.Errorf("%s must be neither tier keyed nor core", code)
+		if IsCoreCode(code) {
+			t.Errorf("%s must not be core", code)
 		}
 	}
 	for _, tier := range model.Tiers {
-		b := baselineBundle(t, "model/missing.json", "", "ADR-DRAFT")
-		b.Manifest.Lifecycle = &model.ManifestLifecycle{Tier: tier}
-		b.Architecture.AuthoredArchitecture.POAMItems = []model.POAMItem{{ID: "POAM-1", Milestone: "tier:" + tier, Status: "open", Defers: []model.POAMDefer{{Code: "health.*"}}}}
-		seen := map[string]bool{}
-		for _, d := range ApplyTierPolicy(b, Bundle(b)) {
-			if d.Code == model.HealthWaiverUnjustifiedCode || d.Code == model.HealthBaselineUnreadableCode {
-				seen[d.Code] = true
-				if d.Severity != SeverityError || d.Deferred || d.PoamRef != "" {
-					t.Errorf("%s at %s changed: %+v", d.Code, tier, d)
-				}
-			}
+		assertBaselineErrorsHold(t, tier)
+	}
+}
+
+// assertBaselineErrorsHold checks that at the tier both baseline errors stay
+// plain errors despite an open POA&M item that names health.*.
+func assertBaselineErrorsHold(t *testing.T, tier string) {
+	t.Helper()
+	b := baselineBundle(t, baselineFile{"model/missing.json", "", "ADR-DRAFT"})
+	b.Manifest.Lifecycle = &model.ManifestLifecycle{Tier: tier}
+	b.Architecture.AuthoredArchitecture.POAMItems = []model.POAMItem{{ID: "POAM-1", Milestone: "tier:" + tier, Status: "open", Defers: []model.POAMDefer{{Code: "health.*"}}}}
+	diags := ApplyTierPolicy(b, Bundle(b))
+	for _, code := range []string{model.HealthWaiverUnjustifiedCode, model.HealthBaselineUnreadableCode} {
+		found := diagnosticsWithCode(diags, code)
+		if len(found) == 0 {
+			t.Errorf("%s: %s not reported", tier, code)
 		}
-		if len(seen) != 2 {
-			t.Errorf("%s: saw %v", tier, seen)
+		assertPlainErrors(t, found, tier)
+	}
+}
+
+// assertPlainErrors checks that the diagnostics are errors, not deferred, at the tier.
+func assertPlainErrors(t *testing.T, diags []Diagnostic, tier string) {
+	t.Helper()
+	for _, d := range diags {
+		if d.Severity != SeverityError || d.Deferred || d.PoamRef != "" {
+			t.Errorf("%s at %s changed: %+v", d.Code, tier, d)
 		}
 	}
 }

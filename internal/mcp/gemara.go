@@ -54,30 +54,33 @@ var gemaraArtifactTypes = map[string]string{
 	"evaluation-log":         "EvaluationLog",
 }
 
+// gemaraCountFields adds the artifact specific counts of a rendered result.
+var gemaraCountFields = map[string]func(res engmodel.GemaraExportResult, out map[string]any){
+	"gemara.controlCatalog": func(res engmodel.GemaraExportResult, out map[string]any) {
+		out["controlCount"] = len(res.ControlCatalog.Controls)
+		out["groupCount"] = len(res.ControlCatalog.Groups)
+	},
+	"gemara.threatCatalog": func(res engmodel.GemaraExportResult, out map[string]any) {
+		out["threatCount"] = len(res.ThreatCatalog.Threats)
+	},
+	"gemara.riskCatalog": func(res engmodel.GemaraExportResult, out map[string]any) {
+		out["riskCount"] = len(res.RiskCatalog.Risks)
+	},
+	"gemara.vectorCatalog": func(res engmodel.GemaraExportResult, out map[string]any) {
+		out["vectorCount"] = len(res.VectorCatalog.Vectors)
+	},
+	"gemara.capabilityCatalog": func(res engmodel.GemaraExportResult, out map[string]any) {
+		out["capabilityCount"] = len(res.CapabilityCatalog.Capabilities)
+	},
+}
+
 // gemaraArtifact renders a single Gemara artifact for the given tool name.
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func (s *Server) gemaraArtifact(toolName string) (map[string]any, error) {
 	if toolName == "gemara.evaluationLog" {
-		var reqs model.RequirementsDocument
-		if s.requirements != nil {
-			reqs = *s.requirements
-		}
-		res, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, reqs, s.repoRoot, engmodel.GemaraExportOptions{})
-		if err != nil {
-			return nil, err
-		}
-		if !res.HasContent {
-			return map[string]any{"artifactType": "EvaluationLog", "document": "", "note": "no controls to evaluate"}, nil
-		}
-		return map[string]any{
-			"artifactType":    "EvaluationLog",
-			"document":        res.YAML,
-			"evaluationCount": len(res.EvaluationLog.Evaluations),
-			"aggregateResult": res.EvaluationLog.Result.String(),
-		}, nil
+		return s.gemaraEvaluationLogArtifact()
 	}
-
 	kind, ok := gemaraToolKind[toolName]
 	if !ok {
 		return nil, fmt.Errorf("unknown gemara tool %q", toolName)
@@ -86,22 +89,40 @@ func (s *Server) gemaraArtifact(toolName string) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	doc := res.YAML[kind.short]
-	out := map[string]any{"artifactType": kind.typ, "document": doc}
-	switch toolName {
-	case "gemara.controlCatalog":
-		out["controlCount"] = len(res.ControlCatalog.Controls)
-		out["groupCount"] = len(res.ControlCatalog.Groups)
-	case "gemara.threatCatalog":
-		out["threatCount"] = len(res.ThreatCatalog.Threats)
-	case "gemara.riskCatalog":
-		out["riskCount"] = len(res.RiskCatalog.Risks)
-	case "gemara.vectorCatalog":
-		out["vectorCount"] = len(res.VectorCatalog.Vectors)
-	case "gemara.capabilityCatalog":
-		out["capabilityCount"] = len(res.CapabilityCatalog.Capabilities)
+	out := map[string]any{"artifactType": kind.typ, "document": res.YAML[kind.short]}
+	if addCounts, ok := gemaraCountFields[toolName]; ok {
+		addCounts(res, out)
 	}
 	return out, nil
+}
+
+// gemaraEvaluationLogArtifact renders the Gemara evaluation log of the model.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
+func (s *Server) gemaraEvaluationLogArtifact() (map[string]any, error) {
+	res, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, s.requirementsOrEmpty(), engmodel.GemaraEvalRun{CodeRoot: s.repoRoot})
+	if err != nil {
+		return nil, err
+	}
+	if !res.HasContent {
+		return map[string]any{"artifactType": "EvaluationLog", "document": "", "note": "no controls to evaluate"}, nil
+	}
+	return map[string]any{
+		"artifactType":    "EvaluationLog",
+		"document":        res.YAML,
+		"evaluationCount": len(res.EvaluationLog.Evaluations),
+		"aggregateResult": res.EvaluationLog.Result.String(),
+	}, nil
+}
+
+// requirementsOrEmpty returns the loaded requirements, or an empty document.
+// TRLC-LINKS: REQ-EMG-015
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
+func (s *Server) requirementsOrEmpty() model.RequirementsDocument {
+	if s.requirements == nil {
+		return model.RequirementsDocument{}
+	}
+	return *s.requirements
 }
 
 // gemaraValidate renders every Gemara artifact, confirms the SDK recognizes
@@ -118,11 +139,7 @@ func (s *Server) gemaraValidate() (map[string]any, error) {
 	for k, v := range res.YAML {
 		docs[k] = v
 	}
-	var reqs model.RequirementsDocument
-	if s.requirements != nil {
-		reqs = *s.requirements
-	}
-	evalRes, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, reqs, s.repoRoot, engmodel.GemaraExportOptions{})
+	evalRes, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, s.requirementsOrEmpty(), engmodel.GemaraEvalRun{CodeRoot: s.repoRoot})
 	if err != nil {
 		return nil, err
 	}
@@ -138,30 +155,7 @@ func (s *Server) gemaraValidate() (map[string]any, error) {
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func validateGemaraDocuments(bundle *model.Bundle, docs map[string]string) map[string]any {
-	artifacts := []map[string]any{}
-	allValid := true
-	names := make([]string, 0, len(gemaraArtifactTypes))
-	for short := range gemaraArtifactTypes {
-		names = append(names, short)
-	}
-	sort.Strings(names)
-	for _, short := range names {
-		expected := gemaraArtifactTypes[short]
-		doc, present := docs[short]
-		if !present || doc == "" {
-			continue // conditional artifacts are only produced when the model supports them
-		}
-		at, derr := gemara.DetectType([]byte(doc))
-		valid := derr == nil && at.String() == expected
-		if !valid {
-			allValid = false
-		}
-		entry := map[string]any{"artifact": short, "artifactType": expected, "sdkRecognized": valid}
-		if derr != nil {
-			entry["error"] = derr.Error()
-		}
-		artifacts = append(artifacts, entry)
-	}
+	artifacts, allValid := checkGemaraArtifactTypes(docs)
 	xrefErrs := engmodel.CheckGemaraCrossReferences(docs)
 	if xrefErrs == nil {
 		xrefErrs = []engmodel.GemaraCrossReferenceError{}
@@ -178,4 +172,44 @@ func validateGemaraDocuments(bundle *model.Bundle, docs map[string]string) map[s
 		"crossReferenceErrors":   xrefErrs,
 		"modelConsistencyErrors": consistencyErrs,
 	}
+}
+
+// checkGemaraArtifactTypes checks, in artifact name order, that the SDK
+// recognizes each present artifact as its expected type; the bool is false
+// when one is not recognized.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
+func checkGemaraArtifactTypes(docs map[string]string) ([]map[string]any, bool) {
+	artifacts := []map[string]any{}
+	allValid := true
+	names := make([]string, 0, len(gemaraArtifactTypes))
+	for short := range gemaraArtifactTypes {
+		names = append(names, short)
+	}
+	sort.Strings(names)
+	for _, short := range names {
+		expected := gemaraArtifactTypes[short]
+		doc, present := docs[short]
+		if !present || doc == "" {
+			continue // conditional artifacts are only produced when the model supports them
+		}
+		entry, valid := gemaraArtifactEntry(short, expected, doc)
+		allValid = allValid && valid
+		artifacts = append(artifacts, entry)
+	}
+	return artifacts, allValid
+}
+
+// gemaraArtifactEntry reports whether the SDK recognizes doc as the expected
+// artifact type, as an entry of the gemara.validate artifact list.
+// TRLC-LINKS: REQ-EMG-015, REQ-EMG-062
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
+func gemaraArtifactEntry(short, expected, doc string) (map[string]any, bool) {
+	at, derr := gemara.DetectType([]byte(doc))
+	valid := derr == nil && at.String() == expected
+	entry := map[string]any{"artifact": short, "artifactType": expected, "sdkRecognized": valid}
+	if derr != nil {
+		entry["error"] = derr.Error()
+	}
+	return entry, valid
 }

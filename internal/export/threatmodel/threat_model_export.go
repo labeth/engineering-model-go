@@ -149,253 +149,21 @@ type tdv2Cell struct {
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
 // ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
 func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
-	a := bundle.Architecture.AuthoredArchitecture
-
-	nodes := []struct {
-		ID      string
-		Name    string
-		Kind    string
-		Desc    string
-		Threats []map[string]any
-	}{}
-
-	threatsByEntity := map[string][]map[string]any{}
-	threatCount := 0
-	for _, ts := range a.ThreatScenarios {
-		severity := tdSeverity(ts.Severity, ts.Impact)
-		status := tdStatus(ts.Status)
-		mitigations := []string{}
-		for _, m := range a.ThreatMitigations {
-			if strings.TrimSpace(m.ThreatScenarioRef) == strings.TrimSpace(ts.ID) {
-				if strings.TrimSpace(m.Notes) != "" {
-					mitigations = append(mitigations, strings.TrimSpace(m.Notes))
-					continue
-				}
-				details := []string{"Mitigation " + strings.TrimSpace(m.ID)}
-				if controlRef := strings.TrimSpace(m.ControlRef); controlRef != "" {
-					details = append(details, "applies control "+controlRef)
-				}
-				if mitigationStatus := strings.TrimSpace(m.Status); mitigationStatus != "" {
-					details = append(details, "status "+mitigationStatus)
-				}
-				if effectiveness := strings.TrimSpace(m.Effectiveness); effectiveness != "" {
-					details = append(details, "effectiveness "+effectiveness)
-				}
-				mitigations = append(mitigations, strings.Join(details, "; ")+".")
-			}
-		}
-		if len(mitigations) == 0 {
-			mitigations = append(mitigations, "No mitigation is authored for threat "+strings.TrimSpace(ts.ID)+".")
-		}
-		th := map[string]any{
-			"description": textutil.NonEmpty(strings.TrimSpace(ts.Summary), strings.TrimSpace(ts.Title)),
-			"mitigation":  strings.Join(mitigations, " "),
-			"modelType":   "STRIDE",
-			"number":      threatCount,
-			"score":       strings.ToLower(textutil.NonEmpty(strings.TrimSpace(ts.Severity), strings.TrimSpace(ts.Impact))),
-			"severity":    severity,
-			"status":      status,
-			"threatId":    textutil.DeterministicUUID("td-threat|" + bundle.Architecture.Model.ID + "|" + ts.ID),
-			"title":       textutil.NonEmpty(strings.TrimSpace(ts.Title), strings.TrimSpace(ts.ID)),
-			"type":        textutil.NonEmpty(strings.TrimSpace(ts.Stride), strings.TrimSpace(ts.Category)),
-		}
-		for _, id := range ts.AppliesTo {
-			id = strings.TrimSpace(id)
-			if id == "" {
-				continue
-			}
-			threatsByEntity[id] = append(threatsByEntity[id], th)
-		}
-		for _, id := range ts.FlowRefs {
-			id = strings.TrimSpace(id)
-			if id == "" {
-				continue
-			}
-			threatsByEntity[id] = append(threatsByEntity[id], th)
-		}
-		threatCount++
-	}
-
-	for _, x := range a.Actors {
-		nodes = append(nodes, struct {
-			ID      string
-			Name    string
-			Kind    string
-			Desc    string
-			Threats []map[string]any
-		}{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "actor", Desc: strings.TrimSpace(x.Description), Threats: threatsByEntity[x.ID]})
-	}
-	for _, x := range a.FunctionalUnits {
-		nodes = append(nodes, struct {
-			ID      string
-			Name    string
-			Kind    string
-			Desc    string
-			Threats []map[string]any
-		}{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "process", Desc: strings.TrimSpace(x.Prose), Threats: threatsByEntity[x.ID]})
-	}
-	for _, x := range a.DataObjects {
-		nodes = append(nodes, struct {
-			ID      string
-			Name    string
-			Kind    string
-			Desc    string
-			Threats []map[string]any
-		}{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "store", Desc: strings.TrimSpace(x.SchemaRef), Threats: threatsByEntity[x.ID]})
-	}
-	for _, x := range a.Interfaces {
-		nodes = append(nodes, struct {
-			ID      string
-			Name    string
-			Kind    string
-			Desc    string
-			Threats []map[string]any
-		}{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "process", Desc: strings.TrimSpace(x.Protocol + " " + x.Endpoint), Threats: threatsByEntity[x.ID]})
-	}
-
-	sort.SliceStable(nodes, func(i, j int) bool { return nodes[i].ID < nodes[j].ID })
-
-	cellIDByNode := map[string]string{}
-	cells := []tdv2Cell{}
-	for i, n := range nodes {
-		cellUUID := textutil.DeterministicUUID("td-cell|" + bundle.Architecture.Model.ID + "|" + n.ID)
-		cellIDByNode[n.ID] = cellUUID
-		col := i % 4
-		row := i / 4
-		shape := "process"
-		tmType := "tm.Process"
-		size := map[string]float64{"width": 180, "height": 90}
-		attrs := map[string]any{"text": map[string]any{"text": n.Name}, "body": map[string]any{"stroke": "#333333", "strokeWidth": 1.0, "strokeDasharray": ""}}
-		if n.Kind == "actor" {
-			shape = "actor"
-			tmType = "tm.Actor"
-			size = map[string]float64{"width": 160, "height": 80}
-		}
-		if n.Kind == "store" {
-			shape = "store"
-			tmType = "tm.Store"
-			attrs = map[string]any{"text": map[string]any{"text": n.Name}, "topLine": map[string]any{"stroke": "#333333", "strokeWidth": 1.0, "strokeDasharray": ""}, "bottomLine": map[string]any{"stroke": "#333333", "strokeWidth": 1.0, "strokeDasharray": ""}}
-		}
-		cells = append(cells, tdv2Cell{
-			ID:     cellUUID,
-			Shape:  shape,
-			ZIndex: i + 1,
-			Position: map[string]float64{
-				"x": float64(60 + col*260),
-				"y": float64(60 + row*170),
-			},
-			Size:  size,
-			Attrs: attrs,
-			Data: map[string]any{
-				"name":                   n.Name,
-				"description":            n.Desc,
-				"type":                   tmType,
-				"isTrustBoundary":        false,
-				"outOfScope":             false,
-				"reasonOutOfScope":       "",
-				"threats":                n.Threats,
-				"hasOpenThreats":         tdHasOpenThreats(n.Threats),
-				"providesAuthentication": false,
-				"isALog":                 false,
-				"storesCredentials":      false,
-				"isEncrypted":            false,
-				"isSigned":               false,
-			},
-		})
-	}
-
-	tbZ := len(cells) + 1
-	for _, tb := range a.TrustBoundaries {
-		cells = append(cells, tdv2Cell{
-			ID:       textutil.DeterministicUUID("td-boundary|" + bundle.Architecture.Model.ID + "|" + tb.ID),
-			Shape:    "trust-boundary-box",
-			ZIndex:   tbZ,
-			Size:     map[string]float64{"width": 260, "height": 180},
-			Position: map[string]float64{"x": float64(30 + (tbZ%3)*300), "y": float64(30 + (tbZ/3)*220)},
-			Attrs:    map[string]any{"text": map[string]any{"text": textutil.NonEmpty(tb.Name, tb.ID)}, "body": map[string]any{"stroke": "#999999", "strokeWidth": 1.0, "strokeDasharray": "3 3"}},
-			Data:     map[string]any{"type": "tm.Boundary", "name": textutil.NonEmpty(tb.Name, tb.ID), "description": strings.TrimSpace(tb.Description), "isTrustBoundary": true, "hasOpenThreats": false},
-		})
-		tbZ++
-	}
-
+	b := tdBuilder{modelID: bundle.Architecture.Model.ID, a: bundle.Architecture.AuthoredArchitecture, threatsByEntity: map[string][]map[string]any{}}
+	b.indexThreats()
+	nodes := b.nodes()
+	cells, cellIDByNode := b.nodeCells(nodes)
+	cells = append(cells, b.boundaryCells(len(cells)+1)...)
 	flowZ := len(cells) + 10
-	for _, m := range a.Mappings {
-		t := strings.TrimSpace(m.Type)
-		if t != "calls" && t != "publishes" && t != "subscribes" && t != "reads" && t != "writes" && t != "streams" && t != "interacts_with" {
-			continue
-		}
-		fromID := cellIDByNode[strings.TrimSpace(m.From)]
-		toID := cellIDByNode[strings.TrimSpace(m.To)]
-		if fromID == "" || toID == "" {
-			continue
-		}
-		name := strings.TrimSpace(m.Description)
-		if name == "" {
-			name = t
-		}
-		cells = append(cells, tdv2Cell{
-			ID:        textutil.DeterministicUUID("td-flow|" + bundle.Architecture.Model.ID + "|" + m.Type + "|" + m.From + "|" + m.To),
-			Shape:     "flow",
-			ZIndex:    flowZ,
-			Connector: "smooth",
-			Attrs:     map[string]any{"line": map[string]any{"stroke": "#333333", "strokeWidth": 1.0, "targetMarker": map[string]any{"name": "block"}, "strokeDasharray": ""}},
-			Data: map[string]any{
-				"type":             "tm.Flow",
-				"name":             name,
-				"description":      strings.TrimSpace(m.Description),
-				"outOfScope":       false,
-				"reasonOutOfScope": "",
-				"protocol":         "",
-				"isEncrypted":      false,
-				"isPublicNetwork":  false,
-				"hasOpenThreats":   false,
-				"threats":          threatsByEntity[m.From],
-				"isTrustBoundary":  false,
-			},
-			Source: map[string]any{"cell": fromID},
-			Target: map[string]any{"cell": toID},
-			Labels: []map[string]any{{"position": 0.5, "attrs": map[string]any{"label": map[string]any{"text": name}}}},
-		})
-		flowZ++
-	}
+	mappingFlows := b.mappingFlowCells(cellIDByNode, flowZ)
+	cells = append(cells, mappingFlows...)
+	cells = append(cells, b.authoredFlowCells(cellIDByNode, flowZ+len(mappingFlows))...)
 
-	for _, f := range a.Flows {
-		fromID := cellIDByNode[strings.TrimSpace(f.SourceRef)]
-		toID := cellIDByNode[strings.TrimSpace(f.DestinationRef)]
-		if fromID == "" || toID == "" {
-			continue
-		}
-		name := textutil.NonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID))
-		cells = append(cells, tdv2Cell{
-			ID:        textutil.DeterministicUUID("td-flow-authored|" + bundle.Architecture.Model.ID + "|" + f.ID),
-			Shape:     "flow",
-			ZIndex:    flowZ,
-			Connector: "smooth",
-			Attrs:     map[string]any{"line": map[string]any{"stroke": "#555555", "strokeWidth": 1.0, "targetMarker": map[string]any{"name": "block"}, "strokeDasharray": ""}},
-			Data: map[string]any{
-				"type":             "tm.Flow",
-				"name":             name,
-				"description":      strings.TrimSpace(f.Description),
-				"outOfScope":       false,
-				"reasonOutOfScope": "",
-				"protocol":         strings.TrimSpace(f.Protocol),
-				"isEncrypted":      strings.Contains(strings.ToLower(strings.TrimSpace(f.EncryptionInTransit)), "tls") || strings.Contains(strings.ToLower(strings.TrimSpace(f.EncryptionInTransit)), "encrypt"),
-				"isPublicNetwork":  strings.ToLower(strings.TrimSpace(f.Direction)) == "inbound" || strings.ToLower(strings.TrimSpace(f.Direction)) == "outbound",
-				"hasOpenThreats":   tdHasOpenThreats(threatsByEntity[f.ID]),
-				"threats":          threatsByEntity[f.ID],
-				"isTrustBoundary":  false,
-			},
-			Source: map[string]any{"cell": fromID},
-			Target: map[string]any{"cell": toID},
-			Labels: []map[string]any{{"position": 0.5, "attrs": map[string]any{"label": map[string]any{"text": name}}}},
-		})
-		flowZ++
-	}
-
+	title := textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID))
 	return tdv2Document{
 		Version: "2.0",
 		Summary: tdv2Summary{
-			Title:       textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)),
+			Title:       title,
 			Owner:       "engineering-model-go",
 			Description: strings.TrimSpace(bundle.Architecture.Model.Introduction),
 			ID:          0,
@@ -408,14 +176,368 @@ func buildThreatDragonV2(bundle model.Bundle) tdv2Document {
 				ID:          0,
 				Placeholder: "Generated from authored architecture.",
 				Thumbnail:   "./public/content/images/thumbnail.stride.jpg",
-				Title:       textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Threat Model",
+				Title:       title + " Threat Model",
 				Version:     "2.0",
 				Cells:       cells,
 			}},
 			DiagramTop: 1,
 			Reviewer:   "engineering-model-go",
-			ThreatTop:  threatCount,
+			ThreatTop:  len(b.a.ThreatScenarios),
 		},
+	}
+}
+
+// tdNode is one architecture element drawn as a Threat Dragon cell.
+//
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
+type tdNode struct {
+	ID      string
+	Name    string
+	Kind    string
+	Desc    string
+	Threats []map[string]any
+}
+
+// tdBuilder carries the authored architecture and the threats indexed by the
+// element or flow they apply to while a Threat Dragon document is built.
+//
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
+type tdBuilder struct {
+	modelID         string
+	a               model.AuthoredArchitecture
+	threatsByEntity map[string][]map[string]any
+}
+
+// tdEnds are the cell IDs a flow connects.
+//
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON
+type tdEnds struct {
+	from string
+	to   string
+}
+
+// indexThreats builds one Threat Dragon threat per scenario and files it under
+// every element and flow it applies to.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) indexThreats() {
+	for number, ts := range b.a.ThreatScenarios {
+		th := b.threatEntry(ts, number)
+		for _, id := range ts.AppliesTo {
+			b.addThreat(id, th)
+		}
+		for _, id := range ts.FlowRefs {
+			b.addThreat(id, th)
+		}
+	}
+}
+
+// addThreat files the threat under the trimmed, non-empty entity ID.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) addThreat(id string, threat map[string]any) {
+	id = strings.TrimSpace(id)
+	if id != "" {
+		b.threatsByEntity[id] = append(b.threatsByEntity[id], threat)
+	}
+}
+
+// threatEntry renders one threat scenario as a Threat Dragon threat.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) threatEntry(ts model.ThreatScenario, number int) map[string]any {
+	return map[string]any{
+		"description": textutil.NonEmpty(strings.TrimSpace(ts.Summary), strings.TrimSpace(ts.Title)),
+		"mitigation":  b.mitigationText(ts),
+		"modelType":   "STRIDE",
+		"number":      number,
+		"score":       strings.ToLower(textutil.NonEmpty(strings.TrimSpace(ts.Severity), strings.TrimSpace(ts.Impact))),
+		"severity":    tdSeverity(ts.Severity, ts.Impact),
+		"status":      tdStatus(ts.Status),
+		"threatId":    textutil.DeterministicUUID("td-threat|" + b.modelID + "|" + ts.ID),
+		"title":       textutil.NonEmpty(strings.TrimSpace(ts.Title), strings.TrimSpace(ts.ID)),
+		"type":        textutil.NonEmpty(strings.TrimSpace(ts.Stride), strings.TrimSpace(ts.Category)),
+	}
+}
+
+// mitigationText joins the authored mitigations of a scenario, or says that
+// none is authored.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) mitigationText(ts model.ThreatScenario) string {
+	mitigations := []string{}
+	for _, m := range b.a.ThreatMitigations {
+		if strings.TrimSpace(m.ThreatScenarioRef) == strings.TrimSpace(ts.ID) {
+			mitigations = append(mitigations, tdMitigationSentence(m))
+		}
+	}
+	if len(mitigations) == 0 {
+		mitigations = append(mitigations, "No mitigation is authored for threat "+strings.TrimSpace(ts.ID)+".")
+	}
+	return strings.Join(mitigations, " ")
+}
+
+// tdMitigationSentence is the mitigation's notes, or a generated description.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func tdMitigationSentence(m model.ThreatMitigation) string {
+	if strings.TrimSpace(m.Notes) != "" {
+		return strings.TrimSpace(m.Notes)
+	}
+	details := []string{"Mitigation " + strings.TrimSpace(m.ID)}
+	if controlRef := strings.TrimSpace(m.ControlRef); controlRef != "" {
+		details = append(details, "applies control "+controlRef)
+	}
+	if mitigationStatus := strings.TrimSpace(m.Status); mitigationStatus != "" {
+		details = append(details, "status "+mitigationStatus)
+	}
+	if effectiveness := strings.TrimSpace(m.Effectiveness); effectiveness != "" {
+		details = append(details, "effectiveness "+effectiveness)
+	}
+	return strings.Join(details, "; ") + "."
+}
+
+// nodes lists the actors, functional units, data objects and interfaces as
+// diagram nodes sorted by ID.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) nodes() []tdNode {
+	a := b.a
+	nodes := []tdNode{}
+	for _, x := range a.Actors {
+		nodes = append(nodes, tdNode{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "actor", Desc: strings.TrimSpace(x.Description), Threats: b.threatsByEntity[x.ID]})
+	}
+	for _, x := range a.FunctionalUnits {
+		nodes = append(nodes, tdNode{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "process", Desc: strings.TrimSpace(x.Prose), Threats: b.threatsByEntity[x.ID]})
+	}
+	for _, x := range a.DataObjects {
+		nodes = append(nodes, tdNode{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "store", Desc: strings.TrimSpace(x.SchemaRef), Threats: b.threatsByEntity[x.ID]})
+	}
+	for _, x := range a.Interfaces {
+		nodes = append(nodes, tdNode{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Kind: "process", Desc: strings.TrimSpace(x.Protocol + " " + x.Endpoint), Threats: b.threatsByEntity[x.ID]})
+	}
+	sort.SliceStable(nodes, func(i, j int) bool { return nodes[i].ID < nodes[j].ID })
+	return nodes
+}
+
+// nodeCells lays the nodes out on a four-column grid and returns the cells and
+// the cell ID of every node.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) nodeCells(nodes []tdNode) ([]tdv2Cell, map[string]string) {
+	cellIDByNode := map[string]string{}
+	cells := []tdv2Cell{}
+	for i, n := range nodes {
+		cellUUID := textutil.DeterministicUUID("td-cell|" + b.modelID + "|" + n.ID)
+		cellIDByNode[n.ID] = cellUUID
+		cells = append(cells, tdNodeCell(cellUUID, i, n))
+	}
+	return cells, cellIDByNode
+}
+
+// tdNodeStyle returns the Threat Dragon shape, type, size and attributes of a node kind.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func tdNodeStyle(kind, name string) (shape, tmType string, size map[string]float64, attrs map[string]any) {
+	line := func() map[string]any {
+		return map[string]any{"stroke": "#333333", "strokeWidth": 1.0, "strokeDasharray": ""}
+	}
+	switch kind {
+	case "actor":
+		return "actor", "tm.Actor", map[string]float64{"width": 160, "height": 80}, map[string]any{"text": map[string]any{"text": name}, "body": line()}
+	case "store":
+		return "store", "tm.Store", map[string]float64{"width": 180, "height": 90}, map[string]any{"text": map[string]any{"text": name}, "topLine": line(), "bottomLine": line()}
+	}
+	return "process", "tm.Process", map[string]float64{"width": 180, "height": 90}, map[string]any{"text": map[string]any{"text": name}, "body": line()}
+}
+
+// tdNodeCell renders the node at grid index i as a cell with the given ID.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func tdNodeCell(id string, i int, n tdNode) tdv2Cell {
+	shape, tmType, size, attrs := tdNodeStyle(n.Kind, n.Name)
+	return tdv2Cell{
+		ID:     id,
+		Shape:  shape,
+		ZIndex: i + 1,
+		Position: map[string]float64{
+			"x": float64(60 + (i%4)*260),
+			"y": float64(60 + (i/4)*170),
+		},
+		Size:  size,
+		Attrs: attrs,
+		Data: map[string]any{
+			"name":                   n.Name,
+			"description":            n.Desc,
+			"type":                   tmType,
+			"isTrustBoundary":        false,
+			"outOfScope":             false,
+			"reasonOutOfScope":       "",
+			"threats":                n.Threats,
+			"hasOpenThreats":         tdHasOpenThreats(n.Threats),
+			"providesAuthentication": false,
+			"isALog":                 false,
+			"storesCredentials":      false,
+			"isEncrypted":            false,
+			"isSigned":               false,
+		},
+	}
+}
+
+// boundaryCells renders the trust boundaries, numbering their z-index from firstZ.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) boundaryCells(firstZ int) []tdv2Cell {
+	var cells []tdv2Cell
+	tbZ := firstZ
+	for _, tb := range b.a.TrustBoundaries {
+		cells = append(cells, tdv2Cell{
+			ID:       textutil.DeterministicUUID("td-boundary|" + b.modelID + "|" + tb.ID),
+			Shape:    "trust-boundary-box",
+			ZIndex:   tbZ,
+			Size:     map[string]float64{"width": 260, "height": 180},
+			Position: map[string]float64{"x": float64(30 + (tbZ%3)*300), "y": float64(30 + (tbZ/3)*220)},
+			Attrs:    map[string]any{"text": map[string]any{"text": textutil.NonEmpty(tb.Name, tb.ID)}, "body": map[string]any{"stroke": "#999999", "strokeWidth": 1.0, "strokeDasharray": "3 3"}},
+			Data:     map[string]any{"type": "tm.Boundary", "name": textutil.NonEmpty(tb.Name, tb.ID), "description": strings.TrimSpace(tb.Description), "isTrustBoundary": true, "hasOpenThreats": false},
+		})
+		tbZ++
+	}
+	return cells
+}
+
+// tdFlowMappingTypes are the mapping types drawn as flows.
+var tdFlowMappingTypes = map[string]bool{
+	"calls": true, "publishes": true, "subscribes": true, "reads": true, "writes": true, "streams": true, "interacts_with": true,
+}
+
+// tdFlowLabels is the single centered label of a flow cell.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func tdFlowLabels(name string) []map[string]any {
+	return []map[string]any{{"position": 0.5, "attrs": map[string]any{"label": map[string]any{"text": name}}}}
+}
+
+// tdFlowAttrs is the line style of a flow cell with the given stroke color.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func tdFlowAttrs(stroke string) map[string]any {
+	return map[string]any{"line": map[string]any{"stroke": stroke, "strokeWidth": 1.0, "targetMarker": map[string]any{"name": "block"}, "strokeDasharray": ""}}
+}
+
+// mappingFlowCells renders the flow-like mappings between known cells, numbering
+// their z-index from firstZ.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) mappingFlowCells(cellIDByNode map[string]string, firstZ int) []tdv2Cell {
+	var cells []tdv2Cell
+	for _, m := range b.a.Mappings {
+		t := strings.TrimSpace(m.Type)
+		if !tdFlowMappingTypes[t] {
+			continue
+		}
+		ends := tdEnds{from: cellIDByNode[strings.TrimSpace(m.From)], to: cellIDByNode[strings.TrimSpace(m.To)]}
+		if ends.from == "" || ends.to == "" {
+			continue
+		}
+		cells = append(cells, b.mappingFlowCell(m, ends, firstZ+len(cells)))
+	}
+	return cells
+}
+
+// mappingFlowCell renders one mapping as a flow cell.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) mappingFlowCell(m model.Mapping, ends tdEnds, z int) tdv2Cell {
+	name := strings.TrimSpace(m.Description)
+	if name == "" {
+		name = strings.TrimSpace(m.Type)
+	}
+	return tdv2Cell{
+		ID:        textutil.DeterministicUUID("td-flow|" + b.modelID + "|" + m.Type + "|" + m.From + "|" + m.To),
+		Shape:     "flow",
+		ZIndex:    z,
+		Connector: "smooth",
+		Attrs:     tdFlowAttrs("#333333"),
+		Data: map[string]any{
+			"type":             "tm.Flow",
+			"name":             name,
+			"description":      strings.TrimSpace(m.Description),
+			"outOfScope":       false,
+			"reasonOutOfScope": "",
+			"protocol":         "",
+			"isEncrypted":      false,
+			"isPublicNetwork":  false,
+			"hasOpenThreats":   false,
+			"threats":          b.threatsByEntity[m.From],
+			"isTrustBoundary":  false,
+		},
+		Source: map[string]any{"cell": ends.from},
+		Target: map[string]any{"cell": ends.to},
+		Labels: tdFlowLabels(name),
+	}
+}
+
+// authoredFlowCells renders the authored flows between known cells, numbering
+// their z-index from firstZ.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) authoredFlowCells(cellIDByNode map[string]string, firstZ int) []tdv2Cell {
+	var cells []tdv2Cell
+	for _, f := range b.a.Flows {
+		ends := tdEnds{from: cellIDByNode[strings.TrimSpace(f.SourceRef)], to: cellIDByNode[strings.TrimSpace(f.DestinationRef)]}
+		if ends.from == "" || ends.to == "" {
+			continue
+		}
+		cells = append(cells, b.authoredFlowCell(f, ends, firstZ+len(cells)))
+	}
+	return cells
+}
+
+// authoredFlowCell renders one authored flow as a flow cell.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+func (b *tdBuilder) authoredFlowCell(f model.Flow, ends tdEnds, z int) tdv2Cell {
+	name := textutil.NonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID))
+	encryption := strings.ToLower(strings.TrimSpace(f.EncryptionInTransit))
+	direction := strings.ToLower(strings.TrimSpace(f.Direction))
+	return tdv2Cell{
+		ID:        textutil.DeterministicUUID("td-flow-authored|" + b.modelID + "|" + f.ID),
+		Shape:     "flow",
+		ZIndex:    z,
+		Connector: "smooth",
+		Attrs:     tdFlowAttrs("#555555"),
+		Data: map[string]any{
+			"type":             "tm.Flow",
+			"name":             name,
+			"description":      strings.TrimSpace(f.Description),
+			"outOfScope":       false,
+			"reasonOutOfScope": "",
+			"protocol":         strings.TrimSpace(f.Protocol),
+			"isEncrypted":      strings.Contains(encryption, "tls") || strings.Contains(encryption, "encrypt"),
+			"isPublicNetwork":  direction == "inbound" || direction == "outbound",
+			"hasOpenThreats":   tdHasOpenThreats(b.threatsByEntity[f.ID]),
+			"threats":          b.threatsByEntity[f.ID],
+			"isTrustBoundary":  false,
+		},
+		Source: map[string]any{"cell": ends.from},
+		Target: map[string]any{"cell": ends.to},
+		Labels: tdFlowLabels(name),
 	}
 }
 
@@ -579,9 +701,9 @@ type otmMitigationRef struct {
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
-// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
 func buildOpenOTM(bundle model.Bundle) otmDocument {
-	a := bundle.Architecture.AuthoredArchitecture
+	b := otmBuilder{a: bundle.Architecture.AuthoredArchitecture, modelID: bundle.Architecture.Model.ID, componentIDs: map[string]bool{}}
 	doc := otmDocument{
 		OTMVersion: "0.2.0",
 		Project: otmProject{
@@ -592,26 +714,45 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 			Tags:        []string{"generated", "engineering-model"},
 		},
 		Representations: []otmRepresentation{{Name: "Architecture Threat View", ID: "rep-architecture", Type: "dfd"}},
-		TrustZones:      []otmTrustZone{},
 		Components:      []otmComponent{},
 		Dataflows:       []otmDataflow{},
 		Threats:         []otmThreat{},
 		Mitigations:     []otmMitigation{},
 	}
+	doc.TrustZones = b.trustZones()
+	doc.Components = b.components()
+	doc.Assets = b.assets()
+	doc.Mitigations, b.mitigationByScenario = b.mitigations()
+	doc.Threats = b.threats()
+	b.attachComponentThreats(doc.Components)
+	doc.Dataflows = b.dataflows()
+	return doc
+}
 
-	hasDefaultZone := false
-	for _, tb := range a.TrustBoundaries {
-		if strings.TrimSpace(tb.ID) == "TZ-SYSTEM" {
-			hasDefaultZone = true
-			break
-		}
-	}
-	if !hasDefaultZone {
+// otmBuilder carries the authored architecture and the lookups shared by the
+// sections of an Open Threat Model document.
+//
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+type otmBuilder struct {
+	a                    model.AuthoredArchitecture
+	modelID              string
+	componentIDs         map[string]bool
+	mitigationByScenario map[string][]otmMitigationRef
+}
+
+// trustZones lists the default zone (when not authored) and the authored
+// trust boundaries, sorted by ID.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) trustZones() []otmTrustZone {
+	zones := []otmTrustZone{}
+	if !hasDefaultTrustZone(b.a.TrustBoundaries) {
 		defaultTZ := otmTrustZone{ID: "TZ-SYSTEM", Name: "System Boundary", Type: "system", Description: "Default trust zone for components without explicit boundary mapping."}
 		defaultTZ.Risk.TrustRating = 50
-		doc.TrustZones = append(doc.TrustZones, defaultTZ)
+		zones = append(zones, defaultTZ)
 	}
-	for _, tb := range a.TrustBoundaries {
+	for _, tb := range b.a.TrustBoundaries {
 		z := otmTrustZone{ID: tb.ID, Name: textutil.NonEmpty(tb.Name, tb.ID), Type: strings.TrimSpace(tb.BoundaryType), Description: strings.TrimSpace(tb.Description)}
 		z.Risk.TrustRating = 50
 		if strings.TrimSpace(tb.ParentRef) != "" {
@@ -619,91 +760,176 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 				TrustZone string `json:"trustZone"`
 			}{TrustZone: strings.TrimSpace(tb.ParentRef)}
 		}
-		doc.TrustZones = append(doc.TrustZones, z)
+		zones = append(zones, z)
 	}
-	sort.SliceStable(doc.TrustZones, func(i, j int) bool { return doc.TrustZones[i].ID < doc.TrustZones[j].ID })
+	sort.SliceStable(zones, func(i, j int) bool { return zones[i].ID < zones[j].ID })
+	return zones
+}
 
+// hasDefaultTrustZone reports whether a trust boundary already is TZ-SYSTEM.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func hasDefaultTrustZone(boundaries []model.TrustBoundary) bool {
+	for _, tb := range boundaries {
+		if strings.TrimSpace(tb.ID) == "TZ-SYSTEM" {
+			return true
+		}
+	}
+	return false
+}
+
+// trimmedNonEmpty returns the values trimmed, without the blank ones.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func trimmedNonEmpty(values []string) []string {
+	var out []string
+	for _, v := range values {
+		if v = strings.TrimSpace(v); v != "" {
+			out = append(out, v)
+		}
+	}
+	return out
+}
+
+// zoneForID maps each element to its trust zone: boundary members first, then
+// bounded_by mappings.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) zoneForID() map[string]string {
 	zoneForID := map[string]string{}
-	for _, tb := range a.TrustBoundaries {
-		for _, member := range tb.Members {
-			member = strings.TrimSpace(member)
-			if member == "" {
-				continue
-			}
+	for _, tb := range b.a.TrustBoundaries {
+		for _, member := range trimmedNonEmpty(tb.Members) {
 			zoneForID[member] = tb.ID
 		}
 	}
-	for _, m := range a.Mappings {
-		if strings.TrimSpace(m.Type) != "bounded_by" {
-			continue
-		}
-		zoneForID[strings.TrimSpace(m.From)] = strings.TrimSpace(m.To)
-	}
+	b.applyBoundedBy(zoneForID)
+	return zoneForID
+}
 
-	componentIDs := map[string]bool{}
-	addComponent := func(id, name, kind, desc string) {
-		id = strings.TrimSpace(id)
-		if id == "" || componentIDs[id] {
-			return
+// applyBoundedBy lets bounded_by mappings override the zone of their source.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) applyBoundedBy(zoneForID map[string]string) {
+	for _, m := range b.a.Mappings {
+		if strings.TrimSpace(m.Type) == "bounded_by" {
+			zoneForID[strings.TrimSpace(m.From)] = strings.TrimSpace(m.To)
 		}
-		componentIDs[id] = true
-		c := otmComponent{ID: id, Name: textutil.NonEmpty(strings.TrimSpace(name), id), Type: strings.TrimSpace(kind), Description: strings.TrimSpace(desc)}
-		zone := strings.TrimSpace(zoneForID[id])
-		if zone == "" {
-			zone = "TZ-SYSTEM"
-		}
-		c.Parent.TrustZone = zone
-		doc.Components = append(doc.Components, c)
 	}
+}
 
+// otmComponentSpec is one element to add as a component.
+//
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+type otmComponentSpec struct {
+	ID   string
+	Name string
+	Kind string
+	Desc string
+}
+
+// componentSpecs lists the elements that become components, in authored order.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) componentSpecs() []otmComponentSpec {
+	a := b.a
+	var specs []otmComponentSpec
 	for _, x := range a.Actors {
-		addComponent(x.ID, x.Name, "actor", x.Description)
+		specs = append(specs, otmComponentSpec{x.ID, x.Name, "actor", x.Description})
 	}
 	for _, x := range a.FunctionalUnits {
-		addComponent(x.ID, x.Name, "service", x.Prose)
+		specs = append(specs, otmComponentSpec{x.ID, x.Name, "service", x.Prose})
 	}
 	for _, x := range a.Interfaces {
-		addComponent(x.ID, x.Name, "interface", x.Protocol+" "+x.Endpoint)
+		specs = append(specs, otmComponentSpec{x.ID, x.Name, "interface", x.Protocol + " " + x.Endpoint})
 	}
 	for _, x := range a.DeploymentTargets {
-		addComponent(x.ID, x.Name, "deployment-target", x.Environment+" "+x.Region)
+		specs = append(specs, otmComponentSpec{x.ID, x.Name, "deployment-target", x.Environment + " " + x.Region})
 	}
 	for _, x := range a.ReferencedElements {
-		addComponent(x.ID, x.Name, x.Kind, x.Layer)
+		specs = append(specs, otmComponentSpec{x.ID, x.Name, x.Kind, x.Layer})
 	}
-	sort.SliceStable(doc.Components, func(i, j int) bool { return doc.Components[i].ID < doc.Components[j].ID })
+	return specs
+}
 
-	for _, x := range a.DataObjects {
+// components builds the components sorted by ID and records their IDs; the
+// first spec of an ID wins and an empty ID is skipped.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) components() []otmComponent {
+	zoneForID := b.zoneForID()
+	components := []otmComponent{}
+	for _, spec := range b.componentSpecs() {
+		id := strings.TrimSpace(spec.ID)
+		if id == "" || b.componentIDs[id] {
+			continue
+		}
+		b.componentIDs[id] = true
+		c := otmComponent{ID: id, Name: textutil.NonEmpty(strings.TrimSpace(spec.Name), id), Type: strings.TrimSpace(spec.Kind), Description: strings.TrimSpace(spec.Desc)}
+		c.Parent.TrustZone = textutil.NonEmpty(strings.TrimSpace(zoneForID[id]), "TZ-SYSTEM")
+		components = append(components, c)
+	}
+	sort.SliceStable(components, func(i, j int) bool { return components[i].ID < components[j].ID })
+	return components
+}
+
+// assets builds one asset per data object, sorted by ID.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) assets() []otmAsset {
+	var assets []otmAsset
+	for _, x := range b.a.DataObjects {
 		asset := otmAsset{ID: x.ID, Name: textutil.NonEmpty(x.Name, x.ID), Description: strings.TrimSpace(x.SchemaRef)}
 		asset.Risk.Confidentiality = scoreLevel(textutil.NonEmpty(strings.TrimSpace(x.Confidentiality), strings.TrimSpace(x.Sensitivity)))
 		asset.Risk.Integrity = scoreLevel(strings.TrimSpace(x.Integrity))
 		asset.Risk.Availability = scoreLevel(strings.TrimSpace(x.Availability))
 		asset.Risk.Comment = strings.Join(x.RegulatoryTags, ",")
-		doc.Assets = append(doc.Assets, asset)
+		assets = append(assets, asset)
 	}
-	sort.SliceStable(doc.Assets, func(i, j int) bool { return doc.Assets[i].ID < doc.Assets[j].ID })
+	sort.SliceStable(assets, func(i, j int) bool { return assets[i].ID < assets[j].ID })
+	return assets
+}
 
+// mitigations builds the mitigations sorted by ID and the mitigation
+// references indexed by threat scenario.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) mitigations() ([]otmMitigation, map[string][]otmMitigationRef) {
+	mitigations := []otmMitigation{}
 	mitigationByScenario := map[string][]otmMitigationRef{}
-	for _, m := range a.ThreatMitigations {
+	for _, m := range b.a.ThreatMitigations {
 		mid := strings.TrimSpace(m.ID)
 		if mid == "" {
 			continue
 		}
-		doc.Mitigations = append(doc.Mitigations, otmMitigation{
+		mitigations = append(mitigations, otmMitigation{
 			ID:            mid,
 			Name:          textutil.NonEmpty(strings.TrimSpace(m.ControlRef), mid),
 			Description:   textutil.NonEmpty(strings.TrimSpace(m.Notes), strings.TrimSpace(m.ControlRef)),
 			RiskReduction: scoreLevel(strings.TrimSpace(m.Effectiveness)),
 		})
-		sid := strings.TrimSpace(m.ThreatScenarioRef)
-		if sid != "" {
+		if sid := strings.TrimSpace(m.ThreatScenarioRef); sid != "" {
 			mitigationByScenario[sid] = append(mitigationByScenario[sid], otmMitigationRef{Mitigation: mid, State: otmState(m.Status)})
 		}
 	}
-	sort.SliceStable(doc.Mitigations, func(i, j int) bool { return doc.Mitigations[i].ID < doc.Mitigations[j].ID })
+	sort.SliceStable(mitigations, func(i, j int) bool { return mitigations[i].ID < mitigations[j].ID })
+	return mitigations, mitigationByScenario
+}
 
-	threatByID := map[string]otmThreat{}
-	for _, ts := range a.ThreatScenarios {
+// threats builds one threat per scenario with an ID, sorted by ID.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) threats() []otmThreat {
+	threats := []otmThreat{}
+	for _, ts := range b.a.ThreatScenarios {
 		t := otmThreat{ID: strings.TrimSpace(ts.ID), Name: textutil.NonEmpty(strings.TrimSpace(ts.Title), strings.TrimSpace(ts.ID)), Description: strings.TrimSpace(ts.Summary)}
 		if c := strings.TrimSpace(ts.Category); c != "" {
 			t.Categories = append(t.Categories, c)
@@ -715,69 +941,115 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 		t.Risk.ImpactComment = textutil.NonEmpty(strings.TrimSpace(ts.Severity), strings.TrimSpace(ts.Category))
 		t.Tags = []string{textutil.NonEmpty(strings.TrimSpace(ts.Stride), "threat")}
 		if t.ID != "" {
-			threatByID[t.ID] = t
-			doc.Threats = append(doc.Threats, t)
+			threats = append(threats, t)
 		}
 	}
-	sort.SliceStable(doc.Threats, func(i, j int) bool { return doc.Threats[i].ID < doc.Threats[j].ID })
+	sort.SliceStable(threats, func(i, j int) bool { return threats[i].ID < threats[j].ID })
+	return threats
+}
 
+// attachComponentThreats adds a threat reference to every component a scenario applies to.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) attachComponentThreats(components []otmComponent) {
 	componentIndex := map[string]int{}
-	for i, c := range doc.Components {
+	for i, c := range components {
 		componentIndex[c.ID] = i
 	}
-	for _, ts := range a.ThreatScenarios {
-		ref := otmThreatRef{Threat: ts.ID, State: otmState(ts.Status), Mitigations: mitigationByScenario[ts.ID]}
-		for _, id := range ts.AppliesTo {
-			id = strings.TrimSpace(id)
-			if idx, ok := componentIndex[id]; ok {
-				doc.Components[idx].Threats = append(doc.Components[idx].Threats, ref)
-			}
+	for _, ts := range b.a.ThreatScenarios {
+		ref := otmThreatRef{Threat: ts.ID, State: otmState(ts.Status), Mitigations: b.mitigationByScenario[ts.ID]}
+		for _, idx := range componentIndexes(componentIndex, ts.AppliesTo) {
+			components[idx].Threats = append(components[idx].Threats, ref)
 		}
 	}
+}
 
-	assetByFlowID := map[string][]string{}
-	for _, f := range a.Flows {
-		assets := []string{}
-		for _, d := range f.DataRefs {
-			d = strings.TrimSpace(d)
-			if d != "" {
-				assets = append(assets, d)
-			}
+// componentIndexes returns the indexes of the known components among the trimmed IDs.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func componentIndexes(componentIndex map[string]int, ids []string) []int {
+	var indexes []int
+	for _, id := range ids {
+		if idx, ok := componentIndex[strings.TrimSpace(id)]; ok {
+			indexes = append(indexes, idx)
 		}
-		if len(assets) > 0 {
+	}
+	return indexes
+}
+
+// otmFlowAssets maps each flow ID to the sorted unique data objects it carries.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) flowAssets() map[string][]string {
+	assetByFlowID := map[string][]string{}
+	for _, f := range b.a.Flows {
+		if assets := trimmedNonEmpty(f.DataRefs); len(assets) > 0 {
 			assetByFlowID[strings.TrimSpace(f.ID)] = textutil.UniqueSorted(assets)
 		}
 	}
+	return assetByFlowID
+}
 
-	for _, m := range a.Mappings {
+// otmFlowMappingTypes are the mapping types exported as dataflows.
+var otmFlowMappingTypes = map[string]bool{
+	"calls": true, "publishes": true, "subscribes": true, "reads": true, "writes": true, "streams": true, "interacts_with": true, "depends_on": true,
+}
+
+// dataflows builds the dataflows of flow-like mappings and authored flows
+// between known components, sorted by ID.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) dataflows() []otmDataflow {
+	dataflows := b.mappingDataflows()
+	dataflows = append(dataflows, b.authoredDataflows()...)
+	sort.SliceStable(dataflows, func(i, j int) bool { return dataflows[i].ID < dataflows[j].ID })
+	return dataflows
+}
+
+// mappingDataflows builds a dataflow per flow-like mapping between known components.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) mappingDataflows() []otmDataflow {
+	dataflows := []otmDataflow{}
+	for _, m := range b.a.Mappings {
 		t := strings.TrimSpace(m.Type)
-		if t != "calls" && t != "publishes" && t != "subscribes" && t != "reads" && t != "writes" && t != "streams" && t != "interacts_with" && t != "depends_on" {
-			continue
-		}
 		from := strings.TrimSpace(m.From)
 		to := strings.TrimSpace(m.To)
-		if !componentIDs[from] || !componentIDs[to] {
+		if !otmFlowMappingTypes[t] || !b.componentIDs[from] || !b.componentIDs[to] {
 			continue
 		}
-		df := otmDataflow{
-			ID:            textutil.DeterministicUUID("otm-flow|" + bundle.Architecture.Model.ID + "|" + t + "|" + from + "|" + to),
+		dataflows = append(dataflows, otmDataflow{
+			ID:            textutil.DeterministicUUID("otm-flow|" + b.modelID + "|" + t + "|" + from + "|" + to),
 			Name:          textutil.NonEmpty(strings.TrimSpace(m.Description), t),
 			Description:   strings.TrimSpace(m.Description),
 			Source:        from,
 			Destination:   to,
 			Bidirectional: t == "interacts_with" || t == "depends_on",
 			Tags:          []string{t},
-		}
-		doc.Dataflows = append(doc.Dataflows, df)
+		})
 	}
+	return dataflows
+}
 
-	for _, f := range a.Flows {
+// authoredDataflows builds a dataflow per authored flow between known components.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) authoredDataflows() []otmDataflow {
+	var dataflows []otmDataflow
+	assetByFlowID := b.flowAssets()
+	for _, f := range b.a.Flows {
 		from := strings.TrimSpace(f.SourceRef)
 		to := strings.TrimSpace(f.DestinationRef)
-		if !componentIDs[from] || !componentIDs[to] {
+		if !b.componentIDs[from] || !b.componentIDs[to] {
 			continue
 		}
-		df := otmDataflow{
+		dataflows = append(dataflows, otmDataflow{
 			ID:            strings.TrimSpace(f.ID),
 			Name:          textutil.NonEmpty(strings.TrimSpace(f.Title), strings.TrimSpace(f.ID)),
 			Description:   strings.TrimSpace(f.Description),
@@ -785,21 +1057,28 @@ func buildOpenOTM(bundle model.Bundle) otmDocument {
 			Destination:   to,
 			Bidirectional: strings.EqualFold(strings.TrimSpace(f.Direction), "bidirectional"),
 			Assets:        assetByFlowID[strings.TrimSpace(f.ID)],
+			Threats:       b.flowThreatRefs(f),
 			Tags:          []string{textutil.NonEmpty(strings.TrimSpace(f.Kind), "flow")},
-		}
-		for _, scenarioID := range f.Threats {
-			scenarioID = strings.TrimSpace(scenarioID)
-			if scenarioID == "" {
-				continue
-			}
-			ts := findThreatScenarioByID(a.ThreatScenarios, scenarioID)
-			df.Threats = append(df.Threats, otmThreatRef{Threat: scenarioID, State: otmState(ts.Status), Mitigations: mitigationByScenario[scenarioID]})
-		}
-		doc.Dataflows = append(doc.Dataflows, df)
+		})
 	}
+	return dataflows
+}
 
-	sort.SliceStable(doc.Dataflows, func(i, j int) bool { return doc.Dataflows[i].ID < doc.Dataflows[j].ID })
-	return doc
+// flowThreatRefs lists the threat references of a flow's authored scenarios.
+//
+// TRLC-LINKS: REQ-EMG-004, REQ-EMG-011
+// ENGMODEL-LINKS: FU-THREAT-EXPORTER, DO-THREAT-DRAGON-JSON, TB-REPO-WORKSPACE, TB-EXTERNAL-VALIDATION-TOOLS, DO-OPEN-OTM-JSON
+func (b *otmBuilder) flowThreatRefs(f model.Flow) []otmThreatRef {
+	var refs []otmThreatRef
+	for _, scenarioID := range f.Threats {
+		scenarioID = strings.TrimSpace(scenarioID)
+		if scenarioID == "" {
+			continue
+		}
+		ts := findThreatScenarioByID(b.a.ThreatScenarios, scenarioID)
+		refs = append(refs, otmThreatRef{Threat: scenarioID, State: otmState(ts.Status), Mitigations: b.mitigationByScenario[scenarioID]})
+	}
+	return refs
 }
 
 // TRLC-LINKS: REQ-EMG-004, REQ-EMG-011

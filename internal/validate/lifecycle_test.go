@@ -28,21 +28,42 @@ func tierDecisionBundle(tier string, bundles []string, dec model.Decision) model
 // TRLC-LINKS: REQ-EMG-124
 func TestLifecycleTierDecisionMustAgree(t *testing.T) {
 	ok := tierDecision("DEC-TIER-MVP", "accepted", "Tier: MVP\nPrevious tier: none\nBundles: Foundation, Safety\nDecider: @owner")
-	if got := codesOf(Bundle(tierDecisionBundle("mvp", []string{"foundation", "safety"}, ok)), "lifecycle.tier_decision_mismatch"); len(got) != 0 {
+	assertDecisionAgrees(t, tierDecisionBundle("mvp", []string{"foundation", "safety"}, ok))
+	assertDecisionAgrees(t, tierDecisionBundle("poc", []string{"foundation"}, tierDecision("DEC-TIER-POC", "accepted", "Tier: PoC\nBundles: foundation")))
+	for _, c := range tierDecisionCases(ok) {
+		b := tierDecisionBundle(c.tier, c.bundles, c.dec)
+		if c.ref != "" {
+			b.Manifest.Lifecycle.TierDecision = c.ref
+		}
+		got := codesOf(Bundle(b), "lifecycle.tier_decision_mismatch")
+		if len(got) != 1 || !isErrorAt(got[0], "lifecycle.tier_decision_mismatch", "lifecycle.tierDecision") || !strings.Contains(got[0].Message, c.want) {
+			t.Errorf("%s: got %+v, want one error mentioning %q", c.name, got, c.want)
+		}
+	}
+}
+
+// assertDecisionAgrees checks that a decision agreeing with the lifecycle is not reported.
+func assertDecisionAgrees(t *testing.T, b model.Bundle) {
+	t.Helper()
+	if got := codesOf(Bundle(b), "lifecycle.tier_decision_mismatch"); len(got) != 0 {
 		t.Fatalf("agreeing decision reported: %+v", got)
 	}
-	foundation := tierDecision("DEC-TIER-POC", "accepted", "Tier: PoC\nBundles: foundation")
-	if got := codesOf(Bundle(tierDecisionBundle("poc", []string{"foundation"}, foundation)), "lifecycle.tier_decision_mismatch"); len(got) != 0 {
-		t.Fatalf("agreeing foundation decision reported: %+v", got)
-	}
-	cases := []struct {
-		name    string
-		tier    string
-		bundles []string
-		dec     model.Decision
-		ref     string
-		want    string
-	}{
+}
+
+// tierDecisionCase is a tier decision that does not agree with the lifecycle,
+// with the fragment its mismatch message holds.
+type tierDecisionCase struct {
+	name    string
+	tier    string
+	bundles []string
+	dec     model.Decision
+	ref     string
+	want    string
+}
+
+// tierDecisionCases lists the ways a tier decision can disagree with the lifecycle.
+func tierDecisionCases(ok model.Decision) []tierDecisionCase {
+	return []tierDecisionCase{
 		{"tier differs", "product", []string{"foundation", "safety"}, ok, "", `Tier: "MVP"`},
 		{"bundles differ", "mvp", nil, ok, "", "Bundles"},
 		{"proposed", "mvp", []string{"safety"}, tierDecision("DEC-TIER-MVP", "proposed", "Tier: MVP\nBundles: Foundation, Safety"), "", "accepted"},
@@ -50,16 +71,6 @@ func TestLifecycleTierDecisionMustAgree(t *testing.T) {
 		{"empty bundles line", "poc", []string{"foundation"}, tierDecision("DEC-TIER-POC", "accepted", "Tier: PoC\nBundles:"), "", "Bundles:"},
 		{"no tier line", "mvp", nil, tierDecision("DEC-TIER-MVP", "accepted", "We go to MVP."), "", "Tier:"},
 		{"unknown decision", "mvp", nil, ok, "DEC-TIER-NONE", "DEC-TIER-NONE"},
-	}
-	for _, c := range cases {
-		b := tierDecisionBundle(c.tier, c.bundles, c.dec)
-		if c.ref != "" {
-			b.Manifest.Lifecycle.TierDecision = c.ref
-		}
-		got := codesOf(Bundle(b), "lifecycle.tier_decision_mismatch")
-		if len(got) != 1 || got[0].Severity != SeverityError || got[0].Path != "lifecycle.tierDecision" || !strings.Contains(got[0].Message, c.want) {
-			t.Errorf("%s: got %+v, want one error mentioning %q", c.name, got, c.want)
-		}
 	}
 }
 
@@ -74,11 +85,24 @@ func TestLifecycleStructuralRules(t *testing.T) {
 		t.Fatalf("got %+v", diags)
 	}
 	for tier, want := range map[string]int{"prototype": 0, "mvp": 1, "operational": 1} {
-		b := tierBundle(tier)
-		b.Manifest.RequirementLinks = "guided"
-		got := codesOf(Bundle(b), "lifecycle.requirement_links_conflict")
-		if len(got) != want || (want == 1 && (got[0].Severity != SeverityError || got[0].Path != "requirementLinks")) {
-			t.Errorf("guided at %s: got %+v, want %d errors", tier, got, want)
+		assertLinksConflict(t, tier, want)
+	}
+}
+
+// assertLinksConflict checks that requirementLinks guided at the tier is
+// reported want times, as an error at requirementLinks.
+func assertLinksConflict(t *testing.T, tier string, want int) {
+	t.Helper()
+	b := tierBundle(tier)
+	b.Manifest.RequirementLinks = "guided"
+	got := codesOf(Bundle(b), "lifecycle.requirement_links_conflict")
+	if len(got) != want {
+		t.Errorf("guided at %s: got %+v, want %d errors", tier, got, want)
+		return
+	}
+	for _, d := range got {
+		if !isErrorAt(d, "lifecycle.requirement_links_conflict", "requirementLinks") {
+			t.Errorf("guided at %s: got %+v", tier, d)
 		}
 	}
 }
@@ -168,11 +192,7 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		{Code: "composition.lock_check_skipped", Severity: SeverityWarning, Path: "z"},
 	}
 	out := ApplyTierPolicy(b, in)
-	want := []struct {
-		severity Severity
-		deferred bool
-		ref      string
-	}{
+	for i, w := range []deferOutcome{
 		{SeverityWarning, true, "POAM-TIER-PRODUCT-01"},
 		{SeverityError, false, ""},
 		{SeverityError, false, ""},
@@ -181,14 +201,20 @@ func TestPOAMDefersBindDiagnostics(t *testing.T) {
 		{SeverityWarning, true, "POAM-TIER-PRODUCT-03"},
 		{SeverityError, false, ""},
 		{SeverityWarning, false, ""},
-	}
-	for i, w := range want {
-		if out[i].Severity != w.severity || out[i].Deferred != w.deferred || out[i].PoamRef != w.ref {
-			t.Errorf("%s at %s: got %s deferred=%v poamRef=%q, want %s %v %q", in[i].Code, in[i].Path, out[i].Severity, out[i].Deferred, out[i].PoamRef, w.severity, w.deferred, w.ref)
+	} {
+		if got := (deferOutcome{out[i].Severity, out[i].Deferred, out[i].PoamRef}); got != w {
+			t.Errorf("%s at %s: got %+v, want %+v", in[i].Code, in[i].Path, got, w)
 		}
 	}
 	got := codesOf(Bundle(b), "lifecycle.poam_defers_core")
-	if len(got) != 2 || got[0].Severity != SeverityError || got[0].Path != "authoredArchitecture.poamItems[3].defers[0].code" {
+	if len(got) != 2 || !isErrorAt(got[0], "lifecycle.poam_defers_core", "authoredArchitecture.poamItems[3].defers[0].code") {
 		t.Fatalf("poam_defers_core: got %+v", got)
 	}
+}
+
+// deferOutcome is the severity, deferral and POA&M item a diagnostic is expected to end with.
+type deferOutcome struct {
+	severity Severity
+	deferred bool
+	ref      string
 }

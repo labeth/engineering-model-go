@@ -75,107 +75,143 @@ func EffectiveSchemaVersion(version int) (int, error) {
 	return version, nil
 }
 
-// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL
+// ENGMODEL-LINKS: FU-MODEL-LOADER, DO-ARCHITECTURE-MODEL, IF-GO-PKG-MODEL, FLOW-ENGINE-INTEGRATIONS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-049, REQ-EMG-051, REQ-EMG-053, REQ-EMG-054, REQ-EMG-094, REQ-EMG-132
 func LoadBundle(manifestPath string) (Bundle, error) {
+	manifestPath, manifest, err := loadManifest(manifestPath)
+	if err != nil {
+		return Bundle{}, err
+	}
+
+	bundle := Bundle{ManifestPath: manifestPath, Manifest: manifest}
+	loader := documentLoader{baseDir: filepath.Dir(manifestPath), refs: manifest.Documents}
+	architectureInput, err := loader.loadCore(&bundle)
+	if err != nil {
+		return Bundle{}, err
+	}
+	if err := loader.loadAviation(&bundle, architectureInput); err != nil {
+		return Bundle{}, err
+	}
+	if err := loader.loadReqLinks(&bundle); err != nil {
+		return Bundle{}, err
+	}
+	bundle.Architecture = assembleArchitecture(manifest, architectureInput, bundle)
+	bundle.Design = DesignDocument{SchemaVersion: CurrentSchemaVersion, Design: bundle.Views.Design}
+	bundle.DesignPath = bundle.ViewsPath
+	return bundle, nil
+}
+
+// loadManifest resolves the manifest path and decodes the manifest at the
+// current schema version.
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046
+func loadManifest(manifestPath string) (string, ManifestDocument, error) {
 	if filepath.Base(filepath.Clean(manifestPath)) != "engmod.yml" {
-		return Bundle{}, fmt.Errorf("engmod.yml is the only supported model entry point")
+		return "", ManifestDocument{}, fmt.Errorf("engmod.yml is the only supported model entry point")
 	}
 	manifestPath, err := filepath.Abs(manifestPath)
 	if err != nil {
-		return Bundle{}, fmt.Errorf("resolve manifest path: %w", err)
+		return "", ManifestDocument{}, fmt.Errorf("resolve manifest path: %w", err)
 	}
 
 	var manifest ManifestDocument
 	if err := decodeYAMLFile(manifestPath, &manifest); err != nil {
-		return Bundle{}, fmt.Errorf("decode manifest file: %w", err)
+		return "", ManifestDocument{}, fmt.Errorf("decode manifest file: %w", err)
 	}
 	manifest.SchemaVersion, err = EffectiveSchemaVersion(manifest.SchemaVersion)
 	if err != nil {
-		return Bundle{}, fmt.Errorf("manifest schema: %w", err)
+		return "", ManifestDocument{}, fmt.Errorf("manifest schema: %w", err)
 	}
+	return manifestPath, manifest, nil
+}
 
-	baseDir := filepath.Dir(manifestPath)
-	refs := manifest.Documents
-	catalogPath := filepath.Join(baseDir, refs.Catalog)
-	var catalog CatalogDocument
-	if err := decodeYAMLFile(catalogPath, &catalog); err != nil {
-		return Bundle{}, fmt.Errorf("decode catalog file: %w", err)
+// documentLoader decodes the documents a manifest references, relative to the
+// manifest directory.
+type documentLoader struct {
+	baseDir string
+	refs    DocumentReferences
+}
+
+// documentSlot is one referenced document: its manifest path, the label used
+// in a decode error, where it decodes to and where its resolved path goes.
+type documentSlot struct {
+	ref  string
+	kind string
+	out  any
+	path *string
+}
+
+// decode resolves and decodes one referenced document and returns its path.
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-053
+func (l documentLoader) decode(slot documentSlot) error {
+	path := filepath.Join(l.baseDir, slot.ref)
+	*slot.path = path
+	if err := decodeYAMLFile(path, slot.out); err != nil {
+		return fmt.Errorf("decode %s file: %w", slot.kind, err)
 	}
+	return nil
+}
 
-	decisionsPath := filepath.Join(baseDir, refs.Decisions)
-	var decisions DecisionsDocument
-	if err := decodeYAMLFile(decisionsPath, &decisions); err != nil {
-		return Bundle{}, fmt.Errorf("decode decisions file: %w", err)
-	}
-
-	requirementsPath := filepath.Join(baseDir, refs.Requirements)
-	var requirements RequirementsDocument
-	if err := decodeYAMLFile(requirementsPath, &requirements); err != nil {
-		return Bundle{}, fmt.Errorf("decode requirements file: %w", err)
-	}
-
-	architecturePath := filepath.Join(baseDir, refs.Architecture)
+// loadCore decodes the required documents in manifest order into the bundle
+// and returns the architecture input, which the bundle keeps only in
+// assembled form.
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-044, REQ-EMG-046, REQ-EMG-053
+func (l documentLoader) loadCore(b *Bundle) (ArchitectureInputDocument, error) {
 	var architectureInput ArchitectureInputDocument
-	if err := decodeYAMLFile(architecturePath, &architectureInput); err != nil {
-		return Bundle{}, fmt.Errorf("decode architecture file: %w", err)
+	slots := []documentSlot{
+		{l.refs.Catalog, "catalog", &b.Catalog, &b.CatalogPath},
+		{l.refs.Decisions, "decisions", &b.Decisions, &b.DecisionsPath},
+		{l.refs.Requirements, "requirements", &b.Requirements, &b.RequirementsPath},
+		{l.refs.Architecture, "architecture", &architectureInput, &b.ArchitecturePath},
+		{l.refs.Behavior, "behavior", &b.Behavior, &b.BehaviorPath},
+		{l.refs.Assurance, "assurance", &b.Assurance, &b.AssurancePath},
+		{l.refs.Compliance, "compliance", &b.Compliance, &b.CompliancePath},
+		{l.refs.Views, "views", &b.Views, &b.ViewsPath},
 	}
-
-	behaviorPath := filepath.Join(baseDir, refs.Behavior)
-	var behavior BehaviorDocument
-	if err := decodeYAMLFile(behaviorPath, &behavior); err != nil {
-		return Bundle{}, fmt.Errorf("decode behavior file: %w", err)
-	}
-
-	assurancePath := filepath.Join(baseDir, refs.Assurance)
-	var assurance AssuranceDocument
-	if err := decodeYAMLFile(assurancePath, &assurance); err != nil {
-		return Bundle{}, fmt.Errorf("decode assurance file: %w", err)
-	}
-
-	compliancePath := filepath.Join(baseDir, refs.Compliance)
-	var compliance ComplianceDocument
-	if err := decodeYAMLFile(compliancePath, &compliance); err != nil {
-		return Bundle{}, fmt.Errorf("decode compliance file: %w", err)
-	}
-
-	viewsPath := filepath.Join(baseDir, refs.Views)
-	var views ViewsDocument
-	if err := decodeYAMLFile(viewsPath, &views); err != nil {
-		return Bundle{}, fmt.Errorf("decode views file: %w", err)
-	}
-
-	var aviation *AviationDocument
-	aviationPath := ""
-	if refs.Aviation != "" {
-		aviationPath = filepath.Join(baseDir, refs.Aviation)
-		var document AviationDocument
-		if err := decodeYAMLFile(aviationPath, &document); err != nil {
-			return Bundle{}, fmt.Errorf("decode aviation file: %w", err)
-		}
-		diagnostics := ValidateAviation(document, requirements, architectureInput)
-		if manifest.Lifecycle != nil {
-			// With lifecycle the state and completeness codes are tier keyed
-			// (validate reports them); structural codes stay fatal.
-			diagnostics, _ = SplitAviationDiagnostics(diagnostics)
-		}
-		if len(diagnostics) > 0 {
-			return Bundle{}, &AviationValidationError{Diagnostics: diagnostics}
-		}
-		aviation = &document
-	}
-
-	var reqLinks ReqLinksDocument
-	reqLinksPath := ""
-	if refs.ReqLinks != "" {
-		reqLinksPath = filepath.Join(baseDir, refs.ReqLinks)
-		if err := decodeYAMLFile(reqLinksPath, &reqLinks); err != nil {
-			return Bundle{}, fmt.Errorf("decode reqLinks file: %w", err)
+	for _, slot := range slots {
+		if err := l.decode(slot); err != nil {
+			return ArchitectureInputDocument{}, err
 		}
 	}
+	return architectureInput, nil
+}
 
-	input := architectureInput.Architecture
-	authored := AuthoredArchitecture{
+// loadAviation decodes and validates the optional aviation document.
+// TRLC-LINKS: REQ-EMG-053, REQ-EMG-054, REQ-EMG-094
+func (l documentLoader) loadAviation(b *Bundle, architectureInput ArchitectureInputDocument) error {
+	if l.refs.Aviation == "" {
+		return nil
+	}
+	var document AviationDocument
+	if err := l.decode(documentSlot{l.refs.Aviation, "aviation", &document, &b.AviationPath}); err != nil {
+		return err
+	}
+	diagnostics := ValidateAviation(document, b.Requirements, architectureInput)
+	if b.Manifest.Lifecycle != nil {
+		// With lifecycle the state and completeness codes are tier keyed
+		// (validate reports them); structural codes stay fatal.
+		diagnostics, _ = SplitAviationDiagnostics(diagnostics)
+	}
+	if len(diagnostics) > 0 {
+		return &AviationValidationError{Diagnostics: diagnostics}
+	}
+	b.Aviation = &document
+	return nil
+}
+
+// loadReqLinks decodes the optional requirement link document.
+// TRLC-LINKS: REQ-EMG-132
+func (l documentLoader) loadReqLinks(b *Bundle) error {
+	if l.refs.ReqLinks == "" {
+		return nil
+	}
+	return l.decode(documentSlot{l.refs.ReqLinks, "reqLinks", &b.ReqLinks, &b.ReqLinksPath})
+}
+
+// authoredFromDocuments gathers the authored architecture from the
+// architecture, behavior and assurance documents.
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+func authoredFromDocuments(input ArchitectureInput, behavior BehaviorDocument, assurance AssuranceDocument) AuthoredArchitecture {
+	return AuthoredArchitecture{
 		FunctionalGroups: input.FunctionalGroups, FunctionalUnits: input.FunctionalUnits,
 		Actors: input.Actors, ReferencedElements: input.ReferencedElements,
 		Interfaces: input.Interfaces, DataObjects: input.DataObjects,
@@ -193,46 +229,25 @@ func LoadBundle(manifestPath string) (Bundle, error) {
 		ThreatMitigations:    assurance.Assurance.ThreatMitigations,
 		ControlVerifications: assurance.Assurance.ControlVerifications,
 	}
-	arch := ArchitectureDocument{
+}
+
+// assembleArchitecture builds the architecture document from the manifest,
+// the architecture input and the other decoded documents of the bundle.
+// TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
+func assembleArchitecture(manifest ManifestDocument, architectureInput ArchitectureInputDocument, b Bundle) ArchitectureDocument {
+	input := architectureInput.Architecture
+	return ArchitectureDocument{
 		SchemaVersion: CurrentSchemaVersion,
 		Model: ModelMeta{
 			ID: manifest.Module.ModelID, Title: manifest.Module.Title,
 			Introduction: manifest.Module.Introduction, Documents: manifest.Documents,
 		},
-		Decisions: decisions.Decisions, AuthoredArchitecture: authored,
+		Decisions: b.Decisions.Decisions, AuthoredArchitecture: authoredFromDocuments(input, b.Behavior, b.Assurance),
 		Semantics:  input.Semantics,
-		Compliance: compliance.Compliance, Contract: input.Contract,
+		Compliance: b.Compliance.Compliance, Contract: input.Contract,
 		Composition: aggregateComposition(input.Composition), InferenceHints: manifest.InferenceHints,
-		NAF: views.NAF, Views: views.Views,
+		NAF: b.Views.NAF, Views: b.Views.Views,
 	}
-	design := DesignDocument{SchemaVersion: CurrentSchemaVersion, Design: views.Design}
-
-	return Bundle{
-		ManifestPath:     manifestPath,
-		ArchitecturePath: architecturePath,
-		BehaviorPath:     behaviorPath,
-		AssurancePath:    assurancePath,
-		CompliancePath:   compliancePath,
-		ViewsPath:        viewsPath,
-		CatalogPath:      catalogPath,
-		DecisionsPath:    decisionsPath,
-		RequirementsPath: requirementsPath,
-		DesignPath:       viewsPath,
-		AviationPath:     aviationPath,
-		ReqLinksPath:     reqLinksPath,
-		Manifest:         manifest,
-		Architecture:     arch,
-		Behavior:         behavior,
-		Assurance:        assurance,
-		Compliance:       compliance,
-		Views:            views,
-		Catalog:          catalog,
-		Decisions:        decisions,
-		Requirements:     requirements,
-		Design:           design,
-		Aviation:         aviation,
-		ReqLinks:         reqLinks,
-	}, nil
 }
 
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-049, REQ-EMG-051

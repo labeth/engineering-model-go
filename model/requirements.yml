@@ -17,6 +17,7 @@ requirements:
       - FU-THREAT-EXPORTER
       - FU-STRUCTURIZR-EXPORTER
       - FU-OSCAL-EXPORTER
+      - EVT-MODEL-UPDATED
     realizes: [CAP-EMG-GENERATION-PIPELINE]
   - id: REQ-EMG-003
     status: implemented
@@ -26,6 +27,8 @@ requirements:
       - FU-ASCIIDOC-GENERATOR
       - FU-VIEW-PROJECTION
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-PUBLICATION]
   - id: REQ-EMG-004
     status: implemented
@@ -34,6 +37,8 @@ requirements:
     appliesTo:
       - FU-THREAT-EXPORTER
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-ARCHITECTURE-INTERCHANGE]
   - id: REQ-EMG-005
     status: implemented
@@ -42,15 +47,19 @@ requirements:
     appliesTo:
       - FU-STRUCTURIZR-EXPORTER
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-ARCHITECTURE-INTERCHANGE]
   - id: REQ-EMG-006
     status: implemented
-    text: Where traceability export is enabled, when generation run is requested, the engineering model go shall produce trlc package and lobster trace report artifacts.
+    text: Where traceability export is enabled, when generation run is requested, the engineering model go shall produce trlc package plus lobster trace report artifacts.
     notes: Traceability outputs required for assurance workflows.
     appliesTo:
       - FU-TRLC-EXPORTER
       - FU-LOBSTER-EXPORTER
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-COMPLIANCE-EXPORT]
   - id: REQ-EMG-007
     status: implemented
@@ -61,10 +70,14 @@ requirements:
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-008
     status: implemented
-    text: When mcp tool call is received, the engineering model go shall reject path arguments outside repository workspace boundary.
+    text: If path argument is outside repository workspace boundary, then the engineering model go shall reject the path argument with a structured error.
     notes: Filesystem trust boundary guardrail.
+    verificationMethods: [test]
+    verificationCriteria: 'When a tool call names a path argument that resolves outside the repository workspace, including through a symlink, then the server returns a structured error with the schema version and reads or writes nothing; a path inside the workspace is served.'
     appliesTo:
       - FU-MCP-SERVER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-009
     status: implemented
@@ -76,24 +89,31 @@ requirements:
     realizes: [CAP-EMG-GENERATION-PIPELINE]
   - id: REQ-EMG-010
     status: implemented
-    text: Where requirement trace is complete, when model updated event is received, the engineering model go shall infer traceability coverage from trace markers.
+    text: Where requirement trace is complete, when model check is requested, the engineering model go shall infer traceability coverage from trace markers.
     notes: Links runtime, code, and test markers to modeled requirement coverage. Python and JavaScript declarations and lexical Verilog modules support explicit source links. Python decorators preserve definition coordinates; strings cannot create trace or ownership markers, and syntax errors are diagnosed; Verilog extraction does not elaborate HDL or expand macros. Individual source files and overlapping source directories preserve distinct file identities without double counting. Code and metadata scanning excludes dependency caches (node_modules, vendor) and dot-directories (.git, .engmod, tool caches) so coverage reflects only committed first-party source and stays reproducible.
     appliesTo:
       - FU-CODEMAP-INFERENCE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-011
     status: implemented
-    text: Where external schema dependencies are available, when generation run is requested, the engineering model go shall fail validation if schema checks do not match expected constraints.
+    text: Where external schema dependencies are available, if schema checks mismatch expected constraints, then the engineering model go shall fail validation.
     notes: Protect export integrity when schema trust fails.
+    verificationMethods: [test]
+    verificationCriteria: 'With the external schema available, when an exported artifact does not match the schema, then validation fails and names the artifact; a conforming artifact passes.'
     appliesTo:
       - FU-THREAT-EXPORTER
       - FU-STRUCTURIZR-EXPORTER
       - FU-VALIDATION-ENGINE
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-ARCHITECTURE-INTERCHANGE]
   - id: REQ-EMG-012
     status: implemented
-    text: When generation run is requested, the engineering model go shall generate artifacts deterministically so that regeneration is reproducible.
+    text: The engineering model go shall generate artifacts deterministically so that regeneration is reproducible.
     notes: Generation uses stable ordering and controlled metadata so maintained artifacts are bit-for-bit reproducible. The validation gauntlet regenerates every maintained example and applies authoritative parsers or schemas where available plus semantic and idiomatic checks for each published format.
+    verificationMethods: [test]
+    verificationCriteria: 'When a maintained example is generated twice, then every generated artifact is byte-identical between the runs; the validation gauntlet reports a changed artifact as a failure.'
     appliesTo:
       - FU-ASCIIDOC-GENERATOR
       - FU-CODEMAP-INFERENCE
@@ -109,11 +129,13 @@ requirements:
     realizes: [CAP-EMG-GENERATION-PIPELINE]
   - id: REQ-EMG-013
     status: implemented
-    text: Where traceability export is enabled, when generation run is requested, the engineering model go shall export an OSCAL aggregate profile plus SSP plus assessment plan plus assessment results plus POA&M artifacts when the corresponding compliance and remediation content is applicable.
+    text: Where traceability export is enabled, when generation run is requested, the engineering model go shall export an OSCAL aggregate profile plus SSP plus assessment plan plus assessment results plus POA&M artifacts when the corresponding compliance plus remediation content is applicable.
     notes: OSCAL documents use version 1.1.2 structures, deterministic metadata, resolvable sibling import links, aggregate every implemented compliance framework, and omit inapplicable documents rather than emitting schema-invalid empty artifacts.
     appliesTo:
       - FU-OSCAL-EXPORTER
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-COMPLIANCE-EXPORT]
   - id: REQ-EMG-014
     status: implemented
@@ -122,6 +144,8 @@ requirements:
     appliesTo:
       - FU-ASCIIDOC-GENERATOR
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-PUBLICATION]
   - id: REQ-EMG-015
     status: implemented
@@ -131,6 +155,8 @@ requirements:
       - FU-GEMARA-EXPORTER
       - FU-CLI-ORCHESTRATION
       - FU-MCP-SERVER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-COMPLIANCE-EXPORT]
   - id: REQ-EMG-016
     status: implemented
@@ -139,21 +165,29 @@ requirements:
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-MODEL-LOADER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-017
     status: implemented
-    text: Where system composition is enabled, when generation run is requested, the engineering model go shall reject any subsystem reference that resolves outside the repository workspace boundary.
+    text: Where system composition is enabled, if subsystem reference resolves outside repository workspace boundary, then the engineering model go shall reject the subsystem reference.
     notes: Downward-only references remain within the workspace; mirrors the MCP path-boundary guardrail.
+    verificationMethods: [test]
+    verificationCriteria: 'When a subsystem reference path resolves outside the repository workspace, including through a symlink, then composition reports a diagnostic at the reference and resolves nothing from it.'
     appliesTo:
       - FU-SYSTEM-COMPOSITION
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-018
     status: implemented
-    text: Where system composition is enabled, when generation run is requested, the engineering model go shall reject a subsystem reference graph that contains a cycle.
+    text: Where system composition is enabled, if subsystem reference graph contains a cycle, then the engineering model go shall reject the subsystem reference graph.
     notes: Subsystem references must form a directed acyclic graph (ADR-EMG-009).
+    verificationMethods: [test]
+    verificationCriteria: 'When two systems reference each other through subsystem references, then composition reports the cycle with the manifests on its path and composes nothing from it.'
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-VALIDATION-ENGINE
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-019
     status: implemented
@@ -162,6 +196,8 @@ requirements:
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-ALLOCATION-TRACE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-020
     status: retired
@@ -177,6 +213,8 @@ requirements:
     appliesTo:
       - FU-ALLOCATION-TRACE
       - FU-VALIDATION-ENGINE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-022
     status: retired
@@ -193,6 +231,8 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-ALLOCATION-TRACE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-024
     status: implemented
@@ -201,6 +241,8 @@ requirements:
     appliesTo:
       - FU-ASCIIDOC-GENERATOR
       - FU-VIEW-PROJECTION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-PUBLICATION]
   - id: REQ-EMG-025
     status: retired
@@ -218,6 +260,8 @@ requirements:
       - FU-ALLOCATION-TRACE
       - FU-ASCIIDOC-GENERATOR
       - FU-VALIDATION-ENGINE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-027
     text: Where system composition is enabled, when generation run is requested, the engineering model go shall resolve an external git subsystem reference by cloning the repository into the workspace .engmod cache.
@@ -229,12 +273,15 @@ requirements:
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-028
     status: implemented
-    text: When generation run is requested, the engineering model go shall reject a code trace link that resolves to no requirement or model element.
+    text: If code trace link names no model target, then the engineering model go shall reject the code trace link.
     notes: Code markers (TRLC-LINKS to a requirement, ENGMODEL-LINKS to a model element) are existence-checked against the model, not only shape-checked, so a link to a deleted or mistyped id is a dangling link and fails the build. A trace link is only checked for the model that owns its code (see REQ-EMG-030 scoping).
+    verificationMethods: [test]
+    verificationCriteria: 'When a TRLC-LINKS marker names an ID that is no requirement, or an ENGMODEL-LINKS marker names an ID that is no model element, then the trace reports a dangling code link with its file and line and the trace command exits 1.'
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-CODEMAP-INFERENCE
       - FU-ALLOCATION-TRACE
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-029
     status: implemented
@@ -243,14 +290,18 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-ALLOCATION-TRACE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-030
     status: implemented
-    text: When generation run is requested, the engineering model go shall export a machine-readable traceability matrix that links each requirement to its implementing code and verification and delegated subsystem requirement.
+    text: When generation run is requested, the engineering model go shall export a machine-readable traceability matrix that links each requirement to its implementing code plus verification plus delegated subsystem requirement.
     notes: One consolidated matrix (JSON) replaces having to read it out of prose and diagrams. Test-only source links count as verification, not production implementation. Code is attributed to the model whose engmod.yml is its nearest enclosing root, so a parent model never validates or counts a child model's trace links (monorepo scoping).
     appliesTo:
       - FU-ALLOCATION-TRACE
       - FU-CODEMAP-INFERENCE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-031
     status: implemented
@@ -259,6 +310,7 @@ requirements:
     appliesTo:
       - FU-MODEL-CHANGE
       - FU-MODEL-LOADER
+      - EVT-REQUIREMENTS-DELTA-RECEIVED
     realizes: [CAP-EMG-MODEL-CHANGE]
   - id: REQ-EMG-032
     status: implemented
@@ -284,15 +336,18 @@ requirements:
     appliesTo:
       - FU-MODEL-CHANGE
       - FU-CLI-ORCHESTRATION
+      - EVT-REQUIREMENTS-DELTA-RECEIVED
     realizes: [CAP-EMG-MODEL-CHANGE]
   - id: REQ-EMG-035
     status: implemented
-    text: When model updated event is received, the engineering model go shall normalize architecture model plus requirements document into canonical semantic model.
+    text: When model check is requested, the engineering model go shall normalize architecture model plus requirements document into canonical semantic model.
     notes: The canonical semantic model is SysML v2 and KerML aligned. Existing Engineering Model concepts map into that model once; the authored YAML is the single input and no legacy adapter exists (ADR-EMG-061); it must not create a parallel set of parts, interfaces, flows, requirements, allocations, or views.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
       - FU-SYSML-EXPORTER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-AUTHORING]
   - id: REQ-EMG-036
     status: implemented
@@ -302,6 +357,8 @@ requirements:
       - FU-SYSML-EXPORTER
       - FU-CLI-ORCHESTRATION
       - FU-VALIDATION-ENGINE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-ARCHITECTURE-INTERCHANGE]
   - id: REQ-EMG-037
     status: implemented
@@ -311,6 +368,8 @@ requirements:
       - FU-SYSML-EXPORTER
       - FU-VALIDATION-ENGINE
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-ARCHITECTURE-INTERCHANGE]
   - id: REQ-EMG-038
     status: implemented
@@ -320,15 +379,20 @@ requirements:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
       - FU-SYSML-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-ARCHITECTURE-INTERCHANGE]
   - id: REQ-EMG-039
     status: implemented
-    text: While ci validation mode is active, when generation run is requested, the engineering model go shall reject incomplete sysml v2 metamodel coverage.
+    text: While ci validation mode is active, if sysml v2 metamodel coverage is incomplete, then the engineering model go shall fail validation.
     notes: Coverage is complete only when every normative metaclass and property in the pinned formal release is represented, explicitly excluded as derived, or implemented as a typed Engineering Model extension with executable evidence.
+    verificationMethods: [test]
+    verificationCriteria: 'In CI validation mode, when a normative metaclass or property of the pinned SysML v2 metamodel is neither represented, excluded as derived nor implemented as an extension, then validation fails and names it; with full coverage it passes.'
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-SYSML-EXPORTER
       - FU-CLI-ORCHESTRATION
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-ARCHITECTURE-INTERCHANGE]
   - id: REQ-EMG-040
     status: implemented
@@ -338,15 +402,19 @@ requirements:
       - FU-SYSML-EXPORTER
       - FU-VALIDATION-ENGINE
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-ARCHITECTURE-INTERCHANGE]
   - id: REQ-EMG-041
     status: implemented
-    text: Where naf profile authoring is enabled, when model updated event is received, the engineering model go shall validate naf v4.1 stakeholder plus concern plus viewpoint metadata against canonical model references.
+    text: Where naf profile authoring is enabled, when model check is requested, the engineering model go shall validate naf v4.1 stakeholder plus concern plus viewpoint metadata against canonical model references.
     notes: NAF-specific YAML contains profile metadata only. Capability, service, logical, resource, behavior, interface, and requirement concepts remain represented once in the canonical SysML and KerML aligned semantic graph.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
       - FU-NAF-EXPORTER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-042
     status: implemented
@@ -356,6 +424,8 @@ requirements:
       - FU-NAF-EXPORTER
       - FU-VIEW-PROJECTION
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-PUBLICATION]
   - id: REQ-EMG-043
     status: implemented
@@ -365,15 +435,19 @@ requirements:
       - FU-VALIDATION-ENGINE
       - FU-NAF-EXPORTER
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-044
     status: implemented
-    text: When model updated event is received, the engineering model go shall load schema version 2 engmod manifest plus catalog plus requirements plus architecture plus behavior plus assurance plus compliance plus views plus decisions documents into one canonical semantic model.
+    text: When model check is requested, the engineering model go shall load schema version 2 engmod manifest plus catalog plus requirements plus architecture plus behavior plus assurance plus compliance plus views plus decisions documents into one canonical semantic model.
     notes: engmod.yml is the only model entry point and every document path is explicit. YAML is the authoring format and CUE is the schema authority. Requirements may carry format-neutral qualification metadata such as title, category, rationale, source references, verification methods and criteria, priority, criticality, status, derived disposition, and tags. Views own design narratives plus generic document definitions, document-control metadata, content selections, authored sections, and external references; architecture does not contain behavior, assurance, compliance, dependency source, NAF, or projection-specific declarations.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
       - FU-CLI-ORCHESTRATION
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-AUTHORING]
   - id: REQ-EMG-045
     status: implemented
@@ -382,6 +456,8 @@ requirements:
     appliesTo:
       - FU-MCP-SERVER
       - FU-MODEL-LOADER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-046
     status: implemented
@@ -399,6 +475,8 @@ requirements:
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-MODEL-LOADER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-048
     status: implemented
@@ -407,6 +485,8 @@ requirements:
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-MODEL-LOADER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-049
     status: implemented
@@ -416,6 +496,8 @@ requirements:
       - FU-SYSTEM-COMPOSITION
       - FU-VALIDATION-ENGINE
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-050
     status: implemented
@@ -428,6 +510,8 @@ requirements:
       - FU-SYSML-EXPORTER
       - FU-OSCAL-EXPORTER
       - FU-GEMARA-EXPORTER
+      - EVT-EXAMPLE-VALIDATION-REQUESTED
+      - FLOW-EXAMPLE-VALIDATION
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-051
     status: implemented
@@ -438,25 +522,31 @@ requirements:
       - FU-SYSTEM-COMPOSITION
       - FU-VALIDATION-ENGINE
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-052
     status: implemented
-    text: Where six-view example output is enabled, when generation run is requested, the engineering model go shall generate deterministic use-case plus logical plus process plus physical plus implementation plus deployment view artifacts and native SysML from one schema version 2 YAML bundle.
+    text: Where six-view example output is enabled, when generation run is requested, the engineering model go shall generate deterministic use-case plus logical plus process plus physical plus implementation plus deployment view artifacts plus native SysML from one schema version 2 YAML bundle.
     notes: The acceptance example preserves viewpoint separation, hierarchical capabilities, ordered typed interactions, nested hardware and software structures, ports, connections, engineering values, and software-to-hardware allocations. Mermaid sources and SVG renderings are generated without depending on authored SysML source files.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VIEW-PROJECTION
       - FU-SYSML-EXPORTER
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-PUBLICATION]
   - id: REQ-EMG-053
     status: implemented
-    text: Where do-178c dal c readiness output is enabled, when model updated event is received, the engineering model go shall load a strict aviation assurance profile plus lifecycle data plus verification evidence plus configuration baselines plus tool assessments plus structural coverage summaries.
+    text: Where do-178c dal c readiness output is enabled, when model check is requested, the engineering model go shall load a strict aviation assurance profile plus lifecycle data plus verification evidence plus configuration baselines plus tool assessments plus structural coverage summaries.
     notes: The model references DO-178C or ED-12C and customer-controlled licensed objective identifiers without reproducing normative objective text. It distinguishes declared, planned, executed, reviewed, accepted, not-applicable, and authority-accepted evidence states.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
       - FU-AIRBORNE-ASSURANCE-EXPORTER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-AIRBORNE-ASSURANCE]
   - id: REQ-EMG-054
     status: implemented
@@ -465,6 +555,8 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-AIRBORNE-ASSURANCE-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-AIRBORNE-ASSURANCE]
   - id: REQ-EMG-055
     status: implemented
@@ -473,6 +565,8 @@ requirements:
     appliesTo:
       - FU-AIRBORNE-ASSURANCE-EXPORTER
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-AIRBORNE-ASSURANCE]
   - id: REQ-EMG-056
     status: implemented
@@ -482,10 +576,12 @@ requirements:
       - FU-AIRBORNE-ASSURANCE-EXPORTER
       - FU-VALIDATION-ENGINE
       - FU-ASCIIDOC-GENERATOR
+      - EVT-EXAMPLE-VALIDATION-REQUESTED
+      - FLOW-EXAMPLE-VALIDATION
     realizes: [CAP-EMG-AIRBORNE-ASSURANCE]
   - id: REQ-EMG-057
     status: implemented
-    text: When model updated event is received, the engineering model go shall derive the default code scan root from the enclosing module boundary.
+    text: When model check is requested, the engineering model go shall derive the default code scan root from the enclosing module boundary.
     notes: Without codeSources or an explicit code root, the scan root is the git working tree root, unless another engmod.yml exists between the manifest directory and that root, in which case it is the manifest directory. Directories holding another engmod.yml belong to that module and are skipped. Files ignored by git and paths matching inferenceHints.exclude glob patterns (relative to the module root, with dir/** for whole subtrees) are skipped. Explicit codeSources and code roots still override the default root.
     appliesTo:
       - FU-CODEMAP-INFERENCE
@@ -493,30 +589,39 @@ requirements:
     derivedRationale: 'Mechanism of REQ-EMG-010: the scan root bounds which source the trace markers are read from; it is no promise of its own.'
   - id: REQ-EMG-058
     status: implemented
-    text: When model updated event is received, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.
+    text: When model check is requested, the engineering model go shall assign path-derived CODE identifiers to every in-scope file with its declarations.
     notes: A file identifier is CODE- followed by its module-root-relative path, upper-cased with runs of non-alphanumeric characters folded to one hyphen (app/internal/capture.go becomes CODE-APP-INTERNAL-CAPTURE-GO). A declaration identifier appends two hyphens and the folded declaration name, so same-named declarations in different files stay distinct. Explicit TRACE-ID markers keep their authored value. Identifiers do not carry commit or blob versions because the model and the code are versioned together.
     appliesTo:
       - FU-CODEMAP-INFERENCE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-059
     status: implemented
-    text: When model updated event is received, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.
+    text: When model check is requested, the engineering model go shall resolve authored references to CODE identifiers against the in-scope module files.
     notes: An unknown CODE identifier is a broken reference, an identifier produced by more than one file or declaration is rejected as ambiguous, and inferred RT- and AUTO- identifiers remain unreferenceable. The code index is built only when the model references a CODE identifier, so models without such references pay no scanning cost.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-CODEMAP-INFERENCE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-060
     status: implemented
-    text: When model updated event is received, the engineering model go shall reject referenced elements whose uri addresses a local path.
+    text: If referenced element uri addresses a local path, then the engineering model go shall reject the referenced element.
     notes: Referenced elements describe artifacts outside the repository. A uri without a scheme or with the file scheme is rejected with a hint to reference the CODE identifier instead. A referenced element with a uri must declare a version unless the uri itself is immutable (a doi, or a uri carrying a full 40-hex commit id). Referenced elements without a uri remain valid for offline documents identified by number and edition.
+    verificationMethods: [test]
+    verificationCriteria: 'When a referenced element has a uri without a scheme or with the file scheme, then a diagnostic at the element names the CODE identifier as the remedy; an https uri is accepted.'
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-061
     status: implemented
-    text: When generation run is requested, the engineering model go shall count a requirement as tested only through test entry points.
+    text: The engineering model go shall count a requirement as tested only through test entry points.
     notes: Test entry points are Go Test/Benchmark/Fuzz/Example functions, Rust #[test]-like functions including those inside #[cfg(test)] modules, and Python test functions. TRLC-LINKS on other declarations in test code raise verification.helper_link. The trace summary reports tested (also as testLinked) and passed separately; verified is a deprecated alias of testLinked kept for compatibility, and passed requires a parsed test-result artifact. trace.matrix accepts summaryOnly to return only the summary and diagnostics.
+    verificationMethods: [test]
+    verificationCriteria: 'When a requirement is linked only from a helper declaration of a test file, then the trace does not count it as tested (verification.helper_link); a link on a Test, Benchmark, Fuzz or Example function counts.'
     appliesTo:
       - FU-CODEMAP-INFERENCE
       - FU-ALLOCATION-TRACE
@@ -528,6 +633,8 @@ requirements:
     appliesTo:
       - FU-GEMARA-EXPORTER
       - FU-MCP-SERVER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-COMPLIANCE-EXPORT]
   - id: REQ-EMG-063
     status: implemented
@@ -537,6 +644,8 @@ requirements:
       - FU-SYSTEM-COMPOSITION
       - FU-MODEL-LOADER
       - FU-CLI-ORCHESTRATION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-064
     status: implemented
@@ -544,6 +653,8 @@ requirements:
     notes: 'While workspace replacements are active the committed engmod.lock.yml is never modified and the resolved lock goes to engmod.lock.local.yml. With ENGMOD_LOCK=check (or --lock=check) the resolved lock is compared with engmod.lock.yml and composition.lock_missing, composition.lock_invalid or composition.lock_mismatch (missing, extra or version-changed dependency, changed content digest after a moved tag) is reported and nothing is written. Exception: while workspace replacements are active the committed lock is not compared (it pins published content, the replacements are local) and the warning composition.lock_check_skipped says that it is checked only with ENGMOD_WORK=off. Otherwise engmod.lock.yml is written as before. A cached registry module is reused offline, except that ENGMOD_MODULE_CACHE=refresh and lock regeneration (write mode with the workspace off) re-fetch every dependency, ENGMOD_MODULE_CACHE=reuse (ResolutionOptions.ModuleCache) reuses the cache offline in every lock mode, and otherwise lock check mode compares each cached module''s recorded manifest digest with the registry (one lookup per dependency, cache reused when offline) and re-fetches a moved tag, so a warm cache never masks it. Diagnostics located in a fetched dependency name it as module@version:path instead of the cache directory.'
     appliesTo:
       - FU-SYSTEM-COMPOSITION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-065
     status: implemented
@@ -553,6 +664,8 @@ requirements:
       - FU-SYSTEM-COMPOSITION
       - FU-VALIDATION-ENGINE
       - FU-ALLOCATION-TRACE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-066
     status: implemented
@@ -561,6 +674,8 @@ requirements:
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-ASCIIDOC-GENERATOR
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-067
     status: implemented
@@ -569,6 +684,8 @@ requirements:
     appliesTo:
       - FU-ALLOCATION-TRACE
       - FU-SYSTEM-COMPOSITION
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-068
     status: implemented
@@ -577,6 +694,8 @@ requirements:
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-SYSTEM-COMPOSITION
+      - EVT-WORKSPACE-SYNC-REQUESTED
+      - FLOW-WORKSPACE-SYNC
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-069
     status: implemented
@@ -584,27 +703,35 @@ requirements:
     notes: model.complete returns local and imported qualified IDs (from dependencies pulled into the local cache), catalog terms, allowed enum values and relationship type pairs that match a prefix and an optional field; model.diagnose validates the model with one document's content supplied in the call and returns that document's diagnostics; dependencies resolve from the real project's workspace and module cache while the root system, its composition and its alias::ID references are taken from the submitted content, and no lock is written. Both work offline from the local cache; no central service is involved. Every composing MCP read tool (model.complete, model.diagnose, composition.resolve, trace.matrix) resolves with lock check unless ENGMOD_LOCK is set and with module cache reuse unless ENGMOD_MODULE_CACHE or ENGMOD_LOCK is set, so it never writes engmod.lock.yml and makes no registry request when the cache is warm. composition.resolve returns resolved directories relative to the workspace root, or as module@version for module cache entries, never as absolute paths.
     appliesTo:
       - FU-MCP-SERVER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-070
     status: implemented
-    text: When model updated event is received, the engineering model go shall warn about every unconnected behavior element.
+    text: When model check is requested, the engineering model go shall warn about every unconnected behavior element.
     notes: 'Three warnings. behavior.event_unused names an authored behavior event that no machine transition names in on, no semantic transition lists as a trigger and no semantic relationship, flow or flow step references (catalog-only events are covered by catalog.term_unreferenced). behavior.state_unreachable names a machine state that no path of transitions leads to from the initial state of the machine (v0.11.0, ADR-EMG-038; the first-declared-state heuristic and the transitions_to relationship are gone), and a machine without transitions reports its other states. behavior.flow_step_no_onerror names a flow step with boundaryCrossing true and no onError step, at its onError path. Imported alias::ID entities are skipped.'
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-071
     status: implemented
-    text: When model updated event is received, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.
+    text: When model check is requested, the engineering model go shall warn at each catalog term whose name contains an EARS expression operator.
     notes: 'catalog.name_has_operator is reported once at the catalog name or alias field (catalog.<group>[i].name or .aliases[j]) of an actor, event, state, feature, mode, condition or data term that contains a standalone and, or, not, a comma or a parenthesis. Such a term cannot match in a requirement clause, because the EARS expression parser splits it at the operator, and the requirement otherwise shows only unresolved-term diagnostics. System, functional group and unit names are matched whole by EARS and are not checked.'
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-072
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.
+    text: When model check is requested, the engineering model go shall report a multiple-response lint only for a requirement with more than one response action.
     notes: 'lint.multiple_responses from ears-lint-go is dropped when the text has one shall and no semicolon, no and, or or comma comes before the first with, including or of in the response, that field list holds no then, and no list item after the first reads as a verb with its object (its second word is the, a, an, its, their, each, every or all). "publish one world state message with UTC time, latitude, longitude and altitude" is not reported; "log the event and notify the operator", "log the event with the timestamp and notify the operator" and "stop all of the motors and close the valve" still are.'
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-073
     status: implemented
@@ -613,6 +740,8 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-ALLOCATION-TRACE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-080
     status: implemented
@@ -622,6 +751,8 @@ requirements:
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-SYSTEM-COMPOSITION
+      - EVT-WORKSPACE-STAGING-REQUESTED
+      - FLOW-WORKSPACE-SYNC
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-081
     status: implemented
@@ -630,41 +761,51 @@ requirements:
     verificationCriteria: Golden tests render a fixture and check SHALL capitalization and criteria shaping, and the engspec output for a sample model starts each REQ line with the model text and passes openspec validate --strict when the openspec CLI is available.
     appliesTo:
       - FU-MODEL-CHANGE
+      - EVT-SPEC-DELTA-REQUESTED
+      - FLOW-SPEC-DELTA
     realizes: [CAP-EMG-MODEL-CHANGE]
   - id: REQ-EMG-082
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each assurance record whose verification links disagree.
+    text: When model check is requested, the engineering model go shall report each assurance record whose verification links disagree.
     notes: 'threat.verification_missing is a warning at a threat scenario''s verificationRefs when it omits a control verification that one of its threat mitigations (threatScenarioRef) lists in verificationRefs or that names the threat in threatScenarioRefs. mitigation.verification_control_mismatch is an error at a threat mitigation verificationRefs entry naming a control verification whose controlRef is another control than the mitigation''s controlRef. verification.unlinked is a warning at the verificationRefs of a control verification with method test and status pass or partial that has no verificationRefs, so no test declaration or requirement evidences it; analysis, inspection and other methods are evidenced by their evidence entries and are not reported. Imported alias::ID records are skipped. The AsciiDoc generation, the trace and model.diagnose report them through validation.'
     verificationCriteria: When a threat scenario omits a control verification its mitigation references, a mitigation references a control verification of another control, and a passing test control verification has no verificationRefs, then validation reports one warning, one error and one warning at those fields, and none once the links agree.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-083
     status: implemented
-    text: When model updated event is received, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.
+    text: When model check is requested, the engineering model go shall warn at each control that the gemara evaluation log would mark for review.
     notes: 'gemara.control_needs_review is a warning at a control that the Gemara L5 evaluation log gives the result Needs Review: no control verification names it in controlRef, or at least one of its control verifications has a status that needs review (partial, planned, in-progress, review, needs-review) and none failed or has an unrecognized status, since Failed and Unknown outrank Needs Review in the log''s aggregate. validate.ClassifyVerificationStatus and validate.ControlNeedsReview are the one status mapping the evaluation log and the warning share. When a control without verification has a threat mitigation that references another control''s verification, the message names it ("<CV> verifies <other control>"); for a control whose verifications need review it names them with their status. Validation emits it, so the check path (engdoc, the trace, model.diagnose) reports it without rendering Gemara.'
     verificationCriteria: When a control has no control verification and its mitigation references a verification of another control, and another control has only a partial verification, then validation warns at both controls, naming the other control's verification and the partial verification, and the warned controls are exactly those the evaluation log marks Needs Review.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-GEMARA-EXPORTER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-084
     status: implemented
-    text: When model updated event is received, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts.
+    text: When model check is requested, the engineering model go shall infer implementation coverage from trace markers in comments of build and documentation artifacts.
     notes: 'The code scanner reads TRLC-LINKS, ENGMODEL-LINKS and ENGMODEL-OWNER-UNIT in # comment lines of files named Dockerfile or Containerfile or ending in .Dockerfile or .Containerfile, and in HTML comments (<!-- TRLC-LINKS: REQ-… -->, also spanning lines) that start a line outside fenced code blocks of .md and .markdown files. The markers apply to the whole file: it becomes one symbol with its file CODE identifier (CODE-<PATH>) that implements the linked requirements, never verifies them, also under tests/. Markers are optional: such a file without them yields no item and no code.missing_trlc_link. The module code scope applies, including git-ignored files and inferenceHints.exclude; an invalid requirement ID is code.invalid_trlc_link.'
     verificationCriteria: When a Dockerfile and a README.md carry TRLC-LINKS comments, then the trace matrix lists each as implementing code of the linked requirement, and a Dockerfile without markers adds no diagnostic.
     appliesTo:
       - FU-CODEMAP-INFERENCE
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-085
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record.
+    text: When model check is requested, the engineering model go shall report each accepted assurance record that lacks an owner acceptance record.
     notes: 'A risk with status accepted or response accept, and a threat scenario with status accepted, must carry acceptedBy with actor (an existing ACT-* actor), date (a YYYY-MM-DD calendar date, parsed, so 2026-13-45 is rejected) and statement (the owner''s own words) or decisionRef (an existing decision with status accepted whose context quotes the owner); otherwise risk.acceptance_unrecorded is an error at its acceptedBy field naming the missing parts. An acceptedBy actor, date or decisionRef that does not resolve, or a decisionRef to a decision that is not accepted, is model.invalid_acceptance (error). risk.acceptance_not_owner is a warning at the acceptedBy actor of a risk whose owner is set and differs from the actor. risk.accept_while_open is a warning at a risk status when response is accept and status is open, since the Gemara policy would otherwise list it as accepted while it is open. The Gemara policy lists a risk under risks.accepted only when its acceptance record is complete and resolves (validate.AcceptanceRefs, shared with validation) and its status is accepted, or its response is accept and its status is not open; gemara.validate (CheckGemaraModelConsistency) reports an accepted entry that does not meet this. Imported alias::ID records are skipped; the schema rejects :: in authored risk and threat scenario IDs, so a local ID cannot pose as imported. The record is an authored claim: these checks make it complete and consistent, and human review of the diff that adds it is the actual control that the owner gave it.'
     verificationCriteria: When a risk is accepted without acceptedBy, a risk has response accept with status open, and a threat scenario is accepted without acceptedBy, then validation reports risk.acceptance_unrecorded at both acceptedBy fields and risk.accept_while_open at the open risk, and the Gemara policy lists no accepted risk; once acceptedBy names an actor, a date and a statement, the error is gone and the accepted risk is listed.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-GEMARA-EXPORTER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-086
     status: implemented
@@ -673,6 +814,8 @@ requirements:
     verificationCriteria: When an unpublished interface module with a third-party requirement is required by a service checkout at v0.1.0, then after engws sync go build in the service succeeds under the generated go.work with GOPROXY serving only the third-party module, and go.work holds exactly one replace for the required version.
     appliesTo:
       - FU-CLI-ORCHESTRATION
+      - EVT-WORKSPACE-SYNC-REQUESTED
+      - FLOW-WORKSPACE-SYNC
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-087
     status: implemented
@@ -682,16 +825,20 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MCP-SERVER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-088
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each requirement whose linked tests are all environment gated.
+    text: When model check is requested, the engineering model go shall report each requirement whose linked tests are all environment gated.
     notes: 'A Go test entry point whose first statements include an if whose condition calls os.Getenv, os.LookupEnv or testing.Short and whose body calls t.Skip, t.Skipf or t.SkipNow is gated (the variable name, or testing.Short). A requirement linked from a test file only by gated tests carries that gate in the verification check; a trace row whose every verification is gated for it has gated true and its gates, and the summary counts it in gatedOnly and lists it in gatedOnlyRequirements. testLinked still counts it. The MCP trace.matrix summary returns gatedOnly and gatedOnlyRequirements and its rows gated.'
     verificationCriteria: When one requirement is linked only from a test that skips unless an environment variable is set and another is linked from that test and from an ungated test, then the trace summary has gatedOnly 1 listing only the first requirement, its row is gated with the variable name, and both stay test linked.
     appliesTo:
       - FU-CODEMAP-INFERENCE
       - FU-ALLOCATION-TRACE
       - FU-MCP-SERVER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-089
     status: implemented
@@ -703,45 +850,53 @@ requirements:
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-090
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each requirement without an upward trace.
+    text: When model check is requested, the engineering model go shall report each requirement without an upward trace.
     notes: 'No model can know it is top level, because any system may later be used by one above (decision D22, ADR-EMG-028), so every requirement traces through a capability. A requirement traces upward iff (a) it realizes a local capability or assumption of use (or is named by a deprecated capability ref), (b) it is the parent of a reqLinks entry whose child is a dependency capability (alias::CAP-*), or (c) it is derived: true with derivedRationale. Stakeholder sourceRefs do not count, and no model is exempt (inferenceHints.topLevel does not exist; the strict schema rejects it). Otherwise requirement.no_parent is reported at the requirement with a message naming exactly these three options: an error with requirementLinks strict in every model; a warning with guided (the default) only in a model that publishes a contract item or has reqLinks; nothing in a guided standalone model. A realizes target that is a requirement, an imported alias::ID, an interface entry or unknown is requirement.realizes_unknown (error). requirementLinks other than strict or guided is model.invalid_requirement_links (error). The rule needs only the child repository.'
     verificationMethods: [test]
     verificationCriteria: When a strict child model has a requirement that neither realizes a contract item, is the parent of a capability link nor is derived with derivedRationale, then its own check reports requirement.no_parent as an error without the using system present, naming the three options; each of realizes, a capability link parent and derived with rationale alone clears it, sourceRefs alone do not; a guided model with a published capability reports a warning, a guided standalone model none; a manifest with inferenceHints.topLevel fails to load; and a realizes target naming a requirement is requirement.realizes_unknown.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MODEL-LOADER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-091
     status: implemented
-    text: When model updated event is received, the engineering model go shall load assumptions of use as contract items with their realizing requirements.
+    text: When model check is requested, the engineering model go shall load assumptions of use as contract items with their realizing requirements.
     notes: 'contract.assumptions entries have id (AOU-*), text and optional verificationCriteria. They are published in a publication architecture list like capabilities, imported as alias::AOU-* by a composing bundle, and count as contract items: a requirement may realize them and engws bump compares their meaning between versions. Contract items are contract.provides entries of kind capability and the assumptions; interface entries are not link targets.'
     verificationMethods: [test]
     verificationCriteria: When a model declares an assumption of use and a requirement realizes it, then the loaded contract has the assumption, the contract items list it with its realizing requirement, and a using system that composes it reports link.aou_unverified until an evidence link names it.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-SYSTEM-COMPOSITION
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-092
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each requirement that realizes a published contract item without being published itself.
+    text: When model check is requested, the engineering model go shall report each requirement that realizes a published contract item without being published itself.
     notes: 'contract.realizer_unpublished is an error at a requirement that realizes (through realizes or a deprecated ref) a contract item that a publication exposes, when that publication does not list the requirement under requirements. A using system compares the item with its realizers from the published content alone, so every realizer must be visible to it.'
     verificationMethods: [test]
     verificationCriteria: When a published capability is realized by a requirement missing from the publication requirements list, then validation reports contract.realizer_unpublished at that requirement, and none once it is listed.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-093
     status: implemented
-    text: When model updated event is received, the engineering model go shall warn at each published capability without a realizing requirement.
+    text: When model check is requested, the engineering model go shall warn at each published capability without a realizing requirement.
     notes: 'contract.unrealized (warning) names a published capability with no realizing requirement. A contract.provides entry that carries ref is the error model.provides_ref_removed (REQ-EMG-184) and the ref counts as no realizer; the realizing requirement names the capability with realizes.'
     verificationMethods: [test]
     verificationCriteria: When one published capability has no realizer and another names its requirement only in ref, then validation warns contract.unrealized for the first and reports model.provides_ref_removed at the ref of the second, which still has no realizer.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-094
     status: implemented
-    text: Where system composition is enabled, when model updated event is received, the engineering model go shall validate each requirement link against the manifest dependency pins.
+    text: Where system composition is enabled, when model check is requested, the engineering model go shall validate each requirement link against the manifest dependency pins.
     notes: 'The optional document documents.reqLinks (model/req-links.yml) holds reqLinks entries {id, parent, child, evidence, pinned {version}, status claimed|accepted, rationale, reviewedBy, reviewedOn}, strictly decoded and checked by the CUE schema (pinned.fingerprint is deprecated: still accepted for one release and ignored, REQ-EMG-118). A parent that is no local requirement, a link with neither parent nor evidence, or evidence that is no local ID is link.parent_unknown; a child that is not alias::ID of a declared dependency selected by a composition subsystem is link.child_unpublished; pinned.version other than the dependency version is link.version_mismatch (errors; the link was reviewed at another version and needs review at this one, decision D23); status claimed is link.claimed_only (warning). A dependency version may be a Go-style pseudo-version.'
     verificationMethods: [test]
     verificationCriteria: When a link names an unknown parent, an undeclared dependency, a pin other than the manifest and a claimed status, then validation reports link.parent_unknown, link.child_unpublished, link.version_mismatch and link.claimed_only at those links.
@@ -776,6 +931,8 @@ requirements:
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-ALLOCATION-TRACE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-098
     status: implemented
@@ -786,6 +943,8 @@ requirements:
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-ALLOCATION-TRACE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-099
     status: implemented
@@ -796,16 +955,20 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MCP-SERVER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-100
     status: implemented
     text: When dependency bump is requested, the engineering model go shall move the pin of each requirement link whose contract item means the same at the new version and keep the pin of every other link for review.
     notes: 'engws bump <repo> <alias> <version> [--allow-review] [--show] updates the pin, go.mod and lock, then compares each reqLinks entry of the consumer on the bumped alias between its pinned version and the new version, both published and resolved with the workspace off (linkreview.ItemsAtVersion; module cache verified against the registry digest, else the registry), by meaning (reqlinks.SameMeaning, REQ-EMG-095). Decision D23: the same meaning moves pinned.version to the new version (moved); a changed meaning (review, printed with the changes by ID), a pinned version that cannot be resolved (review, saying so) or an item gone at the new version (broken) keeps the old pin, so the model check reports link.version_mismatch (or link.broken) until engws review-links --accept. A link already at the new version is current. One line per link, IDs only; --show adds the item before and after. The bump is written either way; exit 1 when a link needs review, 0 with --allow-review (--allow-suspect is a deprecated alias); any failure restores engmod.yml, go.mod, go.sum, engmod.lock.yml and model/req-links.yml. link.* diagnostics do not block lock regeneration.'
     verificationMethods: [test]
-    verificationCriteria: 'When a child release changes only an unrelated requirement and the status and notes of a realizing requirement, then the bump moves every link pin to the new version and the system check passes; when the next release changes a realizing requirements text, then the bump prints that link as review with REQ-A-001 text and no requirement text, exits 1, writes the bump, moves the unchanged link, keeps the changed links pin, and the system check fails with link.version_mismatch only; --show prints the text before and after and --allow-review exits 0; a link whose pinned version is not published is left for review saying so, and one whose item is gone is broken.'
+    verificationCriteria: When a child release changes only an unrelated requirement and the status and notes of a realizing requirement, then the bump moves every link pin to the new version and the system check passes; when the next release changes a realizing requirements text, then the bump prints that link as review with REQ-A-001 text and no requirement text, exits 1, writes the bump, moves the unchanged link, keeps the changed links pin, and the system check fails with link.version_mismatch only; --show prints the text before and after and --allow-review exits 0; a link whose pinned version is not published is left for review saying so, and one whose item is gone is broken.
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-ALLOCATION-TRACE
+      - EVT-DEPENDENCY-BUMP-REQUESTED
+      - FLOW-DEPENDENCY-BUMP
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-101
     status: implemented
@@ -826,6 +989,7 @@ requirements:
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-ALLOCATION-TRACE
+      - EVT-CONTRACT-DIFF-REQUESTED
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-103
     status: implemented
@@ -836,6 +1000,7 @@ requirements:
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-ALLOCATION-TRACE
+      - EVT-RELEASE-CHECK-REQUESTED
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-104
     status: retired
@@ -852,10 +1017,12 @@ requirements:
     text: Where system composition is enabled, when generation run is requested, the engineering model go shall report the parents and children of each requirement and roll each linked system requirement up from its realizing child requirements.
     notes: 'trace.Matrix rows carry parents (the contract items a requirement realizes through realizes or a deprecated ref, qualified alias::ID on a published requirement row, none for a requirement traced only by its links or derivation; stakeholder sourceRefs are not parents, D22) and children (for a requirement that is the parent of reqLinks entries: each linked child item alias::CAP-* followed by its realizing requirements alias::REQ-* at the resolved version; none for a child requirement), links (id, child, evaluated state, review status) and satisfiedBy. A requirement with no code or test of its own whose every link is accepted, evaluates unchanged and resolves to an item with realizing requirements that are all implemented (or all test linked) in their own repository trace is implemented (or test linked) with satisfiedBy links (decision D18: a claimed, version-mismatched or broken link gives satisfiedBy links-unreviewed and does not count), linksImplemented and linksTestLinked, is counted in the summary implemented and testLinked, and is no orphan. The summary counts linksNeedReview (each link that is version-mismatched, broken or claimed, once; local workspace links excluded), linksVersionMismatch, linksBroken, linksClaimed and unparented (local requirements that fail the upward-trace rule of REQ-EMG-090 where the requirement link rules apply); linksSuspect is kept as a deprecated alias of linksVersionMismatch (D23). MCP trace.matrix returns the counts, also with summaryOnly, and parents, children, links and satisfiedBy per row.'
     verificationMethods: [test]
-    verificationCriteria: 'When every realizing requirement of the items linked to a system requirement has code and a test in its child repository, then the system requirement row lists the linked items and their realizers as children and is implemented and test linked through links, but not when one of its links is claimed or pinned to another version; when a realizer loses its test, then the system requirement is implemented but not test linked; a child requirement row lists the item it realizes as parent; a version-mismatched and a claimed link are counted and, against a published release without a linked item, a broken one, with linksNeedReview counting each link once.'
+    verificationCriteria: When every realizing requirement of the items linked to a system requirement has code and a test in its child repository, then the system requirement row lists the linked items and their realizers as children and is implemented and test linked through links, but not when one of its links is claimed or pinned to another version; when a realizer loses its test, then the system requirement is implemented but not test linked; a child requirement row lists the item it realizes as parent; a version-mismatched and a claimed link are counted and, against a published release without a linked item, a broken one, with linksNeedReview counting each link once.
     appliesTo:
       - FU-ALLOCATION-TRACE
       - FU-MCP-SERVER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-106
     status: implemented
@@ -866,6 +1033,8 @@ requirements:
     appliesTo:
       - FU-MCP-SERVER
       - FU-ALLOCATION-TRACE
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-107
     status: implemented
@@ -877,16 +1046,20 @@ requirements:
       - FU-ASCIIDOC-GENERATOR
       - FU-SYSTEM-COMPOSITION
       - FU-ALLOCATION-TRACE
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-108
     status: implemented
-    text: When model updated event is received, the engineering model go shall ignore each workspace file and sibling checkout that another user could have written or that leaves the workspace.
+    text: When model check is requested, the engineering model go shall ignore each workspace entry that leaves the workspace plus each workspace entry that another user could have written.
     notes: 'The upward search for engmod.work.yml (FindWorkspaceWith with an empty mode and ENGMOD_WORK unset) refuses a world-writable file and, where the platform has file owners, a file owned by neither the current user nor root, with an error naming ENGMOD_WORK=<path> as the way to use it anyway; an explicit path is used as given. The Used By scan (composition.WorkspaceLinkUsers) reads only replacement directories inside the workspace directory (composition.PathWithin) whose manifest names no path outside its own directory (the dependency confinement, composition.dependency_path_escape), so a crafted workspace or sibling manifest cannot make a render read files elsewhere. The upward search does not stop at a git top-level: a workspace sits above sibling repositories by design.'
     verificationMethods: [test]
     verificationCriteria: When the engmod.work.yml above a project is world-writable or owned by another user, then the upward search fails naming ENGMOD_WORK and the same file given explicitly loads; when a workspace names a replacement outside its directory and a sibling whose link file lies outside its module, then Used By lists neither.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-SYSTEM-COMPOSITION
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-109
     text: Where system composition is enabled, when generation run is requested, the engineering model go shall report each requirement link whose recorded fingerprint uses another canonical form than the engineering model go writes.
@@ -900,30 +1073,36 @@ requirements:
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-110
     status: implemented
-    text: When generation run is requested, the engineering model go shall render requirement link and contract item text without AsciiDoc passthrough.
+    text: When generation run is requested, the engineering model go shall render requirement link plus contract item text without AsciiDoc passthrough.
     notes: 'Text in the Requirement Links, Assumptions of Use, Contract Items and Used By sections comes partly from dependency models (another repository). Every such string is whitespace-collapsed and its passthrough forms (+++...+++, ++...++, $$...$$, pass:[...] and other pass macros) are broken with {empty}, so it renders literally and cannot emit raw HTML into the document.'
     verificationMethods: [test]
     verificationCriteria: When an item text holds +++<script>+++, ++<b>++, $$<u>$$ or pass:[<i>], then the rendered line holds the text with {empty} inserted and no passthrough, and plain text with a single plus is unchanged.
     appliesTo:
       - FU-ASCIIDOC-GENERATOR
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-PUBLICATION]
   - id: REQ-EMG-111
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each accepted requirement link without a resolving reviewer and review date.
+    text: When model check is requested, the engineering model go shall report each accepted requirement link without a resolving reviewer plus review date.
     notes: 'A reqLinks entry with status accepted and no reviewedBy or no reviewedOn is link.review_unrecorded (error); a reviewedBy that is not an actor of the model and a reviewedOn that is not a YYYY-MM-DD calendar date are link.review_unrecorded too, at that field. A claimed link may carry neither. engws review-links --accept writes both; the check shows only that a modeled role and a date are recorded, review of the diff shows that the role gave it.'
     verificationMethods: [test]
     verificationCriteria: When an accepted link lacks reviewedBy, another lacks reviewedOn, a third names an unknown actor and a fourth the date 2026-02-30, then validation reports link.review_unrecorded at each, and an accepted link with a model actor and a calendar date and a claimed link without either report nothing.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-112
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each requirement link to a capability without a parent requirement.
+    text: When model check is requested, the engineering model go shall report each requirement link to a capability without a parent requirement.
     notes: 'A link whose child is alias::CAP-* says that the capability satisfies a local requirement, so it needs parent: link.parent_missing (error) otherwise, also when it carries evidence. A link to an assumption of use (alias::AOU-*) may have evidence instead of a parent.'
     verificationMethods: [test]
     verificationCriteria: When a link to a capability has evidence but no parent, then validation reports link.parent_missing; a link to an assumption of use with evidence only reports nothing.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-113
     status: implemented
@@ -934,6 +1113,8 @@ requirements:
     appliesTo:
       - FU-MCP-SERVER
       - FU-MODEL-CHANGE
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-114
     status: implemented
@@ -945,6 +1126,8 @@ requirements:
       - FU-MCP-SERVER
       - FU-CODEMAP-INFERENCE
       - FU-VALIDATION-ENGINE
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-115
     status: implemented
@@ -955,24 +1138,30 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MCP-SERVER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-116
     status: implemented
-    text: When model updated event is received, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.
+    text: When model check is requested, the engineering model go shall warn at each acceptance record that names a decision without the owner's statement.
     notes: 'risk.acceptance_by_decision_only (warning) at acceptedBy.statement of a risk or threat scenario whose acceptedBy has a decisionRef but no statement. A decision can bundle an acceptance with other choices, so the owner''s own words accepting this risk belong on the risk; the message asks for acceptedBy.statement and for asking the owner about the risk by name. The record stays complete (no risk.acceptance_unrecorded) and the Gemara policy still lists the risk as accepted. Imported alias::ID records are skipped.'
     verificationMethods: [test]
     verificationCriteria: When a risk and a threat scenario are accepted with a decisionRef and no statement, then each has a risk.acceptance_by_decision_only warning at acceptedBy.statement naming the decision, and a record with both a decisionRef and a statement or with a statement only reports none.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-117
     status: implemented
-    text: When model updated event is received, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model.
+    text: When model check is requested, the engineering model go shall warn at each assurance record whose scoring or control trace disagrees with the rest of the model.
     notes: 'Three warnings (validate.assuranceConsistencyDiagnostics). risk.severity_inconsistent at the severity of each threat scenario whose (likelihood, impact) pair, compared case-insensitively, maps to more than one severity among the model''s threat scenarios; the message names the other severities and their scenarios and asks for one scoring method recorded as a decision. Only threat scenarios carry likelihood, impact and severity together: a risk has likelihood, impact and residualRisk but no severity, so risks are not compared. controlVerification.risk_control_unlinked at a riskRefs entry of a control verification that names a local risk whose relatedControls omit the verification''s controlRef (risk-to-control trace in both directions). threat.attack_vector_missing at the attackVectorRef of a threat scenario without one when another local threat scenario names its attack vector. Imported alias::ID records and unknown risks (reported elsewhere) are skipped.'
     verificationMethods: [test]
     verificationCriteria: When threat scenarios rate low likelihood and medium impact as low, Medium-cased medium and low again, then each of the three is risk.severity_inconsistent at its severity, and a high/high scenario and one without a severity are not; when a control verification of CTRL-A names a risk listing CTRL-A, one listing only CTRL-B and an imported risk, then only the second is controlVerification.risk_control_unlinked at its riskRefs entry; when one threat scenario names an attack vector, then the one without is threat.attack_vector_missing, and a model where none names one reports nothing.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-118
     status: retired
@@ -986,7 +1175,7 @@ requirements:
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-119
     status: implemented
-    text: When link add is requested, the engineering model go shall write a claimed requirement link pinned to the dependency version after checking its parent and child.
+    text: When link add is requested, the engineering model go shall write a claimed requirement link with its parent, child and a pin at the dependency version.
     notes: 'engws link add [--repo DIR] (--parent REQ | --evidence REQ[,REQ]) <alias::CAP-...|alias::AOU-...> [--rationale TEXT] (decision D23): the link id is LNK-<REQ>-<ALIAS> made unique; pinned.version is the dependency pin of the alias in engmod.yml; status claimed. Before writing it validates the model with the link added (parent requirement, evidence IDs, declared and composed alias, a capability link needs a parent) and composes with the workspace off to check the child is a published capability or assumption of use at the pinned version (an assumption needs evidence); it refuses a link that joins the same parent and evidence to the same child. The link is appended to the link file with every other line kept; a model without one gets model/req-links.yml and documents.reqLinks in engmod.yml. Nothing is written on refusal (exit 1).'
     verificationMethods: [test]
     verificationCriteria: When a parent link to a published capability is added, then the link file gains exactly the claimed link pinned to v0.1.0 with a unique id and the rationale and the system check passes; a duplicate, an unknown parent, an unpublished item, a capability with evidence only, an undeclared alias and a missing parent are each refused with no change; in a model without a link file an evidence link to an assumption creates model/req-links.yml and documents.reqLinks.
@@ -1002,103 +1191,124 @@ requirements:
     verificationCriteria: When a server on the system starts without engmod.work.yml, then repo . answers for the system and a sibling is refused as outside; after engmod.work.yml is written, trace.matrix, requirements.get, links.list and model.diagnose answer for repos/child-a and child-b, and without repo for the system; ../, an absolute path outside, a symlink out of the root, a symlinked member and a directory without engmod.yml are refused; a world-writable workspace file is refused; every listed tool's input schema has repo.
     appliesTo:
       - FU-MCP-SERVER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-121
     status: implemented
-    text: When model updated event is received, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.
+    text: When model check is requested, the engineering model go shall warn at each requirement with quantitative verification criteria that only benchmarks verify.
     notes: 'Retro 1104 item 6. The code scanner marks a test entry point that is a benchmark (codemap.Symbol.Benchmark: Go Benchmark* in _test.go, Rust #[bench], now also detected as a test entry point); Criterion benchmarks are plain functions and JS bench files have no test entry-point detection, so neither is classified. A requirement whose every linking test entry point, across all test files, is a benchmark has a trace row with benchmarkOnly; when its verificationCriteria contain a digit, the trace integrity check reports verification.benchmark_only (warning) at requirements[i]: a benchmark measures but asserts nothing, so add a Test that checks the value. A Test* or Fuzz* link in any file clears it. The requirement stays test linked.'
     verificationMethods: [test]
     verificationCriteria: When a requirement with the criterion under 50 microseconds is linked only from a Go Benchmark and another with at most 2 ms only from a Rust bench function, then both rows are benchmarkOnly and both are verification.benchmark_only warnings; a requirement a Test also links, one a Fuzz also links and one a Test links from another file are neither; one whose criteria name no number is benchmarkOnly without the warning.
     appliesTo:
       - FU-CODEMAP-INFERENCE
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-122
     status: implemented
-    text: When status suggestion is requested, the engineering model go shall print the status each requirement and control verification earns from the evidence of the tree.
+    text: When status suggestion is requested, the engineering model go shall print the status each requirement plus control verification earns from the evidence of the tree.
     notes: 'Retro 1104 item 7. engws status-suggest [--repo DIR] [--tree HASH] [--json] writes nothing. The tree is the working-tree hash as engineering-flow tree-hash.mjs computes it (git add -A into a temporary copy of the index, git write-tree; the real index is unchanged), or --tree. Evidence is the trace matrix of the model (lock check, module cache reuse) and the lines of <git top level>/.engflow/red-checks.jsonl with that tree, verdict RED, failure not build and the requirement in reqs (lines without reqs are not attributed). A local requirement earns implemented when code links it (or reviewed links roll it up as implemented); verified when also a test links it that is not environment gated (Row.Gated) and not only benchmarks (Row.BenchmarkOnly) and a RED line names it, or reviewed links roll it up as implemented and test linked; else nothing. A control verification earns pass when it names at least one requirement in verificationRefs and every requirement it names earns verified; a CODE-* reference is not judged and keeps the current status. The table prints current, suggested and why per row; --json the same. Exit 0, 1 on a model or git error.'
     verificationMethods: [test]
     verificationCriteria: When a requirement has code, an ungated test and a RED line for the working tree with an uncommitted file, then it earns verified; one with only a gated test, one with a GREEN line or a RED of another tree earns implemented, a derived one without code nothing; a control verification over an unverified requirement keeps not-run and earns pass once every requirement it names is verified; --tree of another tree credits no RED; nothing in the repository changes.
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-ALLOCATION-TRACE
+      - EVT-STATUS-SUGGEST-REQUESTED
+      - TR-MODEL-STATUS-SUGGEST
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-123
     status: implemented
-    text: When model updated event is received, the engineering model go shall name the term and the catalog section of each unknown term in a requirement expression.
+    text: When model check is requested, the engineering model go shall name the term plus the catalog section of each unknown term in a requirement expression.
     notes: 'Retro 1104 model findings. ears-lint reports catalog.<role>_unresolved at the same span as expr.unknown_term, the role coming from the clause position (When: event, While: state, the system term: system, and so on). Both diagnostics then say unknown term "<term>" in expression (or unresolved catalog term "<term>") and add it to catalog.<section> (or an alias of an existing entry), the section from the role (systems, actors, events, states, features, modes, conditions, dataTerms). A diagnostic without a paired role keeps its message.'
     verificationMethods: [test]
     verificationCriteria: When a When clause names pump starts and a While clause brewing mode is active, neither in the catalog, then expr.unknown_term and catalog.event_unresolved name pump starts and catalog.events, and expr.unknown_term names brewing mode is active and catalog.states.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-124
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.
+    text: When model check is requested, the engineering model go shall report a life-cycle tier decision that disagrees with the manifest lifecycle.
     notes: 'ADR-EMG-031. engmod.yml lifecycle {tier (poc, prototype, mvp, product, operational; rank 1..5), bundles (foundation, safety, security; foundation always included, bundles must be written), tierDecision, raise} is required (lifecycle.missing, ADR-EMG-061 and ADR-EMG-066; CUE #ManifestLifecycle, model.ManifestLifecycle, strict decoding). tierDecision names a decision of this model with status accepted whose text has a Tier: line (the first counts) equal to lifecycle.tier and a Bundles: line (comma separated; required) equal to the effective bundles, read case-insensitively; otherwise lifecycle.tier_decision_mismatch (error, rank 0) at lifecycle.tierDecision names the problem (no such decision, not accepted, no Tier: line, the tier or the bundles that differ). An unknown tier or bundle of a manifest built in Go is lifecycle.invalid_tier or lifecycle.invalid_bundle (the CUE schema rejects it on load). A manifest without lifecycle is the error lifecycle.missing (REQ-EMG-162); the golden test over every example model (TestExamplesGolden) records each example''s diagnostics and document hashes at its declared tier, and the script that compared the repository''s own model with v0.9.0 was retired in v0.11.0.'
     verificationMethods: [test]
     verificationCriteria: When tierDecision names an accepted decision with Tier MVP and Bundles Foundation, Safety at tier mvp with bundles foundation and safety, then nothing is reported, and a decision without a Bundles line is a mismatch; a decision with another tier, other bundles, status proposed, no Tier line or an unknown ID is one lifecycle.tier_decision_mismatch error at lifecycle.tierDecision naming the problem; every example model declares a lifecycle and an accepted tier decision and is validated and generated at its declared tier (the golden examples-golden.json); a model without lifecycle is lifecycle.missing (REQ-EMG-162).
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MODEL-LOADER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-125
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each tier-keyed diagnostic with the severity of the project tier.
+    text: When model check is requested, the engineering model go shall report each tier-keyed diagnostic with the severity of the project tier.
     notes: 'ADR-EMG-031, internal/validate/tier_policy.go. TierPolicy() is the table of tier-keyed codes with a severity per tier: D deferred (a warning with deferred true: evidence debt, reported, never failing a check), W warning or E error, a row for the safety bundle, and requiredFrom (the first tier where it is an error). ApplyTierPolicy(bundle, diags) runs at each public entry on the merged list: ValidateBundle, GenerateAsciiDoc (before the render gate and after the trace integrity check), BuildTraceMatrixFromFiles(With), engws check and the MCP diagnose, patch, trace.matrix and composition.resolve answers. It sets each tier-keyed code''s severity and requiredFrom, then an open POA&M defer (REQ-EMG-129), then lifecycle.raise (exact codes or family.* patterns made errors; it never lowers). Rank-0 core codes (CoreCodes(), a closed list: model.duplicate_id, model.broken_reference, model.invalid_*, model.missing_*, code.dangling_*, composition.cycle, composition.lock_*, link.version_mismatch, link.broken, link.parent_unknown, link.parent_missing, link.child_unpublished, link.review_unrecorded, link.invalid_status, contract.realizer_unpublished, requirement.realizes_unknown, risk.acceptance_unrecorded, the structural lifecycle.* codes and aviation.ai_actor_as_credit and aviation.authority_state_unevidenced) and every code the table does not key keep their severity. Strict code linking (code.missing_trlc_link, code.invalid_trlc_link, code.scan_failed: what coverage.strictStatus reports) is W below product and E from product. It is idempotent, does not modify its input and returns the input unchanged without lifecycle. Every row is non-decreasing from poc to operational and the safety row is never lower than the base row (TestTierPolicyMonotonic). The README Life-cycle tier section holds TierPolicyMarkdown().'
     verificationMethods: [test]
     verificationCriteria: When requirement.orphan is reported at tiers poc to operational, then it is deferred, deferred, warning, error, error with requiredFrom product; verification.failed is D D D W E; code.missing_trlc_link W W W E E; composition.dependency_tier_unknown W at every tier and E from product with safety; without lifecycle each keeps its severity; a core code keeps error at every tier; lifecycle.raise of requirement.orphan and behavior.* makes them errors at poc; every TierPolicy row is non-decreasing; applying the policy twice equals applying it once; the payments example at poc reports requirement.orphan deferred from ValidateBundle, GenerateAsciiDoc and the trace build.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-126
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a composed dependency whose life-cycle tier is below or unknown to the tier of the system.
+    text: When model check is requested, the engineering model go shall report a composed dependency whose life-cycle tier is below or unknown to the tier of the system.
     notes: 'ADR-EMG-034. With lifecycle in the composing system, each composed dependency (a composition subsystem resolved at its pin) is compared with its own manifest lifecycle: a child tier below the parent tier is composition.dependency_below_tier (tier keyed: D D W E E) unless a local risk recorded as accepted with a complete, resolving acceptedBy names the dependency alias in its dependencies field (preferred; each entry must be an engmod.yml dependency alias, else model.invalid_risk_dependency, error) or the composition subsystem that composes the dependency in appliesTo (older form, still honoured); the finding names both forms, the alias first; the one finding per dependency names the alias, the child and parent tiers and the system requirements whose links point into the child, in place of a requirement.unsatisfied per requirement (a linked requirement is never requirement.unsatisfied); a child without lifecycle is composition.dependency_tier_unknown (W at every tier; E from product with the safety bundle). A system without lifecycle gets neither. engws bump warns when the dependency at the new version declares lifecycle and the consumer pins an engine older than v0.10.0 in its .github/engmod-check go.mod (that engine rejects the key: composition.load_failed).'
     verificationMethods: [test]
     verificationCriteria: When the requirement-links system at tier product composes child-a at tier prototype and child-b without lifecycle, then composition.dependency_below_tier names child-a as an error and composition.dependency_tier_unknown names child-b as a warning; with an accepted risk whose dependencies names encoder, or whose appliesTo names SUB-ENCODER, the below-tier finding is not reported; with that risk open, or naming only bridge, it is still reported and names dependencies [encoder] before appliesTo [SUB-ENCODER]; a risk dependencies entry that is no declared alias is model.invalid_risk_dependency (error); the finding names REQ-SYS-001 and REQ-SYS-002; without lifecycle on the system neither is reported; engws bump of a dependency whose new version declares lifecycle prints a warning when the consumer's check pins engineering-model-go v0.9.0.
     appliesTo:
       - FU-SYSTEM-COMPOSITION
       - FU-CLI-ORCHESTRATION
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-127
     status: implemented
-    text: When model updated event is received, the engineering model go shall apply strict requirement links from life-cycle tier mvp.
+    text: When model check is requested, the engineering model go shall apply strict requirement links from life-cycle tier mvp.
     notes: 'ADR-EMG-031 amends ADR-EMG-022. The effective requirement link mode is the maximum of requirementLinks and the tier default (guided below mvp, strict from mvp): from mvp the rules requirement.no_parent, requirement.unsatisfied and link.aou_unverified apply in every model and the tier policy makes them errors (row D D E E E); with requirementLinks: strict declared they are errors at every tier, as in v0.9.0. requirementLinks: guided at mvp or above is lifecycle.requirement_links_conflict (error, rank 0) at requirementLinks; strict at poc is allowed. EffectiveRequirementLinkMode is exported.'
     verificationMethods: [test]
     verificationCriteria: When requirementLinks is guided at prototype, then nothing is reported, and at mvp and operational it is one lifecycle.requirement_links_conflict error at requirementLinks; requirement.no_parent is deferred at poc in guided mode and an error at poc with requirementLinks strict; link.aou_unverified is an error at mvp.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-128
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier.
+    text: When model check is requested, the engineering model go shall report each requirement whose status or verification falls short of the life-cycle tier.
     notes: 'ADR-EMG-031. With lifecycle only: lifecycle.requirement_unapproved at requirements[i].status for status draft or proposed (row D D W E E); lifecycle.requirement_unverified for a status other than verified, rejected or retired, unset included (D D D W E); the trace integrity check reports verification.failed at requirements[i] when the linked test results roll up to failed (fail, blocked, partial or flaky) and verification.gated_only when every linked test is environment gated (both D D D W E); the safety bundle needs documents.aviation (lifecycle.aviation_profile_missing) and aviation.profile.softwareLevel (lifecycle.software_level_missing), both D D E E E. Imported alias::REQ requirements are skipped.'
     verificationMethods: [test]
     verificationCriteria: When a product-tier model has requirements with status draft, Proposed, approved, verified, retired and none, then lifecycle.requirement_unapproved is at the first two statuses and lifecycle.requirement_unverified at the first, second, third and sixth; without lifecycle neither; a requirement with a failed result is verification.failed and one with only gated tests verification.gated_only, a passing one neither; mvp with safety and no aviation document gives both safety errors, and an aviation document with softwareLevel C gives neither.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-129
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a diagnostic that an open POA&M item of the project tier defers as a deferred warning naming the item.
+    text: When model check is requested, the engineering model go shall report a diagnostic that an open POA&M item of the project tier defers as a deferred warning naming the item.
     notes: 'ADR-EMG-033. #POAMItem gains defers [{code, path?}]. A tier-keyed diagnostic or a warning is deferred (warning, deferred true, poamRef the item ID; an untiered error is never deferred) when a POA&M item with milestone tier:<project tier> (case-insensitive), status other than completed and a defers entry whose code matches (exact or family.*) and whose path is empty or equal names it; another tier''s item, a completed item and another path do not. lifecycle.raise overrides a deferral. A defers entry naming a rank-0 code (or a pattern covering one) is lifecycle.poam_defers_core (error, rank 0) at poamItems[i].defers[j].code, and a rank-0 diagnostic is never deferred. The engine has no clock: an overdue item is raised by engineering-flow (tier.debt_open).'
     verificationMethods: [test]
     verificationCriteria: When a product-tier model has an in-progress tier:product item deferring requirement.orphan at one path, a completed one deferring verification.unlinked, a tier:mvp one deferring link.claimed_only and one deferring model.duplicate_id and lint.*, then the orphan at that path is a deferred warning with poamRef of the first item, the orphan at another path, verification.unlinked and link.claimed_only are errors, model.duplicate_id stays an error, lint.multiple_responses is deferred by the fourth item, an untiered lint.other error is not, the rank-0 warning composition.lock_check_skipped stays an undeferred warning, and the fourth item's first and third defers entries are lifecycle.poam_defers_core.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-130
     status: implemented
-    text: When generation run is requested, the engineering model go shall render the document despite errors that only the life-cycle tier raises.
+    text: If errors are raised only by the life-cycle tier, then the engineering model go shall render the document.
     notes: 'ADR-EMG-032 extends D15 (REQ-EMG-107). In a model with lifecycle, an error whose code the tier policy keys or lifecycle.raise names (validate.RendersDespite) fails the check (HasErrors) but does not stop GenerateAsciiDoc: the document is produced for reviewers. Rank-0 codes and every other untiered error still stop the render, and link.* and the D15 trace findings keep not stopping it.'
     verificationMethods: [test]
     verificationCriteria: When the payments example is at tier product, then GenerateAsciiDoc returns a document with requirement.orphan errors and HasErrors is true; a requirement.invalid_applies_to error still stops the render.
     appliesTo:
       - FU-ASCIIDOC-GENERATOR
       - FU-VALIDATION-ENGINE
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-131
     status: implemented
@@ -1109,25 +1319,31 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MCP-SERVER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-132
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each aviation evidence record below the evidence floor of the life-cycle tier.
+    text: When model check is requested, the engineering model go shall report each aviation evidence record below the evidence floor of the life-cycle tier.
     notes: 'ADR-EMG-035. Only with lifecycle: the load splits ValidateAviation into structural codes (references, duplicates, hashes, arithmetic, mismatches, aviation.authority.acceptance_missing; still load-fatal) and the state and completeness codes aviation.lifecycle.missing_category, aviation.tool.incomplete_credit_assessment and aviation.derived.incomplete_safety_feedback (model.AviationStateCode), which validation reports as tier-keyed diagnostics; without lifecycle all stay load-fatal as in v0.9.0. With the safety bundle, aviation.state_below_tier (D D E E E) names each record below the floor of the tier on the order declared < planned < executed < reviewed < accepted < authority-accepted: none below mvp; the five plans (PSAC, SDP, SVP, SCMP, SQAP) planned at mvp and reviewed from product; executions executed from product; every record accepted at operational; from product a software level A, B or C needs a coverage record of its metric (mcdc, decision, statement). not-applicable satisfies a floor only with lifecycleData rationale (new optional field). Applicability and independence stay those of the level''s objectives. aviation.authority_state_unevidenced (error, rank 0) names a record in state authority-accepted with no liaison entry in authorityState authority-accepted with an authorityRecord that covers it.'
     verificationMethods: [test]
     verificationCriteria: When the safety bundle has declared plans, then prototype reports nothing and mvp the five plans; planned plans pass mvp and are the five findings at product; reviewed plans pass product; level A, B and C without mcdc, decision and statement coverage each give one finding at aviation.coverage naming the metric and level D none; a planned execution at product is one finding; operational reports every record below accepted; a not-applicable plan counts only with a rationale; without safety nothing is reported; with lifecycle a tool claiming credit without an assessment loads and is a deferred warning at prototype, without lifecycle it fails the load, and a broken baseline reference fails the load in both; an authority-accepted review without a liaison record is aviation.authority_state_unevidenced.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MODEL-LOADER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-AIRBORNE-ASSURANCE]
   - id: REQ-EMG-133
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each aviation assurance record that names an AI agent as the person holding the credit.
+    text: When model check is requested, the engineering model go shall report each aviation assurance record that names an AI agent as the person holding the credit.
     notes: 'ADR-EMG-035. With lifecycle and the safety bundle, aviation.ai_actor_as_credit (error, rank 0, every tier) at aviation.reviews.<id>.reviewer, aviation.independence.<id>.producer and .verifier, aviation.executions.<id>.producer and .verifier and aviation.approvals.<id>.approver when the value, trimmed and lowercased, is a registered engineering-flow agent (validate.AIAgentNames: architecture-review, classification-review, ef-experimenter, ef-implementer, ef-modeler, export-control-review, governance-review, operability-review, performance-review, quality-review, safety-review, security-review, verification-review; the init/installer.mjs reviewers and workers). The message says AI output is input to people, asks for the person who directed and accepted the output, and to record the agent as a tool with creditClaimed false. Generic words such as ai or agent are not matched: they can be part of a person''s role name.'
     verificationMethods: [test]
     verificationCriteria: When a poc safety model has verification-review as reviewer, ef-implementer and Safety-Review as independence producer and verifier, quality-review with spaces as execution verifier and ef-modeler as approver, then exactly those five paths are aviation.ai_actor_as_credit errors and the message names the agent and a person; with the security bundle instead nothing is reported; AIAgentNames lists the 13 agents sorted.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-AIRBORNE-ASSURANCE]
   - id: REQ-EMG-134
     status: implemented
@@ -1139,19 +1355,23 @@ requirements:
       - FU-ALLOCATION-TRACE
       - FU-MCP-SERVER
       - FU-SYSTEM-COMPOSITION
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-135
     status: implemented
-    text: When model updated event is received, the engineering model go shall load each machine authored in a behavior document with its variables, states, initial state, final states, transitions and invariants.
+    text: When model check is requested, the engineering model go shall load each machine authored in a behavior document with its variables, states, initial state, final states, transitions and invariants.
     notes: 'ADR-EMG-037. behavior.yml gains a first-class machines block: each machine has an id SM-*, an owner functional unit, variables (type Integer, Boolean or String, each with an initial value), states that keep their STATE-* IDs (optional final true), exactly one machine-level initial, transitions TR-* with from, to and an optional on event of behavior.events, an optional guard and an optional effect as short strings, and invariants INV-* linked to one or more REQ-* with a Boolean expression string. Strict decoding rejects unknown fields. Schema and loader land in v0.11.0 (ADR-EMG-044).'
     verificationMethods: [test]
     verificationCriteria: When a behavior document holds one machine with two variables, three states one of them final, an initial state, two transitions one with an event, guard and effect, and one invariant linked to two requirements, then the loaded model holds the machine with every field and ID; an unknown machine field is refused by strict decoding.
     appliesTo:
       - FU-MODEL-LOADER
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-136
     status: implemented
-    text: When model updated event is received, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error.
+    text: When model check is requested, the engineering model go shall parse each machine expression text into a structured expression that records the position of any syntax error.
     notes: 'ADR-EMG-039. One small built-in parser reads the operators and, or, not, implies, ==, !=, <, <=, >, >=, +, -, *, the assignment :=, effect lists separated by ; and the predicate in_state(STATE-ID). The result is a stored expression tree, not text. The operator table is one shared Go table used by the parser, the validator and the Quint generator. A syntax error is a diagnostic at the field with the line and column. A unary minus is the operator neg. A source over 8192 bytes or nested deeper than 64 levels is a diagnostic, not a crash (ADR-EMG-045 item 38).'
     verificationMethods: [test]
     verificationCriteria: When a guard reads count < 3 and in_state(STATE-IDLE), an effect reads count := count + 1; flag := true and an invariant reads count >= 0 implies not flag, then each parses to the expected tree; when a guard has an unbalanced parenthesis or an unknown token, then the diagnostic names the field and the line and column of the error.
@@ -1161,7 +1381,7 @@ requirements:
     derivedRationale: 'Mechanism of REQ-EMG-138: the structured expression is what the machine rules, the Quint generator and the semantic projection read; no user asks for the parser as such.'
   - id: REQ-EMG-137
     status: implemented
-    text: When model updated event is received, the engineering model go shall project each loaded machine into elements of the canonical semantic model.
+    text: When model check is requested, the engineering model go shall project each loaded machine into elements of the canonical semantic model.
     notes: 'ADR-EMG-037 and ADR-EMG-040. A machine becomes a state_definition, its states state_usage elements, its transitions transition relationships carrying triggers, guard and effect, and its invariants constraint_usage elements with a Boolean result feature, because the generated SysML binding gives constraint_usage no authorable expression property. The initial state and each final state are projected as succession relationships (machine_initial, machine_final). Stable model IDs are preserved, so the views need no machine-specific code; the SysML exporter renders machines with its own writer (REQ-EMG-137, ADR-EMG-045 item 18).'
     verificationMethods: [test]
     verificationCriteria: When a machine with three states, two transitions and one invariant is loaded, then the canonical model holds one state_definition, three state_usage elements, two transition relationships with their trigger, guard and effect, and one constraint_usage with a Boolean result feature, all under the stable model IDs, and the SysML export of that model still validates.
@@ -1172,31 +1392,36 @@ requirements:
     derivedRationale: 'Mechanism of REQ-EMG-135 and REQ-EMG-141: projecting a machine into the canonical semantic model lets the exporters and the Quint generator share one representation.'
   - id: REQ-EMG-138
     status: implemented
-    text: When model updated event is received, the engineering model go shall validate each machine against the machine rules.
+    text: When model check is requested, the engineering model go shall validate each machine against the machine rules.
     notes: 'ADR-EMG-039 and ADR-EMG-043. Structural errors are always errors: a machine whose initial state is missing or is not one of its states (initial is a single field, so two initial states cannot be written), a final state with an outgoing transition (behavior.final_state_has_transitions), a transition whose from or to is not a state of the same machine, an on that is not a behavior event, an undeclared variable, a type mismatch, an operator not in the table, in_state naming a state of another machine, and a duplicate state, transition or invariant ID. Advisory codes follow the tier policy: behavior.machine_deadlock (a non-final state without outgoing transition), behavior.transition_nondeterministic (two transitions from one state on the same event, or both without an event, that have no guard or the same guard text), behavior.transition_no_trigger (a transition without on and without guard), behavior.invariant_unlinked (an invariant without a REQ-*).'
     verificationMethods: [test]
     verificationCriteria: When a machine has no initial state, an initial state that is not one of its states, a final state with an outgoing transition, a transition to a state of another machine, an unknown event, an undeclared variable and a string compared with <, then each is an error at its field; when a non-final state has no outgoing transition, two transitions leave one state on one event without guards, a transition has no event and no guard, and an invariant has no requirement, then each advisory code is reported at its path; a final state without outgoing transition and a well-formed machine report nothing.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-139
     status: implemented
-    text: When model updated event is received, the engineering model go shall reject free-floating behavior states with a diagnostic that names the machines block.
+    text: If behavior state is free-floating, then the engineering model go shall reject the state with a diagnostic that names the machines block.
     notes: 'ADR-EMG-038. Every state belongs to exactly one machine and STATE-* IDs are kept. The free-floating list and the transitions_to and triggered_by relationship types are removed in v0.11.0 (ADR-EMG-044): the loader rejects a document that still uses them, with no opt-in mode and no automatic migration; the diagnostic message names machines: and the owner rewrites the model by hand. The own model/behavior.yml of this repository is rewritten to machines (SM-MODEL-VALIDATION, SM-ARTIFACT-FRESHNESS, SM-LINK-LIFECYCLE).'
     verificationMethods: [test]
     verificationCriteria: When a behavior document lists states outside a machine, then loading fails with an error at behavior.states naming machines:; when a relationship has the type transitions_to or triggered_by, then loading fails with an error at that field naming machines:; a document with only a machines block reports neither.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-MODEL-LOADER
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-140
     status: implemented
-    text: When model updated event is received, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier.
+    text: When model check is requested, the engineering model go shall report each advisory machine diagnostic with the severity of the project life-cycle tier.
     notes: 'ADR-EMG-043 (OWNER decision). behavior.machine_deadlock, behavior.transition_nondeterministic, behavior.transition_no_trigger and behavior.invariant_unlinked are keyed in TierPolicy with the hygiene row DDWWE: deferred at poc and prototype (a warning with the deferred flag, the off of the owner decision), warning at mvp and product, error at operational. Structural machine errors (REQ-EMG-138) are never keyed and stay errors at every tier. The Quint requirements by tier of ADR-EMG-043 (mvp: the generated modules are fresh; product: engquint check in run mode when machines exist; operational: verify mode for machines in safety or mission flows) are enforced by the gate steps of engineering-flow, not by the engine; this repository CI runs both modes for every model with machines whatever the tier (ADR-EMG-045 item 26).'
     verificationMethods: [test]
     verificationCriteria: When the four advisory codes are reported at tiers poc to operational, then each is deferred, deferred, warning, warning, error; without lifecycle each keeps its authored severity; a structural machine error stays an error at poc; the authoring contract tierPolicy lists the four rows.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-141
     status: implemented
@@ -1206,6 +1431,8 @@ requirements:
     verificationCriteria: When a machine with two variables, three states and two transitions is generated twice, then both modules are byte-identical, start with the generated comment naming the machine ID, prefix the variables with v_, assign every variable in every action, define inv_ and wit_ values and set lastTransition to the TR-* ID; an ID with a hyphen is sanitised to snake_case in identifiers only; a Quint typecheck of the module passes.
     appliesTo:
       - FU-QUINT-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-142
     status: implemented
@@ -1215,6 +1442,8 @@ requirements:
     verificationCriteria: When engquint generate runs on a model with one machine, then it writes the module under the output flag and exits 0; when check passes it exits 0, when an invariant is violated or a result is stale it exits 1, and when quint is not installed or the model does not load it exits 2.
     appliesTo:
       - FU-QUINT-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-143
     status: implemented
@@ -1224,6 +1453,8 @@ requirements:
     verificationCriteria: When a machine with two invariants is checked in run mode, then quint is called once per invariant and once for the witnesses, each with --backend=typescript and the bounds and seed; an unsatisfiable initial state gives an error for the zero-length trace and a deadlocked initial state a warning; a violated invariant reports the ordered TR-* IDs of the counterexample; a witness that is never reached is reported.
     appliesTo:
       - FU-QUINT-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-144
     status: implemented
@@ -1233,6 +1464,8 @@ requirements:
     verificationCriteria: When verify mode runs with a fake quint that records its environment, then it passes the QUINT_HOME of the provisioned Apalache and no network fetch is attempted; with Apalache or Java 21 missing it exits 2 naming the missing tool; a verify counterexample is mapped to TR-* IDs like a run counterexample.
     appliesTo:
       - FU-QUINT-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-145
     status: implemented
@@ -1242,16 +1475,20 @@ requirements:
     verificationCriteria: When a result is written for a module and the module is then changed, then check reports the result as stale with a warning and exit 1, and the result is not evidence; the results file holds the sha256, quint version, backend, mode, bounds and seed.
     appliesTo:
       - FU-QUINT-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-146
     status: implemented
-    text: When model updated event is received, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix.
+    text: When model check is requested, the engineering model go shall count a passing non-stale formal result as analysis evidence for the linked requirement in the trace matrix.
     notes: 'ADR-EMG-042. engquint check writes a sha-verified result into test-results/ with kind formal; internal/trace and the codescan inferred verification read it. A pass whose sha256 matches the module is analysis evidence for each REQ-* the invariant is linked to; a stale result is not evidence, and a failed result is recorded as failed, so the requirement is failed and never unverified (ADR-EMG-045 item 20). The tier policy and the verification status roll-up treat it like any other verification entry. A result is current only if the named module is a generated Quint module of that machine inside the model root (ADR-EMG-045 items 42 to 44).'
     verificationMethods: [test]
     verificationCriteria: When a formal result passes for an invariant linked to a requirement and its sha256 matches the module, then the trace matrix lists analysis evidence for that requirement; when the sha256 differs, then no evidence is listed and the result is reported as stale; when the verdict is failed, then the requirement result is failed and not unverified.
     appliesTo:
       - FU-ALLOCATION-TRACE
       - FU-CODEMAP-INFERENCE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-147
     status: implemented
@@ -1261,6 +1498,8 @@ requirements:
     verificationCriteria: When a model has a passing formal result for one requirement and a failed one for another, then the evaluation log holds one entry per requirement with the matching result and the machine and invariant in the evidence, and a stale result is not reported as passed.
     appliesTo:
       - FU-GEMARA-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-148
     status: implemented
@@ -1270,6 +1509,8 @@ requirements:
     verificationCriteria: When a requirement has a passing, a failed and a stale formal result in three cases, then verification.status reports pass, failed and stale for them and verification.gaps lists the failed and stale ones; the authoring rules name the machine field sets, the operator table and the four advisory codes.
     appliesTo:
       - FU-MCP-SERVER
+      - EVT-MCP-TOOL-CALL-RECEIVED
+      - FLOW-MCP-TOOL-CALL
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-149
     status: implemented
@@ -1279,6 +1520,8 @@ requirements:
     verificationCriteria: When a machine guard changes and the modules are not regenerated, then the freshness gate reports the changed generated/quint file; after regeneration it reports no drift.
     appliesTo:
       - FU-QUINT-EXPORTER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-150
     status: implemented
@@ -1288,6 +1531,8 @@ requirements:
     verificationCriteria: When a fixture function in each of the five languages exceeds a threshold, then the matching smell is reported with the function qualified name, the metric value and the severity warn or high; a function at the threshold minus one reports nothing; a smell not computable for a language, such as primitive_obsession in JavaScript, is listed as unsupported for that language and not as zero; an anonymous closure adds its decision points to the enclosing function; a brain method is reported high only when large_method, complex_method and deep_nesting are all at warn or above.
     appliesTo:
       - FU-CODE-HEALTH
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-151
     status: implemented
@@ -1297,6 +1542,8 @@ requirements:
     verificationCriteria: When a file has no smells, then its score is 10.0 and its band green with no deductions; when a file has three smells in one function and one in another, then the deductions list each smell with code, function, weight, severity factor and the amount deducted after diminishing returns, and the sum matches 10.0 minus the score; many deductions clamp the score at 1.0; a score of 8.0, 4.0 and 3.9 falls in green, yellow and red; a test file is scored apart from production files and is absent from the production roll-up by default.
     appliesTo:
       - FU-CODE-HEALTH
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-152
     status: implemented
@@ -1306,36 +1553,44 @@ requirements:
     verificationCriteria: When two files of one functional unit have different scores and sizes, then the unit score is the LOC-weighted mean and the worst file is named; a function inside the line range of a symbol that implements a requirement contributes to that requirement, and the requirement reports the worst file score of the files containing those functions; the project roll-up gives the weighted mean, the worst file and the number of files in each band; a file without an owner marker contributes to the project roll-up only.
     appliesTo:
       - FU-CODE-HEALTH
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-153
     status: implemented
-    text: When model updated event is received, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.
+    text: When model check is requested, the engineering model go shall validate the manifest health block including exclude, thresholds, overrides and waivers.
     notes: 'ADR-EMG-051. The health block is optional below product and required at product and operational (REQ-EMG-165). exclude uses the dialect of inferenceHints.exclude (path.Match per segment, only a trailing /**), not gitignore semantics. thresholds name known codes with warn and high values that are ordered; overrides apply thresholds by path; a waiver is {code, path, function, decision}. Unknown keys and malformed shapes are rejected by the CUE contract and the loader; unknown codes, unordered thresholds and exclude patterns outside the dialect are the errors model.invalid_health_exclude, model.invalid_health_threshold, model.invalid_health_override and model.invalid_health_waiver of validation, each naming the field.'
     verificationMethods: [test]
     verificationCriteria: When a manifest has a health block with an unknown smell code, a threshold whose high value is below its warn value, an exclude with a leading double star or an unknown key, then the unknown key fails loading and the others are validation errors, each naming the field; a valid block with exclude, thresholds, overrides and waivers loads and validates; a manifest without the block at tier mvp or below reports no health diagnostic, and at product or operational it reports health.block_missing.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-154
     status: implemented
-    text: When model updated event is received, the engineering model go shall require each code health waiver to cite an existing accepted decision.
+    text: When model check is requested, the engineering model go shall require each code health waiver to cite an existing accepted decision.
     notes: 'ADR-EMG-051 and ADR-EMG-052. health.waiver_unjustified is an error at every tier and is untiered: the cited decision is missing or its status is not accepted (the acceptance reference check of the model is reused). health.waiver_unused follows the debt row (a warning up to mvp, an error from product): the waiver matches no finding, so it can be removed. A waiver whose decision is not accepted waives nothing in scan and check. A waiver suppresses one code for one function in one file and is listed in the report as waived, never silently dropped.'
     verificationMethods: [test]
     verificationCriteria: When a waiver cites a decision that does not exist or is proposed, then health.waiver_unjustified is an error at every tier including poc; when the decision is accepted and the waiver matches a finding, then the finding is reported as waived and no diagnostic is raised; when the waiver matches no finding, then health.waiver_unused is reported, as a warning below product and as an error from product.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-CODE-HEALTH
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-155
     status: implemented
-    text: When model updated event is received, the engineering model go shall report code health findings in enghealth reports with the severity of the project life-cycle tier.
+    text: When model check is requested, the engineering model go shall report code health findings in enghealth reports with the severity of the project life-cycle tier.
     notes: 'ADR-EMG-052 (OWNER decision). Debt findings (every health smell code) are warnings up to mvp and errors at product and operational, the row WWWEE (WWEEE with the safety bundle; ADR-EMG-057). health.regression, a new or worsened high finding against the base revision, is keyed in TierPolicy with the row WWWEE: a warning below product, an error from product, and from mvp with the safety bundle (row WWEEE). health.waiver_unjustified is an untiered error and health.waiver_unused follows the debt row. lifecycle.raise with health.* stays the owner escape hatch that makes debt blocking at a lower tier. Smell findings, regressions, unused waivers and stale baseline entries exist only in enghealth reports (internal/health imports internal/validate, so validation cannot emit them); validation reports only the configuration and waiver diagnostics of the health block.'
     verificationMethods: [test]
     verificationCriteria: When a model with a health block and a new high finding is validated at tiers poc to operational, then health.regression is a warning, warning, warning, error, error; with the safety bundle at mvp it is an error; a debt finding is a warning, warning, warning, error, error across the tiers and an error from mvp with the safety bundle; lifecycle.raise naming health.complex_method turns that code into an error; the authoring contract tierPolicy lists the health.regression row.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-CODE-HEALTH
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-156
     status: implemented
@@ -1345,6 +1600,8 @@ requirements:
     verificationCriteria: When a function gains a decision point crossing from warn to high, then it is worsened; when a function with a warn smell grows by less than 20 percent and stays warn, then it is existing and does not fail the check; a function renamed with an unchanged body is not new; in a repository with no commit every finding is new and a warning is printed; in a shallow clone without the base commit the check exits 2 with a message naming the base revision.
     appliesTo:
       - FU-CODE-HEALTH
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-157
     status: implemented
@@ -1354,6 +1611,8 @@ requirements:
     verificationCriteria: When a scan runs on a fixture, then the JSON report validates against the published JSON Schema and carries the schema string engmod-health/1; the SARIF 2.1.0 export has one result per finding and a rule per code; an external report that conforms is imported by scan --import and re-rendered with the roll-ups and levels it carries (they are not recomputed), or with the levels of --model or --tier; a report with another schema string or a missing required field is rejected with a setup error.
     appliesTo:
       - FU-CODE-HEALTH
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-158
     status: implemented
@@ -1363,6 +1622,8 @@ requirements:
     verificationCriteria: When enghealth scan runs on a model with a health block, then it writes the report and exits 0 (1 only with --fail-on-error and an error that is neither waived nor baselined); when enghealth check finds a new high finding at product tier it exits 1, and with only existing debt it exits 0; when the model does not load, the base is missing or the imported report does not conform it exits 2.
     appliesTo:
       - FU-CODE-HEALTH
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-159
     status: implemented
@@ -1376,7 +1637,7 @@ requirements:
     derivedRationale: 'Mechanism of REQ-EMG-158: the content-hash cache only makes the scan fast; the promise is the scan result, which is unchanged by it.'
   - id: REQ-EMG-160
     status: implemented
-    text: When model updated event is received, the engineering model go shall produce byte-identical validation diagnostics and generated documents for a model without a health block at the tiers below product.
+    text: The engineering model go shall produce byte-identical validation diagnostics plus generated documents for a model without a health block at the tiers below product.
     notes: 'ADR-EMG-046 and ADR-EMG-052, narrowed by ADR-EMG-066. Code health is opt-in through the manifest health block below product; at product and operational the block is required (REQ-EMG-165) and its absence is the error health.block_missing. Below product and without the block, validation reports no health.* diagnostic and the generated documents carry no health section; the tier policy table and the authoring contract are the same for every model.'
     verificationMethods: [test]
     verificationCriteria: When an example at tier mvp or below and a model without a health block are validated and generated twice, then no health.* diagnostic is reported and the outputs are byte-identical to each other; at product and operational the same model reports health.block_missing.
@@ -1392,61 +1653,75 @@ requirements:
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-CODE-HEALTH
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-CODE-HEALTH]
   - id: REQ-EMG-162
     status: implemented
-    text: When model updated event is received, the engineering model go shall report the error lifecycle.missing for a model without a lifecycle block.
+    text: When model check is requested, the engineering model go shall report the error lifecycle.missing for a model without a lifecycle block.
     notes: 'ADR-EMG-061 and ADR-EMG-066. lifecycle.missing is a rank-0 code: no tier, raise entry or POA&M defers entry changes it. The library functions that load a model stay lenient so that embedding tools can report; validation and every command line tool error. Remedy: run the ef-tier-up skill.'
     verificationMethods: [test]
     verificationCriteria: When a validated model has no lifecycle, then lifecycle.missing is an error with the remedy at every call; a POA&M item that defers it is lifecycle.poam_defers_core; a model with a complete lifecycle has no such error.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-163
     status: implemented
-    text: When model updated event is received, the engineering model go shall report an error when the lifecycle has no bundles, no tier decision, or a tier decision without a Bundles line.
+    text: If lifecycle block is incomplete, then the engineering model go shall report an error.
     notes: 'ADR-EMG-061 and ADR-EMG-066. lifecycle.bundles_missing, lifecycle.tier_decision_missing and lifecycle.tier_decision_mismatch. The default of Foundation for a missing Bundles line is removed. Each error carries the remedy of the ef-tier-up skill.'
     verificationMethods: [test]
     verificationCriteria: When bundles is empty, tierDecision is empty, or the accepted decision has no Bundles line, then the matching error is reported with its remedy; a complete lifecycle reports none.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-164
     status: implemented
-    text: When model updated event is received, the engineering model go shall report an error when requirementLinks or lintRun.mode is missing, invalid or guided at mvp or above.
+    text: If required switch has a wrong value, then the engineering model go shall report an error.
     notes: 'ADR-EMG-061 and ADR-EMG-066. model.requirement_links_missing, lint.mode_missing, lint.mode_invalid and lint.mode_guided_at_tier. Guided is allowed only below mvp. The mode is read case-insensitively.'
     verificationMethods: [test]
     verificationCriteria: When requirementLinks is empty, lintRun.mode is empty, neither strict nor guided, or guided at tier mvp, then the matching error is reported with its remedy; strict passes at every tier.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-165
     status: implemented
-    text: When model updated event is received, the engineering model go shall report health.block_missing at the tiers product and operational for a manifest without a health block.
+    text: When model check is requested, the engineering model go shall report health.block_missing at the tiers product plus operational for a manifest without a health block.
     notes: 'ADR-EMG-061 and ADR-EMG-066. The baseline file stays optional because a model without debt needs none. Remedy: the ef-tier-up skill writes the block with its debt list, then enghealth baseline write.'
     verificationMethods: [test]
     verificationCriteria: When the tier is product or operational and the manifest has no health block, then health.block_missing is an error; below product it is not reported.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-166
     status: implemented
-    text: When model updated event is received, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.
+    text: When model check is requested, the engineering model go shall report model.unsupported_schema_version with a remedy for a missing or unsupported schemaVersion.
     notes: 'ADR-EMG-061 and ADR-EMG-066. The loader error and the diagnostic both carry the remedy: set schemaVersion 2 at the top of the file (an upgrade command is planned in engineering-flow and is not named until it exists). The loader checks schemaVersion in Go before the CUE contract for every document type, so a missing version and a version other than 2 get the remedy, not a CUE conflict message.'
     verificationMethods: [test]
     verificationCriteria: When a document has no schemaVersion or another one than 2, then loading fails and validation reports model.unsupported_schema_version with the remedy.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-AUTHORING]
   - id: REQ-EMG-167
     status: implemented
-    text: When model updated event is received, the engineering model go shall report model.id_missing for an empty model identifier.
+    text: When model check is requested, the engineering model go shall report model.id_missing for an empty model identifier.
     notes: 'ADR-EMG-061 and ADR-EMG-066. The projection helper keeps its deterministic default for library use; validation errors. Remedy: set module.modelId.'
     verificationMethods: [test]
     verificationCriteria: When module.modelId is empty, then validation reports model.id_missing with the remedy.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-AUTHORING]
   - id: REQ-EMG-168
     status: implemented
@@ -1458,10 +1733,12 @@ requirements:
       - FU-VALIDATION-ENGINE
       - FU-CLI-ORCHESTRATION
       - FU-MCP-SERVER
+      - EVT-GENERATION-RUN-REQUESTED
+      - FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-169
     status: implemented
-    text: When model updated event is received, the engineering model go shall keep a remedy for every required-switch code in one table that an inventory test compares with the codes in both directions.
+    text: The engineering model go shall keep a remedy for every required-switch code in one table that an inventory test compares with the codes in both directions.
     notes: 'ADR-EMG-061 and ADR-EMG-066. TestRequiredSwitchesHaveRemedies triggers each required code from a complete bundle with one switch removed and compares the codes with the remedy table in both directions.'
     verificationMethods: [test]
     verificationCriteria: When a code is added to the remedy table without an inventory row or the reverse, then the inventory test fails.
@@ -1471,43 +1748,51 @@ requirements:
     derivedRationale: 'Mechanism of REQ-EMG-168: the remedy table and its inventory test keep every required-switch code printing its remedy.'
   - id: REQ-EMG-170
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a source file whose owner unit marker is missing or names no functional unit.
+    text: When model check is requested, the engineering model go shall report a source file whose owner unit marker is missing or names no functional unit.
     notes: 'ADR-EMG-069. code.owner_unresolved is reported once per file, row WWWEE. Test files, generated files (a Code generated header or an at-generated tag in the first 10 lines) and files owned by an alias are left out. The remedy names the ef-code-linking skill.'
     verificationMethods: [test]
     verificationCriteria: When a scanned source file has no ENGMODEL-OWNER-UNIT marker, or a marker naming an identifier that is not a functional unit, then code.owner_unresolved is reported once for the file with a remedy; a test file, a generated file and a file owned by an alias are not reported.
     appliesTo:
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-171
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a model link marker that names a requirement or a catalog term instead of a model element.
+    text: When model check is requested, the engineering model go shall report a model link marker that names a requirement or a catalog term instead of a model element.
     notes: 'ADR-EMG-069. code.model_link_kind_mismatch, row WWWEE. KnownModelIDs stays as it is and a second view maps each identifier to its kind. A requirement belongs in the trace link marker of the requirement, not in the model link marker.'
     verificationMethods: [test]
     verificationCriteria: When a model link marker names an existing requirement identifier or a catalog term, then code.model_link_kind_mismatch is reported with the kind found; a marker naming a model element is not reported.
     appliesTo:
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-172
     status: implemented
-    text: When model updated event is received, the engineering model go shall report an event-driven or state-driven requirement that no machine invariant or applies-to element models.
+    text: When model check is requested, the engineering model go shall report an event-driven or state-driven requirement that no machine invariant or applies-to element models.
     notes: 'ADR-EMG-069. behavior.requirement_unmodeled, row DDWWE. The requirement pattern comes from the EARS lint. Only a model that declares at least one machine is asked, and retired, rejected and derived requirements are exempt.'
     verificationMethods: [test]
     verificationCriteria: When a model has a machine and an event-driven requirement that no invariant lists and whose appliesTo names no machine, state, transition, event or flow, then behavior.requirement_unmodeled is reported for it; a model without machines, a retired requirement and a requirement listed by an invariant are not reported.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-173
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a machine without an invariant and an invariant without a current formal result.
+    text: When model check is requested, the engineering model go shall report a machine without an invariant and an invariant without a current formal result.
     notes: 'ADR-EMG-069. behavior.machine_unverified, row DDWWE. A pass or fail result counts as current and a stale or not-run result does not. Without an evidence file only the missing invariant is reported.'
     verificationMethods: [test]
     verificationCriteria: When a machine has no invariant, or the formal evidence file holds no current result for one of its invariants, then behavior.machine_unverified is reported at the machine or the invariant; with no evidence file a machine with invariants is not reported.
     appliesTo:
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-FORMAL-BEHAVIOR]
   - id: REQ-EMG-174
     status: implemented
-    text: When model updated event is received, the engineering model go shall keep every model link marker stacked above one declaration.
+    text: The engineering model go shall keep every model link marker stacked above one declaration.
     notes: 'ADR-EMG-069. The scanner accumulated stacked trace link lines and overwrote stacked model link lines, so a second line hid the first and element to code coverage would have missed links. Both now accumulate, in the order written, without duplicates.'
     verificationMethods: [test]
     verificationCriteria: When two model link marker lines sit above one declaration, then the symbol carries the identifiers of both lines; a repeated identifier is kept once.
@@ -1516,26 +1801,30 @@ requirements:
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-175
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a functional unit, machine or software interface that no source code names.
+    text: When model check is requested, the engineering model go shall report each functional unit plus machine plus software interface that no source code names.
     notes: 'ADR-EMG-069. code.unit_unlinked, code.machine_unlinked and code.interface_unlinked, row DDWEE. An element counts as named when an owner marker, a model link marker or a trace part marker in scanned non-test source carries its identifier. Actors, attack vectors, trust boundaries, threat scenarios, assumptions, out-of-scope entries, risks, POA&M items, deployment targets, decisions, catalog terms, views and imported alias elements are never asked. A model without a code root is not asked.'
     verificationMethods: [test]
     verificationCriteria: When a functional unit, a machine or a software interface has no source file or declaration that names it, then the matching code.*_unlinked code is reported once for the element with a remedy; an element named by an owner marker or a model link marker, an element listed in codeCoverage.exempt and an element of a kind that is never asked are not reported.
     appliesTo:
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-176
     status: implemented
-    text: When model updated event is received, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.
+    text: When model check is requested, the engineering model go shall accept a recorded exemption for a model element that is deliberately not implemented in this repository.
     notes: 'ADR-EMG-069. codeCoverage.exempt in engmod.yml is a list of an element identifier, a reason and an accepted decision, shaped like a health waiver. A missing or unaccepted decision is the untiered error code.exemption_unjustified, and an exemption that matches no unlinked element is code.exemption_unused (a warning, an error at operational).'
     verificationMethods: [test]
     verificationCriteria: When an exemption names an unlinked element and an accepted decision, then that element is not reported and the exemption is used; an exemption whose decision is missing or not accepted is code.exemption_unjustified; an exemption that names no unlinked element is code.exemption_unused; an unknown key or a missing reason fails loading.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-ALLOCATION-TRACE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
   - id: REQ-EMG-177
     status: implemented
-    text: When model updated event is received, the engineering model go shall accept a list of requirements on every machine state, transition and event.
+    text: The engineering model go shall accept a list of requirements on every machine state, transition and event.
     notes: 'ADR-EMG-069. The optional requirements field on a machine state, a machine transition and an event names the requirements the element exists for, like the requirements field of an invariant. An unknown requirement identifier is the same dangling reference error an invariant gets, and an unknown key is still rejected.'
     verificationMethods: [test]
     verificationCriteria: When a state, a transition or an event lists an existing requirement, then the model loads and the list is part of the authored element; an unknown requirement identifier is reported as a dangling reference naming the element; an unknown key or a list of the wrong type fails loading.
@@ -1544,43 +1833,51 @@ requirements:
     realizes: [CAP-EMG-MODEL-AUTHORING]
   - id: REQ-EMG-178
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a machine state, transition or event that lists no requirement.
+    text: When model check is requested, the engineering model go shall report each machine state plus transition plus event that lists no requirement.
     notes: 'ADR-EMG-069. behavior.state_unlinked, behavior.transition_unlinked and behavior.event_unlinked, row DDWWE. Only a model that declares at least one machine is asked, only events that a machine transition uses are asked, and an imported alias machine is skipped. The element is linked only by its own requirements list; an invariant of the machine does not link it. The remedy names the ef-behavior skill.'
     verificationMethods: [test]
     verificationCriteria: When a machine state, a machine transition or an event that a transition uses lists no requirement, then the matching behavior.*_unlinked code is reported once for the element with a remedy; an element with a non-empty list, a model without machines, an event that no transition uses and an imported alias machine are not reported.
     appliesTo:
       - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-MODEL-VALIDATION]
   - id: REQ-EMG-179
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a composition lock whose schema version is not the current one.
+    text: When model check is requested, the engineering model go shall report a composition lock whose schema version is not the current one.
     notes: 'ADR-EMG-072, removal plan phase 1. composition.lock_schema_outdated is a core error: the lock file schema version is read and compared with the version the engine writes, and an older or missing version is an error whose remedy names engws bump and engws sync instead of a mode that still works. Before this the version was never checked.'
     verificationMethods: [test]
     verificationCriteria: When engmod.lock.yml has no schemaVersion or another one than the current version, then composition.lock_schema_outdated is reported at the lock with a remedy; a lock at the current version is not reported.
     appliesTo:
       - FU-SYSTEM-COMPOSITION
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-180
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a repository check template that cannot take the workspace root instead of checking the repository with the library.
+    text: When model check is requested, the engineering model go shall report a repository check template that cannot take the workspace root instead of checking the repository with the library.
     notes: 'ADR-EMG-072, removal plan phase 1. engine.check_template_stale replaces the silent fallback of engws check to the in-process library: a repository whose .github/engmod-check lacks workspace root support is reported with the remedy to upgrade the check template with engflow upgrade, and it is not checked by another route. A repository with no .github/engmod-check at all is checked by the library only when the caller names the in-process option.'
     verificationMethods: [test]
     verificationCriteria: When a checked repository has a .github/engmod-check whose source lacks the workspace root flag, then its result is the error engine.check_template_stale with a remedy and no library check runs for it; with the in-process option the library check runs; a repository with a current template is checked by it.
     appliesTo:
       - FU-CLI-ORCHESTRATION
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-181
     status: implemented
-    text: When model updated event is received, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.
+    text: When model check is requested, the engineering model go shall report an engine pin of a repository that is older than the engine that checks it.
     notes: 'ADR-EMG-072, removal plan phase 1. engine.pin_outdated compares the engineering-model-go version in the go.mod of the repository check template with the engine version of the running binary and reports an older pin with the remedy to bump the pin. An unparsable version or a local replacement is not compared.'
     verificationMethods: [test]
     verificationCriteria: When the go.mod of .github/engmod-check pins an engine version older than the running engine, then engine.pin_outdated is reported with a remedy; an equal or newer pin, a replace directive and a missing go.mod are not reported.
     appliesTo:
       - FU-CLI-ORCHESTRATION
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-SYSTEM-COMPOSITION]
   - id: REQ-EMG-182
     status: implemented
-    text: When model updated event is received, the engineering model go shall provide one name for every argument of every tool and command.
+    text: The engineering model go shall provide one name for every argument of every tool and command.
     notes: 'ADR-EMG-073, removal plan phase 3. The aliases of the tool arguments (id for the typed identifier arguments, reqId, name, q, file, env, left, right, task, leftSchemaRef, rightSchemaRef, leftInterfaceId, rightInterfaceId, path for document), the duplicate tool entities.list, the deprecated flag --allow-suspect of engws and the flag --out of engoscal are removed. An old name is rejected by the strict argument check like any unknown argument. The model fields BaseCatalogRef and Compatibility, the trace summary counters Verified and LinksSuspect and the unused inert code source literals are removed.'
     verificationMethods: [test]
     verificationCriteria: When a tool is called with a former alias, then the call is rejected as an unknown argument and names the canonical argument; a tool called with its canonical arguments works; engws bump and engoscal reject --allow-suspect and --out; the authoring contract, the trace summary and the generated trace matrices carry no Compatibility, Verified or LinksSuspect field.
@@ -1590,46 +1887,51 @@ requirements:
     realizes: [CAP-EMG-MCP-INTEGRATION]
   - id: REQ-EMG-183
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a dependency without a declared tier as an error and report an incomplete aviation assessment and an unreferenced catalog term by tier.
+    text: When model check is requested, the engineering model go shall report a dependency without a declared tier as an error and report an incomplete aviation assessment and an unreferenced catalog term by tier.
     notes: 'ADR-EMG-074, removal plan phase 5. composition.dependency_tier_unknown is a core error at every tier (a dependency that declares no life-cycle tier cannot be compared with this system). The aviation codes incomplete_credit_assessment and incomplete_safety_feedback are errors from mvp, like the other aviation floors. catalog.term_unreferenced is a warning below product and an error from product, so a strict catalog is not left with unused vocabulary at the tiers that require clean models.'
     verificationMethods: [test]
     verificationCriteria: When a composed model has a dependency that declares no lifecycle, then composition.dependency_tier_unknown is an error at every tier and no row or POA&M item changes it; the two aviation codes are deferred below mvp and errors from mvp; catalog.term_unreferenced is a warning at poc, prototype and mvp and an error at product and operational.
     appliesTo:
       - FU-VALIDATION-ENGINE
       - FU-SYSTEM-COMPOSITION
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-LIFECYCLE-POLICY]
   - id: REQ-EMG-184
     status: implemented
-    text: When model updated event is received, the engineering model go shall reject a deprecated pinned fingerprint and a deprecated provides reference with an error that names the remedy.
+    text: If model declares a removed field, then the engineering model go shall reject the removed field with an error that names the remedy.
     notes: 'ADR-EMG-075, removal plan phase 4. A requirement link that carries pinned.fingerprint is the error model.pinned_fingerprint_removed and a contract provides entry that carries ref is the error model.provides_ref_removed. Each is an untiered error whose message names the field to delete, instead of the warning pinned.fingerprint was or a bare strict-decoding error. The two requires ref lines of the Atlas examples are deleted because nothing reads them.'
     verificationMethods: [test]
     verificationCriteria: When a link pins a fingerprint, then model.pinned_fingerprint_removed is reported at the link with the remedy delete pinned.fingerprint; when a provides entry carries ref, then model.provides_ref_removed is reported with the remedy to use realizes; a link without a fingerprint and a provides entry without ref are not reported, and the Atlas examples carry no ref on requires.
     appliesTo:
       - FU-MODEL-LOADER
       - FU-ALLOCATION-TRACE
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-185
     status: implemented
-    text: When requirements delta apply is requested, the engineering model go shall refuse to write when another apply holds the lock, when the candidate is invalid or when the requirements document changed while the delta was planned.
+    text: If requirements apply is unsafe, then the engineering model go shall refuse to write the requirements document.
     notes: 'The apply takes an exclusive lock on the requirements document before it plans, refuses a candidate with blocking diagnostics and re-reads the document immediately before the atomic write, so no change is lost and a refused run writes nothing. The re-read refusal (requirements changed while delta was being planned) has no test: the lock already excludes every other run of this tool, so only an editor changing the file between planning and the write can reach it, and a test needs a seam in the code that was not added. It is defence in depth that the machine models and the verification debt of this requirement records. SM-REQUIREMENTS-DELTA models these guards and its invariants (written implies a valid candidate and an unchanged source) fail when a guard is removed.'
     verificationMethods: [test]
-    verificationCriteria: When a second apply starts while the first holds the lock, then it fails with requirements change already in progress and writes nothing; when the candidate has blocking diagnostics, then nothing is written.
+    verificationCriteria: 'When a second apply starts while the first holds the lock, then it fails with requirements change already in progress and writes nothing; when the candidate has blocking diagnostics, then nothing is written.'
     appliesTo:
       - FU-MODEL-CHANGE
+      - TR-DELTA-LOCK-BUSY
     realizes: [CAP-EMG-MODEL-CHANGE]
   - id: REQ-EMG-186
     status: implemented
-    text: When release check is requested, the engineering model go shall reject a release whose changelog entry declares a breaking release and whose model schema version is not greater than the schema version at the previous release.
+    text: When release check is requested, the engineering model go shall reject a release whose changelog entry declares a breaking release without a greater model schema version than the previous release.
     notes: 'ADR-EMG-077. engws release-check reads the CHANGELOG section of the tag, and when it contains the words Breaking release it loads the manifest at the previous tag and reports release.schema_version_not_bumped (error, untiered) unless the schemaVersion of the head manifest is greater. A model whose schemaVersion is older than the engine supports is model.unsupported_schema_version with the remedy, so a model written for an earlier release fails on its version first. Reading the previous tag is the only place an older schema version is accepted: the copy read for the contract diff is stamped with the current version in a temporary directory.'
     verificationMethods: [test]
     verificationCriteria: When the changelog entry of the tag says Breaking release and the manifest at the previous tag and at the head have the same schemaVersion, then release.schema_version_not_bumped is reported with a remedy; when the head version is greater, or the entry does not say Breaking release, nothing is reported; a manifest with schemaVersion 2 is rejected by the loader with model.unsupported_schema_version once the supported version is 3.
     appliesTo:
       - FU-CLI-ORCHESTRATION
       - FU-MODEL-LOADER
+      - EVT-RELEASE-CHECK-REQUESTED
     realizes: [CAP-EMG-PUBLICATION]
   - id: REQ-EMG-187
     status: implemented
-    text: When model updated event is received, the engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.
+    text: The engineering model go shall provide requirement links as the only way to trace a requirement to a requirement of another model.
     notes: 'ADR-EMG-078, removal plan phase 4. composition.allocations and the delegation built on them, and engws migrate-links, are removed. A model that carries composition.allocations is the untiered error model.allocations_removed with the remedy to write requirement links (reqLinks) instead. The trace summary keeps the delegated count that links produce; hardware allocation relationships of the semantic model are not touched.'
     verificationMethods: [test]
     verificationCriteria: When a manifest carries composition.allocations, then model.allocations_removed is reported with a remedy naming reqLinks; engws has no migrate-links command and rejects it as an unknown command; a model that traces a requirement through reqLinks is traced and reported delegated as before; no example carries allocations.
@@ -1639,10 +1941,253 @@ requirements:
     realizes: [CAP-EMG-REQUIREMENT-LINKS]
   - id: REQ-EMG-188
     status: implemented
-    text: When model updated event is received, the engineering model go shall report a Go state-like type that no machine models and no comment explains.
+    text: When model check is requested, the engineering model go shall report a Go state-like type that no machine models without a comment that explains it.
     notes: 'ADR-EMG-070. code.state_candidate_unlinked, row DDWWE with the error at operational only for the narrow rule. A candidate is a Go named type with three or more constants of that type, a struct field of that type and an assignment to that field in non-test code. Names ending in Kind, Severity, Format, Type, Reason, Mode and Option are never reported. A candidate is cleared by naming a machine or one of its states or transitions in a model link marker on or within three lines above the declaration, or by the comment ENGMODEL-NOT-A-STATE: followed by a reason of at least 20 characters that is not a placeholder. A suppression with no reason is the untiered error code.state_suppression_unreasoned and a suppression on a declaration that is not a candidate, or that is linked, is code.state_suppression_unused (row WWWWE). Go is the only language.'
     verificationMethods: [test]
     verificationCriteria: When a Go type named like a state with three constants, a field of that type and an assignment in non-test code has no machine link and no suppression, then code.state_candidate_unlinked is reported at the declaration with a remedy and is an error at operational; a type named Kind or Severity, a type with two constants, a type with no field assignment, a type with a machine link and a type with a valid suppression are not reported; a suppression with a reason shorter than 20 characters or a placeholder is code.state_suppression_unreasoned; a suppression on a declaration that is not a candidate is code.state_suppression_unused.
     appliesTo:
       - FU-CODEMAP-INFERENCE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
     realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-189
+    status: verified
+    text: When go api call is received, the engineering model go shall list every authored entity of the model with its kind, document, parent and fields and every reference between entities.
+    notes: 'ADR-EMG-079. BuildEntityIndex reads the bundle documents generically, so a kind that a later schema adds is listed without a code change. A reference is a field that holds exactly another entity ID, an ID inside prose, containment (a machine contains its states) or a typed behavior relationship. The order is deterministic.'
+    verificationMethods: [test]
+    verificationCriteria: The index of this repository lists at least 400 entities of the kinds requirement, functional_unit, threat_scenario, control_verification, poam_item and catalog_term, gives each state the machine as parent, reports field, mention, contains and relationship references with both ends known, reports REQ-EMG-001 applying to FU-MODEL-LOADER, and two builds of the same bundle are equal.
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FLOW-GO-READ-MODEL
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-190
+    status: verified
+    text: When go api call is received, the engineering model go shall report the difference of a model between two revisions with the entities added, removed and changed.
+    notes: 'ADR-EMG-079. engws model-diff FROM [TO] reads each side with the loader that tolerates earlier schemas, compares fields by stable ID, and never writes to the repository. A ref that git could read as an option and an unknown ref are usage errors (exit 2).'
+    verificationMethods: [test]
+    verificationCriteria: Between two tags of a git repository, an added requirement is listed as added, a removed one as removed, a requirement whose verification criteria changed as changed with that field named, and an untouched requirement is not listed; without a second ref an uncommitted edit shows; an unknown ref and an option-like ref exit with 2 and write nothing; the JSON form and the text form both carry the result.
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FU-CLI-ORCHESTRATION
+      - FLOW-GO-COMPARE-REVISIONS
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-191
+    status: verified
+    text: When go api call is received, the engineering model go shall report the trace change of each requirement between two revisions.
+    notes: 'ADR-EMG-079. A requirement is traced when code or a verification links it. A requirement removed in the later revision is not reported. A trace that cannot be computed on one side is recorded as the trace error of the diff and does not fail the entity diff; engws model-diff --no-trace skips the code scan.'
+    verificationMethods: [test]
+    verificationCriteria: Between two tags where a source file and a test file begin to link REQ-A-001 and a new requirement has no link, REQ-A-001 is reported as gained code, as gained a test and as a resolved orphan, and the new requirement as a new orphan; with --no-trace the result carries no trace delta.
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FU-CLI-ORCHESTRATION
+      - FLOW-GO-COMPARE-REVISIONS
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-192
+    status: verified
+    text: When go api call is received, the engineering model go shall list every named declaration of the code scope with its kind, language, path and lines.
+    notes: 'ADR-EMG-080. ListCodeDeclarations reads the files of the model code scope (git-ignored files, inferenceHints.exclude and nested modules left out) with the tree-sitter readers of the trace scan, whether or not a trace marker is attached, and FindCodeDefinitions ranks the candidates a use may refer to by closeness. Names are matched exactly; scopes, imports and overloads are not resolved, so a result is a candidate.'
+    verificationMethods: [test]
+    verificationCriteria: A Go file with a type block, a const block, a var with two names, a method, a marked and an unmarked function lists each name once with its kind and its line, the last line of a function is reported, a test file marks its declarations test-only, TypeScript and Python declarations are read, dependency caches and dot-directories are skipped, and a use ranks a declaration of the same file before the same directory before elsewhere and production code before test code.
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+      - FLOW-GO-LOOK-UP-CODE
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-193
+    status: verified
+    text: When go api call is received, the engineering model go shall list every catalog term with the requirements that name it and the entities that reference it.
+    notes: 'ADR-EMG-080. A requirement names a term when the term name or an alias occurs in its text on word boundaries, the rule of the EARS lint; an entity references a term when a field holds its ID or its prose mentions the ID.'
+    verificationMethods: [test]
+    verificationCriteria: A requirement that names a term by its name or an alias is listed for that term, a longer word that contains the name is not, an entity that holds the term ID is listed as a reference, a term nothing uses has empty lists, and every term of this repository is listed once.
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FLOW-GO-READ-MODEL
+    realizes: [CAP-EMG-TRACEABILITY]
+  - id: REQ-EMG-194
+    status: verified
+    text: When go api call is received, the engineering model go shall return one bundle with the manifest and every model document that a manifest path or a git revision names.
+    notes: 'ADR-EMG-081. LoadBundle reads engmod.yml and each document it names; LoadBundleAtRef reads the committed documents of a revision of a repository with the loader that tolerates earlier schemas. The bundle is a snapshot: the engine never refreshes it (SM-GO-BUNDLE-SESSION). The manifest file must be named engmod.yml.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a manifest path of a model is given, LoadBundle returns its bundle with the requirements, catalog, architecture and behavior documents; a path whose file is not named engmod.yml is an error; LoadBundleAtRef returns the bundle of the model as committed at a revision and an error for an unknown revision.'
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FLOW-GO-READ-MODEL
+      - FLOW-GO-COMPARE-REVISIONS
+      - SM-GO-BUNDLE-SESSION
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-195
+    status: verified
+    text: When go api call is received, the engineering model go shall return the diagnostics of a bundle with a stable code, a severity, a message and a model path for each finding.
+    notes: 'ADR-EMG-081. ValidateBundle does not fail: a model with errors still returns its diagnostics and the consumer reads the severity. A bundle of a model with dependencies is validated after the published entities of the dependencies are merged into it (FLOW-GO-COMPOSE-AND-LINK); without them every alias::ID reference is reported.'
+    verificationMethods: [test]
+    verificationCriteria: 'When ValidateBundle is called with the bundle of a valid model, then no diagnostic is an error; when a requirement applies to an unknown ID, then a diagnostic with the code requirement.invalid_applies_to and the severity error is returned.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FLOW-GO-READ-MODEL
+      - SM-GO-BUNDLE-SESSION
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-196
+    status: verified
+    text: When go api call is received, the engineering model go shall return the entity index of a bundle with the kind, document, parent and fields of each entity and each reference between entities.
+    notes: 'ADR-EMG-081. BuildEntityIndex is the Go API of the behavior REQ-EMG-189 states; it reads the bundle only and writes nothing. The root-package tests TestBuildEntityIndex* (api_diff_test.go) call it through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When BuildEntityIndex is called through the root package with the bundle of this repository, then the index lists the entities with their kinds and references, and two calls with the same bundle return equal indexes.'
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FLOW-GO-READ-MODEL
+      - FLOW-GO-COMPARE-REVISIONS
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-197
+    status: verified
+    text: When go api call is received, the engineering model go shall return the difference of a model between two revisions with the entities added, removed and changed.
+    notes: 'ADR-EMG-081. DiffModels takes a ModelDiffRequest and DiffEntityIndexes compares two indexes the consumer already holds. The behavior is REQ-EMG-190 and REQ-EMG-191; the root-package tests TestDiffModels*, TestDiffEntityIndexesThroughTheFacade and TestDiffTraceMatricesThroughTheFacade (api_diff_test.go, api_trace_test.go) call them through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When DiffModels is called with two revisions of a repository, then the added, removed and changed entities are returned and the working tree is compared when the second revision is empty; with the trace flag the change of traceability is returned or the reason it could not be built.'
+    appliesTo:
+      - FU-MODEL-LOADER
+      - FU-ALLOCATION-TRACE
+      - FLOW-GO-COMPARE-REVISIONS
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-198
+    status: verified
+    text: When go api call is received, the engineering model go shall return the trace matrix of a model with the code, tests and verifications of each requirement.
+    notes: 'ADR-EMG-081. BuildTraceMatrixFromFiles takes the manifest path, the requirements path and the code root, scans the code and returns the matrix with the findings of the scan. The root-package test TestBuildTraceMatrixFromFilesRowsOrphansAndFindings (api_trace_test.go) calls it through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When BuildTraceMatrixFromFiles is called with the manifest, the requirements document and the code root of a model, then each requirement row lists the code and the verifications that link it, the orphan requirements are listed and the findings of the scan are returned.'
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FLOW-GO-READ-MODEL
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-199
+    status: verified
+    text: When go api call is received, the engineering model go shall return every named declaration of the code scope of a bundle with its kind, language, path and lines.
+    notes: 'ADR-EMG-081. ListCodeDeclarations applies the code scope of the model under a root directory; CodeDeclarationsOf reads one source text. The behavior is REQ-EMG-192.'
+    verificationMethods: [test]
+    verificationCriteria: 'When ListCodeDeclarations is called with the bundle and the root of this repository, then declarations of Go files are returned with their kind and line; CodeDeclarationsOf returns the declarations of one source text.'
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+      - FLOW-GO-LOOK-UP-CODE
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-200
+    status: verified
+    text: When go api call is received, the engineering model go shall return the candidate declarations of a name used in a file ranked by closeness to that file.
+    notes: 'ADR-EMG-081. FindCodeDefinitions reads a declaration list and resolves no scope, import or overload, so a result is a candidate. The behavior is REQ-EMG-192.'
+    verificationMethods: [test]
+    verificationCriteria: 'When FindCodeDefinitions is called with a list, a file and a name, then a declaration in the same file ranks before one in the same directory before one elsewhere, production code ranks before test code, and an unknown name returns no declaration.'
+    appliesTo:
+      - FU-CODEMAP-INFERENCE
+      - FLOW-GO-LOOK-UP-CODE
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-201
+    status: verified
+    text: When go api call is received, the engineering model go shall return every catalog term of a bundle with the requirements that name it and the entities that reference it.
+    notes: 'ADR-EMG-081. CatalogUsage reads the bundle only. The behavior is REQ-EMG-193; the root-package tests TestCatalogUsage* (api_catalog_test.go) call it through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When CatalogUsage is called through the root package with the bundle of this repository, then each catalog term is listed once with its requirements and referencing entities.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - FLOW-GO-READ-MODEL
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-202
+    status: verified
+    text: When go api call is received, the engineering model go shall return the composed system of a model with its resolved dependencies and the diagnostics of the composition.
+    notes: 'ADR-EMG-081. GenerateCompositionFromFileWith takes ResolutionOptions for the lock mode (check or write), the module cache mode (reuse or refresh) and the workspace mode, and BuildCompositionProjection returns the published entities of the result. The root-package tests TestGenerateCompositionFromFileWith* (api_composition_test.go) call the first through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When GenerateCompositionFromFileWith is called with a manifest whose dependencies a workspace file replaces and the lock mode check, then the composed system lists each dependency and no file is written; a dependency that cannot be resolved is an error.'
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FLOW-GO-COMPOSE-AND-LINK
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-203
+    status: verified
+    text: When go api call is received, the engineering model go shall return the contract items of a bundle with the realizing requirements of each item.
+    notes: 'ADR-EMG-081. ContractItemsFromBundle returns the items by ID and SortedContractItemRealizers puts the realizers of one item in a stable order. The root-package tests TestContractItemsFromBundle* and TestSortedContractItemRealizersReturnsASortedCopy (api_reqlinks_test.go) call them through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When ContractItemsFromBundle is called with the bundle of this repository, then CAP-EMG-GO-API is listed as a capability with its realizing requirements, and the realizers of an item are returned in the same order on every call.'
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FLOW-GO-COMPOSE-AND-LINK
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-204
+    status: verified
+    text: When go api call is received, the engineering model go shall return the status of each requirement link of a bundle against the contract items of its dependencies.
+    notes: 'ADR-EMG-081. LinkDependencies turns a composed system into the dependencies and EvaluateRequirementLinks returns one status for each link. The behavior is the requirement links of REQ-EMG-097; the root-package tests TestEvaluateRequirementLinks* (api_reqlinks_test.go) call the evaluation through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When EvaluateRequirementLinks is called with a bundle and the dependencies of its composed system, then each link has one status that is unchanged, broken, version mismatch, child unpublished, unresolved or local, with the reason where one applies.'
+    appliesTo:
+      - FU-ALLOCATION-TRACE
+      - FLOW-GO-COMPOSE-AND-LINK
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-205
+    status: verified
+    text: When go api call is received, the engineering model go shall return the requirement links that the other checkouts of a workspace hold on the contract items of a bundle.
+    notes: 'ADR-EMG-081. WorkspaceLinkUsers reads the sibling checkouts of the workspace its mode selects and never writes; a sibling that does not load is skipped. Its behavior is REQ-EMG-107; the root-package test TestWorkspaceLinkUsersReturnsTheLinksOfTheSiblings (api_composition_test.go) calls it through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When WorkspaceLinkUsers is called with a bundle in a workspace whose sibling holds a link on one of its capabilities, then that link is returned with the model that holds it, its link ID, its parent requirement, the item and its status; without an active workspace nothing is returned.'
+    appliesTo:
+      - FU-SYSTEM-COMPOSITION
+      - FLOW-GO-COMPOSE-AND-LINK
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-206
+    status: verified
+    text: When go bundle load failed event is raised, the engineering model go shall return the error of the load and an empty bundle.
+    notes: 'ADR-EMG-081. LoadBundle and LoadBundleAtRef return the zero bundle with an error when a document is missing, does not decode or breaks the schema, so a consumer never holds a part of a model (SM-GO-BUNDLE-SESSION). The root-package test TestLoadBundleFailureReturnsAnErrorAndAnEmptyBundle (api_diff_test.go) checks the errors and the empty bundle through the facade.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a manifest names a document that does not exist or that breaks the schema, then LoadBundle returns an error and a bundle with no requirements.'
+    appliesTo:
+      - FU-MODEL-LOADER
+      - SM-GO-BUNDLE-SESSION
+    realizes: [CAP-EMG-GO-API]
+  - id: REQ-EMG-207
+    status: verified
+    text: When model check is requested, the engineering model go shall report each architectural dependency that names no interface.
+    notes: 'ADR-EMG-085, architecture.dependency_without_interface, one diagnostic at authoredArchitecture.mappings[i] naming the type, both ends and the fix. A dependency is a relationship of type depends_on, calls, publishes, subscribes, reads, writes, streams, implements or interacts_with between functional units, functional groups, actors, referenced elements, hardware items or alias::ID elements of a composed dependency; it names an interface when an end is an interface that has an owner or is a published alias::IF-*, or when a hardware interface connects two hardware items. Containment, self dependencies, other relationship types and data object or deployment target ends are not asked. The tier policy row is WWWEE: a warning at poc, prototype and mvp, an error at product and operational, and the warning without a tier decision.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a model has a calls relationship from FU-A to FU-B, then architecture.dependency_without_interface is reported at that relationship as a warning at poc, prototype and mvp, an error at product and operational and a warning without lifecycle; the same relationship from FU-A to an interface that FU-B owns, a contains relationship, a relationship from FU-A to FU-A and a reads relationship to a data object are not reported, an interacts_with from an actor to a unit is reported and to an interface is not, and the diagnostics of one model are the same on every run.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
+    realizes: [CAP-EMG-MODEL-VALIDATION]
+  - id: REQ-EMG-208
+    status: verified
+    text: When model check is requested, the engineering model go shall report each interface that no data object is sent over.
+    notes: 'ADR-EMG-086, architecture.interface_without_data, one diagnostic at authoredArchitecture.interfaces[i] naming the interface and the fix. A local software interface has data when a flow step names it in interfaceRef and lists a data object in its dataRefs, dataIn or dataOut; the flow dataRefs, relationships, schemaRef and names do not count, an unused interface is asked, and a composed alias::IF-* interface is checked in its own model. The tier policy row is WWWEE, as for REQ-EMG-207.'
+    verificationMethods: [test]
+    verificationCriteria: 'When an interface is named by no flow step, or by a step that lists no data object, then architecture.interface_without_data is reported at it as a warning at poc, prototype and mvp and an error at product and operational; an interface that a step names with a data object in dataRefs, dataIn or dataOut, and a composed alias::IF-* interface, are not reported; data that only the flow lists, a relationship to a data object and a schemaRef do not clear it.'
+    appliesTo:
+      - FU-VALIDATION-ENGINE
+      - EVT-MODEL-CHECK-REQUESTED
+      - FLOW-MODEL-CHECK
+    realizes: [CAP-EMG-MODEL-VALIDATION]
+  - id: REQ-EMG-209
+    status: verified
+    text: While project tier is at least product, when health scan is requested, the code health check shall report one error for each file below the floor that no baseline entry covers.
+    notes: 'ADR-EMG-087, health.file_below_floor, one diagnostic per file in the health report with the path, no function. The floor is the file score 10.0 (health.floor of the manifest may lower it, and a lower floor is reported by enghealth check as health.policy_weakened). A file is below the floor when its score, after the waivers, is below it; every source file counts, tests included. A file is covered when the baseline holds an entry (path, function, code) that names a finding of it that the scan found, whatever the value against the recorded one; a stale entry covers nothing, and a file whose every finding is waived scores 10.0. So a new file, or a file with no entry, has to be clean at once, and with an empty baseline every file has to score 10.0. The tier policy row is WWWEE (WWEEE with the safety bundle): a warning at poc, prototype and mvp, an error at product and operational, a warning without a tier, and no POA&M item defers it, like health.regression. The report carries the floor and summary.belowFloor and summary.floorCovered, the files the baseline still covers: the burn-down.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a scan runs at tier product or operational on a tree with a file that scores 9.0 and no baseline entry names a finding of it, then one health.file_below_floor diagnostic at level error names the file, the score 9.0, the floor 10.0, the three largest deductions with function and line and the fix, and DO-HEALTH-REPORT carries floor 10.0, belowFloor 1 and floorCovered 0; at poc, prototype and mvp the diagnostic is a warning, at mvp with the safety bundle an error, without a tier a warning; a file at 10.0, a file with an entry of the baseline, a file whose every finding is waived and a file at or above a lowered health.floor are not reported (the covered file counts in floorCovered); a file of a new path with the baseline of other files is reported; with an empty baseline every file below 10.0 is reported; two scans of one tree are byte-identical.'
+    appliesTo:
+      - FU-CODE-HEALTH
+      - EVT-HEALTH-SCAN-REQUESTED
+      - FLOW-HEALTH-SCAN
+    realizes: [CAP-EMG-CODE-HEALTH]
+  - id: REQ-EMG-210
+    status: verified
+    text: While project tier is at least product, when health check is requested, the code health check shall report one error for each changed file below the floor that no baseline entry covers.
+    notes: 'ADR-EMG-087. enghealth check evaluates health.file_below_floor for the source files changed between the base revision and the head, with the same floor, level and cover as the scan: it reads the baseline of the head manifest for this only (a regression is still never baselined). A file that gets below the floor, a file that is new below it and a changed file that was already below it and is not covered fail the check where the code is an error; the files are listed under belowFloor of the JSON report and as results of the SARIF rule health.file_below_floor. A lowered floor against the base revision is a weakening (health.policy_weakened, aspect floor). A new or worsened warn finding is no regression, so the floor is the gate that holds a changed file to 10.0 at once.'
+    verificationMethods: [test]
+    verificationCriteria: 'When a check runs at tier product or operational against a base revision and a changed file scores 9.0 with no baseline entry for a finding of it, then the exit code is 1, belowFloor of the JSON report lists the file with score 9.0, floor 10.0 and its causes with their lines, floorLevel is error and the SARIF report has one result of the rule health.file_below_floor; a new file below the floor fails the same way, also over a commit range with --base and --head; at poc, prototype and mvp the file is listed and the exit code is 0, at mvp with the safety bundle and with lifecycle.raise it is 1; a changed file at 10.0 and a changed file covered by an entry of the baseline pass; lowering health.floor against the base fails with health.policy_weakened unless an accepted policyDecision records it.'
+    appliesTo:
+      - FU-CODE-HEALTH
+      - EVT-HEALTH-CHECK-REQUESTED
+      - FLOW-HEALTH-CHECK
+    realizes: [CAP-EMG-CODE-HEALTH]
+  - id: REQ-EMG-211
+    status: verified
+    text: The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.
+    notes: 'ADR-EMG-087, ADR-EMG-088. A requirement of this repository, not of the engine contract, so it is not published. It is met: model/health-baseline.json has no entry (the owner: "get a 10/10 score in all files in model, tool, flow"), and the scan of this repository at tier operational reports no finding, no waived finding, no file below the floor and no file a baseline covers. It is verified by TestEveryRepositoryFileScoresTen (cmd/enghealth), which reads the score of every file of the report, tests included, and fails for a file below 10.0, for a diagnostic, a finding, a waiver or a covered file, and for a baseline entry; the floor itself is held at 10.0 by the tests of REQ-EMG-209 and REQ-EMG-210. REQ-EMG-209 and REQ-EMG-210 are the rule that reports a file below the floor; this requirement is the target the owner set for the repository itself.'
+    verificationMethods: [test]
+    verificationCriteria: 'When enghealth scan runs on this repository at tier operational, then every file, tests included, scores 10.0, the summary lists no finding, no waived finding, belowFloor is 0 and floorCovered is 0, enghealth scan --fail-on-error exits 0, and model/health-baseline.json has no entry; a function with ten branches added to a source file or to a test file, or a baseline entry, makes it fail.'
+    appliesTo:
+      - FU-CODE-HEALTH
+    derived: true
+    derivedRationale: 'Owner request of 2026-11-15: "for the 2 higest level i want a requirement on 10/10 score for all files." and the goal "get a 10/10 score in all files in model, tool, flow". REQ-EMG-209 and REQ-EMG-210 are the rule that reports a file below the floor; this requirement is the target the owner set for the repository itself.'

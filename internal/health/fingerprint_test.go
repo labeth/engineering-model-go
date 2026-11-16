@@ -55,25 +55,12 @@ func TestBodyHashNormalization(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-156
 func TestBodyHashLanguages(t *testing.T) {
-	if bodyHashOf("f(\"http://a\") // c", "go", "f") == bodyHashOf("f(\"http:\")", "go", "f") {
-		t.Error("a // inside a string must not start a comment")
-	}
-	if bodyHashOf("x = 1  # note\ny = 2", "python", "f") != bodyHashOf("x = 1\ny = 2  # other", "python", "f") {
-		t.Error("python comments must be dropped")
-	}
-	if bodyHashOf("x = a // b", "python", "f") == bodyHashOf("x = a", "python", "f") {
-		t.Error("// is floor division in python, not a comment")
-	}
-	if bodyHashOf("let x = 1; /* a /* nested */ b */ y()", "rust", "f") != bodyHashOf("let x = 1; y()", "rust", "f") {
-		t.Error("rust block comments nest")
-	}
-	if bodyHashOf("fn f<'a>(x: &'a str, c: char) { let d = '}'; }", "rust", "f") != bodyHashOf("fn f<'a>(x:&'a str,c:char){let d='}';}", "rust", "f") {
-		t.Error("rust lifetimes and chars must tokenize without swallowing the body")
-	}
-	if bodyHashOf("s = '''doc # not a comment'''\nz()", "python", "f") == bodyHashOf("s = '''doc'''\nz()", "python", "f") {
-		t.Error("a python triple-quoted string keeps its text")
-	}
-	if got := BodyHash([]byte("a\nb\n"), Function{Name: "f", StartLine: 5, EndLine: 9}, "go"); got != "" {
-		t.Errorf("an out-of-range function hashes to %q, want empty", got)
-	}
+	differ := func(a, b, lang string) bool { return bodyHashOf(a, lang, "f") != bodyHashOf(b, lang, "f") }
+	wantEqual(t, differ("f(\"http://a\") // c", "f(\"http:\")", "go"), true)                       // a // inside a string does not start a comment
+	wantEqual(t, differ("x = 1  # note\ny = 2", "x = 1\ny = 2  # other", "python"), false)         // python comments are dropped
+	wantEqual(t, differ("x = a // b", "x = a", "python"), true)                                    // // is floor division in python
+	wantEqual(t, differ("let x = 1; /* a /* nested */ b */ y()", "let x = 1; y()", "rust"), false) // rust block comments nest
+	wantEqual(t, differ("fn f<'a>(x: &'a str, c: char) { let d = '}'; }", "fn f<'a>(x:&'a str,c:char){let d='}';}", "rust"), false)
+	wantEqual(t, differ("s = '''doc # not a comment'''\nz()", "s = '''doc'''\nz()", "python"), true)  // a triple-quoted string keeps its text
+	wantEqual(t, BodyHash([]byte("a\nb\n"), Function{Name: "f", StartLine: 5, EndLine: 9}, "go"), "") // an out-of-range function hashes to nothing
 }

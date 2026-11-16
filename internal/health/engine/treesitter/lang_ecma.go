@@ -135,27 +135,61 @@ func ecmaAssignedName(c *fileCtx, n *sitter.Node) (string, string) {
 	}
 	switch p.Kind() {
 	case "variable_declarator":
-		if name := p.ChildByFieldName("name"); isFieldOf(n, "value") && name != nil && name.Kind() == "identifier" {
-			return text(name, c.src), "function"
-		}
+		return ecmaDeclaratorName(c, n, p)
 	case "assignment_expression":
-		if left := p.ChildByFieldName("left"); isFieldOf(n, "right") && left != nil && (left.Kind() == "identifier" || left.Kind() == "member_expression") {
-			return strings.Join(strings.Fields(text(left, c.src)), ""), "function"
-		}
+		return ecmaAssignmentName(c, n, p)
 	case "pair":
-		if key := p.ChildByFieldName("key"); isFieldOf(n, "value") && key != nil {
-			return strings.Trim(text(key, c.src), "\"'`"), "function"
-		}
+		return ecmaPairName(c, n, p)
 	case "public_field_definition", "field_definition":
-		name := p.ChildByFieldName("name")
-		if name == nil {
-			name = p.ChildByFieldName("property")
-		}
-		if name != nil && isFieldOf(n, "value") {
-			return text(name, c.src), "method"
-		}
+		return ecmaFieldName(c, n, p)
 	case "export_statement":
 		return "default", "function"
+	}
+	return "", ""
+}
+
+// ecmaDeclaratorName names a function that is the value of a declarator.
+// TRLC-LINKS: REQ-EMG-150
+func ecmaDeclaratorName(c *fileCtx, n, p *sitter.Node) (string, string) {
+	if name := p.ChildByFieldName("name"); isFieldOf(n, "value") && name != nil && name.Kind() == "identifier" {
+		return text(name, c.src), "function"
+	}
+	return "", ""
+}
+
+// ecmaAssignmentName names a function that is assigned to a name or a member.
+// TRLC-LINKS: REQ-EMG-150
+func ecmaAssignmentName(c *fileCtx, n, p *sitter.Node) (string, string) {
+	if left := p.ChildByFieldName("left"); isFieldOf(n, "right") && isIdentifierOrMember(left) {
+		return strings.Join(strings.Fields(text(left, c.src)), ""), "function"
+	}
+	return "", ""
+}
+
+// isIdentifierOrMember reports an identifier or a member expression.
+// TRLC-LINKS: REQ-EMG-150
+func isIdentifierOrMember(n *sitter.Node) bool {
+	return n != nil && (n.Kind() == "identifier" || n.Kind() == "member_expression")
+}
+
+// ecmaPairName names a function that is the value of an object property.
+// TRLC-LINKS: REQ-EMG-150
+func ecmaPairName(c *fileCtx, n, p *sitter.Node) (string, string) {
+	if key := p.ChildByFieldName("key"); isFieldOf(n, "value") && key != nil {
+		return strings.Trim(text(key, c.src), "\"'`"), "function"
+	}
+	return "", ""
+}
+
+// ecmaFieldName names a function that is the value of a class field.
+// TRLC-LINKS: REQ-EMG-150
+func ecmaFieldName(c *fileCtx, n, p *sitter.Node) (string, string) {
+	name := p.ChildByFieldName("name")
+	if name == nil {
+		name = p.ChildByFieldName("property")
+	}
+	if name != nil && isFieldOf(n, "value") {
+		return text(name, c.src), "method"
 	}
 	return "", ""
 }
@@ -172,29 +206,13 @@ var (
 // TRLC-LINKS: REQ-EMG-150
 func ecmaTestCall(c *fileCtx, n *sitter.Node) (role, title string) {
 	args := n.Parent()
-	if args == nil || args.Kind() != "arguments" || args.Parent() == nil || args.Parent().Kind() != "call_expression" {
+	call := ecmaCallOfArguments(args)
+	if call == nil {
 		return "", ""
 	}
-	root, props := callRoot(args.Parent().ChildByFieldName("function"), c.src)
-	switch {
-	case ecmaTestWords[root]:
-		role = "test"
-		for _, prop := range props {
-			switch {
-			case ecmaDescribeWords[prop]:
-				role = "describe"
-			case !ecmaModifiers[prop]:
-				return "", ""
-			}
-		}
-	case ecmaDescribeWords[root]:
-		role = "describe"
-		for _, prop := range props {
-			if !ecmaModifiers[prop] {
-				return "", ""
-			}
-		}
-	default:
+	root, props := callRoot(call.ChildByFieldName("function"), c.src)
+	role, ok := ecmaRole(root, props)
+	if !ok {
 		return "", ""
 	}
 	title = ecmaTitle(c, args)
@@ -202,6 +220,61 @@ func ecmaTestCall(c *fileCtx, n *sitter.Node) (role, title string) {
 		title = root + "@" + strconv.Itoa(int(n.StartPosition().Row)+1)
 	}
 	return role, title
+}
+
+// ecmaCallOfArguments returns the call a node of arguments belongs to; nil for
+// any other node.
+// TRLC-LINKS: REQ-EMG-150
+func ecmaCallOfArguments(args *sitter.Node) *sitter.Node {
+	if args == nil || args.Kind() != "arguments" {
+		return nil
+	}
+	call := args.Parent()
+	if call == nil || call.Kind() != "call_expression" {
+		return nil
+	}
+	return call
+}
+
+// ecmaRole is the role of the call chain that starts at root with the given
+// properties: "test", "describe", or false when it is neither.
+// TRLC-LINKS: REQ-EMG-150
+func ecmaRole(root string, props []string) (string, bool) {
+	switch {
+	case ecmaTestWords[root]:
+		return ecmaTestRole(props)
+	case ecmaDescribeWords[root]:
+		return "describe", onlyModifiers(props)
+	}
+	return "", false
+}
+
+// ecmaTestRole is the role of a call chain of it/test: a describe property
+// turns it into a describe block, a property that is no modifier is no test.
+// TRLC-LINKS: REQ-EMG-150
+func ecmaTestRole(props []string) (string, bool) {
+	role := "test"
+	for _, prop := range props {
+		switch {
+		case ecmaDescribeWords[prop]:
+			role = "describe"
+		case !ecmaModifiers[prop]:
+			return "", false
+		}
+	}
+	return role, true
+}
+
+// onlyModifiers reports whether every property is a modifier such as only or
+// skip.
+// TRLC-LINKS: REQ-EMG-150
+func onlyModifiers(props []string) bool {
+	for _, prop := range props {
+		if !ecmaModifiers[prop] {
+			return false
+		}
+	}
+	return true
 }
 
 // TRLC-LINKS: REQ-EMG-150
@@ -245,23 +318,45 @@ func ecmaParams(c *fileCtx, n *sitter.Node, _ bool) paramStats {
 		return ps
 	}
 	for _, param := range namedChildren(list) {
-		switch param.Kind() {
-		case "required_parameter", "optional_parameter":
-			if pattern := param.ChildByFieldName("pattern"); pattern != nil && pattern.Kind() == "this" {
-				continue
-			}
-			ps.count++
-			if t := param.ChildByFieldName("type"); t != nil {
-				ps.annotated = true
-				if inner := t.NamedChild(0); inner != nil && inner.Kind() == "predefined_type" && ecmaPrimitiveTypes[text(inner, c.src)] {
-					ps.primitive++
-				}
-			}
-		default:
-			ps.count++
-		}
+		ps.addECMAParam(c, param)
 	}
 	return ps
+}
+
+// addECMAParam counts one formal parameter.
+// TRLC-LINKS: REQ-EMG-150
+func (ps *paramStats) addECMAParam(c *fileCtx, param *sitter.Node) {
+	switch param.Kind() {
+	case "required_parameter", "optional_parameter":
+		ps.addTypedParam(c, param)
+	default:
+		ps.count++
+	}
+}
+
+// addTypedParam counts a TypeScript parameter, unless it is the this
+// parameter, and what its annotation says.
+// TRLC-LINKS: REQ-EMG-150
+func (ps *paramStats) addTypedParam(c *fileCtx, param *sitter.Node) {
+	if pattern := param.ChildByFieldName("pattern"); pattern != nil && pattern.Kind() == "this" {
+		return
+	}
+	ps.count++
+	t := param.ChildByFieldName("type")
+	if t == nil {
+		return
+	}
+	ps.annotated = true
+	if ecmaPrimitiveType(c, t) {
+		ps.primitive++
+	}
+}
+
+// ecmaPrimitiveType reports a type annotation that is a predefined primitive.
+// TRLC-LINKS: REQ-EMG-150
+func ecmaPrimitiveType(c *fileCtx, t *sitter.Node) bool {
+	inner := t.NamedChild(0)
+	return inner != nil && inner.Kind() == "predefined_type" && ecmaPrimitiveTypes[text(inner, c.src)]
 }
 
 var ecmaTestMethodsNotAssertions = map[string]bool{

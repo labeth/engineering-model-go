@@ -59,19 +59,49 @@ func TestLoadBundleReadsRequirementLinkModel(t *testing.T) {
 	if got := bundle.Requirements.Requirements[0].Realizes; strings.Join(got, ",") != "CAP-A,AOU-A" {
 		t.Fatalf("realizes = %v", got)
 	}
-	if got := bundle.Architecture.Contract.Assumptions; len(got) != 1 || got[0].ID != "AOU-A" || got[0].VerificationCriteria == "" {
+	requireContractAssumption(t, bundle)
+	requireLoadedReqLinks(t, bundle)
+	contract := BuildAuthoringContract(bundle)
+	requireLastOptionalDocument(t, contract, AuthoringDocument{Kind: "reqLinks", SchemaPath: "internal/model/schema/reqlinks.cue"})
+}
+
+// requireContractAssumption fails unless the bundle carries the one assumption
+// of use of the fixture with its verification criteria.
+func requireContractAssumption(t *testing.T, bundle Bundle) {
+	t.Helper()
+	got := bundle.Architecture.Contract.Assumptions
+	if len(got) != 1 || got[0].ID != "AOU-A" || got[0].VerificationCriteria == "" {
 		t.Fatalf("assumptions = %+v", got)
 	}
+}
+
+// requireLoadedReqLinks fails unless the two fixture links loaded with their
+// pins, evidence and the file path, and only the second keeps a fingerprint.
+func requireLoadedReqLinks(t *testing.T, bundle Bundle) {
+	t.Helper()
 	links := bundle.ReqLinks.ReqLinks
-	if len(links) != 2 || links[0].Parent != "REQ-A" || links[0].Pinned.Version != "v1.2.4-0.20261102103400-abcdef123456" ||
-		links[1].Evidence[0] != "REQ-A" || links[1].Status != "claimed" || filepath.Base(bundle.ReqLinksPath) != "req-links.yml" ||
-		links[0].Pinned.Fingerprint != "" || !strings.HasPrefix(links[1].Pinned.Fingerprint, "sha256:") {
+	if len(links) != 2 || filepath.Base(bundle.ReqLinksPath) != "req-links.yml" {
 		t.Fatalf("reqLinks = %+v (%s)", links, bundle.ReqLinksPath)
 	}
-	contract := BuildAuthoringContract(bundle)
-	last := contract.Documents[len(contract.Documents)-1]
-	if last.Kind != "reqLinks" || last.Required || last.SchemaPath != "internal/model/schema/reqlinks.cue" {
-		t.Fatalf("authoring contract reqLinks document = %+v", last)
+	requirePinnedParentLink(t, links[0])
+	requireClaimedEvidenceLink(t, links[1])
+}
+
+// requirePinnedParentLink fails unless the link is the fixture link to REQ-A
+// with a pseudo-version pin and no fingerprint.
+func requirePinnedParentLink(t *testing.T, link ReqLink) {
+	t.Helper()
+	if link.Parent != "REQ-A" || link.Pinned.Version != "v1.2.4-0.20261102103400-abcdef123456" || link.Pinned.Fingerprint != "" {
+		t.Fatalf("reqLinks[0] = %+v", link)
+	}
+}
+
+// requireClaimedEvidenceLink fails unless the link is the claimed fixture link
+// with evidence REQ-A and a sha256 fingerprint.
+func requireClaimedEvidenceLink(t *testing.T, link ReqLink) {
+	t.Helper()
+	if link.Evidence[0] != "REQ-A" || link.Status != "claimed" || !strings.HasPrefix(link.Pinned.Fingerprint, "sha256:") {
+		t.Fatalf("reqLinks[1] = %+v", link)
 	}
 }
 

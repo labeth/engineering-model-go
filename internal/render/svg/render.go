@@ -2,6 +2,7 @@
 package svg
 
 import (
+	"cmp"
 	"fmt"
 	"html"
 	"sort"
@@ -21,171 +22,282 @@ const (
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
 // ENGMODEL-LINKS: FU-VIEW-PROJECTION
 func Render(projected view.ProjectedView, source string) string {
-	nodes := append([]view.Node(nil), projected.Nodes...)
-	sort.SliceStable(nodes, func(i, j int) bool { return nodes[i].ID < nodes[j].ID })
-	byID := make(map[string]view.Node, len(nodes))
+	d := newDiagram(projected, source)
+	var b strings.Builder
+	d.writeHeader(&b)
+	d.writeEdges(&b)
+	d.writeNodes(&b)
+	fmt.Fprintln(&b, "</svg>")
+	return b.String()
+}
+
+// diagram is the computed layout of one view: the sorted nodes, the edges that
+// connect two known nodes, their key text and the canvas size.
+type diagram struct {
+	projected  view.ProjectedView
+	source     string
+	nodes      []view.Node
+	edges      []view.Edge
+	degree     map[string]int
+	positions  map[string]int
+	heights    map[string]int
+	titleLines []string
+	keyLines   [][]string
+	top        int
+	keyX       int
+	width      int
+	height     int
+}
+
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func newDiagram(projected view.ProjectedView, source string) *diagram {
+	d := &diagram{projected: projected, source: source, positions: map[string]int{}, heights: map[string]int{}}
+	d.nodes = sortedNodes(projected.Nodes)
+	d.edges, d.degree = routableEdges(sortedEdges(projected.Edges), d.nodes)
+	d.titleLines = wrap(projected.Title, 70)
+	d.top = max(100, 60+len(d.titleLines)*lineHeight)
+	nodesBottom := d.layoutNodes()
+	d.keyX = margin + nodeWidth + 90 + len(d.edges)*18
+	d.width = d.keyX + 630 + margin
+	keyBottom := d.layoutKey()
+	d.height = max(nodesBottom+margin, keyBottom+margin)
+	return d
+}
+
+// sortedNodes returns the nodes ordered by ID.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+func sortedNodes(nodes []view.Node) []view.Node {
+	sorted := append([]view.Node(nil), nodes...)
+	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].ID < sorted[j].ID })
+	return sorted
+}
+
+// sortedEdges returns the edges in a deterministic order independent of the
+// input order.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+func sortedEdges(edges []view.Edge) []view.Edge {
+	sorted := append([]view.Edge(nil), edges...)
+	sort.SliceStable(sorted, func(i, j int) bool { return compareEdges(sorted[i], sorted[j]) < 0 })
+	return sorted
+}
+
+// compareEdges orders edges by sequence, ID, endpoints, type, label and item.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+func compareEdges(a, b view.Edge) int {
+	return cmp.Or(
+		cmp.Compare(a.Sequence, b.Sequence),
+		cmp.Compare(a.ID, b.ID),
+		cmp.Compare(a.From, b.From),
+		cmp.Compare(a.To, b.To),
+		cmp.Compare(a.Type, b.Type),
+		cmp.Compare(a.Label, b.Label),
+		cmp.Compare(a.ItemRef, b.ItemRef),
+	)
+}
+
+// routableEdges keeps the edges whose two ends are nodes and counts the edges
+// at each node.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+func routableEdges(edges []view.Edge, nodes []view.Node) ([]view.Edge, map[string]int) {
+	known := make(map[string]bool, len(nodes))
 	for _, n := range nodes {
-		byID[n.ID] = n
+		known[n.ID] = true
 	}
-	edges := append([]view.Edge(nil), projected.Edges...)
-	sort.SliceStable(edges, func(i, j int) bool {
-		if edges[i].Sequence != edges[j].Sequence {
-			return edges[i].Sequence < edges[j].Sequence
-		}
-		if edges[i].ID != edges[j].ID {
-			return edges[i].ID < edges[j].ID
-		}
-		if edges[i].From != edges[j].From {
-			return edges[i].From < edges[j].From
-		}
-		if edges[i].To != edges[j].To {
-			return edges[i].To < edges[j].To
-		}
-		if edges[i].Type != edges[j].Type {
-			return edges[i].Type < edges[j].Type
-		}
-		if edges[i].Label != edges[j].Label {
-			return edges[i].Label < edges[j].Label
-		}
-		return edges[i].ItemRef < edges[j].ItemRef
-	})
 	valid := edges[:0]
 	degree := map[string]int{}
 	for _, e := range edges {
-		if _, ok := byID[e.From]; !ok {
-			continue
-		}
-		if _, ok := byID[e.To]; !ok {
+		if !known[e.From] || !known[e.To] {
 			continue
 		}
 		valid = append(valid, e)
 		degree[e.From]++
 		degree[e.To]++
 	}
-	edges = valid
-	positions, heights := map[string]int{}, map[string]int{}
-	titleLines := wrap(projected.Title, 70)
-	top := 60 + len(titleLines)*lineHeight
-	if top < 100 {
-		top = 100
-	}
-	y := top
-	for _, n := range nodes {
+	return valid, degree
+}
+
+// layoutNodes stacks the nodes top to bottom and returns the bottom edge.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (d *diagram) layoutNodes() int {
+	y := d.top
+	for _, n := range d.nodes {
 		h := 30 + lineHeight*(len(wrap(n.Label, 36))+len(wrap(n.ID, 43)))
-		if ports := 28 + degree[n.ID]*lineHeight; ports > h {
-			h = ports
-		}
-		positions[n.ID], heights[n.ID] = y, h
+		h = max(h, 28+d.degree[n.ID]*lineHeight)
+		d.positions[n.ID], d.heights[n.ID] = y, h
 		y += h + 24
 	}
-	keyX := margin + nodeWidth + 90 + len(edges)*18
-	width := keyX + 630 + margin
-	keyLines := make([][]string, len(edges))
-	keyHeight := top
-	for i, e := range edges {
+	return y
+}
+
+// layoutKey wraps the key entry of every edge and returns the key's bottom edge.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (d *diagram) layoutKey() int {
+	d.keyLines = make([][]string, len(d.edges))
+	keyHeight := d.top
+	for i, e := range d.edges {
 		label := strings.TrimSpace(e.Label)
 		if e.ItemRef != "" {
 			label += ": " + e.ItemRef
 		}
 		lines := wrap(e.From+" → "+e.To, 67)
 		lines = append(lines, wrap(label, 67)...)
-		keyLines[i] = append(wrap(fmt.Sprintf("%d. %s", i+1, e.ID), 67), lines...)
-		keyHeight += 12 + lineHeight*len(keyLines[i])
+		d.keyLines[i] = append(wrap(fmt.Sprintf("%d. %s", i+1, e.ID), 67), lines...)
+		keyHeight += 12 + lineHeight*len(d.keyLines[i])
 	}
-	height := y + margin
-	if keyHeight+margin > height {
-		height = keyHeight + margin
-	}
-	var b strings.Builder
-	titleID := svgID(projected.ID) + "-title"
-	fmt.Fprintf(&b, `<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="%s" viewBox="0 0 %d %d" data-source="%s" data-view="%s">`+"\n",
-		titleID, width, height, html.EscapeString(source), html.EscapeString(projected.ID))
-	fmt.Fprintf(&b, "<title id=\"%s\">%s — %s view</title>\n", titleID, html.EscapeString(projected.Title), html.EscapeString(projected.Kind))
-	fmt.Fprintf(&b, "<metadata>source=%s; view=%s; kind=%s</metadata>\n", html.EscapeString(source), html.EscapeString(projected.ID), html.EscapeString(projected.Kind))
-	fmt.Fprintln(&b, `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>`)
-	fmt.Fprintln(&b, `<rect width="100%" height="100%" fill="#ffffff"/>`)
-	textLines(&b, margin, 30, 18, "bold", titleLines)
-	textLines(&b, keyX, top-22, 14, "bold", []string{"Relationships · numbered arrows point to the destination"})
+	return keyHeight
+}
+
+// writeHeader writes the svg element, title, metadata, defs and background.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (d *diagram) writeHeader(b *strings.Builder) {
+	p := d.projected
+	titleID := svgID(p.ID) + "-title"
+	fmt.Fprintf(b, `<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="%s" viewBox="0 0 %d %d" data-source="%s" data-view="%s">`+"\n",
+		titleID, d.width, d.height, html.EscapeString(d.source), html.EscapeString(p.ID))
+	fmt.Fprintf(b, "<title id=\"%s\">%s — %s view</title>\n", titleID, html.EscapeString(p.Title), html.EscapeString(p.Kind))
+	fmt.Fprintf(b, "<metadata>source=%s; view=%s; kind=%s</metadata>\n", html.EscapeString(d.source), html.EscapeString(p.ID), html.EscapeString(p.Kind))
+	fmt.Fprintln(b, `<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#455a64"/></marker></defs>`)
+	fmt.Fprintln(b, `<rect width="100%" height="100%" fill="#ffffff"/>`)
+	textBlock{x: margin, y: 30, size: 18, weight: "bold", lines: d.titleLines}.write(b)
+	textBlock{x: d.keyX, y: d.top - 22, size: 14, weight: "bold", lines: []string{"Relationships · numbered arrows point to the destination"}}.write(b)
+}
+
+// writeEdges writes each edge's route, its number and its key entry.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (d *diagram) writeEdges(b *strings.Builder) {
 	used := map[string]int{}
-	keyY := top
-	for i, e := range edges {
-		y1 := positions[e.From] + 18 + used[e.From]*lineHeight
+	keyY := d.top
+	for i, e := range d.edges {
+		y1 := d.positions[e.From] + 18 + used[e.From]*lineHeight
 		used[e.From]++
-		y2 := positions[e.To] + 18 + used[e.To]*lineHeight
+		y2 := d.positions[e.To] + 18 + used[e.To]*lineHeight
 		used[e.To]++
 		x, lane := margin+nodeWidth, margin+nodeWidth+60+i*18
-		fmt.Fprintf(&b, "<path data-edge=\"%s\" d=\"M%d %d H%d V%d H%d\" fill=\"none\" stroke=\"#78909c\" marker-end=\"url(#arrow)\"/>\n", html.EscapeString(e.ID), x, y1, lane, y2, x)
-		fmt.Fprintf(&b, "<rect x=\"%d\" y=\"%d\" width=\"34\" height=\"16\" rx=\"3\" fill=\"white\"/><text x=\"%d\" y=\"%d\" font-family=\"monospace\" font-size=\"11\">%d</text>\n", x+8, y1-12, x+11, y1, i+1)
-		textLines(&b, keyX, keyY, 12, "normal", keyLines[i])
-		keyY += 12 + lineHeight*len(keyLines[i])
+		fmt.Fprintf(b, "<path data-edge=\"%s\" d=\"M%d %d H%d V%d H%d\" fill=\"none\" stroke=\"#78909c\" marker-end=\"url(#arrow)\"/>\n", html.EscapeString(e.ID), x, y1, lane, y2, x)
+		fmt.Fprintf(b, "<rect x=\"%d\" y=\"%d\" width=\"34\" height=\"16\" rx=\"3\" fill=\"white\"/><text x=\"%d\" y=\"%d\" font-family=\"monospace\" font-size=\"11\">%d</text>\n", x+8, y1-12, x+11, y1, i+1)
+		textBlock{x: d.keyX, y: keyY, size: 12, weight: "normal", lines: d.keyLines[i]}.write(b)
+		keyY += 12 + lineHeight*len(d.keyLines[i])
 	}
-	for _, n := range nodes {
+}
+
+// writeNodes writes each node box with its label and ID.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+// ENGMODEL-LINKS: FU-VIEW-PROJECTION
+func (d *diagram) writeNodes(b *strings.Builder) {
+	for _, n := range d.nodes {
 		fill, stroke := colors(n.Kind)
-		fmt.Fprintf(&b, "<g id=\"%s\"><rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" rx=\"10\" fill=\"%s\" stroke=\"%s\" stroke-width=\"2\"/>\n", svgID(n.ID), margin, positions[n.ID], nodeWidth, heights[n.ID], fill, stroke)
+		fmt.Fprintf(b, "<g id=\"%s\"><rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" rx=\"10\" fill=\"%s\" stroke=\"%s\" stroke-width=\"2\"/>\n", svgID(n.ID), margin, d.positions[n.ID], nodeWidth, d.heights[n.ID], fill, stroke)
 		labels := wrap(n.Label, 36)
-		textLines(&b, margin+14, positions[n.ID]+24, 13, "bold", labels)
-		textLines(&b, margin+14, positions[n.ID]+24+len(labels)*lineHeight, 11, "normal", wrap(n.ID, 43))
-		fmt.Fprintln(&b, "</g>")
+		textBlock{x: margin + 14, y: d.positions[n.ID] + 24, size: 13, weight: "bold", lines: labels}.write(b)
+		textBlock{x: margin + 14, y: d.positions[n.ID] + 24 + len(labels)*lineHeight, size: 11, weight: "normal", lines: wrap(n.ID, 43)}.write(b)
+		fmt.Fprintln(b, "</g>")
 	}
-	fmt.Fprintln(&b, "</svg>")
-	return b.String()
+}
+
+// wrapper accumulates the lines of wrap.
+type wrapper struct {
+	limit int
+	lines []string
+	line  string
 }
 
 // wrap limits line lengths even for long unbroken identifiers.
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
 func wrap(value string, limit int) []string {
-	lines := []string{}
-	line := ""
+	w := &wrapper{limit: limit, lines: []string{}}
 	for _, word := range strings.Fields(value) {
-		runes := []rune(word)
-		for len(runes) > limit {
-			if line != "" {
-				lines = append(lines, line)
-				line = ""
-			}
-			lines = append(lines, string(runes[:limit]))
-			runes = runes[limit:]
-		}
-		word = string(runes)
-		if line == "" {
-			line = word
-		} else if len([]rune(line))+1+len(runes) <= limit {
-			line += " " + word
-		} else {
-			lines = append(lines, line)
-			line = word
-		}
+		w.add(word)
 	}
-	if line != "" {
-		lines = append(lines, line)
-	}
-	if len(lines) == 0 {
+	w.flush()
+	if len(w.lines) == 0 {
 		return []string{""}
 	}
-	return lines
+	return w.lines
 }
 
+// add places one word, first splitting a word longer than the limit.
+//
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
-func textLines(b *strings.Builder, x, y, size int, weight string, lines []string) {
-	for i, line := range lines {
-		fmt.Fprintf(b, "<text x=\"%d\" y=\"%d\" font-family=\"monospace\" font-size=\"%d\" font-weight=\"%s\">%s</text>\n", x, y+i*lineHeight, size, weight, html.EscapeString(line))
+func (w *wrapper) add(word string) {
+	runes := []rune(word)
+	for len(runes) > w.limit {
+		w.flush()
+		w.lines = append(w.lines, string(runes[:w.limit]))
+		runes = runes[w.limit:]
+	}
+	w.place(string(runes), len(runes))
+}
+
+// flush ends the line being built.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+func (w *wrapper) flush() {
+	if w.line != "" {
+		w.lines = append(w.lines, w.line)
+		w.line = ""
 	}
 }
+
+// place appends word of n runes to the line being built or starts a new line.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+func (w *wrapper) place(word string, n int) {
+	switch {
+	case w.line == "":
+		w.line = word
+	case len([]rune(w.line))+1+n <= w.limit:
+		w.line += " " + word
+	default:
+		w.lines = append(w.lines, w.line)
+		w.line = word
+	}
+}
+
+// textBlock is a run of text lines at one position and style.
+type textBlock struct {
+	x, y, size int
+	weight     string
+	lines      []string
+}
+
+// write emits one text element per line.
+//
+// TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
+func (t textBlock) write(b *strings.Builder) {
+	for i, line := range t.lines {
+		fmt.Fprintf(b, "<text x=\"%d\" y=\"%d\" font-family=\"monospace\" font-size=\"%d\" font-weight=\"%s\">%s</text>\n", t.x, t.y+i*lineHeight, t.size, t.weight, html.EscapeString(line))
+	}
+}
+
+// svgIDChars are the characters that may appear in an SVG id unchanged.
+const svgIDChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-"
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-052
 func svgID(value string) string {
-	var b strings.Builder
-	for _, r := range value {
-		if (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9') || r == '_' || r == '-' {
-			b.WriteRune(r)
-		} else {
-			b.WriteByte('_')
+	id := strings.Map(func(r rune) rune {
+		if strings.ContainsRune(svgIDChars, r) {
+			return r
 		}
-	}
-	if b.Len() == 0 {
+		return '_'
+	}, value)
+	if id == "" {
 		return "view"
 	}
-	return b.String()
+	return id
 }
 
 // TRLC-LINKS: REQ-EMG-012, REQ-EMG-052

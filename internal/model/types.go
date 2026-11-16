@@ -199,6 +199,11 @@ type ManifestHealth struct {
 	// like a waiver decision; without it enghealth check reports the weakening
 	// as health.policy_weakened.
 	PolicyDecision string `yaml:"policyDecision,omitempty"`
+	// Floor is the lowest file score that needs no baseline cover
+	// (ADR-EMG-087); nil means DefaultHealthFloor, the highest score. It is
+	// validated by internal/validate (model.invalid_health_floor) and lowering
+	// it against the base revision is a weakening (health.policy_weakened).
+	Floor *float64 `yaml:"floor,omitempty"`
 }
 
 // HealthBaseline is health.baseline: File is a path relative to the manifest
@@ -978,8 +983,19 @@ type NAFProfile struct {
 // Enabled reports whether a NAF profile was authored.
 // TRLC-LINKS: REQ-EMG-041
 func (p NAFProfile) Enabled() bool {
-	return p.Framework != "" || p.Version != "" || p.ArchitectureDescription != "" ||
-		len(p.Stakeholders) > 0 || len(p.Concerns) > 0 || len(p.Products) > 0
+	return p.hasIdentity() || p.hasContent()
+}
+
+// hasIdentity reports an authored framework, version or description.
+// TRLC-LINKS: REQ-EMG-041
+func (p NAFProfile) hasIdentity() bool {
+	return p.Framework != "" || p.Version != "" || p.ArchitectureDescription != ""
+}
+
+// hasContent reports authored stakeholders, concerns or products.
+// TRLC-LINKS: REQ-EMG-041
+func (p NAFProfile) hasContent() bool {
+	return len(p.Stakeholders) > 0 || len(p.Concerns) > 0 || len(p.Products) > 0
 }
 
 // NAFStakeholder binds a NAF stakeholder role to an existing canonical actor.

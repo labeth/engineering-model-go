@@ -25,8 +25,15 @@ type want struct {
 	codes                           []string
 }
 
-func fn(name, kind string, params, cyc, nest, bumps, bools int, codes ...string) want {
-	return want{name: name, kind: kind, params: params, cyc: cyc, nest: nest, bumps: bumps, bools: bools, codes: codes}
+// metrics are the expected numbers of a function: its kind, parameters,
+// cyclomatic complexity, nesting, bumps and boolean operators.
+type metrics struct {
+	kind                            string
+	params, cyc, nest, bumps, bools int
+}
+
+func fn(name string, m metrics, codes ...string) want {
+	return want{name: name, kind: m.kind, params: m.params, cyc: m.cyc, nest: m.nest, bumps: m.bumps, bools: m.bools, codes: codes}
 }
 
 // load reads a fixture from testdata; the fixtures carry a .txt suffix so the
@@ -49,23 +56,20 @@ func languageOf(t *testing.T, path string) string {
 	return lang
 }
 
-// analyzeSource analyses one in-memory file with the default configuration.
-func analyzeSource(t *testing.T, path string, src []byte, cfg health.Config) health.FileResult {
+// analyzeSource analyses one in-memory file; the language is that of its path.
+func analyzeSource(t *testing.T, in health.FileInput, cfg health.Config) health.FileResult {
 	t.Helper()
-	res, err := New().Analyze([]health.FileInput{{Path: path, Language: languageOf(t, path), Source: src}}, cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(res) != 1 {
-		t.Fatalf("got %d results, want 1", len(res))
-	}
+	in.Language = languageOf(t, in.Path)
+	res, err := New().Analyze([]health.FileInput{in}, cfg)
+	mustEqual(t, err, nil)
+	mustEqual(t, len(res), 1)
 	return res[0]
 }
 
 // analyzeFixture analyses a fixture under the virtual path path.
 func analyzeFixture(t *testing.T, fixture, path string) health.FileResult {
 	t.Helper()
-	return analyzeSource(t, path, load(t, fixture), health.Config{})
+	return analyzeSource(t, health.FileInput{Path: path, Source: load(t, fixture)}, health.Config{})
 }
 
 func codesOf(f health.Function) []string {
@@ -79,11 +83,7 @@ func codesOf(f health.Function) []string {
 func checkFunctions(t *testing.T, res health.FileResult, wants []want) {
 	t.Helper()
 	if len(res.Functions) != len(wants) {
-		names := []string{}
-		for _, f := range res.Functions {
-			names = append(names, f.Name)
-		}
-		t.Fatalf("got %d functions %v, want %d", len(res.Functions), names, len(wants))
+		t.Fatalf("got %d functions %v, want %d", len(res.Functions), functionNames(res), len(wants))
 	}
 	for i, w := range wants {
 		f := res.Functions[i]
@@ -94,13 +94,30 @@ func checkFunctions(t *testing.T, res health.FileResult, wants []want) {
 	}
 }
 
+// functionNames lists the names of the functions of a result.
+func functionNames(res health.FileResult) []string {
+	names := []string{}
+	for _, f := range res.Functions {
+		names = append(names, f.Name)
+	}
+	return names
+}
+
+// naiveSource is a source for the line-based count, the prefix of its comment
+// lines and the functions that are left out of the comparison.
+type naiveSource struct {
+	src    []byte
+	prefix string
+	skip   []string
+}
+
 // naiveLOC is a second, line-based implementation of logical lines for
 // fixtures without block comments or multi-line strings: a line counts when it
 // is not blank and does not start with the comment prefix.
-func naiveLOC(src []byte, first, last int, prefix string) int {
+func naiveLOC(src []byte, f health.Function, prefix string) int {
 	lines := strings.Split(strings.ReplaceAll(string(src), "\r\n", "\n"), "\n")
 	count := 0
-	for _, line := range lines[first-1 : last] {
+	for _, line := range lines[f.StartLine-1 : f.EndLine] {
 		line = strings.TrimSpace(line)
 		if line != "" && !strings.HasPrefix(line, prefix) {
 			count++
@@ -110,25 +127,26 @@ func naiveLOC(src []byte, first, last int, prefix string) int {
 }
 
 // checkLOC compares the engine's LOC with the line-based count for every
-// function except those named in skip.
-func checkLOC(t *testing.T, res health.FileResult, src []byte, prefix string, skip ...string) {
+// function except those named in the skip list.
+func checkLOC(t *testing.T, res health.FileResult, n naiveSource) {
 	t.Helper()
 	for _, f := range res.Functions {
-		if contains(skip, f.Name) {
-			continue
-		}
-		if got := naiveLOC(src, f.StartLine, f.EndLine, prefix); got != f.LOC {
-			t.Errorf("%s: loc %d, line-based count %d", f.Name, f.LOC, got)
+		if !contains(n.skip, f.Name) {
+			wantEqual(t, [2]any{f.Name, f.LOC}, [2]any{f.Name, naiveLOC(n.src, f, n.prefix)})
 		}
 	}
 }
 
+// locWant is the expected logical lines of one function.
+type locWant struct {
+	name string
+	loc  int
+}
+
 // wantLOC checks the logical lines of one function.
-func wantLOC(t *testing.T, res health.FileResult, name string, loc int) {
+func wantLOC(t *testing.T, res health.FileResult, w locWant) {
 	t.Helper()
-	if got := function(t, res, name).LOC; got != loc {
-		t.Errorf("%s: loc %d, want %d", name, got, loc)
-	}
+	wantEqual(t, [2]any{w.name, function(t, res, w.name).LOC}, [2]any{w.name, w.loc})
 }
 
 func contains(list []string, s string) bool {
@@ -163,32 +181,32 @@ func TestGoSmells(t *testing.T) {
 	// func (if) and defer func (for) are anonymous -> 1 + 2 = 3; the named
 	// closure run is its own unit with 1 + 1.
 	checkFunctions(t, res, []want{
-		fn("f", "function", 0, 1, 0, 0, 0),
-		fn("CycPos", "function", 1, 10, 1, 0, 0, "complex_method:warn"),
-		fn("CycNeg", "function", 1, 9, 1, 0, 0),
-		fn("NestPos", "function", 1, 5, 4, 1, 0, "deep_nesting:warn"),
-		fn("NestNeg", "function", 1, 4, 3, 1, 0),
-		fn("BumpsPos", "function", 1, 5, 2, 2, 0, "bumpy_road:warn"),
-		fn("BumpsNeg", "function", 1, 4, 2, 1, 0),
-		fn("BoolPos", "function", 1, 5, 1, 0, 3, "complex_conditional:warn"),
-		fn("BoolNeg", "function", 1, 4, 1, 0, 2),
-		fn("BoolSplit", "function", 1, 7, 1, 0, 2),
-		fn("ArgsPos", "function", 5, 1, 0, 0, 0, "excess_arguments:warn"),
-		fn("ArgsNeg", "function", 4, 1, 0, 0, 0),
-		fn("PrimPos", "function", 4, 1, 0, 0, 0, "primitive_obsession:warn"),
-		fn("PrimNeg", "function", 4, 1, 0, 0, 0),
-		fn("PrimFew", "function", 3, 1, 0, 0, 0),
-		fn("Variadic", "function", 2, 1, 0, 0, 0),
-		fn("Constructs", "function", 4, 12, 1, 0, 2, "complex_method:warn"),
-		fn("ElseIf", "function", 1, 4, 1, 0, 0),
-		fn("Worker.Method", "method", 1, 2, 1, 0, 0),
-		fn("Closures", "function", 1, 3, 1, 0, 0),
-		fn("Closures.run", "function", 0, 2, 1, 0, 0),
+		fn("f", metrics{"function", 0, 1, 0, 0, 0}),
+		fn("CycPos", metrics{"function", 1, 10, 1, 0, 0}, "complex_method:warn"),
+		fn("CycNeg", metrics{"function", 1, 9, 1, 0, 0}),
+		fn("NestPos", metrics{"function", 1, 5, 4, 1, 0}, "deep_nesting:warn"),
+		fn("NestNeg", metrics{"function", 1, 4, 3, 1, 0}),
+		fn("BumpsPos", metrics{"function", 1, 5, 2, 2, 0}, "bumpy_road:warn"),
+		fn("BumpsNeg", metrics{"function", 1, 4, 2, 1, 0}),
+		fn("BoolPos", metrics{"function", 1, 5, 1, 0, 3}, "complex_conditional:warn"),
+		fn("BoolNeg", metrics{"function", 1, 4, 1, 0, 2}),
+		fn("BoolSplit", metrics{"function", 1, 7, 1, 0, 2}),
+		fn("ArgsPos", metrics{"function", 5, 1, 0, 0, 0}, "excess_arguments:warn"),
+		fn("ArgsNeg", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("PrimPos", metrics{"function", 4, 1, 0, 0, 0}, "primitive_obsession:warn"),
+		fn("PrimNeg", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("PrimFew", metrics{"function", 3, 1, 0, 0, 0}),
+		fn("Variadic", metrics{"function", 2, 1, 0, 0, 0}),
+		fn("Constructs", metrics{"function", 4, 12, 1, 0, 2}, "complex_method:warn"),
+		fn("ElseIf", metrics{"function", 1, 4, 1, 0, 0}),
+		fn("Worker.Method", metrics{"method", 1, 2, 1, 0, 0}),
+		fn("Closures", metrics{"function", 1, 3, 1, 0, 0}),
+		fn("Closures.run", metrics{"function", 0, 2, 1, 0, 0}),
 	})
 	// Closures spans 18 logical lines; run owns 5 (its "run := func() {" row
 	// included), so Closures counts 13.
-	checkLOC(t, res, load(t, "go_smells.go"), "//", "Closures")
-	wantLOC(t, res, "Closures", 13)
+	checkLOC(t, res, naiveSource{src: load(t, "go_smells.go"), prefix: "//", skip: []string{"Closures"}})
+	wantLOC(t, res, locWant{"Closures", 13})
 	if res.IsTest || len(res.Unsupported) != 0 {
 		t.Errorf("a plain Go file: IsTest %v, Unsupported %v", res.IsTest, res.Unsupported)
 	}
@@ -203,76 +221,76 @@ func TestRustSmells(t *testing.T) {
 	// the type; self is no parameter. closures: the for_each closure is
 	// anonymous -> 1 + 1; run, apply and inner are units of their own.
 	checkFunctions(t, res, []want{
-		fn("f", "function", 0, 1, 0, 0, 0),
-		fn("cyc_pos", "function", 1, 10, 1, 0, 0, "complex_method:warn"),
-		fn("cyc_neg", "function", 1, 9, 1, 0, 0),
-		fn("nest_pos", "function", 1, 5, 4, 1, 0, "deep_nesting:warn"),
-		fn("nest_neg", "function", 1, 4, 3, 1, 0),
-		fn("bumps_pos", "function", 1, 5, 2, 2, 0, "bumpy_road:warn"),
-		fn("bumps_neg", "function", 1, 4, 2, 1, 0),
-		fn("bool_pos", "function", 1, 5, 1, 0, 3, "complex_conditional:warn"),
-		fn("bool_neg", "function", 1, 4, 1, 0, 2),
-		fn("args_pos", "function", 5, 1, 0, 0, 0, "excess_arguments:warn"),
-		fn("args_neg", "function", 4, 1, 0, 0, 0),
-		fn("prim_pos", "function", 4, 1, 0, 0, 0, "primitive_obsession:warn"),
-		fn("prim_neg", "function", 4, 1, 0, 0, 0),
-		fn("prim_few", "function", 3, 1, 0, 0, 0),
-		fn("constructs", "function", 2, 9, 1, 0, 1),
-		fn("Worker.method", "method", 1, 2, 1, 0, 0),
-		fn("Worker.associated", "method", 1, 1, 0, 0, 0),
-		fn("Speaker.speak", "method", 1, 2, 1, 0, 0),
-		fn("closures", "function", 1, 2, 1, 0, 0),
-		fn("closures.run", "function", 1, 2, 1, 0, 0),
-		fn("closures.apply", "function", 1, 2, 1, 0, 0),
-		fn("closures.inner", "function", 1, 2, 1, 0, 0),
+		fn("f", metrics{"function", 0, 1, 0, 0, 0}),
+		fn("cyc_pos", metrics{"function", 1, 10, 1, 0, 0}, "complex_method:warn"),
+		fn("cyc_neg", metrics{"function", 1, 9, 1, 0, 0}),
+		fn("nest_pos", metrics{"function", 1, 5, 4, 1, 0}, "deep_nesting:warn"),
+		fn("nest_neg", metrics{"function", 1, 4, 3, 1, 0}),
+		fn("bumps_pos", metrics{"function", 1, 5, 2, 2, 0}, "bumpy_road:warn"),
+		fn("bumps_neg", metrics{"function", 1, 4, 2, 1, 0}),
+		fn("bool_pos", metrics{"function", 1, 5, 1, 0, 3}, "complex_conditional:warn"),
+		fn("bool_neg", metrics{"function", 1, 4, 1, 0, 2}),
+		fn("args_pos", metrics{"function", 5, 1, 0, 0, 0}, "excess_arguments:warn"),
+		fn("args_neg", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("prim_pos", metrics{"function", 4, 1, 0, 0, 0}, "primitive_obsession:warn"),
+		fn("prim_neg", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("prim_few", metrics{"function", 3, 1, 0, 0, 0}),
+		fn("constructs", metrics{"function", 2, 9, 1, 0, 1}),
+		fn("Worker.method", metrics{"method", 1, 2, 1, 0, 0}),
+		fn("Worker.associated", metrics{"method", 1, 1, 0, 0, 0}),
+		fn("Speaker.speak", metrics{"method", 1, 2, 1, 0, 0}),
+		fn("closures", metrics{"function", 1, 2, 1, 0, 0}),
+		fn("closures.run", metrics{"function", 1, 2, 1, 0, 0}),
+		fn("closures.apply", metrics{"function", 1, 2, 1, 0, 0}),
+		fn("closures.inner", metrics{"function", 1, 2, 1, 0, 0}),
 	})
 	// closures spans 22 logical lines; run, apply and inner own 5 rows each.
-	checkLOC(t, res, load(t, "rust_smells.rs"), "//", "closures")
-	wantLOC(t, res, "closures", 7)
+	checkLOC(t, res, naiveSource{src: load(t, "rust_smells.rs"), prefix: "//", skip: []string{"closures"}})
+	wantLOC(t, res, locWant{"closures", 7})
 }
 
 // ecmaWants are the expectations shared by the TypeScript and JavaScript
 // fixtures; the only difference is the primitive obsession finding.
 func ecmaWants(javascript bool) []want {
 	prim := []string{"primitive_obsession:warn"}
-	params := fn("params", "function", 2, 1, 0, 0, 0)
+	params := fn("params", metrics{"function", 2, 1, 0, 0, 0})
 	if javascript {
 		prim = nil
-		params = fn("params", "function", 3, 1, 0, 0, 0)
+		params = fn("params", metrics{"function", 3, 1, 0, 0, 0})
 	}
 	wants := []want{}
 	if javascript {
-		wants = append(wants, fn("f", "function", 0, 1, 0, 0, 0))
+		wants = append(wants, fn("f", metrics{"function", 0, 1, 0, 0, 0}))
 	}
 	wants = append(wants,
-		fn("cycPos", "function", 1, 10, 1, 0, 0, "complex_method:warn"),
-		fn("cycNeg", "function", 1, 9, 1, 0, 0),
-		fn("nestPos", "function", 1, 5, 4, 1, 0, "deep_nesting:warn"),
-		fn("nestNeg", "function", 1, 4, 3, 1, 0),
-		fn("bumpsPos", "function", 1, 5, 2, 2, 0, "bumpy_road:warn"),
-		fn("bumpsNeg", "function", 1, 4, 2, 1, 0),
-		fn("boolPos", "function", 1, 5, 1, 0, 3, "complex_conditional:warn"),
-		fn("boolNeg", "function", 1, 4, 1, 0, 2),
-		fn("argsPos", "function", 5, 1, 0, 0, 0, "excess_arguments:warn"),
-		fn("argsNeg", "function", 4, 1, 0, 0, 0),
-		fn("primPos", "function", 4, 1, 0, 0, 0, prim...),
-		fn("primNeg", "function", 4, 1, 0, 0, 0),
-		fn("primFew", "function", 3, 1, 0, 0, 0),
+		fn("cycPos", metrics{"function", 1, 10, 1, 0, 0}, "complex_method:warn"),
+		fn("cycNeg", metrics{"function", 1, 9, 1, 0, 0}),
+		fn("nestPos", metrics{"function", 1, 5, 4, 1, 0}, "deep_nesting:warn"),
+		fn("nestNeg", metrics{"function", 1, 4, 3, 1, 0}),
+		fn("bumpsPos", metrics{"function", 1, 5, 2, 2, 0}, "bumpy_road:warn"),
+		fn("bumpsNeg", metrics{"function", 1, 4, 2, 1, 0}),
+		fn("boolPos", metrics{"function", 1, 5, 1, 0, 3}, "complex_conditional:warn"),
+		fn("boolNeg", metrics{"function", 1, 4, 1, 0, 2}),
+		fn("argsPos", metrics{"function", 5, 1, 0, 0, 0}, "excess_arguments:warn"),
+		fn("argsNeg", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("primPos", metrics{"function", 4, 1, 0, 0, 0}, prim...),
+		fn("primNeg", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("primFew", metrics{"function", 3, 1, 0, 0, 0}),
 		params,
 		// constructs: if 1, && 1, || 1, else-if 1, for 1, for-of 1, for-in 1,
 		// while 1, do 1, case 1 and case 2 -> 2, catch 1, ?: 1, ?? 1, ||= 1,
 		// &&= 1, ??= 1 = 17 decisions (default and try add none) -> 18. The
 		// longest chain is x.a && x.b || x.c.
-		fn("constructs", "function", 3, 18, 1, 0, 2, "complex_method:warn"),
-		fn("elseIf", "function", 1, 4, 1, 0, 0),
-		fn("arrow", "function", 1, 2, 1, 0, 0),
-		fn("Service.run", "method", 1, 2, 1, 0, 0),
-		fn("Service.field", "method", 1, 2, 1, 0, 0),
+		fn("constructs", metrics{"function", 3, 18, 1, 0, 2}, "complex_method:warn"),
+		fn("elseIf", metrics{"function", 1, 4, 1, 0, 0}),
+		fn("arrow", metrics{"function", 1, 2, 1, 0, 0}),
+		fn("Service.run", metrics{"method", 1, 2, 1, 0, 0}),
+		fn("Service.field", metrics{"method", 1, 2, 1, 0, 0}),
 		// closures: the forEach and map callbacks are anonymous -> 1 + 2; run
 		// (assigned arrow) and inner (nested declaration) are units.
-		fn("closures", "function", 2, 3, 1, 0, 0),
-		fn("closures.run", "function", 0, 2, 1, 0, 0),
-		fn("closures.inner", "function", 0, 2, 1, 0, 0),
+		fn("closures", metrics{"function", 2, 3, 1, 0, 0}),
+		fn("closures.run", metrics{"function", 0, 2, 1, 0, 0}),
+		fn("closures.inner", metrics{"function", 0, 2, 1, 0, 0}),
 	)
 	return wants
 }
@@ -282,8 +300,8 @@ func TestTypeScriptSmells(t *testing.T) {
 	res := analyzeFixture(t, "ts_smells.ts", "src/smells.ts")
 	checkFunctions(t, res, ecmaWants(false))
 	// closures spans 15 logical lines; run and inner own 3 rows each.
-	checkLOC(t, res, load(t, "ts_smells.ts"), "//", "closures")
-	wantLOC(t, res, "closures", 9)
+	checkLOC(t, res, naiveSource{src: load(t, "ts_smells.ts"), prefix: "//", skip: []string{"closures"}})
+	wantLOC(t, res, locWant{"closures", 9})
 	if len(res.Unsupported) != 0 {
 		t.Errorf("TypeScript declares parameter types, Unsupported = %v", res.Unsupported)
 	}
@@ -296,15 +314,15 @@ func TestJavaScriptSmells(t *testing.T) {
 		// single: one bare arrow parameter, one ternary; default is the export
 		// default function; handler/method/exports.shared are named by their
 		// property or assignment target.
-		fn("single", "function", 1, 2, 0, 0, 0),
-		fn("default", "function", 0, 2, 1, 0, 0),
-		fn("handler", "function", 1, 2, 1, 0, 0),
-		fn("method", "method", 1, 2, 1, 0, 0),
-		fn("exports.shared", "function", 1, 2, 1, 0, 0),
+		fn("single", metrics{"function", 1, 2, 0, 0, 0}),
+		fn("default", metrics{"function", 0, 2, 1, 0, 0}),
+		fn("handler", metrics{"function", 1, 2, 1, 0, 0}),
+		fn("method", metrics{"method", 1, 2, 1, 0, 0}),
+		fn("exports.shared", metrics{"function", 1, 2, 1, 0, 0}),
 	)
 	checkFunctions(t, res, wants)
-	checkLOC(t, res, load(t, "js_smells.js"), "//", "closures")
-	wantLOC(t, res, "closures", 9)
+	checkLOC(t, res, naiveSource{src: load(t, "js_smells.js"), prefix: "//", skip: []string{"closures"}})
+	wantLOC(t, res, locWant{"closures", 9})
 	if !reflect.DeepEqual(res.Unsupported, []string{health.CodePrimitiveObsession}) {
 		t.Errorf("JavaScript has no parameter types, Unsupported = %v", res.Unsupported)
 	}
@@ -317,8 +335,8 @@ func TestTSXSmells(t *testing.T) {
 	// the map callback is anonymous. Row has one destructured parameter and a
 	// ternary in an expression-bodied arrow.
 	checkFunctions(t, res, []want{
-		fn("Component", "function", 1, 4, 1, 0, 1),
-		fn("Row", "function", 1, 2, 0, 0, 0),
+		fn("Component", metrics{"function", 1, 4, 1, 0, 1}),
+		fn("Row", metrics{"function", 1, 2, 0, 0, 0}),
 	})
 	if got := function(t, res, "Component").LOC; got != 11 {
 		t.Errorf("Component loc = %d, want 11", got)
@@ -338,36 +356,36 @@ func TestPythonSmells(t *testing.T) {
 	// closures: the anonymous lambda in sort(key=...) counts toward closures;
 	// run (nested def) and pick (assigned lambda) are units.
 	checkFunctions(t, res, []want{
-		fn("f", "function", 0, 1, 0, 0, 0),
-		fn("cyc_pos", "function", 1, 10, 1, 0, 0, "complex_method:warn"),
-		fn("cyc_neg", "function", 1, 9, 1, 0, 0),
-		fn("nest_pos", "function", 1, 5, 4, 1, 0, "deep_nesting:warn"),
-		fn("nest_neg", "function", 1, 4, 3, 1, 0),
-		fn("bumps_pos", "function", 1, 5, 2, 2, 0, "bumpy_road:warn"),
-		fn("bumps_neg", "function", 1, 4, 2, 1, 0),
-		fn("bool_pos", "function", 1, 5, 1, 0, 3, "complex_conditional:warn"),
-		fn("bool_neg", "function", 1, 4, 1, 0, 2),
-		fn("args_pos", "function", 5, 1, 0, 0, 0, "excess_arguments:warn"),
-		fn("args_neg", "function", 4, 1, 0, 0, 0),
-		fn("prim_pos", "function", 4, 1, 0, 0, 0, "primitive_obsession:warn"),
-		fn("prim_neg", "function", 4, 1, 0, 0, 0),
-		fn("prim_few", "function", 3, 1, 0, 0, 0),
-		fn("params", "function", 4, 1, 0, 0, 0),
-		fn("constructs", "function", 3, 18, 1, 0, 2, "complex_method:warn"),
-		fn("group", "function", 1, 2, 1, 0, 0),
-		fn("else_if", "function", 1, 4, 1, 0, 0),
-		fn("documented", "function", 1, 1, 0, 0, 0),
-		fn("double", "function", 1, 2, 0, 0, 0),
-		fn("Service.run", "method", 1, 2, 1, 0, 0),
-		fn("Service.make", "method", 1, 2, 1, 0, 0),
-		fn("closures", "function", 2, 2, 0, 0, 0),
-		fn("closures.run", "function", 0, 2, 1, 0, 0),
-		fn("closures.pick", "function", 1, 2, 0, 0, 0),
+		fn("f", metrics{"function", 0, 1, 0, 0, 0}),
+		fn("cyc_pos", metrics{"function", 1, 10, 1, 0, 0}, "complex_method:warn"),
+		fn("cyc_neg", metrics{"function", 1, 9, 1, 0, 0}),
+		fn("nest_pos", metrics{"function", 1, 5, 4, 1, 0}, "deep_nesting:warn"),
+		fn("nest_neg", metrics{"function", 1, 4, 3, 1, 0}),
+		fn("bumps_pos", metrics{"function", 1, 5, 2, 2, 0}, "bumpy_road:warn"),
+		fn("bumps_neg", metrics{"function", 1, 4, 2, 1, 0}),
+		fn("bool_pos", metrics{"function", 1, 5, 1, 0, 3}, "complex_conditional:warn"),
+		fn("bool_neg", metrics{"function", 1, 4, 1, 0, 2}),
+		fn("args_pos", metrics{"function", 5, 1, 0, 0, 0}, "excess_arguments:warn"),
+		fn("args_neg", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("prim_pos", metrics{"function", 4, 1, 0, 0, 0}, "primitive_obsession:warn"),
+		fn("prim_neg", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("prim_few", metrics{"function", 3, 1, 0, 0, 0}),
+		fn("params", metrics{"function", 4, 1, 0, 0, 0}),
+		fn("constructs", metrics{"function", 3, 18, 1, 0, 2}, "complex_method:warn"),
+		fn("group", metrics{"function", 1, 2, 1, 0, 0}),
+		fn("else_if", metrics{"function", 1, 4, 1, 0, 0}),
+		fn("documented", metrics{"function", 1, 1, 0, 0, 0}),
+		fn("double", metrics{"function", 1, 2, 0, 0, 0}),
+		fn("Service.run", metrics{"method", 1, 2, 1, 0, 0}),
+		fn("Service.make", metrics{"method", 1, 2, 1, 0, 0}),
+		fn("closures", metrics{"function", 2, 2, 0, 0, 0}),
+		fn("closures.run", metrics{"function", 0, 2, 1, 0, 0}),
+		fn("closures.pick", metrics{"function", 1, 2, 0, 0, 0}),
 	})
 	// closures spans 7 logical lines; run owns 3 (def, if, f()) and the assigned
 	// lambda "pick = lambda ..." owns its row.
-	checkLOC(t, res, load(t, "python_smells.py"), "#", "documented", "closures")
-	wantLOC(t, res, "closures", 3)
+	checkLOC(t, res, naiveSource{src: load(t, "python_smells.py"), prefix: "#", skip: []string{"documented", "closures"}})
+	wantLOC(t, res, locWant{"closures", 3})
 	if got := function(t, res, "documented"); got.LOC != 2 || got.StartLine != 169 || got.EndLine != 174 {
 		t.Errorf("documented: loc %d lines %d-%d, want 2 logical lines in 169-174", got.LOC, got.StartLine, got.EndLine)
 	}
@@ -412,24 +430,31 @@ type assertWant struct {
 
 func checkAssertions(t *testing.T, res health.FileResult, wants []assertWant) {
 	t.Helper()
-	if len(res.Functions) != len(wants) {
-		t.Fatalf("got %d functions, want %d", len(res.Functions), len(wants))
-	}
+	mustEqual(t, len(res.Functions), len(wants))
 	for i, w := range wants {
 		f := res.Functions[i]
 		got := assertWant{f.Name, f.IsTest, f.Assertions, codesOf(f)}
-		if got.name != w.name || got.test != w.test || got.assertion != w.assertion || strings.Join(got.codes, ",") != strings.Join(w.codes, ",") {
-			t.Errorf("function %d:\n got %+v\nwant %+v", i, got, w)
-		}
+		wantEqual(t, got.key(), w.key())
 	}
+}
+
+// assertKey is an assertWant with its codes joined, so that it compares.
+type assertKey struct {
+	name  string
+	test  bool
+	count int
+	codes string
+}
+
+// key is the comparable form of the expectation.
+func (w assertWant) key() assertKey {
+	return assertKey{w.name, w.test, w.assertion, strings.Join(w.codes, ",")}
 }
 
 // TRLC-LINKS: REQ-EMG-150
 func TestGoAssertionBlocks(t *testing.T) {
 	res := analyzeFixture(t, "go_asserts_test.go", "pkg/asserts_test.go")
-	if !res.IsTest {
-		t.Error("a _test.go file is a test file")
-	}
+	wantEqual(t, res.IsTest, true) // a _test.go file is a test file
 	dup := []string{"duplicated_assertion_block:warn"}
 	// TestAssertPos: t.Errorf, t.Errorf (a comment between does not break the
 	// run), an if that only calls t.Fatal, assert.Equal, require.NoError and
@@ -448,9 +473,7 @@ func TestGoAssertionBlocks(t *testing.T) {
 		{"TestMain", false, 0, nil},
 	})
 	finding := function(t, res, "TestDupA").Findings[0]
-	if finding.Metric != "assertions" || finding.Value != 4 || finding.StartLine != 45 || finding.EndLine != 48 {
-		t.Errorf("duplicate block finding = %+v", finding)
-	}
+	wantEqual(t, [4]any{finding.Metric, finding.Value, finding.StartLine, finding.EndLine}, [4]any{"assertions", 4, 45, 48})
 }
 
 // TRLC-LINKS: REQ-EMG-150
@@ -557,13 +580,13 @@ func TestTestFilesAreFlagged(t *testing.T) {
 		"src/contest/a.ts":     false,
 	} {
 		lang := languageOf(t, path)
-		res := analyzeSource(t, path, []byte(map[string]string{"go": "package p\n", "rust": "fn a() {}\n", "python": "x = 1\n"}[lang]), health.Config{})
+		res := analyzeSource(t, health.FileInput{Path: path, Source: []byte(map[string]string{"go": "package p\n", "rust": "fn a() {}\n", "python": "x = 1\n"}[lang])}, health.Config{})
 		if res.IsTest != want {
 			t.Errorf("%s: IsTest = %v, want %v", path, res.IsTest, want)
 		}
 	}
 	// A file-level #![cfg(test)] makes a Rust file a test file anywhere.
-	if res := analyzeSource(t, "src/helpers.rs", []byte("#![cfg(test)]\nfn a() {}\n"), health.Config{}); !res.IsTest {
+	if res := analyzeSource(t, health.FileInput{Path: "src/helpers.rs", Source: []byte("#![cfg(test)]\nfn a() {}\n")}, health.Config{}); !res.IsTest {
 		t.Error("#![cfg(test)] marks the file as a test file")
 	}
 }
@@ -624,10 +647,16 @@ func (s shape) build(nested, flats, fillers int) (string, int) {
 	return b.String(), logical
 }
 
-func analyzeShape(t *testing.T, s shape, nested, flats, fillers int) (health.Function, int) {
+// mix is the composition of a generated function: the nested ifs, the flat
+// one-line ifs and the filler statements.
+type mix struct {
+	nested, flats, fillers int
+}
+
+func analyzeShape(t *testing.T, s shape, m mix) (health.Function, int) {
 	t.Helper()
-	src, logical := s.build(nested, flats, fillers)
-	res := analyzeSource(t, s.file, []byte(src), health.Config{})
+	src, logical := s.build(m.nested, m.flats, m.fillers)
+	res := analyzeSource(t, health.FileInput{Path: s.file, Source: []byte(src)}, health.Config{})
 	return function(t, res, "big"), logical
 }
 
@@ -642,41 +671,49 @@ func (s shape) fillersFor(nested, flats, loc int) int {
 func TestLargeMethodAndBrainMethod(t *testing.T) {
 	for _, name := range shapeOrder {
 		s := shapes[name]
-		t.Run(name, func(t *testing.T) {
-			// Brain method: 70 logical lines (large at warn), 1 + 4 nested + 6 flat
-			// ifs = cyclomatic 11 (complex at warn), depth 4 (deep at warn).
-			f, logical := analyzeShape(t, s, 4, 6, s.fillersFor(4, 6, 70))
-			if logical != 70 || f.LOC != 70 || f.Cyclomatic != 11 || f.MaxNesting != 4 {
-				t.Fatalf("brain: generated %d, loc %d, cyclomatic %d, nesting %d; want 70, 70, 11, 4", logical, f.LOC, f.Cyclomatic, f.MaxNesting)
-			}
-			wantCodes := []string{"complex_method:warn", "large_method:warn", "deep_nesting:warn", "brain_method:high"}
-			if got := codesOf(f); !reflect.DeepEqual(got, wantCodes) {
-				t.Errorf("brain method findings = %v, want %v", got, wantCodes)
-			}
-			// 69 lines: just below large_method, so no brain method either.
-			f, _ = analyzeShape(t, s, 4, 6, s.fillersFor(4, 6, 69))
-			if f.LOC != 69 || contains(codesOf(f), "large_method:warn") || contains(codesOf(f), "brain_method:high") {
-				t.Errorf("69 lines: loc %d findings %v", f.LOC, codesOf(f))
-			}
-			// Depth 3 (cyclomatic 11 still): large and complex, not deep, no brain.
-			f, _ = analyzeShape(t, s, 3, 7, s.fillersFor(3, 7, 70))
-			if f.MaxNesting != 3 || f.Cyclomatic != 11 || contains(codesOf(f), "brain_method:high") || !contains(codesOf(f), "large_method:warn") {
-				t.Errorf("depth 3: nesting %d cyclomatic %d findings %v", f.MaxNesting, f.Cyclomatic, codesOf(f))
-			}
-			// Cyclomatic 9: large and deep, not complex, no brain.
-			f, _ = analyzeShape(t, s, 4, 4, s.fillersFor(4, 4, 70))
-			if f.Cyclomatic != 9 || contains(codesOf(f), "brain_method:high") || contains(codesOf(f), "complex_method:warn") {
-				t.Errorf("cyclomatic 9: cyclomatic %d findings %v", f.Cyclomatic, codesOf(f))
-			}
-		})
+		t.Run(name, func(t *testing.T) { requireBrainMethod(t, s) })
 	}
+}
+
+// requireBrainMethod checks a brain method of a shape, and the three functions
+// that lack one of its three parts.
+func requireBrainMethod(t *testing.T, s shape) {
+	t.Helper()
+	// Brain method: 70 logical lines (large at warn), 1 + 4 nested + 6 flat
+	// ifs = cyclomatic 11 (complex at warn), depth 4 (deep at warn).
+	f, logical := analyzeShape(t, s, mix{4, 6, s.fillersFor(4, 6, 70)})
+	mustEqual(t, [4]int{logical, f.LOC, f.Cyclomatic, f.MaxNesting}, [4]int{70, 70, 11, 4})
+	wantEqual(t, strings.Join(codesOf(f), ","), "complex_method:warn,large_method:warn,deep_nesting:warn,brain_method:high")
+	// 69 lines: just below large_method, so no brain method either.
+	f, _ = analyzeShape(t, s, mix{4, 6, s.fillersFor(4, 6, 69)})
+	wantEqual(t, f.LOC, 69)
+	wantEqual(t, hasAny(codesOf(f), "large_method:warn", "brain_method:high"), false)
+	// Depth 3 (cyclomatic 11 still): large and complex, not deep, no brain.
+	f, _ = analyzeShape(t, s, mix{3, 7, s.fillersFor(3, 7, 70)})
+	wantEqual(t, [2]int{f.MaxNesting, f.Cyclomatic}, [2]int{3, 11})
+	wantEqual(t, contains(codesOf(f), "large_method:warn"), true)
+	wantEqual(t, contains(codesOf(f), "brain_method:high"), false)
+	// Cyclomatic 9: large and deep, not complex, no brain.
+	f, _ = analyzeShape(t, s, mix{4, 4, s.fillersFor(4, 4, 70)})
+	wantEqual(t, f.Cyclomatic, 9)
+	wantEqual(t, hasAny(codesOf(f), "brain_method:high", "complex_method:warn"), false)
+}
+
+// hasAny reports whether the list holds one of the wanted codes.
+func hasAny(list []string, wanted ...string) bool {
+	for _, w := range wanted {
+		if contains(list, w) {
+			return true
+		}
+	}
+	return false
 }
 
 // TRLC-LINKS: REQ-EMG-150
 func TestLargeMethodSeverity(t *testing.T) {
 	s := shapes["go"]
 	for loc, want := range map[int]string{119: "large_method:warn", 120: "large_method:high"} {
-		f, _ := analyzeShape(t, s, 0, 0, s.fillersFor(0, 0, loc))
+		f, _ := analyzeShape(t, s, mix{0, 0, s.fillersFor(0, 0, loc)})
 		if f.LOC != loc || !reflect.DeepEqual(codesOf(f), []string{want}) {
 			t.Errorf("loc %d: findings %v, want %s", f.LOC, codesOf(f), want)
 		}
@@ -700,7 +737,7 @@ func TestBumpsAndBooleanAndArgumentSeverity(t *testing.T) {
 		{"cyclomatic nineteen", "func A(x *Box) {\n" + strings.Repeat("if x.a { f() }\n", 18) + "}\n", []string{"complex_method:warn"}},
 	}
 	for _, tc := range cases {
-		res := analyzeSource(t, "p.go", src(tc.body), health.Config{})
+		res := analyzeSource(t, health.FileInput{Path: "p.go", Source: src(tc.body)}, health.Config{})
 		if got := codesOf(function(t, res, "A")); !reflect.DeepEqual(got, tc.want) {
 			t.Errorf("%s: findings %v, want %v", tc.name, got, tc.want)
 		}
@@ -713,7 +750,7 @@ func TestAssertionBlockSeverityHigh(t *testing.T) {
 		return []byte("package p\n\nfunc TestA(t *testing.T) {\n" + strings.Repeat("\tt.Errorf(\"x\")\n", n) + "}\n")
 	}
 	for n, want := range map[int]string{9: "large_assertion_block:warn", 10: "large_assertion_block:high"} {
-		res := analyzeSource(t, "a_test.go", body(n), health.Config{})
+		res := analyzeSource(t, health.FileInput{Path: "a_test.go", Source: body(n)}, health.Config{})
 		if got := codesOf(function(t, res, "TestA")); !reflect.DeepEqual(got, []string{want}) {
 			t.Errorf("%d assertions: findings %v, want %s", n, got, want)
 		}
@@ -730,26 +767,18 @@ func TestConfigReplacesThresholds(t *testing.T) {
 		// Absent codes keep their defaults: BoolPos stays a finding.
 		health.CodeExcessArguments: {Warn: 4, High: 5},
 	}}
-	res := analyzeSource(t, "p.go", src, cfg)
-	if got := codesOf(function(t, res, "Constructs")); !reflect.DeepEqual(got, []string{"complex_method:high", "excess_arguments:warn"}) {
-		t.Errorf("Constructs findings = %v", got)
-	}
-	if got := codesOf(function(t, res, "CycPos")); len(got) != 0 {
-		t.Errorf("CycPos findings = %v, want none", got)
-	}
-	if got := codesOf(function(t, res, "BoolPos")); !reflect.DeepEqual(got, []string{"complex_conditional:warn"}) {
-		t.Errorf("BoolPos findings = %v", got)
-	}
-	if got := codesOf(function(t, res, "ArgsNeg")); !reflect.DeepEqual(got, []string{"excess_arguments:warn"}) {
-		t.Errorf("ArgsNeg (4 parameters, warn at 4) findings = %v", got)
-	}
-	if got := codesOf(function(t, res, "ArgsPos")); !reflect.DeepEqual(got, []string{"excess_arguments:high"}) {
-		t.Errorf("ArgsPos (5 parameters, high at 5) findings = %v", got)
+	res := analyzeSource(t, health.FileInput{Path: "p.go", Source: src}, cfg)
+	for name, want := range map[string]string{
+		"Constructs": "complex_method:high,excess_arguments:warn",
+		"CycPos":     "", // no finding any more
+		"BoolPos":    "complex_conditional:warn",
+		"ArgsNeg":    "excess_arguments:warn", // 4 parameters, warn at 4
+		"ArgsPos":    "excess_arguments:high", // 5 parameters, high at 5
+	} {
+		wantEqual(t, [2]string{name, strings.Join(codesOf(function(t, res, name)), ",")}, [2]string{name, want})
 	}
 	// The default map is not modified by a configuration.
-	if health.DefaultThresholds()[health.CodeComplexMethod].Warn != 10 {
-		t.Error("DefaultThresholds changed")
-	}
+	wantEqual(t, health.DefaultThresholds()[health.CodeComplexMethod].Warn, 10)
 }
 
 // TRLC-LINKS: REQ-EMG-159
@@ -764,41 +793,41 @@ func TestDeterministicOrder(t *testing.T) {
 		{Path: "a.js", Language: "javascript", Source: load(t, "js_smells.js")},
 	}
 	first, err := New().Analyze(inputs, health.Config{})
-	if err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, err, nil)
 	second, err := New().Analyze(inputs, health.Config{})
-	if err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, err, nil)
 	a, _ := json.Marshal(first)
 	b, _ := json.Marshal(second)
-	if string(a) != string(b) {
-		t.Fatal("two runs over the same input differ")
-	}
-	rank := map[string]int{}
-	for i, code := range health.Codes() {
-		rank[code] = i
-	}
+	mustEqual(t, string(a), string(b)) // two runs over the same input agree
 	for i, res := range first {
-		if res.Path != inputs[i].Path {
-			t.Errorf("file %d is %s, want input order %s", i, res.Path, inputs[i].Path)
-		}
-		line := 0
-		for _, f := range res.Functions {
-			if f.StartLine < line {
-				t.Errorf("%s: %s starts at %d before the previous function at %d", res.Path, f.Name, f.StartLine, line)
-			}
-			line = f.StartLine
-			last := -1
-			for _, finding := range f.Findings {
-				if rank[finding.Code] < last {
-					t.Errorf("%s: %s findings are not in the order of Codes()", res.Path, f.Name)
-				}
-				last = rank[finding.Code]
-			}
-		}
+		wantEqual(t, res.Path, inputs[i].Path) // input order
+		requireSourceOrder(t, res)
 	}
+}
+
+// requireSourceOrder checks that the functions of a result are in source order
+// and that the findings of each are in the order of Codes().
+func requireSourceOrder(t *testing.T, res health.FileResult) {
+	t.Helper()
+	line := 0
+	for _, f := range res.Functions {
+		wantEqual(t, [2]any{f.Name, f.StartLine >= line}, [2]any{f.Name, true})
+		line = f.StartLine
+		wantEqual(t, [2]any{f.Name, findingsInCodeOrder(f)}, [2]any{f.Name, true})
+	}
+}
+
+// findingsInCodeOrder reports whether the findings of a function follow the
+// order of Codes().
+func findingsInCodeOrder(f health.Function) bool {
+	last := -1
+	for _, finding := range f.Findings {
+		if codeRank[finding.Code] < last {
+			return false
+		}
+		last = codeRank[finding.Code]
+	}
+	return true
 }
 
 // TRLC-LINKS: REQ-EMG-150
@@ -817,8 +846,8 @@ func TestWindowsLineEndings(t *testing.T) {
 	} {
 		lf := load(t, tc.fixture)
 		crlf := []byte(strings.ReplaceAll(string(lf), "\n", "\r\n"))
-		a := analyzeSource(t, tc.path, lf, health.Config{})
-		b := analyzeSource(t, tc.path, crlf, health.Config{})
+		a := analyzeSource(t, health.FileInput{Path: tc.path, Source: lf}, health.Config{})
+		b := analyzeSource(t, health.FileInput{Path: tc.path, Source: crlf}, health.Config{})
 		if !reflect.DeepEqual(a, b) {
 			ja, _ := json.Marshal(a)
 			jb, _ := json.Marshal(b)
@@ -837,37 +866,36 @@ func TestLogicalLines(t *testing.T) {
 		"\r\n" +
 		"\treturn `raw\r\n\r\nstring`\r\n" +
 		"}\r\n"
-	res := analyzeSource(t, "a.go", []byte(src), health.Config{})
+	res := analyzeSource(t, health.FileInput{Path: "a.go", Source: []byte(src)}, health.Config{})
 	// Logical lines of the file: package, func, return `raw, string` and }.
 	// The block comment, the line comment, the blank lines and the blank line
 	// inside the raw string are not counted. Function A spans lines 5 to 11
 	// and holds func, return `raw, string` and }.
-	if res.LOC != 5 {
-		t.Errorf("file LOC = %d, want 5", res.LOC)
-	}
-	if f := function(t, res, "A"); f.LOC != 4 || f.StartLine != 5 || f.EndLine != 11 {
-		t.Errorf("A: loc %d lines %d-%d, want 4 logical lines in 5-11", f.LOC, f.StartLine, f.EndLine)
-	}
-	if res := analyzeSource(t, "a.go", []byte(""), health.Config{}); res.LOC != 0 || len(res.Functions) != 0 || res.Functions == nil {
-		t.Errorf("empty file: %+v", res)
-	}
+	wantEqual(t, res.LOC, 5)
+	f := function(t, res, "A")
+	wantEqual(t, [3]int{f.LOC, f.StartLine, f.EndLine}, [3]int{4, 5, 11})
+}
+
+// An empty file has no lines and an empty, not nil, list of functions.
+//
+// TRLC-LINKS: REQ-EMG-150
+func TestEmptyFileHasNoLines(t *testing.T) {
+	res := analyzeSource(t, health.FileInput{Path: "a.go", Source: []byte("")}, health.Config{})
+	wantEqual(t, [2]int{res.LOC, len(res.Functions)}, [2]int{0, 0})
+	wantEqual(t, res.Functions != nil, true)
 }
 
 // TRLC-LINKS: REQ-EMG-150
 func TestEngineIdentityAndErrors(t *testing.T) {
 	e := New()
-	if e.Name() != "treesitter" || e.Version() != "2" {
-		t.Errorf("Name %q Version %q", e.Name(), e.Version())
-	}
+	wantEqual(t, [2]string{e.Name(), e.Version()}, [2]string{"treesitter", "2"})
 	var _ health.Engine = e
-	if _, err := e.Analyze([]health.FileInput{{Path: "a.cob", Language: "cobol"}}, health.Config{}); err == nil {
-		t.Error("an unsupported language is an error")
-	}
+	_, err := e.Analyze([]health.FileInput{{Path: "a.cob", Language: "cobol"}}, health.Config{})
+	wantEqual(t, err != nil, true) // an unsupported language is an error
 	// The language is taken from the path when the input leaves it empty.
 	res, err := e.Analyze([]health.FileInput{{Path: "a.go", Source: []byte("package p\nfunc A() {}\n")}}, health.Config{})
-	if err != nil || len(res) != 1 || res[0].Language != "go" || len(res[0].Functions) != 1 {
-		t.Errorf("language from path: %v %+v", err, res)
-	}
+	mustEqual(t, [2]any{err, len(res)}, [2]any{nil, 1})
+	wantEqual(t, [2]any{res[0].Language, len(res[0].Functions)}, [2]any{"go", 1})
 }
 
 // TRLC-LINKS: REQ-EMG-159
@@ -913,25 +941,34 @@ func repositoryInputs(tb testing.TB) []health.FileInput {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() && d.Name() == "testdata" {
-			return filepath.SkipDir
+		in, ok, err := repositoryInput(root, path, d)
+		if ok {
+			inputs = append(inputs, in)
 		}
-		lang, ok := codemap.LanguageForPath(path)
-		if d.IsDir() || !ok {
-			return nil
-		}
-		src, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		rel, _ := filepath.Rel(root, path)
-		inputs = append(inputs, health.FileInput{Path: filepath.ToSlash(rel), Language: lang, Source: src})
-		return nil
+		return err
 	})
 	if err != nil {
 		tb.Fatal(err)
 	}
 	return inputs
+}
+
+// repositoryInput reads one source file of the walk; false for a directory and
+// a file of another language, and SkipDir for testdata.
+func repositoryInput(root, path string, d os.DirEntry) (health.FileInput, bool, error) {
+	if d.IsDir() && d.Name() == "testdata" {
+		return health.FileInput{}, false, filepath.SkipDir
+	}
+	lang, ok := codemap.LanguageForPath(path)
+	if d.IsDir() || !ok {
+		return health.FileInput{}, false, nil
+	}
+	src, err := os.ReadFile(path)
+	if err != nil {
+		return health.FileInput{}, false, err
+	}
+	rel, _ := filepath.Rel(root, path)
+	return health.FileInput{Path: filepath.ToSlash(rel), Language: lang, Source: src}, true, nil
 }
 
 // A source file of deeply nested syntax must not crash the engine, exhaust its
@@ -950,54 +987,89 @@ func TestDeeplyNestedSourcesDoNotCrashOrStall(t *testing.T) {
 	oldBudget := AnalysisBudget
 	AnalysisBudget = time.Second
 	t.Cleanup(func() { AnalysisBudget = oldBudget })
-	type source struct{ path, src string }
-	sources := func(depth int) map[string]source {
-		blocks := func(header, open, closer, footer string) string {
-			return header + strings.Repeat(open, depth) + "f()\n" + strings.Repeat(closer, depth) + footer
-		}
-		parens := func(header, footer string) string {
-			return header + strings.Repeat("(", depth) + "1" + strings.Repeat(")", depth) + footer
-		}
-		return map[string]source{
-			"go blocks":     {"deep.go", blocks("package p\nfunc f(x bool) {\n", "if x {\n", "}\n", "}\n")},
-			"go parens":     {"deep_parens.go", parens("package p\nfunc f() int { return ", " }\n")},
-			"rust blocks":   {"deep.rs", blocks("fn f(x: bool) {\n", "if x {\n", "}\n", "}\n")},
-			"rust parens":   {"deep_parens.rs", parens("fn f() -> i32 { ", " }\n")},
-			"ts blocks":     {"deep.ts", blocks("function f(x: boolean): void {\n", "if (x) {\n", "}\n", "}\n")},
-			"tsx parens":    {"deep_parens.tsx", parens("function f(): number { return ", "; }\n")},
-			"js blocks":     {"deep.js", blocks("function f(x) {\n", "if (x) {\n", "}\n", "}\n")},
-			"js parens":     {"deep_parens.js", parens("function f() { return ", "; }\n")},
-			"python calls":  {"deep_calls.py", "def f():\n    return " + strings.Repeat("g(", depth) + "1" + strings.Repeat(")", depth) + "\n"},
-			"python parens": {"deep_parens.py", parens("def f():\n    return ", "\n")},
-		}
+	t.Run("beyond the depth limit", func(t *testing.T) { requireDepthRefused(t, MaxSyntaxDepth*2) })
+	t.Run("below the depth limit", func(t *testing.T) { requireBoundedByBudget(t, MaxSyntaxDepth/4) })
+	t.Run("a 4 MiB file of opening brackets", requireHugeNestingRefused)
+}
+
+// nestedSource is a file of deeply nested syntax and the virtual path it has.
+type nestedSource struct{ path, src string }
+
+// blockShape is the text around a nested block of one language: the header of
+// the function, the opening and closing of one level and the footer.
+type blockShape struct{ header, open, closer, footer string }
+
+// blocks is a function with depth nested blocks.
+func (b blockShape) blocks(depth int) string {
+	return b.header + strings.Repeat(b.open, depth) + "f()\n" + strings.Repeat(b.closer, depth) + b.footer
+}
+
+// parens is header, depth nested parentheses around 1, and footer.
+func parens(header, footer string, depth int) string {
+	return header + strings.Repeat("(", depth) + "1" + strings.Repeat(")", depth) + footer
+}
+
+// nestedSources builds one deeply nested file for each construct of each
+// language.
+func nestedSources(depth int) map[string]nestedSource {
+	return map[string]nestedSource{
+		"go blocks":     {"deep.go", blockShape{"package p\nfunc f(x bool) {\n", "if x {\n", "}\n", "}\n"}.blocks(depth)},
+		"go parens":     {"deep_parens.go", parens("package p\nfunc f() int { return ", " }\n", depth)},
+		"rust blocks":   {"deep.rs", blockShape{"fn f(x: bool) {\n", "if x {\n", "}\n", "}\n"}.blocks(depth)},
+		"rust parens":   {"deep_parens.rs", parens("fn f() -> i32 { ", " }\n", depth)},
+		"ts blocks":     {"deep.ts", blockShape{"function f(x: boolean): void {\n", "if (x) {\n", "}\n", "}\n"}.blocks(depth)},
+		"tsx parens":    {"deep_parens.tsx", parens("function f(): number { return ", "; }\n", depth)},
+		"js blocks":     {"deep.js", blockShape{"function f(x) {\n", "if (x) {\n", "}\n", "}\n"}.blocks(depth)},
+		"js parens":     {"deep_parens.js", parens("function f() { return ", "; }\n", depth)},
+		"python calls":  {"deep_calls.py", "def f():\n    return " + strings.Repeat("g(", depth) + "1" + strings.Repeat(")", depth) + "\n"},
+		"python parens": {"deep_parens.py", parens("def f():\n    return ", "\n", depth)},
 	}
-	analyze := func(t *testing.T, c source) (time.Duration, error) {
-		start := time.Now()
-		_, err := New().Analyze([]health.FileInput{{Path: c.path, Language: languageOf(t, c.path), Source: []byte(c.src)}}, health.Config{})
-		return time.Since(start), err
+}
+
+// analyzeNested analyses a file of nested syntax and returns the time it took
+// and the error.
+func analyzeNested(t *testing.T, c nestedSource) (time.Duration, error) {
+	start := time.Now()
+	_, err := New().Analyze([]health.FileInput{{Path: c.path, Language: languageOf(t, c.path), Source: []byte(c.src)}}, health.Config{})
+	return time.Since(start), err
+}
+
+// requireDepthRefused checks that every nested file of the depth is refused
+// with an error that names the depth.
+func requireDepthRefused(t *testing.T, depth int) {
+	t.Helper()
+	for name, c := range nestedSources(depth) {
+		_, err := analyzeNested(t, c)
+		mustEqual(t, [2]any{name, err != nil}, [2]any{name, true})
+		wantContains(t, err.Error(), "levels deep")
 	}
-	t.Run("beyond the depth limit", func(t *testing.T) {
-		for name, c := range sources(MaxSyntaxDepth * 2) {
-			if _, err := analyze(t, c); err == nil || !strings.Contains(err.Error(), "levels deep") {
-				t.Errorf("%s: err = %v, want a refusal naming the depth", name, err)
-			}
-		}
-	})
-	t.Run("below the depth limit", func(t *testing.T) {
-		for name, c := range sources(MaxSyntaxDepth / 4) {
-			// An error (the budget) is as good as a result; a stall is not.
-			if elapsed, err := analyze(t, c); elapsed > 15*time.Second {
-				t.Errorf("%s: took %s (error %v), want it bounded by the budget", name, elapsed, err)
-			}
-		}
-	})
-	t.Run("a 4 MiB file of opening brackets", func(t *testing.T) {
-		const depth = 2000000
-		c := source{"huge.go", "package p\nfunc f() int { return " + strings.Repeat("(", depth) + "1" + strings.Repeat(")", depth) + " }\n"}
-		if _, err := analyze(t, c); err == nil || !strings.Contains(err.Error(), "levels deep") {
-			t.Errorf("err = %v, want a refusal naming the depth", err)
-		}
-	})
+}
+
+// requireBoundedByBudget checks that every nested file of the depth is
+// analysed within the time the budget bounds. An error (the budget) is as good
+// as a result; a stall is not.
+func requireBoundedByBudget(t *testing.T, depth int) {
+	t.Helper()
+	for name, c := range nestedSources(depth) {
+		elapsed, _ := analyzeNested(t, c)
+		wantEqual(t, [2]any{name, elapsed > 15*time.Second}, [2]any{name, false})
+	}
+}
+
+// requireHugeNestingRefused checks that a 4 MiB file of opening brackets is
+// refused with an error that names the depth.
+func requireHugeNestingRefused(t *testing.T) {
+	// The parse of 4 MiB takes about 8 s on an idle machine, near the 10 s of ParseTimeout, so under load the
+	// parse was cancelled before the depth check could refuse the file and the test failed on the wrong error.
+	// A generous parse timeout keeps the refusal under test independent of the load.
+	oldTimeout := codemap.ParseTimeout
+	codemap.ParseTimeout = 3 * time.Minute
+	t.Cleanup(func() { codemap.ParseTimeout = oldTimeout })
+	const depth = 2000000
+	c := nestedSource{"huge.go", "package p\nfunc f() int { return " + strings.Repeat("(", depth) + "1" + strings.Repeat(")", depth) + " }\n"}
+	_, err := analyzeNested(t, c)
+	mustEqual(t, err != nil, true)
+	wantContains(t, err.Error(), "levels deep")
 }
 
 // A long flat file (many statements, many functions, many parameters) is
@@ -1017,7 +1089,7 @@ func TestLongFlatSourcesAreAnalysed(t *testing.T) {
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			start := time.Now()
-			res := analyzeSource(t, c.path, []byte(c.src), health.Config{})
+			res := analyzeSource(t, health.FileInput{Path: c.path, Source: []byte(c.src)}, health.Config{})
 			if len(res.Functions) != c.functions {
 				t.Errorf("found %d functions, want %d", len(res.Functions), c.functions)
 			}
@@ -1054,29 +1126,24 @@ func TestExhaustedBudgetIsAnError(t *testing.T) {
 func TestHighSeverityInEveryLanguage(t *testing.T) {
 	for _, name := range shapeOrder {
 		s := shapes[name]
-		t.Run(name, func(t *testing.T) {
-			// 5 nested ifs: depth 5 (high), cyclomatic 1 + 5 + 14 flat = 20 (high).
-			f, _ := analyzeShape(t, s, 5, 14, 0)
-			if f.MaxNesting != 5 || f.Cyclomatic != 20 {
-				t.Fatalf("nesting %d cyclomatic %d, want 5 and 20", f.MaxNesting, f.Cyclomatic)
-			}
-			got := codesOf(f)
-			for _, want := range []string{"deep_nesting:high", "complex_method:high"} {
-				if !contains(got, want) {
-					t.Errorf("findings %v lack %s", got, want)
-				}
-			}
-			// One step below each limit: warn, not high.
-			f, _ = analyzeShape(t, s, 4, 14, 0)
-			if got := codesOf(f); !contains(got, "deep_nesting:warn") || contains(got, "deep_nesting:high") {
-				t.Errorf("depth 4 findings %v, want deep_nesting:warn only", got)
-			}
-			f, _ = analyzeShape(t, s, 5, 13, 0)
-			if f.Cyclomatic != 19 || !contains(codesOf(f), "complex_method:warn") || contains(codesOf(f), "complex_method:high") {
-				t.Errorf("cyclomatic %d findings %v, want complex_method:warn only", f.Cyclomatic, codesOf(f))
-			}
-		})
+		t.Run(name, func(t *testing.T) { requireHighSeverity(t, s) })
 	}
+}
+
+// requireHighSeverity checks the findings of a shape at the high limits and one
+// step below each.
+func requireHighSeverity(t *testing.T, s shape) {
+	t.Helper()
+	// 5 nested ifs: depth 5 (high), cyclomatic 1 + 5 + 14 flat = 20 (high).
+	f, _ := analyzeShape(t, s, mix{5, 14, 0})
+	mustEqual(t, [2]int{f.MaxNesting, f.Cyclomatic}, [2]int{5, 20})
+	wantAll(t, strings.Join(codesOf(f), ","), "deep_nesting:high", "complex_method:high")
+	// One step below each limit: warn, not high.
+	f, _ = analyzeShape(t, s, mix{4, 14, 0})
+	wantEqual(t, [2]bool{contains(codesOf(f), "deep_nesting:warn"), contains(codesOf(f), "deep_nesting:high")}, [2]bool{true, false})
+	f, _ = analyzeShape(t, s, mix{5, 13, 0})
+	wantEqual(t, f.Cyclomatic, 19)
+	wantEqual(t, [2]bool{contains(codesOf(f), "complex_method:warn"), contains(codesOf(f), "complex_method:high")}, [2]bool{true, false})
 }
 
 // A named nested unit is reported on its own, so its rows are not counted again
@@ -1089,15 +1156,29 @@ func TestHighSeverityInEveryLanguage(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-150, REQ-EMG-159
 func TestNestedUnitsLinesAreNotCountedTwice(t *testing.T) {
-	body := func(indent, line string, n int) string {
-		return strings.Repeat(indent+line+"\n", n)
+	for _, tc := range nestedUnitCases() {
+		t.Run(tc.name, func(t *testing.T) { requireNestedUnits(t, tc) })
 	}
-	cases := []struct {
-		name, path, src   string
-		outer, mid, inner string
-		outerLOC, midLOC  int
-		innerLOC          int
-	}{
+}
+
+// nestedUnitCase is a source with an outer function, a named closure in it and
+// a named closure in that, and the logical lines each owns.
+type nestedUnitCase struct {
+	name, path, src   string
+	outer, mid, inner string
+	outerLOC, midLOC  int
+	innerLOC          int
+}
+
+// repeatLine is n lines with the indent.
+func repeatLine(indent, line string, n int) string {
+	return strings.Repeat(indent+line+"\n", n)
+}
+
+// nestedUnitCases is the source of each language with the expected lines.
+func nestedUnitCases() []nestedUnitCase {
+	body := repeatLine
+	return []nestedUnitCase{
 		{
 			name: "go", path: "a.go",
 			src: "package p\n\nfunc Outer() {\n\tmid := func() {\n" + body("\t\t", "work()", 50) +
@@ -1135,32 +1216,26 @@ func TestNestedUnitsLinesAreNotCountedTwice(t *testing.T) {
 			outerLOC: 2, midLOC: 56, innerLOC: 4,
 		},
 	}
-	for _, tc := range cases {
-		t.Run(tc.name, func(t *testing.T) {
-			res := analyzeSource(t, tc.path, []byte(tc.src), health.Config{})
-			outer, mid, inner := function(t, res, tc.outer), function(t, res, tc.mid), function(t, res, tc.inner)
-			if outer.LOC != tc.outerLOC || mid.LOC != tc.midLOC || inner.LOC != tc.innerLOC {
-				t.Errorf("loc outer %d mid %d inner %d, want %d %d %d", outer.LOC, mid.LOC, inner.LOC, tc.outerLOC, tc.midLOC, tc.innerLOC)
-			}
-			if outer.LOC > 15 {
-				t.Errorf("outer has %d lines of its own, want a small function", outer.LOC)
-			}
-			for _, finding := range outer.Findings {
-				if finding.Code == health.CodeLargeMethod || finding.Code == health.CodeBrainMethod {
-					t.Errorf("%s: %s although only %d lines are its own", outer.Name, finding.Code, outer.LOC)
-				}
-			}
-			// The lines of the units add up to the lines of the file (the Go file
-			// also holds its package clause): nothing is counted twice or lost.
-			sum := outer.LOC + mid.LOC + inner.LOC
-			if tc.name == "go" {
-				sum++
-			}
-			if sum != res.LOC {
-				t.Errorf("the units hold %d lines, the file %d", sum, res.LOC)
-			}
-		})
+}
+
+// requireNestedUnits checks the lines of the three units of a case, that the
+// outer function is no large method and that the units add up to the file.
+func requireNestedUnits(t *testing.T, tc nestedUnitCase) {
+	t.Helper()
+	res := analyzeSource(t, health.FileInput{Path: tc.path, Source: []byte(tc.src)}, health.Config{})
+	outer, mid, inner := function(t, res, tc.outer), function(t, res, tc.mid), function(t, res, tc.inner)
+	wantEqual(t, [3]int{outer.LOC, mid.LOC, inner.LOC}, [3]int{tc.outerLOC, tc.midLOC, tc.innerLOC})
+	wantEqual(t, outer.LOC > 15, false) // a small function
+	for _, finding := range outer.Findings {
+		wantEqual(t, finding.Code == health.CodeLargeMethod || finding.Code == health.CodeBrainMethod, false)
 	}
+	// The lines of the units add up to the lines of the file (the Go file
+	// also holds its package clause): nothing is counted twice or lost.
+	sum := outer.LOC + mid.LOC + inner.LOC
+	if tc.name == "go" {
+		sum++
+	}
+	wantEqual(t, sum, res.LOC)
 }
 
 // Units that share a row, and a unit that ends where the next begins, are
@@ -1169,7 +1244,7 @@ func TestNestedUnitsLinesAreNotCountedTwice(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-150
 func TestNestedUnitsOnOneRowAreSubtractedOnce(t *testing.T) {
 	src := "function outer() {\n  const a = () => 1, b = () => 2;\n  const c = () => {\n    return 3;\n  };\n  return a() + b() + c();\n}\n"
-	res := analyzeSource(t, "a.js", []byte(src), health.Config{})
+	res := analyzeSource(t, health.FileInput{Path: "a.js", Source: []byte(src)}, health.Config{})
 	if got := function(t, res, "outer").LOC; got != 3 {
 		t.Errorf("outer: loc %d, want 3 (header, return, closing brace)", got)
 	}
@@ -1195,10 +1270,10 @@ func TestSyntaxErrorsAreCounted(t *testing.T) {
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			if got := analyzeSource(t, tc.path, []byte(tc.clean), health.Config{}).SyntaxErrors; got != 0 {
+			if got := analyzeSource(t, health.FileInput{Path: tc.path, Source: []byte(tc.clean)}, health.Config{}).SyntaxErrors; got != 0 {
 				t.Errorf("clean source: %d syntax errors", got)
 			}
-			res := analyzeSource(t, tc.path, []byte(tc.broken), health.Config{})
+			res := analyzeSource(t, health.FileInput{Path: tc.path, Source: []byte(tc.broken)}, health.Config{})
 			if res.SyntaxErrors == 0 {
 				t.Errorf("broken source reads as clean: %+v", res)
 			}
@@ -1208,7 +1283,7 @@ func TestSyntaxErrorsAreCounted(t *testing.T) {
 		})
 	}
 	many := strings.Repeat("func ( {\n", 3*health.SyntaxErrorCap)
-	if got := analyzeSource(t, "a.go", []byte("package p\n\n"+many), health.Config{}).SyntaxErrors; got < 1 || got > health.SyntaxErrorCap {
+	if got := analyzeSource(t, health.FileInput{Path: "a.go", Source: []byte("package p\n\n" + many)}, health.Config{}).SyntaxErrors; got < 1 || got > health.SyntaxErrorCap {
 		t.Errorf("the count %d must stay within the cap %d", got, health.SyntaxErrorCap)
 	}
 }

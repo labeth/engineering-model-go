@@ -129,33 +129,47 @@ func WriteDiagnostic(w io.Writer, d Diagnostic) {
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-012
 func SortDiagnostics(in []Diagnostic) []Diagnostic {
 	out := append([]Diagnostic(nil), in...)
-	sort.SliceStable(out, func(i, j int) bool {
-		a := out[i]
-		b := out[j]
-		if a.Path != b.Path {
-			return a.Path < b.Path
-		}
-		if a.Code != b.Code {
-			return a.Code < b.Code
-		}
-		if a.Message != b.Message {
-			return a.Message < b.Message
-		}
-		return string(a.Severity) < string(b.Severity)
-	})
+	sort.SliceStable(out, func(i, j int) bool { return diagnosticLess(out[i], out[j]) })
 	if len(out) < 2 {
 		return out
 	}
 	unique := out[:0]
 	var prev Diagnostic
 	for i, d := range out {
-		if i > 0 && d.Code == prev.Code && d.Severity == prev.Severity && d.Message == prev.Message && d.Path == prev.Path {
+		if i > 0 && sameDiagnostic(d, prev) {
 			continue
 		}
 		unique = append(unique, d)
 		prev = d
 	}
 	return unique
+}
+
+// diagnosticLess orders diagnostics by path, code, message and severity.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-012
+func diagnosticLess(a, b Diagnostic) bool {
+	if a.Path != b.Path {
+		return a.Path < b.Path
+	}
+	if a.Code != b.Code {
+		return a.Code < b.Code
+	}
+	if a.Message != b.Message {
+		return a.Message < b.Message
+	}
+	return string(a.Severity) < string(b.Severity)
+}
+
+// sameDiagnostic reports whether two diagnostics agree in code, severity, message and path.
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-009, REQ-EMG-011, REQ-EMG-012
+func sameDiagnostic(a, b Diagnostic) bool {
+	type key struct {
+		code, message, path string
+		severity            Severity
+	}
+	return key{a.Code, a.Message, a.Path, a.Severity} == key{b.Code, b.Message, b.Path, b.Severity}
 }
 
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-VALID, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED

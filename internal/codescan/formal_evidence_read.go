@@ -154,25 +154,30 @@ func ReadFormalEvidence(baseDir string, files []string) []FormalEntry {
 		}
 		out = append(out, entries...)
 	}
-	sort.SliceStable(out, func(i, j int) bool {
-		a, b := out[i], out[j]
-		switch {
-		case a.Requirement != b.Requirement:
-			return a.Requirement < b.Requirement
-		case a.Machine != b.Machine:
-			return a.Machine < b.Machine
-		case a.Invariant != b.Invariant:
-			return a.Invariant < b.Invariant
-		case a.Evidence != b.Evidence:
-			return a.Evidence < b.Evidence
-		case a.QntFile != b.QntFile:
-			return a.QntFile < b.QntFile
-		case a.Mode != b.Mode:
-			return a.Mode < b.Mode
-		}
-		return a.Result < b.Result
-	})
+	sort.SliceStable(out, func(i, j int) bool { return formalEntryLess(out[i], out[j]) })
 	return out
+}
+
+// formalEntryLess orders entries by requirement, machine, invariant, evidence
+// file, module, mode and result.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func formalEntryLess(a, b FormalEntry) bool {
+	order := []int{
+		strings.Compare(a.Requirement, b.Requirement),
+		strings.Compare(a.Machine, b.Machine),
+		strings.Compare(a.Invariant, b.Invariant),
+		strings.Compare(a.Evidence, b.Evidence),
+		strings.Compare(a.QntFile, b.QntFile),
+		strings.Compare(a.Mode, b.Mode),
+		strings.Compare(a.Result, b.Result),
+	}
+	for _, c := range order {
+		if c != 0 {
+			return c < 0
+		}
+	}
+	return false
 }
 
 // formalFileEntry is the JSON of one results[] entry.
@@ -209,32 +214,55 @@ func readFormalEvidenceFile(modules *formalModules, path, rel string) ([]FormalE
 	}
 	var out []FormalEntry
 	for _, e := range file.Results {
-		req := strings.TrimSpace(e.Requirement)
-		if req == "" {
-			continue
+		if entry, ok := newFormalEntry(e, rel); ok {
+			out = append(out, modules.evaluate(entry))
 		}
-		entry := FormalEntry{
-			Requirement: req, Machine: strings.TrimSpace(e.Machine), Invariant: strings.TrimSpace(e.Invariant),
-			Mode: strings.TrimSpace(e.Mode), Status: NormalizeResultStatus(e.Status),
-			QntFile: strings.TrimSpace(e.QntFile), QntSha256: strings.ToLower(strings.TrimSpace(e.QntSha256)),
-			Evidence: rel, Notes: strings.TrimSpace(e.Notes),
-		}
-		switch entry.Status {
-		case "pass":
-			entry.Result = FormalPass
-		case "fail", "blocked", "partial", "flaky":
-			entry.Result = FormalFailed
-		default:
-			entry.Result = FormalNotRun
-		}
-		if reason := modules.staleReason(entry); reason != "" {
-			entry.Result = FormalStale
-			entry.StaleReason = reason
-			entry.Notes = "stale: " + reason + "; rerun engquint check"
-		}
-		out = append(out, entry)
 	}
 	return out, nil
+}
+
+// newFormalEntry converts one results[] entry; false when it has no requirement.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func newFormalEntry(e formalFileEntry, rel string) (FormalEntry, bool) {
+	req := strings.TrimSpace(e.Requirement)
+	if req == "" {
+		return FormalEntry{}, false
+	}
+	entry := FormalEntry{
+		Requirement: req, Machine: strings.TrimSpace(e.Machine), Invariant: strings.TrimSpace(e.Invariant),
+		Mode: strings.TrimSpace(e.Mode), Status: NormalizeResultStatus(e.Status),
+		QntFile: strings.TrimSpace(e.QntFile), QntSha256: strings.ToLower(strings.TrimSpace(e.QntSha256)),
+		Evidence: rel, Notes: strings.TrimSpace(e.Notes),
+	}
+	entry.Result = formalResultOf(entry.Status)
+	return entry, true
+}
+
+// formalResultOf maps a normalised status to FormalPass, FormalFailed or FormalNotRun.
+//
+// TRLC-LINKS: REQ-EMG-145, REQ-EMG-146
+func formalResultOf(status string) string {
+	switch status {
+	case "pass":
+		return FormalPass
+	case "fail", "blocked", "partial", "flaky":
+		return FormalFailed
+	default:
+		return FormalNotRun
+	}
+}
+
+// evaluate marks an entry stale, with its reason and a rerun hint, when its module is not current.
+//
+// TRLC-LINKS: REQ-EMG-145
+func (m *formalModules) evaluate(entry FormalEntry) FormalEntry {
+	if reason := m.staleReason(entry); reason != "" {
+		entry.Result = FormalStale
+		entry.StaleReason = reason
+		entry.Notes = "stale: " + reason + "; rerun engquint check"
+	}
+	return entry
 }
 
 // FormalStaleReason returns why an entry is stale, or "" when it is current.
@@ -333,7 +361,10 @@ func generatedModuleOf(header, machine string) bool {
 		return false
 	}
 	rest, ok = strings.CutPrefix(rest, machine)
-	return ok && (rest == "" || rest[0] == ';' || rest[0] == ' ')
+	if !ok {
+		return false
+	}
+	return rest == "" || rest[0] == ';' || rest[0] == ' '
 }
 
 // load reads and hashes the module named by a qntFile of an evidence entry.
@@ -342,33 +373,69 @@ func generatedModuleOf(header, machine string) bool {
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
 // TRLC-LINKS: REQ-EMG-145
 func (m *formalModules) load(file string) formalModule {
-	native := filepath.FromSlash(file)
-	if filepath.IsAbs(native) || filepath.VolumeName(native) != "" || strings.HasPrefix(file, "/") || strings.HasPrefix(file, `\`) || !filepath.IsLocal(native) {
+	if !isLocalModulePath(file) {
 		return formalModule{reason: fmt.Sprintf("qntFile %s is not a local path relative to the model root", file)}
 	}
-	if m.rootErr != nil {
-		return formalModule{reason: fmt.Sprintf("module %s is missing", file)}
-	}
-	real, err := filepath.EvalSymlinks(filepath.Join(m.root, native))
-	if err != nil {
-		return formalModule{reason: fmt.Sprintf("module %s is missing", file)}
-	}
-	if rel, err := filepath.Rel(m.rootDir, real); err != nil || !filepath.IsLocal(rel) {
-		return formalModule{reason: fmt.Sprintf("module %s resolves outside the model root", file)}
+	real, reason := m.resolveModule(file)
+	if reason != "" {
+		return formalModule{reason: reason}
 	}
 	data, err := readCappedFile(real, maxFormalModuleBytes)
-	switch {
-	case errors.Is(err, errNotRegular):
-		return formalModule{reason: fmt.Sprintf("module %s is not a regular file", file)}
-	case errors.Is(err, errTooLarge):
-		return formalModule{reason: fmt.Sprintf("module %s is larger than %d MiB", file, maxFormalModuleBytes>>20)}
-	case err != nil:
-		return formalModule{reason: fmt.Sprintf("module %s is unreadable", file)}
+	if err != nil {
+		return formalModule{reason: moduleReadReason(file, err)}
 	}
 	data = bytes.ReplaceAll(data, []byte("\r\n"), []byte("\n"))
 	sum := sha256.Sum256(data)
 	header, _, _ := bytes.Cut(data, []byte("\n"))
 	return formalModule{sha: hex.EncodeToString(sum[:]), header: string(header)}
+}
+
+// isLocalModulePath reports whether a qntFile is a relative path without a
+// volume or a leading separator that stays below the model root.
+//
+// TRLC-LINKS: REQ-EMG-145
+func isLocalModulePath(file string) bool {
+	native := filepath.FromSlash(file)
+	if filepath.IsAbs(native) || filepath.VolumeName(native) != "" {
+		return false
+	}
+	if strings.HasPrefix(file, "/") || strings.HasPrefix(file, `\`) {
+		return false
+	}
+	return filepath.IsLocal(native)
+}
+
+// resolveModule resolves a local qntFile with symbolic links to a path inside
+// the model root; the reason is set when it is missing or lies outside.
+//
+// TRLC-LINKS: REQ-EMG-145
+func (m *formalModules) resolveModule(file string) (string, string) {
+	missing := fmt.Sprintf("module %s is missing", file)
+	if m.rootErr != nil {
+		return "", missing
+	}
+	real, err := filepath.EvalSymlinks(filepath.Join(m.root, filepath.FromSlash(file)))
+	if err != nil {
+		return "", missing
+	}
+	if rel, err := filepath.Rel(m.rootDir, real); err != nil || !filepath.IsLocal(rel) {
+		return "", fmt.Sprintf("module %s resolves outside the model root", file)
+	}
+	return real, ""
+}
+
+// moduleReadReason is the stale reason for a module that could not be read.
+//
+// TRLC-LINKS: REQ-EMG-145
+func moduleReadReason(file string, err error) string {
+	switch {
+	case errors.Is(err, errNotRegular):
+		return fmt.Sprintf("module %s is not a regular file", file)
+	case errors.Is(err, errTooLarge):
+		return fmt.Sprintf("module %s is larger than %d MiB", file, maxFormalModuleBytes>>20)
+	default:
+		return fmt.Sprintf("module %s is unreadable", file)
+	}
 }
 
 var (
@@ -384,21 +451,11 @@ var (
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE
 // TRLC-LINKS: REQ-EMG-145
 func readCappedFile(path string, limit int64) ([]byte, error) {
-	if info, err := os.Stat(path); err == nil && !info.Mode().IsRegular() {
-		return nil, errNotRegular
-	}
-	f, err := os.Open(path)
+	f, err := openRegular(path)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	info, err := f.Stat()
-	if err != nil {
-		return nil, err
-	}
-	if !info.Mode().IsRegular() {
-		return nil, errNotRegular
-	}
 	data, err := io.ReadAll(io.LimitReader(f, limit+1))
 	if err != nil {
 		return nil, err
@@ -407,4 +464,27 @@ func readCappedFile(path string, limit int64) ([]byte, error) {
 		return nil, errTooLarge
 	}
 	return data, nil
+}
+
+// openRegular opens a regular file without waiting on a special file: a file
+// that is not regular is refused before and after opening.
+//
+// TRLC-LINKS: REQ-EMG-145
+func openRegular(path string) (*os.File, error) {
+	if info, err := os.Stat(path); err == nil && !info.Mode().IsRegular() {
+		return nil, errNotRegular
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	info, err := f.Stat()
+	if err == nil && !info.Mode().IsRegular() {
+		err = errNotRegular
+	}
+	if err != nil {
+		f.Close()
+		return nil, err
+	}
+	return f, nil
 }

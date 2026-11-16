@@ -20,6 +20,55 @@ func writeWorkspaceFixture(t *testing.T, path, module string) {
 	}
 }
 
+// workspaceProbe searches for the workspace file from one project directory
+// and fails its test on an unexpected outcome.
+type workspaceProbe struct {
+	t       *testing.T
+	project string
+}
+
+// at fails unless the search finds the workspace file at want without error.
+func (p workspaceProbe) at(label, want string) WorkspaceDocument {
+	p.t.Helper()
+	ws, path, err := FindWorkspace(p.project)
+	if err != nil || path != want {
+		p.t.Fatalf("%s: path=%q err=%v", label, path, err)
+	}
+	return ws
+}
+
+// none fails unless the search finds no workspace.
+func (p workspaceProbe) none(label string) {
+	p.t.Helper()
+	ws, path, err := FindWorkspace(p.project)
+	if err != nil || path != "" || len(ws.Replacements) != 0 {
+		p.t.Fatalf("%s: ws=%+v path=%q err=%v", label, ws, path, err)
+	}
+}
+
+// refused fails unless the search is refused with an error that names every
+// one of the fragments.
+func (p workspaceProbe) refused(label string, fragments ...string) {
+	p.t.Helper()
+	_, path, err := FindWorkspace(p.project)
+	if err == nil || path != "" {
+		p.t.Fatalf("%s: path=%q err=%v", label, path, err)
+	}
+	for _, fragment := range fragments {
+		if !strings.Contains(err.Error(), fragment) {
+			p.t.Fatalf("%s: error %q does not name %q", label, err, fragment)
+		}
+	}
+}
+
+// explicit fails unless FindWorkspaceWith resolves mode to want.
+func (p workspaceProbe) explicit(mode, want string) {
+	p.t.Helper()
+	if _, path, err := FindWorkspaceWith(p.project, mode); err != nil || path != want {
+		p.t.Fatalf("FindWorkspaceWith %q: path=%q err=%v", mode, path, err)
+	}
+}
+
 // TestFindWorkspaceHonoursEngmodWork verifies ENGMOD_WORK=off ignores a parent
 // workspace, ENGMOD_WORK=<path> uses that file without the parent search, a
 // missing path is an error, and the programmatic mode overrides the variable.
@@ -35,20 +84,17 @@ func TestFindWorkspaceHonoursEngmodWork(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	probe := workspaceProbe{t: t, project: project}
 	t.Setenv(WorkspaceEnv, "")
-	if _, path, err := FindWorkspace(project); err != nil || path != filepath.Join(root, WorkspaceFileName) {
-		t.Fatalf("unset: path=%q err=%v", path, err)
-	}
+	probe.at("unset", filepath.Join(root, WorkspaceFileName))
 
 	t.Setenv(WorkspaceEnv, "off")
-	if ws, path, err := FindWorkspace(project); err != nil || path != "" || len(ws.Replacements) != 0 {
-		t.Fatalf("off: ws=%+v path=%q err=%v", ws, path, err)
-	}
+	probe.none("off")
 
 	t.Setenv(WorkspaceEnv, explicit)
-	ws, path, err := FindWorkspace(project)
-	if err != nil || path != explicit || len(ws.Replacements) != 1 || ws.Replacements[0].Module != "example.com/explicit@v0" {
-		t.Fatalf("path: ws=%+v path=%q err=%v", ws, path, err)
+	ws := probe.at("path", explicit)
+	if len(ws.Replacements) != 1 || ws.Replacements[0].Module != "example.com/explicit@v0" {
+		t.Fatalf("path: ws=%+v", ws)
 	}
 
 	t.Setenv(WorkspaceEnv, filepath.Join(root, "missing.yml"))
@@ -57,13 +103,9 @@ func TestFindWorkspaceHonoursEngmodWork(t *testing.T) {
 	}
 
 	// The explicit mode wins over the environment.
-	if _, path, err := FindWorkspaceWith(project, "off"); err != nil || path != "" {
-		t.Fatalf("FindWorkspaceWith off: path=%q err=%v", path, err)
-	}
+	probe.explicit("off", "")
 	t.Setenv(WorkspaceEnv, "off")
-	if _, path, err := FindWorkspaceWith(project, explicit); err != nil || path != explicit {
-		t.Fatalf("FindWorkspaceWith path: path=%q err=%v", path, err)
-	}
+	probe.explicit(explicit, explicit)
 }
 
 // An engmod.work.yml found by the upward search that another user could
@@ -81,19 +123,14 @@ func TestFindWorkspaceRefusesUntrustedUpwardFile(t *testing.T) {
 	if err := os.MkdirAll(project, 0o755); err != nil {
 		t.Fatal(err)
 	}
+	probe := workspaceProbe{t: t, project: project}
 	t.Setenv(WorkspaceEnv, "")
-	if _, path, err := FindWorkspace(project); err != nil || path != work {
-		t.Fatalf("own file: path=%q err=%v", path, err)
-	}
+	probe.at("own file", work)
 	if err := os.Chmod(work, 0o666); err != nil {
 		t.Fatal(err)
 	}
-	if _, path, err := FindWorkspace(project); err == nil || path != "" || !strings.Contains(err.Error(), "world-writable") || !strings.Contains(err.Error(), WorkspaceEnv) {
-		t.Fatalf("world-writable file: path=%q err=%v", path, err)
-	}
-	if _, path, err := FindWorkspaceWith(project, work); err != nil || path != work {
-		t.Fatalf("explicit world-writable file: path=%q err=%v", path, err)
-	}
+	probe.refused("world-writable file", "world-writable", WorkspaceEnv)
+	probe.explicit(work, work)
 	if err := os.Chmod(work, 0o644); err != nil {
 		t.Fatal(err)
 	}
@@ -103,7 +140,5 @@ func TestFindWorkspaceRefusesUntrustedUpwardFile(t *testing.T) {
 	old := currentUID
 	currentUID = func() int { return old() + 4242 }
 	t.Cleanup(func() { currentUID = old })
-	if _, path, err := FindWorkspace(project); err == nil || path != "" || !strings.Contains(err.Error(), "not owned") {
-		t.Fatalf("file of another user: path=%q err=%v", path, err)
-	}
+	probe.refused("file of another user", "not owned")
 }

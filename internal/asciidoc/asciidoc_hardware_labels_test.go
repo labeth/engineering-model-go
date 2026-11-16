@@ -9,6 +9,23 @@ import (
 	"github.com/labeth/engineering-model-go/internal/model"
 )
 
+// hardwarePublication is the graph and the chapter of a hardware publication.
+type hardwarePublication struct {
+	graph   string
+	chapter string
+}
+
+// requireAllocationsOutsideGraph fails the test for a hosted unit that appears
+// in the graph or is missing from the chapter table.
+func (h hardwarePublication) requireAllocationsOutsideGraph(t *testing.T, hosts []string) {
+	t.Helper()
+	for _, id := range hosts {
+		if strings.Contains(h.graph, id) || !strings.Contains(h.chapter, id) {
+			t.Fatalf("allocation %s must remain in the table, outside the graph label", id)
+		}
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-024
 func TestHardwarePublicationPreservesLargeAllocationsOutsideGraphLabels(t *testing.T) {
 	hosts := make([]string, 80)
@@ -24,19 +41,9 @@ func TestHardwarePublicationPreservesLargeAllocationsOutsideGraphLabels(t *testi
 	}}}
 	graph := compositionHardwareMermaid(bundle)
 	chapter := renderCompositionAsciiDocChapter(bundle)
-	for _, id := range hosts {
-		if strings.Contains(graph, id) || !strings.Contains(chapter, id) {
-			t.Fatalf("allocation %s must remain in the table, outside the graph label", id)
-		}
-	}
-	for _, want := range []string{`["HW-FPGA: Acquisition FPGA"]`, `["HW-RAM"]`, " -->|parallel| "} {
-		if !strings.Contains(graph, want) {
-			t.Fatalf("hardware identity or interface missing: %q\n%s", want, graph)
-		}
-	}
-	if !strings.Contains(chapter, "Hardware Items table lists every hosted unit") {
-		t.Fatal("diagram must direct readers to full allocation details")
-	}
+	hardwarePublication{graph: graph, chapter: chapter}.requireAllocationsOutsideGraph(t, hosts)
+	about(t, graph).hasShowing("hardware identity or interface missing: %q\n%s", `["HW-FPGA: Acquisition FPGA"]`, `["HW-RAM"]`, " -->|parallel| ")
+	about(t, chapter).has(docCheck{"Hardware Items table lists every hosted unit", "diagram must direct readers to full allocation details"})
 	if len(bundle.Architecture.AuthoredArchitecture.HardwareItems[0].Hosts) != 80 {
 		t.Fatal("rendering changed authored allocations")
 	}

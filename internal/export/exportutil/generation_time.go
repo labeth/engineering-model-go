@@ -20,33 +20,42 @@ func ResolveGeneratedTimestamp(bundle model.Bundle, explicit, format string) (st
 		return normalized, nil
 	}
 
+	latest, err := latestAuthoredTimestamp(bundle)
+	if err != nil {
+		return "", err
+	}
+	if latest == "" {
+		return "", fmt.Errorf("%s timestamp is required when the model has no authored decision or verification date", format)
+	}
+	return latest, nil
+}
+
+// latestAuthoredTimestamp returns the latest normalized authored decision or
+// verification date, or "" when the model has none.
+//
+// TRLC-LINKS: REQ-EMG-012
+// ENGMODEL-LINKS: CTRL-TRACEABILITY-COVERAGE
+func latestAuthoredTimestamp(bundle model.Bundle) (string, error) {
+	var values []string
+	for _, decision := range bundle.Decisions.Decisions {
+		values = append(values, decision.Date)
+	}
+	for _, verification := range bundle.Architecture.AuthoredArchitecture.ControlVerifications {
+		values = append(values, verification.LastTested)
+	}
 	latest := ""
-	consider := func(value string) error {
+	for _, value := range values {
 		value = strings.TrimSpace(value)
 		if value == "" {
-			return nil
+			continue
 		}
 		normalized := NormalizeGeneratedTimestamp(value)
 		if normalized == "" {
-			return fmt.Errorf("invalid authored timestamp %q: expected RFC3339 timestamp or YYYY-MM-DD", value)
+			return "", fmt.Errorf("invalid authored timestamp %q: expected RFC3339 timestamp or YYYY-MM-DD", value)
 		}
 		if normalized > latest {
 			latest = normalized
 		}
-		return nil
-	}
-	for _, decision := range bundle.Decisions.Decisions {
-		if err := consider(decision.Date); err != nil {
-			return "", err
-		}
-	}
-	for _, verification := range bundle.Architecture.AuthoredArchitecture.ControlVerifications {
-		if err := consider(verification.LastTested); err != nil {
-			return "", err
-		}
-	}
-	if latest == "" {
-		return "", fmt.Errorf("%s timestamp is required when the model has no authored decision or verification date", format)
 	}
 	return latest, nil
 }

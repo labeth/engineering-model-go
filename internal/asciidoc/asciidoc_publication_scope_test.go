@@ -3,6 +3,7 @@ package asciidoc
 
 import (
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -20,7 +21,8 @@ func TestFunctionalPublicationScopePreservesParentsWithoutSiblings(t *testing.T)
 	}
 	selected := map[string]bool{"FU-A": true, "ACT-A": true, "REF-A": true}
 	scoped := functionalPublicationArchitecture(a, selected)
-	if len(scoped.FunctionalUnits) != 1 || len(scoped.FunctionalGroups) != 1 || scoped.FunctionalGroups[0].ID != "FG-A" || len(scoped.Actors) != 1 || len(scoped.ReferencedElements) != 1 || len(scoped.Mappings) != 2 {
+	sizes := []int{len(scoped.FunctionalUnits), len(scoped.FunctionalGroups), len(scoped.Actors), len(scoped.ReferencedElements), len(scoped.Mappings)}
+	if !slices.Equal(sizes, []int{1, 1, 1, 1, 2}) || scoped.FunctionalGroups[0].ID != "FG-A" {
 		t.Fatalf("incorrect scope: %+v", scoped)
 	}
 	if len(a.FunctionalUnits) != 3 || len(selected) != 3 {
@@ -42,33 +44,32 @@ func TestArchitecturePublicationIncludesHardwareProjectionAndDistinctHeadings(t 
 		},
 		Views: []model.View{{ID: "VIEW-LOGIC", Kind: "architecture-intent", Roots: []string{"FU-A"}}, {ID: "VIEW-HARDWARE", Kind: "deployment", Roots: []string{"HW-ADC"}, IncludeKinds: []string{"hardware_item"}}, {ID: "VIEW-OTHER", Kind: "architecture-intent", Roots: []string{"FU-SIBLING"}}},
 	}}
-	result, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), Options{})
+	result, err := Generate(Inputs{Bundle: schemaV2TestBundle(bundle), Requirements: schemaV2TestRequirements(model.RequirementsDocument{}), Design: schemaV2TestDesign(model.DesignDocument{})}, Options{})
 	if err != nil {
 		t.Fatalf("generation: %v %+v", err, result.Diagnostics)
 	}
 	doc := result.Document
-	for _, want := range []string{":showtitle:", "== Deployment View", "== Architecture Intent View (VIEW-LOGIC)", "=== Authored View Diagram", "ADC hardware"} {
-		if !strings.Contains(doc, want) {
-			t.Fatalf("missing %q", want)
-		}
-	}
+	about(t, doc).hasAll("missing %q", ":showtitle:", "== Deployment View", "== Architecture Intent View (VIEW-LOGIC)", "=== Authored View Diagram", "ADC hardware")
 	hardware := sectionByHeading(doc, "== Deployment View")
-	if !strings.Contains(hardware, "ADC hardware") || !strings.Contains(hardware, "=== Authored View Diagram") {
-		t.Fatal("hardware projection missing from its deployment chapter")
-	}
-	if strings.Contains(hardware, "=== System Decomposition Diagram") {
-		t.Fatal("hardware-only view gained unrelated functional decomposition")
-	}
+	about(t, hardware).has(
+		docCheck{"ADC hardware", "hardware projection missing from its deployment chapter"},
+		docCheck{"=== Authored View Diagram", "hardware projection missing from its deployment chapter"},
+	)
+	about(t, hardware).lacks(docCheck{"=== System Decomposition Diagram", "hardware-only view gained unrelated functional decomposition"})
 	logic := sectionByHeading(doc, "== Architecture Intent View (VIEW-LOGIC)")
-	if strings.Contains(logic, "FU_SIBLING[") || !strings.Contains(logic, "FU_FU_A[") {
-		t.Fatalf("incorrect logical diagram scope")
-	}
-	if !strings.Contains(doc, "Unselected sibling") {
-		t.Fatal("complete reference material was lost")
-	}
+	about(t, logic).lacks(docCheck{"FU_SIBLING[", "incorrect logical diagram scope"})
+	about(t, logic).has(docCheck{"FU_FU_A[", "incorrect logical diagram scope"})
+	about(t, doc).has(docCheck{"Unselected sibling", "complete reference material was lost"})
 	if publicationViewHeading("deployment", "VIEW-ONLY", 1) != "Deployment View" {
 		t.Fatal("single-view heading compatibility changed")
 	}
+}
+
+// scopeBeforeDiagram reports whether the explanation appears in the section
+// before its first diagram, together with the authored status.
+func scopeBeforeDiagram(section, explanation, status string) bool {
+	position := strings.Index(section, explanation)
+	return position >= 0 && position <= strings.Index(section, "=== Authored View Diagram") && strings.Contains(section, status)
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -81,21 +82,17 @@ func TestPublicationKeepsAuthoredScopeWithEachView(t *testing.T) {
 			{ID: "VIEW-OTHER", Kind: "security", Roots: []string{"TB-A"}},
 		},
 	}}
-	result, err := Generate(schemaV2TestBundle(bundle), schemaV2TestRequirements(model.RequirementsDocument{}), schemaV2TestDesign(model.DesignDocument{}), Options{})
+	result, err := Generate(Inputs{Bundle: schemaV2TestBundle(bundle), Requirements: schemaV2TestRequirements(model.RequirementsDocument{}), Design: schemaV2TestDesign(model.DesignDocument{})}, Options{})
 	if err != nil {
 		t.Fatalf("generation: %v", err)
 	}
 	section := sectionByHeading(result.Document, "== Security View (VIEW-MEMBERS)")
-	explanation := "*Authored scope and limitations:* Membership only; enforcement remains unverified."
-	position := strings.Index(section, explanation)
-	if position < 0 || position > strings.Index(section, "=== Authored View Diagram") || !strings.Contains(section, "*Authored status:* in-review") {
+	if !scopeBeforeDiagram(section, "*Authored scope and limitations:* Membership only; enforcement remains unverified.", "*Authored status:* in-review") {
 		t.Fatalf("scope missing before diagram: %s", section)
 	}
 	other := sectionByHeading(result.Document, "== Security View (VIEW-OTHER)")
-	if strings.Contains(other, "Membership only;") || !strings.Contains(other, "*Authored status:* unspecified") || !strings.Contains(other, "No authored status explanation provided.") {
-		t.Fatalf("scope leaked or fallback missing: %s", other)
-	}
-	if strings.Contains(section, "focused on attack paths and security evidence") {
-		t.Fatal("generic prose overstates projected evidence")
-	}
+	leaked := "scope leaked or fallback missing: " + other
+	about(t, other).lacks(docCheck{"Membership only;", leaked})
+	about(t, other).has(docCheck{"*Authored status:* unspecified", leaked}, docCheck{"No authored status explanation provided.", leaked})
+	about(t, section).lacks(docCheck{"focused on attack paths and security evidence", "generic prose overstates projected evidence"})
 }

@@ -3,6 +3,7 @@ package validate
 
 import (
 	"reflect"
+	"slices"
 	"sort"
 	"strings"
 	"testing"
@@ -17,32 +18,42 @@ func TestAuthoringRulesEnumsEqualValidationTables(t *testing.T) {
 		t.Fatalf("expected %d enums, got %d", len(enumTables), len(rules.Enums))
 	}
 	for key, table := range enumTables {
-		want := []string{}
-		for value := range table {
-			want = append(want, value)
-		}
-		sort.Strings(want)
-		if !reflect.DeepEqual(rules.Enums[key], want) {
+		if want := sortedValues(table); !reflect.DeepEqual(rules.Enums[key], want) {
 			t.Fatalf("enum %s = %v, want %v", key, rules.Enums[key], want)
 		}
 	}
-	for key, table := range map[string]map[string]bool{
+	assertEnumsComplete(t, rules, map[string]map[string]bool{
 		"risk.status": allowedRiskStatus, "poamItem.status": allowedPOAMStatus, "relationship.type": allowedMappingTypes,
 		"threatOutOfScope.status": allowedThreatOutOfScopeStatus, "flowStep.kind": allowedFlowStepKinds,
-	} {
+	})
+	if len(rules.FieldRules) == 0 {
+		t.Fatal("expected field rules")
+	}
+}
+
+// sortedValues is the sorted keys of a table.
+func sortedValues(table map[string]bool) []string {
+	want := []string{}
+	for value := range table {
+		want = append(want, value)
+	}
+	sort.Strings(want)
+	return want
+}
+
+// assertEnumsComplete checks that each named enum has as many values as its validation table.
+func assertEnumsComplete(t *testing.T, rules Rules, tables map[string]map[string]bool) {
+	t.Helper()
+	for key, table := range tables {
 		if len(rules.Enums[key]) != len(table) {
 			t.Fatalf("enum %s missing or incomplete: %v", key, rules.Enums[key])
 		}
-	}
-	if len(rules.FieldRules) == 0 {
-		t.Fatal("expected field rules")
 	}
 }
 
 // TRLC-LINKS: REQ-EMG-045, REQ-EMG-001, REQ-EMG-009
 func TestAuthoringRulesRelationshipPairsMatchValidation(t *testing.T) {
 	rules := AuthoringRules()
-	returned := map[RelationshipPair]bool{}
 	count := 0
 	for _, kinds := range mappingPairs {
 		count += len(kinds)
@@ -50,14 +61,10 @@ func TestAuthoringRulesRelationshipPairsMatchValidation(t *testing.T) {
 	if len(rules.RelationshipPairs) != count {
 		t.Fatalf("expected %d pairs, got %d", count, len(rules.RelationshipPairs))
 	}
+	returned := map[RelationshipPair]bool{}
 	for _, pair := range rules.RelationshipPairs {
 		returned[pair] = true
-		if !allowedMappingTypes[pair.Type] {
-			t.Fatalf("pair %+v uses a type validation rejects", pair)
-		}
-		if !mappingPairAllowed(pair.Type, pair.From, pair.To) {
-			t.Fatalf("returned pair %+v rejected by validation", pair)
-		}
+		assertPairAccepted(t, pair)
 	}
 	for _, pair := range []RelationshipPair{
 		{"contains", "functional_group", "functional_unit"},
@@ -75,12 +82,29 @@ func TestAuthoringRulesRelationshipPairsMatchValidation(t *testing.T) {
 		{"interacts_with", "functional_unit", "actor"},
 		{"mitigated_by", "threat_scenario", "control"},
 	} {
-		if returned[pair] {
-			t.Fatalf("pair %+v must not be returned", pair)
-		}
-		if mappingPairAllowed(pair.Type, pair.From, pair.To) {
-			t.Fatalf("pair %+v not returned but accepted by validation", pair)
-		}
+		assertPairNotReturned(t, pair, returned)
+	}
+}
+
+// assertPairAccepted checks that a returned pair uses a known type and is allowed by validation.
+func assertPairAccepted(t *testing.T, pair RelationshipPair) {
+	t.Helper()
+	if !allowedMappingTypes[pair.Type] {
+		t.Fatalf("pair %+v uses a type validation rejects", pair)
+	}
+	if !mappingPairAllowed(pair.Type, pair.From, pair.To) {
+		t.Fatalf("returned pair %+v rejected by validation", pair)
+	}
+}
+
+// assertPairNotReturned checks that a pair is neither returned nor accepted by validation.
+func assertPairNotReturned(t *testing.T, pair RelationshipPair, returned map[RelationshipPair]bool) {
+	t.Helper()
+	if returned[pair] {
+		t.Fatalf("pair %+v must not be returned", pair)
+	}
+	if mappingPairAllowed(pair.Type, pair.From, pair.To) {
+		t.Fatalf("pair %+v not returned but accepted by validation", pair)
 	}
 }
 
@@ -103,25 +127,20 @@ func TestAuthoringRulesPairsAgreeWithBundleValidation(t *testing.T) {
 		{model.Mapping{Type: "writes", From: "ACT-A", To: "DATA-A"}, RelationshipPair{"writes", "actor", "data_object"}},
 		{model.Mapping{Type: "contains", From: "FU-A", To: "FU-B"}, RelationshipPair{"contains", "functional_unit", "functional_unit"}},
 	} {
-		returned := false
-		for _, pair := range AuthoringRules().RelationshipPairs {
-			if pair == tc.pair {
-				returned = true
-			}
-		}
-		arch := base
-		arch.Mappings = []model.Mapping{tc.mapping}
-		b := schemaV2TestBundle(model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: arch, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}})
-		rejected := false
-		for _, d := range Bundle(b) {
-			if d.Code == "model.invalid_mapping_pair" {
-				rejected = true
-			}
-		}
+		returned, rejected := slices.Contains(AuthoringRules().RelationshipPairs, tc.pair), validationRejectsMapping(base, tc.mapping)
 		if returned == rejected {
 			t.Fatalf("%+v: returned=%v but validation rejected=%v", tc.pair, returned, rejected)
 		}
 	}
+}
+
+// validationRejectsMapping reports whether validating a model with the base
+// architecture and the mapping reports model.invalid_mapping_pair.
+func validationRejectsMapping(base model.AuthoredArchitecture, mapping model.Mapping) bool {
+	arch := base
+	arch.Mappings = []model.Mapping{mapping}
+	b := schemaV2TestBundle(model.Bundle{Architecture: model.ArchitectureDocument{AuthoredArchitecture: arch, Views: []model.View{{ID: "V", Kind: "traceability", Roots: []string{"FU-A"}}}}})
+	return len(diagnosticsWithCode(Bundle(b), "model.invalid_mapping_pair")) > 0
 }
 
 // TRLC-LINKS: REQ-EMG-045, REQ-EMG-009
@@ -155,7 +174,7 @@ func TestAuthoringFieldRuleOutOfScopeRejectsSystemAndNonActorOwner(t *testing.T)
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func TestAuthoringRulesDefineMachinesAndAssuranceLinks(t *testing.T) {
 	text := strings.Join(AuthoringRules().FieldRules, "\n")
-	for _, want := range []string{
+	assertTextHas(t, text, []string{
 		"State behavior is modeled with behavior.machines only",
 		"behavior.states, transitions_to and the state triggered_by were removed in v0.11.0",
 		"guarded_by (protected by a control, trust boundary or referenced element) keeps its meaning",
@@ -164,35 +183,42 @@ func TestAuthoringRulesDefineMachinesAndAssuranceLinks(t *testing.T) {
 		"behavior.machine_deadlock", "behavior.transition_nondeterministic", "behavior.transition_no_trigger", "behavior.invariant_unlinked",
 		"behavior.event_unused counts as a use of an event: the on of a machine transition",
 		"threat.verification_missing", "mitigation.verification_control_mismatch", "verification.unlinked", "gemara.control_needs_review",
-	} {
-		if !strings.Contains(text, want) {
-			t.Fatalf("authoring field rules must contain %q:\n%s", want, text)
-		}
-	}
-	for _, removed := range []string{"Entering a state is a transitions_to", "first declared, initial one"} {
-		if strings.Contains(text, removed) {
-			t.Fatalf("authoring field rules still describe removed state vocabulary %q", removed)
-		}
-	}
+	})
+	assertTextLacks(t, text, []string{"Entering a state is a transitions_to", "first declared, initial one"})
 	sets := AuthoringRules().FieldSets
 	if _, ok := sets["state"]; ok {
 		t.Fatal("the legacy state field set was removed with behavior.states")
 	}
-	want := map[string]string{
+	assertFieldSets(t, sets, map[string]string{
 		"machine":           "id,name,description,owner,initial,variables,states,transitions,invariants",
 		"machineState":      "id,name,description,final,requirements",
 		"machineTransition": "id,from,to,on,guard,effect,description,requirements",
 		"machineInvariant":  "id,requirements,expr,description",
 		"machineVariable":   "name,type,initial",
-	}
-	for kind, fields := range want {
-		if got := strings.Join(sets[kind], ","); got != fields {
-			t.Fatalf("fieldSets[%s] = %s, want %s", kind, got, fields)
-		}
-	}
+	})
 	for _, pair := range AuthoringRules().RelationshipPairs {
 		if pair.Type == "transitions_to" || pair.Type == "triggered_by" {
 			t.Fatalf("removed relationship pair %+v is still allowed", pair)
+		}
+	}
+}
+
+// assertTextLacks checks that the text holds none of the fragments.
+func assertTextLacks(t *testing.T, text string, fragments []string) {
+	t.Helper()
+	for _, stale := range fragments {
+		if strings.Contains(text, stale) {
+			t.Fatalf("authoring field rules still describe %q", stale)
+		}
+	}
+}
+
+// assertFieldSets checks the comma joined field names of each field set kind.
+func assertFieldSets(t *testing.T, sets map[string][]string, want map[string]string) {
+	t.Helper()
+	for kind, fields := range want {
+		if got := strings.Join(sets[kind], ","); got != fields {
+			t.Fatalf("fieldSets[%s] = %s, want %s", kind, got, fields)
 		}
 	}
 }
@@ -224,31 +250,15 @@ func TestPublicationSectionsAreManifestPublicationFields(t *testing.T) {
 func TestAuthoringRulesDescribeRequirementLinks(t *testing.T) {
 	rules := AuthoringRules()
 	text := strings.Join(rules.FieldRules, "\n")
-	for _, want := range []string{
+	assertTextHas(t, text, []string{
 		"realizes", "requirement.no_parent", "parent of a reqLinks entry to a dependency's capability", "A system publishes its own capabilities so a system above can link to them", "contract.assumptions", "contract.realizer_unpublished",
 		"documents.reqLinks", "engws link add", "link.version_mismatch", "model.pinned_fingerprint_removed", "model.provides_ref_removed", "model.allocations_removed", "not status or notes", "link.aou_unverified", "requirementLinks in engmod.yml is required and is strict or guided", "model.requirement_links_missing", "pseudo-version",
-	} {
-		if !strings.Contains(text, want) {
-			t.Fatalf("authoring field rules must contain %q", want)
-		}
-	}
-	for _, stale := range []string{"default guided", "default [foundation]", "is optional; without it", "absent means Foundation"} {
-		if strings.Contains(text, stale) {
-			t.Fatalf("authoring field rules still describe the removed default %q", stale)
-		}
-	}
-	if strings.Contains(text, "topLevel") {
-		t.Fatal("authoring field rules must not mention the removed inferenceHints.topLevel")
-	}
-	if strings.Contains(text, "link.suspect") || strings.Contains(text, "written by the engine, never by hand") {
-		t.Fatal("authoring field rules must not describe the removed fingerprint")
-	}
-	if got := strings.Join(rules.FieldSets["contractAssumption"], ","); got != "id,text,verificationCriteria" {
-		t.Fatalf("contractAssumption fields = %s", got)
-	}
-	if got := strings.Join(rules.FieldSets["reqLink"], ","); got != "id,parent,child,evidence,pinned,status,rationale,reviewedBy,reviewedOn" {
-		t.Fatalf("reqLink fields = %s", got)
-	}
+	})
+	assertTextLacks(t, text, []string{"default guided", "default [foundation]", "is optional; without it", "absent means Foundation", "topLevel", "link.suspect", "written by the engine, never by hand"})
+	assertFieldSets(t, rules.FieldSets, map[string]string{
+		"contractAssumption": "id,text,verificationCriteria",
+		"reqLink":            "id,parent,child,evidence,pinned,status,rationale,reviewedBy,reviewedOn",
+	})
 	if !strings.Contains(strings.Join(rules.FieldSets["requirement"], ","), "realizes") {
 		t.Fatal("requirement fields must list realizes")
 	}
@@ -267,17 +277,6 @@ func TestAuthoringRulesDescribeRequirementLinks(t *testing.T) {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func TestAuthoringRulesGiveFieldTypes(t *testing.T) {
 	rules := AuthoringRules()
-	typeOf := func(kind, field string) string {
-		for _, f := range rules.FieldTypes[kind] {
-			if f.Name == field {
-				if f.Of != "" {
-					return f.Type + " of " + f.Of
-				}
-				return f.Type
-			}
-		}
-		return "missing"
-	}
 	for _, c := range []struct{ kind, field, want string }{
 		{"threatScenario", "stride", "string"},
 		{"threatScenario", "preconditions", "list<string>"},
@@ -291,29 +290,46 @@ func TestAuthoringRulesGiveFieldTypes(t *testing.T) {
 		{"flowStep", "ref", "string"},
 		{"reqLink", "pinned", "object of reqLinkPin"},
 	} {
-		if got := typeOf(c.kind, c.field); got != c.want {
+		if got := fieldTypeText(rules, c.kind, c.field); got != c.want {
 			t.Errorf("fieldTypes.%s.%s = %s, want %s", c.kind, c.field, got, c.want)
 		}
 	}
-	for kind, names := range rules.FieldSets {
-		if len(rules.FieldTypes[kind]) != len(names) {
-			t.Errorf("fieldTypes.%s has %d fields, fieldSets %d", kind, len(rules.FieldTypes[kind]), len(names))
-			continue
-		}
-		for i, f := range rules.FieldTypes[kind] {
-			if f.Name != names[i] || f.Type == "" {
-				t.Errorf("fieldTypes.%s[%d] = %+v, want %s with a type", kind, i, f, names[i])
-			}
-		}
+	for kind := range rules.FieldSets {
+		assertFieldTypesMatchSet(t, rules, kind)
 	}
-	text := strings.Join(rules.FieldRules, "\n")
-	for _, want := range []string{
+	assertTextHas(t, strings.Join(rules.FieldRules, "\n"), []string{
 		"every flow step needs ref", "model.missing_flow_step_ref", "step IDs are unique across all flows",
 		"semantic.duplicate_identity", "stride is one string", "catalog.term_unreferenced", "a warning below product and an error from product",
 		"lintRun.mode: strict", "dir, dir/, dir/* or dir/**", "model.invalid_exclude_pattern", "fieldTypes",
-	} {
-		if !strings.Contains(text, want) {
-			t.Errorf("authoring field rules must contain %q", want)
+	})
+}
+
+// fieldTypeText is the type of a field of a field set kind, with its element
+// kind when it has one, or "missing".
+func fieldTypeText(rules Rules, kind, field string) string {
+	for _, f := range rules.FieldTypes[kind] {
+		if f.Name != field {
+			continue
+		}
+		if f.Of != "" {
+			return f.Type + " of " + f.Of
+		}
+		return f.Type
+	}
+	return "missing"
+}
+
+// assertFieldTypesMatchSet checks that the typed fields of a kind are the names of its field set, each with a type.
+func assertFieldTypesMatchSet(t *testing.T, rules Rules, kind string) {
+	t.Helper()
+	typed, names := rules.FieldTypes[kind], rules.FieldSets[kind]
+	if len(typed) != len(names) {
+		t.Errorf("fieldTypes.%s has %d fields, fieldSets %d", kind, len(typed), len(names))
+		return
+	}
+	for i, f := range typed {
+		if f.Name != names[i] || f.Type == "" {
+			t.Errorf("fieldTypes.%s[%d] = %+v, want %s with a type", kind, i, f, names[i])
 		}
 	}
 }
@@ -330,22 +346,15 @@ func TestAuthoringRulesDescribeLifecycle(t *testing.T) {
 	if got := strings.Join(rules.Enums["lifecycle.bundles"], ","); got != "foundation,safety,security" {
 		t.Errorf("lifecycle.bundles enum = %s", got)
 	}
-	if got := strings.Join(rules.FieldSets["lifecycle"], ","); got != "tier,bundles,tierDecision,raise" {
-		t.Errorf("lifecycle fields = %s", got)
-	}
-	if got := strings.Join(rules.FieldSets["poamDefer"], ","); got != "code,path,ref" {
-		t.Errorf("poamDefer fields = %s", got)
-	}
+	assertFieldSets(t, rules.FieldSets, map[string]string{
+		"lifecycle": "tier,bundles,tierDecision,raise",
+		"poamDefer": "code,path,ref",
+	})
 	if !containsTrimmed(rules.FieldSets["poamItem"], "defers") {
 		t.Errorf("poamItem fields lack defers: %v", rules.FieldSets["poamItem"])
 	}
 	if len(rules.TierPolicy) != len(TierPolicy()) || rules.TierPolicy[0].Code == "" {
 		t.Errorf("TierPolicy in rules: %d rows", len(rules.TierPolicy))
 	}
-	text := strings.Join(rules.FieldRules, "\n")
-	for _, want := range []string{"lifecycle.tier_decision_mismatch", "lifecycle.raise", "defers", "tier:<project tier>", "lifecycle.poam_defers_core", "deferred", "requiredFrom", "lifecycle.requirement_links_conflict", "aviation.ai_actor_as_credit"} {
-		if !strings.Contains(text, want) {
-			t.Errorf("field rules do not mention %s", want)
-		}
-	}
+	assertTextHas(t, strings.Join(rules.FieldRules, "\n"), []string{"lifecycle.tier_decision_mismatch", "lifecycle.raise", "defers", "tier:<project tier>", "lifecycle.poam_defers_core", "deferred", "requiredFrom", "lifecycle.requirement_links_conflict", "aviation.ai_actor_as_credit"})
 }

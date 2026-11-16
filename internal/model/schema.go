@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"reflect"
 	"strings"
 	"sync"
 
@@ -70,40 +71,30 @@ func cueSchemaForDocument(out any) (cue.Value, error) {
 	return schema, nil
 }
 
+// cueSchemaNames maps each document type to its canonical CUE definition.
+var cueSchemaNames = map[reflect.Type]string{
+	reflect.TypeOf((*ArchitectureDocument)(nil)):      "ArchitectureDocument",
+	reflect.TypeOf((*ManifestDocument)(nil)):          "ManifestDocument",
+	reflect.TypeOf((*ArchitectureInputDocument)(nil)): "ArchitectureInputDocument",
+	reflect.TypeOf((*BehaviorDocument)(nil)):          "BehaviorDocument",
+	reflect.TypeOf((*AssuranceDocument)(nil)):         "AssuranceDocument",
+	reflect.TypeOf((*ComplianceDocument)(nil)):        "ComplianceDocument",
+	reflect.TypeOf((*ViewsDocument)(nil)):             "ViewsDocument",
+	reflect.TypeOf((*CatalogDocument)(nil)):           "CatalogDocument",
+	reflect.TypeOf((*DecisionsDocument)(nil)):         "DecisionsDocument",
+	reflect.TypeOf((*RequirementsDocument)(nil)):      "RequirementsDocument",
+	reflect.TypeOf((*DesignDocument)(nil)):            "DesignDocument",
+	reflect.TypeOf((*WorkspaceDocument)(nil)):         "WorkspaceDocument",
+	reflect.TypeOf((*AviationDocument)(nil)):          "AviationDocument",
+	reflect.TypeOf((*ReqLinksDocument)(nil)):          "ReqLinksDocument",
+}
+
 // TRLC-LINKS: REQ-EMG-035
 func cueSchemaName(out any) (string, error) {
-	switch out.(type) {
-	case *ArchitectureDocument:
-		return "ArchitectureDocument", nil
-	case *ManifestDocument:
-		return "ManifestDocument", nil
-	case *ArchitectureInputDocument:
-		return "ArchitectureInputDocument", nil
-	case *BehaviorDocument:
-		return "BehaviorDocument", nil
-	case *AssuranceDocument:
-		return "AssuranceDocument", nil
-	case *ComplianceDocument:
-		return "ComplianceDocument", nil
-	case *ViewsDocument:
-		return "ViewsDocument", nil
-	case *CatalogDocument:
-		return "CatalogDocument", nil
-	case *DecisionsDocument:
-		return "DecisionsDocument", nil
-	case *RequirementsDocument:
-		return "RequirementsDocument", nil
-	case *DesignDocument:
-		return "DesignDocument", nil
-	case *WorkspaceDocument:
-		return "WorkspaceDocument", nil
-	case *AviationDocument:
-		return "AviationDocument", nil
-	case *ReqLinksDocument:
-		return "ReqLinksDocument", nil
-	default:
-		return "", fmt.Errorf("no canonical CUE schema registered for %T", out)
+	if name, ok := cueSchemaNames[reflect.TypeOf(out)]; ok {
+		return name, nil
 	}
+	return "", fmt.Errorf("no canonical CUE schema registered for %T", out)
 }
 
 // TRLC-LINKS: REQ-EMG-035

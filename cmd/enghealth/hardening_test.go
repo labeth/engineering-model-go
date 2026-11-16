@@ -59,9 +59,7 @@ func (r *checkRepo) setFile(rel, old, replacement string) {
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158
 func TestCheckReportsAWeakenedPolicy(t *testing.T) {
 	const product = "lifecycle:\n  tier: product\n"
-	cases := []struct {
-		name, base, head, aspect string
-	}{
+	cases := []weakening{
 		{"limit raised", product + "health:\n  exclude: [gen/**]\n", product + "health:\n  exclude: [gen/**]\n  thresholds:\n    health.complex_method: {warn: 12, high: 25}\n", "threshold"},
 		{"exclude widened", product + "health:\n  exclude: [gen/**]\n", product + "health:\n  exclude: [gen/**, pkg/**]\n", "exclude"},
 		{"override raises", product + "health:\n  exclude: [gen/**]\n", product + "health:\n  exclude: [gen/**]\n  overrides:\n    - path: pkg/**\n      thresholds:\n        health.large_method: {warn: 300, high: 600}\n", "override"},
@@ -69,46 +67,70 @@ func TestCheckReportsAWeakenedPolicy(t *testing.T) {
 		{"lifecycle removed", product + "health:\n  exclude: [gen/**]\n", "health:\n  exclude: [gen/**]\n", "tier"},
 	}
 	for _, c := range cases {
-		r := newCheckRepo(t, c.base, true)
-		r.setManifest(c.base, c.head)
-		code, doc, stderr := r.jsonCheck()
-		if code != exitFail || !doc.Failed || doc.PolicyLevel != "error" || len(doc.PolicyWeakened) != 1 || doc.PolicyWeakened[0].Aspect != c.aspect {
-			t.Errorf("%s: exit %d, %+v, stderr %q; want 1 with one %s weakening", c.name, code, doc.PolicyWeakened, stderr, c.aspect)
-		}
-		if !strings.Contains(stderr, "weakening(s) of the health policy against the base revision are not recorded by a policyDecision") {
-			t.Errorf("%s: stderr = %q", c.name, stderr)
-		}
-		_, stdout, _ := r.check()
-		if !strings.Contains(stdout, "policy weakened ("+c.aspect+")") || !strings.Contains(stdout, "result: FAIL") {
-			t.Errorf("%s: text lacks the weakening:\n%s", c.name, stdout)
-		}
+		t.Run(c.name, func(t *testing.T) { requireWeakened(t, c) })
 	}
+}
 
-	// Below product the same edit is a warning at both tiers: exit 0.
+// weakening is an edit of the manifest that weakens the policy: the manifest
+// at the base, the manifest at the head and the aspect the check names.
+type weakening struct {
+	name, base, head, aspect string
+}
+
+// requireWeakened checks that the check of an uncommitted edit fails on the
+// weakening and names its aspect in the JSON, on stderr and in the text.
+func requireWeakened(t *testing.T, c weakening) {
+	t.Helper()
+	r := newCheckRepo(t, c.base, true)
+	r.setManifest(c.base, c.head)
+	code, doc, stderr := r.jsonCheck()
+	wantEqual(t, [4]any{code, doc.Failed, doc.PolicyLevel, len(doc.PolicyWeakened)}, [4]any{exitFail, true, "error", 1})
+	mustEqual(t, len(doc.PolicyWeakened), 1)
+	wantEqual(t, doc.PolicyWeakened[0].Aspect, c.aspect)
+	wantContains(t, stderr, "weakening(s) of the health policy against the base revision are not recorded by a policyDecision")
+	_, stdout, _ := r.check()
+	wantAll(t, stdout, "policy weakened ("+c.aspect+")", "result: FAIL")
+}
+
+// Below product the same edit is a warning at both tiers (exit 0); with the
+// safety bundle the level is an error from mvp; a tier given on the command
+// line applies to both sides, so it is no tier weakening; and an unchanged or
+// stricter policy is fine.
+//
+// Mutation: reading the level at the head tier only, or ignoring the tier flag,
+// fails the matching case.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158
+func TestCheckPolicyWeakeningLevelFollowsTheTier(t *testing.T) {
 	const mvp = "lifecycle:\n  tier: mvp\n"
-	r := newCheckRepo(t, mvp+"health:\n  exclude: [gen/**]\n", true)
-	r.setManifest("exclude: [gen/**]", "exclude: [gen/**, pkg/**]")
-	if code, doc, _ := r.jsonCheck(); code != exitOK || doc.Failed || doc.PolicyLevel != "warning" || len(doc.PolicyWeakened) != 1 {
-		t.Errorf("mvp: exit %d %+v, want 0 with a warning", code, doc)
+	const product = "lifecycle:\n  tier: product\nhealth:\n  exclude: [gen/**]\n"
+	cases := []struct {
+		name, base, old, edit string
+		args                  []string
+		want                  policyOutcome
+	}{
+		{"mvp warns", mvp + "health:\n  exclude: [gen/**]\n", "exclude: [gen/**]", "exclude: [gen/**, pkg/**]", nil, policyOutcome{exitOK, "warning", 1}},
+		{"mvp with safety fails", mvp + "  bundles: [safety]\nhealth:\n  exclude: [gen/**]\n", "exclude: [gen/**]", "exclude: [gen/**, pkg/**]", nil, policyOutcome{exitFail, "error", 1}},
+		{"tier on both sides", product, "tier: product", "tier: mvp", []string{"--tier", "product"}, policyOutcome{exitOK, "", 0}},
+		{"stricter limit", product, "exclude: [gen/**]", "exclude: [gen/**]\n  thresholds:\n    health.complex_method: {warn: 5, high: 10}", nil, policyOutcome{exitOK, "", 0}},
 	}
-	// With the safety bundle the level is an error from mvp.
-	r = newCheckRepo(t, mvp+"  bundles: [safety]\nhealth:\n  exclude: [gen/**]\n", true)
-	r.setManifest("exclude: [gen/**]", "exclude: [gen/**, pkg/**]")
-	if code, doc, _ := r.jsonCheck(); code != exitFail || doc.PolicyLevel != "error" {
-		t.Errorf("mvp with safety: exit %d %+v, want 1", code, doc)
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			r := newCheckRepo(t, c.base, true)
+			r.setManifest(c.old, c.edit)
+			code, doc, _ := r.jsonCheck(c.args...)
+			wantEqual(t, [2]int{code, len(doc.PolicyWeakened)}, [2]int{c.want.code, c.want.weakened})
+			wantEqual(t, c.want.level == "" || doc.PolicyLevel == c.want.level, true)
+		})
 	}
-	// A tier given on the command line applies to both sides: no tier weakening.
-	r = newCheckRepo(t, product+"health:\n  exclude: [gen/**]\n", true)
-	r.setManifest("tier: product", "tier: mvp")
-	if code, doc, _ := r.jsonCheck("--tier", "product"); code != exitOK || len(doc.PolicyWeakened) != 0 {
-		t.Errorf("--tier on both sides: exit %d %+v", code, doc.PolicyWeakened)
-	}
-	// An unchanged or stricter policy, and a new exclude that the base had, are fine.
-	r = newCheckRepo(t, product+"health:\n  exclude: [gen/**]\n", true)
-	r.setManifest("exclude: [gen/**]", "exclude: [gen/**]\n  thresholds:\n    health.complex_method: {warn: 5, high: 10}")
-	if code, doc, _ := r.jsonCheck(); code != exitOK || len(doc.PolicyWeakened) != 0 {
-		t.Errorf("a stricter limit: exit %d %+v", code, doc.PolicyWeakened)
-	}
+}
+
+// policyOutcome is what the check decides about an edit of the policy: the exit
+// code, the level of the weakening (empty: not checked) and how many there are.
+type policyOutcome struct {
+	code     int
+	level    string
+	weakened int
 }
 
 // A weakening is recorded, and no longer fails the check, when the head names
@@ -122,14 +144,6 @@ func TestCheckReportsAWeakenedPolicy(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158
 func TestCheckAcceptsARecordedPolicyWeakening(t *testing.T) {
-	const base = "lifecycle:\n  tier: product\nhealth:\n  exclude: [gen/**]\n"
-	weaker := func(decision string) string {
-		out := "lifecycle:\n  tier: product\nhealth:\n  exclude: [gen/**, pkg/**]\n"
-		if decision != "" {
-			out += "  policyDecision: " + decision + "\n"
-		}
-		return out
-	}
 	cases := []struct {
 		name, decision string
 		want           int
@@ -140,30 +154,42 @@ func TestCheckAcceptsARecordedPolicyWeakening(t *testing.T) {
 		{"no decision", "", exitFail},
 	}
 	for _, c := range cases {
-		r := newCheckRepo(t, base, true)
-		r.setManifest(base, weaker(c.decision))
-		code, doc, stderr := r.jsonCheck()
-		if code != c.want || doc.Failed != (c.want == exitFail) || len(doc.PolicyWeakened) != 1 {
-			t.Errorf("%s: exit %d failed %v weakened %d, stderr %q; want exit %d", c.name, code, doc.Failed, len(doc.PolicyWeakened), stderr, c.want)
-		}
-		if c.want == exitOK && doc.PolicyDecision != "ADR-POLICY" {
-			t.Errorf("%s: policyDecision = %q", c.name, doc.PolicyDecision)
-		}
-		if c.want == exitOK {
-			if _, stdout, _ := r.check(); !strings.Contains(stdout, "the weakening is recorded by decision ADR-POLICY") {
-				t.Errorf("%s: text does not name the decision:\n%s", c.name, stdout)
-			}
-		}
+		t.Run(c.name, func(t *testing.T) { requireDecision(t, c.decision, c.want) })
 	}
-
 	// The decision was already named at the base: it records the earlier
 	// weakening, not this one.
-	named := base + "  policyDecision: ADR-POLICY\n"
-	r := newCheckRepo(t, named, true)
+	r := newCheckRepo(t, policyBase+"  policyDecision: ADR-POLICY\n", true)
 	r.setManifest("exclude: [gen/**]", "exclude: [gen/**, pkg/**]")
-	if code, doc, _ := r.jsonCheck(); code != exitFail || doc.PolicyDecision != "" {
-		t.Errorf("a decision the base already named: exit %d %+v, want 1", code, doc)
+	code, doc, _ := r.jsonCheck()
+	wantEqual(t, [2]any{code, doc.PolicyDecision}, [2]any{exitFail, ""})
+}
+
+// policyBase is the manifest at the base of the policy decision tests.
+const policyBase = "lifecycle:\n  tier: product\nhealth:\n  exclude: [gen/**]\n"
+
+// weakerPolicy is policyBase with a wider exclude and the policy decision.
+func weakerPolicy(decision string) string {
+	out := "lifecycle:\n  tier: product\nhealth:\n  exclude: [gen/**, pkg/**]\n"
+	if decision != "" {
+		out += "  policyDecision: " + decision + "\n"
 	}
+	return out
+}
+
+// requireDecision checks the exit code of a weakening that names a decision
+// and, when the decision records it, the report and the text.
+func requireDecision(t *testing.T, decision string, want int) {
+	t.Helper()
+	r := newCheckRepo(t, policyBase, true)
+	r.setManifest(policyBase, weakerPolicy(decision))
+	code, doc, _ := r.jsonCheck()
+	wantEqual(t, [3]any{code, doc.Failed, len(doc.PolicyWeakened)}, [3]any{want, want == exitFail, 1})
+	if want != exitOK {
+		return
+	}
+	wantEqual(t, doc.PolicyDecision, "ADR-POLICY")
+	_, stdout, _ := r.check()
+	wantContains(t, stdout, "the weakening is recorded by decision ADR-POLICY")
 }
 
 // A changed source file above 4 MiB is skipped; where a regression is an error
@@ -175,28 +201,28 @@ func TestCheckAcceptsARecordedPolicyWeakening(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-156, REQ-EMG-158
 func TestCheckFailsOnASkippedChangedFile(t *testing.T) {
-	huge := "package pkg\n\n// " + strings.Repeat("x", 4<<20) + "\nfunc Huge() {}\n"
-	for _, tier := range []string{"product", "poc"} {
-		r := newCheckRepo(t, "lifecycle:\n  tier: "+tier+"\n", true)
-		base := strings.TrimSpace(gitIn(t, r.dir, "rev-parse", "HEAD"))
-		r.write("pkg/huge.go", huge)
-		want := exitFail
-		if tier == "poc" {
-			want = exitOK
-		}
-		code, doc, stderr := r.jsonCheck()
-		if code != want || doc.Failed != (want == exitFail) || len(doc.Skipped) != 1 || doc.Skipped[0].Path != "pkg/huge.go" {
-			t.Errorf("%s working tree: exit %d %+v stderr %q; want %d", tier, code, doc.Skipped, stderr, want)
-		}
-		if want == exitFail && !strings.Contains(stderr, "1 changed file(s) were skipped") {
-			t.Errorf("%s: stderr %q", tier, stderr)
-		}
-		r.commit("huge")
-		code, doc, _ = r.jsonCheck("--base", base, "--head", "HEAD")
-		if code != want || len(doc.Skipped) != 1 {
-			t.Errorf("%s --head: exit %d %+v; want %d", tier, code, doc.Skipped, want)
-		}
+	for tier, want := range map[string]int{"product": exitFail, "poc": exitOK} {
+		t.Run(tier, func(t *testing.T) { requireSkipped(t, tier, want) })
 	}
+}
+
+// requireSkipped checks that a changed file above the cap is skipped, in the
+// working tree and in --head REV, with the exit code the tier gives.
+func requireSkipped(t *testing.T, tier string, want int) {
+	t.Helper()
+	huge := "package pkg\n\n// " + strings.Repeat("x", 4<<20) + "\nfunc Huge() {}\n"
+	r := newCheckRepo(t, "lifecycle:\n  tier: "+tier+"\n", true)
+	base := strings.TrimSpace(gitIn(t, r.dir, "rev-parse", "HEAD"))
+	r.write("pkg/huge.go", huge)
+	code, doc, stderr := r.jsonCheck()
+	mustEqual(t, [3]any{code, doc.Failed, len(doc.Skipped)}, [3]any{want, want == exitFail, 1})
+	wantEqual(t, doc.Skipped[0].Path, "pkg/huge.go")
+	if want == exitFail {
+		wantContains(t, stderr, "1 changed file(s) were skipped")
+	}
+	r.commit("huge")
+	code, doc, _ = r.jsonCheck("--base", base, "--head", "HEAD")
+	wantEqual(t, [2]int{code, len(doc.Skipped)}, [2]int{want, 1})
 }
 
 // --cache and --no-cache cannot be combined; where CI is set the check does not
@@ -207,40 +233,28 @@ func TestCheckFailsOnASkippedChangedFile(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-159, REQ-EMG-158
 func TestCheckCacheFlagsAndRules(t *testing.T) {
-	cacheDir := func(r *checkRepo) string { return filepath.Join(r.dir, ".engmod", "cache", "health") }
 	t.Setenv("CI", "")
 	r := newCheckRepo(t, "lifecycle:\n  tier: product\n", true)
 	r.write("pkg/svc.go", svcSource(3))
-	if code, _, stderr := r.check("--cache", "--no-cache"); code != exitUsage || !strings.Contains(stderr, "cannot be combined") {
-		t.Errorf("--cache --no-cache: %d %q", code, stderr)
-	}
-	if code, _, _ := r.check("--no-cache"); code != exitOK {
-		t.Fatal("check --no-cache failed")
-	}
-	if _, err := os.Stat(cacheDir(r)); err == nil {
-		t.Error("--no-cache wrote the cache")
-	}
+	r.expect(cliCase{args: []string{"--cache", "--no-cache"}, code: exitUsage, stderr: "cannot be combined"})
+	r.expect(cliCase{args: []string{"--no-cache"}, code: exitOK})
+	wantEqual(t, cacheWritten(r), false)
 	t.Setenv("CI", "true")
-	if code, _, _ := r.check(); code != exitOK {
-		t.Fatal("check in CI failed")
-	}
-	if _, err := os.Stat(cacheDir(r)); err == nil {
-		t.Error("the cache was written although CI is set")
-	}
-	if code, _, _ := r.check("--cache"); code != exitOK {
-		t.Fatal("check --cache failed")
-	}
-	if _, err := os.Stat(cacheDir(r)); err != nil {
-		t.Errorf("--cache in CI did not write the cache: %v", err)
-	}
-
+	r.expect(cliCase{code: exitOK})
+	wantEqual(t, cacheWritten(r), false) // CI is set
+	r.expect(cliCase{args: []string{"--cache"}, code: exitOK})
+	wantEqual(t, cacheWritten(r), true)
 	// Track a file under .engmod: the cache is refused, with a note, even with --cache.
 	r.write(".engmod/cache/health/"+strings.Repeat("0a", 32)+".json", "{}")
 	gitIn(t, r.dir, "add", "-f", ".engmod")
-	code, _, stderr := r.check("--cache")
-	if code != exitOK || !strings.Contains(stderr, "the result cache is not used") || !strings.Contains(stderr, "tracked by git") {
-		t.Errorf("tracked .engmod: exit %d stderr %q; want a note and a normal run", code, stderr)
-	}
+	_, stderr := r.expect(cliCase{args: []string{"--cache"}, code: exitOK, stderr: "the result cache is not used"})
+	wantContains(t, stderr, "tracked by git")
+}
+
+// cacheWritten reports whether the project has a result cache directory.
+func cacheWritten(r *checkRepo) bool {
+	_, err := os.Stat(filepath.Join(r.dir, ".engmod", "cache", "health"))
+	return err == nil
 }
 
 // The output file is written through a temporary file and a rename, never
@@ -255,49 +269,51 @@ func TestOutputIsNotWrittenThroughSymbolicLinks(t *testing.T) {
 	manifest := project(t, "lifecycle:\n  tier: mvp\n")
 	dir := filepath.Dir(manifest)
 	victim := filepath.Join(dir, "victim.txt")
-	if err := os.WriteFile(victim, []byte("precious"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	link := filepath.Join(dir, "report.json")
-	if err := os.Symlink(victim, link); err != nil {
+	writeFileOrFail(t, victim, "precious")
+	if err := os.Symlink(victim, filepath.Join(dir, "report.json")); err != nil {
 		t.Skip("symbolic links are not available")
 	}
-	code, _, stderr := runCLI("scan", "--model", manifest, "--format", "json", "--out", link)
-	if code != exitUsage || !strings.Contains(stderr, "not a regular file") {
-		t.Errorf("scan --out through a link: %d %q", code, stderr)
-	}
-	if data, _ := os.ReadFile(victim); string(data) != "precious" {
-		t.Errorf("the target of the link was overwritten: %q", data)
-	}
+	requireCLI(t, cliCase{args: []string{"scan", "--model", manifest, "--format", "json", "--out", filepath.Join(dir, "report.json")}, code: exitUsage, stderr: "not a regular file"})
+	requireUntouched(t, victim)
 	r := newCheckRepo(t, "lifecycle:\n  tier: mvp\n", true)
 	rl := filepath.Join(r.dir, "out.json")
 	if err := os.Symlink(victim, rl); err != nil {
 		t.Fatal(err)
 	}
-	if code, _, stderr := r.check("--format", "json", "--out", rl); code != exitUsage || !strings.Contains(stderr, "not a regular file") {
-		t.Errorf("check --out through a link: %d %q", code, stderr)
-	}
-	if data, _ := os.ReadFile(victim); string(data) != "precious" {
-		t.Errorf("the target of the link was overwritten by check: %q", data)
-	}
-	if code, _, _ := runCLI("scan", "--model", manifest, "--format", "json", "--out", filepath.Join(dir, "sub-nope", "x.json")); code != exitUsage {
-		t.Errorf("an output in a missing directory must exit 2, got %d", code)
-	}
+	r.expect(cliCase{args: []string{"--format", "json", "--out", rl}, code: exitUsage, stderr: "not a regular file"})
+	requireUntouched(t, victim)
+	requireCLI(t, cliCase{args: []string{"scan", "--model", manifest, "--format", "json", "--out", filepath.Join(dir, "sub-nope", "x.json")}, code: exitUsage})
+	requireRegularFileReplaced(t, manifest)
+}
 
-	regular := filepath.Join(dir, "regular.json")
-	if err := os.WriteFile(regular, []byte("old"), 0o600); err != nil {
+// writeFileOrFail writes a file (mode 0644) or stops the test.
+func writeFileOrFail(t *testing.T, path, content string) {
+	t.Helper()
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	if code, _, stderr := runCLI("scan", "--model", manifest, "--format", "json", "--out", regular); code != exitOK {
-		t.Fatalf("scan --out: %d %q", code, stderr)
-	}
-	if data, _ := os.ReadFile(regular); !bytes.HasPrefix(data, []byte("{")) {
-		t.Errorf("the regular file was not replaced: %q", data)
-	}
+}
+
+// requireUntouched checks that the file the links point to still holds its
+// content.
+func requireUntouched(t *testing.T, victim string) {
+	t.Helper()
+	data, _ := os.ReadFile(victim)
+	wantEqual(t, string(data), "precious")
+}
+
+// requireRegularFileReplaced checks that scan --out replaces a regular file with
+// the report and leaves no temporary file behind.
+func requireRegularFileReplaced(t *testing.T, manifest string) {
+	t.Helper()
+	dir := filepath.Dir(manifest)
+	regular := filepath.Join(dir, "regular.json")
+	writeFileOrFail(t, regular, "old")
+	requireCLI(t, cliCase{args: []string{"scan", "--model", manifest, "--format", "json", "--out", regular}, code: exitOK})
+	data, _ := os.ReadFile(regular)
+	wantEqual(t, bytes.HasPrefix(data, []byte("{")), true)
 	leftovers, _ := filepath.Glob(filepath.Join(dir, ".enghealth-*"))
-	if len(leftovers) != 0 {
-		t.Errorf("temporary files left behind: %v", leftovers)
-	}
+	wantEqual(t, len(leftovers), 0)
 }
 
 // safeText turns every control character into a visible escape and leaves text
@@ -332,28 +348,36 @@ func TestSafeText(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-158
 func TestTextOutputEscapesControlCharacters(t *testing.T) {
-	evil := "Big\n::error::injected\x1b[2J"
 	var report engmodel.HealthReport
 	report.Engine.Name, report.Engine.Version = "treesitter", "1"
 	report.Rollups.Project.Worst = &health.WorstFile{Path: "pkg/a\nb.go", Score: 3}
 	report.Diagnostics = []engmodel.HealthDiagnostic{{Code: "health.file_skipped", Level: "warning", Message: "pkg/x\n::error::y was not analysed"}}
 	text := renderText(report)
-	if strings.ContainsAny(text, "\x1b") || strings.Contains(text, "\n::error::") {
-		t.Errorf("renderText leaked a control character:\n%q", text)
-	}
-	if !strings.Contains(text, `pkg/a\x0ab.go`) || !strings.Contains(text, `pkg/x\x0a::error::y`) {
-		t.Errorf("renderText did not escape:\n%q", text)
-	}
+	wantEqual(t, leaksControl(text), false)
+	wantAll(t, text, `pkg/a\x0ab.go`, `pkg/x\x0a::error::y`)
+}
 
+// leaksControl reports an escape character or a line that starts a workflow
+// command in a text.
+func leaksControl(out string) bool {
+	return strings.Contains(out, "\x1b") || strings.Contains(out, "\n::") || strings.Contains(out, "\n      ::")
+}
+
+// The check summary and the lines of the regressions and failures escape the
+// control characters of the repository too.
+//
+// Mutation: printing the raw strings fails.
+//
+// TRLC-LINKS: REQ-EMG-158
+func TestCheckTextOutputEscapesControlCharacters(t *testing.T) {
+	evil := "Big\n::error::injected\x1b[2J"
 	var check engmodel.HealthCheckReport
 	check.Notes = []string{"skipped a\n::error::b: too large"}
 	check.Blocking = []engmodel.HealthDeltaEntry{{Path: "pkg/a\nb.go", Function: evil, Code: "health.complex_method", Change: "new", Severity: "high", Metric: "cyclomatic", ValueAfter: 21, StartLine: 3, Message: "m\n::error::z"}}
 	check.Skipped = []engmodel.HealthSkippedFile{{Path: "gen/\n::error::s.go", Reason: "r\x1b[0m"}}
 	check.Policy = []engmodel.HealthPolicyChange{{Aspect: "exclude", Message: "pattern \"\n::error::p\""}}
 	for name, out := range map[string]string{"summary": renderCheckText(check), "lines": regressionLines(check) + failureLines(check)} {
-		if strings.Contains(out, "\x1b") || strings.Contains(out, "\n::") || strings.Contains(out, "\n      ::") {
-			t.Errorf("%s leaked a control character:\n%q", name, out)
-		}
+		wantEqual(t, [2]any{name, leaksControl(out)}, [2]any{name, false})
 	}
 }
 
@@ -367,32 +391,27 @@ func TestTextOutputEscapesControlCharacters(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
 func TestImportedReportCannotDecideTheGate(t *testing.T) {
 	manifest := project(t, "lifecycle:\n  tier: product\n")
+	forged := forgedReport(t, manifest)
+	requireCLI(t, cliCase{args: []string{"scan", "--import", forged, "--fail-on-error"}, code: exitUsage, stderr: "levels of the imported report are not trusted"})
+	requireCLI(t, cliCase{args: []string{"scan", "--import", forged, "--tier", "product", "--fail-on-error"}, code: exitFail}) // levels recomputed
+	requireCLI(t, cliCase{args: []string{"scan", "--import", forged, "--model", manifest, "--fail-on-error"}, code: exitFail})
+	requireCLI(t, cliCase{args: []string{"scan", "--import", forged}, code: exitOK}) // without the flag it renders
+}
+
+// forgedReport scans the project and writes a copy of the report that claims
+// no errors; it returns its path.
+func forgedReport(t *testing.T, manifest string) string {
+	t.Helper()
 	dir := filepath.Dir(manifest)
 	report := filepath.Join(dir, "report.json")
-	if code, _, stderr := runCLI("scan", "--model", manifest, "--format", "json", "--out", report); code != exitOK {
-		t.Fatalf("scan: %d %q", code, stderr)
-	}
-	// The imported report claims no errors.
+	requireCLI(t, cliCase{args: []string{"scan", "--model", manifest, "--format", "json", "--out", report}, code: exitOK})
 	data, err := os.ReadFile(report)
 	if err != nil {
 		t.Fatal(err)
 	}
 	forged := strings.ReplaceAll(string(data), `"complex_method": "error"`, `"complex_method": "warning"`)
 	forged = strings.Replace(forged, `"errors": 1`, `"errors": 0`, 1)
-	forgedPath := filepath.Join(dir, "forged.json")
-	if err := os.WriteFile(forgedPath, []byte(forged), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if code, _, stderr := runCLI("scan", "--import", forgedPath, "--fail-on-error"); code != exitUsage || !strings.Contains(stderr, "levels of the imported report are not trusted") {
-		t.Errorf("--import --fail-on-error: %d %q, want 2", code, stderr)
-	}
-	if code, _, stderr := runCLI("scan", "--import", forgedPath, "--tier", "product", "--fail-on-error"); code != exitFail {
-		t.Errorf("--import --tier product --fail-on-error: %d %q, want 1 (levels recomputed)", code, stderr)
-	}
-	if code, _, stderr := runCLI("scan", "--import", forgedPath, "--model", manifest, "--fail-on-error"); code != exitFail {
-		t.Errorf("--import --model --fail-on-error: %d %q, want 1", code, stderr)
-	}
-	if code, _, _ := runCLI("scan", "--import", forgedPath); code != exitOK {
-		t.Errorf("--import without the flag renders: %d", code)
-	}
+	path := filepath.Join(dir, "forged.json")
+	writeFileOrFail(t, path, forged)
+	return path
 }

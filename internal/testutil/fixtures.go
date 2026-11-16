@@ -66,6 +66,11 @@ func withCompleteSwitches(manifestExtra string) (string, bool) {
 	return manifestExtra + CompleteSwitches, true
 }
 
+// V2Module is the module WriteV2ModuleFiles writes: its path, version and
+// model ID, the manifest text inserted before the documents block and the body
+// of architecture.yml.
+type V2Module struct{ Path, Version, ModelID, ManifestExtra, Architecture string }
+
 // WriteV2ModuleFiles writes a schema-v2 model module (cue.mod, engmod.yml and
 // the eight domain documents) to dir; manifestExtra is inserted before the
 // documents block and architecture is the body of architecture.yml. The module
@@ -74,8 +79,10 @@ func withCompleteSwitches(manifestExtra string) (string, bool) {
 // gets no lifecycle, no DEC-TIER-POC (an empty decisions document) and, as
 // one that writes requirementLinks, no requirementLinks added.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
-func WriteV2ModuleFiles(t testing.TB, dir, modulePath, version, modelID, manifestExtra, architecture string) {
+func WriteV2ModuleFiles(t testing.TB, dir string, m V2Module) {
 	t.Helper()
+	modulePath, version, modelID := m.Path, m.Version, m.ModelID
+	manifestExtra, architecture := m.ManifestExtra, m.Architecture
 	if err := os.MkdirAll(filepath.Join(dir, "cue.mod"), 0o755); err != nil {
 		t.Fatal(err)
 	}
@@ -115,13 +122,8 @@ module:
 	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), decisions)
 }
 
-// WriteInterfaceModule writes the example.com/iface@v0 module: it publishes an
-// FG, FU, IF, DO, actor, trust boundary, control and the capability CAP-SCHEMA.
-// TRLC-LINKS: REQ-EMG-065
-func WriteInterfaceModule(t testing.TB, dir string) {
-	t.Helper()
-	WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/iface@v0\"\nlanguage: version: \"v0.17.0\"\n")
-	WriteFile(t, filepath.Join(dir, "engmod.yml"), `schemaVersion: `+modelSchemaVersion+`
+// ifaceManifest is the manifest of the example.com/iface@v0 module.
+var ifaceManifest = `schemaVersion: ` + modelSchemaVersion + `
 module:
   path: example.com/iface@v0
   version: v0.1.0
@@ -129,7 +131,7 @@ module:
   title: Interface
   introduction: ""
   kind: system
-`+CompleteSwitches+`publications:
+` + CompleteSwitches + `publications:
   - id: public
     architecture: [FG-NATS, FU-NATS, IF-WS, DO-WS, ACT-OWNER, CAP-SCHEMA]
     assurance: [TB-BUS, CTRL-SCHEMA]
@@ -142,10 +144,10 @@ documents:
   compliance: model/compliance.yml
   views: model/views.yml
   decisions: model/decisions.yml
-`)
-	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: "+modelSchemaVersion+"\ncatalog: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: "+modelSchemaVersion+"\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    realizes: [CAP-SCHEMA]\n")
-	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), `schemaVersion: `+modelSchemaVersion+`
+`
+
+// ifaceArchitecture is the architecture document of the iface module.
+var ifaceArchitecture = `schemaVersion: ` + modelSchemaVersion + `
 architecture:
   functionalGroups:
     - id: FG-NATS
@@ -170,9 +172,10 @@ architecture:
     provides:
       - id: CAP-SCHEMA
         kind: capability
-`)
-	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: "+modelSchemaVersion+"\nbehavior: {}\n")
-	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), `schemaVersion: `+modelSchemaVersion+`
+`
+
+// ifaceAssurance is the assurance document of the iface module.
+var ifaceAssurance = `schemaVersion: ` + modelSchemaVersion + `
 assurance:
   controls:
     - id: CTRL-SCHEMA
@@ -185,17 +188,39 @@ assurance:
       description: Message bus.
       boundaryType: network
       members: [FU-NATS]
-`)
+`
+
+// WriteInterfaceModule writes the example.com/iface@v0 module: it publishes an
+// FG, FU, IF, DO, actor, trust boundary, control and the capability CAP-SCHEMA.
+// TRLC-LINKS: REQ-EMG-065
+func WriteInterfaceModule(t testing.TB, dir string) {
+	t.Helper()
+	WriteFile(t, filepath.Join(dir, "cue.mod", "module.cue"), "module: \"example.com/iface@v0\"\nlanguage: version: \"v0.17.0\"\n")
+	WriteFile(t, filepath.Join(dir, "engmod.yml"), ifaceManifest)
+	WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: "+modelSchemaVersion+"\ncatalog: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: "+modelSchemaVersion+"\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-IF-001\n    text: Interface requirement.\n    realizes: [CAP-SCHEMA]\n")
+	WriteFile(t, filepath.Join(dir, "model", "architecture.yml"), ifaceArchitecture)
+	WriteFile(t, filepath.Join(dir, "model", "behavior.yml"), "schemaVersion: "+modelSchemaVersion+"\nbehavior: {}\n")
+	WriteFile(t, filepath.Join(dir, "model", "assurance.yml"), ifaceAssurance)
 	WriteFile(t, filepath.Join(dir, "model", "compliance.yml"), "schemaVersion: "+modelSchemaVersion+"\ncompliance: {}\n")
 	WriteFile(t, filepath.Join(dir, "model", "views.yml"), "schemaVersion: "+modelSchemaVersion+"\nviews: []\n")
 	WriteFile(t, filepath.Join(dir, "model", "decisions.yml"), TierDecisionPoC)
 }
 
+// CompositionModule is the module WriteV2CompositionModule writes: its path,
+// version and model ID, the publication name and the architecture and
+// requirement IDs the publication holds.
+type CompositionModule struct {
+	Path, Version, ModelID, Publication string
+	ArchitectureIDs, RequirementIDs     []string
+}
+
 // WriteV2CompositionModule writes a v2 module that provides one capability
 // (the first architecture ID) and publishes the given IDs as publication.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
-func WriteV2CompositionModule(t testing.TB, dir, modulePath, version, modelID, publication string, architectureIDs, requirementIDs []string) {
+func WriteV2CompositionModule(t testing.TB, dir string, m CompositionModule) {
 	t.Helper()
+	architectureIDs, requirementIDs := m.ArchitectureIDs, m.RequirementIDs
 	capabilityID := "CAP-CHILD"
 	if len(architectureIDs) > 0 {
 		capabilityID = architectureIDs[0]
@@ -204,14 +229,14 @@ func WriteV2CompositionModule(t testing.TB, dir, modulePath, version, modelID, p
 	if len(requirementIDs) > 0 {
 		requirementID = requirementIDs[0]
 	}
-	WriteV2ModuleFiles(t, dir, modulePath, version, modelID, "", `  contract:
+	WriteV2ModuleFiles(t, dir, V2Module{Path: m.Path, Version: m.Version, ModelID: m.ModelID, Architecture: `  contract:
     provides:
-      - id: `+capabilityID+`
+      - id: ` + capabilityID + `
         kind: capability
-`)
+`})
 	fixtureRealization{requirement: requirementID, capability: capabilityID}.write(t, dir)
 	var publicationYAML strings.Builder
-	publicationYAML.WriteString("publications:\n  - id: " + publication + "\n")
+	publicationYAML.WriteString("publications:\n  - id: " + m.Publication + "\n")
 	if len(architectureIDs) > 0 {
 		publicationYAML.WriteString("    architecture: [" + strings.Join(architectureIDs, ", ") + "]\n")
 	}
@@ -258,38 +283,50 @@ func (r fixtureRealization) write(t testing.TB, dir string) {
 	WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), b.String())
 }
 
+// V2Parent is the parent WriteV2CompositionParent writes: its dependencies
+// block and the body of its architecture document.
+type V2Parent struct{ Dependencies, Architecture string }
+
 // WriteV2CompositionParent writes the example.com/parent@v1 module with the
 // given dependencies block and architecture body.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051
-func WriteV2CompositionParent(t testing.TB, dir, dependencies, architecture string) {
+func WriteV2CompositionParent(t testing.TB, dir string, p V2Parent) {
 	t.Helper()
-	WriteV2ModuleFiles(t, dir, "example.com/parent@v1", "v1.0.0", "PARENT", dependencies, architecture)
+	WriteV2ModuleFiles(t, dir, V2Module{Path: "example.com/parent@v1", Version: "v1.0.0", ModelID: "PARENT", ManifestExtra: p.Dependencies, Architecture: p.Architecture})
 }
+
+// OCIModule is the module WriteOCIModuleFixture writes: its path, model ID,
+// capability and the requirement realizing it.
+type OCIModule struct{ Path, ModelID, CapabilityID, RequirementID string }
 
 // WriteOCIModuleFixture writes a publishable module providing capabilityID
 // (realized by requirementID) under the publication "public".
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048
-func WriteOCIModuleFixture(t testing.TB, dir, modulePath, modelID, capabilityID, requirementID string) {
+func WriteOCIModuleFixture(t testing.TB, dir string, m OCIModule) {
 	t.Helper()
-	WriteV2CompositionModule(t, dir, modulePath, "v0.1.0", modelID, "public", []string{capabilityID}, []string{requirementID})
+	WriteV2CompositionModule(t, dir, CompositionModule{Path: m.Path, Version: "v0.1.0", ModelID: m.ModelID, Publication: "public", ArchitectureIDs: []string{m.CapabilityID}, RequirementIDs: []string{m.RequirementID}})
 }
+
+// OCIParent is the dependency WriteParentWithOCIModule declares: the module
+// path and version.
+type OCIParent struct{ Path, Version string }
 
 // WriteParentWithOCIModule writes a parent depending on modulePath@version as
 // alias "shared", composing it as SUB-SHARED.
 // TRLC-LINKS: REQ-EMG-047, REQ-EMG-048
-func WriteParentWithOCIModule(t testing.TB, dir, modulePath, version string) {
+func WriteParentWithOCIModule(t testing.TB, dir string, d OCIParent) {
 	t.Helper()
-	WriteV2CompositionParent(t, dir, `dependencies:
+	WriteV2CompositionParent(t, dir, V2Parent{Dependencies: `dependencies:
   - alias: shared
-    path: `+modulePath+`
-    version: `+version+`
+    path: ` + d.Path + `
+    version: ` + d.Version + `
     publications: [public]
-`, `  composition:
+`, Architecture: `  composition:
     subsystems:
       - id: SUB-SHARED
         dependency: shared
         publication: public
-`)
+`})
 }
 
 // WithoutSwitches rewrites the manifest at path without the lifecycle and

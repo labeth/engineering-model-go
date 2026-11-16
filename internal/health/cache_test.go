@@ -70,35 +70,28 @@ func TestCachedEngineHitsAndMisses(t *testing.T) {
 	inputs := []FileInput{cacheInput("a.go", "package a\n"), cacheInput("b/c.go", "package c\n")}
 
 	first, err := eng.Analyze(inputs, Config{})
-	if err != nil || inner.files != 2 {
-		t.Fatalf("first run: %v, engine analysed %d files", err, inner.files)
-	}
+	mustEqual(t, [2]any{err, inner.files}, [2]any{nil, 2})
 	second, err := eng.Analyze(inputs, Config{})
-	if err != nil || inner.files != 2 || inner.calls != 1 {
-		t.Fatalf("second run: %v, engine analysed %d files in %d calls; want it untouched", err, inner.files, inner.calls)
-	}
-	if first[0].Path != "a.go" || second[1].Path != "b/c.go" || first[1].LOC != second[1].LOC {
-		t.Fatalf("results differ: %+v vs %+v", first, second)
-	}
-	if hits, misses := cache.Stats(); hits != 2 || misses != 2 {
-		t.Errorf("Stats = %d hits, %d misses; want 2 and 2", hits, misses)
-	}
+	mustEqual(t, [3]any{err, inner.files, inner.calls}, [3]any{nil, 2, 1}) // the engine is untouched
+	mustEqual(t, [3]any{first[0].Path, second[1].Path, first[1].LOC == second[1].LOC}, [3]any{"a.go", "b/c.go", true})
+	hits, misses := cache.Stats()
+	wantEqual(t, [2]int{hits, misses}, [2]int{2, 2})
 	// One changed file recomputes only that file.
 	inputs[1] = cacheInput("b/c.go", "package c // edited\n")
-	if _, err = eng.Analyze(inputs, Config{}); err != nil || inner.files != 3 {
-		t.Fatalf("third run: %v, engine analysed %d files; want 3", err, inner.files)
-	}
+	_, err = eng.Analyze(inputs, Config{})
+	mustEqual(t, [2]any{err, inner.files}, [2]any{nil, 3})
+	requireEntriesHoldNoPath(t, cache, root)
+}
+
+// requireEntriesHoldNoPath checks that no entry of the cache holds a path and
+// that each has a file name of a key.
+func requireEntriesHoldNoPath(t *testing.T, cache *Cache, root string) {
+	t.Helper()
 	for _, name := range entryFiles(t, cache) {
 		data, err := os.ReadFile(filepath.Join(cache.Dir(), name))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if strings.Contains(string(data), "a.go") || strings.Contains(string(data), "c.go") || strings.Contains(string(data), root) {
-			t.Errorf("entry %s holds a path: %s", name, data)
-		}
-		if !strings.HasSuffix(name, ".json") || len(name) != 64+len(".json") {
-			t.Errorf("unexpected cache file name %q", name)
-		}
+		mustEqual(t, err, nil)
+		wantEqual(t, [2]any{name, strings.Contains(string(data), "a.go") || strings.Contains(string(data), "c.go") || strings.Contains(string(data), root)}, [2]any{name, false})
+		wantEqual(t, [2]any{name, strings.HasSuffix(name, ".json") && len(name) == 64+len(".json")}, [2]any{name, true})
 	}
 }
 
@@ -183,9 +176,8 @@ func TestCacheCorruptEntryIsMiss(t *testing.T) {
 	key := strings.Repeat("ab", 32)
 	good := FileResult{Language: "go", LOC: 3, Functions: []Function{{Name: "F"}}}
 	cache.Put(key, good)
-	if res, ok := cache.Get(key); !ok || res.LOC != 3 || res.Path != "" {
-		t.Fatalf("Get after Put = %+v, %v", res, ok)
-	}
+	res, ok := cache.Get(key)
+	mustEqual(t, [3]any{ok, res.LOC, res.Path}, [3]any{true, 3, ""})
 	file := filepath.Join(cache.Dir(), key+".json")
 	for name, content := range map[string]string{
 		"empty":     "",
@@ -197,21 +189,24 @@ func TestCacheCorruptEntryIsMiss(t *testing.T) {
 		"no list":   `{"path":"","language":"go","loc":3}`,
 		"null":      `null`,
 	} {
-		if err := os.WriteFile(file, []byte(content), 0o600); err != nil {
-			t.Fatal(err)
-		}
-		if _, ok := cache.Get(key); ok {
-			t.Errorf("%s entry was a hit", name)
-		}
+		writeFileOrFail(t, file, content)
+		_, hit := cache.Get(key)
+		wantEqual(t, [2]any{name, hit}, [2]any{name, false})
 	}
 	cache.Put(key, good)
-	if _, ok := cache.Get(key); !ok {
-		t.Error("Put did not repair the corrupt entry")
-	}
-	if _, ok := cache.Get("../../etc/passwd"); ok {
-		t.Error("an invalid key must miss")
-	}
+	_, ok = cache.Get(key)
+	wantEqual(t, ok, true) // Put repairs the corrupt entry
+	_, ok = cache.Get("../../etc/passwd")
+	wantEqual(t, ok, false) // an invalid key misses
 	cache.Put("../escape", good)
+}
+
+// writeFileOrFail writes a file (mode 0600) or stops the test.
+func writeFileOrFail(t *testing.T, path, content string) {
+	t.Helper()
+	if err := os.WriteFile(path, []byte(content), 0o600); err != nil {
+		t.Fatal(err)
+	}
 }
 
 // Put leaves no temporary file behind and replaces an entry whole.
@@ -223,17 +218,12 @@ func TestCachePutIsAtomic(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		cache.Put(key, FileResult{Language: "go", LOC: i, Functions: []Function{}})
 		res, ok := cache.Get(key)
-		if !ok || res.LOC != i {
-			t.Fatalf("round %d: Get = %+v, %v", i, res, ok)
-		}
+		mustEqual(t, [2]any{ok, res.LOC}, [2]any{true, i})
 	}
-	if names := entryFiles(t, cache); len(names) != 1 || names[0] != key+".json" {
-		t.Errorf("cache directory holds %v, want only the entry", names)
-	}
+	wantDeepEqual(t, entryFiles(t, cache), []string{key + ".json"}) // only the entry
 	info, err := os.Stat(filepath.Join(cache.Dir(), key+".json"))
-	if err != nil || info.Mode().Perm() != 0o600 {
-		t.Errorf("entry mode = %v, %v; want 0600", info, err)
-	}
+	mustEqual(t, err, nil)
+	wantEqual(t, info.Mode().Perm(), os.FileMode(0o600))
 }
 
 // A symlinked entry, directory or target is never followed: reads miss and
@@ -243,43 +233,44 @@ func TestCachePutIsAtomic(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-159
 func TestCacheRefusesSymlinks(t *testing.T) {
 	key := strings.Repeat("1e", 32)
-	t.Run("entry", func(t *testing.T) {
-		cache := NewCache(t.TempDir())
-		cache.Put(strings.Repeat("22", 32), FileResult{Language: "go", Functions: []Function{}}) // makes the directory
-		outside := filepath.Join(t.TempDir(), "secret.json")
-		if err := os.WriteFile(outside, []byte(`{"path":"","language":"go","loc":1,"functions":[]}`), 0o600); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.Symlink(outside, filepath.Join(cache.Dir(), key+".json")); err != nil {
-			t.Skip("symlinks are not available:", err)
-		}
-		if _, ok := cache.Get(key); ok {
-			t.Error("a symlinked entry was read")
-		}
-		cache.Put(key, FileResult{Language: "go", LOC: 9, Functions: []Function{}})
-		data, _ := os.ReadFile(outside)
-		if strings.Contains(string(data), `"loc":9`) {
-			t.Error("Put wrote through a symlink")
-		}
-	})
-	t.Run("directory", func(t *testing.T) {
-		root := t.TempDir()
-		elsewhere := t.TempDir()
-		if err := os.MkdirAll(filepath.Join(root, ".engmod"), 0o700); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.Symlink(elsewhere, filepath.Join(root, ".engmod", "cache")); err != nil {
-			t.Skip("symlinks are not available:", err)
-		}
-		cache := NewCache(root)
-		cache.Put(key, FileResult{Language: "go", Functions: []Function{}})
-		if list, _ := os.ReadDir(elsewhere); len(list) != 0 {
-			t.Errorf("Put wrote through a symlinked directory: %v", list)
-		}
-		if _, ok := cache.Get(key); ok {
-			t.Error("Get read through a symlinked directory")
-		}
-	})
+	t.Run("entry", func(t *testing.T) { requireSymlinkedEntryRefused(t, key) })
+	t.Run("directory", func(t *testing.T) { requireSymlinkedDirectoryRefused(t, key) })
+}
+
+// requireSymlinkedEntryRefused checks that a symlinked entry is not read and
+// that Put does not write through it.
+func requireSymlinkedEntryRefused(t *testing.T, key string) {
+	t.Helper()
+	cache := NewCache(t.TempDir())
+	cache.Put(strings.Repeat("22", 32), FileResult{Language: "go", Functions: []Function{}}) // makes the directory
+	outside := filepath.Join(t.TempDir(), "secret.json")
+	writeFileOrFail(t, outside, `{"path":"","language":"go","loc":1,"functions":[]}`)
+	if err := os.Symlink(outside, filepath.Join(cache.Dir(), key+".json")); err != nil {
+		t.Skip("symlinks are not available:", err)
+	}
+	_, ok := cache.Get(key)
+	wantEqual(t, ok, false)
+	cache.Put(key, FileResult{Language: "go", LOC: 9, Functions: []Function{}})
+	data, _ := os.ReadFile(outside)
+	wantNone(t, string(data), `"loc":9`)
+}
+
+// requireSymlinkedDirectoryRefused checks that Put does not write through a
+// symlinked cache directory and that Get does not read through it.
+func requireSymlinkedDirectoryRefused(t *testing.T, key string) {
+	t.Helper()
+	root := t.TempDir()
+	elsewhere := t.TempDir()
+	mustEqual(t, os.MkdirAll(filepath.Join(root, ".engmod"), 0o700), nil)
+	if err := os.Symlink(elsewhere, filepath.Join(root, ".engmod", "cache")); err != nil {
+		t.Skip("symlinks are not available:", err)
+	}
+	cache := NewCache(root)
+	cache.Put(key, FileResult{Language: "go", Functions: []Function{}})
+	list, _ := os.ReadDir(elsewhere)
+	wantEqual(t, len(list), 0)
+	_, ok := cache.Get(key)
+	wantEqual(t, ok, false)
 }
 
 // An unwritable cache location is a silent miss, never an error: the engine
@@ -289,35 +280,33 @@ func TestCacheRefusesSymlinks(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-159
 func TestCacheUnwritableIsSilent(t *testing.T) {
 	root := t.TempDir()
-	if err := os.WriteFile(filepath.Join(root, ".engmod"), []byte("a file, not a directory"), 0o600); err != nil {
-		t.Fatal(err)
-	}
+	writeFileOrFail(t, filepath.Join(root, ".engmod"), "a file, not a directory")
 	inner := &countingEngine{version: "1"}
 	eng := CachedEngine{Engine: inner, Cache: NewCache(root)}
 	for i := 0; i < 2; i++ {
 		res, err := eng.Analyze([]FileInput{cacheInput("a.go", "package a\n")}, Config{})
-		if err != nil || len(res) != 1 || res[0].Path != "a.go" {
-			t.Fatalf("run %d: %+v, %v", i, res, err)
-		}
+		mustEqual(t, [2]any{err, len(res)}, [2]any{nil, 1})
+		wantEqual(t, res[0].Path, "a.go")
 	}
-	if inner.files != 2 {
-		t.Errorf("without a usable cache every run analyses; engine ran %d times", inner.files)
+	wantEqual(t, inner.files, 2) // without a usable cache every run analyses
+	hits, misses := eng.Cache.Stats()
+	wantEqual(t, [2]int{hits, misses}, [2]int{0, 2})
+	res, err := (CachedEngine{Engine: inner}).Analyze([]FileInput{cacheInput("a.go", "x")}, Config{})
+	wantEqual(t, [2]any{err, len(res)}, [2]any{nil, 1}) // a nil cache passes through
+	requireReadOnlyRootIsHarmless(t, inner)
+}
+
+// requireReadOnlyRootIsHarmless checks that a read-only cache root does not
+// fail the run.
+func requireReadOnlyRootIsHarmless(t *testing.T, inner Engine) {
+	t.Helper()
+	ro := t.TempDir()
+	if os.Geteuid() == 0 || os.Chmod(ro, 0o500) != nil {
+		return
 	}
-	if hits, misses := eng.Cache.Stats(); hits != 0 || misses != 2 {
-		t.Errorf("Stats = %d, %d", hits, misses)
-	}
-	if res, err := (CachedEngine{Engine: inner}).Analyze([]FileInput{cacheInput("a.go", "x")}, Config{}); err != nil || len(res) != 1 {
-		t.Errorf("a nil cache passes through: %v", err)
-	}
-	if os.Geteuid() != 0 {
-		ro := t.TempDir()
-		if err := os.Chmod(ro, 0o500); err == nil {
-			defer os.Chmod(ro, 0o700)
-			if _, err := (CachedEngine{Engine: inner, Cache: NewCache(ro)}).Analyze([]FileInput{cacheInput("a.go", "y")}, Config{}); err != nil {
-				t.Errorf("a read-only root must not fail the run: %v", err)
-			}
-		}
-	}
+	defer os.Chmod(ro, 0o700)
+	_, err := (CachedEngine{Engine: inner, Cache: NewCache(ro)}).Analyze([]FileInput{cacheInput("a.go", "y")}, Config{})
+	wantEqual(t, err, nil)
 }
 
 // An entry that was edited (a finding removed, a value lowered), copied under
@@ -337,12 +326,8 @@ func TestCacheEntryDigestDetectsEdits(t *testing.T) {
 	cache.Put(key, good)
 	file := filepath.Join(cache.Dir(), key+".json")
 	original, err := os.ReadFile(file)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(original), `"digest"`) {
-		t.Fatalf("an entry must carry its digest: %s", original)
-	}
+	mustEqual(t, err, nil)
+	wantContains(t, string(original), `"digest"`) // an entry carries its digest
 	edits := map[string]string{
 		"finding removed": strings.Replace(string(original), `"findings":[{"code":"health.complex_method","severity":"high","startLine":0,"endLine":0,"metric":"cyclomatic","value":30,"message":""}]`, ``, 1),
 		"value lowered":   strings.Replace(string(original), `"value":30`, `"value":9`, 1),
@@ -352,30 +337,20 @@ func TestCacheEntryDigestDetectsEdits(t *testing.T) {
 		"digest cleared":  strings.Replace(string(original), `"digest":"`, `"digest":"0`, 1),
 	}
 	for name, content := range edits {
-		if content == string(original) {
-			t.Fatalf("%s: the edit changed nothing in %s", name, original)
-		}
-		if err := os.WriteFile(file, []byte(content), 0o600); err != nil {
-			t.Fatal(err)
-		}
-		if _, ok := cache.Get(key); ok {
-			t.Errorf("%s: an edited entry was a hit", name)
-		}
+		mustEqual(t, [2]any{name, content != string(original)}, [2]any{name, true}) // the edit changed something
+		writeFileOrFail(t, file, content)
+		_, hit := cache.Get(key)
+		wantEqual(t, [2]any{name, hit}, [2]any{name, false})
 	}
 	// Copied under another key.
-	if err := os.WriteFile(filepath.Join(cache.Dir(), other+".json"), original, 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if _, ok := cache.Get(other); ok {
-		t.Error("an entry copied to another key was a hit")
-	}
+	writeFileOrFail(t, filepath.Join(cache.Dir(), other+".json"), string(original))
+	_, hit := cache.Get(other)
+	wantEqual(t, hit, false)
 	// The untouched entry still hits.
-	if err := os.WriteFile(file, original, 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if res, ok := cache.Get(key); !ok || len(res.Functions[0].Findings) != 1 {
-		t.Errorf("the intact entry = %+v, %v", res, ok)
-	}
+	writeFileOrFail(t, file, string(original))
+	res, ok := cache.Get(key)
+	mustEqual(t, ok, true)
+	wantEqual(t, len(res.Functions[0].Findings), 1)
 }
 
 // OpenCache decides whether a run may use the cache: off with Disabled; off
@@ -388,49 +363,50 @@ func TestCacheEntryDigestDetectsEdits(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-159
 func TestOpenCacheRules(t *testing.T) {
-	env := func(ci string) func(string) string {
-		return func(name string) string {
-			if name == "CI" {
-				return ci
-			}
-			return ""
-		}
-	}
 	r := NewFixtureRepo(t)
 	r.Write("a.go", "package p\n")
 	r.Commit("one")
 
-	if c, note := OpenCache(r.Dir, CachePolicy{Getenv: env("")}); c == nil || note != "" {
-		t.Errorf("plain work tree: cache %v note %q, want the cache", c, note)
-	}
-	if c, note := OpenCache(r.Dir, CachePolicy{Getenv: env(""), Disabled: true}); c != nil || note != "" {
-		t.Errorf("Disabled: cache %v note %q, want none", c, note)
-	}
-	if c, note := OpenCache(r.Dir, CachePolicy{Getenv: env("true")}); c != nil || note != "" {
-		t.Errorf("CI set: cache %v note %q, want none", c, note)
-	}
-	if c, _ := OpenCache(r.Dir, CachePolicy{Getenv: env("true"), Force: true}); c == nil {
-		t.Error("CI set with Force: want the cache")
-	}
-	if c, _ := OpenCache(r.Dir, CachePolicy{Getenv: env("true"), Force: true, Disabled: true}); c != nil {
-		t.Error("Disabled wins over Force")
-	}
+	requireOpen(t, r.Dir, openWant{policy: CachePolicy{Getenv: ciEnv("")}, open: true}) // a plain work tree
+	requireOpen(t, r.Dir, openWant{policy: CachePolicy{Getenv: ciEnv(""), Disabled: true}})
+	requireOpen(t, r.Dir, openWant{policy: CachePolicy{Getenv: ciEnv("true")}})                          // CI set
+	requireOpen(t, r.Dir, openWant{policy: CachePolicy{Getenv: ciEnv("true"), Force: true}, open: true}) // CI set with Force
+	requireOpen(t, r.Dir, openWant{policy: CachePolicy{Getenv: ciEnv("true"), Force: true, Disabled: true}})
 
 	// An untracked cache directory is fine; a tracked entry refuses the cache.
 	r.Write(".engmod/cache/health/"+strings.Repeat("ab", 32)+".json", "{}")
-	if c, _ := OpenCache(r.Dir, CachePolicy{Getenv: env("")}); c == nil {
-		t.Error("an untracked .engmod must not refuse the cache")
-	}
+	requireOpen(t, r.Dir, openWant{policy: CachePolicy{Getenv: ciEnv("")}, open: true})
 	r.Commit("two")
-	for name, p := range map[string]CachePolicy{"plain": {Getenv: env("")}, "forced in CI": {Getenv: env("1"), Force: true}} {
-		c, note := OpenCache(r.Dir, p)
-		if c != nil || !strings.Contains(note, "tracked by git") || !strings.Contains(note, ".engmod/cache/health/") {
-			t.Errorf("%s: cache %v note %q, want it refused with a note naming the tracked file", name, c, note)
-		}
-	}
+	requireOpen(t, r.Dir, openWant{policy: CachePolicy{Getenv: ciEnv("")}, note: "tracked by git"})
+	requireOpen(t, r.Dir, openWant{policy: CachePolicy{Getenv: ciEnv("1"), Force: true}, note: ".engmod/cache/health/"})
 
 	// Outside any work tree nothing can be tracked.
-	if c, note := OpenCache(t.TempDir(), CachePolicy{Getenv: env("")}); c == nil || note != "" {
-		t.Errorf("outside a work tree: cache %v note %q, want the cache", c, note)
+	requireOpen(t, t.TempDir(), openWant{policy: CachePolicy{Getenv: ciEnv("")}, open: true})
+}
+
+// ciEnv is an environment where CI has a value and nothing else is set.
+func ciEnv(ci string) func(string) string {
+	return func(name string) string {
+		if name == "CI" {
+			return ci
+		}
+		return ""
 	}
+}
+
+// openWant is the outcome of OpenCache for a policy: whether it returns a cache
+// and the text its note holds (empty: no note).
+type openWant struct {
+	policy CachePolicy
+	open   bool
+	note   string
+}
+
+// requireOpen checks the outcome of OpenCache in a directory.
+func requireOpen(t *testing.T, dir string, w openWant) {
+	t.Helper()
+	c, note := OpenCache(dir, w.policy)
+	wantEqual(t, c != nil, w.open)
+	wantEqual(t, strings.Contains(note, w.note), true)
+	wantEqual(t, w.note != "" || note == "", true)
 }

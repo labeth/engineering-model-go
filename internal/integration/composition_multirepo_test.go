@@ -131,7 +131,7 @@ func generateService(t *testing.T, f multiRepoFixture) ([]validate.Diagnostic, e
 	if err != nil {
 		t.Fatalf("load service: %v", err)
 	}
-	res, err := asciidoc.Generate(bundle, bundle.Requirements, bundle.Design, asciidoc.Options{})
+	res, err := asciidoc.Generate(asciidoc.Inputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, asciidoc.Options{})
 	return res.Diagnostics, err
 }
 
@@ -164,6 +164,13 @@ func TestQualifiedReferencesValidateAgainstPublishedEntities(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	assertLocalTrace(t, matrix, traceDiags)
+}
+
+// assertLocalTrace checks that the trace has no dangling link and counts only
+// the service's own requirement.
+func assertLocalTrace(t *testing.T, matrix trace.Matrix, traceDiags []validate.Diagnostic) {
+	t.Helper()
 	if matrix.Summary.DanglingLinks != 0 || len(errorsOf(traceDiags)) > 0 {
 		t.Fatalf("dangling=%d errors=%+v", matrix.Summary.DanglingLinks, errorsOf(traceDiags))
 	}
@@ -201,30 +208,42 @@ func TestUnpublishedQualifiedReferenceReportedOncePerField(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			docs := defaultServiceDocs()
 			c.edit(&docs)
-			f := writeMultiRepoFixture(t, docs)
-			diags, err := generateService(t, f)
+			diags, err := generateService(t, writeMultiRepoFixture(t, docs))
 			if err == nil {
 				t.Fatal("expected validation to fail")
 			}
-			errs := errorsOf(diags)
-			if len(errs) != 1 || errs[0].Code != "composition.unpublished_reference" || !strings.HasSuffix(errs[0].Path, c.field) {
-				t.Fatalf("want exactly one composition.unpublished_reference at %s, got %+v", c.field, errs)
-			}
+			assertOneUnpublishedReference(t, errorsOf(diags), c.field)
 		})
 	}
+}
 
-	t.Run("code link", func(t *testing.T) {
-		docs := defaultServiceDocs()
-		docs.code = strings.Replace(docs.code, "nats::DO-WS", "nats::IF-NOPE", 1)
-		f := writeMultiRepoFixture(t, docs)
-		matrix, _, err := trace.BuildFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if matrix.Summary.DanglingLinks != 1 || matrix.DanglingLinks[0].Target != "nats::IF-NOPE" {
-			t.Fatalf("want 1 dangling nats::IF-NOPE, got %+v", matrix.DanglingLinks)
-		}
-	})
+// assertOneUnpublishedReference checks that errs is exactly one
+// composition.unpublished_reference whose path ends with field.
+func assertOneUnpublishedReference(t *testing.T, errs []validate.Diagnostic, field string) {
+	t.Helper()
+	if len(errs) != 1 || errs[0].Code != "composition.unpublished_reference" {
+		t.Fatalf("want exactly one composition.unpublished_reference at %s, got %+v", field, errs)
+	}
+	if !strings.HasSuffix(errs[0].Path, field) {
+		t.Fatalf("want exactly one composition.unpublished_reference at %s, got %+v", field, errs)
+	}
+}
+
+// An alias::ID in code that the dependency does not publish is one dangling
+// link.
+// TRLC-LINKS: REQ-EMG-065
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-VALIDATION-ENGINE, FU-ALLOCATION-TRACE
+func TestUnpublishedQualifiedCodeLinkIsOneDanglingLink(t *testing.T) {
+	docs := defaultServiceDocs()
+	docs.code = strings.Replace(docs.code, "nats::DO-WS", "nats::IF-NOPE", 1)
+	f := writeMultiRepoFixture(t, docs)
+	matrix, _, err := trace.BuildFromFiles(filepath.Join(f.service, "engmod.yml"), filepath.Join(f.service, "model", "requirements.yml"), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if matrix.Summary.DanglingLinks != 1 || matrix.DanglingLinks[0].Target != "nats::IF-NOPE" {
+		t.Fatalf("want 1 dangling nats::IF-NOPE, got %+v", matrix.DanglingLinks)
+	}
 }
 
 // TestQualifiedOwnershipAndViewRoots verifies that published dependency
@@ -289,10 +308,10 @@ func TestLocalModelReportsQualifiedReferenceWithoutComposition(t *testing.T) {
 	docs.behavior = "schemaVersion: 3\nbehavior: {}\n"
 	docs.code = "package svc\n\n// TRLC-LINKS: REQ-SVC-001\nfunc Publish() {}\n"
 	diags, err := generateService(t, writeMultiRepoFixture(t, docs))
-	errs := errorsOf(diags)
-	if err == nil || len(errs) != 1 || errs[0].Code != "composition.unpublished_reference" || !strings.HasSuffix(errs[0].Path, "requirements[0].appliesTo[1]") {
-		t.Fatalf("want one unpublished_reference for appliesTo, got err=%v %+v", err, errs)
+	if err == nil {
+		t.Fatal("expected validation to fail")
 	}
+	assertOneUnpublishedReference(t, errorsOf(diags), "requirements[0].appliesTo[1]")
 }
 
 // TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce verifies
@@ -305,15 +324,10 @@ func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing
 	f := writeMultiRepoFixture(t, defaultServiceDocs())
 	// The interface now requires a need, and the service names an
 	// unpublished provider in a satisfaction.
-	testutil.WriteFile(t, filepath.Join(f.iface, "model", "architecture.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "model", "architecture.yml")), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
-	testutil.WriteFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
+	requireInterfaceNeed(t, f)
 	testutil.WriteFile(t, filepath.Join(f.service, "model", "architecture.yml"), defaultServiceDocs().architecture+"    satisfactions:\n      - need: nats::CAP-SCHEMA\n        by: nats::CAP-INTERNAL\n")
 
-	before := composition.ResolutionCount()
-	diags, err := generateService(t, f)
-	if runs := composition.ResolutionCount() - before; runs != 1 {
-		t.Fatalf("GenerateAsciiDoc composed %d times, want 1", runs)
-	}
+	diags, err := generateServiceComposingOnce(t, f)
 	if err == nil {
 		t.Fatal("composition errors must fail GenerateAsciiDoc")
 	}
@@ -329,14 +343,31 @@ func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing
 	}
 
 	// A passing model composes once too, including the composition chapter.
-	g := writeMultiRepoFixture(t, defaultServiceDocs())
-	before = composition.ResolutionCount()
-	if _, err := generateService(t, g); err != nil {
+	if _, err := generateServiceComposingOnce(t, writeMultiRepoFixture(t, defaultServiceDocs())); err != nil {
 		t.Fatal(err)
 	}
+}
+
+// requireInterfaceNeed makes the interface module require NEED-CLOCK and
+// publish it.
+func requireInterfaceNeed(t *testing.T, f multiRepoFixture) {
+	t.Helper()
+	architecture := filepath.Join(f.iface, "model", "architecture.yml")
+	testutil.WriteFile(t, architecture, strings.Replace(mustRead(t, architecture), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
+	manifest := filepath.Join(f.iface, "engmod.yml")
+	testutil.WriteFile(t, manifest, strings.Replace(mustRead(t, manifest), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
+}
+
+// generateServiceComposingOnce is generateService that fails the test unless
+// the call resolved the composition exactly once.
+func generateServiceComposingOnce(t *testing.T, f multiRepoFixture) ([]validate.Diagnostic, error) {
+	t.Helper()
+	before := composition.ResolutionCount()
+	diags, err := generateService(t, f)
 	if runs := composition.ResolutionCount() - before; runs != 1 {
 		t.Fatalf("GenerateAsciiDoc composed %d times, want 1", runs)
 	}
+	return diags, err
 }
 
 // TestCompositionSeverityRules verifies that an unsatisfied need is an error
@@ -346,8 +377,7 @@ func TestGenerateAsciiDocReturnsCompositionDiagnosticsAndComposesOnce(t *testing
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
 func TestCompositionSeverityRules(t *testing.T) {
 	f := writeMultiRepoFixture(t, defaultServiceDocs())
-	testutil.WriteFile(t, filepath.Join(f.iface, "model", "architecture.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "model", "architecture.yml")), "  contract:\n", "  contract:\n    requires:\n      - id: NEED-CLOCK\n        kind: interface\n", 1))
-	testutil.WriteFile(t, filepath.Join(f.iface, "engmod.yml"), strings.Replace(mustRead(t, filepath.Join(f.iface, "engmod.yml")), "CAP-SCHEMA]", "CAP-SCHEMA, NEED-CLOCK]", 1))
+	requireInterfaceNeed(t, f)
 	manifest := filepath.Join(f.service, "engmod.yml")
 
 	severity := func(res composition.CompositionResult, code string) validate.Severity {
@@ -546,7 +576,7 @@ func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
 	t.Setenv(model.WorkspaceEnv, "")
 	t.Setenv(composition.LockEnv, "")
 	dir := t.TempDir()
-	testutil.WriteV2ModuleFiles(t, dir, "example.com/solo@v0", "v0.1.0", "SOLO", "", `  functionalGroups:
+	testutil.WriteV2ModuleFiles(t, dir, testutil.V2Module{Path: "example.com/solo@v0", Version: "v0.1.0", ModelID: "SOLO", ManifestExtra: "", Architecture: `  functionalGroups:
     - id: FG-CORE
       name: Core
       description: "uses std::vector and a::b"
@@ -562,7 +592,7 @@ func TestProseWithDoubleColonIsNotAQualifiedReference(t *testing.T) {
       endpoint: "https://[fe80::1]:8443/api"
       schemaRef: "schemas::v1.json"
       owner: FU-CORE
-`)
+`})
 	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), `schemaVersion: 3
 lintRun: {mode: guided}
 requirements:
@@ -579,7 +609,7 @@ requirements:
 	if diags := composition.QualifiedReferenceDiagnostics(bundle, composition.CompositionResult{}); len(diags) != 0 {
 		t.Fatalf("prose with :: reported as qualified references: %+v", diags)
 	}
-	res, _ := asciidoc.Generate(bundle, bundle.Requirements, bundle.Design, asciidoc.Options{})
+	res, _ := asciidoc.Generate(asciidoc.Inputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, asciidoc.Options{})
 	for _, d := range res.Diagnostics {
 		if strings.HasPrefix(d.Code, "composition.") || strings.Contains(d.Message, "::") {
 			t.Fatalf("prose with :: produced %+v", d)

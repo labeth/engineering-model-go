@@ -22,7 +22,7 @@ type releaseVersions struct{ tagged, head int }
 func releaseRepo(t *testing.T, v releaseVersions, changelog string) string {
 	t.Helper()
 	dir := filepath.Join(t.TempDir(), "rc")
-	writeModel(t, dir, "rc", "v0.1.0")
+	writeModel(t, modelSpec{Dir: dir, Name: "rc", Version: "v0.1.0"})
 	setManifestVersion(t, dir, v.tagged)
 	runGit(t, dir, "init", "-q")
 	runGit(t, dir, "add", ".")
@@ -186,10 +186,10 @@ func TestChangelogSection(t *testing.T) {
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-MODEL-LOADER
 func TestLoadBundleAtRefAcceptsAnOlderSchemaVersion(t *testing.T) {
 	dir := filepath.Join(t.TempDir(), "old")
-	writeModel(t, dir, "old", "v0.1.0")
+	writeModel(t, modelSpec{Dir: dir, Name: "old", Version: "v0.1.0"})
 	old := "schemaVersion: " + strconv.Itoa(model.CurrentSchemaVersion-1)
 	for _, rel := range []string{"engmod.yml", "model/catalog.yml", "model/requirements.yml", "model/architecture.yml", "model/behavior.yml", "model/assurance.yml", "model/compliance.yml", "model/views.yml", "model/decisions.yml"} {
-		replaceIn(t, filepath.Join(dir, rel), model.SchemaVersionLine, old)
+		replaceIn(t, filepath.Join(dir, rel), textEdit{Old: model.SchemaVersionLine, New: old})
 	}
 	runGit(t, dir, "init", "-q")
 	runGit(t, dir, "add", ".")

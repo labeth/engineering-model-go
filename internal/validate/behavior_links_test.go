@@ -175,7 +175,7 @@ func TestBehaviorElementRequirementMustExist(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			b := machineBundle(nil)
 			c.edit(&b)
-			wantOne(t, behaviorDiags(b, "semantic.dangling_reference"), SeverityError, c.path, "REQ-NOPE", name)
+			expect(t, behaviorDiags(b, "semantic.dangling_reference")).one(SeverityError, c.path, "REQ-NOPE", name)
 			if got := linkDiags(b); len(got) != 0 {
 				t.Fatalf("a listed requirement is not unlinked, got %v", got)
 			}

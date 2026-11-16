@@ -11,49 +11,81 @@ import (
 	"github.com/labeth/engineering-model-go/internal/validate"
 )
 
-// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
-// ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-CLI-ORCHESTRATION, IF-CLI-ENGCHANGE, DO-REQUIREMENTS-DELTA, DEP-LOCAL-WORKSPACE
-// ENGMODEL-LINKS: EVT-REQUIREMENTS-DELTA-RECEIVED, EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED, TR-DELTA-REJECT
+// main runs engchange with the process arguments and exits with its code.
+// TRLC-LINKS: REQ-EMG-031
+// ENGMODEL-LINKS: FU-MODEL-CHANGE
 func main() {
-	if len(os.Args) < 2 {
+	os.Exit(runEngchange(os.Args[1:]))
+}
+
+// engchangeRequest is the parsed command line of engchange.
+type engchangeRequest struct {
+	operation string
+	root      string
+	delta     string
+}
+
+// parseEngchangeArgs reads the operation and flags. It returns the exit code 2 when the command line is unusable.
+// TRLC-LINKS: REQ-EMG-031
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, IF-CLI-ENGCHANGE
+func parseEngchangeArgs(args []string) (engchangeRequest, int, bool) {
+	if len(args) < 1 {
 		usage()
-		os.Exit(2)
+		return engchangeRequest{}, 2, false
 	}
-	operation := strings.TrimSpace(os.Args[1])
+	operation := strings.TrimSpace(args[0])
 	flags := flag.NewFlagSet("engchange "+operation, flag.ContinueOnError)
 	flags.SetOutput(os.Stderr)
 	root := flags.String("root", ".", "model root containing engmod.yml and requirements.yml")
 	delta := flags.String("delta", "", "requirements delta YAML")
-	if err := flags.Parse(os.Args[2:]); err != nil {
-		os.Exit(2)
+	if err := flags.Parse(args[1:]); err != nil {
+		return engchangeRequest{}, 2, false
 	}
 	if operation != "validate" && operation != "diff" && operation != "apply" {
 		usage()
-		os.Exit(2)
+		return engchangeRequest{}, 2, false
 	}
 	if strings.TrimSpace(*delta) == "" {
 		fmt.Fprintln(os.Stderr, "--delta is required")
-		os.Exit(2)
+		return engchangeRequest{}, 2, false
 	}
+	return engchangeRequest{operation: operation, root: *root, delta: *delta}, 0, true
+}
 
+// runEngchange runs one engchange operation and returns the exit code.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, FU-CLI-ORCHESTRATION, IF-CLI-ENGCHANGE, DO-REQUIREMENTS-DELTA, DEP-LOCAL-WORKSPACE, FLOW-ARTIFACT-EXPORT
+// ENGMODEL-LINKS: EVT-REQUIREMENTS-DELTA-RECEIVED, EVT-REQUIREMENTS-DELTA-APPLY-REQUESTED, TR-DELTA-REJECT
+func runEngchange(args []string) int {
+	request, code, ok := parseEngchangeArgs(args)
+	if !ok {
+		return code
+	}
 	var (
 		result engmodel.RequirementsDeltaResult
 		err    error
 	)
-	if operation == "apply" {
-		result, err = engmodel.ApplyRequirementsDelta(*root, *delta)
+	if request.operation == "apply" {
+		result, err = engmodel.ApplyRequirementsDelta(request.root, request.delta)
 	} else {
-		result, err = engmodel.PlanRequirementsDelta(*root, *delta)
+		result, err = engmodel.PlanRequirementsDelta(request.root, request.delta)
 	}
 	printDiagnostics(result.Diagnostics)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
-		os.Exit(1)
+		return 1
 	}
 	if validate.HasErrors(result.Diagnostics) {
-		os.Exit(1)
+		return 1
 	}
+	printEngchangeResult(request.operation, result)
+	return 0
+}
 
+// printEngchangeResult prints the outcome of a successful operation.
+// TRLC-LINKS: REQ-EMG-031, REQ-EMG-032, REQ-EMG-033
+// ENGMODEL-LINKS: FU-MODEL-CHANGE, IF-CLI-ENGCHANGE
+func printEngchangeResult(operation string, result engmodel.RequirementsDeltaResult) {
 	switch operation {
 	case "diff":
 		fmt.Print(result.Diff)

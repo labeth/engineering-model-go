@@ -2,6 +2,7 @@
 package asciidoc
 
 import (
+	"cmp"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -24,186 +25,254 @@ var inlineLinkPattern = regexp.MustCompile(`<<[^>\n]+>>`)
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func buildLinkTargets(ref asciidocReferenceIndex) map[string]linkTarget {
-	out := map[string]linkTarget{}
-	add := func(token, anchor, label string) {
-		token = strings.TrimSpace(token)
-		anchor = strings.TrimSpace(anchor)
-		label = strings.TrimSpace(label)
-		if token == "" || anchor == "" {
-			return
-		}
-		if label == "" {
-			label = token
-		}
-		if _, exists := out[token]; exists {
-			return
-		}
-		out[token] = linkTarget{Anchor: anchor, Label: label}
-	}
-	addWithVariants := func(token, anchor string) {
-		token = strings.TrimSpace(token)
-		if token == "" {
-			return
-		}
-		add(token, anchor, token)
-		for _, v := range linkTokenVariants(token) {
-			add(v, anchor, v)
-		}
-	}
+	out := linkTargetSet{}
 	// Priority order matters; first match wins.
 	for _, e := range ref.Authored {
-		target := e.Anchor
-		add(e.ID, target, e.ID)
-		addWithVariants(e.Name, target)
+		out.add(e.ID, e.Anchor, e.ID)
+		out.addWithVariants(e.Name, e.Anchor)
 	}
 	for _, e := range ref.Catalog {
-		target := e.Anchor
-		add(e.ID, target, e.ID)
-		// Link alias-style IDs that are phrase-like tokens as well.
-		if !modelIDPattern.MatchString(strings.TrimSpace(e.ID)) {
-			addWithVariants(e.ID, target)
-		}
-		addWithVariants(e.Name, target)
-		for _, alias := range e.Aliases {
-			addWithVariants(alias, target)
-		}
+		out.addCatalogEntry(e)
 	}
 	// For inferred entries, only link explicit IDs to avoid prose noise.
 	for _, e := range ref.Runtime {
-		target := e.Anchor
-		add(e.ID, target, e.ID)
+		out.add(e.ID, e.Anchor, e.ID)
 	}
 	for _, e := range ref.Code {
-		target := e.Anchor
-		add(e.ID, target, e.ID)
-		if strings.Contains(strings.ToLower(strings.TrimSpace(e.Kind)), "source_file") {
-			src := strings.TrimSpace(e.Source)
-			if idx := strings.Index(src, ":"); idx > 0 {
-				src = src[:idx]
-			}
-			base := filepath.Base(filepath.ToSlash(src))
-			ext := filepath.Ext(base)
-			module := strings.TrimSuffix(base, ext)
-			if strings.TrimSpace(module) != "" {
-				add(module, target, module)
-			}
-		}
+		out.addCodeEntry(e)
 	}
 	for _, e := range ref.Verification {
-		target := e.Anchor
-		add(e.ID, target, e.ID)
-		addWithVariants(e.Name, target)
+		out.add(e.ID, e.Anchor, e.ID)
+		out.addWithVariants(e.Name, e.Anchor)
 	}
 	return out
+}
+
+// linkTargetSet maps the tokens of prose to the targets they link to.
+type linkTargetSet map[string]linkTarget
+
+// add makes the token link to the anchor, unless the token has a target
+// already; a blank label is the token.
+// TRLC-LINKS: REQ-EMG-003
+func (s linkTargetSet) add(token, anchor, label string) {
+	token = strings.TrimSpace(token)
+	anchor = strings.TrimSpace(anchor)
+	if token == "" || anchor == "" {
+		return
+	}
+	if _, exists := s[token]; !exists {
+		s[token] = linkTarget{Anchor: anchor, Label: textutil.NonEmpty(strings.TrimSpace(label), token)}
+	}
+}
+
+// addWithVariants makes the token and its case and plural variants link to the anchor.
+// TRLC-LINKS: REQ-EMG-003
+func (s linkTargetSet) addWithVariants(token, anchor string) {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return
+	}
+	s.add(token, anchor, token)
+	for _, v := range linkTokenVariants(token) {
+		s.add(v, anchor, v)
+	}
+}
+
+// addCatalogEntry links the ID, the name and the aliases of a catalog entry;
+// an ID that is a phrase rather than a model ID links with its variants.
+// TRLC-LINKS: REQ-EMG-003
+func (s linkTargetSet) addCatalogEntry(e asciidocReferenceEntry) {
+	s.add(e.ID, e.Anchor, e.ID)
+	// Link alias-style IDs that are phrase-like tokens as well.
+	if !modelIDPattern.MatchString(strings.TrimSpace(e.ID)) {
+		s.addWithVariants(e.ID, e.Anchor)
+	}
+	s.addWithVariants(e.Name, e.Anchor)
+	for _, alias := range e.Aliases {
+		s.addWithVariants(alias, e.Anchor)
+	}
+}
+
+// addCodeEntry links the ID of a code entry, and the module name of a source file.
+// TRLC-LINKS: REQ-EMG-003
+func (s linkTargetSet) addCodeEntry(e asciidocReferenceEntry) {
+	s.add(e.ID, e.Anchor, e.ID)
+	if !strings.Contains(strings.ToLower(strings.TrimSpace(e.Kind)), "source_file") {
+		return
+	}
+	src := strings.TrimSpace(e.Source)
+	if idx := strings.Index(src, ":"); idx > 0 {
+		src = src[:idx]
+	}
+	base := filepath.Base(filepath.ToSlash(src))
+	module := strings.TrimSuffix(base, filepath.Ext(base))
+	if strings.TrimSpace(module) != "" {
+		s.add(module, e.Anchor, module)
+	}
+}
+
+// phraseTokenPattern matches tokens that contain an acronym or a hyphen.
+var phraseTokenPattern = regexp.MustCompile(`[A-Z]{2,}|-`)
+
+// wordChars are the characters that continue a word of prose.
+const wordChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-"
+
+// linkToken is a token of prose and the target it links to.
+type linkToken struct {
+	Token string
+	Link  linkTarget
+}
+
+// linkSpan is a stretch of text and the link that replaces it.
+type linkSpan struct {
+	start int
+	end   int
+	repl  string
+}
+
+// textLinker finds the tokens in a text and the spans to replace with links.
+type textLinker struct {
+	text  string
+	lower string
+	used  []bool
+	spans []linkSpan
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
 func linkifyText(text string, targets map[string]linkTarget) string {
-	in := strings.TrimSpace(text)
-	if in == "" {
+	if strings.TrimSpace(text) == "" {
 		return text
 	}
-	textLower := strings.ToLower(text)
-	type tokenInfo struct {
-		Token string
-		Link  linkTarget
+	l := newTextLinker(text)
+	for _, it := range sortedLinkTokens(targets) {
+		l.linkAll(it)
 	}
-	items := make([]tokenInfo, 0, len(targets))
+	return l.render()
+}
+
+// sortedLinkTokens lists the tokens of at least four characters, longest
+// first so specific phrases win over substrings; the tie-break on the token
+// text keeps the result deterministic (the targets are a map).
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func sortedLinkTokens(targets map[string]linkTarget) []linkToken {
+	items := make([]linkToken, 0, len(targets))
 	for t, l := range targets {
-		t = strings.TrimSpace(t)
-		if len(t) < 4 {
-			continue
+		if t = strings.TrimSpace(t); len(t) >= 4 {
+			items = append(items, linkToken{Token: t, Link: l})
 		}
-		items = append(items, tokenInfo{Token: t, Link: l})
 	}
-	// Longest token first so specific phrases win over substrings; tie-break on the
-	// token text so the result is deterministic (items came from a map iteration).
 	sort.SliceStable(items, func(i, j int) bool {
-		if len(items[i].Token) != len(items[j].Token) {
-			return len(items[i].Token) > len(items[j].Token)
-		}
-		return items[i].Token < items[j].Token
+		return cmp.Or(cmp.Compare(len(items[j].Token), len(items[i].Token)), cmp.Compare(items[i].Token, items[j].Token)) < 0
 	})
+	return items
+}
 
-	type span struct {
-		start int
-		end   int
-		repl  string
-	}
-	spans := []span{}
-	used := make([]bool, len(text))
+// newTextLinker marks the existing inline links of the text as used.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func newTextLinker(text string) *textLinker {
+	l := &textLinker{text: text, lower: strings.ToLower(text), used: make([]bool, len(text))}
 	for _, loc := range inlineLinkPattern.FindAllStringIndex(text, -1) {
-		for i := loc[0]; i < loc[1] && i < len(used); i++ {
-			used[i] = true
-		}
+		l.markUsed(loc[0], min(loc[1], len(l.used)))
 	}
-	isWordBound := func(s string, idx int) bool {
-		if idx <= 0 || idx >= len(s) {
-			return true
-		}
-		ch := s[idx]
-		return !((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9') || ch == '_' || ch == '-')
-	}
+	return l
+}
 
-	for _, it := range items {
-		token := it.Token
-		if token == "" {
-			continue
-		}
-		tokenLower := strings.ToLower(token)
-		if tokenLower == "" {
-			continue
-		}
-		start := 0
-		for {
-			pos := strings.Index(textLower[start:], tokenLower)
-			if pos < 0 {
-				break
-			}
-			s := start + pos
-			e := s + len(token)
-			ok := true
-			if !(strings.Contains(token, " ") || strings.ContainsAny(token, "/:.") || regexp.MustCompile(`[A-Z]{2,}|-`).MatchString(token)) {
-				ok = isWordBound(text, s-1) && isWordBound(text, e)
-			}
-			if ok {
-				for i := s; i < e; i++ {
-					if used[i] {
-						ok = false
-						break
-					}
-				}
-			}
-			if ok {
-				label := text[s:e]
-				if strings.TrimSpace(label) == "" {
-					label = it.Link.Label
-				}
-				link := "<<" + it.Link.Anchor + "," + label + ">>"
-				for i := s; i < e; i++ {
-					used[i] = true
-				}
-				spans = append(spans, span{start: s, end: e, repl: link})
-			}
-			start = e
+// markUsed marks the characters from start up to end as used.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func (l *textLinker) markUsed(start, end int) {
+	for i := start; i < end; i++ {
+		l.used[i] = true
+	}
+}
+
+// isFree reports whether no character from start up to end is used.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func (l *textLinker) isFree(start, end int) bool {
+	for i := start; i < end; i++ {
+		if l.used[i] {
+			return false
 		}
 	}
-	if len(spans) == 0 {
-		return text
+	return true
+}
+
+// linkAll links each occurrence of the token that is not used yet.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func (l *textLinker) linkAll(it linkToken) {
+	tokenLower := strings.ToLower(it.Token)
+	if it.Token == "" || tokenLower == "" {
+		return
 	}
-	sort.SliceStable(spans, func(i, j int) bool { return spans[i].start < spans[j].start })
+	start := 0
+	for {
+		pos := strings.Index(l.lower[start:], tokenLower)
+		if pos < 0 {
+			return
+		}
+		s := start + pos
+		e := s + len(it.Token)
+		l.linkAt(it, s, e)
+		start = e
+	}
+}
+
+// linkAt links the token at the position, when it ends at a word boundary and
+// the text is free.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func (l *textLinker) linkAt(it linkToken, s, e int) {
+	if !l.atBoundary(it.Token, s, e) || !l.isFree(s, e) {
+		return
+	}
+	label := textutil.NonEmpty(l.text[s:e], it.Link.Label)
+	l.markUsed(s, e)
+	l.spans = append(l.spans, linkSpan{start: s, end: e, repl: "<<" + it.Link.Anchor + "," + label + ">>"})
+}
+
+// atBoundary reports whether the occurrence is a whole word; a phrase,
+// path or acronym token needs no boundary.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func (l *textLinker) atBoundary(token string, s, e int) bool {
+	if isPhraseToken(token) {
+		return true
+	}
+	return isWordBoundary(l.text, s-1) && isWordBoundary(l.text, e)
+}
+
+// isPhraseToken reports whether the token has a space, a path separator, an
+// acronym or a hyphen.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func isPhraseToken(token string) bool {
+	return strings.Contains(token, " ") || strings.ContainsAny(token, "/:.") || phraseTokenPattern.MatchString(token)
+}
+
+// isWordBoundary reports whether the character at idx does not continue a word.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func isWordBoundary(s string, idx int) bool {
+	if idx <= 0 || idx >= len(s) {
+		return true
+	}
+	return strings.IndexByte(wordChars, s[idx]) < 0
+}
+
+// render is the text with the spans replaced, the earliest of overlapping spans winning.
+// TRLC-LINKS: REQ-EMG-003, REQ-EMG-012
+func (l *textLinker) render() string {
+	if len(l.spans) == 0 {
+		return l.text
+	}
+	sort.SliceStable(l.spans, func(i, j int) bool { return l.spans[i].start < l.spans[j].start })
 	var b strings.Builder
 	last := 0
-	for _, sp := range spans {
+	for _, sp := range l.spans {
 		if sp.start < last {
 			continue
 		}
-		b.WriteString(text[last:sp.start])
+		b.WriteString(l.text[last:sp.start])
 		b.WriteString(sp.repl)
 		last = sp.end
 	}
-	b.WriteString(text[last:])
+	b.WriteString(l.text[last:])
 	return b.String()
 }
 
@@ -252,28 +321,16 @@ func linkTokenVariants(token string) []string {
 	return out
 }
 
+// singleWordPlurals maps the model words that have a plural link variant to it.
+var singleWordPlurals = map[string]string{
+	"actor": "actors", "event": "events", "state": "states", "feature": "features", "mode": "modes",
+	"condition": "conditions", "requirement": "requirements", "system": "systems",
+}
+
 // TRLC-LINKS: REQ-EMG-003
 func singleWordPlural(word string) (string, bool) {
-	switch strings.TrimSpace(strings.ToLower(word)) {
-	case "actor":
-		return "actors", true
-	case "event":
-		return "events", true
-	case "state":
-		return "states", true
-	case "feature":
-		return "features", true
-	case "mode":
-		return "modes", true
-	case "condition":
-		return "conditions", true
-	case "requirement":
-		return "requirements", true
-	case "system":
-		return "systems", true
-	default:
-		return "", false
-	}
+	plural, ok := singleWordPlurals[strings.TrimSpace(strings.ToLower(word))]
+	return plural, ok
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -289,22 +346,43 @@ func pluralizePhrase(phrase string) string {
 // TRLC-LINKS: REQ-EMG-003
 func pluralizeWord(word string) string {
 	w := strings.TrimSpace(strings.ToLower(word))
-	if w == "" {
+	switch {
+	case w == "":
 		return word
-	}
-	if strings.HasSuffix(w, "s") {
+	case strings.HasSuffix(w, "s"):
 		return w
-	}
-	if strings.HasSuffix(w, "y") && len(w) > 1 {
-		prev := w[len(w)-2]
-		if !strings.ContainsRune("aeiou", rune(prev)) {
-			return w[:len(w)-1] + "ies"
-		}
-	}
-	if strings.HasSuffix(w, "ch") || strings.HasSuffix(w, "sh") || strings.HasSuffix(w, "x") || strings.HasSuffix(w, "z") {
+	case endsInConsonantY(w):
+		return w[:len(w)-1] + "ies"
+	case hasAnySuffix(w, "ch", "sh", "x", "z"):
 		return w + "es"
 	}
 	return w + "s"
+}
+
+// endsInConsonantY reports whether the word ends in a y that follows a consonant.
+// TRLC-LINKS: REQ-EMG-003
+func endsInConsonantY(w string) bool {
+	return len(w) > 1 && strings.HasSuffix(w, "y") && !strings.ContainsRune("aeiou", rune(w[len(w)-2]))
+}
+
+// hasAnySuffix reports whether s ends with one of the suffixes.
+// TRLC-LINKS: REQ-EMG-003
+func hasAnySuffix(s string, suffixes ...string) bool {
+	for _, suffix := range suffixes {
+		if strings.HasSuffix(s, suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+// capitalizeASCII upper-cases the first character when it is a lower-case ASCII letter.
+// TRLC-LINKS: REQ-EMG-003
+func capitalizeASCII(p string) string {
+	if p != "" && p[0] >= 'a' && p[0] <= 'z' {
+		return string(p[0]-'a'+'A') + p[1:]
+	}
+	return p
 }
 
 // TRLC-LINKS: REQ-EMG-003
@@ -314,80 +392,60 @@ func titleWords(s string) string {
 		return s
 	}
 	for i, p := range parts {
-		if p == "" {
-			continue
-		}
-		b := []byte(p)
-		if b[0] >= 'a' && b[0] <= 'z' {
-			b[0] = b[0] - 'a' + 'A'
-		}
-		parts[i] = string(b)
+		parts[i] = capitalizeASCII(p)
 	}
 	return strings.Join(parts, " ")
+}
+
+// minorTitleWords stay lower-case inside a title.
+var minorTitleWords = map[string]bool{
+	"and": true, "or": true, "of": true, "to": true, "in": true, "on": true,
+	"for": true, "a": true, "an": true, "the": true, "with": true, "without": true,
+}
+
+// titleAcronyms are upper-cased in a title.
+var titleAcronyms = map[string]bool{
+	"api": true, "sdk": true, "iot": true, "ota": true, "id": true, "pr": true,
+	"ui": true, "ux": true, "db": true, "sql": true, "http": true, "https": true,
+	"tls": true, "jwt": true, "kms": true, "sqs": true, "sns": true, "aws": true,
+	"gcp": true, "k8s": true, "mqtt": true,
 }
 
 // TRLC-LINKS: REQ-EMG-003
 func titleWordsNatural(s string) string {
-	parts := strings.Fields(strings.TrimSpace(strings.ToLower(s)))
-	if len(parts) == 0 {
-		return s
-	}
-	minor := map[string]bool{
-		"and": true, "or": true, "of": true, "to": true, "in": true, "on": true,
-		"for": true, "a": true, "an": true, "the": true, "with": true, "without": true,
-	}
-	for i, p := range parts {
-		if p == "" {
-			continue
-		}
-		if i > 0 && i < len(parts)-1 && minor[p] {
-			parts[i] = p
-			continue
-		}
-		b := []byte(p)
-		if b[0] >= 'a' && b[0] <= 'z' {
-			b[0] = b[0] - 'a' + 'A'
-		}
-		parts[i] = string(b)
-	}
-	return strings.Join(parts, " ")
+	return titleCase(s, nil)
 }
 
 // TRLC-LINKS: REQ-EMG-003
 func titleWordsWithAcronyms(s string) string {
+	return titleCase(s, titleAcronyms)
+}
+
+// titleCase capitalizes each word but the minor words inside the title; a word
+// in acronyms is upper-cased.
+// TRLC-LINKS: REQ-EMG-003
+func titleCase(s string, acronyms map[string]bool) string {
 	parts := strings.Fields(strings.TrimSpace(strings.ToLower(s)))
 	if len(parts) == 0 {
 		return s
 	}
-	minor := map[string]bool{
-		"and": true, "or": true, "of": true, "to": true, "in": true, "on": true,
-		"for": true, "a": true, "an": true, "the": true, "with": true, "without": true,
-	}
-	acronyms := map[string]bool{
-		"api": true, "sdk": true, "iot": true, "ota": true, "id": true, "pr": true,
-		"ui": true, "ux": true, "db": true, "sql": true, "http": true, "https": true,
-		"tls": true, "jwt": true, "kms": true, "sqs": true, "sns": true, "aws": true,
-		"gcp": true, "k8s": true, "mqtt": true,
-	}
 	for i, p := range parts {
-		if p == "" {
-			continue
-		}
-		if i > 0 && i < len(parts)-1 && minor[p] {
-			parts[i] = p
-			continue
-		}
-		if acronyms[p] {
-			parts[i] = strings.ToUpper(p)
-			continue
-		}
-		b := []byte(p)
-		if b[0] >= 'a' && b[0] <= 'z' {
-			b[0] = b[0] - 'a' + 'A'
-		}
-		parts[i] = string(b)
+		parts[i] = titleCaseWord(p, i > 0 && i < len(parts)-1, acronyms)
 	}
 	return strings.Join(parts, " ")
+}
+
+// titleCaseWord is the word as it appears in a title: a minor word inside the
+// title stays as is, an acronym is upper-cased, any other is capitalized.
+// TRLC-LINKS: REQ-EMG-003
+func titleCaseWord(p string, inside bool, acronyms map[string]bool) string {
+	switch {
+	case inside && minorTitleWords[p]:
+		return p
+	case acronyms[p]:
+		return strings.ToUpper(p)
+	}
+	return capitalizeASCII(p)
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
@@ -445,13 +503,7 @@ func unitOutputs(unitID string, mappings []model.Mapping, labels map[string]stri
 	out := []string{}
 	for _, m := range mappings {
 		if m.From == unitID && m.Type != "contains" {
-			target := textutil.NonEmpty(labels[m.To], m.To)
-			rel := strings.TrimSpace(m.Type)
-			if rel == "" || rel == "depends_on" {
-				out = append(out, target)
-				continue
-			}
-			out = append(out, rel+" -> "+target)
+			out = append(out, unitOutputEntry(m, labels))
 		}
 	}
 	out = textutil.UniqueSorted(out)
@@ -459,6 +511,18 @@ func unitOutputs(unitID string, mappings []model.Mapping, labels map[string]stri
 		return ""
 	}
 	return strings.Join(out, "; ")
+}
+
+// unitOutputEntry is the target of a mapping, with its relation unless that is
+// a plain dependency.
+// TRLC-LINKS: REQ-EMG-003
+func unitOutputEntry(m model.Mapping, labels map[string]string) string {
+	target := textutil.NonEmpty(labels[m.To], m.To)
+	rel := strings.TrimSpace(m.Type)
+	if rel == "" || rel == "depends_on" {
+		return target
+	}
+	return rel + " -> " + target
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
@@ -502,68 +566,77 @@ func renderInterfaceSubchapters(in []interfaceDetail) string {
 	return b.String()
 }
 
+// interfaceDetails collects interface details, each name and description once.
+type interfaceDetails struct {
+	items []interfaceDetail
+	seen  map[string]bool
+}
+
+// add records the detail unless the name and description were recorded.
+// TRLC-LINKS: REQ-EMG-003
+func (d *interfaceDetails) add(name, desc string) {
+	key := name + "|" + desc
+	if d.seen[key] {
+		return
+	}
+	d.seen[key] = true
+	d.items = append(d.items, interfaceDetail{Name: name, Description: desc})
+}
+
+// isInboundMapping reports whether a mapping is a dependency or an interaction.
+// TRLC-LINKS: REQ-EMG-003
+func isInboundMapping(m model.Mapping) bool {
+	return m.Type == "depends_on" || m.Type == "interacts_with"
+}
+
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func unitInboundInterfacesDetailed(unitID string, mappings []model.Mapping, labels map[string]string) string {
-	items := []interfaceDetail{}
-	seen := map[string]bool{}
+	details := &interfaceDetails{seen: map[string]bool{}}
 	for _, m := range mappings {
-		if m.To != unitID {
-			continue
-		}
-		switch m.Type {
-		case "depends_on", "interacts_with":
-			source := textutil.NonEmpty(labels[m.From], m.From)
-			desc := strings.TrimSpace(m.Description)
-			if desc == "" {
-				if m.Type == "interacts_with" {
-					desc = "Interaction from this external actor is modeled without additional authored detail."
-				} else {
-					desc = "Inbound dependency is modeled without additional authored detail."
-				}
-			}
-			key := source + "|" + desc
-			if seen[key] {
-				continue
-			}
-			seen[key] = true
-			items = append(items, interfaceDetail{Name: source, Description: desc})
+		if m.To == unitID && isInboundMapping(m) {
+			details.add(textutil.NonEmpty(labels[m.From], m.From), inboundDescription(m))
 		}
 	}
-	return renderInterfaceSubchapters(items)
+	return renderInterfaceSubchapters(details.items)
+}
+
+// inboundDescription is the authored description of an inbound mapping, or a
+// sentence saying that none was authored.
+// TRLC-LINKS: REQ-EMG-003
+func inboundDescription(m model.Mapping) string {
+	if desc := strings.TrimSpace(m.Description); desc != "" {
+		return desc
+	}
+	if m.Type == "interacts_with" {
+		return "Interaction from this external actor is modeled without additional authored detail."
+	}
+	return "Inbound dependency is modeled without additional authored detail."
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
 func unitOutboundInterfacesDetailed(unitID string, mappings []model.Mapping, labels map[string]string) string {
-	items := []interfaceDetail{}
-	seen := map[string]bool{}
+	details := &interfaceDetails{seen: map[string]bool{}}
 	for _, m := range mappings {
-		if m.From != unitID {
-			continue
+		if m.From == unitID && m.Type != "contains" && m.Type != "targets" {
+			details.add(textutil.NonEmpty(labels[m.To], m.To), outboundDescription(m))
 		}
-		switch m.Type {
-		case "contains", "targets":
-			continue
-		}
-		target := textutil.NonEmpty(labels[m.To], m.To)
-		desc := strings.TrimSpace(m.Description)
-		rel := strings.TrimSpace(m.Type)
-		if desc == "" {
-			if rel != "" && rel != "depends_on" {
-				desc = rel + " relationship is modeled without additional authored detail."
-			} else {
-				desc = "Outbound dependency is modeled without additional authored detail."
-			}
-		}
-		key := target + "|" + desc
-		if seen[key] {
-			continue
-		}
-		seen[key] = true
-		items = append(items, interfaceDetail{Name: target, Description: desc})
 	}
-	return renderInterfaceSubchapters(items)
+	return renderInterfaceSubchapters(details.items)
+}
+
+// outboundDescription is the authored description of an outbound mapping, or a
+// sentence saying that none was authored.
+// TRLC-LINKS: REQ-EMG-003
+func outboundDescription(m model.Mapping) string {
+	if desc := strings.TrimSpace(m.Description); desc != "" {
+		return desc
+	}
+	if rel := strings.TrimSpace(m.Type); rel != "" && rel != "depends_on" {
+		return rel + " relationship is modeled without additional authored detail."
+	}
+	return "Outbound dependency is modeled without additional authored detail."
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
@@ -571,23 +644,9 @@ func unitOutboundInterfacesDetailed(unitID string, mappings []model.Mapping, lab
 func unitMessagesConsumed(unitID string, mappings []model.Mapping, labels map[string]string) string {
 	out := []string{}
 	for _, m := range mappings {
-		if m.To != unitID {
-			continue
-		}
-		switch m.Type {
-		case "depends_on", "interacts_with":
+		if m.To == unitID && isInboundMapping(m) {
 			// Communication view should show message/event intent, not requirements.
-			source := textutil.NonEmpty(labels[m.From], m.From)
-			desc := strings.TrimSpace(m.Description)
-			if desc != "" {
-				out = append(out, source+": "+desc)
-				continue
-			}
-			if m.Type == "interacts_with" {
-				out = append(out, "interaction from "+source)
-				continue
-			}
-			out = append(out, "input from "+source)
+			out = append(out, messageConsumed(m, textutil.NonEmpty(labels[m.From], m.From)))
 		}
 	}
 	out = textutil.UniqueSorted(out)
@@ -597,34 +656,52 @@ func unitMessagesConsumed(unitID string, mappings []model.Mapping, labels map[st
 	return strings.Join(out, "; ")
 }
 
+// messageConsumed is the message a mapping delivers from the source: its
+// authored description, or the kind of input.
+// TRLC-LINKS: REQ-EMG-003
+func messageConsumed(m model.Mapping, source string) string {
+	if desc := strings.TrimSpace(m.Description); desc != "" {
+		return source + ": " + desc
+	}
+	if m.Type == "interacts_with" {
+		return "interaction from " + source
+	}
+	return "input from " + source
+}
+
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
 // TRLC-LINKS: REQ-EMG-003
-func unitOwnershipSummary(u model.FunctionalUnit, mappings []model.Mapping, reqByUnit map[string]string, labels map[string]string) string {
+func unitOwnershipSummary(u model.FunctionalUnit, mappings []model.Mapping, labels map[string]string) string {
 	areas := []string{}
 	for _, m := range mappings {
-		if m.From != u.ID {
-			continue
-		}
-		switch m.Type {
-		case "depends_on":
-			areas = append(areas, "decision and orchestration flow to "+textutil.NonEmpty(labels[m.To], m.To))
-		case "interacts_with":
-			areas = append(areas, "interaction handling with "+textutil.NonEmpty(labels[m.To], m.To))
+		if m.From == u.ID {
+			areas = append(areas, ownershipArea(m, labels)...)
 		}
 	}
 	areas = textutil.UniqueSorted(areas)
 	if len(areas) > 2 {
 		areas = areas[:2]
 	}
-
 	base := "functional responsibility for " + strings.ToLower(textutil.NonEmpty(u.Name, u.ID))
 	if len(areas) > 0 {
 		base = base + "; includes " + strings.Join(areas, " and ")
 	}
 	// Requirement scope is rendered in the dedicated "Owned Decisions" section.
 	// Keep ownership summary focused on responsibility boundaries to avoid duplication.
-	_ = reqByUnit
 	return base
+}
+
+// ownershipArea is the responsibility area a dependency or an interaction of
+// the unit stands for.
+// TRLC-LINKS: REQ-EMG-003
+func ownershipArea(m model.Mapping, labels map[string]string) []string {
+	switch m.Type {
+	case "depends_on":
+		return []string{"decision and orchestration flow to " + textutil.NonEmpty(labels[m.To], m.To)}
+	case "interacts_with":
+		return []string{"interaction handling with " + textutil.NonEmpty(labels[m.To], m.To)}
+	}
+	return nil
 }
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-THREAT-EXPORTER
@@ -697,51 +774,15 @@ func listNamesRefs(in []model.ReferencedElement) string {
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-003
 func buildOwnerEvidence(runtime []codescan.RuntimeItem, code []codescan.CodeItem) map[string]string {
-	rtSet := map[string]map[string]bool{}
-	for _, r := range runtime {
-		owner := strings.TrimSpace(r.Owner)
-		if owner == "" || owner == "unresolved" {
-			continue
-		}
-		if rtSet[owner] == nil {
-			rtSet[owner] = map[string]bool{}
-		}
-		rtSet[owner][textutil.NonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind))] = true
-	}
-	codeSet := map[string]map[string]bool{}
-	for _, c := range code {
-		if codescan.IsVerificationCodeItem(c) {
-			continue
-		}
-		owner := strings.TrimSpace(c.Owner)
-		if owner == "" || owner == "unresolved" {
-			continue
-		}
-		if c.Kind != "source_file" {
-			continue
-		}
-		if codeSet[owner] == nil {
-			codeSet[owner] = map[string]bool{}
-		}
-		codeSet[owner][moduleFromPath(codescan.ItemPath(c))] = true
-	}
-
+	rtSet := runtimeNameSetByOwner(runtime)
+	codeSet := codeModuleSetByOwner(code)
 	out := map[string]string{}
-	owners := map[string]bool{}
-	for o := range rtSet {
-		owners[o] = true
-	}
-	for o := range codeSet {
-		owners[o] = true
-	}
-	for owner := range owners {
-		rt := setToSortedSlice(rtSet[owner])
-		cm := setToSortedSlice(codeSet[owner])
+	for owner := range unionSets(setKeys(rtSet), setKeys(codeSet)) {
 		parts := []string{}
-		if len(rt) > 0 {
+		if rt := setToSortedSlice(rtSet[owner]); len(rt) > 0 {
 			parts = append(parts, "runtime: "+strings.Join(rt, ", "))
 		}
-		if len(cm) > 0 {
+		if cm := setToSortedSlice(codeSet[owner]); len(cm) > 0 {
 			parts = append(parts, "code modules: "+strings.Join(cm, ", "))
 		}
 		if len(parts) > 0 {
@@ -749,4 +790,213 @@ func buildOwnerEvidence(runtime []codescan.RuntimeItem, code []codescan.CodeItem
 		}
 	}
 	return out
+}
+
+// setKeys is the keys of a map of sets, as a set.
+// TRLC-LINKS: REQ-EMG-003
+func setKeys(m map[string]map[string]bool) map[string]bool {
+	keys := map[string]bool{}
+	for k := range m {
+		keys[k] = true
+	}
+	return keys
+}
+
+// runtimeNameSetByOwner is the names of the runtime elements of each resolved owner.
+// TRLC-LINKS: REQ-EMG-003
+func runtimeNameSetByOwner(runtime []codescan.RuntimeItem) map[string]map[string]bool {
+	byOwner := map[string]map[string]bool{}
+	for _, r := range runtime {
+		owner := strings.TrimSpace(r.Owner)
+		if owner != "" && owner != "unresolved" {
+			addToSetMap(byOwner, owner, textutil.NonEmpty(strings.TrimSpace(r.Name), strings.TrimSpace(r.Kind)))
+		}
+	}
+	return byOwner
+}
+
+// codeModuleSetByOwner is the modules of the source files of each resolved
+// owner, other than verification code.
+// TRLC-LINKS: REQ-EMG-003
+func codeModuleSetByOwner(code []codescan.CodeItem) map[string]map[string]bool {
+	byOwner := map[string]map[string]bool{}
+	for _, c := range code {
+		owner := strings.TrimSpace(c.Owner)
+		if c.Kind != "source_file" || codescan.IsVerificationCodeItem(c) {
+			continue
+		}
+		if owner != "" && owner != "unresolved" {
+			addToSetMap(byOwner, owner, moduleFromPath(codescan.ItemPath(c)))
+		}
+	}
+	return byOwner
+}
+
+// linkifier turns the model terms in the text of a section into links.
+type linkifier struct {
+	targets map[string]linkTarget
+}
+
+// all links each of the strings in place.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) all(fields ...*string) {
+	for _, f := range fields {
+		*f = linkifyText(*f, l.targets)
+	}
+}
+
+// linkEach applies link to every item of a slice, in place.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func linkEach[T any](items []T, link func(*T)) {
+	for i := range items {
+		link(&items[i])
+	}
+}
+
+// linkifySections links the model terms in every section of the document, in place.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (g *generation) linkifySections() {
+	l := linkifier{targets: g.linkTargets}
+	linkEach(g.views, l.view)
+	linkEach(g.reqSections, l.requirement)
+	linkEach(g.verification, l.verification)
+	linkEach(g.verResults, l.verificationResult)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) view(v *asciidocViewSection) {
+	linkEach(v.Groups, l.group)
+	linkEach(v.Units, l.unit)
+	linkEach(v.SecurityAttackChapters, l.attackChapter)
+	l.securityRows(v)
+	l.all(&v.Inf)
+	l.each(v.ViewQuestions)
+	l.each(v.CoverageGaps)
+	l.each(v.NextActions)
+	linkEach(v.ProjectedNodes, l.projectedNode)
+	linkEach(v.ProjectedMappings, l.projectedMapping)
+	l.all(&v.CoverageSummary)
+}
+
+// securityRows links the threat model rows of a security view.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) securityRows(v *asciidocViewSection) {
+	linkEach(v.SecurityThreatScenarios, l.threatScenario)
+	linkEach(v.SecurityThreatAssumptions, l.threatAssumption)
+	linkEach(v.SecurityThreatOutOfScope, l.threatOutOfScope)
+	linkEach(v.SecurityThreatMitigations, l.threatMitigation)
+	linkEach(v.SecurityControlChecks, l.controlVerification)
+	linkEach(v.SecurityFlowRows, l.securityFlow)
+}
+
+// each links every string of a slice.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) each(items []string) {
+	for j := range items {
+		l.all(&items[j])
+	}
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) details(details []asciidocDesignDetail) {
+	for k := range details {
+		l.all(&details[k].Narrative)
+	}
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) group(g *asciidocEntitySection) {
+	l.all(&g.Description, &g.Intro)
+	l.details(g.Details)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) unit(u *asciidocUnitSection) {
+	l.all(&u.Intro, &u.WhatOwns, &u.Triggers, &u.Consumes, &u.Produces, &u.DependsOn, &u.Threats, &u.Evidence)
+	l.details(u.Details)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) attackChapter(c *asciidocSecurityAttackChapter) {
+	l.all(&c.Name, &c.Description)
+	linkEach(c.Units, l.unit)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) threatScenario(s *asciidocThreatScenarioRow) {
+	l.all(&s.ID, &s.Title, &s.Summary, &s.AttackVector, &s.Scope, &s.Flows, &s.Likelihood, &s.Impact,
+		&s.Severity, &s.Status, &s.Owner, &s.Risk, &s.Controls, &s.Mitigations, &s.Verifications)
+	linkEach(s.ControlVerifications, l.controlVerification)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) threatAssumption(a *asciidocThreatAssumptionRow) {
+	l.all(&a.ID, &a.Title, &a.Status, &a.Owner, &a.AppliesTo, &a.Rationale)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) threatOutOfScope(o *asciidocThreatOutOfScopeRow) {
+	l.all(&o.ID, &o.Title, &o.Status, &o.Owner, &o.AppliesTo, &o.ExpiresOn, &o.Reason)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) threatMitigation(m *asciidocThreatMitigationRow) {
+	l.all(&m.ID, &m.ThreatScenario, &m.Control, &m.Status, &m.Effectiveness, &m.Owner, &m.Verifications, &m.Notes)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) controlVerification(c *asciidocControlVerificationRow) {
+	l.all(&c.ID, &c.Control, &c.ThreatScenarios, &c.Risks, &c.Method, &c.Status, &c.Owner, &c.LastTested, &c.Findings)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) securityFlow(f *asciidocSecurityFlowRow) {
+	l.all(&f.ID, &f.Title, &f.Kind, &f.Direction, &f.Frequency, &f.Source, &f.Destination, &f.Protocol,
+		&f.Authentication, &f.Encryption, &f.Integrity, &f.TrustBoundary, &f.BoundaryCrossing, &f.Threats, &f.Data)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) projectedNode(n *asciidocProjectedNode) {
+	l.all(&n.ID, &n.Kind, &n.Label)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) projectedMapping(m *asciidocMappingSection) {
+	l.all(&m.Type, &m.From, &m.To, &m.Description)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) requirement(r *asciidocRequirementSection) {
+	l.all(&r.Text, &r.Notes)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) verification(v *asciidocVerificationSection) {
+	l.all(&v.Kind, &v.Status, &v.Verifies, &v.TestCode, &v.DerivedOwners, &v.Evidence, &v.ResultSummary, &v.Description)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR
+// TRLC-LINKS: REQ-EMG-003
+func (l linkifier) verificationResult(r *asciidocVerificationResultRow) {
+	l.all(&r.CheckID, &r.CheckName, &r.Requirement, &r.Status, &r.Evidence, &r.Notes)
 }

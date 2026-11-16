@@ -27,7 +27,8 @@ untiered warning (stays a warning at operational because no tier row keys it).
 | control verification to tests | `verification.unlinked`, `model.invalid_control_verification_ref`, `verification.status_stale` | DDWEE, E*, DDWWE |
 | threat to mitigation | no check (MCP `threats.unmitigated` only) | none |
 | flow references, steps, boundaries, interface owner | `model.invalid_flow_*`, `model.missing_flow_boundary_ref`, `model.invalid_interface_owner` | E* |
-| trust boundary, data object or interface used by no flow | no check | none |
+| trust boundary, data object or interface used by no flow | no check for a trust boundary or a data object; an interface that no flow step names with a data object is `architecture.interface_without_data` (ADR-EMG-086) | WWWEE |
+| dependency between two architectural elements has an interface | `architecture.dependency_without_interface` (ADR-EMG-085) | WWWEE |
 
 ## Claims of ADR-EMG-056 that were too strong
 

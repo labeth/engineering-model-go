@@ -78,7 +78,7 @@ const ModuleCacheReuse = composition.ModuleCacheReuse
 const ModuleCacheRefresh = composition.ModuleCacheRefresh
 
 // HasComposition reports whether the model declares any subsystems.
-// TRLC-LINKS: REQ-EMG-016
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-202
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
 func HasComposition(bundle Bundle) bool {
 	return composition.HasComposition(bundle)
@@ -99,8 +99,8 @@ func GenerateCompositionFromFile(manifestPath string) (CompositionResult, error)
 // written and, without replacements, the resolved lock is compared with the
 // committed one (composition.lock_missing, lock_invalid, lock_mismatch);
 // otherwise engmod.lock.yml is written.
-// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-066
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-047, REQ-EMG-048, REQ-EMG-049, REQ-EMG-051, REQ-EMG-063, REQ-EMG-064, REQ-EMG-066, REQ-EMG-202
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-MODEL-LOADER, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, IF-GO-COMPOSITION, DO-COMPOSITION-RESULT, FLOW-GO-COMPOSE-AND-LINK
 func GenerateCompositionFromFileWith(manifestPath string, options ResolutionOptions) (CompositionResult, error) {
 	return composition.GenerateCompositionFromFileWith(manifestPath, options)
 }
@@ -137,7 +137,8 @@ func QualifiedReferenceDiagnostics(bundle Bundle, result CompositionResult) []Di
 
 // BuildCompositionProjection materializes only direct, explicitly selected
 // dependency publications. Transitive or unexported child data is not exposed.
-// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051
+// TRLC-LINKS: REQ-EMG-050, REQ-EMG-051, REQ-EMG-202
+// ENGMODEL-LINKS: IF-GO-COMPOSITION, DO-COMPOSITION-RESULT, DO-MODEL-BUNDLE, FLOW-GO-COMPOSE-AND-LINK
 func BuildCompositionProjection(result CompositionResult) CompositionProjection {
 	return composition.BuildCompositionProjection(result)
 }
@@ -163,8 +164,8 @@ type LinkUse = composition.LinkUse
 // WorkspaceLinkUsers returns the requirement links of the sibling checkouts
 // of the active workspace onto the model's published contract items
 // ("used by", computed at render time; nothing without a workspace).
-// TRLC-LINKS: REQ-EMG-107
-// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+// TRLC-LINKS: REQ-EMG-107, REQ-EMG-205
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE, IF-GO-COMPOSITION, DO-LINK-USE, DO-MODEL-BUNDLE, FLOW-GO-COMPOSE-AND-LINK
 func WorkspaceLinkUsers(bundle Bundle, workspaceMode string) []LinkUse {
 	return composition.WorkspaceLinkUsers(bundle, workspaceMode)
 }

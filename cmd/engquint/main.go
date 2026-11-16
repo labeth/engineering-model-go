@@ -38,7 +38,7 @@ var commands = map[string]command{
 }
 
 // TRLC-LINKS: REQ-EMG-142
-// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT, FLOW-ARTIFACT-EXPORT
 func main() {
 	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
 }
@@ -255,16 +255,11 @@ func removeStale(dir string, produced map[string]bool) ([]string, error) {
 	}
 	var removed []string
 	for _, entry := range entries {
-		name := entry.Name()
-		if !entry.Type().IsRegular() || filepath.Ext(name) != ".qnt" || produced[name] {
-			continue
-		}
-		path := filepath.Join(dir, name)
-		data, err := os.ReadFile(path)
+		path, stale, err := staleModule(dir, entry, produced)
 		if err != nil {
 			return removed, err
 		}
-		if !check.IsGeneratedModule(data) {
+		if !stale {
 			continue
 		}
 		if err := os.Remove(path); err != nil {
@@ -273,6 +268,23 @@ func removeStale(dir string, produced map[string]bool) ([]string, error) {
 		removed = append(removed, path)
 	}
 	return removed, nil
+}
+
+// staleModule reports whether entry is a regular .qnt file that no machine
+// produces and that starts with the generated header, with its path.
+//
+// TRLC-LINKS: REQ-EMG-149
+func staleModule(dir string, entry fs.DirEntry, produced map[string]bool) (string, bool, error) {
+	name := entry.Name()
+	if !entry.Type().IsRegular() || filepath.Ext(name) != ".qnt" || produced[name] {
+		return "", false, nil
+	}
+	path := filepath.Join(dir, name)
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return "", false, err
+	}
+	return path, check.IsGeneratedModule(data), nil
 }
 
 // printDiagnostics prints every diagnostic, one per line.

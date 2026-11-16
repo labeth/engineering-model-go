@@ -2,9 +2,8 @@
 package asciidoc
 
 import (
+	"cmp"
 	"fmt"
-	"github.com/labeth/engineering-model-go/internal/generate"
-	"github.com/labeth/engineering-model-go/internal/reqlint"
 	"path/filepath"
 	"sort"
 	"strconv"
@@ -12,12 +11,31 @@ import (
 
 	"github.com/labeth/engineering-model-go/internal/codescan"
 	"github.com/labeth/engineering-model-go/internal/composition"
+	"github.com/labeth/engineering-model-go/internal/generate"
 	"github.com/labeth/engineering-model-go/internal/model"
 	"github.com/labeth/engineering-model-go/internal/render/diagramstyle"
+	"github.com/labeth/engineering-model-go/internal/reqlint"
 	"github.com/labeth/engineering-model-go/internal/textutil"
 	"github.com/labeth/engineering-model-go/internal/trace"
 	"github.com/labeth/engineering-model-go/internal/validate"
+	"github.com/labeth/engineering-model-go/internal/view"
 )
+
+// FilePaths are the model files GenerateFromFiles loads.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type FilePaths struct {
+	Architecture string
+	Requirements string
+	Design       string
+}
+
+// Inputs are the loaded model documents Generate renders.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type Inputs struct {
+	Bundle       model.Bundle
+	Requirements model.RequirementsDocument
+	Design       model.DesignDocument
+}
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 type Options struct {
@@ -46,657 +64,24 @@ type Result struct {
 
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
-func GenerateFromFiles(architecturePath, requirementsPath, designPath string, options Options) (Result, error) {
-	bundle, err := codescan.LoadBundle(architecturePath)
+func GenerateFromFiles(paths FilePaths, options Options) (Result, error) {
+	bundle, err := codescan.LoadBundle(paths.Architecture)
 	if err != nil {
 		return Result{}, err
 	}
-	requirements, err := model.LoadRequirements(requirementsPath)
+	requirements, err := model.LoadRequirements(paths.Requirements)
 	if err != nil {
 		return Result{}, err
 	}
-	design, err := model.LoadDesign(designPath)
+	design, err := model.LoadDesign(paths.Design)
 	if err != nil {
 		return Result{}, err
 	}
 	if strings.TrimSpace(options.CodeRoot) != "" && !filepath.IsAbs(options.CodeRoot) {
-		baseDir := filepath.Dir(architecturePath)
+		baseDir := filepath.Dir(paths.Architecture)
 		options.CodeRoot = filepath.Join(baseDir, options.CodeRoot)
 	}
-	return Generate(bundle, requirements, design, options)
-}
-
-// Generate validates and renders the model. With composition it
-// resolves the dependencies once, validates against the bundle enriched with
-// their published entities, and returns every composition diagnostic; a
-// composition error fails the call like any other validation error.
-// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
-// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
-func Generate(bundle model.Bundle, requirements model.RequirementsDocument, design model.DesignDocument, options Options) (Result, error) {
-	bundle.Requirements = requirements
-	bundle.Design = design
-	canonical, err := model.NewCanonicalBundle(bundle)
-	if err != nil {
-		return Result{}, err
-	}
-	bundle = codescan.WithCodeIndex(canonical.Documents())
-	requirements = bundle.Requirements
-	design = bundle.Design
-	composed, compositionErr := composition.ComposeForGeneration(bundle, options.Composition, options.Resolution)
-	validated, compositionDiags := validationBundle(bundle, composed, compositionErr)
-	diags := excludeUnpublishedReferenceEchoes(validate.Bundle(validated), compositionDiags)
-	diags = append(diags, compositionDiags...)
-	diags = append(diags, reqlint.ValidateCatalogDescriptions(bundle.Catalog)...)
-	diags = append(diags, reqlint.LintModelRequirementsEARS(bundle, requirements)...)
-	diags = append(diags, reqlint.LintRequirementInternalLinks(requirements)...)
-	diags = validate.ApplyTierPolicy(bundle, diags)
-	if hasBlockingErrors(bundle, diags) {
-		return Result{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("validation failed")
-	}
-
-	viewIDs := resolveViewIDs(bundle, options)
-	viewSections := make([]asciidocViewSection, 0, len(viewIDs))
-	viewNodeIDs := map[string]map[string]bool{}
-	viewByID := map[string]model.View{}
-	for _, v := range bundle.Architecture.Views {
-		viewByID[v.ID] = v
-	}
-	viewKindCounts := map[string]int{}
-	for _, viewID := range viewIDs {
-		viewKindCounts[viewByID[viewID].Kind]++
-	}
-	for _, viewID := range viewIDs {
-		viewCfg := viewByID[viewID]
-		res, err := generate.Generate(validated, viewID)
-		diags = append(diags, excludeUnpublishedReferenceEchoes(res.Diagnostics, compositionDiags)...)
-		if err != nil {
-			return Result{Diagnostics: validate.SortDiagnostics(diags)}, fmt.Errorf("generate view %s: %w", viewID, err)
-		}
-		projectedNodes := make([]asciidocProjectedNode, 0, len(res.View.Nodes))
-		for _, n := range res.View.Nodes {
-			projectedNodes = append(projectedNodes, asciidocProjectedNode{ID: strings.TrimSpace(n.ID), Kind: strings.TrimSpace(n.Kind), Label: strings.TrimSpace(n.Label)})
-		}
-		sort.SliceStable(projectedNodes, func(i, j int) bool {
-			if projectedNodes[i].Kind != projectedNodes[j].Kind {
-				return projectedNodes[i].Kind < projectedNodes[j].Kind
-			}
-			return projectedNodes[i].ID < projectedNodes[j].ID
-		})
-
-		projectedMappings := make([]asciidocMappingSection, 0, len(res.View.Edges))
-		for _, e := range res.View.Edges {
-			projectedMappings = append(projectedMappings, asciidocMappingSection{Type: strings.TrimSpace(e.Type), From: strings.TrimSpace(e.From), To: strings.TrimSpace(e.To), Description: strings.TrimSpace(e.Label)})
-		}
-		sort.SliceStable(projectedMappings, func(i, j int) bool {
-			if projectedMappings[i].Type != projectedMappings[j].Type {
-				return projectedMappings[i].Type < projectedMappings[j].Type
-			}
-			if projectedMappings[i].From != projectedMappings[j].From {
-				return projectedMappings[i].From < projectedMappings[j].From
-			}
-			return projectedMappings[i].To < projectedMappings[j].To
-		})
-
-		publicationGraph, edgeKey := publicationEdgeKey(res.View.Kind, strings.TrimSpace(res.Mermaid))
-		viewSections = append(viewSections, asciidocViewSection{
-			ID:                        viewID,
-			Kind:                      res.View.Kind,
-			Heading:                   publicationViewHeading(res.View.Kind, viewID, viewKindCounts[res.View.Kind]),
-			AuthoredStatus:            normalizeAuthoredStatus(viewCfg.AuthoredStatus),
-			AuthoredStatusExplanation: normalizeAuthoredStatusExplanation(viewCfg.AuthoredStatusExplanation),
-			Mermaid:                   publicationGraph,
-			EdgeKey:                   edgeKey,
-			Inf:                       inferredDescription(res.View.Kind),
-			ViewQuestions:             viewQuestions(res.View.Kind),
-			ProjectedNodes:            projectedNodes,
-			ProjectedMappings:         projectedMappings,
-		})
-		nodes := map[string]bool{}
-		for _, n := range res.View.Nodes {
-			nodes[n.ID] = true
-		}
-		viewNodeIDs[viewID] = nodes
-	}
-
-	designGroups := mapDesignGroups(design)
-	designUnits := mapDesignUnits(design)
-	inferredRuntime, runtimeDiags := codescan.InferRuntimeItems(bundle)
-	inferredCode, codeDiags := codescan.InferCodeItems(bundle, options.CodeRoot)
-	inferredVerification, verificationDiags := codescan.InferVerificationChecks(bundle, requirements, inferredCode, options.CodeRoot)
-	diags = append(diags, runtimeDiags...)
-	diags = append(diags, codeDiags...)
-	diags = append(diags, verificationDiags...)
-	evidenceByOwner := buildOwnerEvidence(inferredRuntime, inferredCode)
-
-	scopedCode := trace.ScopeCodeToModel(inferredCode, trace.EffectiveCodeRoots(bundle, options.CodeRoot), codescan.ModelRootDir(bundle))
-	diags = append(diags, trace.ValidateIntegrity(validated, requirements, scopedCode, inferredVerification)...)
-	diags = validate.ApplyTierPolicy(bundle, diags)
-
-	fgSections := make([]asciidocEntitySection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalGroups))
-	for _, g := range bundle.Architecture.AuthoredArchitecture.FunctionalGroups {
-		details := buildDesignDetails(g.ID, g.Prose, designGroups[g.ID], bundle.Architecture.Views)
-		fgSections = append(fgSections, asciidocEntitySection{
-			Anchor:      referenceAnchor("idx-fg", g.ID),
-			ID:          g.ID,
-			Name:        textutil.NonEmpty(g.Name, g.ID),
-			Description: strings.TrimSpace(g.Description),
-			Tags:        strings.Join(g.Tags, ", "),
-			Intro:       strings.TrimSpace(g.Prose),
-			Details:     details,
-		})
-	}
-
-	labelByID := buildLabelIndex(bundle.Architecture.AuthoredArchitecture)
-	reqByUnit := requirementsByUnit(requirements.Requirements)
-	attackByTarget := attackVectorsByTarget(bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
-
-	fuSections := make([]asciidocUnitSection, 0, len(bundle.Architecture.AuthoredArchitecture.FunctionalUnits))
-	for _, u := range bundle.Architecture.AuthoredArchitecture.FunctionalUnits {
-		details := buildDesignDetails(u.ID, u.Prose, designUnits[u.ID], bundle.Architecture.Views)
-		deps := unitDependencies(u.ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
-		inputs := reqByUnit[u.ID]
-		if strings.TrimSpace(inputs) == "" {
-			inputs = "no explicit authored requirement trigger"
-		}
-		consumes := unitConsumers(u.ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
-		if strings.TrimSpace(consumes) == "" {
-			consumes = "none"
-		}
-		produces := unitOutputs(u.ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
-		if strings.TrimSpace(produces) == "" {
-			produces = "none"
-		}
-		threats := attackByTarget[u.ID]
-		if strings.TrimSpace(threats) == "" {
-			threats = "no explicit attack vector targeting this unit"
-		}
-		intro := strings.TrimSpace(u.Prose)
-		fuSections = append(fuSections, asciidocUnitSection{
-			Anchor:      referenceAnchor("idx-fu", u.ID),
-			GroupAnchor: referenceAnchor("idx-fg", u.Group),
-			ID:          u.ID,
-			Name:        textutil.NonEmpty(u.Name, u.ID),
-			Group:       u.Group,
-			Tags:        strings.Join(u.Tags, ", "),
-			Intro:       intro,
-			Details:     details,
-			WhatOwns:    unitOwnershipSummary(u, bundle.Architecture.AuthoredArchitecture.Mappings, reqByUnit, labelByID),
-			Triggers:    inputs,
-			Consumes:    consumes,
-			Produces:    produces,
-			DependsOn:   deps,
-			Threats:     threats,
-			Evidence:    textutil.NonEmpty(evidenceByOwner[u.ID], "authored unit with no direct derived runtime/code evidence yet"),
-		})
-	}
-	sort.SliceStable(fuSections, func(i, j int) bool {
-		if fuSections[i].Group != fuSections[j].Group {
-			return fuSections[i].Group < fuSections[j].Group
-		}
-		return fuSections[i].ID < fuSections[j].ID
-	})
-
-	for i := range viewSections {
-		v := viewByID[viewSections[i].ID]
-		nodeSet := viewNodeIDs[viewSections[i].ID]
-		gs := make([]asciidocEntitySection, 0, len(fgSections))
-		for _, g := range fgSections {
-			if !nodeSet[g.ID] {
-				continue
-			}
-			detail := detailForView(g.Details, v.ID)
-			gs = append(gs, asciidocEntitySection{
-				Anchor:      g.Anchor,
-				ID:          g.ID,
-				Name:        g.Name,
-				Description: g.Description,
-				Tags:        g.Tags,
-				Intro:       g.Intro,
-				Details: []asciidocDesignDetail{
-					detail,
-				},
-				DependencyGraph: g.DependencyGraph,
-			})
-		}
-		us := make([]asciidocUnitSection, 0, len(fuSections))
-		for _, u := range fuSections {
-			if !nodeSet[u.ID] {
-				continue
-			}
-			detail := detailForView(u.Details, v.ID)
-			us = append(us, asciidocUnitSection{
-				Anchor:      u.Anchor,
-				GroupAnchor: u.GroupAnchor,
-				ID:          u.ID,
-				Name:        u.Name,
-				Group:       u.Group,
-				Tags:        u.Tags,
-				Intro:       u.Intro,
-				Details:     []asciidocDesignDetail{detail},
-				WhatOwns:    u.WhatOwns,
-				Triggers:    u.Triggers,
-				Consumes:    u.Consumes,
-				Produces:    u.Produces,
-				DependsOn:   u.DependsOn,
-				Threats:     u.Threats,
-				Evidence:    u.Evidence,
-			})
-		}
-		if v.Kind == "communication" {
-			for j := range us {
-				us[j].Consumes = unitInboundInterfacesDetailed(us[j].ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
-				us[j].Produces = unitOutboundInterfacesDetailed(us[j].ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
-				us[j].Triggers = unitMessagesConsumed(us[j].ID, bundle.Architecture.AuthoredArchitecture.Mappings, labelByID)
-			}
-		}
-		viewSections[i].Groups = gs
-		viewSections[i].Units = us
-		viewSections[i].CoverageGaps = viewCoverageGaps(v.Kind, us)
-		viewSections[i].CoverageSummary = viewCoverageSummary(v.Kind, us)
-		viewSections[i].NextActions = viewNextActions(v.Kind, viewSections[i].CoverageGaps)
-		switch v.Kind {
-		case "architecture-intent":
-			scoped := functionalPublicationArchitecture(bundle.Architecture.AuthoredArchitecture, nodeSet)
-			if len(scoped.FunctionalUnits) > 0 || len(scoped.FunctionalGroups) > 0 {
-				viewSections[i].FuncContextGraph = buildFunctionalContextMermaid(scoped)
-				viewSections[i].FuncDecompGraph = buildFunctionalDecompositionMermaid(scoped)
-				viewSections[i].FuncMatrixTable = buildFunctionalManhattanTable(scoped)
-			}
-			for j := range viewSections[i].Groups {
-				viewSections[i].Groups[j].DependencyGraph = buildFunctionalGroupDependencyMermaid(scoped, viewSections[i].Groups[j].ID, inferredRuntime, inferredCode)
-			}
-		case "communication":
-			apiRows := buildRuntimeAPIRows(inferredRuntime, bundle.Architecture.AuthoredArchitecture.Mappings)
-			viewSections[i].RuntimeAPIRows = apiRows
-			viewSections[i].RuntimeAPIGraph = buildRuntimeAPIMermaid(apiRows)
-		case "deployment":
-			depRows := buildDeploymentRows(inferredRuntime)
-			viewSections[i].DeploymentRows = depRows
-			viewSections[i].DeploymentGraph = buildDeploymentMermaid(depRows)
-			opRows := buildPlatformOpsRows(bundle.Architecture.AuthoredArchitecture, inferredRuntime)
-			viewSections[i].PlatformOpsRows = opRows
-			viewSections[i].PlatformOpsGraph = buildPlatformOpsMermaid(opRows)
-		case "security":
-			secRows := buildSecurityPathRows(bundle.Architecture.AuthoredArchitecture, labelByID)
-			viewSections[i].SecurityRows = secRows
-			viewSections[i].SecurityThreatScenarios = buildSecurityThreatScenarioRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
-			viewSections[i].SecurityThreatAssumptions = buildSecurityThreatAssumptionRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
-			viewSections[i].SecurityThreatOutOfScope = buildSecurityThreatOutOfScopeRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
-			viewSections[i].SecurityThreatMitigations = buildSecurityThreatMitigationRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
-			viewSections[i].SecurityControlChecks = buildSecurityControlVerificationRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
-			viewSections[i].SecurityFlowRows = buildSecurityFlowRows(bundle.Architecture.AuthoredArchitecture, nodeSet, labelByID)
-			viewSections[i].SecurityGraph = buildSecurityPathMermaid(secRows, inferredRuntime, inferredCode)
-			viewSections[i].SecurityContextDiagrams = buildSecurityContextDFDMermaidByGroup(bundle.Architecture.AuthoredArchitecture, bundle.Architecture.Compliance.Mappings, labelByID)
-			viewSections[i].SecurityObsRows = buildSecurityObservabilityRows(inferredRuntime, inferredCode)
-			viewSections[i].SecurityAttackChapters = buildSecurityAttackChapters(bundle.Architecture.AuthoredArchitecture, us, nodeSet, secRows, labelByID, inferredRuntime, inferredCode)
-		case "traceability":
-			codeRows := buildCodeOwnershipRows(inferredCode)
-			viewSections[i].InferredGraph = buildCodeOwnershipMermaid(codeRows, bundle.Architecture.AuthoredArchitecture)
-			viewSections[i].InferredRows = codeRows
-		}
-	}
-
-	reqSections := make([]asciidocRequirementSection, 0, len(requirements.Requirements))
-	for _, r := range requirements.Requirements {
-		alignmentMermaid := buildRequirementAlignmentMermaid([]model.Requirement{r}, labelByID)
-		coverageMermaid := buildRequirementCoverageMermaid([]model.Requirement{r}, inferredRuntime, inferredCode, inferredVerification, labelByID)
-		reqSections = append(reqSections, asciidocRequirementSection{
-			Anchor:               referenceAnchor("req", r.ID),
-			ID:                   r.ID,
-			Text:                 strings.TrimSpace(r.Text),
-			Notes:                strings.TrimSpace(r.Notes),
-			AlignmentMermaid:     alignmentMermaid,
-			CoverageMermaid:      coverageMermaid,
-			AlignmentExplanation: "What this diagram shows: direct authored mapping from this requirement to the functional units it applies to.",
-			CoverageExplanation:  "What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.",
-		})
-	}
-	sort.SliceStable(reqSections, func(i, j int) bool { return reqSections[i].ID < reqSections[j].ID })
-	joinList := func(items []string) string {
-		parts := make([]string, 0, len(items))
-		for _, x := range items {
-			t := strings.TrimSpace(x)
-			if t == "" {
-				continue
-			}
-			parts = append(parts, t)
-		}
-		if len(parts) == 0 {
-			return "none"
-		}
-		return strings.Join(parts, ", ")
-	}
-	summarizeResults := func(results []codescan.VerificationResult) string {
-		if len(results) == 0 {
-			return "none"
-		}
-		counts := map[string]int{}
-		for _, r := range results {
-			status := strings.ToLower(strings.TrimSpace(r.Status))
-			if status == "" {
-				status = "unknown"
-			}
-			counts[status]++
-		}
-		order := []string{"pass", "fail", "partial", "blocked", "not-run", "flaky", "unknown"}
-		parts := make([]string, 0, len(order))
-		for _, status := range order {
-			if counts[status] == 0 {
-				continue
-			}
-			parts = append(parts, fmt.Sprintf("%s:%d", status, counts[status]))
-			delete(counts, status)
-		}
-		for status, count := range counts {
-			parts = append(parts, fmt.Sprintf("%s:%d", status, count))
-		}
-		sort.Strings(parts)
-		return strings.Join(parts, ", ")
-	}
-	verificationSections := make([]asciidocVerificationSection, 0, len(inferredVerification))
-	verificationResultRows := make([]asciidocVerificationResultRow, 0)
-	for _, v := range inferredVerification {
-		verificationSections = append(verificationSections, asciidocVerificationSection{
-			Anchor:        referenceAnchor("verify", strings.TrimSpace(v.ID)),
-			IndexAnchor:   referenceAnchor("idx-ver", strings.TrimSpace(v.ID)),
-			ID:            strings.TrimSpace(v.ID),
-			Name:          strings.TrimSpace(v.Name),
-			Kind:          strings.TrimSpace(v.Kind),
-			Status:        strings.TrimSpace(v.Status),
-			Verifies:      joinList(v.Verifies),
-			TestCode:      publicationTestCode(v.CodeElements),
-			DerivedOwners: joinList(v.DerivedOwners),
-			Evidence:      joinList(v.Evidence),
-			ResultSummary: summarizeResults(v.Results),
-			Description:   strings.TrimSpace(v.Description),
-		})
-		for _, result := range v.Results {
-			verificationResultRows = append(verificationResultRows, asciidocVerificationResultRow{
-				CheckID:     strings.TrimSpace(v.ID),
-				CheckName:   textutil.NonEmpty(strings.TrimSpace(v.Name), strings.TrimSpace(v.ID)),
-				Requirement: strings.TrimSpace(result.Requirement),
-				Status:      strings.TrimSpace(result.Status),
-				Evidence:    textutil.NonEmpty(strings.TrimSpace(result.Evidence), "none"),
-				Notes:       strings.TrimSpace(result.Notes),
-			})
-		}
-	}
-	sort.SliceStable(verificationSections, func(i, j int) bool {
-		if verificationSections[i].ID != verificationSections[j].ID {
-			return verificationSections[i].ID < verificationSections[j].ID
-		}
-		return verificationSections[i].Name < verificationSections[j].Name
-	})
-	sort.SliceStable(verificationResultRows, func(i, j int) bool {
-		if verificationResultRows[i].Requirement != verificationResultRows[j].Requirement {
-			return verificationResultRows[i].Requirement < verificationResultRows[j].Requirement
-		}
-		if verificationResultRows[i].CheckID != verificationResultRows[j].CheckID {
-			return verificationResultRows[i].CheckID < verificationResultRows[j].CheckID
-		}
-		return verificationResultRows[i].Status < verificationResultRows[j].Status
-	})
-
-	reqMermaid := buildRequirementAlignmentCompactTable(requirements.Requirements)
-	refIndex := buildReferenceIndex(bundle, requirements, inferredRuntime, inferredCode, inferredVerification)
-	linkTargets := buildLinkTargets(refIndex)
-	terms := buildTermsFromCatalog(bundle.Catalog)
-	decisionSections := buildDecisionSections(bundle.Architecture.Decisions)
-	decisionsDocPath := strings.TrimSpace(options.DecisionsDocPath)
-	if decisionsDocPath == "" {
-		decisionsDocPath = "DECISIONS.adoc"
-	}
-	sort.SliceStable(terms, func(i, j int) bool {
-		leftName := strings.ToLower(strings.TrimSpace(terms[i].Name))
-		rightName := strings.ToLower(strings.TrimSpace(terms[j].Name))
-		if leftName != rightName {
-			return leftName < rightName
-		}
-		return terms[i].ID < terms[j].ID
-	})
-
-	for i := range viewSections {
-		for j := range viewSections[i].Groups {
-			viewSections[i].Groups[j].Description = linkifyText(viewSections[i].Groups[j].Description, linkTargets)
-			viewSections[i].Groups[j].Intro = linkifyText(viewSections[i].Groups[j].Intro, linkTargets)
-			for k := range viewSections[i].Groups[j].Details {
-				viewSections[i].Groups[j].Details[k].Narrative = linkifyText(viewSections[i].Groups[j].Details[k].Narrative, linkTargets)
-			}
-		}
-		for j := range viewSections[i].Units {
-			viewSections[i].Units[j].Intro = linkifyText(viewSections[i].Units[j].Intro, linkTargets)
-			viewSections[i].Units[j].WhatOwns = linkifyText(viewSections[i].Units[j].WhatOwns, linkTargets)
-			viewSections[i].Units[j].Triggers = linkifyText(viewSections[i].Units[j].Triggers, linkTargets)
-			viewSections[i].Units[j].Consumes = linkifyText(viewSections[i].Units[j].Consumes, linkTargets)
-			viewSections[i].Units[j].Produces = linkifyText(viewSections[i].Units[j].Produces, linkTargets)
-			viewSections[i].Units[j].DependsOn = linkifyText(viewSections[i].Units[j].DependsOn, linkTargets)
-			viewSections[i].Units[j].Threats = linkifyText(viewSections[i].Units[j].Threats, linkTargets)
-			viewSections[i].Units[j].Evidence = linkifyText(viewSections[i].Units[j].Evidence, linkTargets)
-			for k := range viewSections[i].Units[j].Details {
-				viewSections[i].Units[j].Details[k].Narrative = linkifyText(viewSections[i].Units[j].Details[k].Narrative, linkTargets)
-			}
-		}
-		for j := range viewSections[i].SecurityAttackChapters {
-			viewSections[i].SecurityAttackChapters[j].Name = linkifyText(viewSections[i].SecurityAttackChapters[j].Name, linkTargets)
-			viewSections[i].SecurityAttackChapters[j].Description = linkifyText(viewSections[i].SecurityAttackChapters[j].Description, linkTargets)
-			for k := range viewSections[i].SecurityAttackChapters[j].Units {
-				viewSections[i].SecurityAttackChapters[j].Units[k].Intro = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Intro, linkTargets)
-				viewSections[i].SecurityAttackChapters[j].Units[k].WhatOwns = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].WhatOwns, linkTargets)
-				viewSections[i].SecurityAttackChapters[j].Units[k].Triggers = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Triggers, linkTargets)
-				viewSections[i].SecurityAttackChapters[j].Units[k].Consumes = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Consumes, linkTargets)
-				viewSections[i].SecurityAttackChapters[j].Units[k].Produces = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Produces, linkTargets)
-				viewSections[i].SecurityAttackChapters[j].Units[k].DependsOn = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].DependsOn, linkTargets)
-				viewSections[i].SecurityAttackChapters[j].Units[k].Threats = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Threats, linkTargets)
-				viewSections[i].SecurityAttackChapters[j].Units[k].Evidence = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Evidence, linkTargets)
-				for d := range viewSections[i].SecurityAttackChapters[j].Units[k].Details {
-					viewSections[i].SecurityAttackChapters[j].Units[k].Details[d].Narrative = linkifyText(viewSections[i].SecurityAttackChapters[j].Units[k].Details[d].Narrative, linkTargets)
-				}
-			}
-		}
-		for j := range viewSections[i].SecurityThreatScenarios {
-			viewSections[i].SecurityThreatScenarios[j].ID = linkifyText(viewSections[i].SecurityThreatScenarios[j].ID, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Title = linkifyText(viewSections[i].SecurityThreatScenarios[j].Title, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Summary = linkifyText(viewSections[i].SecurityThreatScenarios[j].Summary, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].AttackVector = linkifyText(viewSections[i].SecurityThreatScenarios[j].AttackVector, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Scope = linkifyText(viewSections[i].SecurityThreatScenarios[j].Scope, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Flows = linkifyText(viewSections[i].SecurityThreatScenarios[j].Flows, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Likelihood = linkifyText(viewSections[i].SecurityThreatScenarios[j].Likelihood, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Impact = linkifyText(viewSections[i].SecurityThreatScenarios[j].Impact, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Severity = linkifyText(viewSections[i].SecurityThreatScenarios[j].Severity, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Status = linkifyText(viewSections[i].SecurityThreatScenarios[j].Status, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Owner = linkifyText(viewSections[i].SecurityThreatScenarios[j].Owner, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Risk = linkifyText(viewSections[i].SecurityThreatScenarios[j].Risk, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Controls = linkifyText(viewSections[i].SecurityThreatScenarios[j].Controls, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Mitigations = linkifyText(viewSections[i].SecurityThreatScenarios[j].Mitigations, linkTargets)
-			viewSections[i].SecurityThreatScenarios[j].Verifications = linkifyText(viewSections[i].SecurityThreatScenarios[j].Verifications, linkTargets)
-			for k := range viewSections[i].SecurityThreatScenarios[j].ControlVerifications {
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].ID = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].ID, linkTargets)
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Control = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Control, linkTargets)
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].ThreatScenarios = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].ThreatScenarios, linkTargets)
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Risks = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Risks, linkTargets)
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Method = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Method, linkTargets)
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Status = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Status, linkTargets)
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Owner = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Owner, linkTargets)
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].LastTested = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].LastTested, linkTargets)
-				viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Findings = linkifyText(viewSections[i].SecurityThreatScenarios[j].ControlVerifications[k].Findings, linkTargets)
-			}
-		}
-		for j := range viewSections[i].SecurityThreatAssumptions {
-			viewSections[i].SecurityThreatAssumptions[j].ID = linkifyText(viewSections[i].SecurityThreatAssumptions[j].ID, linkTargets)
-			viewSections[i].SecurityThreatAssumptions[j].Title = linkifyText(viewSections[i].SecurityThreatAssumptions[j].Title, linkTargets)
-			viewSections[i].SecurityThreatAssumptions[j].Status = linkifyText(viewSections[i].SecurityThreatAssumptions[j].Status, linkTargets)
-			viewSections[i].SecurityThreatAssumptions[j].Owner = linkifyText(viewSections[i].SecurityThreatAssumptions[j].Owner, linkTargets)
-			viewSections[i].SecurityThreatAssumptions[j].AppliesTo = linkifyText(viewSections[i].SecurityThreatAssumptions[j].AppliesTo, linkTargets)
-			viewSections[i].SecurityThreatAssumptions[j].Rationale = linkifyText(viewSections[i].SecurityThreatAssumptions[j].Rationale, linkTargets)
-		}
-		for j := range viewSections[i].SecurityThreatOutOfScope {
-			viewSections[i].SecurityThreatOutOfScope[j].ID = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].ID, linkTargets)
-			viewSections[i].SecurityThreatOutOfScope[j].Title = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].Title, linkTargets)
-			viewSections[i].SecurityThreatOutOfScope[j].Status = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].Status, linkTargets)
-			viewSections[i].SecurityThreatOutOfScope[j].Owner = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].Owner, linkTargets)
-			viewSections[i].SecurityThreatOutOfScope[j].AppliesTo = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].AppliesTo, linkTargets)
-			viewSections[i].SecurityThreatOutOfScope[j].ExpiresOn = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].ExpiresOn, linkTargets)
-			viewSections[i].SecurityThreatOutOfScope[j].Reason = linkifyText(viewSections[i].SecurityThreatOutOfScope[j].Reason, linkTargets)
-		}
-		for j := range viewSections[i].SecurityThreatMitigations {
-			viewSections[i].SecurityThreatMitigations[j].ID = linkifyText(viewSections[i].SecurityThreatMitigations[j].ID, linkTargets)
-			viewSections[i].SecurityThreatMitigations[j].ThreatScenario = linkifyText(viewSections[i].SecurityThreatMitigations[j].ThreatScenario, linkTargets)
-			viewSections[i].SecurityThreatMitigations[j].Control = linkifyText(viewSections[i].SecurityThreatMitigations[j].Control, linkTargets)
-			viewSections[i].SecurityThreatMitigations[j].Status = linkifyText(viewSections[i].SecurityThreatMitigations[j].Status, linkTargets)
-			viewSections[i].SecurityThreatMitigations[j].Effectiveness = linkifyText(viewSections[i].SecurityThreatMitigations[j].Effectiveness, linkTargets)
-			viewSections[i].SecurityThreatMitigations[j].Owner = linkifyText(viewSections[i].SecurityThreatMitigations[j].Owner, linkTargets)
-			viewSections[i].SecurityThreatMitigations[j].Verifications = linkifyText(viewSections[i].SecurityThreatMitigations[j].Verifications, linkTargets)
-			viewSections[i].SecurityThreatMitigations[j].Notes = linkifyText(viewSections[i].SecurityThreatMitigations[j].Notes, linkTargets)
-		}
-		for j := range viewSections[i].SecurityControlChecks {
-			viewSections[i].SecurityControlChecks[j].ID = linkifyText(viewSections[i].SecurityControlChecks[j].ID, linkTargets)
-			viewSections[i].SecurityControlChecks[j].Control = linkifyText(viewSections[i].SecurityControlChecks[j].Control, linkTargets)
-			viewSections[i].SecurityControlChecks[j].ThreatScenarios = linkifyText(viewSections[i].SecurityControlChecks[j].ThreatScenarios, linkTargets)
-			viewSections[i].SecurityControlChecks[j].Risks = linkifyText(viewSections[i].SecurityControlChecks[j].Risks, linkTargets)
-			viewSections[i].SecurityControlChecks[j].Method = linkifyText(viewSections[i].SecurityControlChecks[j].Method, linkTargets)
-			viewSections[i].SecurityControlChecks[j].Status = linkifyText(viewSections[i].SecurityControlChecks[j].Status, linkTargets)
-			viewSections[i].SecurityControlChecks[j].Owner = linkifyText(viewSections[i].SecurityControlChecks[j].Owner, linkTargets)
-			viewSections[i].SecurityControlChecks[j].LastTested = linkifyText(viewSections[i].SecurityControlChecks[j].LastTested, linkTargets)
-			viewSections[i].SecurityControlChecks[j].Findings = linkifyText(viewSections[i].SecurityControlChecks[j].Findings, linkTargets)
-		}
-		for j := range viewSections[i].SecurityFlowRows {
-			viewSections[i].SecurityFlowRows[j].ID = linkifyText(viewSections[i].SecurityFlowRows[j].ID, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Title = linkifyText(viewSections[i].SecurityFlowRows[j].Title, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Kind = linkifyText(viewSections[i].SecurityFlowRows[j].Kind, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Direction = linkifyText(viewSections[i].SecurityFlowRows[j].Direction, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Frequency = linkifyText(viewSections[i].SecurityFlowRows[j].Frequency, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Source = linkifyText(viewSections[i].SecurityFlowRows[j].Source, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Destination = linkifyText(viewSections[i].SecurityFlowRows[j].Destination, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Protocol = linkifyText(viewSections[i].SecurityFlowRows[j].Protocol, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Authentication = linkifyText(viewSections[i].SecurityFlowRows[j].Authentication, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Encryption = linkifyText(viewSections[i].SecurityFlowRows[j].Encryption, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Integrity = linkifyText(viewSections[i].SecurityFlowRows[j].Integrity, linkTargets)
-			viewSections[i].SecurityFlowRows[j].TrustBoundary = linkifyText(viewSections[i].SecurityFlowRows[j].TrustBoundary, linkTargets)
-			viewSections[i].SecurityFlowRows[j].BoundaryCrossing = linkifyText(viewSections[i].SecurityFlowRows[j].BoundaryCrossing, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Threats = linkifyText(viewSections[i].SecurityFlowRows[j].Threats, linkTargets)
-			viewSections[i].SecurityFlowRows[j].Data = linkifyText(viewSections[i].SecurityFlowRows[j].Data, linkTargets)
-		}
-		if viewSections[i].Inf != "" {
-			viewSections[i].Inf = linkifyText(viewSections[i].Inf, linkTargets)
-		}
-		for j := range viewSections[i].ViewQuestions {
-			viewSections[i].ViewQuestions[j] = linkifyText(viewSections[i].ViewQuestions[j], linkTargets)
-		}
-		for j := range viewSections[i].CoverageGaps {
-			viewSections[i].CoverageGaps[j] = linkifyText(viewSections[i].CoverageGaps[j], linkTargets)
-		}
-		for j := range viewSections[i].NextActions {
-			viewSections[i].NextActions[j] = linkifyText(viewSections[i].NextActions[j], linkTargets)
-		}
-		for j := range viewSections[i].ProjectedNodes {
-			viewSections[i].ProjectedNodes[j].ID = linkifyText(viewSections[i].ProjectedNodes[j].ID, linkTargets)
-			viewSections[i].ProjectedNodes[j].Kind = linkifyText(viewSections[i].ProjectedNodes[j].Kind, linkTargets)
-			viewSections[i].ProjectedNodes[j].Label = linkifyText(viewSections[i].ProjectedNodes[j].Label, linkTargets)
-		}
-		for j := range viewSections[i].ProjectedMappings {
-			viewSections[i].ProjectedMappings[j].Type = linkifyText(viewSections[i].ProjectedMappings[j].Type, linkTargets)
-			viewSections[i].ProjectedMappings[j].From = linkifyText(viewSections[i].ProjectedMappings[j].From, linkTargets)
-			viewSections[i].ProjectedMappings[j].To = linkifyText(viewSections[i].ProjectedMappings[j].To, linkTargets)
-			viewSections[i].ProjectedMappings[j].Description = linkifyText(viewSections[i].ProjectedMappings[j].Description, linkTargets)
-		}
-		viewSections[i].CoverageSummary = linkifyText(viewSections[i].CoverageSummary, linkTargets)
-	}
-	for i := range reqSections {
-		reqSections[i].Text = linkifyText(reqSections[i].Text, linkTargets)
-		reqSections[i].Notes = linkifyText(reqSections[i].Notes, linkTargets)
-	}
-	for i := range verificationSections {
-		verificationSections[i].Kind = linkifyText(verificationSections[i].Kind, linkTargets)
-		verificationSections[i].Status = linkifyText(verificationSections[i].Status, linkTargets)
-		verificationSections[i].Verifies = linkifyText(verificationSections[i].Verifies, linkTargets)
-		verificationSections[i].TestCode = linkifyText(verificationSections[i].TestCode, linkTargets)
-		verificationSections[i].DerivedOwners = linkifyText(verificationSections[i].DerivedOwners, linkTargets)
-		verificationSections[i].Evidence = linkifyText(verificationSections[i].Evidence, linkTargets)
-		verificationSections[i].ResultSummary = linkifyText(verificationSections[i].ResultSummary, linkTargets)
-		verificationSections[i].Description = linkifyText(verificationSections[i].Description, linkTargets)
-	}
-	for i := range verificationResultRows {
-		verificationResultRows[i].CheckID = linkifyText(verificationResultRows[i].CheckID, linkTargets)
-		verificationResultRows[i].CheckName = linkifyText(verificationResultRows[i].CheckName, linkTargets)
-		verificationResultRows[i].Requirement = linkifyText(verificationResultRows[i].Requirement, linkTargets)
-		verificationResultRows[i].Status = linkifyText(verificationResultRows[i].Status, linkTargets)
-		verificationResultRows[i].Evidence = linkifyText(verificationResultRows[i].Evidence, linkTargets)
-		verificationResultRows[i].Notes = linkifyText(verificationResultRows[i].Notes, linkTargets)
-	}
-
-	templateData := asciidocTemplateData{
-		Title:        textutil.NonEmpty(design.Design.Title, bundle.Architecture.Model.Title),
-		Introduction: linkifyText(strings.TrimSpace(bundle.Architecture.Model.Introduction), linkTargets),
-		HealthRows:   buildHealthRows(viewSections),
-		Terms:        terms,
-		Purpose:      "This architecture description is generated from authored structure and inferred realization layers.",
-		ReaderTracks: []string{"Product/domain engineers: Functional + Runtime", "Platform/SRE engineers: Deployment + Runtime", "Implementation engineers: Realization + Functional", "Security engineers: Security + Functional"},
-		Legend:       []string{"Authored: intentional functional architecture", "Inferred: discovered runtime or code realization", "realizes: runtime to functional unit", "implemented_by: verification to test code", "verifies: verification to requirement"},
-		ModelMeta: asciidocModelMeta{
-			ID:    strings.TrimSpace(bundle.Architecture.Model.ID),
-			Title: strings.TrimSpace(bundle.Architecture.Model.Title),
-		},
-		LintRun: asciidocLintRun{
-			ID:         strings.TrimSpace(requirements.LintRun.ID),
-			Mode:       strings.TrimSpace(requirements.LintRun.Mode),
-			CommaAsAnd: requirements.LintRun.CommaAsAnd,
-			CatalogRef: strings.TrimSpace(requirements.LintRun.CatalogRef),
-		},
-		ViewConfig: renderViewConfig(bundle.Architecture.Views),
-		InferenceHints: asciidocInferenceHints{
-			RuntimeSources:           strings.Join(bundle.Architecture.InferenceHints.RuntimeSources, ", "),
-			ExpectedRuntimeKinds:     strings.Join(bundle.Architecture.InferenceHints.ExpectedRuntimeKinds, ", "),
-			OwnershipResolutionOrder: strings.Join(bundle.Architecture.InferenceHints.OwnershipResolutionOrder, ", "),
-		},
-		Actors:             renderActors(bundle.Architecture.AuthoredArchitecture.Actors),
-		AttackVectors:      renderAttackVectors(bundle.Architecture.AuthoredArchitecture.AttackVectors),
-		ReferencedElements: renderReferencedElements(bundle.Architecture.AuthoredArchitecture.ReferencedElements),
-		Mappings:           renderMappings(bundle.Architecture.AuthoredArchitecture.Mappings),
-		InferredRuntime:    renderInferredRuntime(inferredRuntime),
-		InferredCode:       renderInferredCode(inferredCode),
-		Summary: asciidocSummary{
-			FunctionalGroups:   listNamesFG(bundle.Architecture.AuthoredArchitecture.FunctionalGroups),
-			FunctionalUnits:    listNamesFU(bundle.Architecture.AuthoredArchitecture.FunctionalUnits),
-			Actors:             listNamesActors(bundle.Architecture.AuthoredArchitecture.Actors),
-			AttackVectors:      listNamesVectors(bundle.Architecture.AuthoredArchitecture.AttackVectors),
-			ReferencedElements: listNamesRefs(bundle.Architecture.AuthoredArchitecture.ReferencedElements),
-		},
-		MermaidClassDefs:    diagramstyle.MermaidClassDefsBlock("  "),
-		Views:               viewSections,
-		RequirementMermaid:  reqMermaid,
-		RequirementInf:      "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries.",
-		Requirements:        reqSections,
-		Verifications:       verificationSections,
-		VerificationResults: verificationResultRows,
-		ReferenceIndex:      refIndex,
-		Decisions:           decisionSections,
-		DecisionsDocPath:    decisionsDocPath,
-	}
-
-	doc, err := renderAsciiDocTemplate(templateData)
-	if err != nil {
-		return Result{Diagnostics: validate.SortDiagnostics(diags)}, err
-	}
-
-	templateData.ReferenceIndex = applyReferenceBacklinks(doc, templateData.ReferenceIndex)
-	doc, err = renderAsciiDocTemplate(templateData)
-	if err != nil {
-		return Result{Diagnostics: validate.SortDiagnostics(diags)}, err
-	}
-
-	// The Reference Index is the closing chapter; insert the Gemara and Composition
-	// chapters before it so it remains last.
-	trailing := renderGemaraAsciiDocChapter(bundle) + renderCompositionAsciiDocChapterFor(bundle, composed, compositionErr) +
-		renderRequirementLinksChapter(bundle, composed) + renderContractItemsChapter(bundle, options.Resolution.Workspace, options.UsedBy)
-	if trailing != "" {
-		if idx := strings.Index(doc, "<<<\n== Reference Index"); idx >= 0 {
-			doc = doc[:idx] + strings.TrimPrefix(trailing, "\n") + doc[idx:]
-		} else {
-			doc += trailing
-		}
-	}
-
-	return Result{Document: doc, DecisionsDocument: renderDecisionsDocument(decisionSections), Diagnostics: validate.SortDiagnostics(diags)}, nil
+	return Generate(Inputs{Bundle: bundle, Requirements: requirements, Design: design}, options)
 }
 
 // traceFindingCodes are the requirement link trace findings that strict
@@ -716,11 +101,17 @@ var traceFindingCodes = map[string]bool{
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE
 func hasBlockingErrors(bundle model.Bundle, diags []validate.Diagnostic) bool {
 	for _, d := range diags {
-		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "link.") && !traceFindingCodes[d.Code] && !validate.RendersDespite(bundle, d.Code) {
+		if d.Severity == validate.SeverityError && blocksRender(bundle, d.Code) {
 			return true
 		}
 	}
 	return false
+}
+
+// blocksRender reports whether an error with the code stops the render.
+// TRLC-LINKS: REQ-EMG-107, REQ-EMG-130
+func blocksRender(bundle model.Bundle, code string) bool {
+	return !strings.HasPrefix(code, "link.") && !traceFindingCodes[code] && !validate.RendersDespite(bundle, code)
 }
 
 // validationBundle enriches the bundle with the dependencies' published
@@ -753,6 +144,23 @@ func validationBundle(bundle model.Bundle, composed composition.CompositionResul
 // TRLC-LINKS: REQ-EMG-065
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, FU-SYSTEM-COMPOSITION
 func excludeUnpublishedReferenceEchoes(diags, compositionDiags []validate.Diagnostic) []validate.Diagnostic {
+	unpublished := unpublishedReferences(compositionDiags)
+	if len(unpublished) == 0 {
+		return diags
+	}
+	out := diags[:0:0]
+	for _, d := range diags {
+		if !echoesUnpublishedReference(d, unpublished) {
+			out = append(out, d)
+		}
+	}
+	return out
+}
+
+// unpublishedReferences is the set of alias::ID references that the
+// composition diagnostics report as unpublished.
+// TRLC-LINKS: REQ-EMG-065
+func unpublishedReferences(compositionDiags []validate.Diagnostic) map[string]bool {
 	unpublished := map[string]bool{}
 	for _, d := range compositionDiags {
 		if d.Code != "composition.unpublished_reference" {
@@ -762,25 +170,22 @@ func excludeUnpublishedReferenceEchoes(diags, compositionDiags []validate.Diagno
 			unpublished[ref] = true
 		}
 	}
-	if len(unpublished) == 0 {
-		return diags
+	return unpublished
+}
+
+// echoesUnpublishedReference reports whether a generic validation error
+// repeats one of the unpublished references.
+// TRLC-LINKS: REQ-EMG-065
+func echoesUnpublishedReference(d validate.Diagnostic, unpublished map[string]bool) bool {
+	if d.Severity != validate.SeverityError || strings.HasPrefix(d.Code, "composition.") {
+		return false
 	}
-	out := diags[:0:0]
-	for _, d := range diags {
-		echo := false
-		if d.Severity == validate.SeverityError && !strings.HasPrefix(d.Code, "composition.") {
-			for ref := range unpublished {
-				if strings.Contains(d.Message, strconv.Quote(ref)) {
-					echo = true
-					break
-				}
-			}
-		}
-		if !echo {
-			out = append(out, d)
+	for ref := range unpublished {
+		if strings.Contains(d.Message, strconv.Quote(ref)) {
+			return true
 		}
 	}
-	return out
+	return false
 }
 
 // firstQuoted returns the first Go-quoted string in a diagnostic message.
@@ -797,4 +202,682 @@ func firstQuoted(message string) (string, bool) {
 		}
 	}
 	return "", false
+}
+
+// generation carries what one Generate call threads through its stages: the
+// inputs, the validated bundle, the diagnostics collected so far and the
+// sections that feed the template.
+type generation struct {
+	bundle           model.Bundle
+	validated        model.Bundle
+	requirements     model.RequirementsDocument
+	design           model.DesignDocument
+	options          Options
+	composed         composition.CompositionResult
+	compositionErr   error
+	compositionDiags []validate.Diagnostic
+	diags            []validate.Diagnostic
+
+	viewByID    map[string]model.View
+	viewNodeIDs map[string]map[string]bool
+	views       []asciidocViewSection
+
+	inferredRuntime      []codescan.RuntimeItem
+	inferredCode         []codescan.CodeItem
+	inferredVerification []codescan.VerificationCheck
+	evidenceByOwner      map[string]string
+
+	labelByID      map[string]string
+	reqByUnit      map[string]string
+	attackByTarget map[string]string
+	groups         []asciidocEntitySection
+	units          []asciidocUnitSection
+
+	linkTargets  map[string]linkTarget
+	terms        []asciidocTerm
+	reqSections  []asciidocRequirementSection
+	verification []asciidocVerificationSection
+	verResults   []asciidocVerificationResultRow
+	refIndex     asciidocReferenceIndex
+	decisions    []asciidocDecisionSection
+}
+
+// Generate validates and renders the model. With composition it
+// resolves the dependencies once, validates against the bundle enriched with
+// their published entities, and returns every composition diagnostic; a
+// composition error fails the call like any other validation error.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func Generate(in Inputs, options Options) (Result, error) {
+	g := &generation{bundle: in.Bundle, requirements: in.Requirements, design: in.Design, options: options}
+	if err := g.canonicalize(); err != nil {
+		return Result{}, err
+	}
+	if err := g.validateModel(); err != nil {
+		return g.fail(err)
+	}
+	if err := g.projectViews(); err != nil {
+		return g.fail(err)
+	}
+	g.inferRealization()
+	g.buildEntitySections()
+	g.fillViews()
+	g.buildDocumentSections()
+	g.linkifySections()
+	data := g.templateData()
+	doc, err := g.renderDocument(data)
+	if err != nil {
+		return g.fail(err)
+	}
+	return Result{Document: doc, DecisionsDocument: renderDecisionsDocument(g.decisions), Diagnostics: validate.SortDiagnostics(g.diags)}, nil
+}
+
+// fail returns the diagnostics collected so far with the error.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) fail(err error) (Result, error) {
+	return Result{Diagnostics: validate.SortDiagnostics(g.diags)}, err
+}
+
+// authored is the authored architecture of the model under generation.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) authored() model.AuthoredArchitecture {
+	return g.bundle.Architecture.AuthoredArchitecture
+}
+
+// canonicalize builds the canonical bundle with its code index.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) canonicalize() error {
+	g.bundle.Requirements = g.requirements
+	g.bundle.Design = g.design
+	canonical, err := model.NewCanonicalBundle(g.bundle)
+	if err != nil {
+		return err
+	}
+	g.bundle = codescan.WithCodeIndex(canonical.Documents())
+	g.requirements = g.bundle.Requirements
+	g.design = g.bundle.Design
+	return nil
+}
+
+// validateModel composes, validates and lints; it fails when an error stops
+// the render.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) validateModel() error {
+	g.composed, g.compositionErr = composition.ComposeForGeneration(g.bundle, g.options.Composition, g.options.Resolution)
+	g.validated, g.compositionDiags = validationBundle(g.bundle, g.composed, g.compositionErr)
+	diags := excludeUnpublishedReferenceEchoes(validate.Bundle(g.validated), g.compositionDiags)
+	diags = append(diags, g.compositionDiags...)
+	diags = append(diags, reqlint.ValidateCatalogDescriptions(g.bundle.Catalog)...)
+	diags = append(diags, reqlint.LintModelRequirementsEARS(g.bundle, g.requirements)...)
+	diags = append(diags, reqlint.LintRequirementInternalLinks(g.requirements)...)
+	g.diags = validate.ApplyTierPolicy(g.bundle, diags)
+	if hasBlockingErrors(g.bundle, g.diags) {
+		return fmt.Errorf("validation failed")
+	}
+	return nil
+}
+
+// projectViews projects every selected view into a view section and records
+// its node IDs.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) projectViews() error {
+	viewIDs := resolveViewIDs(g.bundle, g.options)
+	g.viewByID = map[string]model.View{}
+	for _, v := range g.bundle.Architecture.Views {
+		g.viewByID[v.ID] = v
+	}
+	kindCounts := map[string]int{}
+	for _, viewID := range viewIDs {
+		kindCounts[g.viewByID[viewID].Kind]++
+	}
+	g.viewNodeIDs = map[string]map[string]bool{}
+	g.views = make([]asciidocViewSection, 0, len(viewIDs))
+	for _, viewID := range viewIDs {
+		res, err := generate.Generate(g.validated, viewID)
+		g.diags = append(g.diags, excludeUnpublishedReferenceEchoes(res.Diagnostics, g.compositionDiags)...)
+		if err != nil {
+			return fmt.Errorf("generate view %s: %w", viewID, err)
+		}
+		g.views = append(g.views, g.viewSection(viewID, res, kindCounts[res.View.Kind]))
+		g.viewNodeIDs[viewID] = projectedNodeIDs(res.View.Nodes)
+	}
+	return nil
+}
+
+// viewSection is the section of one projected view.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) viewSection(viewID string, res generate.Result, kindCount int) asciidocViewSection {
+	cfg := g.viewByID[viewID]
+	graph, edgeKey := publicationEdgeKey(res.View.Kind, strings.TrimSpace(res.Mermaid))
+	return asciidocViewSection{
+		ID:                        viewID,
+		Kind:                      res.View.Kind,
+		Heading:                   publicationViewHeading(res.View.Kind, viewID, kindCount),
+		AuthoredStatus:            normalizeAuthoredStatus(cfg.AuthoredStatus),
+		AuthoredStatusExplanation: normalizeAuthoredStatusExplanation(cfg.AuthoredStatusExplanation),
+		Mermaid:                   graph,
+		EdgeKey:                   edgeKey,
+		Inf:                       inferredDescription(res.View.Kind),
+		ViewQuestions:             viewQuestions(res.View.Kind),
+		ProjectedNodes:            sortedProjectedNodes(res.View.Nodes),
+		ProjectedMappings:         sortedProjectedMappings(res.View.Edges),
+	}
+}
+
+// projectedNodeIDs is the set of node IDs of a projected view.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func projectedNodeIDs(nodes []view.Node) map[string]bool {
+	ids := map[string]bool{}
+	for _, n := range nodes {
+		ids[n.ID] = true
+	}
+	return ids
+}
+
+// sortedProjectedNodes lists the nodes by kind, then ID.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func sortedProjectedNodes(nodes []view.Node) []asciidocProjectedNode {
+	out := make([]asciidocProjectedNode, 0, len(nodes))
+	for _, n := range nodes {
+		out = append(out, asciidocProjectedNode{ID: strings.TrimSpace(n.ID), Kind: strings.TrimSpace(n.Kind), Label: strings.TrimSpace(n.Label)})
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		return cmp.Or(cmp.Compare(out[i].Kind, out[j].Kind), cmp.Compare(out[i].ID, out[j].ID)) < 0
+	})
+	return out
+}
+
+// sortedProjectedMappings lists the edges by type, then source, then target.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func sortedProjectedMappings(edges []view.Edge) []asciidocMappingSection {
+	out := make([]asciidocMappingSection, 0, len(edges))
+	for _, e := range edges {
+		out = append(out, asciidocMappingSection{Type: strings.TrimSpace(e.Type), From: strings.TrimSpace(e.From), To: strings.TrimSpace(e.To), Description: strings.TrimSpace(e.Label)})
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		return cmp.Or(cmp.Compare(out[i].Type, out[j].Type), cmp.Compare(out[i].From, out[j].From), cmp.Compare(out[i].To, out[j].To)) < 0
+	})
+	return out
+}
+
+// inferRealization infers the runtime, code and verification layers and
+// checks the trace integrity against them.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) inferRealization() {
+	runtime, runtimeDiags := codescan.InferRuntimeItems(g.bundle)
+	code, codeDiags := codescan.InferCodeItems(g.bundle, g.options.CodeRoot)
+	verification, verificationDiags := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: g.bundle, Requirements: g.requirements, InferredCode: code, CodeRoot: g.options.CodeRoot})
+	g.inferredRuntime, g.inferredCode, g.inferredVerification = runtime, code, verification
+	g.diags = append(g.diags, runtimeDiags...)
+	g.diags = append(g.diags, codeDiags...)
+	g.diags = append(g.diags, verificationDiags...)
+	g.evidenceByOwner = buildOwnerEvidence(runtime, code)
+	scopedCode := trace.ScopeCodeToModel(code, trace.EffectiveCodeRoots(g.bundle, g.options.CodeRoot), codescan.ModelRootDir(g.bundle))
+	g.diags = append(g.diags, trace.ValidateIntegrity(g.validated, trace.Evidence{Requirements: g.requirements, Code: scopedCode, Verification: verification})...)
+	g.diags = validate.ApplyTierPolicy(g.bundle, g.diags)
+}
+
+// buildEntitySections builds the functional group and unit sections.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) buildEntitySections() {
+	a := g.authored()
+	g.labelByID = buildLabelIndex(a)
+	g.reqByUnit = requirementsByUnit(g.requirements.Requirements)
+	g.attackByTarget = attackVectorsByTarget(a.Mappings, g.labelByID)
+	g.groups = g.groupSections()
+	g.units = g.unitSections()
+}
+
+// groupSections builds the section of every functional group.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) groupSections() []asciidocEntitySection {
+	designs := mapDesignGroups(g.design)
+	groups := g.authored().FunctionalGroups
+	out := make([]asciidocEntitySection, 0, len(groups))
+	for _, fg := range groups {
+		out = append(out, asciidocEntitySection{
+			Anchor:      referenceAnchor("idx-fg", fg.ID),
+			ID:          fg.ID,
+			Name:        textutil.NonEmpty(fg.Name, fg.ID),
+			Description: strings.TrimSpace(fg.Description),
+			Tags:        strings.Join(fg.Tags, ", "),
+			Intro:       strings.TrimSpace(fg.Prose),
+			Details:     buildDesignDetails(fg.Prose, designs[fg.ID].Views, g.bundle.Architecture.Views),
+		})
+	}
+	return out
+}
+
+// unitSections builds the section of every functional unit, by group and ID.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) unitSections() []asciidocUnitSection {
+	designs := mapDesignUnits(g.design)
+	units := g.authored().FunctionalUnits
+	out := make([]asciidocUnitSection, 0, len(units))
+	for _, u := range units {
+		out = append(out, g.unitSection(u, designs[u.ID]))
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		return cmp.Or(cmp.Compare(out[i].Group, out[j].Group), cmp.Compare(out[i].ID, out[j].ID)) < 0
+	})
+	return out
+}
+
+// unitSection builds the section of one functional unit.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) unitSection(u model.FunctionalUnit, design model.DesignFunctionalUnit) asciidocUnitSection {
+	maps := g.authored().Mappings
+	return asciidocUnitSection{
+		Anchor:      referenceAnchor("idx-fu", u.ID),
+		GroupAnchor: referenceAnchor("idx-fg", u.Group),
+		ID:          u.ID,
+		Name:        textutil.NonEmpty(u.Name, u.ID),
+		Group:       u.Group,
+		Tags:        strings.Join(u.Tags, ", "),
+		Intro:       strings.TrimSpace(u.Prose),
+		Details:     buildDesignDetails(u.Prose, design.Views, g.bundle.Architecture.Views),
+		WhatOwns:    unitOwnershipSummary(u, maps, g.labelByID),
+		Triggers:    textutil.NonEmpty(g.reqByUnit[u.ID], "no explicit authored requirement trigger"),
+		Consumes:    textutil.NonEmpty(unitConsumers(u.ID, maps, g.labelByID), "none"),
+		Produces:    textutil.NonEmpty(unitOutputs(u.ID, maps, g.labelByID), "none"),
+		DependsOn:   unitDependencies(u.ID, maps, g.labelByID),
+		Threats:     textutil.NonEmpty(g.attackByTarget[u.ID], "no explicit attack vector targeting this unit"),
+		Evidence:    textutil.NonEmpty(g.evidenceByOwner[u.ID], "authored unit with no direct derived runtime/code evidence yet"),
+	}
+}
+
+// scopedGroups is the groups that appear in a view, with the detail of that view.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func scopedGroups(groups []asciidocEntitySection, nodeSet map[string]bool, viewID string) []asciidocEntitySection {
+	out := make([]asciidocEntitySection, 0, len(groups))
+	for _, fg := range groups {
+		if !nodeSet[fg.ID] {
+			continue
+		}
+		scoped := fg
+		scoped.Details = []asciidocDesignDetail{detailForView(fg.Details, viewID)}
+		out = append(out, scoped)
+	}
+	return out
+}
+
+// scopedUnits is the units that appear in a view, with the detail of that view.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func scopedUnits(units []asciidocUnitSection, nodeSet map[string]bool, viewID string) []asciidocUnitSection {
+	out := make([]asciidocUnitSection, 0, len(units))
+	for _, u := range units {
+		if !nodeSet[u.ID] {
+			continue
+		}
+		scoped := u
+		scoped.Details = []asciidocDesignDetail{detailForView(u.Details, viewID)}
+		out = append(out, scoped)
+	}
+	return out
+}
+
+// fillViews scopes the entities to each view and builds its kind specific
+// diagrams and tables.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) fillViews() {
+	for i := range g.views {
+		g.fillView(&g.views[i])
+	}
+}
+
+// viewFillers builds the kind specific content of a view section.
+var viewFillers = map[string]func(*generation, *asciidocViewSection){
+	"architecture-intent": (*generation).fillArchitectureIntent,
+	"communication":       (*generation).fillCommunication,
+	"deployment":          (*generation).fillDeployment,
+	"security":            (*generation).fillSecurity,
+	"traceability":        (*generation).fillTraceability,
+}
+
+// fillView scopes the entities to one view and builds its coverage and its
+// kind specific content.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) fillView(vs *asciidocViewSection) {
+	cfg := g.viewByID[vs.ID]
+	kind := cfg.Kind
+	nodeSet := g.viewNodeIDs[vs.ID]
+	vs.Groups = scopedGroups(g.groups, nodeSet, cfg.ID)
+	vs.Units = scopedUnits(g.units, nodeSet, cfg.ID)
+	if kind == "communication" {
+		g.describeCommunicationUnits(vs.Units)
+	}
+	vs.CoverageGaps = viewCoverageGaps(kind, vs.Units)
+	vs.CoverageSummary = viewCoverageSummary(kind, vs.Units)
+	vs.NextActions = viewNextActions(kind, vs.CoverageGaps)
+	if fill := viewFillers[kind]; fill != nil {
+		fill(g, vs)
+	}
+}
+
+// describeCommunicationUnits replaces the unit flows of a communication view
+// with its interfaces and messages.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) describeCommunicationUnits(units []asciidocUnitSection) {
+	maps := g.authored().Mappings
+	for j := range units {
+		units[j].Consumes = unitInboundInterfacesDetailed(units[j].ID, maps, g.labelByID)
+		units[j].Produces = unitOutboundInterfacesDetailed(units[j].ID, maps, g.labelByID)
+		units[j].Triggers = unitMessagesConsumed(units[j].ID, maps, g.labelByID)
+	}
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) fillArchitectureIntent(vs *asciidocViewSection) {
+	scoped := functionalPublicationArchitecture(g.authored(), g.viewNodeIDs[vs.ID])
+	if len(scoped.FunctionalUnits) > 0 || len(scoped.FunctionalGroups) > 0 {
+		vs.FuncContextGraph = buildFunctionalContextMermaid(scoped)
+		vs.FuncDecompGraph = buildFunctionalDecompositionMermaid(scoped)
+		vs.FuncMatrixTable = buildFunctionalManhattanTable(scoped)
+	}
+	for j := range vs.Groups {
+		vs.Groups[j].DependencyGraph = buildFunctionalGroupDependencyMermaid(scoped, vs.Groups[j].ID, realizationEvidence{g.inferredRuntime, g.inferredCode})
+	}
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) fillCommunication(vs *asciidocViewSection) {
+	apiRows := buildRuntimeAPIRows(g.inferredRuntime, g.authored().Mappings)
+	vs.RuntimeAPIRows = apiRows
+	vs.RuntimeAPIGraph = buildRuntimeAPIMermaid(apiRows)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) fillDeployment(vs *asciidocViewSection) {
+	depRows := buildDeploymentRows(g.inferredRuntime)
+	vs.DeploymentRows = depRows
+	vs.DeploymentGraph = buildDeploymentMermaid(depRows)
+	opRows := buildPlatformOpsRows(g.authored(), g.inferredRuntime)
+	vs.PlatformOpsRows = opRows
+	vs.PlatformOpsGraph = buildPlatformOpsMermaid(opRows)
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) fillSecurity(vs *asciidocViewSection) {
+	a := g.authored()
+	nodeSet := g.viewNodeIDs[vs.ID]
+	secRows := buildSecurityPathRows(a, g.labelByID)
+	vs.SecurityRows = secRows
+	vs.SecurityThreatScenarios = buildSecurityThreatScenarioRows(a, nodeSet, g.labelByID)
+	vs.SecurityThreatAssumptions = buildSecurityThreatAssumptionRows(a, nodeSet, g.labelByID)
+	vs.SecurityThreatOutOfScope = buildSecurityThreatOutOfScopeRows(a, nodeSet, g.labelByID)
+	vs.SecurityThreatMitigations = buildSecurityThreatMitigationRows(a, nodeSet, g.labelByID)
+	vs.SecurityControlChecks = buildSecurityControlVerificationRows(a, nodeSet, g.labelByID)
+	vs.SecurityFlowRows = buildSecurityFlowRows(a, nodeSet, g.labelByID)
+	vs.SecurityGraph = buildSecurityPathMermaid(secRows, g.inferredRuntime, g.inferredCode)
+	vs.SecurityContextDiagrams = buildSecurityContextDFDMermaidByGroup(a, g.bundle.Architecture.Compliance.Mappings, g.labelByID)
+	vs.SecurityObsRows = buildSecurityObservabilityRows(g.inferredRuntime, g.inferredCode)
+	vs.SecurityAttackChapters = buildSecurityAttackChapters(a, attackChapterScope{vs.Units, nodeSet, secRows, g.labelByID, realizationEvidence{g.inferredRuntime, g.inferredCode}})
+}
+
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) fillTraceability(vs *asciidocViewSection) {
+	codeRows := buildCodeOwnershipRows(g.inferredCode)
+	vs.InferredGraph = buildCodeOwnershipMermaid(codeRows, g.authored())
+	vs.InferredRows = codeRows
+}
+
+// buildDocumentSections builds the requirement, verification, reference
+// index, term and decision sections.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) buildDocumentSections() {
+	g.reqSections = g.requirementSections()
+	g.verification, g.verResults = g.verificationSections()
+	g.refIndex = buildReferenceIndex(referenceSources{g.bundle, g.requirements, g.inferredRuntime, g.inferredCode, g.inferredVerification})
+	g.linkTargets = buildLinkTargets(g.refIndex)
+	g.terms = buildTermsFromCatalog(g.bundle.Catalog)
+	g.decisions = buildDecisionSections(g.bundle.Architecture.Decisions)
+	sort.SliceStable(g.terms, func(i, j int) bool {
+		left := strings.ToLower(strings.TrimSpace(g.terms[i].Name))
+		right := strings.ToLower(strings.TrimSpace(g.terms[j].Name))
+		return cmp.Or(cmp.Compare(left, right), cmp.Compare(g.terms[i].ID, g.terms[j].ID)) < 0
+	})
+}
+
+// requirementSections builds the section of every requirement, by ID.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) requirementSections() []asciidocRequirementSection {
+	reqs := g.requirements.Requirements
+	out := make([]asciidocRequirementSection, 0, len(reqs))
+	for _, r := range reqs {
+		out = append(out, asciidocRequirementSection{
+			Anchor:               referenceAnchor("req", r.ID),
+			ID:                   r.ID,
+			Text:                 strings.TrimSpace(r.Text),
+			Notes:                strings.TrimSpace(r.Notes),
+			AlignmentMermaid:     buildRequirementAlignmentMermaid([]model.Requirement{r}, g.labelByID),
+			CoverageMermaid:      buildRequirementCoverageMermaid([]model.Requirement{r}, coverageSources{g.inferredRuntime, g.inferredCode, g.inferredVerification, g.labelByID}),
+			AlignmentExplanation: "What this diagram shows: direct authored mapping from this requirement to the functional units it applies to.",
+			CoverageExplanation:  "What this diagram shows: this requirement-to-unit mapping extended with inferred runtime/code plus verification evidence attached to each requirement and unit.",
+		})
+	}
+	sort.SliceStable(out, func(i, j int) bool { return out[i].ID < out[j].ID })
+	return out
+}
+
+// verificationSections builds the section and the result rows of every
+// inferred verification check.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) verificationSections() ([]asciidocVerificationSection, []asciidocVerificationResultRow) {
+	sections := make([]asciidocVerificationSection, 0, len(g.inferredVerification))
+	rows := make([]asciidocVerificationResultRow, 0)
+	for _, v := range g.inferredVerification {
+		sections = append(sections, verificationSection(v))
+		rows = append(rows, verificationResultRows(v)...)
+	}
+	sort.SliceStable(sections, func(i, j int) bool {
+		return cmp.Or(cmp.Compare(sections[i].ID, sections[j].ID), cmp.Compare(sections[i].Name, sections[j].Name)) < 0
+	})
+	sort.SliceStable(rows, func(i, j int) bool {
+		return cmp.Or(cmp.Compare(rows[i].Requirement, rows[j].Requirement), cmp.Compare(rows[i].CheckID, rows[j].CheckID), cmp.Compare(rows[i].Status, rows[j].Status)) < 0
+	})
+	return sections, rows
+}
+
+// verificationSection is the section of one verification check.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func verificationSection(v codescan.VerificationCheck) asciidocVerificationSection {
+	return asciidocVerificationSection{
+		Anchor:        referenceAnchor("verify", strings.TrimSpace(v.ID)),
+		IndexAnchor:   referenceAnchor("idx-ver", strings.TrimSpace(v.ID)),
+		ID:            strings.TrimSpace(v.ID),
+		Name:          strings.TrimSpace(v.Name),
+		Kind:          strings.TrimSpace(v.Kind),
+		Status:        strings.TrimSpace(v.Status),
+		Verifies:      joinList(v.Verifies),
+		TestCode:      publicationTestCode(v.CodeElements),
+		DerivedOwners: joinList(v.DerivedOwners),
+		Evidence:      joinList(v.Evidence),
+		ResultSummary: summarizeVerificationResults(v.Results),
+		Description:   strings.TrimSpace(v.Description),
+	}
+}
+
+// verificationResultRows is the result rows of one verification check.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func verificationResultRows(v codescan.VerificationCheck) []asciidocVerificationResultRow {
+	rows := make([]asciidocVerificationResultRow, 0, len(v.Results))
+	for _, result := range v.Results {
+		rows = append(rows, asciidocVerificationResultRow{
+			CheckID:     strings.TrimSpace(v.ID),
+			CheckName:   textutil.NonEmpty(strings.TrimSpace(v.Name), strings.TrimSpace(v.ID)),
+			Requirement: strings.TrimSpace(result.Requirement),
+			Status:      strings.TrimSpace(result.Status),
+			Evidence:    textutil.NonEmpty(strings.TrimSpace(result.Evidence), "none"),
+			Notes:       strings.TrimSpace(result.Notes),
+		})
+	}
+	return rows
+}
+
+// joinList joins the non-blank items with commas, or says none.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func joinList(items []string) string {
+	parts := make([]string, 0, len(items))
+	for _, x := range items {
+		if t := strings.TrimSpace(x); t != "" {
+			parts = append(parts, t)
+		}
+	}
+	if len(parts) == 0 {
+		return "none"
+	}
+	return strings.Join(parts, ", ")
+}
+
+// summarizeVerificationResults counts the results by status, sorted.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func summarizeVerificationResults(results []codescan.VerificationResult) string {
+	if len(results) == 0 {
+		return "none"
+	}
+	counts := map[string]int{}
+	for _, r := range results {
+		counts[textutil.NonEmpty(strings.ToLower(strings.TrimSpace(r.Status)), "unknown")]++
+	}
+	parts := make([]string, 0, len(counts))
+	for status, count := range counts {
+		parts = append(parts, fmt.Sprintf("%s:%d", status, count))
+	}
+	sort.Strings(parts)
+	return strings.Join(parts, ", ")
+}
+
+// templateData assembles the data the AsciiDoc template renders.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) templateData() asciidocTemplateData {
+	data := g.documentHeader()
+	g.addAuthoredContent(&data)
+	data.MermaidClassDefs = diagramstyle.MermaidClassDefsBlock("  ")
+	data.Views = g.views
+	data.RequirementMermaid = buildRequirementAlignmentCompactTable(g.requirements.Requirements)
+	data.RequirementInf = "Show requirement-to-unit mappings inferred from appliesTo and authored architecture ownership boundaries."
+	data.Requirements = g.reqSections
+	data.Verifications = g.verification
+	data.VerificationResults = g.verResults
+	data.ReferenceIndex = g.refIndex
+	data.Decisions = g.decisions
+	data.DecisionsDocPath = textutil.NonEmpty(strings.TrimSpace(g.options.DecisionsDocPath), "DECISIONS.adoc")
+	return data
+}
+
+// documentHeader is the front matter of the document.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) documentHeader() asciidocTemplateData {
+	arch := g.bundle.Architecture
+	lint := g.requirements.LintRun
+	return asciidocTemplateData{
+		Title:        textutil.NonEmpty(g.design.Design.Title, arch.Model.Title),
+		Introduction: linkifyText(strings.TrimSpace(arch.Model.Introduction), g.linkTargets),
+		HealthRows:   buildHealthRows(g.views),
+		Terms:        g.terms,
+		Purpose:      "This architecture description is generated from authored structure and inferred realization layers.",
+		ReaderTracks: []string{"Product/domain engineers: Functional + Runtime", "Platform/SRE engineers: Deployment + Runtime", "Implementation engineers: Realization + Functional", "Security engineers: Security + Functional"},
+		Legend:       []string{"Authored: intentional functional architecture", "Inferred: discovered runtime or code realization", "realizes: runtime to functional unit", "implemented_by: verification to test code", "verifies: verification to requirement"},
+		ModelMeta:    asciidocModelMeta{ID: strings.TrimSpace(arch.Model.ID), Title: strings.TrimSpace(arch.Model.Title)},
+		LintRun: asciidocLintRun{
+			ID:         strings.TrimSpace(lint.ID),
+			Mode:       strings.TrimSpace(lint.Mode),
+			CommaAsAnd: lint.CommaAsAnd,
+			CatalogRef: strings.TrimSpace(lint.CatalogRef),
+		},
+		ViewConfig: renderViewConfig(arch.Views),
+		InferenceHints: asciidocInferenceHints{
+			RuntimeSources:           strings.Join(arch.InferenceHints.RuntimeSources, ", "),
+			ExpectedRuntimeKinds:     strings.Join(arch.InferenceHints.ExpectedRuntimeKinds, ", "),
+			OwnershipResolutionOrder: strings.Join(arch.InferenceHints.OwnershipResolutionOrder, ", "),
+		},
+	}
+}
+
+// addAuthoredContent adds the authored lists, the inferred layers and the
+// summary to the template data.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) addAuthoredContent(data *asciidocTemplateData) {
+	a := g.authored()
+	data.Actors = renderActors(a.Actors)
+	data.AttackVectors = renderAttackVectors(a.AttackVectors)
+	data.ReferencedElements = renderReferencedElements(a.ReferencedElements)
+	data.Mappings = renderMappings(a.Mappings)
+	data.InferredRuntime = renderInferredRuntime(g.inferredRuntime)
+	data.InferredCode = renderInferredCode(g.inferredCode)
+	data.Summary = asciidocSummary{
+		FunctionalGroups:   listNamesFG(a.FunctionalGroups),
+		FunctionalUnits:    listNamesFU(a.FunctionalUnits),
+		Actors:             listNamesActors(a.Actors),
+		AttackVectors:      listNamesVectors(a.AttackVectors),
+		ReferencedElements: listNamesRefs(a.ReferencedElements),
+	}
+}
+
+// renderDocument renders the template twice, the second time with the
+// backlinks of the first.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) renderDocument(data asciidocTemplateData) (string, error) {
+	doc, err := renderAsciiDocTemplate(data)
+	if err != nil {
+		return "", err
+	}
+	data.ReferenceIndex = applyReferenceBacklinks(doc, data.ReferenceIndex)
+	doc, err = renderAsciiDocTemplate(data)
+	if err != nil {
+		return "", err
+	}
+	return g.insertTrailingChapters(doc), nil
+}
+
+// insertTrailingChapters adds the Gemara, Composition, requirement link and
+// contract item chapters before the Reference Index, so that remains the
+// closing chapter.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS, DO-ARCHITECTURE-DOCUMENT, IF-GO-PKG-ASCIIDOC
+// TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066, REQ-EMG-107, REQ-EMG-125, REQ-EMG-130
+func (g *generation) insertTrailingChapters(doc string) string {
+	trailing := renderGemaraAsciiDocChapter(g.bundle) + renderCompositionAsciiDocChapterFor(g.bundle, g.composed, g.compositionErr) +
+		renderRequirementLinksChapter(g.bundle, g.composed) + renderContractItemsChapter(g.bundle, g.options.Resolution.Workspace, g.options.UsedBy)
+	if trailing == "" {
+		return doc
+	}
+	if idx := strings.Index(doc, "<<<\n== Reference Index"); idx >= 0 {
+		return doc[:idx] + strings.TrimPrefix(trailing, "\n") + doc[idx:]
+	}
+	return doc + trailing
 }

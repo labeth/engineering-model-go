@@ -54,34 +54,81 @@ func loadBaseline(t *testing.T, manifest string) model.HealthBaselineFile {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-158
 func TestBaselineWriteIsCanonicalAndIdempotent(t *testing.T) {
+	p := newBaselineProject(t)
+	requireBaseline(t, cliCase{args: []string{"write", "--model", p.manifest}, code: exitOK, stdout: "wrote 1 entries to model/health-baseline.json"})
+	first := mustRead(t, p.file())
+	want, _ := model.EncodeHealthBaseline([]model.HealthBaselineEntry{{Path: "pkg/big.go", Function: "Big", Code: "health.complex_method", Value: 17}})
+	mustEqual(t, string(first), string(want))
+	p.write(t)
+	wantEqual(t, string(mustRead(t, p.file())), string(first)) // a second write changes nothing
+	requireNoTempFiles(t, filepath.Dir(p.file()))
+}
+
+// baselineProject is a project whose manifest has a health baseline.
+type baselineProject struct {
+	manifest, dir string
+}
+
+// newBaselineProject writes the project of the baseline tests.
+func newBaselineProject(t *testing.T) baselineProject {
+	t.Helper()
 	manifest := project(t, baselineExtra)
-	file := filepath.Join(filepath.Dir(manifest), "model", "health-baseline.json")
-	code, stdout, stderr := runBaselineCLI("write", "--model", manifest)
-	if code != exitOK || !strings.Contains(stdout, "wrote 1 entries to model/health-baseline.json") {
-		t.Fatalf("write: %d %q %q", code, stdout, stderr)
-	}
-	first, err := os.ReadFile(file)
+	return baselineProject{manifest: manifest, dir: filepath.Dir(manifest)}
+}
+
+// file is the baseline file of the manifest.
+func (p baselineProject) file() string { return filepath.Join(p.dir, "model", "health-baseline.json") }
+
+// write runs baseline write and requires exit 0.
+func (p baselineProject) write(t *testing.T) {
+	t.Helper()
+	requireBaseline(t, cliCase{args: []string{"write", "--model", p.manifest}, code: exitOK})
+}
+
+// check runs baseline write --check, with the extra arguments of the case, and
+// checks the case; it returns the outputs.
+func (p baselineProject) check(t *testing.T, c cliCase) (stdout, stderr string) {
+	t.Helper()
+	c.args = append([]string{"write", "--check", "--model", p.manifest}, c.args...)
+	return requireBaseline(t, c)
+}
+
+// scan runs scan --fail-on-error and checks the case.
+func (p baselineProject) scan(t *testing.T, c cliCase) (stdout, stderr string) {
+	t.Helper()
+	c.args = []string{"scan", "--model", p.manifest, "--fail-on-error"}
+	return requireCLI(t, c)
+}
+
+// requireBaseline runs enghealth baseline and checks the case.
+func requireBaseline(t *testing.T, c cliCase) (stdout, stderr string) {
+	t.Helper()
+	code, stdout, stderr := runBaselineCLI(c.args...)
+	wantEqual(t, code, c.code)
+	wantContains(t, stdout, c.stdout)
+	wantContains(t, stderr, c.stderr)
+	return stdout, stderr
+}
+
+// mustRead reads a file or stops the test.
+func mustRead(t *testing.T, path string) []byte {
+	t.Helper()
+	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatal(err)
 	}
-	want, _ := model.EncodeHealthBaseline([]model.HealthBaselineEntry{{Path: "pkg/big.go", Function: "Big", Code: "health.complex_method", Value: 17}})
-	if !bytes.Equal(first, want) {
-		t.Fatalf("file =\n%s\nwant\n%s", first, want)
-	}
-	if code, _, stderr := runBaselineCLI("write", "--model", manifest); code != exitOK {
-		t.Fatalf("second write: %d %q", code, stderr)
-	}
-	if second, _ := os.ReadFile(file); !bytes.Equal(first, second) {
-		t.Error("a second write changed the file")
-	}
-	entries, err := os.ReadDir(filepath.Dir(file))
+	return data
+}
+
+// requireNoTempFiles checks that a directory holds no temporary file.
+func requireNoTempFiles(t *testing.T, dir string) {
+	t.Helper()
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
 	for _, e := range entries {
-		if strings.HasSuffix(e.Name(), ".tmp") {
-			t.Errorf("temporary file %s left behind", e.Name())
-		}
+		wantEqual(t, strings.HasSuffix(e.Name(), ".tmp"), false)
 	}
 }
 
@@ -91,32 +138,16 @@ func TestBaselineWriteIsCanonicalAndIdempotent(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-155, REQ-EMG-158
 func TestBaselineTurnsTheGateGreen(t *testing.T) {
-	manifest := project(t, baselineExtra)
-	if code, _, _ := runBaselineCLI("write", "--model", manifest, "--out", filepath.Join(filepath.Dir(manifest), "elsewhere.json")); code != exitOK {
-		t.Fatal("write --out failed")
-	}
+	p := newBaselineProject(t)
+	requireBaseline(t, cliCase{args: []string{"write", "--model", p.manifest, "--out", filepath.Join(p.dir, "elsewhere.json")}, code: exitOK})
 	// The manifest names model/health-baseline.json, which does not exist yet:
 	// a scan is a setup error rather than a pass.
-	if code, _, _ := runCLI("scan", "--model", manifest, "--fail-on-error"); code != exitUsage {
-		t.Fatalf("scan with a missing baseline file: %d, want 2", code)
-	}
-	if code, _, stderr := runBaselineCLI("write", "--model", manifest); code != exitOK {
-		t.Fatalf("write: %d %q", code, stderr)
-	}
-	code, stdout, stderr := runCLI("scan", "--model", manifest, "--fail-on-error")
-	if code != exitOK {
-		t.Fatalf("scan with the baseline: %d %q %q", code, stdout, stderr)
-	}
-	if !strings.Contains(stdout, "1 baselined") {
-		t.Errorf("the text report must say how many findings are baselined:\n%s", stdout)
-	}
-	if f := loadBaseline(t, manifest); len(f.Entries) != 1 {
-		t.Errorf("entries = %+v", f.Entries)
-	}
+	p.scan(t, cliCase{code: exitUsage})
+	p.write(t)
+	p.scan(t, cliCase{code: exitOK, stdout: "1 baselined"}) // the text report says how many are baselined
+	wantEqual(t, len(loadBaseline(t, p.manifest).Entries), 1)
 	// Writing again, with the baseline in place, still sees the finding.
-	if code, stdout, _ := runBaselineCLI("write", "--model", manifest); code != exitOK || !strings.Contains(stdout, "wrote 1 entries") {
-		t.Errorf("write ignores the existing baseline: %d %q", code, stdout)
-	}
+	requireBaseline(t, cliCase{args: []string{"write", "--model", p.manifest}, code: exitOK, stdout: "wrote 1 entries"})
 }
 
 // --check exits 0 only when the file is exactly what write would produce: new
@@ -129,47 +160,28 @@ func TestBaselineTurnsTheGateGreen(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-158
 func TestBaselineCheckVerifiesTheFileIsTheCurrentDebt(t *testing.T) {
-	manifest := project(t, baselineExtra)
-	dir := filepath.Dir(manifest)
-	file := filepath.Join(dir, "model", "health-baseline.json")
-	check := func() (int, string, string) { return runBaselineCLI("write", "--check", "--model", manifest) }
+	p := newBaselineProject(t)
+	p.check(t, cliCase{code: exitFail, stdout: "does not exist"})
+	p.write(t)
+	p.check(t, cliCase{code: exitOK, stdout: "exactly the current debt"})
 
-	if code, stdout, _ := check(); code != exitFail || !strings.Contains(stdout, "does not exist") {
-		t.Fatalf("missing file: %d %q", code, stdout)
-	}
-	runBaselineCLI("write", "--model", manifest)
-	if code, stdout, stderr := check(); code != exitOK || !strings.Contains(stdout, "exactly the current debt") {
-		t.Fatalf("equal: %d %q %q", code, stdout, stderr)
-	}
-
-	testutil.WriteFile(t, filepath.Join(dir, "pkg", "extra.go"), complexGo("Extra"))
-	code, stdout, stderr := check()
-	if code != exitFail || !strings.Contains(stdout, "missing: health.complex_method Extra in pkg/extra.go") || !strings.Contains(stderr, "1 missing") {
-		t.Fatalf("new debt: %d %q %q", code, stdout, stderr)
-	}
-	runBaselineCLI("write", "--model", manifest)
-	if err := os.Remove(filepath.Join(dir, "pkg", "extra.go")); err != nil {
+	extra := filepath.Join(p.dir, "pkg", "extra.go")
+	testutil.WriteFile(t, extra, complexGo("Extra"))
+	p.check(t, cliCase{code: exitFail, stdout: "missing: health.complex_method Extra in pkg/extra.go", stderr: "1 missing"})
+	p.write(t)
+	if err := os.Remove(extra); err != nil {
 		t.Fatal(err)
 	}
-	code, stdout, _ = check()
-	if code != exitFail || !strings.Contains(stdout, "stale: health.complex_method Extra in pkg/extra.go") {
-		t.Fatalf("paid debt: %d %q", code, stdout)
-	}
-	runBaselineCLI("write", "--model", manifest)
+	p.check(t, cliCase{code: exitFail, stdout: "stale: health.complex_method Extra in pkg/extra.go"})
+	p.write(t)
 
 	compact := `{"schema":"engmod-health-baseline/1","entries":[{"path":"pkg/big.go","function":"Big","code":"health.complex_method","value":17}]}`
-	testutil.WriteFile(t, file, compact)
-	if code, stdout, _ := check(); code != exitFail || !strings.Contains(stdout, "not in canonical form") {
-		t.Fatalf("non-canonical: %d %q", code, stdout)
-	}
-	testutil.WriteFile(t, file, "{")
-	if code, stdout, _ := check(); code != exitFail || !strings.Contains(stdout, "unusable") {
-		t.Fatalf("malformed: %d %q", code, stdout)
-	}
-	runBaselineCLI("write", "--model", manifest)
-	if code, _, _ := check(); code != exitOK {
-		t.Fatalf("after write: %d", code)
-	}
+	testutil.WriteFile(t, p.file(), compact)
+	p.check(t, cliCase{code: exitFail, stdout: "not in canonical form"})
+	testutil.WriteFile(t, p.file(), "{")
+	p.check(t, cliCase{code: exitFail, stdout: "unusable"})
+	p.write(t)
+	p.check(t, cliCase{code: exitOK})
 }
 
 // A baseline checked out with CRLF line ends (git autocrlf on Windows) is still
@@ -179,28 +191,16 @@ func TestBaselineCheckVerifiesTheFileIsTheCurrentDebt(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-158
 func TestBaselineCheckAcceptsCRLFCheckout(t *testing.T) {
-	manifest := project(t, baselineExtra)
-	file := filepath.Join(filepath.Dir(manifest), "model", "health-baseline.json")
-	if code, _, stderr := runBaselineCLI("write", "--model", manifest); code != exitOK {
-		t.Fatalf("write: %d %s", code, stderr)
-	}
-	lf, err := os.ReadFile(file)
-	if err != nil {
-		t.Fatal(err)
-	}
-	testutil.WriteFile(t, file, strings.ReplaceAll(string(lf), "\n", "\r\n"))
-	if code, stdout, stderr := runBaselineCLI("write", "--check", "--model", manifest); code != exitOK || !strings.Contains(stdout, "exactly the current debt") {
-		t.Fatalf("CRLF file: %d %q %q", code, stdout, stderr)
-	}
+	p := newBaselineProject(t)
+	p.write(t)
+	lf := mustRead(t, p.file())
+	testutil.WriteFile(t, p.file(), strings.ReplaceAll(string(lf), "\n", "\r\n"))
+	p.check(t, cliCase{code: exitOK, stdout: "exactly the current debt"})
 	// The scan itself also reads the CRLF file.
-	if loaded := loadBaseline(t, manifest); len(loaded.Entries) != 1 {
-		t.Errorf("entries = %+v", loaded.Entries)
-	}
+	wantEqual(t, len(loadBaseline(t, p.manifest).Entries), 1)
 	// A real difference in a CRLF file still fails.
-	testutil.WriteFile(t, filepath.Join(filepath.Dir(manifest), "pkg", "extra.go"), complexGo("Extra"))
-	if code, stdout, _ := runBaselineCLI("write", "--check", "--model", manifest); code != exitFail || !strings.Contains(stdout, "missing: health.complex_method Extra") {
-		t.Fatalf("CRLF file with new debt: %d %q", code, stdout)
-	}
+	testutil.WriteFile(t, filepath.Join(p.dir, "pkg", "extra.go"), complexGo("Extra"))
+	p.check(t, cliCase{code: exitFail, stdout: "missing: health.complex_method Extra"})
 }
 
 // --tier writes only the findings that are errors at that tier: at mvp the same
@@ -233,31 +233,20 @@ func TestBaselineTierFilter(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-158
 func TestBaselineWriteWithPathsKeepsTheOtherEntries(t *testing.T) {
-	manifest := project(t, baselineExtra)
-	dir := filepath.Dir(manifest)
-	runBaselineCLI("write", "--model", manifest)
-	testutil.WriteFile(t, filepath.Join(dir, "pkg", "other.go"), complexGo("Other"))
-	other := filepath.Join(dir, "pkg", "other.go")
-	if code, _, stderr := runBaselineCLI("write", "--model", manifest, other); code != exitOK {
-		t.Fatalf("restricted write: %d %q", code, stderr)
-	}
+	p := newBaselineProject(t)
+	p.write(t)
+	other := filepath.Join(p.dir, "pkg", "other.go")
+	testutil.WriteFile(t, other, complexGo("Other"))
+	requireBaseline(t, cliCase{args: []string{"write", "--model", p.manifest, other}, code: exitOK})
 	var got []string
-	for _, e := range loadBaseline(t, manifest).Entries {
+	for _, e := range loadBaseline(t, p.manifest).Entries {
 		got = append(got, e.Path+":"+e.Function)
 	}
-	if strings.Join(got, ",") != "pkg/big.go:Big,pkg/other.go:Other" {
-		t.Fatalf("entries = %v", got)
-	}
-	if code, _, stderr := runBaselineCLI("write", "--check", "--model", manifest, other); code != exitOK {
-		t.Fatalf("restricted check: %d %q", code, stderr)
-	}
-	if code, _, _ := runBaselineCLI("write", "--check", "--model", manifest); code != exitOK {
-		t.Fatal("the full check must agree with the merged file")
-	}
-	testutil.WriteFile(t, filepath.Join(dir, "model", "health-baseline.json"), "{")
-	if code, _, stderr := runBaselineCLI("write", "--model", manifest, other); code != exitUsage || !strings.Contains(stderr, "full write") {
-		t.Errorf("a restricted write over a malformed file must be refused: %d %q", code, stderr)
-	}
+	mustEqual(t, strings.Join(got, ","), "pkg/big.go:Big,pkg/other.go:Other")
+	p.check(t, cliCase{args: []string{other}, code: exitOK})
+	p.check(t, cliCase{code: exitOK}) // the full check agrees with the merged file
+	testutil.WriteFile(t, p.file(), "{")
+	requireBaseline(t, cliCase{args: []string{"write", "--model", p.manifest, other}, code: exitUsage, stderr: "full write"}) // refused over a malformed file
 }
 
 // Setup and usage errors exit 2 and write nothing: no subcommand, no model, an
@@ -267,8 +256,8 @@ func TestBaselineWriteWithPathsKeepsTheOtherEntries(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-158
 func TestBaselineSetupErrorsExitTwoAndWriteNothing(t *testing.T) {
-	manifest := project(t, baselineExtra)
-	dir := filepath.Dir(manifest)
+	p := newBaselineProject(t)
+	manifest, dir := p.manifest, p.dir
 	outside := t.TempDir()
 	if err := os.Symlink(outside, filepath.Join(dir, "link")); err != nil {
 		t.Skip("symbolic links are not available:", err)
@@ -287,17 +276,19 @@ func TestBaselineSetupErrorsExitTwoAndWriteNothing(t *testing.T) {
 		"bad flag":          {"write", "--model", manifest, "--nope"},
 	}
 	for name, args := range cases {
-		if code, _, _ := runBaselineCLI(args...); code != exitUsage {
-			t.Errorf("%s: exit %d, want 2", name, code)
-		}
+		code, _, _ := runBaselineCLI(args...)
+		wantEqual(t, [2]any{name, code}, [2]any{name, exitUsage})
 	}
-	for _, p := range []string{filepath.Join(outside, "b.json"), filepath.Join(dir, "..", "b.json"), filepath.Join(dir, "model", "health-baseline.json")} {
-		if _, err := os.Stat(p); err == nil {
-			t.Errorf("%s was written by a refused command", p)
-		}
-	}
-	if code, stdout, _ := runBaselineCLI("--help"); code != exitOK || !strings.Contains(stdout, "usage: enghealth baseline write") {
-		t.Errorf("help: %d %q", code, stdout)
+	requireNotWritten(t, filepath.Join(outside, "b.json"), filepath.Join(dir, "..", "b.json"), p.file())
+	requireBaseline(t, cliCase{args: []string{"--help"}, code: exitOK, stdout: "usage: enghealth baseline write"})
+}
+
+// requireNotWritten checks that none of the paths exists.
+func requireNotWritten(t *testing.T, paths ...string) {
+	t.Helper()
+	for _, path := range paths {
+		_, err := os.Stat(path)
+		wantEqual(t, [2]any{path, err == nil}, [2]any{path, false})
 	}
 }
 
@@ -331,45 +322,27 @@ func TestBaselineWriteOut(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-155, REQ-EMG-158
 func TestBaselineValuesStopSilentGrowth(t *testing.T) {
-	manifest := project(t, baselineExtra)
-	dir := filepath.Dir(manifest)
-	if code, _, stderr := runBaselineCLI("write", "--model", manifest); code != exitOK {
-		t.Fatalf("write: %d %q", code, stderr)
-	}
-	if f := loadBaseline(t, manifest); len(f.Entries) != 1 || f.Entries[0].Value != 17 {
-		t.Fatalf("entries = %+v, want Big with the value 17", f.Entries)
-	}
-	if code, _, _ := runCLI("scan", "--model", manifest, "--fail-on-error"); code != exitOK {
-		t.Fatalf("the baselined scan must pass: %d", code)
-	}
+	p := newBaselineProject(t)
+	p.write(t)
+	f := loadBaseline(t, p.manifest)
+	mustEqual(t, len(f.Entries), 1)
+	wantEqual(t, f.Entries[0].Value, 17) // Big with the value 17
+	p.scan(t, cliCase{code: exitOK})
 
 	// One more branch: cyclomatic 18 against the recorded 17.
 	grown := strings.Replace(complexGo("Big"), "\treturn 0\n}\n", "\tif a == 99 { return 99 }\n\tif a == 98 { return 98 }\n\tif a == 97 { return 97 }\n\tif a == 96 { return 96 }\n\tif a == 95 { return 95 }\n\treturn 0\n}\n", 1)
-	testutil.WriteFile(t, filepath.Join(dir, "pkg", "big.go"), grown)
-	code, stdout, stderr := runCLI("scan", "--model", manifest, "--fail-on-error")
-	if code != exitFail || !strings.Contains(stdout, "the baseline accepts cyclomatic") {
-		t.Errorf("a grown baselined finding: %d\n%s\n%s", code, stdout, stderr)
-	}
-	code, stdout, _ = runBaselineCLI("write", "--model", manifest, "--check")
-	if code != exitFail || !strings.Contains(stdout, "stale: health.complex_method Big in pkg/big.go (value 17)") ||
-		!strings.Contains(stdout, "missing: health.complex_method Big in pkg/big.go (value 19)") {
-		t.Errorf("check after growth: %d %q", code, stdout)
-	}
-	if code, _, _ := runBaselineCLI("write", "--model", manifest); code != exitOK {
-		t.Fatal("rewrite failed")
-	}
-	if code, _, _ := runCLI("scan", "--model", manifest, "--fail-on-error"); code != exitOK {
-		t.Errorf("after the rewrite the scan passes again: %d", code)
-	}
+	testutil.WriteFile(t, filepath.Join(p.dir, "pkg", "big.go"), grown)
+	p.scan(t, cliCase{code: exitFail, stdout: "the baseline accepts cyclomatic"})
+	stdout, _ := p.check(t, cliCase{code: exitFail, stdout: "stale: health.complex_method Big in pkg/big.go (value 17)"})
+	wantContains(t, stdout, "missing: health.complex_method Big in pkg/big.go (value 19)")
+	p.write(t)
+	p.scan(t, cliCase{code: exitOK}) // after the rewrite the scan passes again
 
 	// Paid down: still baselined, but the file no longer matches the debt.
-	testutil.WriteFile(t, filepath.Join(dir, "pkg", "big.go"), complexGo("Big"))
-	if code, _, _ := runCLI("scan", "--model", manifest, "--fail-on-error"); code != exitOK {
-		t.Errorf("a finding below its recorded value stays baselined: %d", code)
-	}
-	if code, stdout, _ := runBaselineCLI("write", "--model", manifest, "--check"); code != exitFail || !strings.Contains(stdout, "(value 19)") || !strings.Contains(stdout, "(value 14)") {
-		t.Errorf("check after payment: %d %q", code, stdout)
-	}
+	testutil.WriteFile(t, filepath.Join(p.dir, "pkg", "big.go"), complexGo("Big"))
+	p.scan(t, cliCase{code: exitOK})
+	stdout, _ = p.check(t, cliCase{code: exitFail, stdout: "(value 19)"})
+	wantContains(t, stdout, "(value 14)")
 }
 
 // A baseline whose decision is not accepted suppresses nothing, so the scan
@@ -377,12 +350,9 @@ func TestBaselineValuesStopSilentGrowth(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-158
 func TestBaselineWithoutAnAcceptedDecisionSuppressesNothing(t *testing.T) {
-	manifest := project(t, strings.Replace(baselineExtra, "ADR-DEBT", "ADR-DRAFT", 1))
-	if code, _, stderr := runBaselineCLI("write", "--model", manifest); code != exitOK {
-		t.Fatalf("write: %d %q", code, stderr)
-	}
-	code, stdout, stderr := runCLI("scan", "--model", manifest, "--fail-on-error")
-	if code != exitFail || !strings.Contains(stdout, "health.waiver_unjustified") || !strings.Contains(stdout, "suppresses nothing") || strings.Contains(stdout, "1 baselined") {
-		t.Errorf("scan: %d\n%s\n%s", code, stdout, stderr)
-	}
+	p := baselineProject{manifest: project(t, strings.Replace(baselineExtra, "ADR-DEBT", "ADR-DRAFT", 1))}
+	p.write(t)
+	stdout, _ := p.scan(t, cliCase{code: exitFail, stdout: "health.waiver_unjustified"})
+	wantContains(t, stdout, "suppresses nothing")
+	wantNone(t, stdout, "1 baselined")
 }

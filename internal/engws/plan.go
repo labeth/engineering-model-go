@@ -42,88 +42,131 @@ type Plan struct {
 	Warnings []string
 }
 
-// BuildPlan classifies every checkout under root. A checkout is local when it
-// is pinned, changed, or all is set; registry problems are notes, never
+// PlanRequest is the input of BuildPlan: the workspace root, the registry that
+// says what is published, and whether every checkout is made local.
+type PlanRequest struct {
+	Root     string
+	Registry Registry
+	All      bool
+}
+
+// BuildPlan classifies every checkout under req.Root. A checkout is local when
+// it is pinned, changed, or req.All is set; registry problems are notes, never
 // changes, so an offline developer is not forced into local mode.
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
-func BuildPlan(ctx context.Context, root string, registry Registry, all bool) (Plan, error) {
-	checkouts, warnings, err := ScanWithWarnings(root)
+func BuildPlan(ctx context.Context, req PlanRequest) (Plan, error) {
+	checkouts, warnings, err := ScanWithWarnings(req.Root)
 	if err != nil {
 		return Plan{}, err
 	}
-	pins, err := LoadPins(root)
+	pins, err := LoadPins(req.Root)
 	if err != nil {
 		return Plan{}, err
 	}
-	plan := Plan{Root: root, Entries: make([]Entry, len(checkouts)), Warnings: warnings}
+	plan := Plan{Root: req.Root, Entries: make([]Entry, len(checkouts)), Warnings: warnings}
 	var wg sync.WaitGroup
 	for i, checkout := range checkouts {
 		wg.Add(1)
 		go func(i int, checkout Checkout) {
 			defer wg.Done()
-			plan.Entries[i] = classify(ctx, checkout, registry, pins[checkout.Name], all)
+			plan.Entries[i] = classify(ctx, req, Entry{Checkout: checkout, Pinned: pins[checkout.Name]})
 		}(i, checkout)
 	}
 	wg.Wait()
+	plan.Notes = planNotes(plan.Entries, pins)
+	return plan, nil
+}
+
+// planNotes collects the distinct entry notes and one note per pin naming no
+// checkout, sorted.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func planNotes(entries []Entry, pins map[string]bool) []string {
+	out := planEntryNotes(entries)
 	known := map[string]bool{}
-	notes := map[string]bool{}
-	for _, entry := range plan.Entries {
+	for _, entry := range entries {
 		known[entry.Name] = true
-		if entry.Note != "" && !notes[entry.Note] {
-			notes[entry.Note] = true
-			plan.Notes = append(plan.Notes, entry.Note)
-		}
 	}
 	for pin := range pins {
 		if !known[pin] {
-			plan.Notes = append(plan.Notes, fmt.Sprintf("pin %q in %s names no checkout under the root", pin, StateFileName))
+			out = append(out, fmt.Sprintf("pin %q in %s names no checkout under the root", pin, StateFileName))
 		}
 	}
-	sort.Strings(plan.Notes)
-	return plan, nil
+	sort.Strings(out)
+	return out
+}
+
+// planEntryNotes returns the distinct notes of entries, in order.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func planEntryNotes(entries []Entry) []string {
+	var out []string
+	notes := map[string]bool{}
+	for _, entry := range entries {
+		if entry.Note != "" && !notes[entry.Note] {
+			notes[entry.Note] = true
+			out = append(out, entry.Note)
+		}
+	}
+	return out
 }
 
 // classify applies changed detection in order: no own git repository, dirty
 // tree, HEAD not at tag v<version>, version not published.
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
-func classify(ctx context.Context, checkout Checkout, registry Registry, pinned, all bool) Entry {
-	entry := Entry{Checkout: checkout, Pinned: pinned}
+func classify(ctx context.Context, req PlanRequest, entry Entry) Entry {
+	checkout, pinned := entry.Checkout, entry.Pinned
 	version := checkout.Manifest.Module.Version
 	tag := tagFor(version)
-	if own, why := ownGitRepository(checkout.Dir); !own {
-		entry.Reasons = append(entry.Reasons, StateNoGit+": "+why+"; changes cannot be detected, treated as local")
-	} else {
-		if out, err := git(checkout.Dir, "status", "--porcelain"); err != nil {
-			entry.Reasons = append(entry.Reasons, StateDirty+": git status failed: "+err.Error())
-		} else if out != "" {
-			entry.Reasons = append(entry.Reasons, StateDirty+": working tree has changes")
-		}
-		out, err := git(checkout.Dir, "tag", "--points-at", "HEAD")
-		if err != nil || !containsLine(out, tag) {
-			entry.Reasons = append(entry.Reasons, StateUntagged+": HEAD is not at tag "+tag)
-		}
-	}
-	publication, why := registry.Published(ctx, checkout.Manifest.Module.Path, version)
+	entry.Reasons = gitReasons(checkout.Dir, tag)
+	publication, why := req.Registry.Published(ctx, checkout.Manifest.Module.Path, version)
 	switch publication {
 	case PublicationMissing:
 		entry.Reasons = append(entry.Reasons, StateUnpublished+": "+tag+" is not in the registry")
 	case PublicationUnknown:
 		entry.Note = why
 	}
+	entry.State = classifyState(entry, publication)
+	entry.Local = req.All || pinned || len(entry.Reasons) > 0
+	return entry
+}
+
+// gitReasons lists why the checkout at dir is changed by its git state.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func gitReasons(dir, tag string) []string {
+	if own, why := ownGitRepository(dir); !own {
+		return []string{StateNoGit + ": " + why + "; changes cannot be detected, treated as local"}
+	}
+	var reasons []string
+	if out, err := git(dir, "status", "--porcelain"); err != nil {
+		reasons = append(reasons, StateDirty+": git status failed: "+err.Error())
+	} else if out != "" {
+		reasons = append(reasons, StateDirty+": working tree has changes")
+	}
+	out, err := git(dir, "tag", "--points-at", "HEAD")
+	if err != nil || !containsLine(out, tag) {
+		reasons = append(reasons, StateUntagged+": HEAD is not at tag "+tag)
+	}
+	return reasons
+}
+
+// classifyState is the first reason's state, else pinned, published or unknown.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func classifyState(entry Entry, publication Publication) string {
 	switch {
 	case len(entry.Reasons) > 0:
-		entry.State, _, _ = strings.Cut(entry.Reasons[0], ":")
-	case pinned:
-		entry.State = StatePinned
+		state, _, _ := strings.Cut(entry.Reasons[0], ":")
+		return state
+	case entry.Pinned:
+		return StatePinned
 	case publication == PublicationPublished:
-		entry.State = StatePublished
-	default:
-		entry.State = StateUnknown
+		return StatePublished
 	}
-	entry.Local = all || pinned || len(entry.Reasons) > 0
-	return entry
+	return StateUnknown
 }
 
 // ownGitRepository reports whether dir is the top of its own git work tree,
@@ -204,45 +247,81 @@ func (s Skew) String() string {
 // TRLC-LINKS: REQ-EMG-068
 // ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
 func (p Plan) Skews() []Skew {
+	return append(p.dependencySkews(), p.goRequireSkews()...)
+}
+
+// dependencySkews lists the dependency pins a local replacement overrides at
+// another version.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func (p Plan) dependencySkews() []Skew {
 	local := map[string]Entry{}
 	for _, entry := range p.Local() {
 		local[entry.Manifest.Module.Path] = entry
 	}
 	var out []Skew
 	for _, entry := range p.Entries {
-		for _, dep := range entry.Manifest.Dependencies {
-			l, ok := local[strings.TrimSpace(dep.Path)]
-			if !ok || tagFor(dep.Version) == tagFor(l.Manifest.Module.Version) {
-				continue
-			}
-			out = append(out, Skew{
-				Consumer: entry.Name, Alias: dep.Alias, Module: dep.Path, Pinned: dep.Version,
-				LocalCheckout: l.Name, LocalVersion: l.Manifest.Module.Version,
-			})
-		}
+		out = append(out, entryDependencySkews(entry, local)...)
 	}
+	return out
+}
+
+// entryDependencySkews lists the dependencies of entry that a local checkout
+// replaces at another version.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func entryDependencySkews(entry Entry, local map[string]Entry) []Skew {
+	var out []Skew
+	for _, dep := range entry.Manifest.Dependencies {
+		l, ok := local[strings.TrimSpace(dep.Path)]
+		if !ok || tagFor(dep.Version) == tagFor(l.Manifest.Module.Version) {
+			continue
+		}
+		out = append(out, Skew{
+			Consumer: entry.Name, Alias: dep.Alias, Module: dep.Path, Pinned: dep.Version,
+			LocalCheckout: l.Name, LocalVersion: l.Manifest.Module.Version,
+		})
+	}
+	return out
+}
+
+// goRequireSkews lists the go.mod requires of a workspace checkout's Go module
+// at another version than that checkout's tag.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func (p Plan) goRequireSkews() []Skew {
 	byGoModule := map[string]Entry{}
 	for _, entry := range p.Entries {
 		if entry.GoModule != "" {
 			byGoModule[entry.GoModule] = entry
 		}
 	}
+	var out []Skew
 	for _, entry := range p.Entries {
-		paths := make([]string, 0, len(entry.GoRequires))
-		for path := range entry.GoRequires {
-			paths = append(paths, path)
+		out = append(out, entryGoRequireSkews(entry, byGoModule)...)
+	}
+	return out
+}
+
+// entryGoRequireSkews is goRequireSkews for one consumer, sorted by module.
+// TRLC-LINKS: REQ-EMG-068
+// ENGMODEL-LINKS: FU-CLI-ORCHESTRATION, FU-SYSTEM-COMPOSITION
+func entryGoRequireSkews(entry Entry, byGoModule map[string]Entry) []Skew {
+	paths := make([]string, 0, len(entry.GoRequires))
+	for path := range entry.GoRequires {
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+	var out []Skew
+	for _, path := range paths {
+		c, ok := byGoModule[path]
+		if !ok || c.Name == entry.Name || entry.GoRequires[path] == tagFor(c.Manifest.Module.Version) {
+			continue
 		}
-		sort.Strings(paths)
-		for _, path := range paths {
-			c, ok := byGoModule[path]
-			if !ok || c.Name == entry.Name || entry.GoRequires[path] == tagFor(c.Manifest.Module.Version) {
-				continue
-			}
-			out = append(out, Skew{
-				Consumer: entry.Name, Alias: "go:" + path, Module: path, Pinned: entry.GoRequires[path],
-				LocalCheckout: c.Name, LocalVersion: tagFor(c.Manifest.Module.Version),
-			})
-		}
+		out = append(out, Skew{
+			Consumer: entry.Name, Alias: "go:" + path, Module: path, Pinned: entry.GoRequires[path],
+			LocalCheckout: c.Name, LocalVersion: tagFor(c.Manifest.Module.Version),
+		})
 	}
 	return out
 }

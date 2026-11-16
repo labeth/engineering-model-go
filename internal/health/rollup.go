@@ -85,22 +85,12 @@ func aggregate(files []FileReport) Aggregate {
 	var weighted float64
 	var weight int
 	for i, f := range files {
-		w := f.LOC
-		if w < 1 {
-			w = 1
-		}
+		w := max(f.LOC, 1)
 		weighted += f.Score * float64(w)
 		weight += w
 		a.Files++
 		a.LOC += f.LOC
-		switch f.Band {
-		case BandGreen:
-			a.Bands.Green++
-		case BandYellow:
-			a.Bands.Yellow++
-		default:
-			a.Bands.Red++
-		}
+		a.Bands.count(f.Band)
 		// files are sorted by path, so the first of equal scores wins.
 		if i == 0 || f.Score < a.Worst.Score {
 			a.Worst = &WorstFile{Path: f.Path, Score: f.Score}
@@ -111,6 +101,20 @@ func aggregate(files []FileReport) Aggregate {
 	return a
 }
 
+// count counts one file of a band.
+//
+// TRLC-LINKS: REQ-EMG-152
+func (c *BandCounts) count(band string) {
+	switch band {
+	case BandGreen:
+		c.Green++
+	case BandYellow:
+		c.Yellow++
+	default:
+		c.Red++
+	}
+}
+
 // BuildRollups computes the roll-ups of a set of file reports sorted by path.
 // owners maps a file path to its functional unit (a file without an entry, or
 // with the empty value or "unresolved", counts for the project only) and
@@ -119,35 +123,63 @@ func aggregate(files []FileReport) Aggregate {
 // TRLC-LINKS: REQ-EMG-152
 // ENGMODEL-LINKS: FU-CODE-HEALTH
 func BuildRollups(files []FileReport, owners map[string]string, links []SymbolLink) Rollups {
-	var production, tests []FileReport
-	byUnit := map[string][]FileReport{}
-	byPath := map[string]*FileReport{}
-	for i := range files {
-		f := files[i]
-		byPath[f.Path] = &files[i]
-		if f.IsTest {
-			tests = append(tests, f)
-			continue
-		}
-		production = append(production, f)
-		if unit := strings.TrimSpace(owners[f.Path]); unit != "" && unit != "unresolved" {
-			byUnit[unit] = append(byUnit[unit], f)
-		}
-	}
-	r := Rollups{Project: aggregate(production), Units: []UnitRollup{}, Requirements: requirementRollups(byPath, links)}
-	if len(tests) > 0 {
-		t := aggregate(tests)
+	g := groupFiles(files, owners)
+	r := Rollups{Project: aggregate(g.production), Units: unitRollups(g.byUnit), Requirements: requirementRollups(g.byPath, links)}
+	if len(g.tests) > 0 {
+		t := aggregate(g.tests)
 		r.Tests = &t
 	}
+	return r
+}
+
+// fileGroups are the files of a report grouped for the roll-ups.
+type fileGroups struct {
+	production, tests []FileReport
+	byUnit            map[string][]FileReport
+	byPath            map[string]*FileReport
+}
+
+// groupFiles splits the files into production and test files, and the
+// production files by the unit that owns them.
+//
+// TRLC-LINKS: REQ-EMG-152
+func groupFiles(files []FileReport, owners map[string]string) fileGroups {
+	g := fileGroups{byUnit: map[string][]FileReport{}, byPath: map[string]*FileReport{}}
+	for i := range files {
+		f := files[i]
+		g.byPath[f.Path] = &files[i]
+		if f.IsTest {
+			g.tests = append(g.tests, f)
+			continue
+		}
+		g.production = append(g.production, f)
+		if unit := strings.TrimSpace(owners[f.Path]); unit != "" && unit != "unresolved" {
+			g.byUnit[unit] = append(g.byUnit[unit], f)
+		}
+	}
+	return g
+}
+
+// unitRollups rolls up the files of each unit, sorted by unit.
+//
+// TRLC-LINKS: REQ-EMG-152
+func unitRollups(byUnit map[string][]FileReport) []UnitRollup {
 	units := make([]string, 0, len(byUnit))
 	for unit := range byUnit {
 		units = append(units, unit)
 	}
 	sort.Strings(units)
+	out := make([]UnitRollup, 0, len(units))
 	for _, unit := range units {
-		r.Units = append(r.Units, UnitRollup{Unit: unit, Aggregate: aggregate(byUnit[unit])})
+		out = append(out, UnitRollup{Unit: unit, Aggregate: aggregate(byUnit[unit])})
 	}
-	return r
+	return out
+}
+
+// reqFnKey names one function of a file by its index.
+type reqFnKey struct {
+	path string
+	fn   int
 }
 
 // requirementRollups joins the functions of production files to the symbols
@@ -156,27 +188,7 @@ func BuildRollups(files []FileReport, owners map[string]string, links []SymbolLi
 //
 // TRLC-LINKS: REQ-EMG-152
 func requirementRollups(byPath map[string]*FileReport, links []SymbolLink) []RequirementRollup {
-	type fnKey struct {
-		path string
-		fn   int
-	}
-	perReq := map[string]map[fnKey]bool{}
-	for _, link := range links {
-		f := byPath[filepath.ToSlash(link.Path)]
-		if f == nil || f.IsTest {
-			continue
-		}
-		fn := innermostFunction(f.Functions, link.Line)
-		if fn < 0 {
-			continue
-		}
-		for _, req := range link.Requirements {
-			if perReq[req] == nil {
-				perReq[req] = map[fnKey]bool{}
-			}
-			perReq[req][fnKey{f.Path, fn}] = true
-		}
-	}
+	perReq := requirementFunctions(byPath, links)
 	reqs := make([]string, 0, len(perReq))
 	for req := range perReq {
 		reqs = append(reqs, req)
@@ -184,28 +196,85 @@ func requirementRollups(byPath map[string]*FileReport, links []SymbolLink) []Req
 	sort.Strings(reqs)
 	out := make([]RequirementRollup, 0, len(reqs))
 	for _, req := range reqs {
-		keys := make([]fnKey, 0, len(perReq[req]))
-		for k := range perReq[req] {
-			keys = append(keys, k)
-		}
-		sort.Slice(keys, func(a, b int) bool {
-			if keys[a].path != keys[b].path {
-				return keys[a].path < keys[b].path
-			}
-			return keys[a].fn < keys[b].fn
-		})
-		row := RequirementRollup{Requirement: req, Functions: len(keys)}
-		for i, k := range keys {
-			f := byPath[k.path]
-			row.Findings += len(f.Functions[k.fn].Findings)
-			if i == 0 || f.Score < row.Score {
-				row.Score, row.WorstFile = f.Score, f.Path
-			}
-		}
-		row.Band = BandOf(row.Score)
-		out = append(out, row)
+		out = append(out, requirementRow(req, sortedFnKeys(perReq[req]), byPath))
 	}
 	return out
+}
+
+// requirementFunctions maps each requirement to the functions its linked
+// symbols lie in.
+//
+// TRLC-LINKS: REQ-EMG-152
+func requirementFunctions(byPath map[string]*FileReport, links []SymbolLink) reqFunctionSets {
+	perReq := reqFunctionSets{}
+	for _, link := range links {
+		f, fn, ok := linkedFunction(byPath, link)
+		if !ok {
+			continue
+		}
+		for _, req := range link.Requirements {
+			perReq.add(req, reqFnKey{f.Path, fn})
+		}
+	}
+	return perReq
+}
+
+// reqFunctionSets maps a requirement to a set of functions.
+type reqFunctionSets map[string]map[reqFnKey]bool
+
+// add puts a function in the set of a requirement.
+//
+// TRLC-LINKS: REQ-EMG-152
+func (s reqFunctionSets) add(req string, key reqFnKey) {
+	if s[req] == nil {
+		s[req] = map[reqFnKey]bool{}
+	}
+	s[req][key] = true
+}
+
+// linkedFunction finds the production function a symbol link lies in.
+//
+// TRLC-LINKS: REQ-EMG-152
+func linkedFunction(byPath map[string]*FileReport, link SymbolLink) (*FileReport, int, bool) {
+	f := byPath[filepath.ToSlash(link.Path)]
+	if f == nil || f.IsTest {
+		return nil, 0, false
+	}
+	fn := innermostFunction(f.Functions, link.Line)
+	return f, fn, fn >= 0
+}
+
+// sortedFnKeys lists a set of functions by path and index.
+//
+// TRLC-LINKS: REQ-EMG-152
+func sortedFnKeys(set map[reqFnKey]bool) []reqFnKey {
+	keys := make([]reqFnKey, 0, len(set))
+	for k := range set {
+		keys = append(keys, k)
+	}
+	sort.Slice(keys, func(a, b int) bool {
+		if keys[a].path != keys[b].path {
+			return keys[a].path < keys[b].path
+		}
+		return keys[a].fn < keys[b].fn
+	})
+	return keys
+}
+
+// requirementRow rolls up the functions of one requirement.
+//
+// TRLC-LINKS: REQ-EMG-152
+func requirementRow(req string, keys []reqFnKey, byPath map[string]*FileReport) RequirementRollup {
+	row := RequirementRollup{Requirement: req, Functions: len(keys)}
+	for i, k := range keys {
+		f := byPath[k.path]
+		row.Findings += len(f.Functions[k.fn].Findings)
+		if i == 0 || f.Score < row.Score {
+			row.Score, row.WorstFile = f.Score, f.Path
+		}
+	}
+	row.Band = BandOf(row.Score)
+	return row
 }
 
 // innermostFunction returns the index of the function with the smallest line
@@ -242,31 +311,43 @@ type RankedFunction struct {
 func WorstFunctions(r Report, n int) []RankedFunction {
 	var ranked []RankedFunction
 	for _, f := range r.Files {
-		if f.IsTest {
-			continue
-		}
-		for _, fn := range f.Functions {
-			points := 0.0
-			for _, finding := range fn.Findings {
-				points += weights[finding.Code] * SeverityFactor(finding.Severity)
-			}
-			if points > 0 {
-				ranked = append(ranked, RankedFunction{Path: f.Path, Function: fn, Points: RoundTo(points, 4)})
-			}
+		if !f.IsTest {
+			ranked = append(ranked, rankedFunctions(f)...)
 		}
 	}
-	sort.SliceStable(ranked, func(i, j int) bool {
-		a, b := ranked[i], ranked[j]
-		if a.Points != b.Points {
-			return a.Points > b.Points
-		}
-		if a.Path != b.Path {
-			return a.Path < b.Path
-		}
-		return a.Function.StartLine < b.Function.StartLine
-	})
+	sort.SliceStable(ranked, func(i, j int) bool { return lessRanked(ranked[i], ranked[j]) })
 	if n >= 0 && len(ranked) > n {
 		ranked = ranked[:n]
 	}
 	return ranked
+}
+
+// rankedFunctions lists the functions of a file that have deducted points.
+//
+// TRLC-LINKS: REQ-EMG-152
+func rankedFunctions(f FileReport) []RankedFunction {
+	var ranked []RankedFunction
+	for _, fn := range f.Functions {
+		points := 0.0
+		for _, finding := range fn.Findings {
+			points += weights[finding.Code] * SeverityFactor(finding.Severity)
+		}
+		if points > 0 {
+			ranked = append(ranked, RankedFunction{Path: f.Path, Function: fn, Points: RoundTo(points, 4)})
+		}
+	}
+	return ranked
+}
+
+// lessRanked orders by points (most first), then path and line.
+//
+// TRLC-LINKS: REQ-EMG-152
+func lessRanked(a, b RankedFunction) bool {
+	if a.Points != b.Points {
+		return a.Points > b.Points
+	}
+	if a.Path != b.Path {
+		return a.Path < b.Path
+	}
+	return a.Function.StartLine < b.Function.StartLine
 }

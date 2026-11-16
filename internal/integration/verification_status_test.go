@@ -23,14 +23,14 @@ import (
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-ASCIIDOC-GENERATOR
 func TestModelCheckReportsStaleControlVerificationStatus(t *testing.T) {
 	dir := t.TempDir()
-	testutil.WriteV2ModuleFiles(t, dir, "example.com/cv@v0", "v0.1.0", "cv", "", `  functionalGroups:
+	testutil.WriteV2ModuleFiles(t, dir, testutil.V2Module{Path: "example.com/cv@v0", Version: "v0.1.0", ModelID: "cv", ManifestExtra: "", Architecture: `  functionalGroups:
     - id: FG-A
       name: Group
   functionalUnits:
     - id: FU-A
       name: Unit
       group: FG-A
-`)
+`})
 	testutil.WriteFile(t, filepath.Join(dir, "model", "catalog.yml"), "schemaVersion: 3\ncatalog:\n  systems:\n    - id: SYS-UNIT\n      name: unit\n      definition: The decoding unit.\n")
 	testutil.WriteFile(t, filepath.Join(dir, "model", "requirements.yml"), "schemaVersion: 3\nlintRun: {mode: guided}\nrequirements:\n  - id: REQ-CV-001\n    text: The unit shall decode.\n")
 	assurance := `schemaVersion: 3
@@ -54,7 +54,7 @@ assurance:
 
 	stale := func() (doc, tr int) {
 		t.Helper()
-		result, err := asciidoc.GenerateFromFiles(manifest, requirements, views, asciidoc.Options{})
+		result, err := asciidoc.GenerateFromFiles(asciidoc.FilePaths{Architecture: manifest, Requirements: requirements, Design: views}, asciidoc.Options{})
 		if err != nil {
 			t.Fatalf("generate: %v %+v", err, result.Diagnostics)
 		}

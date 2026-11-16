@@ -17,74 +17,56 @@ import (
 func TestCompositionResolvesManifestPublicationAndWritesLock(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
-	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, []string{"REQ-CHILD"})
+	testutil.WriteV2CompositionModule(t, child, testutil.CompositionModule{Path: "example.com/child@v1", Version: "v1.2.3", ModelID: "CHILD", Publication: "public", ArchitectureIDs: []string{"CAP-CHILD"}, RequirementIDs: []string{"REQ-CHILD"}})
 	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: example.com/child@v1
     path: ./child
 `)
 	parent := filepath.Join(root, "parent")
-	testutil.WriteV2CompositionParent(t, parent, `dependencies:
+	testutil.WriteV2CompositionParent(t, parent, testutil.V2Parent{Dependencies: `dependencies:
   - alias: child
     path: example.com/child@v1
     version: v1.2.3
     publications: [public]
-`, `  composition:
+`, Architecture: `  composition:
     subsystems:
       - id: SUB-CHILD
         dependency: child
         publication: public
-`)
+`})
 
-	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
+	manifest := filepath.Join(parent, "engmod.yml")
+	result := mustResolve(t, manifest, ResolutionOptions{})
 	assertNoCompositionErrors(t, result.Diagnostics)
-	if result.Root == nil || len(result.Root.Children) != 1 {
-		t.Fatalf("expected one child, got %#v", result.Root)
-	}
-	if len(result.Provenance) != 2 || result.Provenance[0].Alias != "child" || result.Provenance[0].ResolvedDir != child {
-		t.Fatalf("unexpected provenance: %+v", result.Provenance)
-	}
+	requireEqual(t, result.Root != nil && len(result.Root.Children) == 1, true)
+	requireEqual(t, len(result.Provenance), 2)
+	requireEqual(t, []string{result.Provenance[0].Alias, result.Provenance[0].ResolvedDir}, []string{"child", child})
 	// Workspace replacements are active, so the resolved lock is local only.
 	lockPath := filepath.Join(parent, CompositionLocalLockFileName)
-	first, err := os.ReadFile(lockPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !strings.Contains(string(first), "sha256:") || !strings.Contains(string(first), "alias: child") {
-		t.Fatalf("unexpected lock file:\n%s", first)
-	}
-	if _, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml")); err != nil {
-		t.Fatal(err)
-	}
-	second, err := os.ReadFile(lockPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(first) != string(second) {
-		t.Fatalf("lock generation is not deterministic:\n%s\n---\n%s", first, second)
-	}
+	first := readText(t, lockPath)
+	requireEqual(t, strings.Contains(first, "sha256:") && strings.Contains(first, "alias: child"), true)
+	mustResolve(t, manifest, ResolutionOptions{})
+	requireEqual(t, readText(t, lockPath), first) // lock generation is deterministic
 }
 
 // TRLC-LINKS: REQ-EMG-049, REQ-EMG-051
 func TestCompositionRejectsUnpublishedQualifiedReference(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
-	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
+	testutil.WriteV2CompositionModule(t, child, testutil.CompositionModule{Path: "example.com/child@v1", Version: "v1.2.3", ModelID: "CHILD", Publication: "public", ArchitectureIDs: []string{"CAP-CHILD"}, RequirementIDs: nil})
 	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: example.com/child@v1
     path: ./child
 `)
 	parent := filepath.Join(root, "parent")
-	testutil.WriteV2CompositionParent(t, parent, `dependencies:
+	testutil.WriteV2CompositionParent(t, parent, testutil.V2Parent{Dependencies: `dependencies:
   - alias: child
     path: example.com/child@v1
     version: v1.2.3
     publications: [public]
-`, `  composition:
+`, Architecture: `  composition:
     subsystems:
       - id: SUB-CHILD
         dependency: child
@@ -92,7 +74,7 @@ replacements:
     satisfactions:
       - need: child::CAP-CHILD
         by: child::REQ-CHILD
-`)
+`})
 	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
 	if err != nil {
 		t.Fatal(err)
@@ -104,20 +86,20 @@ replacements:
 func TestCompositionRejectsUnpublishedBehaviorReference(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
-	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
+	testutil.WriteV2CompositionModule(t, child, testutil.CompositionModule{Path: "example.com/child@v1", Version: "v1.2.3", ModelID: "CHILD", Publication: "public", ArchitectureIDs: []string{"CAP-CHILD"}, RequirementIDs: nil})
 	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: example.com/child@v1\n    path: ./child\n")
 	parent := filepath.Join(root, "parent")
-	testutil.WriteV2CompositionParent(t, parent, `dependencies:
+	testutil.WriteV2CompositionParent(t, parent, testutil.V2Parent{Dependencies: `dependencies:
   - alias: child
     path: example.com/child@v1
     version: v1.2.3
     publications: [public]
-`, `  composition:
+`, Architecture: `  composition:
     subsystems:
       - id: SUB-CHILD
         dependency: child
         publication: public
-`)
+`})
 	testutil.WriteFile(t, filepath.Join(parent, "model", "behavior.yml"), `schemaVersion: 3
 behavior:
   relationships:
@@ -136,7 +118,7 @@ behavior:
 func TestCompositionValidatesDependencyPublicationAgreement(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
-	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
+	testutil.WriteV2CompositionModule(t, child, testutil.CompositionModule{Path: "example.com/child@v1", Version: "v1.2.3", ModelID: "CHILD", Publication: "public", ArchitectureIDs: []string{"CAP-CHILD"}, RequirementIDs: nil})
 	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), `schemaVersion: 3
 replacements:
   - module: example.com/child@v1
@@ -166,12 +148,12 @@ replacements:
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			parent := filepath.Join(root, strings.ReplaceAll(test.name, " ", "-"))
-			testutil.WriteV2CompositionParent(t, parent, test.dependencies, `  composition:
+			testutil.WriteV2CompositionParent(t, parent, testutil.V2Parent{Dependencies: test.dependencies, Architecture: `  composition:
     subsystems:
       - id: SUB-CHILD
         dependency: child
-        publication: `+test.publication+`
-`)
+        publication: ` + test.publication + `
+`})
 			result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
 			if err != nil {
 				t.Fatal(err)
@@ -218,7 +200,7 @@ func TestExactModuleCoordinates(t *testing.T) {
 func TestCompositionRejectsPublicationIDOwnedByAnotherDomain(t *testing.T) {
 	root := t.TempDir()
 	child := filepath.Join(root, "child")
-	testutil.WriteV2CompositionModule(t, child, "example.com/child@v1", "v1.2.3", "CHILD", "public", []string{"CAP-CHILD"}, nil)
+	testutil.WriteV2CompositionModule(t, child, testutil.CompositionModule{Path: "example.com/child@v1", Version: "v1.2.3", ModelID: "CHILD", Publication: "public", ArchitectureIDs: []string{"CAP-CHILD"}, RequirementIDs: nil})
 	manifestPath := filepath.Join(child, "engmod.yml")
 	manifest, err := os.ReadFile(manifestPath)
 	if err != nil {
@@ -231,17 +213,17 @@ replacements:
     path: ./child
 `)
 	parent := filepath.Join(root, "parent")
-	testutil.WriteV2CompositionParent(t, parent, `dependencies:
+	testutil.WriteV2CompositionParent(t, parent, testutil.V2Parent{Dependencies: `dependencies:
   - alias: child
     path: example.com/child@v1
     version: v1.2.3
     publications: [public]
-`, `  composition:
+`, Architecture: `  composition:
     subsystems:
       - id: SUB-CHILD
         dependency: child
         publication: public
-`)
+`})
 	result, err := GenerateCompositionFromFile(filepath.Join(parent, "engmod.yml"))
 	if err != nil {
 		t.Fatal(err)

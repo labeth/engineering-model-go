@@ -67,35 +67,6 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	subsystems := []map[string]any{}
-	if res.Root != nil {
-		for _, c := range res.Root.Children {
-			provides := []string{}
-			for _, p := range c.Bundle.Architecture.Contract.Provides {
-				provides = append(provides, p.ID)
-			}
-			requires := []string{}
-			for _, r := range c.Bundle.Architecture.Contract.Requires {
-				requires = append(requires, r.ID)
-			}
-			subsystems = append(subsystems, map[string]any{
-				"id":                c.SubsystemID,
-				"model":             c.Bundle.Architecture.Model.ID,
-				"dependency":        c.Dependency,
-				"publication":       c.Publication,
-				"modulePath":        c.ModulePath,
-				"version":           c.Version,
-				"resolvedDirectory": res.DisplayDir(c.Dir),
-				"provides":          provides,
-				"requires":          requires,
-			})
-		}
-	}
-	provenance := make([]engmodel.ImportedEntityProvenance, len(res.Provenance))
-	for i, p := range res.Provenance {
-		p.ResolvedDir = res.DisplayDir(p.ResolvedDir)
-		provenance[i] = p
-	}
 	rootID := ""
 	if res.Root != nil {
 		rootID = res.Root.Bundle.Architecture.Model.ID
@@ -103,11 +74,61 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 	return map[string]any{
 		"hasComposition": true,
 		"root":           rootID,
-		"subsystems":     subsystems,
-		"provenance":     provenance,
+		"subsystems":     subsystemRows(res),
+		"provenance":     provenanceRows(res),
 		"lock":           res.Lock,
 		"diagnostics":    diagRows(engmodel.ApplyTierPolicy(*s.bundle, res.Diagnostics)),
 	}, nil
+}
+
+// subsystemRows lists the direct subsystems of the resolved root with their
+// provides/requires contract.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-020
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+func subsystemRows(res engmodel.CompositionResult) []map[string]any {
+	subsystems := []map[string]any{}
+	if res.Root == nil {
+		return subsystems
+	}
+	for _, c := range res.Root.Children {
+		contract := c.Bundle.Architecture.Contract
+		subsystems = append(subsystems, map[string]any{
+			"id":                c.SubsystemID,
+			"model":             c.Bundle.Architecture.Model.ID,
+			"dependency":        c.Dependency,
+			"publication":       c.Publication,
+			"modulePath":        c.ModulePath,
+			"version":           c.Version,
+			"resolvedDirectory": res.DisplayDir(c.Dir),
+			"provides":          contractIDs(contract.Provides),
+			"requires":          contractIDs(contract.Requires),
+		})
+	}
+	return subsystems
+}
+
+// contractIDs lists the identifiers of contract entries, never nil.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-020
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+func contractIDs(entries []engmodel.ContractEntry) []string {
+	ids := []string{}
+	for _, e := range entries {
+		ids = append(ids, e.ID)
+	}
+	return ids
+}
+
+// provenanceRows copies the imported-entity provenance with displayable
+// resolved directories.
+// TRLC-LINKS: REQ-EMG-016, REQ-EMG-020
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, FU-ALLOCATION-TRACE
+func provenanceRows(res engmodel.CompositionResult) []engmodel.ImportedEntityProvenance {
+	provenance := make([]engmodel.ImportedEntityProvenance, len(res.Provenance))
+	for i, p := range res.Provenance {
+		p.ResolvedDir = res.DisplayDir(p.ResolvedDir)
+		provenance[i] = p
+	}
+	return provenance
 }
 
 // traceMatrix builds the traceability matrix for the loaded model: per-requirement
@@ -119,33 +140,13 @@ func (s *Server) compositionResolve() (map[string]any, error) {
 // TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105, REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
-	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
+	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(engmodel.TraceFiles{ModelPath: s.modelPath, RequirementsPath: s.requirementsPath}, engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
 		return nil, err
 	}
 	out := map[string]any{
-		"model": matrix.Model,
-		"summary": map[string]any{
-			"requirements": matrix.Summary.Requirements,
-			"implemented":  matrix.Summary.Implemented,
-			"tested":       matrix.Summary.Tested,
-			"testLinked":   matrix.Summary.TestLinked,
-			"passed":       matrix.Summary.Passed,
-			"delegated":    matrix.Summary.Delegated,
-			"orphan":       matrix.Summary.Orphan,
-			"dangling":     matrix.Summary.DanglingLinks,
-			// Test-linked requirements whose every linked test is
-			// environment gated (skips unless a variable is set).
-			"gatedOnly":             matrix.Summary.GatedOnly,
-			"gatedOnlyRequirements": nonNilStrings(matrix.Summary.GatedOnlyRequirements),
-			// Requirement links: the links that need review (version
-			// mismatch, broken, claimed) and local requirements without an
-			// upward trace.
-			"linksNeedReview": matrix.Summary.LinksNeedReview, "linksVersionMismatch": matrix.Summary.LinksVersionMismatch,
-			"linksBroken":  matrix.Summary.LinksBroken,
-			"linksClaimed": matrix.Summary.LinksClaimed,
-			"unparented":   matrix.Summary.Unparented,
-		},
+		"model":       matrix.Model,
+		"summary":     traceSummaryRow(matrix),
 		"diagnostics": diagRows(diags),
 	}
 	if summaryOnly {
@@ -153,45 +154,7 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 	}
 	rows := make([]map[string]any, 0, len(matrix.Requirements))
 	for _, r := range matrix.Requirements {
-		code := make([]string, 0, len(r.Code))
-		for _, c := range r.Code {
-			if c.Line > 0 {
-				code = append(code, fmt.Sprintf("%s:%d", c.Path, c.Line))
-			} else {
-				code = append(code, c.Path)
-			}
-		}
-		row := map[string]any{
-			"id":            r.ID,
-			"status":        r.Status,
-			"units":         r.Units,
-			"code":          code,
-			"verifications": r.Verifications,
-		}
-		if r.DelegatedStatus != nil {
-			row["delegatedStatus"] = r.DelegatedStatus
-		}
-		if r.Gated {
-			row["gated"] = true
-			row["gates"] = r.Gates
-		}
-		row["parents"] = nonNilStrings(r.Parents)
-		row["children"] = nonNilStrings(r.Children)
-		if len(r.Links) > 0 {
-			row["links"] = r.Links
-		}
-		if len(r.Formal) > 0 {
-			row["formal"] = r.Formal
-		}
-		if len(r.EvidenceMethods) > 0 {
-			row["evidenceMethods"] = r.EvidenceMethods
-		}
-		if r.SatisfiedBy != "" {
-			row["satisfiedBy"] = r.SatisfiedBy
-			row["linksImplemented"] = r.LinksImplemented
-			row["linksTestLinked"] = r.LinksTestLinked
-		}
-		rows = append(rows, row)
+		rows = append(rows, traceRequirementRow(r))
 	}
 	dangling := make([]map[string]any, 0, len(matrix.DanglingLinks))
 	for _, d := range matrix.DanglingLinks {
@@ -201,6 +164,92 @@ func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
 	out["orphans"] = matrix.Orphans
 	out["danglingLinks"] = dangling
 	return out, nil
+}
+
+// traceSummaryRow renders the summary counts of a trace matrix.
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105, REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func traceSummaryRow(matrix engmodel.TraceMatrix) map[string]any {
+	return map[string]any{
+		"requirements": matrix.Summary.Requirements,
+		"implemented":  matrix.Summary.Implemented,
+		"tested":       matrix.Summary.Tested,
+		"testLinked":   matrix.Summary.TestLinked,
+		"passed":       matrix.Summary.Passed,
+		"delegated":    matrix.Summary.Delegated,
+		"orphan":       matrix.Summary.Orphan,
+		"dangling":     matrix.Summary.DanglingLinks,
+		// Test-linked requirements whose every linked test is
+		// environment gated (skips unless a variable is set).
+		"gatedOnly":             matrix.Summary.GatedOnly,
+		"gatedOnlyRequirements": nonNilStrings(matrix.Summary.GatedOnlyRequirements),
+		// Requirement links: the links that need review (version
+		// mismatch, broken, claimed) and local requirements without an
+		// upward trace.
+		"linksNeedReview": matrix.Summary.LinksNeedReview, "linksVersionMismatch": matrix.Summary.LinksVersionMismatch,
+		"linksBroken":  matrix.Summary.LinksBroken,
+		"linksClaimed": matrix.Summary.LinksClaimed,
+		"unparented":   matrix.Summary.Unparented,
+	}
+}
+
+// traceRequirementRow renders one requirement row of the trace matrix.
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105, REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func traceRequirementRow(r engmodel.TraceRow) map[string]any {
+	row := map[string]any{
+		"id":            r.ID,
+		"status":        r.Status,
+		"units":         r.Units,
+		"code":          traceCodeRefs(r),
+		"verifications": r.Verifications,
+	}
+	if r.DelegatedStatus != nil {
+		row["delegatedStatus"] = r.DelegatedStatus
+	}
+	if r.Gated {
+		row["gated"] = true
+		row["gates"] = r.Gates
+	}
+	row["parents"] = nonNilStrings(r.Parents)
+	row["children"] = nonNilStrings(r.Children)
+	addOptionalTraceFields(row, r)
+	return row
+}
+
+// addOptionalTraceFields adds the row fields that appear only when set.
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105, REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func addOptionalTraceFields(row map[string]any, r engmodel.TraceRow) {
+	if len(r.Links) > 0 {
+		row["links"] = r.Links
+	}
+	if len(r.Formal) > 0 {
+		row["formal"] = r.Formal
+	}
+	if len(r.EvidenceMethods) > 0 {
+		row["evidenceMethods"] = r.EvidenceMethods
+	}
+	if r.SatisfiedBy != "" {
+		row["satisfiedBy"] = r.SatisfiedBy
+		row["linksImplemented"] = r.LinksImplemented
+		row["linksTestLinked"] = r.LinksTestLinked
+	}
+}
+
+// traceCodeRefs renders the code references of a row as path[:line].
+// TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105, REQ-EMG-148
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
+func traceCodeRefs(r engmodel.TraceRow) []string {
+	code := make([]string, 0, len(r.Code))
+	for _, c := range r.Code {
+		if c.Line > 0 {
+			code = append(code, fmt.Sprintf("%s:%d", c.Path, c.Line))
+		} else {
+			code = append(code, c.Path)
+		}
+	}
+	return code
 }
 
 // diagRows renders diagnostics as compact maps for MCP tool responses.
@@ -253,7 +302,7 @@ func (s *Server) tierGap(target string) (map[string]any, error) {
 	if strings.TrimSpace(target) == "" {
 		return nil, fmt.Errorf("tier.gap needs target: poc, prototype, mvp, product or operational")
 	}
-	report, err := engmodel.TierGapFromFilesWith(s.modelPath, s.requirementsPath, "", target, engmodel.TraceOptions{Resolution: resolution()})
+	report, err := engmodel.TierGapFromFilesWith(engmodel.TraceFiles{ModelPath: s.modelPath, RequirementsPath: s.requirementsPath}, target, engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
 		return nil, err
 	}

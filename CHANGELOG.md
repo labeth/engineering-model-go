@@ -6,6 +6,126 @@ semantic versioning.
 
 ## [Unreleased]
 
+## [0.12.0] — 2026-11-15: Tool-support APIs, requirement structure and architecture interface rules
+
+A minor release below v1 (a minor bump allows a contract change). The model schema stays at version 3 and the authoring contract
+at `engineering-model.authoring.v8`; the schema only relaxes (two pairs that were errors are now valid). What a model, a
+dependent or a check template must do:
+
+- **New errors at the two highest tiers.** `architecture.dependency_without_interface` and `architecture.interface_without_data`
+  are errors at product and operational (warnings at poc, prototype and mvp and without `lifecycle`). A model of tier product or
+  operational that was clean at v0.11.0 fails with them until each dependency goes through an interface and each local interface
+  carries data in a flow. A POA&M item can defer them (they are tier keyed, not a policy gate code).
+- **Engine pin.** `engine.pin_outdated` is an error when the `.github/engmod-check/go.mod` of a repository pins an engine older
+  than the running one: every repository that runs `engws check` with v0.12.0 must move its pin to `v0.12.0`
+  (`go get github.com/labeth/engineering-model-go@v0.12.0`).
+- **Published requirement text changed.** The text of the published requirements `REQ-EMG-*` of the engine's model changed (61
+  check requirements, see below) and `CAP-EMG-GO-API` is a new published capability. A dependent that links to a contract item of
+  this model (`engws review-links`) sees `version_mismatch` at its next check: run `engws review-links`, then `engws bump`, and
+  review each changed item before accepting.
+- **Moved internals.** The loader that reads a model at a git ref moved from `internal/engws` to `internal/gitmodel`; nothing
+  under `internal/` is public, the root package is.
+- **Breaking: the Go facade takes request structs (ADR-EMG-088).** Eleven exported functions of the root package with four or five
+  parameters were replaced, not duplicated, by forms with at most three parameters (no old signature remains). Every caller must
+  change; a build error names the call. New root types: `AsciiDocInputs`, `AsciiDocFiles`, `GemaraFiles`, `GemaraEvalRun`,
+  `SysMLInterchangePaths`, `TraceFiles` (aliases of the internal request structs). `engws contract-diff` compares published model
+  items, not Go symbols, so it reports no extra impact; the minor bump below v1 is what carries the change.
+
+  | Old call | New call |
+  | --- | --- |
+  | `GenerateAsciiDocFromFiles(arch, req, design, opts)` | `GenerateAsciiDocFromFiles(AsciiDocFiles{Architecture: arch, Requirements: req, Design: design}, opts)` |
+  | `GenerateAsciiDoc(bundle, req, design, opts)` | `GenerateAsciiDoc(AsciiDocInputs{Bundle: bundle, Requirements: req, Design: design}, opts)` |
+  | `GenerateGemaraEvaluationLogFromFiles(arch, req, codeRoot, opts)` | `GenerateGemaraEvaluationLogFromFiles(GemaraFiles{ArchitecturePath: arch, RequirementsPath: req, CodeRoot: codeRoot}, opts)` |
+  | `GenerateGemaraEvaluationLog(bundle, req, codeRoot, opts)` | `GenerateGemaraEvaluationLog(bundle, req, GemaraEvalRun{CodeRoot: codeRoot, Options: opts})` |
+  | `GenerateGemaraOSCALAssessmentResultsFromFiles(arch, req, codeRoot, opts)` | `GenerateGemaraOSCALAssessmentResultsFromFiles(GemaraFiles{ArchitecturePath: arch, RequirementsPath: req, CodeRoot: codeRoot}, opts)` |
+  | `GenerateGemaraOSCALAssessmentResults(bundle, req, codeRoot, opts)` | `GenerateGemaraOSCALAssessmentResults(bundle, req, GemaraEvalRun{CodeRoot: codeRoot, Options: opts})` |
+  | `ExportSysMLV2Project(arch, projectDir, kpar, sysand)` | `ExportSysMLV2Project(arch, SysMLInterchangePaths{Directory: projectDir, KPAR: kpar, Sysand: sysand})` |
+  | `VerifySysMLV2RoundTrip(arch, kpar, reopenedDir, sysand)` | `VerifySysMLV2RoundTrip(arch, SysMLInterchangePaths{Directory: reopenedDir, KPAR: kpar, Sysand: sysand})` |
+  | `BuildTraceMatrixFromFilesWith(model, req, codeRoot, opts)` | `BuildTraceMatrixFromFilesWith(TraceFiles{ModelPath: model, RequirementsPath: req, CodeRoot: codeRoot}, opts)` |
+  | `TierGapFromFiles(model, req, codeRoot, target)` | `TierGapFromFiles(TraceFiles{ModelPath: model, RequirementsPath: req, CodeRoot: codeRoot}, target)` |
+  | `TierGapFromFilesWith(model, req, codeRoot, target, opts)` | `TierGapFromFilesWith(TraceFiles{ModelPath: model, RequirementsPath: req, CodeRoot: codeRoot}, target, opts)` |
+
+  Known callers outside this repository: `cicd/engmod-check` (`main.go`, `docs.go`) of engineering-flow, `internal/server/api_flow.go`
+  of the engineering tool and the `.github/engmod-check` template call `GenerateAsciiDoc`, `BuildTraceMatrixFromFilesWith` and `TierGapFromFiles(With)`; each adapts when
+  its engine pin moves to `v0.12.0` (the pin check `engine.pin_outdated` already requires that move).
+
+### Release tooling and evidence
+
+- `scripts/validate-all.sh` runs example generation, the Quint check, the SysML validation and the format validation under `timeout`
+  (`ENGMOD_STEP_TIMEOUT` seconds, default 3600), so a stalled external tool fails the gate with a message; the code health check
+  also looks for `origin/master` and `master` as its default base revision (it skipped silently on a repository whose trunk is `master`).
+- `TestDeeplyNestedSourcesDoNotCrashOrStall` no longer fails on a loaded machine: the 4 MiB case sets a parse timeout of three
+  minutes, so it tests the depth refusal and not the speed of the machine.
+- `REQ-EMG-207` and `REQ-EMG-208` have status `verified`: 27 mutations of the two rules, their tier rows, the schema relaxations and
+  the remedy registration were run with `red-check.mjs` and every one failed an assertion.
+- `REQ-EMG-189` to `REQ-EMG-206` (entity index, model diff, code lookup, catalog usage and the Go facade over them) have status
+  `verified` and no longer need a POA&M defer: root-package tests (`api_diff_test.go`, `api_trace_test.go`, `api_reqlinks_test.go`,
+  `api_composition_test.go`, `api_catalog_test.go`, `api_validate_test.go`, `api_code_test.go`) call every public function through the
+  facade and assert each criterion of the requirement, and the mutations in `scripts/red-checks/` (about 130, two or more per requirement)
+  were each RED with a failed assertion. `scripts/red-checks/run.sh` reproduces the evidence on any tree.
+
+### Public Go API added for tools (root package `github.com/labeth/engineering-model-go`)
+
+Used by the engineering tool; all are thin facades over `internal/` packages and carry trace markers (ADR-EMG-079, 080, 081).
+
+- Entity index and model diff: `BuildEntityIndex(Bundle) (EntityIndex, error)`, `DiffEntityIndexes(from, to EntityIndex) EntityDiff`,
+  `DiffTraceMatrices(from, to TraceMatrix) TraceDelta`, `DiffModels(ModelDiffRequest) (ModelDiff, error)`,
+  `LoadBundleAtRef(repo, ref string) (Bundle, error)`; types `Entity`, `EntityReference`, `EntityIndex`, `EntityChange`,
+  `EntityDiff`, `TraceDelta`, `TraceStatusChange`, `ModelDiffRequest` (`Repo`, `From`, `To`, `Trace`), `ModelDiff`; constants
+  `EntityEdgeField`, `EntityEdgeMention`, `EntityEdgeContains`, `EntityEdgeRelationship`.
+- Code lookup: `ListCodeDeclarations(Bundle, root string) ([]CodeDeclaration, error)`, `CodeDeclarationsOf(relPath string,
+  src []byte) ([]CodeDeclaration, error)`, `FindCodeDefinitions(declarations, fromPath, name) []CodeDeclaration`; type
+  `CodeDeclaration`. A Go spec declares its own names only: the type a declaration is defined as (`type Beta int`, `var a, b Beta`)
+  is no declaration (found by the facade test of `REQ-EMG-199`).
+- Catalog: `CatalogUsage(Bundle) ([]CatalogTermUsage, error)`; type `CatalogTermUsage`.
+- No schema field was added; the signature changes of eleven existing functions are listed under Breaking at the top of this entry.
+- `cue.mod/module.cue` is added so the engine's model module (`github.com/labeth/engineering-model-go/model@v0`) can be composed
+  from a workspace checkout (without it a consumer reported `composition.module_identity`).
+
+### The Go facade is a modelled, published interface (ADR-EMG-081 to 084, REQ-EMG-194 to 206)
+
+- Seven `go-library` interfaces `IF-GO-*` (model loading, validation, entity index and diff, trace, code lookup, composition,
+  requirement links), eleven data objects, four consumer flows with `ACT-GO-CONSUMER`, the machine `SM-GO-BUNDLE-SESSION` (checked
+  with Quint), the published capability `CAP-EMG-GO-API` and the requirements that realize it. A consumer composes the model and
+  references `alias::IF-GO-...` instead of a free-text referenced element. ADR-EMG-082 to 084 (the Go interface scope and three
+  language gaps) are recorded as proposed for the owner; none is implemented. The facade requirements are verified by the root-package tests
+  and the red checks listed above.
+
+### A dependency names its interface and an interface carries data (ADR-EMG-085 and 086, REQ-EMG-207 and 208)
+
+- New `architecture.dependency_without_interface`: a relationship of type `depends_on`, `calls`, `publishes`, `subscribes`, `reads`, `writes`, `streams`, `implements` or `interacts_with` between two architectural elements (functional unit, functional group, actor, referenced element, hardware item, `alias::ID` element of a composed dependency) of which neither end is an interface. A local interface counts when it has an owner (`interface.owner`, else the unit that `contains` it), a composed `alias::IF-*` is a published one, and two hardware items count as joined by a `hardwareInterfaces` entry. Containment, other relationship types, a relationship from an element to itself and data object or deployment target ends are not asked. The message names the type, both ends, the relationship path and the fix. Write the dependency as a relationship to the interface (`calls FU-A -> IF-B`); an interface end stands for its owner, as in the engineering tool.
+- New `architecture.interface_without_data`: a local software interface that no flow step names in `interfaceRef` together with a data object in `dataRefs`, `dataIn` or `dataOut`. The flow's own `dataRefs`, relationships, `schemaRef` and names do not count; an interface nothing uses is asked all the same; a composed `alias::IF-*` is checked in its own model.
+- Both codes are tier keyed with the new row `WWWEE`: a warning at poc, prototype and mvp, an error at product and operational (the owner asked for errors on the two highest tiers; the warning below is the engine's reading of "the rest"), a warning without lifecycle, and deferrable by a POA&M item like every tier-keyed code. `README.md` lists both in the tier table and the diagnostics table; the authoring contract has the two rules.
+- The schema changed in two places so the rule can be met: `interacts_with` may go from an actor to an interface (`model.invalid_interaction` and the pair table), and an interface may be owned by a referenced element, for the interface an external tool or specification offers (`model.invalid_interface_owner` now says "a functional unit, or a referenced element").
+- The asciidoc functional collaboration and group dependency diagrams draw a `depends_on` that ends at an interface to the interface's owner, so the diagrams keep their edges.
+- The engine's own model now meets both rules: 28 dependencies go through an interface (five Go package interfaces `IF-GO-PKG-*` and nine interfaces of external tools and specifications), 14 command line interfaces and the new ones carry data in `FLOW-ARTIFACT-EXPORT` and `FLOW-ENGINE-INTEGRATIONS`, with 12 new data objects. The dependency of `FU-VALIDATION-ENGINE` on the Go toolchain is now the dependency of `FU-CLI-ORCHESTRATION` (engws is the code that runs `go`).
+
+### Every source file scores 10.0 unless the baseline lists it (ADR-EMG-087, REQ-EMG-209 and 210)
+
+Added to this release (`[0.12.0]`, not `[Unreleased]`) because it ships in the same release pull request.
+
+- New `health.file_below_floor`, reported by `enghealth scan` for each source file (tests included) whose score, after the waivers, is below the floor 10.0 and that no baseline entry covers, and by `enghealth check` for each changed file at the head. Tier row `WWWEE` (`WWEEE` with the safety bundle): a warning at poc, prototype and mvp, an error at product and operational, a warning without a tier; no POA&M item defers it, like `health.regression`. The message names the file, its score, the floor, the three largest deductions with function and line and the fix.
+- A file is covered when a baseline entry names a finding of it that the scan found; a stale entry covers nothing and a file whose every finding is waived scores 10.0. The baseline is the explicit list of exceptions and can only shrink (`health.baseline_stale`), so a new file, or a file with no entry, has to be clean at once, and with an empty baseline every file does. The report carries `floor`, `summary.belowFloor` and `summary.floorCovered` (the files left to burn down); the text summary prints the three numbers. `docs/health-report.schema.json` knows the new fields.
+- `health.floor` in the manifest (a number from 1.0 to 10.0, `model.invalid_health_floor` outside it, default 10.0) lowers the floor; lowering it against the base revision is `health.policy_weakened` (aspect `floor`), recorded only by an accepted `policyDecision`. The authoring contract stays `engineering-model.authoring.v8` (an optional field and a new code, no removal).
+- `enghealth check` lists the files under `belowFloor` (JSON), as results of the rule `health.file_below_floor` (SARIF) and in the text summary, adds `floorLevel`, and fails where the code is an error. Downstream effect: a repository at product or operational that has a baseline passes unchanged (every file below 10.0 that the baseline covers is only counted); one with no baseline fails for each changed file below 10.0, and at poc, prototype and mvp every file below 10.0 that the baseline does not cover is a warning.
+- Requirements of the engine's model: `REQ-EMG-209` (scan) and `REQ-EMG-210` (check) are published with `CAP-EMG-CODE-HEALTH`.
+- **The engine's own repository is at the floor.** Every one of its 568 scanned source files, tests included, scores 10.0 at tier operational and `model/health-baseline.json` has no entry (it was written again by `enghealth baseline write`, which is the only way the baseline shrinks; `enghealth baseline write --check` and `enghealth scan --fail-on-error` pass, and `enghealth check` against `v0.11.0` and `origin/master` reports no regression and no `health.policy_weakened`). The refactoring behind it changed no behavior: functions were split under the limits (cyclomatic 7, 49 lines, nesting 2, one bump, two boolean operators, three parameters, no primitive obsession), apart from the breaking facade change above. `REQ-EMG-211`, the requirement of this repository itself ("every source file scores 10.0 at tier operational", derived from the owner's request, not published), is `verified` by `TestEveryRepositoryFileScoresTen` (`cmd/enghealth`) and four red-check mutations (`scripts/red-checks/repository-floor.json`); no POA&M item defers it.
+
+### Requirement structure of the engine's own model
+
+- The trigger "model updated event is received" of 61 check requirements is now "model check is requested" (catalog event `EVT-MODEL-CHECK-REQUESTED`, `FLOW-MODEL-CHECK`, `DO-MODEL-DIAGNOSTICS`); eight requirements are written as system properties (for example REQ-EMG-012) and thirteen rejections or failure cases as `If ... then` requirements with catalog conditions. Five workflows gain a flow (`FLOW-MODEL-CHECK`, `FLOW-MCP-TOOL-CALL`, `FLOW-WORKSPACE-SYNC`, `FLOW-SPEC-DELTA`, `FLOW-EXAMPLE-VALIDATION`) and the engws CLI an interface (`IF-CLI-ENGWS`). The 14 POA&M items of `behavior.requirement_unmodeled` are closed. Requirement text changed, so a link to a published contract item of this model needs review at the next bump.
+
+### Entity index and model diff (ADR-EMG-079, REQ-EMG-189 to 191)
+
+- `BuildEntityIndex` lists every authored entity of a model (kind, documents, parent, fields) and the references between entities (field, mention, contains, relationship) in a deterministic order.
+- `DiffModels`, `DiffEntityIndexes` and `DiffTraceMatrices` report what changed between two git revisions of a model, or a revision and the working tree: entities added, removed and changed by field, and the requirements that gained code or a test or became or stopped being orphans.
+- `engws model-diff <from-ref> [<to-ref>] [--repo DIR] [--json] [--no-trace]` exposes it. The loader that reads a model at a git revision moved from `internal/engws` to `internal/gitmodel`; `engws` keeps thin wrappers.
+
+### Declaration index and catalog usage (ADR-EMG-080, REQ-EMG-192, 193)
+
+- `ListCodeDeclarations`, `CodeDeclarationsOf` and `FindCodeDefinitions` list every named declaration of the code scope (including each name of a grouped Go block) and rank the candidates a use may refer to.
+- `CatalogUsage` lists each catalog term with the requirements that name it and the entities that reference it.
+
 ## [0.11.0] — 2026-11-13: State machines, code health, required model switches and consistency checks
 
 **Breaking release, no compatibility path** (owner instruction: "i dont want any backwards compatabillity in the model yet, it should always require a full upgrade"). A model, a lock, a check template or an engine pin that is not current is an error that names its remedy, never a mode that still works. The authoring contract is `engineering-model.authoring.v8`.

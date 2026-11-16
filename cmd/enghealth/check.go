@@ -44,21 +44,31 @@ func parseCheckArgs(args []string, stderr io.Writer) (checkArgs, int) {
 		}
 		return a, exitUsage
 	}
-	if a.format != "text" && a.format != "json" && a.format != "sarif" {
-		fmt.Fprintf(stderr, "enghealth check: unknown format %q; use text, json or sarif\n", a.format)
-		return a, exitUsage
-	}
-	if strings.TrimSpace(a.options.ManifestPath) == "" {
-		flags.Usage()
-		return a, exitUsage
-	}
-	if a.options.UseCache && a.options.NoCache {
-		fmt.Fprintln(stderr, "enghealth check: --cache and --no-cache cannot be combined")
-		return a, exitUsage
+	if code := a.validate(flags.Usage, stderr); code >= 0 {
+		return a, code
 	}
 	a.options.Paths = flags.Args()
 	a.options.Notes = stderr
 	return a, -1
+}
+
+// validate checks the parsed flags: the exit code is -1 when they are fine.
+//
+// TRLC-LINKS: REQ-EMG-158
+func (a checkArgs) validate(usage func(), stderr io.Writer) int {
+	if !validFormat(a.format) {
+		fmt.Fprintf(stderr, "enghealth check: unknown format %q; use text, json or sarif\n", a.format)
+		return exitUsage
+	}
+	if strings.TrimSpace(a.options.ManifestPath) == "" {
+		usage()
+		return exitUsage
+	}
+	if a.options.UseCache && a.options.NoCache {
+		fmt.Fprintln(stderr, "enghealth check: --cache and --no-cache cannot be combined")
+		return exitUsage
+	}
+	return -1
 }
 
 // renderCheck renders a report in a format.
@@ -118,7 +128,7 @@ func checkVerdict(report engmodel.HealthCheckReport, textOnStdout bool, stderr i
 		return exitOK
 	}
 	if !textOnStdout {
-		fmt.Fprint(stderr, regressionLines(report), failureLines(report))
+		fmt.Fprint(stderr, regressionLines(report), floorLines(report), failureLines(report))
 	}
 	fmt.Fprintf(stderr, "enghealth check: %s\n", failureSummary(report))
 	return exitFail
@@ -135,6 +145,9 @@ func failureSummary(r engmodel.HealthCheckReport) string {
 	}
 	if n := skippedErrors(r); n > 0 {
 		parts = append(parts, fmt.Sprintf("%d changed file(s) were skipped and were not analysed", n))
+	}
+	if n := floorErrors(r); n > 0 {
+		parts = append(parts, fmt.Sprintf("%d changed file(s) are below the floor and no baseline entry covers them", n))
 	}
 	if n := policyErrors(r); n > 0 {
 		parts = append(parts, fmt.Sprintf("%d weakening(s) of the health policy against the base revision are not recorded by a policyDecision", n))
@@ -153,6 +166,17 @@ func skippedErrors(r engmodel.HealthCheckReport) int {
 	return len(r.Skipped)
 }
 
+// floorErrors counts the changed files below the floor that no baseline entry
+// covers when that is an error at the tier.
+//
+// TRLC-LINKS: REQ-EMG-210
+func floorErrors(r engmodel.HealthCheckReport) int {
+	if r.FloorLevel != "error" {
+		return 0
+	}
+	return len(r.BelowFloor)
+}
+
 // policyErrors counts the weakenings of the health policy that fail the report.
 //
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-158
@@ -161,6 +185,28 @@ func policyErrors(r engmodel.HealthCheckReport) int {
 		return 0
 	}
 	return len(r.Policy)
+}
+
+// floorLines lists the changed files below the floor, one per line.
+//
+// TRLC-LINKS: REQ-EMG-210
+func floorLines(r engmodel.HealthCheckReport) string {
+	var b strings.Builder
+	for _, f := range r.BelowFloor {
+		fmt.Fprintf(&b, "  %s\n", safeText(f.Message()))
+	}
+	return b.String()
+}
+
+// floorSection is the text section of the changed files below the floor, or
+// nothing when there is none.
+//
+// TRLC-LINKS: REQ-EMG-210
+func floorSection(r engmodel.HealthCheckReport) string {
+	if len(r.BelowFloor) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("\nfiles below the floor (%d, %s at tier %s):\n%s", len(r.BelowFloor), r.FloorLevel, tierName(r.Tier), floorLines(r))
 }
 
 // failureLines lists the skipped files and the policy weakenings, one per line.
@@ -248,6 +294,9 @@ func findingKinds(r engmodel.HealthCheckReport) []string {
 	if len(r.Skipped) > 0 {
 		kinds = append(kinds, "skipped files")
 	}
+	if len(r.BelowFloor) > 0 {
+		kinds = append(kinds, "files below the floor")
+	}
 	if len(r.Policy) > 0 {
 		kinds = append(kinds, "policy weakenings")
 	}
@@ -260,8 +309,8 @@ func findingKinds(r engmodel.HealthCheckReport) []string {
 func verdictText(r engmodel.HealthCheckReport) string {
 	switch {
 	case r.Failed:
-		return "result: FAIL, a regression, a skipped file or an unrecorded policy weakening is an error at this tier\n"
-	case len(r.Blocking) > 0 || len(r.Skipped) > 0 || len(r.Policy) > 0:
+		return "result: FAIL, a regression, a skipped file, a file below the floor or an unrecorded policy weakening is an error at this tier\n"
+	case len(findingKinds(r)) > 0:
 		return "result: ok, the " + strings.Join(findingKinds(r), " and the ") + " only warn at this tier or are recorded by a decision\n"
 	}
 	return "result: ok, no regressions\n"
@@ -284,19 +333,37 @@ func renderCheckText(r engmodel.HealthCheckReport) string {
 		fmt.Fprintf(&b, "note: %s\n", safeText(n))
 	}
 	b.WriteString(changedFilesText(r))
-	if len(r.Blocking) > 0 {
-		fmt.Fprintf(&b, "\nregressions (%d, %s at tier %s):\n", len(r.Blocking), r.RegressionLevel, tierName(r.Tier))
-		b.WriteString(regressionLines(r))
-	}
-	if len(r.Skipped) > 0 || len(r.Policy) > 0 {
-		fmt.Fprintf(&b, "\nskipped files (%s at tier %s) and policy weakenings (%s):\n", r.RegressionLevel, tierName(r.Tier), r.PolicyLevel)
-		b.WriteString(failureLines(r))
-		if r.PolicyDecision != "" && len(r.Policy) > 0 {
-			fmt.Fprintf(&b, "  the weakening is recorded by decision %s\n", safeText(r.PolicyDecision))
-		}
-	}
+	b.WriteString(regressionSection(r))
+	b.WriteString(floorSection(r))
+	b.WriteString(failureSection(r))
 	c := r.Counts
 	fmt.Fprintf(&b, "\nfindings in the changed files: %d new, %d worsened, %d existing, %d waived\n", c.New, c.Worsened, c.Existing, len(r.Waived))
 	b.WriteString(verdictText(r))
 	return b.String()
+}
+
+// regressionSection is the text section of the regressions, or nothing when
+// there is none.
+//
+// TRLC-LINKS: REQ-EMG-158
+func regressionSection(r engmodel.HealthCheckReport) string {
+	if len(r.Blocking) == 0 {
+		return ""
+	}
+	return fmt.Sprintf("\nregressions (%d, %s at tier %s):\n%s", len(r.Blocking), r.RegressionLevel, tierName(r.Tier), regressionLines(r))
+}
+
+// failureSection is the text section of the skipped files and the policy
+// weakenings, or nothing when there is none.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158
+func failureSection(r engmodel.HealthCheckReport) string {
+	if len(r.Skipped) == 0 && len(r.Policy) == 0 {
+		return ""
+	}
+	section := fmt.Sprintf("\nskipped files (%s at tier %s) and policy weakenings (%s):\n%s", r.RegressionLevel, tierName(r.Tier), r.PolicyLevel, failureLines(r))
+	if r.PolicyDecision != "" && len(r.Policy) > 0 {
+		section += fmt.Sprintf("  the weakening is recorded by decision %s\n", safeText(r.PolicyDecision))
+	}
+	return section
 }

@@ -18,6 +18,8 @@ import (
 //   - model.invalid_health_threshold (error) at a threshold, top-level or in
 //     an override, whose key is no smell code with numeric limits, whose warn
 //     is below 1 or whose high is below warn.
+//   - model.invalid_health_floor (error) at a floor outside 1.0 to 10.0
+//     (ADR-EMG-087).
 //   - model.invalid_health_override (error) at an override without a path or
 //     with a path the exclude dialect rejects.
 //   - model.invalid_health_waiver (error) at a waiver without code, path,
@@ -38,59 +40,117 @@ func healthDiagnostics(b model.Bundle) []Diagnostic {
 	if h == nil {
 		return nil
 	}
-	var diags []Diagnostic
-	add := func(code, path, format string, args ...any) {
-		diags = append(diags, Diagnostic{Code: code, Severity: SeverityError, Message: fmt.Sprintf(format, args...), Path: path})
-	}
+	diags := healthExcludeDiagnostics(h)
+	diags = append(append(diags, healthFloorDiagnostics(h)...), healthThresholdDiagnostics("health.thresholds", h.Thresholds)...)
+	diags = append(diags, healthOverrideDiagnostics(h)...)
+	refs := NewAcceptanceRefs(b)
+	diags = append(diags, healthWaiverDiagnostics(h, refs)...)
+	diags = append(diags, healthPolicyDecisionDiagnostics(h, refs)...)
+	return append(diags, healthBaselineDiagnostics(b, refs)...)
+}
+
+// healthExcludeDiagnostics rejects the exclude patterns the inferenceHints.exclude dialect rejects.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func healthExcludeDiagnostics(h *model.ManifestHealth) []Diagnostic {
+	var s diagSink
 	for i, pattern := range h.Exclude {
 		if problem := ExcludePatternProblem(pattern); problem != "" {
-			add("model.invalid_health_exclude", fmt.Sprintf("health.exclude[%d]", i),
-				"health.exclude pattern %q %s; use %s", pattern, problem, ExcludeAcceptedForms)
+			s.fail("model.invalid_health_exclude", indexedPath("health.exclude", i),
+				fmt.Sprintf("health.exclude pattern %q %s; use %s", pattern, problem, ExcludeAcceptedForms))
 		}
 	}
-	diags = append(diags, healthThresholdDiagnostics("health.thresholds", h.Thresholds)...)
+	return s.diags
+}
+
+// healthOverrideDiagnostics requires a path pattern of each override and checks its thresholds.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func healthOverrideDiagnostics(h *model.ManifestHealth) []Diagnostic {
+	var s diagSink
 	for i, o := range h.Overrides {
-		path := fmt.Sprintf("health.overrides[%d]", i)
+		path := indexedPath("health.overrides", i)
 		switch problem := ExcludePatternProblem(o.Path); {
 		case strings.TrimSpace(o.Path) == "":
-			add("model.invalid_health_override", path+".path", "health.overrides[%d] needs a path pattern; use %s", i, ExcludeAcceptedForms)
+			s.fail("model.invalid_health_override", path+".path", fmt.Sprintf("%s needs a path pattern; use %s", path, ExcludeAcceptedForms))
 		case problem != "":
-			add("model.invalid_health_override", path+".path", "health.overrides[%d] path %q %s; use %s", i, o.Path, problem, ExcludeAcceptedForms)
+			s.fail("model.invalid_health_override", path+".path", fmt.Sprintf("%s path %q %s; use %s", path, o.Path, problem, ExcludeAcceptedForms))
 		}
-		diags = append(diags, healthThresholdDiagnostics(path+".thresholds", o.Thresholds)...)
+		s.diags = append(s.diags, healthThresholdDiagnostics(path+".thresholds", o.Thresholds)...)
 	}
-	refs := NewAcceptanceRefs(b)
+	return s.diags
+}
+
+// healthWaiverDiagnostics checks each waiver of the health block.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func healthWaiverDiagnostics(h *model.ManifestHealth, refs AcceptanceRefs) []Diagnostic {
+	var diags []Diagnostic
 	for i, w := range h.Waivers {
-		path := fmt.Sprintf("health.waivers[%d]", i)
-		for _, f := range []struct{ name, value string }{{"code", w.Code}, {"path", w.Path}, {"function", w.Function}, {"decision", w.Decision}} {
-			if strings.TrimSpace(f.value) == "" {
-				add("model.invalid_health_waiver", path+"."+f.name, "health.waivers[%d] needs %s (a waiver names code, path, function and decision)", i, f.name)
-			}
-		}
-		if code := strings.TrimSpace(w.Code); code != "" && !model.IsHealthSmellCode(code) {
-			add("model.invalid_health_waiver", path+".code", "health.waivers[%d] code %q is not a health smell code; use one of %s", i, w.Code, strings.Join(model.HealthSmellCodes(), ", "))
-		}
-		if strings.TrimSpace(w.Path) != "" {
-			if problem := ExcludePatternProblem(w.Path); problem != "" {
-				add("model.invalid_health_waiver", path+".path", "health.waivers[%d] path %q %s; name the file relative to the module root", i, w.Path, problem)
-			}
-		}
-		if strings.TrimSpace(w.Decision) == "" {
-			continue
-		}
-		if problem := waiverDecisionProblem(refs, strings.TrimSpace(w.Decision)); problem != "" {
-			add(model.HealthWaiverUnjustifiedCode, path+".decision",
-				"health waiver %s for %s in %s is unjustified: decision %s %s; a waiver needs an accepted decision",
-				w.Code, w.Function, w.Path, w.Decision, problem)
+		diags = append(diags, waiverDiagnostics(indexedPath("health.waivers", i), w, refs)...)
+	}
+	return diags
+}
+
+// waiverDiagnostics requires a waiver to name code, path, function and an accepted decision.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func waiverDiagnostics(path string, w model.HealthWaiver, refs AcceptanceRefs) []Diagnostic {
+	var s diagSink
+	for _, f := range []struct{ name, value string }{{"code", w.Code}, {"path", w.Path}, {"function", w.Function}, {"decision", w.Decision}} {
+		if strings.TrimSpace(f.value) == "" {
+			s.fail("model.invalid_health_waiver", path+"."+f.name, fmt.Sprintf("%s needs %s (a waiver names code, path, function and decision)", path, f.name))
 		}
 	}
-	if decision := strings.TrimSpace(h.PolicyDecision); decision != "" {
-		if problem := waiverDecisionProblem(refs, decision); problem != "" {
-			add(model.HealthWaiverUnjustifiedCode, "health.policyDecision",
-				"health policy decision %s is unjustified: it %s; a recorded policy weakening needs an accepted decision", decision, problem)
-		}
+	s.waiverCodeAndPath(path, w)
+	s.waiverDecision(path, w, refs)
+	return s.diags
+}
+
+// waiverCodeAndPath rejects a waiver code that is no health smell code and a path the exclude dialect rejects.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (s *diagSink) waiverCodeAndPath(path string, w model.HealthWaiver) {
+	if code := strings.TrimSpace(w.Code); code != "" && !model.IsHealthSmellCode(code) {
+		s.fail("model.invalid_health_waiver", path+".code", fmt.Sprintf("%s code %q is not a health smell code; use one of %s", path, w.Code, strings.Join(model.HealthSmellCodes(), ", ")))
 	}
-	return append(diags, healthBaselineDiagnostics(b, refs)...)
+	if strings.TrimSpace(w.Path) == "" {
+		return
+	}
+	if problem := ExcludePatternProblem(w.Path); problem != "" {
+		s.fail("model.invalid_health_waiver", path+".path", fmt.Sprintf("%s path %q %s; name the file relative to the module root", path, w.Path, problem))
+	}
+}
+
+// waiverDecision requires the decision of a waiver, when it names one, to be accepted.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func (s *diagSink) waiverDecision(path string, w model.HealthWaiver, refs AcceptanceRefs) {
+	decision := strings.TrimSpace(w.Decision)
+	if decision == "" {
+		return
+	}
+	if problem := waiverDecisionProblem(refs, decision); problem != "" {
+		s.fail(model.HealthWaiverUnjustifiedCode, path+".decision",
+			fmt.Sprintf("health waiver %s for %s in %s is unjustified: decision %s %s; a waiver needs an accepted decision",
+				w.Code, w.Function, w.Path, w.Decision, problem))
+	}
+}
+
+// healthPolicyDecisionDiagnostics requires the policyDecision of the health block, when set, to be accepted.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-160
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func healthPolicyDecisionDiagnostics(h *model.ManifestHealth, refs AcceptanceRefs) []Diagnostic {
+	decision := strings.TrimSpace(h.PolicyDecision)
+	if decision == "" {
+		return nil
+	}
+	var s diagSink
+	if problem := waiverDecisionProblem(refs, decision); problem != "" {
+		s.fail(model.HealthWaiverUnjustifiedCode, "health.policyDecision",
+			fmt.Sprintf("health policy decision %s is unjustified: it %s; a recorded policy weakening needs an accepted decision", decision, problem))
+	}
+	return s.diags
 }
 
 // AcceptedHealthPolicyDecision returns the policyDecision of the health block
@@ -135,6 +195,19 @@ func HealthBaselineDecisionProblem(b model.Bundle) string {
 	return ""
 }
 
+// healthFloorDiagnostics checks health.floor: a number from the lowest to the
+// highest file score (ADR-EMG-087), else model.invalid_health_floor.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-209
+func healthFloorDiagnostics(h *model.ManifestHealth) []Diagnostic {
+	if h.Floor == nil || (*h.Floor >= model.MinHealthFloor && *h.Floor <= model.DefaultHealthFloor) {
+		return nil
+	}
+	return []Diagnostic{{Code: "model.invalid_health_floor", Severity: SeverityError, Path: "health.floor",
+		Message: fmt.Sprintf("health.floor %v is outside %.1f to %.1f, the lowest and the highest file score; the floor is %.1f unless the manifest lowers it (a lower floor is a weakening that enghealth check reports as health.policy_weakened)",
+			*h.Floor, model.MinHealthFloor, model.DefaultHealthFloor, model.DefaultHealthFloor)}}
+}
+
 // healthBaselineDiagnostics checks health.baseline (ADR-EMG-059):
 //
 //   - model.invalid_health_baseline (error) at a missing file or decision and
@@ -158,27 +231,37 @@ func healthBaselineDiagnostics(b model.Bundle, refs AcceptanceRefs) []Diagnostic
 	if base == nil {
 		return nil
 	}
-	var diags []Diagnostic
-	add := func(code, path, format string, args ...any) {
-		diags = append(diags, Diagnostic{Code: code, Severity: SeverityError, Message: fmt.Sprintf(format, args...), Path: path})
-	}
-	file, decision := strings.TrimSpace(base.File), strings.TrimSpace(base.Decision)
+	var s diagSink
+	file := strings.TrimSpace(base.File)
 	fileProblem := model.HealthBaselinePathProblem(file)
 	if fileProblem != "" {
-		add("model.invalid_health_baseline", "health.baseline.file", "health.baseline file %q %s; name a file relative to the manifest directory", base.File, fileProblem)
+		s.fail("model.invalid_health_baseline", "health.baseline.file", fmt.Sprintf("health.baseline file %q %s; name a file relative to the manifest directory", base.File, fileProblem))
 	}
-	if decision == "" {
-		add("model.invalid_health_baseline", "health.baseline.decision", "health.baseline needs a decision (an accepted decision that justifies the baseline)")
-	} else if problem := waiverDecisionProblem(refs, decision); problem != "" {
-		add(model.HealthWaiverUnjustifiedCode, "health.baseline.decision",
-			"health baseline %s is unjustified: decision %s %s; a baseline needs an accepted decision", base.File, base.Decision, problem)
-	}
+	s.baselineDecision(base, refs)
 	if fileProblem == "" && b.ManifestPath != "" {
-		if _, err := model.LoadHealthBaseline(b.ManifestPath, file); err != nil {
-			add(model.HealthBaselineUnreadableCode, "health.baseline.file", "health baseline %s is unreadable: %s", base.File, strings.TrimPrefix(err.Error(), model.ErrHealthBaseline.Error()+": "))
-		}
+		s.baselineReadable(b.ManifestPath, base)
 	}
-	return diags
+	return s.diags
+}
+
+// baselineDecision requires the baseline to name an accepted decision.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-161
+func (s *diagSink) baselineDecision(base *model.HealthBaseline, refs AcceptanceRefs) {
+	decision := strings.TrimSpace(base.Decision)
+	if decision == "" {
+		s.fail("model.invalid_health_baseline", "health.baseline.decision", "health.baseline needs a decision (an accepted decision that justifies the baseline)")
+	} else if problem := waiverDecisionProblem(refs, decision); problem != "" {
+		s.fail(model.HealthWaiverUnjustifiedCode, "health.baseline.decision",
+			fmt.Sprintf("health baseline %s is unjustified: decision %s %s; a baseline needs an accepted decision", base.File, base.Decision, problem))
+	}
+}
+
+// baselineReadable reports a baseline file that cannot be read from the manifest directory.
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-161
+func (s *diagSink) baselineReadable(manifestPath string, base *model.HealthBaseline) {
+	if _, err := model.LoadHealthBaseline(manifestPath, strings.TrimSpace(base.File)); err != nil {
+		s.fail(model.HealthBaselineUnreadableCode, "health.baseline.file", fmt.Sprintf("health baseline %s is unreadable: %s", base.File, strings.TrimPrefix(err.Error(), model.ErrHealthBaseline.Error()+": ")))
+	}
 }
 
 // waiverDecisionProblem returns why a decision cannot justify a waiver, or ""

@@ -110,7 +110,9 @@ var authoringFieldRules = []string{
 	"Enum keys name the field; risk.level applies to risk likelihood, impact and residualRisk and to threatScenario likelihood, impact and severity. view.includeKinds also governs excludeKinds and view.includeMappings also governs excludeMappings.",
 	"Status, level, response, method, effectiveness, direction, frequency, flowType and implementation values are trimmed and compared lowercase; relationship.type, view.kind, view entity kinds, view mapping types and flowStep.kind are compared exactly.",
 	"Owner fields must be actor (ACT-*) IDs: risk.owner, threatScenario.owner, threatAssumption.owner, threatOutOfScope.owner, threatMitigation.owner, controlVerification.owner, poamItem.responsibleRole and every complianceMapping.responsibleRoles entry. Functional units, systems and free-text team names are rejected.",
-	"interface.owner must be a functional unit (FU-*) ID.",
+	"interface.owner must be a functional unit (FU-*) ID, or a referenced element (REF-*) ID for an interface that an external element offers.",
+	"Dependencies need an interface (ADR-EMG-085, tier keyed: a warning up to mvp, an error at product and operational): a relationship of type depends_on, calls, publishes, subscribes, reads, writes, streams, implements or interacts_with between two architectural elements (functional unit, functional group, actor, referenced element, hardware item, alias::ID element of a composed dependency) is architecture.dependency_without_interface unless one of its ends is an interface: a local interface with an owner (interface.owner, else the functional unit that contains it) or a published alias::IF-*, and two hardware items count as joined by an interface when a hardwareInterfaces entry connects them. Write the dependency as unit to interface (calls FU-A to IF-B), as actor to interface (interacts_with ACT-X to IF-CLI) or as unit to an interface a referenced element owns; an interface end stands for its owner. A relationship from an element to itself, contains and every other relationship type, and an end that is a data object or a deployment target are not asked.",
+	"Interfaces need data (ADR-EMG-086, same tier row): a local software interface is architecture.interface_without_data unless at least one flow step names it in interfaceRef and lists at least one data object (DO-*) in the step's dataRefs, dataIn or dataOut. The flow's own dataRefs, relationships, schemaRef, names and prose do not count, an interface no flow or relationship uses is asked all the same, and a composed alias::IF-* interface is checked in the model that declares it.",
 	"appliesTo on risks, threat scenarios, threat assumptions, threat out-of-scope entries and compliance mappings accepts any ID declared as a model element (architecture, behavior, assurance, compliance, views, decisions, requirements or semantics.elements). Catalog-only entries are not elements: SYS-* system IDs from catalog.systems, and catalog terms without a matching authored element, are rejected as unknown appliesTo IDs; scope to the functional units, groups or interfaces instead.",
 	"A threat scenario needs at least one appliesTo or flowRefs entry; flowRefs must be FLOW-* IDs, relatedControls CTRL-* IDs.",
 	"threatMitigation needs threatScenarioRef (an existing threat scenario) and controlRef (an existing control).",
@@ -140,7 +142,7 @@ var authoringFieldRules = []string{
 	"POA&M binding: a poamItem defers [{code, path?}] binds the item to the diagnostics it covers. While the item's status is not completed and its milestone is tier:<project tier> (for example tier:product), each diagnostic with that code (exact or family.*) and, when path is given, that path is reported as a warning with deferred: true and poamRef naming the item: the finding is still reported, never exempted. Naming a rank-0 core code, or a non-deferrable gate code (health.policy_weakened, health.regression, health.baseline_stale, health.waiver_unused, verification.failed), exactly or by a family pattern that covers it, is lifecycle.poam_defers_core (error) and defers nothing. A defers entry may name a requirement with ref: REQ-ID instead of a positional path; an entry that matches no diagnostic is lifecycle.poam_defers_unused. Only tier-keyed codes and warnings are deferred; an untiered error keeps its severity. An item whose dueDate is past defers nothing and is lifecycle.poam_overdue; the clock is the date given to ApplyTierPolicyAt, ENGMOD_AS_OF, or today (UTC).",
 	"Machine errors, never tier keyed: behavior.transition_unknown_event (on names no behavior event), behavior.expression_unknown_variable (a guard, effect or invariant reads or assigns an undeclared variable), behavior.expression_type (an operand or result type the operator table rejects; guards and invariants must be Boolean and := needs the variable's type), behavior.in_state_foreign (in_state names a state of another machine or no state) and behavior.final_state_has_transitions (a final state has an outgoing transition). A missing or unresolved initial state (initial is a single field), unresolved transition ends, duplicate variables and expression syntax errors are reported by projection as semantic.invalid_machine and semantic.invalid_expression. Machine, state, transition and invariant IDs are unique across the model (model.duplicate_id).",
 	"Warnings: behavior.event_unused (a behavior event in no machine transition on, transition trigger or flow), behavior.state_unreachable (a machine state no path of transitions reaches from the initial state), behavior.flow_step_no_onerror (a boundaryCrossing step without onError) and catalog.name_has_operator (a clause-term catalog name or alias with a standalone and, or, not, a comma or a parenthesis, which EARS reads as operators). Tier keyed with the hygiene row (deferred at poc and prototype, warning at mvp and product, error at operational): behavior.state_unlinked, behavior.transition_unlinked and behavior.event_unlinked (a state, a transition, or an event that a machine transition names in on, whose own requirements list is empty; the machine's invariants do not count; only a model that declares a machine is asked, imported alias::ID machines and events are skipped; the remedy is the ef-behavior skill; an unknown requirement ID in the list is semantic.dangling_reference, an error), behavior.state_unreachable, behavior.machine_deadlock (a non-final state without outgoing transition), behavior.transition_nondeterministic (two transitions from one state on one event, or both without, with no guards or the same guard), behavior.transition_no_trigger (a transition without on and without guard) and behavior.invariant_unlinked (an invariant linked to no existing requirement).",
-	"Code health: engmod.yml health {exclude, thresholds, overrides, waivers, baseline, policyDecision} (fieldSets health, healthThreshold, healthOverride, healthWaiver, healthBaseline; the health section of the contract lists the codes) configures the code health report; the block is required from tier product (health.block_missing; an empty block {} is complete when there is no debt) and below product a model without it reports nothing about health. exclude entries and overrides[].path use the inferenceHints.exclude pattern dialect (model.invalid_health_exclude, model.invalid_health_override). thresholds and overrides[].thresholds are keyed by health.complex_method, health.large_method, health.deep_nesting, health.bumpy_road, health.complex_conditional, health.excess_arguments or health.large_assertion_block with warn at least 1 and high at least warn (model.invalid_health_threshold). A waiver {code, path, function, decision} names a health smell code (model.invalid_health_waiver), the file, the function and a decision: health.waiver_unjustified (error, untiered, never deferred) when that decision does not exist or is not accepted. health.waiver_unused (a waiver that matches no finding) comes from the health report. Baseline: health.baseline {file, decision} accepts existing debt; file is a path relative to the manifest directory (no absolute path, no .., model.invalid_health_baseline) of the JSON file {schema: engmod-health-baseline/1, entries: [{path, function, code, value}]} that enghealth baseline write creates (health.baseline_unreadable, error and untiered, when it is missing, not valid JSON, of another schema or holds an invalid entry); decision must exist and be accepted (health.waiver_unjustified, the same untiered error, naming the baseline when it is not, and then the baseline suppresses nothing). A baselined finding stays in the score but is neither an error nor counted by the gate while its value is at most the recorded value; health.baseline_stale (an entry that matches no finding) is a warning from poc to product and an error at operational, so the baseline only shrinks; a regression is never baselined. Tier keyed: every health smell code and health.waiver_unused are warnings up to mvp and errors at product and operational (from mvp with the safety bundle; lifecycle.raise: [health.*] makes debt an error at any tier); health.regression (a new or worsened high finding) and health.policy_weakened are warnings at poc to mvp and errors from product, and from mvp with the safety bundle. policyDecision names an accepted decision that records a weakening of the block (a higher limit, a new exclude, an override that raises a limit, a lower tier) against the base revision; enghealth check reports the weakening as health.policy_weakened unless the head names a policyDecision the base did not (health.waiver_unjustified when it does not exist or is not accepted).",
+	"Code health: engmod.yml health {exclude, thresholds, overrides, waivers, baseline, policyDecision} (fieldSets health, healthThreshold, healthOverride, healthWaiver, healthBaseline; the health section of the contract lists the codes) configures the code health report; the block is required from tier product (health.block_missing; an empty block {} is complete when there is no debt) and below product a model without it reports nothing about health. exclude entries and overrides[].path use the inferenceHints.exclude pattern dialect (model.invalid_health_exclude, model.invalid_health_override). thresholds and overrides[].thresholds are keyed by health.complex_method, health.large_method, health.deep_nesting, health.bumpy_road, health.complex_conditional, health.excess_arguments or health.large_assertion_block with warn at least 1 and high at least warn (model.invalid_health_threshold). A waiver {code, path, function, decision} names a health smell code (model.invalid_health_waiver), the file, the function and a decision: health.waiver_unjustified (error, untiered, never deferred) when that decision does not exist or is not accepted. health.waiver_unused (a waiver that matches no finding) comes from the health report. Baseline: health.baseline {file, decision} accepts existing debt; file is a path relative to the manifest directory (no absolute path, no .., model.invalid_health_baseline) of the JSON file {schema: engmod-health-baseline/1, entries: [{path, function, code, value}]} that enghealth baseline write creates (health.baseline_unreadable, error and untiered, when it is missing, not valid JSON, of another schema or holds an invalid entry); decision must exist and be accepted (health.waiver_unjustified, the same untiered error, naming the baseline when it is not, and then the baseline suppresses nothing). A baselined finding stays in the score but is neither an error nor counted by the gate while its value is at most the recorded value; health.baseline_stale (an entry that matches no finding) is a warning from poc to product and an error at operational, so the baseline only shrinks; a regression is never baselined. Tier keyed: every health smell code and health.waiver_unused are warnings up to mvp and errors at product and operational (from mvp with the safety bundle; lifecycle.raise: [health.*] makes debt an error at any tier); health.regression (a new or worsened high finding) and health.policy_weakened are warnings at poc to mvp and errors from product, and from mvp with the safety bundle. policyDecision names an accepted decision that records a weakening of the block (a higher limit, a new exclude, an override that raises a limit, a lower tier, a lower floor) against the base revision; enghealth check reports the weakening as health.policy_weakened unless the head names a policyDecision the base did not (health.waiver_unjustified when it does not exist or is not accepted). Floor (ADR-EMG-087): every source file, tests included, has to score 10.0, the highest score, in the scan; health.file_below_floor reports a file below the floor that no baseline entry covers, with its score, the floor, the three largest deductions with function and line and the fix, in the health report and, for the changed files, in enghealth check. A file is covered when a baseline entry names a finding of it that the scan found (a stale entry covers nothing); a file whose every finding is waived scores 10.0 and needs no cover. So a new file, or a file with no baseline entry, has to be clean at once, and with an empty baseline every file does. health.floor (a number from 1.0 to 10.0, model.invalid_health_floor outside it; default 10.0) lowers the floor and is a policy weakening reported by health.policy_weakened, a warning below product and an error from product unless a policyDecision records it. health.file_below_floor has the row WWWEE (a warning at poc, prototype and mvp, an error at product and operational, WWEEE with the safety bundle, a warning without a tier) and no POA&M item can defer it, like health.regression.",
 	"Element to code coverage (ADR-EMG-069): when non-test source was scanned, a functional unit, machine, software interface, state, transition, event, flow or data object that no ENGMODEL-OWNER-UNIT or ENGMODEL-LINKS marker names is code.unit_unlinked, code.machine_unlinked, code.interface_unlinked, code.state_unlinked, code.transition_unlinked, code.event_unlinked, code.flow_unlinked or code.data_unlinked (tier keyed; a model with no scanned source is not asked; actors, attack vectors, trust boundaries, threat scenarios, assumptions, risks, POA&M items, deployment targets, decisions, catalog terms, views and imported alias::ID entities are never asked). engmod.yml codeCoverage {exempt: [{id, reason, decision}]} (fieldSets codeCoverage, codeExemption) lists a model element that is deliberately not implemented here: id is a model element (model.invalid_code_exemption otherwise), reason has at least 20 characters, decision is an accepted decision (code.exemption_unjustified, error, untiered, when it does not exist or is not accepted, and then the element is not exempt); an exemption that matches no unlinked element is code.exemption_unused (a warning, an error at operational).",
 	"State-like code (ADR-EMG-058, ADR-EMG-070, Go only): a named Go type in non-test, non-generated source with three or more constants of that type, a struct field of that type and an assignment to a field of that name (x.f = v; a composite literal does not count) that no machine models is code.state_candidate_unlinked at the type declaration (tier keyed: deferred below mvp, a warning at mvp and product, an error at operational). A type whose name ends in Kind, Severity, Format, Type, Reason, Mode or Option is never asked. Clear it in the code, next to the declaration: model it (ef-behavior) and link it, with an ENGMODEL-LINKS marker that names an SM-*, STATE-* or TR-* ID of the model above the declaration (stacked marker lines accumulate); or, when the type is not a state, write the comment ENGMODEL-NOT-A-STATE: followed by a reason of at least 20 characters on the declaration line or within three lines above it. A suppression with no reason, a short one or a placeholder (todo, tbd, n/a, none, fixme, xxx, not a state, ignore, later, wip) is code.state_suppression_unreasoned (an error, untiered) and clears nothing; a suppression on a type that is not a candidate, or that is linked, is code.state_suppression_unused (a warning, an error at operational).",
 }
@@ -242,6 +244,15 @@ func fieldSets() map[string][]string {
 	return out
 }
 
+// scalarYAMLTypes names the YAML type of each scalar Go kind a strict-decoding field may have.
+var scalarYAMLTypes = map[reflect.Kind]string{
+	reflect.String: "string", reflect.Bool: "bool",
+	reflect.Int: "int", reflect.Int64: "int", reflect.Int32: "int",
+	reflect.Uint: "int", reflect.Uint64: "int", reflect.Uint32: "int",
+	reflect.Float32: "number", reflect.Float64: "number",
+	reflect.Interface: "any",
+}
+
 // yamlType returns the YAML type name of a strict-decoding Go field type and,
 // for a struct element, the fieldSets kind of that struct.
 // TRLC-LINKS: REQ-EMG-115
@@ -249,17 +260,10 @@ func yamlType(t reflect.Type, kinds map[reflect.Type]string) (string, string) {
 	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
+	if name, ok := scalarYAMLTypes[t.Kind()]; ok {
+		return name, ""
+	}
 	switch t.Kind() {
-	case reflect.String:
-		return "string", ""
-	case reflect.Bool:
-		return "bool", ""
-	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Uint, reflect.Uint64, reflect.Uint32:
-		return "int", ""
-	case reflect.Float32, reflect.Float64:
-		return "number", ""
-	case reflect.Interface:
-		return "any", ""
 	case reflect.Struct:
 		return "object", kinds[t]
 	case reflect.Map:
@@ -278,42 +282,66 @@ func yamlType(t reflect.Type, kinds map[reflect.Type]string) (string, string) {
 // TRLC-LINKS: REQ-EMG-115
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
 func fieldTypes() map[string][]FieldType {
+	kinds := fieldSetKinds()
+	out := make(map[string][]FieldType, len(fieldSetTypes))
+	for kind, value := range fieldSetTypes {
+		out[kind] = typedFields(reflect.TypeOf(value), kinds)
+	}
+	return out
+}
+
+// fieldSetKinds maps each fieldSetTypes struct to its kind and each evidence
+// or artifact struct they hold to the kind evidence.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func fieldSetKinds() map[reflect.Type]string {
 	kinds := map[reflect.Type]string{}
 	for kind, value := range fieldSetTypes {
 		kinds[reflect.TypeOf(value)] = kind
 	}
-	evidence := func(t reflect.Type) {
-		if _, ok := kinds[t]; !ok && (strings.HasSuffix(t.Name(), "Evidence") || strings.HasSuffix(t.Name(), "Artifact")) {
-			kinds[t] = "evidence"
-		}
-	}
 	for _, value := range fieldSetTypes {
-		t := reflect.TypeOf(value)
-		for i := 0; i < t.NumField(); i++ {
-			ft := t.Field(i).Type
-			for ft.Kind() == reflect.Pointer || ft.Kind() == reflect.Slice {
-				ft = ft.Elem()
-			}
-			if ft.Kind() == reflect.Struct {
-				evidence(ft)
-			}
+		markEvidenceFields(kinds, reflect.TypeOf(value))
+	}
+	return kinds
+}
+
+// markEvidenceFields maps the struct types of the fields of t that are named
+// ...Evidence or ...Artifact to the kind evidence, unless they have a kind.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func markEvidenceFields(kinds map[reflect.Type]string, t reflect.Type) {
+	for i := 0; i < t.NumField(); i++ {
+		ft := t.Field(i).Type
+		for ft.Kind() == reflect.Pointer || ft.Kind() == reflect.Slice {
+			ft = ft.Elem()
+		}
+		if _, ok := kinds[ft]; !ok && isEvidenceStruct(ft) {
+			kinds[ft] = "evidence"
 		}
 	}
-	out := make(map[string][]FieldType, len(fieldSetTypes))
-	for kind, value := range fieldSetTypes {
-		t := reflect.TypeOf(value)
-		fields := []FieldType{}
-		for i := 0; i < t.NumField(); i++ {
-			name, _, _ := strings.Cut(t.Field(i).Tag.Get("yaml"), ",")
-			if name == "" || name == "-" {
-				continue
-			}
-			typ, of := yamlType(t.Field(i).Type, kinds)
-			fields = append(fields, FieldType{Name: name, Type: typ, Of: of})
+}
+
+// isEvidenceStruct reports whether a type is a struct named ...Evidence or ...Artifact.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func isEvidenceStruct(t reflect.Type) bool {
+	return t.Kind() == reflect.Struct && (strings.HasSuffix(t.Name(), "Evidence") || strings.HasSuffix(t.Name(), "Artifact"))
+}
+
+// typedFields lists the yaml fields of a struct with their types, in declaration order.
+// TRLC-LINKS: REQ-EMG-115
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func typedFields(t reflect.Type, kinds map[reflect.Type]string) []FieldType {
+	fields := []FieldType{}
+	for i := 0; i < t.NumField(); i++ {
+		name, _, _ := strings.Cut(t.Field(i).Tag.Get("yaml"), ",")
+		if name == "" || name == "-" {
+			continue
 		}
-		out[kind] = fields
+		typ, of := yamlType(t.Field(i).Type, kinds)
+		fields = append(fields, FieldType{Name: name, Type: typ, Of: of})
 	}
-	return out
+	return fields
 }
 
 // AuthoringRules returns the validation vocabularies and relationship pairs as
@@ -325,15 +353,20 @@ func AuthoringRules() Rules {
 	for key, table := range enumTables {
 		enums[key] = sortedKeys(table)
 	}
+	return Rules{
+		Enums: enums, RelationshipPairs: relationshipPairs(), FieldRules: append([]string(nil), authoringFieldRules...),
+		FieldSets: fieldSets(), FieldTypes: fieldTypes(), PublicationSections: publicationSections(),
+		TierPolicy: TierPolicy(), Required: RequiredSwitches(),
+	}
+}
+
+// relationshipPairs lists the allowed relationship kind pairs sorted by type, from and to.
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func relationshipPairs() []RelationshipPair {
 	pairs := []RelationshipPair{}
 	for mappingType, kinds := range mappingPairs {
-		for key, ok := range kinds {
-			if !ok {
-				continue
-			}
-			from, to, _ := strings.Cut(key, ":")
-			pairs = append(pairs, RelationshipPair{Type: mappingType, From: from, To: to})
-		}
+		pairs = append(pairs, pairsOfType(mappingType, kinds)...)
 	}
 	sort.Slice(pairs, func(i, j int) bool {
 		if pairs[i].Type != pairs[j].Type {
@@ -344,11 +377,21 @@ func AuthoringRules() Rules {
 		}
 		return pairs[i].To < pairs[j].To
 	})
-	return Rules{
-		Enums: enums, RelationshipPairs: pairs, FieldRules: append([]string(nil), authoringFieldRules...),
-		FieldSets: fieldSets(), FieldTypes: fieldTypes(), PublicationSections: publicationSections(),
-		TierPolicy: TierPolicy(), Required: RequiredSwitches(),
+	return pairs
+}
+
+// pairsOfType lists the allowed from:to kind pairs of one mapping type.
+// TRLC-LINKS: REQ-EMG-045, REQ-EMG-009
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, DO-MODEL-AUTHORING-CONTRACT
+func pairsOfType(mappingType string, kinds map[string]bool) []RelationshipPair {
+	var pairs []RelationshipPair
+	for key, ok := range kinds {
+		if ok {
+			from, to, _ := strings.Cut(key, ":")
+			pairs = append(pairs, RelationshipPair{Type: mappingType, From: from, To: to})
+		}
 	}
+	return pairs
 }
 
 // TRLC-LINKS: REQ-EMG-045

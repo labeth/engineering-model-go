@@ -137,6 +137,15 @@ type checkJSON struct {
 	PolicyWeakened []struct{ Aspect, Message string } `json:"policyWeakened"`
 	PolicyLevel    string                             `json:"policyLevel"`
 	PolicyDecision string                             `json:"policyDecision"`
+	FloorLevel     string                             `json:"floorLevel"`
+	BelowFloor     []struct {
+		Path         string
+		Score, Floor float64
+		Causes       []struct {
+			Code, Function string
+			Line           int
+		}
+	} `json:"belowFloor"`
 }
 
 // jsonCheck runs the check with --format json and decodes the output.
@@ -160,14 +169,27 @@ func (r *checkRepo) jsonCheck(args ...string) (int, checkJSON, string) {
 // TRLC-LINKS: REQ-EMG-156, REQ-EMG-158
 func TestCheckCleanTreeExitsZero(t *testing.T) {
 	r := newCheckRepo(t, "lifecycle:\n  tier: operational\n", true)
-	code, stdout, stderr := r.check()
-	if code != exitOK || !strings.Contains(stdout, "no changed source files") || !strings.Contains(stdout, "result: ok, no regressions") {
-		t.Fatalf("exit %d\n%s\n%s", code, stdout, stderr)
-	}
+	code, stdout, _ := r.check()
+	wantEqual(t, code, exitOK)
+	wantAll(t, stdout, "no changed source files", "result: ok, no regressions")
 	code, doc, _ := r.jsonCheck()
-	if code != exitOK || doc.Failed || len(doc.Blocking) != 0 || len(doc.Files) != 0 || doc.Schema != "engmod-health-delta/1" {
-		t.Errorf("json: exit %d %+v", code, doc)
-	}
+	wantEqual(t, outcomeOf(code, doc), checkOutcome{Schema: "engmod-health-delta/1"})
+}
+
+// checkOutcome is what a run of the check decides, from its exit code and its
+// JSON report: whether it failed and how many regressions and changed files it
+// holds.
+type checkOutcome struct {
+	Code     int
+	Failed   bool
+	Blocking int
+	Files    int
+	Schema   string
+}
+
+// outcomeOf summarizes a run of the check.
+func outcomeOf(code int, doc checkJSON) checkOutcome {
+	return checkOutcome{Code: code, Failed: doc.Failed, Blocking: len(doc.Blocking), Files: len(doc.Files), Schema: doc.Schema}
 }
 
 // A new function with a high finding is a regression. At product the level of
@@ -182,45 +204,58 @@ func TestCheckCleanTreeExitsZero(t *testing.T) {
 func TestCheckRegressionFollowsTheTier(t *testing.T) {
 	r := newCheckRepo(t, "", true)
 	r.write("pkg/svc.go", svcSource(20)) // cyclomatic 21: high at every tier
-
-	code, stdout, stderr := r.check("--tier", "product")
-	for _, want := range []string{
-		"tier product", "changed files (1)", "pkg/svc.go", "10.0 green -> ", "regressions (1, error at tier product)",
-		"pkg/svc.go:4 Svc: health.complex_method (new) (none) -> cyclomatic 21 high", "cyclomatic 21", "result: FAIL",
-		"1 new, 0 worsened, 0 existing, 0 waived",
-	} {
-		if !strings.Contains(stdout, want) {
-			t.Errorf("product text lacks %q:\n%s", want, stdout)
-		}
-	}
-	if code != exitFail || !strings.Contains(stderr, "1 regression(s) are errors at tier product") {
-		t.Errorf("product: exit %d, stderr %q, want 1", code, stderr)
-	}
-
-	code, stdout, stderr = r.check("--tier", "poc")
-	if code != exitOK || !strings.Contains(stdout, "regressions (1, warning at tier poc)") || !strings.Contains(stdout, "result: ok, the regressions only warn at this tier") || stderr != "" {
-		t.Errorf("poc: exit %d\n%s\n%s", code, stdout, stderr)
-	}
+	requireProductRegression(t, r)
+	code, stdout, stderr := r.check("--tier", "poc")
+	wantEqual(t, code, exitOK)
+	wantAll(t, stdout, "regressions (1, warning at tier poc)", "result: ok, the regressions and the files below the floor only warn at this tier")
+	wantEqual(t, stderr, "")
 	for tier, want := range map[string]int{"prototype": exitOK, "mvp": exitOK, "product": exitFail, "operational": exitFail} {
-		if code, _, _ := r.check("--tier", tier); code != want {
-			t.Errorf("tier %s: exit %d, want %d", tier, code, want)
-		}
+		got, _, _ := r.check("--tier", tier)
+		wantEqual(t, [2]any{tier, got}, [2]any{tier, want})
 	}
+}
 
-	safety := newCheckRepo(t, "lifecycle:\n  tier: mvp\n  bundles: [safety]\n", true)
-	safety.write("pkg/svc.go", svcSource(20))
-	if code, doc, _ := safety.jsonCheck(); code != exitFail || doc.RegressionLevel != "error" || doc.Levels["health.regression"] != "error" {
-		t.Errorf("mvp with the safety bundle: exit %d %+v, want 1 and error", code, doc)
+// requireProductRegression checks the text and the exit code of the check at
+// product, where the regression of r is an error.
+func requireProductRegression(t *testing.T, r *checkRepo) {
+	t.Helper()
+	code, stdout, stderr := r.check("--tier", "product")
+	wantAll(t, stdout, "tier product", "changed files (1)", "pkg/svc.go", "10.0 green -> ", "regressions (1, error at tier product)")
+	wantAll(t, stdout, "pkg/svc.go:4 Svc: health.complex_method (new) (none) -> cyclomatic 21 high", "cyclomatic 21", "result: FAIL", "1 new, 0 worsened, 0 existing, 0 waived")
+	wantEqual(t, code, exitFail)
+	wantContains(t, stderr, "1 regression(s) are errors at tier product")
+}
+
+// regressionLevels is what the check decides for a regression: the exit code
+// and the level of health.regression in the report.
+type regressionLevels struct {
+	Code           int
+	Level, InLevel string
+	Blocking       int
+}
+
+// The level of health.regression follows the bundles of the life-cycle block:
+// from mvp the safety bundle makes it an error, lifecycle.raise raises it at poc
+// and without either at mvp it only warns.
+//
+// Mutation: ignoring the bundles or raise fails one of the cases.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158
+func TestCheckRegressionLevelFollowsTheBundles(t *testing.T) {
+	cases := map[string]struct {
+		extra string
+		want  regressionLevels
+	}{
+		"mvp with the safety bundle": {"lifecycle:\n  tier: mvp\n  bundles: [safety]\n", regressionLevels{exitFail, "error", "error", 1}},
+		"mvp without the bundle":     {"lifecycle:\n  tier: mvp\n", regressionLevels{exitOK, "warning", "warning", 1}},
+		"poc with lifecycle.raise":   {"lifecycle:\n  tier: poc\n  raise: [health.regression]\n", regressionLevels{exitFail, "error", "error", 1}},
 	}
-	plain := newCheckRepo(t, "lifecycle:\n  tier: mvp\n", true)
-	plain.write("pkg/svc.go", svcSource(20))
-	if code, doc, _ := plain.jsonCheck(); code != exitOK || doc.RegressionLevel != "warning" || len(doc.Blocking) != 1 {
-		t.Errorf("mvp without the bundle: exit %d %+v, want 0 and a warning", code, doc)
-	}
-	raised := newCheckRepo(t, "lifecycle:\n  tier: poc\n  raise: [health.regression]\n", true)
-	raised.write("pkg/svc.go", svcSource(20))
-	if code, _, _ := raised.jsonCheck(); code != exitFail {
-		t.Errorf("poc with lifecycle.raise: exit %d, want 1", code)
+	for name, c := range cases {
+		r := newCheckRepo(t, c.extra, true)
+		r.write("pkg/svc.go", svcSource(20))
+		code, doc, _ := r.jsonCheck()
+		got := regressionLevels{code, doc.RegressionLevel, doc.Levels["health.regression"], len(doc.Blocking)}
+		wantEqual(t, [2]any{name, got}, [2]any{name, c.want})
 	}
 }
 
@@ -233,26 +268,33 @@ func TestCheckRegressionFollowsTheTier(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-156, REQ-EMG-158
 func TestCheckExistingDebtPassesAndWorsenedFails(t *testing.T) {
-	r := newCheckRepo(t, "lifecycle:\n  tier: product\n", false)
+	// The debt is in the baseline, so the file below the floor is covered
+	// (ADR-EMG-087); without the baseline the same change fails on the floor, see
+	// TestCheckFileBelowFloor.
+	r := newCheckRepo(t, "lifecycle:\n  tier: product\nhealth:\n  baseline: {file: model/health-baseline.json, decision: ADR-DEBT}\n", false)
+	r.write("model/health-baseline.json", svcBaseline)
 	r.write("pkg/svc.go", svcSource(20))
 	r.commit("base with debt")
 	r.write("pkg/svc.go", svcSource(20)+"\n// Other is new and clean.\nfunc Other() int { return 1 }\n")
-	code, doc, stderr := r.jsonCheck()
-	if code != exitOK || doc.Failed || doc.Counts.Existing != 1 || doc.Counts.New != 0 || len(doc.Blocking) != 0 {
-		t.Fatalf("existing debt: exit %d %+v %s", code, doc, stderr)
-	}
+	code, doc, _ := r.jsonCheck()
+	wantEqual(t, outcomeOf(code, doc), checkOutcome{Files: 1, Schema: "engmod-health-delta/1"})
+	wantEqual(t, [2]int{doc.Counts.Existing, doc.Counts.New}, [2]int{1, 0})
 
 	r.write("pkg/svc.go", svcSource(9)) // warn at product (cc 10 >= 8)
 	r.commit("warn")
 	r.write("pkg/svc.go", svcSource(20)) // warn -> high
-	code, doc, _ = r.jsonCheck()
-	if code != exitFail || doc.Counts.Worsened != 1 || len(doc.Blocking) != 1 || doc.Blocking[0].Change != "worsened" {
-		t.Errorf("worsened: exit %d %+v, want 1 with one worsened regression", code, doc)
-	}
+	requireWorsened(t, r)
+}
+
+// requireWorsened checks that the finding of r grew from warn to high and fails
+// the check, in the counts, the entry and the text.
+func requireWorsened(t *testing.T, r *checkRepo) {
+	t.Helper()
+	code, doc, _ := r.jsonCheck()
+	wantEqual(t, [3]int{code, doc.Counts.Worsened, len(doc.Blocking)}, [3]int{exitFail, 1, 1})
+	wantEqual(t, doc.Blocking[0].Change, "worsened")
 	_, stdout, _ := r.check()
-	if !strings.Contains(stdout, "cyclomatic 10 warn -> cyclomatic 21 high") {
-		t.Errorf("the text lacks the before -> after of the worsened finding:\n%s", stdout)
-	}
+	wantContains(t, stdout, "cyclomatic 10 warn -> cyclomatic 21 high")
 }
 
 // A finding that a waiver covers is existing for the check: it is not a
@@ -266,21 +308,17 @@ func TestCheckWaivedFindingIsNeverARegression(t *testing.T) {
 	waiver := "health:\n  waivers:\n  - {code: health.complex_method, path: pkg/svc.go, function: Svc, decision: ADR-SVC}\n"
 	r := newCheckRepo(t, "lifecycle:\n  tier: product\n"+waiver, true)
 	r.write("pkg/svc.go", svcSource(20))
-	code, doc, stderr := r.jsonCheck()
-	if code != exitOK || doc.Failed || len(doc.Blocking) != 0 || doc.Counts.New != 0 {
-		t.Fatalf("waived: exit %d %+v %s", code, doc, stderr)
-	}
-	if len(doc.Waived) != 1 || doc.Waived[0].Code != "health.complex_method" || doc.Waived[0].Function != "Svc" || doc.Waived[0].Decision != "ADR-SVC" {
-		t.Errorf("waived = %+v, want the one waived finding with its decision", doc.Waived)
-	}
-	if _, stdout, _ := r.check(); !strings.Contains(stdout, "0 new, 0 worsened, 0 existing, 1 waived") {
-		t.Errorf("text does not count the waived finding:\n%s", stdout)
-	}
+	code, doc, _ := r.jsonCheck()
+	wantEqual(t, [3]int{code, len(doc.Blocking), doc.Counts.New}, [3]int{exitOK, 0, 0})
+	wantEqual(t, doc.Failed, false)
+	wantEqual(t, len(doc.Waived), 1)
+	wantEqual(t, doc.Waived[0], struct{ Path, Function, Code, Decision string }{"pkg/svc.go", "Svc", "health.complex_method", "ADR-SVC"})
+	_, stdout, _ := r.check()
+	wantContains(t, stdout, "0 new, 0 worsened, 0 existing, 1 waived")
 	other := newCheckRepo(t, "lifecycle:\n  tier: product\nhealth:\n  waivers:\n  - {code: health.complex_method, path: pkg/svc.go, function: NotSvc, decision: ADR-SVC}\n", true)
 	other.write("pkg/svc.go", svcSource(20))
-	if code, _, _ := other.jsonCheck(); code != exitFail {
-		t.Errorf("a waiver for another function must not cover Svc: exit %d, want 1", code)
-	}
+	code, _, _ = other.jsonCheck()
+	wantEqual(t, code, exitFail) // a waiver for another function must not cover Svc
 }
 
 // The configuration of the manifest applies as in scan: a threshold raises the
@@ -315,12 +353,12 @@ func TestCheckEmptyRepository(t *testing.T) {
 	r := newCheckRepo(t, "lifecycle:\n  tier: product\n", false)
 	r.write("pkg/svc.go", svcSource(20))
 	code, doc, _ := r.jsonCheck()
-	if code != exitFail || doc.Base != "" || len(doc.Blocking) != 1 || len(doc.Notes) != 1 || !strings.Contains(doc.Notes[0], "no commits") {
-		t.Errorf("product: exit %d %+v, want 1 with the note", code, doc)
-	}
-	if code, stdout, _ := r.check("--tier", "poc"); code != exitOK || !strings.Contains(stdout, "note: the repository has no commits") || !strings.Contains(stdout, "(no commits)") {
-		t.Errorf("poc: exit %d\n%s", code, stdout)
-	}
+	wantEqual(t, [3]any{code, doc.Base, len(doc.Blocking)}, [3]any{exitFail, "", 1})
+	mustEqual(t, len(doc.Notes), 1)
+	wantContains(t, doc.Notes[0], "no commits")
+	code, stdout, _ := r.check("--tier", "poc")
+	wantEqual(t, code, exitOK)
+	wantAll(t, stdout, "note: the repository has no commits", "(no commits)")
 }
 
 // Everything that is not a verdict exits 2: an unknown base, an invalid
@@ -354,22 +392,24 @@ func TestCheckSetupErrorsExitTwo(t *testing.T) {
 		if name == "model not loaded" {
 			full = append([]string{"check"}, args...)
 		}
-		if code, stdout, stderr := runCLI(full...); code != exitUsage {
-			t.Errorf("%s: exit %d, want 2\n%s\n%s", name, code, stdout, stderr)
-		}
+		code, _, _ := runCLI(full...)
+		wantEqual(t, [2]any{name, code}, [2]any{name, exitUsage})
 	}
-	if code, _, _ := runCLI("check"); code != exitUsage {
-		t.Errorf("no --model: exit %d, want 2", code)
-	}
-	if code, _, stderr := r.check("--base", "no-such-branch"); !strings.Contains(stderr, "base revision") || !strings.Contains(stderr, "no-such-branch") {
-		t.Errorf("unknown base message = %q, want it to name the base revision (exit %d)", stderr, code)
-	}
+	code, _, _ := runCLI("check")
+	wantEqual(t, code, exitUsage) // no --model
+	_, _, stderr := r.check("--base", "no-such-branch")
+	wantAll(t, stderr, "base revision", "no-such-branch")
+	requireNotARepository(t)
+}
 
-	// Not a git repository.
+// requireNotARepository checks that the check of a project that is not a git
+// repository exits 2 and names the repository.
+func requireNotARepository(t *testing.T) {
+	t.Helper()
 	plain := project(t, "lifecycle:\n  tier: product\n")
-	if code, _, stderr := runCLI("check", "--model", plain); code != exitUsage || !strings.Contains(stderr, "not a git repository") {
-		t.Errorf("no repository: exit %d %q, want 2 naming the repository", code, stderr)
-	}
+	code, _, stderr := runCLI("check", "--model", plain)
+	wantEqual(t, code, exitUsage)
+	wantContains(t, stderr, "not a git repository")
 }
 
 // A shallow clone that lacks the base revision is a setup error whose message
@@ -385,12 +425,10 @@ func TestCheckShallowCloneWithoutTheBaseExitsTwo(t *testing.T) {
 	gitIn(t, filepath.Dir(clone), "clone", "-q", "--depth", "1", "file://"+src.dir, clone)
 	manifest := filepath.Join(clone, "engmod.yml")
 	code, _, stderr := runCLI("check", "--model", manifest, "--base", first)
-	if code != exitUsage || !strings.Contains(stderr, "shallow clone") || !strings.Contains(stderr, "fetch") || !strings.Contains(stderr, first) {
-		t.Errorf("shallow: exit %d %q, want 2 with the base, the shallow clone and how to fetch", code, stderr)
-	}
-	if code, _, _ := runCLI("check", "--model", manifest); code != exitOK {
-		t.Errorf("shallow clone against HEAD: exit %d, want 0", code)
-	}
+	wantEqual(t, code, exitUsage)
+	wantAll(t, stderr, "shallow clone", "fetch", first)
+	code, _, _ = runCLI("check", "--model", manifest)
+	wantEqual(t, code, exitOK) // against HEAD
 }
 
 // base...head compares two commits through their merge base, whatever the
@@ -405,21 +443,15 @@ func TestCheckRangeBetweenCommits(t *testing.T) {
 	r.write("pkg/svc.go", svcSource(0)) // the working tree is clean again
 
 	code, doc, _ := r.jsonCheck("--base", base+"..."+head)
-	if code != exitFail || doc.Base != base || doc.Head != head || len(doc.Blocking) != 1 {
-		t.Fatalf("range: exit %d %+v, want 1 between %s and %s", code, doc, base, head)
-	}
+	mustEqual(t, [4]any{code, doc.Base, doc.Head, len(doc.Blocking)}, [4]any{exitFail, base, head, 1})
 	code, doc, _ = r.jsonCheck("--base", base, "--head", head)
-	if code != exitFail || doc.Head != head {
-		t.Errorf("--base and --head: exit %d %+v, want 1", code, doc)
-	}
+	wantEqual(t, [2]any{code, doc.Head}, [2]any{exitFail, head})
 	// The other direction: the regression is gone.
-	if code, doc, _ := r.jsonCheck("--base", head+"..."+base); code != exitOK || len(doc.Blocking) != 0 {
-		t.Errorf("reversed range: exit %d %+v, want 0", code, doc)
-	}
+	code, doc, _ = r.jsonCheck("--base", head+"..."+base)
+	wantEqual(t, [2]int{code, len(doc.Blocking)}, [2]int{exitOK, 0})
 	// Against HEAD the working tree is the clean version of the base.
-	if code, doc, _ := r.jsonCheck("--base", head); code != exitOK || doc.Counts.New != 0 {
-		t.Errorf("working tree against the regressing commit: exit %d %+v, want 0", code, doc)
-	}
+	code, doc, _ = r.jsonCheck("--base", head)
+	wantEqual(t, [2]int{code, doc.Counts.New}, [2]int{exitOK, 0})
 }
 
 // The JSON output is deterministic: two runs, with and without the cache, give
@@ -436,26 +468,23 @@ func TestCheckJSONIsDeterministic(t *testing.T) {
 	_, first, _ := r.check("--format", "json")
 	_, second, _ := r.check("--format", "json")
 	_, uncached, _ := r.check("--format", "json", "--no-cache")
-	if first != second || first != uncached {
-		t.Fatalf("the output differs between runs:\n%s\n---\n%s\n---\n%s", first, second, uncached)
-	}
-	if strings.Contains(first, r.dir) {
-		t.Error("the output holds an absolute path")
-	}
-	for _, key := range []string{`"schema": "engmod-health-delta/1"`, `"levels"`, `"regressionLevel": "error"`, `"counts"`, `"failed": true`, `"blocking"`, `"entries"`} {
-		if !strings.Contains(first, key) {
-			t.Errorf("the JSON lacks %s:\n%s", key, first)
-		}
-	}
+	mustEqual(t, [2]string{second, uncached}, [2]string{first, first})
+	wantNone(t, first, r.dir)
+	wantAll(t, first, `"schema": "engmod-health-delta/1"`, `"levels"`, `"regressionLevel": "error"`, `"counts"`, `"failed": true`, `"blocking"`, `"entries"`)
+	requireOutFile(t, r, first)
+}
+
+// requireOutFile checks that the check with --out writes the same JSON to the
+// file, writes nothing to stdout and still reports the failure on stderr.
+func requireOutFile(t *testing.T, r *checkRepo, want string) {
+	t.Helper()
 	out := filepath.Join(t.TempDir(), "check.json")
 	code, stdout, stderr := r.check("--format", "json", "--out", out)
 	data, err := os.ReadFile(out)
-	if err != nil || string(data) != first || stdout != "" || code != exitFail {
-		t.Errorf("--out: exit %d stdout %q err %v identical %v", code, stdout, err, string(data) == first)
-	}
-	if !strings.Contains(stderr, "pkg/svc.go:4 Svc: health.complex_method") || !strings.Contains(stderr, "regression(s) are errors") {
-		t.Errorf("the failure is not on stderr when the output goes to a file: %q", stderr)
-	}
+	wantEqual(t, err, nil)
+	wantEqual(t, string(data), want)
+	wantEqual(t, [2]any{stdout, code}, [2]any{"", exitFail})
+	wantAll(t, stderr, "pkg/svc.go:4 Svc: health.complex_method", "regression(s) are errors")
 }
 
 // The SARIF output holds only the regressions, as results of the rule
@@ -464,55 +493,57 @@ func TestCheckJSONIsDeterministic(t *testing.T) {
 //
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
 func TestCheckSARIFHoldsOnlyRegressions(t *testing.T) {
-	r := newCheckRepo(t, "lifecycle:\n  tier: product\n", false)
+	// The baseline covers svc.go, so the floor adds no result (ADR-EMG-087).
+	r := newBaselinedRepo(t, "product")
 	r.write("pkg/old.go", "package pkg\n\n"+strings.TrimPrefix(strings.Replace(svcSource(20), "func Svc", "func Old", 1), "package pkg\n\n"))
 	r.commit("debt")
 	r.write("pkg/svc.go", svcSource(20))
 	code, stdout, _ := r.check("--format", "sarif")
-	var doc struct {
-		Version string `json:"version"`
-		Runs    []struct {
-			Tool struct {
-				Driver struct {
-					Name  string `json:"name"`
-					Rules []struct {
-						ID string `json:"id"`
-					} `json:"rules"`
-				} `json:"driver"`
-			} `json:"tool"`
-			Results []struct {
-				RuleID     string         `json:"ruleId"`
-				Level      string         `json:"level"`
-				Properties map[string]any `json:"properties"`
-				Locations  []struct {
-					PhysicalLocation struct {
-						ArtifactLocation struct {
-							URI string `json:"uri"`
-						} `json:"artifactLocation"`
-						Region struct {
-							StartLine int `json:"startLine"`
-						} `json:"region"`
-					} `json:"physicalLocation"`
-				} `json:"locations"`
-			} `json:"results"`
-		} `json:"runs"`
-	}
+	var doc checkSARIF
 	if err := json.Unmarshal([]byte(stdout), &doc); err != nil {
 		t.Fatalf("not JSON: %v\n%s", err, stdout)
 	}
-	if code != exitFail || doc.Version != "2.1.0" || len(doc.Runs) != 1 || doc.Runs[0].Tool.Driver.Name != "enghealth" ||
-		len(doc.Runs[0].Tool.Driver.Rules) != 1 || doc.Runs[0].Tool.Driver.Rules[0].ID != "health.regression" || len(doc.Runs[0].Results) != 1 {
-		t.Fatalf("exit %d, sarif = %s", code, stdout)
-	}
-	res := doc.Runs[0].Results[0]
+	mustEqual(t, [3]any{code, doc.Version, len(doc.Runs)}, [3]any{exitFail, "2.1.0", 1})
+	run := doc.Runs[0]
+	mustEqual(t, [3]any{run.Tool.Driver.Name, len(run.Tool.Driver.Rules), len(run.Results)}, [3]any{"enghealth", 1, 1})
+	wantEqual(t, run.Tool.Driver.Rules[0].ID, "health.regression")
+	res := run.Results[0]
+	wantEqual(t, [4]any{res.RuleID, res.Level, res.Properties["code"], res.Properties["function"]}, [4]any{"health.regression", "error", "health.complex_method", "Svc"})
 	loc := res.Locations[0].PhysicalLocation
-	if res.RuleID != "health.regression" || res.Level != "error" || res.Properties["code"] != "health.complex_method" ||
-		res.Properties["function"] != "Svc" || loc.ArtifactLocation.URI != "pkg/svc.go" || loc.Region.StartLine != 4 {
-		t.Errorf("result = %+v", res)
-	}
-	if code, stdout, _ := r.check("--format", "sarif", "--tier", "poc"); code != exitOK || !strings.Contains(stdout, `"level": "warning"`) {
-		t.Errorf("sarif at poc: exit %d\n%s", code, stdout)
-	}
+	wantEqual(t, [2]any{loc.ArtifactLocation.URI, loc.Region.StartLine}, [2]any{"pkg/svc.go", 4})
+	code, stdout, _ = r.check("--format", "sarif", "--tier", "poc")
+	wantEqual(t, code, exitOK)
+	wantContains(t, stdout, `"level": "warning"`)
+}
+
+// checkSARIF is the part of the SARIF output of the check the tests read.
+type checkSARIF struct {
+	Version string `json:"version"`
+	Runs    []struct {
+		Tool struct {
+			Driver struct {
+				Name  string `json:"name"`
+				Rules []struct {
+					ID string `json:"id"`
+				} `json:"rules"`
+			} `json:"driver"`
+		} `json:"tool"`
+		Results []struct {
+			RuleID     string         `json:"ruleId"`
+			Level      string         `json:"level"`
+			Properties map[string]any `json:"properties"`
+			Locations  []struct {
+				PhysicalLocation struct {
+					ArtifactLocation struct {
+						URI string `json:"uri"`
+					} `json:"artifactLocation"`
+					Region struct {
+						StartLine int `json:"startLine"`
+					} `json:"region"`
+				} `json:"physicalLocation"`
+			} `json:"locations"`
+		} `json:"results"`
+	} `json:"runs"`
 }
 
 // Paths restrict the check to files and directories of the project, and
@@ -526,26 +557,39 @@ func TestCheckPathsAndCache(t *testing.T) {
 	r.write("pkg/svc.go", svcSource(20))
 	r.write("other/o.go", strings.Replace(svcSource(20), "func Svc", "func O", 1))
 	t.Chdir(r.dir) // paths are relative to the working directory
-	if code, doc, _ := r.jsonCheck("--no-cache"); code != exitFail || len(doc.Blocking) != 2 {
-		t.Fatalf("both files: exit %d %+v", code, doc)
-	}
-	if _, err := os.Stat(filepath.Join(r.dir, ".engmod", "cache", "health")); err == nil {
-		t.Error("--no-cache wrote a cache")
-	}
-	if code, doc, _ := r.jsonCheck("other"); code != exitFail || len(doc.Blocking) != 1 || doc.Blocking[0].Path != "other/o.go" {
-		t.Errorf("path other: exit %d %+v, want only other/o.go", code, doc)
-	}
-	if code, doc, _ := r.jsonCheck("."); code != exitFail || len(doc.Blocking) != 2 {
-		t.Errorf("path .: exit %d %+v, want both files", code, doc)
-	}
-	if code, doc, _ := r.jsonCheck(filepath.Join(r.dir, "pkg", "svc.go")); code != exitFail || len(doc.Blocking) != 1 {
-		t.Errorf("absolute path inside the project: exit %d %+v", code, doc)
-	}
-	entries, err := os.ReadDir(filepath.Join(r.dir, ".engmod", "cache", "health"))
-	if err != nil || len(entries) == 0 {
-		t.Errorf("the cached run wrote no cache: %v", err)
-	}
-	if code, doc, _ := r.jsonCheck("other"); code != exitFail || len(doc.Blocking) != 1 {
-		t.Errorf("a second cached run changed the result: exit %d %+v", code, doc)
-	}
+	code, doc, _ := r.jsonCheck("--no-cache")
+	mustEqual(t, [2]int{code, len(doc.Blocking)}, [2]int{exitFail, 2})
+	cacheDir := filepath.Join(r.dir, ".engmod", "cache", "health")
+	_, err := os.Stat(cacheDir)
+	wantEqual(t, err != nil, true) // --no-cache wrote no cache
+	requirePathScopes(t, r)
+	entries, err := os.ReadDir(cacheDir)
+	wantEqual(t, err == nil && len(entries) > 0, true) // the cached run wrote a cache
+	code, doc, _ = r.jsonCheck("other")
+	wantEqual(t, [2]int{code, len(doc.Blocking)}, [2]int{exitFail, 1}) // a second cached run keeps the result
 }
+
+// requirePathScopes checks which regressions each form of the path argument
+// leaves in the report of r.
+func requirePathScopes(t *testing.T, r *checkRepo) {
+	t.Helper()
+	cases := map[string]struct {
+		arg  string
+		want int
+	}{
+		"other":                  {"other", 1},
+		"the project":            {".", 2},
+		"absolute path in scope": {filepath.Join(r.dir, "pkg", "svc.go"), 1},
+	}
+	for name, c := range cases {
+		code, doc, _ := r.jsonCheck(c.arg)
+		wantEqual(t, [3]any{name, code, len(doc.Blocking)}, [3]any{name, exitFail, c.want})
+	}
+	_, doc, _ := r.jsonCheck("other")
+	mustEqual(t, len(doc.Blocking), 1)
+	wantEqual(t, doc.Blocking[0].Path, "other/o.go")
+}
+
+// svcBaseline is a baseline file that accepts the high complex_method finding of
+// Svc in pkg/svc.go (cyclomatic 21), the debt of svcSource(20).
+const svcBaseline = `{"schema":"engmod-health-baseline/1","entries":[{"path":"pkg/svc.go","function":"Svc","code":"health.complex_method","value":21}]}`

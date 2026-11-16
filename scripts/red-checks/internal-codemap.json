@@ -1,0 +1,34 @@
+[
+ {
+  "file": "internal/codemap/declarations.go",
+  "find": "Line: d.Line, EndLine: d.EndLine,",
+  "replace": "Line: d.Line, EndLine: d.Line,",
+  "req": [
+   "REQ-EMG-192"
+  ]
+ },
+ {
+  "file": "internal/codemap/declarations.go",
+  "find": "TestOnly: d.TestOnly || d.IsTest,",
+  "replace": "TestOnly: false,",
+  "req": [
+   "REQ-EMG-192"
+  ]
+ },
+ {
+  "file": "internal/codemap/declarations.go",
+  "find": "if id.Kind() != \"identifier\" && (id.Kind() != \"type_identifier\" || i > 0) {",
+  "replace": "if id.Kind() != \"identifier\" && id.Kind() != \"type_identifier\" {",
+  "req": [
+   "REQ-EMG-192"
+  ]
+ },
+ {
+  "file": "internal/codemap/declarations.go",
+  "find": "for _, f := range d.Further {",
+  "replace": "for _, f := range d.Further[:0] {",
+  "req": [
+   "REQ-EMG-192"
+  ]
+ }
+]

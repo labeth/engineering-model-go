@@ -52,11 +52,15 @@ type TraceOptions = trace.Options
 
 // BuildTraceMatrixFromFiles loads a model, scans its code root, scopes the code to the
 // model, validates trace integrity, and returns the matrix together with diagnostics.
-// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051
-// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE
+// TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-198
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE, IF-GO-TRACE, DO-TRACE-MATRIX, DO-MODEL-DIAGNOSTICS, FLOW-GO-READ-MODEL
 func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (TraceMatrix, []Diagnostic, error) {
 	return trace.BuildFromFiles(modelPath, requirementsPath, codeRoot)
 }
+
+// TraceFiles are the model, requirements and code-root paths of a trace build.
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER
+type TraceFiles = trace.FileRequest
 
 // BuildTraceMatrixFromFilesWith is BuildTraceMatrixFromFiles with explicit
 // resolution options. With composition it composes once, resolves code
@@ -65,8 +69,8 @@ func BuildTraceMatrixFromFiles(modelPath, requirementsPath, codeRoot string) (Tr
 // each linked requirement's own status in its target repository.
 // TRLC-LINKS: REQ-EMG-028, REQ-EMG-030, REQ-EMG-050, REQ-EMG-051, REQ-EMG-065, REQ-EMG-066, REQ-EMG-067
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-MODEL-LOADER, FU-CODEMAP-INFERENCE, FU-SYSTEM-COMPOSITION
-func BuildTraceMatrixFromFilesWith(modelPath, requirementsPath, codeRoot string, options TraceOptions) (TraceMatrix, []Diagnostic, error) {
-	return trace.BuildFromFilesWith(modelPath, requirementsPath, codeRoot, options)
+func BuildTraceMatrixFromFilesWith(files TraceFiles, options TraceOptions) (TraceMatrix, []Diagnostic, error) {
+	return trace.BuildFromFilesWith(files, options)
 }
 
 // TierGapReport lists what a target life-cycle tier requires that the model
@@ -91,13 +95,13 @@ type AviationFloorGap = validate.AviationFloorGap
 // (engtrace --tier-gap, MCP tier.gap).
 // TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
-func TierGapFromFiles(modelPath, requirementsPath, codeRoot, target string) (TierGapReport, error) {
-	return trace.TierGapFromFiles(modelPath, requirementsPath, codeRoot, target, trace.Options{})
+func TierGapFromFiles(files TraceFiles, target string) (TierGapReport, error) {
+	return trace.TierGapFromFiles(files, target, trace.Options{})
 }
 
 // TierGapFromFilesWith is TierGapFromFiles with explicit resolution options.
 // TRLC-LINKS: REQ-EMG-134
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
-func TierGapFromFilesWith(modelPath, requirementsPath, codeRoot, target string, options TraceOptions) (TierGapReport, error) {
-	return trace.TierGapFromFiles(modelPath, requirementsPath, codeRoot, target, options)
+func TierGapFromFilesWith(files TraceFiles, target string, options TraceOptions) (TierGapReport, error) {
+	return trace.TierGapFromFiles(files, target, options)
 }

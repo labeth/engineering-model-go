@@ -3,6 +3,7 @@ package codemap
 
 import (
 	"errors"
+	"slices"
 	"testing"
 
 	sitter "github.com/tree-sitter/go-tree-sitter"
@@ -10,19 +11,20 @@ import (
 
 // TRLC-LINKS: REQ-EMG-150
 func TestLanguageForPath(t *testing.T) {
-	for path, want := range map[string]string{
+	supported := map[string]string{
 		"a.go": "go", "dir/a.RS": "rust", "a.ts": "typescript", "a.tsx": "tsx",
 		"a.js": "javascript", "a.mjs": "javascript", "a.cjs": "javascript", "a.py": "python",
-	} {
-		if got, ok := LanguageForPath(path); !ok || got != want {
-			t.Errorf("LanguageForPath(%q) = %q, %v; want %q", path, got, ok, want)
-		}
 	}
-	for _, path := range []string{"a.v", "a.txt", "Makefile", "a.go.txt"} {
-		if got, ok := LanguageForPath(path); ok {
-			t.Errorf("LanguageForPath(%q) = %q, want unsupported", path, got)
-		}
+	got := map[string]string{}
+	for path := range supported {
+		got[path], _ = LanguageForPath(path)
 	}
+	requireEqual(t, got, supported)
+	unsupported := slices.ContainsFunc([]string{"a.v", "a.txt", "Makefile", "a.go.txt"}, func(path string) bool {
+		_, ok := LanguageForPath(path)
+		return ok
+	})
+	requireEqual(t, unsupported, false)
 }
 
 // TRLC-LINKS: REQ-EMG-150
@@ -77,16 +79,21 @@ func TestParseFileErrors(t *testing.T) {
 	}
 }
 
-// withFunctions parses src and calls check with the root and the nodes of the given kind
-// in source order. The tree is only valid inside the
-// callback, so check runs there.
-func withFunctions(t *testing.T, path, src, kind string, check func(root *sitter.Node, fns []*sitter.Node)) {
+// parseCase is a source to parse and the kind of syntax node to collect.
+type parseCase struct {
+	path, src, kind string
+}
+
+// withFunctions parses the case and calls check with the root and the nodes of
+// its kind in source order. The tree is only valid inside the callback, so
+// check runs there.
+func withFunctions(t *testing.T, c parseCase, check func(root *sitter.Node, fns []*sitter.Node)) {
 	t.Helper()
-	err := ParseFile(path, []byte(src), func(root *sitter.Node, _ string) error {
+	err := ParseFile(c.path, []byte(c.src), func(root *sitter.Node, _ string) error {
 		var fns []*sitter.Node
 		var visit func(n *sitter.Node)
 		visit = func(n *sitter.Node) {
-			if n.Kind() == kind {
+			if n.Kind() == c.kind {
 				fns = append(fns, n)
 			}
 			for i := uint(0); i < n.NamedChildCount(); i++ {
@@ -104,50 +111,50 @@ func withFunctions(t *testing.T, path, src, kind string, check func(root *sitter
 
 // TRLC-LINKS: REQ-EMG-150
 func TestExportedTestDetection(t *testing.T) {
-	if !IsGoTestFile("pkg/a_test.go") || IsGoTestFile("pkg/a.go") {
-		t.Error("IsGoTestFile")
-	}
-	if !IsPythonTestFile("test_a.py") || !IsPythonTestFile("a_test.py") || IsPythonTestFile("a.py") {
-		t.Error("IsPythonTestFile")
-	}
+	requireEqual(t, []bool{IsGoTestFile("pkg/a_test.go"), IsGoTestFile("pkg/a.go")}, []bool{true, false})
+	requireEqual(t, []bool{IsPythonTestFile("test_a.py"), IsPythonTestFile("a_test.py"), IsPythonTestFile("a.py")}, []bool{true, true, false})
+	t.Run("go", checkGoTestDetection)
+	t.Run("python", checkPythonTestDetection)
+	t.Run("rust", checkRustTestDetection)
+}
 
-	goSrc := "package p\nfunc TestA() {}\nfunc Testa() {}\nfunc TestMain() {}\nfunc helper() {}\nfunc BenchmarkB() {}\n"
-	withFunctions(t, "a_test.go", goSrc, "function_declaration", func(_ *sitter.Node, fns []*sitter.Node) {
-		want := map[string]bool{"TestA": true, "Testa": false, "TestMain": false, "helper": false, "BenchmarkB": true}
+// checkGoTestDetection checks IsGoTestFunction on Go test entry points and helpers.
+func checkGoTestDetection(t *testing.T) {
+	src := "package p\nfunc TestA() {}\nfunc Testa() {}\nfunc TestMain() {}\nfunc helper() {}\nfunc BenchmarkB() {}\n"
+	got := map[string]bool{}
+	withFunctions(t, parseCase{"a_test.go", src, "function_declaration"}, func(_ *sitter.Node, fns []*sitter.Node) {
 		for _, fn := range fns {
-			name := fn.ChildByFieldName("name").Utf8Text([]byte(goSrc))
-			if got := IsGoTestFunction(fn, name); got != want[name] {
-				t.Errorf("IsGoTestFunction(%s) = %v", name, got)
-			}
+			name := fn.ChildByFieldName("name").Utf8Text([]byte(src))
+			got[name] = IsGoTestFunction(fn, name)
 		}
 	})
+	requireEqual(t, got, map[string]bool{"TestA": true, "Testa": false, "TestMain": false, "helper": false, "BenchmarkB": true})
+}
 
-	pySrc := "def test_a():\n    pass\n\ndef helper():\n    pass\n\nclass T:\n    def test_b(self):\n        pass\n    def other(self):\n        pass\n"
-	withFunctions(t, "test_a.py", pySrc, "function_definition", func(_ *sitter.Node, fns []*sitter.Node) {
-		want := map[string]bool{"test_a": true, "helper": false, "test_b": true, "other": false}
+// checkPythonTestDetection checks IsPythonTestFunction on functions and methods.
+func checkPythonTestDetection(t *testing.T) {
+	src := "def test_a():\n    pass\n\ndef helper():\n    pass\n\nclass T:\n    def test_b(self):\n        pass\n    def other(self):\n        pass\n"
+	got := map[string]bool{}
+	withFunctions(t, parseCase{"test_a.py", src, "function_definition"}, func(_ *sitter.Node, fns []*sitter.Node) {
 		for _, fn := range fns {
-			name := fn.ChildByFieldName("name").Utf8Text([]byte(pySrc))
-			if got := IsPythonTestFunction(fn, []byte(pySrc)); got != want[name] {
-				t.Errorf("IsPythonTestFunction(%s) = %v", name, got)
-			}
+			got[fn.ChildByFieldName("name").Utf8Text([]byte(src))] = IsPythonTestFunction(fn, []byte(src))
 		}
 	})
+	requireEqual(t, got, map[string]bool{"test_a": true, "helper": false, "test_b": true, "other": false})
+}
 
-	rsSrc := "fn prod() {}\n#[cfg(test)]\nmod tests {\n    #[test]\n    fn a() {}\n    #[tokio::test]\n    async fn b() {}\n    fn helper() {}\n}\n"
-	withFunctions(t, "lib.rs", rsSrc, "function_item", func(_ *sitter.Node, fns []*sitter.Node) {
-		src := []byte(rsSrc)
-		want := map[string][2]bool{"prod": {false, false}, "a": {true, true}, "b": {true, true}, "helper": {false, true}}
+// checkRustTestDetection checks IsRustTestFunction and IsRustInTestScope.
+func checkRustTestDetection(t *testing.T) {
+	src := "fn prod() {}\n#[cfg(test)]\nmod tests {\n    #[test]\n    fn a() {}\n    #[tokio::test]\n    async fn b() {}\n    fn helper() {}\n}\n"
+	got := map[string][2]bool{}
+	withFunctions(t, parseCase{"lib.rs", src, "function_item"}, func(_ *sitter.Node, fns []*sitter.Node) {
 		for _, fn := range fns {
-			name := fn.ChildByFieldName("name").Utf8Text(src)
-			if got := [2]bool{IsRustTestFunction(fn, src), IsRustInTestScope(fn, src)}; got != want[name] {
-				t.Errorf("rust %s: test %v scope %v, want %v", name, got[0], got[1], want[name])
-			}
+			got[fn.ChildByFieldName("name").Utf8Text([]byte(src))] = [2]bool{IsRustTestFunction(fn, []byte(src)), IsRustInTestScope(fn, []byte(src))}
 		}
 	})
+	requireEqual(t, got, map[string][2]bool{"prod": {false, false}, "a": {true, true}, "b": {true, true}, "helper": {false, true}})
 	inner := "#![cfg(test)]\nfn a() {}\n"
-	withFunctions(t, "lib.rs", inner, "source_file", func(root *sitter.Node, _ []*sitter.Node) {
-		if !IsRustInTestScope(root, []byte(inner)) {
-			t.Error("#![cfg(test)] marks the file as test scope")
-		}
+	withFunctions(t, parseCase{"lib.rs", inner, "source_file"}, func(root *sitter.Node, _ []*sitter.Node) {
+		requireEqual(t, IsRustInTestScope(root, []byte(inner)), true)
 	})
 }

@@ -23,7 +23,7 @@ func startLockRegistry(t *testing.T, root, content string) *modregistrytest.Regi
 	t.Helper()
 	registryRoot := filepath.Join(root, "registry-"+content)
 	moduleDir := filepath.Join(registryRoot, "models.atlas.example_shared-edge_v0.1.0")
-	testutil.WriteOCIModuleFixture(t, moduleDir, "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	testutil.WriteOCIModuleFixture(t, moduleDir, testutil.OCIModule{Path: "models.atlas.example/shared-edge@v0", ModelID: "SHARED-EDGE", CapabilityID: "CAP-SHARED-EDGE", RequirementID: "REQ-SHARED-001"})
 	testutil.WriteFile(t, filepath.Join(moduleDir, "NOTES.md"), content+"\n")
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {
@@ -57,79 +57,70 @@ func TestCompositionLockCheckMode(t *testing.T) {
 	root := t.TempDir()
 	startLockRegistry(t, root, "first")
 	workspace := filepath.Join(root, "workspace")
-	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, workspace, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 	manifest := filepath.Join(workspace, "engmod.yml")
 	lockPath := filepath.Join(workspace, CompositionLockFileName)
 	check := ResolutionOptions{Lock: LockModeCheck}
 
 	// No committed lock yet.
-	res, err := GenerateCompositionFromFileWith(manifest, check)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := lockCodes(res.Diagnostics); len(got) != 1 || !strings.HasPrefix(got[0], "composition.lock_missing") {
-		t.Fatalf("missing lock: %v", got)
-	}
-	if _, err := os.Stat(lockPath); !os.IsNotExist(err) {
-		t.Fatal("check mode wrote engmod.lock.yml")
-	}
+	codes := lockCodes(mustResolve(t, manifest, check).Diagnostics)
+	requireEqual(t, len(codes), 1)
+	requireEqual(t, strings.HasPrefix(codes[0], "composition.lock_missing"), true)
+	requireNoFile(t, lockPath) // check mode never writes the lock
 
 	// Write mode writes the lock; check mode then agrees with it.
-	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite}); err != nil {
-		t.Fatal(err)
-	}
-	committed, err := os.ReadFile(lockPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if res, _ = GenerateCompositionFromFileWith(manifest, check); len(lockCodes(res.Diagnostics)) != 0 {
-		t.Fatalf("matching lock reported: %v", lockCodes(res.Diagnostics))
-	}
+	mustResolve(t, manifest, ResolutionOptions{Lock: LockModeWrite})
+	committed := readText(t, lockPath)
+	requireEqual(t, lockCodes(mustResolve(t, manifest, check).Diagnostics), []string(nil))
 	// The environment variable selects check mode too.
 	t.Setenv(LockEnv, LockModeCheck)
 	testutil.WriteFile(t, lockPath, "dependencies: [\n")
-	if res, _ = GenerateCompositionFromFile(manifest); len(lockCodes(res.Diagnostics)) != 1 || !strings.HasPrefix(lockCodes(res.Diagnostics)[0], "composition.lock_invalid") {
-		t.Fatalf("invalid lock: %v", lockCodes(res.Diagnostics))
-	}
+	res, _ := GenerateCompositionFromFile(manifest)
+	codes = lockCodes(res.Diagnostics)
+	requireEqual(t, len(codes), 1)
+	requireEqual(t, strings.HasPrefix(codes[0], "composition.lock_invalid"), true)
 	t.Setenv(LockEnv, "")
 
-	cases := []struct {
-		name, lock, want string
-	}{
-		{"version changed", strings.Replace(string(committed), "version: v0.1.0", "version: v0.0.9", 1), "lock pins"},
-		{"extra entry", string(committed) + "    - alias: gone\n      path: example.com/gone@v0\n      version: v0.1.0\n      publications: [public]\n      digest: sha256:00\n", "no longer resolves"},
+	for _, c := range lockMismatchCases(committed) {
+		t.Run(c.name, func(t *testing.T) { checkLockMismatch(t, manifest, c) })
+	}
+	checkMovedTag(t, root, committed)
+}
+
+// lockMismatchCase is a committed lock content that must give one lock_mismatch
+// naming the text in want.
+type lockMismatchCase struct{ name, lock, want string }
+
+// lockMismatchCases lists the ways a committed lock differs from the resolved one.
+func lockMismatchCases(committed string) []lockMismatchCase {
+	return []lockMismatchCase{
+		{"version changed", strings.Replace(committed, "version: v0.1.0", "version: v0.0.9", 1), "lock pins"},
+		{"extra entry", committed + "    - alias: gone\n      path: example.com/gone@v0\n      version: v0.1.0\n      publications: [public]\n      digest: sha256:00\n", "no longer resolves"},
 		{"missing entry", "schemaVersion: 1\ndependencies: []\n", "missing from the committed lock"},
 	}
-	for _, c := range cases {
-		t.Run(c.name, func(t *testing.T) {
-			testutil.WriteFile(t, lockPath, c.lock)
-			res, err := GenerateCompositionFromFileWith(manifest, check)
-			if err != nil {
-				t.Fatal(err)
-			}
-			got := lockCodes(res.Diagnostics)
-			if len(got) != 1 || !strings.HasPrefix(got[0], "composition.lock_mismatch") || !strings.Contains(got[0], c.want) {
-				t.Fatalf("got %v, want one lock_mismatch containing %q", got, c.want)
-			}
-			if data, _ := os.ReadFile(lockPath); string(data) != c.lock {
-				t.Fatal("check mode rewrote engmod.lock.yml")
-			}
-		})
-	}
+}
 
-	// Moved tag: the same version is re-published with other content.
-	testutil.WriteFile(t, lockPath, string(committed))
-	if err := os.RemoveAll(filepath.Join(workspace, ".engmod")); err != nil {
-		t.Fatal(err)
-	}
+// checkLockMismatch checks that check mode reports the one mismatch and does
+// not rewrite the lock.
+func checkLockMismatch(t *testing.T, manifest string, c lockMismatchCase) {
+	lockPath := filepath.Join(filepath.Dir(manifest), CompositionLockFileName)
+	testutil.WriteFile(t, lockPath, c.lock)
+	got := lockCodes(mustResolve(t, manifest, ResolutionOptions{Lock: LockModeCheck}).Diagnostics)
+	requireEqual(t, len(got), 1)
+	requireEqual(t, strings.HasPrefix(got[0], "composition.lock_mismatch") && strings.Contains(got[0], c.want), true)
+	requireEqual(t, readText(t, lockPath), c.lock) // check mode did not rewrite the lock
+}
+
+// checkMovedTag checks that a version re-published with other content is
+// reported as a changed content digest.
+func checkMovedTag(t *testing.T, root, committed string) {
+	workspace := filepath.Join(root, "workspace")
+	testutil.WriteFile(t, filepath.Join(workspace, CompositionLockFileName), committed)
+	requireEqual(t, os.RemoveAll(filepath.Join(workspace, ".engmod")), nil)
 	startLockRegistry(t, root, "second")
-	res, err = GenerateCompositionFromFileWith(manifest, check)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := lockCodes(res.Diagnostics); len(got) != 1 || !strings.Contains(got[0], "content digest") {
-		t.Fatalf("moved tag: %v", got)
-	}
+	got := lockCodes(mustResolve(t, filepath.Join(workspace, "engmod.yml"), ResolutionOptions{Lock: LockModeCheck}).Diagnostics)
+	requireEqual(t, len(got), 1)
+	requireEqual(t, strings.Contains(got[0], "content digest"), true)
 }
 
 // TestCompositionLockWorkspaceModeWritesLocalLock verifies that active
@@ -141,10 +132,10 @@ func TestCompositionLockWorkspaceModeWritesLocalLock(t *testing.T) {
 	t.Setenv(model.WorkspaceEnv, "")
 	t.Setenv(LockEnv, "")
 	root := t.TempDir()
-	testutil.WriteOCIModuleFixture(t, filepath.Join(root, "repos", "shared-edge"), "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	testutil.WriteOCIModuleFixture(t, filepath.Join(root, "repos", "shared-edge"), testutil.OCIModule{Path: "models.atlas.example/shared-edge@v0", ModelID: "SHARED-EDGE", CapabilityID: "CAP-SHARED-EDGE", RequirementID: "REQ-SHARED-001"})
 	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
 	product := filepath.Join(root, "repos", "product")
-	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, product, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 	committed := "schemaVersion: 1\ndependencies: []\n# committed\n"
 	testutil.WriteFile(t, filepath.Join(product, CompositionLockFileName), committed)
 
@@ -184,18 +175,19 @@ func TestLockMismatchMessageNamesModuleOnce(t *testing.T) {
 	}
 	for _, lock := range []CompositionLockDocument{resolved("v0.2.0", "sha256:aa"), resolved("v0.1.0", "sha256:bb"), {SchemaVersion: 1, Dependencies: append(resolved("v0.1.0", "sha256:aa").Dependencies, CompositionLockDependency{Alias: "t", Path: "example.com/t@v1", Version: "v1.0.0"})}} {
 		diags := checkCompositionLock(lockPath, lock)
-		if len(diags) == 0 {
-			t.Fatalf("no mismatch for %+v", lock)
-		}
+		requireEqual(t, len(diags) > 0, true)
 		for _, d := range diags {
-			if strings.Contains(d.Message, "@v0@") || strings.Contains(d.Message, "@v1@") {
-				t.Fatalf("module path printed with duplicated major: %s", d.Message)
-			}
-			if !strings.Contains(d.Message, "example.com/shared@v0.") && !strings.Contains(d.Message, "example.com/t@v1.0.0") {
-				t.Fatalf("message must name module@version: %s", d.Message)
-			}
+			requireNamesModuleOnce(t, d.Message)
 		}
 	}
+}
+
+// requireNamesModuleOnce fails the test unless a message names the module as
+// module@version without a duplicated major.
+func requireNamesModuleOnce(t *testing.T, message string) {
+	t.Helper()
+	requireEqual(t, strings.Contains(message, "@v0@") || strings.Contains(message, "@v1@"), false)
+	requireEqual(t, strings.Contains(message, "example.com/shared@v0.") || strings.Contains(message, "example.com/t@v1.0.0"), true)
 }
 
 // A tag moved in the registry is not masked by the module cache: check mode
@@ -216,66 +208,41 @@ func TestModuleCacheDoesNotMaskMovedTag(t *testing.T) {
 	root := t.TempDir()
 	startLockRegistry(t, root, "first")
 	workspace := filepath.Join(root, "workspace")
-	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	testutil.WriteParentWithOCIModule(t, workspace, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
 	manifest := filepath.Join(workspace, "engmod.yml")
-	lockPath := filepath.Join(workspace, CompositionLockFileName)
-	digest := func() string {
-		t.Helper()
-		data, err := os.ReadFile(lockPath)
-		if err != nil {
-			t.Fatal(err)
-		}
-		_, after, _ := strings.Cut(string(data), "digest: ")
-		return strings.TrimSpace(after)
+	digest := func() string { return lockDigest(t, filepath.Join(workspace, CompositionLockFileName)) }
+	write := func(options ResolutionOptions) string {
+		options.Lock = LockModeWrite
+		mustResolve(t, manifest, options)
+		return digest()
 	}
-	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite}); err != nil {
-		t.Fatal(err)
-	}
-	first := digest()
+	first := write(ResolutionOptions{})
 
 	// The tag moves: the same version now has other content.
 	startLockRegistry(t, root, "second")
-	res, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeCheck})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if got := lockCodes(res.Diagnostics); len(got) != 1 || !strings.Contains(got[0], "content digest") {
-		t.Fatalf("check mode with a warm cache must see the moved tag: %v", got)
-	}
+	got := lockCodes(mustResolve(t, manifest, ResolutionOptions{Lock: LockModeCheck}).Diagnostics)
+	requireEqual(t, len(got), 1) // check mode with a warm cache sees the moved tag
+	requireEqual(t, strings.Contains(got[0], "content digest"), true)
 
 	// Default write mode reuses the (now refreshed) cache; restore the stale
 	// entry first by fetching from the first registry again.
 	startLockRegistry(t, root, "first")
-	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite, ModuleCache: ModuleCacheRefresh}); err != nil {
-		t.Fatal(err)
-	}
-	if digest() != first {
-		t.Fatal("refresh against the first registry must restore the first content")
-	}
+	requireEqual(t, write(ResolutionOptions{ModuleCache: ModuleCacheRefresh}), first) // refresh restores the first content
 	startLockRegistry(t, root, "second")
-	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite}); err != nil {
-		t.Fatal(err)
-	}
-	if digest() != first {
-		t.Fatal("default write mode must reuse the cache offline")
-	}
+	requireEqual(t, write(ResolutionOptions{}), first) // default write mode reuses the cache offline
 	t.Setenv(ModuleCacheEnv, ModuleCacheRefresh)
-	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite}); err != nil {
-		t.Fatal(err)
-	}
-	second := digest()
-	if second == first {
-		t.Fatal("ENGMOD_MODULE_CACHE=refresh must re-fetch")
-	}
+	requireEqual(t, write(ResolutionOptions{}) != first, true) // ENGMOD_MODULE_CACHE=refresh re-fetches
 	t.Setenv(ModuleCacheEnv, "")
 
 	startLockRegistry(t, root, "first")
-	if _, err := GenerateCompositionFromFileWith(manifest, ResolutionOptions{Lock: LockModeWrite, Workspace: model.WorkspaceOff}); err != nil {
-		t.Fatal(err)
-	}
-	if digest() != first {
-		t.Fatal("lock regeneration with the workspace off must re-fetch")
-	}
+	requireEqual(t, write(ResolutionOptions{Workspace: model.WorkspaceOff}), first) // lock regeneration with the workspace off re-fetches
+}
+
+// lockDigest is the first content digest recorded in a lock file.
+func lockDigest(t *testing.T, lockPath string) string {
+	t.Helper()
+	_, after, _ := strings.Cut(readText(t, lockPath), "digest: ")
+	return strings.TrimSpace(after)
 }
 
 // A diagnostic located in a fetched dependency names it as module@version
@@ -289,33 +256,22 @@ func TestDependencyDiagnosticPathNamesModuleVersion(t *testing.T) {
 	root := t.TempDir()
 	startLockRegistry(t, root, "first")
 	workspace := filepath.Join(root, "workspace")
-	testutil.WriteV2CompositionParent(t, workspace, `dependencies:
+	testutil.WriteV2CompositionParent(t, workspace, testutil.V2Parent{Dependencies: `dependencies:
   - alias: shared
     path: models.atlas.example/shared-edge@v0
     version: v0.1.0
     publications: [public, nope]
-`, `  composition:
+`, Architecture: `  composition:
     subsystems:
       - id: SUB-SHARED
         dependency: shared
         publication: public
-`)
-	res, err := GenerateCompositionFromFileWith(filepath.Join(workspace, "engmod.yml"), ResolutionOptions{Lock: LockModeCheck})
-	if err != nil {
-		t.Fatal(err)
-	}
-	var found *validate.Diagnostic
-	for i, d := range res.Diagnostics {
-		if d.Code == "composition.unknown_publication" {
-			found = &res.Diagnostics[i]
-		}
-	}
-	if found == nil {
-		t.Fatalf("no unknown_publication: %+v", res.Diagnostics)
-	}
-	if found.Path != "models.atlas.example/shared-edge@v0.1.0:engmod.yml" || strings.Contains(found.Message, ".engmod") {
-		t.Fatalf("diagnostic must name module@version:engmod.yml, got %q (%s)", found.Path, found.Message)
-	}
+`})
+	res := mustResolve(t, filepath.Join(workspace, "engmod.yml"), ResolutionOptions{Lock: LockModeCheck})
+	found := firstDiag(res.Diagnostics, "composition.unknown_publication")
+	requireEqual(t, found != nil, true)
+	requireEqual(t, found.Path, "models.atlas.example/shared-edge@v0.1.0:engmod.yml")
+	requireEqual(t, strings.Contains(found.Message, ".engmod"), false)
 }
 
 // With ENGMOD_LOCK=check and workspace replacements active the committed
@@ -328,27 +284,17 @@ func TestLockCheckWithReplacementsWarnsSkipped(t *testing.T) {
 	t.Setenv(model.WorkspaceEnv, "")
 	t.Setenv(LockEnv, "")
 	root := t.TempDir()
-	testutil.WriteOCIModuleFixture(t, filepath.Join(root, "repos", "shared-edge"), "models.atlas.example/shared-edge@v0", "SHARED-EDGE", "CAP-SHARED-EDGE", "REQ-SHARED-001")
+	testutil.WriteOCIModuleFixture(t, filepath.Join(root, "repos", "shared-edge"), testutil.OCIModule{Path: "models.atlas.example/shared-edge@v0", ModelID: "SHARED-EDGE", CapabilityID: "CAP-SHARED-EDGE", RequirementID: "REQ-SHARED-001"})
 	testutil.WriteFile(t, filepath.Join(root, model.WorkspaceFileName), "schemaVersion: 3\nreplacements:\n  - module: models.atlas.example/shared-edge@v0\n    path: ./repos/shared-edge\n")
 	product := filepath.Join(root, "repos", "product")
-	testutil.WriteParentWithOCIModule(t, product, "models.atlas.example/shared-edge@v0", "v0.1.0")
-	res, err := GenerateCompositionFromFileWith(filepath.Join(product, "engmod.yml"), ResolutionOptions{Lock: LockModeCheck})
-	if err != nil {
-		t.Fatal(err)
-	}
+	testutil.WriteParentWithOCIModule(t, product, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
+	res := mustResolve(t, filepath.Join(product, "engmod.yml"), ResolutionOptions{Lock: LockModeCheck})
 	assertNoCompositionErrors(t, res.Diagnostics)
-	var found *validate.Diagnostic
-	for i, d := range res.Diagnostics {
-		if d.Code == "composition.lock_check_skipped" {
-			found = &res.Diagnostics[i]
-		}
-	}
-	if found == nil || found.Severity != validate.SeverityWarning || !strings.Contains(found.Message, "ENGMOD_WORK=off") {
-		t.Fatalf("want a lock_check_skipped warning naming ENGMOD_WORK=off: %+v", res.Diagnostics)
-	}
-	if _, err := os.Stat(filepath.Join(product, CompositionLockFileName)); err == nil {
-		t.Fatal("check mode wrote the lock")
-	}
+	skipped := firstDiag(res.Diagnostics, "composition.lock_check_skipped")
+	requireEqual(t, skipped != nil, true)
+	requireEqual(t, skipped.Severity, validate.SeverityWarning)
+	requireEqual(t, strings.Contains(skipped.Message, "ENGMOD_WORK=off"), true)
+	requireNoFile(t, filepath.Join(product, CompositionLockFileName)) // check mode wrote no lock
 }
 
 // The module digest leaves out .engflow (engineering-flow's local
@@ -358,28 +304,15 @@ func TestLockCheckWithReplacementsWarnsSkipped(t *testing.T) {
 // ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION
 func TestModuleDigestSkipsEngflowState(t *testing.T) {
 	dir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(dir, "engmod.yml"), []byte("x"), 0o644); err != nil {
-		t.Fatal(err)
-	}
+	testutil.WriteFile(t, filepath.Join(dir, "engmod.yml"), "x")
 	before, err := digestModuleDirectory(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := os.MkdirAll(filepath.Join(dir, ".engflow", "worktrees", "exp", "v1"), 0o755); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(dir, ".engflow", "worktrees", "exp", "v1", "main.go"), []byte("package x"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if after, _ := digestModuleDirectory(dir); after != before {
-		t.Fatal("a file under .engflow changed the module digest")
-	}
-	if err := os.WriteFile(filepath.Join(dir, "main.go"), []byte("package x"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	if after, _ := digestModuleDirectory(dir); after == before {
-		t.Fatal("a module file did not change the digest")
-	}
+	requireEqual(t, err, nil)
+	testutil.WriteFile(t, filepath.Join(dir, ".engflow", "worktrees", "exp", "v1", "main.go"), "package x")
+	after, _ := digestModuleDirectory(dir)
+	requireEqual(t, after, before) // a file under .engflow does not change the digest
+	testutil.WriteFile(t, filepath.Join(dir, "main.go"), "package x")
+	after, _ = digestModuleDirectory(dir)
+	requireEqual(t, after != before, true) // a module file does
 }
 
 // lockCase is one committed lock content and the one error expected for it.

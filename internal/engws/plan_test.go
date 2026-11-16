@@ -17,8 +17,8 @@ import (
 // TRLC-LINKS: REQ-EMG-068
 func TestPlanCleanTaggedPublishedResolvesFromOCI(t *testing.T) {
 	root := t.TempDir()
-	checkout(t, root, "if-a")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	checkout(t, repoSpec{Root: root, Name: "if-a"})
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -33,9 +33,9 @@ func TestPlanCleanTaggedPublishedResolvesFromOCI(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-068
 func TestPlanDirtyCheckoutIsLocal(t *testing.T) {
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	write(t, filepath.Join(dir, "model", "notes.yml"), "x: 1\n")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,11 +50,11 @@ func TestPlanDirtyCheckoutIsLocal(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-068
 func TestPlanUntaggedCommitIsLocal(t *testing.T) {
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	write(t, filepath.Join(dir, "README.md"), "change\n")
 	runGit(t, dir, "add", ".")
 	runGit(t, dir, "commit", "-q", "-m", "wip")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -74,12 +74,12 @@ func TestTagForAcceptsVersionWithOrWithoutV(t *testing.T) {
 		}
 	}
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	data, _ := os.ReadFile(filepath.Join(dir, "engmod.yml"))
 	write(t, filepath.Join(dir, "engmod.yml"), strings.Replace(string(data), "version: v0.1.0\n  modelId", "version: 0.1.0\n  modelId", 1))
 	runGit(t, dir, "commit", "-q", "-am", "unprefixed")
 	runGit(t, dir, "tag", "-f", "v0.1.0")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +95,7 @@ func TestTagForAcceptsVersionWithOrWithoutV(t *testing.T) {
 func TestPlanUnpublishedVersionIsLocalAgainstOCIRegistry(t *testing.T) {
 	work := t.TempDir()
 	registryRoot := filepath.Join(work, "registry")
-	writeModel(t, filepath.Join(registryRoot, strings.ReplaceAll(testFamily, "/", "_")+"_if-a_v0.1.0"), "if-a", "v0.1.0")
+	writeModel(t, modelSpec{Dir: filepath.Join(registryRoot, strings.ReplaceAll(testFamily, "/", "_")+"_if-a_v0.1.0"), Name: "if-a", Version: "v0.1.0"})
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {
 		t.Fatal(err)
@@ -104,9 +104,9 @@ func TestPlanUnpublishedVersionIsLocalAgainstOCIRegistry(t *testing.T) {
 	t.Setenv("CUE_REGISTRY", testFamily+"="+registry.Host()+"+insecure")
 
 	root := filepath.Join(work, "ws")
-	checkout(t, root, "if-a") // v0.1.0 published
-	checkout(t, root, "if-b") // never published
-	plan, err := BuildPlan(context.Background(), root, NewCUERegistry(), false)
+	checkout(t, repoSpec{Root: root, Name: "if-a"}) // v0.1.0 published
+	checkout(t, repoSpec{Root: root, Name: "if-b"}) // never published
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: NewCUERegistry()})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -124,7 +124,7 @@ func TestPlanUnpublishedVersionIsLocalAgainstOCIRegistry(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-068
 func TestCUERegistryRoutingAndOfflineIsUnknown(t *testing.T) {
 	registryRoot := t.TempDir()
-	writeModel(t, filepath.Join(registryRoot, strings.ReplaceAll(testFamily, "/", "_")+"_if-a_v0.1.0"), "if-a", "v0.1.0")
+	writeModel(t, modelSpec{Dir: filepath.Join(registryRoot, strings.ReplaceAll(testFamily, "/", "_")+"_if-a_v0.1.0"), Name: "if-a", Version: "v0.1.0"})
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {
 		t.Fatal(err)
@@ -143,28 +143,41 @@ func TestCUERegistryRoutingAndOfflineIsUnknown(t *testing.T) {
 		{"", PublicationUnknown},
 	}
 	for _, c := range cases {
-		t.Setenv("CUE_REGISTRY", c.env)
-		got, why := NewCUERegistry().Published(ctx, modulePathOf("if-a"), "v0.1.0")
-		if got != c.want {
-			t.Fatalf("CUE_REGISTRY=%q: got %v (%s), want %v", c.env, got, why, c.want)
-		}
-		if got == PublicationUnknown && why == "" {
-			t.Fatalf("CUE_REGISTRY=%q: unknown without a reason", c.env)
-		}
+		assertRegistryRouting(t, c.env, c.want)
 	}
 	t.Setenv("CUE_REGISTRY", registry.Host()+"+insecure")
 	if got, _ := NewCUERegistry().Published(ctx, modulePathOf("if-a"), "v0.9.0"); got != PublicationMissing {
 		t.Fatalf("unpublished version: got %v", got)
 	}
+	assertOfflinePlanIsUnknown(t)
+}
 
+// assertOfflinePlanIsUnknown checks that an offline registry leaves a clean
+// checkout non-local with state unknown and a note.
+func assertOfflinePlanIsUnknown(t *testing.T) {
+	t.Helper()
 	root := t.TempDir()
-	checkout(t, root, "if-a")
-	plan, err := BuildPlan(ctx, root, fakeRegistry{unknown: true}, false)
+	checkout(t, repoSpec{Root: root, Name: "if-a"})
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: fakeRegistry{unknown: true}})
 	if err != nil {
 		t.Fatal(err)
 	}
 	if e := entry(t, plan, "if-a"); e.Local || e.State != StateUnknown || len(plan.Notes) == 0 {
 		t.Fatalf("offline: want oci/unknown with a note, got %s local=%v notes=%v", e.State, e.Local, plan.Notes)
+	}
+}
+
+// assertRegistryRouting sets CUE_REGISTRY to env and checks the publication of
+// if-a v0.1.0, and that an unknown answer says why.
+func assertRegistryRouting(t *testing.T, env string, want Publication) {
+	t.Helper()
+	t.Setenv("CUE_REGISTRY", env)
+	got, why := NewCUERegistry().Published(context.Background(), modulePathOf("if-a"), "v0.1.0")
+	if got != want {
+		t.Fatalf("CUE_REGISTRY=%q: got %v (%s), want %v", env, got, why, want)
+	}
+	if got == PublicationUnknown && why == "" {
+		t.Fatalf("CUE_REGISTRY=%q: unknown without a reason", env)
 	}
 }
 
@@ -175,8 +188,8 @@ func TestCUERegistryRoutingAndOfflineIsUnknown(t *testing.T) {
 func TestPlanNonGitCheckoutIsLocal(t *testing.T) {
 	root := t.TempDir()
 	runGit(t, root, "init", "-q")
-	writeModel(t, filepath.Join(root, "if-a"), "if-a", "v0.1.0")
-	plan, err := BuildPlan(context.Background(), root, allPublished("if-a"), false)
+	writeModel(t, modelSpec{Dir: filepath.Join(root, "if-a"), Name: "if-a", Version: "v0.1.0"})
+	plan, err := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: allPublished("if-a")})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,23 +204,20 @@ func TestPlanNonGitCheckoutIsLocal(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-068
 func TestPinAndUnpinForceLocal(t *testing.T) {
 	root := t.TempDir()
-	dir := checkout(t, root, "if-a")
+	dir := checkout(t, repoSpec{Root: root, Name: "if-a"})
 	reg := allPublished("if-a")
 	if code, out, errOut := runMain(t, reg, "--root", root, "pin", "if-a"); code != 0 {
 		t.Fatalf("pin: %d %s %s", code, out, errOut)
 	}
-	plan, _ := BuildPlan(context.Background(), root, reg, false)
+	plan, _ := BuildPlan(context.Background(), PlanRequest{Root: root, Registry: reg})
 	if e := entry(t, plan, "if-a"); !e.Local || e.State != StatePinned {
 		t.Fatalf("pinned: got %s local=%v", e.State, e.Local)
 	}
-	work, _ := os.ReadFile(filepath.Join(root, "engmod.work.yml"))
-	if !strings.Contains(string(work), "path: ./if-a") {
-		t.Fatalf("pin did not sync:\n%s", work)
-	}
+	assertAllIn(t, labeledText{What: "work file after pin", Body: read(t, filepath.Join(root, "engmod.work.yml"))}, "path: ./if-a")
 	if code, _, errOut := runMain(t, reg, "--root", root, "unpin", "if-a"); code != 0 {
 		t.Fatal(errOut)
 	}
-	plan, _ = BuildPlan(context.Background(), root, reg, false)
+	plan, _ = BuildPlan(context.Background(), PlanRequest{Root: root, Registry: reg})
 	if e := entry(t, plan, "if-a"); e.Local {
 		t.Fatalf("unpinned: still local")
 	}
@@ -250,13 +260,9 @@ func TestFindRootStopsAtHome(t *testing.T) {
 	t.Setenv("HOME", home)
 	write(t, filepath.Join(home, ".engws.yml"), "pins: []\n")
 	write(t, filepath.Join(top, model.WorkspaceFileName), "schemaVersion: 3\nreplacements: []\n")
-	if got, err := FindRoot(deep); err != nil || got != deep {
-		t.Fatalf("marker in $HOME and above it: got %s, %v; want %s", got, err, deep)
-	}
+	assertFoundRoot(t, rootCase{Start: deep, Want: deep, What: "marker in $HOME and above it"})
 	write(t, filepath.Join(home, "src", "ws", ".engws.yml"), "pins: []\n")
-	if got, err := FindRoot(deep); err != nil || got != filepath.Join(home, "src", "ws") {
-		t.Fatalf("marker below $HOME: got %s, %v", got, err)
-	}
+	assertFoundRoot(t, rootCase{Start: deep, Want: filepath.Join(home, "src", "ws"), What: "marker below $HOME"})
 	// $HOME given as a symlink to the real home: the search from the real
 	// path still stops at the home directory.
 	if err := os.Remove(filepath.Join(home, "src", "ws", ".engws.yml")); err != nil {
@@ -267,10 +273,20 @@ func TestFindRootStopsAtHome(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Setenv("HOME", link)
-	if got, err := FindRoot(deep); err != nil || got != deep {
-		t.Fatalf("symlinked $HOME: got %s, %v; want %s", got, err, deep)
+	assertFoundRoot(t, rootCase{Start: deep, Want: deep, What: "symlinked $HOME"})
+}
+
+// assertFoundRoot fails unless FindRoot(start) is want without an error.
+func assertFoundRoot(t *testing.T, c rootCase) {
+	t.Helper()
+	if got, err := FindRoot(c.Start); err != nil || got != c.Want {
+		t.Fatalf("%s: got %s, %v; want %s", c.What, got, err, c.Want)
 	}
 }
+
+// rootCase is one FindRoot expectation: the start directory, the root it must
+// find and what the case shows.
+type rootCase struct{ Start, Want, What string }
 
 // A world-writable root found by the search is refused; --root accepts it.
 // Mutation: dropping the world-writable check fails this test.
@@ -300,7 +316,7 @@ func TestWorldWritableRootNeedsExplicitRoot(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-068
 func TestEveryCommandPrintsRootFirst(t *testing.T) {
 	root := t.TempDir()
-	checkout(t, root, "if-a")
+	checkout(t, repoSpec{Root: root, Name: "if-a"})
 	reg := allPublished("if-a")
 	for _, args := range [][]string{{"status"}, {"sync"}, {"skew"}, {"check", "--in-process"}, {"pin", "if-a"}, {"unpin", "if-a"}, {"bump", "if-a", "nope", "v0.2.0"}} {
 		_, out, errOut := runMain(t, reg, append([]string{"--root", root}, args...)...)

@@ -31,48 +31,17 @@ type rawZipEntry struct {
 // TRLC-LINKS: REQ-EMG-047
 func serveRawModule(t *testing.T, entries []rawZipEntry, corrupt bool) {
 	t.Helper()
-	var buf bytes.Buffer
-	zw := zip.NewWriter(&buf)
-	for _, e := range entries {
-		header := &zip.FileHeader{Name: e.name, Method: zip.Store}
-		if e.symlink {
-			header.SetMode(os.ModeSymlink | 0o777)
-		}
-		w, err := zw.CreateHeader(header)
-		if err != nil {
-			t.Fatal(err)
-		}
-		if _, err := w.Write([]byte(e.content)); err != nil {
-			t.Fatal(err)
-		}
-	}
-	if err := zw.Close(); err != nil {
-		t.Fatal(err)
-	}
-	digestOf := func(b []byte) string { return fmt.Sprintf("sha256:%x", sha256.Sum256(b)) }
-	zipBlob := buf.Bytes()
+	zipBlob := zipOf(t, entries, func(e rawZipEntry) rawZipEntry { return e })
 	modFile := []byte("module: \"models.atlas.example/shared-edge@v0\"\nlanguage: version: \"v0.17.0\"\n")
 	config := []byte("{}")
-	blobs := map[string][]byte{digestOf(zipBlob): zipBlob, digestOf(modFile): modFile, digestOf(config): config}
-	served := map[string][]byte{}
-	for d, b := range blobs {
-		served[d] = b
-	}
+	reg := rawRegistry{served: map[string][]byte{digestOf(zipBlob): zipBlob, digestOf(modFile): modFile, digestOf(config): config}}
 	if corrupt {
 		// A well-formed zip with other content under the original digest.
-		var tampered bytes.Buffer
-		tw := zip.NewWriter(&tampered)
-		for _, e := range entries {
-			w, err := tw.Create(e.name)
-			if err != nil {
-				t.Fatal(err)
-			}
-			_, _ = w.Write([]byte(e.content + "# tampered\n"))
-		}
-		if err := tw.Close(); err != nil {
-			t.Fatal(err)
-		}
-		served[digestOf(zipBlob)] = tampered.Bytes()
+		reg.served[digestOf(zipBlob)] = zipOf(t, entries, func(e rawZipEntry) rawZipEntry {
+			e.content += "# tampered\n"
+			e.symlink = false
+			return e
+		})
 	}
 	manifest, err := json.Marshal(map[string]any{
 		"schemaVersion": 2,
@@ -83,38 +52,79 @@ func serveRawModule(t *testing.T, entries []rawZipEntry, corrupt bool) {
 			{"mediaType": "application/vnd.cue.modulefile.v1", "digest": digestOf(modFile), "size": len(modFile)},
 		},
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	const repo = "/v2/models.atlas.example/shared-edge/"
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		switch {
-		case r.URL.Path == "/v2/":
-			w.WriteHeader(http.StatusOK)
-		case r.URL.Path == repo+"manifests/v0.1.0" || r.URL.Path == repo+"manifests/"+digestOf(manifest):
-			w.Header().Set("Content-Type", "application/vnd.oci.image.manifest.v1+json")
-			w.Header().Set("Docker-Content-Digest", digestOf(manifest))
-			w.Header().Set("Content-Length", fmt.Sprint(len(manifest)))
-			if r.Method != http.MethodHead {
-				_, _ = w.Write(manifest)
-			}
-		case strings.HasPrefix(r.URL.Path, repo+"blobs/"):
-			body, ok := served[strings.TrimPrefix(r.URL.Path, repo+"blobs/")]
-			if !ok {
-				http.NotFound(w, r)
-				return
-			}
-			w.Header().Set("Content-Type", "application/octet-stream")
-			w.Header().Set("Content-Length", fmt.Sprint(len(body)))
-			if r.Method != http.MethodHead {
-				_, _ = w.Write(body)
-			}
-		default:
-			http.NotFound(w, r)
-		}
-	}))
+	requireEqual(t, err, nil)
+	reg.manifest = manifest
+	srv := httptest.NewServer(reg)
 	t.Cleanup(srv.Close)
 	t.Setenv("CUE_REGISTRY", strings.TrimPrefix(srv.URL, "http://")+"+insecure")
+}
+
+// digestOf is the OCI digest of a blob.
+func digestOf(b []byte) string { return fmt.Sprintf("sha256:%x", sha256.Sum256(b)) }
+
+// zipOf writes the entries, each as adapt changes it, into a stored zip.
+func zipOf(t *testing.T, entries []rawZipEntry, adapt func(rawZipEntry) rawZipEntry) []byte {
+	t.Helper()
+	var buf bytes.Buffer
+	zw := zip.NewWriter(&buf)
+	for _, e := range entries {
+		e = adapt(e)
+		header := &zip.FileHeader{Name: e.name, Method: zip.Store}
+		if e.symlink {
+			header.SetMode(os.ModeSymlink | 0o777)
+		}
+		w, err := zw.CreateHeader(header)
+		requireEqual(t, err, nil)
+		_, err = w.Write([]byte(e.content))
+		requireEqual(t, err, nil)
+	}
+	requireEqual(t, zw.Close(), nil)
+	return buf.Bytes()
+}
+
+// rawRegistryRepo is the repository the raw registry serves.
+const rawRegistryRepo = "/v2/models.atlas.example/shared-edge/"
+
+// rawRegistry is a hand-written OCI registry for one module version: its
+// manifest and the blobs it names.
+type rawRegistry struct {
+	manifest []byte
+	served   map[string][]byte
+}
+
+// ServeHTTP serves the registry root, the manifest and the blobs.
+func (reg rawRegistry) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch {
+	case r.URL.Path == "/v2/":
+		w.WriteHeader(http.StatusOK)
+	case r.URL.Path == rawRegistryRepo+"manifests/v0.1.0" || r.URL.Path == rawRegistryRepo+"manifests/"+digestOf(reg.manifest):
+		w.Header().Set("Content-Type", "application/vnd.oci.image.manifest.v1+json")
+		w.Header().Set("Docker-Content-Digest", digestOf(reg.manifest))
+		writeBody(w, r, reg.manifest)
+	case strings.HasPrefix(r.URL.Path, rawRegistryRepo+"blobs/"):
+		reg.serveBlob(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
+// serveBlob serves the blob the path names, or 404.
+func (reg rawRegistry) serveBlob(w http.ResponseWriter, r *http.Request) {
+	body, ok := reg.served[strings.TrimPrefix(r.URL.Path, rawRegistryRepo+"blobs/")]
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	writeBody(w, r, body)
+}
+
+// writeBody sets the length of the body and writes it unless the request is a HEAD.
+func writeBody(w http.ResponseWriter, r *http.Request, body []byte) {
+	w.Header().Set("Content-Length", fmt.Sprint(len(body)))
+	if r.Method != http.MethodHead {
+		_, _ = w.Write(body)
+	}
 }
 
 // TRLC-LINKS: REQ-EMG-047
@@ -150,42 +160,41 @@ func TestCraftedModuleZipIsRejected(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			root := t.TempDir()
 			serveRawModule(t, append(validModuleEntries(), tc.extra...), tc.corrupt)
-			workspace := filepath.Join(root, "workspace")
-			testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+			workspace := fetchWorkspace(t, root)
 			res, err := GenerateCompositionFromFile(filepath.Join(workspace, "engmod.yml"))
-			if err != nil {
-				t.Fatal(err)
-			}
+			requireEqual(t, err, nil)
 			assertCompositionDiagnostic(t, res.Diagnostics, "composition.module_fetch_failed")
-			for _, p := range []string{
-				filepath.Join(root, "escaped.txt"), filepath.Join(workspace, "escaped.txt"),
-				filepath.Join(workspace, ".engmod", "escaped.txt"), filepath.Join(workspace, ".engmod", "modules", "escaped.txt"),
-				"/tmp/engmod-zip-absolute-escape.txt",
-			} {
-				if _, err := os.Lstat(p); err == nil {
-					t.Fatalf("crafted zip wrote %s", p)
-				}
-			}
-			entries, _ := os.ReadDir(filepath.Join(workspace, ".engmod", "modules"))
-			for _, e := range entries {
-				if e.IsDir() {
-					t.Fatalf("a rejected module left a cache entry: %s", e.Name())
-				}
-			}
+			requireNothingEscaped(t, root, workspace)
 		})
 	}
 	// Control: the same registry serves a valid module that is fetched.
-	root := t.TempDir()
 	serveRawModule(t, validModuleEntries(), false)
-	workspace := filepath.Join(root, "workspace")
-	testutil.WriteParentWithOCIModule(t, workspace, "models.atlas.example/shared-edge@v0", "v0.1.0")
+	workspace := fetchWorkspace(t, t.TempDir())
 	res, err := GenerateCompositionFromFile(filepath.Join(workspace, "engmod.yml"))
-	if err != nil {
-		t.Fatal(err)
+	requireEqual(t, err, nil)
+	requireEqual(t, firstDiag(res.Diagnostics, "composition.module_fetch_failed") == nil, true)
+}
+
+// fetchWorkspace writes a parent model that depends on the shared-edge module.
+func fetchWorkspace(t *testing.T, root string) string {
+	workspace := filepath.Join(root, "workspace")
+	testutil.WriteParentWithOCIModule(t, workspace, testutil.OCIParent{Path: "models.atlas.example/shared-edge@v0", Version: "v0.1.0"})
+	return workspace
+}
+
+// requireNothingEscaped fails the test when a crafted zip wrote outside the
+// module cache or the cache kept an entry for the rejected module.
+func requireNothingEscaped(t *testing.T, root, workspace string) {
+	t.Helper()
+	for _, p := range []string{
+		filepath.Join(root, "escaped.txt"), filepath.Join(workspace, "escaped.txt"),
+		filepath.Join(workspace, ".engmod", "escaped.txt"), filepath.Join(workspace, ".engmod", "modules", "escaped.txt"),
+		"/tmp/engmod-zip-absolute-escape.txt",
+	} {
+		requireNoFile(t, p)
 	}
-	for _, d := range res.Diagnostics {
-		if d.Code == "composition.module_fetch_failed" {
-			t.Fatalf("control module must be fetched: %+v", d)
-		}
+	entries, _ := os.ReadDir(filepath.Join(workspace, ".engmod", "modules"))
+	for _, e := range entries {
+		requireEqual(t, e.IsDir(), false) // a rejected module left a cache entry
 	}
 }

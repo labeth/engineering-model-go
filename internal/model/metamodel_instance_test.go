@@ -11,22 +11,29 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// countRepresentableProperties validates every property of metaclass with a
+// fixture value and returns how many there are.
+func countRepresentableProperties(t *testing.T, metaclass string, definition OfficialSysMLMetaclass) int {
+	t.Helper()
+	for name, property := range definition.Properties {
+		value := fixturePropertyValue(property)
+		diagnostics := validateMetamodelInstance(metamodelInstance{
+			id: "FIXTURE", metaclass: metaclass, properties: map[string]MetamodelPropertyValue{name: value}, path: "fixture",
+		})
+		if len(diagnostics) != 0 {
+			t.Fatalf("%s.%s is not representable: %+v", metaclass, name, diagnostics)
+		}
+	}
+	return len(definition.Properties)
+}
+
 // TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
 func TestOfficialMetamodelInventoryIsFullyRepresentable(t *testing.T) {
 	metaclasses := 0
 	properties := 0
 	for metaclass, definition := range OfficialSysMLMetaclasses {
 		metaclasses++
-		for name, property := range definition.Properties {
-			properties++
-			value := fixturePropertyValue(property)
-			diagnostics := validateMetamodelInstance(
-				"FIXTURE", metaclass, map[string]MetamodelPropertyValue{name: value}, "fixture", false,
-			)
-			if len(diagnostics) != 0 {
-				t.Fatalf("%s.%s is not representable: %+v", metaclass, name, diagnostics)
-			}
-		}
+		properties += countRepresentableProperties(t, metaclass, definition)
 	}
 	if metaclasses != 175 {
 		t.Fatalf("represented %d metaclasses, want 175", metaclasses)
@@ -101,7 +108,7 @@ func TestOfficialMetamodelRejectsUnknownReadOnlyMultiplicityAndShape(t *testing.
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			diagnostics := validateMetamodelInstance("FIXTURE", test.metaclass, test.properties, "fixture", false)
+			diagnostics := validateMetamodelInstance(metamodelInstance{id: "FIXTURE", metaclass: test.metaclass, properties: test.properties, path: "fixture"})
 			if !hasSemanticDiagnostic(diagnostics, test.code) {
 				t.Fatalf("expected %s, got %+v", test.code, diagnostics)
 			}
@@ -143,9 +150,8 @@ semantics:
 	}
 }
 
-// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
-func TestCanonicalMetamodelPreservesOwnershipNamespacesImportsAndRelationships(t *testing.T) {
-	bundle := Bundle{Architecture: ArchitectureDocument{
+func ownershipFixtureBundle() Bundle {
+	return Bundle{Architecture: ArchitectureDocument{
 		Model: ModelMeta{ID: "MODEL-A", Title: "Model"},
 		Semantics: SemanticContent{
 			Imports: []SemanticImport{
@@ -170,25 +176,53 @@ func TestCanonicalMetamodelPreservesOwnershipNamespacesImportsAndRelationships(t
 			}},
 		},
 	}}
-	canonical, err := NewCanonicalBundle(bundle)
+}
+
+// TRLC-LINKS: REQ-EMG-038, REQ-EMG-039
+func TestCanonicalMetamodelPreservesOwnershipNamespacesImportsAndRelationships(t *testing.T) {
+	canonical, err := NewCanonicalBundle(ownershipFixtureBundle())
 	if err != nil {
 		t.Fatal(err)
 	}
 	got := canonical.Semantic()
-	var part *SemanticElement
-	for index := range got.Elements {
-		if got.Elements[index].ID == "PART-A" {
-			part = &got.Elements[index]
-			break
-		}
-	}
-	if len(got.Imports) != 2 || part == nil || part.Owner != "PKG-B" || part.Namespace != "PKG-B" {
+	part := findSemanticElement(got.Elements, "PART-A")
+	if len(got.Imports) != 2 || part == nil {
 		t.Fatalf("ownership/import semantics changed: %+v", got)
 	}
-	if got.Relationships[0].Metaclass != "KerML::FeatureTyping" ||
-		len(got.Relationships[0].Properties["typedFeature"].Values) != 1 ||
-		len(got.Relationships[0].Properties["type"].Values) != 1 {
-		t.Fatalf("relationship properties changed: %+v", got.Relationships[0])
+	if part.Owner != "PKG-B" || part.Namespace != "PKG-B" {
+		t.Fatalf("ownership/import semantics changed: %+v", got)
+	}
+	assertTypingRelationshipProperties(t, got.Relationships[0])
+}
+
+func assertTypingRelationshipProperties(t *testing.T, relationship SemanticRelationship) {
+	t.Helper()
+	if relationship.Metaclass != "KerML::FeatureTyping" ||
+		len(relationship.Properties["typedFeature"].Values) != 1 ||
+		len(relationship.Properties["type"].Values) != 1 {
+		t.Fatalf("relationship properties changed: %+v", relationship)
+	}
+}
+
+func assertElementMetaclasses(t *testing.T, elements []SemanticElement) {
+	t.Helper()
+	for _, element := range elements {
+		if element.Metaclass == "" {
+			t.Fatalf("element %s has no normalized metaclass", element.ID)
+		}
+		if _, official := OfficialSysMLMetaclasses[element.Metaclass]; !official &&
+			!strings.HasPrefix(element.Metaclass, "Engineering::") {
+			t.Fatalf("element %s has unstable extension metaclass %q", element.ID, element.Metaclass)
+		}
+	}
+}
+
+func assertRelationshipMetaclasses(t *testing.T, relationships []SemanticRelationship) {
+	t.Helper()
+	for _, relationship := range relationships {
+		if relationship.Metaclass == "" {
+			t.Fatalf("relationship %s has no normalized metaclass", relationship.ID)
+		}
 	}
 }
 
@@ -202,20 +236,8 @@ func TestEngineeringModelCompatibilityDTOsNormalizeToMetaclasses(t *testing.T) {
 	if HasSemanticErrors(diagnostics) {
 		t.Fatalf("projection failed: %+v", diagnostics)
 	}
-	for _, element := range semantic.Elements {
-		if element.Metaclass == "" {
-			t.Fatalf("element %s has no normalized metaclass", element.ID)
-		}
-		if _, official := OfficialSysMLMetaclasses[element.Metaclass]; !official &&
-			!strings.HasPrefix(element.Metaclass, "Engineering::") {
-			t.Fatalf("element %s has unstable extension metaclass %q", element.ID, element.Metaclass)
-		}
-	}
-	for _, relationship := range semantic.Relationships {
-		if relationship.Metaclass == "" {
-			t.Fatalf("relationship %s has no normalized metaclass", relationship.ID)
-		}
-	}
+	assertElementMetaclasses(t, semantic.Elements)
+	assertRelationshipMetaclasses(t, semantic.Relationships)
 }
 
 // TRLC-LINKS: REQ-EMG-040

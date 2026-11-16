@@ -11,6 +11,7 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"unsafe"
 
 	sitter "github.com/tree-sitter/go-tree-sitter"
 	tsgo "github.com/tree-sitter/tree-sitter-go/bindings/go"
@@ -70,6 +71,17 @@ type declaration struct {
 	TestOnly     bool
 	Gates        []string
 	Benchmark    bool
+	// EndLine is the last line of the declaration (0 when the language reader does not know it).
+	EndLine int
+	// Further holds the other names a grouped Go declaration (type, var or const block) declares, each at its own line.
+	Further []declaredName
+}
+
+// declaredName is one more name that a grouped declaration declares.
+type declaredName struct {
+	Name    string
+	Line    int
+	EndLine int
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -113,64 +125,36 @@ func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagno
 	if err != nil {
 		return nil, nil, fmt.Errorf("resolve code root: %w", err)
 	}
-
-	scanBase := absRoot
-	if info, err := os.Stat(absRoot); err == nil && !info.IsDir() {
-		scanBase = filepath.Dir(absRoot)
-	}
-	idBase := scanBase
+	walker := &codeWalker{absRoot: absRoot, opts: opts, scanBase: scanBaseOf(absRoot)}
+	walker.idBase = walker.scanBase
 	if strings.TrimSpace(opts.IDBase) != "" {
-		if idBase, err = filepath.Abs(opts.IDBase); err != nil {
+		if walker.idBase, err = filepath.Abs(opts.IDBase); err != nil {
 			return nil, nil, fmt.Errorf("resolve identifier base: %w", err)
 		}
 	}
-
-	symbols := []Symbol{}
-	diags := []validate.Diagnostic{}
-
-	err = filepath.WalkDir(absRoot, func(path string, d fs.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		if d.IsDir() {
-			name := d.Name()
-			// Skip dependency caches and dot-directories (tool caches, .engmod) so the
-			// scan reflects only committed source and is reproducible across environments.
-			if name == "node_modules" || name == "vendor" || (len(name) > 1 && name[0] == '.') {
-				return filepath.SkipDir
-			}
-			if path != absRoot && opts.Skip != nil && opts.Skip(path, true) {
-				return filepath.SkipDir
-			}
-			return nil
-		}
-		ext := strings.ToLower(filepath.Ext(path))
-		artifact := IsArtifactFile(path)
-		if !supportedExt[ext] && !artifact {
-			return nil
-		}
-		if opts.Skip != nil && opts.Skip(path, false) {
-			return nil
-		}
-		scan := scanFile
-		if artifact {
-			if !ReadableArtifact(path) {
-				return nil
-			}
-			scan = scanArtifactFile
-		}
-		fileSymbols, fileDiags, err := scan(scanBase, idBase, path)
-		if err != nil {
-			return err
-		}
-		symbols = append(symbols, fileSymbols...)
-		diags = append(diags, fileDiags...)
-		return nil
-	})
-	if err != nil {
+	walker.symbols, walker.diags = []Symbol{}, []validate.Diagnostic{}
+	if err := filepath.WalkDir(absRoot, walker.visit); err != nil {
 		return nil, nil, fmt.Errorf("walk code root: %w", err)
 	}
+	sortSymbols(walker.symbols)
+	return walker.symbols, validate.SortDiagnostics(walker.diags), nil
+}
 
+// scanBaseOf is the directory a scan root's paths are made relative to: the
+// root itself, or its directory when the root is a single file.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058, REQ-EMG-084
+func scanBaseOf(absRoot string) string {
+	if info, err := os.Stat(absRoot); err == nil && !info.IsDir() {
+		return filepath.Dir(absRoot)
+	}
+	return absRoot
+}
+
+// sortSymbols orders symbols by path, line and trace identifier.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058, REQ-EMG-084
+func sortSymbols(symbols []Symbol) {
 	sort.SliceStable(symbols, func(i, j int) bool {
 		if symbols[i].Path != symbols[j].Path {
 			return symbols[i].Path < symbols[j].Path
@@ -180,8 +164,78 @@ func ScanWithOptions(root string, opts ScanOptions) ([]Symbol, []validate.Diagno
 		}
 		return symbols[i].TraceID < symbols[j].TraceID
 	})
-	diags = validate.SortDiagnostics(diags)
-	return symbols, diags, nil
+}
+
+// codeWalker collects the symbols and diagnostics of every scanned file under
+// a code root.
+type codeWalker struct {
+	absRoot  string
+	scanBase string
+	idBase   string
+	opts     ScanOptions
+	symbols  []Symbol
+	diags    []validate.Diagnostic
+}
+
+// fileScanner scans one file into symbols and diagnostics.
+type fileScanner func(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error)
+
+// visit is the filepath.WalkDirFunc of a scan.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058, REQ-EMG-084
+func (w *codeWalker) visit(path string, d fs.DirEntry, walkErr error) error {
+	if walkErr != nil {
+		return walkErr
+	}
+	if d.IsDir() {
+		return w.visitDirectory(path, d.Name())
+	}
+	scan := w.scannerFor(path)
+	if scan == nil {
+		return nil
+	}
+	fileSymbols, fileDiags, err := scan(w.scanBase, w.idBase, path)
+	if err != nil {
+		return err
+	}
+	w.symbols = append(w.symbols, fileSymbols...)
+	w.diags = append(w.diags, fileDiags...)
+	return nil
+}
+
+// visitDirectory skips dependency caches and dot-directories (tool caches,
+// .engmod) so the scan reflects only committed source and is reproducible
+// across environments, and any directory the options skip.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058, REQ-EMG-084
+func (w *codeWalker) visitDirectory(path, name string) error {
+	if skipDirectory(name) {
+		return filepath.SkipDir
+	}
+	if path != w.absRoot && w.opts.Skip != nil && w.opts.Skip(path, true) {
+		return filepath.SkipDir
+	}
+	return nil
+}
+
+// scannerFor returns the scanner of a file, or nil when the scan skips it.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010, REQ-EMG-057, REQ-EMG-058, REQ-EMG-084
+func (w *codeWalker) scannerFor(path string) fileScanner {
+	artifact := IsArtifactFile(path)
+	if !supportedExt[strings.ToLower(filepath.Ext(path))] && !artifact {
+		return nil
+	}
+	if w.opts.Skip != nil && w.opts.Skip(path, false) {
+		return nil
+	}
+	if !artifact {
+		return scanFile
+	}
+	if !ReadableArtifact(path) {
+		return nil
+	}
+	return scanArtifactFile
 }
 
 // readScanFile reads a scanned file and returns its scan-relative path and
@@ -225,165 +279,245 @@ func scanFile(root, idBase, path string) ([]Symbol, []validate.Diagnostic, error
 	if err != nil {
 		return nil, nil, err
 	}
-
 	decls, commentLines, parseDiags, err := extractDeclarations(path, src)
 	if err != nil {
 		return nil, nil, err
 	}
-	diags := append([]validate.Diagnostic(nil), parseDiags...)
-	decls = markTestContext(relPath, decls)
-
-	declByLine := map[int]declaration{}
-	traceRequiredByLine := map[int]declaration{}
-	leadingLines := map[int]bool{}
-	for _, d := range decls {
-		for line := d.LeadingLine; line > 0 && line < d.Line; line++ {
-			leadingLines[line] = true
-		}
-		if _, exists := declByLine[d.Line]; !exists {
-			declByLine[d.Line] = d
-		}
-		if d.RequiresTRLC {
-			traceRequiredByLine[d.Line] = d
-		}
+	scan := newFileScan(symbolSite{relPath: relPath, idPath: idPath}, markTestContext(relPath, decls), commentLines)
+	scan.diags = append([]validate.Diagnostic(nil), parseDiags...)
+	if err := scan.scanLines(src); err != nil {
+		return nil, nil, fmt.Errorf("scan %s: %w", path, err)
 	}
+	scan.finish(path)
+	return scan.symbols, scan.diags, nil
+}
 
-	symbols := []Symbol{}
-	linkedLines := map[int]bool{}
-	var pending pendingTrace
+// symbolSite is where a symbol is declared: the scan-relative path, the
+// module-relative identifier path, the line number and its trimmed text.
+type symbolSite struct {
+	relPath string
+	idPath  string
+	lineNo  int
+	line    string
+}
 
+// fileScan is the state of scanning one file's lines for trace markers.
+type fileScan struct {
+	site                symbolSite
+	commentLines        map[int]bool
+	declByLine          map[int]declaration
+	traceRequiredByLine map[int]declaration
+	leadingLines        map[int]bool
+	linkedLines         map[int]bool
+	pending             pendingTrace
+	symbols             []Symbol
+	diags               []validate.Diagnostic
+}
+
+// newFileScan indexes a file's declarations by line for the marker scan.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func newFileScan(site symbolSite, decls []declaration, commentLines map[int]bool) *fileScan {
+	scan := &fileScan{
+		site:                site,
+		commentLines:        commentLines,
+		declByLine:          map[int]declaration{},
+		traceRequiredByLine: map[int]declaration{},
+		leadingLines:        map[int]bool{},
+		linkedLines:         map[int]bool{},
+		symbols:             []Symbol{},
+	}
+	for _, d := range decls {
+		scan.index(d)
+	}
+	return scan
+}
+
+// index records one declaration under its line.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) index(d declaration) {
+	for line := d.LeadingLine; line > 0 && line < d.Line; line++ {
+		s.leadingLines[line] = true
+	}
+	if _, exists := s.declByLine[d.Line]; !exists {
+		s.declByLine[d.Line] = d
+	}
+	if d.RequiresTRLC {
+		s.traceRequiredByLine[d.Line] = d
+	}
+}
+
+// scanLines reads the source line by line.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) scanLines(src []byte) error {
 	scanner := bufio.NewScanner(strings.NewReader(string(src)))
 	lineNo := 0
 	for scanner.Scan() {
 		lineNo++
-		line := scanner.Text()
-		trimmed := strings.TrimSpace(line)
-
-		if commentLines[lineNo] && isCommentLike(trimmed) {
-			if v, ok := markerValue(trimmed, "TRACE-ID:"); ok {
-				pending.traceID = strings.TrimSpace(v)
-				if pending.firstLine == 0 {
-					pending.firstLine = lineNo
-				}
-				continue
-			}
-			if v, ok := markerValue(trimmed, "TRACE-PART-OF:"); ok {
-				pending.partOf = splitCSV(v)
-				if pending.firstLine == 0 {
-					pending.firstLine = lineNo
-				}
-				continue
-			}
-			if v, ok := markerValue(trimmed, "TRLC-LINKS:"); ok {
-				links := splitCSV(v)
-				// Stacked TRLC-LINKS lines above one declaration accumulate.
-				pending.implements = append(pending.implements, links...)
-				for _, link := range links {
-					if !validRequirementID(link) {
-						diags = append(diags, validate.Diagnostic{
-							Code:     "code.invalid_trlc_link",
-							Severity: validate.SeverityError,
-							Message:  fmt.Sprintf("TRLC-LINKS value %q is not a requirement id", link),
-							Path:     fmt.Sprintf("%s:%d", relPath, lineNo),
-						})
-					}
-				}
-				if pending.firstLine == 0 {
-					pending.firstLine = lineNo
-				}
-				continue
-			}
-			if v, ok := markerValue(trimmed, "ENGMODEL-LINKS:"); ok {
-				// Stacked ENGMODEL-LINKS lines above one declaration accumulate (REQ-EMG-174).
-				pending.modelLinks = appendUnique(pending.modelLinks, splitCSV(v))
-				if pending.firstLine == 0 {
-					pending.firstLine = lineNo
-				}
-				continue
-			}
-		}
-
-		if pending.firstLine == 0 {
-			continue
-		}
-
-		if d, ok := declByLine[lineNo]; ok {
-			implements := append([]string(nil), pending.implements...)
-			modelLinks := append([]string(nil), pending.modelLinks...)
-			symbols = append(symbols, symbolForDeclaration(d, relPath, idPath, lineNo, trimmed, pending.traceID, pending.partOf, implements, modelLinks))
-			if len(implements) > 0 {
-				linkedLines[lineNo] = true
-			}
-			pending = pendingTrace{}
-			continue
-		}
-
-		// Allow blank lines, comments, and annotation/decorator lines between marker and declaration.
-		if trimmed == "" || isCommentLike(trimmed) || isAttributeLike(trimmed) || leadingLines[lineNo] {
-			continue
-		}
-
-		diags = append(diags, validate.Diagnostic{
-			Code:     "code.trace_unattached",
-			Severity: validate.SeverityWarning,
-			Message:  "trace marker block not attached to any declaration",
-			Path:     fmt.Sprintf("%s:%d", relPath, pending.firstLine),
-		})
-		pending = pendingTrace{}
+		s.scanLine(lineNo, strings.TrimSpace(scanner.Text()))
 	}
-	if err := scanner.Err(); err != nil {
-		return nil, nil, fmt.Errorf("scan %s: %w", path, err)
+	return scanner.Err()
+}
+
+// scanLine handles one trimmed line: a marker line, the declaration a marker
+// block attaches to, a line allowed between them, or the end of an unattached
+// marker block.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) scanLine(lineNo int, trimmed string) {
+	if s.commentLines[lineNo] && isCommentLike(trimmed) && s.readMarker(lineNo, trimmed) {
+		return
 	}
-	if pending.firstLine != 0 {
-		diags = append(diags, validate.Diagnostic{
-			Code:     "code.trace_unattached",
-			Severity: validate.SeverityWarning,
-			Message:  "trace marker block not attached to any declaration",
-			Path:     fmt.Sprintf("%s:%d", relPath, pending.firstLine),
-		})
+	if s.pending.firstLine == 0 {
+		return
 	}
-	missingLines := make([]int, 0, len(traceRequiredByLine))
-	for line := range traceRequiredByLine {
-		if !linkedLines[line] {
+	s.continueBlock(lineNo, trimmed)
+}
+
+// continueBlock handles a line that is not a marker while a marker block is
+// pending.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) continueBlock(lineNo int, trimmed string) {
+	if d, ok := s.declByLine[lineNo]; ok {
+		s.attach(d, symbolSite{relPath: s.site.relPath, idPath: s.site.idPath, lineNo: lineNo, line: trimmed})
+		return
+	}
+	// Allow blank lines, comments, and annotation/decorator lines between marker and declaration.
+	if isFiller(trimmed) || s.leadingLines[lineNo] {
+		return
+	}
+	s.reportUnattached()
+	s.pending = pendingTrace{}
+}
+
+// isFiller reports whether a line may sit between a marker block and its
+// declaration.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func isFiller(trimmed string) bool {
+	return trimmed == "" || isCommentLike(trimmed) || isAttributeLike(trimmed)
+}
+
+// readMarker records a TRACE-ID, TRACE-PART-OF, TRLC-LINKS or ENGMODEL-LINKS
+// line in the pending block and reports whether the line was one.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) readMarker(lineNo int, trimmed string) bool {
+	if v, ok := markerValue(trimmed, "TRACE-ID:"); ok {
+		s.pending.traceID = strings.TrimSpace(v)
+	} else if v, ok := markerValue(trimmed, "TRACE-PART-OF:"); ok {
+		s.pending.partOf = splitCSV(v)
+	} else if v, ok := markerValue(trimmed, "TRLC-LINKS:"); ok {
+		s.readTRLCLinks(lineNo, v)
+	} else if v, ok := markerValue(trimmed, "ENGMODEL-LINKS:"); ok {
+		// Stacked ENGMODEL-LINKS lines above one declaration accumulate (REQ-EMG-174).
+		s.pending.modelLinks = appendUnique(s.pending.modelLinks, splitCSV(v))
+	} else {
+		return false
+	}
+	if s.pending.firstLine == 0 {
+		s.pending.firstLine = lineNo
+	}
+	return true
+}
+
+// readTRLCLinks accumulates the requirement ids of a TRLC-LINKS line and
+// reports each that is not a requirement id.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) readTRLCLinks(lineNo int, value string) {
+	links := splitCSV(value)
+	// Stacked TRLC-LINKS lines above one declaration accumulate.
+	s.pending.implements = append(s.pending.implements, links...)
+	for _, link := range links {
+		if !validRequirementID(link) {
+			s.diags = append(s.diags, validate.Diagnostic{
+				Code:     "code.invalid_trlc_link",
+				Severity: validate.SeverityError,
+				Message:  fmt.Sprintf("TRLC-LINKS value %q is not a requirement id", link),
+				Path:     fmt.Sprintf("%s:%d", s.site.relPath, lineNo),
+			})
+		}
+	}
+}
+
+// attach turns the pending marker block into the symbol of the declaration
+// at site.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) attach(d declaration, site symbolSite) {
+	s.symbols = append(s.symbols, symbolForDeclaration(d, site, s.pending))
+	if len(s.pending.implements) > 0 {
+		s.linkedLines[site.lineNo] = true
+	}
+	s.pending = pendingTrace{}
+}
+
+// reportUnattached reports the pending marker block as attached to no
+// declaration.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) reportUnattached() {
+	s.diags = append(s.diags, validate.Diagnostic{
+		Code:     "code.trace_unattached",
+		Severity: validate.SeverityWarning,
+		Message:  "trace marker block not attached to any declaration",
+		Path:     fmt.Sprintf("%s:%d", s.site.relPath, s.pending.firstLine),
+	})
+}
+
+// finish reports a marker block left open at the end of the file and the
+// functions that carry no TRLC-LINKS.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (s *fileScan) finish(path string) {
+	if s.pending.firstLine != 0 {
+		s.reportUnattached()
+	}
+	missingLines := make([]int, 0, len(s.traceRequiredByLine))
+	for line := range s.traceRequiredByLine {
+		if !s.linkedLines[line] {
 			missingLines = append(missingLines, line)
 		}
 	}
 	sort.Ints(missingLines)
-	if len(missingLines) > 0 {
-		lineList := joinLineNumbers(missingLines)
-		label := "functions"
-		if strings.EqualFold(filepath.Ext(path), ".v") {
-			label = "modules"
-		}
-		diags = append(diags, validate.Diagnostic{
-			Code:     "code.missing_trlc_link",
-			Severity: validate.SeverityError,
-			Message:  fmt.Sprintf("%s missing TRLC-LINKS at lines %s", label, strings.ReplaceAll(lineList, ",", ", ")),
-			Path:     fmt.Sprintf("%s:%s", relPath, lineList),
-		})
+	if len(missingLines) == 0 {
+		return
 	}
-
-	return symbols, diags, nil
+	lineList := joinLineNumbers(missingLines)
+	label := "functions"
+	if strings.EqualFold(filepath.Ext(path), ".v") {
+		label = "modules"
+	}
+	s.diags = append(s.diags, validate.Diagnostic{
+		Code:     "code.missing_trlc_link",
+		Severity: validate.SeverityError,
+		Message:  fmt.Sprintf("%s missing TRLC-LINKS at lines %s", label, strings.ReplaceAll(lineList, ",", ", ")),
+		Path:     fmt.Sprintf("%s:%s", s.site.relPath, lineList),
+	})
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
-func symbolForDeclaration(d declaration, relPath, idPath string, lineNo int, line string, traceID string, partOf []string, implements []string, modelLinks []string) Symbol {
-	traceID = strings.TrimSpace(traceID)
+func symbolForDeclaration(d declaration, site symbolSite, pending pendingTrace) Symbol {
+	traceID := strings.TrimSpace(pending.traceID)
 	if traceID == "" {
-		traceID = autoTraceID(d.Name, relPath, idPath, lineNo)
+		traceID = autoTraceID(d.Name, site)
 	}
 	signature := strings.TrimSpace(d.Signature)
 	if signature == "" {
-		signature = strings.TrimSpace(line)
+		signature = strings.TrimSpace(site.line)
 	}
 	return Symbol{
 		TraceID:    traceID,
-		PartOf:     append([]string(nil), partOf...),
-		Implements: append([]string(nil), implements...),
-		ModelLinks: append([]string(nil), modelLinks...),
-		Path:       relPath,
-		Line:       lineNo,
+		PartOf:     append([]string(nil), pending.partOf...),
+		Implements: append([]string(nil), pending.implements...),
+		ModelLinks: append([]string(nil), pending.modelLinks...),
+		Path:       site.relPath,
+		Line:       site.lineNo,
 		Signature:  signature,
 		IsTest:     d.IsTest,
 		TestOnly:   d.TestOnly || d.IsTest,
@@ -420,7 +554,16 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 			Path:     path,
 		}}, nil
 	}
+	reader := declarationReader{ext: ext, path: path, src: src, spec: spec}
+	out, commentLines := reader.collect(root)
+	return out, commentLines, reader.diagnostics(root, out), nil
+}
 
+// collect walks the syntax tree and returns its declarations, ordered by line
+// and name, with the lines that hold comments.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (r declarationReader) collect(root *sitter.Node) ([]declaration, map[int]bool) {
 	out := []declaration{}
 	commentLines := map[int]bool{}
 	var visit func(n *sitter.Node)
@@ -428,59 +571,13 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 		if n == nil {
 			return
 		}
-		if n.IsNamed() && strings.Contains(n.Kind(), "comment") && (ext != ".py" || pythonStandaloneComment(n, src)) {
-			start := int(n.StartPosition().Row) + 1
-			end := int(n.EndPosition().Row) + 1
-			for line := start; line <= end; line++ {
-				commentLines[line] = true
-			}
-		}
-		if isJavaScript(ext) {
-			if decl, ok := javascriptDeclaration(n, src); ok {
-				out = append(out, decl)
-			}
-		} else if ext == ".py" {
-			if decl, ok := pythonDeclaration(n, src); ok {
-				if isPythonTestFile(path) {
-					decl.TestOnly = true
-					decl.IsTest = pythonTestFunction(n, src)
-				}
-				out = append(out, decl)
-			}
-		} else if n.IsNamed() && spec.DeclarationKind[n.Kind()] {
-			name := declarationName(n, src)
-			line := int(n.StartPosition().Row) + 1
-			signature := firstLine(strings.TrimSpace(n.Utf8Text(src)))
-			if name != "" {
-				d := declaration{
-					Name:         name,
-					Kind:         n.Kind(),
-					Line:         line,
-					Signature:    signature,
-					RequiresTRLC: spec.TraceRequiredKind[n.Kind()],
-				}
-				switch ext {
-				case ".go":
-					if isGoTestFile(path) {
-						d.TestOnly = true
-						d.IsTest = goTestFunction(n, name)
-						if d.IsTest {
-							d.Gates = goTestGates(n, src)
-							d.Benchmark = strings.HasPrefix(name, "Benchmark")
-						}
-					}
-				case ".rs":
-					d.IsTest = rustTestFunction(n, src)
-					d.Benchmark = d.IsTest && rustBenchFunction(n, src)
-					d.TestOnly = d.IsTest || rustInTestScope(n, src)
-				}
-				out = append(out, d)
-			}
+		r.noteComment(n, commentLines)
+		if d, ok := r.read(n); ok {
+			out = append(out, d)
 		}
 		count := n.NamedChildCount()
 		for i := uint(0); i < count; i++ {
-			child := n.NamedChild(i)
-			visit(child)
+			visit(n.NamedChild(i))
 		}
 	}
 	visit(root)
@@ -491,80 +588,88 @@ func extractDeclarations(path string, src []byte) ([]declaration, map[int]bool, 
 		}
 		return out[i].Name < out[j].Name
 	})
-	if isJavaScript(ext) {
-		return out, commentLines, javascriptDiagnostics(path, root, out), nil
+	return out, commentLines
+}
+
+// diagnostics reports the syntax problems of a JavaScript or Python tree.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func (r declarationReader) diagnostics(root *sitter.Node, out []declaration) []validate.Diagnostic {
+	if isJavaScript(r.ext) {
+		return javascriptDiagnostics(r.path, root, out)
 	}
-	if ext == ".py" && root.HasError() {
-		return out, commentLines, []validate.Diagnostic{{Code: "code.parse_error", Severity: validate.SeverityError, Path: path, Message: "Python syntax tree contains errors; declaration coverage is incomplete"}}, nil
+	if r.ext == ".py" && root.HasError() {
+		return []validate.Diagnostic{{Code: "code.parse_error", Severity: validate.SeverityError, Path: r.path, Message: "Python syntax tree contains errors; declaration coverage is incomplete"}}
 	}
-	return out, commentLines, nil, nil
+	return nil
+}
+
+// specBuilders builds the tree-sitter spec of each supported extension.
+var specBuilders = map[string]func() languageSpec{
+	".py": func() languageSpec { return languageSpec{Language: sitter.NewLanguage(tspython.Language())} },
+	".js": javascriptSpec, ".mjs": javascriptSpec, ".cjs": javascriptSpec,
+	".go": func() languageSpec {
+		return declarationSpec(tsgo.Language(),
+			[]string{"function_declaration", "method_declaration", "type_declaration", "var_declaration", "const_declaration"},
+			[]string{"function_declaration", "method_declaration"})
+	},
+	".ts":  func() languageSpec { return typescriptSpec(tstypescript.LanguageTypescript()) },
+	".tsx": func() languageSpec { return typescriptSpec(tstypescript.LanguageTSX()) },
+	".rs": func() languageSpec {
+		return declarationSpec(tsrust.Language(),
+			[]string{"function_item", "struct_item", "impl_item"},
+			[]string{"function_item"})
+	},
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010
 func treeSitterSpec(ext string) (languageSpec, bool) {
-	if ext == ".py" {
-		return languageSpec{Language: sitter.NewLanguage(tspython.Language())}, true
-	}
-	switch ext {
-	case ".js", ".mjs", ".cjs":
-		return languageSpec{Language: sitter.NewLanguage(tsjavascript.Language())}, true
-	case ".go":
-		return languageSpec{
-			Language: sitter.NewLanguage(tsgo.Language()),
-			DeclarationKind: map[string]bool{
-				"function_declaration": true,
-				"method_declaration":   true,
-				"type_declaration":     true,
-				"var_declaration":      true,
-				"const_declaration":    true,
-			},
-			TraceRequiredKind: map[string]bool{
-				"function_declaration": true,
-				"method_declaration":   true,
-			},
-		}, true
-	case ".ts":
-		return languageSpec{
-			Language: sitter.NewLanguage(tstypescript.LanguageTypescript()),
-			DeclarationKind: map[string]bool{
-				"function_declaration": true,
-				"method_definition":    true,
-				"class_declaration":    true,
-			},
-			TraceRequiredKind: map[string]bool{
-				"function_declaration": true,
-				"method_definition":    true,
-			},
-		}, true
-	case ".tsx":
-		return languageSpec{
-			Language: sitter.NewLanguage(tstypescript.LanguageTSX()),
-			DeclarationKind: map[string]bool{
-				"function_declaration": true,
-				"method_definition":    true,
-				"class_declaration":    true,
-			},
-			TraceRequiredKind: map[string]bool{
-				"function_declaration": true,
-				"method_definition":    true,
-			},
-		}, true
-	case ".rs":
-		return languageSpec{
-			Language: sitter.NewLanguage(tsrust.Language()),
-			DeclarationKind: map[string]bool{
-				"function_item": true,
-				"struct_item":   true,
-				"impl_item":     true,
-			},
-			TraceRequiredKind: map[string]bool{
-				"function_item": true,
-			},
-		}, true
-	default:
+	build, ok := specBuilders[ext]
+	if !ok {
 		return languageSpec{}, false
 	}
+	return build(), true
+}
+
+// javascriptSpec is the spec of JavaScript, whose declarations the
+// JavaScript reader finds itself.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func javascriptSpec() languageSpec {
+	return languageSpec{Language: sitter.NewLanguage(tsjavascript.Language())}
+}
+
+// typescriptSpec is the spec of a TypeScript dialect.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func typescriptSpec(language unsafe.Pointer) languageSpec {
+	return declarationSpec(language,
+		[]string{"function_declaration", "method_definition", "class_declaration"},
+		[]string{"function_declaration", "method_definition"})
+}
+
+// declarationSpec is the spec of a language whose declarations are the given
+// syntax node kinds, of which the required kinds must carry TRLC-LINKS.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func declarationSpec(language unsafe.Pointer, kinds, required []string) languageSpec {
+	return languageSpec{
+		Language:          sitter.NewLanguage(language),
+		DeclarationKind:   kindSet(kinds),
+		TraceRequiredKind: kindSet(required),
+	}
+}
+
+// kindSet is the set of the given syntax node kinds.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func kindSet(kinds []string) map[string]bool {
+	set := make(map[string]bool, len(kinds))
+	for _, kind := range kinds {
+		set[kind] = true
+	}
+	return set
 }
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
@@ -576,44 +681,49 @@ func declarationName(n *sitter.Node, src []byte) string {
 	if name := n.ChildByFieldName("name"); name != nil {
 		return strings.TrimSpace(name.Utf8Text(src))
 	}
-	count := n.NamedChildCount()
-	if n.Kind() == "type_declaration" {
-		for i := uint(0); i < count; i++ {
-			child := n.NamedChild(i)
-			if child == nil {
-				continue
-			}
-			if child.Kind() != "type_spec" && child.Kind() != "type_alias" {
-				continue
-			}
-			if name := child.ChildByFieldName("name"); name != nil {
-				return strings.TrimSpace(name.Utf8Text(src))
-			}
+	switch n.Kind() {
+	case "type_declaration":
+		if name, ok := specName(n, src, []string{"type_spec", "type_alias"}); ok {
+			return name
+		}
+	case "var_declaration", "const_declaration":
+		// Package-level var/const declarations carry their name on a nested spec.
+		// They attach trace/model-link markers (full linking) but do not require them.
+		if name, ok := specName(n, src, []string{"var_spec", "const_spec"}); ok {
+			return name
 		}
 	}
-	// Package-level var/const declarations carry their name on a nested spec.
-	// They attach trace/model-link markers (full linking) but do not require them.
-	if n.Kind() == "var_declaration" || n.Kind() == "const_declaration" {
-		for i := uint(0); i < count; i++ {
-			child := n.NamedChild(i)
-			if child == nil {
-				continue
-			}
-			if child.Kind() != "var_spec" && child.Kind() != "const_spec" {
-				continue
-			}
-			if name := child.ChildByFieldName("name"); name != nil {
-				return strings.TrimSpace(name.Utf8Text(src))
-			}
+	return firstIdentifier(n, src)
+}
+
+// specName is the name of the first child of one of the spec kinds that has
+// one.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func specName(n *sitter.Node, src []byte, kinds []string) (string, bool) {
+	for i := uint(0); i < n.NamedChildCount(); i++ {
+		child := n.NamedChild(i)
+		if child == nil || !slices.Contains(kinds, child.Kind()) {
+			continue
+		}
+		if name := child.ChildByFieldName("name"); name != nil {
+			return strings.TrimSpace(name.Utf8Text(src)), true
 		}
 	}
-	for i := uint(0); i < count; i++ {
+	return "", false
+}
+
+// firstIdentifier is the text of the first identifier child of n.
+// ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+// TRLC-LINKS: REQ-EMG-010
+func firstIdentifier(n *sitter.Node, src []byte) string {
+	for i := uint(0); i < n.NamedChildCount(); i++ {
 		child := n.NamedChild(i)
 		if child == nil {
 			continue
 		}
-		k := child.Kind()
-		if k == "identifier" || k == "field_identifier" || k == "type_identifier" || k == "property_identifier" {
+		switch child.Kind() {
+		case "identifier", "field_identifier", "type_identifier", "property_identifier":
 			return strings.TrimSpace(child.Utf8Text(src))
 		}
 	}
@@ -683,11 +793,9 @@ func validRequirementID(id string) bool {
 
 // TRLC-LINKS: REQ-EMG-010
 func isCommentLike(trimmed string) bool {
-	return strings.HasPrefix(trimmed, "//") ||
-		strings.HasPrefix(trimmed, "#") ||
-		strings.HasPrefix(trimmed, "/*") ||
-		strings.HasPrefix(trimmed, "*") ||
-		strings.HasPrefix(trimmed, "--")
+	return slices.ContainsFunc([]string{"//", "#", "/*", "*", "--"}, func(prefix string) bool {
+		return strings.HasPrefix(trimmed, prefix)
+	})
 }
 
 // TRLC-LINKS: REQ-EMG-010
@@ -697,12 +805,12 @@ func isAttributeLike(trimmed string) bool {
 
 // ENGMODEL-LINKS: FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
 // TRLC-LINKS: REQ-EMG-010, REQ-EMG-058
-func autoTraceID(symbolName, relPath, idPath string, lineNo int) string {
+func autoTraceID(symbolName string, site symbolSite) string {
 	name := strings.TrimSpace(symbolName)
 	if name != "" {
-		return FileID(idPath) + "--" + slugUpper(name)
+		return FileID(site.idPath) + "--" + slugUpper(name)
 	}
-	return fmt.Sprintf("AUTO-%s:%d", relPath, lineNo)
+	return fmt.Sprintf("AUTO-%s:%d", site.relPath, site.lineNo)
 }
 
 // FileID returns the CODE identifier of a module-relative file path: the path upper-cased
@@ -728,4 +836,17 @@ func slugUpper(s string) string {
 		return "SYMBOL"
 	}
 	return normalized
+}
+
+// namedChildren returns the named children of n that exist.
+// TRLC-LINKS: REQ-EMG-010
+func namedChildren(n *sitter.Node) []*sitter.Node {
+	count := n.NamedChildCount()
+	out := make([]*sitter.Node, 0, count)
+	for i := uint(0); i < count; i++ {
+		if child := n.NamedChild(i); child != nil {
+			out = append(out, child)
+		}
+	}
+	return out
 }

@@ -78,57 +78,143 @@ func GenerateFromFile(manifestPath string) (Result, error) {
 // machines yields no files and no error.
 //
 // TRLC-LINKS: REQ-EMG-141
-// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT
+// ENGMODEL-LINKS: FU-QUINT-EXPORTER, IF-CLI-ENGQUINT, DO-QUINT-SPECIFICATION
 func Generate(bundle model.Bundle) (Result, error) {
-	result := Result{Files: []File{}, Diagnostics: []model.SemanticDiagnostic{}}
-	modules := map[string]string{}
-	errorCount := 0
+	g := generation{
+		result:  Result{Files: []File{}, Diagnostics: []model.SemanticDiagnostic{}},
+		modules: map[string]string{},
+	}
 	for i, machine := range bundle.Architecture.AuthoredArchitecture.Machines {
-		path := fmt.Sprintf("%s[%d]", machinesPath, i)
-		file, diagnostics := generateMachine(path, machine)
-		if previous, taken := modules[file.Module]; file.Module != "" && taken {
-			diagnostics = append(diagnostics, errorDiagnostic("quint.name_collision", path+".id",
-				"machine %q and machine %q both map to Quint module %q", previous, machine.ID, file.Module))
-		}
-		modules[file.Module] = machine.ID
-		failed := false
-		for _, d := range diagnostics {
-			if d.Severity == model.SemanticSeverityError {
-				errorCount++
-				failed = true
-			}
-		}
-		result.Diagnostics = append(result.Diagnostics, diagnostics...)
-		if !failed {
-			result.Files = append(result.Files, file)
-		}
+		g.add(fmt.Sprintf("%s[%d]", machinesPath, i), machine)
 	}
-	if errorCount > 0 {
-		return result, fmt.Errorf("quint generation failed with %d error(s)", errorCount)
+	if g.errorCount > 0 {
+		return g.result, fmt.Errorf("quint generation failed with %d error(s)", g.errorCount)
 	}
-	return result, nil
+	return g.result, nil
 }
+
+// generation accumulates the result of generating every machine of a bundle.
+type generation struct {
+	result     Result
+	modules    map[string]string
+	errorCount int
+}
+
+// add generates the module of one machine, reports a module name that an
+// earlier machine already took and keeps the file when it has no error.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (g *generation) add(path string, machine model.Machine) {
+	file, diagnostics := generateMachine(path, machine)
+	if previous, taken := g.modules[file.Module]; file.Module != "" && taken {
+		diagnostics = append(diagnostics, errorDiagnostic(at("quint.name_collision", path+".id"),
+			"machine %q and machine %q both map to Quint module %q", previous, machine.ID, file.Module))
+	}
+	g.modules[file.Module] = machine.ID
+	errs := countErrors(diagnostics)
+	g.errorCount += errs
+	g.result.Diagnostics = append(g.result.Diagnostics, diagnostics...)
+	if errs == 0 {
+		g.result.Files = append(g.result.Files, file)
+	}
+}
+
+// countErrors counts the diagnostics of error severity.
+//
+// TRLC-LINKS: REQ-EMG-141
+func countErrors(diagnostics []model.SemanticDiagnostic) int {
+	n := 0
+	for _, d := range diagnostics {
+		if d.Severity == model.SemanticSeverityError {
+			n++
+		}
+	}
+	return n
+}
+
+// site is where a diagnostic is reported: its code and the model path.
+type site struct {
+	code string
+	path string
+}
+
+// at names the site of a diagnostic.
+//
+// TRLC-LINKS: REQ-EMG-141
+func at(code, path string) site { return site{code: code, path: path} }
 
 // errorDiagnostic is part of the Quint module generation.
 //
 // TRLC-LINKS: REQ-EMG-141
-func errorDiagnostic(code, path, format string, args ...any) model.SemanticDiagnostic {
-	return model.SemanticDiagnostic{Code: code, Severity: model.SemanticSeverityError, Path: path, Message: fmt.Sprintf(format, args...)}
+func errorDiagnostic(s site, format string, args ...any) model.SemanticDiagnostic {
+	return model.SemanticDiagnostic{Code: s.code, Severity: model.SemanticSeverityError, Path: s.path, Message: fmt.Sprintf(format, args...)}
 }
 
 var variableName = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]*$`)
 
-// machineBuild collects the diagnostics of one machine.
+// variable is a declared machine variable with its rendered initial value.
+type variable struct {
+	name    string
+	typ     model.MachineType
+	initial string
+}
+
+// action is one generated transition action.
+type action struct {
+	name, comment string
+	lines         []string
+}
+
+// invariant is one generated invariant val.
+type invariant struct {
+	Invariant
+	comment, expr string
+}
+
+// nameSpace is a set of Quint identifiers that must be unique within the
+// module; what names the kind of element in a collision message.
+type nameSpace struct {
+	seen map[string]string
+	what string
+}
+
+// newNameSpace starts an empty name space for one kind of element.
+//
+// TRLC-LINKS: REQ-EMG-141
+func newNameSpace(what string) nameSpace {
+	return nameSpace{seen: map[string]string{}, what: what}
+}
+
+// element is an authored element and the path of its ID.
+type element struct {
+	id   string
+	path string
+}
+
+// machineBuild collects the declarations and diagnostics of one machine.
 type machineBuild struct {
 	machine     string
+	m           model.Machine
+	path        string
 	diagnostics []model.SemanticDiagnostic
+
+	module      string
+	variables   map[string]model.MachineType
+	vars        []variable
+	stateCtor   map[string]string
+	ctors       nameSpace
+	snakes      nameSpace
+	initialCtor string
+	renderer    exprRenderer
+	actions     []action
+	invariants  []invariant
 }
 
 // fail is part of the Quint module generation.
 //
 // TRLC-LINKS: REQ-EMG-141
-func (b *machineBuild) fail(code, path, format string, args ...any) {
-	b.diagnostics = append(b.diagnostics, errorDiagnostic(code, path, format, args...))
+func (b *machineBuild) fail(s site, format string, args ...any) {
+	b.diagnostics = append(b.diagnostics, errorDiagnostic(s, format, args...))
 }
 
 // failProblem is part of the Quint module generation.
@@ -138,19 +224,19 @@ func (b *machineBuild) failProblem(path, what string, p *problem) {
 	if p == errSilent {
 		return
 	}
-	b.fail(p.code, path, "machine %q %s: %s", b.machine, what, p.msg)
+	b.fail(at(p.code, path), "machine %q %s: %s", b.machine, what, p.msg)
 }
 
 // claim records an identifier that must be unique within the module and
 // reports a collision as an error.
 //
 // TRLC-LINKS: REQ-EMG-141
-func (b *machineBuild) claim(seen map[string]string, key, id, path, what string) {
-	if previous, taken := seen[key]; taken {
-		b.fail("quint.name_collision", path, "machine %q %s %q and %q both map to the Quint identifier %q", b.machine, what, previous, id, key)
+func (b *machineBuild) claim(ns nameSpace, key string, who element) {
+	if previous, taken := ns.seen[key]; taken {
+		b.fail(at("quint.name_collision", who.path), "machine %q %s %q and %q both map to the Quint identifier %q", b.machine, ns.what, previous, who.id, key)
 		return
 	}
-	seen[key] = id
+	ns.seen[key] = who.id
 }
 
 // generateMachine renders one machine. The returned file is only meaningful
@@ -159,293 +245,436 @@ func (b *machineBuild) claim(seen map[string]string, key, id, path, what string)
 // TRLC-LINKS: REQ-EMG-141
 // ENGMODEL-LINKS: FU-QUINT-EXPORTER
 func generateMachine(path string, m model.Machine) (File, []model.SemanticDiagnostic) {
-	b := &machineBuild{machine: m.ID}
+	b := &machineBuild{
+		machine:   m.ID,
+		m:         m,
+		path:      path,
+		variables: map[string]model.MachineType{},
+		stateCtor: map[string]string{},
+		ctors:     newNameSpace("states"),
+		snakes:    newNameSpace("states"),
+	}
 	file := File{Machine: m.ID}
+	b.module = b.moduleName()
+	file.Module = b.module
+	file.Name = b.module + ".qnt"
+	b.declareVariables()
+	b.declareStates()
+	b.renderer = exprRenderer{variables: b.variables, stateCtor: b.stateCtor}
+	b.buildTransitions()
+	b.buildInvariants()
+	if countErrors(b.diagnostics) > 0 {
+		return file, b.diagnostics
+	}
+	b.render(&file)
+	return file, b.diagnostics
+}
 
-	module := snakeCase(m.ID)
+// moduleName derives the Quint module name from the machine ID.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) moduleName() string {
+	module := snakeCase(b.m.ID)
 	switch {
-	case strings.TrimSpace(m.ID) == "":
-		b.fail("quint.invalid_machine", path+".id", "machine requires an ID")
+	case strings.TrimSpace(b.m.ID) == "":
+		b.fail(at("quint.invalid_machine", b.path+".id"), "machine requires an ID")
 	case module == "":
-		b.fail("quint.invalid_machine", path+".id", "machine ID %q has no letter or digit for a Quint module name", m.ID)
+		b.fail(at("quint.invalid_machine", b.path+".id"), "machine ID %q has no letter or digit for a Quint module name", b.m.ID)
 	default:
-		if module[0] >= '0' && module[0] <= '9' {
-			module = "m_" + module
-		}
-		if why := reservedModule(module); why != "" {
-			b.fail("quint.name_collision", path+".id", "machine ID %q maps to the module name %q, %s", m.ID, module, why)
-		}
+		return b.usableModule(module)
 	}
-	file.Module = module
-	file.Name = module + ".qnt"
+	return module
+}
 
-	// Variables.
-	variables := map[string]model.MachineType{}
-	declared := map[string]bool{}
-	type variable struct {
-		name    string
-		typ     model.MachineType
-		initial string
+// usableModule prefixes a module name that starts with a digit and reports a
+// reserved one.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) usableModule(module string) string {
+	if module[0] >= '0' && module[0] <= '9' {
+		module = "m_" + module
 	}
-	var vars []variable
-	for i, v := range m.Variables {
-		vpath := fmt.Sprintf("%s.variables[%d]", path, i)
-		switch {
-		case !variableName.MatchString(v.Name):
-			b.fail("quint.invalid_machine", vpath+".name", "machine %q variable name %q must be a letter or underscore followed by letters, digits or underscores", m.ID, v.Name)
-			continue
-		case variables[v.Name] != "":
-			b.fail("quint.name_collision", vpath+".name", "machine %q declares variable %q twice", m.ID, v.Name)
-			continue
-		}
-		typ := model.MachineType(strings.TrimSpace(v.Type))
-		declared[v.Name] = true
-		initial, problem := initialLiteral(typ, v.Initial)
-		if problem != nil {
-			b.fail(problem.code, vpath+".initial", "machine %q variable %q: %s", m.ID, v.Name, problem.msg)
-			// The name stays declared, so an expression that reads it is not
-			// reported as an undeclared variable on top of the root cause: a
-			// variable of a valid type keeps it and a variable of an invalid
-			// type is marked so that its readers are silently skipped.
-			if typ != model.MachineTypeInteger && typ != model.MachineTypeBoolean && typ != model.MachineTypeString {
-				typ = invalidVariableType
-			}
-			variables[v.Name] = typ
-			continue
-		}
-		variables[v.Name] = typ
-		vars = append(vars, variable{name: v.Name, typ: typ, initial: initial})
+	if why := reservedModule(module); why != "" {
+		b.fail(at("quint.name_collision", b.path+".id"), "machine ID %q maps to the module name %q, %s", b.m.ID, module, why)
 	}
+	return module
+}
 
-	// States.
-	stateCtor := map[string]string{}
-	ctors := map[string]string{}
-	snakes := map[string]string{}
-	for i, s := range m.States {
-		spath := fmt.Sprintf("%s.states[%d]", path, i)
-		ctor, snake := pascalCase(s.ID), snakeCase(s.ID)
-		if strings.TrimSpace(s.ID) == "" || ctor == "" {
-			b.fail("quint.invalid_machine", spath+".id", "machine %q state requires an ID with a letter or digit", m.ID)
-			continue
-		}
-		if _, dup := stateCtor[s.ID]; dup {
-			b.fail("quint.name_collision", spath+".id", "machine %q declares state %q twice", m.ID, s.ID)
-			continue
-		}
-		b.claim(ctors, ctor, s.ID, spath+".id", "states")
-		b.claim(snakes, snake, s.ID, spath+".id", "states")
-		stateCtor[s.ID] = ctor
+// declareVariables declares the variables of the machine.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) declareVariables() {
+	for i, v := range b.m.Variables {
+		b.declareVariable(fmt.Sprintf("%s.variables[%d]", b.path, i), v)
 	}
-	if len(m.States) == 0 {
-		b.fail("quint.invalid_machine", path+".states", "machine %q has no states", m.ID)
-	}
-	initialCtor, ok := stateCtor[m.Initial]
-	if len(m.States) > 0 && !ok {
-		b.fail(codeUnresolved, path+".initial", "machine %q initial state %q is not one of its states", m.ID, m.Initial)
-	}
-	stateName := func(id string) string {
-		for _, s := range m.States {
-			if s.ID == id {
-				if name := oneLine(s.Name); name != "" {
-					return name
-				}
-			}
-		}
-		return oneLine(id)
-	}
+}
 
-	renderer := exprRenderer{variables: variables, stateCtor: stateCtor}
-
-	// Transitions.
-	type action struct {
-		name, comment string
-		lines         []string
+// declareVariable declares one variable and renders its initial value.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) declareVariable(vpath string, v model.MachineVariable) {
+	if !b.variableDeclarable(vpath, v.Name) {
+		return
 	}
-	var actions []action
-	actionNames := map[string]string{}
-	for i, t := range m.Transitions {
-		tpath := fmt.Sprintf("%s.transitions[%d]", path, i)
+	typ := model.MachineType(strings.TrimSpace(v.Type))
+	initial, problem := initialLiteral(typ, v.Initial)
+	if problem != nil {
+		b.fail(at(problem.code, vpath+".initial"), "machine %q variable %q: %s", b.machine, v.Name, problem.msg)
+		// The name stays declared, so an expression that reads it is not
+		// reported as an undeclared variable on top of the root cause: a
+		// variable of a valid type keeps it and a variable of an invalid
+		// type is marked so that its readers are silently skipped.
+		if typ != model.MachineTypeInteger && typ != model.MachineTypeBoolean && typ != model.MachineTypeString {
+			typ = invalidVariableType
+		}
+		b.variables[v.Name] = typ
+		return
+	}
+	b.variables[v.Name] = typ
+	b.vars = append(b.vars, variable{name: v.Name, typ: typ, initial: initial})
+}
+
+// variableDeclarable reports whether a variable name is valid and new.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) variableDeclarable(vpath, name string) bool {
+	switch {
+	case !variableName.MatchString(name):
+		b.fail(at("quint.invalid_machine", vpath+".name"), "machine %q variable name %q must be a letter or underscore followed by letters, digits or underscores", b.machine, name)
+		return false
+	case b.variables[name] != "":
+		b.fail(at("quint.name_collision", vpath+".name"), "machine %q declares variable %q twice", b.machine, name)
+		return false
+	}
+	return true
+}
+
+// declareStates declares the states of the machine and resolves the initial
+// one.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) declareStates() {
+	for i, s := range b.m.States {
+		b.declareState(fmt.Sprintf("%s.states[%d]", b.path, i), s)
+	}
+	if len(b.m.States) == 0 {
+		b.fail(at("quint.invalid_machine", b.path+".states"), "machine %q has no states", b.machine)
+	}
+	ctor, ok := b.stateCtor[b.m.Initial]
+	if len(b.m.States) > 0 && !ok {
+		b.fail(at(codeUnresolved, b.path+".initial"), "machine %q initial state %q is not one of its states", b.machine, b.m.Initial)
+	}
+	b.initialCtor = ctor
+}
+
+// declareState declares one state.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) declareState(spath string, s model.MachineState) {
+	ctor, snake := pascalCase(s.ID), snakeCase(s.ID)
+	if strings.TrimSpace(s.ID) == "" || ctor == "" {
+		b.fail(at("quint.invalid_machine", spath+".id"), "machine %q state requires an ID with a letter or digit", b.machine)
+		return
+	}
+	if _, dup := b.stateCtor[s.ID]; dup {
+		b.fail(at("quint.name_collision", spath+".id"), "machine %q declares state %q twice", b.machine, s.ID)
+		return
+	}
+	who := element{id: s.ID, path: spath + ".id"}
+	b.claim(b.ctors, ctor, who)
+	b.claim(b.snakes, snake, who)
+	b.stateCtor[s.ID] = ctor
+}
+
+// stateName is the one-line display name of a state, for comments.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) stateName(id string) string {
+	for _, s := range b.m.States {
+		if name := oneLine(s.Name); s.ID == id && name != "" {
+			return name
+		}
+	}
+	return oneLine(id)
+}
+
+// buildTransitions builds the action of every transition.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) buildTransitions() {
+	names := newNameSpace("transitions")
+	for i, t := range b.m.Transitions {
+		tpath := fmt.Sprintf("%s.transitions[%d]", b.path, i)
 		tsnake := snakeCase(t.ID)
 		trName := prefixed("tr_", tsnake)
 		if strings.TrimSpace(t.ID) == "" || tsnake == "" {
-			b.fail("quint.invalid_machine", tpath+".id", "machine %q transition requires an ID with a letter or digit", m.ID)
+			b.fail(at("quint.invalid_machine", tpath+".id"), "machine %q transition requires an ID with a letter or digit", b.machine)
 			continue
 		}
-		b.claim(actionNames, trName, t.ID, tpath+".id", "transitions")
-		from, fromOK := stateCtor[t.From]
-		to, toOK := stateCtor[t.To]
-		if !fromOK {
-			b.fail(codeUnresolved, tpath+".from", "machine %q transition %q from state %q is not one of its states", m.ID, t.ID, t.From)
-		}
-		if !toOK {
-			b.fail(codeUnresolved, tpath+".to", "machine %q transition %q to state %q is not one of its states", m.ID, t.ID, t.To)
-		}
-		tid, ok := quintString(t.ID)
-		if !ok {
-			b.fail(codeString, tpath+".id", "machine %q transition ID %q cannot be written as a Quint string", m.ID, t.ID)
-		}
-
-		lines := []string{"state == " + from}
-		if guard := strings.TrimSpace(t.Guard); guard != "" {
-			expr, diags := model.ParseMachineExpr(t.Guard, model.MachineExprBoolean)
-			if len(diags) > 0 {
-				b.parseFailed(tpath+".guard", fmt.Sprintf("transition %q guard", t.ID), diags)
-			} else if text, p := renderer.boolean(expr); p != nil {
-				b.failProblem(tpath+".guard", fmt.Sprintf("transition %q guard", t.ID), p)
-			} else {
-				lines = append(lines, text)
-			}
-		}
-		assigned := map[string]string{}
-		if effect := strings.TrimSpace(t.Effect); effect != "" {
-			expr, diags := model.ParseMachineExpr(t.Effect, model.MachineExprEffect)
-			if len(diags) > 0 {
-				b.parseFailed(tpath+".effect", fmt.Sprintf("transition %q effect", t.ID), diags)
-			} else if list, p := renderer.effect(expr); p != nil {
-				b.failProblem(tpath+".effect", fmt.Sprintf("transition %q effect", t.ID), p)
-			} else {
-				for _, a := range list {
-					assigned[a.variable] = a.value
-				}
-			}
-		}
-		lines = append(lines, "state' = "+to)
-		for _, v := range vars {
-			value, changed := assigned[v.name]
-			if !changed {
-				value = varIdent(v.name)
-			}
-			lines = append(lines, varIdent(v.name)+"' = "+value)
-		}
-		lines = append(lines, "lastTransition' = "+tid)
-
-		comment := oneLine(t.ID)
-		if on := oneLine(t.On); on != "" {
-			comment += " (" + on + ")"
-		}
-		comment += ": " + stateName(t.From) + " -> " + stateName(t.To)
-		actions = append(actions, action{name: trName, comment: comment, lines: lines})
+		b.claim(names, trName, element{id: t.ID, path: tpath + ".id"})
+		b.actions = append(b.actions, b.buildAction(tpath, t, trName))
 	}
+}
 
-	// Invariants.
-	type invariant struct {
-		Invariant
-		comment, expr string
+// transitionEnd is one end of a transition: "from" or "to" and its state ID.
+type transitionEnd struct {
+	side  string
+	state string
+}
+
+// resolveEnd resolves an end of a transition to its state constructor.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) resolveEnd(tpath, tid string, end transitionEnd) string {
+	ctor, ok := b.stateCtor[end.state]
+	if !ok {
+		b.fail(at(codeUnresolved, tpath+"."+end.side), "machine %q transition %q %s state %q is not one of its states", b.machine, tid, end.side, end.state)
 	}
-	var invariants []invariant
-	invariantNames := map[string]string{}
-	for i, inv := range m.Invariants {
-		ipath := fmt.Sprintf("%s.invariants[%d]", path, i)
+	return ctor
+}
+
+// buildAction renders the lines of the action of one transition.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) buildAction(tpath string, t model.MachineTransition, name string) action {
+	from := b.resolveEnd(tpath, t.ID, transitionEnd{"from", t.From})
+	to := b.resolveEnd(tpath, t.ID, transitionEnd{"to", t.To})
+	tid, ok := quintString(t.ID)
+	if !ok {
+		b.fail(at(codeString, tpath+".id"), "machine %q transition ID %q cannot be written as a Quint string", b.machine, t.ID)
+	}
+	lines := append([]string{"state == " + from}, b.guardLines(tpath, t)...)
+	assigned := b.effectAssignments(tpath, t)
+	lines = append(lines, "state' = "+to)
+	for _, v := range b.vars {
+		value, changed := assigned[v.name]
+		if !changed {
+			value = varIdent(v.name)
+		}
+		lines = append(lines, varIdent(v.name)+"' = "+value)
+	}
+	lines = append(lines, "lastTransition' = "+tid)
+	return action{name: name, comment: b.transitionComment(t), lines: lines}
+}
+
+// guardLines renders the guard of a transition: no line when it has none or
+// cannot be rendered.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) guardLines(tpath string, t model.MachineTransition) []string {
+	if strings.TrimSpace(t.Guard) == "" {
+		return nil
+	}
+	what := fmt.Sprintf("transition %q guard", t.ID)
+	expr, diags := model.ParseMachineExpr(t.Guard, model.MachineExprBoolean)
+	if len(diags) > 0 {
+		b.parseFailed(tpath+".guard", what, diags)
+		return nil
+	}
+	text, p := b.renderer.boolean(expr)
+	if p != nil {
+		b.failProblem(tpath+".guard", what, p)
+		return nil
+	}
+	return []string{text}
+}
+
+// effectAssignments renders the effect of a transition as the value assigned
+// to each variable.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) effectAssignments(tpath string, t model.MachineTransition) map[string]string {
+	assigned := map[string]string{}
+	if strings.TrimSpace(t.Effect) == "" {
+		return assigned
+	}
+	what := fmt.Sprintf("transition %q effect", t.ID)
+	expr, diags := model.ParseMachineExpr(t.Effect, model.MachineExprEffect)
+	if len(diags) > 0 {
+		b.parseFailed(tpath+".effect", what, diags)
+		return assigned
+	}
+	list, p := b.renderer.effect(expr)
+	if p != nil {
+		b.failProblem(tpath+".effect", what, p)
+		return assigned
+	}
+	for _, a := range list {
+		assigned[a.variable] = a.value
+	}
+	return assigned
+}
+
+// transitionComment is the comment line above the action of a transition.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) transitionComment(t model.MachineTransition) string {
+	comment := oneLine(t.ID)
+	if on := oneLine(t.On); on != "" {
+		comment += " (" + on + ")"
+	}
+	return comment + ": " + b.stateName(t.From) + " -> " + b.stateName(t.To)
+}
+
+// buildInvariants builds the invariant val of every invariant that renders.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) buildInvariants() {
+	names := newNameSpace("invariants")
+	for i, inv := range b.m.Invariants {
+		ipath := fmt.Sprintf("%s.invariants[%d]", b.path, i)
 		isnake := snakeCase(inv.ID)
 		invName := prefixed("inv_", isnake)
 		if strings.TrimSpace(inv.ID) == "" || isnake == "" {
-			b.fail("quint.invalid_machine", ipath+".id", "machine %q invariant requires an ID with a letter or digit", m.ID)
+			b.fail(at("quint.invalid_machine", ipath+".id"), "machine %q invariant requires an ID with a letter or digit", b.machine)
 			continue
 		}
-		b.claim(invariantNames, invName, inv.ID, ipath+".id", "invariants")
-		expr, diags := model.ParseMachineExpr(inv.Expr, model.MachineExprBoolean)
-		if len(diags) > 0 {
-			b.parseFailed(ipath+".expr", fmt.Sprintf("invariant %q", inv.ID), diags)
-			continue
+		b.claim(names, invName, element{id: inv.ID, path: ipath + ".id"})
+		if text, ok := b.invariantText(ipath, inv); ok {
+			b.invariants = append(b.invariants, invariant{
+				Invariant: Invariant{Name: invName, ID: inv.ID, Requirements: append([]string(nil), inv.Requirements...)},
+				comment:   invariantComment(inv), expr: text,
+			})
 		}
-		text, p := renderer.boolean(expr)
-		if p != nil {
-			b.failProblem(ipath+".expr", fmt.Sprintf("invariant %q", inv.ID), p)
-			continue
-		}
-		comment := oneLine(inv.ID)
-		if len(inv.Requirements) > 0 {
-			ids := make([]string, len(inv.Requirements))
-			for j, id := range inv.Requirements {
-				ids[j] = oneLine(id)
-			}
-			comment += " protects " + strings.Join(ids, ", ")
-		} else {
-			comment += " has no linked requirement"
-		}
-		invariants = append(invariants, invariant{
-			Invariant: Invariant{Name: invName, ID: inv.ID, Requirements: append([]string(nil), inv.Requirements...)},
-			comment:   comment, expr: text,
-		})
 	}
+}
 
-	for _, d := range b.diagnostics {
-		if d.Severity == model.SemanticSeverityError {
-			return file, b.diagnostics
-		}
+// invariantText renders the expression of an invariant.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) invariantText(ipath string, inv model.MachineInvariant) (string, bool) {
+	what := fmt.Sprintf("invariant %q", inv.ID)
+	expr, diags := model.ParseMachineExpr(inv.Expr, model.MachineExprBoolean)
+	if len(diags) > 0 {
+		b.parseFailed(ipath+".expr", what, diags)
+		return "", false
 	}
+	text, p := b.renderer.boolean(expr)
+	if p != nil {
+		b.failProblem(ipath+".expr", what, p)
+		return "", false
+	}
+	return text, true
+}
 
-	// Render.
-	var out strings.Builder
-	line := func(indent int, format string, args ...any) {
-		out.WriteString(strings.Repeat("  ", indent))
-		fmt.Fprintf(&out, format, args...)
-		out.WriteByte('\n')
+// invariantComment is the comment line above an invariant val.
+//
+// TRLC-LINKS: REQ-EMG-141
+func invariantComment(inv model.MachineInvariant) string {
+	comment := oneLine(inv.ID)
+	if len(inv.Requirements) == 0 {
+		return comment + " has no linked requirement"
 	}
-	line(0, "%s%s%s", GeneratedHeader, oneLine(m.ID), generatedTrailer)
-	line(0, "module %s {", module)
-	names := make([]string, len(m.States))
-	for i, s := range m.States {
-		names[i] = stateCtor[s.ID]
+	ids := make([]string, len(inv.Requirements))
+	for j, id := range inv.Requirements {
+		ids[j] = oneLine(id)
+	}
+	return comment + " protects " + strings.Join(ids, ", ")
+}
+
+// moduleWriter writes the indented lines of a module.
+type moduleWriter struct {
+	out strings.Builder
+}
+
+// line writes one line at the given indent level.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (w *moduleWriter) line(indent int, format string, args ...any) {
+	w.out.WriteString(strings.Repeat("  ", indent))
+	fmt.Fprintf(&w.out, format, args...)
+	w.out.WriteByte('\n')
+}
+
+// render writes the module text and the metadata of the generated file.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) render(file *File) {
+	w := &moduleWriter{}
+	w.line(0, "%s%s%s", GeneratedHeader, oneLine(b.m.ID), generatedTrailer)
+	w.line(0, "module %s {", b.module)
+	b.writeDeclarations(w)
+	b.writeActions(w)
+	for _, inv := range b.invariants {
+		w.line(1, "// %s", inv.comment)
+		w.line(1, "val %s = %s", inv.Name, inv.expr)
+		file.Invariants = append(file.Invariants, inv.Invariant)
+	}
+	w.line(1, "// Reachability witnesses, one per state")
+	for _, s := range b.m.States {
+		witness := "wit_" + snakeCase(s.ID)
+		w.line(1, "val %s = state == %s", witness, b.stateCtor[s.ID])
+		file.Witnesses = append(file.Witnesses, witness)
+		file.States = append(file.States, s.ID)
+	}
+	w.line(0, "}")
+	file.Initial = b.m.Initial
+	file.Text = w.out.String()
+}
+
+// writeDeclarations writes the state type, the variables and the init action.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) writeDeclarations(w *moduleWriter) {
+	names := make([]string, len(b.m.States))
+	for i, s := range b.m.States {
+		names[i] = b.stateCtor[s.ID]
 	}
 	// Quint reads "type State = Only" as an alias; a sum type with one
 	// constructor needs the leading bar.
 	if len(names) == 1 {
-		line(1, "type State = | %s", names[0])
+		w.line(1, "type State = | %s", names[0])
 	} else {
-		line(1, "type State = %s", strings.Join(names, " | "))
+		w.line(1, "type State = %s", strings.Join(names, " | "))
 	}
-	line(1, "var state: State")
-	for _, v := range vars {
-		line(1, "var %s: %s", varIdent(v.name), quintType(v.typ))
+	w.line(1, "var state: State")
+	for _, v := range b.vars {
+		w.line(1, "var %s: %s", varIdent(v.name), quintType(v.typ))
 	}
-	line(1, "var lastTransition: str")
-	line(1, "action init = all {")
-	line(2, "state' = %s,", initialCtor)
-	for _, v := range vars {
-		line(2, "%s' = %s,", varIdent(v.name), v.initial)
+	w.line(1, "var lastTransition: str")
+	w.line(1, "action init = all {")
+	w.line(2, "state' = %s,", b.initialCtor)
+	for _, v := range b.vars {
+		w.line(2, "%s' = %s,", varIdent(v.name), v.initial)
 	}
-	line(2, `lastTransition' = "init",`)
-	line(1, "}")
-	for _, a := range actions {
-		line(1, "// %s", a.comment)
-		line(1, "action %s = all {", a.name)
+	w.line(2, `lastTransition' = "init",`)
+	w.line(1, "}")
+}
+
+// writeActions writes the transition actions and the step action.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) writeActions(w *moduleWriter) {
+	for _, a := range b.actions {
+		w.line(1, "// %s", a.comment)
+		w.line(1, "action %s = all {", a.name)
 		for _, l := range a.lines {
-			line(2, "%s,", l)
+			w.line(2, "%s,", l)
 		}
-		line(1, "}")
+		w.line(1, "}")
 	}
-	if len(actions) == 0 {
-		line(1, "action step = all {")
-		line(2, "state' = state,")
-		for _, v := range vars {
-			line(2, "%s' = %s,", varIdent(v.name), varIdent(v.name))
-		}
-		line(2, "lastTransition' = lastTransition,")
-		line(1, "}")
-	} else {
-		line(1, "action step = any {")
-		for _, a := range actions {
-			line(2, "%s,", a.name)
-		}
-		line(1, "}")
+	if len(b.actions) == 0 {
+		b.writeIdleStep(w)
+		return
 	}
-	for _, inv := range invariants {
-		line(1, "// %s", inv.comment)
-		line(1, "val %s = %s", inv.Name, inv.expr)
-		file.Invariants = append(file.Invariants, inv.Invariant)
+	w.line(1, "action step = any {")
+	for _, a := range b.actions {
+		w.line(2, "%s,", a.name)
 	}
-	line(1, "// Reachability witnesses, one per state")
-	for _, s := range m.States {
-		witness := "wit_" + snakeCase(s.ID)
-		line(1, "val %s = state == %s", witness, stateCtor[s.ID])
-		file.Witnesses = append(file.Witnesses, witness)
-		file.States = append(file.States, s.ID)
+	w.line(1, "}")
+}
+
+// writeIdleStep writes the step action of a machine without transitions.
+//
+// TRLC-LINKS: REQ-EMG-141
+func (b *machineBuild) writeIdleStep(w *moduleWriter) {
+	w.line(1, "action step = all {")
+	w.line(2, "state' = state,")
+	for _, v := range b.vars {
+		w.line(2, "%s' = %s,", varIdent(v.name), varIdent(v.name))
 	}
-	line(0, "}")
-	file.Initial = m.Initial
-	file.Text = out.String()
-	return file, b.diagnostics
+	w.line(2, "lastTransition' = lastTransition,")
+	w.line(1, "}")
 }
 
 // parseFailed is part of the Quint module generation.
@@ -457,7 +686,7 @@ func (b *machineBuild) parseFailed(path, what string, diags []model.MachineExprD
 		if code == "" {
 			code = codeExpression
 		}
-		b.fail(code, path, "machine %q %s: invalid expression at line %d, column %d: %s", b.machine, what, d.Line, d.Column, d.Message)
+		b.fail(at(code, path), "machine %q %s: invalid expression at line %d, column %d: %s", b.machine, what, d.Line, d.Column, d.Message)
 	}
 }
 
@@ -480,34 +709,49 @@ func quintType(t model.MachineType) string {
 //
 // TRLC-LINKS: REQ-EMG-141
 func initialLiteral(typ model.MachineType, value any) (string, *problem) {
+	text, ok := "", false
 	switch typ {
 	case model.MachineTypeInteger:
-		switch n := value.(type) {
-		case int, int8, int16, int32, int64, uint8, uint16, uint32:
-			return fmt.Sprint(n), nil
-		case uint:
-			if uint64(n) <= math.MaxInt64 {
-				return fmt.Sprint(n), nil
-			}
-		case uint64:
-			if n <= math.MaxInt64 {
-				return fmt.Sprint(n), nil
-			}
-		}
+		text, ok = integerInitial(value)
 	case model.MachineTypeBoolean:
-		if b, ok := value.(bool); ok {
-			return fmt.Sprint(b), nil
+		if b, isBool := value.(bool); isBool {
+			text, ok = fmt.Sprint(b), true
 		}
 	case model.MachineTypeString:
-		if s, ok := value.(string); ok {
-			text, ok := quintString(s)
-			if !ok {
-				return "", &problem{codeString, fmt.Sprintf("initial value %q cannot be written as a Quint string (no double quote or line break)", s)}
-			}
-			return text, nil
+		if s, isString := value.(string); isString {
+			return stringInitial(s)
 		}
 	default:
 		return "", &problem{"quint.invalid_machine", fmt.Sprintf("type %q must be Integer, Boolean or String", string(typ))}
 	}
+	if ok {
+		return text, nil
+	}
 	return "", &problem{codeType, fmt.Sprintf("initial value %v is not a %s literal", value, typ)}
+}
+
+// integerInitial renders an integer initial value that fits a Quint int.
+//
+// TRLC-LINKS: REQ-EMG-141
+func integerInitial(value any) (string, bool) {
+	switch n := value.(type) {
+	case int, int8, int16, int32, int64, uint8, uint16, uint32:
+		return fmt.Sprint(n), true
+	case uint:
+		return fmt.Sprint(n), uint64(n) <= math.MaxInt64
+	case uint64:
+		return fmt.Sprint(n), n <= math.MaxInt64
+	}
+	return "", false
+}
+
+// stringInitial renders a string initial value as a Quint string.
+//
+// TRLC-LINKS: REQ-EMG-141
+func stringInitial(s string) (string, *problem) {
+	text, ok := quintString(s)
+	if !ok {
+		return "", &problem{codeString, fmt.Sprintf("initial value %q cannot be written as a Quint string (no double quote or line break)", s)}
+	}
+	return text, nil
 }

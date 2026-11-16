@@ -354,7 +354,7 @@ func TestValidateIntegrityReportsStateCandidates(t *testing.T) {
 	if len(diags) != 0 {
 		t.Fatalf("code inference: %+v", diags)
 	}
-	got := pathsOf(ValidateIntegrity(bundle, model.RequirementsDocument{}, code, nil), codeStateCandidate)
+	got := pathsOf(ValidateIntegrity(bundle, Evidence{model.RequirementsDocument{}, code, nil}), codeStateCandidate)
 	if want := []string{"live/a.go:3"}; !reflect.DeepEqual(got, want) {
 		t.Fatalf("%s at %v, want %v", codeStateCandidate, got, want)
 	}

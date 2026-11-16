@@ -80,16 +80,27 @@ func diagPaths(diags []Diagnostic) []string {
 
 const machinePath = "authoredArchitecture.machines[0]"
 
-// wantOne fails unless diags holds exactly one diagnostic of the severity at
-// path whose message contains every fragment.
-func wantOne(t *testing.T, diags []Diagnostic, severity Severity, path string, fragments ...string) {
-	t.Helper()
-	if len(diags) != 1 || diags[0].Severity != severity || diags[0].Path != path {
-		t.Fatalf("want one %s at %s, got %+v", severity, path, diags)
+// diagnosticExpectation checks the diagnostics of a run.
+type diagnosticExpectation struct {
+	t     *testing.T
+	diags []Diagnostic
+}
+
+// expect starts the checks of the diagnostics.
+func expect(t *testing.T, diags []Diagnostic) diagnosticExpectation {
+	return diagnosticExpectation{t: t, diags: diags}
+}
+
+// one fails unless the diagnostics hold exactly one diagnostic of the severity
+// at path whose message contains every fragment.
+func (e diagnosticExpectation) one(severity Severity, path string, fragments ...string) {
+	e.t.Helper()
+	if len(e.diags) != 1 || e.diags[0].Severity != severity || e.diags[0].Path != path {
+		e.t.Fatalf("want one %s at %s, got %+v", severity, path, e.diags)
 	}
 	for _, fragment := range fragments {
-		if !strings.Contains(diags[0].Message, fragment) {
-			t.Fatalf("message %q lacks %q", diags[0].Message, fragment)
+		if !strings.Contains(e.diags[0].Message, fragment) {
+			e.t.Fatalf("message %q lacks %q", e.diags[0].Message, fragment)
 		}
 	}
 }
@@ -113,7 +124,7 @@ func TestMachineBaselineReportsNothing(t *testing.T) {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestMachineTransitionOnMustBeABehaviorEvent(t *testing.T) {
 	b := machineBundle(func(m *model.Machine) { m.Transitions[0].On = "EVT-NOPE" })
-	wantOne(t, behaviorDiags(b, "behavior.transition_unknown_event"), SeverityError, machinePath+".transitions[0].on", "EVT-NOPE", "TR-START")
+	expect(t, behaviorDiags(b, "behavior.transition_unknown_event")).one(SeverityError, machinePath+".transitions[0].on", "EVT-NOPE", "TR-START")
 	if got := behaviorDiags(machineBundle(nil), "behavior.transition_unknown_event"); len(got) != 0 {
 		t.Fatalf("declared events must be accepted, got %+v", got)
 	}
@@ -138,7 +149,7 @@ func TestMachineExpressionUnknownVariable(t *testing.T) {
 	}
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
-			wantOne(t, behaviorDiags(machineBundle(c.edit), "behavior.expression_unknown_variable"), SeverityError, c.path, "ghost")
+			expect(t, behaviorDiags(machineBundle(c.edit), "behavior.expression_unknown_variable")).one(SeverityError, c.path, "ghost")
 		})
 	}
 	clean := machineBundle(func(m *model.Machine) {
@@ -191,7 +202,7 @@ func TestMachineExpressionTypeMismatch(t *testing.T) {
 	}
 	for _, c := range bad {
 		t.Run(c.name, func(t *testing.T) {
-			wantOne(t, behaviorDiags(machineBundle(c.edit), "behavior.expression_type"), SeverityError, c.path, c.fragment)
+			expect(t, behaviorDiags(machineBundle(c.edit), "behavior.expression_type")).one(SeverityError, c.path, c.fragment)
 		})
 	}
 	good := machineBundle(func(m *model.Machine) {
@@ -225,8 +236,8 @@ func TestMachineInStateMustNameAStateOfTheSameMachine(t *testing.T) {
 		return b
 	}
 	path := machinePath + ".transitions[0].guard"
-	wantOne(t, behaviorDiags(with("in_state(STATE-OTHER)"), "behavior.in_state_foreign"), SeverityError, path, "STATE-OTHER", `machine "SM-OTHER"`)
-	wantOne(t, behaviorDiags(with("in_state(STATE-NOPE)"), "behavior.in_state_foreign"), SeverityError, path, "STATE-NOPE", "names no state")
+	expect(t, behaviorDiags(with("in_state(STATE-OTHER)"), "behavior.in_state_foreign")).one(SeverityError, path, "STATE-OTHER", `machine "SM-OTHER"`)
+	expect(t, behaviorDiags(with("in_state(STATE-NOPE)"), "behavior.in_state_foreign")).one(SeverityError, path, "STATE-NOPE", "names no state")
 	if got := behaviorDiags(with("in_state(STATE-RUN)"), "behavior.in_state_foreign"); len(got) != 0 {
 		t.Fatalf("a state of the same machine must be accepted, got %+v", got)
 	}
@@ -239,7 +250,7 @@ func TestMachineInStateMustNameAStateOfTheSameMachine(t *testing.T) {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestMachineFinalStateMustNotHaveTransitions(t *testing.T) {
 	b := machineBundle(func(m *model.Machine) { m.States[1].Final = true })
-	wantOne(t, behaviorDiags(b, "behavior.final_state_has_transitions"), SeverityError, machinePath+".transitions[1].from", "STATE-RUN", "TR-TERM")
+	expect(t, behaviorDiags(b, "behavior.final_state_has_transitions")).one(SeverityError, machinePath+".transitions[1].from", "STATE-RUN", "TR-TERM")
 	if got := behaviorDiags(machineBundle(nil), "behavior.final_state_has_transitions"); len(got) != 0 {
 		t.Fatalf("the final state without transitions must be accepted, got %+v", got)
 	}
@@ -252,7 +263,7 @@ func TestMachineFinalStateMustNotHaveTransitions(t *testing.T) {
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestMachineDeadlockWarnsAtTheState(t *testing.T) {
 	b := machineBundle(func(m *model.Machine) { m.States[2].Final = false })
-	wantOne(t, behaviorDiags(b, "behavior.machine_deadlock"), SeverityWarning, machinePath+".states[2]", "STATE-STOP", "final: true")
+	expect(t, behaviorDiags(b, "behavior.machine_deadlock")).one(SeverityWarning, machinePath+".states[2]", "STATE-STOP", "final: true")
 	if got := behaviorDiags(machineBundle(nil), "behavior.machine_deadlock"); len(got) != 0 {
 		t.Fatalf("a final state and states with transitions are not deadlocks, got %+v", got)
 	}
@@ -283,7 +294,7 @@ func TestMachineTransitionNondeterministicWarns(t *testing.T) {
 	}
 	for name, c := range positive {
 		t.Run(name, func(t *testing.T) {
-			wantOne(t, behaviorDiags(machineBundle(add(c)), "behavior.transition_nondeterministic"), SeverityWarning, path, "TR-START", "TR-DUP", "STATE-IDLE")
+			expect(t, behaviorDiags(machineBundle(add(c)), "behavior.transition_nondeterministic")).one(SeverityWarning, path, "TR-START", "TR-DUP", "STATE-IDLE")
 		})
 	}
 	negative := map[string]machineTransitionEdit{
@@ -315,7 +326,7 @@ type machineTransitionEdit struct{ on, firstOn, guard, first string }
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestMachineTransitionWithoutTriggerWarns(t *testing.T) {
 	b := machineBundle(func(m *model.Machine) { m.Transitions[1].On = "" })
-	wantOne(t, behaviorDiags(b, "behavior.transition_no_trigger"), SeverityWarning, machinePath+".transitions[1]", "TR-TERM")
+	expect(t, behaviorDiags(b, "behavior.transition_no_trigger")).one(SeverityWarning, machinePath+".transitions[1]", "TR-TERM")
 	guarded := machineBundle(func(m *model.Machine) { m.Transitions[1].On, m.Transitions[1].Guard = "", "flag" })
 	if got := behaviorDiags(guarded, "behavior.transition_no_trigger"); len(got) != 0 {
 		t.Fatalf("a guard alone is a trigger, got %+v", got)
@@ -337,8 +348,8 @@ func TestMachineInvariantUnlinkedWarns(t *testing.T) {
 		})
 	}
 	path := machinePath + ".invariants[0].requirements"
-	wantOne(t, behaviorDiags(with(), "behavior.invariant_unlinked"), SeverityWarning, path, "INV-A")
-	wantOne(t, behaviorDiags(with("REQ-NOPE"), "behavior.invariant_unlinked"), SeverityWarning, path, "INV-A")
+	expect(t, behaviorDiags(with(), "behavior.invariant_unlinked")).one(SeverityWarning, path, "INV-A")
+	expect(t, behaviorDiags(with("REQ-NOPE"), "behavior.invariant_unlinked")).one(SeverityWarning, path, "INV-A")
 	for _, linked := range [][]string{{"REQ-A"}, {"REQ-NOPE", "REQ-A"}} {
 		if got := behaviorDiags(with(linked...), "behavior.invariant_unlinked"); len(got) != 0 {
 			t.Fatalf("an existing requirement links the invariant, got %+v for %v", got, linked)
@@ -366,7 +377,7 @@ func TestBehaviorStateUnreachableWorksOnMachines(t *testing.T) {
 		m.Transitions = []model.MachineTransition{{ID: "TR-TERM", From: "STATE-RUN", To: "STATE-STOP", On: "EVT-TERM"}}
 	})
 	got := behaviorDiags(initialIsNotFirst, "behavior.state_unreachable")
-	wantOne(t, got, SeverityWarning, machinePath+".states[0]", "STATE-IDLE", "STATE-RUN")
+	expect(t, got).one(SeverityWarning, machinePath+".states[0]", "STATE-IDLE", "STATE-RUN")
 
 	cycle := machineBundle(func(m *model.Machine) {
 		m.States = append(m.States, model.MachineState{ID: "STATE-X"}, model.MachineState{ID: "STATE-Y"})
@@ -410,7 +421,7 @@ func TestMachineIDsAreRegisteredForDuplicateDetection(t *testing.T) {
 			for _, d := range behaviorDiags(machineBundle(c.edit), "model.duplicate_id") {
 				got = append(got, d)
 			}
-			wantOne(t, got, SeverityError, c.path)
+			expect(t, got).one(SeverityError, c.path)
 		})
 	}
 	if got := behaviorDiags(machineBundle(nil), "model.duplicate_id"); len(got) != 0 {
@@ -441,7 +452,13 @@ func TestGuardedByAcceptsMachinesAndRejectsRemovedStateRelationships(t *testing.
 	if len(pairs) != 1 || pairs[0].Path != "authoredArchitecture.mappings[2]" {
 		t.Fatalf("a control is not a guarded_by source, got %+v", pairs)
 	}
-	removed := behaviorDiags(b, "model.unknown_mapping_type")
+	assertRemovedStateMappings(t, behaviorDiags(b, "model.unknown_mapping_type"))
+}
+
+// assertRemovedStateMappings checks that both removed state relationship types
+// are rejected, in order, with the removal message.
+func assertRemovedStateMappings(t *testing.T, removed []Diagnostic) {
+	t.Helper()
 	if len(removed) != 2 || removed[0].Path != "authoredArchitecture.mappings[3]" || removed[1].Path != "authoredArchitecture.mappings[4]" {
 		t.Fatalf("want both removed types rejected, got %+v", removed)
 	}
@@ -462,10 +479,7 @@ func TestGuardedByAcceptsMachinesAndRejectsRemovedStateRelationships(t *testing.
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestBehaviorEventUnusedWarnsAtTheEvent(t *testing.T) {
 	b := machineBundle(func(m *model.Machine) { m.Transitions[1].On = ""; m.Transitions[1].Guard = "flag" })
-	got := behaviorDiags(b, "behavior.event_unused")
-	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "authoredArchitecture.events[1]" || !strings.Contains(got[0].Message, "EVT-TERM") {
-		t.Fatalf("want one behavior.event_unused warning for EVT-TERM at authoredArchitecture.events[1], got %+v", got)
-	}
+	expect(t, behaviorDiags(b, "behavior.event_unused")).one(SeverityWarning, "authoredArchitecture.events[1]", "EVT-TERM")
 
 	b.Architecture.AuthoredArchitecture.Machines[0].Transitions[1].On = "EVT-TERM"
 	b.Architecture.AuthoredArchitecture.Events = append(b.Architecture.AuthoredArchitecture.Events, model.Event{ID: "dep::EVT-REMOTE", Name: "Remote"})
@@ -487,10 +501,7 @@ func TestBehaviorFlowStepBoundaryCrossingWithoutOnErrorWarns(t *testing.T) {
 		{ID: "guarded", Ref: "FU-A", BoundaryCrossing: true, TrustBoundaryRef: "TB-A", OnError: []string{"local"}},
 	}}
 	got := behaviorDiags(behaviorTestBundle(nil, []model.Flow{flow}), "behavior.flow_step_no_onerror")
-	if len(got) != 1 || got[0].Severity != SeverityWarning || got[0].Path != "authoredArchitecture.flows[0].steps[1].onError" ||
-		!strings.Contains(got[0].Message, "FLOW-A") || !strings.Contains(got[0].Message, `"send"`) {
-		t.Fatalf("want one behavior.flow_step_no_onerror for FLOW-A step send, got %+v", got)
-	}
+	expect(t, got).one(SeverityWarning, "authoredArchitecture.flows[0].steps[1].onError", "FLOW-A", `"send"`)
 }
 
 // A control verification verificationRefs entry must name a requirement or an

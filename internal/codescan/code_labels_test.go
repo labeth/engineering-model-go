@@ -92,30 +92,37 @@ func TestAbsoluteCodeItemEvidenceKeepsSourceIdentity(t *testing.T) {
 func TestInferredCodeEvidenceIsWorktreeIndependent(t *testing.T) {
 	var publications []string
 	for _, name := range []string{"checkout-a", "checkout-b"} {
-		root := filepath.Join(t.TempDir(), name)
-		source := filepath.Join(root, "internal", "demo.go")
-		if err := os.MkdirAll(filepath.Dir(source), 0o755); err != nil {
-			t.Fatal(err)
+		publication := checkoutPublication(t, name)
+		if strings.Contains(publication, name) {
+			t.Fatalf("checkout name leaked into code evidence: %s", publication)
 		}
-		if err := os.WriteFile(source, []byte("// ENGMODEL-OWNER-UNIT: FU-DEMO\npackage demo\n\n// TRLC-LINKS: REQ-EMG-003\nfunc Run() {}\n"), 0o644); err != nil {
-			t.Fatal(err)
-		}
-		items, diagnostics := InferCodeItems(model.Bundle{ManifestPath: filepath.Join(root, "engmod.yml")}, root)
-		if len(diagnostics) != 0 {
-			t.Fatalf("scan %s: %v", name, diagnostics)
-		}
-		elements := make([]string, 0, len(items))
-		for _, item := range items {
-			if item.Kind == "source_file" || item.Kind == "symbol" {
-				elements = append(elements, ItemEvidenceElement(item))
-			}
-		}
-		publications = append(publications, strings.Join(GroupedFileLabels(elements, nil), ","))
-		if strings.Contains(publications[len(publications)-1], name) {
-			t.Fatalf("checkout name leaked into code evidence: %s", publications[len(publications)-1])
-		}
+		publications = append(publications, publication)
 	}
 	if publications[0] != publications[1] {
 		t.Fatalf("code evidence depends on checkout: %q != %q", publications[0], publications[1])
 	}
+}
+
+// checkoutPublication infers the code of a small module in a checkout directory
+// of the given name and returns its grouped file labels.
+func checkoutPublication(t *testing.T, name string) string {
+	root := filepath.Join(t.TempDir(), name)
+	source := filepath.Join(root, "internal", "demo.go")
+	if err := os.MkdirAll(filepath.Dir(source), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(source, []byte("// ENGMODEL-OWNER-UNIT: FU-DEMO\npackage demo\n\n// TRLC-LINKS: REQ-EMG-003\nfunc Run() {}\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	items, diagnostics := InferCodeItems(model.Bundle{ManifestPath: filepath.Join(root, "engmod.yml")}, root)
+	if len(diagnostics) != 0 {
+		t.Fatalf("scan %s: %v", name, diagnostics)
+	}
+	elements := make([]string, 0, len(items))
+	for _, item := range items {
+		if item.Kind == "source_file" || item.Kind == "symbol" {
+			elements = append(elements, ItemEvidenceElement(item))
+		}
+	}
+	return strings.Join(GroupedFileLabels(elements, nil), ",")
 }

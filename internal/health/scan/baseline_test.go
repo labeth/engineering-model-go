@@ -4,7 +4,6 @@ package scan
 import (
 	"errors"
 	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/labeth/engineering-model-go/internal/health"
@@ -41,34 +40,18 @@ func bigEntry() model.HealthBaselineEntry {
 func TestScanAppliesTheBaseline(t *testing.T) {
 	dir, manifest := fixture(t, baselineManifest)
 	writeBaseline(t, dir, bigEntry())
-	r, err := Scan(Options{ManifestPath: manifest})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(r.Baselined) != 1 || r.Baselined[0].Path != "pkg/big.go" || r.Baselined[0].Function != "Big" || r.Baselined[0].Code != health.CodeComplexMethod {
-		t.Fatalf("baselined = %+v", r.Baselined)
-	}
-	if r.Summary.Errors != 0 || r.Summary.Baselined != 1 || r.Summary.Findings != 1 || len(r.Diagnostics) != 0 {
-		t.Errorf("summary = %+v diagnostics %+v, want no error and one baselined finding", r.Summary, r.Diagnostics)
-	}
-	if r.Files[0].Path != "pkg/big.go" || r.Files[0].Score != 8.0 || len(findingsOf(r, "pkg/big.go", "Big")) != 1 {
-		t.Errorf("big.go = %v with %d findings, want 8.0: a baselined finding still counts", r.Files[0].Score, len(findingsOf(r, "pkg/big.go", "Big")))
-	}
+	r := mustScan(t, Options{ManifestPath: manifest})
+	mustEqual(t, len(r.Baselined), 1)
+	wantEqual(t, [3]string{r.Baselined[0].Path, r.Baselined[0].Function, r.Baselined[0].Code}, [3]string{"pkg/big.go", "Big", health.CodeComplexMethod})
+	// No error, one baselined finding and nothing stale.
+	wantEqual(t, [4]int{r.Summary.Errors, r.Summary.Baselined, r.Summary.Findings, len(r.Diagnostics)}, [4]int{0, 1, 1, 0})
+	// A baselined finding still counts in the score.
+	wantEqual(t, [3]any{r.Files[0].Path, r.Files[0].Score, len(findingsOf(r, "pkg/big.go", "Big"))}, [3]any{"pkg/big.go", 8.0, 1})
 
 	_, plainManifest := fixture(t, "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n")
-	plain, err := Scan(Options{ManifestPath: plainManifest})
-	if err != nil {
-		t.Fatal(err)
-	}
-	ignored, err := Scan(Options{ManifestPath: manifest, IgnoreBaseline: true})
-	if err != nil {
-		t.Fatal(err)
-	}
-	a, _ := health.Encode(plain)
-	b, _ := health.Encode(ignored)
-	if string(a) != string(b) {
-		t.Errorf("ignoring the baseline must give the report of a model without one:\n%s\n%s", a, b)
-	}
+	plain := mustEncode(t, mustScan(t, Options{ManifestPath: plainManifest}))
+	ignored := mustEncode(t, mustScan(t, Options{ManifestPath: manifest, IgnoreBaseline: true}))
+	wantEqual(t, string(ignored), string(plain)) // ignoring the baseline gives the report of a model without one
 }
 
 // A baseline entry that matches no finding is a stale diagnostic, a warning at
@@ -82,40 +65,23 @@ func TestScanReportsStaleEntriesOnlyInScope(t *testing.T) {
 	stale := model.HealthBaselineEntry{Path: "pkg/clean.go", Function: "Clean", Code: health.CodeLargeMethod, Value: 60}
 	writeBaseline(t, dir, bigEntry(), stale)
 
-	r, err := Scan(Options{ManifestPath: manifest})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(r.Diagnostics) != 1 || r.Diagnostics[0].Code != model.HealthBaselineStaleCode || r.Diagnostics[0].Level != health.LevelWarning ||
-		r.Diagnostics[0].Path != "pkg/clean.go" || r.Summary.Errors != 0 || r.Summary.Warnings != 1 {
-		t.Errorf("diagnostics %+v summary %+v", r.Diagnostics, r.Summary)
-	}
+	r := mustScan(t, Options{ManifestPath: manifest})
+	mustEqual(t, len(r.Diagnostics), 1)
+	d := r.Diagnostics[0]
+	wantEqual(t, [5]any{d.Code, d.Level, d.Path, r.Summary.Errors, r.Summary.Warnings}, [5]any{model.HealthBaselineStaleCode, health.LevelWarning, "pkg/clean.go", 0, 1})
 
-	op, err := Scan(Options{ManifestPath: manifest, Tier: "operational"})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(op.Diagnostics) != 1 || op.Diagnostics[0].Level != health.LevelError {
-		t.Errorf("operational diagnostics = %+v, want an error", op.Diagnostics)
-	}
+	op := mustScan(t, Options{ManifestPath: manifest, Tier: "operational"})
+	mustEqual(t, len(op.Diagnostics), 1)
+	wantEqual(t, op.Diagnostics[0].Level, health.LevelError)
 
 	onlyClean := Options{ManifestPath: manifest, Paths: []string{filepath.Join(dir, "pkg", "clean.go")}}
-	r, err = Scan(onlyClean)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(r.Baselined) != 0 || len(r.Diagnostics) != 1 || r.Diagnostics[0].Path != "pkg/clean.go" {
-		t.Errorf("restricted to clean.go: baselined %+v diagnostics %+v", r.Baselined, r.Diagnostics)
-	}
+	r = mustScan(t, onlyClean)
+	mustEqual(t, len(r.Diagnostics), 1)
+	wantEqual(t, [2]any{len(r.Baselined), r.Diagnostics[0].Path}, [2]any{0, "pkg/clean.go"})
 
 	writeBaseline(t, dir, bigEntry())
-	r, err = Scan(onlyClean)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(r.Diagnostics) != 0 || len(r.Baselined) != 0 {
-		t.Errorf("an entry outside the scan must not be reported: %+v %+v", r.Diagnostics, r.Baselined)
-	}
+	r = mustScan(t, onlyClean)
+	wantEqual(t, [2]int{len(r.Diagnostics), len(r.Baselined)}, [2]int{0, 0}) // an entry outside the scan is not reported
 }
 
 // A baseline that is named but missing, not JSON, of another schema or that
@@ -155,43 +121,38 @@ func TestScanBaselineFileProblemsAreSetupErrors(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-154, REQ-EMG-155
 func TestScanBaselineNeedsAnAcceptedDecision(t *testing.T) {
 	for name, decision := range map[string]string{"missing decision": "ADR-NOPE", "proposed decision": "ADR-DRAFT"} {
-		manifest := "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n  baseline: {file: model/health-baseline.json, decision: " + decision + "}\n"
-		dir, path := fixture(t, manifest)
-		writeBaseline(t, dir, bigEntry())
-		r, err := Scan(Options{ManifestPath: path})
-		if err != nil {
-			t.Fatalf("%s: %v", name, err)
-		}
-		if len(r.Baselined) != 0 || r.Summary.Baselined != 0 || r.Summary.Errors != 2 {
-			t.Errorf("%s: baselined %d, errors %d; want nothing suppressed and the finding plus the diagnostic as errors", name, len(r.Baselined), r.Summary.Errors)
-		}
-		var found []health.Diagnostic
-		for _, d := range r.Diagnostics {
-			if d.Code == model.HealthWaiverUnjustifiedCode {
-				found = append(found, d)
-			}
-		}
-		if len(found) != 1 || found[0].Level != health.LevelError || !strings.Contains(found[0].Message, "model/health-baseline.json") ||
-			!strings.Contains(found[0].Message, decision) || !strings.Contains(found[0].Message, "suppresses nothing") {
-			t.Errorf("%s: diagnostics = %+v", name, r.Diagnostics)
-		}
-		// The diagnostic is an error at every tier, even a warning-only one.
-		low, err := Scan(Options{ManifestPath: path, Tier: "poc"})
-		if err != nil || low.Summary.Errors != 1 {
-			t.Errorf("%s: at poc errors = %d (%v), want the diagnostic only", name, low.Summary.Errors, err)
-		}
-		// Ignoring the baseline adds no diagnostic.
-		ignored, err := Scan(Options{ManifestPath: path, IgnoreBaseline: true})
-		if err != nil || len(ignored.Diagnostics) != 0 {
-			t.Errorf("%s: ignored baseline: %+v %v", name, ignored.Diagnostics, err)
-		}
+		t.Run(name, func(t *testing.T) { requireUnjustifiedBaseline(t, decision) })
 	}
 	// An unreadable file with an unaccepted decision is reported by validation, not
 	// read by the scan.
 	_, path := fixture(t, "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n  baseline: {file: model/absent.json, decision: ADR-DRAFT}\n")
-	if r, err := Scan(Options{ManifestPath: path}); err != nil || r.Summary.Baselined != 0 {
-		t.Errorf("a baseline with an unaccepted decision is not read: %v %+v", err, r.Summary)
+	wantEqual(t, mustScan(t, Options{ManifestPath: path}).Summary.Baselined, 0)
+}
+
+// requireUnjustifiedBaseline checks the scan of a baseline with a decision that
+// is missing or not accepted: nothing is suppressed, the finding and the
+// diagnostic are errors, the diagnostic is an error at every tier and ignoring
+// the baseline adds none.
+func requireUnjustifiedBaseline(t *testing.T, decision string) {
+	t.Helper()
+	manifest := "lifecycle:\n  tier: product\nhealth:\n  exclude: [skipme]\n  floor: 8.0\n  baseline: {file: model/health-baseline.json, decision: " + decision + "}\n"
+	dir, path := fixture(t, manifest)
+	writeBaseline(t, dir, bigEntry())
+	r := mustScan(t, Options{ManifestPath: path})
+	wantEqual(t, [3]int{len(r.Baselined), r.Summary.Baselined, r.Summary.Errors}, [3]int{0, 0, 2})
+	var found []health.Diagnostic
+	for _, d := range r.Diagnostics {
+		if d.Code == model.HealthWaiverUnjustifiedCode {
+			found = append(found, d)
+		}
 	}
+	mustEqual(t, len(found), 1)
+	wantEqual(t, found[0].Level, health.LevelError)
+	wantAll(t, found[0].Message, "model/health-baseline.json", decision, "suppresses nothing")
+	low := mustScan(t, Options{ManifestPath: path, Tier: "poc"})
+	wantEqual(t, low.Summary.Errors, 1) // the diagnostic only
+	ignored := mustScan(t, Options{ManifestPath: path, IgnoreBaseline: true})
+	wantEqual(t, len(ignored.Diagnostics), 0)
 }
 
 // An entry whose recorded value is below the current value does not baseline
@@ -207,20 +168,13 @@ func TestScanDebtThatGrewPastTheBaselineIsAnError(t *testing.T) {
 	grown := bigEntry()
 	grown.Value = 16
 	writeBaseline(t, dir, grown)
-	r, err := Scan(Options{ManifestPath: manifest})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(r.Baselined) != 0 || r.Summary.Errors != 1 || r.Summary.Baselined != 0 || len(r.Diagnostics) != 0 {
-		t.Fatalf("grown: baselined %+v summary %+v diagnostics %+v", r.Baselined, r.Summary, r.Diagnostics)
-	}
+	r := mustScan(t, Options{ManifestPath: manifest})
+	wantEqual(t, [4]int{len(r.Baselined), r.Summary.Errors, r.Summary.Baselined, len(r.Diagnostics)}, [4]int{0, 1, 0, 0})
 	fs := findingsOf(r, "pkg/big.go", "Big")
-	if len(fs) != 1 || !strings.Contains(fs[0].Message, "the baseline accepts cyclomatic 16, now 17") {
-		t.Errorf("findings = %+v", fs)
-	}
+	mustEqual(t, len(fs), 1)
+	wantContains(t, fs[0].Message, "the baseline accepts cyclomatic 16, now 17")
 	grown.Value = 17
 	writeBaseline(t, dir, grown)
-	if r, err = Scan(Options{ManifestPath: manifest}); err != nil || len(r.Baselined) != 1 || r.Summary.Errors != 0 {
-		t.Errorf("equal value: %v baselined %+v summary %+v", err, r.Baselined, r.Summary)
-	}
+	r = mustScan(t, Options{ManifestPath: manifest})
+	wantEqual(t, [2]int{len(r.Baselined), r.Summary.Errors}, [2]int{1, 0}) // equal value
 }

@@ -203,12 +203,13 @@ func firstError(comp composition.CompositionResult) string {
 	var first string
 	n := 0
 	for _, d := range comp.Diagnostics {
-		if d.Severity == "error" {
-			if n == 0 {
-				first = d.Code + ": " + d.Message
-			}
-			n++
+		if d.Severity != "error" {
+			continue
 		}
+		if n == 0 {
+			first = d.Code + ": " + d.Message
+		}
+		n++
 	}
 	switch n {
 	case 0:
@@ -231,27 +232,42 @@ func Reviews(ctx Context, options composition.ResolutionOptions) []Review {
 	for _, r := range ctx.Bundle.Requirements.Requirements {
 		parents[strings.TrimSpace(r.ID)] = OneLine(r.Text)
 	}
-	cache := VersionCache{}
+	rv := reviewer{ctx: ctx, options: options, parents: parents, cache: VersionCache{}}
 	reviews := []Review{}
 	for _, s := range ctx.Statuses {
-		if !NeedsReview(s) {
-			continue
+		if NeedsReview(s) {
+			reviews = append(reviews, rv.review(s))
 		}
-		review := Review{
-			ID: s.ID, Child: s.Child, State: string(s.State), Status: s.Status, Parent: s.Parent, ParentText: parents[s.Parent],
-			Pinned: s.Pinned, Version: s.Version, After: NewItemView(s.Item), Detail: s.Detail,
-		}
-		before, note := s.Item, ""
-		if s.Pinned != s.Version || s.Item == nil {
-			before, note = cache.Item(ctx.Bundle, s.Alias, s.ItemID, s.Pinned, options)
-		}
-		review.Before, review.BeforeNote = NewItemView(before), note
-		if before != nil && s.Item != nil {
-			review.Changes = reqlinks.MeaningChanges(*before, *s.Item)
-		}
-		reviews = append(reviews, review)
 	}
 	return reviews
+}
+
+// reviewer holds what Reviews shares between the links it lists.
+type reviewer struct {
+	ctx     Context
+	options composition.ResolutionOptions
+	parents map[string]string
+	cache   VersionCache
+}
+
+// review builds the Review of one link status.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+// ENGMODEL-LINKS: FU-ALLOCATION-TRACE
+func (rv reviewer) review(s reqlinks.LinkStatus) Review {
+	review := Review{
+		ID: s.ID, Child: s.Child, State: string(s.State), Status: s.Status, Parent: s.Parent, ParentText: rv.parents[s.Parent],
+		Pinned: s.Pinned, Version: s.Version, After: NewItemView(s.Item), Detail: s.Detail,
+	}
+	before, note := s.Item, ""
+	if s.Pinned != s.Version || s.Item == nil {
+		ref := ItemRef{Alias: s.Alias, ID: s.ItemID, Version: s.Pinned}
+		before, note = rv.cache.Item(rv.ctx.Bundle, ref, rv.options)
+	}
+	review.Before, review.BeforeNote = NewItemView(before), note
+	if before != nil && s.Item != nil {
+		review.Changes = reqlinks.MeaningChanges(*before, *s.Item)
+	}
+	return review
 }
 
 // VersionCache resolves the published contract items of a dependency at a
@@ -265,57 +281,79 @@ type versionItems struct {
 	note  string
 }
 
-// Item returns item id of dependency alias of system at version (workspace
-// off), or nil and a note: "before: version vX not available offline (...)"
-// when the version does not resolve, "before: alias::ID does not exist at
-// vX" when the item is not published there.
+// ItemRef names a contract item of a dependency at a version.
+type ItemRef struct {
+	Alias   string
+	ID      string
+	Version string
+}
+
+// DepVersion names a dependency alias at a version.
+type DepVersion struct {
+	Alias   string
+	Version string
+}
+
+// Item returns the item ref of its dependency of system at its version
+// (workspace off), or nil and a note: "before: version vX not available
+// offline (...)" when the version does not resolve, "before: alias::ID does
+// not exist at vX" when the item is not published there.
 // TRLC-LINKS: REQ-EMG-100, REQ-EMG-101
-func (c VersionCache) Item(system model.Bundle, alias, id, version string, options composition.ResolutionOptions) (*reqlinks.Item, string) {
-	if version == "" {
+func (c VersionCache) Item(system model.Bundle, ref ItemRef, options composition.ResolutionOptions) (*reqlinks.Item, string) {
+	if ref.Version == "" {
 		return nil, "before: the link names no pinned version"
 	}
-	key := alias + "@" + version
+	key := ref.Alias + "@" + ref.Version
 	got, done := c[key]
 	if !done {
-		got.items, got.note = ItemsAtVersion(system, alias, version, options)
+		got.items, got.note = ItemsAtVersion(system, DepVersion{Alias: ref.Alias, Version: ref.Version}, options)
 		c[key] = got
 	}
 	if got.items == nil {
 		return nil, got.note
 	}
-	if item, ok := got.items[id]; ok {
+	if item, ok := got.items[ref.ID]; ok {
 		return &item, ""
 	}
-	return nil, fmt.Sprintf("before: %s::%s does not exist at %s", alias, id, version)
+	return nil, fmt.Sprintf("before: %s::%s does not exist at %s", ref.Alias, ref.ID, ref.Version)
 }
 
-// ItemsAtVersion resolves dependency alias of system at version with the
+// ItemsAtVersion resolves dependency dep of system at its version with the
 // workspace off (options otherwise; use lock check so no lock is written)
 // and returns its published contract items, or a note naming the first
 // composition error when the version cannot be resolved.
 // TRLC-LINKS: REQ-EMG-100, REQ-EMG-101, REQ-EMG-106
-func ItemsAtVersion(system model.Bundle, alias, version string, options composition.ResolutionOptions) (map[string]reqlinks.Item, string) {
+func ItemsAtVersion(system model.Bundle, dep DepVersion, options composition.ResolutionOptions) (map[string]reqlinks.Item, string) {
 	moved := system
 	moved.Manifest.Dependencies = append([]model.ManifestDependency(nil), system.Manifest.Dependencies...)
 	for i := range moved.Manifest.Dependencies {
-		if moved.Manifest.Dependencies[i].Alias == alias {
-			moved.Manifest.Dependencies[i].Version = version
+		if moved.Manifest.Dependencies[i].Alias == dep.Alias {
+			moved.Manifest.Dependencies[i].Version = dep.Version
 		}
 	}
-	unavailable := fmt.Sprintf("before: version %s not available offline", version)
+	unavailable := fmt.Sprintf("before: version %s not available offline", dep.Version)
 	comp, err := composition.GenerateCompositionForBundle(moved, Published(options))
-	switch {
-	case err != nil:
+	if err != nil {
 		return nil, unavailable + " (" + err.Error() + ")"
-	case comp.Root == nil:
-		return nil, unavailable + " (" + firstError(comp) + ")"
 	}
-	for _, dep := range composition.LinkDependencies(comp.Root) {
-		if dep.Alias == alias && dep.Version == version {
-			return reqlinks.PublishedItems(dep.Bundle, dep.Publications...), ""
-		}
+	if items, ok := publishedAt(comp, dep); ok {
+		return items, ""
 	}
 	return nil, unavailable + " (" + firstError(comp) + ")"
+}
+
+// publishedAt returns the published items of dep in a composition.
+// TRLC-LINKS: REQ-EMG-100, REQ-EMG-101, REQ-EMG-106
+func publishedAt(comp composition.CompositionResult, dep DepVersion) (map[string]reqlinks.Item, bool) {
+	if comp.Root == nil {
+		return nil, false
+	}
+	for _, d := range composition.LinkDependencies(comp.Root) {
+		if d.Alias == dep.Alias && d.Version == dep.Version {
+			return reqlinks.PublishedItems(d.Bundle, d.Publications...), true
+		}
+	}
+	return nil, false
 }
 
 // DiffLines marks lines only in before with "- ", only in after with "+ "
@@ -330,35 +368,85 @@ func DiffLines(before, after []string, haveBefore bool) []string {
 		}
 		return out
 	}
+	w := diffWalk{before: before, after: after, lcs: lcsTable(before, after)}
+	for w.i < len(before) || w.j < len(after) {
+		out = append(out, w.step())
+	}
+	return out
+}
+
+// diffWalk is the position of the longest-common-subsequence walk of
+// DiffLines.
+type diffWalk struct {
+	before, after []string
+	lcs           [][]int
+	i, j          int
+}
+
+// matches reports whether both walks stand on the same line.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func (w *diffWalk) matches() bool {
+	return w.i < len(w.before) && w.j < len(w.after) && w.before[w.i] == w.after[w.j]
+}
+
+// takesBefore reports whether the walk emits a removed line: the after
+// lines are used up, or dropping the before line keeps at least as long a
+// common subsequence.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func (w *diffWalk) takesBefore() bool {
+	return w.j == len(w.after) || (w.i < len(w.before) && w.lcs[w.i+1][w.j] >= w.lcs[w.i][w.j+1])
+}
+
+// step emits the next diff line and advances the walk.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func (w *diffWalk) step() string {
+	switch {
+	case w.matches():
+		line := "  " + w.after[w.j]
+		w.i++
+		w.j++
+		return line
+	case w.takesBefore():
+		line := "- " + w.before[w.i]
+		w.i++
+		return line
+	}
+	line := "+ " + w.after[w.j]
+	w.j++
+	return line
+}
+
+// lcsTable returns the longest-common-subsequence lengths of the suffixes of
+// before and after.
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func lcsTable(before, after []string) [][]int {
 	lcs := make([][]int, len(before)+1)
 	for i := range lcs {
 		lcs[i] = make([]int, len(after)+1)
 	}
+	grid := lcsGrid{before: before, after: after, cells: lcs}
 	for i := len(before) - 1; i >= 0; i-- {
-		for j := len(after) - 1; j >= 0; j-- {
-			if before[i] == after[j] {
-				lcs[i][j] = lcs[i+1][j+1] + 1
-			} else {
-				lcs[i][j] = max(lcs[i+1][j], lcs[i][j+1])
-			}
+		grid.fillRow(i)
+	}
+	return lcs
+}
+
+// lcsGrid is the table of an LCS computation with the lines it compares.
+type lcsGrid struct {
+	before, after []string
+	cells         [][]int
+}
+
+// fillRow fills row i of the table for the line at before[i].
+// TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
+func (g lcsGrid) fillRow(i int) {
+	for j := len(g.after) - 1; j >= 0; j-- {
+		if g.before[i] == g.after[j] {
+			g.cells[i][j] = g.cells[i+1][j+1] + 1
+		} else {
+			g.cells[i][j] = max(g.cells[i+1][j], g.cells[i][j+1])
 		}
 	}
-	i, j := 0, 0
-	for i < len(before) || j < len(after) {
-		switch {
-		case i < len(before) && j < len(after) && before[i] == after[j]:
-			out = append(out, "  "+after[j])
-			i++
-			j++
-		case j == len(after) || (i < len(before) && lcs[i+1][j] >= lcs[i][j+1]):
-			out = append(out, "- "+before[i])
-			i++
-		default:
-			out = append(out, "+ "+after[j])
-			j++
-		}
-	}
-	return out
 }
 
 // Acceptance is the edit that records the review of one link: the link
@@ -371,63 +459,43 @@ type Acceptance struct {
 	After  []byte
 }
 
-// Accept prepares the review of link id in ctx: pinned.version set to the
-// dependency pin (the version reviewed), reviewedBy, reviewedOn (date,
-// YYYY-MM-DD), the rationale and status accepted, editing only the touched
-// lines of data (the requirement link file); a pinned.fingerprint is left as
-// it is (validation reports model.pinned_fingerprint_removed). It refuses an actor the model does not define, an unknown
-// link, a broken link and one whose item is not resolved at the dependency
-// pin. Nothing is written.
+// AcceptRequest is the review to record: link ID, the actor By, the
+// Rationale and the review Date (YYYY-MM-DD).
+type AcceptRequest struct {
+	ID        string
+	By        string
+	Rationale string
+	Date      string
+}
+
+// AcceptReview prepares the review of link req.ID in ctx: pinned.version set
+// to the dependency pin (the version reviewed), reviewedBy, reviewedOn
+// (date, YYYY-MM-DD), the rationale and status accepted, editing only the
+// touched lines of data (the requirement link file); a pinned.fingerprint is
+// left as it is (validation reports model.pinned_fingerprint_removed). It
+// refuses an actor the model does not define, an unknown link, a broken
+// link and one whose item is not resolved at the dependency pin. Nothing is
+// written.
 // TRLC-LINKS: REQ-EMG-101, REQ-EMG-106
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE
-func Accept(ctx Context, data []byte, id, by, rationale, date string) (Acceptance, error) {
+func AcceptReview(ctx Context, data []byte, req AcceptRequest) (Acceptance, error) {
 	if ctx.Bundle.ReqLinksPath == "" {
 		return Acceptance{}, fmt.Errorf("%s names no documents.reqLinks", filepath.Base(ctx.Manifest))
 	}
-	actor := false
-	for _, a := range ctx.Bundle.Architecture.AuthoredArchitecture.Actors {
-		actor = actor || strings.TrimSpace(a.ID) == by
+	if !isActor(ctx, req.By) {
+		return Acceptance{}, fmt.Errorf("--by %s is not an actor of the model (architecture.actors)", req.By)
 	}
-	if !actor {
-		return Acceptance{}, fmt.Errorf("--by %s is not an actor of the model (architecture.actors)", by)
-	}
-	var status *reqlinks.LinkStatus
-	for i := range ctx.Statuses {
-		if ctx.Statuses[i].ID == id {
-			status = &ctx.Statuses[i]
+	status, err := acceptableStatus(ctx, req.ID)
+	if err != nil {
+		if status == nil {
+			return Acceptance{}, err
 		}
-	}
-	switch {
-	case status == nil:
-		return Acceptance{}, fmt.Errorf("no requirement link %s in %s", id, filepath.Base(ctx.Bundle.ReqLinksPath))
-	case status.State == reqlinks.StateBroken:
-		return Acceptance{Status: *status}, fmt.Errorf("link %s is broken: %s does not exist at %s; remove the link or link another contract item", id, status.Child, status.Version)
-	case status.Item == nil:
-		return Acceptance{Status: *status}, fmt.Errorf("link %s cannot be accepted: %s (%s)", id, status.State, status.Detail)
+		return Acceptance{Status: *status}, err
 	}
 	path := ctx.Bundle.ReqLinksPath
-	link := yamledit.FindListItem([]string{"reqLinks"}, "id", id)
-	pinned := yamledit.FindListItem([]string{"reqLinks"}, "id", id, "pinned")
-	edits := []struct {
-		find  func(*yaml.Node) (*yaml.Node, error)
-		key   string
-		value string
-	}{
-		{pinned, "version", status.Version},
-		{link, "status", model.ReqLinkAccepted},
-		{link, "rationale", OneLine(rationale)},
-		{link, "reviewedBy", by},
-		{link, "reviewedOn", date},
-	}
-	edited := data
-	var err error
-	for _, e := range edits {
-		if current, ok := scalarAt(edited, e.find, e.key); ok && current == e.value {
-			continue
-		}
-		if edited, err = yamledit.SetKey(edited, e.find, e.key, yamledit.Scalar(e.value)); err != nil {
-			return Acceptance{Status: *status}, fmt.Errorf("%s: link %s: %w", filepath.Base(path), id, err)
-		}
+	edited, err := applyAcceptEdits(data, *status, req)
+	if err != nil {
+		return Acceptance{Status: *status}, fmt.Errorf("%s: link %s: %w", filepath.Base(path), req.ID, err)
 	}
 	var check model.ReqLinksDocument
 	dec := yaml.NewDecoder(bytes.NewReader(edited))
@@ -436,6 +504,69 @@ func Accept(ctx Context, data []byte, id, by, rationale, date string) (Acceptanc
 		return Acceptance{Status: *status}, fmt.Errorf("%s: edit produced invalid YAML (nothing written): %w", filepath.Base(path), err)
 	}
 	return Acceptance{Status: *status, Path: path, Before: data, After: edited}, nil
+}
+
+// isActor reports whether the model defines actor id.
+// TRLC-LINKS: REQ-EMG-101
+func isActor(ctx Context, id string) bool {
+	for _, a := range ctx.Bundle.Architecture.AuthoredArchitecture.Actors {
+		if strings.TrimSpace(a.ID) == id {
+			return true
+		}
+	}
+	return false
+}
+
+// acceptableStatus returns the status of link id, with an error (and the
+// status when the link exists) when it cannot be accepted.
+// TRLC-LINKS: REQ-EMG-101
+func acceptableStatus(ctx Context, id string) (*reqlinks.LinkStatus, error) {
+	var status *reqlinks.LinkStatus
+	for i := range ctx.Statuses {
+		if ctx.Statuses[i].ID == id {
+			status = &ctx.Statuses[i]
+		}
+	}
+	switch {
+	case status == nil:
+		return nil, fmt.Errorf("no requirement link %s in %s", id, filepath.Base(ctx.Bundle.ReqLinksPath))
+	case status.State == reqlinks.StateBroken:
+		return status, fmt.Errorf("link %s is broken: %s does not exist at %s; remove the link or link another contract item", id, status.Child, status.Version)
+	case status.Item == nil:
+		return status, fmt.Errorf("link %s cannot be accepted: %s (%s)", id, status.State, status.Detail)
+	}
+	return status, nil
+}
+
+// applyAcceptEdits sets the touched keys of link req.ID in data, skipping
+// the keys that already hold the value.
+// TRLC-LINKS: REQ-EMG-101
+func applyAcceptEdits(data []byte, status reqlinks.LinkStatus, req AcceptRequest) ([]byte, error) {
+	item := yamledit.ListItem{Keys: []string{"reqLinks"}, IDKey: "id", ID: req.ID}
+	link := yamledit.FindListItem(item)
+	item.Sub = []string{"pinned"}
+	pinned := yamledit.FindListItem(item)
+	edits := []struct {
+		at    yamledit.KeyAt
+		value string
+	}{
+		{yamledit.KeyAt{Find: pinned, Key: "version"}, status.Version},
+		{yamledit.KeyAt{Find: link, Key: "status"}, model.ReqLinkAccepted},
+		{yamledit.KeyAt{Find: link, Key: "rationale"}, OneLine(req.Rationale)},
+		{yamledit.KeyAt{Find: link, Key: "reviewedBy"}, req.By},
+		{yamledit.KeyAt{Find: link, Key: "reviewedOn"}, req.Date},
+	}
+	edited := data
+	var err error
+	for _, e := range edits {
+		if current, ok := scalarAt(edited, e.at); ok && current == e.value {
+			continue
+		}
+		if edited, err = yamledit.SetKey(edited, e.at, yamledit.Scalar(e.value)); err != nil {
+			return nil, err
+		}
+	}
+	return edited, nil
 }
 
 // Patch renders the acceptance as a unified-style line diff of the link
@@ -457,16 +588,16 @@ func (a Acceptance) Patch(name string) string {
 
 // scalarAt returns the scalar value of key in the mapping found by find.
 // TRLC-LINKS: REQ-EMG-101
-func scalarAt(data []byte, find func(*yaml.Node) (*yaml.Node, error), key string) (string, bool) {
+func scalarAt(data []byte, at yamledit.KeyAt) (string, bool) {
 	root, err := yamledit.Parse(data)
 	if err != nil {
 		return "", false
 	}
-	mapping, err := find(root)
+	mapping, err := at.Find(root)
 	if err != nil {
 		return "", false
 	}
-	value := yamledit.MappingValue(mapping, key)
+	value := yamledit.MappingValue(mapping, at.Key)
 	if value == nil || value.Kind != yaml.ScalarNode {
 		return "", false
 	}

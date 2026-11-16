@@ -85,77 +85,95 @@ func renderNAFV41(bundle model.Bundle, products []model.NAFProduct, projected ma
 	fmt.Fprintln(&out, "This architecture description applies NAF 4.1 profile metadata to canonical Engineering Model views.")
 	fmt.Fprintln(&out, "Architecture elements and relationships remain defined once in the canonical SysML/KerML-aligned semantic model.")
 
-	stakeholders := append([]model.NAFStakeholder(nil), profile.Stakeholders...)
+	renderNAFStakeholders(&out, bundle)
+	renderNAFConcerns(&out, profile.Concerns)
+	fmt.Fprintln(&out, "\n== Architecture Products")
+	for _, product := range products {
+		renderNAFProduct(&out, product, projected[product.ID])
+	}
+	return out.String()
+}
+
+// renderNAFStakeholders writes the stakeholder table sorted by actor reference.
+//
+// TRLC-LINKS: REQ-EMG-042
+func renderNAFStakeholders(out *bytes.Buffer, bundle model.Bundle) {
+	stakeholders := append([]model.NAFStakeholder(nil), bundle.Architecture.NAF.Stakeholders...)
 	sort.Slice(stakeholders, func(i, j int) bool { return stakeholders[i].ActorRef < stakeholders[j].ActorRef })
 	actorNames := make(map[string]string)
 	for _, actor := range bundle.Architecture.AuthoredArchitecture.Actors {
 		actorNames[actor.ID] = actor.Name
 	}
-	fmt.Fprintln(&out)
-	fmt.Fprintln(&out, "== Stakeholders")
-	fmt.Fprintln(&out)
-	fmt.Fprintln(&out, "[cols=\"1,2,3\",options=\"header\"]")
-	fmt.Fprintln(&out, "|===")
-	fmt.Fprintln(&out, "|Actor ID |Stakeholder |Role")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "== Stakeholders")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "[cols=\"1,2,3\",options=\"header\"]")
+	fmt.Fprintln(out, "|===")
+	fmt.Fprintln(out, "|Actor ID |Stakeholder |Role")
 	for _, stakeholder := range stakeholders {
-		fmt.Fprintf(&out, "|`%s` |%s |%s\n", asciidocCell(stakeholder.ActorRef), asciidocCell(actorNames[stakeholder.ActorRef]), asciidocCell(stakeholder.Role))
+		fmt.Fprintf(out, "|`%s` |%s |%s\n", asciidocCell(stakeholder.ActorRef), asciidocCell(actorNames[stakeholder.ActorRef]), asciidocCell(stakeholder.Role))
 	}
-	fmt.Fprintln(&out, "|===")
+	fmt.Fprintln(out, "|===")
+}
 
-	concerns := append([]model.NAFConcern(nil), profile.Concerns...)
+// renderNAFConcerns writes the concern table sorted by concern ID.
+//
+// TRLC-LINKS: REQ-EMG-042
+func renderNAFConcerns(out *bytes.Buffer, profileConcerns []model.NAFConcern) {
+	concerns := append([]model.NAFConcern(nil), profileConcerns...)
 	sort.Slice(concerns, func(i, j int) bool { return concerns[i].ID < concerns[j].ID })
-	fmt.Fprintln(&out)
-	fmt.Fprintln(&out, "== Concerns")
-	fmt.Fprintln(&out)
-	fmt.Fprintln(&out, "[cols=\"1,2,4,3\",options=\"header\"]")
-	fmt.Fprintln(&out, "|===")
-	fmt.Fprintln(&out, "|Concern ID |Name |Description |Stakeholders")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "== Concerns")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "[cols=\"1,2,4,3\",options=\"header\"]")
+	fmt.Fprintln(out, "|===")
+	fmt.Fprintln(out, "|Concern ID |Name |Description |Stakeholders")
 	for _, concern := range concerns {
 		refs := append([]string(nil), concern.StakeholderRefs...)
 		sort.Strings(refs)
-		fmt.Fprintf(&out, "|`%s` |%s |%s |%s\n", asciidocCell(concern.ID), asciidocCell(concern.Name), asciidocCell(concern.Description), asciidocCell(strings.Join(refs, ", ")))
+		fmt.Fprintf(out, "|`%s` |%s |%s |%s\n", asciidocCell(concern.ID), asciidocCell(concern.Name), asciidocCell(concern.Description), asciidocCell(strings.Join(refs, ", ")))
 	}
-	fmt.Fprintln(&out, "|===")
+	fmt.Fprintln(out, "|===")
+}
 
-	fmt.Fprintln(&out, "\n== Architecture Products")
-	for _, product := range products {
-		viewpointTitle, _ := model.NAFV41ViewpointTitle(product.Viewpoint)
-		fmt.Fprintf(&out, "\n=== %s - %s\n\n", product.Viewpoint, asciidocCell(viewpointTitle))
-		fmt.Fprintf(&out, "*Product:* `%s` +\n", asciidocCell(product.ID))
-		fmt.Fprintf(&out, "*Title:* %s +\n", asciidocCell(product.Title))
-		fmt.Fprintf(&out, "*Canonical view:* `%s` +\n", asciidocCell(product.ViewRef))
-		refs := append([]string(nil), product.ConcernRefs...)
-		sort.Strings(refs)
-		fmt.Fprintf(&out, "*Concerns:* %s\n", asciidocCell(strings.Join(refs, ", ")))
+// renderNAFProduct writes one architecture product with its elements and relationships.
+//
+// TRLC-LINKS: REQ-EMG-042
+func renderNAFProduct(out *bytes.Buffer, product model.NAFProduct, productView view.ProjectedView) {
+	viewpointTitle, _ := model.NAFV41ViewpointTitle(product.Viewpoint)
+	fmt.Fprintf(out, "\n=== %s - %s\n\n", product.Viewpoint, asciidocCell(viewpointTitle))
+	fmt.Fprintf(out, "*Product:* `%s` +\n", asciidocCell(product.ID))
+	fmt.Fprintf(out, "*Title:* %s +\n", asciidocCell(product.Title))
+	fmt.Fprintf(out, "*Canonical view:* `%s` +\n", asciidocCell(product.ViewRef))
+	refs := append([]string(nil), product.ConcernRefs...)
+	sort.Strings(refs)
+	fmt.Fprintf(out, "*Concerns:* %s\n", asciidocCell(strings.Join(refs, ", ")))
 
-		productView := projected[product.ID]
-		fmt.Fprintln(&out)
-		fmt.Fprintln(&out, "==== Elements")
-		fmt.Fprintln(&out)
-		fmt.Fprintln(&out, "[cols=\"2,2,4\",options=\"header\"]")
-		fmt.Fprintln(&out, "|===")
-		fmt.Fprintln(&out, "|Canonical ID |Kind |Label")
-		for _, node := range productView.Nodes {
-			fmt.Fprintf(&out, "|`%s` |%s |%s\n", asciidocCell(node.ID), asciidocCell(node.Kind), asciidocCell(node.Label))
-		}
-		fmt.Fprintln(&out, "|===")
-
-		fmt.Fprintln(&out)
-		fmt.Fprintln(&out, "==== Relationships")
-		fmt.Fprintln(&out)
-		if len(productView.Edges) == 0 {
-			fmt.Fprintln(&out, "No relationships are selected by this architecture product.")
-			continue
-		}
-		fmt.Fprintln(&out, "[cols=\"2,2,2,4\",options=\"header\"]")
-		fmt.Fprintln(&out, "|===")
-		fmt.Fprintln(&out, "|From |Type |To |Description")
-		for _, edge := range productView.Edges {
-			fmt.Fprintf(&out, "|`%s` |%s |`%s` |%s\n", asciidocCell(edge.From), asciidocCell(edge.Type), asciidocCell(edge.To), asciidocCell(edge.Label))
-		}
-		fmt.Fprintln(&out, "|===")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "==== Elements")
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "[cols=\"2,2,4\",options=\"header\"]")
+	fmt.Fprintln(out, "|===")
+	fmt.Fprintln(out, "|Canonical ID |Kind |Label")
+	for _, node := range productView.Nodes {
+		fmt.Fprintf(out, "|`%s` |%s |%s\n", asciidocCell(node.ID), asciidocCell(node.Kind), asciidocCell(node.Label))
 	}
-	return out.String()
+	fmt.Fprintln(out, "|===")
+
+	fmt.Fprintln(out)
+	fmt.Fprintln(out, "==== Relationships")
+	fmt.Fprintln(out)
+	if len(productView.Edges) == 0 {
+		fmt.Fprintln(out, "No relationships are selected by this architecture product.")
+		return
+	}
+	fmt.Fprintln(out, "[cols=\"2,2,2,4\",options=\"header\"]")
+	fmt.Fprintln(out, "|===")
+	fmt.Fprintln(out, "|From |Type |To |Description")
+	for _, edge := range productView.Edges {
+		fmt.Fprintf(out, "|`%s` |%s |`%s` |%s\n", asciidocCell(edge.From), asciidocCell(edge.Type), asciidocCell(edge.To), asciidocCell(edge.Label))
+	}
+	fmt.Fprintln(out, "|===")
 }
 
 // TRLC-LINKS: REQ-EMG-042

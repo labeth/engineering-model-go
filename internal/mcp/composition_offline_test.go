@@ -23,14 +23,14 @@ import (
 func countingRegistry(t *testing.T) *atomic.Int64 {
 	t.Helper()
 	registryRoot := filepath.Join(t.TempDir(), "registry")
-	writeMCPModule(t, filepath.Join(registryRoot, "example.com_child_v1.0.0"), "example.com/child@v1", "v1.0.0", "CHILD", `publications:
+	writeMCPModule(t, filepath.Join(registryRoot, "example.com_child_v1.0.0"), mcpModule{"example.com/child@v1", "v1.0.0", "CHILD", `publications:
   - id: public
     architecture: [CAP-CHILD]
 `, `  contract:
     provides:
       - id: CAP-CHILD
         kind: capability
-`)
+`})
 	registry, err := modregistrytest.New(os.DirFS(registryRoot), "")
 	if err != nil {
 		t.Fatal(err)
@@ -51,6 +51,139 @@ func countingRegistry(t *testing.T) *atomic.Int64 {
 	return &count
 }
 
+// offlineFixture is a parent/child composition behind a counting registry with
+// a warm module cache.
+type offlineFixture struct {
+	s            *Server
+	requests     *atomic.Int64
+	parent       string
+	lockPath     string
+	requirements []byte
+}
+
+// newOfflineFixture publishes the child module, writes the parent and warms the
+// module cache without writing a lock.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
+func newOfflineFixture(t *testing.T) *offlineFixture {
+	t.Helper()
+	requests := countingRegistry(t)
+	parent := filepath.Join(t.TempDir(), "parent")
+	writeMCPModule(t, parent, mcpModule{"example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
+  - alias: child
+    path: example.com/child@v1
+    version: v1.0.0
+    publications: [public]
+`, `  composition:
+    subsystems:
+      - id: SUB-CHILD
+        dependency: child
+        publication: public
+`})
+	manifest := filepath.Join(parent, "engmod.yml")
+	lockPath := filepath.Join(parent, engmodel.CompositionLockFileName)
+	if _, err := engmodel.GenerateCompositionFromFileWith(manifest, engmodel.ResolutionOptions{Lock: engmodel.LockModeCheck}); err != nil {
+		t.Fatal(err)
+	}
+	requireNoFile(t, lockPath, "warm-up wrote the lock")
+	requirements, err := os.ReadFile(filepath.Join(parent, "model", "requirements.yml"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	return &offlineFixture{s: initializedServerAt(t, parent), requests: requests, parent: parent, lockPath: lockPath, requirements: requirements}
+}
+
+// requireNoFile fails with msg when the path exists.
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func requireNoFile(t *testing.T, path, msg string) {
+	t.Helper()
+	if _, err := os.Stat(path); err == nil {
+		t.Fatal(msg)
+	}
+}
+
+// requireNoRegistryRequests fails when the counting registry saw a request.
+// ENGMODEL-LINKS: FU-MCP-SERVER
+func requireNoRegistryRequests(t *testing.T, label string, requests *atomic.Int64) {
+	t.Helper()
+	if n := requests.Load(); n != 0 {
+		t.Fatalf("%s: %d registry requests with a warm cache", label, n)
+	}
+}
+
+// provenanceDirs returns the ResolvedDir of every provenance entry.
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
+func provenanceDirs(comp map[string]any) []any {
+	var dirs []any
+	for _, p := range comp["provenance"].([]any) {
+		dirs = append(dirs, p.(map[string]any)["ResolvedDir"])
+	}
+	return dirs
+}
+
+// singleSubsystemDir reports whether composition.resolve lists exactly one
+// subsystem whose resolvedDirectory is want.
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
+func singleSubsystemDir(comp map[string]any, want string) bool {
+	subs, _ := comp["subsystems"].([]any)
+	return len(subs) == 1 && subs[0].(map[string]any)["resolvedDirectory"] == want
+}
+
+// checkComposition resolves the composition and requires module@version
+// directories and no cache path.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
+func (f *offlineFixture) checkComposition(t *testing.T, label string) {
+	t.Helper()
+	comp := callToolData(t, f.s, "composition.resolve")
+	text := mustJSON(t, comp)
+	check(t, label+": composition.resolve").textLacks(text, "module_fetch_failed", filepath.Join(f.parent, ".engmod"))
+	if !singleSubsystemDir(comp, "example.com/child@v1.0.0") {
+		t.Fatalf("%s: resolvedDirectory must be module@version: %s", label, text)
+	}
+	for _, dir := range provenanceDirs(comp) {
+		if dir != nil && dir != "example.com/child@v1.0.0" {
+			t.Fatalf("%s: provenance directory %v", label, dir)
+		}
+	}
+}
+
+// callAll calls every composing read tool and requires no registry request.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
+func (f *offlineFixture) callAll(t *testing.T, label string) {
+	t.Helper()
+	f.requests.Store(0)
+	complete := f.s.callToolPayload(t, "model.complete", map[string]any{"prefix": "child::"})
+	check(t, label+": model.complete lost the imported IDs").textHas(mustJSON(t, complete), "child::CAP-CHILD")
+	f.s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": string(f.requirements)})
+	f.checkComposition(t, label)
+	callToolData(t, f.s, "trace.matrix")
+	requireNoRegistryRequests(t, label, f.requests)
+}
+
+// checkExportersOffline requires the exporters to compose without registry
+// requests and without writing the lock under the server's process defaults.
+// ENGMODEL-LINKS: FU-MCP-SERVER, FU-SYSTEM-COMPOSITION, CTRL-MCP-PATH-BOUNDARY
+func (f *offlineFixture) checkExportersOffline(t *testing.T) {
+	t.Helper()
+	t.Setenv("ENGMOD_LOCK", "")
+	t.Setenv("ENGMOD_MODULE_CACHE", "")
+	ApplyReadOnlyResolutionDefaults()
+	if os.Getenv("ENGMOD_LOCK") != "check" || os.Getenv("ENGMOD_MODULE_CACHE") != "reuse" {
+		t.Fatalf("server defaults not applied: lock=%q cache=%q", os.Getenv("ENGMOD_LOCK"), os.Getenv("ENGMOD_MODULE_CACHE"))
+	}
+	if err := os.Remove(f.lockPath); err != nil {
+		t.Fatal(err)
+	}
+	f.requests.Store(0)
+	callToolData(t, f.s, "gemara.controlCatalog")
+	requireNoRegistryRequests(t, "gemara.controlCatalog", f.requests)
+	requireNoFile(t, f.lockPath, "gemara.controlCatalog wrote engmod.lock.yml")
+	t.Setenv("ENGMOD_MODULE_CACHE", "refresh")
+	ApplyReadOnlyResolutionDefaults()
+	if os.Getenv("ENGMOD_MODULE_CACHE") != "refresh" {
+		t.Fatal("an explicit ENGMOD_MODULE_CACHE must be kept")
+	}
+}
+
 // The composing MCP read tools (model.complete, model.diagnose,
 // composition.resolve, trace.matrix) never write engmod.lock.yml and work
 // offline from a warm module cache: no registry request, also with
@@ -65,105 +198,24 @@ func TestMCPCompositionToolsNeverWriteLockAndWorkOffline(t *testing.T) {
 	t.Setenv("ENGMOD_WORK", "")
 	t.Setenv("ENGMOD_LOCK", "")
 	t.Setenv("ENGMOD_MODULE_CACHE", "")
-	requests := countingRegistry(t)
-	parent := filepath.Join(t.TempDir(), "parent")
-	writeMCPModule(t, parent, "example.com/parent@v1", "v1.0.0", "PARENT", `dependencies:
-  - alias: child
-    path: example.com/child@v1
-    version: v1.0.0
-    publications: [public]
-`, `  composition:
-    subsystems:
-      - id: SUB-CHILD
-        dependency: child
-        publication: public
-`)
-	manifest := filepath.Join(parent, "engmod.yml")
-	lockPath := filepath.Join(parent, engmodel.CompositionLockFileName)
-	// Warm the module cache without writing a lock.
-	if _, err := engmodel.GenerateCompositionFromFileWith(manifest, engmodel.ResolutionOptions{Lock: engmodel.LockModeCheck}); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := os.Stat(lockPath); err == nil {
-		t.Fatal("warm-up wrote the lock")
-	}
-	requirements, err := os.ReadFile(filepath.Join(parent, "model", "requirements.yml"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	s := initializedServerAt(t, parent)
-	callAll := func(label string) {
-		t.Helper()
-		requests.Store(0)
-		complete := callToolPayload(t, s, "model.complete", map[string]any{"prefix": "child::"})
-		if !strings.Contains(mustJSON(t, complete), "child::CAP-CHILD") {
-			t.Fatalf("%s: model.complete lost the imported IDs: %+v", label, complete)
-		}
-		callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": string(requirements)})
-		comp := callToolData(t, s, "composition.resolve")
-		text := mustJSON(t, comp)
-		if strings.Contains(text, "module_fetch_failed") {
-			t.Fatalf("%s: composition.resolve fetched: %s", label, text)
-		}
-		subs, _ := comp["subsystems"].([]any)
-		if len(subs) != 1 || subs[0].(map[string]any)["resolvedDirectory"] != "example.com/child@v1.0.0" {
-			t.Fatalf("%s: resolvedDirectory must be module@version: %s", label, text)
-		}
-		for _, p := range comp["provenance"].([]any) {
-			if dir := p.(map[string]any)["ResolvedDir"]; dir != nil && dir != "example.com/child@v1.0.0" {
-				t.Fatalf("%s: provenance directory %v", label, dir)
-			}
-		}
-		if strings.Contains(text, filepath.Join(parent, ".engmod")) {
-			t.Fatalf("%s: composition.resolve returns the cache path: %s", label, text)
-		}
-		callToolData(t, s, "trace.matrix")
-		if n := requests.Load(); n != 0 {
-			t.Fatalf("%s: %d registry requests with a warm cache", label, n)
-		}
-	}
-	callAll("no lock")
-	if _, err := os.Stat(lockPath); err == nil {
-		t.Fatal("an MCP read tool created engmod.lock.yml")
-	}
+	f := newOfflineFixture(t)
+	f.callAll(t, "no lock")
+	requireNoFile(t, f.lockPath, "an MCP read tool created engmod.lock.yml")
 	committed := "schemaVersion: 1\ndependencies: []\n# committed\n"
-	if err := os.WriteFile(lockPath, []byte(committed), 0o644); err != nil {
+	if err := os.WriteFile(f.lockPath, []byte(committed), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	callAll("committed lock")
+	f.callAll(t, "committed lock")
 	t.Setenv("ENGMOD_WORK", "off")
-	callAll("workspace off")
+	f.callAll(t, "workspace off")
 	// The template bridge sets ENGMOD_LOCK=check explicitly; the read tools
 	// must still reuse the warm cache.
 	t.Setenv("ENGMOD_LOCK", "check")
-	callAll("lock check set explicitly")
-	if data, _ := os.ReadFile(lockPath); string(data) != committed {
+	f.callAll(t, "lock check set explicitly")
+	if data, _ := os.ReadFile(f.lockPath); string(data) != committed {
 		t.Fatalf("an MCP read tool changed engmod.lock.yml:\n%s", data)
 	}
-	// Under the server's process defaults the exporters (Gemara, OSCAL)
-	// compose without registry requests and without writing the lock either.
-	t.Setenv("ENGMOD_LOCK", "")
-	t.Setenv("ENGMOD_MODULE_CACHE", "")
-	ApplyReadOnlyResolutionDefaults()
-	if os.Getenv("ENGMOD_LOCK") != "check" || os.Getenv("ENGMOD_MODULE_CACHE") != "reuse" {
-		t.Fatalf("server defaults not applied: lock=%q cache=%q", os.Getenv("ENGMOD_LOCK"), os.Getenv("ENGMOD_MODULE_CACHE"))
-	}
-	if err := os.Remove(lockPath); err != nil {
-		t.Fatal(err)
-	}
-	requests.Store(0)
-	callToolData(t, s, "gemara.controlCatalog")
-	if n := requests.Load(); n != 0 {
-		t.Fatalf("gemara.controlCatalog: %d registry requests with a warm cache", n)
-	}
-	if _, err := os.Stat(lockPath); err == nil {
-		t.Fatal("gemara.controlCatalog wrote engmod.lock.yml")
-	}
-	t.Setenv("ENGMOD_MODULE_CACHE", "refresh")
-	ApplyReadOnlyResolutionDefaults()
-	if os.Getenv("ENGMOD_MODULE_CACHE") != "refresh" {
-		t.Fatal("an explicit ENGMOD_MODULE_CACHE must be kept")
-	}
+	f.checkExportersOffline(t)
 }
 
 // A workspace replacement's resolvedDirectory is relative to the workspace
@@ -178,12 +230,11 @@ func TestCompositionResolveReturnsWorkspaceRelativeDirectory(t *testing.T) {
 	parent := writeMCPCompositionFixture(t)
 	s := initializedServerAt(t, parent)
 	comp := callToolData(t, s, "composition.resolve")
-	subs, _ := comp["subsystems"].([]any)
-	if len(subs) != 1 || subs[0].(map[string]any)["resolvedDirectory"] != "child" {
+	if !singleSubsystemDir(comp, "child") {
 		t.Fatalf("resolvedDirectory must be relative to the workspace root: %s", mustJSON(t, comp))
 	}
-	for _, p := range comp["provenance"].([]any) {
-		if dir := p.(map[string]any)["ResolvedDir"]; dir != "child" {
+	for _, dir := range provenanceDirs(comp) {
+		if dir != "child" {
 			t.Fatalf("provenance directory %v", dir)
 		}
 	}
@@ -213,11 +264,7 @@ func TestToolOutputCarriesNoAbsolutePaths(t *testing.T) {
 	s := initializedServerAt(t, parent)
 	for _, tool := range []string{"composition.resolve", "trace.matrix"} {
 		text := mustJSON(t, callToolData(t, s, tool))
-		for _, abs := range []string{workspace, evalOrSame(workspace)} {
-			if strings.Contains(text, abs) {
-				t.Fatalf("%s leaks absolute path %s:\n%s", tool, abs, text)
-			}
-		}
+		check(t, tool+" leaks an absolute path").textLacks(text, workspace, evalOrSame(workspace))
 	}
 	// A sibling checkout path (as a diagnostic from a dependency would carry)
 	// is named relative to the workspace root found from the model.
@@ -225,14 +272,22 @@ func TestToolOutputCarriesNoAbsolutePaths(t *testing.T) {
 	if got := newPathScrubber(s.repoRoot, s.modelPath).scrubString("in " + sibling); got != "in workspace:child/model/architecture.yml" {
 		t.Fatalf("sibling path scrubbed to %q", got)
 	}
-	comp := callToolData(t, s, "composition.resolve")
+	requireLockCheckSkippedRelative(t, callToolData(t, s, "composition.resolve"))
+}
+
+// requireLockCheckSkippedRelative requires a composition.lock_check_skipped
+// diagnostic whose path is project-relative.
+// ENGMODEL-LINKS: FU-MCP-SERVER, CTRL-MCP-PATH-BOUNDARY
+func requireLockCheckSkippedRelative(t *testing.T, comp map[string]any) {
+	t.Helper()
 	found := false
 	for _, d := range comp["diagnostics"].([]any) {
-		if d.(map[string]any)["code"] == "composition.lock_check_skipped" {
-			found = true
-			if path := d.(map[string]any)["path"]; path != "engmod.lock.yml" {
-				t.Fatalf("diagnostic path must be project-relative, got %v", path)
-			}
+		if d.(map[string]any)["code"] != "composition.lock_check_skipped" {
+			continue
+		}
+		found = true
+		if path := d.(map[string]any)["path"]; path != "engmod.lock.yml" {
+			t.Fatalf("diagnostic path must be project-relative, got %v", path)
 		}
 	}
 	if !found {

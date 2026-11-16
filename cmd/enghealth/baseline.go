@@ -34,35 +34,56 @@ type baselineOptions struct {
 // ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
 func runBaseline(args []string, stdout, stderr io.Writer) int {
 	if len(args) == 0 || args[0] != "write" {
-		if len(args) > 0 && (args[0] == "-h" || args[0] == "--help") {
-			baselineUsage(stdout)
-			return exitOK
-		}
-		baselineUsage(stderr)
-		return exitUsage
+		return baselineHelp(args, streams{stdout, stderr})
 	}
 	opts, code, ok := parseBaselineFlags(args[1:], stderr)
 	if !ok {
 		return code
 	}
+	return runBaselineWrite(opts, streams{stdout, stderr})
+}
+
+// streams are the standard output and error of a command.
+type streams struct {
+	stdout, stderr io.Writer
+}
+
+// baselineHelp prints the usage of the subcommand: to stdout when it was asked
+// for, to stderr when the command is not write.
+//
+// TRLC-LINKS: REQ-EMG-158, REQ-EMG-161
+func baselineHelp(args []string, s streams) int {
+	if len(args) > 0 && (args[0] == "-h" || args[0] == "--help") {
+		baselineUsage(s.stdout)
+		return exitOK
+	}
+	baselineUsage(s.stderr)
+	return exitUsage
+}
+
+// runBaselineWrite resolves the target and builds the wanted file, then checks
+// it or writes it.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-158, REQ-EMG-161
+func runBaselineWrite(opts baselineOptions, s streams) int {
 	target, err := baselineTarget(opts)
 	if err != nil {
-		fmt.Fprintln(stderr, "enghealth baseline:", safeText(err.Error()))
+		fmt.Fprintln(s.stderr, "enghealth baseline:", safeText(err.Error()))
 		return exitUsage
 	}
 	want, err := baselineWanted(opts, target)
 	if err != nil {
-		fmt.Fprintln(stderr, "enghealth baseline:", safeText(err.Error()))
+		fmt.Fprintln(s.stderr, "enghealth baseline:", safeText(err.Error()))
 		return exitUsage
 	}
 	if opts.check {
-		return checkBaseline(target, want, stdout, stderr)
+		return checkBaseline(target, want, s)
 	}
 	if err := writeBaselineFile(target.path, want.data); err != nil {
-		fmt.Fprintln(stderr, "enghealth baseline: write:", safeText(err.Error()))
+		fmt.Fprintln(s.stderr, "enghealth baseline: write:", safeText(err.Error()))
 		return exitUsage
 	}
-	fmt.Fprintf(stdout, "enghealth baseline: wrote %d entries to %s\n", len(want.entries), safeText(target.shown))
+	fmt.Fprintf(s.stdout, "enghealth baseline: wrote %d entries to %s\n", len(want.entries), safeText(target.shown))
 	return exitOK
 }
 
@@ -119,30 +140,34 @@ func baselineTarget(opts baselineOptions) (baselineFile, error) {
 		return baselineFile{}, err
 	}
 	dir := filepath.Dir(manifest)
-	var target string
-	switch {
-	case strings.TrimSpace(opts.out) != "":
-		if target, err = filepath.Abs(opts.out); err != nil {
-			return baselineFile{}, err
-		}
-	default:
-		bundle, err := engmodel.LoadBundle(manifest)
-		if err != nil {
-			return baselineFile{}, fmt.Errorf("load model: %w", err)
-		}
-		h := bundle.Manifest.Health
-		if h == nil || h.Baseline == nil {
-			return baselineFile{}, errors.New("the manifest has no health.baseline; add health.baseline {file, decision} or pass --out")
-		}
-		if target, err = model.ResolveHealthBaselinePath(manifest, h.Baseline.File); err != nil {
-			return baselineFile{}, err
-		}
+	target, err := baselineFilePath(opts, manifest)
+	if err != nil {
+		return baselineFile{}, err
 	}
 	if !insideDir(dir, target) {
 		return baselineFile{}, fmt.Errorf("refusing to use %s: it is outside the manifest directory %s", target, dir)
 	}
 	shown, _ := filepath.Rel(dir, target)
 	return baselineFile{path: target, shown: filepath.ToSlash(shown)}, nil
+}
+
+// baselineFilePath is the absolute path of --out, or of the health.baseline
+// file of the manifest.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-158, REQ-EMG-161
+func baselineFilePath(opts baselineOptions, manifest string) (string, error) {
+	if strings.TrimSpace(opts.out) != "" {
+		return filepath.Abs(opts.out)
+	}
+	bundle, err := engmodel.LoadBundle(manifest)
+	if err != nil {
+		return "", fmt.Errorf("load model: %w", err)
+	}
+	h := bundle.Manifest.Health
+	if h == nil || h.Baseline == nil {
+		return "", errors.New("the manifest has no health.baseline; add health.baseline {file, decision} or pass --out")
+	}
+	return model.ResolveHealthBaselinePath(manifest, h.Baseline.File)
 }
 
 // insideDir reports whether target is dir or below it, after resolving the
@@ -199,14 +224,10 @@ func baselineWanted(opts baselineOptions, target baselineFile) (baselineContent,
 	if err != nil {
 		return baselineContent{}, fmt.Errorf("scan: %w", err)
 	}
-	var keep func(string) bool
-	if strings.TrimSpace(opts.tier) != "" {
-		keep = func(code string) bool { return report.LevelOf(code) == health.LevelError }
-	}
-	got := baselineContent{entries: health.BaselineEntries(report, keep)}
+	got := baselineContent{entries: health.BaselineEntries(report, tierFilter(opts.tier, report))}
 	got.haveData, got.have, got.problem = readExistingBaseline(target.path)
-	if len(opts.paths) > 0 && !opts.check && got.problem != "" && got.problem != missingBaseline {
-		return baselineContent{}, fmt.Errorf("%s is unusable (%s); a write restricted to paths needs the existing entries, so run the full write", target.shown, got.problem)
+	if err := checkRestrictedWrite(opts, target, got.problem); err != nil {
+		return baselineContent{}, err
 	}
 	if len(opts.paths) > 0 {
 		got.entries = keepOutsideScan(got.have, report, got.entries)
@@ -216,6 +237,33 @@ func baselineWanted(opts baselineOptions, target baselineFile) (baselineContent,
 	}
 	return got, nil
 }
+
+// tierFilter limits the baseline to the findings that are errors at the tier;
+// nil, which keeps every finding, without a tier.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-158, REQ-EMG-161
+func tierFilter(tier string, report engmodel.HealthReport) func(string) bool {
+	if strings.TrimSpace(tier) == "" {
+		return nil
+	}
+	return func(code string) bool { return report.LevelOf(code) == health.LevelError }
+}
+
+// checkRestrictedWrite refuses a write restricted to paths when the existing
+// baseline file is unusable, because that write keeps the existing entries.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-158, REQ-EMG-161
+func checkRestrictedWrite(opts baselineOptions, target baselineFile, problem string) error {
+	if len(opts.paths) > 0 && !opts.check && unusableBaseline(problem) {
+		return fmt.Errorf("%s is unusable (%s); a write restricted to paths needs the existing entries, so run the full write", target.shown, problem)
+	}
+	return nil
+}
+
+// unusableBaseline reports a problem that is not a missing file.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-161
+func unusableBaseline(problem string) bool { return problem != "" && problem != missingBaseline }
 
 // readExistingBaseline reads the file at path, with CRLF line ends read as LF. A
 // missing file or one that is not a baseline is not an error here: the problem
@@ -263,26 +311,32 @@ func keepOutsideScan(existing []model.HealthBaselineEntry, report engmodel.Healt
 // finding the file does not list).
 //
 // TRLC-LINKS: REQ-EMG-153, REQ-EMG-158, REQ-EMG-161
-func checkBaseline(target baselineFile, want baselineContent, stdout, stderr io.Writer) int {
+func checkBaseline(target baselineFile, want baselineContent, s streams) int {
+	shown := safeText(target.shown)
 	if want.problem == "" && bytes.Equal(want.haveData, want.data) {
-		fmt.Fprintf(stdout, "enghealth baseline: %s is exactly the current debt (%d entries)\n", safeText(target.shown), len(want.entries))
+		fmt.Fprintf(s.stdout, "enghealth baseline: %s is exactly the current debt (%d entries)\n", shown, len(want.entries))
 		return exitOK
 	}
 	if want.problem != "" {
-		fmt.Fprintf(stdout, "enghealth baseline: %s is unusable: %s\n", safeText(target.shown), safeText(want.problem))
+		fmt.Fprintf(s.stdout, "enghealth baseline: %s is unusable: %s\n", shown, safeText(want.problem))
 	}
 	stale, missing := health.BaselineDiff(want.have, want.entries)
-	for _, e := range stale {
-		fmt.Fprintf(stdout, "stale: %s %s in %s (value %d)\n", e.Code, safeText(e.Function), safeText(e.Path), e.Value)
-	}
-	for _, e := range missing {
-		fmt.Fprintf(stdout, "missing: %s %s in %s (value %d)\n", e.Code, safeText(e.Function), safeText(e.Path), e.Value)
-	}
+	printEntries(s.stdout, "stale", stale)
+	printEntries(s.stdout, "missing", missing)
 	if want.problem == "" && len(stale) == 0 && len(missing) == 0 {
-		fmt.Fprintf(stdout, "enghealth baseline: %s lists the current debt but is not in canonical form\n", safeText(target.shown))
+		fmt.Fprintf(s.stdout, "enghealth baseline: %s lists the current debt but is not in canonical form\n", shown)
 	}
-	fmt.Fprintf(stderr, "enghealth baseline: %s differs from the current debt (%d stale, %d missing); run enghealth baseline write\n", safeText(target.shown), len(stale), len(missing))
+	fmt.Fprintf(s.stderr, "enghealth baseline: %s differs from the current debt (%d stale, %d missing); run enghealth baseline write\n", shown, len(stale), len(missing))
 	return exitFail
+}
+
+// printEntries prints one line per baseline entry under a label.
+//
+// TRLC-LINKS: REQ-EMG-153, REQ-EMG-158, REQ-EMG-161
+func printEntries(w io.Writer, label string, entries []model.HealthBaselineEntry) {
+	for _, e := range entries {
+		fmt.Fprintf(w, "%s: %s %s in %s (value %d)\n", label, e.Code, safeText(e.Function), safeText(e.Path), e.Value)
+	}
 }
 
 // writeBaselineFile writes the file, creating its directory, through

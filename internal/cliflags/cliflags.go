@@ -71,13 +71,11 @@ func (o *Options) apply(setenv func(key, value string) error) error {
 	if err != nil {
 		return err
 	}
-	if workspace != "" {
-		if err := setenv(WorkspaceEnv, workspace); err != nil {
-			return err
+	for _, exported := range []struct{ key, value string }{{WorkspaceEnv, workspace}, {LockEnv, lock}} {
+		if exported.value == "" {
+			continue
 		}
-	}
-	if lock != "" {
-		if err := setenv(LockEnv, lock); err != nil {
+		if err := setenv(exported.key, exported.value); err != nil {
 			return err
 		}
 	}

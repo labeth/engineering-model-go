@@ -53,7 +53,30 @@ func TestAccept(t *testing.T) {
 	item := &reqlinks.Item{ID: "CAP-A", Kind: reqlinks.KindCapability}
 	mismatch := reqlinks.LinkStatus{ID: "LNK-A", Child: "dep::CAP-A", State: reqlinks.StateVersionMismatch, Status: "claimed",
 		Pinned: "v0.1.0", Version: "v0.2.0", Item: item}
-	got, err := Accept(acceptContext(mismatch), []byte(acceptLinks), "LNK-A", "ACT-OWNER", " Still  fine. ", "2026-11-03")
+	checkAcceptClaimed(t, mismatch)
+	// An accepted link at a stale pin: only the pin moves.
+	repin := reqlinks.LinkStatus{ID: "LNK-B", Child: "dep::CAP-B", State: reqlinks.StateVersionMismatch, Status: "accepted", Pinned: "v0.1.0", Version: "v0.2.0", Item: item}
+	got, err := AcceptReview(acceptContext(repin), []byte(acceptLinks), AcceptRequest{ID: "LNK-B", By: "ACT-OWNER", Rationale: "Old.", Date: "2026-01-01"})
+	if want := strings.Replace(acceptLinks, "    version: v0.1.0\n  status: accepted", "    version: v0.2.0\n  status: accepted", 1); err != nil || string(got.After) != want {
+		t.Fatalf("Accept of a version_mismatch link:\n%s (%v)", got.After, err)
+	}
+	checkAcceptRefusals(t, mismatch)
+}
+
+// acceptRefusal is one refused Accept: the context and link, the actor and
+// the text the error contains; noStatus says no status is returned.
+type acceptRefusal struct {
+	ctx      Context
+	id, by   string
+	wantErr  string
+	noStatus bool
+}
+
+// checkAcceptClaimed checks the accept of a claimed link, its result and
+// its patch.
+func checkAcceptClaimed(t *testing.T, mismatch reqlinks.LinkStatus) {
+	t.Helper()
+	got, err := AcceptReview(acceptContext(mismatch), []byte(acceptLinks), AcceptRequest{ID: "LNK-A", By: "ACT-OWNER", Rationale: " Still  fine. ", Date: "2026-11-03"})
 	want := strings.Replace(acceptLinks, `    version: v0.1.0
     fingerprint: sha256:v1:aaaa
   status: claimed
@@ -64,37 +87,36 @@ func TestAccept(t *testing.T) {
   reviewedBy: ACT-OWNER
   reviewedOn: "2026-11-03"
 `, 1)
-	if err != nil || string(got.After) != want || string(got.Before) != acceptLinks || got.Path != "/m/model/req-links.yml" {
+	if err != nil || string(got.After) != want {
+		t.Fatalf("Accept: %v\n%s\nwant\n%s", err, got.After, want)
+	}
+	if string(got.Before) != acceptLinks || got.Path != "/m/model/req-links.yml" {
 		t.Fatalf("Accept: %v\n%s\nwant\n%s", err, got.After, want)
 	}
 	if patch := got.Patch("model/req-links.yml"); patch != "--- a/model/req-links.yml\n+++ b/model/req-links.yml\n-    version: v0.1.0\n+    version: v0.2.0\n-  status: claimed\n+  status: accepted\n+  rationale: Still fine.\n+  reviewedBy: ACT-OWNER\n+  reviewedOn: \"2026-11-03\"\n" {
 		t.Fatalf("Patch:\n%s", patch)
 	}
-	// An accepted link at a stale pin: only the pin moves.
-	repin := reqlinks.LinkStatus{ID: "LNK-B", Child: "dep::CAP-B", State: reqlinks.StateVersionMismatch, Status: "accepted", Pinned: "v0.1.0", Version: "v0.2.0", Item: item}
-	got, err = Accept(acceptContext(repin), []byte(acceptLinks), "LNK-B", "ACT-OWNER", "Old.", "2026-01-01")
-	if want := strings.Replace(acceptLinks, "    version: v0.1.0\n  status: accepted", "    version: v0.2.0\n  status: accepted", 1); err != nil || string(got.After) != want {
-		t.Fatalf("Accept of a version_mismatch link:\n%s (%v)", got.After, err)
-	}
+}
 
+// checkAcceptRefusals checks every refusal returns an error and no result.
+func checkAcceptRefusals(t *testing.T, mismatch reqlinks.LinkStatus) {
+	t.Helper()
 	broken := reqlinks.LinkStatus{ID: "LNK-A", Child: "dep::CAP-A", State: reqlinks.StateBroken, Version: "v0.2.0"}
 	unresolved := reqlinks.LinkStatus{ID: "LNK-A", Child: "dep::CAP-A", State: reqlinks.StateUnresolved, Detail: "dependency \"dep\" was not resolved"}
 	noFile := acceptContext(mismatch)
 	noFile.Bundle.ReqLinksPath = ""
-	for name, tc := range map[string]struct {
-		ctx      Context
-		id, by   string
-		wantErr  string
-		noStatus bool
-	}{
+	for name, tc := range map[string]acceptRefusal{
 		"unknown actor": {acceptContext(mismatch), "LNK-A", "ACT-NOBODY", "--by ACT-NOBODY is not an actor of the model", true},
 		"unknown link":  {acceptContext(mismatch), "LNK-NONE", "ACT-OWNER", "no requirement link LNK-NONE in req-links.yml", true},
 		"broken":        {acceptContext(broken), "LNK-A", "ACT-OWNER", "link LNK-A is broken: dep::CAP-A does not exist at v0.2.0", false},
 		"unresolved":    {acceptContext(unresolved), "LNK-A", "ACT-OWNER", "link LNK-A cannot be accepted: unresolved (dependency \"dep\" was not resolved)", false},
 		"no link file":  {noFile, "LNK-A", "ACT-OWNER", "engmod.yml names no documents.reqLinks", true},
 	} {
-		got, err := Accept(tc.ctx, []byte(acceptLinks), tc.id, tc.by, "x", "2026-11-03")
-		if err == nil || !strings.Contains(err.Error(), tc.wantErr) || got.After != nil || (tc.noStatus && got.Status.ID != "") {
+		got, err := AcceptReview(tc.ctx, []byte(acceptLinks), AcceptRequest{ID: tc.id, By: tc.by, Rationale: "x", Date: "2026-11-03"})
+		if err == nil || !strings.Contains(err.Error(), tc.wantErr) {
+			t.Errorf("%s: err %v, result %+v", name, err, got)
+		}
+		if got.After != nil || (tc.noStatus && got.Status.ID != "") {
 			t.Errorf("%s: err %v, result %+v", name, err, got)
 		}
 	}

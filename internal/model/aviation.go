@@ -309,434 +309,730 @@ func RecognizedLifecycleDataFamilies() []LifecycleDataRecord {
 	return out
 }
 
+// aviationValidator holds the indexes ValidateAviation builds while it walks
+// the document. The checks run in a fixed order because later checks resolve
+// against indexes that earlier checks fill.
+type aviationValidator struct {
+	a               AviationProfile
+	diags           []AviationDiagnostic
+	ids             map[string]string
+	reqs            map[string]bool
+	architectureIDs map[string]bool
+	haveArchitects  bool
+	baselines       map[string]bool
+	procedures      map[string]bool
+	approvals       map[string]bool
+	tools           map[string]bool
+	builds          map[string]ConfigurationBuild
+	cases           map[string]AirborneVerificationCase
+}
+
+// aviationRefRule describes the diagnostic of a reference that does not
+// resolve: the message is "<label> <ref> does not resolve".
+type aviationRefRule struct{ code, path, label string }
+
+// aviationIDGroup is a list of identifiers registered under one path.
+type aviationIDGroup struct {
+	path string
+	ids  []string
+}
+
+// aviationAuthorityTarget is a record whose state may claim authority
+// acceptance.
+type aviationAuthorityTarget struct{ id, state, path string }
+
 // ValidateAviation performs cross-document and evidence-chain validation.
 // TRLC-LINKS: REQ-EMG-054
 func ValidateAviation(doc AviationDocument, requirements RequirementsDocument, architectures ...ArchitectureInputDocument) []AviationDiagnostic {
-	var d []AviationDiagnostic
-	a := doc.Aviation
-	add := func(code, path, message string) { d = append(d, AviationDiagnostic{code, path, message}) }
-	if a.Profile.SoftwareLevel < "A" || a.Profile.SoftwareLevel > "E" {
-		add("aviation.profile.invalid_dal", "aviation.profile.softwareLevel", "softwareLevel must be A, B, C, D, or E")
-	}
-	ids := map[string]string{}
-	register := func(id, path string) {
-		if prior, ok := ids[id]; ok {
-			add("aviation.duplicate_id", path, "identifier "+id+" duplicates "+prior)
-		} else {
-			ids[id] = path
-		}
-	}
-	register(a.Profile.ID, "aviation.profile.id")
-	familyNames := map[string]string{}
-	for _, family := range lifecycleDataFamilies {
-		familyNames[family.Code] = family.Name
-	}
-	seenFamilies := map[string]bool{}
-	for i, v := range a.LifecycleData {
-		register(v.ID, fmt.Sprintf("aviation.lifecycleData[%d].id", i))
-		if v.Source.ID != "" {
-			register(v.Source.ID, fmt.Sprintf("aviation.lifecycleData[%d].source.id", i))
-		}
-		expectedName, recognized := familyNames[v.CategoryCode]
-		if !recognized {
-			add("aviation.lifecycle.unknown_category", fmt.Sprintf("aviation.lifecycleData[%d].categoryCode", i), "category code is not one of the recognized lifecycle-data families")
-		} else if expectedName != v.CategoryName {
-			add("aviation.lifecycle.category_name", fmt.Sprintf("aviation.lifecycleData[%d].categoryName", i), "category name does not match the stable category code")
-		}
-		if seenFamilies[v.CategoryCode] {
-			add("aviation.lifecycle.duplicate_category", fmt.Sprintf("aviation.lifecycleData[%d].categoryCode", i), "lifecycle-data category occurs more than once")
-		}
-		seenFamilies[v.CategoryCode] = true
-	}
-	for code := range familyNames {
-		if !seenFamilies[code] {
-			add("aviation.lifecycle.missing_category", "aviation.lifecycleData", "missing recognized lifecycle-data category "+code)
-		}
-	}
-	for i, v := range a.Objectives {
-		register(v.ID, fmt.Sprintf("aviation.objectives[%d].id", i))
-	}
-	for _, v := range a.VerificationCases {
-		register(v.ID, "aviation.verificationCases")
-	}
-	for _, v := range a.Procedures {
-		register(v.ID, "aviation.procedures")
-	}
-	for _, v := range a.Executions {
-		register(v.ID, "aviation.executions")
-	}
-	for _, v := range a.Baselines {
-		register(v.ID, "aviation.baselines")
-	}
-	for _, v := range a.Builds {
-		register(v.ID, "aviation.builds")
-	}
-	for _, v := range a.Coverage {
-		register(v.ID, "aviation.coverage")
-	}
-	for _, v := range a.Tools {
-		register(v.ID, "aviation.tools")
-	}
-	for _, v := range a.Reviews {
-		register(v.ID, "aviation.reviews")
-	}
-	for _, v := range a.Approvals {
-		register(v.ID, "aviation.approvals")
-	}
-	for _, v := range a.Independence {
-		register(v.ID, "aviation.independence")
-	}
-	for _, v := range a.ProblemReports {
-		register(v.ID, "aviation.problemReports")
-	}
-	for _, v := range a.SQAAudits {
-		register(v.ID, "aviation.sqaAudits")
-	}
-	for _, v := range a.Liaison {
-		register(v.ID, "aviation.liaison")
-		if v.AuthorityRecord.ID != "" {
-			register(v.AuthorityRecord.ID, "aviation.liaison."+v.ID+".authorityRecord.id")
-		}
-	}
+	v := newAviationValidator(doc.Aviation, requirements, architectures)
+	v.checkSoftwareLevel()
+	v.registerIdentifiers()
+	v.checkBaselines()
+	v.checkBuilds()
+	v.checkProcedureBaselines()
+	v.checkVerificationCases()
+	v.indexApprovals()
+	v.checkProcedureCases()
+	v.checkIndependence()
+	v.checkTools()
+	v.checkRequirementAssurance()
+	v.checkExecutions()
+	v.checkCoverage()
+	v.checkObjectives()
+	v.checkAuthorityStates()
+	v.checkLiaisonRecords()
+	sortAviationDiagnostics(v.diags)
+	return v.diags
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func newAviationValidator(a AviationProfile, requirements RequirementsDocument, architectures []ArchitectureInputDocument) *aviationValidator {
 	reqs := map[string]bool{}
 	for _, r := range requirements.Requirements {
 		reqs[r.ID] = true
 	}
-	architectureIDs := map[string]bool{}
-	for _, document := range architectures {
-		input := document.Architecture
-		for _, item := range input.FunctionalGroups {
-			architectureIDs[item.ID] = true
-		}
-		for _, item := range input.FunctionalUnits {
-			architectureIDs[item.ID] = true
-		}
-		for _, item := range input.Interfaces {
-			architectureIDs[item.ID] = true
-		}
-		for _, item := range input.DataObjects {
-			architectureIDs[item.ID] = true
-		}
-		for _, item := range input.DeploymentTargets {
-			architectureIDs[item.ID] = true
-		}
-		for _, item := range input.HardwareItems {
-			architectureIDs[item.ID] = true
+	return &aviationValidator{
+		a:               a,
+		ids:             map[string]string{},
+		reqs:            reqs,
+		architectureIDs: collectArchitectureIDs(architectures),
+		haveArchitects:  len(architectures) > 0,
+		baselines:       map[string]bool{},
+		procedures:      map[string]bool{},
+		approvals:       map[string]bool{},
+		tools:           map[string]bool{},
+		builds:          map[string]ConfigurationBuild{},
+		cases:           map[string]AirborneVerificationCase{},
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func collectArchitectureIDs(documents []ArchitectureInputDocument) map[string]bool {
+	out := map[string]bool{}
+	for _, document := range documents {
+		for _, id := range architectureElementIDs(document.Architecture) {
+			out[id] = true
 		}
 	}
-	resolves := func(ref string) bool { return ids[ref] != "" || reqs[ref] || architectureIDs[ref] }
-	baselines, builds, procedures, cases, approvals, tools := map[string]bool{}, map[string]ConfigurationBuild{}, map[string]bool{}, map[string]AirborneVerificationCase{}, map[string]bool{}, map[string]bool{}
-	for _, v := range a.Baselines {
-		baselines[v.ID] = true
-		if v.Hash == "" {
-			add("aviation.baseline.hash_required", "aviation.baselines."+v.ID, "baseline hash is required")
-		}
-		for _, artifact := range v.Artifacts {
-			if artifact.Hash == "" {
-				add("aviation.artifact.hash_required", "aviation.baselines."+v.ID, "every baseline artifact requires a hash")
-			}
-		}
+	return out
+}
+
+// architectureElementIDs lists the IDs of the elements ArchitectureInput
+// declares that an aviation record may reference.
+//
+// TRLC-LINKS: REQ-EMG-054
+func architectureElementIDs(in ArchitectureInput) []string {
+	var out []string
+	out = append(out, idsOf(in.FunctionalGroups, func(x FunctionalGroup) string { return x.ID })...)
+	out = append(out, idsOf(in.FunctionalUnits, func(x FunctionalUnit) string { return x.ID })...)
+	out = append(out, idsOf(in.Interfaces, func(x Interface) string { return x.ID })...)
+	out = append(out, idsOf(in.DataObjects, func(x DataObject) string { return x.ID })...)
+	out = append(out, idsOf(in.DeploymentTargets, func(x DeploymentTarget) string { return x.ID })...)
+	out = append(out, idsOf(in.HardwareItems, func(x HardwareItem) string { return x.ID })...)
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func idsOf[T any](items []T, id func(T) string) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		out = append(out, id(item))
 	}
-	for _, v := range a.Builds {
-		builds[v.ID] = v
-		if v.Hash == "" {
-			add("aviation.build.hash_required", "aviation.builds."+v.ID, "build hash is required")
-		}
-		if !baselines[v.Baseline] {
-			add("aviation.reference.baseline", "aviation.builds."+v.ID, "baseline reference does not resolve")
-		}
-		for _, artifact := range v.Artifacts {
-			if artifact.Hash == "" {
-				add("aviation.artifact.hash_required", "aviation.builds."+v.ID, "every build artifact requires a hash")
-			}
-		}
-	}
-	for _, v := range a.Procedures {
-		procedures[v.ID] = true
-		if !baselines[v.Baseline] {
-			add("aviation.reference.baseline", "aviation.procedures."+v.ID, "baseline reference does not resolve")
-		}
-	}
-	for _, v := range a.VerificationCases {
-		cases[v.ID] = v
-		for _, ref := range v.RequirementRefs {
-			if !reqs[ref] {
-				add("aviation.reference.requirement", "aviation.verificationCases."+v.ID, "requirement reference "+ref+" does not resolve")
-			}
-		}
-		if !procedures[v.ProcedureRef] {
-			add("aviation.reference.procedure", "aviation.verificationCases."+v.ID, "procedure reference does not resolve")
-		}
-	}
-	for _, v := range a.Approvals {
-		approvals[v.ID] = len(v.Evidence) > 0
-	}
-	for _, v := range a.Procedures {
-		for _, ref := range v.CaseRefs {
-			if _, ok := cases[ref]; !ok {
-				add("aviation.reference.case", "aviation.procedures."+v.ID, "verification case reference "+ref+" does not resolve")
-			} else if cases[ref].ProcedureRef != v.ID {
-				add("aviation.procedure.case_mismatch", "aviation.procedures."+v.ID, "verification case points to a different procedure")
-			}
-		}
-	}
-	for _, v := range a.Independence {
-		if v.Producer == v.Verifier {
-			add("aviation.independence.same_person", "aviation.independence."+v.ID, "producer and verifier must be distinct")
-		}
-		if !approvals[v.ApprovalRef] || len(v.Evidence) == 0 {
-			add("aviation.independence.approval_evidence", "aviation.independence."+v.ID, "independence record requires an approval with evidence and its own evidence")
-		}
-	}
-	for _, v := range a.Tools {
-		tools[v.ID] = true
-		if !baselines[v.Baseline] {
-			add("aviation.reference.baseline", "aviation.tools."+v.ID, "baseline reference does not resolve")
-		}
-		if v.CreditClaimed && (v.Assessment.Criterion == "" || v.Assessment.TQL == "" || len(v.Assessment.OperationalRequirements) == 0 || len(v.Assessment.Evidence) == 0) {
-			add("aviation.tool.incomplete_credit_assessment", "aviation.tools."+v.ID, "credit-claiming tool requires criterion, TQL, operational requirements, and evidence")
-		}
-	}
-	for _, v := range a.RequirementAssurance {
-		if !reqs[v.RequirementID] {
-			add("aviation.reference.requirement", "aviation.requirementAssurance."+v.RequirementID, "canonical requirement does not resolve")
-		}
-		if !baselines[v.Baseline] {
-			add("aviation.reference.baseline", "aviation.requirementAssurance."+v.RequirementID, "baseline reference does not resolve")
-		}
-		if v.Derived && (v.DerivedRationale == "" || v.SafetyFeedbackRecipient == "" || v.SafetyFeedbackStatus == "" || len(v.SafetyFeedbackEvidence) == 0) {
-			add("aviation.derived.incomplete_safety_feedback", "aviation.requirementAssurance."+v.RequirementID, "derived requirement requires rationale and safety feedback recipient, status, and evidence")
-		}
-		for _, ref := range v.ParentRefs {
-			if !reqs[ref] {
-				add("aviation.reference.parent_requirement", "aviation.requirementAssurance."+v.RequirementID, "parent requirement "+ref+" does not resolve")
-			}
-			for _, ref := range v.ArchitectureRefs {
-				if len(architectures) > 0 && !architectureIDs[ref] {
-					add("aviation.reference.architecture", "aviation.requirementAssurance."+v.RequirementID, "architecture reference "+ref+" does not resolve")
-				}
-			}
-			for _, ref := range v.SafetyFeedbackEvidence {
-				if !resolves(ref) {
-					add("aviation.reference.evidence", "aviation.requirementAssurance."+v.RequirementID, "safety feedback evidence "+ref+" does not resolve")
-				}
-			}
-		}
-	}
-	for _, v := range a.Executions {
-		if !procedures[v.ProcedureRef] {
-			add("aviation.reference.procedure", "aviation.executions."+v.ID, "procedure reference does not resolve")
-		}
-		build, ok := builds[v.Build]
-		if !ok {
-			add("aviation.reference.build", "aviation.executions."+v.ID, "build reference does not resolve")
-		} else if build.Baseline != v.Baseline {
-			add("aviation.execution.baseline_mismatch", "aviation.executions."+v.ID, "execution baseline does not match build baseline")
-		}
-		if !baselines[v.Baseline] {
-			add("aviation.reference.baseline", "aviation.executions."+v.ID, "baseline reference does not resolve")
-		}
-		for _, ref := range v.CaseRefs {
-			c, ok := cases[ref]
-			if !ok {
-				add("aviation.reference.case", "aviation.executions."+v.ID, "verification case reference does not resolve")
-				continue
-			}
-			if c.ProcedureRef != v.ProcedureRef {
-				add("aviation.execution.procedure_mismatch", "aviation.executions."+v.ID, "execution procedure does not match verification case procedure")
-			}
-			if c.IndependenceRequired && (v.Producer == v.Verifier || len(v.ApprovalRefs) == 0) {
-				add("aviation.independence.missing", "aviation.executions."+v.ID, "independent execution requires distinct producer/verifier and approval evidence")
-			}
-			for _, approval := range v.ApprovalRefs {
-				if !approvals[approval] {
-					add("aviation.reference.approval", "aviation.executions."+v.ID, "approval reference lacks evidence or does not resolve")
-				}
-				for _, ref := range v.Evidence {
-					if !resolves(ref) {
-						add("aviation.reference.evidence", "aviation.executions."+v.ID, "evidence reference "+ref+" does not resolve")
-					}
-				}
-			}
-		}
-	}
-	for _, v := range a.Coverage {
-		if a.Profile.SoftwareLevel == "C" && v.Metric != "statement" {
-			add("aviation.coverage.metric", "aviation.coverage."+v.ID, "DAL C coverage metric must be statement")
-		}
-		if v.Total != v.Covered+v.Uncovered {
-			add("aviation.coverage.arithmetic", "aviation.coverage."+v.ID, "total must equal covered plus uncovered")
-		}
-		sum, open := 0, false
-		for _, x := range v.Dispositions {
-			sum += x.Count
-			if x.Disposition == "open" || x.Status == "declared" || x.Status == "planned" {
-				open = true
-			}
-		}
-		if sum != v.Uncovered {
-			add("aviation.coverage.disposition_count", "aviation.coverage."+v.ID, "dispositions must fully account for uncovered count")
-		}
-		if (v.Status == "accepted" || v.Status == "authority-accepted") && open {
-			add("aviation.coverage.open_at_closure", "aviation.coverage."+v.ID, "accepted coverage cannot retain open uncovered code")
-		}
-		if !baselines[v.Baseline] || builds[v.Build].Baseline != v.Baseline {
-			add("aviation.coverage.configuration", "aviation.coverage."+v.ID, "coverage must reference an exact matching baseline and build")
-		}
-		for _, ref := range v.ToolRefs {
-			if !tools[ref] {
-				add("aviation.reference.tool", "aviation.coverage."+v.ID, "tool reference "+ref+" does not resolve")
-			}
-			for _, ref := range v.Evidence {
-				if !resolves(ref) {
-					add("aviation.reference.evidence", "aviation.coverage."+v.ID, "evidence reference "+ref+" does not resolve")
-				}
-			}
-		}
-	}
-	for _, obj := range a.Objectives {
-		for _, ref := range obj.EvidenceRefs {
-			if _, ok := ids[ref]; !ok {
-				add("aviation.reference.evidence", "aviation.objectives."+obj.ID, "evidence reference "+ref+" does not resolve")
-			}
-			for _, item := range a.LifecycleData {
-				if item.Baseline != "" && !baselines[item.Baseline] {
-					add("aviation.reference.baseline", "aviation.lifecycleData."+item.ID, "baseline reference does not resolve")
-				}
-				for _, ref := range item.Approvals {
-					if !approvals[ref] {
-						add("aviation.reference.approval", "aviation.lifecycleData."+item.ID, "approval reference lacks evidence or does not resolve")
-					}
-				}
-				for _, ref := range item.ObjectiveRefs {
-					if !resolves(ref) {
-						add("aviation.reference.objective", "aviation.lifecycleData."+item.ID, "objective reference "+ref+" does not resolve")
-					}
-				}
-			}
-			for _, tool := range a.Tools {
-				for _, ref := range tool.Assessment.Evidence {
-					if !resolves(ref) {
-						add("aviation.reference.evidence", "aviation.tools."+tool.ID, "assessment evidence "+ref+" does not resolve")
-					}
-				}
-			}
-			for _, review := range a.Reviews {
-				for _, ref := range append(append([]string{}, review.SubjectRefs...), review.Evidence...) {
-					if !resolves(ref) {
-						add("aviation.reference.evidence", "aviation.reviews."+review.ID, "reference "+ref+" does not resolve")
-					}
-				}
-			}
-			for _, approval := range a.Approvals {
-				for _, ref := range append(append([]string{}, approval.SubjectRefs...), approval.Evidence...) {
-					if !resolves(ref) {
-						add("aviation.reference.evidence", "aviation.approvals."+approval.ID, "reference "+ref+" does not resolve")
-					}
-				}
-			}
-			for _, record := range a.Independence {
-				if !resolves(record.SubjectRef) {
-					add("aviation.reference.subject", "aviation.independence."+record.ID, "subject reference does not resolve")
-				}
-				for _, ref := range record.Evidence {
-					if !resolves(ref) {
-						add("aviation.reference.evidence", "aviation.independence."+record.ID, "evidence reference "+ref+" does not resolve")
-					}
-				}
-			}
-			for _, report := range a.ProblemReports {
-				for _, ref := range append(append([]string{}, report.AffectedRefs...), report.Evidence...) {
-					if !resolves(ref) {
-						add("aviation.reference.evidence", "aviation.problemReports."+report.ID, "reference "+ref+" does not resolve")
-					}
-				}
-			}
-			for _, audit := range a.SQAAudits {
-				for _, ref := range audit.Evidence {
-					if !resolves(ref) {
-						add("aviation.reference.evidence", "aviation.sqaAudits."+audit.ID, "evidence reference "+ref+" does not resolve")
-					}
-				}
-			}
-			for _, liaison := range a.Liaison {
-				for _, ref := range liaison.SubmissionRefs {
-					if !resolves(ref) {
-						add("aviation.reference.submission", "aviation.liaison."+liaison.ID, "submission reference "+ref+" does not resolve")
-					}
-				}
-			}
-		}
-		if obj.State == "authority-accepted" && !hasAuthorityAcceptance(a.Liaison, obj.ID) {
-			add("aviation.authority.acceptance_missing", "aviation.objectives."+obj.ID, "authority-accepted state requires an authored authority record")
-		}
-	}
-	requireAuthority := func(id, state, path string) {
-		if state == "authority-accepted" && !hasAuthorityAcceptance(a.Liaison, id) {
-			add("aviation.authority.acceptance_missing", path, "authority-accepted state requires an authored authority record")
-		}
-	}
-	for _, v := range a.LifecycleData {
-		requireAuthority(v.ID, v.State, "aviation.lifecycleData."+v.ID)
-	}
-	for _, v := range a.RequirementAssurance {
-		requireAuthority(v.RequirementID, v.State, "aviation.requirementAssurance."+v.RequirementID)
-	}
-	for _, v := range a.VerificationCases {
-		requireAuthority(v.ID, v.State, "aviation.verificationCases."+v.ID)
-	}
-	for _, v := range a.Procedures {
-		requireAuthority(v.ID, v.State, "aviation.procedures."+v.ID)
-	}
-	for _, v := range a.Executions {
-		requireAuthority(v.ID, v.Status, "aviation.executions."+v.ID)
-	}
-	for _, v := range a.Baselines {
-		requireAuthority(v.ID, v.State, "aviation.baselines."+v.ID)
-	}
-	for _, v := range a.Builds {
-		requireAuthority(v.ID, v.Status, "aviation.builds."+v.ID)
-	}
-	for _, v := range a.Coverage {
-		requireAuthority(v.ID, v.Status, "aviation.coverage."+v.ID)
-	}
-	for _, v := range a.Tools {
-		requireAuthority(v.ID, v.Status, "aviation.tools."+v.ID)
-	}
-	for _, v := range a.Reviews {
-		requireAuthority(v.ID, v.State, "aviation.reviews."+v.ID)
-	}
-	for _, v := range a.Approvals {
-		requireAuthority(v.ID, v.State, "aviation.approvals."+v.ID)
-	}
-	for _, v := range a.ProblemReports {
-		requireAuthority(v.ID, v.State, "aviation.problemReports."+v.ID)
-	}
-	for _, v := range a.SQAAudits {
-		requireAuthority(v.ID, v.State, "aviation.sqaAudits."+v.ID)
-	}
-	for _, v := range a.Liaison {
-		if v.AuthorityState == "authority-accepted" && v.AuthorityRecord.ID == "" {
-			add("aviation.authority.record_missing", "aviation.liaison."+v.ID, "authority-accepted liaison state requires an authored authority record")
-		}
-	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func sortAviationDiagnostics(d []AviationDiagnostic) {
 	sort.Slice(d, func(i, j int) bool {
 		if d[i].Path == d[j].Path {
 			return d[i].Code < d[j].Code
 		}
 		return d[i].Path < d[j].Path
 	})
-	return d
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) add(code, path, message string) {
+	v.diags = append(v.diags, AviationDiagnostic{code, path, message})
+}
+
+// resolves reports whether ref is a registered identifier, requirement or
+// architecture element.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) resolves(ref string) bool {
+	return v.ids[ref] != "" || v.reqs[ref] || v.architectureIDs[ref]
+}
+
+// checkRefs reports every ref that ok does not accept.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkRefs(refs []string, ok func(string) bool, rule aviationRefRule) {
+	for _, ref := range refs {
+		if !ok(ref) {
+			v.add(rule.code, rule.path, rule.label+" "+ref+" does not resolve")
+		}
+	}
+}
+
+// evidenceRule is the rule of an evidence reference that does not resolve.
+//
+// TRLC-LINKS: REQ-EMG-054
+func evidenceRule(path, label string) aviationRefRule {
+	return aviationRefRule{"aviation.reference.evidence", path, label}
+}
+
+// requireBaseline reports a baseline reference that does not resolve.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) requireBaseline(path, baseline string) {
+	if !v.baselines[baseline] {
+		v.add("aviation.reference.baseline", path, "baseline reference does not resolve")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) register(id, path string) {
+	if prior, ok := v.ids[id]; ok {
+		v.add("aviation.duplicate_id", path, "identifier "+id+" duplicates "+prior)
+	} else {
+		v.ids[id] = path
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkSoftwareLevel() {
+	if level := v.a.Profile.SoftwareLevel; level < "A" || level > "E" {
+		v.add("aviation.profile.invalid_dal", "aviation.profile.softwareLevel", "softwareLevel must be A, B, C, D, or E")
+	}
+}
+
+// registerIdentifiers registers every identifier of the document and reports
+// duplicates and lifecycle-data category problems.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) registerIdentifiers() {
+	a := v.a
+	v.register(a.Profile.ID, "aviation.profile.id")
+	v.checkLifecycleData()
+	for i, o := range a.Objectives {
+		v.register(o.ID, fmt.Sprintf("aviation.objectives[%d].id", i))
+	}
+	v.registerGroups()
+	for _, l := range a.Liaison {
+		v.register(l.ID, "aviation.liaison")
+		if l.AuthorityRecord.ID != "" {
+			v.register(l.AuthorityRecord.ID, "aviation.liaison."+l.ID+".authorityRecord.id")
+		}
+	}
+}
+
+// registerGroups registers the identifiers of the evidence record lists.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) registerGroups() {
+	a := v.a
+	groups := []aviationIDGroup{
+		{"aviation.verificationCases", idsOf(a.VerificationCases, func(x AirborneVerificationCase) string { return x.ID })},
+		{"aviation.procedures", idsOf(a.Procedures, func(x VerificationProcedure) string { return x.ID })},
+		{"aviation.executions", idsOf(a.Executions, func(x VerificationExecution) string { return x.ID })},
+		{"aviation.baselines", idsOf(a.Baselines, func(x ConfigurationBaseline) string { return x.ID })},
+		{"aviation.builds", idsOf(a.Builds, func(x ConfigurationBuild) string { return x.ID })},
+		{"aviation.coverage", idsOf(a.Coverage, func(x StructuralCoverage) string { return x.ID })},
+		{"aviation.tools", idsOf(a.Tools, func(x AirborneTool) string { return x.ID })},
+		{"aviation.reviews", idsOf(a.Reviews, func(x AirborneReview) string { return x.ID })},
+		{"aviation.approvals", idsOf(a.Approvals, func(x AirborneApproval) string { return x.ID })},
+		{"aviation.independence", idsOf(a.Independence, func(x IndependenceRecord) string { return x.ID })},
+		{"aviation.problemReports", idsOf(a.ProblemReports, func(x ProblemReport) string { return x.ID })},
+		{"aviation.sqaAudits", idsOf(a.SQAAudits, func(x SQAAudit) string { return x.ID })},
+	}
+	for _, group := range groups {
+		for _, id := range group.ids {
+			v.register(id, group.path)
+		}
+	}
+}
+
+// checkLifecycleData registers the lifecycle-data identifiers and checks that
+// every recognized category occurs once with its stable name.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkLifecycleData() {
+	familyNames := map[string]string{}
+	for _, family := range lifecycleDataFamilies {
+		familyNames[family.Code] = family.Name
+	}
+	seen := map[string]bool{}
+	for i, item := range v.a.LifecycleData {
+		v.registerLifecycleIDs(i, item)
+		v.checkLifecycleCategory(i, item, familyNames)
+		v.checkLifecycleDuplicate(i, item, seen)
+	}
+	v.checkMissingCategories(familyNames, seen)
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) registerLifecycleIDs(i int, item LifecycleDataRecord) {
+	v.register(item.ID, fmt.Sprintf("aviation.lifecycleData[%d].id", i))
+	if item.Source.ID != "" {
+		v.register(item.Source.ID, fmt.Sprintf("aviation.lifecycleData[%d].source.id", i))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkMissingCategories(familyNames map[string]string, seen map[string]bool) {
+	for code := range familyNames {
+		if !seen[code] {
+			v.add("aviation.lifecycle.missing_category", "aviation.lifecycleData", "missing recognized lifecycle-data category "+code)
+		}
+	}
+}
+
+// checkLifecycleDuplicate reports a repeated category and marks it seen.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkLifecycleDuplicate(i int, item LifecycleDataRecord, seen map[string]bool) {
+	if seen[item.CategoryCode] {
+		v.add("aviation.lifecycle.duplicate_category", fmt.Sprintf("aviation.lifecycleData[%d].categoryCode", i), "lifecycle-data category occurs more than once")
+	}
+	seen[item.CategoryCode] = true
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkLifecycleCategory(i int, item LifecycleDataRecord, familyNames map[string]string) {
+	expectedName, recognized := familyNames[item.CategoryCode]
+	if !recognized {
+		v.add("aviation.lifecycle.unknown_category", fmt.Sprintf("aviation.lifecycleData[%d].categoryCode", i), "category code is not one of the recognized lifecycle-data families")
+	} else if expectedName != item.CategoryName {
+		v.add("aviation.lifecycle.category_name", fmt.Sprintf("aviation.lifecycleData[%d].categoryName", i), "category name does not match the stable category code")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkArtifactHashes(artifacts []ConfigurationArtifact, path, message string) {
+	for _, artifact := range artifacts {
+		if artifact.Hash == "" {
+			v.add("aviation.artifact.hash_required", path, message)
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkBaselines() {
+	for _, b := range v.a.Baselines {
+		v.baselines[b.ID] = true
+		path := "aviation.baselines." + b.ID
+		if b.Hash == "" {
+			v.add("aviation.baseline.hash_required", path, "baseline hash is required")
+		}
+		v.checkArtifactHashes(b.Artifacts, path, "every baseline artifact requires a hash")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkBuilds() {
+	for _, b := range v.a.Builds {
+		v.builds[b.ID] = b
+		path := "aviation.builds." + b.ID
+		if b.Hash == "" {
+			v.add("aviation.build.hash_required", path, "build hash is required")
+		}
+		v.requireBaseline(path, b.Baseline)
+		v.checkArtifactHashes(b.Artifacts, path, "every build artifact requires a hash")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkProcedureBaselines() {
+	for _, p := range v.a.Procedures {
+		v.procedures[p.ID] = true
+		v.requireBaseline("aviation.procedures."+p.ID, p.Baseline)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkVerificationCases() {
+	for _, c := range v.a.VerificationCases {
+		v.cases[c.ID] = c
+		path := "aviation.verificationCases." + c.ID
+		v.checkRefs(c.RequirementRefs, func(ref string) bool { return v.reqs[ref] }, aviationRefRule{"aviation.reference.requirement", path, "requirement reference"})
+		if !v.procedures[c.ProcedureRef] {
+			v.add("aviation.reference.procedure", path, "procedure reference does not resolve")
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) indexApprovals() {
+	for _, approval := range v.a.Approvals {
+		v.approvals[approval.ID] = len(approval.Evidence) > 0
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkProcedureCases() {
+	for _, p := range v.a.Procedures {
+		for _, ref := range p.CaseRefs {
+			v.checkProcedureCase(p, ref)
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkProcedureCase(p VerificationProcedure, ref string) {
+	path := "aviation.procedures." + p.ID
+	c, ok := v.cases[ref]
+	if !ok {
+		v.add("aviation.reference.case", path, "verification case reference "+ref+" does not resolve")
+	} else if c.ProcedureRef != p.ID {
+		v.add("aviation.procedure.case_mismatch", path, "verification case points to a different procedure")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkIndependence() {
+	for _, r := range v.a.Independence {
+		path := "aviation.independence." + r.ID
+		if r.Producer == r.Verifier {
+			v.add("aviation.independence.same_person", path, "producer and verifier must be distinct")
+		}
+		if !v.approvals[r.ApprovalRef] || len(r.Evidence) == 0 {
+			v.add("aviation.independence.approval_evidence", path, "independence record requires an approval with evidence and its own evidence")
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkTools() {
+	for _, t := range v.a.Tools {
+		v.tools[t.ID] = true
+		path := "aviation.tools." + t.ID
+		v.requireBaseline(path, t.Baseline)
+		if t.CreditClaimed && toolAssessmentIncomplete(t.Assessment) {
+			v.add("aviation.tool.incomplete_credit_assessment", path, "credit-claiming tool requires criterion, TQL, operational requirements, and evidence")
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func toolAssessmentIncomplete(a ToolAssessment) bool {
+	if a.Criterion == "" || a.TQL == "" {
+		return true
+	}
+	return len(a.OperationalRequirements) == 0 || len(a.Evidence) == 0
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkRequirementAssurance() {
+	for _, r := range v.a.RequirementAssurance {
+		path := "aviation.requirementAssurance." + r.RequirementID
+		if !v.reqs[r.RequirementID] {
+			v.add("aviation.reference.requirement", path, "canonical requirement does not resolve")
+		}
+		v.requireBaseline(path, r.Baseline)
+		if r.Derived && derivedFeedbackIncomplete(r) {
+			v.add("aviation.derived.incomplete_safety_feedback", path, "derived requirement requires rationale and safety feedback recipient, status, and evidence")
+		}
+		v.checkParentRefs(r, path)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func derivedFeedbackIncomplete(r RequirementAssurance) bool {
+	if r.DerivedRationale == "" || r.SafetyFeedbackRecipient == "" {
+		return true
+	}
+	return r.SafetyFeedbackStatus == "" || len(r.SafetyFeedbackEvidence) == 0
+}
+
+// checkParentRefs checks the parent requirements of r. The architecture and
+// safety-feedback references are checked once per parent, so a record with
+// several parents reports their problems that many times.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkParentRefs(r RequirementAssurance, path string) {
+	for _, parent := range r.ParentRefs {
+		if !v.reqs[parent] {
+			v.add("aviation.reference.parent_requirement", path, "parent requirement "+parent+" does not resolve")
+		}
+		architectureOK := func(ref string) bool { return !v.haveArchitects || v.architectureIDs[ref] }
+		v.checkRefs(r.ArchitectureRefs, architectureOK, aviationRefRule{"aviation.reference.architecture", path, "architecture reference"})
+		v.checkRefs(r.SafetyFeedbackEvidence, v.resolves, evidenceRule(path, "safety feedback evidence"))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkExecutions() {
+	for _, e := range v.a.Executions {
+		path := "aviation.executions." + e.ID
+		if !v.procedures[e.ProcedureRef] {
+			v.add("aviation.reference.procedure", path, "procedure reference does not resolve")
+		}
+		v.checkExecutionBuild(e, path)
+		v.requireBaseline(path, e.Baseline)
+		for _, ref := range e.CaseRefs {
+			v.checkExecutionCase(e, ref)
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkExecutionBuild(e VerificationExecution, path string) {
+	build, ok := v.builds[e.Build]
+	if !ok {
+		v.add("aviation.reference.build", path, "build reference does not resolve")
+	} else if build.Baseline != e.Baseline {
+		v.add("aviation.execution.baseline_mismatch", path, "execution baseline does not match build baseline")
+	}
+}
+
+// checkExecutionCase checks one verification case of e.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkExecutionCase(e VerificationExecution, ref string) {
+	path := "aviation.executions." + e.ID
+	c, ok := v.cases[ref]
+	if !ok {
+		v.add("aviation.reference.case", path, "verification case reference does not resolve")
+		return
+	}
+	if c.ProcedureRef != e.ProcedureRef {
+		v.add("aviation.execution.procedure_mismatch", path, "execution procedure does not match verification case procedure")
+	}
+	if c.IndependenceRequired && (e.Producer == e.Verifier || len(e.ApprovalRefs) == 0) {
+		v.add("aviation.independence.missing", path, "independent execution requires distinct producer/verifier and approval evidence")
+	}
+	v.checkExecutionApprovals(e, path)
+}
+
+// checkExecutionApprovals checks the approval references of e; the evidence
+// is checked once per approval.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkExecutionApprovals(e VerificationExecution, path string) {
+	for _, approval := range e.ApprovalRefs {
+		if !v.approvals[approval] {
+			v.add("aviation.reference.approval", path, "approval reference lacks evidence or does not resolve")
+		}
+		v.checkRefs(e.Evidence, v.resolves, evidenceRule(path, "evidence reference"))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkCoverage() {
+	for _, c := range v.a.Coverage {
+		path := "aviation.coverage." + c.ID
+		if v.a.Profile.SoftwareLevel == "C" && c.Metric != "statement" {
+			v.add("aviation.coverage.metric", path, "DAL C coverage metric must be statement")
+		}
+		if c.Total != c.Covered+c.Uncovered {
+			v.add("aviation.coverage.arithmetic", path, "total must equal covered plus uncovered")
+		}
+		v.checkCoverageDispositions(c, path)
+		if !v.baselines[c.Baseline] || v.builds[c.Build].Baseline != c.Baseline {
+			v.add("aviation.coverage.configuration", path, "coverage must reference an exact matching baseline and build")
+		}
+		v.checkCoverageTools(c, path)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkCoverageDispositions(c StructuralCoverage, path string) {
+	sum, open := 0, false
+	for _, x := range c.Dispositions {
+		sum += x.Count
+		open = open || isOpenDisposition(x)
+	}
+	if sum != c.Uncovered {
+		v.add("aviation.coverage.disposition_count", path, "dispositions must fully account for uncovered count")
+	}
+	if (c.Status == "accepted" || c.Status == "authority-accepted") && open {
+		v.add("aviation.coverage.open_at_closure", path, "accepted coverage cannot retain open uncovered code")
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func isOpenDisposition(x UncoveredDisposition) bool {
+	return x.Disposition == "open" || x.Status == "declared" || x.Status == "planned"
+}
+
+// checkCoverageTools checks the tool references of c. The evidence is checked
+// once per tool reference.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkCoverageTools(c StructuralCoverage, path string) {
+	for _, ref := range c.ToolRefs {
+		if !v.tools[ref] {
+			v.add("aviation.reference.tool", path, "tool reference "+ref+" does not resolve")
+		}
+		v.checkRefs(c.Evidence, v.resolves, evidenceRule(path, "evidence reference"))
+	}
+}
+
+// checkObjectives checks the evidence of every objective and its authority
+// state. The document-wide reference checks run once per objective evidence
+// reference, so the diagnostics they report repeat accordingly.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkObjectives() {
+	for _, obj := range v.a.Objectives {
+		v.checkObjectiveEvidence(obj)
+		if obj.State == "authority-accepted" && !hasAuthorityAcceptance(v.a.Liaison, obj.ID) {
+			v.add("aviation.authority.acceptance_missing", "aviation.objectives."+obj.ID, "authority-accepted state requires an authored authority record")
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkObjectiveEvidence(obj ObjectiveReference) {
+	for _, ref := range obj.EvidenceRefs {
+		if _, ok := v.ids[ref]; !ok {
+			v.add("aviation.reference.evidence", "aviation.objectives."+obj.ID, "evidence reference "+ref+" does not resolve")
+		}
+		v.checkRecordReferences()
+	}
+}
+
+// checkRecordReferences checks the references of the lifecycle data, tools,
+// reviews, approvals, independence records, problem reports, audits and
+// liaison records.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkRecordReferences() {
+	a := v.a
+	for _, item := range a.LifecycleData {
+		v.checkLifecycleReferences(item)
+	}
+	for _, t := range a.Tools {
+		v.checkRefs(t.Assessment.Evidence, v.resolves, evidenceRule("aviation.tools."+t.ID, "assessment evidence"))
+	}
+	for _, r := range a.Reviews {
+		v.checkRefs(joinRefs(r.SubjectRefs, r.Evidence), v.resolves, evidenceRule("aviation.reviews."+r.ID, "reference"))
+	}
+	for _, approval := range a.Approvals {
+		v.checkRefs(joinRefs(approval.SubjectRefs, approval.Evidence), v.resolves, evidenceRule("aviation.approvals."+approval.ID, "reference"))
+	}
+	v.checkClosingReferences()
+}
+
+// checkClosingReferences checks the references of the independence records,
+// problem reports, audits and liaison records.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkClosingReferences() {
+	a := v.a
+	for _, r := range a.Independence {
+		v.checkIndependenceReferences(r)
+	}
+	for _, report := range a.ProblemReports {
+		v.checkRefs(joinRefs(report.AffectedRefs, report.Evidence), v.resolves, evidenceRule("aviation.problemReports."+report.ID, "reference"))
+	}
+	for _, audit := range a.SQAAudits {
+		v.checkRefs(audit.Evidence, v.resolves, evidenceRule("aviation.sqaAudits."+audit.ID, "evidence reference"))
+	}
+	for _, l := range a.Liaison {
+		v.checkRefs(l.SubmissionRefs, v.resolves, aviationRefRule{"aviation.reference.submission", "aviation.liaison." + l.ID, "submission reference"})
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func joinRefs(first, second []string) []string {
+	return append(append([]string{}, first...), second...)
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkLifecycleReferences(item LifecycleDataRecord) {
+	path := "aviation.lifecycleData." + item.ID
+	if item.Baseline != "" {
+		v.requireBaseline(path, item.Baseline)
+	}
+	for _, ref := range item.Approvals {
+		if !v.approvals[ref] {
+			v.add("aviation.reference.approval", path, "approval reference lacks evidence or does not resolve")
+		}
+	}
+	v.checkRefs(item.ObjectiveRefs, v.resolves, aviationRefRule{"aviation.reference.objective", path, "objective reference"})
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkIndependenceReferences(r IndependenceRecord) {
+	path := "aviation.independence." + r.ID
+	if !v.resolves(r.SubjectRef) {
+		v.add("aviation.reference.subject", path, "subject reference does not resolve")
+	}
+	v.checkRefs(r.Evidence, v.resolves, evidenceRule(path, "evidence reference"))
+}
+
+// checkAuthorityStates reports every record in the authority-accepted state
+// that has no authored authority record.
+//
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkAuthorityStates() {
+	a := v.a
+	var targets []aviationAuthorityTarget
+	targets = append(targets, authorityTargets(a.LifecycleData, func(x LifecycleDataRecord) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.State, "aviation.lifecycleData." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.RequirementAssurance, func(x RequirementAssurance) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.RequirementID, x.State, "aviation.requirementAssurance." + x.RequirementID}
+	})...)
+	targets = append(targets, authorityTargets(a.VerificationCases, func(x AirborneVerificationCase) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.State, "aviation.verificationCases." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.Procedures, func(x VerificationProcedure) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.State, "aviation.procedures." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.Executions, func(x VerificationExecution) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.Status, "aviation.executions." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.Baselines, func(x ConfigurationBaseline) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.State, "aviation.baselines." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.Builds, func(x ConfigurationBuild) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.Status, "aviation.builds." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.Coverage, func(x StructuralCoverage) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.Status, "aviation.coverage." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.Tools, func(x AirborneTool) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.Status, "aviation.tools." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.Reviews, func(x AirborneReview) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.State, "aviation.reviews." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.Approvals, func(x AirborneApproval) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.State, "aviation.approvals." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.ProblemReports, func(x ProblemReport) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.State, "aviation.problemReports." + x.ID}
+	})...)
+	targets = append(targets, authorityTargets(a.SQAAudits, func(x SQAAudit) aviationAuthorityTarget {
+		return aviationAuthorityTarget{x.ID, x.State, "aviation.sqaAudits." + x.ID}
+	})...)
+	for _, t := range targets {
+		if t.state == "authority-accepted" && !hasAuthorityAcceptance(a.Liaison, t.id) {
+			v.add("aviation.authority.acceptance_missing", t.path, "authority-accepted state requires an authored authority record")
+		}
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func authorityTargets[T any](items []T, target func(T) aviationAuthorityTarget) []aviationAuthorityTarget {
+	out := make([]aviationAuthorityTarget, 0, len(items))
+	for _, item := range items {
+		out = append(out, target(item))
+	}
+	return out
+}
+
+// TRLC-LINKS: REQ-EMG-054
+func (v *aviationValidator) checkLiaisonRecords() {
+	for _, l := range v.a.Liaison {
+		if l.AuthorityState == "authority-accepted" && l.AuthorityRecord.ID == "" {
+			v.add("aviation.authority.record_missing", "aviation.liaison."+l.ID, "authority-accepted liaison state requires an authored authority record")
+		}
+	}
 }
 
 // TRLC-LINKS: REQ-EMG-054
 func hasAuthorityAcceptance(records []CertificationLiaison, subject string) bool {
 	for _, record := range records {
-		if record.AuthorityState == "authority-accepted" && record.AuthorityRecord.ID != "" && (len(record.SubmissionRefs) == 0 || containsString(record.SubmissionRefs, subject)) {
+		if authorityAccepts(record, subject) {
 			return true
 		}
 	}
 	return false
+}
+
+// authorityAccepts reports whether record carries an authority acceptance
+// that covers subject (a record without submission references covers all).
+//
+// TRLC-LINKS: REQ-EMG-054
+func authorityAccepts(record CertificationLiaison, subject string) bool {
+	if record.AuthorityState != "authority-accepted" || record.AuthorityRecord.ID == "" {
+		return false
+	}
+	return len(record.SubmissionRefs) == 0 || containsString(record.SubmissionRefs, subject)
 }
 
 // TRLC-LINKS: REQ-EMG-054
@@ -784,9 +1080,9 @@ func SplitAviationDiagnostics(diagnostics []AviationDiagnostic) (structural, sta
 }
 
 // TRLC-LINKS: REQ-EMG-055
-func IsOpenEvidenceState(state string) bool {
-	return state == "declared" || state == "planned" || state == "executed" || state == "reviewed"
-}
+func IsOpenEvidenceState(state string) bool { return openEvidenceStates[state] }
+
+var openEvidenceStates = map[string]bool{"declared": true, "planned": true, "executed": true, "reviewed": true}
 
 // TRLC-LINKS: REQ-EMG-055
 func NormalizeDisclaimer(value string) string {

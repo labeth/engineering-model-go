@@ -2,14 +2,11 @@
 package codemap
 
 import (
-	"os"
-	"path/filepath"
+	"slices"
 	"testing"
 )
 
-// TRLC-LINKS: REQ-EMG-010
-func TestJavaScriptTraceDeclarationsAndLiteralIsolation(t *testing.T) {
-	source := `// ENGMODEL-OWNER-UNIT: FU-WEB
+const javascriptSource = `// ENGMODEL-OWNER-UNIT: FU-WEB
 // TRLC-LINKS: REQ-WEB-001
 export async function poll() { return 1; }
 // TRLC-LINKS: REQ-WEB-001
@@ -38,39 +35,32 @@ const regex = /function fakeRegex\(\)/;
 // function commentedOut() {}
 setTimeout(() => {}, 1);
 `
-	want := []string{"poll", "samples", "$", "bound", "window.resize", "callback", "method", "View", "render", "bootstrap"}
+
+var javascriptNames = []string{"poll", "samples", "$", "bound", "window.resize", "callback", "method", "View", "render", "bootstrap"}
+
+// TRLC-LINKS: REQ-EMG-010
+func TestJavaScriptTraceDeclarationsAndLiteralIsolation(t *testing.T) {
 	for _, ext := range []string{".js", ".mjs", ".cjs"} {
-		t.Run(ext, func(t *testing.T) {
-			root := t.TempDir()
-			path := filepath.Join(root, "browser"+ext)
-			if err := os.WriteFile(path, []byte(source), 0600); err != nil {
-				t.Fatal(err)
-			}
-			decls, _, diags, err := extractDeclarations(path, []byte(source))
-			if err != nil || len(diags) != 0 {
-				t.Fatalf("extract: %v %+v", err, diags)
-			}
-			if len(decls) != len(want) {
-				t.Fatalf("declarations=%+v", decls)
-			}
-			for i, d := range decls {
-				if d.Name != want[i] {
-					t.Fatalf("declaration %d=%+v want %s", i, d, want[i])
-				}
-			}
-			symbols, diags, err := Scan(path)
-			if err != nil || len(diags) != 0 || len(symbols) != len(want) {
-				t.Fatalf("scan: %v %+v %+v", err, diags, symbols)
-			}
-			for _, s := range symbols {
-				for _, r := range s.Implements {
-					if r != "REQ-WEB-001" {
-						t.Fatalf("literal marker escaped: %+v", s)
-					}
-				}
-			}
-		})
+		t.Run(ext, func(t *testing.T) { checkJavaScriptSource(t, "browser"+ext) })
 	}
+}
+
+// checkJavaScriptSource scans the sample source written under name: it
+// declares the sample names, links only REQ-WEB-001, and no literal links.
+func checkJavaScriptSource(t *testing.T, name string) {
+	t.Helper()
+	path := writeSource(t, name, javascriptSource)
+	decls, _, diags, err := extractDeclarations(path, []byte(javascriptSource))
+	if err != nil {
+		t.Fatal(err)
+	}
+	requireNoDiags(t, diags)
+	requireEqual(t, declarationNames(decls), javascriptNames)
+	symbols, diags := scanRoot(t, path)
+	requireNoDiags(t, diags)
+	requireEqual(t, len(symbols), len(javascriptNames))
+	linked := slices.DeleteFunc(implementedBy(symbols), func(req string) bool { return req == "REQ-WEB-001" })
+	requireEqual(t, len(linked), 0)
 }
 
 // TRLC-LINKS: REQ-EMG-010
@@ -81,20 +71,8 @@ func TestJavaScriptTraceFailsClosedOnMissingSyntaxAndAmbiguousLines(t *testing.T
 		{"same line", "// TRLC-LINKS: REQ-WEB-001\nfunction a() {} function b() {}", "code.ambiguous_declaration_line"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			path := filepath.Join(t.TempDir(), "sample.js")
-			if err := os.WriteFile(path, []byte(tc.source), 0600); err != nil {
-				t.Fatal(err)
-			}
-			_, diags, err := Scan(path)
-			if err != nil {
-				t.Fatal(err)
-			}
-			for _, d := range diags {
-				if d.Code == tc.code && string(d.Severity) == "error" {
-					return
-				}
-			}
-			t.Fatalf("missing %s: %+v", tc.code, diags)
+			_, diags := scanRoot(t, writeSource(t, "sample.js", tc.source))
+			requireErrorDiag(t, diags, tc.code)
 		})
 	}
 }

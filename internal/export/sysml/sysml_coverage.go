@@ -105,106 +105,28 @@ type CoverageCheckEvidence struct {
 //
 // TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
 func V2Coverage() CoverageManifest {
-	var sourceManifest sysmlmetamodel.Manifest
-	var inventory sysmlmetamodel.Inventory
-	var binding sysmlmetamodel.Coverage
-	if err := json.Unmarshal(sysMLSourceManifestJSON, &sourceManifest); err != nil {
-		panic(fmt.Sprintf("decode embedded SysML source manifest: %v", err))
-	}
-	if err := json.Unmarshal(sysMLInventoryJSON, &inventory); err != nil {
-		panic(fmt.Sprintf("decode embedded SysML inventory: %v", err))
-	}
-	if err := json.Unmarshal(sysMLCoverageBindingJSON, &binding); err != nil {
-		panic(fmt.Sprintf("decode embedded SysML coverage binding: %v", err))
-	}
-
+	in := loadCoverageInputs()
 	renderer := sysMLRendererCoverage()
 	rendererByID := make(map[string]RendererEvidence, len(renderer.Entries))
 	for _, entry := range renderer.Entries {
 		rendererByID[entry.Metaclass] = entry
 	}
-	bindingByID := make(map[string]sysmlmetamodel.CoverageEntry, len(binding.Entries))
-	for _, entry := range binding.Entries {
+	bindingByID := make(map[string]sysmlmetamodel.CoverageEntry, len(in.binding.Entries))
+	for _, entry := range in.binding.Entries {
 		bindingByID[entry.ID] = entry
 	}
 
 	manifest := CoverageManifest{
 		SchemaVersion: "2",
 		Claim:         "The canonical YAML/CUE model is a semantic superset of the pinned formal SysML 2.0/KerML 1.0 abstract syntax, with typed Engineering extensions.",
-		Limitations: []string{
-			"This claim does not include execution or simulation semantics.",
-			"This claim does not include graphical concrete syntax.",
-			"The pinned Ecore is the closest official machine-readable implementation artifact, not normative OMG XMI.",
-		},
-		Authority: CoverageAuthority{
-			Baseline:             sourceManifest.Baseline,
-			MetamodelAuthority:   sourceManifest.MetamodelAuthority,
-			FormalRelease:        sourceManifest.FormalRelease,
-			SourceManifestSHA256: inventory.SourceManifestHash,
-			InventorySHA256:      binding.InventoryHash,
-			Sources:              sourceManifest.Sources,
-		},
-		Totals: CoverageTotals{
-			Metaclasses:             inventory.Counts.Metaclasses,
-			OwnedProperties:         inventory.Counts.OwnedProperties,
-			InheritanceEdges:        inventory.Counts.InheritanceEdges,
-			DerivedProperties:       inventory.Counts.DerivedProperties,
-			Relationships:           inventory.Counts.Relationships,
-			CoverageMapped:          binding.Counts.Mapped,
-			CoverageDerived:         binding.Counts.Derived,
-			CoverageUnimplemented:   binding.Counts.Unimplemented,
-			NativeRendered:          renderer.NativeRules,
-			AbstractOrImplicit:      renderer.NonInstantiable,
-			MissingRenderer:         renderer.MissingRules,
-			ClassifiedRelationships: inventory.Counts.Relationships,
-		},
-		Extensions: engineeringExtensionCoverage(),
-		Checks: []CoverageCheckEvidence{
-			{ID: "inventory-hash", Status: "passed", Evidence: []string{"scripts/check-sysml-metamodel.sh", "internal/sysmlmetamodel/metamodel_test.go"}},
-			{ID: "metaclass-renderer", Status: "passed", Evidence: []string{"internal/export/sysml/sysml_export.go", "internal/export/sysml/sysml_coverage_test.go"}},
-			{ID: "property-accounting", Status: "passed", Evidence: []string{"internal/export/sysml/metamodel/metamodel-coverage.json", "internal/export/sysml/sysml_coverage_test.go"}},
-			{ID: "relationship-classification", Status: "passed", Evidence: []string{"internal/export/sysml/sysml_export.go", "internal/export/sysml/sysml_coverage_test.go"}},
-			{ID: "normative-statuses", Status: "passed", Evidence: []string{"ValidateSysMLV2Coverage", "internal/export/sysml/sysml_coverage_test.go"}},
-			{ID: "artifact-freshness", Status: "passed", Evidence: []string{"scripts/check-sysml-metamodel.sh", "cmd/engsysml/main_test.go"}},
-			{ID: "official-parser", Status: "passed", Evidence: []string{"scripts/validate-sysml.sh", "pinned validate-sysml wrapper"}},
-			{ID: "native-kpar-round-trip", Status: "passed", Evidence: []string{"scripts/validate-sysml.sh", "internal/export/sysml/sysml_interchange_test.go"}},
-		},
+		Limitations:   coverageLimitations(),
+		Authority:     in.authority(),
+		Totals:        in.totals(renderer),
+		Extensions:    engineeringExtensionCoverage(),
+		Checks:        coverageChecks(),
 	}
-
-	for _, class := range inventory.Metaclasses {
-		renderEvidence := rendererByID[class.ID]
-		classification := "abstract/implicit"
-		if renderEvidence.Status == "native" {
-			classification = "native-rendered"
-		}
-		evidence := []string{"internal/export/sysml/metamodel/metamodel-inventory.json", "internal/export/sysml/metamodel/metamodel-coverage.json", "internal/export/sysml/sysml_export.go"}
-		if renderEvidence.Syntax != "" {
-			evidence = append(evidence, "syntax:"+renderEvidence.Syntax)
-		}
-		manifest.Metaclasses = append(manifest.Metaclasses, MetaclassCoverage{
-			ID: class.ID, Origin: class.Origin, Abstract: class.Abstract, Relationship: class.Relationship,
-			Status: "complete", RendererClassification: classification, Syntax: renderEvidence.Syntax, Evidence: evidence,
-		})
-		if class.Relationship {
-			manifest.Relationships = append(manifest.Relationships, RelationshipCoverage{
-				ID: class.ID, Status: "complete", Classification: classification,
-				Evidence: []string{"internal/export/sysml/metamodel/metamodel-inventory.json", "internal/export/sysml/sysml_export.go", "internal/export/sysml/sysml_coverage_test.go"},
-			})
-		}
-		for _, property := range class.OwnedProperties {
-			entry := bindingByID[property.ID]
-			status := entry.Status
-			if status == "derived" {
-				status = "derived/implied"
-			}
-			evidence := []string{"internal/export/sysml/metamodel/metamodel-inventory.json", "internal/export/sysml/metamodel/metamodel-coverage.json", "model.MetamodelPropertyValue"}
-			if entry.Reason != "" {
-				evidence = append(evidence, entry.Reason)
-			}
-			manifest.Properties = append(manifest.Properties, PropertyCoverage{
-				ID: property.ID, Metaclass: class.ID, Status: status, Evidence: evidence,
-			})
-		}
+	for _, class := range in.inventory.Metaclasses {
+		manifest.appendClass(class, rendererByID[class.ID], bindingByID)
 		manifest.Totals.EffectiveProperties += len(model.OfficialSysMLMetaclasses[class.ID].Properties)
 	}
 	sort.Slice(manifest.Metaclasses, func(i, j int) bool { return manifest.Metaclasses[i].ID < manifest.Metaclasses[j].ID })
@@ -213,11 +135,148 @@ func V2Coverage() CoverageManifest {
 	return manifest
 }
 
+// coverageInputs holds the decoded embedded metamodel documents.
+type coverageInputs struct {
+	sourceManifest sysmlmetamodel.Manifest
+	inventory      sysmlmetamodel.Inventory
+	binding        sysmlmetamodel.Coverage
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func loadCoverageInputs() coverageInputs {
+	var in coverageInputs
+	if err := json.Unmarshal(sysMLSourceManifestJSON, &in.sourceManifest); err != nil {
+		panic(fmt.Sprintf("decode embedded SysML source manifest: %v", err))
+	}
+	if err := json.Unmarshal(sysMLInventoryJSON, &in.inventory); err != nil {
+		panic(fmt.Sprintf("decode embedded SysML inventory: %v", err))
+	}
+	if err := json.Unmarshal(sysMLCoverageBindingJSON, &in.binding); err != nil {
+		panic(fmt.Sprintf("decode embedded SysML coverage binding: %v", err))
+	}
+	return in
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func (in coverageInputs) authority() CoverageAuthority {
+	return CoverageAuthority{
+		Baseline:             in.sourceManifest.Baseline,
+		MetamodelAuthority:   in.sourceManifest.MetamodelAuthority,
+		FormalRelease:        in.sourceManifest.FormalRelease,
+		SourceManifestSHA256: in.inventory.SourceManifestHash,
+		InventorySHA256:      in.binding.InventoryHash,
+		Sources:              in.sourceManifest.Sources,
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func (in coverageInputs) totals(renderer RendererCoverage) CoverageTotals {
+	counts := in.inventory.Counts
+	return CoverageTotals{
+		Metaclasses:             counts.Metaclasses,
+		OwnedProperties:         counts.OwnedProperties,
+		InheritanceEdges:        counts.InheritanceEdges,
+		DerivedProperties:       counts.DerivedProperties,
+		Relationships:           counts.Relationships,
+		CoverageMapped:          in.binding.Counts.Mapped,
+		CoverageDerived:         in.binding.Counts.Derived,
+		CoverageUnimplemented:   in.binding.Counts.Unimplemented,
+		NativeRendered:          renderer.NativeRules,
+		AbstractOrImplicit:      renderer.NonInstantiable,
+		MissingRenderer:         renderer.MissingRules,
+		ClassifiedRelationships: counts.Relationships,
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func coverageLimitations() []string {
+	return []string{
+		"This claim does not include execution or simulation semantics.",
+		"This claim does not include graphical concrete syntax.",
+		"The pinned Ecore is the closest official machine-readable implementation artifact, not normative OMG XMI.",
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func coverageChecks() []CoverageCheckEvidence {
+	return []CoverageCheckEvidence{
+		{ID: "inventory-hash", Status: "passed", Evidence: []string{"scripts/check-sysml-metamodel.sh", "internal/sysmlmetamodel/metamodel_test.go"}},
+		{ID: "metaclass-renderer", Status: "passed", Evidence: []string{"internal/export/sysml/sysml_export.go", "internal/export/sysml/sysml_coverage_test.go"}},
+		{ID: "property-accounting", Status: "passed", Evidence: []string{"internal/export/sysml/metamodel/metamodel-coverage.json", "internal/export/sysml/sysml_coverage_test.go"}},
+		{ID: "relationship-classification", Status: "passed", Evidence: []string{"internal/export/sysml/sysml_export.go", "internal/export/sysml/sysml_coverage_test.go"}},
+		{ID: "normative-statuses", Status: "passed", Evidence: []string{"ValidateSysMLV2Coverage", "internal/export/sysml/sysml_coverage_test.go"}},
+		{ID: "artifact-freshness", Status: "passed", Evidence: []string{"scripts/check-sysml-metamodel.sh", "cmd/engsysml/main_test.go"}},
+		{ID: "official-parser", Status: "passed", Evidence: []string{"scripts/validate-sysml.sh", "pinned validate-sysml wrapper"}},
+		{ID: "native-kpar-round-trip", Status: "passed", Evidence: []string{"scripts/validate-sysml.sh", "internal/export/sysml/sysml_interchange_test.go"}},
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func (manifest *CoverageManifest) appendClass(class sysmlmetamodel.Metaclass, renderEvidence RendererEvidence, bindingByID map[string]sysmlmetamodel.CoverageEntry) {
+	classification := "abstract/implicit"
+	if renderEvidence.Status == "native" {
+		classification = "native-rendered"
+	}
+	evidence := []string{"internal/export/sysml/metamodel/metamodel-inventory.json", "internal/export/sysml/metamodel/metamodel-coverage.json", "internal/export/sysml/sysml_export.go"}
+	if renderEvidence.Syntax != "" {
+		evidence = append(evidence, "syntax:"+renderEvidence.Syntax)
+	}
+	manifest.Metaclasses = append(manifest.Metaclasses, MetaclassCoverage{
+		ID: class.ID, Origin: class.Origin, Abstract: class.Abstract, Relationship: class.Relationship,
+		Status: "complete", RendererClassification: classification, Syntax: renderEvidence.Syntax, Evidence: evidence,
+	})
+	if class.Relationship {
+		manifest.Relationships = append(manifest.Relationships, RelationshipCoverage{
+			ID: class.ID, Status: "complete", Classification: classification,
+			Evidence: []string{"internal/export/sysml/metamodel/metamodel-inventory.json", "internal/export/sysml/sysml_export.go", "internal/export/sysml/sysml_coverage_test.go"},
+		})
+	}
+	for _, property := range class.OwnedProperties {
+		manifest.Properties = append(manifest.Properties, propertyCoverage(class.ID, property.ID, bindingByID[property.ID]))
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func propertyCoverage(metaclass, propertyID string, entry sysmlmetamodel.CoverageEntry) PropertyCoverage {
+	status := entry.Status
+	if status == "derived" {
+		status = "derived/implied"
+	}
+	evidence := []string{"internal/export/sysml/metamodel/metamodel-inventory.json", "internal/export/sysml/metamodel/metamodel-coverage.json", "model.MetamodelPropertyValue"}
+	if entry.Reason != "" {
+		evidence = append(evidence, entry.Reason)
+	}
+	return PropertyCoverage{ID: propertyID, Metaclass: metaclass, Status: status, Evidence: evidence}
+}
+
 // ValidateV2Coverage rejects any gap or stale/tampered evidence.
 //
 // TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
 func ValidateV2Coverage(manifest CoverageManifest) error {
 	expected := V2Coverage()
+	if err := validateCoverageAuthority(manifest, expected); err != nil {
+		return err
+	}
+	if err := validateMetaclassEvidence(manifest.Metaclasses, expected.Metaclasses); err != nil {
+		return err
+	}
+	if err := validatePropertyEvidence(manifest.Properties, expected.Properties); err != nil {
+		return err
+	}
+	if err := validateRelationshipEvidence(manifest.Relationships, expected.Relationships); err != nil {
+		return err
+	}
+	if err := validateNormativeStatuses(manifest); err != nil {
+		return err
+	}
+	if err := validateExtensionEvidence(manifest.Extensions, expected.Extensions); err != nil {
+		return err
+	}
+	return validateRequiredChecks(manifest.Checks)
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func validateCoverageAuthority(manifest, expected CoverageManifest) error {
 	if manifest.SchemaVersion != expected.SchemaVersion {
 		return fmt.Errorf("unsupported coverage schema %q", manifest.SchemaVersion)
 	}
@@ -233,44 +292,61 @@ func ValidateV2Coverage(manifest CoverageManifest) error {
 	if manifest.Totals != expected.Totals {
 		return fmt.Errorf("coverage totals drift: got %+v, want %+v", manifest.Totals, expected.Totals)
 	}
-	if err := validateMetaclassEvidence(manifest.Metaclasses, expected.Metaclasses); err != nil {
-		return err
-	}
-	if err := validatePropertyEvidence(manifest.Properties, expected.Properties); err != nil {
-		return err
-	}
-	if err := validateRelationshipEvidence(manifest.Relationships, expected.Relationships); err != nil {
-		return err
-	}
+	return nil
+}
+
+// forbiddenCoverageStatuses are the statuses a normative entry may never carry.
+var forbiddenCoverageStatuses = map[string]bool{"partial": true, "unsupported": true, "unimplemented": true, "": true}
+
+// TRLC-LINKS: REQ-EMG-039
+func validateNormativeStatuses(manifest CoverageManifest) error {
 	for _, entry := range appendMetaclassAndPropertyStatuses(manifest) {
-		if entry == "partial" || entry == "unsupported" || entry == "unimplemented" || entry == "" {
+		if forbiddenCoverageStatuses[entry] {
 			return fmt.Errorf("normative entry has forbidden status %q", entry)
 		}
 	}
-	for _, extension := range manifest.Extensions {
+	return nil
+}
+
+// TRLC-LINKS: REQ-EMG-039, REQ-EMG-040
+func validateExtensionEvidence(actual, expected []ExtensionCoverage) error {
+	for _, extension := range actual {
 		if !strings.HasPrefix(extension.Namespace, "Engineering::") || extension.Status != "extension" {
 			return fmt.Errorf("Engineering extension %q is mislabeled as normative", extension.ID)
 		}
 	}
-	if !reflect.DeepEqual(manifest.Extensions, expected.Extensions) {
+	if !reflect.DeepEqual(actual, expected) {
 		return fmt.Errorf("Engineering extension evidence drift")
 	}
-	requiredChecks := map[string]bool{
-		"inventory-hash": false, "metaclass-renderer": false, "property-accounting": false,
-		"relationship-classification": false, "normative-statuses": false, "artifact-freshness": false,
-		"official-parser": false, "native-kpar-round-trip": false,
-	}
-	for _, check := range manifest.Checks {
-		if _, ok := requiredChecks[check.ID]; ok && check.Status == "passed" && len(check.Evidence) > 0 {
-			requiredChecks[check.ID] = true
-		}
-	}
-	for id, passed := range requiredChecks {
-		if !passed {
+	return nil
+}
+
+// requiredCoverageChecks are the checks a coverage manifest must record as passed.
+var requiredCoverageChecks = []string{
+	"inventory-hash", "metaclass-renderer", "property-accounting", "relationship-classification",
+	"normative-statuses", "artifact-freshness", "official-parser", "native-kpar-round-trip",
+}
+
+// TRLC-LINKS: REQ-EMG-039
+func validateRequiredChecks(checks []CoverageCheckEvidence) error {
+	passed := passedCoverageChecks(checks)
+	for _, id := range requiredCoverageChecks {
+		if !passed[id] {
 			return fmt.Errorf("coverage check %q is missing or failed", id)
 		}
 	}
 	return nil
+}
+
+// TRLC-LINKS: REQ-EMG-039
+func passedCoverageChecks(checks []CoverageCheckEvidence) map[string]bool {
+	passed := map[string]bool{}
+	for _, check := range checks {
+		if check.Status == "passed" && len(check.Evidence) > 0 {
+			passed[check.ID] = true
+		}
+	}
+	return passed
 }
 
 // TRLC-LINKS: REQ-EMG-039

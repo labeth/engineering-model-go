@@ -50,6 +50,11 @@ const (
 	rowHygiene           = "DDWWE"
 	rowStrictCoverage    = "WWWEE"
 	rowSafetyFromMVP     = "DDEEE"
+	// rowTopTwoTiers is a warning up to mvp and an error at product and
+	// operational, the two highest tiers (the owner's rules for an architectural
+	// dependency that names no interface and an interface that carries no data,
+	// ADR-EMG-085 and ADR-EMG-086); nothing is deferred.
+	rowTopTwoTiers = "WWWEE"
 	// rowHealthDebt is a warning up to mvp and an error at product and
 	// operational, the two highest tiers, where the bar for code quality is the
 	// same and highest (ADR-EMG-057); with the safety bundle it is an error from
@@ -85,6 +90,8 @@ var tierTable = map[string]tierRow{
 	"lifecycle.requirement_unverified":            {base: rowDebtToOperational, note: "requirement status not verified (rejected and retired excepted)"},
 	"verification.failed":                         {base: rowDebtToOperational, note: "a linked test result failed"},
 	"verification.gated_only":                     {base: rowDebtToOperational, note: "every linked test is environment gated"},
+	"architecture.dependency_without_interface":   {base: rowTopTwoTiers, note: "an architectural dependency (depends_on, calls, publishes, subscribes, reads, writes, streams, implements or interacts_with between functional units, actors, referenced elements, composed alias::ID elements or hardware items) that names no interface: neither end is an interface (a local one needs an owner), and two hardware items are joined by no hardware interface; self dependencies, containment and relationships to data objects or deployment targets are not asked (ADR-EMG-085)"},
+	"architecture.interface_without_data":         {base: rowTopTwoTiers, note: "a local software interface that no flow step names in interfaceRef together with a data object in dataRefs, dataIn or dataOut (a composed alias::IF-* interface is checked in its own model; ADR-EMG-086)"},
 	"behavior.state_unreachable":                  {base: rowHygiene},
 	"behavior.machine_deadlock":                   {base: rowHygiene, note: "a non-final machine state without outgoing transition"},
 	"behavior.transition_nondeterministic":        {base: rowHygiene, note: "two transitions from one state on one trigger without distinguishing guards"},
@@ -146,6 +153,10 @@ var tierTable = map[string]tierRow{
 	// or accepted.
 	"health.baseline_stale": {base: "WWWWE", note: "a health baseline entry that matches no finding, so it can be removed (only with a health baseline)"},
 	"health.regression":     {base: "WWWEE", safety: "WWEEE", note: "a new or worsened high health finding against the baseline (only with a health block)"},
+	// A source file whose score is below the floor (10.0) and that no baseline
+	// entry covers (ADR-EMG-087): the baseline is the explicit, shrinking list of
+	// exceptions, so a new file or a file with no entry has to be clean at once.
+	"health.file_below_floor": {base: "WWWEE", safety: "WWEEE", note: "a source file whose code health score is below the floor (10.0, health.floor) and that no baseline entry covers; the scan and enghealth check report it (ADR-EMG-087)"},
 	// A change that weakens the policy it is measured by (a higher limit, a
 	// wider exclude or override, a lower tier) is reported against the base
 	// revision by enghealth check; a policyDecision records it.
@@ -188,7 +199,7 @@ func CoreCodes() []string {
 // defers entry that names one, exactly or through a family pattern, is
 // lifecycle.poam_defers_core. The list is closed (TestNonDeferrableCodes...).
 var nonDeferrable = []string{
-	"health.policy_weakened", "health.regression", "health.baseline_stale", "health.waiver_unused",
+	"health.policy_weakened", "health.regression", "health.baseline_stale", "health.waiver_unused", "health.file_below_floor",
 	"verification.failed", "lifecycle.poam_overdue", "lifecycle.poam_defers_unused",
 }
 
@@ -649,12 +660,22 @@ func poamDefers(b model.Bundle, tier string, asOf time.Time) func(code, path str
 	items := activePoamItems(b, tier, asOf)
 	return func(code, path string) string {
 		for _, p := range items {
-			for _, d := range p.item.Defers {
-				if deferMatches(b, d, Diagnostic{Code: code, Path: path}) {
-					return strings.TrimSpace(p.item.ID)
-				}
+			if deferringItem(b, p, Diagnostic{Code: code, Path: path}) {
+				return strings.TrimSpace(p.item.ID)
 			}
 		}
 		return ""
 	}
+}
+
+// deferringItem reports whether a defers entry of the item matches the diagnostic.
+// TRLC-LINKS: REQ-EMG-129
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE
+func deferringItem(b model.Bundle, p activePoamItem, d Diagnostic) bool {
+	for _, entry := range p.item.Defers {
+		if deferMatches(b, entry, d) {
+			return true
+		}
+	}
+	return false
 }

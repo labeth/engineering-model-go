@@ -81,6 +81,7 @@ catalog:
       new or worsened findings against a base revision. It is not CodeScene Code Health.
     aliases:
     - enghealth
+    - code health check
   - id: FU-QUINT-EXPORTER
     name: quint exporter
     definition: Generates Quint specifications from behavior machines and runs or verifies them as formal evidence.
@@ -220,6 +221,11 @@ catalog:
     definition: Runs automated validation and export checks for pull requests.
     aliases:
     - ci
+  - id: ACT-GO-CONSUMER
+    name: go consumer
+    definition: A program outside this repository, such as a tool that reads models, that imports the root Go package and calls its functions.
+    aliases:
+    - go caller
   attackVectors:
   - id: AV-MALFORMED-MODEL-INPUT
     name: malformed model input
@@ -267,6 +273,11 @@ catalog:
     definition: Event indicating the MCP server received a tool invocation request.
     aliases:
     - tool call
+  - id: EVT-MODEL-CHECK-REQUESTED
+    name: model check is requested
+    definition: Event indicating a caller (a CLI command, the MCP server or a Go consumer) asked the engine to load a model and report its diagnostics.
+    aliases:
+    - model check
   - id: EVT-REQUIREMENTS-DELTA-RECEIVED
     name: requirements delta is received
     definition: Event indicating a typed requirements change is ready for planning and validation.
@@ -332,6 +343,31 @@ catalog:
     definition: Event indicating a developer asked engws which status each requirement and control verification earns from the tree's evidence.
     aliases:
     - engws status-suggest requested
+  - id: EVT-GO-API-CALL-RECEIVED
+    name: go api call is received
+    definition: Event indicating a Go consumer called a function of the root Go package.
+    aliases:
+    - go call
+  - id: EVT-GO-BUNDLE-LOADED
+    name: go bundle loaded event is raised
+    definition: Event indicating the root Go package loaded the model documents of a manifest into a bundle.
+    aliases:
+    - bundle loaded
+  - id: EVT-GO-BUNDLE-LOAD-FAILED
+    name: go bundle load failed event is raised
+    definition: Event indicating the root Go package could not load the model documents of a manifest.
+    aliases:
+    - bundle load failed
+  - id: EVT-HEALTH-SCAN-REQUESTED
+    name: health scan is requested
+    definition: Event indicating a caller asked enghealth to scan the source files of a model and report the findings and the score of each file.
+    aliases:
+    - enghealth scan requested
+  - id: EVT-HEALTH-CHECK-REQUESTED
+    name: health check is requested
+    definition: Event indicating a caller asked enghealth to compare the changed source files with a base revision and report what fails the gate of the tier.
+    aliases:
+    - enghealth check requested
   states:
   - id: STATE-MODEL-VALID
     name: model is valid
@@ -414,6 +450,26 @@ catalog:
     definition: State where a valid candidate atomically replaced the requirements document.
     aliases:
     - delta applied
+  - id: STATE-GO-BUNDLE-ABSENT
+    name: go bundle is absent
+    definition: State where a Go consumer holds no loaded bundle, so no function that reads a bundle can be called.
+    aliases:
+    - no bundle
+  - id: STATE-GO-BUNDLE-LOADED
+    name: go bundle is loaded
+    definition: State where a Go consumer holds a bundle that has not been validated yet.
+    aliases:
+    - bundle loaded unvalidated
+  - id: STATE-GO-BUNDLE-VALID
+    name: go bundle is valid
+    definition: State where the diagnostics of the held bundle hold no error.
+    aliases:
+    - bundle valid
+  - id: STATE-GO-BUNDLE-REJECTED
+    name: go bundle is rejected
+    definition: State where the diagnostics of the held bundle hold one or more errors.
+    aliases:
+    - bundle rejected
   features:
   - id: FEAT-MCP-SERVER
     name: mcp server is enabled
@@ -498,6 +554,11 @@ catalog:
     definition: Automated pipeline mode focused on deterministic checks and artifacts.
     aliases:
     - ci mode
+  - id: MODE-TIER-AT-LEAST-PRODUCT
+    name: project tier is at least product
+    definition: The life-cycle tier of the project is product or operational, the two highest tiers, where the bar for code quality is highest and the findings of the code health scan are errors.
+    aliases:
+    - top two tiers
   - id: MODE-DRY-RUN
     name: dry run mode is active
     definition: Change-planning mode that computes and validates a candidate without writing canonical files.
@@ -519,6 +580,45 @@ catalog:
     definition: Condition requiring external schema artifacts to be present for validation.
     aliases:
     - schema available
+  - id: COND-PATH-ARGUMENT-OUTSIDE-WORKSPACE
+    name: path argument is outside repository workspace boundary
+    definition: A path argument of a tool call resolves, after symlinks, outside the repository workspace.
+  - id: COND-SCHEMA-CHECKS-MISMATCH
+    name: schema checks mismatch expected constraints
+    definition: The external schema validation of an exported artifact disagrees with the constraints the engine expects.
+  - id: COND-SUBSYSTEM-REF-OUTSIDE-WORKSPACE
+    name: subsystem reference resolves outside repository workspace boundary
+    definition: A subsystem reference of the parent system points, after symlinks, outside the repository workspace.
+  - id: COND-SUBSYSTEM-REF-CYCLE
+    name: subsystem reference graph contains a cycle
+    definition: Following the subsystem references of the composed systems returns to a manifest already on the path.
+  - id: COND-CODE-TRACE-LINK-DANGLING
+    name: code trace link names no model target
+    definition: A trace marker in code names an ID that is neither a requirement nor a model element.
+  - id: COND-SYSML-COVERAGE-INCOMPLETE
+    name: sysml v2 metamodel coverage is incomplete
+    definition: The pinned SysML v2 metamodel has an element or property the renderer does not cover.
+  - id: COND-REFERENCED-URI-LOCAL
+    name: referenced element uri addresses a local path
+    definition: The uri of a referenced element is a file path of the author machine instead of a stable address.
+  - id: COND-BEHAVIOR-STATE-FREE-FLOATING
+    name: behavior state is free-floating
+    definition: A behavior state is authored outside the machines block.
+  - id: COND-REMOVED-FIELD-AUTHORED
+    name: model declares a removed field
+    definition: A model document authors a field that the engine removed (pinned fingerprint, provides reference or allocations).
+  - id: COND-TIER-ONLY-ERRORS
+    name: errors are raised only by the life-cycle tier
+    definition: Every error of the model check is one that only the project life-cycle tier makes an error.
+  - id: COND-LIFECYCLE-BLOCK-INCOMPLETE
+    name: lifecycle block is incomplete
+    definition: The lifecycle block of the manifest has no bundles, no tier decision, or a tier decision without a Bundles line.
+  - id: COND-REQUIRED-SWITCH-WRONG
+    name: required switch has a wrong value
+    definition: requirementLinks or lintRun.mode is missing, invalid, or guided at the tier mvp or above.
+  - id: COND-REQUIREMENTS-APPLY-UNSAFE
+    name: requirements apply is unsafe
+    definition: Another engchange run holds the requirements change lock, the candidate requirements document has blocking diagnostics, or the requirements document changed while the delta was planned.
   dataTerms:
   - id: DATA-SYSML-V2-METAMODEL
     name: sysml v2 metamodel
@@ -609,3 +709,118 @@ catalog:
     aliases:
     - adr document
     - decisions document
+  - id: DATA-MODEL-BUNDLE
+    name: model bundle
+    definition: The manifest and every model document it names, loaded and decoded by the root Go package, as one value that the other functions read.
+    aliases:
+    - loaded bundle
+  - id: DATA-MODEL-DIAGNOSTICS
+    name: model diagnostics
+    definition: The findings of validating a bundle, each with a stable code, a severity, a message and a model path.
+    aliases:
+    - validation findings
+  - id: DATA-ENTITY-INDEX
+    name: entity index
+    definition: Every authored entity of a bundle with its kind, document, parent and fields and every reference between entities.
+    aliases:
+    - entity list
+  - id: DATA-MODEL-DIFF
+    name: model diff
+    definition: The entities added, removed and changed between two revisions of a model, with an optional change of requirement traceability.
+    aliases:
+    - revision diff
+  - id: DATA-TRACE-MATRIX
+    name: trace matrix
+    definition: The requirements of a model with the code, tests and verifications that trace to each, the orphan requirements and the dangling links.
+    aliases:
+    - traceability matrix
+  - id: DATA-CODE-DECLARATIONS
+    name: code declarations
+    definition: Every named declaration of the code scope of a model with its kind, language, path and lines.
+    aliases:
+    - declaration list
+  - id: DATA-CATALOG-USAGE
+    name: catalog usage
+    definition: Every catalog term with the requirements that name it and the entities that reference it.
+    aliases:
+    - term usage
+  - id: DATA-COMPOSITION-RESULT
+    name: composition result
+    definition: The composed system of a model with its resolved dependencies, the lock state and the composition diagnostics.
+    aliases:
+    - composed system
+  - id: DATA-CONTRACT-ITEMS
+    name: contract items
+    definition: The capabilities and assumptions of use a model publishes, each with the requirements that realize it.
+    aliases:
+    - published contract
+  - id: DATA-REQUIREMENT-LINK-STATUS
+    name: requirement link status
+    definition: The state of each requirement link of a model against the published contract items of its dependencies.
+    aliases:
+    - link evaluation
+  - id: DATA-LINK-USE
+    name: link use
+    definition: A requirement link that a checkout of the workspace holds on the contract items of a model.
+    aliases:
+    - link users
+  - id: DATA-GEMARA-DOCUMENTS
+    name: gemara documents
+    definition: The Gemara layer 1 to 3 YAML documents that enggemara writes for a model.
+    aliases:
+    - gemara output
+  - id: DATA-LOBSTER-ACTIVITY
+    name: lobster activity
+    definition: The LOBSTER activity file that englobster writes from the model and the tests of a project, for the LOBSTER traceability tools.
+    aliases:
+    - lobster file
+  - id: DATA-OSCAL-DOCUMENTS
+    name: oscal documents
+    definition: The OSCAL profile, system security plan, assessment plan, assessment results and plan of action and milestones that engoscal writes as JSON.
+    aliases:
+    - oscal output
+  - id: DATA-AIRBORNE-READINESS-PACKAGE
+    name: airborne readiness package
+    definition: The readiness summary, the PSAC outline, the lifecycle data index and the evidence, trace, verification, coverage and gap records that engair writes for airborne certification readiness.
+    aliases:
+    - airborne outputs
+  - id: DATA-VIEW-PROJECTION
+    name: view projection
+    definition: The nodes and edges of one authored view, selected and labelled from a bundle by the view package.
+    aliases:
+    - projected view
+  - id: DATA-VIEW-DIAGRAM
+    name: view diagram
+    definition: The Mermaid text and SVG drawing of one authored view that engview writes.
+    aliases:
+    - view drawing
+  - id: DATA-QUINT-SPECIFICATION
+    name: quint specification
+    definition: The Quint specification that engquint generates from the machines of a model, with the invariants it checks.
+    aliases:
+    - quint spec
+  - id: DATA-HEALTH-REPORT
+    name: code health report
+    definition: The findings of the code health scan, as text, JSON or SARIF, in the form docs/health-report.schema.json describes.
+    aliases:
+    - health findings
+  - id: DATA-TRLC-REQUIREMENTS
+    name: trlc requirements
+    definition: The TRLC requirement files that engtrlc writes from the requirements of a model.
+    aliases:
+    - trlc output
+  - id: DATA-OPEN-OTM-JSON
+    name: open otm json
+    definition: The Open Threat Model JSON document that engdragon writes with the open-otm format.
+    aliases:
+    - otm artifact
+  - id: DATA-MODEL-MODULE-ARCHIVE
+    name: model module archive
+    definition: The published model module of a dependency, fetched at an exact version from the CUE OCI registry and unpacked into the module cache.
+    aliases:
+    - dependency module
+  - id: DATA-ARCHITECTURE-DOCUMENT
+    name: architecture document
+    definition: The AsciiDoc architecture and decision documents that engdoc renders from a model.
+    aliases:
+    - architecture adoc

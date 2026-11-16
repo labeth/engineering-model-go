@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 	"testing"
 
@@ -24,11 +25,16 @@ func tierBundle(tier string, bundles ...string) model.Bundle {
 	return b
 }
 
+// probe is a diagnostic of the code and severity at the path, to run through the policy.
+func probe(code, path string, in Severity) Diagnostic {
+	return Diagnostic{Code: code, Severity: in, Message: "m", Path: path}
+}
+
 // severityAt returns the severity and deferred flag the policy gives one
 // diagnostic of code at path in a model at the tier.
-func severityAt(t *testing.T, b model.Bundle, code, path string, in Severity) Diagnostic {
+func severityAt(t *testing.T, b model.Bundle, in Diagnostic) Diagnostic {
 	t.Helper()
-	out := ApplyTierPolicy(b, []Diagnostic{{Code: code, Severity: in, Message: "m", Path: path}})
+	out := ApplyTierPolicy(b, []Diagnostic{in})
 	if len(out) != 1 {
 		t.Fatalf("ApplyTierPolicy returned %d diagnostics, want 1", len(out))
 	}
@@ -101,7 +107,7 @@ func TestApplyTierPolicySeverityByTier(t *testing.T) {
 func requireSeverityAtEveryTier(t *testing.T, c tierSeverityCase) {
 	t.Helper()
 	for i, tier := range model.Tiers {
-		got := severityAt(t, tierBundle(tier, c.bundles...), c.code, "p", c.emittedSeverity)
+		got := severityAt(t, tierBundle(tier, c.bundles...), probe(c.code, "p", c.emittedSeverity))
 		want := map[string]Diagnostic{
 			"D": {Severity: SeverityWarning, Deferred: true},
 			"W": {Severity: SeverityWarning},
@@ -119,7 +125,7 @@ func requireSeverityAtEveryTier(t *testing.T, c tierSeverityCase) {
 // TRLC-LINKS: REQ-EMG-125
 func requireUnchangedWithoutLifecycle(t *testing.T, c tierSeverityCase) {
 	t.Helper()
-	if got := severityAt(t, tierBundle(""), c.code, "p", c.emittedSeverity); got.Severity != c.withoutLifecycle || got.Deferred || got.RequiredFrom != "" {
+	if got := severityAt(t, tierBundle(""), probe(c.code, "p", c.emittedSeverity)); got.Severity != c.withoutLifecycle || got.Deferred || got.RequiredFrom != "" {
 		t.Errorf("%s without lifecycle: got %+v, want %s unchanged", c.code, got, c.withoutLifecycle)
 	}
 }
@@ -156,11 +162,11 @@ func TestTierPolicyRaise(t *testing.T) {
 	b := tierBundle("poc")
 	b.Manifest.Lifecycle.Raise = []string{"requirement.orphan", "behavior.*", "catalog.term_unreferenced"}
 	for _, code := range []string{"requirement.orphan", "behavior.state_unreachable", "catalog.term_unreferenced"} {
-		if got := severityAt(t, b, code, "p", SeverityWarning); got.Severity != SeverityError || got.Deferred {
+		if got := severityAt(t, b, probe(code, "p", SeverityWarning)); got.Severity != SeverityError || got.Deferred {
 			t.Errorf("%s raised at poc: got %+v, want a plain error", code, got)
 		}
 	}
-	if got := severityAt(t, b, "lint.multiple_responses", "p", SeverityWarning); got.Severity != SeverityWarning {
+	if got := severityAt(t, b, probe("lint.multiple_responses", "p", SeverityWarning)); got.Severity != SeverityWarning {
 		t.Errorf("unraised code changed: %+v", got)
 	}
 }
@@ -170,29 +176,42 @@ func TestTierPolicyRaise(t *testing.T) {
 // the base row: a higher tier or an added bundle never lowers a severity.
 // TRLC-LINKS: REQ-EMG-125
 func TestTierPolicyMonotonic(t *testing.T) {
-	rank := map[string]int{"deferred": 0, "warning": 1, "error": 2}
 	rules := TierPolicy()
 	if len(rules) < 20 {
 		t.Fatalf("TierPolicy has %d rules", len(rules))
 	}
 	for _, r := range rules {
-		for _, row := range [][5]string{r.Severities, r.SafetySeverities} {
-			for i := 1; i < 5; i++ {
-				if rank[row[i]] < rank[row[i-1]] {
-					t.Errorf("%s decreases from %s to %s: %v", r.Code, model.Tiers[i-1], model.Tiers[i], row)
-				}
-			}
+		assertRowNonDecreasing(t, r.Code, r.Severities)
+		assertRowNonDecreasing(t, r.Code, r.SafetySeverities)
+		assertSafetyNotLower(t, r)
+	}
+}
+
+// severityRank orders the severities of a tier row.
+var severityRank = map[string]int{"deferred": 0, "warning": 1, "error": 2}
+
+// assertRowNonDecreasing checks that a row never lowers its severity from one tier to the next.
+func assertRowNonDecreasing(t *testing.T, code string, row [5]string) {
+	t.Helper()
+	for i := 1; i < 5; i++ {
+		if severityRank[row[i]] < severityRank[row[i-1]] {
+			t.Errorf("%s decreases from %s to %s: %v", code, model.Tiers[i-1], model.Tiers[i], row)
 		}
-		for i := 0; i < 5; i++ {
-			if rank[r.SafetySeverities[i]] < rank[r.Severities[i]] {
-				t.Errorf("%s: the safety row is lower than the base row at %s", r.Code, model.Tiers[i])
-			}
+	}
+}
+
+// assertSafetyNotLower checks that the safety row is no lower than the base row at any tier.
+func assertSafetyNotLower(t *testing.T, r TierRule) {
+	t.Helper()
+	for i := 0; i < 5; i++ {
+		if severityRank[r.SafetySeverities[i]] < severityRank[r.Severities[i]] {
+			t.Errorf("%s: the safety row is lower than the base row at %s", r.Code, model.Tiers[i])
 		}
 	}
 }
 
 // codeLiteral finds diagnostic code literals in Go source.
-var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint|gemara|catalog)\.[a-z_.]+)"`)
+var codeLiteral = regexp.MustCompile(`"((?:model|code|composition|link|risk|requirement|verification|threat|behavior|contract|lifecycle|aviation|health|lint|gemara|catalog|architecture)\.[a-z_.]+)"`)
 
 // emittedCodes returns every code literal in the module's non-test Go
 // source.
@@ -203,25 +222,38 @@ func emittedCodes(t *testing.T) map[string]bool {
 		if err != nil {
 			return err
 		}
-		if d.IsDir() && (d.Name() == "examples" || d.Name() == ".git" || d.Name() == "generated") {
-			return filepath.SkipDir
+		if d.IsDir() {
+			return skipUnscannedDir(d.Name())
 		}
-		if d.IsDir() || !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") {
+		if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") {
 			return nil
 		}
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return err
-		}
-		for _, m := range codeLiteral.FindAllStringSubmatch(string(data), -1) {
-			codes[m[1]] = true
-		}
-		return nil
+		return addCodeLiterals(codes, path)
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
 	return codes
+}
+
+// skipUnscannedDir is filepath.SkipDir for the directories whose source is not scanned for codes.
+func skipUnscannedDir(name string) error {
+	if name == "examples" || name == ".git" || name == "generated" {
+		return filepath.SkipDir
+	}
+	return nil
+}
+
+// addCodeLiterals adds the diagnostic code literals of a Go file.
+func addCodeLiterals(codes map[string]bool, path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	for _, m := range codeLiteral.FindAllStringSubmatch(string(data), -1) {
+		codes[m[1]] = true
+	}
+	return nil
 }
 
 // The rank-0 core codes are a closed list: exactly these patterns, each
@@ -230,7 +262,56 @@ func emittedCodes(t *testing.T) map[string]bool {
 // is emitted by the engine.
 // TRLC-LINKS: REQ-EMG-125
 func TestCoreCodesAreClosedAndNeverTierKeyed(t *testing.T) {
-	want := []string{
+	got := CoreCodes()
+	if want := wantCoreCodes(); strings.Join(got, ",") != strings.Join(want, ",") {
+		t.Fatalf("CoreCodes() = %v\nwant %v", got, want)
+	}
+	emitted := emittedCodes(t)
+	assertCorePatternsEmitted(t, got, emitted)
+	assertTierKeyedCodesEmitted(t, emitted)
+	for _, tier := range model.Tiers {
+		if got := severityAt(t, tierBundle(tier), probe("model.invalid_group", "p", SeverityError)); got.Severity != SeverityError || got.Deferred {
+			t.Errorf("core code changed at %s: %+v", tier, got)
+		}
+	}
+}
+
+// assertCorePatternsEmitted checks that each core pattern matches a code the engine emits.
+func assertCorePatternsEmitted(t *testing.T, patterns []string, emitted map[string]bool) {
+	t.Helper()
+	for _, pattern := range patterns {
+		if !matchesEmittedCode(pattern, emitted) && pattern != "composition.cycle" {
+			t.Errorf("core pattern %s matches no emitted code", pattern)
+		}
+	}
+}
+
+// assertTierKeyedCodesEmitted checks that every tier-keyed code is emitted and none is core.
+func assertTierKeyedCodesEmitted(t *testing.T, emitted map[string]bool) {
+	t.Helper()
+	for _, r := range TierPolicy() {
+		if IsCoreCode(r.Code) {
+			t.Errorf("%s is both core and tier keyed", r.Code)
+		}
+		if !emitted[r.Code] {
+			t.Errorf("tier-keyed code %s is not emitted by the engine", r.Code)
+		}
+	}
+}
+
+// matchesEmittedCode reports whether the core pattern matches some emitted code.
+func matchesEmittedCode(pattern string, emitted map[string]bool) bool {
+	for code := range emitted {
+		if matchCodePattern(pattern, code) {
+			return true
+		}
+	}
+	return false
+}
+
+// wantCoreCodes is the closed list of rank-0 core code patterns.
+func wantCoreCodes() []string {
+	return []string{
 		"model.duplicate_id", "model.broken_reference", "model.invalid_*", "model.missing_*",
 		"code.dangling_*", "composition.cycle", "composition.lock_*",
 		"link.version_mismatch", "link.broken", "link.parent_unknown", "link.parent_missing", "link.child_unpublished",
@@ -243,35 +324,6 @@ func TestCoreCodesAreClosedAndNeverTierKeyed(t *testing.T) {
 		"lint.mode_missing", "lint.mode_invalid", "lint.mode_guided_at_tier", "health.block_missing",
 		"aviation.ai_actor_as_credit", "aviation.authority_state_unevidenced",
 		"composition.dependency_tier_unknown",
-	}
-	got := CoreCodes()
-	if strings.Join(got, ",") != strings.Join(want, ",") {
-		t.Fatalf("CoreCodes() = %v\nwant %v", got, want)
-	}
-	emitted := emittedCodes(t)
-	for _, pattern := range got {
-		matched := false
-		for code := range emitted {
-			if matchCodePattern(pattern, code) {
-				matched = true
-			}
-		}
-		if !matched && pattern != "composition.cycle" {
-			t.Errorf("core pattern %s matches no emitted code", pattern)
-		}
-	}
-	for _, r := range TierPolicy() {
-		if IsCoreCode(r.Code) {
-			t.Errorf("%s is both core and tier keyed", r.Code)
-		}
-		if !emitted[r.Code] {
-			t.Errorf("tier-keyed code %s is not emitted by the engine", r.Code)
-		}
-	}
-	for _, tier := range model.Tiers {
-		if got := severityAt(t, tierBundle(tier), "model.invalid_group", "p", SeverityError); got.Severity != SeverityError || got.Deferred {
-			t.Errorf("core code changed at %s: %+v", tier, got)
-		}
 	}
 }
 
@@ -296,7 +348,7 @@ func TestDependencyTierUnknownIsCore(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-183
 func requireCoreError(t *testing.T, code string, b model.Bundle) {
 	t.Helper()
-	if got := severityAt(t, b, code, "p", SeverityError); got.Severity != SeverityError || got.Deferred {
+	if got := severityAt(t, b, probe(code, "p", SeverityError)); got.Severity != SeverityError || got.Deferred {
 		t.Errorf("%s at %v: got %+v, want a plain error", code, b.Manifest.Lifecycle, got)
 	}
 }
@@ -307,15 +359,15 @@ func requireCoreError(t *testing.T, code string, b model.Bundle) {
 // TRLC-LINKS: REQ-EMG-127
 func TestTierPolicyRequirementLinkRows(t *testing.T) {
 	guided := tierBundle("poc")
-	if got := severityAt(t, guided, "requirement.no_parent", "p", SeverityWarning); !got.Deferred {
+	if got := severityAt(t, guided, probe("requirement.no_parent", "p", SeverityWarning)); !got.Deferred {
 		t.Errorf("guided poc: got %+v, want deferred", got)
 	}
 	strict := tierBundle("poc")
 	strict.Manifest.RequirementLinks = "strict"
-	if got := severityAt(t, strict, "requirement.no_parent", "p", SeverityError); got.Severity != SeverityError || got.Deferred {
+	if got := severityAt(t, strict, probe("requirement.no_parent", "p", SeverityError)); got.Severity != SeverityError || got.Deferred {
 		t.Errorf("strict poc: got %+v, want error", got)
 	}
-	if got := severityAt(t, tierBundle("mvp"), "link.aou_unverified", "p", SeverityError); got.Severity != SeverityError {
+	if got := severityAt(t, tierBundle("mvp"), probe("link.aou_unverified", "p", SeverityError)); got.Severity != SeverityError {
 		t.Errorf("mvp: got %+v, want error", got)
 	}
 }
@@ -348,65 +400,100 @@ func TestTierPolicyMarkdownIsInReadme(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-140, REQ-EMG-138
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE
 func TestMachineAdvisoryCodesFollowTheHygieneRowEndToEnd(t *testing.T) {
-	advisory := []string{"behavior.machine_deadlock", "behavior.transition_nondeterministic", "behavior.transition_no_trigger", "behavior.invariant_unlinked"}
-	build := func(tier string) model.Bundle {
-		b := tierBundle(tier)
-		m := baseTestMachine()
-		m.States[2].Final = false // STATE-STOP deadlocks
-		m.Transitions = append(m.Transitions,
-			model.MachineTransition{ID: "TR-DUP", From: "STATE-IDLE", To: "STATE-RUN", On: "EVT-START"}, // same event as TR-START, no guards
-			model.MachineTransition{ID: "TR-AUTO", From: "STATE-RUN", To: "STATE-IDLE"})                 // no event, no guard
-		m.Invariants = []model.MachineInvariant{{ID: "INV-A", Expr: "count >= 0"}} // no requirement
-		b.Architecture.AuthoredArchitecture.Machines = []model.Machine{m}
-		b.Architecture.AuthoredArchitecture.Machines[0].Transitions[1].On = "EVT-NOPE" // a structural error
-		return b
-	}
-	want := map[string][5]string{}
-	for _, code := range advisory {
-		want[code] = [5]string{"D", "D", "W", "W", "E"}
-	}
 	for i, tier := range model.Tiers {
-		b := build(tier)
+		b := machineAdvisoryBundle(tier)
 		diags := ApplyTierPolicy(b, Bundle(b))
-		for _, code := range advisory {
-			found := false
-			for _, d := range diags {
-				if d.Code != code {
-					continue
-				}
-				found = true
-				gotLetter := map[bool]string{true: "D", false: map[Severity]string{SeverityWarning: "W", SeverityError: "E"}[d.Severity]}[d.Deferred]
-				if gotLetter != want[code][i] {
-					t.Errorf("%s at %s: got %s (%+v), want %s", code, tier, gotLetter, d, want[code][i])
-				}
-			}
-			if !found {
-				t.Errorf("%s not reported at %s", code, tier)
-			}
+		want := [5]string{"D", "D", "W", "W", "E"}[i]
+		for _, code := range advisoryMachineCodes {
+			assertAdvisoryLetter(t, diags, advisoryProbe{code, tier, want})
 		}
-		structural := 0
-		for _, d := range diags {
-			if d.Code == "behavior.transition_unknown_event" {
-				structural++
-				if d.Severity != SeverityError || d.Deferred {
-					t.Errorf("structural machine error changed at %s: %+v", tier, d)
-				}
-			}
-		}
-		if structural != 1 {
-			t.Errorf("want one structural machine error at %s, got %d", tier, structural)
-		}
+		assertOneStructuralError(t, diags, tier)
 	}
-	if TierKeyed("behavior.transition_unknown_event") || TierKeyed("behavior.expression_type") || TierKeyed("behavior.final_state_has_transitions") {
-		t.Error("structural machine codes must not be tier keyed")
-	}
-	// Without lifecycle the advisory codes keep their authored warning.
-	plain := build("")
+	assertStructuralCodesUntiered(t)
+	assertPlainKeepsAdvisoryWarnings(t)
+}
+
+// assertStructuralCodesUntiered checks that the structural machine codes are not tier keyed.
+func assertStructuralCodesUntiered(t *testing.T) {
+	t.Helper()
+	assertHealthCodesUntiered(t, "behavior.transition_unknown_event", "behavior.expression_type", "behavior.final_state_has_transitions")
+}
+
+// assertPlainKeepsAdvisoryWarnings checks that without lifecycle the advisory codes keep their authored warning.
+func assertPlainKeepsAdvisoryWarnings(t *testing.T) {
+	t.Helper()
+	plain := machineAdvisoryBundle("")
 	for _, d := range ApplyTierPolicy(plain, Bundle(plain)) {
-		for _, code := range advisory {
-			if d.Code == code && (d.Severity != SeverityWarning || d.Deferred || d.RequiredFrom != "") {
-				t.Errorf("%s without lifecycle changed: %+v", code, d)
-			}
+		if isAdvisoryMachineCode(d.Code) && !keepsAuthoredWarning(d) {
+			t.Errorf("%s without lifecycle changed: %+v", d.Code, d)
+		}
+	}
+}
+
+// advisoryProbe is an advisory code with the letter (D, W or E) expected at a tier.
+type advisoryProbe struct{ code, tier, want string }
+
+// advisoryMachineCodes are the advisory machine codes the hygiene row keys.
+var advisoryMachineCodes = []string{"behavior.machine_deadlock", "behavior.transition_nondeterministic", "behavior.transition_no_trigger", "behavior.invariant_unlinked"}
+
+// isAdvisoryMachineCode reports whether the code is one of the advisory machine codes.
+func isAdvisoryMachineCode(code string) bool {
+	return slices.Contains(advisoryMachineCodes, code)
+}
+
+// keepsAuthoredWarning reports whether a diagnostic is still the plain warning it was authored as.
+func keepsAuthoredWarning(d Diagnostic) bool {
+	return d.Severity == SeverityWarning && !d.Deferred && d.RequiredFrom == ""
+}
+
+// machineAdvisoryBundle is a model at the tier with a deadlocked,
+// nondeterministic, trigger-less and unlinked machine and one structural error
+// (an unknown event).
+func machineAdvisoryBundle(tier string) model.Bundle {
+	b := tierBundle(tier)
+	m := baseTestMachine()
+	m.States[2].Final = false // STATE-STOP deadlocks
+	m.Transitions = append(m.Transitions,
+		model.MachineTransition{ID: "TR-DUP", From: "STATE-IDLE", To: "STATE-RUN", On: "EVT-START"}, // same event as TR-START, no guards
+		model.MachineTransition{ID: "TR-AUTO", From: "STATE-RUN", To: "STATE-IDLE"})                 // no event, no guard
+	m.Invariants = []model.MachineInvariant{{ID: "INV-A", Expr: "count >= 0"}} // no requirement
+	b.Architecture.AuthoredArchitecture.Machines = []model.Machine{m}
+	b.Architecture.AuthoredArchitecture.Machines[0].Transitions[1].On = "EVT-NOPE" // a structural error
+	return b
+}
+
+// assertAdvisoryLetter checks that the code is reported at the tier as D (deferred), W or E.
+func assertAdvisoryLetter(t *testing.T, diags []Diagnostic, p advisoryProbe) {
+	t.Helper()
+	found := diagnosticsWithCode(diags, p.code)
+	if len(found) == 0 {
+		t.Errorf("%s not reported at %s", p.code, p.tier)
+	}
+	for _, d := range found {
+		if got := severityLetter(d); got != p.want {
+			t.Errorf("%s at %s: got %s (%+v), want %s", p.code, p.tier, got, d, p.want)
+		}
+	}
+}
+
+// severityLetter is D for a deferred diagnostic, else W or E by severity.
+func severityLetter(d Diagnostic) string {
+	if d.Deferred {
+		return "D"
+	}
+	return map[Severity]string{SeverityWarning: "W", SeverityError: "E"}[d.Severity]
+}
+
+// assertOneStructuralError checks that the structural machine error stays one plain error at the tier.
+func assertOneStructuralError(t *testing.T, diags []Diagnostic, tier string) {
+	t.Helper()
+	structural := diagnosticsWithCode(diags, "behavior.transition_unknown_event")
+	if len(structural) != 1 {
+		t.Errorf("want one structural machine error at %s, got %d", tier, len(structural))
+	}
+	for _, d := range structural {
+		if d.Severity != SeverityError || d.Deferred {
+			t.Errorf("structural machine error changed at %s: %+v", tier, d)
 		}
 	}
 }
@@ -418,29 +505,31 @@ func TestMachineAdvisoryCodesFollowTheHygieneRowEndToEnd(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-125
 func TestConsistencyRemedies(t *testing.T) {
 	cases := map[string]string{
-		"code.owner_unresolved":               "ef-code-linking",
-		"code.model_link_kind_mismatch":       "ef-code-linking",
-		"behavior.requirement_unmodeled":      "ef-behavior",
-		"behavior.machine_unverified":         "ef-formal-behavior",
-		"behavior.state_unlinked":             "ef-behavior",
-		"behavior.transition_unlinked":        "ef-behavior",
-		"behavior.event_unlinked":             "ef-behavior",
-		"code.unit_unlinked":                  "ef-code-linking",
-		"code.machine_unlinked":               "ef-code-linking",
-		"code.interface_unlinked":             "ef-code-linking",
-		"code.state_unlinked":                 "ef-code-linking",
-		"code.transition_unlinked":            "ef-code-linking",
-		"code.event_unlinked":                 "ef-code-linking",
-		"code.flow_unlinked":                  "ef-code-linking",
-		"code.data_unlinked":                  "ef-code-linking",
-		"composition.dependency_tier_unknown": "owner of the dependency",
-		"code.exemption_unused":               "ef-tier-up",
-		"code.state_candidate_unlinked":       "ef-behavior",
-		"code.state_suppression_unreasoned":   "ENGMODEL-NOT-A-STATE",
-		"code.state_suppression_unused":       "ENGMODEL-NOT-A-STATE",
-		"code.exemption_unjustified":          "ef-tier-up",
-		"model.invalid_code_exemption":        "ef-tier-up",
-		"requirement.orphan":                  "",
+		"code.owner_unresolved":                     "ef-code-linking",
+		"code.model_link_kind_mismatch":             "ef-code-linking",
+		"behavior.requirement_unmodeled":            "ef-behavior",
+		"behavior.machine_unverified":               "ef-formal-behavior",
+		"behavior.state_unlinked":                   "ef-behavior",
+		"behavior.transition_unlinked":              "ef-behavior",
+		"behavior.event_unlinked":                   "ef-behavior",
+		"code.unit_unlinked":                        "ef-code-linking",
+		"code.machine_unlinked":                     "ef-code-linking",
+		"code.interface_unlinked":                   "ef-code-linking",
+		"code.state_unlinked":                       "ef-code-linking",
+		"code.transition_unlinked":                  "ef-code-linking",
+		"code.event_unlinked":                       "ef-code-linking",
+		"code.flow_unlinked":                        "ef-code-linking",
+		"code.data_unlinked":                        "ef-code-linking",
+		"composition.dependency_tier_unknown":       "owner of the dependency",
+		"code.exemption_unused":                     "ef-tier-up",
+		"code.state_candidate_unlinked":             "ef-behavior",
+		"code.state_suppression_unreasoned":         "ENGMODEL-NOT-A-STATE",
+		"code.state_suppression_unused":             "ENGMODEL-NOT-A-STATE",
+		"code.exemption_unjustified":                "ef-tier-up",
+		"model.invalid_code_exemption":              "ef-tier-up",
+		"requirement.orphan":                        "",
+		"architecture.dependency_without_interface": "name the interface the dependency goes through",
+		"architecture.interface_without_data":       "name the data type sent over the interface",
 	}
 	for code, skill := range cases {
 		got := ConsistencyRemedy(code)
@@ -476,7 +565,7 @@ func TestCodeExemptionCodesAreUntieredErrors(t *testing.T) {
 func requireExemptionErrorsAt(t *testing.T, tier string) {
 	t.Helper()
 	for _, code := range []string{"code.exemption_unjustified", "model.invalid_code_exemption"} {
-		if got := severityAt(t, tierBundle(tier), code, "p", SeverityError); got.Severity != SeverityError || got.Deferred {
+		if got := severityAt(t, tierBundle(tier), probe(code, "p", SeverityError)); got.Severity != SeverityError || got.Deferred {
 			t.Errorf("%s at %s: %+v", code, tier, got)
 		}
 	}
@@ -531,7 +620,7 @@ var stateDiscoveryRows = map[string]stateRow{
 func assertTierRow(t *testing.T, code string, want stateRow) {
 	t.Helper()
 	for i, tier := range model.Tiers {
-		got := severityAt(t, tierBundle(tier), code, "p", SeverityWarning)
+		got := severityAt(t, tierBundle(tier), probe(code, "p", SeverityWarning))
 		if got.Severity != want.severity[i] || got.Deferred != want.deferred[i] {
 			t.Errorf("%s at %s: got %s deferred=%v", code, tier, got.Severity, got.Deferred)
 		}
@@ -546,7 +635,7 @@ func assertUnreasonedIsUntiered(t *testing.T) {
 		t.Fatal("code.state_suppression_unreasoned must be untiered")
 	}
 	for _, tier := range model.Tiers {
-		if got := severityAt(t, tierBundle(tier), "code.state_suppression_unreasoned", "p", SeverityError); got.Severity != SeverityError || got.Deferred {
+		if got := severityAt(t, tierBundle(tier), probe("code.state_suppression_unreasoned", "p", SeverityError)); got.Severity != SeverityError || got.Deferred {
 			t.Errorf("unreasoned suppression at %s: %+v", tier, got)
 		}
 	}

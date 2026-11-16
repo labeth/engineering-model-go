@@ -82,29 +82,7 @@ func GenerateAssessmentPlan(bundle model.Bundle, options APOptions) (APResult, e
 	if err != nil {
 		return APResult{Diagnostics: validate.SortDiagnostics(diags)}, err
 	}
-	sspHref := strings.TrimSpace(options.SSPHref)
-	if sspHref == "" {
-		sspHref = "./OSCAL-SSP.json"
-	}
-	includeControls := make([]oscalIncludeControlRef, 0, len(controlIDs))
-	for _, controlID := range controlIDs {
-		includeControls = append(includeControls, oscalIncludeControlRef{ControlID: controlID})
-	}
-
-	doc := APDocument{AssessmentPlan: oscalAssessmentPlan{
-		UUID: textutil.DeterministicUUID("assessment-plan|" + bundle.Architecture.Model.ID),
-		Metadata: oscalMetadata{
-			Title:        textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Assessment Plan",
-			LastModified: lastModified,
-			Version:      "0.1.0",
-			OSCALVersion: "1.1.2",
-		},
-		ImportSSP: oscalImportSSP{Href: sspHref},
-		ReviewedControls: oscalReviewedControls{ControlSelections: []oscalControlSelection{{
-			Description:     "Controls selected from authored compliance mappings.",
-			IncludeControls: includeControls,
-		}}},
-	}}
+	doc := APDocument{AssessmentPlan: buildAssessmentPlan(bundle, apHeader{LastModified: lastModified, SSPHref: apSSPHref(options)}, controlIDs)}
 	data, err := json.MarshalIndent(doc, "", "  ")
 	if err != nil {
 		return APResult{Diagnostics: validate.SortDiagnostics(diags)}, err
@@ -113,14 +91,45 @@ func GenerateAssessmentPlan(bundle model.Bundle, options APOptions) (APResult, e
 }
 
 // TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func apSSPHref(options APOptions) string {
+	sspHref := strings.TrimSpace(options.SSPHref)
+	if sspHref == "" {
+		sspHref = "./OSCAL-SSP.json"
+	}
+	return sspHref
+}
+
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type apHeader struct {
+	LastModified string
+	SSPHref      string
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func buildAssessmentPlan(bundle model.Bundle, header apHeader, controlIDs []string) oscalAssessmentPlan {
+	return oscalAssessmentPlan{
+		UUID: textutil.DeterministicUUID("assessment-plan|" + bundle.Architecture.Model.ID),
+		Metadata: oscalMetadata{
+			Title:        textutil.NonEmpty(strings.TrimSpace(bundle.Architecture.Model.Title), strings.TrimSpace(bundle.Architecture.Model.ID)) + " Assessment Plan",
+			LastModified: header.LastModified,
+			Version:      "0.1.0",
+			OSCALVersion: "1.1.2",
+		},
+		ImportSSP: oscalImportSSP{Href: header.SSPHref},
+		ReviewedControls: oscalReviewedControls{ControlSelections: []oscalControlSelection{{
+			Description:     "Controls selected from authored compliance mappings.",
+			IncludeControls: includeControlRefs(controlIDs),
+		}}},
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-013
 func oscalMappedControlIDs(compliance oscalComplianceContext) []string {
 	controlSet := map[string]bool{}
 	for _, mapping := range compliance.Mappings {
-		for _, controlID := range mapping.ControlIDs {
-			if normalized := normalizeOSCALControlID(controlID); normalized != "" {
-				controlSet[normalized] = true
-			}
-		}
+		addNormalizedControlIDs(controlSet, mapping.ControlIDs)
 	}
 	controlIDs := make([]string, 0, len(controlSet))
 	for controlID := range controlSet {
@@ -128,4 +137,14 @@ func oscalMappedControlIDs(compliance oscalComplianceContext) []string {
 	}
 	sort.Strings(controlIDs)
 	return controlIDs
+}
+
+// TRLC-LINKS: REQ-EMG-013
+// ENGMODEL-LINKS: FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+func addNormalizedControlIDs(set map[string]bool, rawIDs []string) {
+	for _, controlID := range rawIDs {
+		if normalized := normalizeOSCALControlID(controlID); normalized != "" {
+			set[normalized] = true
+		}
+	}
 }

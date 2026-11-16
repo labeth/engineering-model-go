@@ -33,81 +33,158 @@ import (
 // TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 func assuranceLinkDiagnostics(a model.AuthoredArchitecture) []Diagnostic {
-	var diags []Diagnostic
-	imported := func(id string) bool { return strings.Contains(id, "::") }
-	cvControl := map[string]string{}
-	statuses := map[string][]string{}
-	reviewIDs := map[string][]string{}
+	l := newAssuranceLinks(a)
+	diags := l.mitigationDiagnostics()
+	l.expectFromVerifications()
+	diags = append(diags, l.threatDiagnostics()...)
+	diags = append(diags, l.unlinkedDiagnostics()...)
+	return append(diags, l.reviewDiagnostics()...)
+}
+
+// isImported reports whether an id is an imported alias::ID record of another model.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func isImported(id string) bool {
+	return strings.Contains(id, "::")
+}
+
+// assuranceLinks is the index of the control verifications and what the
+// threat and mitigation records expect of them.
+type assuranceLinks struct {
+	a         model.AuthoredArchitecture
+	cvControl map[string]string
+	statuses  map[string][]string
+	reviewIDs map[string][]string
+	expected  map[string]map[string]bool
+	borrowed  map[string][]string
+}
+
+// newAssuranceLinks indexes the control verifications by id and by control.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func newAssuranceLinks(a model.AuthoredArchitecture) *assuranceLinks {
+	l := &assuranceLinks{
+		a: a, cvControl: map[string]string{}, statuses: map[string][]string{}, reviewIDs: map[string][]string{},
+		expected: map[string]map[string]bool{}, borrowed: map[string][]string{},
+	}
 	for _, cv := range a.ControlVerifications {
 		id, ctrl := strings.TrimSpace(cv.ID), strings.TrimSpace(cv.ControlRef)
-		cvControl[id] = ctrl
-		statuses[ctrl] = append(statuses[ctrl], cv.Status)
+		l.cvControl[id] = ctrl
+		l.statuses[ctrl] = append(l.statuses[ctrl], cv.Status)
 		if ClassifyVerificationStatus(cv.Status) == OutcomeNeedsReview {
-			reviewIDs[ctrl] = append(reviewIDs[ctrl], fmt.Sprintf("%s (%s)", id, strings.TrimSpace(cv.Status)))
+			l.reviewIDs[ctrl] = append(l.reviewIDs[ctrl], fmt.Sprintf("%s (%s)", id, strings.TrimSpace(cv.Status)))
 		}
 	}
+	return l
+}
 
-	expected := map[string]map[string]bool{}
-	want := func(ts, cv string) {
-		if expected[ts] == nil {
-			expected[ts] = map[string]bool{}
-		}
-		expected[ts][cv] = true
+// want records that a threat scenario should list a control verification.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) want(ts, cv string) {
+	if l.expected[ts] == nil {
+		l.expected[ts] = map[string]bool{}
 	}
-	borrowed := map[string][]string{}
-	for i, m := range a.ThreatMitigations {
-		ctrl := strings.TrimSpace(m.ControlRef)
-		for j, ref := range m.VerificationRefs {
-			ref = strings.TrimSpace(ref)
-			other, ok := cvControl[ref]
-			if !ok {
-				continue
-			}
-			want(strings.TrimSpace(m.ThreatScenarioRef), ref)
-			if other == ctrl || imported(m.ID) {
-				continue
-			}
-			borrowed[ctrl] = append(borrowed[ctrl], fmt.Sprintf("%s verifies %s", ref, other))
-			diags = append(diags, Diagnostic{
-				Code: "mitigation.verification_control_mismatch", Severity: SeverityError,
-				Message: fmt.Sprintf("threat mitigation %s applies control %s but its verification %s verifies control %s; reference a verification of %s", m.ID, ctrl, ref, other, ctrl),
-				Path:    fmt.Sprintf("authoredArchitecture.threatMitigations[%d].verificationRefs[%d]", i, j),
-			})
-		}
+	l.expected[ts][cv] = true
+}
+
+// mitigationDiagnostics reports each mitigation verification that verifies another control than the mitigation's.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) mitigationDiagnostics() []Diagnostic {
+	var diags []Diagnostic
+	for i, m := range l.a.ThreatMitigations {
+		diags = append(diags, l.mitigation(i, m)...)
 	}
-	for _, cv := range a.ControlVerifications {
-		for _, ts := range cv.ThreatScenarioRefs {
-			want(strings.TrimSpace(ts), strings.TrimSpace(cv.ID))
-		}
-	}
-	for i, ts := range a.ThreatScenarios {
-		id := strings.TrimSpace(ts.ID)
-		if imported(id) {
+	return diags
+}
+
+// mitigation reports the verification refs of one mitigation that verify another control, and records the verifications it expects of its threat.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) mitigation(i int, m model.ThreatMitigation) []Diagnostic {
+	var diags []Diagnostic
+	ctrl := strings.TrimSpace(m.ControlRef)
+	for j, raw := range m.VerificationRefs {
+		ref := strings.TrimSpace(raw)
+		other, ok := l.cvControl[ref]
+		if !ok {
 			continue
 		}
-		listed := map[string]bool{}
-		for _, ref := range ts.VerificationRefs {
-			listed[strings.TrimSpace(ref)] = true
+		l.want(strings.TrimSpace(m.ThreatScenarioRef), ref)
+		if other == ctrl || isImported(m.ID) {
+			continue
 		}
-		var missing []string
-		for cv := range expected[id] {
-			if !listed[cv] {
-				missing = append(missing, cv)
-			}
+		l.borrowed[ctrl] = append(l.borrowed[ctrl], fmt.Sprintf("%s verifies %s", ref, other))
+		diags = append(diags, Diagnostic{
+			Code: "mitigation.verification_control_mismatch", Severity: SeverityError,
+			Message: fmt.Sprintf("threat mitigation %s applies control %s but its verification %s verifies control %s; reference a verification of %s", m.ID, ctrl, ref, other, ctrl),
+			Path:    fmt.Sprintf("authoredArchitecture.threatMitigations[%d].verificationRefs[%d]", i, j),
+		})
+	}
+	return diags
+}
+
+// expectFromVerifications records that a threat scenario a verification names should list that verification.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) expectFromVerifications() {
+	for _, cv := range l.a.ControlVerifications {
+		for _, ts := range cv.ThreatScenarioRefs {
+			l.want(strings.TrimSpace(ts), strings.TrimSpace(cv.ID))
 		}
+	}
+}
+
+// threatDiagnostics warns about each threat scenario that omits expected verifications.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) threatDiagnostics() []Diagnostic {
+	var diags []Diagnostic
+	for i, ts := range l.a.ThreatScenarios {
+		id := strings.TrimSpace(ts.ID)
+		if isImported(id) {
+			continue
+		}
+		missing := l.missingVerifications(id, ts)
 		if len(missing) == 0 {
 			continue
 		}
-		sort.Strings(missing)
 		diags = append(diags, Diagnostic{
 			Code: "threat.verification_missing", Severity: SeverityWarning,
 			Message: fmt.Sprintf("threat scenario %s does not list control verifications %s that its mitigations reference or that name it; add them to verificationRefs", id, strings.Join(missing, ", ")),
 			Path:    fmt.Sprintf("authoredArchitecture.threatScenarios[%d].verificationRefs", i),
 		})
 	}
-	for i, cv := range a.ControlVerifications {
-		status := strings.ToLower(strings.TrimSpace(cv.Status))
-		if imported(cv.ID) || len(cv.VerificationRefs) > 0 || !strings.EqualFold(strings.TrimSpace(cv.Method), "test") || (status != "pass" && status != "partial") {
+	return diags
+}
+
+// missingVerifications lists, sorted, the verifications a threat scenario is expected to list and does not.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) missingVerifications(id string, ts model.ThreatScenario) []string {
+	listed := map[string]bool{}
+	for _, ref := range ts.VerificationRefs {
+		listed[strings.TrimSpace(ref)] = true
+	}
+	var missing []string
+	for cv := range l.expected[id] {
+		if !listed[cv] {
+			missing = append(missing, cv)
+		}
+	}
+	sort.Strings(missing)
+	return missing
+}
+
+// unlinkedDiagnostics warns about each passing test verification without verificationRefs.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) unlinkedDiagnostics() []Diagnostic {
+	var diags []Diagnostic
+	for i, cv := range l.a.ControlVerifications {
+		status, unlinked := unlinkedTestStatus(cv)
+		if !unlinked {
 			continue
 		}
 		diags = append(diags, Diagnostic{
@@ -116,20 +193,33 @@ func assuranceLinkDiagnostics(a model.AuthoredArchitecture) []Diagnostic {
 			Path:    fmt.Sprintf("authoredArchitecture.controlVerifications[%d].verificationRefs", i),
 		})
 	}
-	for i, c := range a.Controls {
+	return diags
+}
+
+// unlinkedTestStatus returns the lowercase status of a local control
+// verification that is a test with status pass or partial and no
+// verificationRefs.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func unlinkedTestStatus(cv model.ControlVerification) (string, bool) {
+	status := strings.ToLower(strings.TrimSpace(cv.Status))
+	if isImported(cv.ID) || len(cv.VerificationRefs) > 0 || !strings.EqualFold(strings.TrimSpace(cv.Method), "test") {
+		return status, false
+	}
+	return status, status == "pass" || status == "partial"
+}
+
+// reviewDiagnostics warns about each control the Gemara evaluation log gives the result Needs Review.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) reviewDiagnostics() []Diagnostic {
+	var diags []Diagnostic
+	for i, c := range l.a.Controls {
 		id := strings.TrimSpace(c.ID)
-		if imported(id) || !ControlNeedsReview(statuses[id]) {
+		if isImported(id) || !ControlNeedsReview(l.statuses[id]) {
 			continue
 		}
-		reason := "no control verification names it in controlRef"
-		fix := fmt.Sprintf("add a control verification with controlRef %s", id)
-		if len(statuses[id]) > 0 {
-			reason = "its verifications need review: " + strings.Join(reviewIDs[id], ", ")
-			fix = "record the verification result once it is known (pass or fail)"
-		} else if refs := borrowed[id]; len(refs) > 0 {
-			sort.Strings(refs)
-			reason = "its only evidence is another control's verification (" + strings.Join(refs, "; ") + ")"
-		}
+		reason, fix := l.reviewReason(id)
 		diags = append(diags, Diagnostic{
 			Code: "gemara.control_needs_review", Severity: SeverityWarning,
 			Message: fmt.Sprintf("control %s is Needs Review in the Gemara evaluation log: %s; %s", id, reason, fix),
@@ -137,6 +227,20 @@ func assuranceLinkDiagnostics(a model.AuthoredArchitecture) []Diagnostic {
 		})
 	}
 	return diags
+}
+
+// reviewReason says why a control needs review and how to fix it.
+// TRLC-LINKS: REQ-EMG-082, REQ-EMG-083
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (l *assuranceLinks) reviewReason(id string) (string, string) {
+	if len(l.statuses[id]) > 0 {
+		return "its verifications need review: " + strings.Join(l.reviewIDs[id], ", "), "record the verification result once it is known (pass or fail)"
+	}
+	if refs := l.borrowed[id]; len(refs) > 0 {
+		sort.Strings(refs)
+		return "its only evidence is another control's verification (" + strings.Join(refs, "; ") + ")", fmt.Sprintf("add a control verification with controlRef %s", id)
+	}
+	return "no control verification names it in controlRef", fmt.Sprintf("add a control verification with controlRef %s", id)
 }
 
 // VerificationOutcome is the evaluation result a control verification status
@@ -216,16 +320,43 @@ func ControlNeedsReview(statuses []string) bool {
 // TRLC-LINKS: REQ-EMG-117
 // ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
 func assuranceConsistencyDiagnostics(a model.AuthoredArchitecture) []Diagnostic {
+	c := consistencyCheck{a: a, severities: severityIndex(a), withVector: countWithVector(a)}
 	var diags []Diagnostic
-	imported := func(id string) bool { return strings.Contains(id, "::") }
-	norm := func(s string) string { return strings.ToLower(strings.TrimSpace(s)) }
+	for i, ts := range a.ThreatScenarios {
+		if !isImported(strings.TrimSpace(ts.ID)) {
+			diags = append(diags, c.threat(i, ts)...)
+		}
+	}
+	return append(diags, riskControlDiagnostics(a)...)
+}
 
-	type pair struct{ likelihood, impact string }
-	severities := map[pair]map[string][]string{}
+// normText is a lowercased, trimmed string.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func normText(s string) string {
+	return strings.ToLower(strings.TrimSpace(s))
+}
+
+// ratingPair is a (likelihood, impact) pair of a threat scenario.
+type ratingPair struct{ likelihood, impact string }
+
+// pairOf is the normalized (likelihood, impact) pair of a threat scenario.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func pairOf(ts model.ThreatScenario) ratingPair {
+	return ratingPair{normText(ts.Likelihood), normText(ts.Impact)}
+}
+
+// severityIndex maps each (likelihood, impact) pair of the local threat
+// scenarios to the ids of the scenarios rated with each severity.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func severityIndex(a model.AuthoredArchitecture) map[ratingPair]map[string][]string {
+	severities := map[ratingPair]map[string][]string{}
 	for _, ts := range a.ThreatScenarios {
-		p := pair{norm(ts.Likelihood), norm(ts.Impact)}
-		sev := norm(ts.Severity)
-		if imported(ts.ID) || p.likelihood == "" || p.impact == "" || sev == "" {
+		p, sev := pairOf(ts), normText(ts.Severity)
+		rated := p.likelihood != "" && p.impact != "" && sev != ""
+		if isImported(ts.ID) || !rated {
 			continue
 		}
 		if severities[p] == nil {
@@ -233,41 +364,90 @@ func assuranceConsistencyDiagnostics(a model.AuthoredArchitecture) []Diagnostic 
 		}
 		severities[p][sev] = append(severities[p][sev], strings.TrimSpace(ts.ID))
 	}
-	withVector := 0
-	for _, ts := range a.ThreatScenarios {
-		if !imported(ts.ID) && strings.TrimSpace(ts.AttackVectorRef) != "" {
-			withVector++
-		}
-	}
-	for i, ts := range a.ThreatScenarios {
-		id := strings.TrimSpace(ts.ID)
-		if imported(id) {
-			continue
-		}
-		p := pair{norm(ts.Likelihood), norm(ts.Impact)}
-		if bySeverity := severities[p]; len(bySeverity) > 1 && norm(ts.Severity) != "" {
-			var others []string
-			for sev, ids := range bySeverity {
-				if sev != norm(ts.Severity) {
-					others = append(others, fmt.Sprintf("%s (%s)", sev, strings.Join(ids, ", ")))
-				}
-			}
-			sort.Strings(others)
-			diags = append(diags, Diagnostic{
-				Code: "risk.severity_inconsistent", Severity: SeverityWarning,
-				Message: fmt.Sprintf("threat scenario %s rates likelihood %s and impact %s as severity %s, but the same pair is rated %s elsewhere; apply one scoring method (record it as a decision) and use the severity it gives", id, p.likelihood, p.impact, norm(ts.Severity), strings.Join(others, "; ")),
-				Path:    fmt.Sprintf("authoredArchitecture.threatScenarios[%d].severity", i),
-			})
-		}
-		if withVector > 0 && strings.TrimSpace(ts.AttackVectorRef) == "" {
-			diags = append(diags, Diagnostic{
-				Code: "threat.attack_vector_missing", Severity: SeverityWarning,
-				Message: fmt.Sprintf("threat scenario %s names no attackVectorRef while %d other threat scenarios name theirs; add the attack vector (AV-*) it uses", id, withVector),
-				Path:    fmt.Sprintf("authoredArchitecture.threatScenarios[%d].attackVectorRef", i),
-			})
-		}
-	}
+	return severities
+}
 
+// countWithVector counts the local threat scenarios that name an attack vector.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func countWithVector(a model.AuthoredArchitecture) int {
+	n := 0
+	for _, ts := range a.ThreatScenarios {
+		if !isImported(ts.ID) && strings.TrimSpace(ts.AttackVectorRef) != "" {
+			n++
+		}
+	}
+	return n
+}
+
+// consistencyCheck holds what the per threat scenario consistency checks share.
+type consistencyCheck struct {
+	a          model.AuthoredArchitecture
+	severities map[ratingPair]map[string][]string
+	withVector int
+}
+
+// threat reports an inconsistent severity and a missing attack vector of one threat scenario.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (c consistencyCheck) threat(i int, ts model.ThreatScenario) []Diagnostic {
+	var diags []Diagnostic
+	id := strings.TrimSpace(ts.ID)
+	if others := c.otherSeverities(ts); len(others) > 0 {
+		p := pairOf(ts)
+		diags = append(diags, Diagnostic{
+			Code: "risk.severity_inconsistent", Severity: SeverityWarning,
+			Message: fmt.Sprintf("threat scenario %s rates likelihood %s and impact %s as severity %s, but the same pair is rated %s elsewhere; apply one scoring method (record it as a decision) and use the severity it gives", id, p.likelihood, p.impact, normText(ts.Severity), strings.Join(others, "; ")),
+			Path:    fmt.Sprintf("authoredArchitecture.threatScenarios[%d].severity", i),
+		})
+	}
+	if c.withVector > 0 && strings.TrimSpace(ts.AttackVectorRef) == "" {
+		diags = append(diags, Diagnostic{
+			Code: "threat.attack_vector_missing", Severity: SeverityWarning,
+			Message: fmt.Sprintf("threat scenario %s names no attackVectorRef while %d other threat scenarios name theirs; add the attack vector (AV-*) it uses", id, c.withVector),
+			Path:    fmt.Sprintf("authoredArchitecture.threatScenarios[%d].attackVectorRef", i),
+		})
+	}
+	return diags
+}
+
+// otherSeverities lists, sorted, the other severities the scenario's rating pair has, with their scenario ids;
+// none when the scenario has no severity or its pair has one severity only.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func (c consistencyCheck) otherSeverities(ts model.ThreatScenario) []string {
+	bySeverity := c.severities[pairOf(ts)]
+	if len(bySeverity) <= 1 || normText(ts.Severity) == "" {
+		return nil
+	}
+	var others []string
+	for sev, ids := range bySeverity {
+		if sev != normText(ts.Severity) {
+			others = append(others, fmt.Sprintf("%s (%s)", sev, strings.Join(ids, ", ")))
+		}
+	}
+	sort.Strings(others)
+	return others
+}
+
+// riskControlDiagnostics warns about each risk a control verification names whose relatedControls omit the verification's control.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func riskControlDiagnostics(a model.AuthoredArchitecture) []Diagnostic {
+	riskControls := riskControlIndex(a)
+	var diags []Diagnostic
+	for i, cv := range a.ControlVerifications {
+		if ctrl := strings.TrimSpace(cv.ControlRef); !isImported(cv.ID) && ctrl != "" {
+			diags = append(diags, unlinkedRiskControls(i, cv, riskControls)...)
+		}
+	}
+	return diags
+}
+
+// riskControlIndex maps each risk id to the set of its related controls.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func riskControlIndex(a model.AuthoredArchitecture) map[string]map[string]bool {
 	riskControls := map[string]map[string]bool{}
 	for _, r := range a.Risks {
 		controls := map[string]bool{}
@@ -276,23 +456,26 @@ func assuranceConsistencyDiagnostics(a model.AuthoredArchitecture) []Diagnostic 
 		}
 		riskControls[strings.TrimSpace(r.ID)] = controls
 	}
-	for i, cv := range a.ControlVerifications {
-		ctrl := strings.TrimSpace(cv.ControlRef)
-		if imported(cv.ID) || ctrl == "" {
+	return riskControls
+}
+
+// unlinkedRiskControls reports the riskRefs of a control verification whose risk does not list the control.
+// TRLC-LINKS: REQ-EMG-117
+// ENGMODEL-LINKS: FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE
+func unlinkedRiskControls(i int, cv model.ControlVerification, riskControls map[string]map[string]bool) []Diagnostic {
+	var diags []Diagnostic
+	ctrl := strings.TrimSpace(cv.ControlRef)
+	for j, ref := range cv.RiskRefs {
+		ref = strings.TrimSpace(ref)
+		controls, ok := riskControls[ref]
+		if !ok || isImported(ref) || controls[ctrl] {
 			continue
 		}
-		for j, ref := range cv.RiskRefs {
-			ref = strings.TrimSpace(ref)
-			controls, ok := riskControls[ref]
-			if !ok || imported(ref) || controls[ctrl] {
-				continue
-			}
-			diags = append(diags, Diagnostic{
-				Code: "controlVerification.risk_control_unlinked", Severity: SeverityWarning,
-				Message: fmt.Sprintf("control verification %s verifies control %s for risk %s, but %s does not list %s in relatedControls; add it there, or drop the risk from riskRefs", cv.ID, ctrl, ref, ref, ctrl),
-				Path:    fmt.Sprintf("authoredArchitecture.controlVerifications[%d].riskRefs[%d]", i, j),
-			})
-		}
+		diags = append(diags, Diagnostic{
+			Code: "controlVerification.risk_control_unlinked", Severity: SeverityWarning,
+			Message: fmt.Sprintf("control verification %s verifies control %s for risk %s, but %s does not list %s in relatedControls; add it there, or drop the risk from riskRefs", cv.ID, ctrl, ref, ref, ctrl),
+			Path:    fmt.Sprintf("authoredArchitecture.controlVerifications[%d].riskRefs[%d]", i, j),
+		})
 	}
 	return diags
 }

@@ -42,7 +42,7 @@ func TestModelDiagnoseReportsRemedyOfRequiredSwitch(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := initializedServerAt(t, dir)
-	result := callToolPayload(t, s, "model.diagnose", map[string]any{"document": "requirements", "content": string(content)})
+	result := s.callToolPayload(t, "model.diagnose", map[string]any{"document": "requirements", "content": string(content)})
 	other, _ := result["otherDiagnostics"].(map[string]any)
 	remedies, _ := other["remedies"].(map[string]any)
 	if remedy, _ := remedies["lifecycle.missing"].(string); remedy == "" {

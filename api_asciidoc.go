@@ -12,10 +12,20 @@ type AsciiDocOptions = asciidoc.Options
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-VALIDATION-ENGINE, CTRL-TRACEABILITY-COVERAGE, STATE-MODEL-INVALID, EVT-VALIDATION-FAILED
 type AsciiDocResult = asciidoc.Result
 
+// AsciiDocInputs are the loaded model documents GenerateAsciiDoc renders.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-CODEMAP-INFERENCE, CTRL-TRACEABILITY-COVERAGE, DEP-LOCAL-WORKSPACE
+type AsciiDocInputs = asciidoc.Inputs
+
+// AsciiDocFiles are the architecture, requirements and design paths
+// GenerateAsciiDocFromFiles loads.
+// ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FU-MODEL-LOADER
+type AsciiDocFiles = asciidoc.FilePaths
+
+// GenerateAsciiDocFromFiles loads the model files and renders the document.
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014
-func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath string, options AsciiDocOptions) (AsciiDocResult, error) {
-	return asciidoc.GenerateFromFiles(architecturePath, requirementsPath, designPath, options)
+func GenerateAsciiDocFromFiles(files AsciiDocFiles, options AsciiDocOptions) (AsciiDocResult, error) {
+	return asciidoc.GenerateFromFiles(files, options)
 }
 
 // GenerateAsciiDoc validates and renders the model. With composition it
@@ -24,6 +34,6 @@ func GenerateAsciiDocFromFiles(architecturePath, requirementsPath, designPath st
 // composition error fails the call like any other validation error.
 // ENGMODEL-LINKS: FU-ASCIIDOC-GENERATOR, FLOW-MODEL-CHANGE-TO-VERIFIED-ARTIFACTS
 // TRLC-LINKS: REQ-EMG-001, REQ-EMG-003, REQ-EMG-014, REQ-EMG-035, REQ-EMG-036, REQ-EMG-065, REQ-EMG-066
-func GenerateAsciiDoc(bundle Bundle, requirements RequirementsDocument, design DesignDocument, options AsciiDocOptions) (AsciiDocResult, error) {
-	return asciidoc.Generate(bundle, requirements, design, options)
+func GenerateAsciiDoc(in AsciiDocInputs, options AsciiDocOptions) (AsciiDocResult, error) {
+	return asciidoc.Generate(in, options)
 }

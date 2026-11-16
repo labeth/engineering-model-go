@@ -33,42 +33,71 @@ func TierDiagnostics(root *ComposedSystem) []validate.Diagnostic {
 	if !ok {
 		return nil
 	}
-	accepted := validate.AcceptedRiskScopes(root.Bundle)
-	acceptedAliases := validate.AcceptedRiskDependencies(root.Bundle)
+	check := tierCheck{
+		path: root.Bundle.ManifestPath, tier: tier, rank: rank,
+		accepted: validate.AcceptedRiskScopes(root.Bundle), acceptedAliases: validate.AcceptedRiskDependencies(root.Bundle),
+		linked: linkedParents(root.Bundle),
+	}
+	var diags []validate.Diagnostic
+	for _, child := range root.Children {
+		diags = append(diags, check.child(child)...)
+	}
+	return diags
+}
+
+// tierCheck is what a dependency's tier is compared with: the tier and rank
+// of the system, the risks accepted for dependencies and the requirements the
+// links of each dependency lead from.
+type tierCheck struct {
+	path            string
+	tier            string
+	rank            int
+	accepted        map[string]bool
+	acceptedAliases map[string]bool
+	linked          map[string][]string
+}
+
+// linkedParents is, by dependency alias, the requirements whose links point
+// into the dependency.
+// TRLC-LINKS: REQ-EMG-126
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-VALIDATION-ENGINE
+func linkedParents(bundle model.Bundle) map[string][]string {
 	linked := map[string][]string{}
-	for _, l := range root.Bundle.ReqLinks.ReqLinks {
+	for _, l := range bundle.ReqLinks.ReqLinks {
 		alias, _, err := model.ParseQualifiedReference(strings.TrimSpace(l.Child))
 		if parent := strings.TrimSpace(l.Parent); err == nil && parent != "" && !containsString(linked[alias], parent) {
 			linked[alias] = append(linked[alias], parent)
 		}
 	}
-	path := root.Bundle.ManifestPath
-	var diags []validate.Diagnostic
-	for _, child := range root.Children {
-		alias := child.Dependency
-		childTier, childRank, known := validate.EffectiveTier(child.Bundle)
-		if !known {
-			diags = append(diags, validate.Diagnostic{
-				Code: "composition.dependency_tier_unknown", Severity: validate.SeverityError, Path: path, Remedy: validate.ConsistencyRemedy("composition.dependency_tier_unknown"),
-				Message: fmt.Sprintf("dependency %q (%s@%s, subsystem %s) declares no life-cycle tier; this system is at tier %s: ask its owner to declare lifecycle in its engmod.yml and release it", alias, child.ModulePath, child.Version, child.SubsystemID, tier),
-			})
-			continue
-		}
-		if childRank >= rank || acceptedAliases[alias] || accepted[child.SubsystemID] {
-			continue
-		}
-		parents := linked[alias]
-		sort.Strings(parents)
-		via := ""
-		if len(parents) > 0 {
-			via = "; its links do not lift the requirements " + strings.Join(parents, ", ") + " to tier " + tier
-		}
-		diags = append(diags, validate.Diagnostic{
-			Code: "composition.dependency_below_tier", Severity: validate.SeverityWarning, Path: path,
-			Message: fmt.Sprintf("dependency %q (%s@%s, subsystem %s) is at tier %s, below this system's tier %s%s: raise and release the dependency, or record a risk accepted by its owner with dependencies [%s] (or appliesTo [%s])", alias, child.ModulePath, child.Version, child.SubsystemID, childTier, tier, via, alias, child.SubsystemID),
-		})
+	return linked
+}
+
+// child reports a dependency without a tier or below the system's tier that
+// no accepted risk covers.
+// TRLC-LINKS: REQ-EMG-126
+// ENGMODEL-LINKS: FU-SYSTEM-COMPOSITION, FU-VALIDATION-ENGINE
+func (c tierCheck) child(child *ComposedSystem) []validate.Diagnostic {
+	alias := child.Dependency
+	childTier, childRank, known := validate.EffectiveTier(child.Bundle)
+	if !known {
+		return []validate.Diagnostic{{
+			Code: "composition.dependency_tier_unknown", Severity: validate.SeverityError, Path: c.path, Remedy: validate.ConsistencyRemedy("composition.dependency_tier_unknown"),
+			Message: fmt.Sprintf("dependency %q (%s@%s, subsystem %s) declares no life-cycle tier; this system is at tier %s: ask its owner to declare lifecycle in its engmod.yml and release it", alias, child.ModulePath, child.Version, child.SubsystemID, c.tier),
+		}}
 	}
-	return diags
+	if childRank >= c.rank || c.acceptedAliases[alias] || c.accepted[child.SubsystemID] {
+		return nil
+	}
+	parents := c.linked[alias]
+	sort.Strings(parents)
+	via := ""
+	if len(parents) > 0 {
+		via = "; its links do not lift the requirements " + strings.Join(parents, ", ") + " to tier " + c.tier
+	}
+	return []validate.Diagnostic{{
+		Code: "composition.dependency_below_tier", Severity: validate.SeverityWarning, Path: c.path,
+		Message: fmt.Sprintf("dependency %q (%s@%s, subsystem %s) is at tier %s, below this system's tier %s%s: raise and release the dependency, or record a risk accepted by its owner with dependencies [%s] (or appliesTo [%s])", alias, child.ModulePath, child.Version, child.SubsystemID, childTier, c.tier, via, alias, child.SubsystemID),
+	}}
 }
 
 // containsString reports whether list holds value.

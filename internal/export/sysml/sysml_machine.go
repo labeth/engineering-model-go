@@ -49,35 +49,50 @@ func indexMachines(semantic model.SemanticModel) *machineIndex {
 		}
 	}
 	for _, element := range semantic.Elements {
-		if !index.machines[element.Owner] {
-			continue
-		}
-		switch {
-		case element.Kind == model.ElementStateUsage && element.Extension == model.MachineStateExtension:
-			index.states[element.Owner] = append(index.states[element.Owner], element)
-		case element.Kind == model.ElementConstraintUsage && element.Extension == model.MachineInvariantExtension:
-			index.invariants[element.Owner] = append(index.invariants[element.Owner], element)
-		default:
-			continue
-		}
-		index.ownedElements[element.ID] = true
+		index.addElement(element)
 	}
 	for _, relationship := range semantic.Relationships {
-		if !index.machines[relationship.Owner] {
-			continue
-		}
-		switch {
-		case relationship.Kind == model.RelationshipTransition && relationship.SourceType == model.MachineTransitionSourceType:
-			index.transitions[relationship.Owner] = append(index.transitions[relationship.Owner], relationship)
-		case relationship.Kind == model.RelationshipSuccession &&
-			(relationship.SourceType == model.MachineInitialSourceType || relationship.SourceType == model.MachineFinalSourceType):
-			index.successions[relationship.Owner] = append(index.successions[relationship.Owner], relationship)
-		default:
-			continue
-		}
-		index.ownedRels[relationship.ID] = true
+		index.addRelationship(relationship)
 	}
 	return index
+}
+
+// addElement records a state or invariant that a machine owns.
+//
+// TRLC-LINKS: REQ-EMG-137
+func (index *machineIndex) addElement(element model.SemanticElement) {
+	if !index.machines[element.Owner] {
+		return
+	}
+	switch {
+	case element.Kind == model.ElementStateUsage && element.Extension == model.MachineStateExtension:
+		index.states[element.Owner] = append(index.states[element.Owner], element)
+	case element.Kind == model.ElementConstraintUsage && element.Extension == model.MachineInvariantExtension:
+		index.invariants[element.Owner] = append(index.invariants[element.Owner], element)
+	default:
+		return
+	}
+	index.ownedElements[element.ID] = true
+}
+
+// addRelationship records a transition or an initial or final succession that
+// a machine owns.
+//
+// TRLC-LINKS: REQ-EMG-137
+func (index *machineIndex) addRelationship(relationship model.SemanticRelationship) {
+	if !index.machines[relationship.Owner] {
+		return
+	}
+	switch {
+	case relationship.Kind == model.RelationshipTransition && relationship.SourceType == model.MachineTransitionSourceType:
+		index.transitions[relationship.Owner] = append(index.transitions[relationship.Owner], relationship)
+	case relationship.Kind == model.RelationshipSuccession &&
+		(relationship.SourceType == model.MachineInitialSourceType || relationship.SourceType == model.MachineFinalSourceType):
+		index.successions[relationship.Owner] = append(index.successions[relationship.Owner], relationship)
+	default:
+		return
+	}
+	index.ownedRels[relationship.ID] = true
 }
 
 // TRLC-LINKS: REQ-EMG-137
@@ -108,7 +123,7 @@ type machineWriter struct {
 	diagnostics *[]model.SemanticDiagnostic
 }
 
-// writeMachine renders a projected behavior machine as a SysML v2 state
+// machine renders a projected behavior machine as a SysML v2 state
 // definition: variables as attributes with initial values, an entry
 // succession to the initial state, the states, final states as successions to
 // done, transitions with accept, if and do parts, and invariants as
@@ -117,47 +132,86 @@ type machineWriter struct {
 //
 // TRLC-LINKS: REQ-EMG-137, REQ-EMG-036
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, DO-CANONICAL-SEMANTIC-MODEL, DO-SYSML-V2-MODEL
-func writeMachine(out *bytes.Buffer, machine model.SemanticElement, indent string, children map[string][]model.SemanticElement, imports []model.SemanticImport, elementIDs map[string]bool, index *machineIndex, diagnostics *[]model.SemanticDiagnostic) {
+func (w *sysmlWriter) machine(machine model.SemanticElement, indent string) {
 	writer := &machineWriter{
-		out: out, machine: machine, states: map[string]bool{}, elementIDs: elementIDs, diagnostics: diagnostics,
+		out: w.out, machine: machine, states: map[string]bool{}, elementIDs: w.elementIDs, diagnostics: w.diagnostics,
 	}
-	for _, state := range index.states[machine.ID] {
+	for _, state := range w.machines.states[machine.ID] {
 		writer.states[state.ID] = true
 	}
 	body := indent + "    "
-	fmt.Fprintf(out, "%sstate def %s {\n", indent, sysmlName(machine.ID))
-	notes := machineDoc(machine.Metadata, "description")
-	if machine.Owner != "" {
-		notes = strings.TrimSpace(notes + " Implemented by " + commentText(machine.Owner) + ".")
+	fmt.Fprintf(w.out, "%sstate def %s {\n", indent, sysmlName(machine.ID))
+	writer.doc(body)
+	writer.members(w.machines, body)
+	w.namespaceElements(machine.ID, body)
+	fmt.Fprintf(w.out, "%s}\n", indent)
+}
+
+// doc writes the description and the owning unit of the machine as a doc comment.
+//
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) doc(indent string) {
+	notes := machineDoc(w.machine.Metadata, "description")
+	if w.machine.Owner != "" {
+		notes = strings.TrimSpace(notes + " Implemented by " + commentText(w.machine.Owner) + ".")
 	}
 	if notes != "" {
-		fmt.Fprintf(out, "%sdoc /* %s */\n", body, notes)
+		fmt.Fprintf(w.out, "%sdoc /* %s */\n", indent, notes)
 	}
-	for _, feature := range machine.Features {
-		writer.variable(feature, body)
+}
+
+// members writes the variables, the initial succession, the states, the
+// final successions, the transitions and the invariants of the machine.
+//
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) members(index *machineIndex, indent string) {
+	id := w.machine.ID
+	for _, feature := range w.machine.Features {
+		w.variable(feature, indent)
 	}
-	for _, succession := range index.successions[machine.ID] {
+	w.initials(index.successions[id], indent)
+	w.stateDeclarations(index.states[id], indent)
+	w.finals(index.successions[id], indent)
+	for _, transition := range index.transitions[id] {
+		w.transition(transition, indent)
+	}
+	for _, invariant := range index.invariants[id] {
+		w.invariant(invariant, indent)
+	}
+}
+
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) initials(successions []model.SemanticRelationship, indent string) {
+	for _, succession := range successions {
 		if succession.SourceType == model.MachineInitialSourceType {
-			writer.initial(succession, body)
+			w.initial(succession, indent)
 		}
 	}
-	for _, state := range index.states[machine.ID] {
-		fmt.Fprintf(out, "%sstate %s;\n", body, sysmlName(state.ID))
-		writeAboutAnnotation(out, body, "EngineeringElement", state.ID, string(state.Kind), "")
-	}
-	for _, succession := range index.successions[machine.ID] {
+}
+
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) finals(successions []model.SemanticRelationship, indent string) {
+	for _, succession := range successions {
 		if succession.SourceType == model.MachineFinalSourceType {
-			writer.final(succession, body)
+			w.final(succession, indent)
 		}
 	}
-	for _, transition := range index.transitions[machine.ID] {
-		writer.transition(transition, body)
+}
+
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) stateDeclarations(states []model.SemanticElement, indent string) {
+	for _, state := range states {
+		fmt.Fprintf(w.out, "%sstate %s;\n", indent, sysmlName(state.ID))
+		writeAboutAnnotation(w.out, indent, aboutAnnotation{metadata: "EngineeringElement", id: state.ID, conceptKind: string(state.Kind)})
 	}
-	for _, invariant := range index.invariants[machine.ID] {
-		writer.invariant(invariant, body)
-	}
-	writeNamespaceElements(out, machine.ID, body, children, imports, elementIDs, index, diagnostics)
-	fmt.Fprintf(out, "%s}\n", indent)
+}
+
+// aboutAnnotation names the engineering identity metadata of one nested machine member.
+type aboutAnnotation struct {
+	metadata         string
+	id               string
+	conceptKind      string
+	relationshipKind string
 }
 
 // writeAboutAnnotation attaches the engineering identity metadata to one
@@ -165,12 +219,12 @@ func writeMachine(out *bytes.Buffer, machine model.SemanticElement, indent strin
 // not the enclosing state definition.
 //
 // TRLC-LINKS: REQ-EMG-137, REQ-EMG-036
-func writeAboutAnnotation(out *bytes.Buffer, indent, metadata, id, conceptKind, relationshipKind string) {
-	fmt.Fprintf(out, "%s@%s about %s {\n", indent, metadata, sysmlName(id))
-	fmt.Fprintf(out, "%s    sourceId = %s;\n", indent, sysmlString(id))
-	fmt.Fprintf(out, "%s    conceptKind = %s;\n", indent, sysmlString(conceptKind))
-	if relationshipKind != "" {
-		fmt.Fprintf(out, "%s    relationshipKind = %s;\n", indent, sysmlString(relationshipKind))
+func writeAboutAnnotation(out *bytes.Buffer, indent string, about aboutAnnotation) {
+	fmt.Fprintf(out, "%s@%s about %s {\n", indent, about.metadata, sysmlName(about.id))
+	fmt.Fprintf(out, "%s    sourceId = %s;\n", indent, sysmlString(about.id))
+	fmt.Fprintf(out, "%s    conceptKind = %s;\n", indent, sysmlString(about.conceptKind))
+	if about.relationshipKind != "" {
+		fmt.Fprintf(out, "%s    relationshipKind = %s;\n", indent, sysmlString(about.relationshipKind))
 	}
 	fmt.Fprintf(out, "%s}\n", indent)
 }
@@ -182,7 +236,7 @@ func (w *machineWriter) variable(feature model.SemanticFeature, indent string) {
 	path := "elements." + w.machine.ID + ".features." + feature.Name
 	typ := strings.TrimSpace(feature.Type)
 	if typ != string(model.MachineTypeInteger) && typ != string(model.MachineTypeBoolean) && typ != string(model.MachineTypeString) {
-		w.commented(path, indent, "variable "+feature.Name, fmt.Sprintf("type %q is not Integer, Boolean or String", typ), "")
+		w.commented(indent, commentedConstruct{path: path, construct: "variable " + feature.Name, reason: fmt.Sprintf("type %q is not Integer, Boolean or String", typ)})
 		return
 	}
 	name, renamed := machineIdentifier(feature.Name)
@@ -190,7 +244,7 @@ func (w *machineWriter) variable(feature model.SemanticFeature, indent string) {
 	if feature.Value != nil {
 		value, err := translateMachineExpression(*feature.Value)
 		if err != nil {
-			w.commented(path, indent, "variable "+feature.Name, err.Error(), model.MachineExprString(*feature.Value))
+			w.commented(indent, commentedConstruct{path: path, construct: "variable " + feature.Name, reason: err.Error(), source: model.MachineExprString(*feature.Value)})
 			return
 		}
 		line += " := " + value
@@ -207,8 +261,8 @@ func (w *machineWriter) variable(feature model.SemanticFeature, indent string) {
 // TRLC-LINKS: REQ-EMG-137
 func (w *machineWriter) initial(succession model.SemanticRelationship, indent string) {
 	if !w.states[succession.Target] {
-		w.commented("relationships."+succession.ID, indent, "initial state of "+w.machine.ID,
-			fmt.Sprintf("%q is not a state of the machine", succession.Target), "")
+		w.commented(indent, commentedConstruct{path: "relationships." + succession.ID, construct: "initial state of " + w.machine.ID,
+			reason: fmt.Sprintf("%q is not a state of the machine", succession.Target)})
 		return
 	}
 	fmt.Fprintf(w.out, "%sentry;\n%sthen %s;\n", indent, indent, sysmlName(succession.Target))
@@ -219,12 +273,12 @@ func (w *machineWriter) initial(succession model.SemanticRelationship, indent st
 // TRLC-LINKS: REQ-EMG-137
 func (w *machineWriter) final(succession model.SemanticRelationship, indent string) {
 	if !w.states[succession.Source] {
-		w.commented("relationships."+succession.ID, indent, "final state of "+w.machine.ID,
-			fmt.Sprintf("%q is not a state of the machine", succession.Source), "")
+		w.commented(indent, commentedConstruct{path: "relationships." + succession.ID, construct: "final state of " + w.machine.ID,
+			reason: fmt.Sprintf("%q is not a state of the machine", succession.Source)})
 		return
 	}
 	fmt.Fprintf(w.out, "%ssuccession %s first %s then done;\n", indent, sysmlName(succession.ID), sysmlName(succession.Source))
-	writeAboutAnnotation(w.out, indent, "EngineeringRelationship", succession.ID, string(succession.Kind), succession.SourceType)
+	writeAboutAnnotation(w.out, indent, aboutAnnotation{"EngineeringRelationship", succession.ID, string(succession.Kind), succession.SourceType})
 }
 
 // transition writes one transition with its accept, if and do parts. A guard
@@ -232,56 +286,86 @@ func (w *machineWriter) final(succession model.SemanticRelationship, indent stri
 //
 // TRLC-LINKS: REQ-EMG-137
 func (w *machineWriter) transition(transition model.SemanticRelationship, indent string) {
-	path := "relationships." + transition.ID
 	if !w.states[transition.Source] || !w.states[transition.Target] {
-		w.commented(path, indent, "transition "+transition.ID,
-			fmt.Sprintf("source %q or target %q is not a state of the machine", transition.Source, transition.Target), "")
+		w.commented(indent, commentedConstruct{path: "relationships." + transition.ID, construct: "transition " + transition.ID,
+			reason: fmt.Sprintf("source %q or target %q is not a state of the machine", transition.Source, transition.Target)})
 		return
 	}
 	part := indent + "    "
 	fmt.Fprintf(w.out, "%stransition %s\n%sfirst %s\n", indent, sysmlName(transition.ID), part, sysmlName(transition.Source))
-	if len(transition.Triggers) > 0 {
-		trigger := transition.Triggers[0]
-		payload := sysmlName("on-" + trigger)
-		if w.elementIDs[trigger] {
-			fmt.Fprintf(w.out, "%saccept %s :> %s\n", part, payload, sysmlName(trigger))
-		} else {
-			fmt.Fprintf(w.out, "%saccept %s : EngineeringEvent\n", part, payload)
-		}
-		for _, extra := range transition.Triggers[1:] {
-			w.commented(path, part, "additional trigger "+extra+" of transition "+transition.ID,
-				"a SysML transition accepts one trigger", "")
-		}
-	}
-	if transition.Guard != nil {
-		source := authoredSource(transition.Metadata, "guard", *transition.Guard)
-		if guard, err := translateMachineExpression(*transition.Guard); err != nil {
-			w.commented(path, part, "guard of transition "+transition.ID, err.Error(), source)
-		} else {
-			fmt.Fprintf(w.out, "%sif %s\n", part, guard)
-		}
-	}
-	if transition.Effect != nil {
-		source := authoredSource(transition.Metadata, "effect", *transition.Effect)
-		if assignments, err := translateMachineEffect(*transition.Effect); err != nil {
-			w.commented(path, part, "effect of transition "+transition.ID, err.Error(), source)
-		} else if len(assignments) == 1 {
-			fmt.Fprintf(w.out, "%sdo %s\n", part, assignments[0])
-		} else {
-			fmt.Fprintf(w.out, "%sdo action {\n", part)
-			fmt.Fprintf(w.out, "%s    // simultaneous assignment: every right-hand side reads the pre-transition values\n", part)
-			for _, assignment := range assignments {
-				fmt.Fprintf(w.out, "%s    %s;\n", part, assignment)
-			}
-			fmt.Fprintf(w.out, "%s}\n", part)
-		}
-	}
+	w.triggers(transition, part)
+	w.guard(transition, part)
+	w.effect(transition, part)
 	if doc := machineDoc(transition.Metadata, "description"); doc != "" {
 		fmt.Fprintf(w.out, "%sthen %s {\n%s    doc /* %s */\n%s}\n", part, sysmlName(transition.Target), part, doc, part)
 	} else {
 		fmt.Fprintf(w.out, "%sthen %s;\n", part, sysmlName(transition.Target))
 	}
-	writeAboutAnnotation(w.out, indent, "EngineeringRelationship", transition.ID, string(transition.Kind), transition.SourceType)
+	writeAboutAnnotation(w.out, indent, aboutAnnotation{"EngineeringRelationship", transition.ID, string(transition.Kind), transition.SourceType})
+}
+
+// triggers writes the accept part of a transition; a SysML transition accepts
+// one trigger, so the others are written as comments.
+//
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) triggers(transition model.SemanticRelationship, part string) {
+	if len(transition.Triggers) == 0 {
+		return
+	}
+	trigger := transition.Triggers[0]
+	payload := sysmlName("on-" + trigger)
+	if w.elementIDs[trigger] {
+		fmt.Fprintf(w.out, "%saccept %s :> %s\n", part, payload, sysmlName(trigger))
+	} else {
+		fmt.Fprintf(w.out, "%saccept %s : EngineeringEvent\n", part, payload)
+	}
+	for _, extra := range transition.Triggers[1:] {
+		w.commented(part, commentedConstruct{path: "relationships." + transition.ID, construct: "additional trigger " + extra + " of transition " + transition.ID,
+			reason: "a SysML transition accepts one trigger"})
+	}
+}
+
+// guard writes the if part of a transition, or a comment when the guard is
+// not expressible.
+//
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) guard(transition model.SemanticRelationship, part string) {
+	if transition.Guard == nil {
+		return
+	}
+	guard, err := translateMachineExpression(*transition.Guard)
+	if err != nil {
+		w.commented(part, commentedConstruct{path: "relationships." + transition.ID, construct: "guard of transition " + transition.ID,
+			reason: err.Error(), source: authoredSource(transition.Metadata, "guard", *transition.Guard)})
+		return
+	}
+	fmt.Fprintf(w.out, "%sif %s\n", part, guard)
+}
+
+// effect writes the do part of a transition, or a comment when the effect is
+// not expressible.
+//
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) effect(transition model.SemanticRelationship, part string) {
+	if transition.Effect == nil {
+		return
+	}
+	assignments, err := translateMachineEffect(*transition.Effect)
+	if err != nil {
+		w.commented(part, commentedConstruct{path: "relationships." + transition.ID, construct: "effect of transition " + transition.ID,
+			reason: err.Error(), source: authoredSource(transition.Metadata, "effect", *transition.Effect)})
+		return
+	}
+	if len(assignments) == 1 {
+		fmt.Fprintf(w.out, "%sdo %s\n", part, assignments[0])
+		return
+	}
+	fmt.Fprintf(w.out, "%sdo action {\n", part)
+	fmt.Fprintf(w.out, "%s    // simultaneous assignment: every right-hand side reads the pre-transition values\n", part)
+	for _, assignment := range assignments {
+		fmt.Fprintf(w.out, "%s    %s;\n", part, assignment)
+	}
+	fmt.Fprintf(w.out, "%s}\n", part)
 }
 
 // invariant writes one invariant as a constraint holding its Boolean
@@ -289,24 +373,46 @@ func (w *machineWriter) transition(transition model.SemanticRelationship, indent
 //
 // TRLC-LINKS: REQ-EMG-137
 func (w *machineWriter) invariant(invariant model.SemanticElement, indent string) {
-	path := "elements." + invariant.ID
+	construct := commentedConstruct{path: "elements." + invariant.ID, construct: "invariant " + invariant.ID}
+	result := invariantResult(invariant)
+	if result == nil {
+		construct.reason = "it has no result expression"
+		w.commented(indent, construct)
+		return
+	}
+	expression, err := translateMachineExpression(*result)
+	if err != nil {
+		construct.reason, construct.source = err.Error(), authoredSource(invariant.Metadata, "expr", *result)
+		w.commented(indent, construct)
+		return
+	}
+	fmt.Fprintf(w.out, "%sconstraint %s {\n", indent, sysmlName(invariant.ID))
+	if notes := invariantNotes(invariant); notes != "" {
+		fmt.Fprintf(w.out, "%s    doc /* %s */\n", indent, notes)
+	}
+	fmt.Fprintf(w.out, "%s    %s\n%s}\n", indent, expression, indent)
+	writeAboutAnnotation(w.out, indent, aboutAnnotation{metadata: "EngineeringElement", id: invariant.ID, conceptKind: string(invariant.Kind)})
+}
+
+// invariantResult returns the result expression of an invariant, the last
+// feature with the result name, or nil.
+//
+// TRLC-LINKS: REQ-EMG-137
+func invariantResult(invariant model.SemanticElement) *model.SemanticExpression {
 	var result *model.SemanticExpression
 	for index := range invariant.Features {
 		if invariant.Features[index].Name == model.MachineInvariantResultFeature {
 			result = invariant.Features[index].Value
 		}
 	}
-	if result == nil {
-		w.commented(path, indent, "invariant "+invariant.ID, "it has no result expression", "")
-		return
-	}
-	source := authoredSource(invariant.Metadata, "expr", *result)
-	expression, err := translateMachineExpression(*result)
-	if err != nil {
-		w.commented(path, indent, "invariant "+invariant.ID, err.Error(), source)
-		return
-	}
-	fmt.Fprintf(w.out, "%sconstraint %s {\n", indent, sysmlName(invariant.ID))
+	return result
+}
+
+// invariantNotes returns the doc comment text of an invariant: its
+// description and the requirements it protects.
+//
+// TRLC-LINKS: REQ-EMG-137
+func invariantNotes(invariant model.SemanticElement) string {
 	notes := machineDoc(invariant.Metadata, "description")
 	if notes != "" && !strings.HasSuffix(notes, ".") {
 		notes += "."
@@ -314,29 +420,41 @@ func (w *machineWriter) invariant(invariant model.SemanticElement, indent string
 	if len(invariant.References) > 0 {
 		notes = strings.TrimSpace(notes + " Protects " + strings.Join(invariant.References, ", ") + ".")
 	}
-	if notes = commentText(notes); notes != "" {
-		fmt.Fprintf(w.out, "%s    doc /* %s */\n", indent, notes)
-	}
-	fmt.Fprintf(w.out, "%s    %s\n%s}\n", indent, expression, indent)
-	writeAboutAnnotation(w.out, indent, "EngineeringElement", invariant.ID, string(invariant.Kind), "")
+	return commentText(notes)
+}
+
+// commentedConstruct describes a construct that was written as a comment: the
+// model path, what it is, why it is not expressible and its authored source.
+type commentedConstruct struct {
+	path      string
+	construct string
+	reason    string
+	source    string
 }
 
 // commented writes a construct SysML cannot express as comment lines and
 // records the loss as a warning that names the construct and the reason.
 //
 // TRLC-LINKS: REQ-EMG-137
-func (w *machineWriter) commented(path, indent, construct, reason, source string) {
-	message := fmt.Sprintf("machine %s: %s was written as a comment because %s", w.machine.ID, construct, reason)
-	fmt.Fprintf(w.out, "%s// %s is not expressible in SysML v2: %s\n", indent, commentText(construct), commentText(reason))
-	if source != "" {
-		message += fmt.Sprintf(" (authored: %s)", source)
-		for _, line := range strings.Split(source, "\n") {
-			fmt.Fprintf(w.out, "%s//     authored: %s\n", indent, strings.TrimRight(line, "\r"))
-		}
+func (w *machineWriter) commented(indent string, c commentedConstruct) {
+	message := fmt.Sprintf("machine %s: %s was written as a comment because %s", w.machine.ID, c.construct, c.reason)
+	fmt.Fprintf(w.out, "%s// %s is not expressible in SysML v2: %s\n", indent, commentText(c.construct), commentText(c.reason))
+	if c.source != "" {
+		message += fmt.Sprintf(" (authored: %s)", c.source)
+		w.authoredLines(indent, c.source)
 	}
 	*w.diagnostics = append(*w.diagnostics, model.SemanticDiagnostic{
-		Code: machineCommentedCode, Severity: model.SemanticSeverityWarning, Message: message, Path: path,
+		Code: machineCommentedCode, Severity: model.SemanticSeverityWarning, Message: message, Path: c.path,
 	})
+}
+
+// authoredLines writes the authored source of a commented construct, one comment line each.
+//
+// TRLC-LINKS: REQ-EMG-137
+func (w *machineWriter) authoredLines(indent, source string) {
+	for _, line := range strings.Split(source, "\n") {
+		fmt.Fprintf(w.out, "%s//     authored: %s\n", indent, strings.TrimRight(line, "\r"))
+	}
 }
 
 // authoredSource returns the authored expression string kept in the metadata,
@@ -496,47 +614,50 @@ func translateMachineNode(expression model.SemanticExpression) (string, int, err
 	}
 }
 
+// machineLiteralRenderers render a typed literal by its kind; a literal with
+// no value of its kind is not renderable.
+var machineLiteralRenderers = map[string]func(model.SemanticValue) (string, bool){
+	"integer": func(value model.SemanticValue) (string, bool) {
+		if value.Integer == nil {
+			return "", false
+		}
+		return fmt.Sprintf("%d", *value.Integer), true
+	},
+	"boolean": func(value model.SemanticValue) (string, bool) {
+		if value.Boolean == nil {
+			return "", false
+		}
+		return fmt.Sprintf("%t", *value.Boolean), true
+	},
+	"string": func(value model.SemanticValue) (string, bool) {
+		return sysmlString(value.String), value.String != ""
+	},
+}
+
 // TRLC-LINKS: REQ-EMG-137
 func translateMachineLiteral(expression model.SemanticExpression) (string, error) {
 	value := expression.TypedValue
-	switch {
-	case value == nil:
+	if value == nil {
 		return "", errors.New("a literal has no typed value")
-	case value.Kind == "integer" && value.Integer != nil:
-		return fmt.Sprintf("%d", *value.Integer), nil
-	case value.Kind == "boolean" && value.Boolean != nil:
-		return fmt.Sprintf("%t", *value.Boolean), nil
-	case value.Kind == "string" && value.String != "":
-		return sysmlString(value.String), nil
-	default:
-		return "", fmt.Errorf("literal kind %q is not Integer, Boolean or String", value.Kind)
 	}
+	if render, ok := machineLiteralRenderers[value.Kind]; ok {
+		if text, ok := render(*value); ok {
+			return text, nil
+		}
+	}
+	return "", fmt.Errorf("literal kind %q is not Integer, Boolean or String", value.Kind)
 }
 
 // TRLC-LINKS: REQ-EMG-137
 func translateMachineOperator(expression model.SemanticExpression) (string, int, error) {
-	if expression.Operator == "in_state" {
-		return "", 0, errMachineInState
-	}
-	token, ok := machineSysMLOperators[expression.Operator]
-	if !ok {
-		return "", 0, fmt.Errorf("operator %q has no SysML v2 expression form", expression.Operator)
-	}
-	operator, ok := model.LookupMachineOperator(expression.Operator)
-	if !ok || len(expression.Operands) != len(operator.Operands) {
-		return "", 0, fmt.Errorf("operator %q needs %d operands, has %d", expression.Operator, len(operator.Operands), len(expression.Operands))
+	token, operator, err := lookupMachineSysMLOperator(expression)
+	if err != nil {
+		return "", 0, err
 	}
 	precedence := sysmlOperatorPrecedence[expression.Operator]
-	texts := make([]string, len(expression.Operands))
-	for i, operand := range expression.Operands {
-		text, childPrecedence, err := translateMachineNode(operand)
-		if err != nil {
-			return "", 0, err
-		}
-		if machineOperandNeedsParentheses(expression.Operator, precedence, i, operand, text, childPrecedence) {
-			text = "(" + text + ")"
-		}
-		texts[i] = text
+	texts, err := translateMachineOperands(expression, precedence)
+	if err != nil {
+		return "", 0, err
 	}
 	switch {
 	case operator.Form == model.MachineFormPrefix && token == "-":
@@ -548,7 +669,61 @@ func translateMachineOperator(expression model.SemanticExpression) (string, int,
 	}
 }
 
-// machineOperandNeedsParentheses decides whether operand i of an operator is
+// lookupMachineSysMLOperator returns the SysML token and the machine operator
+// of an expression whose operator SysML can express with the right operand count.
+//
+// TRLC-LINKS: REQ-EMG-137
+func lookupMachineSysMLOperator(expression model.SemanticExpression) (string, model.MachineOperator, error) {
+	if expression.Operator == "in_state" {
+		return "", model.MachineOperator{}, errMachineInState
+	}
+	token, ok := machineSysMLOperators[expression.Operator]
+	if !ok {
+		return "", model.MachineOperator{}, fmt.Errorf("operator %q has no SysML v2 expression form", expression.Operator)
+	}
+	operator, ok := model.LookupMachineOperator(expression.Operator)
+	if !ok || len(expression.Operands) != len(operator.Operands) {
+		return "", model.MachineOperator{}, fmt.Errorf("operator %q needs %d operands, has %d", expression.Operator, len(operator.Operands), len(expression.Operands))
+	}
+	return token, operator, nil
+}
+
+// translateMachineOperands renders the operands of an operator, in
+// parentheses where the operator's precedence asks for them.
+//
+// TRLC-LINKS: REQ-EMG-137
+func translateMachineOperands(expression model.SemanticExpression, precedence int) ([]string, error) {
+	site := operandSite{operator: expression.Operator, precedence: precedence}
+	texts := make([]string, len(expression.Operands))
+	for i, operand := range expression.Operands {
+		text, childPrecedence, err := translateMachineNode(operand)
+		if err != nil {
+			return nil, err
+		}
+		site.index = i
+		if machineOperandNeedsParentheses(site, translatedOperand{node: operand, text: text, precedence: childPrecedence}) {
+			text = "(" + text + ")"
+		}
+		texts[i] = text
+	}
+	return texts, nil
+}
+
+// operandSite is the operator an operand belongs to and the operand's position.
+type operandSite struct {
+	operator   string
+	precedence int
+	index      int
+}
+
+// translatedOperand is an operand with its SysML text and the precedence of that text.
+type translatedOperand struct {
+	node       model.SemanticExpression
+	text       string
+	precedence int
+}
+
+// machineOperandNeedsParentheses decides whether an operand of an operator is
 // written in parentheses: when it binds looser than the operator, when equal
 // precedence would regroup it (comparisons do not associate, implies
 // associates right, the others left), and for readability when a not is
@@ -556,27 +731,42 @@ func translateMachineOperator(expression model.SemanticExpression) (string, int,
 // or a negative number follows a binary operator.
 //
 // TRLC-LINKS: REQ-EMG-137
-func machineOperandNeedsParentheses(operator string, precedence, index int, operand model.SemanticExpression, text string, childPrecedence int) bool {
-	negative := strings.HasPrefix(text, "-")
-	if operand.Kind != model.MachineKindOperator && !negative {
+func machineOperandNeedsParentheses(site operandSite, operand translatedOperand) bool {
+	negative := strings.HasPrefix(operand.text, "-")
+	if operand.node.Kind != model.MachineKindOperator && !negative {
 		return false
 	}
-	if precedence == sysmlPrecUnary {
+	if site.precedence == sysmlPrecUnary {
 		return true
 	}
 	switch {
-	case childPrecedence < precedence:
+	case operand.precedence < site.precedence:
 		return true
-	case childPrecedence == precedence:
-		rightAssociative := operator == "implies"
-		return precedence == sysmlPrecComparison || (index == 1) != rightAssociative
-	case operand.Operator == "not" && precedence >= sysmlPrecComparison:
-		return true
-	case negative && index == 1 && precedence == sysmlPrecAdditive:
-		return true
+	case operand.precedence == site.precedence:
+		return machineEqualPrecedenceRegroups(site)
 	default:
-		return false
+		return machineReadabilityParentheses(site, operand.node, negative)
 	}
+}
+
+// machineEqualPrecedenceRegroups reports whether an operand of the same
+// precedence needs parentheses to keep its grouping.
+//
+// TRLC-LINKS: REQ-EMG-137
+func machineEqualPrecedenceRegroups(site operandSite) bool {
+	rightAssociative := site.operator == "implies"
+	return site.precedence == sysmlPrecComparison || (site.index == 1) != rightAssociative
+}
+
+// machineReadabilityParentheses reports whether an operand that binds tighter
+// is parenthesized for readability.
+//
+// TRLC-LINKS: REQ-EMG-137
+func machineReadabilityParentheses(site operandSite, operand model.SemanticExpression, negative bool) bool {
+	if operand.Operator == "not" && site.precedence >= sysmlPrecComparison {
+		return true
+	}
+	return negative && site.index == 1 && site.precedence == sysmlPrecAdditive
 }
 
 // translateMachineEffect renders a machine effect (an "all" node of ":="
@@ -589,15 +779,24 @@ func translateMachineEffect(effect model.SemanticExpression) ([]string, error) {
 	}
 	assignments := make([]string, 0, len(effect.Operands))
 	for _, assignment := range effect.Operands {
-		if assignment.Operator != ":=" || len(assignment.Operands) != 2 || assignment.Operands[0].Kind != model.MachineKindVariable {
-			return nil, errors.New("an effect element must assign a variable")
-		}
-		target, _ := machineIdentifier(assignment.Operands[0].Value)
-		value, err := translateMachineExpression(assignment.Operands[1])
+		text, err := translateMachineAssignment(assignment)
 		if err != nil {
 			return nil, err
 		}
-		assignments = append(assignments, fmt.Sprintf("assign %s := %s", target, value))
+		assignments = append(assignments, text)
 	}
 	return assignments, nil
+}
+
+// TRLC-LINKS: REQ-EMG-137
+func translateMachineAssignment(assignment model.SemanticExpression) (string, error) {
+	if assignment.Operator != ":=" || len(assignment.Operands) != 2 || assignment.Operands[0].Kind != model.MachineKindVariable {
+		return "", errors.New("an effect element must assign a variable")
+	}
+	target, _ := machineIdentifier(assignment.Operands[0].Value)
+	value, err := translateMachineExpression(assignment.Operands[1])
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("assign %s := %s", target, value), nil
 }

@@ -9,7 +9,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"path/filepath"
+	"slices"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -74,44 +77,41 @@ func TestFormalEvidenceRollsUpPassFailAndNone(t *testing.T) {
 	m, checks, _ := verificationFixture(t, files, "REQ-F-001", "REQ-F-002", "REQ-F-003", "REQ-F-004", "REQ-F-005")
 
 	pass := formalRow(t, m, "REQ-F-001")
-	if pass.Status != "verified" || pass.Result != "passed" || len(pass.Verifications) != 1 || strings.Join(pass.EvidenceMethods, ",") != "analysis" {
-		t.Fatalf("pass row: %+v", pass)
-	}
-	if len(pass.Formal) != 1 || pass.Formal[0].Result != formalPass || pass.Formal[0].Machine != "SM-DEMO" || pass.Formal[0].Invariant != "INV-F-001" || len(pass.Formal[0].QntSha256) != 64 {
-		t.Fatalf("pass formal entry: %+v", pass.Formal)
-	}
-
-	fail := formalRow(t, m, "REQ-F-002")
-	if fail.Result != "failed" || fail.Status != "verified" || len(fail.Formal) != 1 || fail.Formal[0].Result != formalFailed {
-		t.Fatalf("a failing invariant must fail the requirement: %+v", fail)
-	}
-	// One invariant passes and another fails: failed wins.
-	if mixed := formalRow(t, m, "REQ-F-005"); mixed.Result != "failed" || len(mixed.Formal) != 2 {
-		t.Fatalf("pass and fail: %+v", mixed)
-	}
-
+	requireEqual(t, rowFacts(pass), []string{"verified", "passed", "1", "analysis"})
+	requireEqual(t, formalFacts(pass.Formal), []string{formalPass + "|SM-DEMO|INV-F-001|64"})
+	fail := formalRow(t, m, "REQ-F-002") // a failing invariant fails the requirement
+	requireEqual(t, rowFacts(fail)[:2], []string{"verified", "failed"})
+	requireEqual(t, formalFacts(fail.Formal), []string{formalFailed + "|SM-DEMO|INV-F-002|64"})
+	mixed := formalRow(t, m, "REQ-F-005") // one invariant passes and another fails: failed wins
+	requireEqual(t, []string{mixed.Result, strconv.Itoa(len(mixed.Formal))}, []string{"failed", "2"})
 	none := formalRow(t, m, "REQ-F-003")
-	if none.Status != "orphan" || none.Formal != nil || none.EvidenceMethods != nil {
-		t.Fatalf("no evidence: %+v", none)
-	}
+	requireEqual(t, []bool{none.Status == "orphan", none.Formal == nil, none.EvidenceMethods == nil}, []bool{true, true, true})
 	// A requirement with a plain test only carries neither new field.
 	plain := formalRow(t, m, "REQ-F-004")
 	data, _ := json.Marshal(plain)
-	if plain.Result == "" || strings.Contains(string(data), "formal") || strings.Contains(string(data), "evidenceMethods") {
-		t.Fatalf("test-only row must not gain formal fields: %s", data)
+	requireEqual(t, []bool{plain.Result != "", strings.Contains(string(data), "formal"), strings.Contains(string(data), "evidenceMethods")}, []bool{true, false, false})
+	requireEqual(t, m.Summary.Passed, 1) // only REQ-F-001; the test of REQ-F-004 has no result file
+	requireEqual(t, len(diagsOfMethod(checks, "analysis")), 1)
+}
+
+// rowFacts is the status, result, number of verifications and evidence
+// methods of a row.
+func rowFacts(r Row) []string {
+	return []string{r.Status, r.Result, strconv.Itoa(len(r.Verifications)), strings.Join(r.EvidenceMethods, ",")}
+}
+
+// formalFacts renders each formal result as result|machine|invariant|sha length.
+func formalFacts(results []formalResult) []string {
+	var out []string
+	for _, f := range results {
+		out = append(out, fmt.Sprintf("%s|%s|%s|%d", f.Result, f.Machine, f.Invariant, len(f.QntSha256)))
 	}
-	if m.Summary.Passed != 1 { // only REQ-F-001; the test of REQ-F-004 has no result file
-		t.Fatalf("summary %+v", m.Summary)
-	}
-	formal := 0
-	for _, c := range checks {
-		if c.Method == "analysis" {
-			formal++
-		}
-	}
-	if formal != 1 {
-		t.Fatalf("want one formal check, got %d in %+v", formal, checks)
-	}
+	return out
+}
+
+// diagsOfMethod returns the checks of a method.
+func diagsOfMethod(checks []codescan.VerificationCheck, method string) []codescan.VerificationCheck {
+	return slices.DeleteFunc(slices.Clone(checks), func(c codescan.VerificationCheck) bool { return c.Method != method })
 }
 
 // A stale result is no evidence: the requirement is orphan (nothing else
@@ -129,27 +129,14 @@ func TestFormalStaleResultIsNoEvidenceAndDoesNotDowngrade(t *testing.T) {
 	files["test-results/two.json"] = `{"results":[{"requirement":"REQ-F-002","status":"pass"}]}`
 	m, _, diags := verificationFixture(t, files, "REQ-F-001", "REQ-F-002")
 
-	stale := formalRow(t, m, "REQ-F-001")
-	if stale.Status != "orphan" || len(stale.Verifications) != 0 || stale.Result != "" || len(stale.EvidenceMethods) != 0 {
-		t.Fatalf("a stale-only requirement has no evidence: %+v", stale)
-	}
-	if len(stale.Formal) != 1 || stale.Formal[0].Result != formalStaleResult || !strings.Contains(stale.Formal[0].Notes, "no longer matches") {
-		t.Fatalf("stale formal entry: %+v", stale.Formal)
-	}
-	other := formalRow(t, m, "REQ-F-002")
-	if other.Result != "passed" || other.Status != "verified" || len(other.Verifications) != 1 {
-		t.Fatalf("stale evidence must not downgrade a passing test: %+v", other)
-	}
-	if len(other.Formal) != 1 || other.Formal[0].Result != formalStaleResult {
-		t.Fatalf("stale entry stays listed: %+v", other.Formal)
-	}
-	warned := false
-	for _, d := range diags {
-		warned = warned || d.Code == "verification.formal_stale"
-	}
-	if !warned {
-		t.Fatalf("missing verification.formal_stale warning: %+v", diags)
-	}
+	stale := formalRow(t, m, "REQ-F-001") // a stale-only requirement has no evidence
+	requireEqual(t, rowFacts(stale), []string{"orphan", "", "0", ""})
+	requireEqual(t, formalFacts(stale.Formal), []string{formalStaleResult + "|SM-DEMO|INV-F-001|64"})
+	requireEqual(t, strings.Contains(stale.Formal[0].Notes, "no longer matches"), true)
+	other := formalRow(t, m, "REQ-F-002") // stale evidence does not downgrade a passing test
+	requireEqual(t, rowFacts(other), []string{"verified", "passed", "1", ""})
+	requireEqual(t, formalFacts(other.Formal), []string{formalStaleResult + "|SM-DEMO|INV-F-002|64"})
+	requireEqual(t, len(diagsOf(diags, "verification.formal_stale")) > 0, true)
 }
 
 // ValidateIntegrity reports verification.failed for a failing formal result
@@ -159,56 +146,43 @@ func TestFormalStaleResultIsNoEvidenceAndDoesNotDowngrade(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-146
 // ENGMODEL-LINKS: FU-ALLOCATION-TRACE, FU-VALIDATION-ENGINE
 func TestFormalFailureReportsVerificationFailed(t *testing.T) {
-	files := formalFixtureFiles([]formalFixtureEntry{
+	reqs := formalThreeRequirements()
+	bundle, checks := formalLifecycleFixture(t, []formalFixtureEntry{
 		{"REQ-F-001", "pass", "INV-F-001"},
 		{"REQ-F-002", "fail", "INV-F-002"},
 		{"REQ-F-003", "pass", "INV-F-003"},
 	}, false)
+	failed := diagsOf(ValidateIntegrity(bundle, Evidence{reqs, nil, checks}), "verification.failed")
+	requireEqual(t, pathsOf(failed, "verification.failed"), []string{"requirements[1]"})
+	requireEqual(t, strings.Contains(failed[0].Message, "invariant INV-F-002 of machine SM-DEMO"), true)
+	// The model without lifecycle reports nothing, as for tests.
+	bundle.Manifest.Lifecycle = nil
+	requireEqual(t, len(diagsOf(ValidateIntegrity(bundle, Evidence{reqs, nil, checks}), "verification.failed")), 0)
+
+	// Stale evidence: no verification.failed and the requirement is an orphan.
+	bundle, checks = formalLifecycleFixture(t, []formalFixtureEntry{{"REQ-F-002", "fail", "INV-F-002"}}, true)
+	diags := ValidateIntegrity(bundle, Evidence{reqs, nil, checks})
+	requireEqual(t, len(diagsOf(diags, "verification.failed")), 0)
+	requireEqual(t, countOf(pathsOf(diags, "requirement.orphan"), "requirements[REQ-F-002]"), 1)
+}
+
+// formalLifecycleFixture writes the formal evidence files of the entries into
+// a model with lifecycle and infers the verification checks of
+// formalThreeRequirements.
+func formalLifecycleFixture(t *testing.T, entries []formalFixtureEntry, staleSha bool) (model.Bundle, []codescan.VerificationCheck) {
+	t.Helper()
 	root := t.TempDir()
-	for name, content := range files {
+	for name, content := range formalFixtureFiles(entries, staleSha) {
 		testutil.WriteFile(t, filepath.Join(root, filepath.FromSlash(name)), content)
 	}
 	bundle := model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Manifest: model.ManifestDocument{Lifecycle: &model.ManifestLifecycle{Tier: "product"}}}
-	reqs := model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-F-001"}, {ID: "REQ-F-002"}, {ID: "REQ-F-003"}}}
-	checks, _ := codescan.InferVerificationChecks(bundle, reqs, nil, root)
+	checks, _ := codescan.InferVerificationChecks(codescan.VerificationScan{Bundle: bundle, Requirements: formalThreeRequirements(), InferredCode: nil, CodeRoot: root})
+	return bundle, checks
+}
 
-	failed := map[string]string{}
-	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks) {
-		if d.Code == "verification.failed" {
-			failed[d.Path] = d.Message
-		}
-	}
-	if len(failed) != 1 || !strings.Contains(failed["requirements[1]"], "invariant INV-F-002 of machine SM-DEMO") {
-		t.Fatalf("verification.failed = %v", failed)
-	}
-	// The model without lifecycle reports nothing, as for tests.
-	bundle.Manifest.Lifecycle = nil
-	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks) {
-		if d.Code == "verification.failed" {
-			t.Fatalf("without lifecycle: %+v", d)
-		}
-	}
-
-	// Stale evidence: no verification.failed and the requirements are orphans.
-	stale := formalFixtureFiles([]formalFixtureEntry{{"REQ-F-002", "fail", "INV-F-002"}}, true)
-	root = t.TempDir()
-	for name, content := range stale {
-		testutil.WriteFile(t, filepath.Join(root, filepath.FromSlash(name)), content)
-	}
-	bundle = model.Bundle{ArchitecturePath: filepath.Join(root, "engmod.yml"), Manifest: model.ManifestDocument{Lifecycle: &model.ManifestLifecycle{Tier: "product"}}}
-	checks, _ = codescan.InferVerificationChecks(bundle, reqs, nil, root)
-	orphans := 0
-	for _, d := range ValidateIntegrity(bundle, reqs, nil, checks) {
-		if d.Code == "verification.failed" {
-			t.Fatalf("a stale failure is no evidence: %+v", d)
-		}
-		if d.Code == "requirement.orphan" && strings.Contains(d.Message, "REQ-F-002") {
-			orphans++
-		}
-	}
-	if orphans != 1 {
-		t.Fatalf("stale-only requirement must be orphan, got %d", orphans)
-	}
+// formalThreeRequirements is the requirements REQ-F-001 to REQ-F-003.
+func formalThreeRequirements() model.RequirementsDocument {
+	return model.RequirementsDocument{Requirements: []model.Requirement{{ID: "REQ-F-001"}, {ID: "REQ-F-002"}, {ID: "REQ-F-003"}}}
 }
 
 // The reading helper and the roll-up (failed over pass over stale over
@@ -225,29 +199,13 @@ func TestReadFormalResultsAndRollUp(t *testing.T) {
 		testutil.WriteFile(t, filepath.Join(root, filepath.FromSlash(name)), content)
 	}
 	by := formalByRequirement(readFormalResults(root, []string{"test-results/quint-formal.json"}))
-	if got := formalRequirementResult(by["REQ-F-001"]); got != formalFailed {
-		t.Fatalf("REQ-F-001 = %q", got)
-	}
-	if got := formalRequirementResult(by["REQ-F-002"]); got != formalNotRun {
-		t.Fatalf("REQ-F-002 = %q", got)
-	}
-	if got := formalRequirementResult(nil); got != "" {
-		t.Fatalf("none = %q", got)
-	}
-	if got := formalRequirementResult([]formalResult{{Result: formalStaleResult}, {Result: formalPass}}); got != formalPass {
-		t.Fatalf("pass over stale: %q", got)
-	}
-	if got := readFormalResults(root, []string{"test-results/missing.json"}); got != nil {
-		t.Fatalf("a missing file contributes nothing: %+v", got)
-	}
+	requireEqual(t, []string{formalRequirementResult(by["REQ-F-001"]), formalRequirementResult(by["REQ-F-002"]), formalRequirementResult(nil)}, []string{formalFailed, formalNotRun, ""})
+	requireEqual(t, formalRequirementResult([]formalResult{{Result: formalStaleResult}, {Result: formalPass}}), formalPass) // pass over stale
+	requireEqual(t, readFormalResults(root, []string{"test-results/missing.json"}) == nil, true)                            // a missing file contributes nothing
 	plain := codescan.VerificationCheck{ID: "T", Evidence: []string{"test-results/quint-formal.json"}}
-	if files := formalCheckFiles(plain); files != nil {
-		t.Fatalf("only an analysis check names formal files: %v", files)
-	}
+	requireEqual(t, formalCheckFiles(plain) == nil, true) // only an analysis check names formal files
 	plain.Method = "analysis"
-	if files := formalCheckFiles(plain); len(files) != 1 {
-		t.Fatalf("analysis check files: %v", files)
-	}
+	requireEqual(t, len(formalCheckFiles(plain)), 1)
 }
 
 // A crafted evidence file is no evidence: a module outside the model root or a
@@ -277,21 +235,10 @@ func TestFormalEvidenceRejectsOutsideAndNonGeneratedModulesAndAcceptsCRLF(t *tes
 	m, _, diags := verificationFixture(t, files, "REQ-F-001", "REQ-F-002", "REQ-F-003")
 	for id, want := range map[string]string{"REQ-F-001": "not a local path", "REQ-F-002": "not a generated Quint module"} {
 		row := formalRow(t, m, id)
-		if row.Status != "orphan" || len(row.Formal) != 1 || row.Formal[0].Result != formalStaleResult || !strings.Contains(row.Formal[0].Notes, want) {
-			t.Errorf("%s: %+v", id, row)
-		}
+		requireEqual(t, []string{row.Status, row.Formal[0].Result}, []string{"orphan", formalStaleResult})
+		requireEqual(t, strings.Contains(row.Formal[0].Notes, want), true)
 	}
-	crlf := formalRow(t, m, "REQ-F-003")
-	if crlf.Status != "verified" || crlf.Result != "passed" || len(crlf.Formal) != 1 || crlf.Formal[0].Result != formalPass {
-		t.Errorf("a CRLF checkout must stay current: %+v", crlf)
-	}
-	stale := 0
-	for _, d := range diags {
-		if d.Code == "verification.formal_stale" {
-			stale++
-		}
-	}
-	if stale != 2 {
-		t.Errorf("want two stale warnings, got %d in %+v", stale, diags)
-	}
+	crlf := formalRow(t, m, "REQ-F-003") // a CRLF checkout stays current
+	requireEqual(t, []string{crlf.Status, crlf.Result, crlf.Formal[0].Result}, []string{"verified", "passed", formalPass})
+	requireEqual(t, len(diagsOf(diags, "verification.formal_stale")), 2)
 }

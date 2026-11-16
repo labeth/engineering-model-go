@@ -54,13 +54,20 @@ func machineDiagnostics(a model.AuthoredArchitecture, requirements map[string]bo
 	for _, e := range a.Events {
 		events[strings.TrimSpace(e.ID)] = true
 	}
-	owners := machineStateOwners(a.Machines)
+	ctx := machineContext{events: events, owners: machineStateOwners(a.Machines)}
 	for i, m := range a.Machines {
 		path := fmt.Sprintf("authoredArchitecture.machines[%d]", i)
-		diags = append(diags, machineStructureDiagnostics(m, path, events, owners)...)
+		diags = append(diags, machineStructureDiagnostics(m, path, ctx)...)
 		diags = append(diags, machineAdvisoryDiagnostics(m, path, requirements)...)
 	}
 	return append(diags, behaviorLinkDiagnostics(a, requirements)...)
+}
+
+// machineContext is what the structure checks of every machine share: the
+// behavior events and the declaring machine of each state ID.
+type machineContext struct {
+	events map[string]bool
+	owners map[string]string
 }
 
 // machineStateOwners maps each state ID to the ID of the machine that
@@ -69,15 +76,20 @@ func machineDiagnostics(a model.AuthoredArchitecture, requirements map[string]bo
 func machineStateOwners(machines []model.Machine) map[string]string {
 	owners := map[string]string{}
 	for _, m := range machines {
-		for _, s := range m.States {
-			if id := strings.TrimSpace(s.ID); id != "" {
-				if _, taken := owners[id]; !taken {
-					owners[id] = strings.TrimSpace(m.ID)
-				}
-			}
-		}
+		addMachineStateOwners(owners, m)
 	}
 	return owners
+}
+
+// addMachineStateOwners records the machine as the owner of each of its states that no earlier machine declares.
+// TRLC-LINKS: REQ-EMG-138
+func addMachineStateOwners(owners map[string]string, m model.Machine) {
+	for _, s := range m.States {
+		id := strings.TrimSpace(s.ID)
+		if _, taken := owners[id]; id != "" && !taken {
+			owners[id] = strings.TrimSpace(m.ID)
+		}
+	}
 }
 
 // machineScope is what an expression of one machine may refer to.
@@ -114,38 +126,61 @@ func newMachineScope(m model.Machine, owners map[string]string) machineScope {
 
 // machineStructureDiagnostics reports the structural errors of one machine.
 // TRLC-LINKS: REQ-EMG-138
-func machineStructureDiagnostics(m model.Machine, path string, events map[string]bool, owners map[string]string) []Diagnostic {
+func machineStructureDiagnostics(m model.Machine, path string, ctx machineContext) []Diagnostic {
 	var diags []Diagnostic
-	scope := newMachineScope(m, owners)
+	scope := newMachineScope(m, ctx.owners)
+	checker := transitionChecker{scope: scope, events: ctx.events, final: finalStates(m)}
+	for i, t := range m.Transitions {
+		diags = append(diags, checker.check(t, fmt.Sprintf("%s.transitions[%d]", path, i))...)
+	}
+	for i, inv := range m.Invariants {
+		if strings.TrimSpace(inv.Expr) != "" {
+			diags = append(diags, scope.checkSource(fmt.Sprintf("%s.invariants[%d].expr", path, i), inv.Expr, model.MachineExprBoolean)...)
+		}
+	}
+	return diags
+}
+
+// finalStates is the set of the trimmed ids of the final states of a machine.
+// TRLC-LINKS: REQ-EMG-138
+func finalStates(m model.Machine) map[string]bool {
 	final := map[string]bool{}
 	for _, s := range m.States {
 		if s.Final {
 			final[strings.TrimSpace(s.ID)] = true
 		}
 	}
-	for i, t := range m.Transitions {
-		tpath := fmt.Sprintf("%s.transitions[%d]", path, i)
-		if on := strings.TrimSpace(t.On); on != "" && !events[on] {
-			diags = append(diags, Diagnostic{Code: codeTransitionUnknownEvent, Severity: SeverityError,
-				Message: fmt.Sprintf("machine %q transition %q is triggered by %q, which is not a behavior event; declare it in behavior.events", scope.machine, strings.TrimSpace(t.ID), on),
-				Path:    tpath + ".on"})
-		}
-		if from := strings.TrimSpace(t.From); final[from] {
-			diags = append(diags, Diagnostic{Code: codeFinalStateTransitions, Severity: SeverityError,
-				Message: fmt.Sprintf("machine %q transition %q leaves final state %q; a final state ends the machine, so remove the transition or the final flag", scope.machine, strings.TrimSpace(t.ID), from),
-				Path:    tpath + ".from"})
-		}
-		if strings.TrimSpace(t.Guard) != "" {
-			diags = append(diags, scope.checkSource(tpath+".guard", t.Guard, model.MachineExprBoolean)...)
-		}
-		if strings.TrimSpace(t.Effect) != "" {
-			diags = append(diags, scope.checkSource(tpath+".effect", t.Effect, model.MachineExprEffect)...)
-		}
+	return final
+}
+
+// transitionChecker checks the transitions of one machine.
+type transitionChecker struct {
+	scope  machineScope
+	events map[string]bool
+	final  map[string]bool
+}
+
+// check reports a transition triggered by an unknown event, one leaving a
+// final state and the type errors of its guard and effect.
+// TRLC-LINKS: REQ-EMG-138
+func (c transitionChecker) check(t model.MachineTransition, tpath string) []Diagnostic {
+	var diags []Diagnostic
+	id := strings.TrimSpace(t.ID)
+	if on := strings.TrimSpace(t.On); on != "" && !c.events[on] {
+		diags = append(diags, Diagnostic{Code: codeTransitionUnknownEvent, Severity: SeverityError,
+			Message: fmt.Sprintf("machine %q transition %q is triggered by %q, which is not a behavior event; declare it in behavior.events", c.scope.machine, id, on),
+			Path:    tpath + ".on"})
 	}
-	for i, inv := range m.Invariants {
-		if strings.TrimSpace(inv.Expr) != "" {
-			diags = append(diags, scope.checkSource(fmt.Sprintf("%s.invariants[%d].expr", path, i), inv.Expr, model.MachineExprBoolean)...)
-		}
+	if from := strings.TrimSpace(t.From); c.final[from] {
+		diags = append(diags, Diagnostic{Code: codeFinalStateTransitions, Severity: SeverityError,
+			Message: fmt.Sprintf("machine %q transition %q leaves final state %q; a final state ends the machine, so remove the transition or the final flag", c.scope.machine, id, from),
+			Path:    tpath + ".from"})
+	}
+	if strings.TrimSpace(t.Guard) != "" {
+		diags = append(diags, c.scope.checkSource(tpath+".guard", t.Guard, model.MachineExprBoolean)...)
+	}
+	if strings.TrimSpace(t.Effect) != "" {
+		diags = append(diags, c.scope.checkSource(tpath+".effect", t.Effect, model.MachineExprEffect)...)
 	}
 	return diags
 }
@@ -177,6 +212,12 @@ func (s machineScope) typeError(path, format string, args ...any) Diagnostic {
 		Message: fmt.Sprintf("machine %q: %s", s.machine, fmt.Sprintf(format, args...))}
 }
 
+// exprSite is where an expression sits: its path and the diagnostics sink.
+type exprSite struct {
+	path  string
+	diags *[]Diagnostic
+}
+
 // check returns the type of an expression, or "" when it is ill typed or
 // refers to something unknown (already reported, so enclosing operators stay
 // quiet).
@@ -184,18 +225,7 @@ func (s machineScope) typeError(path, format string, args ...any) Diagnostic {
 func (s machineScope) check(e model.SemanticExpression, path string, diags *[]Diagnostic) model.MachineType {
 	switch e.Kind {
 	case model.MachineKindLiteral:
-		if e.TypedValue == nil {
-			return ""
-		}
-		switch e.TypedValue.Kind {
-		case "integer":
-			return model.MachineTypeInteger
-		case "boolean":
-			return model.MachineTypeBoolean
-		case "string":
-			return model.MachineTypeString
-		}
-		return ""
+		return literalType(e.TypedValue)
 	case model.MachineKindVariable:
 		t, declared := s.variables[e.Value]
 		if !declared {
@@ -205,6 +235,23 @@ func (s machineScope) check(e model.SemanticExpression, path string, diags *[]Di
 		return t
 	case model.MachineKindOperator:
 		return s.checkOperator(e, path, diags)
+	}
+	return ""
+}
+
+// literalType is the machine type of a typed literal value, "" for none or an unknown kind.
+// TRLC-LINKS: REQ-EMG-138
+func literalType(v *model.SemanticValue) model.MachineType {
+	if v == nil {
+		return ""
+	}
+	switch v.Kind {
+	case "integer":
+		return model.MachineTypeInteger
+	case "boolean":
+		return model.MachineTypeBoolean
+	case "string":
+		return model.MachineTypeString
 	}
 	return ""
 }
@@ -222,69 +269,105 @@ func (s machineScope) checkOperator(e model.SemanticExpression, path string, dia
 		*diags = append(*diags, s.typeError(path, "operator %q is not in the operator table", e.Operator))
 		return ""
 	}
-	if op.Name == "in_state" {
+	site := exprSite{path: path, diags: diags}
+	switch op.Name {
+	case "in_state":
 		s.checkInState(e, path, diags)
 		return op.Result
+	case ":=":
+		return s.checkAssignment(op, e, site)
 	}
-	if op.Name == ":=" {
-		return s.checkAssignment(op, e, path, diags)
-	}
-	if (op.Variadic && len(e.Operands) == 0) || (!op.Variadic && len(e.Operands) != len(op.Operands)) {
+	if arityMismatch(op, len(e.Operands)) {
 		*diags = append(*diags, s.typeError(path, "operator %q takes %d operands, got %d", op.Name, len(op.Operands), len(e.Operands)))
 		return ""
 	}
-	ok := true
-	var anyType model.MachineType
-	for i, operand := range e.Operands {
-		expected := op.Operands[0]
-		if !op.Variadic {
-			expected = op.Operands[i]
-		}
-		got := s.check(operand, path, diags)
-		if got == "" {
-			ok = false
-			continue
-		}
-		if expected == model.MachineTypeAny {
-			if op.SameType && anyType != "" && got != anyType {
-				*diags = append(*diags, s.typeError(path, "operands of %q must have the same type, got %s and %s", op.Name, anyType, got))
-				ok = false
-			}
-			if anyType == "" {
-				anyType = got
-			}
-			continue
-		}
-		if got != expected {
-			*diags = append(*diags, s.typeError(path, "operand %d of %q must be %s, got %s", i+1, op.Name, expected, got))
-			ok = false
-		}
-	}
-	if !ok {
+	check := operandCheck{scope: s, op: op, site: site, ok: true}
+	if !check.run(e.Operands) {
 		return ""
 	}
 	return op.Result
 }
 
+// arityMismatch reports whether an operator does not take n operands: a
+// variadic operator takes at least one.
+// TRLC-LINKS: REQ-EMG-138
+func arityMismatch(op model.MachineOperator, n int) bool {
+	if op.Variadic {
+		return n == 0
+	}
+	return n != len(op.Operands)
+}
+
+// operandCheck type checks the operands of one operator application, keeping
+// the type of the first operand of the wildcard type.
+type operandCheck struct {
+	scope   machineScope
+	op      model.MachineOperator
+	site    exprSite
+	ok      bool
+	anyType model.MachineType
+}
+
+// run checks every operand and reports whether all were well typed.
+// TRLC-LINKS: REQ-EMG-138
+func (c *operandCheck) run(operands []model.SemanticExpression) bool {
+	for i, operand := range operands {
+		c.operand(i, operand)
+	}
+	return c.ok
+}
+
+// operand checks the i-th operand against the type the operator expects there.
+// TRLC-LINKS: REQ-EMG-138
+func (c *operandCheck) operand(i int, operand model.SemanticExpression) {
+	expected := c.op.Operands[0]
+	if !c.op.Variadic {
+		expected = c.op.Operands[i]
+	}
+	got := c.scope.check(operand, c.site.path, c.site.diags)
+	switch {
+	case got == "":
+		c.ok = false
+	case expected == model.MachineTypeAny:
+		c.wildcard(got)
+	case got != expected:
+		*c.site.diags = append(*c.site.diags, c.scope.typeError(c.site.path, "operand %d of %q must be %s, got %s", i+1, c.op.Name, expected, got))
+		c.ok = false
+	}
+}
+
+// wildcard checks an operand of the wildcard type: with a same-type operator it
+// must match the first one.
+// TRLC-LINKS: REQ-EMG-138
+func (c *operandCheck) wildcard(got model.MachineType) {
+	if c.op.SameType && c.anyType != "" && got != c.anyType {
+		*c.site.diags = append(*c.site.diags, c.scope.typeError(c.site.path, "operands of %q must have the same type, got %s and %s", c.op.Name, c.anyType, got))
+		c.ok = false
+	}
+	if c.anyType == "" {
+		c.anyType = got
+	}
+}
+
 // checkAssignment checks variable := expression: the target must be a
 // declared variable and the right side must have the variable's type.
 // TRLC-LINKS: REQ-EMG-138
-func (s machineScope) checkAssignment(op model.MachineOperator, e model.SemanticExpression, path string, diags *[]Diagnostic) model.MachineType {
+func (s machineScope) checkAssignment(op model.MachineOperator, e model.SemanticExpression, site exprSite) model.MachineType {
 	if len(e.Operands) != 2 || e.Operands[0].Kind != model.MachineKindVariable {
-		*diags = append(*diags, s.typeError(path, "an assignment must be variable := expression"))
+		*site.diags = append(*site.diags, s.typeError(site.path, "an assignment must be variable := expression"))
 		return ""
 	}
 	name := e.Operands[0].Value
 	target, declared := s.variables[name]
 	if !declared {
-		*diags = append(*diags, s.unknownVariable(path, name, "assigns"))
+		*site.diags = append(*site.diags, s.unknownVariable(site.path, name, "assigns"))
 	}
-	value := s.check(e.Operands[1], path, diags)
-	if !declared || target == "" || value == "" {
+	value := s.check(e.Operands[1], site.path, site.diags)
+	if target == "" || value == "" {
 		return ""
 	}
 	if value != target {
-		*diags = append(*diags, s.typeError(path, "cannot assign %s to %s variable %q", value, target, name))
+		*site.diags = append(*site.diags, s.typeError(site.path, "cannot assign %s to %s variable %q", value, target, name))
 		return ""
 	}
 	return op.Result
@@ -313,8 +396,16 @@ func (s machineScope) checkInState(e model.SemanticExpression, path string, diag
 // unreachable state.
 // TRLC-LINKS: REQ-EMG-138, REQ-EMG-140
 func machineAdvisoryDiagnostics(m model.Machine, path string, requirements map[string]bool) []Diagnostic {
+	diags := machineDeadlockDiagnostics(m, path)
+	diags = append(diags, machineTriggerDiagnostics(m, path)...)
+	diags = append(diags, machineInvariantDiagnostics(m, path, requirements)...)
+	return append(diags, machineUnreachableDiagnostics(m, path)...)
+}
+
+// machineDeadlockDiagnostics reports each non-final state without an outgoing transition.
+// TRLC-LINKS: REQ-EMG-138, REQ-EMG-140
+func machineDeadlockDiagnostics(m model.Machine, path string) []Diagnostic {
 	var diags []Diagnostic
-	machine := strings.TrimSpace(m.ID)
 	outgoing := map[string]int{}
 	for _, t := range m.Transitions {
 		outgoing[strings.TrimSpace(t.From)]++
@@ -325,9 +416,18 @@ func machineAdvisoryDiagnostics(m model.Machine, path string, requirements map[s
 			continue
 		}
 		diags = append(diags, Diagnostic{Code: codeMachineDeadlock, Severity: SeverityWarning,
-			Message: fmt.Sprintf("machine %q state %q is not final and has no outgoing transition; add a transition or mark it final: true", machine, id),
+			Message: fmt.Sprintf("machine %q state %q is not final and has no outgoing transition; add a transition or mark it final: true", strings.TrimSpace(m.ID), id),
 			Path:    fmt.Sprintf("%s.states[%d]", path, i)})
 	}
+	return diags
+}
+
+// machineTriggerDiagnostics reports each transition with neither event nor
+// guard and each transition that overlaps an earlier one.
+// TRLC-LINKS: REQ-EMG-138, REQ-EMG-140
+func machineTriggerDiagnostics(m model.Machine, path string) []Diagnostic {
+	var diags []Diagnostic
+	machine := strings.TrimSpace(m.ID)
 	for j, t := range m.Transitions {
 		tpath := fmt.Sprintf("%s.transitions[%d]", path, j)
 		if strings.TrimSpace(t.On) == "" && strings.TrimSpace(t.Guard) == "" {
@@ -335,30 +435,50 @@ func machineAdvisoryDiagnostics(m model.Machine, path string, requirements map[s
 				Message: fmt.Sprintf("machine %q transition %q has neither on nor guard, so it can fire at any time; name the event or add a guard", machine, strings.TrimSpace(t.ID)),
 				Path:    tpath})
 		}
-		for i := 0; i < j; i++ {
-			if machineTransitionsOverlap(m.Transitions[i], t) {
-				diags = append(diags, Diagnostic{Code: codeTransitionNondetermined, Severity: SeverityWarning,
-					Message: fmt.Sprintf("machine %q transitions %q and %q both leave state %q on the same trigger with no distinguishing guard; add guards that exclude each other", machine, strings.TrimSpace(m.Transitions[i].ID), strings.TrimSpace(t.ID), strings.TrimSpace(t.From)),
-					Path:    tpath})
-				break
-			}
+		if i := firstOverlap(m.Transitions, j); i >= 0 {
+			diags = append(diags, Diagnostic{Code: codeTransitionNondetermined, Severity: SeverityWarning,
+				Message: fmt.Sprintf("machine %q transitions %q and %q both leave state %q on the same trigger with no distinguishing guard; add guards that exclude each other", machine, strings.TrimSpace(m.Transitions[i].ID), strings.TrimSpace(t.ID), strings.TrimSpace(t.From)),
+				Path:    tpath})
 		}
 	}
-	for i, inv := range m.Invariants {
-		linked := false
-		for _, r := range inv.Requirements {
-			if requirements[strings.TrimSpace(r)] {
-				linked = true
-			}
+	return diags
+}
+
+// firstOverlap is the index of the first transition before j that overlaps
+// transition j, or -1.
+// TRLC-LINKS: REQ-EMG-138
+func firstOverlap(transitions []model.MachineTransition, j int) int {
+	for i := 0; i < j; i++ {
+		if machineTransitionsOverlap(transitions[i], transitions[j]) {
+			return i
 		}
-		if !linked {
+	}
+	return -1
+}
+
+// machineInvariantDiagnostics reports each invariant linked to no existing requirement.
+// TRLC-LINKS: REQ-EMG-138, REQ-EMG-140
+func machineInvariantDiagnostics(m model.Machine, path string, requirements map[string]bool) []Diagnostic {
+	var diags []Diagnostic
+	for i, inv := range m.Invariants {
+		if !anyKnown(inv.Requirements, requirements) {
 			diags = append(diags, Diagnostic{Code: codeInvariantUnlinked, Severity: SeverityWarning,
-				Message: fmt.Sprintf("machine %q invariant %q is linked to no existing requirement; list the REQ-* it protects in requirements", machine, strings.TrimSpace(inv.ID)),
+				Message: fmt.Sprintf("machine %q invariant %q is linked to no existing requirement; list the REQ-* it protects in requirements", strings.TrimSpace(m.ID), strings.TrimSpace(inv.ID)),
 				Path:    fmt.Sprintf("%s.invariants[%d].requirements", path, i)})
 		}
 	}
-	diags = append(diags, machineUnreachableDiagnostics(m, path)...)
 	return diags
+}
+
+// anyKnown reports whether any trimmed name is in the set.
+// TRLC-LINKS: REQ-EMG-138
+func anyKnown(names []string, known map[string]bool) bool {
+	for _, n := range names {
+		if known[strings.TrimSpace(n)] {
+			return true
+		}
+	}
+	return false
 }
 
 // machineTransitionsOverlap reports whether two transitions leave one state
@@ -399,25 +519,7 @@ func machineUnreachableDiagnostics(m model.Machine, path string) []Diagnostic {
 	if !declared[initial] {
 		return nil
 	}
-	next := map[string][]string{}
-	for _, t := range m.Transitions {
-		from, to := strings.TrimSpace(t.From), strings.TrimSpace(t.To)
-		if declared[from] && declared[to] {
-			next[from] = append(next[from], to)
-		}
-	}
-	reached := map[string]bool{initial: true}
-	queue := []string{initial}
-	for len(queue) > 0 {
-		current := queue[0]
-		queue = queue[1:]
-		for _, to := range next[current] {
-			if !reached[to] {
-				reached[to] = true
-				queue = append(queue, to)
-			}
-		}
-	}
+	reached := reachableStates(m, declared, initial)
 	var diags []Diagnostic
 	for i, s := range m.States {
 		id := strings.TrimSpace(s.ID)
@@ -429,4 +531,35 @@ func machineUnreachableDiagnostics(m model.Machine, path string) []Diagnostic {
 			Path:    fmt.Sprintf("%s.states[%d]", path, i)})
 	}
 	return diags
+}
+
+// reachableStates is the set of declared states a path of transitions leads to from the initial state.
+// TRLC-LINKS: REQ-EMG-070, REQ-EMG-138
+func reachableStates(m model.Machine, declared map[string]bool, initial string) map[string]bool {
+	next := map[string][]string{}
+	for _, t := range m.Transitions {
+		from, to := strings.TrimSpace(t.From), strings.TrimSpace(t.To)
+		if declared[from] && declared[to] {
+			next[from] = append(next[from], to)
+		}
+	}
+	reached := map[string]bool{initial: true}
+	queue := []string{initial}
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = markReached(reached, next[current], queue[1:])
+	}
+	return reached
+}
+
+// markReached adds the targets not yet reached to the reached set and the queue.
+// TRLC-LINKS: REQ-EMG-070, REQ-EMG-138
+func markReached(reached map[string]bool, targets, queue []string) []string {
+	for _, to := range targets {
+		if !reached[to] {
+			reached[to] = true
+			queue = append(queue, to)
+		}
+	}
+	return queue
 }

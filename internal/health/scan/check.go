@@ -56,28 +56,15 @@ type CheckOptions struct {
 // before git is asked anything.
 //
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-158
-func checkSetup(opts CheckOptions) (bundle model.Bundle, tier, root string, scope []string, err error) {
-	bundle, err = model.LoadBundle(opts.ManifestPath)
+func checkSetup(opts CheckOptions) (projectRun, error) {
+	run, err := setupRun(opts.ManifestPath, opts.Tier, opts.Paths)
 	if err != nil {
-		return bundle, "", "", nil, fmt.Errorf("%w: load model: %v", ErrSetup, err)
+		return projectRun{}, err
 	}
-	if t := strings.ToLower(strings.TrimSpace(opts.Tier)); t != "" {
-		if model.TierRank(t) == 0 {
-			return bundle, "", "", nil, fmt.Errorf("%w: unknown tier %q; use one of %s", ErrSetup, opts.Tier, strings.Join(model.Tiers, ", "))
-		}
-		bundle = health.WithTier(bundle, t)
+	if slices.Contains(run.scope, ".") { // the whole project
+		run.scope = nil
 	}
-	tier, _, _ = validate.EffectiveTier(bundle)
-	if root, err = filepath.Abs(codescan.WithDefaultCodeRoot(bundle, nil)[0]); err != nil {
-		return bundle, "", "", nil, fmt.Errorf("%w: resolve project root: %v", ErrSetup, err)
-	}
-	if scope, err = resolveScope(root, opts.Paths); err != nil {
-		return bundle, "", "", nil, err
-	}
-	if slices.Contains(scope, ".") { // the whole project
-		scope = nil
-	}
-	return bundle, tier, root, scope, nil
+	return run, nil
 }
 
 // checkEngine builds the engine of a check: the tree-sitter engine (or the one
@@ -100,35 +87,42 @@ func checkEngine(opts CheckOptions, bundle model.Bundle, root string) *health.Wa
 // outside the project, no git work tree, an invalid or unavailable revision) is
 // an error and never a result: the caller must not treat it as a pass.
 //
-// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158, REQ-EMG-159
-// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156, REQ-EMG-158, REQ-EMG-159, REQ-EMG-210
+// ENGMODEL-LINKS: FU-CODE-HEALTH, IF-CLI-ENGHEALTH, FLOW-HEALTH-CHECK, EVT-HEALTH-CHECK-REQUESTED
 func Check(opts CheckOptions) (health.CheckReport, error) {
-	bundle, tier, root, scope, err := checkSetup(opts)
+	run, err := checkSetup(opts)
 	if err != nil {
 		return health.CheckReport{}, err
 	}
+	bundle, tier, root := run.bundle, run.tier, run.root
 	repo := health.NewGitRepo(root)
 	if err := health.RequireWorkTree(repo); err != nil {
 		return health.CheckReport{}, err
 	}
 	h := bundle.Manifest.Health
 	waiving := checkEngine(opts, bundle, root)
+	baseline, _, err := loadBaseline(bundle, nil, false)
+	if err != nil {
+		return health.CheckReport{}, err
+	}
 	delta, err := health.Check(health.CheckOptions{
-		Repo: repo, Base: opts.Base, Head: opts.Head, Paths: scope,
+		Repo: repo, Base: opts.Base, Head: opts.Head, Paths: run.scope,
 		Engine:    waiving,
 		ConfigFor: func(p string) health.Config { return health.ConfigFor(tier, h, p) },
 		Scorer:    health.ScoreFile,
 		Exclude:   outOfScope(bundle, root),
 		Tier:      tier,
+		Floor:     model.EffectiveHealthFloor(h),
+		Baseline:  baseline,
 	})
 	if err != nil {
 		return health.CheckReport{}, err
 	}
-	verdict, err := policyVerdict(opts, bundle, tier, delta.Base)
+	verdict, err := policyVerdict(opts, run, delta.Base)
 	if err != nil {
 		return health.CheckReport{}, err
 	}
-	return health.NewCheckReport(delta, health.CheckLevels(bundle), waiving.Waived(), verdict), nil
+	return health.NewCheckReport(delta, health.CheckInput{Levels: health.CheckLevels(bundle), Waived: waiving.Waived(), Policy: verdict}), nil
 }
 
 // policyVerdict compares the health policy of the model with the one of its
@@ -140,7 +134,8 @@ func Check(opts CheckOptions) (health.CheckReport, error) {
 // YAML is a setup error: the comparison is never skipped.
 //
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-156
-func policyVerdict(opts CheckOptions, bundle model.Bundle, tier, baseRev string) (health.PolicyVerdict, error) {
+func policyVerdict(opts CheckOptions, run projectRun, baseRev string) (health.PolicyVerdict, error) {
+	bundle, tier := run.bundle, run.tier
 	override := ""
 	if strings.TrimSpace(opts.Tier) != "" {
 		override = tier

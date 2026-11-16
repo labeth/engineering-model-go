@@ -18,22 +18,19 @@ func sortedKeys[V any](m map[string]V) []string {
 	return out
 }
 
+// named is a code list and what it is.
+type named struct {
+	what string
+	list []string
+}
+
 // sameSet reports a difference between two code lists, ignoring order.
-func sameSet(t *testing.T, what string, got, want []string) {
+func sameSet(t *testing.T, got named, want []string) {
 	t.Helper()
-	g, w := append([]string(nil), got...), append([]string(nil), want...)
+	g, w := append([]string(nil), got.list...), append([]string(nil), want...)
 	sort.Strings(g)
 	sort.Strings(w)
-	if len(g) != len(w) {
-		t.Errorf("%s: %v, want %v", what, g, w)
-		return
-	}
-	for i := range g {
-		if g[i] != w[i] {
-			t.Errorf("%s: %v, want %v", what, g, w)
-			return
-		}
-	}
+	wantDeepEqual(t, [2]any{got.what, g}, [2]any{got.what, w})
 }
 
 // The health code vocabulary lives in several places: Codes() of this package,
@@ -47,16 +44,16 @@ func sameSet(t *testing.T, what string, got, want []string) {
 // TRLC-LINKS: REQ-EMG-150, REQ-EMG-151, REQ-EMG-153, REQ-EMG-157
 func TestHealthCodeVocabularyIsOneList(t *testing.T) {
 	smells := Codes()
-	sameSet(t, "model.HealthSmellCodes", model.HealthSmellCodes(), smells)
-	sameSet(t, "the weights table", sortedKeys(Weights()), smells)
+	sameSet(t, named{"model.HealthSmellCodes", model.HealthSmellCodes()}, smells)
+	sameSet(t, named{"the weights table", sortedKeys(Weights())}, smells)
 
 	analysis := []string{CodeFileSkipped, CodeFileFailed, CodeSyntaxError, CodeRollupUnavailable}
-	rules := append(append(append([]string(nil), smells...), analysis...), model.HealthWaiverUnusedCode, model.HealthBaselineStaleCode)
-	sameSet(t, "the SARIF rule descriptions", sortedKeys(ruleDescriptions), rules)
+	rules := append(append(append([]string(nil), smells...), analysis...), model.HealthWaiverUnusedCode, model.HealthBaselineStaleCode, CodeFileBelowFloor)
+	sameSet(t, named{"the SARIF rule descriptions", sortedKeys(ruleDescriptions)}, rules)
 
 	thresholds := model.HealthThresholdCodes()
-	sameSet(t, "model.HealthThresholdCodes vs DefaultThresholds", thresholds, sortedKeys(DefaultThresholds()))
-	sameSet(t, "model.HealthThresholdCodes vs the product thresholds", thresholds, sortedKeys(DefaultThresholdsForTier("product")))
+	sameSet(t, named{"model.HealthThresholdCodes vs DefaultThresholds", thresholds}, sortedKeys(DefaultThresholds()))
+	sameSet(t, named{"model.HealthThresholdCodes vs the product thresholds", thresholds}, sortedKeys(DefaultThresholdsForTier("product")))
 	for _, code := range thresholds {
 		if !model.IsHealthSmellCode(code) {
 			t.Errorf("threshold code %s is not a smell code", code)
@@ -66,5 +63,5 @@ func TestHealthCodeVocabularyIsOneList(t *testing.T) {
 	// Every code has a level at a tier: the smells and the waiver and baseline
 	// codes through the tier policy, the analysis codes through health.regression.
 	levels := Levels(model.Bundle{})
-	sameSet(t, "the levels", sortedKeys(levels), rules)
+	sameSet(t, named{"the levels", sortedKeys(levels)}, rules)
 }

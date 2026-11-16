@@ -61,33 +61,31 @@ func sampleOptions() Options {
 // TRLC-LINKS: REQ-EMG-151, REQ-EMG-152, REQ-EMG-154, REQ-EMG-155, REQ-EMG-157
 func TestBuildReportScoresAfterWaiversAndCountsAtTheTier(t *testing.T) {
 	r := BuildReport(sampleResults(), sampleOptions())
-	if r.Schema != "engmod-health/1" || r.Engine.ScoringVersion != ScoringVersion || r.Engine.Weights[CodeComplexMethod] != 1.0 {
-		t.Fatalf("header = %+v %+v", r.Schema, r.Engine)
-	}
+	wantEqual(t, [3]any{r.Schema, r.Engine.ScoringVersion, r.Engine.Weights[CodeComplexMethod]}, [3]any{"engmod-health/1", ScoringVersion, 1.0})
 	var paths []string
 	for _, f := range r.Files {
 		paths = append(paths, f.Path)
 	}
-	if strings.Join(paths, ",") != "pkg/a.go,pkg/b.go,pkg/z_test.go" {
-		t.Fatalf("files not sorted by path: %v", paths)
-	}
+	mustEqual(t, strings.Join(paths, ","), "pkg/a.go,pkg/b.go,pkg/z_test.go") // sorted by path
 	b := r.Files[1]
-	if b.Score != 8.0 || b.Band != BandGreen || len(b.Deductions) != 1 || b.Deductions[0].Code != CodeComplexMethod {
-		t.Errorf("pkg/b.go = %v %s %+v, want 8.0 green with only complex_method", b.Score, b.Band, b.Deductions)
-	}
-	if len(r.Waived) != 1 || r.Waived[0].Decision != "ADR-OK" || r.Waived[0].Code != CodeExcessArguments {
-		t.Errorf("waived = %+v", r.Waived)
-	}
-	if len(r.Diagnostics) != 1 || r.Diagnostics[0].Code != model.HealthWaiverUnusedCode || r.Diagnostics[0].Level != LevelError {
-		t.Errorf("diagnostics = %+v, want one unused waiver at level error", r.Diagnostics)
-	}
-	if want := (Summary{Files: 3, Findings: 2, Waived: 1, Errors: 3, Warnings: 0}); r.Summary != want {
-		t.Errorf("summary = %+v, want %+v", r.Summary, want)
-	}
-	if r.Rollups.Project.Files != 2 || r.Rollups.Tests == nil || len(r.Rollups.Units) != 1 || r.Rollups.Units[0].Unit != "FU-A" ||
-		len(r.Rollups.Requirements) != 1 || r.Rollups.Requirements[0].Requirement != "REQ-1" {
-		t.Errorf("rollups = %+v", r.Rollups)
-	}
+	wantEqual(t, [3]any{b.Score, b.Band, len(b.Deductions)}, [3]any{8.0, BandGreen, 1})
+	wantEqual(t, b.Deductions[0].Code, CodeComplexMethod)
+	mustEqual(t, len(r.Waived), 1)
+	wantEqual(t, [2]string{r.Waived[0].Decision, r.Waived[0].Code}, [2]string{"ADR-OK", CodeExcessArguments})
+	mustEqual(t, len(r.Diagnostics), 1)
+	wantEqual(t, [2]string{r.Diagnostics[0].Code, r.Diagnostics[0].Level}, [2]string{model.HealthWaiverUnusedCode, LevelError}) // the unused waiver
+	wantEqual(t, r.Summary, Summary{Files: 3, Findings: 2, Waived: 1, Errors: 3, Warnings: 0})
+	requireSampleRollups(t, r.Rollups)
+}
+
+// requireSampleRollups checks the roll-ups of the sample report: two production
+// files, the tests, one unit and one requirement.
+func requireSampleRollups(t *testing.T, ro Rollups) {
+	t.Helper()
+	wantEqual(t, [3]any{ro.Project.Files, ro.Tests != nil, len(ro.Units)}, [3]any{2, true, 1})
+	wantEqual(t, ro.Units[0].Unit, "FU-A")
+	mustEqual(t, len(ro.Requirements), 1)
+	wantEqual(t, ro.Requirements[0].Requirement, "REQ-1")
 }
 
 // At a tier where the debt row is a warning the same findings count as warnings;
@@ -97,13 +95,10 @@ func TestBuildReportScoresAfterWaiversAndCountsAtTheTier(t *testing.T) {
 func TestBuildReportWarningsBelowProduct(t *testing.T) {
 	opts := sampleOptions()
 	opts.Tier, opts.Levels = "mvp", Levels(bundleAt("mvp", nil, nil))
-	if s := BuildReport(sampleResults(), opts).Summary; s.Errors != 0 || s.Warnings != 3 {
-		t.Errorf("mvp summary = %+v, want 0 errors and 3 warnings", s)
-	}
+	s := BuildReport(sampleResults(), opts).Summary
+	wantEqual(t, [2]int{s.Errors, s.Warnings}, [2]int{0, 3})
 	opts.Levels = nil
-	if s := BuildReport(sampleResults(), opts).Summary; s.Errors != 0 {
-		t.Errorf("no levels: %+v", s)
-	}
+	wantEqual(t, BuildReport(sampleResults(), opts).Summary.Errors, 0)
 }
 
 // The encoded report is canonical and deterministic: two builds from the
@@ -116,35 +111,22 @@ func TestBuildReportWarningsBelowProduct(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-157, REQ-EMG-159
 func TestEncodeIsCanonicalAndDeterministic(t *testing.T) {
 	first, err := Encode(BuildReport(sampleResults(), sampleOptions()))
-	if err != nil {
-		t.Fatal(err)
-	}
+	mustEqual(t, err, nil)
 	reversed := sampleResults()
 	reversed[0], reversed[2] = reversed[2], reversed[0]
 	for i := 0; i < 5; i++ {
 		again, err := Encode(BuildReport(reversed, sampleOptions()))
-		if err != nil {
-			t.Fatal(err)
-		}
-		if !bytes.Equal(first, again) {
-			t.Fatal("two reports of the same results differ")
-		}
+		mustEqual(t, err, nil)
+		mustEqual(t, bytes.Equal(first, again), true) // two reports of the same results are the same
 	}
 	text := string(first)
-	if !strings.HasSuffix(text, "}\n") || !strings.HasPrefix(text, "{\n  \"schema\": \"engmod-health/1\",\n") {
-		t.Errorf("not canonical JSON: %.80q ... %q", text, text[len(text)-4:])
-	}
+	wantEqual(t, [2]bool{strings.HasSuffix(text, "}\n"), strings.HasPrefix(text, "{\n  \"schema\": \"engmod-health/1\",\n")}, [2]bool{true, true})
 	for _, banned := range []string{"timestamp", "generatedAt", "\"time\"", "/home/", "/tmp/", "\\u003c"} {
-		if strings.Contains(text, banned) {
-			t.Errorf("report contains %q", banned)
-		}
+		wantNone(t, text, banned)
 	}
-	if !strings.Contains(text, `"waived": [`) || !strings.Contains(text, `"diagnostics": [`) {
-		t.Error("waived and diagnostics must be lists, never absent")
-	}
-	if empty, _ := Encode(BuildReport(nil, Options{})); !strings.Contains(string(empty), `"files": []`) {
-		t.Errorf("an empty report must hold an empty files list: %s", empty)
-	}
+	wantAll(t, text, `"waived": [`, `"diagnostics": [`) // lists, never absent
+	empty, _ := Encode(BuildReport(nil, Options{}))
+	wantContains(t, string(empty), `"files": []`)
 }
 
 // LevelOf treats a missing code as a warning.
@@ -152,9 +134,7 @@ func TestEncodeIsCanonicalAndDeterministic(t *testing.T) {
 // TRLC-LINKS: REQ-EMG-155
 func TestLevelOf(t *testing.T) {
 	r := Report{Levels: map[string]string{CodeBumpyRoad: LevelError}}
-	if r.LevelOf(CodeBumpyRoad) != LevelError || r.LevelOf(CodeLargeMethod) != LevelWarning {
-		t.Error("LevelOf is wrong")
-	}
+	wantEqual(t, [2]string{r.LevelOf(CodeBumpyRoad), r.LevelOf(CodeLargeMethod)}, [2]string{LevelError, LevelWarning})
 }
 
 // Relevel recomputes the tier, bundles, levels, diagnostic levels and summary
@@ -165,16 +145,11 @@ func TestRelevelRecomputesLevelsOnly(t *testing.T) {
 	opts := sampleOptions()
 	opts.Tier, opts.Levels = "mvp", Levels(bundleAt("mvp", nil, nil))
 	mvp := BuildReport(sampleResults(), opts)
-	if mvp.Summary.Errors != 0 {
-		t.Fatalf("mvp errors = %d", mvp.Summary.Errors)
-	}
+	mustEqual(t, mvp.Summary.Errors, 0)
 	op := Relevel(mvp, bundleAt("operational", []string{"safety"}, nil))
-	if op.Tier != "operational" || op.Summary.Errors != 3 || op.Diagnostics[0].Level != LevelError || len(op.Bundles) != 2 {
-		t.Errorf("operational = %+v %+v", op.Tier, op.Summary)
-	}
-	if op.Files[1].Score != mvp.Files[1].Score || mvp.Diagnostics[0].Level != LevelWarning {
-		t.Error("Relevel changed the scores or the original report")
-	}
+	wantEqual(t, [4]any{op.Tier, op.Summary.Errors, op.Diagnostics[0].Level, len(op.Bundles)}, [4]any{"operational", 3, LevelError, 2})
+	// The scores and the original report are not changed.
+	wantEqual(t, [2]any{op.Files[1].Score, mvp.Diagnostics[0].Level}, [2]any{mvp.Files[1].Score, LevelWarning})
 }
 
 // A file with syntax errors gets a health.syntax_error diagnostic at the level of
@@ -197,21 +172,13 @@ func TestBuildReportFlagsSyntaxErrors(t *testing.T) {
 			got = append(got, d)
 		}
 	}
-	if len(got) != 2 || got[0].Path != "b.go" || got[1].Path != "c.go" || got[0].Level != LevelError ||
-		!strings.Contains(got[0].Message, "4 syntax errors") || !strings.Contains(got[1].Message, "at least") {
-		t.Fatalf("diagnostics = %+v", got)
-	}
-	if r.Files[1].SyntaxErrors != 4 || r.Files[0].SyntaxErrors != 0 || r.Summary.Errors != 2 {
-		t.Errorf("files %+v summary %+v", r.Files, r.Summary)
-	}
+	mustEqual(t, len(got), 2)
+	wantEqual(t, [3]string{got[0].Path, got[1].Path, got[0].Level}, [3]string{"b.go", "c.go", LevelError})
+	wantContains(t, got[0].Message, "4 syntax errors")
+	wantContains(t, got[1].Message, "at least")
+	wantEqual(t, [3]int{r.Files[1].SyntaxErrors, r.Files[0].SyntaxErrors, r.Summary.Errors}, [3]int{4, 0, 2})
 	data, err := Encode(r)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := ValidateReportJSON(data); err != nil {
-		t.Errorf("the report does not validate: %v", err)
-	}
-	if !strings.Contains(string(data), `"syntaxErrors": 4`) {
-		t.Errorf("the count is not in the JSON:\n%s", data)
-	}
+	mustEqual(t, err, nil)
+	wantEqual(t, ValidateReportJSON(data), nil) // the report validates against the schema
+	wantContains(t, string(data), `"syntaxErrors": 4`)
 }

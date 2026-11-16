@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/labeth/engineering-model-go/internal/codemap"
+	"github.com/labeth/engineering-model-go/internal/model"
 )
 
 // DeltaSchema is the schema string of the delta report.
@@ -113,6 +114,10 @@ type DeltaReport struct {
 	// Skipped are the changed files at head that were not analysed because
 	// they are too large or not regular files.
 	Skipped []SkippedFile `json:"skipped"`
+	// BelowFloor are the changed files at head whose score is below the floor
+	// and that no baseline entry covers (health.file_below_floor, ADR-EMG-087);
+	// absent when there is none, or when the check was given no floor.
+	BelowFloor []FloorFile `json:"belowFloor,omitempty"`
 }
 
 // CheckOptions configures Check.
@@ -140,6 +145,12 @@ type CheckOptions struct {
 	// Tier is the life-cycle tier; it selects the default thresholds when
 	// ConfigFor is nil and is echoed in the report.
 	Tier string
+	// Floor is the score every changed file at head needs unless the baseline
+	// covers it (ADR-EMG-087); 0 or a nil Scorer asks for no floor. Baseline
+	// holds the entries that cover a file; a regression is still never
+	// baselined.
+	Floor    float64
+	Baseline []model.HealthBaselineEntry
 }
 
 // LanguageOf returns the language of a path by its extension (the mapping of
@@ -249,11 +260,45 @@ func Check(opts CheckOptions) (DeltaReport, error) {
 	rep.Entries = compareFiles(files)
 	rep.Files = c.fileDeltas(files)
 	rep.Blocking = Regressions(DeltaReport{Entries: rep.Entries})
+	rep.BelowFloor = c.belowFloor(files)
 	sort.Strings(c.notes)
 	rep.Notes = append([]string{}, c.notes...)
 	sort.Slice(c.skipped, func(i, j int) bool { return c.skipped[i].Path < c.skipped[j].Path })
 	rep.Skipped = append([]SkippedFile{}, c.skipped...)
 	return rep, nil
+}
+
+// belowFloor lists the head files whose score is below the floor and that the
+// baseline does not cover, sorted by path (the files are).
+//
+// TRLC-LINKS: REQ-EMG-210
+func (c *checker) belowFloor(files []*deltaFile) []FloorFile {
+	if c.opts.Scorer == nil || c.opts.Floor <= 0 {
+		return nil
+	}
+	var out []FloorFile
+	for _, f := range files {
+		if f.head == nil {
+			continue
+		}
+		if file, below := c.floorFile(f.head); below {
+			out = append(out, file)
+		}
+	}
+	return out
+}
+
+// floorFile describes a head file whose score is below the floor and that the
+// baseline does not cover; false for any other file.
+//
+// TRLC-LINKS: REQ-EMG-210
+func (c *checker) floorFile(head *FileResult) (FloorFile, bool) {
+	score := c.opts.Scorer(*head)
+	if !BelowFloor(score.Score, c.opts.Floor) || BaselineCovered([]FileResult{*head}, c.opts.Baseline)[head.Path] {
+		return FloorFile{}, false
+	}
+	report := FileReport{Path: head.Path, Score: score.Score, Deductions: score.Deductions, Functions: head.Functions}
+	return NewFloorFile(report, c.opts.Floor), true
 }
 
 // listNewSyntaxErrors lists a head file the parser only partly read, when the
@@ -265,11 +310,24 @@ func Check(opts CheckOptions) (DeltaReport, error) {
 // TRLC-LINKS: REQ-EMG-155, REQ-EMG-156
 func (c *checker) listNewSyntaxErrors(files []*deltaFile) {
 	for _, f := range files {
-		if f.head == nil || f.head.SyntaxErrors == 0 || (f.base != nil && f.base.SyntaxErrors >= f.head.SyntaxErrors) {
-			continue
+		if n := f.newSyntaxErrors(); n > 0 {
+			c.skip(f.headPath, fmt.Sprintf("%d syntax errors: the functions the parser lost are not measured", n))
 		}
-		c.skip(f.headPath, fmt.Sprintf("%d syntax errors: the functions the parser lost are not measured", f.head.SyntaxErrors))
 	}
+}
+
+// newSyntaxErrors is the number of syntax errors at head that the change
+// brought in; 0 when the head is clean or the base had as many.
+//
+// TRLC-LINKS: REQ-EMG-155, REQ-EMG-156
+func (f *deltaFile) newSyntaxErrors() int {
+	if f.head == nil || f.head.SyntaxErrors == 0 {
+		return 0
+	}
+	if f.base != nil && f.base.SyntaxErrors >= f.head.SyntaxErrors {
+		return 0
+	}
+	return f.head.SyntaxErrors
 }
 
 // splitRange applies the defaults and splits "base...head".
@@ -298,40 +356,61 @@ func splitRange(base, head string) (string, string, error) {
 //
 // TRLC-LINKS: REQ-EMG-156
 func (c *checker) plan() ([]ChangedFile, error) {
-	repo := c.opts.Repo
 	base, head, err := splitRange(c.opts.Base, c.opts.Head)
 	if err != nil {
 		return nil, err
 	}
-	has, err := repo.HasCommits()
+	has, err := c.opts.Repo.HasCommits()
 	if err != nil {
 		return nil, err
 	}
 	if !has {
-		if head != "" || base != "HEAD" {
-			return nil, fmt.Errorf("%w: base revision %q does not exist, the repository has no commits", ErrBaseUnavailable, base)
-		}
-		c.notes = append(c.notes, "the repository has no commits: there is no base, so every finding is new")
-		return repo.ChangedFiles("", "")
+		return c.planWithoutCommits(base, head)
 	}
-	baseSha, err := repo.Resolve(base)
+	baseSha, err := c.opts.Repo.Resolve(base)
 	if err != nil {
 		return nil, c.baseError(base, err)
 	}
 	c.baseRev = baseSha
 	if head == "" {
-		if err := c.useMergeBaseWithHead(base, baseSha); err != nil {
-			return nil, err
-		}
-		return repo.ChangedFiles(c.baseRev, "")
+		return c.planWorkTree(base, baseSha)
 	}
-	if c.headRev, err = repo.Resolve(head); err != nil {
+	return c.planRange(base, baseSha, head)
+}
+
+// planWithoutCommits lists every file of a repository that has no commits.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) planWithoutCommits(base, head string) ([]ChangedFile, error) {
+	if head != "" || base != "HEAD" {
+		return nil, fmt.Errorf("%w: base revision %q does not exist, the repository has no commits", ErrBaseUnavailable, base)
+	}
+	c.notes = append(c.notes, "the repository has no commits: there is no base, so every finding is new")
+	return c.opts.Repo.ChangedFiles("", "")
+}
+
+// planWorkTree lists the changes of the working tree against the base.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) planWorkTree(base, baseSha string) ([]ChangedFile, error) {
+	if err := c.useMergeBaseWithHead(base, baseSha); err != nil {
 		return nil, err
 	}
-	if c.baseRev, err = repo.MergeBase(baseSha, c.headRev); err != nil {
+	return c.opts.Repo.ChangedFiles(c.baseRev, "")
+}
+
+// planRange lists the changes of base...head.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) planRange(base, baseSha, head string) ([]ChangedFile, error) {
+	var err error
+	if c.headRev, err = c.opts.Repo.Resolve(head); err != nil {
+		return nil, err
+	}
+	if c.baseRev, err = c.opts.Repo.MergeBase(baseSha, c.headRev); err != nil {
 		return nil, c.baseError(base, err)
 	}
-	return repo.ChangedFiles(c.baseRev, c.headRev)
+	return c.opts.Repo.ChangedFiles(c.baseRev, c.headRev)
 }
 
 // useMergeBaseWithHead sets the base of a working-tree comparison to the merge
@@ -390,49 +469,15 @@ func (c *checker) baseError(base string, err error) error {
 //
 // TRLC-LINKS: REQ-EMG-156
 func (c *checker) selectFiles(changed []ChangedFile) ([]*deltaFile, error) {
-	var scope []string
-	for _, p := range c.opts.Paths {
-		clean, err := normalizeRepoPath(p)
-		if err != nil {
-			return nil, err
-		}
-		scope = append(scope, clean)
-	}
-	inScope := func(p string) bool {
-		if scope == nil {
-			return true
-		}
-		for _, s := range scope {
-			if p == s || strings.HasPrefix(p, s+"/") {
-				return true
-			}
-		}
-		return false
+	scope, err := c.scope()
+	if err != nil {
+		return nil, err
 	}
 	var files []*deltaFile
 	for _, cf := range changed {
-		f := &deltaFile{status: cf.Status, headPath: cf.Path, basePath: cf.Path}
-		if cf.Status == "R" {
-			f.basePath = cf.OldPath
+		if f := newDeltaFile(cf); c.wanted(f, scope) {
+			files = append(files, f)
 		}
-		f.headLang, _ = LanguageOf(f.headPath)
-		f.baseLang, _ = LanguageOf(f.basePath)
-		switch cf.Status {
-		case "A":
-			f.baseLang = ""
-		case "D":
-			f.headLang = ""
-		}
-		if f.headLang == "" && f.baseLang == "" {
-			continue
-		}
-		if !(inScope(f.headPath) || inScope(f.basePath)) {
-			continue
-		}
-		if c.opts.Exclude != nil && c.opts.Exclude(f.path()) {
-			continue
-		}
-		files = append(files, f)
 	}
 	sort.Slice(files, func(i, j int) bool {
 		if files[i].path() != files[j].path() {
@@ -441,6 +486,69 @@ func (c *checker) selectFiles(changed []ChangedFile) ([]*deltaFile, error) {
 		return files[i].basePath < files[j].basePath
 	})
 	return files, nil
+}
+
+// scope is the cleaned list of the paths a check is limited to; nil for all.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) scope() ([]string, error) {
+	var scope []string
+	for _, p := range c.opts.Paths {
+		clean, err := normalizeRepoPath(p)
+		if err != nil {
+			return nil, err
+		}
+		scope = append(scope, clean)
+	}
+	return scope, nil
+}
+
+// inScope reports whether a path is in a scope; every path is in a nil one.
+//
+// TRLC-LINKS: REQ-EMG-156
+func inScope(scope []string, p string) bool {
+	if scope == nil {
+		return true
+	}
+	for _, s := range scope {
+		if p == s || strings.HasPrefix(p, s+"/") {
+			return true
+		}
+	}
+	return false
+}
+
+// newDeltaFile builds the file of a changed entry, with the language of each
+// side that exists.
+//
+// TRLC-LINKS: REQ-EMG-156
+func newDeltaFile(cf ChangedFile) *deltaFile {
+	f := &deltaFile{status: cf.Status, headPath: cf.Path, basePath: cf.Path}
+	if cf.Status == "R" {
+		f.basePath = cf.OldPath
+	}
+	f.headLang, _ = LanguageOf(f.headPath)
+	f.baseLang, _ = LanguageOf(f.basePath)
+	switch cf.Status {
+	case "A":
+		f.baseLang = ""
+	case "D":
+		f.headLang = ""
+	}
+	return f
+}
+
+// wanted reports whether a file is supported, in scope and not excluded.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) wanted(f *deltaFile, scope []string) bool {
+	if f.headLang == "" && f.baseLang == "" {
+		return false
+	}
+	if !(inScope(scope, f.headPath) || inScope(scope, f.basePath)) {
+		return false
+	}
+	return c.opts.Exclude == nil || !c.opts.Exclude(f.path())
 }
 
 // config is the effective Config of a file.
@@ -458,55 +566,110 @@ func (c *checker) config(f *deltaFile) Config {
 // TRLC-LINKS: REQ-EMG-156
 func (c *checker) load(f *deltaFile) error {
 	cfg := c.config(f)
-	if f.headLang != "" {
-		src, err := c.readHead(f.headPath)
-		if err != nil {
-			return err
-		}
-		if src == nil {
-			f.headLang = ""
-		} else {
-			f.headSrc = src
-		}
+	if err := c.readHeadSide(f); err != nil {
+		return err
 	}
-	if f.baseLang != "" {
-		src, err := c.readBase(f.basePath)
-		if err != nil {
-			return err
-		}
-		if src == nil {
-			f.baseLang = ""
-		} else {
-			f.baseSrc = src
-		}
+	if err := c.readBaseSide(f); err != nil {
+		return err
 	}
-	if f.headLang != "" {
-		res, err := c.analyze(f.headPath, f.headLang, f.headSrc, cfg)
-		if err != nil {
-			// A file the engine cannot analyse is skipped like one that is too
-			// large: its findings are unknown, so the report lists it and fails
-			// where a regression fails, instead of ending the whole check.
-			c.skip(f.headPath, "the analysis failed: "+err.Error())
-			f.headLang = ""
-			return nil
-		}
-		f.head = res
+	if f.headLang != "" && c.analyzeHead(f, cfg) {
+		return nil
 	}
+	c.analyzeBase(f, cfg)
+	return nil
+}
+
+// readHeadSide reads the head source of f; a head that is not there or is
+// skipped has no language afterwards.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) readHeadSide(f *deltaFile) error {
+	if f.headLang == "" {
+		return nil
+	}
+	src, err := c.readHead(f.headPath)
+	if err != nil {
+		return err
+	}
+	if src == nil {
+		f.headLang = ""
+	} else {
+		f.headSrc = src
+	}
+	return nil
+}
+
+// readBaseSide reads the base source of f; a base that is not there or is
+// skipped has no language afterwards.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) readBaseSide(f *deltaFile) error {
 	if f.baseLang == "" {
 		return nil
 	}
-	if f.head != nil && f.headPath == f.basePath && f.headLang == f.baseLang && string(f.headSrc) == string(f.baseSrc) {
-		f.base = f.head
-		return nil
+	src, err := c.readBase(f.basePath)
+	if err != nil {
+		return err
 	}
-	res, err := c.analyze(f.basePath, f.baseLang, f.baseSrc, cfg)
+	if src == nil {
+		f.baseLang = ""
+	} else {
+		f.baseSrc = src
+	}
+	return nil
+}
+
+// analyzeHead analyses the head of f. A file the engine cannot analyse is
+// skipped like one that is too large: its findings are unknown, so the report
+// lists it and fails where a regression fails, instead of ending the whole
+// check. It reports whether the analysis failed.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) analyzeHead(f *deltaFile, cfg Config) bool {
+	res, err := c.analyze(FileInput{Path: f.headPath, Language: f.headLang, Source: f.headSrc}, cfg)
+	if err != nil {
+		c.skip(f.headPath, "the analysis failed: "+err.Error())
+		f.headLang = ""
+		return true
+	}
+	f.head = res
+	return false
+}
+
+// sameSides reports whether the base of f is the head, unchanged.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (f *deltaFile) sameSides() bool {
+	return f.head != nil && f.sameInputs()
+}
+
+// sameInputs reports whether both sides of f have the same path, language and
+// source.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (f *deltaFile) sameInputs() bool {
+	return f.headPath == f.basePath && f.headLang == f.baseLang && string(f.headSrc) == string(f.baseSrc)
+}
+
+// analyzeBase analyses the base of f, or reuses the head result when both are
+// the same; a base the engine cannot analyse is noted and counts as absent.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) analyzeBase(f *deltaFile, cfg Config) {
+	if f.baseLang == "" {
+		return
+	}
+	if f.sameSides() {
+		f.base = f.head
+		return
+	}
+	res, err := c.analyze(FileInput{Path: f.basePath, Language: f.baseLang, Source: f.baseSrc}, cfg)
 	if err != nil {
 		c.notes = append(c.notes, "could not analyse the base of "+f.basePath+": "+err.Error()+"; every finding of the file counts as new")
 		f.baseLang = ""
-		return nil
+		return
 	}
 	f.base = res
-	return nil
 }
 
 // readHead returns the head content of a file; nil when it is not there or is
@@ -516,16 +679,30 @@ func (c *checker) load(f *deltaFile) error {
 // TRLC-LINKS: REQ-EMG-156
 func (c *checker) readHead(p string) ([]byte, error) {
 	if c.headRev != "" {
-		src, err := c.opts.Repo.ShowFile(c.headRev, p)
-		if errors.Is(err, ErrNotInRev) {
-			return nil, nil
-		}
-		if err == nil && len(src) > maxDeltaFileBytes {
-			c.skip(p, "larger than "+strconv.Itoa(maxDeltaFileBytes)+" bytes")
-			return nil, nil
-		}
-		return src, err
+		return c.readHeadRev(p)
 	}
+	return c.readHeadWorkTree(p)
+}
+
+// readHeadRev reads a head file from the head revision.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) readHeadRev(p string) ([]byte, error) {
+	src, err := c.opts.Repo.ShowFile(c.headRev, p)
+	if errors.Is(err, ErrNotInRev) {
+		return nil, nil
+	}
+	if err == nil && len(src) > maxDeltaFileBytes {
+		c.skip(p, "larger than "+strconv.Itoa(maxDeltaFileBytes)+" bytes")
+		return nil, nil
+	}
+	return src, err
+}
+
+// readHeadWorkTree reads a head file from the working tree.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) readHeadWorkTree(p string) ([]byte, error) {
 	full := filepath.Join(c.opts.Repo.Dir, filepath.FromSlash(p))
 	info, err := os.Lstat(full)
 	switch {
@@ -573,13 +750,13 @@ func (c *checker) readBase(p string) ([]byte, error) {
 // analyze runs the engine on one file.
 //
 // TRLC-LINKS: REQ-EMG-156
-func (c *checker) analyze(p, lang string, src []byte, cfg Config) (*FileResult, error) {
-	res, err := c.opts.Engine.Analyze([]FileInput{{Path: p, Language: lang, Source: src}}, cfg)
+func (c *checker) analyze(in FileInput, cfg Config) (*FileResult, error) {
+	res, err := c.opts.Engine.Analyze([]FileInput{in}, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("health: %s: %w", p, err)
+		return nil, fmt.Errorf("health: %s: %w", in.Path, err)
 	}
 	if len(res) != 1 {
-		return nil, fmt.Errorf("health: engine %s returned %d results for %s", c.opts.Engine.Name(), len(res), p)
+		return nil, fmt.Errorf("health: engine %s returned %d results for %s", c.opts.Engine.Name(), len(res), in.Path)
 	}
 	return &res[0], nil
 }
@@ -590,25 +767,38 @@ func (c *checker) analyze(p, lang string, src []byte, cfg Config) (*FileResult, 
 func (c *checker) fileDeltas(files []*deltaFile) []FileDelta {
 	out := []FileDelta{}
 	for _, f := range files {
-		if f.head == nil {
-			continue
+		if f.head != nil {
+			out = append(out, c.fileDelta(f))
 		}
-		fd := FileDelta{Path: f.headPath, Status: f.status}
-		if f.status == "R" {
-			fd.OldPath = f.basePath
-		}
-		if c.opts.Scorer != nil {
-			after := c.opts.Scorer(*f.head)
-			fd.ScoreAfter, fd.BandAfter = &after.Score, after.Band
-			if f.base != nil {
-				before := c.opts.Scorer(*f.base)
-				fd.ScoreBefore, fd.BandBefore = &before.Score, before.Band
-			}
-		}
-		out = append(out, fd)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Path < out[j].Path })
 	return out
+}
+
+// fileDelta is the score change of one file that exists at head.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) fileDelta(f *deltaFile) FileDelta {
+	fd := FileDelta{Path: f.headPath, Status: f.status}
+	if f.status == "R" {
+		fd.OldPath = f.basePath
+	}
+	if c.opts.Scorer != nil {
+		c.addScores(&fd, f)
+	}
+	return fd
+}
+
+// addScores sets the scores of the head of f, and of its base when it has one.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (c *checker) addScores(fd *FileDelta, f *deltaFile) {
+	after := c.opts.Scorer(*f.head)
+	fd.ScoreAfter, fd.BandAfter = &after.Score, after.Band
+	if f.base != nil {
+		before := c.opts.Scorer(*f.base)
+		fd.ScoreBefore, fd.BandBefore = &before.Score, before.Band
+	}
 }
 
 // funcRef is one function of one file side.
@@ -662,26 +852,65 @@ func compareFiles(files []*deltaFile) []DeltaEntry {
 	entries := []DeltaEntry{}
 	var headLeft, baseLeft []*funcRef
 	for _, f := range files {
-		baseRefs := functionRefs(f, f.base)
-		baseByKey := map[string]*funcRef{}
-		for _, r := range baseRefs {
-			baseByKey[r.key] = r
+		p := pairByName(f)
+		entries = append(entries, p.entries...)
+		headLeft = append(headLeft, p.headLeft...)
+		baseLeft = append(baseLeft, p.baseLeft...)
+	}
+	entries = append(entries, pairByHash(headLeft, baseLeft)...)
+	sortEntries(entries)
+	return entries
+}
+
+// namePairing is the outcome of pairing the functions of one file by name:
+// the entries of the pairs and the functions left on each side.
+type namePairing struct {
+	entries            []DeltaEntry
+	headLeft, baseLeft []*funcRef
+}
+
+// pairByName pairs the functions of a file by name.
+//
+// TRLC-LINKS: REQ-EMG-156
+func pairByName(f *deltaFile) namePairing {
+	var p namePairing
+	baseRefs := functionRefs(f, f.base)
+	baseByKey := map[string]*funcRef{}
+	for _, r := range baseRefs {
+		baseByKey[r.key] = r
+	}
+	for _, hr := range functionRefs(f, f.head) {
+		br := baseByKey[hr.key]
+		if br == nil {
+			p.headLeft = append(p.headLeft, hr)
+			continue
 		}
-		for _, hr := range functionRefs(f, f.head) {
-			br := baseByKey[hr.key]
-			if br == nil {
-				headLeft = append(headLeft, hr)
-				continue
-			}
-			delete(baseByKey, hr.key)
-			entries = append(entries, functionEntries(f.headPath, hr.fn, br.fn)...)
-		}
-		for _, r := range baseRefs {
-			if _, left := baseByKey[r.key]; left {
-				baseLeft = append(baseLeft, r)
-			}
+		delete(baseByKey, hr.key)
+		p.entries = append(p.entries, functionEntries(f.headPath, hr.fn, br.fn)...)
+	}
+	p.baseLeft = unpaired(baseRefs, baseByKey)
+	return p
+}
+
+// unpaired lists the functions of refs that are still in byKey.
+//
+// TRLC-LINKS: REQ-EMG-156
+func unpaired(refs []*funcRef, byKey map[string]*funcRef) []*funcRef {
+	var left []*funcRef
+	for _, r := range refs {
+		if _, ok := byKey[r.key]; ok {
+			left = append(left, r)
 		}
 	}
+	return left
+}
+
+// pairByHash pairs the functions left over on both sides by body hash and
+// returns the entries of the head ones.
+//
+// TRLC-LINKS: REQ-EMG-156
+func pairByHash(headLeft, baseLeft []*funcRef) []DeltaEntry {
+	var entries []DeltaEntry
 	claimed := map[*funcRef]bool{}
 	for _, hr := range headLeft {
 		var match *funcRef
@@ -695,7 +924,6 @@ func compareFiles(files []*deltaFile) []DeltaEntry {
 		claimed[match] = true
 		entries = append(entries, movedEntries(hr, match.fn)...)
 	}
-	sortEntries(entries)
 	return entries
 }
 
@@ -710,7 +938,7 @@ func matchByHash(hr *funcRef, baseLeft []*funcRef, claimed map[*funcRef]bool) *f
 	}
 	var other *funcRef
 	for _, br := range baseLeft {
-		if claimed[br] || len(br.fn.Findings) == 0 || br.bodyHash(false) != hash {
+		if !br.candidate(hash, claimed) {
 			continue
 		}
 		if br.file == hr.file {
@@ -721,6 +949,14 @@ func matchByHash(hr *funcRef, baseLeft []*funcRef, claimed map[*funcRef]bool) *f
 		}
 	}
 	return other
+}
+
+// candidate reports whether a base function is unclaimed, has findings and
+// has the body hash.
+//
+// TRLC-LINKS: REQ-EMG-156
+func (r *funcRef) candidate(hash string, claimed map[*funcRef]bool) bool {
+	return !claimed[r] && len(r.fn.Findings) > 0 && r.bodyHash(false) == hash
 }
 
 // movedEntries are the entries of a function that moved or was renamed with

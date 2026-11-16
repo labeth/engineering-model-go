@@ -89,79 +89,120 @@ func formalResultToGemara(result string) gemaraproj.Result {
 	}
 }
 
+// formalScope locates the formal evidence of an evaluation run and carries the
+// start timestamp of its assessments.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER
+type formalScope struct {
+	ModelRoot string
+	CodeRoot  string
+	Start     string
+}
+
 // appendFormalEvaluations appends one requirement-keyed ControlEvaluation for
-// each requirement with a formal result found under baseDir (and beside
-// codeRoot), registers the ENGMOD-REQUIREMENTS mapping reference and returns
-// the updated aggregate result. It does nothing when there is no formal
+// each requirement with a formal result found under the model root (and beside
+// the code root), registers the ENGMOD-REQUIREMENTS mapping reference and
+// returns the updated aggregate result. It does nothing when there is no formal
 // evidence.
 // TRLC-LINKS: REQ-EMG-147
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-ALLOCATION-TRACE
-func appendFormalEvaluations(log *gemaraproj.EvaluationLog, aggregate gemaraproj.Result, baseDir, codeRoot, start string) gemaraproj.Result {
-	if baseDir == "" {
+func appendFormalEvaluations(log *gemaraproj.EvaluationLog, aggregate gemaraproj.Result, scope formalScope) gemaraproj.Result {
+	if scope.ModelRoot == "" {
 		return aggregate
 	}
-	results := codescan.ReadFormalEvidence(baseDir, codescan.FormalEvidenceFiles(baseDir, codeRoot))
+	results := codescan.ReadFormalEvidence(scope.ModelRoot, codescan.FormalEvidenceFiles(scope.ModelRoot, scope.CodeRoot))
 	if len(results) == 0 {
 		return aggregate
 	}
 	log.Metadata.MappingReferences = append(log.Metadata.MappingReferences,
 		gemaraproj.MappingReference{Id: gemaraRefRequirements, Title: "Requirements", Version: Version})
-	byReq := map[string][]codescan.FormalEntry{}
-	for _, r := range results {
-		byReq[r.Requirement] = append(byReq[r.Requirement], r)
-	}
-	var order []string
-	seen := map[string]bool{}
-	for _, r := range results {
-		if !seen[r.Requirement] {
-			seen[r.Requirement] = true
-			order = append(order, r.Requirement)
-		}
-	}
+	order, byReq := groupFormalByRequirement(results)
 	for _, req := range order {
-		ceResult := gemaraproj.NotRun
-		var logs []*gemaraproj.AssessmentLog
-		for i, r := range byReq[req] {
-			res := formalResultToGemara(r.Result)
-			al := &gemaraproj.AssessmentLog{
-				Requirement:     gemaraproj.EntryMapping{ReferenceId: gemaraRefRequirements, EntryId: textutil.Fallback(r.Invariant, req)},
-				Description:     fmt.Sprintf("Assessment of %s via analysis: Quint invariant %s of machine %s.", req, textutil.Fallback(r.Invariant, "(unnamed)"), textutil.Fallback(r.Machine, "(unnamed)")),
-				Result:          res,
-				Message:         formalMessage(r),
-				Applicability:   []string{"all-systems"},
-				Steps:           []gemaraproj.AssessmentStep{gemaraFormalStepFor(res)},
-				Start:           gemaraproj.Datetime(start),
-				ConfidenceLevel: confidenceForResult(res),
-				Evidence: []gemaraproj.Evidence{{
-					Id:          fmt.Sprintf("%s-FORMAL-%d", req, i+1),
-					Type:        gemaraproj.EvidenceType("FormalVerification"),
-					CollectedAt: gemaraproj.Datetime(start),
-					Description: fmt.Sprintf("Quint result for %s: %s, sha256 %s.", textutil.Fallback(r.Invariant, req), r.Result, textutil.Fallback(r.QntSha256, "(none)")),
-					Payload: map[string]string{
-						"machine": r.Machine, "invariant": r.Invariant, "mode": r.Mode, "method": "analysis",
-						"qntFile": r.QntFile, "qntSha256": r.QntSha256, "result": r.Result,
-					},
-				}},
-			}
-			if res == gemaraproj.Failed {
-				al.Recommendation = "Fix the model or the invariant and rerun engquint check."
-			}
-			if res == gemaraproj.NotRun {
-				al.Recommendation = "Rerun engquint check to refresh the result."
-			}
-			logs = append(logs, al)
-			ceResult = gemaraproj.UpdateAggregateResult(ceResult, res)
-		}
-		log.Evaluations = append(log.Evaluations, &gemaraproj.ControlEvaluation{
-			Name:           "Formal verification of " + req,
-			Result:         ceResult,
-			Message:        fmt.Sprintf("%d formal result(s) recorded for requirement %s.", len(logs), req),
-			Control:        gemaraproj.EntryMapping{ReferenceId: gemaraRefRequirements, EntryId: req},
-			AssessmentLogs: logs,
-		})
-		aggregate = gemaraproj.UpdateAggregateResult(aggregate, ceResult)
+		ce := buildFormalEvaluation(req, byReq[req], scope.Start)
+		log.Evaluations = append(log.Evaluations, ce)
+		aggregate = gemaraproj.UpdateAggregateResult(aggregate, ce.Result)
 	}
 	return aggregate
+}
+
+// groupFormalByRequirement groups formal results by requirement and returns
+// the requirements in order of first appearance.
+// TRLC-LINKS: REQ-EMG-147
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER
+func groupFormalByRequirement(results []codescan.FormalEntry) ([]string, map[string][]codescan.FormalEntry) {
+	byReq := map[string][]codescan.FormalEntry{}
+	var order []string
+	for _, r := range results {
+		if _, seen := byReq[r.Requirement]; !seen {
+			order = append(order, r.Requirement)
+		}
+		byReq[r.Requirement] = append(byReq[r.Requirement], r)
+	}
+	return order, byReq
+}
+
+// buildFormalEvaluation is the ControlEvaluation of one requirement with one
+// assessment log per formal result.
+// TRLC-LINKS: REQ-EMG-147
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER
+func buildFormalEvaluation(req string, entries []codescan.FormalEntry, start string) *gemaraproj.ControlEvaluation {
+	ceResult := gemaraproj.NotRun
+	var logs []*gemaraproj.AssessmentLog
+	for i, r := range entries {
+		al := formalAssessment(r, formalRef{Requirement: req, Index: i + 1, Start: start})
+		logs = append(logs, al)
+		ceResult = gemaraproj.UpdateAggregateResult(ceResult, al.Result)
+	}
+	return &gemaraproj.ControlEvaluation{
+		Name:           "Formal verification of " + req,
+		Result:         ceResult,
+		Message:        fmt.Sprintf("%d formal result(s) recorded for requirement %s.", len(logs), req),
+		Control:        gemaraproj.EntryMapping{ReferenceId: gemaraRefRequirements, EntryId: req},
+		AssessmentLogs: logs,
+	}
+}
+
+// formalRef places one formal result: its requirement, its 1-based number
+// within the requirement and the start timestamp of the run.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER
+type formalRef struct {
+	Requirement string
+	Index       int
+	Start       string
+}
+
+// formalAssessment is the assessment log of one formal result.
+// TRLC-LINKS: REQ-EMG-147
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER
+func formalAssessment(r codescan.FormalEntry, ref formalRef) *gemaraproj.AssessmentLog {
+	req, start := ref.Requirement, ref.Start
+	res := formalResultToGemara(r.Result)
+	al := &gemaraproj.AssessmentLog{
+		Requirement:     gemaraproj.EntryMapping{ReferenceId: gemaraRefRequirements, EntryId: textutil.Fallback(r.Invariant, req)},
+		Description:     fmt.Sprintf("Assessment of %s via analysis: Quint invariant %s of machine %s.", req, textutil.Fallback(r.Invariant, "(unnamed)"), textutil.Fallback(r.Machine, "(unnamed)")),
+		Result:          res,
+		Message:         formalMessage(r),
+		Applicability:   []string{"all-systems"},
+		Steps:           []gemaraproj.AssessmentStep{gemaraFormalStepFor(res)},
+		Start:           gemaraproj.Datetime(start),
+		ConfidenceLevel: confidenceForResult(res),
+		Evidence: []gemaraproj.Evidence{{
+			Id:          fmt.Sprintf("%s-FORMAL-%d", req, ref.Index),
+			Type:        gemaraproj.EvidenceType("FormalVerification"),
+			CollectedAt: gemaraproj.Datetime(start),
+			Description: fmt.Sprintf("Quint result for %s: %s, sha256 %s.", textutil.Fallback(r.Invariant, req), r.Result, textutil.Fallback(r.QntSha256, "(none)")),
+			Payload: map[string]string{
+				"machine": r.Machine, "invariant": r.Invariant, "mode": r.Mode, "method": "analysis",
+				"qntFile": r.QntFile, "qntSha256": r.QntSha256, "result": r.Result,
+			},
+		}},
+	}
+	switch res {
+	case gemaraproj.Failed:
+		al.Recommendation = "Fix the model or the invariant and rerun engquint check."
+	case gemaraproj.NotRun:
+		al.Recommendation = "Rerun engquint check to refresh the result."
+	}
+	return al
 }
 
 // formalMessage is the assessment message of a formal result: machine,
