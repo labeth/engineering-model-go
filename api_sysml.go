@@ -76,13 +76,20 @@ func GenerateSysMLV2Projection(semantic SemanticModel) (string, []SemanticDiagno
 	return sysml.GenerateV2Projection(semantic)
 }
 
+// SysMLInterchangePaths locate the Sysand project directory, the KPAR archive
+// and the Sysand executable of an interchange run. For ExportSysMLV2Project
+// Directory is the project to create; for VerifySysMLV2RoundTrip it is where
+// the KPAR is reopened.
+// ENGMODEL-LINKS: FU-SYSML-EXPORTER, IF-CLI-ENGSYSML, DO-SYSML-V2-MODEL, REF-SYSML-V2-TOOLCHAIN
+type SysMLInterchangePaths = sysml.InterchangePaths
+
 // ExportSysMLV2Project creates a Sysand interchange project and builds its KPAR.
 // Sysand, rather than a custom ZIP writer, owns all normative KPAR packaging.
 //
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
 // ENGMODEL-LINKS: FU-SYSML-EXPORTER, IF-CLI-ENGSYSML, DO-SYSML-V2-MODEL, REF-SYSML-V2-TOOLCHAIN
-func ExportSysMLV2Project(architecturePath, projectDir, kparPath, sysandPath string) (SysMLExportResult, error) {
-	return sysml.ExportV2Project(architecturePath, sysml.InterchangePaths{Directory: projectDir, KPAR: kparPath, Sysand: sysandPath})
+func ExportSysMLV2Project(architecturePath string, paths SysMLInterchangePaths) (SysMLExportResult, error) {
+	return sysml.ExportV2Project(architecturePath, paths)
 }
 
 // ReopenSysMLV2Project clones a KPAR with Sysand and returns its native SysML
@@ -97,8 +104,8 @@ func ReopenSysMLV2Project(kparPath, reopenedDir, sysandPath string) (SysMLRoundT
 // SysML projection of the authored Engineering Model.
 //
 // TRLC-LINKS: REQ-EMG-036, REQ-EMG-037
-func VerifySysMLV2RoundTrip(architecturePath, kparPath, reopenedDir, sysandPath string) (SysMLRoundTripResult, error) {
-	return sysml.VerifyV2RoundTrip(architecturePath, sysml.InterchangePaths{Directory: reopenedDir, KPAR: kparPath, Sysand: sysandPath})
+func VerifySysMLV2RoundTrip(architecturePath string, paths SysMLInterchangePaths) (SysMLRoundTripResult, error) {
+	return sysml.VerifyV2RoundTrip(architecturePath, paths)
 }
 
 // ImportSysMLV2Project reconstructs the canonical semantic model from legacy

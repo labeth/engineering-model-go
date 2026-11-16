@@ -118,7 +118,7 @@ func loadStatusEvidence(repo, tree string) (statusEvidence, error) {
 	if err != nil {
 		return statusEvidence{}, err
 	}
-	matrix, _, err := engmodel.BuildTraceMatrixFromFilesWith(manifest, bundle.RequirementsPath, "", engmodel.TraceOptions{Resolution: engmodel.ResolutionOptions{Lock: engmodel.LockModeCheck, ModuleCache: engmodel.ModuleCacheReuse}})
+	matrix, _, err := engmodel.BuildTraceMatrixFromFilesWith(engmodel.TraceFiles{ModelPath: manifest, RequirementsPath: bundle.RequirementsPath}, engmodel.TraceOptions{Resolution: engmodel.ResolutionOptions{Lock: engmodel.LockModeCheck, ModuleCache: engmodel.ModuleCacheReuse}})
 	if err != nil {
 		return statusEvidence{}, err
 	}

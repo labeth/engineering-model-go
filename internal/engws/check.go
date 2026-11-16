@@ -488,7 +488,7 @@ func libraryGather(bundle model.Bundle, manifest, codeRoot string) (libraryRun, 
 	// GenerateAsciiDoc validates alias::ID references against the
 	// dependencies' publications (REQ-EMG-065) and returns the composition
 	// diagnostics (REQ-EMG-066).
-	doc, err := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{})
+	doc, err := engmodel.GenerateAsciiDoc(engmodel.AsciiDocInputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, engmodel.AsciiDocOptions{})
 	run := libraryRun{diagnostics: doc.Diagnostics, genErr: err}
 	if err != nil {
 		return run, ""

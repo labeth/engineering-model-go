@@ -26,19 +26,30 @@ type GemaraCrossReferenceError = gemara.CrossReferenceError
 // GemaraVersion is the Gemara specification version stamped into every artifact's metadata.
 const GemaraVersion = gemara.Version
 
+// GemaraFiles are the model, requirements and code-root paths the
+// ...FromFiles evaluation functions load.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type GemaraFiles = gemara.FileInputs
+
+// GemaraEvalRun configures one evaluation run: CodeRoot locates the
+// test-results directory beside the code for formal evidence, Options stamp
+// the metadata.
+// ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
+type GemaraEvalRun = gemara.EvalRun
+
 // GenerateGemaraEvaluationLogFromFiles loads inputs and renders the Evaluation Log.
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func GenerateGemaraEvaluationLogFromFiles(architecturePath, requirementsPath, codeRoot string, options GemaraExportOptions) (GemaraEvaluationResult, error) {
-	return gemara.GenerateEvaluationLogFromFiles(gemara.FileInputs{ArchitecturePath: architecturePath, RequirementsPath: requirementsPath, CodeRoot: codeRoot}, options)
+func GenerateGemaraEvaluationLogFromFiles(files GemaraFiles, options GemaraExportOptions) (GemaraEvaluationResult, error) {
+	return gemara.GenerateEvaluationLogFromFiles(files, options)
 }
 
 // GenerateGemaraEvaluationLog builds an L5 Evaluation Log from the model bundle.
-// requirements and codeRoot are reserved for inferred-verification augmentation.
+// run.CodeRoot locates the test-results directory for formal evidence.
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func GenerateGemaraEvaluationLog(bundle Bundle, requirements RequirementsDocument, codeRoot string, options GemaraExportOptions) (GemaraEvaluationResult, error) {
-	return gemara.GenerateEvaluationLog(bundle, requirements, gemara.EvalRun{CodeRoot: codeRoot, Options: options})
+func GenerateGemaraEvaluationLog(bundle Bundle, requirements RequirementsDocument, run GemaraEvalRun) (GemaraEvaluationResult, error) {
+	return gemara.GenerateEvaluationLog(bundle, requirements, run)
 }
 
 // GenerateGemaraFromFile loads the model bundle and renders the Gemara catalogs.
@@ -75,8 +86,8 @@ func GenerateGemaraOSCALCatalog(bundle Bundle, options GemaraExportOptions) (str
 // Assessment Results derived from the Gemara evaluation log.
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirementsPath, codeRoot string, options GemaraExportOptions) (string, error) {
-	return gemara.GenerateOSCALAssessmentResultsFromFiles(gemara.FileInputs{ArchitecturePath: architecturePath, RequirementsPath: requirementsPath, CodeRoot: codeRoot}, options)
+func GenerateGemaraOSCALAssessmentResultsFromFiles(files GemaraFiles, options GemaraExportOptions) (string, error) {
+	return gemara.GenerateOSCALAssessmentResultsFromFiles(files, options)
 }
 
 // GenerateGemaraOSCALAssessmentResults converts the Gemara Evaluation Log to OSCAL
@@ -84,8 +95,8 @@ func GenerateGemaraOSCALAssessmentResultsFromFiles(architecturePath, requirement
 // to evaluate.
 // TRLC-LINKS: REQ-EMG-015, REQ-EMG-035, REQ-EMG-036
 // ENGMODEL-LINKS: FU-GEMARA-EXPORTER, FU-OSCAL-EXPORTER, CTRL-TRACEABILITY-COVERAGE
-func GenerateGemaraOSCALAssessmentResults(bundle Bundle, requirements RequirementsDocument, codeRoot string, options GemaraExportOptions) (string, error) {
-	return gemara.GenerateOSCALAssessmentResults(bundle, requirements, gemara.EvalRun{CodeRoot: codeRoot, Options: options})
+func GenerateGemaraOSCALAssessmentResults(bundle Bundle, requirements RequirementsDocument, run GemaraEvalRun) (string, error) {
+	return gemara.GenerateOSCALAssessmentResults(bundle, requirements, run)
 }
 
 // CheckGemaraCrossReferences parses the artifacts (short-name -> YAML) and

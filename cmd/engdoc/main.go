@@ -108,7 +108,7 @@ func generate(a *docArgs) (engmodel.AsciiDocResult, error) {
 	if decisionsDocPath != "" {
 		decisionsDocPath = filepath.Base(decisionsDocPath)
 	}
-	return engmodel.GenerateAsciiDocFromFiles(a.modelPath, a.reqPath, a.designPath, engmodel.AsciiDocOptions{
+	return engmodel.GenerateAsciiDocFromFiles(engmodel.AsciiDocFiles{Architecture: a.modelPath, Requirements: a.reqPath, Design: a.designPath}, engmodel.AsciiDocOptions{
 		ViewIDs:          a.views,
 		CodeRoot:         strings.TrimSpace(a.codeRoot),
 		DecisionsDocPath: decisionsDocPath,

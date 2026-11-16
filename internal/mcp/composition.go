@@ -140,7 +140,7 @@ func provenanceRows(res engmodel.CompositionResult) []engmodel.ImportedEntityPro
 // TRLC-LINKS: REQ-EMG-026, REQ-EMG-030, REQ-EMG-061, REQ-EMG-067, REQ-EMG-088, REQ-EMG-105, REQ-EMG-148
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-ALLOCATION-TRACE
 func (s *Server) traceMatrix(summaryOnly bool) (map[string]any, error) {
-	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, "", engmodel.TraceOptions{Resolution: resolution()})
+	matrix, diags, err := engmodel.BuildTraceMatrixFromFilesWith(engmodel.TraceFiles{ModelPath: s.modelPath, RequirementsPath: s.requirementsPath}, engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
 		return nil, err
 	}
@@ -302,7 +302,7 @@ func (s *Server) tierGap(target string) (map[string]any, error) {
 	if strings.TrimSpace(target) == "" {
 		return nil, fmt.Errorf("tier.gap needs target: poc, prototype, mvp, product or operational")
 	}
-	report, err := engmodel.TierGapFromFilesWith(s.modelPath, s.requirementsPath, "", target, engmodel.TraceOptions{Resolution: resolution()})
+	report, err := engmodel.TierGapFromFilesWith(engmodel.TraceFiles{ModelPath: s.modelPath, RequirementsPath: s.requirementsPath}, target, engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
 		return nil, err
 	}

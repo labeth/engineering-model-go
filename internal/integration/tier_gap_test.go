@@ -16,7 +16,7 @@ type tierGapInput struct{ manifest, requirements, codeRoot string }
 
 // gap computes the gap to the target tier.
 func (in tierGapInput) gap(target string) (engmodel.TierGapReport, error) {
-	return engmodel.TierGapFromFiles(in.manifest, in.requirements, in.codeRoot, target)
+	return engmodel.TierGapFromFiles(engmodel.TraceFiles{ModelPath: in.manifest, RequirementsPath: in.requirements, CodeRoot: in.codeRoot}, target)
 }
 
 // TierGap for the payments example at tier mvp and target product lists

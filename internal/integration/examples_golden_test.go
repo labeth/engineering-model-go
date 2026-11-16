@@ -141,7 +141,7 @@ func (r goldenRecorder) record(manifest string) goldenModel {
 	var g goldenModel
 	g.Tier, g.Bundles = bundle.Manifest.Lifecycle.Tier, bundle.Manifest.Lifecycle.EffectiveBundles()
 	g.Validate = r.raw(engmodel.SortDiagnostics(engmodel.ValidateBundle(bundle)))
-	doc, gerr := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: filepath.Dir(manifest)})
+	doc, gerr := engmodel.GenerateAsciiDoc(engmodel.AsciiDocInputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, engmodel.AsciiDocOptions{CodeRoot: filepath.Dir(manifest)})
 	if gerr != nil {
 		// A generation error is never a golden: it fails the run, also
 		// when the goldens are being updated.

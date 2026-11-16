@@ -158,7 +158,7 @@ func (c *sysmlCLI) verifyRoundTrip() int {
 		fmt.Fprintln(c.stderr, "error: --verify-kpar requires --reopen-out")
 		return 2
 	}
-	if _, err := engmodel.VerifySysMLV2RoundTrip(a.modelPath, a.verifyKPAR, a.reopenOut, a.sysandPath); err != nil {
+	if _, err := engmodel.VerifySysMLV2RoundTrip(a.modelPath, engmodel.SysMLInterchangePaths{Directory: a.reopenOut, KPAR: a.verifyKPAR, Sysand: a.sysandPath}); err != nil {
 		fmt.Fprintln(c.stderr, "error:", err)
 		return 1
 	}
@@ -173,7 +173,7 @@ func (c *sysmlCLI) exportProject() int {
 		fmt.Fprintln(c.stderr, "error: --project-out and --kpar-out must be used together")
 		return 2
 	}
-	result, err := engmodel.ExportSysMLV2Project(a.modelPath, a.projectOut, a.kparOut, a.sysandPath)
+	result, err := engmodel.ExportSysMLV2Project(a.modelPath, engmodel.SysMLInterchangePaths{Directory: a.projectOut, KPAR: a.kparOut, Sysand: a.sysandPath})
 	printDiagnostics(c.stderr, result)
 	if err != nil {
 		fmt.Fprintln(c.stderr, "error:", err)

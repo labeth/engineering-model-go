@@ -160,7 +160,7 @@ func printTierGap(a tierGapArgs) int {
 		fmt.Fprintf(os.Stderr, "unknown tier %q: want poc, prototype, mvp, product or operational\n", a.target)
 		return 2
 	}
-	report, err := engmodel.TierGapFromFiles(a.modelPath, a.requirementsPath, a.codeRoot, a.target)
+	report, err := engmodel.TierGapFromFiles(engmodel.TraceFiles{ModelPath: a.modelPath, RequirementsPath: a.requirementsPath, CodeRoot: a.codeRoot}, a.target)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 		return 1

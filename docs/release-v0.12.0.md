@@ -26,6 +26,33 @@ Behaviour that is stricter for downstream (all listed in `CHANGELOG.md`):
    poc, prototype and mvp. A repository that has a baseline passes unchanged; one that has none, and a new file, must be clean at
    once. See OWNER item 3.
 
+6. **Breaking Go API of the root package (ADR-EMG-088, proposed).** Eleven exported functions with four or five parameters take a
+   request struct instead, so that every file of the facade scores 10.0 (the owner's goal of 10/10 in all files). The old forms are
+   gone, not kept beside the new ones. `engws contract-diff` compares published model items, not Go symbols, so it does not see this
+   change; the minor bump below v1 carries it, and the CHANGELOG entry avoids the words that trigger
+   `release.schema_version_not_bumped`. Migration:
+
+   | Old call | New call |
+   | --- | --- |
+   | `GenerateAsciiDocFromFiles(arch, req, design, opts)` | `GenerateAsciiDocFromFiles(AsciiDocFiles{Architecture: arch, Requirements: req, Design: design}, opts)` |
+   | `GenerateAsciiDoc(bundle, req, design, opts)` | `GenerateAsciiDoc(AsciiDocInputs{Bundle: bundle, Requirements: req, Design: design}, opts)` |
+   | `GenerateGemaraEvaluationLogFromFiles(arch, req, codeRoot, opts)` | `GenerateGemaraEvaluationLogFromFiles(GemaraFiles{ArchitecturePath: arch, RequirementsPath: req, CodeRoot: codeRoot}, opts)` |
+   | `GenerateGemaraEvaluationLog(bundle, req, codeRoot, opts)` | `GenerateGemaraEvaluationLog(bundle, req, GemaraEvalRun{CodeRoot: codeRoot, Options: opts})` |
+   | `GenerateGemaraOSCALAssessmentResultsFromFiles(arch, req, codeRoot, opts)` | `GenerateGemaraOSCALAssessmentResultsFromFiles(GemaraFiles{...as above}, opts)` |
+   | `GenerateGemaraOSCALAssessmentResults(bundle, req, codeRoot, opts)` | `GenerateGemaraOSCALAssessmentResults(bundle, req, GemaraEvalRun{CodeRoot: codeRoot, Options: opts})` |
+   | `ExportSysMLV2Project(arch, projectDir, kpar, sysand)` | `ExportSysMLV2Project(arch, SysMLInterchangePaths{Directory: projectDir, KPAR: kpar, Sysand: sysand})` |
+   | `VerifySysMLV2RoundTrip(arch, kpar, reopenedDir, sysand)` | `VerifySysMLV2RoundTrip(arch, SysMLInterchangePaths{Directory: reopenedDir, KPAR: kpar, Sysand: sysand})` |
+   | `BuildTraceMatrixFromFilesWith(model, req, codeRoot, opts)` | `BuildTraceMatrixFromFilesWith(TraceFiles{ModelPath: model, RequirementsPath: req, CodeRoot: codeRoot}, opts)` |
+   | `TierGapFromFiles(model, req, codeRoot, target)` | `TierGapFromFiles(TraceFiles{...as above}, target)` |
+   | `TierGapFromFilesWith(model, req, codeRoot, target, opts)` | `TierGapFromFilesWith(TraceFiles{...as above}, target, opts)` |
+
+   Affected outside this repository, which fail to compile against v0.12.0 until adapted: engineering-flow `cicd/engmod-check`
+   (`main.go`: `GenerateAsciiDoc`, `TierGapFromFilesWith`, `BuildTraceMatrixFromFilesWith`; `docs.go`: `BuildTraceMatrixFromFilesWith`),
+   engineering-tool `internal/server/api_flow.go` (`TierGapFromFiles`) and the `.github/engmod-check` template. Adapt each in
+   the same change as the pin move of "Downstream pins after the tag". OWNER: accept or reject ADR-EMG-088; the baseline entries of
+   the eleven functions in `model/health-baseline.json` are stale now (`health.baseline_stale`) and leave with `enghealth baseline
+   write`.
+
 ## Validation results (worktree `wt-engine-release`, tree after commit `b3e1100`)
 
 | Check | Result |

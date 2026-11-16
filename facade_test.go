@@ -83,10 +83,8 @@ func facadePackages1() []implPackage {
 		{dir: filepath.Join("internal", "asciidoc"), rootName: map[string]string{
 			"Options": "AsciiDocOptions", "Result": "AsciiDocResult",
 			"Generate": "GenerateAsciiDoc", "GenerateFromFiles": "GenerateAsciiDocFromFiles",
-		}, internalOnly: []string{
-			// parameter structs of Generate and GenerateFromFiles; the root
-			// functions keep their separate parameters.
-			"Inputs", "FilePaths",
+			// the request structs of Generate and GenerateFromFiles.
+			"Inputs": "AsciiDocInputs", "FilePaths": "AsciiDocFiles",
 		}},
 		{dir: filepath.Join("internal", "composition"), internalOnly: []string{
 			// used by internal/asciidoc and internal/trace.
@@ -144,13 +142,13 @@ func facadePackages2() []implPackage {
 			"BuildFromFiles": "BuildTraceMatrixFromFiles", "BuildFromFilesWith": "BuildTraceMatrixFromFilesWith",
 			"Delta": "TraceDelta", "DeltaOf": "DiffTraceMatrices", "StatusChange": "TraceStatusChange",
 			"TierGapFromFiles": "TierGapFromFilesWith",
+			// the request struct of BuildFromFilesWith and TierGapFromFiles.
+			"FileRequest": "TraceFiles",
 		}, internalOnly: []string{
 			// used by internal/asciidoc and internal/reqdelta.
 			"EffectiveCodeRoots", "KnownModelIDs", "ScopeCodeToModel", "ValidateIntegrity",
-			// the request and evidence parameters of BuildFromFilesWith,
-			// TierGapFromFiles and ValidateIntegrity; the root functions take
-			// the paths themselves.
-			"Evidence", "FileRequest",
+			// the evidence parameter of ValidateIntegrity.
+			"Evidence",
 			// used by internal/asciidoc for the requirement link tree.
 			"DependencyRequirementStatus",
 		}},
@@ -172,10 +170,9 @@ func facadePackages3() []implPackage {
 			"GenerateOSCALAssessmentResultsFromFiles": "GenerateGemaraOSCALAssessmentResultsFromFiles",
 			"CheckCrossReferences":                    "CheckGemaraCrossReferences",
 			"CheckModelConsistency":                   "CheckGemaraModelConsistency",
-		}, internalOnly: []string{
-			// parameter structs of the internal generators; the facade keeps its
-			// positional signatures and builds them.
-			"FileInputs", "EvalRun",
+			// the request structs of the evaluation-log and OSCAL
+			// assessment-results generators.
+			"FileInputs": "GemaraFiles", "EvalRun": "GemaraEvalRun",
 		}},
 		{dir: filepath.Join("internal", "export", "oscal"), rootName: map[string]string{
 			"SSPOptions": "OSCALSSPOptions", "SSPResult": "OSCALSSPResult",
@@ -218,10 +215,8 @@ func facadePackages4() []implPackage {
 			"VerifyV2RoundTrip":  "VerifySysMLV2RoundTrip",
 			"ImportV2Project":    "ImportSysMLV2Project",
 			"CompareV2RoundTrip": "CompareSysMLV2RoundTrip",
-		}, internalOnly: []string{
-			// the parameter group of the export, reopen and verify functions;
-			// the root functions keep their positional parameters.
-			"InterchangePaths",
+			// the path group of the export, reopen and verify functions.
+			"InterchangePaths": "SysMLInterchangePaths",
 		}},
 		{dir: filepath.Join("internal", "export", "structurizr"), rootName: map[string]string{
 			"Result": "StructurizrExportResult", "GenerateDSL": "GenerateStructurizrDSL",

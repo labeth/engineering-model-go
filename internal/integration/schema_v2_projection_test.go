@@ -103,7 +103,7 @@ func (f projectionFixture) documentContracts(t *testing.T) []projectionContract 
 		{
 			name: "asciidoc",
 			generate: func() (string, error) {
-				result, err := engmodel.GenerateAsciiDocFromFiles(f.architecture, f.requirements, f.design, engmodel.AsciiDocOptions{})
+				result, err := engmodel.GenerateAsciiDocFromFiles(engmodel.AsciiDocFiles{Architecture: f.architecture, Requirements: f.requirements, Design: f.design}, engmodel.AsciiDocOptions{})
 				return result.Document, err
 			},
 			contains: []string{"= Sample Payments Layered Design", "[source,mermaid]", "=== Verification Inventory"},

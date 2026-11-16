@@ -100,7 +100,7 @@ func (s *Server) gemaraArtifact(toolName string) (map[string]any, error) {
 // TRLC-LINKS: REQ-EMG-015
 // ENGMODEL-LINKS: FU-MCP-SERVER, FU-GEMARA-EXPORTER
 func (s *Server) gemaraEvaluationLogArtifact() (map[string]any, error) {
-	res, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, s.requirementsOrEmpty(), s.repoRoot, engmodel.GemaraExportOptions{})
+	res, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, s.requirementsOrEmpty(), engmodel.GemaraEvalRun{CodeRoot: s.repoRoot})
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +139,7 @@ func (s *Server) gemaraValidate() (map[string]any, error) {
 	for k, v := range res.YAML {
 		docs[k] = v
 	}
-	evalRes, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, s.requirementsOrEmpty(), s.repoRoot, engmodel.GemaraExportOptions{})
+	evalRes, err := engmodel.GenerateGemaraEvaluationLog(*s.bundle, s.requirementsOrEmpty(), engmodel.GemaraEvalRun{CodeRoot: s.repoRoot})
 	if err != nil {
 		return nil, err
 	}

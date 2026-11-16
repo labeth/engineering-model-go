@@ -172,7 +172,7 @@ func bundleDiagnostics(bundle model.Bundle) []validate.Diagnostic {
 	if cerr != nil {
 		return append(diags, validate.ApplyTierPolicy(bundle, validate.Bundle(bundle))...)
 	}
-	result, _ := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{Resolution: options})
+	result, _ := engmodel.GenerateAsciiDoc(engmodel.AsciiDocInputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, engmodel.AsciiDocOptions{Resolution: options})
 	return append(diags, result.Diagnostics...)
 }
 
