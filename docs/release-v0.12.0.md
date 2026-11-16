@@ -49,9 +49,8 @@ Behaviour that is stricter for downstream (all listed in `CHANGELOG.md`):
    Affected outside this repository, which fail to compile against v0.12.0 until adapted: engineering-flow `cicd/engmod-check`
    (`main.go`: `GenerateAsciiDoc`, `TierGapFromFilesWith`, `BuildTraceMatrixFromFilesWith`; `docs.go`: `BuildTraceMatrixFromFilesWith`),
    engineering-tool `internal/server/api_flow.go` (`TierGapFromFiles`) and the `.github/engmod-check` template. Adapt each in
-   the same change as the pin move of "Downstream pins after the tag". OWNER: accept or reject ADR-EMG-088; the baseline entries of
-   the eleven functions in `model/health-baseline.json` are stale now (`health.baseline_stale`) and leave with `enghealth baseline
-   write`.
+   the same change as the pin move of "Downstream pins after the tag". OWNER: accept or reject ADR-EMG-088 (the baseline entries of
+   the eleven functions left with the baseline, which is empty now, see OWNER item 3).
 
 ## Validation results (worktree `wt-engine-release`, tree after commit `b3e1100`)
 
@@ -118,22 +117,22 @@ Nothing is deferred, so no `health.policyDecision` is needed. The red-check evid
 The owner asked for a requirement of 10/10 on all files at the two highest tiers. Implemented as `health.file_below_floor`
 (REQ-EMG-209 scan, REQ-EMG-210 check, published with `CAP-EMG-CODE-HEALTH`). What the owner decides or should know:
 
-- **The baseline is the burn-down.** The scan of this repository reports the number: `summary.belowFloor` files are below 10.0 and
-  `summary.floorCovered` of them are covered by the baseline (`enghealth scan` prints "files below the floor of 10.0: N, M covered
-  by the baseline"); the engine stays green at operational because every one of them is covered. Each file that reaches 10.0
-  leaves the baseline (`enghealth baseline write`), and a baseline that grows is `health.policy_weakened`.
+- **The baseline is empty.** Every source file of this repository scores 10.0 at tier operational (568 files, tests included;
+  `summary.belowFloor` 0, `summary.floorCovered` 0, no finding). `model/health-baseline.json` was written again with
+  `enghealth baseline write --model engmod.yml` and has zero entries (`--check` passes); `DEC-HEALTH-BASELINE` and the `health.baseline`
+  block stay, so a baseline entry could be added again, but that is `health.policy_weakened` and `TestEveryRepositoryFileScoresTen`
+  fails for it. A baseline that grows is a weakening, and a file that falls below 10.0 is an error.
 - **Honest limit of the scan.** In the scan, a file below 10.0 that the baseline does not cover already carries the error of its own
   findings at product and operational, so the new diagnostic adds the file-level message there, not a new failure. Its new effect is
   in `enghealth check` (a new or worsened warn finding is no regression, so a changed file could stay below 10.0) and below product
   (a warning for every file below 10.0 that no baseline covers).
-- **REQ-EMG-211 is held back until the baseline is empty.** The requirement of this repository itself, "every source file of this
-  repository shall score 10.0 at tier operational", can be verified only when `model/health-baseline.json` is empty, which another
-  branch (`feat/health-floor`) is burning down. As a `proposed` requirement at tier operational it would be
-  `lifecycle.requirement_unapproved` and `lifecycle.requirement_unverified` and would need a POA&M defer, a policy weakening that only
-  the owner decides, so it is not in this release: the release carries the rule (REQ-EMG-209, REQ-EMG-210, both verified), which is
-  the owner's ask. REQ-EMG-211 is added with the burn-down, when it can be verified at once. The test
-  `TestRepositoryFilesAreAtTheFloorOrBaselined` (`cmd/enghealth`, linked to REQ-EMG-210) scans this repository at tier operational
-  and fails for a file below 10.0 that the baseline does not cover; it does not ask for an empty baseline.
+- **REQ-EMG-211 is in this release, verified.** The requirement of this repository itself, "every source file of this repository shall
+  score 10.0 in the code health scan at tier operational" (derived from the owner's words, not published, no POA&M defer), is
+  `verified` by `TestEveryRepositoryFileScoresTen` (`cmd/enghealth`, also linked to REQ-EMG-210): it reads the score of every file of
+  the scan, and fails for a file below 10.0, for any diagnostic, finding, waiver or covered file, and for a baseline entry. Four
+  mutations (`scripts/red-checks/repository-floor.json`: a function with ten branches in a source file, in a test file and in a
+  main package file, and a baseline entry) are RED, every one by an assertion; `engws status-suggest` agrees. Like the other evidence
+  it is tied to one tree: run `scripts/red-checks/run.sh` on the final commit to renew it.
 - **REQ-EMG-209 and REQ-EMG-210 are `verified`** on the strength of 25 red-check mutations (every one failed an assertion; three
   more broke the build and were replaced, one passed until a missing test of the gate was added): `red-check.mjs --mutations`,
   commands `go test -count=1 ./internal/health`, `./internal/validate` and `-short ./internal/health/scan ./cmd/enghealth`,
