@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Red checks of the Go API requirements REQ-EMG-189 to REQ-EMG-206 (the facade of ADR-EMG-079 to 081).
+# Red checks of the Go API requirements REQ-EMG-189 to REQ-EMG-206 (the facade of ADR-EMG-079 to 081) and of REQ-EMG-211
+# (every file of this repository scores 10.0).
 #
 # Every file here is a list of mutations of the engine's own source for red-check.mjs of engineering-flow: the
 # requirement the mutation is evidence for, the file, the text to find and the text to put in its place. A mutation is
@@ -29,4 +30,6 @@ check internal-trace.json ./internal/trace -run 'TestDeltaOf'
 check internal-reqlint.json ./internal/reqlint -run 'TestCatalogUsage'
 check internal-codemap.json ./internal/codemap
 check internal-engws.json ./internal/engws -run 'TestModelDiff'
+# REQ-EMG-211: a branchy function in a source file, in a test file, in a main package file, and a baseline entry.
+check repository-floor.json ./cmd/enghealth -run 'TestEveryRepositoryFileScoresTen'
 exit $status

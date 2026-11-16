@@ -212,9 +212,12 @@ func (a scanArgs) importedReport(stderr io.Writer) (engmodel.HealthReport, int) 
 	return report, -1
 }
 
-// finishScan renders the report, writes it and sets the exit code.
+// finishScan renders the report, writes it and sets the exit code; with
+// --fail-on-error a finding, a file below the floor or a stale baseline entry
+// at the tier is exit 1, which is how this repository is held at 10.0 for
+// every file (REQ-EMG-211).
 //
-// TRLC-LINKS: REQ-EMG-157, REQ-EMG-158
+// TRLC-LINKS: REQ-EMG-157, REQ-EMG-158, REQ-EMG-211
 func finishScan(a scanArgs, report engmodel.HealthReport, s streams) int {
 	if a.failOnError && len(report.Levels) == 0 {
 		fmt.Fprintln(s.stderr, "enghealth scan: --fail-on-error needs the levels of the codes, and the report has none")

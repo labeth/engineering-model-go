@@ -1,0 +1,34 @@
+[
+ {
+  "file": "internal/health/floor.go",
+  "find": "func causeBefore(a, b FloorCause) bool {",
+  "replace": "func mutatedBranches(a, b int) int {\n\tn := 0\n\tif a == 1 {\n\t\tn += 1\n\t}\n\tif a == 2 {\n\t\tn += 2\n\t}\n\tif a == 3 {\n\t\tn += 3\n\t}\n\tif a == 4 {\n\t\tn += 4\n\t}\n\tif a == 5 {\n\t\tn += 5\n\t}\n\tif a == 6 {\n\t\tn += 6\n\t}\n\tif a == 7 {\n\t\tn += 7\n\t}\n\tif a == 8 {\n\t\tn += 8\n\t}\n\tif a == 9 {\n\t\tn += 9\n\t}\n\tif a == 10 {\n\t\tn += 10\n\t}\n\treturn n + b\n}\n\nfunc causeBefore(a, b FloorCause) bool {",
+  "req": [
+   "REQ-EMG-211"
+  ]
+ },
+ {
+  "file": "internal/health/floor_test.go",
+  "find": "func warnFile(path string) FileResult {",
+  "replace": "func mutatedBranches(a, b int) int {\n\tn := 0\n\tif a == 1 {\n\t\tn += 1\n\t}\n\tif a == 2 {\n\t\tn += 2\n\t}\n\tif a == 3 {\n\t\tn += 3\n\t}\n\tif a == 4 {\n\t\tn += 4\n\t}\n\tif a == 5 {\n\t\tn += 5\n\t}\n\tif a == 6 {\n\t\tn += 6\n\t}\n\tif a == 7 {\n\t\tn += 7\n\t}\n\tif a == 8 {\n\t\tn += 8\n\t}\n\tif a == 9 {\n\t\tn += 9\n\t}\n\tif a == 10 {\n\t\tn += 10\n\t}\n\treturn n + b\n}\n\nfunc warnFile(path string) FileResult {",
+  "req": [
+   "REQ-EMG-211"
+  ]
+ },
+ {
+  "file": "model/health-baseline.json",
+  "find": "\"entries\": []",
+  "replace": "\"entries\": [\n    {\"path\": \"api_health.go\", \"function\": \"ScanHealth\", \"code\": \"health.complex_method\", \"value\": 9}\n  ]",
+  "req": [
+   "REQ-EMG-211"
+  ]
+ },
+ {
+  "file": "cmd/enghealth/main.go",
+  "find": "func usage(w io.Writer) {",
+  "replace": "func mutatedBranches(a, b int) int {\n\tn := 0\n\tif a == 1 {\n\t\tn += 1\n\t}\n\tif a == 2 {\n\t\tn += 2\n\t}\n\tif a == 3 {\n\t\tn += 3\n\t}\n\tif a == 4 {\n\t\tn += 4\n\t}\n\tif a == 5 {\n\t\tn += 5\n\t}\n\tif a == 6 {\n\t\tn += 6\n\t}\n\tif a == 7 {\n\t\tn += 7\n\t}\n\tif a == 8 {\n\t\tn += 8\n\t}\n\tif a == 9 {\n\t\tn += 9\n\t}\n\tif a == 10 {\n\t\tn += 10\n\t}\n\treturn n + b\n}\n\nfunc usage(w io.Writer) {",
+  "req": [
+   "REQ-EMG-211"
+  ]
+ }
+]

@@ -2181,3 +2181,13 @@ requirements:
       - EVT-HEALTH-CHECK-REQUESTED
       - FLOW-HEALTH-CHECK
     realizes: [CAP-EMG-CODE-HEALTH]
+  - id: REQ-EMG-211
+    status: verified
+    text: The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.
+    notes: 'ADR-EMG-087, ADR-EMG-088. A requirement of this repository, not of the engine contract, so it is not published. It is met: model/health-baseline.json has no entry (the owner: "get a 10/10 score in all files in model, tool, flow"), and the scan of this repository at tier operational reports no finding, no waived finding, no file below the floor and no file a baseline covers. It is verified by TestEveryRepositoryFileScoresTen (cmd/enghealth), which reads the score of every file of the report, tests included, and fails for a file below 10.0, for a diagnostic, a finding, a waiver or a covered file, and for a baseline entry; the floor itself is held at 10.0 by the tests of REQ-EMG-209 and REQ-EMG-210. REQ-EMG-209 and REQ-EMG-210 are the rule that reports a file below the floor; this requirement is the target the owner set for the repository itself.'
+    verificationMethods: [test]
+    verificationCriteria: 'When enghealth scan runs on this repository at tier operational, then every file, tests included, scores 10.0, the summary lists no finding, no waived finding, belowFloor is 0 and floorCovered is 0, enghealth scan --fail-on-error exits 0, and model/health-baseline.json has no entry; a function with ten branches added to a source file or to a test file, or a baseline entry, makes it fail.'
+    appliesTo:
+      - FU-CODE-HEALTH
+    derived: true
+    derivedRationale: 'Owner request of 2026-11-15: "for the 2 higest level i want a requirement on 10/10 score for all files." and the goal "get a 10/10 score in all files in model, tool, flow". REQ-EMG-209 and REQ-EMG-210 are the rule that reports a file below the floor; this requirement is the target the owner set for the repository itself.'
