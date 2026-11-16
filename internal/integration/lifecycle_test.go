@@ -183,7 +183,7 @@ func TestLifecycleTierAtEveryPublicEntry(t *testing.T) {
 	broken := bundle
 	broken.Requirements.Requirements = append([]engmodel.Requirement(nil), bundle.Requirements.Requirements...)
 	broken.Requirements.Requirements[0].AppliesTo = []string{"FU-DOES-NOT-EXIST"}
-	stopped, err := engmodel.GenerateAsciiDoc(broken, broken.Requirements, broken.Design, engmodel.AsciiDocOptions{CodeRoot: dir})
+	stopped, err := engmodel.GenerateAsciiDoc(engmodel.AsciiDocInputs{Bundle: broken, Requirements: broken.Requirements, Design: broken.Design}, engmodel.AsciiDocOptions{CodeRoot: dir})
 	if err == nil {
 		t.Fatal("a requirement.invalid_applies_to error did not stop the render")
 	}
@@ -203,7 +203,7 @@ func assertOrphansDeferredAtPoc(t *testing.T, dir string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: dir})
+	doc, err := engmodel.GenerateAsciiDoc(engmodel.AsciiDocInputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, engmodel.AsciiDocOptions{CodeRoot: dir})
 	if err != nil {
 		t.Fatalf("render at poc: %v", err)
 	}
@@ -244,7 +244,7 @@ func renderAtProductTier(t *testing.T, dir string) engmodel.Bundle {
 	if err != nil {
 		t.Fatal(err)
 	}
-	doc, err := engmodel.GenerateAsciiDoc(bundle, bundle.Requirements, bundle.Design, engmodel.AsciiDocOptions{CodeRoot: dir})
+	doc, err := engmodel.GenerateAsciiDoc(engmodel.AsciiDocInputs{Bundle: bundle, Requirements: bundle.Requirements, Design: bundle.Design}, engmodel.AsciiDocOptions{CodeRoot: dir})
 	if err != nil {
 		t.Fatalf("render at product stopped on tier-raised errors: %v", err)
 	}

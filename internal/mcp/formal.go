@@ -84,7 +84,7 @@ func (s *Server) formalRequirements() ([]formalRequirement, error) {
 	if !s.hasFormalEvidence() {
 		return nil, nil
 	}
-	matrix, _, err := engmodel.BuildTraceMatrixFromFilesWith(s.modelPath, s.requirementsPath, formalCodeRoot, engmodel.TraceOptions{Resolution: resolution()})
+	matrix, _, err := engmodel.BuildTraceMatrixFromFilesWith(engmodel.TraceFiles{ModelPath: s.modelPath, RequirementsPath: s.requirementsPath, CodeRoot: formalCodeRoot}, engmodel.TraceOptions{Resolution: resolution()})
 	if err != nil {
 		return nil, fmt.Errorf("formal evidence found but the trace matrix could not be built: %w", err)
 	}

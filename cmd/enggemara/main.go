@@ -136,7 +136,7 @@ func evaluationLog(a *gemaraArgs, opts engmodel.GemaraExportOptions) (string, er
 	if strings.TrimSpace(a.requirements) == "" {
 		return "", nil
 	}
-	evalRes, err := engmodel.GenerateGemaraEvaluationLogFromFiles(a.modelPath, a.requirements, strings.TrimSpace(a.codeRoot), opts)
+	evalRes, err := engmodel.GenerateGemaraEvaluationLogFromFiles(engmodel.GemaraFiles{ArchitecturePath: a.modelPath, RequirementsPath: a.requirements, CodeRoot: strings.TrimSpace(a.codeRoot)}, opts)
 	if err != nil {
 		return "", fmt.Errorf("error generating evaluation log: %w", err)
 	}
@@ -170,7 +170,7 @@ func writeOSCALOutputs(a *gemaraArgs, opts engmodel.GemaraExportOptions) error {
 	if out == "" {
 		return nil
 	}
-	js, err := engmodel.GenerateGemaraOSCALAssessmentResultsFromFiles(a.modelPath, strings.TrimSpace(a.requirements), strings.TrimSpace(a.codeRoot), opts)
+	js, err := engmodel.GenerateGemaraOSCALAssessmentResultsFromFiles(engmodel.GemaraFiles{ArchitecturePath: a.modelPath, RequirementsPath: strings.TrimSpace(a.requirements), CodeRoot: strings.TrimSpace(a.codeRoot)}, opts)
 	if err != nil {
 		return fmt.Errorf("error generating OSCAL assessment results: %w", err)
 	}
