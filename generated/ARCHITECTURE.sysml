@@ -596,6 +596,12 @@ package 'engineering-model-go' {
     attribute 'ADR-EMG-087';
 
     @EngineeringElement {
+        sourceId = "ADR-EMG-088";
+        conceptKind = "engineering_extension";
+    }
+    attribute 'ADR-EMG-088';
+
+    @EngineeringElement {
         sourceId = "AV-COMPOSED-MODEL-CONTENT";
         conceptKind = "engineering_extension";
     }
@@ -5777,6 +5783,15 @@ package 'engineering-model-go' {
     requirement def 'REQ-EMG-210' {
         attribute 'text' : 'String' = "While project tier is at least product, when health check is requested, the code health check shall report one error for each changed file below the floor that no baseline entry covers.";
         attribute 'notes' : 'String' = "ADR-EMG-087. enghealth check evaluates health.file_below_floor for the source files changed between the base revision and the head, with the same floor, level and cover as the scan: it reads the baseline of the head manifest for this only (a regression is still never baselined). A file that gets below the floor, a file that is new below it and a changed file that was already below it and is not covered fail the check where the code is an error; the files are listed under belowFloor of the JSON report and as results of the SARIF rule health.file_below_floor. A lowered floor against the base revision is a weakening (health.policy_weakened, aspect floor). A new or worsened warn finding is no regression, so the floor is the gate that holds a changed file to 10.0 at once.";
+    }
+
+    @EngineeringElement {
+        sourceId = "REQ-EMG-211";
+        conceptKind = "requirement_definition";
+    }
+    requirement def 'REQ-EMG-211' {
+        attribute 'text' : 'String' = "The engineering model go shall score 10.0 in the code health scan at tier operational for every source file of this repository.";
+        attribute 'notes' : 'String' = "ADR-EMG-087, ADR-EMG-088. A requirement of this repository, not of the engine contract, so it is not published. It is met: model/health-baseline.json has no entry (the owner: \"get a 10/10 score in all files in model, tool, flow\"), and the scan of this repository at tier operational reports no finding, no waived finding, no file below the floor and no file a baseline covers. It is verified by TestEveryRepositoryFileScoresTen (cmd/enghealth), which reads the score of every file of the report, tests included, and fails for a file below 10.0, for a diagnostic, a finding, a waiver or a covered file, and for a baseline entry; the floor itself is held at 10.0 by the tests of REQ-EMG-209 and REQ-EMG-210. REQ-EMG-209 and REQ-EMG-210 are the rule that reports a file below the floor; this requirement is the target the owner set for the repository itself.";
     }
 
     @EngineeringElement {
