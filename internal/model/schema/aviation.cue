@@ -1,3 +1,5 @@
+// aviation.cue validates the optional aviation document, documents.aviation in
+// engmod.yml (#AviationDocument), and holds the types only that document uses.
 package model
 
 #EvidenceState: "declared" | "planned" | "executed" | "reviewed" | "accepted" | "not-applicable" | "authority-accepted"

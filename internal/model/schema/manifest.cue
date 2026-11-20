@@ -1,9 +1,8 @@
+// manifest.cue validates the module manifest engmod.yml (#ManifestDocument)
+// and holds the types only that document uses.
 package model
 
-#NonEmpty: string & !=""
-#StableID: #NonEmpty & =~"^[A-Z][A-Z0-9-]*$"
 #ModulePath: #NonEmpty & =~"@v[0-9]+$"
-#ExactVersion: #NonEmpty & =~"^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"
 
 #ModuleIdentity: {
 	path:         #ModulePath
@@ -138,4 +137,13 @@ package model
 	codeCoverage?: #CodeCoverage
 	lifecycle?: #ManifestLifecycle
 	health?: #ManifestHealth
+}
+
+#InferenceHints: {
+	runtimeSources?:           #StringList
+	// Removed: decoded only so validation reports model.code_sources_removed.
+	codeSources?:              #StringList
+	exclude?:                  #StringList
+	expectedRuntimeKinds?:     #StringList
+	ownershipResolutionOrder?: #StringList
 }

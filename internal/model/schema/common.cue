@@ -1,3 +1,5 @@
+// common.cue validates no model file on its own: it holds the types that two
+// or more model files use (schema version, string lists, IDs, evidence, actors).
 package model
 
 #SchemaVersion: 3
@@ -9,19 +11,14 @@ package model
 	description?: string
 }
 
-#CatalogEntry: {
-	id?:         string
-	name?:       string
-	definition?: string
-	aliases?:    #StringList
+#Actor: {
+	id?:          string
+	name?:        string
+	description?: string
 }
 
-#Decision: {
-	id?:           string
-	title?:        string
-	status?:       string
-	date?:         string
-	context?:      string
-	decision?:     string
-	consequences?: #StringList
-}
+#NonEmpty: string & !=""
+
+#StableID: #NonEmpty & =~"^[A-Z][A-Z0-9-]*$"
+
+#ExactVersion: #NonEmpty & =~"^v(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?(\\+[0-9A-Za-z.-]+)?$"

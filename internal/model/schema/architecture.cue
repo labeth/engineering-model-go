@@ -1,3 +1,5 @@
+// architecture.cue validates the architecture document, documents.architecture in engmod.yml
+// (#ArchitectureInputDocument), and the #ArchitectureDocument the loader assembles.
 package model
 
 #ModelMeta: {
@@ -21,14 +23,6 @@ package model
 	tags?:  #StringList
 	prose?: string
 }
-
-#Actor: {
-	id?:          string
-	name?:        string
-	description?: string
-}
-
-#AttackVector: #Actor
 
 #ReferencedElement: {
 	id?:          string
@@ -105,239 +99,6 @@ package model
 	description?:          string
 }
 
-#Control: {
-	id?:          string
-	name?:        string
-	category?:    string
-	description?: string
-}
-
-#ComplianceProfile: {
-	id?:          string
-	href?:        string
-	catalogHref?: string
-}
-
-#ComplianceMapping: {
-	id?:                   string
-	profileRef?:           string
-	controlIds?:           #StringList
-	modelControlRef?:      string
-	appliesTo?:            #StringList
-	implementationType?:   string
-	implementationStatus?: string
-	status?:               string
-	narrative?:            string
-	rationale?:            string
-	evidence?: [...#Evidence]
-	inheritedFrom?:    #StringList
-	responsibleRoles?: #StringList
-}
-
-#ComplianceModel: {
-	profiles?: [...#ComplianceProfile]
-	mappings?: [...#ComplianceMapping]
-}
-
-#Risk: {
-	// alias::ID is reserved for entities imported by composition.
-	id?:              #LocalID
-	title?:           string
-	statement?:       string
-	status?:          string
-	likelihood?:      string
-	impact?:          string
-	response?:        string
-	owner?:           string
-	appliesTo?:       #StringList
-	// dependencies names engmod.yml dependency aliases the risk is about.
-	dependencies?:    #StringList
-	relatedControls?: #StringList
-	attackVectors?:   #StringList
-	threatScenarios?: #StringList
-	evidence?: [...#Evidence]
-	residualRisk?: string
-	rationale?:    string
-	acceptedBy?:   #AcceptanceRecord
-}
-
-// #LocalID is an authored entity ID: alias::ID is reserved for imported
-// entities, so validation can tell them apart.
-#LocalID: string & !~"::"
-
-#AcceptanceRecord: {
-	actor?:       string
-	date?:        string
-	statement?:   string
-	decisionRef?: string
-}
-
-#POAMArtifact: #Evidence
-
-#POAMItem: {
-	id?:              string
-	riskRef?:         string
-	milestone?:       string
-	dueDate?:         string
-	status?:          string
-	responsibleRole?: string
-	artifacts?: [...#POAMArtifact]
-	// defers binds the item to the diagnostics it covers: an open item with
-	// milestone "tier:<project tier>" defers each named code (at path, when
-	// given) to a warning with poamRef (ADR-EMG-033).
-	defers?: [...#POAMDefer]
-}
-
-#POAMDefer: {
-	code:  #NonEmpty
-	path?: string
-	// ref limits the defer to one requirement by ID; the validator resolves
-	// it to the requirement's current path, so it survives reordering.
-	ref?: #NonEmpty
-}
-
-#TrustBoundary: {
-	id?:           string
-	name?:         string
-	description?:  string
-	boundaryType?: string
-	parentRef?:    string
-	members?:      #StringList
-}
-
-#Event: {
-	#Actor
-	requirements?: #StringList
-}
-
-#FlowStep: {
-	id?:                  string
-	ref?:                 string
-	kind?:                string
-	flowType?:            string
-	direction?:           string
-	frequency?:           string
-	sourceRef?:           string
-	destinationRef?:      string
-	action?:              string
-	channel?:             string
-	protocol?:            string
-	dataIn?:              #StringList
-	dataOut?:             #StringList
-	dataRefs?:            #StringList
-	interfaceRef?:        string
-	trustBoundaryRef?:    string
-	boundaryCrossing?:    bool
-	authentication?:      string
-	encryptionInTransit?: string
-	integrityProtection?: string
-	next?:                #StringList
-	onError?:             #StringList
-	async?:               bool
-	optional?:            bool
-}
-
-#Flow: {
-	id?:                  string
-	title?:               string
-	kind?:                string
-	methodology?:         string
-	direction?:           string
-	frequency?:           string
-	sourceRef?:           string
-	destinationRef?:      string
-	protocol?:            string
-	channel?:             string
-	authentication?:      string
-	encryptionInTransit?: string
-	integrityProtection?: string
-	dataRefs?:            #StringList
-	description?:         string
-	criticality?:         string
-	threats?:             #StringList
-	entry?:               #StringList
-	exits?:               #StringList
-	steps?: [...#FlowStep]
-	properties?: [string]: string
-}
-
-#ThreatScenario: {
-	id?:               #LocalID
-	title?:            string
-	summary?:          string
-	category?:         string
-	stride?:           string
-	cwe?:              #StringList
-	attackVectorRef?:  string
-	appliesTo?:        #StringList
-	flowRefs?:         #StringList
-	entryPoint?:       string
-	preconditions?:    #StringList
-	exploitPath?:      #StringList
-	likelihood?:       string
-	impact?:           string
-	severity?:         string
-	status?:           string
-	owner?:            string
-	riskRef?:          string
-	relatedControls?:  #StringList
-	assumptionRefs?:   #StringList
-	outOfScopeRefs?:   #StringList
-	mitigationRefs?:   #StringList
-	verificationRefs?: #StringList
-	detection?:        #StringList
-	evidence?: [...#Evidence]
-	acceptedBy?: #AcceptanceRecord
-}
-
-#ThreatAssumption: {
-	id?:        string
-	title?:     string
-	statement?: string
-	status?:    string
-	owner?:     string
-	appliesTo?: #StringList
-	rationale?: string
-	evidence?: [...#Evidence]
-}
-
-#ThreatOutOfScope: {
-	id?:        string
-	title?:     string
-	reason?:    string
-	status?:    string
-	owner?:     string
-	appliesTo?: #StringList
-	expiresOn?: string
-	evidence?: [...#Evidence]
-}
-
-#ThreatMitigation: {
-	id?:                string
-	threatScenarioRef?: string
-	controlRef?:        string
-	status?:            string
-	effectiveness?:     string
-	owner?:             string
-	notes?:             string
-	verificationRefs?:  #StringList
-	evidence?: [...#Evidence]
-}
-
-#ControlVerification: {
-	id?:                 string
-	controlRef?:         string
-	threatScenarioRefs?: #StringList
-	riskRefs?:           #StringList
-	method?:             string
-	status?:             string
-	owner?:              string
-	lastTested?:         string
-	findings?:           #StringList
-	evidence?: [...#Evidence]
-	verificationRefs?: #StringList
-}
-
 #AuthoredArchitecture: {
 	functionalGroups?: [...#FunctionalGroup]
 	functionalUnits?: [...#FunctionalUnit]
@@ -361,65 +122,6 @@ package model
 	threatMitigations?: [...#ThreatMitigation]
 	controlVerifications?: [...#ControlVerification]
 	mappings?: [...#Mapping]
-}
-
-#InferenceHints: {
-	runtimeSources?:           #StringList
-	// Removed: decoded only so validation reports model.code_sources_removed.
-	codeSources?:              #StringList
-	exclude?:                  #StringList
-	expectedRuntimeKinds?:     #StringList
-	ownershipResolutionOrder?: #StringList
-}
-
-#View: {
-	id?:                        string
-	kind?:                      string
-	roots?:                     #StringList
-	authoredStatus?:            string
-	authoredStatusExplanation?: string
-	includeKinds?:              #StringList
-	excludeKinds?:              #StringList
-	includeMappings?:           #StringList
-	excludeMappings?:           #StringList
-	maxDepth?:                  int
-	audience?:                  string
-	abstraction?:               string
-}
-
-#NAFStakeholder: {
-	actorRef: string & !=""
-	role:     string & !=""
-}
-
-#NAFConcern: {
-	id:              string & !=""
-	name:            string & !=""
-	description?:    string
-	stakeholderRefs: [...string & !=""]
-}
-
-#NAFViewpoint: "C1" | "C2" | "C3" | "C4" | "C5" | "C7" | "C8" | "Cr" |
-	"S1" | "S2" | "S3" | "S4" | "S5" | "S6" | "S7" | "S8" | "Sr" | "C1-S1" |
-	"L1" | "L2" | "L2-L3" | "L3" | "L4" | "L5" | "L6" | "L7" | "L8" | "Lr" |
-	"P1" | "P2" | "P3" | "P4" | "L4-P4" | "P5" | "P6" | "P7" | "P8" | "Pr" |
-	"A1" | "A2" | "A3" | "A4" | "A5" | "A6" | "A7" | "A8" | "Ar"
-
-#NAFProduct: {
-	id:          string & !=""
-	viewpoint:   #NAFViewpoint
-	title:       string & !=""
-	viewRef:     string & !=""
-	concernRefs: [...string & !=""]
-}
-
-#NAFProfile: {
-	framework:               "NAF"
-	version:                 "4.1"
-	architectureDescription: string & !=""
-	stakeholders:            [...#NAFStakeholder]
-	concerns:                [...#NAFConcern]
-	products:                [...#NAFProduct]
 }
 
 #ContractEntry: {
@@ -509,4 +211,163 @@ package model
 	inferenceHints?:       #InferenceHints
 	naf?:                  #NAFProfile
 	views?: [...#View]
+}
+
+#InputSubsystem: {
+	id:          string & !=""
+	name?:       string
+	dependency:  string & !=""
+	publication: string & !=""
+	description?: string
+}
+
+#InputComposition: {
+	subsystems?:    [...#InputSubsystem]
+	allocations?:   [...#Allocation]
+	satisfactions?: [...#Satisfaction]
+}
+
+#ArchitectureInput: {
+	functionalGroups?:   [...#FunctionalGroup]
+	functionalUnits?:    [...#FunctionalUnit]
+	actors?:             [...#Actor]
+	referencedElements?: [...#ReferencedElement]
+	interfaces?:         [...#Interface]
+	dataObjects?:        [...#DataObject]
+	deploymentTargets?:  [...#DeploymentTarget]
+	hardwareItems?:      [...#HardwareItem]
+	hardwareInterfaces?: [...#HardwareInterface]
+	contract?:            #ContractModel
+	composition?:         #InputComposition
+	semantics?:           #SemanticContent
+}
+
+#ArchitectureInputDocument: {
+	schemaVersion: #SchemaVersion
+	architecture:  #ArchitectureInput
+}
+
+#Multiplicity: {
+	lower?: int & >=0
+	upper?: int & >=-1
+	if lower != _|_ && upper != _|_ && upper >= 0 {
+		upper: >=lower
+	}
+}
+
+#SemanticQuantity: {
+	value: number
+	unit:  #MetamodelString & !=""
+}
+
+#SemanticValue: {
+	kind:       #MetamodelString
+	string?:    #MetamodelString
+	integer?:   #MetamodelInteger
+	real?:      #MetamodelReal
+	boolean?:   #MetamodelBoolean
+	reference?: #MetamodelString
+	quantity?:  #SemanticQuantity
+	if kind == "quantity" {
+		quantity: #SemanticQuantity
+	}
+}
+
+#SemanticExpression: {
+	kind?:       #MetamodelString
+	language?:   #MetamodelString
+	operator?:   #MetamodelString
+	value?:      #MetamodelString
+	typedValue?: #SemanticValue
+	operands?: [...#SemanticExpression]
+}
+
+#SemanticFeature: {
+	name:          #MetamodelString
+	kind?:         "attribute" | "port" | "parameter"
+	type?:         #MetamodelString
+	direction?:    #MetamodelString
+	multiplicity?: #Multiplicity
+	ordered?:      bool
+	unique?:       bool
+	conjugated?:   bool
+	specializes?:  #StringList
+	subsets?:      #StringList
+	redefines?:    #StringList
+	value?:        #SemanticExpression
+	references?:   #StringList
+}
+
+#SemanticMetadata: {
+	namespace: #MetamodelString
+	type:      #MetamodelString
+	target:    #MetamodelString
+	properties?: [string]: #MetamodelValue
+}
+
+#SemanticElementBase: {
+	id:            #MetamodelString & !=""
+	name?:         #MetamodelString
+	kind:          #MetamodelString & !=""
+	metaclass?:    #MetamodelString & !=""
+	properties?:   #ExtensionProperties
+	namespace?:    #MetamodelString
+	owner?:        #MetamodelString
+	typeRef?:      #MetamodelString
+	multiplicity?: #Multiplicity
+	ordered?:      bool
+	unique?:       bool
+	conjugated?:   bool
+	specializes?:  #StringList
+	subsets?:      #StringList
+	redefines?:    #StringList
+	controlKind?:  #MetamodelString
+	occurrenceId?: #MetamodelString
+	portionOf?:    #MetamodelString
+	variation?:    bool
+	variants?:     #StringList
+	references?:   #StringList
+	features?: [...#SemanticFeature]
+	metadata?: [...#SemanticMetadata]
+	extensionNamespace?: #MetamodelString
+	extension?:          #MetamodelString
+	targets?:            #StringList
+	if kind == "engineering_extension" {
+		extensionNamespace: #MetamodelString & !=""
+		extension:          #MetamodelString & !=""
+		targets: [#MetamodelString, ...#MetamodelString]
+	}
+}
+
+#SemanticElement: #SemanticElementBase & #OfficialMetamodelBinding
+
+#SemanticRelationshipBase: {
+	id:          #MetamodelString & !=""
+	kind:        #MetamodelString & !=""
+	metaclass?:  #MetamodelString & !=""
+	properties?: #ExtensionProperties
+	source:      #MetamodelString & !=""
+	target:      #MetamodelString & !=""
+	owner?:      #MetamodelString
+	sourceType?: #MetamodelString
+	itemRef?:    #MetamodelString
+	triggers?:   #StringList
+	guard?:      #SemanticExpression
+	effect?:     #SemanticExpression
+	metadata?: [...#SemanticMetadata]
+}
+
+#SemanticRelationship: #SemanticRelationshipBase & #OfficialMetamodelBinding
+
+#SemanticImport: {
+	namespace:   #MetamodelString
+	imported:    #MetamodelString
+	visibility?: #MetamodelString
+	recursive?:  bool
+}
+
+#SemanticContent: {
+	imports?: [...#SemanticImport]
+	elements?: [...#SemanticElement]
+	relationships?: [...#SemanticRelationship]
 }
