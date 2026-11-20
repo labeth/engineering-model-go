@@ -1,37 +1,61 @@
+// behavior.cue validates the behavior document, documents.behavior in engmod.yml
+// (#BehaviorDocument), and holds the types only that document uses.
 package model
 
-#InputSubsystem: {
-	id:          string & !=""
-	name?:       string
-	dependency:  string & !=""
-	publication: string & !=""
-	description?: string
+#Event: {
+	#Actor
+	requirements?: #StringList
 }
 
-#InputComposition: {
-	subsystems?:    [...#InputSubsystem]
-	allocations?:   [...#Allocation]
-	satisfactions?: [...#Satisfaction]
+#FlowStep: {
+	id?:                  string
+	ref?:                 string
+	kind?:                string
+	flowType?:            string
+	direction?:           string
+	frequency?:           string
+	sourceRef?:           string
+	destinationRef?:      string
+	action?:              string
+	channel?:             string
+	protocol?:            string
+	dataIn?:              #StringList
+	dataOut?:             #StringList
+	dataRefs?:            #StringList
+	interfaceRef?:        string
+	trustBoundaryRef?:    string
+	boundaryCrossing?:    bool
+	authentication?:      string
+	encryptionInTransit?: string
+	integrityProtection?: string
+	next?:                #StringList
+	onError?:             #StringList
+	async?:               bool
+	optional?:            bool
 }
 
-#ArchitectureInput: {
-	functionalGroups?:   [...#FunctionalGroup]
-	functionalUnits?:    [...#FunctionalUnit]
-	actors?:             [...#Actor]
-	referencedElements?: [...#ReferencedElement]
-	interfaces?:         [...#Interface]
-	dataObjects?:        [...#DataObject]
-	deploymentTargets?:  [...#DeploymentTarget]
-	hardwareItems?:      [...#HardwareItem]
-	hardwareInterfaces?: [...#HardwareInterface]
-	contract?:            #ContractModel
-	composition?:         #InputComposition
-	semantics?:           #SemanticContent
-}
-
-#ArchitectureInputDocument: {
-	schemaVersion: #SchemaVersion
-	architecture:  #ArchitectureInput
+#Flow: {
+	id?:                  string
+	title?:               string
+	kind?:                string
+	methodology?:         string
+	direction?:           string
+	frequency?:           string
+	sourceRef?:           string
+	destinationRef?:      string
+	protocol?:            string
+	channel?:             string
+	authentication?:      string
+	encryptionInTransit?: string
+	integrityProtection?: string
+	dataRefs?:            #StringList
+	description?:         string
+	criticality?:         string
+	threats?:             #StringList
+	entry?:               #StringList
+	exits?:               #StringList
+	steps?: [...#FlowStep]
+	properties?: [string]: string
 }
 
 #SupportedMappingKind: "contains" | "calls" | "publishes" | "subscribes" |
@@ -104,35 +128,4 @@ package model
 #BehaviorDocument: {
 	schemaVersion: #SchemaVersion
 	behavior:      #BehaviorModel
-}
-
-#AssuranceModel: {
-	attackVectors?:        [...#AttackVector]
-	controls?:             [...#Control]
-	risks?:                [...#Risk]
-	poamItems?:            [...#POAMItem]
-	trustBoundaries?:      [...#TrustBoundary]
-	threatScenarios?:      [...#ThreatScenario]
-	threatAssumptions?:    [...#ThreatAssumption]
-	threatOutOfScope?:     [...#ThreatOutOfScope]
-	threatMitigations?:    [...#ThreatMitigation]
-	controlVerifications?: [...#ControlVerification]
-}
-
-#AssuranceDocument: {
-	schemaVersion: #SchemaVersion
-	assurance:     #AssuranceModel
-}
-
-#ComplianceDocument: {
-	schemaVersion: #SchemaVersion
-	compliance:    #ComplianceModel
-}
-
-#ViewsDocument: {
-	schemaVersion: #SchemaVersion
-	views:         [...#View]
-	naf?:          #NAFProfile
-	design?:       #DesignModel
-	documents?:    [...#DocumentDefinition]
 }

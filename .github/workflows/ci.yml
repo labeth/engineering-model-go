@@ -72,6 +72,13 @@ jobs:
       - name: Install cue (Gemara schema validation)
         run: go install cuelang.org/go/cmd/cue@v0.15.4
 
+      - name: Setup Python for the TRLC validators
+        # trlc 2.0.2 requires Python < 3.13; the ubuntu-latest image of
+        # 2026-11-16 (Ubuntu 26.04) ships a newer system python3.
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
       - name: Install TRLC and LOBSTER validators
         run: |
           python3 -m pip install \

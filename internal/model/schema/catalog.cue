@@ -1,3 +1,5 @@
+// catalog.cue validates the catalog document, documents.catalog in engmod.yml
+// (#CatalogDocument), and holds the types only that document uses.
 package model
 
 #CatalogGroups: {
@@ -18,4 +20,11 @@ package model
 #CatalogDocument: {
 	schemaVersion: #SchemaVersion
 	catalog: #CatalogGroups
+}
+
+#CatalogEntry: {
+	id?:         string
+	name?:       string
+	definition?: string
+	aliases?:    #StringList
 }

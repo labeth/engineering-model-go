@@ -6,6 +6,15 @@ semantic versioning.
 
 ## [Unreleased]
 
+### Changed
+
+- **The CUE schema has one file per model document** (`internal/model/schema/`): `manifest.cue` (engmod.yml), `workspace.cue`
+  (engmod.work.yml), `catalog.cue`, `requirements.cue`, `architecture.cue`, `behavior.cue`, `assurance.cue`, `compliance.cue`,
+  `views.cue`, `decisions.cue`, `aviation.cue` and `reqlinks.cue`, each with the types only that document uses; types shared by
+  several documents are in `common.cue`. `domain_documents.cue`, `semantic.cue` and `design.cue` are gone. Only the place of each
+  definition changed: the exported schema and every diagnostic on the example models are identical. The authoring contract names
+  the new schema file of each document.
+
 ## [0.12.0] — 2026-11-15: Tool-support APIs, requirement structure and architecture interface rules
 
 A minor release below v1 (a minor bump allows a contract change). The model schema stays at version 3 and the authoring contract

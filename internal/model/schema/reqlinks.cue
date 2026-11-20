@@ -1,3 +1,5 @@
+// reqlinks.cue validates the optional requirement links document, documents.reqLinks
+// in engmod.yml (#ReqLinksDocument), and holds the types only that document uses.
 package model
 
 #ReqLinkPin: {

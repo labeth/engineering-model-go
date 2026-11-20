@@ -262,6 +262,44 @@ func requireCompleteDocumentContract(t *testing.T, document AuthoringDocument) {
 	}
 }
 
+// documentSchemaDefinitions names the CUE definition of each authored document kind.
+var documentSchemaDefinitions = map[string]string{
+	"manifest": "ManifestDocument", "catalog": "CatalogDocument", "requirements": "RequirementsDocument",
+	"architecture": "ArchitectureInputDocument", "behavior": "BehaviorDocument", "assurance": "AssuranceDocument",
+	"compliance": "ComplianceDocument", "views": "ViewsDocument", "decisions": "DecisionsDocument",
+	"aviation": "AviationDocument", "reqLinks": "ReqLinksDocument", "workspace": "WorkspaceDocument",
+}
+
+// TRLC-LINKS: REQ-EMG-045
+// ENGMODEL-LINKS: DO-MODEL-AUTHORING-CONTRACT
+func TestAuthoringContractSchemaPathsHoldTheirDocumentDefinitions(t *testing.T) {
+	// The two examples between them carry the optional aviation and reqLinks documents.
+	for _, example := range []string{"dal-c-flight-control-sample", "coffee-fleet-ota-cloud-sample"} {
+		bundle, err := LoadBundle(filepath.Join("..", "..", "examples", example, "engmod.yml"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		contract := BuildAuthoringContract(bundle)
+		for _, document := range contract.Documents {
+			requireSchemaFileDefines(t, document.SchemaPath, documentSchemaDefinitions[document.Kind])
+		}
+		requireSchemaFileDefines(t, contract.Dependencies.WorkspaceSchemaPath, documentSchemaDefinitions["workspace"])
+	}
+}
+
+// requireSchemaFileDefines fails unless the schema file at the repository
+// relative path declares the top-level CUE definition #name.
+func requireSchemaFileDefines(t *testing.T, path, name string) {
+	t.Helper()
+	source, err := os.ReadFile(filepath.Join("..", "..", filepath.FromSlash(path)))
+	if err != nil {
+		t.Fatalf("schema path %q: %v", path, err)
+	}
+	if name == "" || !strings.Contains("\n"+string(source), "\n#"+name+":") {
+		t.Fatalf("schema path %q does not define #%s", path, name)
+	}
+}
+
 // TRLC-LINKS: REQ-EMG-053, REQ-EMG-056
 func TestLoadBundleIncludesOptionalAviationDocument(t *testing.T) {
 	bundle, err := LoadBundle(filepath.Join("..", "..", "examples", "dal-c-flight-control-sample", "engmod.yml"))

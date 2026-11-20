@@ -1,3 +1,5 @@
+// requirements.cue validates the requirements document, documents.requirements in
+// engmod.yml (#RequirementsDocument), and holds the types only that document uses.
 package model
 
 #LintRun: {
